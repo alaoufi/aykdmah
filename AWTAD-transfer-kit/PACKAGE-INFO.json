@@ -1,0 +1,30 @@
+{
+  "prepared_date_riyadh": "2026-10-21",
+  "package_type": "handover_and_source_recovery_kit",
+  "includes_project_source": false,
+  "includes_database_backup": false,
+  "includes_credentials": false,
+  "original_workspace_available": false,
+  "project_id": "prj_L9MltPukp6piiJ9WvSFZiiLhpCnJ",
+  "project_name": "ryza",
+  "team_id": "team_vHiHoeYERfno3iB48SbYRMjD",
+  "team_slug": "samialaoufi1408-cmds-projects",
+  "production_url": "https://ryza-eta.vercel.app",
+  "deployment_verified_read_only": "dpl_EobmVg24a2KfZaGUHrLjC5yGfJ9A",
+  "deployment_state_at_check": "READY",
+  "deployment_source": "cli",
+  "source_file_access_verified": true,
+  "connector_file_tree_truncated": true,
+  "historical_local_commit": "d1eb4fd",
+  "recovery_requirements": [
+    "Python 3",
+    "Node.js",
+    "Vercel CLI authenticated by the existing project owner"
+  ],
+  "not_recoverable_from_deployment_alone": [
+    "Local Git history",
+    "Files deliberately excluded from deployment",
+    "Original chat workspace transient files"
+  ],
+  "no_production_changes_made": true
+}
