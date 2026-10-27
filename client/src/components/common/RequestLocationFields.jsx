@@ -55,7 +55,7 @@ export default function RequestLocationFields({ control, prefix = 'request', dis
 
       {control.editing && <div className="mt-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-3">
-          {field('country', t('location.country'), control.countries)}
+          {control.countries.length !== 1 && field('country', t('location.country'), control.countries)}
           {field('region', t('location.region'), control.regions, !control.location.country_id)}
           {field('governorate', t('location.governorate'), control.governorates, !control.location.region_id)}
           {field('city', t('location.city'), control.cities, !control.location.region_id)}

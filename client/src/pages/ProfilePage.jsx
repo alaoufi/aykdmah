@@ -43,6 +43,10 @@ export default function ProfilePage() {
   const [countries, setCountries] = useState([]);
   const [countriesLoading, setCountriesLoading] = useState(true);
   const [countriesError, setCountriesError] = useState(false);
+  // Only one active country: preselect it so the choice starts at the region.
+  useEffect(() => {
+    if (countries.length === 1 && !form.country_id) setForm(previous => ({ ...previous, country_id: String(countries[0].id) }));
+  }, [countries, form.country_id]);
   const [saving, setSaving] = useState(false);
   const [locating, setLocating] = useState(false);
   const [locationMsg, setLocationMsg] = useState('');
@@ -259,7 +263,7 @@ export default function ProfilePage() {
             autoComplete="tel" dir="ltr" value={form.phone} onChange={e => updateField('phone', e.target.value)} />
           <h3 className="mb-3">{t('auth.your_location')}</h3>
           <div className="grid grid-2">
-            {selectLevel('country_id', countries, countriesLoading, false, countriesError)}
+            {countries.length !== 1 && selectLevel('country_id', countries, countriesLoading, false, countriesError)}
             {selectLevel('region_id', regions, regionsLoading, !form.country_id, regionsError)}
             {selectLevel('governorate_id', governorates, governoratesLoading, !form.region_id, governoratesError)}
             {selectLevel('city_id', cities, citiesLoading, !form.region_id, citiesError)}

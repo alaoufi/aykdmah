@@ -66,6 +66,12 @@ export default function useRequestLocation({ user, params, enabled = true, fallb
 
   const catalogReady = enabled && catalogState.owner === owner && !catalogState.loading && !catalogState.error;
   const catalog = catalogReady ? catalogState.rows : EMPTY_CATALOG;
+  // Only one active country: preselect it so the choice starts at the region.
+  useEffect(() => {
+    if (catalog.countries.length === 1 && !location.country_id) {
+      setLocation(previous => (previous.country_id ? previous : { ...previous, country_id: locationId(catalog.countries[0].id) }));
+    }
+  }, [catalog.countries, location.country_id]);
   const { rows: districts, loading: districtsLoading, error: districtsError } = useLocationOptions('districts', location.city_id, enabled && Boolean(owner), reload);
 
   useEffect(() => {

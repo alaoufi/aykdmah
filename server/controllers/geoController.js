@@ -33,10 +33,10 @@ function distanceKm(lat, lon, row) {
   return 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
-// Only the immediate vicinity of a real launch-city center qualifies. This is
+// Only the immediate vicinity of an active city center qualifies. This is
 // an approximate city hint, never a district lookup or a replacement GPS pair.
 function nearbyLaunchCity(cities, lat, lon) {
-  const ranked = cities.filter(city => Number(city.region_id) === 4 || Number(city.governorate_id) === 5)
+  const ranked = cities.filter(city => city.latitude != null && city.longitude != null)
     .map(city => ({ city, km: distanceKm(lat, lon, city) })).sort((a, b) => a.km - b.km);
   if (!ranked[0] || ranked[0].km > 6) return null;
   if (ranked[1] && (ranked[1].km - ranked[0].km < 3 || ranked[1].km < ranked[0].km * 1.5)) return null;

@@ -9,6 +9,8 @@ export function AuthProvider({ children }) {
   const [sessionEpoch, setSessionEpoch] = useState(0);
   const [loading, setLoading] = useState(true);
   const refreshVersion = useRef(0);
+  const retriesRef = useRef(0);
+  const refreshRef = useRef(null);
 
   const refresh = useCallback(async () => {
     const token = getToken();
@@ -23,6 +25,7 @@ export function AuthProvider({ children }) {
     try {
       const data = await me();
       if (!current()) return null;
+      retriesRef.current = 0;
       setUser(data.user);
       setProvider(data.provider || null);
       return data;
@@ -30,6 +33,13 @@ export function AuthProvider({ children }) {
       // A profile endpoint failure does not make a valid login invalid.
       // The /me endpoint returns 403 only for blocked or inactive accounts.
       const sameSession = version === refreshVersion.current && (!getToken() || getToken() === token);
+      // Busy or offline is not a sign-out: keep the session and try again shortly.
+      if (sameSession && (err.response?.status === 429 || !err.response) && retriesRef.current < 5) {
+        retriesRef.current += 1;
+        await new Promise(resolve => setTimeout(resolve, 3000 * retriesRef.current));
+        if (version === refreshVersion.current) return await refreshRef.current();
+        return null;
+      }
       if (sameSession && [401, 403].includes(err.response?.status)) {
         setToken(null);
         setUser(null);
@@ -40,6 +50,7 @@ export function AuthProvider({ children }) {
       if (version === refreshVersion.current) setLoading(false);
     }
   }, []);
+  refreshRef.current = refresh;
 
   useEffect(() => {
     try { localStorage.removeItem('lsm_auth_session'); } catch (_) {}

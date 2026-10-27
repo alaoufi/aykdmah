@@ -29,7 +29,9 @@ class AuthRateLimitStore {
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   // Polling uses several authenticated reads per refresh on serverless hosts.
-  max: Number(process.env.API_RATE_LIMIT) || 300,
+  // Per visitor IP behind Caddy. A normal session (pages, chat, realtime
+  // fallbacks) stays well below this; floods are still cut off.
+  max: Number(process.env.API_RATE_LIMIT) || 3000,
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: 'تجاوزت الحد المسموح من الطلبات. حاول لاحقاً.' },

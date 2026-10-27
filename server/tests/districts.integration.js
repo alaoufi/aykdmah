@@ -70,9 +70,12 @@ if (!databasePrefix) {
     }
   });
 
-  test('published geography covers Qassim and Majmaah, preserves city IDs and filters district ownership', async () => {
+  test('published geography covers every region, preserves city IDs and filters district ownership', async () => {
     const cities = await api('/cities');
-    assert.equal(cities.length, 18);
+    // Migration 044 opens the whole Kingdom: every Saudi city is selectable.
+    const totalCities = Number((await db.queryOne('SELECT COUNT(*) AS n FROM cities')).n);
+    assert.equal(cities.length, totalCities);
+    assert.equal(new Set(cities.map(city => Number(city.region_id))).size, 13);
     for (const [id, name] of [[9, 'بريدة'], [16, 'عنيزة'], [17, 'الرس']]) {
       assert.equal(cities.find(city => Number(city.id) === id)?.name_ar, name);
     }
@@ -84,7 +87,8 @@ if (!databasePrefix) {
     assert.equal(majmaah[0].name_ar, 'المجمعة');
     assert.ok(!qassim.some(city => Number(city.id) === Number(majmaah[0].id)));
     const riyadh = await api('/cities?region_id=1');
-    assert.deepEqual(riyadh.map(city => Number(city.id)), [Number(majmaah[0].id)]);
+    assert.ok(riyadh.some(city => Number(city.id) === Number(majmaah[0].id)));
+    assert.ok(riyadh.every(city => Number(city.region_id) === 1));
 
     const qibah = qassim.find(city => city.name_ar === 'قبة');
     assert.ok(qibah, 'A city without a confirmed governorate must remain selectable through its region');
@@ -93,9 +97,13 @@ if (!databasePrefix) {
     assert.equal((await api(`/districts?city_id=${qibah.id}`)).length, 12);
 
     const allDistricts = await api('/districts');
-    assert.equal(allDistricts.length, 386);
-    assert.equal(new Set(allDistricts.map(district => `${district.city_id}:${district.name_ar}`)).size, 386);
-    assert.ok(allDistricts.every(district => district.latitude === null && district.longitude === null),
+    const totalDistricts = Number((await db.queryOne('SELECT COUNT(*) AS n FROM districts')).n);
+    assert.equal(allDistricts.length, totalDistricts);
+    assert.equal(new Set(allDistricts.map(district => `${district.city_id}:${district.name_ar}`)).size, totalDistricts);
+    // The Qassim/Majmaah neighborhood source (database/geography) contains names only.
+    const sourceCityIds = new Set([...qassim, ...majmaah].map(city => Number(city.id)));
+    assert.ok(allDistricts.filter(district => sourceCityIds.has(Number(district.city_id)))
+      .every(district => district.latitude === null && district.longitude === null),
       'The source contains names only; neighborhood GPS coordinates must not be invented');
     for (const [cityId, count] of [[9, 69], [16, 89], [17, 42], [majmaah[0].id, 13]]) {
       const districts = await api(`/districts?city_id=${cityId}`);
@@ -156,6 +164,7 @@ if (!databasePrefix) {
     const includingInactive = await api('/districts?city_id=9&all=true');
     assert.equal(includingInactive.length, 69);
     assert.equal(includingInactive.find(item => Number(item.id) === Number(district.id))?.name_ar, editedName);
-    assert.equal(Number((await db.queryOne('SELECT COUNT(*) AS total FROM districts WHERE city_id IN (SELECT id FROM cities WHERE is_active = 1)')).total), 386);
+    assert.equal(Number((await db.queryOne('SELECT COUNT(*) AS total FROM districts WHERE city_id IN (SELECT id FROM cities WHERE is_active = 1)')).total),
+      Number((await db.queryOne('SELECT COUNT(*) AS total FROM districts')).total));
   });
 }

@@ -362,7 +362,7 @@ export default function RegisterPage() {
         {areasUnavailable && <div role="alert" className="form-error mb-2">{t('location.options_unavailable')}</div>}
 
         <div className="grid grid-2" style={{ gap: 8 }}>
-          <div className="form-group" style={{ gridColumn: '1 / -1' }}>
+          {countries.length !== 1 && <div className="form-group" style={{ gridColumn: '1 / -1' }}>
             <label htmlFor="register-country" className="form-label">{t('location.country')}</label>
             <select id="register-country" name="country_id" className="select" value={form.country_id} required disabled={countriesLoading || loading} onChange={(e) => pickCountry(e.target.value)}>
               <option value="">{t('common.select')}</option>
@@ -379,7 +379,7 @@ export default function RegisterPage() {
                 {activeCountry.dial_code && <span className="ms-2">📞 {activeCountry.dial_code}</span>}
               </div>
             )}
-          </div>
+          </div>}
           <div className="form-group">
             <label htmlFor="register-region" className="form-label">{t('location.region')}</label>
             <select id="register-region" name="region_id" className="select" value={form.region_id} required onChange={(e) => pickRegion(e.target.value)} disabled={loading || !form.country_id || regionsLoading || regions.length === 0}>

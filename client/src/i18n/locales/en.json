@@ -73,13 +73,13 @@
     "hindi": "हिन्दी"
   },
   "home": {
-    "trust_pill": "Ay Khidma home services in Al-Qassim and Al Majmaah",
+    "trust_pill": "Ay Khidma home services across Saudi Arabia",
     "headline_1": "Providers & seekers",
     "headline_2": "in one place",
     "subtitle": "Request plumbing, electrical work or yard cleaning. Compare quotes and chat with your provider in the app.",
     "search_placeholder": "Search for a service, e.g. plumbing, electrical, yard cleaning…",
     "popular": "Try:",
-    "register_nudge": "Launching in Al-Qassim and Al Majmaah. Sign up to post your request and set its location.",
+    "register_nudge": "Available across Saudi Arabia. Sign up to post your request and set its location.",
     "your_country": "your country",
     "use_my_location": "Use my location",
     "locating": "Locating…",
@@ -117,7 +117,7 @@
     "step_4_title": "Follow the work",
     "step_4_body": "Track your request status and review the service once completed",
     "view_all": "View all",
-    "categories_count": "{{count}} home-service categories in Al-Qassim and Al Majmaah.",
+    "categories_count": "{{count}} home-service categories across Saudi Arabia.",
     "trust_verified_t": "Home requests",
     "trust_verified_s": "Describe the issue and add photos",
     "trust_ratings_t": "Service quotes",
@@ -132,7 +132,7 @@
     "urgent_subtitle": "Requests marked urgent by their customers",
     "available_regions": "All available regions",
     "launch_scope": "Local",
-    "launch_scope_label": "Al-Qassim & Al Majmaah",
+    "launch_scope_label": "All regions of Saudi Arabia",
     "launch_offers": "Quotes",
     "launch_offers_label": "Compare service prices",
     "launch_contact": "Chat",
@@ -946,7 +946,7 @@
   "catalog": {
     "title": "Services",
     "hero_title": "Find your service easily",
-    "hero_subtitle": "Start a plumbing, electrical or yard-cleaning request in Al-Qassim and Al Majmaah.",
+    "hero_subtitle": "Start a plumbing, electrical or yard-cleaning request in your city.",
     "browse_all": "Browse all services",
     "browse_services": "Browse services",
     "categories_title": "Service categories",
@@ -1187,7 +1187,7 @@
     "all_rights_reserved": "All rights reserved"
   },
   "policy": {
-    "privacy_intro": "This policy explains how Ay Khidma uses your information when you register and request home services in Al-Qassim and Al Majmaah.",
+    "privacy_intro": "This policy explains how Ay Khidma uses your information when you register and request home services.",
     "data_title": "Information you provide",
     "data_body": "We store your name and the sign-in methods you add, such as a username, email or phone number. Service information includes your selected location, requests, offers, conversations, attachments and verification documents you upload.",
     "purpose_title": "How information is used",
@@ -1218,7 +1218,7 @@
     }
   },
   "meta": {
-    "description": "Ay Khidma — Faster service, easier life. Request plumbing, electrical work and yard cleaning in Al-Qassim and Al Majmaah and compare provider offers."
+    "description": "Ay Khidma — Faster service, easier life. Request plumbing, electrical work and yard cleaning across Saudi Arabia and compare provider offers."
   },
   "help": {
     "title": "User guide",
@@ -1288,7 +1288,7 @@
       },
       "areas": {
         "question": "Where is the service available now?",
-        "answer": "We are launching in Al-Qassim and Al Majmaah. Select your city and neighborhood from the available options in a request or profile. Finding a suitable provider depends on the offers you receive."
+        "answer": "The service is available across Saudi Arabia. Select your region, governorate, city and neighborhood in a request or profile, or pick your location on the map. Finding a suitable provider depends on the offers you receive."
       },
       "tracking": {
         "question": "How do I follow my request?",

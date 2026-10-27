@@ -64,11 +64,10 @@ export function filterCatalogServices(services, categories, filters, lang = 'ar'
 export const findLocationRow = (rows, id) => rows.find(row => String(row.id) === String(id));
 const validId = value => /^\d+$/.test(value) && Number(value) > 0 && Number.isSafeInteger(Number(value));
 
-// Launch scope is service-type coverage, not a claim that a provider serves
-// every district. Active API records remain the source of selector IDs.
+// Every active city in the Kingdom is selectable; active API records remain the
+// source of selector IDs.
 export function isLaunchCity(city) {
-  return Number(city.region_id) === 4 ||
-    (Number(city.governorate_id) === 5 && normalizeSearch(city.name_ar) === 'المجمعة');
+  return !!city && city.is_active !== 0 && city.is_active !== false;
 }
 
 export function validateCatalogLocation(filters, { regions, cities, governorates, districts }) {
