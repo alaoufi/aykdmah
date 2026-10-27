@@ -22,6 +22,7 @@ export function applyPrefs(value, systemDark) {
   const root = document.documentElement;
   root.setAttribute('data-contrast', prefs.contrast ? 'high' : 'normal');
   root.setAttribute('data-palette', prefs.palette);
+  root.setAttribute('data-scale', prefs.scale);
   root.style.setProperty('--ayk-scale', String(SCALES[prefs.scale]));
   root.style.zoom = SCALES[prefs.scale] === 1 ? '' : String(SCALES[prefs.scale]);
   try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch (_) {}

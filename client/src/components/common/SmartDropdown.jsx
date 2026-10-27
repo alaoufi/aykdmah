@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { pageZoom } from '../../utils/pageZoom';
 import { createPortal } from 'react-dom';
 
 // Dropdown that opens straight DOWN from the anchor element and
@@ -19,11 +20,13 @@ export default function SmartDropdown({ anchorRef, open, onClose, minWidth = 200
       const a = anchorRef?.current;
       const p = panelRef?.current;
       if (!a || !p) return;
-      const rect = a.getBoundingClientRect();
+      const zoom = pageZoom();
+      const box  = a.getBoundingClientRect();
+      const rect = { top: box.top / zoom, bottom: box.bottom / zoom, left: box.left / zoom, right: box.right / zoom };
       const ph   = p.offsetHeight || 240;
       const pw   = Math.max(minWidth, p.offsetWidth || minWidth);
-      const vw   = window.innerWidth;
-      const vh   = window.innerHeight;
+      const vw   = window.innerWidth / zoom;
+      const vh   = window.innerHeight / zoom;
       const GAP  = 6;
       const MARGIN = 8;
 

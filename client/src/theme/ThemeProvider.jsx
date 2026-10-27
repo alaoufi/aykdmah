@@ -25,7 +25,11 @@ export function ThemeProvider({ children }) {
     return () => query.removeEventListener?.('change', onChange);
   }, []);
 
-  useEffect(() => { applyPrefs(prefs, systemDark); }, [prefs, systemDark]);
+  useEffect(() => {
+    applyPrefs(prefs, systemDark);
+    // Fixed elements measure the viewport; a new text size changes their units.
+    window.dispatchEvent(new Event('resize'));
+  }, [prefs, systemDark]);
 
   const value = useMemo(() => {
     const theme = resolveTheme(prefs, systemDark);

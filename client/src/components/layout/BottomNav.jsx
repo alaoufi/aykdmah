@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import { useNotifications } from '../../hooks/useNotifications';
 import { IconHome, IconGrid, IconPlus, IconChat, IconUser } from '../common/Icons';
+import { pageZoom } from '../../utils/pageZoom';
 
 export default function BottomNav() {
   const navRef = useRef(null);
@@ -23,9 +24,10 @@ export default function BottomNav() {
       // would make this fixed navigation drift when the document is scrolled.
       const nav = navRef.current;
       if (!nav) return;
-      nav.style.setProperty('--mobile-nav-viewport-bottom', `${viewport.offsetTop + viewport.height}px`);
-      nav.style.setProperty('--mobile-nav-viewport-left', `${viewport.offsetLeft}px`);
-      nav.style.setProperty('--mobile-nav-viewport-width', `${viewport.width}px`);
+      const zoom = pageZoom();
+      nav.style.setProperty('--mobile-nav-viewport-bottom', `${(viewport.offsetTop + viewport.height) / zoom}px`);
+      nav.style.setProperty('--mobile-nav-viewport-left', `${viewport.offsetLeft / zoom}px`);
+      nav.style.setProperty('--mobile-nav-viewport-width', `${viewport.width / zoom}px`);
     };
     const scheduleUpdate = () => {
       if (!frame) frame = window.requestAnimationFrame(updatePosition);

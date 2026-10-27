@@ -68,7 +68,7 @@ export default function Header() {
     <header className="sticky top-0 z-40 bg-surface/85 backdrop-blur-md border-b border-border/70">
       <div className="max-w-7xl mx-auto px-3 md:px-6 lg:px-8 h-14 md:h-16 lg:h-[72px] flex items-center gap-2 md:gap-4">
         {/* Logo on the start edge of the screen */}
-        <Link to="/" className="w-[140px] min-[360px]:w-[166px] shrink-0 no-underline">
+        <Link to="/" className="site-logo w-[140px] min-[360px]:w-[166px] shrink-0 no-underline">
           <BrandLogo wordSize={26} />
         </Link>
 

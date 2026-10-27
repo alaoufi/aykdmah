@@ -9,6 +9,7 @@
     root.setAttribute('data-theme', dark ? 'dark' : 'default');
     var scales = { s: 0.92, m: 1, l: 1.1, xl: 1.22 };
     var scale = prefs && scales[prefs.scale];
+    if (prefs && prefs.scale) root.setAttribute('data-scale', prefs.scale);
     if (scale && scale !== 1) { root.style.zoom = String(scale); root.style.setProperty('--ayk-scale', String(scale)); }
     if (prefs && prefs.contrast === true) root.setAttribute('data-contrast', 'high');
   } catch (_) {}

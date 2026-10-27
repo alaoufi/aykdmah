@@ -379,3 +379,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
   html .leading-loose { line-height: 1.65; }
   html .leading-relaxed { line-height: 1.5; }
 }
+/* Larger text on a phone: a narrower logo keeps the header on one line, and
+   nothing may scroll the page sideways. */
+@media (max-width: 640px) {
+  html, body { overflow-x: clip; }
+  [data-scale="l"] .site-logo { width: 128px; }
+  [data-scale="xl"] .site-logo { width: 104px; }
+}

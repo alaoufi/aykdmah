@@ -55,7 +55,7 @@ export default function ThemeSwitcher({ className = '', variant = 'default' }) {
             <div className="text-[11px] font-bold text-fg-subtle mb-1">{t('theme.text_size')}</div>
             <div className="flex gap-1">
               {Object.keys(SCALES).map(scale => <button key={scale} type="button" aria-pressed={prefs.scale === scale}
-                aria-label={t(`theme.scale_${scale}`)} className={chip(prefs.scale === scale)} onClick={() => setPrefs({ scale })}>
+                dir="ltr" aria-label={t(`theme.scale_${scale}`)} className={chip(prefs.scale === scale)} onClick={() => setPrefs({ scale })}>
                 {SCALE_LABELS[scale]}</button>)}
             </div>
           </section>
