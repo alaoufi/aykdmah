@@ -10,7 +10,7 @@ const SELECT_FIELDS = `
   u.id, u.full_name, u.username, u.email, u.phone, u.facebook_id, u.role, u.avatar,
   u.is_active, u.is_blocked, u.is_verified, u.is_online,
   u.city_id, u.district_id, u.latitude, u.longitude,
-  u.last_seen_at, u.created_at, u.must_change_password
+  u.last_seen_at, u.created_at, u.must_change_password, u.also_client
 `;
 
 // Hydrate admin-only fields (is_super_admin, permissions) when they
@@ -135,7 +135,8 @@ async function checkIdentifierConflicts(conn, data, existing = null) {
 async function create({ full_name, username, email, phone, facebook_id, password_hash, role,
                         country_id, region_id, governorate_id, city_id, district_id,
                         latitude, longitude, address, is_active = 1, location_mode = 'mobile', fixed_address = null,
-                        fixed_latitude = null, fixed_longitude = null, category_id, service_ids }) {
+                        fixed_latitude = null, fixed_longitude = null, category_id, service_ids, any_category = false,
+                        also_client = false, coverage = null }) {
   let providerServices = {};
   const privateAddress = address === undefined ? undefined : accountAddress(address);
   if (role === 'provider') {
@@ -144,7 +145,8 @@ async function create({ full_name, username, email, phone, facebook_id, password
       throw new ApiError('Invalid provider service location', 400);
     }
     if (category_id !== undefined || service_ids !== undefined) {
-      providerServices = await require('../utils/providerServices').validateProviderServices({ category_id, service_ids }, {}, { required: true });
+      providerServices = await require('../utils/providerServices').validateProviderServices(
+        any_category ? { service_ids, any_category: true } : { category_id, service_ids }, {}, { required: true });
     }
   }
   // Optional columns (added by later migrations) are skipped if the
@@ -163,6 +165,7 @@ async function create({ full_name, username, email, phone, facebook_id, password
   if (hasCountry) { cols.push('country_id'); vals.push(country_id || null); }
   if (hasRegion)  { cols.push('region_id'); vals.push(region_id || null); }
   if (hasGov)     { cols.push('governorate_id'); vals.push(governorate_id || null); }
+  if (role === 'provider' && also_client) { cols.push('also_client'); vals.push(1); }
   const placeholders = cols.map(() => '?').join(', ');
 
   return transaction(async (conn) => {
@@ -184,6 +187,7 @@ async function create({ full_name, username, email, phone, facebook_id, password
         [userId, location_mode, location_mode === 'mobile' ? null : (fixed_address?.trim() || null),
           venue ? fixed_latitude : null, venue ? fixed_longitude : null,
           providerServices.category_id ?? null, providerServices.service_ids ? JSON.stringify(providerServices.service_ids) : null]);
+      if (coverage) await require('../utils/providerCoverage').saveCoverage((sql, params) => conn.execute(sql, params), userId, coverage);
     }
     if (role === 'client' || role === 'provider' || privateAddress !== undefined) {
       await conn.execute('INSERT INTO user_profiles (user_id, address) VALUES (?, ?)', [userId, privateAddress ?? null]);
@@ -419,6 +423,7 @@ async function getProviderProfile(userId) {
     row.badge_trusted_active = row.is_trusted ? 1 : 0;
     row.badge_featured_active = row.is_featured_badge ? 1 : 0;
     row.is_featured = row.is_featured ? 1 : 0;
+    row.coverage_districts = await require('../utils/providerCoverage').coverageDistricts(userId);
   }
   return row;
 }

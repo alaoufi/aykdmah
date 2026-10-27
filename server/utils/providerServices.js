@@ -34,4 +34,17 @@ async function validateProviderServices(input, existing = {}, { required = false
   return { ...(hasCategory || required ? { category_id: categoryId } : {}), service_ids: services };
 }
 
-module.exports = { validateProviderServices };
+async function validateServiceList(ids, { required = false, message = 'Invalid provider services' } = {}) {
+  if (!Array.isArray(ids) || ids.length > 50 || ids.some(id => !validId(id))) throw new ApiError(message, 400);
+  const services = [...new Set(ids.map(Number))];
+  if (required && !services.length) throw new ApiError(message, 400);
+  if (!services.length) return { category_id: null, service_ids: [] };
+  const rows = await query(`SELECT s.id, s.category_id FROM services s JOIN categories c ON c.id = s.category_id
+    WHERE s.id IN (${services.map(() => '?').join(', ')}) AND s.is_active = 1 AND s.deleted_at IS NULL
+      AND c.is_active = 1 AND c.deleted_at IS NULL`, services);
+  if (rows.length !== services.length) throw new ApiError(message, 400);
+  const first = rows.find(row => Number(row.id) === services[0]);
+  return { category_id: Number(first.category_id), service_ids: services };
+}
+
+module.exports = { validateProviderServices, validateServiceList };

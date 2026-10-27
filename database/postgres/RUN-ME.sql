@@ -8,7 +8,7 @@ DO $ayk_fresh$ BEGIN
   IF EXISTS (
     SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
     WHERE n.nspname = current_schema() AND c.relkind IN ('r','p','v','m','f')
-      AND c.relname IN ('activity_logs','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_reports','calls','categories','cities','conversation_archives','conversation_participants','conversations','countries','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','districts','governorates','install_lock','ip_geo_cache','location_shares','message_files','messages','notifications','offers','payments','provider_badges','provider_profiles','referral_rewards','regions','request_files','requests','review_reports','review_translations','review_votes','reviews','roles','schema_migrations','services','settings','subscription_plans','subscriptions','uploaded_media','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','wallet_transactions','withdrawal_requests')
+      AND c.relname IN ('activity_logs','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_reports','calls','categories','cities','conversation_archives','conversation_participants','conversations','countries','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','districts','governorates','install_lock','ip_geo_cache','location_shares','message_files','messages','notifications','offers','payments','provider_badges','provider_coverage_districts','provider_profiles','referral_rewards','regions','request_files','requests','review_reports','review_translations','review_votes','reviews','roles','schema_migrations','services','settings','subscription_plans','subscriptions','uploaded_media','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','wallet_transactions','withdrawal_requests')
   ) THEN
     RAISE EXCEPTION 'AY KHIDMA bootstrap requires a fresh database schema; use journaled migrations for an existing installation';
   END IF;
@@ -6012,6 +6012,20 @@ FROM (VALUES
 WHERE EXISTS (SELECT 1 FROM cities c WHERE c.id = v.city_id)
   AND NOT EXISTS (SELECT 1 FROM districts e WHERE e.city_id = v.city_id AND e.name_ar = v.name_ar);
 INSERT INTO schema_migrations(name) VALUES ('046_kingdom_districts.sql');
+
+-- migrations/047_simple_onboarding.sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS also_client SMALLINT NOT NULL DEFAULT 0;
+ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS coverage_city_id INT DEFAULT NULL;
+CREATE TABLE IF NOT EXISTS provider_coverage_districts (
+  user_id INT NOT NULL,
+  district_id INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (user_id, district_id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (district_id) REFERENCES districts(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_provider_coverage_district ON provider_coverage_districts (district_id);
+INSERT INTO schema_migrations(name) VALUES ('047_simple_onboarding.sql');
 
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$

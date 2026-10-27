@@ -106,12 +106,12 @@ async function create(data) {
   if (!clientId) throw new ApiError('invalid_data', 422);
   return transaction(async (conn) => {
     const read = async (sql, params) => (await conn.query(sql, params))[0][0] || null;
-    const account = await read(`SELECT u.id, u.role, u.city_id, u.district_id, u.latitude, u.longitude, p.address,
+    const account = await read(`SELECT u.id, u.role, u.also_client, u.city_id, u.district_id, u.latitude, u.longitude, p.address,
       to_jsonb(u)->>'country_id' AS country_id, to_jsonb(u)->>'region_id' AS region_id,
       to_jsonb(u)->>'governorate_id' AS governorate_id
       FROM users u LEFT JOIN user_profiles p ON p.user_id = u.id
       WHERE u.id = ? AND u.deleted_at IS NULL FOR UPDATE OF u`, [clientId]);
-    if (!account || account.role !== 'client') throw new ApiError('forbidden', 403);
+    if (!account || !(account.role === 'client' || (account.role === 'provider' && Number(account.also_client) === 1))) throw new ApiError('forbidden', 403);
     const database = { queryOne: read, tableHasColumn: async (table, column) => !!await read(`SELECT 1
       FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = ? AND column_name = ? LIMIT 1`, [table, column]) };
     await assertMarketplaceWriteAccess(clientId, { query: async (sql, params) => (await conn.query(sql, params))[0] });
@@ -179,7 +179,7 @@ async function findByClient(clientId, { status, page = 1, limit = 20 } = {}) {
   return { items, total };
 }
 
-async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serviceId, status = 'open', page = 1, limit = 20 } = {}) {
+async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serviceId, status = 'open', page = 1, limit = 20, providerId = null } = {}) {
   ({ page, limit } = pagination(page, limit));
   const offset = (page - 1) * limit;
   if (status !== 'open') throw new ApiError('invalid_status', 422);
@@ -192,6 +192,25 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
   const whereParams = [status];
   if (categoryId) { where.push('r.category_id = ?'); whereParams.push(categoryId); }
   if (serviceId) { where.push('r.service_id = ?'); whereParams.push(serviceId); }
+  if (providerId) {
+    // "Matching me": the provider's registered services and coverage area.
+    const profile = await queryOne('SELECT service_ids, category_id, coverage_city_id FROM provider_profiles WHERE user_id = ?', [providerId]);
+    let services = [];
+    try { services = (JSON.parse(profile?.service_ids || '[]') || []).map(Number).filter(Number.isSafeInteger); } catch (_) { services = []; }
+    const categories = services.length
+      ? (await query(`SELECT DISTINCT category_id FROM services WHERE id IN (${services.map(() => '?').join(', ')})`, services)).map(row => Number(row.category_id))
+      : profile?.category_id ? [Number(profile.category_id)] : [];
+    const match = [];
+    if (services.length) { match.push(`r.service_id IN (${services.map(() => '?').join(', ')})`); whereParams.push(...services); }
+    if (categories.length) { match.push(`(r.service_id IS NULL AND r.category_id IN (${categories.map(() => '?').join(', ')}))`); whereParams.push(...categories); }
+    if (match.length) where.push(`(${match.join(' OR ')})`);
+    const covered = await query('SELECT district_id FROM provider_coverage_districts WHERE user_id = ?', [providerId]);
+    if (covered.length) {
+      where.push(`r.district_id IN (${covered.map(() => '?').join(', ')})`); whereParams.push(...covered.map(row => Number(row.district_id)));
+    } else if (profile?.coverage_city_id) {
+      where.push('r.city_id = ?'); whereParams.push(Number(profile.coverage_city_id));
+    }
+  }
 
   const hasGeo = latitude != null && longitude != null;
   let distanceSelect = '';

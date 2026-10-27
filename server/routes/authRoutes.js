@@ -12,13 +12,14 @@ router.post(
   authLimiter,
   sanitizeBody(['full_name', 'email', 'phone', 'username', 'facebook_id']),
   [
-    body('full_name').isString().isLength({ min: 2, max: 150 }),
+    // Required for the legacy form; optional in onboarding version 2 (checked in the controller).
+    body('full_name').optional({ values: 'null' }).isString().isLength({ max: 150 }),
     body('email').optional({ checkFalsy: true }).isEmail().normalizeEmail(),
     body('password').isString().isLength({ min: 4, max: 100 }),
     body('phone').optional({ checkFalsy: true }).isString().isLength({ max: 30 }).matches(/^[+\d\s()-]+$/),
     body('username').optional({ checkFalsy: true }).isString().isLength({ min: 1, max: 60 }).matches(/^[\p{L}\p{N}_.-]+$/u),
     body('facebook_id').optional({ checkFalsy: true }).isString().isLength({ min: 1, max: 120 }),
-    body('role').isIn(['client', 'provider']),
+    body('role').isIn(['client', 'provider', 'both']),
   ],
   validate,
   authController.register

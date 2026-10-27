@@ -29,7 +29,7 @@ async function loadSessionUser(payload) {
   if (!hasVersion) throw new ApiError('Authentication schema is unavailable', 503);
   const extra = (hasAdminCols ? ', is_super_admin, permissions' : '') + (hasVersion ? ', auth_version' : '');
   const user = await queryOne(
-    `SELECT id, full_name, email, phone, role, is_active, is_blocked, avatar${extra}
+    `SELECT id, full_name, email, phone, role, is_active, is_blocked, avatar, also_client${extra}
      FROM users WHERE id = ? AND deleted_at IS NULL`, [payload.id]
   );
   if (!user) return null;

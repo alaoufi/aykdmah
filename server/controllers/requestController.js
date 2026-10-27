@@ -11,7 +11,7 @@ const privateAccess = (user, request) => user && (user.id === request.client_id
 const validId = value => typeof value === 'string' && /^[1-9][0-9]{0,9}$/.test(value) && Number(value) <= 2147483647;
 
 const create = asyncHandler(async (req, res) => {
-  if (req.user.role !== 'client') return forbidden(res);
+  if (!(req.user.role === 'client' || (req.user.role === 'provider' && Number(req.user.also_client) === 1))) return forbidden(res);
   const data = {
     client_id: req.user.id,
     category_id: req.body.category_id,
@@ -64,6 +64,7 @@ const getNearby = asyncHandler(async (req, res) => {
     serviceId: service_id,
     status: status || 'open',
     page, limit,
+    providerId: req.query.matching === '1' && req.user?.role === 'provider' ? req.user.id : null,
   });
   return paginate(res, items.map(Request.publicView), total, page, limit);
 });

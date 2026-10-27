@@ -450,6 +450,84 @@ if (!databasePrefix) {
     assert.equal((await api('/auth/me', { token: original.token })).user.role, 'provider');
   });
 
+  // AYK-027: phone, password, optional name and an automatic location.
+  const simpleArea = async () => {
+    const districts = await db.query('SELECT id, city_id FROM districts WHERE city_id = 9 AND is_active = 1 ORDER BY id LIMIT 3');
+    return { city_id: 9, district_id: Number(districts[0].id), districts: districts.map(row => Number(row.id)) };
+  };
+  const simpleRegister = async (body, expected = 201) => {
+    const response = await fetch(`${base}/auth/register`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ onboarding_version: 2, password: '1234', phone: phoneIdentity(), latitude: 24.7136, longitude: 46.6753, ...body }),
+    });
+    const result = await response.json();
+    assert.equal(response.status, expected, result.message);
+    return result.data;
+  };
+
+  test('simple client signup needs only phone, password and location; name and address are filled in', async () => {
+    const area = await simpleArea();
+    const session = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    assert.match(session.user.full_name, /^مستخدم \d{4}$/);
+    assert.equal(session.user.role, 'client');
+    assert.ok(session.user.address && session.user.address.length >= 2);
+    assert.equal(session.referral_code, undefined);
+    const named = await simpleRegister({ role: 'client', full_name: 'سارة', city_id: area.city_id, district_id: area.district_id });
+    assert.equal(named.user.full_name, 'سارة');
+    await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id, latitude: undefined, longitude: undefined }, 400);
+    await simpleRegister({ role: 'client', full_name: 'س', city_id: area.city_id, district_id: area.district_id }, 400);
+    await simpleRegister({ role: 'both', city_id: area.city_id, district_id: area.district_id }, 400);
+  });
+
+  test('simple provider and "both" signups take services from several professions and one city districts, and return the coupon', async () => {
+    const area = await simpleArea();
+    const services = await db.query(`SELECT DISTINCT ON (s.category_id) s.id, s.category_id FROM services s JOIN categories c ON c.id = s.category_id
+      WHERE s.is_active = 1 AND s.deleted_at IS NULL AND c.is_active = 1 AND c.deleted_at IS NULL ORDER BY s.category_id, s.id LIMIT 2`);
+    assert.equal(new Set(services.map(row => Number(row.category_id))).size, 2);
+    const serviceIds = services.map(row => Number(row.id));
+    const session = await simpleRegister({ role: 'both', city_id: area.city_id, district_id: area.district_id,
+      service_ids: serviceIds, coverage_district_ids: area.districts.slice(0, 2), location_mode: 'mobile' });
+    assert.equal(session.user.role, 'provider');
+    assert.equal(Number(session.user.also_client), 1);
+    assert.match(session.referral_code, /^[A-Z0-9]{4,12}$/);
+    const profile = await db.queryOne('SELECT category_id, service_ids, coverage_city_id FROM provider_profiles WHERE user_id = ?', [session.user.id]);
+    assert.deepEqual(profile.service_ids, serviceIds);
+    assert.equal(Number(profile.category_id), Number(services[0].category_id));
+    assert.equal(Number(profile.coverage_city_id), 9);
+    const covered = await db.query('SELECT district_id FROM provider_coverage_districts WHERE user_id = ? ORDER BY district_id', [session.user.id]);
+    assert.deepEqual(covered.map(row => Number(row.district_id)), area.districts.slice(0, 2));
+    const me = await api('/auth/me', { token: session.token });
+    assert.equal(me.provider.coverage_districts.length, 2);
+
+    // A "both" account requests other services; a provider-only account cannot.
+    const request = await api('/requests', { method: 'POST', token: session.token, expected: 201, body: {
+      title: 'أحتاج كهربائي', description: 'تمديد كهرباء في المطبخ', city_id: area.city_id, district_id: area.district_id,
+      latitude: 24.7136, longitude: 46.6753 } });
+    assert.ok(request.id || request.request?.id);
+    const providerOnly = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id,
+      service_ids: serviceIds.slice(0, 1), coverage_district_ids: area.districts.slice(0, 1) });
+    assert.equal(Number(providerOnly.user.also_client), 0);
+    await api('/requests', { method: 'POST', token: providerOnly.token, expected: 403, body: {
+      title: 'طلب', description: 'وصف طلب تجريبي', city_id: area.city_id, district_id: area.district_id } });
+  });
+
+  test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {
+    const area = await simpleArea();
+    const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    const otherCity = await db.queryOne('SELECT id FROM districts WHERE city_id <> 9 AND is_active = 1 ORDER BY id LIMIT 1');
+    const account = { role: 'provider', city_id: area.city_id, district_id: area.district_id };
+    const countBefore = Number((await db.queryOne('SELECT COUNT(*) AS total FROM users')).total);
+    for (const fields of [
+      { coverage_district_ids: area.districts.slice(0, 1) },
+      { service_ids: [], coverage_district_ids: area.districts.slice(0, 1) },
+      { service_ids: [Number(service.id)] },
+      { service_ids: [Number(service.id)], coverage_district_ids: [] },
+      { service_ids: [Number(service.id)], coverage_district_ids: [Number(otherCity.id)] },
+      { service_ids: [Number(service.id)], coverage_district_ids: ['x'] },
+    ]) await simpleRegister({ ...account, ...fields }, 400);
+    assert.equal(Number((await db.queryOne('SELECT COUNT(*) AS total FROM users')).total), countBefore);
+  });
+
   test('concurrent signups with one fresh username create exactly one account and return a field conflict to the loser', async () => {
     const username = identity();
     const attempts = [

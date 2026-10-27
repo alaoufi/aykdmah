@@ -6,6 +6,7 @@ const { success, created, error, unauthorized } = require('../utils/apiResponse'
 const asyncHandler = require('../utils/asyncHandler');
 const { validateUserLocation, requireCompleteAccountProfile } = require('../utils/userLocation');
 const { validateProviderServices } = require('../utils/providerServices');
+const { validateCoverage } = require('../utils/providerCoverage');
 const env = require('../config/env');
 const cookieOptions = () => ({ httpOnly: true, secure: env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
 
@@ -50,13 +51,21 @@ async function enabledIdentifiers() {
 }
 
 const register = asyncHandler(async (req, res) => {
-  const { full_name, password, role } = req.body;
+  const { password } = req.body;
   const completeOnboarding = req.body.onboarding_version !== undefined;
-  if (completeOnboarding && ![1, '1'].includes(req.body.onboarding_version)) return error(res, req.t('invalid_data'), 400);
-
-  if (!['client', 'provider'].includes(role)) {
+  if (completeOnboarding && ![1, '1', 2, '2'].includes(req.body.onboarding_version)) return error(res, req.t('invalid_data'), 400);
+  // Version 2 (AYK-027): phone, password, optional name and an automatic
+  // location. "both" is a provider account that also requests services.
+  const simple = [2, '2'].includes(req.body.onboarding_version);
+  if (!['client', 'provider'].includes(req.body.role) && !(simple && req.body.role === 'both')) {
     return error(res, req.t('type_invalid'), 400);
   }
+  const alsoClient = req.body.role === 'both';
+  const role = alsoClient ? 'provider' : req.body.role;
+  let full_name = typeof req.body.full_name === 'string' ? req.body.full_name.trim() : req.body.full_name;
+  if (!simple && (typeof full_name !== 'string' || full_name.length < 2 || full_name.length > 150)) return error(res, req.t('invalid_data'), 400);
+  if (simple && full_name !== undefined && full_name !== null && full_name !== '' &&
+      (typeof full_name !== 'string' || full_name.length < 2 || full_name.length > 150)) return error(res, req.t('invalid_data'), 400);
 
   // Service venue belongs to the provider profile. Legacy signups that omit
   // it keep working, while a client's payload cannot set provider fields.
@@ -80,9 +89,10 @@ const register = asyncHandler(async (req, res) => {
       providerLocation.fixed_latitude = lat;
       providerLocation.fixed_longitude = lon;
     }
-    Object.assign(providerLocation, await validateProviderServices(req.body, {}, {
+    Object.assign(providerLocation, await validateProviderServices(simple ? { service_ids: req.body.service_ids, any_category: true } : req.body, {}, {
       required: hasProviderServices, message: req.t('provider_services_required'),
     }));
+    if (simple) providerLocation.any_category = true;
   }
 
   // Filter out identifiers the admin has turned off — silently ignore
@@ -115,8 +125,23 @@ const register = asyncHandler(async (req, res) => {
   if (duplicateFields.length) return identifierConflict(req, res, duplicateFields);
 
   const location = await validateUserLocation(req.body, {}, req.t('invalid_data'));
+  if (simple) {
+    // No typing needed: a blank name becomes an editable label, and a blank
+    // address becomes the area names of the point the device reported.
+    if (!full_name && filtered.phone) full_name = `مستخدم ${filtered.phone.slice(-4)}`;
+    if (!location.address && location.city_id) {
+      const db = require('../config/database');
+      const city = await db.queryOne('SELECT name_ar FROM cities WHERE id = ?', [location.city_id]);
+      const district = location.district_id ? await db.queryOne('SELECT name_ar FROM districts WHERE id = ?', [location.district_id]) : null;
+      location.address = [district?.name_ar, city?.name_ar].filter(Boolean).join('، ') || null;
+    }
+  }
   if (completeOnboarding) {
-    await requireCompleteAccountProfile({ ...req.body, ...location, phone: filtered.phone }, req.t('account_profile_required'), { confirmed: true });
+    await requireCompleteAccountProfile({ ...req.body, full_name, ...location, phone: filtered.phone, ...(simple ? { location_confirmed: true } : {}) },
+      req.t('account_profile_required'), { confirmed: true });
+  }
+  if (simple && role === 'provider') {
+    providerLocation.coverage = await validateCoverage(req.body, { cityId: location.city_id, required: true, message: req.t('provider_area_required') });
   }
   if (hasProviderServices && (!location.city_id || (!location.district_id &&
       await require('../config/database').queryOne('SELECT id FROM districts WHERE city_id = ? AND is_active = 1 LIMIT 1', [location.city_id])))) {
@@ -135,7 +160,7 @@ const register = asyncHandler(async (req, res) => {
       email:       filtered.email       || null,
       phone:       filtered.phone       || null,
       facebook_id: filtered.facebook_id || null,
-      password_hash: passwordHash, role,
+      password_hash: passwordHash, role, also_client: alsoClient,
       ...location,
       ...providerLocation,
     });
@@ -149,7 +174,7 @@ const register = asyncHandler(async (req, res) => {
   }
 
   if (couponCode) await wallet.applyReferralCode(userId, couponCode).catch(() => {});
-  if (role === 'provider') await wallet.ensureReferralCode(userId).catch(() => {});
+  const referralCode = role === 'provider' ? await wallet.ensureReferralCode(userId).catch(() => null) : null;
 
   // Record terms acceptance — best-effort, skipped if migration 025 hasn't
   // run yet so registration never breaks on a half-migrated host.
@@ -166,7 +191,7 @@ const register = asyncHandler(async (req, res) => {
   const user = await User.findById(userId);
   const raw = await User.findByIdRaw(user.id);
   const token = issueSession(res, raw);
-  return created(res, { user, token }, req.t('account_created'));
+  return created(res, { user, token, ...(referralCode ? { referral_code: referralCode } : {}) }, req.t('account_created'));
 });
 
 const login = asyncHandler(async (req, res) => {
