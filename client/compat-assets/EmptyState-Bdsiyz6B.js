@@ -1,0 +1,1 @@
+import{j as t}from"./index-Tqy0YD8V.js";function c({icon:s="📭",title:x,subtitle:e,action:a}){return t.jsxs("div",{className:"text-center py-16 px-6",children:[t.jsx("div",{className:"text-6xl mb-3 opacity-70",children:s}),t.jsx("div",{className:"text-ink text-lg font-bold mb-1",children:x}),e&&t.jsx("p",{className:"text-slate-500 text-sm mb-4",children:e}),a]})}export{c as E};

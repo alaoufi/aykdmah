@@ -1,0 +1,13 @@
+:root {
+  --awtad-navy: #0B2D56;
+  --awtad-sky: #5B8DBF;
+  --awtad-terracotta: #C76B43;
+  --awtad-sand: #DCC7A3;
+  --awtad-offwhite: #FAF7F2;
+  --awtad-ink: #102B3F;
+}
+
+/* Recommended logo sizes */
+.awtad-logo { height: 44px; width: auto; }
+.awtad-logo-footer { height: 56px; width: auto; }
+.awtad-icon { width: 40px; height: 40px; }

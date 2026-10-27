@@ -1,0 +1,29 @@
+{
+  "name": "local-services-marketplace",
+  "version": "1.0.0",
+  "description": "منصة خدمات محلية احترافية تعتمد على الموقع الجغرافي",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install && npm --prefix server ci && ONNXRUNTIME_NODE_INSTALL_CUDA=skip npm --prefix client ci",
+    "dev": "concurrently -k -n SERVER,CLIENT -c blue,magenta \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:server": "cd server && npm run dev",
+    "dev:client": "cd client && npm run dev",
+    "build": "npm --prefix client run build",
+    "start": "cd server && npm start",
+    "seed": "cd server && npm run seed",
+    "zip": "node scripts/create-zip.js",
+    "vercel-build": "VITE_REALTIME_MODE=polling ONNXRUNTIME_NODE_INSTALL_CUDA=skip npm --prefix client ci --include=dev && VITE_REALTIME_MODE=polling npm --prefix client run build",
+    "i18n:check": "node scripts/check-translations.js",
+    "i18n:fix": "node scripts/check-translations.js --fix",
+    "test": "npm --prefix server test",
+    "test:integration": "node scripts/run-integration-tests.cjs",
+    "test:onboarding:e2e": "node scripts/run-onboarding-e2e.cjs"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": "22.x"
+  }
+}

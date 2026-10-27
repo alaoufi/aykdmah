@@ -1,0 +1,115 @@
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
+import { getToken, setToken, TOKEN_KEY, TOKEN_CHANGE_EVENT } from '../services/api';
+import { me, login as loginApi, logout as logoutApi, register as registerApi } from '../services/authService';
+
+const AuthContext = createContext(null);
+export function AuthProvider({ children }) {
+  const [user, setUser] = useState(null);
+  const [provider, setProvider] = useState(null);
+  const [sessionEpoch, setSessionEpoch] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const refreshVersion = useRef(0);
+
+  const refresh = useCallback(async () => {
+    const token = getToken();
+    const version = ++refreshVersion.current;
+    const current = () => version === refreshVersion.current && getToken() === token;
+    if (!token) {
+      setUser(null);
+      setProvider(null);
+      setLoading(false);
+      return null;
+    }
+    try {
+      const data = await me();
+      if (!current()) return null;
+      setUser(data.user);
+      setProvider(data.provider || null);
+      return data;
+    } catch (err) {
+      // A profile endpoint failure does not make a valid login invalid.
+      // The /me endpoint returns 403 only for blocked or inactive accounts.
+      const sameSession = version === refreshVersion.current && (!getToken() || getToken() === token);
+      if (sameSession && [401, 403].includes(err.response?.status)) {
+        setToken(null);
+        setUser(null);
+        setProvider(null);
+      }
+      return null;
+    } finally {
+      if (version === refreshVersion.current) setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    try { localStorage.removeItem('lsm_auth_session'); } catch (_) {}
+    const changed = (event) => {
+      if (event.type === 'storage' && event.key !== TOKEN_KEY && event.key !== null) return;
+      ++refreshVersion.current;
+      setUser(null);
+      setProvider(null);
+      setLoading(Boolean(getToken()));
+      setSessionEpoch(value => value + 1);
+    };
+    window.addEventListener(TOKEN_CHANGE_EVENT, changed);
+    window.addEventListener('storage', changed);
+    const restored = event => { if (event.persisted) changed(event); };
+    window.addEventListener('pageshow', restored);
+    return () => {
+      window.removeEventListener(TOKEN_CHANGE_EVENT, changed);
+      window.removeEventListener('storage', changed);
+      window.removeEventListener('pageshow', restored);
+    };
+  }, []);
+  useEffect(() => { void refresh(); }, [refresh, sessionEpoch]);
+
+  const login = async (creds) => {
+    const data = await loginApi(creds);
+    setUser(data.user);
+    setProvider(data.provider || null);
+    setLoading(false);
+    void refresh();
+    return data;
+  };
+
+  const register = async (payload) => {
+    const data = await registerApi(payload);
+    setUser(data.user);
+    setProvider(data.provider || null);
+    setLoading(false);
+    void refresh();
+    return data;
+  };
+
+  const logout = async () => {
+    ++refreshVersion.current;
+    setUser(null);
+    setProvider(null);
+    await logoutApi();
+  };
+
+  // Helpers for permission gating throughout the admin UI.
+  //   - isSuperAdmin: bypasses every per-section check.
+  //   - hasPermission(key): true if super OR key is in permissions.
+  //   - hasAnyPermission(keys): true if any of the listed keys passes.
+  const isAdmin = user?.role === 'admin';
+  const isSuperAdmin = isAdmin && !!user?.is_super_admin;
+  const perms = Array.isArray(user?.permissions) ? user.permissions : [];
+  const hasPermission = (key) => isAdmin && (isSuperAdmin || perms.includes(key));
+  const hasAnyPermission = (keys) => isAdmin && (isSuperAdmin || keys.some((k) => perms.includes(k)));
+
+  return (
+    <AuthContext.Provider value={{
+      user, provider, loading, login, register, logout, refresh, setUser, sessionEpoch,
+      isAdmin, isSuperAdmin, permissions: perms, hasPermission, hasAnyPermission,
+    }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+export function useAuth() {
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  return ctx;
+}

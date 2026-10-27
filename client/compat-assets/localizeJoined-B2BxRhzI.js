@@ -1,0 +1,1 @@
+import{f as m}from"./index-DT0JQMeJ.js";function t(a,n,e){return a?m({name:a[`${n}_name`],name_ar:a[`${n}_name_ar`]||a[`${n}_name`],name_en:a[`${n}_name_en`],name_translations:a[`${n}_name_translations`]},e):""}export{t as l};

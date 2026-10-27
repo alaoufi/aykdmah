@@ -1,0 +1,272 @@
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { Link, NavLink, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
+import { useAuth } from '../../hooks/useAuth';
+import { useNotifications } from '../../hooks/useNotifications';
+import Avatar from '../common/Avatar';
+import LanguageSwitcher from '../common/LanguageSwitcher';
+import ThemeSwitcher from '../common/ThemeSwitcher';
+import RyzaLogo from '../common/RyzaLogo';
+import { IconMenu, IconBell, IconClose } from '../common/Icons';
+
+export default function Header() {
+  const { t } = useTranslation();
+  const { user, logout } = useAuth();
+  const { unread } = useNotifications();
+  const navigate = useNavigate();
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const mobileButton = useRef(null);
+  const mobilePanel = useRef(null);
+
+  useEffect(() => {
+    if (!mobileOpen) return undefined;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    mobilePanel.current?.querySelector('button')?.focus();
+    const onKey = (event) => {
+      if (event.key === 'Escape') setMobileOpen(false);
+      if (event.key !== 'Tab') return;
+      const items = Array.from(mobilePanel.current?.querySelectorAll('a[href], button, select, input') || [])
+        .filter((item) => !item.disabled && item.getClientRects().length);
+      const first = items[0], last = items[items.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    };
+    const desktop = window.matchMedia('(min-width: 1280px)');
+    const onResize = () => { if (desktop.matches) setMobileOpen(false); };
+    document.addEventListener('keydown', onKey);
+    desktop.addEventListener('change', onResize);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.removeEventListener('keydown', onKey);
+      desktop.removeEventListener('change', onResize);
+      mobileButton.current?.focus();
+    };
+  }, [mobileOpen]);
+
+  const LINKS = [
+    { to: '/', label: t('nav.home'), end: true },
+    { to: '/services', label: t('nav.services') },
+    { to: '/requests/new', label: t('nav.order_now') },
+    { to: '/guide', label: t('help.title') },
+    { to: '/chat', label: t('nav.chat'), authOnly: true },
+  ];
+
+  const visibleLinks = LINKS.filter((l) => !l.authOnly || user);
+  const dashLink = user?.role === 'admin' ? '/admin' : user?.role === 'provider' ? '/provider' : '/client';
+
+  const handleLogout = async () => {
+    await logout();
+    setMenuOpen(false);
+    navigate('/');
+  };
+
+  return (
+    <header className="sticky top-0 z-40 bg-surface/85 backdrop-blur-md border-b border-border/70">
+      <div className="max-w-7xl mx-auto px-3 md:px-6 lg:px-8 h-14 md:h-16 lg:h-[72px] flex items-center gap-2 md:gap-4">
+        {/* Logo on the start edge of the screen */}
+        <Link to="/" className="w-[140px] min-[360px]:w-[166px] shrink-0 no-underline">
+          <RyzaLogo wordSize={26} />
+        </Link>
+
+        {/* Spacer pushes the controls to the OPPOSITE edge */}
+        <div className="flex-1" />
+
+        {/* Mobile controls cluster — sits on the END edge */}
+        <ThemeSwitcher variant="compact" className="md:hidden" />
+        <LanguageSwitcher variant="compact" className="md:hidden" />
+        <div className="xl:hidden shrink-0">
+        <button
+          ref={mobileButton}
+          type="button"
+          onClick={() => setMobileOpen((value) => !value)}
+          className="w-10 h-10 grid place-items-center rounded-pill text-fg-muted hover:bg-surface-alt"
+          aria-label={t('common.more')}
+          aria-expanded={mobileOpen}
+          aria-controls="ryza-mobile-menu"
+          aria-haspopup="dialog"
+        >
+          <IconMenu />
+        </button>
+        </div>
+
+        {/* Desktop nav */}
+        <nav className="hidden xl:flex items-center gap-1 mx-4">
+          {visibleLinks.map((l) => (
+            <NavLink
+              key={l.to}
+              to={l.to}
+              end={l.end}
+              className={({ isActive }) =>
+                `relative px-4 py-2 rounded-pill text-[15px] font-semibold transition no-underline ${
+                  isActive
+                    ? 'text-primary bg-primary-soft'
+                    : 'text-fg-muted hover:text-fg hover:bg-surface-alt'
+                }`
+              }
+            >
+              {l.label}
+              {l.to === '/chat' && unread > 0 && (
+                <span className="absolute -top-0.5 -left-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-danger text-white text-[10px] font-bold grid place-items-center">
+                  {unread > 9 ? '9+' : unread}
+                </span>
+              )}
+            </NavLink>
+          ))}
+        </nav>
+
+        <ThemeSwitcher variant="compact" className="hidden md:block" />
+        <LanguageSwitcher className="hidden md:block" />
+
+        {user ? (
+          <div className="hidden md:flex items-center gap-2 relative">
+            <Link
+              to="/notifications"
+              className="relative w-10 h-10 grid place-items-center rounded-pill text-fg-muted hover:bg-surface-alt no-underline"
+              aria-label={t('notification.title')}
+            >
+              <IconBell size={18} />
+              {unread > 0 && (
+                <span className="absolute -top-0.5 -left-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-danger text-white text-[10px] font-bold grid place-items-center">
+                  {unread > 9 ? '9+' : unread}
+                </span>
+              )}
+            </Link>
+            <button
+              onClick={() => setMenuOpen((v) => !v)}
+              className="flex items-center gap-2 px-2 py-1.5 rounded-pill hover:bg-surface-alt transition"
+            >
+              <Avatar src={user.avatar} name={user.full_name} size="sm" />
+              <span className="text-sm font-semibold text-fg">{user.full_name?.split(' ')[0]}</span>
+            </button>
+            {menuOpen && (
+              <>
+                <div className="fixed inset-0 z-30" onClick={() => setMenuOpen(false)} />
+                <div className="absolute top-full mt-2 inset-inline-end-0 bg-surface rounded-card shadow-card border border-border min-w-[220px] z-40 overflow-hidden">
+                  <div className="p-3 border-b border-border">
+                    <div className="text-sm font-bold text-fg">{user.full_name}</div>
+                    <div className="text-xs text-fg-subtle">{user.email}</div>
+                  </div>
+                  <div className="p-1.5">
+                    <Link to={dashLink} className="block px-3 py-2 rounded text-sm font-semibold text-fg hover:bg-surface-alt no-underline" onClick={() => setMenuOpen(false)}>
+                      {t('nav.dashboard')}
+                    </Link>
+                    <Link to="/profile" className="block px-3 py-2 rounded text-sm font-semibold text-fg hover:bg-surface-alt no-underline" onClick={() => setMenuOpen(false)}>
+                      {t('nav.profile')}
+                    </Link>
+                    <Link to="/disputes" className="block px-3 py-2 rounded text-sm font-semibold text-fg hover:bg-surface-alt no-underline" onClick={() => setMenuOpen(false)}>
+                      ⚖️ {t('dispute.my_disputes')}
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-right px-3 py-2 rounded text-sm font-semibold text-danger hover:bg-danger-soft"
+                    >
+                      {t('nav.logout')}
+                    </button>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        ) : (
+          <div className="hidden md:flex items-center gap-2">
+            <Link
+              to="/login"
+              className="px-4 py-2 rounded-pill text-[14px] font-semibold text-fg-muted hover:bg-surface-alt transition no-underline"
+            >
+              {t('nav.login')}
+            </Link>
+            <Link
+              to="/register"
+              className="px-5 py-2.5 rounded-pill text-[14px] font-semibold text-primary-fg bg-primary-grad shadow-soft hover:shadow-lift transition active:scale-[.98] no-underline"
+            >
+              {t('nav.register')}
+            </Link>
+          </div>
+        )}
+
+      </div>
+
+      {/* Mobile menu sheet */}
+      {mobileOpen && createPortal(
+        <div className="xl:hidden fixed inset-0 z-50">
+          <div
+            className="absolute inset-0 bg-ink/40 backdrop-blur-sm"
+            onClick={() => setMobileOpen(false)}
+          />
+          <div ref={mobilePanel} id="ryza-mobile-menu" role="dialog" aria-modal="true" aria-label={t('common.more')}
+            className="absolute top-3 inset-x-3 bg-surface rounded-[22px] shadow-card p-4 max-h-[calc(100dvh-24px)] overflow-y-auto">
+            <div className="flex items-center justify-between mb-3">
+              <RyzaLogo markSize={30} wordSize={18} />
+              <button
+                type="button"
+                onClick={() => setMobileOpen(false)}
+                className="w-9 h-9 rounded-pill bg-surface-alt grid place-items-center text-fg-muted"
+                aria-label={t('common.close')}
+              >
+                <IconClose size={18} />
+              </button>
+            </div>
+            <div className="flex flex-col">
+              {visibleLinks.map((l) => (
+                <NavLink
+                  key={l.to}
+                  to={l.to}
+                  end={l.end}
+                  onClick={() => setMobileOpen(false)}
+                  className={({ isActive }) =>
+                    `text-right px-3 py-3 rounded-card font-semibold no-underline ${
+                      isActive ? 'bg-primary-soft text-primary' : 'text-fg-muted hover:bg-surface-alt'
+                    }`
+                  }
+                >
+                  {l.label}
+                </NavLink>
+              ))}
+            </div>
+            <div className="mt-3 mb-2 flex items-center justify-center gap-2">
+              <LanguageSwitcher />
+              <ThemeSwitcher />
+            </div>
+            {user ? (
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  to={dashLink}
+                  onClick={() => setMobileOpen(false)}
+                  className="px-4 py-2.5 rounded-pill font-semibold bg-surface-alt text-fg text-center no-underline"
+                >
+                  {t('nav.dashboard')}
+                </Link>
+                <button
+                  onClick={() => { setMobileOpen(false); handleLogout(); }}
+                  className="px-4 py-2.5 rounded-pill font-bold text-white bg-danger"
+                >
+                  {t('nav.logout')}
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  to="/login"
+                  onClick={() => setMobileOpen(false)}
+                  className="px-4 py-2.5 rounded-pill font-semibold bg-surface-alt text-fg text-center no-underline"
+                >
+                  {t('nav.login')}
+                </Link>
+                <Link
+                  to="/register"
+                  onClick={() => setMobileOpen(false)}
+                  className="px-4 py-2.5 rounded-pill font-bold text-primary-fg text-center no-underline bg-primary-grad"
+                >
+                  {t('nav.register')}
+                </Link>
+              </div>
+            )}
+          </div>
+        </div>, document.body
+      )}
+    </header>
+  );
+}

@@ -1,0 +1,36 @@
+{
+  "name": "local-services-server",
+  "version": "1.0.0",
+  "description": "Backend API for Local Services Marketplace",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "seed": "node scripts/seed.js",
+    "test": "node --test tests/*.test.js",
+    "test:integration": "node ../scripts/run-integration-tests.cjs"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "compression": "^1.7.4",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.22.3",
+    "express-rate-limit": "^7.4.0",
+    "express-validator": "^7.2.0",
+    "helmet": "^7.1.0",
+    "htmlparser2": "12.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.12.1",
+    "multer": "^2.4.0",
+    "nodemailer": "^10.0.13",
+    "pg": "^8.21.0",
+    "socket.io": "^4.8.4",
+    "uuid": "^11.1.1",
+    "web-push": "^3.6.7"
+  },
+  "engines": {
+    "node": ">=22.12"
+  }
+}

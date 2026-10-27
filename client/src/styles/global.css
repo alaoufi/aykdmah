@@ -1,0 +1,352 @@
+@import './variables.css';
+@import './rtl.css';
+
+* { box-sizing: border-box; }
+html { height: 100%; }
+body, #root { min-height: 100%; }
+:root { --mobile-nav-clearance: calc(108px + env(safe-area-inset-bottom)); }
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a { color: var(--primary-text); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+h1, h2, h3, h4, h5, h6 { margin: 0 0 .5em; line-height: 1.3; font-weight: 700; color: var(--text); }
+h1 { font-size: var(--font-size-3xl); }
+h2 { font-size: var(--font-size-2xl); }
+h3 { font-size: var(--font-size-xl); }
+h4 { font-size: var(--font-size-lg); }
+
+p { margin: 0 0 .9em; }
+
+img, svg { max-width: 100%; vertical-align: middle; }
+button, input, select, textarea { font: inherit; color: inherit; }
+
+.container {
+  max-width: var(--container);
+  margin-inline: auto;
+  padding-inline: var(--space-4);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  background: var(--bg-card);
+  color: var(--text);
+  cursor: pointer;
+  font-weight: 600;
+  transition: var(--transition);
+  text-decoration: none;
+  white-space: nowrap;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+.btn:active { transform: translateY(0); }
+.btn:disabled { opacity: .55; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.btn-primary { background: var(--primary); color: var(--primary-fg); border-color: var(--primary); }
+.btn-primary:hover { background: var(--primary-dark); border-color: var(--primary-dark); }
+.btn-secondary { background: var(--secondary); color: var(--secondary-fg); border-color: var(--secondary); }
+.btn-outline { background: transparent; border-color: var(--border-strong); }
+.btn-outline:hover { background: var(--bg-soft); }
+.btn-danger { background: var(--danger); color: #fff; border-color: var(--danger); }
+.btn-ghost { background: transparent; }
+.btn-sm { padding: 6px 12px; font-size: var(--font-size-sm); }
+.btn-lg { padding: 14px 28px; font-size: var(--font-size-lg); }
+.btn-block { width: 100%; }
+
+/* Inputs */
+.input, .textarea, .select {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  transition: var(--transition);
+  font: inherit;
+  color: var(--text);
+}
+.input:focus, .textarea:focus, .select:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgb(var(--color-brand-clay) / .18);
+}
+.textarea { min-height: 100px; resize: vertical; }
+
+.form-group { margin-bottom: var(--space-4); }
+.form-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+.form-error {
+  color: var(--danger);
+  font-size: var(--font-size-sm);
+  margin-top: 4px;
+}
+
+/* Cards */
+.card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border);
+}
+.card-hover { transition: var(--transition); }
+.card-hover:hover { box-shadow: var(--shadow); transform: translateY(-2px); }
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  border-radius: 999px;
+  background: var(--bg-soft);
+  color: var(--text-secondary);
+}
+.badge-primary { background: rgb(var(--color-primary-soft)); color: var(--primary-text); }
+.badge-success { background: rgba(16, 185, 129, .14); color: #047857; }
+.badge-danger { background: rgba(239, 68, 68, .14); color: #b91c1c; }
+.badge-warning { background: rgba(245, 158, 11, .14); color: #b45309; }
+.badge-urgent { background: rgba(239, 68, 68, .14); color: #b91c1c; }
+
+/* Grid utilities */
+.grid { display: grid; gap: var(--space-4); }
+.grid-2 { grid-template-columns: repeat(2, 1fr); }
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+.grid-4 { grid-template-columns: repeat(4, 1fr); }
+.grid-auto { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+
+@media (max-width: 768px) {
+  .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+  .grid-auto { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+}
+
+/* Flex utilities */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.gap-1 { gap: 4px; } .gap-2 { gap: 8px; } .gap-3 { gap: 12px; }
+.gap-4 { gap: 16px; } .gap-5 { gap: 20px; } .gap-6 { gap: 24px; }
+
+/* Text utilities */
+.text-center { text-align: center; }
+.text-muted { color: var(--text-muted); }
+.text-secondary { color: var(--text-secondary); }
+.text-sm { font-size: var(--font-size-sm); }
+.text-xs { font-size: var(--font-size-xs); }
+.text-lg { font-size: var(--font-size-lg); }
+.font-bold { font-weight: 700; }
+
+/* Spacing */
+.mt-1 { margin-top: 4px; } .mt-2 { margin-top: 8px; } .mt-3 { margin-top: 12px; }
+.mt-4 { margin-top: 16px; } .mt-5 { margin-top: 20px; } .mt-6 { margin-top: 24px; }
+.mb-1 { margin-bottom: 4px; } .mb-2 { margin-bottom: 8px; } .mb-3 { margin-bottom: 12px; }
+.mb-4 { margin-bottom: 16px; } .mb-5 { margin-bottom: 20px; } .mb-6 { margin-bottom: 24px; }
+
+/* Loading spinner */
+.spinner {
+  width: 20px;
+  height: 20px;
+  border: 2.5px solid rgb(var(--color-brand-clay) / .25);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin .8s linear infinite;
+}
+.spinner-lg { width: 40px; height: 40px; border-width: 4px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-state {
+  display: grid;
+  place-items: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--text-muted);
+}
+.empty-state h3 { color: var(--text-secondary); margin-bottom: 8px; }
+
+.error-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--danger);
+}
+
+/* Page wrapper */
+.page {
+  min-height: calc(100vh - var(--header-h) - var(--footer-h));
+  padding: var(--space-6) 0;
+}
+
+/* Stars */
+.stars { display: inline-flex; gap: 2px; color: var(--accent); font-size: 18px; }
+
+/* Toast (simple) */
+.toast-container {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.toast {
+  background: var(--text);
+  color: var(--bg);
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: var(--font-size-sm);
+  box-shadow: var(--shadow-lg);
+  animation: slideUp .3s ease;
+}
+@keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Avatar */
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-soft);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  font-weight: 700;
+  color: var(--primary);
+  flex-shrink: 0;
+}
+.avatar img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-lg { width: 64px; height: 64px; font-size: 22px; }
+.avatar-sm { width: 32px; height: 32px; font-size: 13px; }
+
+/* ---- Auto-scrolling label (cat-name-track) ----
+ * Single-line label that auto-scrolls horizontally when the text is
+ * longer than its container. Uses container query units so a short
+ * label sits still and a long one slides exactly the overflow amount.
+ * Direction-agnostic (works in both LTR and RTL).
+ *
+ * Pauses on hover/focus so the user can read mid-scroll.
+ */
+.cat-name-track {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  container-type: inline-size;
+  mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
+}
+.cat-name-inner {
+  display: inline-block;
+  white-space: nowrap;
+  animation: catNameScroll 10s ease-in-out infinite;
+}
+.cat-name-track:hover .cat-name-inner,
+.cat-name-track:focus-within .cat-name-inner {
+  animation-play-state: paused;
+}
+@keyframes catNameScroll {
+  0%, 15%   { transform: translateX(0); }
+  /* min() makes short labels stay at translate 0; long ones slide
+     by exactly the overflow distance and back. */
+  50%, 65%  { transform: translateX(min(0px, calc(100cqi - 100%))); }
+  100%      { transform: translateX(0); }
+}
+
+/* ---- Mobile-first touch & safe-area helpers ---- */
+@media (max-width: 640px) {
+  /* Make all rounded-pill action chips reach the 44px touch target */
+  .rounded-pill { min-height: 36px; }
+  button.rounded-pill,
+  a.rounded-pill { min-height: 40px; }
+
+  /* Form inputs taller on mobile so iOS doesn't zoom on focus */
+  input, select, textarea {
+    font-size: 16px !important;
+    min-height: 44px;
+  }
+  textarea { min-height: 88px; }
+}
+
+/* Safe-area utilities (iPhone notch + home indicator) */
+.safe-pb { padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+.safe-pt { padding-top: max(0px, env(safe-area-inset-top)); }
+.safe-pl { padding-left: max(0px, env(safe-area-inset-left)); }
+.safe-pr { padding-right: max(0px, env(safe-area-inset-right)); }
+
+/* Floating action button — used on admin list pages */
+.fab {
+  position: fixed;
+  inset-inline-end: 20px;
+  bottom: calc(20px + env(safe-area-inset-bottom));
+  z-index: 30;
+  width: 56px; height: 56px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  color: #fff; font-size: 26px;
+  background: linear-gradient(135deg, rgb(var(--color-primary-from)), rgb(var(--color-primary-to)));
+  box-shadow: 0 8px 24px rgba(0,0,0,.18), 0 2px 6px rgba(0,0,0,.10);
+  border: 0; cursor: pointer; transition: transform .15s;
+}
+.fab:active { transform: scale(.94); }
+.fab:hover { box-shadow: 0 12px 32px rgba(0,0,0,.22), 0 4px 8px rgba(0,0,0,.12); }
+/* hide on desktop where there's a normal button in the header */
+@media (min-width: 768px) {
+  .fab { display: none; }
+}
+
+/* The portal keeps fixed navigation outside page containing blocks. Use the
+   visible viewport on mobile browsers whose toolbars resize independently. */
+.mobile-bottom-nav {
+  position: fixed;
+  left: var(--mobile-nav-viewport-left, 0px);
+  width: var(--mobile-nav-viewport-width, 100%);
+  top: var(--mobile-nav-viewport-bottom, 100vh);
+  transform: translateY(-100%);
+}
+@supports (height: 100dvh) {
+  .mobile-bottom-nav { top: var(--mobile-nav-viewport-bottom, 100dvh); }
+}
+.site-footer { padding-bottom: 48px; }
+
+/* Reserve the whole navigation, its raised action button, and the safe area. */
+@media (max-width: 767.98px) {
+  main { padding-bottom: var(--mobile-nav-clearance); }
+  .site-footer { padding-bottom: var(--mobile-nav-clearance); }
+}
+
+/* When the user is typing in an input, scroll it into view smoothly
+   so iOS keyboard doesn't cover it */
+@media (max-width: 640px) {
+  input:focus, textarea:focus, select:focus {
+    scroll-margin-top: 80px;
+    scroll-margin-bottom: 80px;
+  }
+}

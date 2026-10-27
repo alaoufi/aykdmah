@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>خدمات أوتاد — غير متصل</title>
+  <link rel="icon" href="/favicon.ico?v=awtad" />
+  <meta name="theme-color" content="#0B2D56" />
+  <script src="/theme-init.js"></script>
+  <style>
+    body { font-family: Cairo, Tahoma, sans-serif; background: #FAF7F2; color: #0B2D56; display: grid; place-items: center; min-height: 100vh; margin: 0; padding: 16px; }
+    .card { background: #fff; padding: 32px 40px; border-radius: 14px; max-width: 480px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,.08); }
+    h1 { font-size: 22px; margin: 0 0 12px; }
+    p { color: #425A70; line-height: 1.7; }
+    button { background: #A45130; color: #fff; border: 0; padding: 10px 24px; border-radius: 10px; cursor: pointer; font-family: inherit; font-size: 15px; }
+    :root[data-theme="dark"] body { background: #07192B; color: #FAF7F2; }
+    :root[data-theme="dark"] .card { background: #0B2440; }
+    :root[data-theme="dark"] p { color: #D5E1EB; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <svg id="logo" dir="ltr" role="img" aria-label="خدمات أوتاد" viewBox="145 180 1510 300" width="1510" height="300" style="width:190px;height:auto;margin-bottom:24px;transform:none">
+      <title>خدمات أوتاد</title>
+      <image href="/brand/awtad-logo.svg" width="2000" height="760" />
+    </svg>
+    <h1 id="offline-title">أنت غير متصل بالإنترنت</h1>
+    <p id="offline-message">تأكد من اتصال الإنترنت ثم حاول مرة أخرى.</p>
+    <button id="retry">إعادة المحاولة</button>
+  </div>
+  <script src="/offline.js"></script>
+</body>
+</html>
