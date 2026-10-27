@@ -1,5 +1,6 @@
-# Public web server for aykdmh.com. Runs alongside the private Coolify install
-# without touching it. Start: docker compose -p aykdmh -f deploy/docker-compose.yml up -d
+# aykdmh.com production stack. Runs alongside the private Coolify install without
+# touching it. Only Caddy is published; the API and database stay on the internal network.
+# Start: docker compose -p aykdmh --env-file /opt/aykdmh/.env -f deploy/docker-compose.yml up -d
 services:
   web:
     image: caddy:2.8.4-alpine
@@ -15,12 +16,61 @@ services:
       - /var/www/aykdmh:/srv:ro
       - caddy_data:/data
       - caddy_config:/config
-    logging:
+    depends_on:
+      - app
+    logging: &logging
       driver: json-file
       options:
         max-size: "10m"
         max-file: "3"
 
+  app:
+    build:
+      context: ..
+      dockerfile: deploy/app.Dockerfile
+    image: aykdmh-app:latest
+    container_name: aykdmh-app
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      APP_PORT: "5000"
+      APP_URL: https://aykdmh.com
+      CLIENT_URL: https://aykdmh.com
+      TRUST_PROXY: "1"
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_NAME: aykdmh
+      DB_USER: aykdmh
+      DB_PASSWORD: ${DB_PASSWORD:?set in /opt/aykdmh/.env}
+      DB_SSL: "false"
+      JWT_SECRET: ${JWT_SECRET:?set in /opt/aykdmh/.env}
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:?set in /opt/aykdmh/.env}
+    volumes:
+      - uploads:/app/server/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+    logging: *logging
+
+  db:
+    image: postgres:16-alpine
+    container_name: aykdmh-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: aykdmh
+      POSTGRES_USER: aykdmh
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?set in /opt/aykdmh/.env}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aykdmh -d aykdmh"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    logging: *logging
+
 volumes:
   caddy_data:
   caddy_config:
+  pgdata:
+  uploads:

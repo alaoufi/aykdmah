@@ -14,7 +14,8 @@ const { generalLimiter } = require('./middleware/rateLimiter');
 const { localeMiddleware } = require('./utils/i18n');
 
 const app = express();
-if (process.env.VERCEL) app.set('trust proxy', 1);
+// Behind Vercel or the self-hosted Caddy proxy, use the client address it forwards.
+if (process.env.VERCEL || process.env.TRUST_PROXY === '1') app.set('trust proxy', 1);
 
 app.disable('x-powered-by');
 app.use(helmet({

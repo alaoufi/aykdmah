@@ -47,6 +47,17 @@ let server, io, base, createdDatabase = false;
 let users, conversation, privateConversation, linkedConversation, requestId;
 const sockets = [];
 
+// The vulnerable baseline commit only exists in the original local history (not in the
+// recovered source). Without it, run every assertion against the fixed code and skip the
+// "baseline was vulnerable" demonstrations.
+const HAS_BASELINE = (() => {
+  try {
+    execFileSync('git', ['cat-file', '-e', '7f4ec4b^{commit}'], { cwd: path.resolve(__dirname, '../..'), stdio: 'ignore' });
+    return true;
+  } catch { return false; }
+})();
+if (!HAS_BASELINE) console.log('# baseline commit 7f4ec4b unavailable; vulnerable-baseline demonstrations skipped');
+
 function baseline(relative) {
   const filename = path.resolve(__dirname, '..', relative);
   const source = execFileSync('git', ['show', `7f4ec4b:server/${relative}`], { cwd: path.resolve(__dirname, '../..'), encoding: 'utf8' });
@@ -120,8 +131,10 @@ test.before(async () => {
   app.use('/api/chat', require('../routes/chatRoutes'));
   app.use('/api/notifications', require('../routes/notificationRoutes'));
   app.use('/api/verify', require('../routes/verificationRoutes'));
-  app.use('/baseline/media', baseline('routes/mediaRoutes.js'));
-  app.post('/baseline/upload', baseline('middleware/upload.js').uploadChat.array('files', 4), (req, res) => res.json({ accepted: !!req.files?.[0]?.buffer }));
+  if (HAS_BASELINE) {
+    app.use('/baseline/media', baseline('routes/mediaRoutes.js'));
+    app.post('/baseline/upload', baseline('middleware/upload.js').uploadChat.array('files', 4), (req, res) => res.json({ accepted: !!req.files?.[0]?.buffer }));
+  }
   app.use((err, req, res, _next) => res.status(err.status || 500).json({ success: false, message: err.message }));
   server = http.createServer(app);
   io = require('../socket')(server); app.set('io', io);
@@ -148,9 +161,11 @@ test.after(async () => {
 test('baseline proves anonymous private-media disclosure; fixed route enforces current participants and revocation', async () => {
   const id = await withUploadedFiles([{ originalname: 'private.png', mimetype: 'image/png', buffer: Buffer.from(png) }], { ownerId: users.client.id, scope: 'chat', scopeId: conversation }, files => Message.create({ conversation_id: conversation, sender_id: users.client.id, message_type: 'image', files }));
   const message = await Message.findById(id), url = message.files[0].file_url;
-  const baselineResponse = await request(url.replace('/api/media', '/baseline/media'));
-  assert.equal(baselineResponse.status, 200);
-  assert.deepEqual(Buffer.from(await baselineResponse.arrayBuffer()), png);
+  if (HAS_BASELINE) {
+    const baselineResponse = await request(url.replace('/api/media', '/baseline/media'));
+    assert.equal(baselineResponse.status, 200);
+    assert.deepEqual(Buffer.from(await baselineResponse.arrayBuffer()), png);
+  }
   assert.equal((await request(url)).status, 401);
   assert.equal((await request(url, { user: users.outsider })).status, 404);
   const permitted = await request(url, { user: users.provider, headers: { Range: 'bytes=1-6' } });
@@ -164,7 +179,7 @@ test('baseline proves anonymous private-media disclosure; fixed route enforces c
 
 test('content sniffing rejects spoofed HTML/executables and mismatched extensions before persistence', async () => {
   const evil = Buffer.from('<script>globalThis.executable=true</script>');
-  assert.equal((await (await request('/baseline/upload', { method: 'POST', body: attachment(evil) })).json()).accepted, true);
+  if (HAS_BASELINE) assert.equal((await (await request('/baseline/upload', { method: 'POST', body: attachment(evil) })).json()).accepted, true);
   const count = await mediaCount();
   for (const [bytes, filename, mime] of [[evil, 'fake.png', 'image/png'], [Buffer.from('MZ executable'), 'fake.jpg', 'image/jpeg'], [png, 'fake.mp3', 'image/png'], [png, 'script.html', 'image/png']]) {
     assert.equal((await request(`/api/chat/conversations/${conversation}/messages`, { method: 'POST', user: users.client, body: attachment(bytes, filename, mime, { message_type: 'image' }) })).status, 400);
@@ -181,10 +196,12 @@ test('content sniffing rejects spoofed HTML/executables and mismatched extension
 
 test('baseline proves reply cross-conversation leak; fixed creation and historic reply joins isolate content', async () => {
   const secret = await Message.create({ conversation_id: privateConversation, sender_id: users.outsider.id, content: 'PRIVATE_ONLY_REPLY_CONTENT' });
-  const oldMessage = baseline('models/Message.js');
-  const unsafe = await oldMessage.create({ conversation_id: conversation, sender_id: users.client.id, content: 'reply', reply_to_id: secret });
-  assert.equal((await oldMessage.findById(unsafe)).reply_content, 'PRIVATE_ONLY_REPLY_CONTENT');
-  assert.equal((await Message.findById(unsafe)).reply_content, null);
+  if (HAS_BASELINE) {
+    const oldMessage = baseline('models/Message.js');
+    const unsafe = await oldMessage.create({ conversation_id: conversation, sender_id: users.client.id, content: 'reply', reply_to_id: secret });
+    assert.equal((await oldMessage.findById(unsafe)).reply_content, 'PRIVATE_ONLY_REPLY_CONTENT');
+    assert.equal((await Message.findById(unsafe)).reply_content, null);
+  }
   await assert.rejects(Message.create({ conversation_id: conversation, sender_id: users.client.id, content: 'reply', reply_to_id: secret }), /Invalid reply/);
   assert.equal((await request(`/api/chat/conversations/${conversation}/messages/${secret}`, { method: 'DELETE', user: users.outsider })).status, 403);
 });
@@ -210,11 +227,13 @@ test('notification read and bulk read cannot mutate another user notifications',
 
 test('baseline Nafath can approve invented transactions; fixed policy and transaction binding reject them without outbound calls', async () => {
   const integration = await ApiIntegration.create({ type: 'nafath', provider: 'mock', is_enabled: 1, credentials: null });
-  const oldVerification = baseline('services/verificationService.js');
-  const approved = await oldVerification.pollNafath({ user: users.outsider, transactionId: 'unowned-invented-transaction' });
-  assert.equal(approved.verified, true);
-  assert.equal(Number((await db.queryOne('SELECT is_verified FROM users WHERE id = ?', [users.outsider.id])).is_verified), 1);
-  await db.query('UPDATE users SET is_verified = 0 WHERE id = ?', [users.outsider.id]);
+  if (HAS_BASELINE) {
+    const oldVerification = baseline('services/verificationService.js');
+    const approved = await oldVerification.pollNafath({ user: users.outsider, transactionId: 'unowned-invented-transaction' });
+    assert.equal(approved.verified, true);
+    assert.equal(Number((await db.queryOne('SELECT is_verified FROM users WHERE id = ?', [users.outsider.id])).is_verified), 1);
+    await db.query('UPDATE users SET is_verified = 0 WHERE id = ?', [users.outsider.id]);
+  }
   assert.equal((await verification.pollNafath({ user: users.outsider, transactionId: 'anything' })).error, 'method_disabled');
   await Setting.set('verify_methods_enabled', 'sms,email,nafath');
   assert.equal((await verification.pollNafath({ user: users.outsider, transactionId: 'anything' })).error, 'invalid_transaction');
@@ -231,11 +250,13 @@ test('baseline Nafath can approve invented transactions; fixed policy and transa
 
 test('OTP attempts/consumption and resend serialize; account verification binds to the stored contact', async () => {
   assert.equal((await verification.startOtp({ user: users.client, method: 'sms', identifier: users.outsider.phone })).error, 'invalid_identifier');
-  const old = baseline('models/UserVerification.js');
-  await old.createOtp({ user_id: users.provider.id, method: 'email', identifier: users.provider.email, code: '654321', maxAttempts: 3 });
-  const insecure = await Promise.all(Array.from({ length: 6 }, () => old.verifyOtp(users.provider.id, 'email', '654321')));
-  assert.ok(insecure.filter(r => r.ok).length > 1, 'Baseline concurrent consumers replay the same OTP');
-  await db.query("DELETE FROM verification_otps WHERE user_id = ? AND method = 'email'", [users.provider.id]);
+  if (HAS_BASELINE) {
+    const old = baseline('models/UserVerification.js');
+    await old.createOtp({ user_id: users.provider.id, method: 'email', identifier: users.provider.email, code: '654321', maxAttempts: 3 });
+    const insecure = await Promise.all(Array.from({ length: 6 }, () => old.verifyOtp(users.provider.id, 'email', '654321')));
+    assert.ok(insecure.filter(r => r.ok).length > 1, 'Baseline concurrent consumers replay the same OTP');
+    await db.query("DELETE FROM verification_otps WHERE user_id = ? AND method = 'email'", [users.provider.id]);
+  }
   await UserVerification.createOtp({ user_id: users.provider.id, method: 'email', identifier: users.provider.email, code: '654321', maxAttempts: 3 });
   const attempts = await Promise.all(Array.from({ length: 8 }, () => UserVerification.verifyOtp(users.provider.id, 'email', '000000')));
   assert.equal(attempts.filter(r => r.reason === 'invalid_code').length, 3);
@@ -256,7 +277,7 @@ test('gateway validation blocks SSRF literals/private DNS and production fake ad
     attempted.push({ url, headers: options.headers });
     return { ok: true, json: async () => ({ transactionId: 'local-only-provider-spy', code: '12' }) };
   };
-  try {
+  if (HAS_BASELINE) try {
     await baseline('services/integrations/nafath.js').nafath_api.start({ credentials: { base_url: 'http://127.0.0.1:9', client_id: 'LOCAL_TEST_ID', client_secret: 'LOCAL_TEST_SECRET' }, nationalId: '1000000000' });
     assert.equal(attempted[0].url, 'http://127.0.0.1:9/identity/start');
     assert.equal(attempted[0].headers['X-Client-Secret'], 'LOCAL_TEST_SECRET');
@@ -284,10 +305,12 @@ test('gateway validation blocks SSRF literals/private DNS and production fake ad
 });
 
 test('socket typing/location/chat enforce membership; removed participants and idle revoked sessions receive no private events', async () => {
-  const handlers = {}, insecureEvents = [];
-  baseline('socket/chatHandler.js')({}, { user: users.outsider, on: (event, fn) => { handlers[event] = fn; }, to: room => ({ emit: (event, payload) => insecureEvents.push({ room, event, payload }) }) });
-  handlers['chat:typing']({ conversationId: conversation, isTyping: true });
-  assert.equal(insecureEvents[0].room, `conv:${conversation}`);
+  if (HAS_BASELINE) {
+    const handlers = {}, insecureEvents = [];
+    baseline('socket/chatHandler.js')({}, { user: users.outsider, on: (event, fn) => { handlers[event] = fn; }, to: room => ({ emit: (event, payload) => insecureEvents.push({ room, event, payload }) }) });
+    handlers['chat:typing']({ conversationId: conversation, isTyping: true });
+    assert.equal(insecureEvents[0].room, `conv:${conversation}`);
+  }
   const recipient = await socketFor(users.provider), attacker = await socketFor(users.outsider), client = await socketFor(users.client);
   assert.equal((await acknowledge(recipient, 'chat:join', conversation)).ok, true);
   await noEvent(recipient, 'chat:typing', async () => { attacker.emit('chat:typing', { conversationId: conversation, isTyping: true }); });

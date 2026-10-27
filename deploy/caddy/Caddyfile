@@ -1,31 +1,50 @@
 # aykdmh.com — Caddy obtains and renews Let's Encrypt certificates automatically.
-# Site files come from /srv/current (a symlink to the active release).
+# Mirrors the headers, rewrites and cache rules of the root vercel.json.
+# The built client lives in /srv/current (a symlink to the active release);
+# the API runs in the `app` container.
 aykdmh.com {
-	root * /srv/current
 	encode zstd gzip
 
 	header {
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://nominatim.openstreetmap.org https://huggingface.co https://*.hf.co; media-src 'self' blob: https:; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
 		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
 		Referrer-Policy strict-origin-when-cross-origin
-		Strict-Transport-Security "max-age=31536000"
+		Permissions-Policy "camera=(self), geolocation=(self), microphone=(self)"
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
 		-Server
 	}
 
-	# Missing build assets must 404, never fall back to index.html (Safari MIME issue in the handover).
-	@assets path /assets/* *.js *.mjs *.wasm *.css *.map
-	handle @assets {
+	@backend path /api /api/* /socket.io/*
+	handle @backend {
+		reverse_proxy app:5000
+	}
+
+	@private path /install /install/* /uploads /uploads/*
+	handle @private {
+		respond 404
+	}
+
+	root * /srv/current
+
+	# Fingerprinted build output never changes.
+	@hashed path_regexp ^/assets/.*-[A-Za-z0-9_-]{8}\.(js|mjs|css|wasm|woff2?|png|jpe?g|webp|avif|svg)$
+	handle @hashed {
 		header Cache-Control "public, max-age=31536000, immutable"
 		file_server
 	}
 
-	# When the app server is deployed, proxy its API here:
-	# handle /api/* {
-	# 	reverse_proxy host.docker.internal:3000
-	# }
+	# Real files: a missing one must 404, never fall back to index.html (Safari MIME issue in the handover).
+	@static path_regexp (^/(assets|brand|icons|meta)(/|$))|\.(js|mjs|cjs|wasm|css|html|json|map|webmanifest|png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|otf|txt|xml|pdf|zip|mp3|wav|ogg|mp4|webm)$
+	handle @static {
+		header Cache-Control "no-cache, no-store, must-revalidate"
+		file_server
+	}
 
+	# Client-side routes.
 	handle {
-		header Cache-Control "no-cache"
-		try_files {path} {path}/ /index.html
+		header Cache-Control "no-cache, no-store, must-revalidate"
+		rewrite * /index.html
 		file_server
 	}
 }
