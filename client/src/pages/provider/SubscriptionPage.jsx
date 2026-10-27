@@ -2,6 +2,7 @@ import { localizedJoinedName } from '../../utils/localizeJoined';
 import { safeUrl } from '../../utils/urlSafety';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useLocation } from 'react-router-dom';
 import { listPlans, subscribe, getCurrentSubscription, createPaymentSession } from '../../services/adminService';
 import { formatCurrency } from '../../utils/formatters';
 import { LoadingState } from '../../components/common/Spinner';
@@ -16,7 +17,9 @@ export default function SubscriptionPage() {
   const [current, setCurrent] = useState(null);
   const [loading, setLoading] = useState(true);
   const [working, setWorking] = useState(null);
-  const [msg, setMsg] = useState('');
+  const location = useLocation();
+  // Result of a test checkout, passed back by TestCheckoutPage.
+  const [msg, setMsg] = useState(() => (location.state?.notice ? t(location.state.notice) : ''));
 
   const load = () => {
     setLoading(true);

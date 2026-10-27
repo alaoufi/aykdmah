@@ -1614,7 +1614,8 @@
       "note_required": "Enter the reason for the adjustment (at least 5 characters).",
       "invalid_percent": "The percent must be between 0 and 100.",
       "invalid_action": "Invalid action.",
-      "user_not_found": "User not found."
+      "user_not_found": "User not found.",
+      "test_mode_withdrawals_disabled": "Bank withdrawals are disabled in test mode."
     },
     "admin": {
       "title": "Wallets & coupons",
@@ -1644,7 +1645,21 @@
       "adjust_note": "Reason (kept in the ledger)",
       "adjust": "Record adjustment",
       "adjusted": "Adjustment recorded.",
-      "rewards": "Coupon commissions"
-    }
+      "rewards": "Coupon commissions",
+      "test_mode": "Payments are in test mode: all current payments and commissions are test data and no bank transfer can be approved. Clear test data before connecting the real gateway."
+    },
+    "test_mode": "Test mode: commissions come from test payments, and bank withdrawals are disabled until a real gateway is connected."
+  },
+  "test_checkout": {
+    "banner": "Test payment — no money will be charged",
+    "title": "Test checkout",
+    "explainer": "The site is in test mode before a real payment gateway is connected. “Complete payment” activates the subscription and calculates the coupon commission exactly as it will later, with no real money.",
+    "pay": "Complete test payment",
+    "cancel": "Cancel",
+    "paid": "Test payment done and subscription activated (no money charged).",
+    "cancelled": "Payment cancelled; you can subscribe again.",
+    "already_done": "This payment was already processed.",
+    "not_found": "Test payment not found.",
+    "failed": "The operation failed. Please try again."
   }
 }

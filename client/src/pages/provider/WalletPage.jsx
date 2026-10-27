@@ -63,6 +63,9 @@ export default function WalletPage() {
   return (
     <div className="space-y-4 max-w-3xl">
       <h1 className="text-xl font-extrabold text-fg">{t('wallet.title')}</h1>
+      {data.test_mode && (
+        <div role="note" className="px-3 py-2 rounded-card bg-amber-100 text-amber-900 text-[13px]">🧪 {t('wallet.test_mode')}</div>
+      )}
       {notice && <div role="status" className={`px-3 py-2 rounded-card text-[13px] ${notice.ok ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'}`}>{notice.text}</div>}
 
       <div className="card p-4 space-y-2">

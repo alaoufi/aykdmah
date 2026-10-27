@@ -19,6 +19,7 @@ const ReviewPage = lazy(() => import('./pages/ReviewPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const PolicyPage = lazy(() => import('./pages/PolicyPage'));
 const ProvidersMapPage = lazy(() => import('./pages/ProvidersMapPage'));
+const TestCheckoutPage = lazy(() => import('./pages/TestCheckoutPage'));
 const ProviderProfilePage = lazy(() => import('./pages/ProviderProfilePage'));
 const GuidePage = lazy(() => import('./pages/GuidePage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
@@ -113,6 +114,7 @@ export default function AppRoutes() {
           <Route path="/terms" element={<PolicyPage kind="terms" />} />
           <Route path="/guide" element={<GuidePage />} />
           <Route path="/providers/map" element={<ProvidersMapPage />} />
+          <Route path="/payments/test/:id" element={<Protected><TestCheckoutPage /></Protected>} />
           <Route path="/providers/:id" element={<ProviderProfilePage />} />
           {/* AYK services catalog */}
           <Route path="/services" element={<ServicesCatalogPage />} />

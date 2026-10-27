@@ -40,6 +40,9 @@ export default function AdminWalletsPage() {
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-extrabold text-fg">{t('wallet.admin.title')}</h1>
+      {data.test_mode && (
+        <div role="note" className="px-3 py-2 rounded-card bg-amber-100 text-amber-900 text-[13px]">🧪 {t('wallet.admin.test_mode')}</div>
+      )}
       {notice && <div role="status" className={`px-3 py-2 rounded-card text-[13px] ${notice.ok ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'}`}>{notice.text}</div>}
 
       <div className="grid grid-cols-2 lg:grid-cols-5 gap-2">

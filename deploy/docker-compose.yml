@@ -45,6 +45,8 @@ services:
       DB_SSL: "false"
       JWT_SECRET: ${JWT_SECRET:?set in /opt/aykdmh/.env}
       ENCRYPTION_KEY: ${ENCRYPTION_KEY:?set in /opt/aykdmh/.env}
+      # AYK-013: payments run in test mode (no money moves) until a real gateway is approved.
+      PAYMENT_PROVIDER: test
       LIVEKIT_URL: wss://aykdmh.com/livekit
       LIVEKIT_API_URL: http://livekit:7880
       LIVEKIT_API_KEY: aykdmh

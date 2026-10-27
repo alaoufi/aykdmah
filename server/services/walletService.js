@@ -16,6 +16,7 @@ const { query, queryOne, transaction } = require('../config/database');
 const { comparePassword } = require('../utils/hash');
 const Setting = require('../models/Setting');
 const notificationService = require('./notificationService');
+const { isTestMode } = require('./paymentService');
 
 const LETTERS = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // no I or O: they read like 1 and 0
 // Code shapes, shortest first: 2 letters + 2 digits, then more digits, then more letters.
@@ -119,6 +120,7 @@ async function awardReferralIn(conn, payment) {
   const txId = await insertTx(conn, {
     userId: referrerId, halalas, type: 'referral_commission', relatedUserId: payment.user_id,
     referenceType: 'payment', referenceId: payment.id,
+    note: String(payment.provider).toLowerCase() === 'test' ? 'test' : null,
   });
   await conn.execute(
     `INSERT INTO referral_rewards (referred_user_id, referrer_id, payment_id, payment_amount, percent, amount, wallet_transaction_id)
@@ -146,6 +148,8 @@ function parseAmount(value) {
 }
 
 async function requestWithdrawal(user, { amount, iban, account_name, password }) {
+  // Balances in test mode come from test payments: nothing may leave for a bank.
+  if (isTestMode()) throw fail(409, 'test_mode_withdrawals_disabled');
   await requirePassword(user.id, password);
   const halalas = parseAmount(amount);
   const minimum = toHalalas(Number(await Setting.get('wallet_min_withdrawal')) || 0);
@@ -183,6 +187,7 @@ async function cancelWithdrawal(user, id) {
 // Administrator: mark paid after the bank transfer, or reject and release the hold.
 async function processWithdrawal(admin, id, { action, note, transfer_reference }) {
   if (!['paid', 'rejected'].includes(action)) throw fail(400, 'invalid_action');
+  if (action === 'paid' && isTestMode()) throw fail(409, 'test_mode_withdrawals_disabled');
   const reference = String(transfer_reference || '').trim().slice(0, 100);
   if (action === 'paid' && reference.length < 3) throw fail(400, 'transfer_reference_required');
   const result = await transaction(async conn => {
@@ -284,6 +289,7 @@ async function summary(userId) {
     commission_percent: await commissionPercent(),
     min_withdrawal: Number(await Setting.get('wallet_min_withdrawal')) || 0,
     can_apply_coupon: !me?.referred_by && !paidBefore,
+    test_mode: isTestMode(),
     transactions, withdrawals,
   };
 }
@@ -309,7 +315,7 @@ async function adminOverview() {
     JOIN users a ON a.id = r.referrer_id JOIN users b ON b.id = r.referred_user_id ORDER BY r.id DESC LIMIT 200`);
   const num = row => Object.fromEntries(Object.entries(row).map(([k, v]) => [k, Number(v)]));
   return {
-    totals: num(totals), commission_percent: await commissionPercent(),
+    totals: num(totals), commission_percent: await commissionPercent(), test_mode: isTestMode(),
     min_withdrawal: Number(await Setting.get('wallet_min_withdrawal')) || 0,
     wallets: wallets.map(w => ({ ...w, balance: Number(w.balance), earned: Number(w.earned), referrals: Number(w.referrals) })),
     withdrawals, rewards,
