@@ -1,35 +1,44 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { THEME_LIST, DEFAULT_THEME, getTheme } from './themes';
-import { applyTheme, readStoredTheme } from './applyTheme';
+import { applyPrefs } from './applyTheme';
+import { readPrefs, normalizePrefs, resolveTheme, systemPrefersDark, DEFAULT_PREFS } from './preferences';
 
 const ThemeContext = createContext({
   theme: getTheme(DEFAULT_THEME),
   themeName: DEFAULT_THEME,
   themes: THEME_LIST,
+  prefs: DEFAULT_PREFS,
+  setPrefs: () => {},
   setTheme: () => {},
 });
 
-export function ThemeProvider({ children, defaultName = DEFAULT_THEME }) {
-  // Bootstrap with whatever is already on :root (set by the
-  // pre-render inline script in index.html). Falls back to default.
-  const [themeName, setThemeName] = useState(() => {
-    if (typeof document !== 'undefined') {
-      const fromAttr = document.documentElement.getAttribute('data-theme');
-      if (fromAttr) return getTheme(fromAttr).name;
-    }
-    return getTheme(readStoredTheme() || defaultName).name;
-  });
+export function ThemeProvider({ children }) {
+  const [prefs, setPrefsState] = useState(() => (typeof window === 'undefined' ? DEFAULT_PREFS : readPrefs()));
+  const [systemDark, setSystemDark] = useState(() => (typeof window === 'undefined' ? false : systemPrefersDark()));
 
-  useEffect(() => { applyTheme(themeName); }, [themeName]);
+  // "System" follows the device setting live.
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return undefined;
+    const query = window.matchMedia('(prefers-color-scheme: dark)');
+    const onChange = event => setSystemDark(event.matches);
+    query.addEventListener?.('change', onChange);
+    return () => query.removeEventListener?.('change', onChange);
+  }, []);
 
-  const value = useMemo(() => ({
-    theme: getTheme(themeName),
-    themeName,
-    themes: THEME_LIST,
-    setTheme: (name) => {
-      setThemeName(getTheme(name).name);
-    },
-  }), [themeName]);
+  useEffect(() => { applyPrefs(prefs, systemDark); }, [prefs, systemDark]);
+
+  const value = useMemo(() => {
+    const theme = resolveTheme(prefs, systemDark);
+    return {
+      theme,
+      themeName: theme.name,
+      themes: THEME_LIST,
+      prefs,
+      setPrefs: changes => setPrefsState(previous => normalizePrefs({ ...previous, ...changes })),
+      // Kept for older callers: "dark" or "default".
+      setTheme: name => setPrefsState(previous => normalizePrefs({ ...previous, mode: name === 'dark' ? 'dark' : 'light' })),
+    };
+  }, [prefs, systemDark]);
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }

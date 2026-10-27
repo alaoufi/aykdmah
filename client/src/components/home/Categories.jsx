@@ -22,10 +22,10 @@ export default function Categories() {
     <section className="relative -mt-10 md:-mt-14 z-10">
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
         <div className="bg-white rounded-[22px] shadow-card border border-slate-100 p-5 md:p-8">
-          <div className="flex items-end justify-between mb-5 md:mb-7">
+          <div className="flex items-end justify-between mb-3 md:mb-7">
             <div>
               <div className="text-[12px] font-semibold text-brand-600 mb-1.5">{t('home.browse_by_category')}</div>
-              <h2 className="text-ink text-2xl md:text-3xl font-extrabold tracking-tight">
+              <h2 className="text-ink text-xl md:text-3xl font-extrabold tracking-tight">
                 {t('home.what_do_you_need')}
               </h2>
               <p className="text-slate-500 text-sm md:text-[15px] mt-1.5">
@@ -72,7 +72,7 @@ export default function Categories() {
             </div>
           )}
 
-          <div className="mt-6 md:mt-8 pt-5 md:pt-6 border-t border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
+          <div className="mt-4 md:mt-8 pt-3 md:pt-6 border-t border-slate-100 grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
             {TRUST.map((f, i) => (
               <div key={i} className="flex items-center gap-3">
                 <span className="w-10 h-10 rounded-card grid place-items-center bg-brand-50 text-brand-600 shrink-0">

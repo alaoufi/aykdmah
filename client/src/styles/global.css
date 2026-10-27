@@ -350,3 +350,32 @@ button, input, select, textarea { font: inherit; color: inherit; }
     scroll-margin-bottom: 80px;
   }
 }
+
+/* Appearance preferences (AYK-028). Text size zooms the page, while maps keep
+   their native scale so a tap lands on the point under the finger. */
+.leaflet-container { zoom: calc(1 / var(--ayk-scale, 1)); }
+[data-contrast="high"] a:not(.btn) { text-decoration: underline; text-underline-offset: 2px; }
+[data-contrast="high"] :focus-visible { outline: 3px solid rgb(var(--color-fg)) !important; outline-offset: 2px; }
+[data-contrast="high"] .card, [data-contrast="high"] .stat-card { border-width: 2px; }
+
+/* Compact phone layout (AYK-028): closer lines and tighter, nearer boxes.
+   Desktop sizes are unchanged. */
+@media (max-width: 640px) {
+  body { line-height: 1.5; }
+  .container { padding-inline: 12px; }
+  .page { padding: 12px 0; }
+  h1 { font-size: 1.35rem; }
+  h2 { font-size: 1.2rem; }
+  h3 { font-size: 1.05rem; }
+  h1, h2, h3 { margin-bottom: .4em; }
+  .card { padding: 12px; border-radius: 14px; }
+  .grid { gap: 10px; }
+  .form-group { margin-bottom: 10px; }
+  .stat-card { padding: 10px; }
+  /* Dashboard numbers stay side by side as small squares. */
+  .grid-3:has(> .stat-card), .grid-4:has(> .stat-card) { grid-template-columns: repeat(3, 1fr); }
+  .stat-card .value { font-size: 1.15rem; }
+  .stat-card .label { font-size: 11.5px; }
+  html .leading-loose { line-height: 1.65; }
+  html .leading-relaxed { line-height: 1.5; }
+}

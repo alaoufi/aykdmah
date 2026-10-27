@@ -2,7 +2,8 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App';
 import { ThemeProvider } from './theme/ThemeProvider';
-import { applyTheme, readStoredTheme } from './theme/applyTheme';
+import { applyPrefs } from './theme/applyTheme';
+import { readPrefs } from './theme/preferences';
 import './i18n';
 import './styles/tailwind.css';
 import './styles/global.css';
@@ -11,7 +12,7 @@ import { installChunkRecovery } from './utils/chunkRecovery';
 
 // Apply theme synchronously before mounting React so Tailwind CSS
 // variables are populated for the very first render.
-applyTheme(readStoredTheme() || 'default');
+applyPrefs(readPrefs());
 
 // Remove responses cached by older releases; authenticated API data must not
 // survive a logout or be served to another account.

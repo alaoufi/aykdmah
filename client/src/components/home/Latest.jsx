@@ -34,7 +34,7 @@ export default function Latest({ position }) {
   }, [items, filter]);
 
   return (
-    <section className="py-14 md:py-20">
+    <section className="py-6 md:py-20">
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
         <div className="flex items-end justify-between mb-6 md:mb-8 gap-4 flex-wrap">
           <div>

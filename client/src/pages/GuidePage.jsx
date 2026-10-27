@@ -117,6 +117,11 @@ export default function GuidePage() {
           </ol>
         </section>
 
+        <section id="guide-appearance" aria-labelledby="guide-appearance-title" className="mb-10 md:mb-12">
+          <h2 id="guide-appearance-title" className="text-xl md:text-2xl font-extrabold text-fg">🎨 {t('help.appearance_title')}</h2>
+          <p className="text-fg-muted text-sm md:text-base leading-loose mt-3">{t('help.appearance_body')}</p>
+        </section>
+
         <section id="guide-wallet" aria-labelledby="guide-wallet-title" className="mb-10 md:mb-12">
           <h2 id="guide-wallet-title" className="text-xl md:text-2xl font-extrabold text-fg">💰 {t('help.wallet_title')}</h2>
           <p className="text-fg-muted text-sm md:text-base leading-loose mt-3 mb-5">{t('help.wallet_intro')}</p>

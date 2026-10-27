@@ -49,7 +49,7 @@ export default function StatsStrip() {
   ];
 
   return (
-    <section className="bg-surface-alt border-t border-border py-10 md:py-14">
+    <section className="bg-surface-alt border-t border-border py-5 md:py-14">
       <div className="container max-w-6xl mx-auto px-4">
         <div className="text-center mb-7 md:mb-9">
           <h2 className="text-ink text-2xl md:text-3xl font-extrabold">{t('home.stats.title')}</h2>

@@ -22,11 +22,11 @@ export default function HowItWorks() {
     { num: '3', title: t('home.step_3_title'), desc: t('home.step_3_body') },
   ];
   return (
-    <section className="py-14 md:py-20 bg-white border-y border-slate-100">
+    <section className="py-6 md:py-20 bg-white border-y border-slate-100">
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-10 md:mb-14">
+        <div className="text-center max-w-2xl mx-auto mb-5 md:mb-14">
           <div className="text-[12px] font-bold text-brand-600 mb-2">{t('home.how_it_works')}</div>
-          <h2 className="text-ink text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight">
+          <h2 className="text-ink text-xl md:text-3xl lg:text-4xl font-extrabold tracking-tight">
             {t('home.how_it_works')}
           </h2>
         </div>

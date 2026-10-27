@@ -4,12 +4,31 @@
 
 import { themeToCssVars, validateTheme } from './tokens';
 import { getTheme } from './themes';
+import { PREFS_KEY, SCALES, normalizePrefs, resolveTheme } from './preferences';
 
 export const THEME_STORAGE_KEY = 'ayk_theme';
 
 export function applyTheme(name) {
   if (typeof document === 'undefined') return null;
-  const theme = getTheme(name);
+  return writeTheme(getTheme(name));
+}
+
+// Mode, palette, contrast and text size (AYK-028). The legacy key keeps the
+// resolved base name so older code and cached builds still read it.
+export function applyPrefs(value, systemDark) {
+  if (typeof document === 'undefined') return null;
+  const prefs = normalizePrefs(value);
+  const theme = writeTheme(resolveTheme(prefs, systemDark));
+  const root = document.documentElement;
+  root.setAttribute('data-contrast', prefs.contrast ? 'high' : 'normal');
+  root.setAttribute('data-palette', prefs.palette);
+  root.style.setProperty('--ayk-scale', String(SCALES[prefs.scale]));
+  root.style.zoom = SCALES[prefs.scale] === 1 ? '' : String(SCALES[prefs.scale]);
+  try { localStorage.setItem(PREFS_KEY, JSON.stringify(prefs)); } catch (_) {}
+  return theme;
+}
+
+function writeTheme(theme) {
   if (import.meta.env?.DEV) validateTheme(theme, theme.name);
 
   const root = document.documentElement;

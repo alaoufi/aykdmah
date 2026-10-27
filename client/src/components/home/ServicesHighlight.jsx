@@ -10,16 +10,16 @@ export default function ServicesHighlight() {
   const popular = popularServices(4);
 
   return (
-    <section className="py-14 md:py-20 bg-cream">
+    <section className="py-6 md:py-20 bg-cream">
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
-        <div className="text-center max-w-2xl mx-auto mb-8 md:mb-10">
+        <div className="text-center max-w-2xl mx-auto mb-4 md:mb-10">
           <div className="text-[12px] font-bold text-sand-600 mb-2">{t('common.brand')}</div>
-          <h2 className="text-ink text-2xl md:text-3xl lg:text-4xl font-extrabold tracking-tight">{t('catalog.hero_title')}</h2>
+          <h2 className="text-ink text-xl md:text-3xl lg:text-4xl font-extrabold tracking-tight">{t('catalog.hero_title')}</h2>
           <p className="text-slate-500 text-sm md:text-[15px] mt-3">{t('catalog.hero_subtitle')}</p>
         </div>
 
         {/* Featured categories */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4 mb-10">
+        <div className="grid grid-cols-3 md:grid-cols-3 lg:grid-cols-6 gap-2 md:gap-4 mb-5 md:mb-10">
           {cats.map((c) => (
             <Link
               key={c.id}
@@ -40,16 +40,16 @@ export default function ServicesHighlight() {
         <div className="flex items-end justify-between mb-5">
           <h3 className="text-ink text-lg md:text-xl font-extrabold">{t('catalog.popular_title')}</h3>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 md:gap-4 mb-5 md:mb-8">
           {popular.map((s) => (
             <Link
               key={s.id}
               to={`/services/${s.id}`}
               className="bg-white border border-slate-200/80 rounded-card overflow-hidden hover:border-brand-200 hover:shadow-card transition no-underline flex flex-col"
             >
-              <div className="h-24 grid place-items-center text-4xl" style={{ background: s.cover }}>{s.icon}</div>
-              <div className="p-3.5 flex flex-col flex-1">
-                <div className="text-[14px] font-bold text-ink leading-snug mb-1 line-clamp-1">{tx(s.title, lang)}</div>
+              <div className="h-14 md:h-24 grid place-items-center text-2xl md:text-4xl" style={{ background: s.cover }}>{s.icon}</div>
+              <div className="p-2.5 md:p-3.5 flex flex-col flex-1">
+                <div className="text-[13px] md:text-[14px] font-bold text-ink leading-snug mb-0.5 md:mb-1 line-clamp-1">{tx(s.title, lang)}</div>
                 <div className="flex items-center gap-2 text-[11.5px] text-slate-500 mb-2">
                   {s.ratingCount > 0 && <span className="text-amber-600 font-bold">★ {s.rating.toFixed(1)}</span>}
                   <span>{tx(s.city, lang)}</span>

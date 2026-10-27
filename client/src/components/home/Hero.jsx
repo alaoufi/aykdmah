@@ -97,9 +97,9 @@ export default function Hero() {
       <span className="blob" style={{ width: 420, height: 420, top: -120, right: -80, background: 'rgb(var(--color-accent-soft))' }} />
       <span className="blob" style={{ width: 520, height: 520, bottom: -260, left: -100, background: 'rgb(var(--color-primary-soft))' }} />
 
-      <div className="relative max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pt-12 pb-16 md:pt-16 md:pb-24 lg:pt-20 lg:pb-28">
+      <div className="relative max-w-7xl mx-auto px-3 md:px-6 lg:px-8 pt-5 pb-7 md:pt-16 md:pb-24 lg:pt-20 lg:pb-28">
         {/* Trust pill */}
-        <div className="flex items-center justify-center mb-5 md:mb-7">
+        <div className="flex items-center justify-center mb-3 md:mb-7">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-pill bg-white/15 backdrop-blur-md border border-white/25 text-white text-[13px] font-medium">
             <span className="w-1.5 h-1.5 rounded-full bg-sand-200 pulse-dot inline-block" />
             {t('home.trust_pill')}
@@ -108,7 +108,7 @@ export default function Hero() {
 
         {/* Headline */}
         <h1
-          className="text-white text-center font-extrabold tracking-tight leading-[1.15] text-[34px] sm:text-5xl lg:text-[64px]"
+          className="text-white text-center font-extrabold tracking-tight leading-[1.2] text-[26px] sm:text-5xl lg:text-[64px]"
           style={{ textShadow: '0 2px 12px rgba(0,0,0,.25)' }}
         >
           {t('home.headline_1')}
@@ -127,7 +127,7 @@ export default function Hero() {
         {/* Guest registration nudge — tells them WHY signing up makes the
             search better (region-aware results). Hidden once logged in. */}
         {!user && (
-          <div className="mt-6 md:mt-8 mx-auto max-w-5xl bg-white/15 backdrop-blur-md border border-white/25 rounded-card px-4 py-2.5 md:px-5 md:py-3 flex flex-wrap items-center justify-center gap-2.5 text-center">
+          <div className="mt-4 md:mt-8 mx-auto max-w-5xl bg-white/15 backdrop-blur-md border border-white/25 rounded-card px-4 py-2.5 md:px-5 md:py-3 flex flex-wrap items-center justify-center gap-2.5 text-center">
             <span className="text-[18px]">📍</span>
             <p className="text-white text-[13px] md:text-[14px] font-medium m-0">
               {t('home.register_nudge')}
