@@ -5,7 +5,7 @@
 import { themeToCssVars, validateTheme } from './tokens';
 import { getTheme } from './themes';
 
-export const THEME_STORAGE_KEY = 'ryza_theme';
+export const THEME_STORAGE_KEY = 'ayk_theme';
 
 export function applyTheme(name) {
   if (typeof document === 'undefined') return null;

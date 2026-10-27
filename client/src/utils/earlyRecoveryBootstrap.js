@@ -1,8 +1,8 @@
 // Combined with chunkRecovery.js into a classic script by the build plugin.
 // It runs before the application entry, so an entry MIME error is recoverable.
 (function () {
-  if (window.__AWTAD_ASSET_RECOVERY__) return;
-  const version = document.querySelector('meta[name="awtad-build"]')?.content || 'unknown';
+  if (window.__AYK_ASSET_RECOVERY__) return;
+  const version = document.querySelector('meta[name="aykdmh-build"]')?.content || 'unknown';
   let pending = false;
   const options = { window, version, skipEarlyDelegate: true };
   const recovery = {
@@ -20,7 +20,7 @@
       return accepted;
     },
   };
-  window.__AWTAD_ASSET_RECOVERY__ = recovery;
+  window.__AYK_ASSET_RECOVERY__ = recovery;
   installChunkRecovery({ window });
 
   function entryFallback() {

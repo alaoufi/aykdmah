@@ -14,8 +14,8 @@ const { generalLimiter } = require('./middleware/rateLimiter');
 const { localeMiddleware } = require('./utils/i18n');
 
 const app = express();
-// Behind Vercel or the self-hosted Caddy proxy, use the client address it forwards.
-if (process.env.VERCEL || process.env.TRUST_PROXY === '1') app.set('trust proxy', 1);
+// Behind the Caddy proxy, use the client address it forwards.
+if (process.env.TRUST_PROXY === '1') app.set('trust proxy', 1);
 
 app.disable('x-powered-by');
 app.use(helmet({
@@ -25,7 +25,9 @@ app.use(helmet({
     styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
     imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
     fontSrc: ["'self'", 'https://fonts.gstatic.com'],
-    connectSrc: ["'self'", 'https://nominatim.openstreetmap.org', 'https://huggingface.co', 'https://*.hf.co'],
+    // Same sources as deploy/caddy/Caddyfile: map tiles and the LiveKit signaling origin.
+    connectSrc: ["'self'", 'https://tiles.openfreemap.org', 'https://nominatim.openstreetmap.org', 'https://huggingface.co', 'https://*.hf.co',
+      ...(() => { try { return process.env.LIVEKIT_URL ? [new URL(process.env.LIVEKIT_URL).origin] : []; } catch (_) { return []; } })()],
     mediaSrc: ["'self'", 'blob:', 'https:'], objectSrc: ["'none'"],
     frameAncestors: ["'none'"], baseUri: ["'self'"], formAction: ["'self'"],
     upgradeInsecureRequests: env.NODE_ENV === 'production' ? [] : null,
@@ -61,8 +63,7 @@ app.use('/api', (req, res, next) => {
   next();
 });
 
-// Wait before handling requests locally. Vercel schema initialization runs
-// separately; starting a background schema job after responding is unreliable.
+// Wait for pending migrations before handling API requests.
 let _migrationsPromise = null;
 function bootMigrations() {
   if (_migrationsPromise) return _migrationsPromise;

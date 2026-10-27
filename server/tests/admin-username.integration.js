@@ -6,14 +6,14 @@ const { promisify } = require('node:util');
 const execFile = promisify(require('node:child_process').execFile);
 const path = require('node:path');
 
-if (process.env.RYZA_ADMIN_USERNAME_TEST !== '1') {
-  test('administrator username integration (set RYZA_ADMIN_USERNAME_TEST=1)', { skip: true }, () => {});
+if (process.env.AYK_ADMIN_USERNAME_TEST !== '1') {
+  test('administrator username integration (set AYK_ADMIN_USERNAME_TEST=1)', { skip: true }, () => {});
 } else {
-  const databaseName = `ryza_test_adminusername_${crypto.randomBytes(10).toString('hex')}`;
-  const port = Number(process.env.RYZA_TEST_PORT || 55432);
+  const databaseName = `ayk_test_adminusername_${crypto.randomBytes(10).toString('hex')}`;
+  const port = Number(process.env.AYK_TEST_PORT || 55432);
   if (!Number.isSafeInteger(port) || port < 1 || port > 65535) throw new Error('Invalid localhost test port');
   Object.assign(process.env, {
-    NODE_ENV: 'test', VERCEL: '', AUTO_MIGRATE: 'false', API_RATE_LIMIT: '10000',
+    NODE_ENV: 'test', AUTO_MIGRATE: 'false', API_RATE_LIMIT: '10000',
     DB_HOST: '127.0.0.1', DB_PORT: String(port), DB_NAME: databaseName,
     DB_USER: 'postgres', DB_PASSWORD: '', DATABASE_URL: '', DIRECT_DATABASE_URL: '', DB_SSL: 'false',
     BOOTSTRAP_ADMIN_EMAIL: '', BOOTSTRAP_ADMIN_PASSWORD: '', ENCRYPTION_KEY: '',
@@ -82,18 +82,18 @@ if (process.env.RYZA_ADMIN_USERNAME_TEST !== '1') {
     const existingLogin = await api('/auth/login', { body: { identifier: admin.email, password } });
     const before = identityState(await User.findByIdRaw(admin.id));
     const userCount = Number((await db.queryOne('SELECT COUNT(*) AS total FROM users')).total);
-    assert.equal((await assign(admin.id, 'awtad_admin')).status, 'ready');
+    assert.equal((await assign(admin.id, 'aykdmh_admin')).status, 'ready');
     assert.equal((await User.findByIdRaw(admin.id)).username, null);
-    assert.equal((await assign(admin.id, 'awtad_admin', true)).status, 'assigned');
+    assert.equal((await assign(admin.id, 'aykdmh_admin', true)).status, 'assigned');
     assert.deepEqual(identityState(await User.findByIdRaw(admin.id)), before);
     assert.equal(Number((await db.queryOne('SELECT COUNT(*) AS total FROM users')).total), userCount);
-    assert.equal((await api('/auth/me', { token: existingLogin.token })).user.username, 'awtad_admin');
-    await api('/auth/login', { body: { identifier: 'awtad_admin', password: 'Wrong-Disposable-Password' }, expected: 401 });
-    const login = await api('/auth/login', { body: { identifier: 'awtad_admin', password } });
+    assert.equal((await api('/auth/me', { token: existingLogin.token })).user.username, 'aykdmh_admin');
+    await api('/auth/login', { body: { identifier: 'aykdmh_admin', password: 'Wrong-Disposable-Password' }, expected: 401 });
+    const login = await api('/auth/login', { body: { identifier: 'aykdmh_admin', password } });
     assert.equal(Number(login.user.id), Number(admin.id));
     assert.equal(login.user.role, 'admin');
     assert.equal(Number((await api('/auth/login', { body: { identifier: admin.email, password } })).user.id), Number(admin.id));
-    assert.equal((await assign(admin.id, 'awtad_admin', true)).status, 'unchanged');
+    assert.equal((await assign(admin.id, 'aykdmh_admin', true)).status, 'unchanged');
     assert.deepEqual(identityState(await User.findByIdRaw(admin.id)), before);
   });
 

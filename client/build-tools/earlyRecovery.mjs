@@ -11,7 +11,7 @@ export async function earlyRecoverySource() {
 
 export function earlyRecoveryPlugin() {
   return {
-    name: 'awtad-early-asset-recovery',
+    name: 'aykdmh-early-asset-recovery',
     configureServer(server) {
       server.middlewares.use('/app-recovery.js', async (request, response, next) => {
         if (!['GET', 'HEAD'].includes(request.method)) return next();
@@ -30,7 +30,7 @@ export function earlyRecoveryPlugin() {
       order: 'post',
       handler(_html, context) {
         const entry = Object.values(context.bundle || {}).find(file => file.type === 'chunk' && file.isEntry);
-        return [{ tag: 'meta', attrs: { name: 'awtad-build', content: entry?.fileName || 'development' }, injectTo: 'head' }];
+        return [{ tag: 'meta', attrs: { name: 'aykdmh-build', content: entry?.fileName || 'development' }, injectTo: 'head' }];
       },
     },
   };

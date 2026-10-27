@@ -12,7 +12,7 @@ docker run -d --name "$PG" -e POSTGRES_HOST_AUTH_METHOD=trust postgres:16-alpine
 for _ in $(seq 1 30); do docker exec "$PG" pg_isready -U postgres >/dev/null 2>&1 && break; sleep 1; done
 
 docker run --rm --network "container:$PG" -v "$REPO_DIR":/src -w /src -e HOME=/tmp \
-  -e ONNXRUNTIME_NODE_INSTALL_CUDA=skip -e RYZA_TEST_PORT=5432 node:22-bookworm bash -c '
+  -e ONNXRUNTIME_NODE_INSTALL_CUDA=skip -e AYK_TEST_PORT=5432 node:22-bookworm bash -c '
 fail=0
 step() { name=$1; shift; echo "== $name"; if "$@" > /tmp/out.log 2>&1; then echo "   ok"; else echo "   FAILED"; fail=1; fi
          grep -E "^# (tests|pass|fail) |locales share|vulnerabilit|built in" /tmp/out.log | sed "s/^/   /"

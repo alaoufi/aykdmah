@@ -1,14 +1,14 @@
-// Set RYZA_TEST_DB to a disposable localhost database whose name starts ryza_test.
+// Set AYK_TEST_DB to a disposable localhost database whose name starts ayk_test.
 // This suite never connects to the configured application database.
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
-const databaseName = process.env.RYZA_TEST_DB;
+const databaseName = process.env.AYK_TEST_DB;
 if (!databaseName) {
-  test('PostgreSQL marketplace integration (set RYZA_TEST_DB)', { skip: true }, () => {});
+  test('PostgreSQL marketplace integration (set AYK_TEST_DB)', { skip: true }, () => {});
 } else {
-  if (!/^ryza_test[a-z0-9_]*$/.test(databaseName)) throw new Error('Use a disposable ryza_test* database.');
-  Object.assign(process.env, { NODE_ENV: 'test', DB_HOST: '127.0.0.1', DB_PORT: process.env.RYZA_TEST_PORT || '5432', DB_NAME: databaseName, DB_USER: 'postgres', DB_PASSWORD: '', DATABASE_URL: '', DIRECT_DATABASE_URL: '', DB_SSL: 'false', MAIL_HOST: '', PAYMENT_PROVIDER: '', JWT_SECRET: crypto.randomBytes(48).toString('hex') });
+  if (!/^ayk_test[a-z0-9_]*$/.test(databaseName)) throw new Error('Use a disposable ayk_test* database.');
+  Object.assign(process.env, { NODE_ENV: 'test', DB_HOST: '127.0.0.1', DB_PORT: process.env.AYK_TEST_PORT || '5432', DB_NAME: databaseName, DB_USER: 'postgres', DB_PASSWORD: '', DATABASE_URL: '', DIRECT_DATABASE_URL: '', DB_SSL: 'false', MAIL_HOST: '', PAYMENT_PROVIDER: '', JWT_SECRET: crypto.randomBytes(48).toString('hex') });
   const db = require('../config/database');
   const install = require('../services/installService');
   const Request = require('../models/Request');
@@ -83,8 +83,8 @@ if (!databaseName) {
   });
   test('registration without email, nearby matching, offer acceptance, chat and request completion', async () => {
     const suffix = crypto.randomBytes(5).toString('hex');
-    const customer = (await api('/auth/register', { method: 'POST', expected: 201, body: { full_name: 'عميل الاختبار', username: `customer_${suffix}`, password: 'RyzaTestOnly-2026', role: 'client' } })).data;
-    const provider = (await api('/auth/register', { method: 'POST', expected: 201, body: { full_name: 'عامل الاختبار', username: `provider_${suffix}`, password: 'RyzaTestOnly-2026', role: 'provider' } })).data;
+    const customer = (await api('/auth/register', { method: 'POST', expected: 201, body: { full_name: 'عميل الاختبار', username: `customer_${suffix}`, password: 'AykTestOnly-2026', role: 'client' } })).data;
+    const provider = (await api('/auth/register', { method: 'POST', expected: 201, body: { full_name: 'عامل الاختبار', username: `provider_${suffix}`, password: 'AykTestOnly-2026', role: 'provider' } })).data;
     await api('/requests', { method: 'POST', token: customer.token, body: { title: '', description: '' }, expected: 422 });
     const request = (await api('/requests', { method: 'POST', token: customer.token, expected: 201, body: { title: 'إصلاح تسريب في بريدة', description: 'تسريب تحت حوض المطبخ يحتاج صيانة', address: 'بريدة، حي الريان', latitude: 26.326, longitude: 43.975 } })).data;
     const nearby = await api('/requests/nearby?latitude=26.326&longitude=43.975&radius=5');
@@ -125,7 +125,7 @@ if (!databaseName) {
     await Setting.set('review_probe', 'first');
     await Setting.set('review_probe', 'second');
     const admin = await db.query(`INSERT INTO users (full_name, email, password_hash, role, is_super_admin, permissions)
-      VALUES (?, ?, ?, 'admin', 0, ?)`, ['Restricted test admin', 'restricted@ryza-test.local', 'not-a-login-hash', '["requests"]']);
+      VALUES (?, ?, ?, 'admin', 0, ?)`, ['Restricted test admin', 'restricted@ayk-test.local', 'not-a-login-hash', '["requests"]']);
     try {
       const result = await install.runMigrationsFromEnv();
       assert.equal(result.applied.length, 0);

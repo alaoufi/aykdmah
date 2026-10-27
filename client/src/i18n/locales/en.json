@@ -28,7 +28,7 @@
     "rating": "Rating",
     "minutes": "min",
     "saudi_arabia": "Saudi Arabia",
-    "brand": "AWTAD SERVICES",
+    "brand": "Ay Khidma",
     "tagline": "Faster service, easier life",
     "reset": "Reset",
     "advertisement": "Advertisement",
@@ -73,7 +73,7 @@
     "hindi": "हिन्दी"
   },
   "home": {
-    "trust_pill": "AWTAD SERVICES home services in Al-Qassim and Al Majmaah",
+    "trust_pill": "Ay Khidma home services in Al-Qassim and Al Majmaah",
     "headline_1": "Providers & seekers",
     "headline_2": "in one place",
     "subtitle": "Request plumbing, electrical work or yard cleaning. Compare quotes and chat with your provider in the app.",
@@ -365,7 +365,8 @@
     "clear_coordinates": "Clear location coordinates",
     "location_save_hint": "Save to apply your changes. If you change the address, region, city or neighborhood, choose the correct point and confirm it before saving.",
     "saved_location_hint": "Your saved address and location are filled in automatically for new requests. Changes here apply to future requests.",
-    "private_account_address": "Your account address stays private. Set your public shop location separately in the business section below."
+    "private_account_address": "Your account address stays private. Set your public shop location separately in the business section below.",
+    "must_change_password": "For your account's security, replace the temporary password now before continuing (at least 4 characters)."
   },
   "chat": {
     "title": "Messages",
@@ -1186,7 +1187,7 @@
     "all_rights_reserved": "All rights reserved"
   },
   "policy": {
-    "privacy_intro": "This policy explains how AWTAD SERVICES uses your information when you register and request home services in Al-Qassim and Al Majmaah.",
+    "privacy_intro": "This policy explains how Ay Khidma uses your information when you register and request home services in Al-Qassim and Al Majmaah.",
     "data_title": "Information you provide",
     "data_body": "We store your name and the sign-in methods you add, such as a username, email or phone number. Service information includes your selected location, requests, offers, conversations, attachments and verification documents you upload.",
     "purpose_title": "How information is used",
@@ -1194,13 +1195,13 @@
     "location_title": "Choosing your location",
     "location_body": "Device location is optional. You can select an area, city and neighborhood manually. When you use the map or location button, the point’s coordinates are sent to the map service to help identify an address. Check the city and neighborhood before saving because address detection may be approximate.",
     "sharing_title": "Sharing information",
-    "sharing_body": "Public provider profiles are visible to people looking for services. Request participants exchange the information needed to perform the work. AWTAD SERVICES uses Vercel for hosting, Neon for data storage and OpenStreetMap for maps. Administrators may review conversation records when resolving disputes under the terms and access permissions.",
+    "sharing_body": "Public provider profiles are visible to people looking for services. Request participants exchange the information needed to perform the work. Ay Khidma and its data are hosted on the platform's own server; maps come from OpenFreeMap using OpenStreetMap data. Voice and video calls pass through the platform's server and are never recorded. Administrators may review conversation records when resolving disputes under the terms and access permissions.",
     "records_title": "Service records",
     "records_body": "Requests, offers, conversations and attachments are retained to support service tracking and dispute resolution. Passwords are stored as one-way hashes and are not displayed in profiles.",
     "controls_title": "Your controls",
     "controls_body": "You can correct account details and location in your profile and clear saved coordinates. Share only information needed for the service. Keep passwords and unnecessary sensitive information out of conversations and attachments.",
     "terms_unavailable": "The terms could not be loaded. Reload the page to try again.",
-    "default_terms_html": "<h3>Terms and conditions — AWTAD SERVICES</h3>\n<p><b>1. Acceptance of use</b><br>By registering with AWTAD SERVICES, you agree to these terms and confirm that you have reached the age of majority under the laws applicable in your country.</p>\n<p><b>2. Accurate information</b><br>You undertake that all information you provide (name, phone number, email, location and documents) is correct. Misleading information may lead to immediate suspension of your account.</p>\n<p><b>3. Service and payment</b><br>The platform connects customers with service providers. You agree on the work and price directly. The platform acts as an arbitrator in disputes according to conversation records and the agreement.</p>\n<p><b>4. Conversation review for quality and reliability</b><br><u>You acknowledge and consent</u> that platform administrators may review text and voice conversations and location-sharing records between you and the other party, exclusively in the following cases:</p>\n<ul><li>When either party opens a dispute or complaint</li><li>To verify the agreement was carried out and protect rights</li><li>To check for content that violates the law or public decency</li><li>To verify the reliability of new service providers before approving them</li></ul>\n<p>Every review is recorded in an internal audit log with its time and the staff member’s identity. It is not used for marketing or for purposes outside these cases.</p>\n<p><b>5. Personal data protection</b><br>Your information will not be shared with a third party without your permission except by court order. You may request deletion of your account and all your data at any time.</p>\n<p><b>6. Acceptable conduct</b><br>The following are strictly prohibited: fraud, insults, offensive content, requesting or paying amounts outside the platform, and impersonation. A violation leads to permanent suspension.</p>\n<p><b>7. Changes to the terms</b><br>The platform may update this document. After any material change, you will be asked to accept the terms again when you next sign in.</p>\n<p><b>8. Applicable law</b><br>These terms are subject to the laws of the Kingdom of Saudi Arabia and the member countries according to your location.</p>"
+    "default_terms_html": "<h3>Terms and conditions — Ay Khidma</h3>\n<p><b>1. Acceptance of use</b><br>By registering with Ay Khidma, you agree to these terms and confirm that you have reached the age of majority under the laws applicable in your country.</p>\n<p><b>2. Accurate information</b><br>You undertake that all information you provide (name, phone number, email, location and documents) is correct. Misleading information may lead to immediate suspension of your account.</p>\n<p><b>3. Service and payment</b><br>The platform connects customers with service providers. You agree on the work and price directly. The platform acts as an arbitrator in disputes according to conversation records and the agreement.</p>\n<p><b>4. Conversation review for quality and reliability</b><br><u>You acknowledge and consent</u> that platform administrators may review text and voice conversations and location-sharing records between you and the other party, exclusively in the following cases:</p>\n<ul><li>When either party opens a dispute or complaint</li><li>To verify the agreement was carried out and protect rights</li><li>To check for content that violates the law or public decency</li><li>To verify the reliability of new service providers before approving them</li></ul>\n<p>Every review is recorded in an internal audit log with its time and the staff member’s identity. It is not used for marketing or for purposes outside these cases.</p>\n<p><b>5. Personal data protection</b><br>Your information will not be shared with a third party without your permission except by court order. You may request deletion of your account and all your data at any time.</p>\n<p><b>6. Acceptable conduct</b><br>The following are strictly prohibited: fraud, insults, offensive content, requesting or paying amounts outside the platform, and impersonation. A violation leads to permanent suspension.</p>\n<p><b>7. Changes to the terms</b><br>The platform may update this document. After any material change, you will be asked to accept the terms again when you next sign in.</p>\n<p><b>8. Applicable law</b><br>These terms are subject to the laws of the Kingdom of Saudi Arabia and the member countries according to your location.</p>"
   },
   "geo": {
     "country_names": {
@@ -1217,11 +1218,11 @@
     }
   },
   "meta": {
-    "description": "AWTAD SERVICES — Faster service, easier life. Request plumbing, electrical work and yard cleaning in Al-Qassim and Al Majmaah and compare provider offers."
+    "description": "Ay Khidma — Faster service, easier life. Request plumbing, electrical work and yard cleaning in Al-Qassim and Al Majmaah and compare provider offers."
   },
   "help": {
     "title": "User guide",
-    "subtitle": "Clear steps to request or provide a service with AWTAD SERVICES, from signing up to completing the work.",
+    "subtitle": "Clear steps to request or provide a service with Ay Khidma, from signing up to completing the work.",
     "choose_role": "Choose what you want to do",
     "client_jump": "I need a service",
     "provider_jump": "I provide services",

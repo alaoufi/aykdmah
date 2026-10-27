@@ -525,7 +525,7 @@ INSERT IGNORE INTO subscription_plans (id, name_ar, slug, description, price, du
 -- Default site settings
 -- -----------------------------------------------------
 INSERT IGNORE INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description) VALUES
-('site_name', 'RIZA', 'string', 'general', 1, 'اسم الموقع'),
+('site_name', 'أي خدمة', 'string', 'general', 1, 'اسم الموقع'),
 ('site_description', 'منصة الخدمات المحلية', 'string', 'general', 1, 'وصف الموقع'),
 ('site_logo', '', 'string', 'general', 1, 'شعار الموقع'),
 ('site_email', 'info@example.com', 'string', 'general', 1, 'البريد العام'),

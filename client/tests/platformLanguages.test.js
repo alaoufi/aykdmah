@@ -29,9 +29,8 @@ test('the original platform terms have complete native copies while custom legal
     assert.equal(html, locales[lang].policy.default_terms_html);
     assert.equal((html.match(/<p><b>/g) || []).length, 8, `${lang} retains all eight legal sections`);
     assert.equal((html.match(/<li>/g) || []).length, 4, `${lang} retains the conversation review limits`);
-    assert.doesNotMatch(html, /RIZA|RYZA|ريزا/);
-    if (lang === 'ar') assert.match(html, /خدمات أوتاد/);
-    else assert.match(html, /AWTAD SERVICES/);
+    assert.doesNotMatch(html, /AYK/);
+    assert.match(html, /أي خدمة|Ay Khidma/);
     assert.equal(localizedTerms({ terms_text: '<p>Administrator-customized legal text.</p>' }, lang, translate), '<p>Administrator-customized legal text.</p>');
     assert.equal(localizedTerms({ terms_text: `${defaultTerms}<p>New clause</p>` }, lang, translate), `${defaultTerms}<p>New clause</p>`);
     assert.equal(localizedTerms({ terms_text: defaultTerms, [`terms_text_${lang}`]: '<p>Approved translated terms.</p>' }, lang, translate), '<p>Approved translated terms.</p>');

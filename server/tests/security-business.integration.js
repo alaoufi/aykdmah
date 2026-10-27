@@ -6,14 +6,14 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const databasePort = Number(process.env.RYZA_TEST_PORT || 55432);
+const databasePort = Number(process.env.AYK_TEST_PORT || 55432);
 assert.ok(Number.isSafeInteger(databasePort) && databasePort >= 1 && databasePort <= 65535, 'Local test database port must be valid');
-const databaseName = `ryza_test_security_business_${crypto.randomBytes(10).toString('hex')}`;
-const uploadDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'ryza-security-business-'));
+const databaseName = `ayk_test_security_business_${crypto.randomBytes(10).toString('hex')}`;
+const uploadDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'ayk-security-business-'));
 Object.assign(process.env, {
   NODE_ENV: 'test', DB_HOST: '127.0.0.1', DB_PORT: String(databasePort), DB_NAME: databaseName,
   DB_USER: 'postgres', DB_PASSWORD: '', DATABASE_URL: '', DIRECT_DATABASE_URL: '', DB_SSL: 'false',
-  JWT_SECRET: crypto.randomBytes(48).toString('hex'), AUTO_MIGRATE: 'false', VERCEL: '',
+  JWT_SECRET: crypto.randomBytes(48).toString('hex'), AUTO_MIGRATE: 'false',
   APP_URL: 'http://127.0.0.1', CLIENT_URL: 'http://127.0.0.1', UPLOAD_DIR: uploadDirectory,
   MAIL_HOST: '', MAIL_USER: '', MAIL_PASSWORD: '', WHATSAPP_PROVIDER: '', WHATSAPP_TOKEN: '',
   PAYMENT_PROVIDER: '', PAYMENT_SECRET_KEY: '', PAYMENT_WEBHOOK_SECRET: '', PUSH_PUBLIC_KEY: '', PUSH_PRIVATE_KEY: '',
@@ -48,7 +48,7 @@ async function cleanup() {
     try { await db.getPool().end(); } catch (e) { failure ||= e; }
     try {
       if (databaseCreated) {
-        assert.match(databaseName, /^ryza_test_security_business_[a-f0-9]{20}$/);
+        assert.match(databaseName, /^ayk_test_security_business_[a-f0-9]{20}$/);
         await adminConnection.query('SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = $1 AND pid <> pg_backend_pid()', [databaseName]);
         await adminConnection.query(`DROP DATABASE "${databaseName}"`);
         databaseCreated = false;

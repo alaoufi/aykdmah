@@ -1,5 +1,5 @@
 // Static Saudi administrative divisions data.
-// Used as a fallback when the backend API is unavailable (e.g. static Vercel deploy).
+// Used as a fallback when the backend API is unavailable.
 // Source: database/seed.sql
 
 export const REGIONS = [

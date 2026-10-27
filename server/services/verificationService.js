@@ -85,11 +85,11 @@ async function startOtp({ user, method, identifier, ip = null, locale = 'ar' }) 
 
   const message = method === 'email'
     ? `${code}` // long-form HTML built below
-    : `AWTAD SERVICES: ${code} — صالح ${policy.otp_ttl_minutes} دقائق / valid ${policy.otp_ttl_minutes} min`;
-  const subject = 'AWTAD SERVICES — Verification code';
+    : `AY KHIDMA: ${code} — صالح ${policy.otp_ttl_minutes} دقائق / valid ${policy.otp_ttl_minutes} min`;
+  const subject = 'AY KHIDMA — Verification code';
   const html = `
     <div style="font-family:Cairo,system-ui,sans-serif;direction:${locale==='ar'?'rtl':'ltr'};max-width:480px;margin:auto;padding:24px">
-      <h2 style="margin:0 0 12px">AWTAD SERVICES</h2>
+      <h2 style="margin:0 0 12px">AY KHIDMA</h2>
       <p>${locale==='ar' ? 'رمز التحقق الخاص بك:' : 'Your verification code:'}</p>
       <div style="font-size:32px;font-weight:800;letter-spacing:6px;background:#f3e7d2;padding:16px;border-radius:12px;text-align:center;color:#876239">${code}</div>
       <p style="color:#64748b;font-size:13px;margin-top:16px">

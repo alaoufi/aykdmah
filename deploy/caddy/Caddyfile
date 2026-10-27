@@ -1,5 +1,5 @@
 # aykdmh.com — Caddy obtains and renews Let's Encrypt certificates automatically.
-# Mirrors the headers, rewrites and cache rules of the root vercel.json.
+# Security headers and cache rules for the single-page app and its API.
 # The built client lives in /srv/current (a symlink to the active release);
 # the API runs in the `app` container.
 aykdmh.com {

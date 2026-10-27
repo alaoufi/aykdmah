@@ -23,24 +23,21 @@ if (process.env.NODE_ENV === 'production' && weakJwtSecret) {
 
 const env = {
   NODE_ENV: process.env.NODE_ENV || 'development',
-  APP_NAME: process.env.APP_NAME || 'AWTAD SERVICES',
+  APP_NAME: process.env.APP_NAME || 'AY KHIDMA',
   APP_URL: process.env.APP_URL || 'http://localhost:5000',
   APP_PORT: parseInt(process.env.APP_PORT || '5000', 10),
   CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:5173',
-  // Schema changes are performed separately on Vercel, before traffic reaches
-  // the deployment. Local servers wait for migration completion on first use.
-  AUTO_MIGRATE: process.env.AUTO_MIGRATE == null
-    ? !process.env.VERCEL
-    : process.env.AUTO_MIGRATE === 'true',
+  // The server applies pending migrations before its first API request unless disabled.
+  AUTO_MIGRATE: process.env.AUTO_MIGRATE == null ? true : process.env.AUTO_MIGRATE === 'true',
 
   DB: {
-    // PostgreSQL (Supabase / Neon / Railway / self-hosted).
+    // PostgreSQL (self-hosted on the server; a DATABASE_URL also works).
     // Prefer the single DATABASE_URL string when present — that's how
     // every managed Postgres provider hands out credentials. The
     // discrete vars are kept as a fallback for self-hosted setups.
     URL:  process.env.DATABASE_URL || '',
     DIRECT_URL: process.env.DIRECT_DATABASE_URL || '',
-    POOL_MAX: parseInt(process.env.DB_POOL_MAX || (process.env.VERCEL ? '3' : '10'), 10),
+    POOL_MAX: parseInt(process.env.DB_POOL_MAX || '10', 10),
     HOST: process.env.DB_HOST || 'localhost',
     PORT: parseInt(process.env.DB_PORT || '5432', 10),
     NAME: process.env.DB_NAME || '',
@@ -58,7 +55,7 @@ const env = {
   },
 
   UPLOAD: {
-    // 4MB default — fits Vercel's standard serverless body limit.
+    // 4MB default upload size.
     // Bump UPLOAD_MAX_SIZE in env on hosts that allow larger bodies.
     MAX_SIZE: parseInt(process.env.UPLOAD_MAX_SIZE || '4194304', 10),
     DIR: process.env.UPLOAD_DIR || path.join(__dirname, '..', 'uploads'),

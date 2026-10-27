@@ -5,14 +5,14 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const vm = require('node:vm');
 
-if (process.env.RYZA_SECURITY_AUTH_TEST !== '1') {
-  test('security/auth integration (set RYZA_SECURITY_AUTH_TEST=1)', { skip: true }, () => {});
+if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
+  test('security/auth integration (set AYK_SECURITY_AUTH_TEST=1)', { skip: true }, () => {});
 } else {
-  const databaseName = `ryza_test_securityauth_${crypto.randomBytes(10).toString('hex')}`;
-  const port = Number(process.env.RYZA_TEST_PORT || '55432');
+  const databaseName = `ayk_test_securityauth_${crypto.randomBytes(10).toString('hex')}`;
+  const port = Number(process.env.AYK_TEST_PORT || '55432');
   if (!Number.isSafeInteger(port) || port < 1 || port > 65535) throw new Error('Invalid localhost test port');
   Object.assign(process.env, {
-    NODE_ENV: 'test', VERCEL: '', AUTO_MIGRATE: 'false', API_RATE_LIMIT: '10000',
+    NODE_ENV: 'test', AUTO_MIGRATE: 'false', API_RATE_LIMIT: '10000',
     DB_HOST: '127.0.0.1', DB_PORT: String(port), DB_NAME: databaseName,
     DB_USER: 'postgres', DB_PASSWORD: '', DATABASE_URL: '', DIRECT_DATABASE_URL: '', DB_SSL: 'false',
     BOOTSTRAP_ADMIN_EMAIL: '', BOOTSTRAP_ADMIN_PASSWORD: '', ENCRYPTION_KEY: '',

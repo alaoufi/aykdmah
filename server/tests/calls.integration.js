@@ -3,17 +3,17 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
-const databasePrefix = process.env.RYZA_CALLS_TEST_DB;
+const databasePrefix = process.env.AYK_CALLS_TEST_DB;
 
 if (!databasePrefix) {
-  test('calls integration (set RYZA_CALLS_TEST_DB)', { skip: true }, () => {});
+  test('calls integration (set AYK_CALLS_TEST_DB)', { skip: true }, () => {});
 } else {
-  if (!/^ryza_test_calls[a-z0-9_]{0,20}$/.test(databasePrefix)) throw new Error('Use a disposable ryza_test_calls* database prefix.');
+  if (!/^ayk_test_calls[a-z0-9_]{0,20}$/.test(databasePrefix)) throw new Error('Use a disposable ayk_test_calls* database prefix.');
   const databaseName = `${databasePrefix}_${crypto.randomBytes(8).toString('hex')}`;
-  const port = Number(process.env.RYZA_TEST_PORT || '5432');
+  const port = Number(process.env.AYK_TEST_PORT || '5432');
   const livekitSecret = crypto.randomBytes(32).toString('hex');
   Object.assign(process.env, {
-    NODE_ENV: 'test', VERCEL: '', AUTO_MIGRATE: 'false',
+    NODE_ENV: 'test', AUTO_MIGRATE: 'false',
     DB_HOST: '127.0.0.1', DB_PORT: String(port), DB_NAME: databaseName,
     DB_USER: 'postgres', DB_PASSWORD: '', DATABASE_URL: '', DIRECT_DATABASE_URL: '',
     DB_SSL: 'false', MAIL_HOST: '', WHATSAPP_PROVIDER: '', PAYMENT_PROVIDER: '',

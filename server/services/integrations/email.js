@@ -5,7 +5,7 @@ const { providerFetch } = require('../../utils/integrationHttp');
 async function sendgridSend({ credentials, config, to, subject, html, text }) {
   const apiKey = credentials.api_key;
   const from   = credentials.from || config?.from;
-  const fromName = config?.from_name || 'AWTAD SERVICES';
+  const fromName = config?.from_name || 'AY KHIDMA';
   if (!apiKey || !from) throw new Error('missing sendgrid credentials');
 
   const r = await providerFetch('https://api.sendgrid.com/v3/mail/send', {

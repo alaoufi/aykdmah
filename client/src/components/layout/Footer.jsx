@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import RyzaLogo from '../common/RyzaLogo';
+import BrandLogo from '../common/BrandLogo';
 import usePublicSettings from '../../hooks/usePublicSettings';
 
 export default function Footer() {
@@ -44,7 +44,7 @@ export default function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-12 gap-8 md:gap-10">
           <div className="col-span-2 md:col-span-4">
             <div className="mb-4">
-              <RyzaLogo width={190} tone="mono-light" tagline taglineText={t('common.tagline')} />
+              <BrandLogo width={190} tone="mono-light" tagline taglineText={t('common.tagline')} />
             </div>
             <p className="text-white/70 text-[13.5px] leading-relaxed">
               {t('footer.tagline')}

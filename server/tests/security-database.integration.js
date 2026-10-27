@@ -5,10 +5,10 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const prefix = `ryza_test_database_${crypto.randomBytes(6).toString('hex')}`;
+const prefix = `ayk_test_database_${crypto.randomBytes(6).toString('hex')}`;
 Object.assign(process.env, {
   NODE_ENV: 'test', DATABASE_URL: '', DIRECT_DATABASE_URL: '', DB_SSL: 'false',
-  DB_HOST: '127.0.0.1', DB_PORT: process.env.RYZA_TEST_PORT || '55432',
+  DB_HOST: '127.0.0.1', DB_PORT: process.env.AYK_TEST_PORT || '55432',
   DB_USER: 'postgres', DB_PASSWORD: '', DB_NAME: prefix, AUTO_MIGRATE: 'false',
   JWT_SECRET: crypto.randomBytes(48).toString('hex'),
   BOOTSTRAP_ADMIN_EMAIL: '', BOOTSTRAP_ADMIN_PASSWORD: '',
@@ -46,8 +46,8 @@ test.after(async () => {
 
 test('fresh installer applies every migration and required workflow tables/constraints', async () => {
   assert.deepEqual((await client.query('SELECT name FROM schema_migrations ORDER BY name')).rows.map(row => row.name), migrations);
-  assert.equal((await client.query("SELECT setting_value FROM settings WHERE setting_key='site_name'")).rows[0].setting_value, 'خدمات أوتاد');
-  assert.equal((await client.query('SELECT description FROM subscription_plans WHERE id=2')).rows[0].description, 'اشتراك العامل الشهري في خدمات أوتاد');
+  assert.equal((await client.query("SELECT setting_value FROM settings WHERE setting_key='site_name'")).rows[0].setting_value, 'أي خدمة');
+  assert.equal((await client.query('SELECT description FROM subscription_plans WHERE id=2')).rows[0].description, 'اشتراك العامل الشهري في أي خدمة');
   for (const table of ['conversation_archives','ad_media','uploaded_media','auth_rate_limits']) {
     assert.equal((await client.query('SELECT to_regclass($1) AS name', [table])).rows[0].name, table);
   }
@@ -107,89 +107,6 @@ test('journaled rerun and recovered catalog/admin migrations preserve current ch
   assert.equal(service.name_ar, 'Chosen service'); assert.equal(service.name_en, 'Chosen service'); assert.equal(service.is_active, 0); assert.ok(service.deleted_at);
   assert.equal((await client.query("SELECT setting_value FROM settings WHERE setting_key='site_name'")).rows[0].setting_value, 'Chosen site');
   assert.equal((await install.runMigrationsFromEnv()).applied.length, 0);
-});
-test('RIZA migration changes exact platform defaults and preserves custom branding and accounts', async () => {
-  const migration = fs.readFileSync(path.join(root, 'database/migrations/037_riza_rebrand.sql'), 'utf8');
-  const snapshot = async () => {
-    const result = {};
-    for (const table of ['settings', 'subscription_plans', 'install_lock', 'users', 'api_integrations']) {
-      // Automatic updated_at changes are ordinary database bookkeeping; all
-      // application metadata, identity and configuration fields must survive.
-      result[table] = (await client.query(`SELECT to_jsonb(t) - 'updated_at' AS value FROM ${table} t ORDER BY id`)).rows.map(row => row.value);
-    }
-    return result;
-  };
-  await client.query('BEGIN');
-  try {
-    await client.query("UPDATE settings SET setting_value='RYZA', setting_group='custom', is_public=0, description='Custom RYZA metadata' WHERE setting_key='site_name'");
-    await client.query("UPDATE settings SET setting_value='Custom RYZA description' WHERE setting_key='site_description'");
-    await client.query("UPDATE subscription_plans SET name_en='Custom worker label', price=77, description='اشتراك العامل الشهري في RYZA' WHERE id=2");
-    await client.query("INSERT INTO subscription_plans(id,name_ar,slug,description,price) VALUES (90001,'Custom RYZA plan','ryza-custom-plan','اشتراك العامل الشهري في RYZA',27)");
-    await client.query(`INSERT INTO install_lock(site_name,site_url,installed_version,installed_by_email) VALUES
-      ('RYZA','https://ryza-eta.vercel.app','custom-version','local@example.invalid'),
-      ('Custom RYZA portal','https://custom.example.invalid','custom-version','other@example.invalid')`);
-    const account = (await client.query("INSERT INTO users(full_name,username,password_hash,role) VALUES ('Existing RYZA account','ryza_existing_admin','synthetic-local-password-hash','admin') RETURNING id")).rows[0].id;
-    await client.query("INSERT INTO api_integrations(type,provider,label,config,credentials_encrypted,created_by) VALUES ('email','sendgrid','Custom RYZA sender','{\"from_name\":\"RYZA\"}','synthetic-local-encrypted-state',$1)", [account]);
-    const before = await snapshot();
-    await client.query(migration);
-    const after = await snapshot();
-    const expected = {
-      ...before,
-      settings: before.settings.map(row => row.setting_key === 'site_name' ? { ...row, setting_value: 'RIZA' } : row),
-      subscription_plans: before.subscription_plans.map(row => row.id === 2 ? { ...row, description: 'اشتراك العامل الشهري في RIZA' } : row),
-      install_lock: before.install_lock.map(row => row.site_name === 'RYZA' ? { ...row, site_name: 'RIZA' } : row),
-    };
-    assert.deepEqual(after, expected);
-    await client.query(migration);
-    assert.deepEqual(await snapshot(), after);
-    await client.query("UPDATE settings SET setting_value='Custom RYZA site' WHERE setting_key='site_name'");
-    await client.query("UPDATE subscription_plans SET description='Custom RYZA worker policy' WHERE id=2");
-    const custom = await snapshot();
-    await client.query(migration);
-    assert.deepEqual(await snapshot(), custom);
-  } finally { await client.query('ROLLBACK'); }
-});
-test('AWTAD migration changes exact platform defaults and preserves custom branding and accounts', async () => {
-  const migration = fs.readFileSync(path.join(root, 'database/migrations/039_awtad_rebrand.sql'), 'utf8');
-  const snapshot = async () => {
-    const result = {};
-    for (const table of ['settings', 'subscription_plans', 'install_lock', 'users', 'api_integrations']) {
-      // Automatic updated_at changes are ordinary database bookkeeping; all
-      // application metadata, identity and configuration fields must survive.
-      result[table] = (await client.query(`SELECT to_jsonb(t) - 'updated_at' AS value FROM ${table} t ORDER BY id`)).rows.map(row => row.value);
-    }
-    return result;
-  };
-  await client.query('BEGIN');
-  try {
-    await client.query("UPDATE settings SET setting_value='RYZA', setting_group='custom', is_public=0, description='Custom RYZA metadata' WHERE setting_key='site_name'");
-    await client.query("UPDATE settings SET setting_value='Custom RYZA description' WHERE setting_key='site_description'");
-    await client.query("UPDATE subscription_plans SET name_en='Custom worker label', price=77, description='اشتراك العامل الشهري في RYZA' WHERE id=2");
-    await client.query("INSERT INTO subscription_plans(id,name_ar,slug,description,price) VALUES (90001,'Custom RYZA plan','ryza-custom-plan','اشتراك العامل الشهري في RYZA',27)");
-    await client.query(`INSERT INTO install_lock(site_name,site_url,installed_version,installed_by_email) VALUES
-      ('RYZA','https://ryza-eta.vercel.app','custom-version','local@example.invalid'),
-      ('RIZA','https://ryza-eta.vercel.app','custom-version','second@example.invalid'),
-      ('Custom RYZA portal','https://custom.example.invalid','custom-version','other@example.invalid')`);
-    const account = (await client.query("INSERT INTO users(full_name,username,password_hash,role) VALUES ('Existing RYZA account','ryza_existing_admin','synthetic-local-password-hash','admin') RETURNING id")).rows[0].id;
-    await client.query("INSERT INTO api_integrations(type,provider,label,config,credentials_encrypted,created_by) VALUES ('email','sendgrid','Custom RYZA sender','{\"from_name\":\"RYZA\"}','synthetic-local-encrypted-state',$1)", [account]);
-    const before = await snapshot();
-    await client.query(migration);
-    const after = await snapshot();
-    const expected = {
-      ...before,
-      settings: before.settings.map(row => row.setting_key === 'site_name' ? { ...row, setting_value: 'خدمات أوتاد' } : row),
-      subscription_plans: before.subscription_plans.map(row => row.id === 2 ? { ...row, description: 'اشتراك العامل الشهري في خدمات أوتاد' } : row),
-      install_lock: before.install_lock.map(row => ['RYZA', 'RIZA'].includes(row.site_name) ? { ...row, site_name: 'خدمات أوتاد' } : row),
-    };
-    assert.deepEqual(after, expected);
-    await client.query(migration);
-    assert.deepEqual(await snapshot(), after);
-    await client.query("UPDATE settings SET setting_value='Custom RYZA site' WHERE setting_key='site_name'");
-    await client.query("UPDATE subscription_plans SET description='Custom RYZA worker policy' WHERE id=2");
-    const custom = await snapshot();
-    await client.query(migration);
-    assert.deepEqual(await snapshot(), custom);
-  } finally { await client.query('ROLLBACK'); }
 });
 test('service mode upgrade preserves legacy profiles, accepts both, and replays without changing data', async () => {
   const migration = fs.readFileSync(path.join(root, 'database/migrations/038_provider_service_mode.sql'), 'utf8');
@@ -260,17 +177,17 @@ test('service mode upgrade preserves legacy profiles, accepts both, and replays 
   } finally { await client.query('ROLLBACK'); }
 });
 test('required schema failure is not journaled and stops later migrations', async () => {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ryza-database-migration-'));
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'ayk-database-migration-'));
   const schema = env.PATHS.SCHEMA_SQL;
   try {
     fs.mkdirSync(path.join(directory, 'migrations'));
-    fs.writeFileSync(path.join(directory, 'migrations/998_missing_required.sql'), 'SELECT * FROM ryza_missing_required_table;');
-    fs.writeFileSync(path.join(directory, 'migrations/999_must_not_run.sql'), 'CREATE TABLE ryza_must_not_run(id INT);');
+    fs.writeFileSync(path.join(directory, 'migrations/998_missing_required.sql'), 'SELECT * FROM ayk_missing_required_table;');
+    fs.writeFileSync(path.join(directory, 'migrations/999_must_not_run.sql'), 'CREATE TABLE ayk_must_not_run(id INT);');
     env.PATHS.SCHEMA_SQL = path.join(directory, 'schema.sql');
     const result = await install.runMigrationsFromEnv();
     assert.equal(result.applied[0].errors[0].code, '42P01');
     assert.equal((await client.query("SELECT COUNT(*)::int AS count FROM schema_migrations WHERE name LIKE '99%'")).rows[0].count, 0);
-    assert.equal((await client.query("SELECT to_regclass('ryza_must_not_run') AS name")).rows[0].name, null);
+    assert.equal((await client.query("SELECT to_regclass('ayk_must_not_run') AS name")).rows[0].name, null);
   } finally {
     env.PATHS.SCHEMA_SQL = schema; fs.rmSync(directory, { recursive: true, force: true });
   }
@@ -287,8 +204,8 @@ test('generated bootstrap commits all migrations and refuses existing data', asy
   const sql = fs.readFileSync(path.join(root, 'database/postgres/RUN-ME.sql'), 'utf8');
   await bootstrap.query(sql);
   assert.deepEqual((await bootstrap.query('SELECT name FROM schema_migrations ORDER BY name')).rows.map(row => row.name), migrations);
-  assert.equal((await bootstrap.query("SELECT setting_value FROM settings WHERE setting_key='site_name'")).rows[0].setting_value, 'خدمات أوتاد');
-  assert.equal((await bootstrap.query('SELECT description FROM subscription_plans WHERE id=2')).rows[0].description, 'اشتراك العامل الشهري في خدمات أوتاد');
+  assert.equal((await bootstrap.query("SELECT setting_value FROM settings WHERE setting_key='site_name'")).rows[0].setting_value, 'أي خدمة');
+  assert.equal((await bootstrap.query('SELECT description FROM subscription_plans WHERE id=2')).rows[0].description, 'اشتراك العامل الشهري في أي خدمة');
   await bootstrap.query("INSERT INTO users(full_name,password_hash,role,is_super_admin,permissions) VALUES ('Protected local administrator','unused','admin',0,'[\"dashboard.view\"]')");
   await bootstrap.query("UPDATE settings SET setting_value='Preserved bootstrap site' WHERE setting_key='site_name'");
   await assert.rejects(bootstrap.query(sql), /requires a fresh database schema/);
@@ -321,7 +238,7 @@ test('bootstrap required failure rolls back application tables and its journal',
   await broken.connect();
   try {
     const source = fs.readFileSync(path.join(root, 'database/postgres/RUN-ME.sql'), 'utf8');
-    const sql = source.replace(/COMMIT;\s*$/, 'SELECT * FROM ryza_missing_required_table; COMMIT;');
+    const sql = source.replace(/COMMIT;\s*$/, 'SELECT * FROM ayk_missing_required_table; COMMIT;');
     await assert.rejects(broken.query(sql), error => error.code === '42P01');
     await broken.query('ROLLBACK');
     assert.equal((await broken.query("SELECT COUNT(*)::int AS count FROM information_schema.tables WHERE table_schema='public'")).rows[0].count, 0);

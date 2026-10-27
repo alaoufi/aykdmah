@@ -3,13 +3,13 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
-const port = Number(process.env.RYZA_TEST_PORT || 55432);
+const port = Number(process.env.AYK_TEST_PORT || 55432);
 assert.ok(Number.isInteger(port) && port > 0 && port <= 65535);
-const databaseName = `ryza_test_negotiation_${crypto.randomBytes(10).toString('hex')}`;
+const databaseName = `ayk_test_negotiation_${crypto.randomBytes(10).toString('hex')}`;
 Object.assign(process.env, {
   NODE_ENV: 'test', DB_HOST: '127.0.0.1', DB_PORT: String(port), DB_NAME: databaseName,
   DB_USER: 'postgres', DB_PASSWORD: '', DB_SSL: 'false', DATABASE_URL: '', DIRECT_DATABASE_URL: '',
-  JWT_SECRET: crypto.randomBytes(48).toString('hex'), AUTO_MIGRATE: 'false', VERCEL: '',
+  JWT_SECRET: crypto.randomBytes(48).toString('hex'), AUTO_MIGRATE: 'false',
   BOOTSTRAP_ADMIN_EMAIL: '', BOOTSTRAP_ADMIN_PASSWORD: '', MAIL_HOST: '', MAIL_USER: '', MAIL_PASSWORD: '',
   WHATSAPP_PROVIDER: '', WHATSAPP_TOKEN: '', PAYMENT_PROVIDER: '', PAYMENT_SECRET_KEY: '', PAYMENT_WEBHOOK_SECRET: '',
   PUSH_PUBLIC_KEY: '', PUSH_PRIVATE_KEY: '', API_RATE_LIMIT: '10000',
@@ -92,7 +92,7 @@ test.after(async () => {
   if (server) { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
   await db.getPool().end();
   if (created) {
-    assert.match(databaseName, /^ryza_test_negotiation_[a-f0-9]{20}$/);
+    assert.match(databaseName, /^ayk_test_negotiation_[a-f0-9]{20}$/);
     await maintenance.query(`DROP DATABASE "${databaseName}"`);
   }
   if (maintenance) await maintenance.end();

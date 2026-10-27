@@ -1,8 +1,8 @@
 -- -----------------------------------------------------
 -- Migration 015: store ad media inside the database
 --
--- Vercel-style serverless environments have a read-only filesystem,
--- so multer's disk storage fails with ENOENT. Putting the raw bytes
+-- Container and read-only filesystems make multer's disk storage fail
+-- with ENOENT. Putting the raw bytes
 -- on a row keeps the upload path portable across hosts.
 --
 -- The `ads.image` column keeps being the public URL; for db-stored

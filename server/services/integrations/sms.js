@@ -31,7 +31,7 @@ async function twilioSend({ credentials, config, to, message }) {
 async function unifonicSend({ credentials, config, to, message }) {
   // Unifonic — popular Saudi SMS gateway. REST: /messages/v1/send
   const appsid = credentials.app_sid;
-  const sender = credentials.sender_name || config?.sender_name || 'AWTAD';
+  const sender = credentials.sender_name || config?.sender_name || 'AyKhidma';
   if (!appsid) throw new Error('missing unifonic app_sid');
 
   const params = new URLSearchParams({ AppSid: appsid, Recipient: to, Body: message, SenderID: sender });

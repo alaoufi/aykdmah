@@ -11,14 +11,14 @@ src/theme/
 ├── ThemeProvider.jsx  ← React context, useTheme() hook
 ├── themes/
 │   ├── index.js       ← registry (add new themes here)
-│   ├── default.js     ← RYZA Clay (light)
+│   ├── default.js     ← AYK Clay (light)
 │   ├── dark.js        ← Midnight (dark)
 │   └── ocean.js       ← Ocean (cool premium)
 ```
 
 ### How theme switching works
 1. `index.html` runs a tiny inline script **before** React mounts. It reads
-   `localStorage.ryza_theme` and writes CSS variables on `<html>`. Result:
+   `localStorage.ayk_theme` and writes CSS variables on `<html>`. Result:
    zero FOUC, even on first paint.
 2. `<ThemeProvider>` wraps the app in `main.jsx`, exposing `useTheme()`.
 3. Tailwind utilities (`bg-primary`, `text-fg-muted`, `bg-primary-grad`,
@@ -56,7 +56,7 @@ export default {
 
 ```bash
 # Switch theme at runtime
-localStorage.setItem('ryza_theme', 'dark'); location.reload();
+localStorage.setItem('ayk_theme', 'dark'); location.reload();
 
 # Or via UI: header → ☀️/🌙 switcher
 ```

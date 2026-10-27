@@ -13,7 +13,7 @@ function browserFixture({ lang = 'ar', online = true, blockedStorage = false, ve
   const listeners = new Map();
   const replacements = [];
   const session = new Map([['session_auth_keep', 'owned-test-value']]);
-  const local = new Map([['lsm_lang', lang], ['lsm_token', 'owned-test-token'], ['ryza_theme', 'dark']]);
+  const local = new Map([['lsm_lang', lang], ['lsm_token', 'owned-test-token'], ['ayk_theme', 'dark']]);
   const localReads = [];
   let localMutations = 0;
   let cacheMutations = 0;
@@ -25,7 +25,7 @@ function browserFixture({ lang = 'ar', online = true, blockedStorage = false, ve
   });
   const root = createElement('div');
   const document = {
-    querySelector: selector => selector === 'meta[name="awtad-build"]' ? { content: version } : null,
+    querySelector: selector => selector === 'meta[name="aykdmh-build"]' ? { content: version } : null,
     getElementById: id => id === 'root' ? root : null,
     createElement,
   };
@@ -75,7 +75,7 @@ function browserFixture({ lang = 'ar', online = true, blockedStorage = false, ve
 }
 
 test('compatibility archive restores scripts, styles and local model runtimes without overwriting the current release', async t => {
-  const owned = await mkdtemp(path.join(tmpdir(), 'awtad-build-recovery-test-'));
+  const owned = await mkdtemp(path.join(tmpdir(), 'aykdmh-build-recovery-test-'));
   t.after(() => rm(owned, { recursive: true, force: true }));
   const source = path.join(owned, 'archive');
   const destination = path.join(owned, 'current');
@@ -107,7 +107,7 @@ test('early recovery is a classic pre-module script tagged with the current entr
     entry: { type: 'chunk', isEntry: true, fileName: 'assets/index-Ab12Cd34.js' },
   } });
   assert.equal(tags[0].tag, 'meta');
-  assert.equal(tags[0].attrs.name, 'awtad-build');
+  assert.equal(tags[0].attrs.name, 'aykdmh-build');
   assert.equal(tags[0].attrs.content, 'assets/index-Ab12Cd34.js');
   assert.equal(plugin.transformIndexHtml.handler('', {})[0].attrs.content, 'development');
   const emitted = [];
@@ -120,7 +120,7 @@ test('early recovery is a classic pre-module script tagged with the current entr
 test('an entry module failure before React refreshes the same route once through the shared wrapper', async () => {
   const fixture = browserFixture();
   vm.runInContext(await generatedSource, fixture.context);
-  const recovery = fixture.window.__AWTAD_ASSET_RECOVERY__;
+  const recovery = fixture.window.__AYK_ASSET_RECOVERY__;
   assert.equal(recovery.version, 'assets/index-Ab12Cd34.js');
   fixture.dispatch('error', fixture.moduleError);
   assert.equal(fixture.replacements.length, 1);
@@ -129,7 +129,7 @@ test('an entry module failure before React refreshes the same route once through
   assert.equal(fresh.searchParams.get('city'), '9');
   assert.equal(fresh.searchParams.get('q'), 'plumbing');
   assert.equal(fresh.hash, '#details');
-  assert.match(fresh.searchParams.get('_awtad_refresh'), /^\d+$/);
+  assert.match(fresh.searchParams.get('_aykdmh_refresh'), /^\d+$/);
   assert.equal(fixture.root.childNodes.length, 0);
   assert.equal(recovery.recover(new TypeError("'text/html' is not a valid JavaScript MIME type.")), false);
   fixture.dispatch('unhandledrejection', { reason: new Error('Failed to fetch dynamically imported module') });
@@ -137,7 +137,7 @@ test('an entry module failure before React refreshes the same route once through
   assert.equal(fixture.replacements.length, 1);
   const listenerCount = [...fixture.listeners.values()].reduce((total, group) => total + group.length, 0);
   vm.runInContext(await generatedSource, fixture.context);
-  assert.equal(fixture.window.__AWTAD_ASSET_RECOVERY__, recovery);
+  assert.equal(fixture.window.__AYK_ASSET_RECOVERY__, recovery);
   assert.equal([...fixture.listeners.values()].reduce((total, group) => total + group.length, 0), listenerCount);
   assert.equal(fixture.local.get('lsm_token'), 'owned-test-token');
   assert.equal(fixture.session.get('session_auth_keep'), 'owned-test-value');
@@ -149,7 +149,7 @@ test('the classic error listener recognizes Safari MIME failures without recursi
   vm.runInContext(await generatedSource, fixture.context);
   fixture.dispatch('error', { error: new TypeError("'text/html' is not a valid JavaScript MIME type.") });
   assert.equal(fixture.replacements.length, 1);
-  assert.equal(fixture.window.__AWTAD_ASSET_RECOVERY__.reloadFresh(), false);
+  assert.equal(fixture.window.__AYK_ASSET_RECOVERY__.reloadFresh(), false);
   assert.equal(fixture.replacements.length, 1);
   assert.deepEqual(fixture.localReads, []);
 });
@@ -172,7 +172,7 @@ test('offline or blocked session storage shows native fallback without clearing 
       assert.ok(button.textContent.trim());
       assert.equal(fixture.local.get('lsm_token'), 'owned-test-token');
       assert.equal(fixture.local.get('lsm_lang'), lang);
-      assert.equal(fixture.local.get('ryza_theme'), 'dark');
+      assert.equal(fixture.local.get('ayk_theme'), 'dark');
       assert.equal(fixture.session.get('session_auth_keep'), 'owned-test-value');
       assert.deepEqual(fixture.mutationCounts(), { local: 0, caches: 0 });
       button.listeners.get('click')();
@@ -196,10 +196,12 @@ test('external scripts, classic scripts, ordinary app errors and mounted React c
 });
 
 test('the early bootstrap is served without immutable caching and runs before the module entry', async () => {
-  const config = JSON.parse(await readFile(new URL('../../vercel.json', import.meta.url), 'utf8'));
-  const matchedHeaders = config.headers.filter(rule => new RegExp(`^${rule.source}$`).test('/app-recovery.js'));
-  const cacheHeaders = matchedHeaders.flatMap(rule => rule.headers).filter(header => header.key === 'Cache-Control');
-  assert.match(cacheHeaders.at(-1)?.value || '', /no-store/);
+  // Served by Caddy (deploy/caddy/Caddyfile): not a fingerprinted asset, so the no-store rule applies.
+  const caddy = await readFile(new URL('../../deploy/caddy/Caddyfile', import.meta.url), 'utf8');
+  const matcher = name => new RegExp(caddy.match(new RegExp(`@${name} path_regexp (.+)`))[1].trim());
+  assert.equal(matcher('hashed').test('/app-recovery.js'), false);
+  assert.equal(matcher('static').test('/app-recovery.js'), true);
+  assert.match(caddy.match(/handle @static \{[\s\S]*?\}/)[0], /no-store/);
   const html = await readFile(new URL('../index.html', import.meta.url), 'utf8');
   assert.ok(html.indexOf('src="/app-recovery.js"') >= 0);
   assert.ok(html.indexOf('src="/app-recovery.js"') < html.indexOf('type="module"'));

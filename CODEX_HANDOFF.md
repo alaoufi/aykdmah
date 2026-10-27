@@ -1,39 +1,38 @@
 # تسليم إلى Codex
 
-## الفروع
+الفرع المنشور على https://aykdmh.com: `claude/deploy-setup`. ابدأ من آخر commit فيه. فرع `main` لم يُعدَّل.
 
-- `codex/source-recovery` — commit Codex `99cc051` (استرجاع كود التطبيق) كما هو، دون تعديل.
-- `claude/deploy-setup` — يبني عليه: دمج `99cc051` ثم عمل Claude. **هذا الفرع هو المنشور على https://aykdmh.com.**
-- `main` — لم يُعدَّل (`695eb0d`).
+## البنية على الخادم (Contabo، Ubuntu 24.04)
 
-ابدأ العمل الجديد من آخر commit في `claude/deploy-setup`.
+| الحاوية | الدور | المنافذ العامة |
+|---|---|---|
+| `aykdmh-web` | Caddy 2.8.4: HTTPS، الواجهة الثابتة من `/var/www/aykdmh/current`، وتمرير `/api` و`/socket.io` و`/livekit` | 80، 443 |
+| `aykdmh-app` | Node 22 API (`deploy/app.Dockerfile`) | لا شيء |
+| `aykdmh-db` | PostgreSQL 16 | لا شيء |
+| `aykdmh-livekit` | LiveKit v1.13.9 للمكالمات | 7881/tcp، 7882/udp، 3478/udp |
 
-## ما أضافه Claude فوق كود Codex
+Coolify مثبت على الخادم من قبل ولا يُستخدم. لا تعدّله.
 
-- `deploy/` — `docker-compose.yml` (Caddy وAPI وPostgreSQL)، و`app.Dockerfile`، و`caddy/Caddyfile` (رؤوس `vercel.json` نفسها)، و`setup-server.sh` (نسخ احتياطي، بناء، ترحيل، تبديل الإصدار).
-- `.dockerignore`.
-- `server/app.js` — `trust proxy` عند `TRUST_PROXY=1`.
-- `server/package-lock.json` — إصلاح ثغرات body-parser وmulter وnodemailer.
-- `server/tests/security-uploads.integration.js` — `HAS_BASELINE`: تخطي مقارنات النسخة `7f4ec4b` غير المسترجعة فقط.
-- `tests/check-deploy.sh` — فحوص النشر.
-- `docs/PROJECT_PROGRESS.md` — الحالة والمتبقي والمشكلات.
+- المستودع: `/opt/aykdmh`. الأسرار: `/opt/aykdmh/.env` (صلاحية 600). النسخ الاحتياطية: `/root/backups/`.
+- النشر: `cd /opt/aykdmh && git pull && bash deploy/setup-server.sh`.
+- الاختبارات: `bash deploy/run-tests.sh`. المكالمة الحقيقية: `bash deploy/e2e-calls.sh`.
+- ترحيل جديد: أضف ملفًا في `database/migrations` ثم `NODE_ENV=test node scripts/append-pg-migrations.cjs` لتحديث `database/postgres/RUN-ME.sql`.
 
-## الفحوص
+## الميزات المضافة في هذه المرحلة
 
-```
-npm test                                                    # 20
-node --test client/tests/*.test.js client/tests/*.test.mjs  # 119
-npm run i18n:check
-RYZA_TEST_PORT=5432 npm run test:integration                # 175 (PostgreSQL محلي للاختبار فقط)
-bash tests/check-deploy.sh                                  # 18
-```
+- **الخرائط:** `client/src/components/map/BaseTileLayer.jsx` (بلاط OpenFreeMap داخل Leaflet)، `/api/geo/search` (Nominatim عبر `server/services/nominatimClient.js`)، `/api/providers/nearby`، صفحتا `/providers/map` و`/providers/:id`. الموقع الدقيق لمقدم الخدمة لا يظهر إلا بموافقته (`show_location_on_map`).
+- **المكالمات:** `server/services/callService.js` و`server/routes/callRoutes.js` و`client/src/context/CallContext.jsx` و`client/src/components/calls/`. صلاحية الاتصال = صلاحية المراسلة (`Conversation.canSend`). لا تسجيل.
+- **الإدارة:** `/admin/calls` (إحصاءات وبلاغات، بيانات وصفية فقط).
+- **الهوية:** «أي خدمة» وشعارها في `client/public/brand` و`client/public/icons`.
+- **كلمات المرور:** حد أدنى 4 خانات، وإلزام التغيير عند أول دخول (`users.must_change_password`).
 
-على Windows: `core.autocrlf=true` يحوّل نهايات أسطر ملفات SQL، فيُفشل `platformLanguages.test.js`. شغّل الاختبارات من نسخة Linux أو من `git clone` على الخادم.
+## معلّق
 
-## النشر
-
-على الخادم: `cd /opt/aykdmh && git pull && bash deploy/setup-server.sh`. الأسرار في `/opt/aykdmh/.env` ولا تُرفع إلى Git.
+- استمرار المكالمة بعد انقطاع الشبكة: آلية إعادة الانضمام موجودة، لكن فحص الانقطاع 4 ثوانٍ في `e2e/calls.e2e.mjs` لم ينجح بعد.
+- إشعارات Web Push للمكالمات والتطبيق مغلق: غير منفذة.
+- TURN عبر TLS (للشبكات المقيّدة جدًا): يحتاج نطاقًا فرعيًا وشهادة.
+- النظام الجغرافي الشامل للمملكة: مطلوب من المالك، ولم يبدأ.
 
 ## قواعد
 
-لا Force Push، ولا رفع `.env` أو أسرار، ونسخة احتياطية قبل أي تغيير على قاعدة البيانات أو الخادم. لا تُنشئ حساب مدير ولا تغيّر الاسم أو الهوية دون طلب المالك.
+لا Force Push، ولا رفع `.env` أو أسرار، ونسخة احتياطية قبل أي تغيير على القاعدة أو الخادم. لا دفع حقيقي قبل الاختبار وموافقة المالك.

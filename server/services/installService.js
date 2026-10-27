@@ -70,10 +70,10 @@ function buildSsl() {
 function clientOptions(extra = {}) {
   const url = env.DB.DIRECT_URL || env.DB.URL;
   if (url) {
-    // Neon transaction pooling cannot preserve session advisory locks. Schema
+    // Transaction poolers cannot preserve session advisory locks. Schema
     // jobs must connect to the direct endpoint rather than the app's pooler.
     if (/-pooler\./i.test(new URL(url).hostname)) {
-      throw new Error('Set DIRECT_DATABASE_URL to the non-pooled Neon endpoint before running database setup or migrations.');
+      throw new Error('Set DIRECT_DATABASE_URL to a non-pooled endpoint before running database setup or migrations.');
     }
     const { poolOptions } = require('../config/database');
     const { connectionString, ssl } = poolOptions({ ...env.DB, URL: url });
@@ -386,7 +386,7 @@ async function performInstall({ db, site, admin }) {
     );
 
     const settingsToUpdate = [
-      ['site_name', site.name || 'AWTAD SERVICES'],
+      ['site_name', site.name || 'AY KHIDMA'],
       ['site_url', site.url || ''],
       ['site_email', site.email || ''],
       ['default_language', site.language || 'ar'],
@@ -433,7 +433,7 @@ function writeEnvFile({ db, site }) {
 
   const lines = content.split('\n');
   const map = {
-    APP_NAME: site.name || 'AWTAD SERVICES',
+    APP_NAME: site.name || 'AY KHIDMA',
     APP_URL: site.url || '',
     CLIENT_URL: site.url || '',
     DATABASE_URL: '',

@@ -12,12 +12,10 @@
     "start": "cd server && npm start",
     "seed": "cd server && npm run seed",
     "zip": "node scripts/create-zip.js",
-    "vercel-build": "VITE_REALTIME_MODE=polling ONNXRUNTIME_NODE_INSTALL_CUDA=skip npm --prefix client ci --include=dev && VITE_REALTIME_MODE=polling npm --prefix client run build",
     "i18n:check": "node scripts/check-translations.js",
     "i18n:fix": "node scripts/check-translations.js --fix",
     "test": "npm --prefix server test",
-    "test:integration": "node scripts/run-integration-tests.cjs",
-    "test:onboarding:e2e": "node scripts/run-onboarding-e2e.cjs"
+    "test:integration": "node scripts/run-integration-tests.cjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",

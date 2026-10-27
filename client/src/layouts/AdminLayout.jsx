@@ -3,7 +3,7 @@ import { Outlet, NavLink, Link, useNavigate, useLocation } from 'react-router-do
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 import Avatar from '../components/common/Avatar';
-import RyzaLogo from '../components/common/RyzaLogo';
+import BrandLogo from '../components/common/BrandLogo';
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
 import { IconMenu, IconClose, IconBell } from '../components/common/Icons';
 import { useNotifications } from '../hooks/useNotifications';
@@ -104,7 +104,7 @@ export default function AdminLayout() {
       >
         <div className="px-5 py-5 border-b border-white/10 flex items-center justify-between">
           <Link to="/admin" className="flex items-center gap-2.5 no-underline">
-            <RyzaLogo markSize={32} wordSize={18} tone="mono-light" />
+            <BrandLogo markSize={32} wordSize={18} tone="mono-light" />
             <span className="text-white/70 text-[11px] border-s border-white/15 ps-2.5">
               {t('admin.panel')}
             </span>

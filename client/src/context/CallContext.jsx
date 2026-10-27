@@ -46,19 +46,61 @@ export function CallProvider({ children }) {
     }, 2500);
   }, [teardown]);
 
+  // The server's record decides the outcome shown (declined, missed, ended…).
+  const finalState = async (active) => {
+    try {
+      const rows = await calls.callHistory({ conversation_id: active.conversation_id });
+      return rows.find(c => c.id === active.id) || { ...active, status: 'ended' };
+    } catch (_) { return { ...active, status: 'ended' }; }
+  };
+
+  // After a network drop LiveKit may give up while offline. Rejoin the same call with a
+  // fresh token for up to 30 s; end it only if that fails or the call is over.
+  const rejoinRef = useRef(null);
+  const rejoin = useCallback(async (active) => {
+    if (rejoinRef.current) return;
+    rejoinRef.current = true;
+    setPhase('reconnecting');
+    try {
+      for (let attempt = 0; attempt < 10 && !leavingRef.current; attempt += 1) {
+        if (attempt > 0 || navigator.onLine === false) await new Promise(resolve => setTimeout(resolve, 3000));
+        if (navigator.onLine === false) continue;
+        try {
+          const list = await calls.activeCalls();
+          const current = list.find(c => c.id === active.id && c.status === 'accepted');
+          if (!current) { await finishLocally(await finalState(active), 'network'); return; }
+          await connectMediaRef.current(current);
+          setPhase('in_call');
+          return;
+        } catch (_) { /* still offline or LiveKit unreachable: retry */ }
+      }
+      if (!leavingRef.current) {
+        await calls.declineCall(active.id).then(c => finishLocally(c, 'network')).catch(() => finishLocally(null, 'network'));
+      }
+    } finally { rejoinRef.current = null; }
+  }, [finishLocally]);
+  const connectMediaRef = useRef(null);
+
   const connectMedia = useCallback(async (active) => {
     setPhase(prev => (prev === 'outgoing' ? 'outgoing' : 'connecting'));
-    const [{ Room, RoomEvent, Track }, access] = await Promise.all([loadLiveKit(), calls.callToken(active.id)]);
+    const [{ Room, RoomEvent, Track, DisconnectReason }, access] = await Promise.all([loadLiveKit(), calls.callToken(active.id)]);
+    // Ended on purpose (hang-up, room closed by the server): no rejoin attempts.
+    const finalReasons = [DisconnectReason.CLIENT_INITIATED, DisconnectReason.ROOM_DELETED, DisconnectReason.PARTICIPANT_REMOVED,
+      DisconnectReason.DUPLICATE_IDENTITY, DisconnectReason.ROOM_CLOSED].filter(r => r !== undefined);
     const lkRoom = new Room({ adaptiveStream: true, dynacast: true, stopLocalTrackOnUnpublish: true });
     lkRoom
       .on(RoomEvent.ParticipantConnected, () => setRemoteJoined(true))
       .on(RoomEvent.ParticipantDisconnected, () => setRemoteJoined(false))
       .on(RoomEvent.Reconnecting, () => setPhase('reconnecting'))
       .on(RoomEvent.Reconnected, () => setPhase('in_call'))
-      .on(RoomEvent.Disconnected, () => {
+      .on(RoomEvent.Disconnected, reason => {
         if (leavingRef.current || roomRef.current !== lkRoom) return;
-        // Lost the media connection for good: end the call on the server too.
-        calls.declineCall(active.id).then(c => finishLocally(c, 'network')).catch(() => finishLocally(null, 'network'));
+        if (finalReasons.includes(reason)) {
+          calls.activeCalls().then(list => list.find(c => c.id === active.id)).catch(() => null)
+            .then(async stillActive => (stillActive ? rejoin(active) : finishLocally(await finalState(active))));
+          return;
+        }
+        rejoin(active);
       });
     roomRef.current = lkRoom;
     setRoom(lkRoom);
@@ -73,7 +115,8 @@ export function CallProvider({ children }) {
     setFacing('user');
     if (active.status === 'accepted') setPhase('in_call');
     return Track;
-  }, [finishLocally]);
+  }, [finishLocally, rejoin]);
+  connectMediaRef.current = connectMedia;
 
   const applyState = useCallback(async (next) => {
     if (!next) return;
@@ -142,6 +185,8 @@ export function CallProvider({ children }) {
       setPhase('outgoing');
       await connectMedia(created);
     } catch (err) {
+      // Technical detail for support; never includes tokens or media.
+      console.warn('[call] start failed:', err?.name, err?.message);
       const code = err?.response?.data?.message || (err?.name === 'NotAllowedError' ? 'media_denied' : 'call_failed');
       setError(code);
       const current = callRef.current;
@@ -162,6 +207,7 @@ export function CallProvider({ children }) {
       await connectMedia(accepted);
       setPhase('in_call');
     } catch (err) {
+      console.warn('[call] accept failed:', err?.name, err?.message);
       setError(err?.name === 'NotAllowedError' ? 'media_denied' : err?.response?.data?.message || 'call_failed');
       calls.declineCall(current.id).catch(() => {});
       await finishLocally({ ...current, status: 'failed' });

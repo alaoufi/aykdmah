@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import { apiError } from '../../services/api';
 import { IconUser, IconArrow } from '../../components/common/Icons';
-import RyzaLogo from '../../components/common/RyzaLogo';
+import BrandLogo from '../../components/common/BrandLogo';
 import { authReturnTarget } from '../../utils/authReturn';
 
 function AdminPasswordField({ value, onChange, t }) {
@@ -99,7 +99,7 @@ export default function AdminLoginPage() {
         {/* Logo header */}
         <div className="text-center mb-6">
           <div className="flex justify-center mb-6">
-            <RyzaLogo width={220} tone="mono-light" tagline taglineText={t('common.tagline')} />
+            <BrandLogo width={220} tone="mono-light" tagline taglineText={t('common.tagline')} />
           </div>
           <h1 className="text-white text-2xl font-extrabold">{t('nav.admin')}</h1>
           <p className="text-white/70 text-[13px] mt-1">{t('auth.admin_login_hint')}</p>

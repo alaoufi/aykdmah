@@ -291,12 +291,17 @@ export default function ProfilePage() {
         initialPointSelected={hasPoint}
         onConfirm={result => { cancelLocation(); applyPoint(result.lat, result.lon, result); setPointConfirmed(true); }} />
       {user?.role === 'provider' && <ProviderSection onSaved={setMsg} onError={setErr} t={t} refresh={refresh} />}
-      <div className="card">
+      <div className="card" id="change-password">
         <h3>{t('profile.change_password')}</h3>
+        {Number(user?.must_change_password) === 1 && (
+          <div role="alert" className="mb-3 px-3 py-2.5 rounded-card bg-amber-50 text-amber-800 border border-amber-200 text-[13px]">
+            {t('profile.must_change_password')}
+          </div>
+        )}
         <form onSubmit={savePassword}>
           <PasswordInput label={t('profile.current_password')} required autoComplete="current-password"
             value={pw.current_password} onChange={e => setPw({ ...pw, current_password: e.target.value })} />
-          <PasswordInput label={t('profile.new_password')} required minLength={6} autoComplete="new-password"
+          <PasswordInput label={t('profile.new_password')} required minLength={4} autoComplete="new-password"
             value={pw.new_password} onChange={e => setPw({ ...pw, new_password: e.target.value })} />
           <Button type="submit" variant="primary">{t('common.save')}</Button>
         </form>

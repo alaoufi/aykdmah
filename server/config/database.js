@@ -32,7 +32,7 @@ function buildSsl(config) {
 function poolOptions(config) {
   const configuredMax = Number(config.POOL_MAX);
   const max = Number.isInteger(configuredMax) && configuredMax > 0
-    ? configuredMax : (process.env.VERCEL ? 3 : 10);
+    ? configuredMax : 10;
   if (config.URL) {
     // Strip any inherited ssl=/sslmode= query params from the URL — pg's
     // own SSL config (which we pass explicitly) should be the only thing

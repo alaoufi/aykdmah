@@ -2,7 +2,7 @@ import { tx } from './localize.js';
 
 export const CATALOG_FILTER_KEYS = ['q', 'region', 'governorate', 'city', 'district', 'sort'];
 export const CATALOG_SORTS = ['default', 'name_asc', 'name_desc'];
-export const LAST_CATALOG_SEARCH = 'ryza_catalog_search_v1';
+export const LAST_CATALOG_SEARCH = 'ayk_catalog_search_v1';
 const LOCATION_KEYS = ['region', 'governorate', 'city', 'district'];
 
 export function readCatalogFilters(params) {

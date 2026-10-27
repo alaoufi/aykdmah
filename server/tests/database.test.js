@@ -14,10 +14,10 @@ test('SQL scripts preserve semicolons and comments inside quoted values and func
   assert.equal(parts[2], 'SELECT 3');
 });
 test('strict TLS wins over URL defaults and keeps other URL options intact', () => {
-  const config = poolOptions({ URL: 'postgres://user:pass@localhost/db?sslmode=require&application_name=ryza', SSL: 'strict' });
+  const config = poolOptions({ URL: 'postgres://user:pass@localhost/db?sslmode=require&application_name=ayk', SSL: 'strict' });
   assert.equal(config.ssl.rejectUnauthorized, true);
   const url = new URL(config.connectionString);
-  assert.equal(url.searchParams.get('application_name'), 'ryza');
+  assert.equal(url.searchParams.get('application_name'), 'ayk');
   assert.equal(url.searchParams.has('sslmode'), false);
   assert.equal(poolOptions({ URL: 'postgres://localhost/db', SSL: 'false' }).ssl, false);
 });

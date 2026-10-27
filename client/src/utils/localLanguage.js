@@ -5,7 +5,7 @@ export const LOCAL_TEXT_MAX_CHARACTERS = 1500;
 export const LOCAL_AUDIO_MAX_SECONDS = 60;
 export const LOCAL_AUDIO_MAX_BYTES = 3.5 * 1024 * 1024;
 export const LOCAL_SAMPLE_RATE = 16000;
-export const LOCAL_MODEL_CACHE = 'awtad-local-language-models-v1';
+export const LOCAL_MODEL_CACHE = 'aykdmh-local-language-models-v1';
 export const LANGUAGE_MODELS = {
   translation: {
     id: 'Xenova/m2m100_418M',

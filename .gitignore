@@ -6,8 +6,6 @@ node_modules/
 **/.env.*
 !.env.example
 !**/.env.example
-.vercel/
-**/.vercel/
 client/dist/
 server/uploads/
 test-results/

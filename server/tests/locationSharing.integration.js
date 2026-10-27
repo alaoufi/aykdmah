@@ -2,14 +2,14 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
-const databaseName = process.env.RYZA_LOCATION_TEST_DB;
+const databaseName = process.env.AYK_LOCATION_TEST_DB;
 
 if (!databaseName) {
-  test('location sharing integration (set RYZA_LOCATION_TEST_DB)', { skip: true }, () => {});
+  test('location sharing integration (set AYK_LOCATION_TEST_DB)', { skip: true }, () => {});
 } else {
-  if (!/^ryza_test[a-z0-9_]*$/.test(databaseName)) throw new Error('Use a disposable ryza_test* database.');
+  if (!/^ayk_test[a-z0-9_]*$/.test(databaseName)) throw new Error('Use a disposable ayk_test* database.');
   Object.assign(process.env, {
-    NODE_ENV: 'test', DB_HOST: '127.0.0.1', DB_PORT: process.env.RYZA_TEST_PORT || '5432',
+    NODE_ENV: 'test', DB_HOST: '127.0.0.1', DB_PORT: process.env.AYK_TEST_PORT || '5432',
     DB_NAME: databaseName, DB_USER: 'postgres', DB_PASSWORD: '',
     DATABASE_URL: '', DIRECT_DATABASE_URL: '', DB_SSL: 'false',
     JWT_SECRET: crypto.randomBytes(48).toString('hex'),

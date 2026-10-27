@@ -23,11 +23,11 @@ BEGIN
     PERFORM setval(sequence_name, GREATEST(next_row_id, next_sequence_id), false);
   END LOOP;
 END $$;
-CREATE TEMP TABLE ryza_district_city_import (
+CREATE TEMP TABLE ayk_district_city_import (
  source_city_id BIGINT PRIMARY KEY, region_id INT, governorate_id INT,
  name_ar TEXT, name_en TEXT, latitude DECIMAL(10,7), longitude DECIMAL(10,7)
 ) ON COMMIT DROP;
-INSERT INTO ryza_district_city_import
+INSERT INTO ayk_district_city_import
 (source_city_id,region_id,governorate_id,name_ar,name_en,latitude,longitude) VALUES
 (24, 1, 5, 'المجمعة', 'Al Majma''ah', 25.90742996, 45.33901994),
 (11, 4, 46, 'بريدة', 'Buraidah', 26.33033999, 43.97435997),
@@ -51,7 +51,7 @@ INSERT INTO cities (governorate_id,region_id,name_ar,name_en,latitude,longitude,
 SELECT i.governorate_id,i.region_id,i.name_ar,i.name_en,i.latitude,i.longitude,
  CASE WHEN r.is_active = 1 AND (i.governorate_id IS NULL OR g.is_active = 1) THEN 1 ELSE 0 END,
  COALESCE(g.sort_order,100)
-FROM ryza_district_city_import i
+FROM ayk_district_city_import i
 JOIN regions r ON r.id = i.region_id
 LEFT JOIN governorates g ON g.id = i.governorate_id
 WHERE NOT EXISTS (
@@ -59,10 +59,10 @@ WHERE NOT EXISTS (
  AND c.governorate_id IS NOT DISTINCT FROM i.governorate_id
 );
 
-CREATE TEMP TABLE ryza_district_name_import (
+CREATE TEMP TABLE ayk_district_name_import (
  source_city_id BIGINT, name_ar TEXT, name_en TEXT
 ) ON COMMIT DROP;
-INSERT INTO ryza_district_name_import (source_city_id,name_ar,name_en) VALUES
+INSERT INTO ayk_district_name_import (source_city_id,name_ar,name_en) VALUES
 (24, 'المرقب', 'Al Marqab Dist.'),
 (24, 'اليرموك', 'Al Yarmuk Dist.'),
 (24, 'الفيحاء', 'Al Fayha Dist.'),
@@ -451,8 +451,8 @@ INSERT INTO ryza_district_name_import (source_city_id,name_ar,name_en) VALUES
 (10872, 'المديري', 'Al Mudairy');
 INSERT INTO districts (city_id,name_ar,name_en,is_active)
 SELECT c.id,d.name_ar,d.name_en,c.is_active
-FROM ryza_district_name_import d
-JOIN ryza_district_city_import i ON i.source_city_id = d.source_city_id
+FROM ayk_district_name_import d
+JOIN ayk_district_city_import i ON i.source_city_id = d.source_city_id
 JOIN cities c ON c.region_id = i.region_id AND c.name_ar = i.name_ar
  AND c.governorate_id IS NOT DISTINCT FROM i.governorate_id
 WHERE NOT EXISTS (

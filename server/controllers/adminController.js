@@ -68,7 +68,7 @@ const dashboard = asyncHandler(async (req, res) => {
     safeCount("SELECT COUNT(*) AS total FROM location_shares"),
     safeCount("SELECT COUNT(*) AS total FROM disputes"),
     safeCount("SELECT COUNT(*) AS total FROM disputes WHERE status IN ('open','under_review','waiting_response','escalated')"),
-    safeCount("SELECT COUNT(*) AS total FROM users WHERE email LIKE '%@ryza-test.local'"),
+    safeCount("SELECT COUNT(*) AS total FROM users WHERE email LIKE '%@ayk-test.local'"),
   ]);
 
   // Lists & breakdowns — these can fail individually without breaking
@@ -260,7 +260,7 @@ const uploadAdMedia = asyncHandler(async (req, res) => {
   if (!f || !f.buffer) return error(res, req.t('invalid_data'), 400);
   // multer.memoryStorage gives us the file as f.buffer — write it to
   // the ad_media table so the bytes survive on read-only filesystems
-  // (Vercel et al). The serving URL goes through /api/ads/media/:id.
+  // and in containers. The serving URL goes through /api/ads/media/:id.
   const id = await AdMedia.create({
     mime: f.mimetype, size: f.size, filename: f.originalname, buffer: f.buffer,
   });

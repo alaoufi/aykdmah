@@ -1,8 +1,8 @@
 import { LOCAL_MODEL_CACHE, modelFileDescriptor, pinnedModelDownloadUrl } from './localLanguage.js';
 
 const CHUNK_BYTES = 4 * 1024 * 1024;
-const CHUNK_HEADER = 'X-Awtad-Model-Chunks';
-const chunkKey = (url, index) => `${url}?awtad_model_chunk=${index}`;
+const CHUNK_HEADER = 'X-Ayk-Model-Chunks';
+const chunkKey = (url, index) => `${url}?aykdmh_model_chunk=${index}`;
 
 // Some browsers fail Cache.put() for a single 300 MB Response even when there
 // is sufficient quota. Keep public weights in small entries and publish their
@@ -27,7 +27,7 @@ export function createLocalModelCache(storage, chunkBytes = CHUNK_BYTES) {
         for (let index = 0; index < manifest.chunks; index++) {
           const chunk = await cache.match(chunkKey(url, index));
           const expected = Math.min(manifest.chunkBytes, manifest.size - index * manifest.chunkBytes);
-          if (!chunk || Number(chunk.headers.get('X-Awtad-Model-Bytes')) !== expected) return undefined;
+          if (!chunk || Number(chunk.headers.get('X-Ayk-Model-Bytes')) !== expected) return undefined;
         }
         let index = 0;
         const stream = new ReadableStream({
@@ -56,7 +56,7 @@ export function createLocalModelCache(storage, chunkBytes = CHUNK_BYTES) {
         cache = await open();
         if (descriptor.size <= chunkBytes) { await cache.put(url, response); return; }
         const existing = await cache.keys();
-        for (const key of existing) if (key.url.startsWith(`${url}?awtad_model_chunk=`)) await cache.delete(key);
+        for (const key of existing) if (key.url.startsWith(`${url}?aykdmh_model_chunk=`)) await cache.delete(key);
         await cache.delete(url);
         reader = response.body.getReader();
         let size = 0;
@@ -65,7 +65,7 @@ export function createLocalModelCache(storage, chunkBytes = CHUNK_BYTES) {
         let offset = 0;
         const saveChunk = async () => {
           const key = chunkKey(url, index++);
-          await cache.put(key, new Response(buffer.subarray(0, offset), { headers: { 'Content-Type': 'application/octet-stream', 'X-Awtad-Model-Bytes': String(offset) } }));
+          await cache.put(key, new Response(buffer.subarray(0, offset), { headers: { 'Content-Type': 'application/octet-stream', 'X-Ayk-Model-Bytes': String(offset) } }));
           written.push(key);
           buffer = new Uint8Array(Math.min(chunkBytes, descriptor.size - size));
           offset = 0;

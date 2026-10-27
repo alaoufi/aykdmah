@@ -18,8 +18,8 @@
     // This network-only entry bypasses navigation fallbacks in old app workers.
     // Leave account storage untouched and return to the home page after cleanup.
     history.replaceState(history.state, '', '/' + location.search + location.hash);
-    if (window.__AWTAD_ASSET_RECOVERY__) window.__AWTAD_ASSET_RECOVERY__.reloadFresh();
-    else location.replace('/?_awtad_refresh=' + Date.now());
+    if (window.__AYK_ASSET_RECOVERY__) window.__AYK_ASSET_RECOVERY__.reloadFresh();
+    else location.replace('/?_aykdmh_refresh=' + Date.now());
   }
   retry.addEventListener('click', openLatest);
   openLatest();

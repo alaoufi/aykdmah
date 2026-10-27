@@ -1,44 +1,39 @@
-# خدمات أوتاد / RYZA — الكود المصدري
+# أي خدمة (Ay Khidma)
 
-هذه الحزمة تحتوي كود التطبيق الفعلي: مجلد `client` للواجهة React/Vite، ومجلد `server` للخادم Node.js/Express، ومجلد `database` لملفات SQL، بالإضافة إلى ملفات الحزم والقفل والاختبارات.
+منصة تربط طالب الخدمة بمقدّمها: طلبات، عروض وتفاوض، محادثات، خرائط، ومكالمات صوتية ومرئية. الموقع: https://aykdmh.com
 
-استُعيدت 1162 من ملفات المشروع من مصدر نشر Vercel `dpl_EobmVg24a2KfZaGUHrLjC5yGfJ9A`. هذا هو النشر المعروف للإصدار المحلي `d1eb4fd`. بيان `SOURCE-MANIFEST.json` يحفظ بصمات تلك الملفات. لم تُسترجع بيانات مستخدمين أو أسرار بيئة الإنتاج.
+## التقنيات
 
-## التشغيل
+| الجزء | التقنية |
+|---|---|
+| الواجهة | React 18 + Vite، PWA، عربي RTL مع 5 لغات (ar, en, ur, hi, bn) |
+| الخادم | Node.js 22 + Express، Socket.IO للوقت الفوري |
+| قاعدة البيانات | PostgreSQL 16 (ترحيلات في `database/migrations`) |
+| الخرائط | Leaflet مع بلاط OpenFreeMap (عبر MapLibre)، وبحث العناوين من OpenStreetMap عبر الخادم |
+| المكالمات | LiveKit مفتوح المصدر على الخادم نفسه (WebRTC)، دون تسجيل |
+| الاستضافة | خادم Contabo واحد: Caddy (HTTPS تلقائي) + حاويات Docker |
 
-استخدم Node.js 22.12 أو أحدث من سلسلة 22.x وPostgreSQL. اقرأ `ENV-SETUP.txt` ثم اضبط بيئة تطوير معزولة. ملفات `.env.example` في الجذر و`server` و`client` تتضمن أسماء المتغيرات فقط وقيمها فارغة؛ ليست إعداد تشغيل جاهزًا.
+## التشغيل المحلي
 
-```sh
-npm ci
-npm --prefix server ci
-ONNXRUNTIME_NODE_INSTALL_CUDA=skip npm --prefix client ci
+```
+npm ci && npm --prefix server ci && ONNXRUNTIME_NODE_INSTALL_CUDA=skip npm --prefix client ci
+cp server/.env.example .env      # ثم املأ قيم قاعدة بيانات تطوير محلية
 npm run dev
 ```
 
-لا تشغّل seed أو ترحيلات أو اختبارات كتابة على قاعدة الإنتاج لمجرد فتح المشروع. ملفات SQL الأصلية موجودة في `database` وأداة التهيئة الأصلية في `server/scripts/seed.js`. بيانات الموقع الحالية تبقى على خدمات الاستضافة وقاعدة البيانات القائمة.
+## الاختبارات
 
-## الاختبارات والبناء
+على أي جهاز Linux فيه Docker (يطابق CI، ويستخدم PostgreSQL مؤقتة ثم يحذفها):
 
-```sh
-npm test
-node --test client/tests/*.test.js client/tests/*.test.mjs
-npm run i18n:check
-VITE_REALTIME_MODE=polling npm run build
+```
+bash deploy/run-tests.sh
 ```
 
-لاختبارات التكامل شغّل PostgreSQL محليًا ومعزولًا واختر منفذه صراحة، مثل `RYZA_TEST_PORT=55432 npm run test:integration`. ينشئ السكربت قواعده المؤقتة وينظفها. يتيح `RYZA_TEST_PORT=55432 node scripts/run-integration-tests.cjs --check` مراجعة الإعداد دون اتصال بقاعدة.
+اختبار مكالمة حقيقية بين متصفحين على الخادم (بيئة اختبار معزولة): `bash deploy/e2e-calls.sh`.
 
-## الملفات المستعادة والإضافات
+## النشر
 
-- كود التطبيق وملفات SQL والاختبارات داخل `client/tests` و`server/tests` مستعادة من المصدر المنشور.
-- قوالب البيئة ودليل تهيئتها وملف `.gitignore` أُضيفت لهذه الحزمة دون أسرار.
-- السكربتات الأربع في `scripts` أُعيد إنشاؤها لتشغيل الأوامر الموجودة في `package.json`؛ راجع `scripts/RECOVERY-NOTES.txt`.
-- اختبارات المتصفح الأصلية ومساعداتها كانت مستبعدة من النشر ولم تُسترجع. أُضيف توضيح في `e2e/RECOVERY-NOTES.txt`. الأمر `test:onboarding:e2e` يتوقف صراحة لهذا السبب، وCI يعلن عدم تشغيل تلك الاختبارات. لا تُعد اختبارات ناجحة.
-- نسخة README التي كانت في النشر محفوظة في `docs/README-FROM-DEPLOYMENT.md`. سياق المنتج والميزات متاح في `docs/PROJECT-CONTEXT.txt`.
-- لا توجد نسخة من `node_modules` أو مخرجات البناء أو كلمات المرور في الأرشيف؛ التثبيت يتم من ملفات القفل.
+على الخادم: `cd /opt/aykdmh && git pull && bash deploy/setup-server.sh`
+يأخذ السكربت نسخة احتياطية من القاعدة، ويبني الواجهة في إصدار جديد، ويطبّق الترحيلات. التفاصيل في `docs/PROJECT_PROGRESS.md` و`CODEX_HANDOFF.md`.
 
-## Git والمستودع المطلوب
-
-مجلد `.git` المرفق يتضمن السجل المتاح للمستودع `https://github.com/alaoufi/aykdmah` مع commit جديد لاستيراد الكود المستعاد وهذه الإضافات. السجل المحلي الأصلي الذي احتوى commit `d1eb4fd` غير متاح من Vercel؛ لم يُختلق أو يُدّع أنه ضمن هذا السجل. استخدم `git log -1` لمعرفة commit الاستعادة الفعلي.
-
-لم يُرفع هذا التغيير للمستودع البعيد لأن الحساب المتصل يملك صلاحية قراءة فقط له. يمكن للمالك بعد مراجعة الحزمة استخدام صلاحياته لرفعه؛ لم تتغير نسخة الموقع المنشورة أثناء إعداد الحزمة.
+لا تُرفع ملفات `.env` أو أي أسرار إلى Git.

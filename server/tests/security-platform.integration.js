@@ -2,12 +2,12 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
-const name = `ryza_test_platform_${crypto.randomBytes(7).toString('hex')}`;
+const name = `ayk_test_platform_${crypto.randomBytes(7).toString('hex')}`;
 Object.assign(process.env, {
-  NODE_ENV: 'test', DB_HOST: '127.0.0.1', DB_PORT: process.env.RYZA_TEST_PORT || '55432',
+  NODE_ENV: 'test', DB_HOST: '127.0.0.1', DB_PORT: process.env.AYK_TEST_PORT || '55432',
   DB_NAME: name, DB_USER: 'postgres', DB_PASSWORD: '', DATABASE_URL: '', DIRECT_DATABASE_URL: '',
   DB_SSL: 'false', AUTO_MIGRATE: 'false', JWT_SECRET: crypto.randomBytes(48).toString('hex'),
-  CLIENT_URL: 'https://ryza-test.invalid', APP_URL: 'https://ryza-test.invalid',
+  CLIENT_URL: 'https://ayk-test.invalid', APP_URL: 'https://ayk-test.invalid',
   MAIL_HOST: '', PAYMENT_PROVIDER: '', BOOTSTRAP_ADMIN_EMAIL: '', BOOTSTRAP_ADMIN_PASSWORD: '',
 });
 const { Client } = require('pg');
@@ -54,8 +54,8 @@ test('recovery, wipe, installer and private disk routes are unreachable', async 
   assert.equal(Number((await db.queryOne("SELECT COUNT(*) total FROM users WHERE role='admin'")).total), 2);
 });
 test('HTTP policy blocks foreign credential access and exposes no database metadata', async () => {
-  const trusted = await call('/api/health', { origin: 'https://ryza-test.invalid' });
-  assert.equal(trusted.response.headers.get('access-control-allow-origin'), 'https://ryza-test.invalid');
+  const trusted = await call('/api/health', { origin: 'https://ayk-test.invalid' });
+  assert.equal(trusted.response.headers.get('access-control-allow-origin'), 'https://ayk-test.invalid');
   const foreign = await call('/api/health', { origin: 'https://attacker.invalid' });
   assert.equal(foreign.response.headers.get('access-control-allow-origin'), null);
   assert.match(foreign.response.headers.get('content-security-policy'), /script-src 'self'/);

@@ -84,14 +84,14 @@ const test = asyncHandler(async (req, res) => {
       await adapter.send({
         credentials: integration.credentials || {},
         config: integration.config || {},
-        to, message: req.body.message || 'AWTAD SERVICES test message',
+        to, message: req.body.message || 'AY KHIDMA test message',
       });
     } else if (integration.type === 'email') {
       const to = req.body.to || req.user.email;
       await adapter.send({
         credentials: integration.credentials || {},
         config: integration.config || {},
-        to, subject: 'AWTAD SERVICES test', text: 'This is a test message.',
+        to, subject: 'AY KHIDMA test', text: 'This is a test message.',
       });
     } else if (integration.type === 'nafath') {
       await adapter.start({

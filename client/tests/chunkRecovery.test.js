@@ -49,7 +49,7 @@ test('automatic refresh is limited by build version and tab budget while preserv
   assert.equal(url.searchParams.get('city'), '9');
   assert.equal(url.searchParams.get('q'), 'plumbing');
   assert.equal(url.hash, '#details');
-  assert.match(url.searchParams.get('_awtad_refresh'), /^\d+$/);
+  assert.match(url.searchParams.get('_aykdmh_refresh'), /^\d+$/);
   assert.equal(recoverFromChunkFailure(chunkError, { window: target }), false);
   assert.equal(recoverFromChunkFailure(chunkError, { window: target, version: 'build-two' }), true);
   assert.equal(recoverFromChunkFailure(chunkError, { window: target, version: 'build-three' }), false);
@@ -79,7 +79,7 @@ test('offline, broken tab storage and unrelated application errors never trigger
 test('the early recovery guard is reused and explicit retry bypasses automatic limits', () => {
   const { target, storage, replacements } = fixture();
   const accepted = [];
-  target.__AWTAD_ASSET_RECOVERY__ = {
+  target.__AYK_ASSET_RECOVERY__ = {
     recover: error => { accepted.push(error); return true; },
     reloadFresh: () => { accepted.push('manual'); return true; },
   };
@@ -94,7 +94,7 @@ test('the early recovery guard is reused and explicit retry bypasses automatic l
 test('the early wrapper can call the shared implementation without delegating back into itself', () => {
   const { target, storage, replacements } = fixture();
   let delegated = 0;
-  target.__AWTAD_ASSET_RECOVERY__ = {
+  target.__AYK_ASSET_RECOVERY__ = {
     recover: () => { delegated += 1; throw new Error('Recursive recovery delegate'); },
     reloadFresh: () => { delegated += 1; throw new Error('Recursive reload delegate'); },
   };

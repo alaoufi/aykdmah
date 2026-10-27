@@ -1,4 +1,4 @@
-export const ASSET_RECOVERY_KEY = 'awtad_asset_recovery_v1';
+export const ASSET_RECOVERY_KEY = 'aykdmh_asset_recovery_v1';
 const RECOVERY_WINDOW_MS = 5 * 60 * 1000;
 const MAX_RECOVERY_ATTEMPTS = 2;
 
@@ -15,7 +15,7 @@ function browser(options) {
 }
 
 function currentVersion(target, options) {
-  return String(options.version || target.document?.querySelector('meta[name="awtad-build"]')?.content || 'unknown');
+  return String(options.version || target.document?.querySelector('meta[name="aykdmh-build"]')?.content || 'unknown');
 }
 
 function claimRecovery(target, options) {
@@ -61,14 +61,14 @@ function releaseRootServiceWorker(target) {
 export function reloadFreshShell(options = {}) {
   const target = browser(options);
   if (!target?.location) return false;
-  const earlyRecovery = target.__AWTAD_ASSET_RECOVERY__;
+  const earlyRecovery = target.__AYK_ASSET_RECOVERY__;
   if (!options.skipEarlyDelegate && typeof earlyRecovery?.reloadFresh === 'function') {
     try { return earlyRecovery.reloadFresh() !== false; } catch (_) { return false; }
   }
   try {
     const url = new URL(target.location.href);
     if (!['https:', 'http:'].includes(url.protocol)) return false;
-    url.searchParams.set('_awtad_refresh', String(Date.now()));
+    url.searchParams.set('_aykdmh_refresh', String(Date.now()));
     const replace = () => target.location.replace(url.href);
     const cleanup = releaseRootServiceWorker(target);
     if (cleanup) cleanup.then(replace);
@@ -80,7 +80,7 @@ export function reloadFreshShell(options = {}) {
 export function recoverFromChunkFailure(error, options = {}) {
   const target = browser(options);
   if (!target || target.navigator?.onLine === false || !isChunkLoadError(error)) return false;
-  const earlyRecovery = target.__AWTAD_ASSET_RECOVERY__;
+  const earlyRecovery = target.__AYK_ASSET_RECOVERY__;
   if (!options.skipEarlyDelegate && typeof earlyRecovery?.recover === 'function') {
     try { return earlyRecovery.recover(error) === true; } catch (_) { return false; }
   }

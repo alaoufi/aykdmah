@@ -51,7 +51,7 @@ export default {
         'brand-slate': cssVar('brand-slate'),
         'brand-ivory': cssVar('brand-ivory'),
 
-        // Legacy palettes now share the active RYZA surfaces. Text utilities
+        // Legacy palettes now share the active AYK surfaces. Text utilities
         // are mapped separately in tailwind.css for contrast on dark surfaces.
         brand: {
           50: cssVar('brand-50'), 100: cssVar('brand-100'),

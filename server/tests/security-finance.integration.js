@@ -3,10 +3,10 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
-const databaseName = `ryza_test_finance_${crypto.randomBytes(10).toString('hex')}`;
+const databaseName = `ayk_test_finance_${crypto.randomBytes(10).toString('hex')}`;
 Object.assign(process.env, {
-  NODE_ENV: 'test', VERCEL: '', AUTO_MIGRATE: 'false', API_RATE_LIMIT: '10000',
-  DATABASE_URL: '', DIRECT_DATABASE_URL: '', DB_HOST: '127.0.0.1', DB_PORT: process.env.RYZA_TEST_PORT || '55432',
+  NODE_ENV: 'test', AUTO_MIGRATE: 'false', API_RATE_LIMIT: '10000',
+  DATABASE_URL: '', DIRECT_DATABASE_URL: '', DB_HOST: '127.0.0.1', DB_PORT: process.env.AYK_TEST_PORT || '55432',
   DB_NAME: databaseName, DB_USER: 'postgres', DB_PASSWORD: '', DB_SSL: 'false',
   PAYMENT_PROVIDER: '', PAYMENT_SECRET_KEY: '', PAYMENT_PUBLIC_KEY: '', PAYMENT_WEBHOOK_SECRET: '',
   BOOTSTRAP_ADMIN_EMAIL: '', BOOTSTRAP_ADMIN_PASSWORD: '', BOOTSTRAP_ADMIN_USERNAME: '',
@@ -31,7 +31,7 @@ const paymentService = require('../services/paymentService');
 const { sign } = require('../utils/jwt');
 let createdDatabase = false, server, base, sequence = 0;
 const users = {};
-const maintenance = () => new Client({ host: '127.0.0.1', port: Number(process.env.RYZA_TEST_PORT || 55432), user: 'postgres', password: '', database: 'postgres', ssl: false, connectionTimeoutMillis: 5000 });
+const maintenance = () => new Client({ host: '127.0.0.1', port: Number(process.env.AYK_TEST_PORT || 55432), user: 'postgres', password: '', database: 'postgres', ssl: false, connectionTimeoutMillis: 5000 });
 async function makeUser(role = 'provider', permissions = []) {
   const username = `finance_${++sequence}_${crypto.randomBytes(4).toString('hex')}`;
   const result = await db.query('INSERT INTO users (full_name, username, password_hash, role, is_active, permissions) VALUES (?, ?, ?, ?, 1, ?)', ['Local finance fixture', username, 'no-login-fixture', role, JSON.stringify(permissions)]);
@@ -80,7 +80,7 @@ test.after(async () => {
   if (server) await new Promise(resolve => server.close(resolve));
   await db.getPool().end();
   if (createdDatabase) {
-    assert.match(databaseName, /^ryza_test_finance_[a-f0-9]{20}$/);
+    assert.match(databaseName, /^ayk_test_finance_[a-f0-9]{20}$/);
     const admin = maintenance();
     await admin.connect();
     try { await admin.query(`DROP DATABASE "${databaseName}"`); }

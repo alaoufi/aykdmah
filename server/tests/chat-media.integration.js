@@ -2,18 +2,18 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
-const name = `ryza_test_chat_media_${crypto.randomBytes(8).toString('hex')}`;
+const name = `ayk_test_chat_media_${crypto.randomBytes(8).toString('hex')}`;
 Object.assign(process.env, {
-  NODE_ENV: 'test', DB_HOST: '127.0.0.1', DB_PORT: process.env.RYZA_TEST_PORT || '55432', DB_NAME: name,
+  NODE_ENV: 'test', DB_HOST: '127.0.0.1', DB_PORT: process.env.AYK_TEST_PORT || '55432', DB_NAME: name,
   DB_USER: 'postgres', DB_PASSWORD: '', DB_SSL: 'false', DATABASE_URL: '', DIRECT_DATABASE_URL: '',
-  NEON_DATABASE_URL: '', POSTGRES_URL: '', POSTGRES_URL_NON_POOLING: '', PGHOST: '127.0.0.1',
-  PGPORT: process.env.RYZA_TEST_PORT || '55432', PGDATABASE: name, PGUSER: 'postgres', PGPASSWORD: '', PGSSLMODE: 'disable',
+  POSTGRES_URL: '', POSTGRES_URL_NON_POOLING: '', PGHOST: '127.0.0.1',
+  PGPORT: process.env.AYK_TEST_PORT || '55432', PGDATABASE: name, PGUSER: 'postgres', PGPASSWORD: '', PGSSLMODE: 'disable',
   BOOTSTRAP_ADMIN_EMAIL: '', BOOTSTRAP_ADMIN_PASSWORD: '', BOOTSTRAP_ADMIN_NAME: '', RESET_KEY: '',
   MAIL_HOST: '', MAIL_USER: '', MAIL_PASSWORD: '', MAIL_FROM: '', WHATSAPP_PROVIDER: '', WHATSAPP_TOKEN: '', WHATSAPP_FROM: '',
   PAYMENT_PROVIDER: '', PAYMENT_SECRET_KEY: '', PAYMENT_PUBLIC_KEY: '', PAYMENT_WEBHOOK_SECRET: '',
   PUSH_PUBLIC_KEY: '', PUSH_PRIVATE_KEY: '', GOOGLE_MAPS_API_KEY: '', SENDGRID_API_KEY: '', RESEND_API_KEY: '',
   TWILIO_ACCOUNT_SID: '', TWILIO_AUTH_TOKEN: '', UNIFONIC_APP_SID: '', NAFATH_CLIENT_ID: '', NAFATH_CLIENT_SECRET: '',
-  INTEGRATION_ENCRYPTION_KEY: '', NAFATH_ALLOWED_HOSTS: '', VERCEL: '', AUTO_MIGRATE: 'false', UPLOAD_STORAGE: 'database',
+  INTEGRATION_ENCRYPTION_KEY: '', NAFATH_ALLOWED_HOSTS: '', AUTO_MIGRATE: 'false', UPLOAD_STORAGE: 'database',
   JWT_SECRET: crypto.randomBytes(48).toString('hex'), CLIENT_URL: 'http://127.0.0.1', APP_URL: 'http://127.0.0.1',
 });
 const { Client } = require('pg');
@@ -30,7 +30,7 @@ const fixtures = require('./fixtures/chat-media.json');
 const nativeFetch = global.fetch;
 const media = key => Buffer.from(fixtures[key], 'base64');
 let server, base, conversation, users, created = false;
-const maintenance = () => new Client({ host: '127.0.0.1', port: Number(process.env.RYZA_TEST_PORT || 55432), user: 'postgres', password: '', database: 'postgres', ssl: false });
+const maintenance = () => new Client({ host: '127.0.0.1', port: Number(process.env.AYK_TEST_PORT || 55432), user: 'postgres', password: '', database: 'postgres', ssl: false });
 
 function form(bytes, filename, mime, fields = { message_type: 'file' }) {
   const data = new FormData();
@@ -153,7 +153,7 @@ test('spoofed containers, video disguised as voice and invalid durations fail be
   assert.equal(await count(), before);
 });
 
-test('combined files remain under the Vercel body budget and failed message writes clean stored files', async () => {
+test('combined files remain under the upload body budget and failed message writes clean stored files', async () => {
   const before = await count();
   const oversized = Buffer.alloc(MAX_FILES_BYTES + 1); media('voice.webm').copy(oversized);
   assert.equal((await send(form(oversized, 'big.webm', 'audio/webm', { message_type: 'voice' }))).status, 413);

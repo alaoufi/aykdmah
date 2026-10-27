@@ -473,7 +473,7 @@ INSERT INTO subscription_plans (id, name_ar, slug, description, price, duration_
    jsonb_build_array('عروض غير محدودة', 'ظهور في أعلى النتائج', 'شارة احترافي', 'إعلانات داخلية مجانية', 'دعم متميز 24/7'), 3) ON CONFLICT DO NOTHING;
 
 INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description) VALUES
-('site_name', 'RIZA', 'string', 'general', 1, 'اسم الموقع'),
+('site_name', 'أي خدمة', 'string', 'general', 1, 'اسم الموقع'),
 ('site_description', 'منصة الخدمات المحلية', 'string', 'general', 1, 'وصف الموقع'),
 ('site_logo', '', 'string', 'general', 1, 'شعار الموقع'),
 ('site_email', 'info@example.com', 'string', 'general', 1, 'البريد العام'),

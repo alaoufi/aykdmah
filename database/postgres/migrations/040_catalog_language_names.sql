@@ -162,7 +162,7 @@ WITH labels(slug, name_ar, name_en, ur, hi, bn) AS (
   ('passenger-transport', 'نقل ركاب', 'Passenger transport', 'مسافروں کی نقل و حمل', 'यात्री परिवहन', 'যাত্রী পরিবহন'),
   ('bus-rental', 'تأجير حافلات', 'Bus rental', 'بس کرایہ', 'बस किराया', 'বাস ভাড়া'),
   ('school-transport', 'نقل مدرسي', 'School transport', 'اسکول کی آمد و رفت', 'स्कूल परिवहन', 'স্কুলে যাতায়াত'),
-  ('ryza-yard-cleaning', 'غسيل الأحواش', 'Yard cleaning', 'صحن کی صفائی', 'आँगन की सफ़ाई', 'উঠান পরিষ্কার')
+  ('ayk-yard-cleaning', 'غسيل الأحواش', 'Yard cleaning', 'صحن کی صفائی', 'आँगन की सफ़ाई', 'উঠান পরিষ্কার')
 )
 UPDATE services AS item
 SET name_translations = COALESCE(item.name_translations::jsonb, '{}'::jsonb)

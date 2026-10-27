@@ -28,7 +28,7 @@ function isPrivate(ip) {
 }
 
 // Pulls the first non-private IP from Express's req. Supports
-// X-Forwarded-For chains (Vercel, Cloudflare, nginx, …).
+// X-Forwarded-For chains (Caddy, Cloudflare, nginx, …).
 function ipFromRequest(req) {
   // Express resolves the peer using the explicitly configured proxy policy.
   const real = req.ip || req.socket?.remoteAddress;

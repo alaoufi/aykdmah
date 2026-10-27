@@ -10,7 +10,7 @@ const api = axios.create({
 });
 
 export const TOKEN_KEY = 'lsm_token';
-export const TOKEN_CHANGE_EVENT = 'ryza:session-change';
+export const TOKEN_CHANGE_EVENT = 'ayk:session-change';
 let memoryToken = null;
 let memoryOnly = false;
 

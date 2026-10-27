@@ -35,7 +35,7 @@ test('chunked public model cache reconstructs exact bytes and freezes main alias
 });
 
 test('cache storage failure removes partial chunks and never advertises a model', async () => {
-  const { entries, modelCache } = fixture('awtad_model_chunk=1');
+  const { entries, modelCache } = fixture('aykdmh_model_chunk=1');
   await modelCache.put(url, new Response(new Uint8Array(908)));
   assert.equal(entries.size, 0);
   assert.equal(await modelCache.match(url), undefined);
@@ -44,7 +44,7 @@ test('cache storage failure removes partial chunks and never advertises a model'
 test('missing or incorrectly sized chunks reject incomplete cached weights', async () => {
   const { entries, modelCache } = fixture();
   await modelCache.put(url, new Response(new Uint8Array(908)));
-  entries.delete(url + '?awtad_model_chunk=1');
+  entries.delete(url + '?aykdmh_model_chunk=1');
   assert.equal(await modelCache.match(url), undefined);
   await modelCache.put(url, new Response(new Uint8Array(907)));
   assert.equal(await modelCache.match(url), undefined);

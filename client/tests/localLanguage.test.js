@@ -51,13 +51,13 @@ test('translation input chunks preserve the entire message and never silently tr
 
 test('private attachment path rejects external origins, credentials, ambiguous paths and queries', () => {
   const uuid = '11111111-1111-4111-8111-111111111111';
-  const origin = 'https://awtad.example';
+  const origin = 'https://aykdmh.example';
   const path = `/api/media/${uuid}`;
   assert.equal(authorizedMediaPath(path, origin), `/media/${uuid}`);
   assert.equal(authorizedMediaPath(origin + path, origin), `/media/${uuid}`);
-  assert.equal(authorizedMediaPath('https://api.awtad.example' + path, origin, 'https://api.awtad.example'), `/media/${uuid}`);
+  assert.equal(authorizedMediaPath('https://api.aykdmh.example' + path, origin, 'https://api.aykdmh.example'), `/media/${uuid}`);
   for (const url of ['https://attacker.example' + path, '//attacker.example' + path,
-    'https://user:pass@awtad.example' + path, path + '?token=secret', '/uploads/a.wav', path + '#x', path.replace('media', 'media%2f..'), '\\' + path]) {
+    'https://user:pass@aykdmh.example' + path, path + '?token=secret', '/uploads/a.wav', path + '#x', path.replace('media', 'media%2f..'), '\\' + path]) {
     assert.equal(authorizedMediaPath(url, origin), null);
   }
 });

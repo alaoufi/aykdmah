@@ -23,7 +23,7 @@ const ProviderProfilePage = lazy(() => import('./pages/ProviderProfilePage'));
 const GuidePage = lazy(() => import('./pages/GuidePage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
-// RYZA services catalog
+// AYK services catalog
 const ServicesCatalogPage = lazy(() => import('./pages/services/ServicesCatalogPage'));
 const CategoryServicesPage = lazy(() => import('./pages/services/CategoryServicesPage'));
 const ServiceDetailsPage = lazy(() => import('./pages/services/ServiceDetailsPage'));
@@ -65,6 +65,8 @@ function Protected({ children, roles, loginPath = '/login' }) {
   if (loading) return <LoadingState />;
   if (!user) return <Navigate to={loginPath} replace state={{ from: location.pathname + location.search + location.hash }} />;
   if (roles && !roles.includes(user.role)) return <Navigate to="/" replace />;
+  // A generated first password must be replaced before anything else.
+  if (Number(user.must_change_password) === 1 && location.pathname !== '/profile') return <Navigate to="/profile" replace />;
   return children;
 }
 
@@ -109,7 +111,7 @@ export default function AppRoutes() {
           <Route path="/guide" element={<GuidePage />} />
           <Route path="/providers/map" element={<ProvidersMapPage />} />
           <Route path="/providers/:id" element={<ProviderProfilePage />} />
-          {/* RYZA services catalog */}
+          {/* AYK services catalog */}
           <Route path="/services" element={<ServicesCatalogPage />} />
           <Route path="/services/category/:slug" element={<CategoryServicesPage />} />
           <Route path="/services/:id" element={<ServiceDetailsPage />} />

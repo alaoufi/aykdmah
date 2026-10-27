@@ -4,16 +4,16 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 
-const databasePrefix = process.env.RYZA_SECURITY_CATALOG_TEST_DB || 'ryza_test_catalog';
+const databasePrefix = process.env.AYK_SECURITY_CATALOG_TEST_DB || 'ayk_test_catalog';
 {
-  if (!/^ryza_test_catalog[a-z0-9_]{0,18}$/.test(databasePrefix)) {
-    throw new Error('Use a disposable ryza_test_catalog* database prefix.');
+  if (!/^ayk_test_catalog[a-z0-9_]{0,18}$/.test(databasePrefix)) {
+    throw new Error('Use a disposable ayk_test_catalog* database prefix.');
   }
-  const port = Number(process.env.RYZA_TEST_PORT || '5432');
+  const port = Number(process.env.AYK_TEST_PORT || '5432');
   if (![5432, 55432].includes(port)) throw new Error('Use the dedicated localhost test PostgreSQL port.');
   const databaseName = `${databasePrefix}_${crypto.randomBytes(8).toString('hex')}`;
   Object.assign(process.env, {
-    NODE_ENV: 'test', VERCEL: '', AUTO_MIGRATE: 'false',
+    NODE_ENV: 'test', AUTO_MIGRATE: 'false',
     DB_HOST: '127.0.0.1', DB_PORT: String(port), DB_NAME: databaseName,
     DB_USER: 'postgres', DB_PASSWORD: '', DATABASE_URL: '', DIRECT_DATABASE_URL: '',
     DB_SSL: 'false', MAIL_HOST: '', MAIL_USER: '', MAIL_PASSWORD: '',

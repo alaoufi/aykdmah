@@ -234,7 +234,7 @@ async function invalidateContactVerification(conn, current, data) {
 }
 
 async function updatePassword(id, password_hash, expectedHash) {
-  const result = await query(`UPDATE users SET password_hash = ?, auth_version = auth_version + 1 WHERE id = ?${expectedHash ? ' AND password_hash = ?' : ''}`, [password_hash, id, ...(expectedHash ? [expectedHash] : [])]);
+  const result = await query(`UPDATE users SET password_hash = ?, must_change_password = 0, auth_version = auth_version + 1 WHERE id = ?${expectedHash ? ' AND password_hash = ?' : ''}`, [password_hash, id, ...(expectedHash ? [expectedHash] : [])]);
   return result.affectedRows === 1;
 }
 

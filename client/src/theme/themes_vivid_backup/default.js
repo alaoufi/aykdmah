@@ -1,4 +1,4 @@
-// Default light theme — RYZA clay & sand.
+// Default light theme — AYK clay & sand.
 // To add a new theme: duplicate this file, change the values, and
 // register it in ./index.js. No component edits needed.
 

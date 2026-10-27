@@ -1,6 +1,6 @@
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
 import { Outlet, Link } from 'react-router-dom';
-import RyzaLogo from '../components/common/RyzaLogo';
+import BrandLogo from '../components/common/BrandLogo';
 import BackButton from '../components/common/BackButton';
 
 export default function AuthLayout() {
@@ -13,7 +13,7 @@ export default function AuthLayout() {
             <LanguageSwitcher variant="compact" />
           </div>
           <Link to="/" className="auth-logo" style={{ marginBottom: 0 }}>
-            <RyzaLogo wordSize={26} />
+            <BrandLogo wordSize={26} />
           </Link>
         </div>
         <Outlet />

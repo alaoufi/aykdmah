@@ -7,9 +7,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Client } = require('pg');
 
-const port = Number(process.env.RYZA_TEST_PORT || 5432);
+const port = Number(process.env.AYK_TEST_PORT || 5432);
 if (![5432, 55432].includes(port)) throw new Error('Use the dedicated localhost test PostgreSQL port.');
-const databaseName = `ryza_test_reference_${crypto.randomBytes(8).toString('hex')}`;
+const databaseName = `ayk_test_reference_${crypto.randomBytes(8).toString('hex')}`;
 const connection = database => new Client({ host: '127.0.0.1', port, user: 'postgres', password: '', database, ssl: false });
 const root = path.resolve(__dirname, '../..');
 const seed = fs.readFileSync(path.join(root, 'database/migrations/009_reseed_catalog.sql'), 'utf8');
@@ -54,7 +54,7 @@ test.before(async () => {
   for (const statement of originalCatalog) await db.query(statement);
   await db.query(seed);
   await db.query(`INSERT INTO services (id, category_id, name_ar, name_en, slug, sort_order, is_active)
-    VALUES (3001, 2, 'غسيل الأحواش', 'Yard cleaning', 'ryza-yard-cleaning', 4, 1)`);
+    VALUES (3001, 2, 'غسيل الأحواش', 'Yard cleaning', 'ayk-yard-cleaning', 4, 1)`);
 });
 
 test.after(async () => {
@@ -127,7 +127,7 @@ test('every original catalog row in the base seed and extension/repair/launch mi
     'database/seed.sql',
     'database/migrations/002_extend_categories_services.sql',
     'database/migrations/009_reseed_catalog.sql',
-    'database/migrations/030_ryza_launch.sql',
+    'database/migrations/030_ayk_launch.sql',
   ];
   const keys = new Set(references.catalog.map(label => JSON.stringify([label.kind, label.slug, label.ar, label.en])));
   const sqlString = "'((?:[^']|'')*)'";
@@ -148,7 +148,7 @@ test('every original catalog row in the base seed and extension/repair/launch mi
 
 test('all imported launch districts have native labels and no mixed-script translation typos', () => {
   const geographySource = fs.readFileSync(path.join(root, 'database/migrations/031_qassim_majmaah_districts.sql'), 'utf8');
-  const districtImport = geographySource.split('INSERT INTO ryza_district_name_import')[1].split('INSERT INTO districts')[0];
+  const districtImport = geographySource.split('INSERT INTO ayk_district_name_import')[1].split('INSERT INTO districts')[0];
   const names = new Map(references.geography.map(label => [JSON.stringify([label.ar, label.en]), label]));
   assert.equal(names.size, references.geography.length, 'Canonical geography aliases must be unambiguous');
   let importedRows = 0;

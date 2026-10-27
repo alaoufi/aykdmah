@@ -15,10 +15,10 @@ export default defineConfig(({ mode }) => {
   return {
     plugins: [
       {
-        name: 'ryza-theme-tokens',
+        name: 'ayk-theme-tokens',
         transformIndexHtml() {
           return [{
-            tag: 'style', attrs: { id: 'ryza-theme-tokens' }, injectTo: 'head',
+            tag: 'style', attrs: { id: 'ayk-theme-tokens' }, injectTo: 'head',
             children: `:root{${themeCss(lightTheme)};color-scheme:light}:root[data-theme="dark"]{${themeCss(darkTheme)};color-scheme:dark}`,
           }];
         },
@@ -27,14 +27,14 @@ export default defineConfig(({ mode }) => {
       earlyRecoveryPlugin(),
       VitePWA({
         registerType: 'autoUpdate',
-        includeAssets: ['offline.js', 'theme-init.js', 'offline.html', 'favicon.ico', 'icons/favicon-16.png', 'icons/favicon-32.png', 'icons/apple-touch-icon.png', 'icons/android-chrome-192x192.png', 'icons/android-chrome-512x512.png', 'brand/awtad-logo.svg', 'brand/awtad-logo-light.svg', 'brand/awtad-icon.svg', 'brand/awtad-icon-white.svg'],
+        includeAssets: ['offline.js', 'theme-init.js', 'offline.html', 'favicon.ico', 'icons/favicon-16.png', 'icons/favicon-32.png', 'icons/apple-touch-icon.png', 'icons/android-chrome-192x192.png', 'icons/android-chrome-512x512.png', 'brand/aykdmh-logo-256.webp', 'brand/aykdmh-logo.webp'],
         // Replace the old SW immediately + claim open tabs so a stale
         // index.html doesn't keep pointing at chunks that no longer
         // exist after a redeploy ("Failed to fetch dynamically imported
         // module …").
         manifest: {
-          name: 'خدمات أوتاد',
-          short_name: 'أوتاد',
+          name: 'أي خدمة',
+          short_name: 'أي خدمة',
           description: 'منصة خدمات محلية — خدمة أسرع، حياة أسهل',
           theme_color: '#0B2D56',
           background_color: '#FAF7F2',

@@ -2,13 +2,13 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
-const databaseName = process.env.RYZA_MEDIA_TEST_DB;
+const databaseName = process.env.AYK_MEDIA_TEST_DB;
 if (!databaseName) {
-  test('durable upload integration (set RYZA_MEDIA_TEST_DB)', { skip: true }, () => {});
+  test('durable upload integration (set AYK_MEDIA_TEST_DB)', { skip: true }, () => {});
 } else {
-  if (!/^ryza_test_media[a-z0-9_]*$/.test(databaseName)) throw new Error('Use a disposable ryza_test_media* database.');
+  if (!/^ayk_test_media[a-z0-9_]*$/.test(databaseName)) throw new Error('Use a disposable ayk_test_media* database.');
   Object.assign(process.env, {
-    NODE_ENV: 'test', DB_HOST: '127.0.0.1', DB_PORT: process.env.RYZA_TEST_PORT || '5432',
+    NODE_ENV: 'test', DB_HOST: '127.0.0.1', DB_PORT: process.env.AYK_TEST_PORT || '5432',
     DB_NAME: databaseName, DB_USER: 'postgres', DB_PASSWORD: '', DATABASE_URL: '', DIRECT_DATABASE_URL: '', DB_SSL: 'false',
     BOOTSTRAP_ADMIN_EMAIL: '', BOOTSTRAP_ADMIN_PASSWORD: '', BOOTSTRAP_ADMIN_NAME: '',
     MAIL_USER: '', MAIL_PASSWORD: '', WHATSAPP_PROVIDER: '', WHATSAPP_TOKEN: '', PAYMENT_SECRET_KEY: '', PAYMENT_WEBHOOK_SECRET: '', PUSH_PUBLIC_KEY: '', PUSH_PRIVATE_KEY: '',

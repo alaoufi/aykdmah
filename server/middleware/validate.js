@@ -1,7 +1,7 @@
 const { validationResult } = require('express-validator');
 
-// Import the current parser asynchronously: Vercel's CommonJS loader does not
-// support require(ESM). Cache only the import, never request content.
+// Import the ESM-only parser asynchronously from CommonJS. Cache only the
+// import, never request content.
 let parserModule;
 const nonTextTags = new Set(['script', 'style', 'textarea', 'option']);
 const escapeText = text => text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');

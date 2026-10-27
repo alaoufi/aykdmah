@@ -20,6 +20,7 @@ const logger = require('../utils/logger');
 const RING_TIMEOUT_MS = 45 * 1000;
 const MAX_CALL_MS = 4 * 60 * 60 * 1000;
 const TOKEN_TTL = '15m';
+const REJOIN_GRACE_MS = 30 * 1000;
 const ACTIVE = ['ringing', 'accepted'];
 
 const config = () => ({
@@ -254,8 +255,20 @@ async function handleWebhook(rawBody, authHeader) {
   const row = await queryOne(`${CALL_SELECT} WHERE k.room_name = ?`, [roomName]);
   if (!row || !ACTIVE.includes(row.status)) return { ignored: true };
   if (event.event === 'room_finished' && row.status === 'accepted') await finish(row, 'ended', 'room_closed');
-  if (event.event === 'participant_left' && row.status === 'accepted') await finish(row, 'ended', 'participant_left');
+  // A dropped participant may rejoin with a fresh token; end only if still alone later.
+  if (event.event === 'participant_left' && row.status === 'accepted') {
+    const timer = setTimeout(() => endIfAbandoned(row.id).catch(err => logger.warn('Call rejoin check failed:', err.message)), REJOIN_GRACE_MS);
+    timer.unref?.();
+  }
   return { handled: event.event };
+}
+
+async function endIfAbandoned(callId) {
+  const row = await findCall(callId);
+  if (!row || row.status !== 'accepted') return;
+  let present = 0;
+  try { present = (await roomClient()?.listParticipants(row.room_name))?.length ?? 0; } catch (_) { present = 0; }
+  if (present < 2) await finish(row, 'ended', 'participant_left');
 }
 
 async function stats({ days = 30 } = {}) {

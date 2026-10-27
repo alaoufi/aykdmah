@@ -26,7 +26,7 @@ export async function copyHashedAssets(source, destination) {
 export function compatibilityAssetsPlugin() {
   let outputDirectory;
   return {
-    name: 'awtad-compatibility-assets',
+    name: 'aykdmh-compatibility-assets',
     configResolved(config) { outputDirectory = path.resolve(config.root, config.build.outDir, 'assets'); },
     // Run after Workbox creates the current release's precache. Old chunks
     // remain available to existing tabs without caching entire old releases.

@@ -324,7 +324,7 @@ export default function RegisterPage() {
         <Input ref={node => { identityInputs.current.facebook_id = node; }} name="facebook_id" error={fieldErrors.facebook_id} label={t('auth.facebook_id')} value={form.facebook_id} onChange={(e) => update('facebook_id', e.target.value)} placeholder="100012345678901" />
       )}
 
-      <PasswordInput label={t('auth.password')} required minLength={6} autoComplete="new-password" value={form.password} onChange={(e) => update('password', e.target.value)} />
+      <PasswordInput label={t('auth.password')} required minLength={4} autoComplete="new-password" value={form.password} onChange={(e) => update('password', e.target.value)} />
 
       {form.role === 'provider' && <div className="mb-4 space-y-4">
         <ProviderServicesPicker categoryId={form.category_id} serviceIds={form.service_ids} onChange={updateServices}

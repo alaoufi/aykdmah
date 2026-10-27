@@ -6,18 +6,18 @@ const crypto = require('node:crypto');
 const path = require('node:path');
 const Module = require('node:module');
 const { execFileSync } = require('node:child_process');
-const databaseName = `ryza_test_security_uploads_${crypto.randomBytes(8).toString('hex')}`;
+const databaseName = `ayk_test_security_uploads_${crypto.randomBytes(8).toString('hex')}`;
 Object.assign(process.env, {
-  NODE_ENV: 'test', DB_HOST: '127.0.0.1', DB_PORT: process.env.RYZA_TEST_PORT || '55432', DB_NAME: databaseName,
+  NODE_ENV: 'test', DB_HOST: '127.0.0.1', DB_PORT: process.env.AYK_TEST_PORT || '55432', DB_NAME: databaseName,
   DB_USER: 'postgres', DB_PASSWORD: '', DB_SSL: 'false', DATABASE_URL: '', DIRECT_DATABASE_URL: '',
-  NEON_DATABASE_URL: '', POSTGRES_URL: '', POSTGRES_URL_NON_POOLING: '', PGHOST: '127.0.0.1', PGPORT: process.env.RYZA_TEST_PORT || '55432',
+  POSTGRES_URL: '', POSTGRES_URL_NON_POOLING: '', PGHOST: '127.0.0.1', PGPORT: process.env.AYK_TEST_PORT || '55432',
   PGDATABASE: databaseName, PGUSER: 'postgres', PGPASSWORD: '', PGSSLMODE: 'disable',
   BOOTSTRAP_ADMIN_EMAIL: '', BOOTSTRAP_ADMIN_PASSWORD: '', BOOTSTRAP_ADMIN_NAME: '', RESET_KEY: '',
   MAIL_HOST: '', MAIL_USER: '', MAIL_PASSWORD: '', MAIL_FROM: '', WHATSAPP_PROVIDER: '', WHATSAPP_TOKEN: '', WHATSAPP_FROM: '',
   PAYMENT_PROVIDER: '', PAYMENT_SECRET_KEY: '', PAYMENT_PUBLIC_KEY: '', PAYMENT_WEBHOOK_SECRET: '',
   PUSH_PUBLIC_KEY: '', PUSH_PRIVATE_KEY: '', GOOGLE_MAPS_API_KEY: '', SENDGRID_API_KEY: '', RESEND_API_KEY: '',
   TWILIO_ACCOUNT_SID: '', TWILIO_AUTH_TOKEN: '', UNIFONIC_APP_SID: '', NAFATH_CLIENT_ID: '', NAFATH_CLIENT_SECRET: '',
-  INTEGRATION_ENCRYPTION_KEY: '', NAFATH_ALLOWED_HOSTS: '', VERCEL: '', AUTO_MIGRATE: 'false', UPLOAD_STORAGE: 'database',
+  INTEGRATION_ENCRYPTION_KEY: '', NAFATH_ALLOWED_HOSTS: '', AUTO_MIGRATE: 'false', UPLOAD_STORAGE: 'database',
   JWT_SECRET: crypto.randomBytes(48).toString('hex'), CLIENT_URL: 'http://127.0.0.1', APP_URL: 'http://127.0.0.1',
 });
 const { Client } = require('pg');
@@ -106,7 +106,7 @@ async function noEvent(socket, event, trigger) {
 }
 
 test.before(async () => {
-  const admin = new Client({ host: '127.0.0.1', port: Number(process.env.RYZA_TEST_PORT || 55432), user: 'postgres', password: '', database: 'postgres', ssl: false });
+  const admin = new Client({ host: '127.0.0.1', port: Number(process.env.AYK_TEST_PORT || 55432), user: 'postgres', password: '', database: 'postgres', ssl: false });
   await admin.connect();
   await admin.query(`CREATE DATABASE "${databaseName}"`);
   createdDatabase = true;
@@ -151,7 +151,7 @@ test.after(async () => {
   await new Promise(resolve => setTimeout(resolve, 150));
   await db.getPool().end();
   if (createdDatabase) {
-    const admin = new Client({ host: '127.0.0.1', port: Number(process.env.RYZA_TEST_PORT || 55432), user: 'postgres', password: '', database: 'postgres', ssl: false });
+    const admin = new Client({ host: '127.0.0.1', port: Number(process.env.AYK_TEST_PORT || 55432), user: 'postgres', password: '', database: 'postgres', ssl: false });
     await admin.connect();
     await admin.query(`DROP DATABASE "${databaseName}"`);
     await admin.end();

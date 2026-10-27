@@ -19,7 +19,7 @@ if ('caches' in window) caches.delete('api-cache').catch(() => {});
 
 // The classic bootstrap covers initial entry failures; development and
 // deployments without that bootstrap use the same guarded recovery helper.
-if (!window.__AWTAD_ASSET_RECOVERY__) installChunkRecovery();
+if (!window.__AYK_ASSET_RECOVERY__) installChunkRecovery();
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

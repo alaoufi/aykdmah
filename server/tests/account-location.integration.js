@@ -6,14 +6,14 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const port = Number(process.env.RYZA_TEST_PORT || 55432);
+const port = Number(process.env.AYK_TEST_PORT || 55432);
 assert.ok(Number.isInteger(port) && port > 0 && port <= 65535);
-const databaseName = `ryza_test_account_location_${crypto.randomBytes(10).toString('hex')}`;
-const uploadDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'awtad-account-location-'));
+const databaseName = `ayk_test_account_location_${crypto.randomBytes(10).toString('hex')}`;
+const uploadDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'aykdmh-account-location-'));
 Object.assign(process.env, {
   NODE_ENV: 'test', DB_HOST: '127.0.0.1', DB_PORT: String(port), DB_NAME: databaseName,
   DB_USER: 'postgres', DB_PASSWORD: '', DB_SSL: 'false', DATABASE_URL: '', DIRECT_DATABASE_URL: '',
-  DB_POOL_MAX: '1', JWT_SECRET: crypto.randomBytes(48).toString('hex'), AUTO_MIGRATE: 'false', VERCEL: '',
+  DB_POOL_MAX: '1', JWT_SECRET: crypto.randomBytes(48).toString('hex'), AUTO_MIGRATE: 'false',
   APP_URL: 'http://127.0.0.1', CLIENT_URL: 'http://127.0.0.1', UPLOAD_DIR: uploadDirectory,
   BOOTSTRAP_ADMIN_EMAIL: '', BOOTSTRAP_ADMIN_PASSWORD: '', MAIL_HOST: '', MAIL_USER: '', MAIL_PASSWORD: '',
   WHATSAPP_PROVIDER: '', WHATSAPP_TOKEN: '', PAYMENT_PROVIDER: '', PAYMENT_SECRET_KEY: '', PAYMENT_WEBHOOK_SECRET: '',
@@ -94,7 +94,7 @@ test.after(async () => {
   if (server) { server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); }
   await db.getPool().end();
   if (created) {
-    assert.match(databaseName, /^ryza_test_account_location_[a-f0-9]{20}$/);
+    assert.match(databaseName, /^ayk_test_account_location_[a-f0-9]{20}$/);
     await maintenance.query(`DROP DATABASE "${databaseName}"`);
   }
   if (maintenance) await maintenance.end();
@@ -234,13 +234,13 @@ test('failed or incomplete remembered requests leave both account and request ro
     files: [{ file_url: null, file_name: 'bad.png', file_type: 'image/png', file_size: 1 }] }));
   assert.deepEqual(await accountLocation(session.user.id), before);
   assert.equal(Number((await db.queryOne('SELECT COUNT(*) AS total FROM requests WHERE client_id = ?', [session.user.id])).total), count);
-  await db.query(`CREATE FUNCTION awtad_test_profile_write_failure() RETURNS trigger LANGUAGE plpgsql AS $$
+  await db.query(`CREATE FUNCTION aykdmh_test_profile_write_failure() RETURNS trigger LANGUAGE plpgsql AS $$
     BEGIN
       IF NEW.address = 'Rejected remembered address' THEN RAISE EXCEPTION 'Forced local profile write failure'; END IF;
       RETURN NEW;
     END $$`);
-  await db.query(`CREATE TRIGGER awtad_test_profile_write_failure BEFORE UPDATE ON user_profiles
-    FOR EACH ROW EXECUTE FUNCTION awtad_test_profile_write_failure()`);
+  await db.query(`CREATE TRIGGER aykdmh_test_profile_write_failure BEFORE UPDATE ON user_profiles
+    FOR EACH ROW EXECUTE FUNCTION aykdmh_test_profile_write_failure()`);
   try {
     await assert.rejects(Request.create({ client_id: session.user.id, title: 'طلب يفشل أثناء حفظ الافتراضي',
       description: 'تفاصيل طلب محلي كامل لاختبار تراجع العنوان والطلب معًا', ...other,
@@ -248,8 +248,8 @@ test('failed or incomplete remembered requests leave both account and request ro
     assert.deepEqual(await accountLocation(session.user.id), before);
     assert.equal(Number((await db.queryOne('SELECT COUNT(*) AS total FROM requests WHERE client_id = ?', [session.user.id])).total), count);
   } finally {
-    await db.query('DROP TRIGGER awtad_test_profile_write_failure ON user_profiles');
-    await db.query('DROP FUNCTION awtad_test_profile_write_failure()');
+    await db.query('DROP TRIGGER aykdmh_test_profile_write_failure ON user_profiles');
+    await db.query('DROP FUNCTION aykdmh_test_profile_write_failure()');
   }
 });
 

@@ -1,4 +1,4 @@
-// Public RYZA theme choices. Retired presets fall back to the brand light mode.
+// Public AYK theme choices. Retired presets fall back to the brand light mode.
 
 import defaultTheme from './default';
 import dark from './dark';

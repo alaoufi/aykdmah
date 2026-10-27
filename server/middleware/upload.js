@@ -5,8 +5,8 @@ const { ALLOWED_FILE_TYPES, ALLOWED_EXTENSIONS } = require('../config/constants'
 const { generateSafeFilename, ensureDir } = require('../utils/fileHelper');
 const { validateUpload, uploadHeaderAllowed } = require('../utils/uploadValidation');
 
-// Vercel accepts at most 4.5 MB per function invocation. Leave room for
-// multipart fields and headers, and bound the combined buffers, not each file.
+// Requests are capped at 4 MB. Leave room for multipart fields and headers,
+// and bound the combined buffers, not each file.
 const MAX_REQUEST_BYTES = 4 * 1024 * 1024;
 const MAX_FILES_BYTES = MAX_REQUEST_BYTES - 256 * 1024;
 // Keep private attachments out of the public static uploads directory on every host.

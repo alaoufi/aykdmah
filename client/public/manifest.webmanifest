@@ -1,6 +1,6 @@
 {
-  "name": "خدمات أوتاد",
-  "short_name": "أوتاد",
+  "name": "أي خدمة",
+  "short_name": "أي خدمة",
   "description": "منصة خدمات محلية — خدمة أسرع، حياة أسهل",
   "start_url": "/",
   "display": "standalone",

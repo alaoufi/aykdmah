@@ -46,7 +46,7 @@ export const TOKEN_SCHEMA = {
     'accent-fg',
     'accent-soft',
 
-    // Original RYZA palette and legacy surface tints
+    // Original AYK palette and legacy surface tints
     'brand-sky', 'brand-clay', 'brand-sand', 'brand-slate', 'brand-ivory',
     'brand-50', 'brand-100', 'brand-200', 'brand-300', 'brand-400',
     'hero-mid',

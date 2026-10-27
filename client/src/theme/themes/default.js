@@ -1,50 +1,50 @@
-import { RYZA_PALETTE, brandTokens } from '../brandPalette';
+import { AYK_PALETTE, brandTokens } from '../brandPalette';
 
-// Awtad light: navy text, sand surfaces, terracotta actions and sky accents.
+// Ayk light: navy text, sand surfaces, terracotta actions and sky accents.
 
 export default {
   name: 'default',
-  label: 'AWTAD Light',
+  label: 'Ay Khidma Light',
   labelKey: 'theme.brand_light',
   scheme: 'light',
-  preview: { from: RYZA_PALETTE.sky, to: RYZA_PALETTE.clay },
+  preview: { from: AYK_PALETTE.sky, to: AYK_PALETTE.clay },
 
   color: {
     ...brandTokens,
     // Surfaces
-    bg:            RYZA_PALETTE.ivory,
+    bg:            AYK_PALETTE.ivory,
     surface:       '#FFFFFF',
-    'surface-alt': RYZA_PALETTE.sand,
-    overlay:       RYZA_PALETTE.slate,
+    'surface-alt': AYK_PALETTE.sand,
+    overlay:       AYK_PALETTE.slate,
 
     // Borders
     border:          '#D5C9B7',
     'border-strong': '#AC9778',
 
     // Foreground
-    fg:          RYZA_PALETTE.slate,
+    fg:          AYK_PALETTE.slate,
     'fg-muted':  '#425A70',
     'fg-subtle': '#596C7F',
 
     // A darker terracotta shade keeps white button labels readable.
     primary:        '#A45130',
-    'primary-text': RYZA_PALETTE.slate,
+    'primary-text': AYK_PALETTE.slate,
     'primary-fg':   '#FFFFFF',
-    'primary-soft': RYZA_PALETTE.sand,
+    'primary-soft': AYK_PALETTE.sand,
     'primary-from': '#923F23',
     'primary-to':   '#A45130',
 
     // Accent (sky)
-    accent:        RYZA_PALETTE.sky,
+    accent:        AYK_PALETTE.sky,
     'accent-fg':   '#07192B',
     'accent-soft': '#E3EDF6',
 
-    // Existing brand utilities follow the supplied Awtad palette.
-    'brand-50':  RYZA_PALETTE.ivory,
+    // Existing brand utilities follow the supplied Ayk palette.
+    'brand-50':  AYK_PALETTE.ivory,
     'brand-100': '#F0E4D2',
-    'brand-200': RYZA_PALETTE.sand,
+    'brand-200': AYK_PALETTE.sand,
     'brand-300': '#D4A57A',
-    'brand-400': RYZA_PALETTE.clay,
+    'brand-400': AYK_PALETTE.clay,
     'hero-mid':  '#365F88',
 
     // Feedback

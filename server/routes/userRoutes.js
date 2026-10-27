@@ -13,7 +13,7 @@ const accountValidators = () => [
   body('email').optional({ nullable: true, checkFalsy: true }).isString().bail().isEmail().normalizeEmail(),
   body('phone').optional({ nullable: true, checkFalsy: true }).isString().bail().isLength({ max: 30 }).matches(/^[+\d\s()-]+$/).customSanitizer(value => value.replace(/[\s()-]/g, '')),
   body('facebook_id').optional({ nullable: true, checkFalsy: true }).isString().bail().isLength({ min: 1, max: 120 }),
-  body('password').optional({ checkFalsy: true }).isString().bail().isLength({ min: 6, max: 100 }),
+  body('password').optional({ checkFalsy: true }).isString().bail().isLength({ min: 4, max: 100 }),
   body('role').optional().isIn(['client', 'provider', 'admin']),
   ...['is_active', 'is_blocked', 'is_verified'].map(field => body(field).optional().custom(value => [true, false, 0, 1].includes(value))),
 ];

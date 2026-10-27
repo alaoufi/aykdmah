@@ -1,31 +1,31 @@
 import defaultTheme from './default';
-import { RYZA_PALETTE } from '../brandPalette';
+import { AYK_PALETTE } from '../brandPalette';
 
-// Keep the saved "dark" preference while applying the Awtad palette.
+// Keep the saved "dark" preference while applying the Ayk palette.
 export default {
   ...defaultTheme,
   name: 'dark',
-  label: 'AWTAD Dark',
+  label: 'Ay Khidma Dark',
   labelKey: 'theme.brand_dark',
   scheme: 'dark',
-  preview: { from: RYZA_PALETTE.slate, to: RYZA_PALETTE.sky },
+  preview: { from: AYK_PALETTE.slate, to: AYK_PALETTE.sky },
 
   color: {
     ...defaultTheme.color,
     bg:            '#07192B',
     surface:       '#0B2440',
-    'surface-alt': RYZA_PALETTE.slate,
+    'surface-alt': AYK_PALETTE.slate,
     overlay:       '#040E18',
     border:          '#35587C',
     'border-strong': '#7298BD',
-    fg:          RYZA_PALETTE.ivory,
+    fg:          AYK_PALETTE.ivory,
     'fg-muted':  '#D5E1EB',
     'fg-subtle': '#A8BED2',
 
     // Sand text stays readable on dark surfaces and tinted selection states.
-    'primary-text': RYZA_PALETTE.sand,
+    'primary-text': AYK_PALETTE.sand,
     'primary-soft': '#463026',
-    accent:         RYZA_PALETTE.sky,
+    accent:         AYK_PALETTE.sky,
     'accent-fg':    '#07192B',
     'accent-soft':  '#183D60',
 
@@ -33,7 +33,7 @@ export default {
     'brand-100': '#463026',
     'brand-200': '#674232',
     'brand-300': '#CE9270',
-    'hero-mid':  RYZA_PALETTE.slate,
+    'hero-mid':  AYK_PALETTE.slate,
 
     'success-soft': '#253E35',
     'warning-soft': '#473A28',

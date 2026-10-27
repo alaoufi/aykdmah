@@ -1,10 +1,10 @@
 (function () {
   var translations = {
-    ar: ['خدمات أوتاد', 'أنت غير متصل بالإنترنت', 'تأكد من اتصال الإنترنت ثم حاول مرة أخرى.', 'إعادة المحاولة'],
-    en: ['AWTAD SERVICES', 'You are offline', 'Check your internet connection, then try again.', 'Try again'],
-    ur: ['AWTAD SERVICES', 'آپ انٹرنیٹ سے منسلک نہیں ہیں', 'اپنا انٹرنیٹ کنکشن چیک کریں اور دوبارہ کوشش کریں۔', 'دوبارہ کوشش کریں'],
-    hi: ['AWTAD SERVICES', 'आप इंटरनेट से कनेक्ट नहीं हैं', 'अपना इंटरनेट कनेक्शन जाँचें, फिर दोबारा कोशिश करें।', 'दोबारा कोशिश करें'],
-    bn: ['AWTAD SERVICES', 'আপনি ইন্টারনেটে সংযুক্ত নন', 'আপনার ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।', 'আবার চেষ্টা করুন'],
+    ar: ['أي خدمة', 'أنت غير متصل بالإنترنت', 'تأكد من اتصال الإنترنت ثم حاول مرة أخرى.', 'إعادة المحاولة'],
+    en: ['AY KHIDMA', 'You are offline', 'Check your internet connection, then try again.', 'Try again'],
+    ur: ['AY KHIDMA', 'آپ انٹرنیٹ سے منسلک نہیں ہیں', 'اپنا انٹرنیٹ کنکشن چیک کریں اور دوبارہ کوشش کریں۔', 'دوبارہ کوشش کریں'],
+    hi: ['AY KHIDMA', 'आप इंटरनेट से कनेक्ट नहीं हैं', 'अपना इंटरनेट कनेक्शन जाँचें, फिर दोबारा कोशिश करें।', 'दोबारा कोशिश करें'],
+    bn: ['AY KHIDMA', 'আপনি ইন্টারনেটে সংযুক্ত নন', 'আপনার ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।', 'আবার চেষ্টা করুন'],
   };
   var language = 'ar';
   try { language = (localStorage.getItem('lsm_lang') || 'ar').split('-')[0]; } catch (_) {}
@@ -19,9 +19,5 @@
   retry.textContent = messages[3];
   retry.addEventListener('click', function () { location.reload(); });
   var logo = document.getElementById('logo');
-  logo.setAttribute('aria-label', messages[0]);
-  logo.querySelector('title').textContent = messages[0];
-  if (document.documentElement.getAttribute('data-theme') === 'dark') {
-    logo.querySelector('image').setAttribute('href', '/brand/awtad-logo-light.svg');
-  }
+  logo.setAttribute('alt', messages[0]);
 })();

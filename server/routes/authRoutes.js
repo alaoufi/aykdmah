@@ -14,7 +14,7 @@ router.post(
   [
     body('full_name').isString().isLength({ min: 2, max: 150 }),
     body('email').optional({ checkFalsy: true }).isEmail().normalizeEmail(),
-    body('password').isString().isLength({ min: 6, max: 100 }),
+    body('password').isString().isLength({ min: 4, max: 100 }),
     body('phone').optional({ checkFalsy: true }).isString().isLength({ max: 30 }).matches(/^[+\d\s()-]+$/),
     body('username').optional({ checkFalsy: true }).isString().isLength({ min: 1, max: 60 }).matches(/^[\p{L}\p{N}_.-]+$/u),
     body('facebook_id').optional({ checkFalsy: true }).isString().isLength({ min: 1, max: 120 }),
@@ -50,7 +50,7 @@ router.put(
   authenticate,
   [
     body('current_password').isString().isLength({ min: 1, max: 4096 }),
-    body('new_password').isString().isLength({ min: 6, max: 100 }),
+    body('new_password').isString().isLength({ min: 4, max: 100 }),
   ],
   validate,
   authController.changePassword

@@ -7,7 +7,7 @@ import { useNotifications } from '../../hooks/useNotifications';
 import Avatar from '../common/Avatar';
 import LanguageSwitcher from '../common/LanguageSwitcher';
 import ThemeSwitcher from '../common/ThemeSwitcher';
-import RyzaLogo from '../common/RyzaLogo';
+import BrandLogo from '../common/BrandLogo';
 import { IconMenu, IconBell, IconClose } from '../common/Icons';
 
 export default function Header() {
@@ -69,7 +69,7 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-3 md:px-6 lg:px-8 h-14 md:h-16 lg:h-[72px] flex items-center gap-2 md:gap-4">
         {/* Logo on the start edge of the screen */}
         <Link to="/" className="w-[140px] min-[360px]:w-[166px] shrink-0 no-underline">
-          <RyzaLogo wordSize={26} />
+          <BrandLogo wordSize={26} />
         </Link>
 
         {/* Spacer pushes the controls to the OPPOSITE edge */}
@@ -86,7 +86,7 @@ export default function Header() {
           className="w-10 h-10 grid place-items-center rounded-pill text-fg-muted hover:bg-surface-alt"
           aria-label={t('common.more')}
           aria-expanded={mobileOpen}
-          aria-controls="ryza-mobile-menu"
+          aria-controls="ayk-mobile-menu"
           aria-haspopup="dialog"
         >
           <IconMenu />
@@ -197,10 +197,10 @@ export default function Header() {
             className="absolute inset-0 bg-ink/40 backdrop-blur-sm"
             onClick={() => setMobileOpen(false)}
           />
-          <div ref={mobilePanel} id="ryza-mobile-menu" role="dialog" aria-modal="true" aria-label={t('common.more')}
+          <div ref={mobilePanel} id="ayk-mobile-menu" role="dialog" aria-modal="true" aria-label={t('common.more')}
             className="absolute top-3 inset-x-3 bg-surface rounded-[22px] shadow-card p-4 max-h-[calc(100dvh-24px)] overflow-y-auto">
             <div className="flex items-center justify-between mb-3">
-              <RyzaLogo markSize={30} wordSize={18} />
+              <BrandLogo markSize={30} wordSize={18} />
               <button
                 type="button"
                 onClick={() => setMobileOpen(false)}

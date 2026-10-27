@@ -4,15 +4,15 @@
 -- DO NOT EDIT — regenerate via NODE_ENV=test node scripts/dump-pg-sql.js.
 BEGIN;
 SELECT pg_advisory_xact_lock(742981);
-DO $ryza_fresh$ BEGIN
+DO $ayk_fresh$ BEGIN
   IF EXISTS (
     SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
     WHERE n.nspname = current_schema() AND c.relkind IN ('r','p','v','m','f')
       AND c.relname IN ('activity_logs','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_reports','calls','categories','cities','conversation_archives','conversation_participants','conversations','countries','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','districts','governorates','install_lock','ip_geo_cache','location_shares','message_files','messages','notifications','offers','payments','provider_badges','provider_profiles','regions','request_files','requests','review_reports','review_translations','review_votes','reviews','roles','schema_migrations','services','settings','subscription_plans','subscriptions','uploaded_media','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests')
   ) THEN
-    RAISE EXCEPTION 'AWTAD SERVICES bootstrap requires a fresh database schema; use journaled migrations for an existing installation';
+    RAISE EXCEPTION 'AY KHIDMA bootstrap requires a fresh database schema; use journaled migrations for an existing installation';
   END IF;
-END $ryza_fresh$;
+END $ayk_fresh$;
 CREATE TABLE schema_migrations (name TEXT PRIMARY KEY, applied_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);
 
 -- schema.sql
@@ -952,7 +952,7 @@ INSERT INTO subscription_plans (id, name_ar, slug, description, price, duration_
 (3, 'احترافي', 'pro', 'الباقة الاحترافية للمحترفين', 199.00, 30, NULL, 1, 'احترافي',
    jsonb_build_array('عروض غير محدودة', 'ظهور في أعلى النتائج', 'شارة احترافي', 'إعلانات داخلية مجانية', 'دعم متميز 24/7'), 3) ON CONFLICT DO NOTHING;
 INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description) VALUES
-('site_name', 'RIZA', 'string', 'general', 1, 'اسم الموقع'),
+('site_name', 'أي خدمة', 'string', 'general', 1, 'اسم الموقع'),
 ('site_description', 'منصة الخدمات المحلية', 'string', 'general', 1, 'وصف الموقع'),
 ('site_logo', '', 'string', 'general', 1, 'شعار الموقع'),
 ('site_email', 'info@example.com', 'string', 'general', 1, 'البريد العام'),
@@ -971,7 +971,7 @@ INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, i
 ('maintenance_mode', 'false', 'boolean', 'general', 1, 'وضع الصيانة') ON CONFLICT DO NOTHING;
 INSERT INTO ads (id, title, description, placement, is_active) VALUES
 (1, 'مرحباً بك في منصة الخدمات', 'اطلب أي خدمة محلية بسهولة وسرعة', 'home_top', 1) ON CONFLICT DO NOTHING;
-DO $ryza_sequences$
+DO $ayk_sequences$
 DECLARE r RECORD; sequence_next BIGINT; row_next BIGINT;
 BEGIN
   FOR r IN
@@ -987,16 +987,16 @@ BEGIN
       PERFORM setval(r.seq, GREATEST(sequence_next, row_next), false);
     END IF;
   END LOOP;
-END $ryza_sequences$;
+END $ayk_sequences$;
 
 -- migrations/001_add_offer_geolocation.sql
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE offers
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE offers
   ADD COLUMN IF NOT EXISTS latitude DECIMAL(10,7) DEFAULT NULL,
   ADD COLUMN IF NOT EXISTS longitude DECIMAL(10,7) DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS location_accuracy DECIMAL(10,2) DEFAULT NULL$ryza_sql_0$;
+  ADD COLUMN IF NOT EXISTS location_accuracy DECIMAL(10,2) DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 INSERT INTO schema_migrations(name) VALUES ('001_add_offer_geolocation.sql');
 
 -- migrations/002_extend_categories_services.sql
@@ -1170,13 +1170,13 @@ INSERT INTO services (id, category_id, name_ar, name_en, slug, sort_order) VALUE
 INSERT INTO schema_migrations(name) VALUES ('002_extend_categories_services.sql');
 
 -- migrations/003_communication_system.sql
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE messages
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE messages
   ADD COLUMN IF NOT EXISTS latitude DECIMAL(10,7) DEFAULT NULL,
   ADD COLUMN IF NOT EXISTS longitude DECIMAL(10,7) DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS accuracy_m INT DEFAULT NULL$ryza_sql_0$;
+  ADD COLUMN IF NOT EXISTS accuracy_m INT DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 SELECT 1;
 CREATE TABLE IF NOT EXISTS location_shares (
   id BIGSERIAL PRIMARY KEY,
@@ -1251,26 +1251,26 @@ INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, i
 INSERT INTO schema_migrations(name) VALUES ('003_communication_system.sql');
 
 -- migrations/004_two_way_reviews.sql
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE reviews
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE reviews
   ADD COLUMN IF NOT EXISTS review_type TEXT CHECK (review_type IN ('on_provider','on_requester')) DEFAULT 'on_provider',
   ADD COLUMN IF NOT EXISTS target_user_id INT DEFAULT NULL,
   ADD COLUMN IF NOT EXISTS original_language VARCHAR(5) DEFAULT 'ar',
   ADD COLUMN IF NOT EXISTS criteria_ratings JSONB DEFAULT NULL,
   ADD COLUMN IF NOT EXISTS helpful_count INT DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS report_count INT DEFAULT 0$ryza_sql_0$;
+  ADD COLUMN IF NOT EXISTS report_count INT DEFAULT 0$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 UPDATE reviews SET target_user_id = provider_id WHERE target_user_id IS NULL;
 UPDATE reviews SET review_type = 'on_provider' WHERE review_type IS NULL;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE reviews DROP CONSTRAINT IF EXISTS uq_review_request$ryza_sql_0$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE reviews DROP CONSTRAINT IF EXISTS uq_review_request$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE reviews ADD CONSTRAINT uq_review_request_type UNIQUE (request_id, reviewer_id, review_type)$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE reviews ADD CONSTRAINT uq_review_request_type UNIQUE (request_id, reviewer_id, review_type)$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 CREATE INDEX IF NOT EXISTS idx_reviews_target ON reviews (target_user_id, review_type, is_visible);
 CREATE TABLE IF NOT EXISTS review_translations (
   id BIGSERIAL PRIMARY KEY,
@@ -1409,18 +1409,18 @@ INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, i
 INSERT INTO schema_migrations(name) VALUES ('005_verification_and_integrations.sql');
 
 -- migrations/006_dynamic_translations.sql
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE categories
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE categories
   ADD COLUMN IF NOT EXISTS name_translations JSONB DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS description_translations JSONB DEFAULT NULL$ryza_sql_0$;
+  ADD COLUMN IF NOT EXISTS description_translations JSONB DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE services
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE services
   ADD COLUMN IF NOT EXISTS name_translations JSONB DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS description_translations JSONB DEFAULT NULL$ryza_sql_0$;
+  ADD COLUMN IF NOT EXISTS description_translations JSONB DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 UPDATE categories
 SET name_translations = jsonb_build_object('ar', name_ar, 'en', name_en)
 WHERE name_translations IS NULL;
@@ -1430,14 +1430,14 @@ WHERE name_translations IS NULL;
 INSERT INTO schema_migrations(name) VALUES ('006_dynamic_translations.sql');
 
 -- migrations/007_provider_location_mode.sql
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE provider_profiles
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE provider_profiles
   ADD COLUMN IF NOT EXISTS location_mode TEXT CHECK (location_mode IN ('fixed','mobile')) DEFAULT 'fixed',
   ADD COLUMN IF NOT EXISTS fixed_latitude  DECIMAL(10,7) DEFAULT NULL,
   ADD COLUMN IF NOT EXISTS fixed_longitude DECIMAL(10,7) DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS fixed_address   VARCHAR(255)  DEFAULT NULL$ryza_sql_0$;
+  ADD COLUMN IF NOT EXISTS fixed_address   VARCHAR(255)  DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 UPDATE provider_profiles pp
 SET fixed_latitude = u.latitude, fixed_longitude = u.longitude
 FROM users u
@@ -1446,15 +1446,15 @@ INSERT INTO schema_migrations(name) VALUES ('007_provider_location_mode.sql');
 
 -- migrations/008_dispute_workflow.sql
 SELECT 1;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE disputes
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE disputes
   ADD COLUMN IF NOT EXISTS frozen SMALLINT DEFAULT 0,
   ADD COLUMN IF NOT EXISTS chat_locked SMALLINT DEFAULT 0,
   ADD COLUMN IF NOT EXISTS ratings_allowed TEXT CHECK (ratings_allowed IN ('both','client_only','provider_only','none','pending'))
     DEFAULT 'pending',
-  ADD COLUMN IF NOT EXISTS priority TEXT CHECK (priority IN ('low','normal','high','urgent')) DEFAULT 'normal'$ryza_sql_0$;
+  ADD COLUMN IF NOT EXISTS priority TEXT CHECK (priority IN ('low','normal','high','urgent')) DEFAULT 'normal'$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 CREATE TABLE IF NOT EXISTS dispute_evidence (
   id BIGSERIAL PRIMARY KEY,
   dispute_id INT NOT NULL,
@@ -1598,20 +1598,20 @@ ON CONFLICT DO NOTHING;
 INSERT INTO schema_migrations(name) VALUES ('009_reseed_catalog.sql');
 
 -- migrations/010_multi_identifier.sql
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE users
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE users
   ADD COLUMN IF NOT EXISTS username    VARCHAR(60)  DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS facebook_id VARCHAR(120) DEFAULT NULL$ryza_sql_0$;
+  ADD COLUMN IF NOT EXISTS facebook_id VARCHAR(120) DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE users ADD CONSTRAINT uq_users_username UNIQUE (username)$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE users ADD CONSTRAINT uq_users_username UNIQUE (username)$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE users ADD CONSTRAINT uq_users_facebook UNIQUE (facebook_id)$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE users ADD CONSTRAINT uq_users_facebook UNIQUE (facebook_id)$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 INSERT INTO schema_migrations(name) VALUES ('010_multi_identifier.sql');
 
 -- migrations/011_auth_method_toggles.sql
@@ -1624,11 +1624,11 @@ UPDATE settings
 INSERT INTO schema_migrations(name) VALUES ('011_auth_method_toggles.sql');
 
 -- migrations/012_plan_search_priority.sql
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE subscription_plans
-  ADD COLUMN IF NOT EXISTS search_priority INT NOT NULL DEFAULT 0$ryza_sql_0$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE subscription_plans
+  ADD COLUMN IF NOT EXISTS search_priority INT NOT NULL DEFAULT 0$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 INSERT INTO schema_migrations(name) VALUES ('012_plan_search_priority.sql');
 
 -- migrations/013_provider_badges.sql
@@ -1665,14 +1665,14 @@ CREATE TABLE IF NOT EXISTS provider_badges (
   FOREIGN KEY (approved_by) REFERENCES users(id)    ON DELETE SET NULL,
   FOREIGN KEY (payment_id)  REFERENCES payments(id) ON DELETE SET NULL
 );
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE provider_profiles
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE provider_profiles
   ADD COLUMN IF NOT EXISTS badge_trusted_active   SMALLINT   NOT NULL DEFAULT 0,
   ADD COLUMN IF NOT EXISTS badge_trusted_until    TIMESTAMP    NULL DEFAULT NULL,
   ADD COLUMN IF NOT EXISTS badge_featured_active  SMALLINT   NOT NULL DEFAULT 0,
-  ADD COLUMN IF NOT EXISTS badge_featured_until   TIMESTAMP    NULL DEFAULT NULL$ryza_sql_0$;
+  ADD COLUMN IF NOT EXISTS badge_featured_until   TIMESTAMP    NULL DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description) VALUES
 ('badges_enabled',                       'true', 'boolean', 'auth', 1, 'تفعيل خدمة الشارات (موثوق / متميّز)'),
 ('badge_trusted_monthly_fee',            '49',   'number',  'auth', 1, 'الرسوم الشهرية لشارة «موثوق» (ر.س)'),
@@ -1685,11 +1685,11 @@ INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, i
 INSERT INTO schema_migrations(name) VALUES ('013_provider_badges.sql');
 
 -- migrations/014_ads_media_type.sql
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads
-  ADD COLUMN IF NOT EXISTS media_type TEXT CHECK (media_type IN ('image','video')) NOT NULL DEFAULT 'image'$ryza_sql_0$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads
+  ADD COLUMN IF NOT EXISTS media_type TEXT CHECK (media_type IN ('image','video')) NOT NULL DEFAULT 'image'$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 INSERT INTO schema_migrations(name) VALUES ('014_ads_media_type.sql');
 
 -- migrations/015_ad_media_storage.sql
@@ -1704,8 +1704,8 @@ CREATE TABLE IF NOT EXISTS ad_media (
 INSERT INTO schema_migrations(name) VALUES ('015_ad_media_storage.sql');
 
 -- migrations/016_user_ad_requests.sql
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads
   ADD COLUMN IF NOT EXISTS user_id INT DEFAULT NULL,
   ADD COLUMN IF NOT EXISTS status TEXT CHECK (status IN ('requested','approved','awaiting_payment','active','rejected','expired','cancelled','paused'))
                     NOT NULL DEFAULT 'active',
@@ -1721,21 +1721,21 @@ DO $ryza_duplicate$ BEGIN
   ADD COLUMN IF NOT EXISTS paid_at TIMESTAMP NULL DEFAULT NULL,
   ADD COLUMN IF NOT EXISTS payment_id INT DEFAULT NULL,
   ADD COLUMN IF NOT EXISTS activated_at TIMESTAMP NULL DEFAULT NULL,
-  ADD COLUMN IF NOT EXISTS cancelled_at TIMESTAMP NULL DEFAULT NULL$ryza_sql_0$;
+  ADD COLUMN IF NOT EXISTS cancelled_at TIMESTAMP NULL DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads ADD CONSTRAINT fk_ads_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD CONSTRAINT fk_ads_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads ADD CONSTRAINT fk_ads_approver FOREIGN KEY (approved_by) REFERENCES users(id) ON DELETE SET NULL$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD CONSTRAINT fk_ads_approver FOREIGN KEY (approved_by) REFERENCES users(id) ON DELETE SET NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads ADD CONSTRAINT fk_ads_payment FOREIGN KEY (payment_id) REFERENCES payments(id) ON DELETE SET NULL$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD CONSTRAINT fk_ads_payment FOREIGN KEY (payment_id) REFERENCES payments(id) ON DELETE SET NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 CREATE INDEX IF NOT EXISTS idx_ads_user ON ads(user_id);
 CREATE INDEX IF NOT EXISTS idx_ads_status ON ads(status);
 INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description) VALUES
@@ -1793,21 +1793,21 @@ INSERT INTO ad_placement_pricing (placement, price_per_day, price_per_1k_views, 
 ('profile_top',              3,  5, 2.00),
 ('chat_sidebar',             3,  5, 2.00),
 ('footer',                   2,  3, 2.00) ON CONFLICT DO NOTHING;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS exclusive SMALLINT NOT NULL DEFAULT 0$ryza_sql_0$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS exclusive SMALLINT NOT NULL DEFAULT 0$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 INSERT INTO schema_migrations(name) VALUES ('019_ad_placement_pricing.sql');
 
 -- migrations/020_ad_geo_targeting.sql
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS target_countries JSONB DEFAULT NULL$ryza_sql_0$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS target_countries JSONB DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS target_cities    JSONB DEFAULT NULL$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS target_cities    JSONB DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 CREATE TABLE IF NOT EXISTS ip_geo_cache (
   ip          VARCHAR(64)  NOT NULL PRIMARY KEY,
   country     VARCHAR(8)   DEFAULT NULL,
@@ -1825,25 +1825,25 @@ INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, i
 INSERT INTO schema_migrations(name) VALUES ('020_ad_geo_targeting.sql');
 
 -- migrations/021_ad_region_targeting.sql
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS target_regions JSONB DEFAULT NULL$ryza_sql_0$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS target_regions JSONB DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ip_geo_cache ADD COLUMN IF NOT EXISTS region_id INT DEFAULT NULL$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ip_geo_cache ADD COLUMN IF NOT EXISTS region_id INT DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 INSERT INTO schema_migrations(name) VALUES ('021_ad_region_targeting.sql');
 
 -- migrations/022_user_region_governorate.sql
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE users ADD COLUMN IF NOT EXISTS region_id INT DEFAULT NULL$ryza_sql_0$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE users ADD COLUMN IF NOT EXISTS region_id INT DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE users ADD COLUMN IF NOT EXISTS governorate_id INT DEFAULT NULL$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE users ADD COLUMN IF NOT EXISTS governorate_id INT DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 INSERT INTO schema_migrations(name) VALUES ('022_user_region_governorate.sql');
 
 -- migrations/023_countries_layer.sql
@@ -1889,16 +1889,16 @@ INSERT INTO countries
 ('SO', 'الصومال',      'Somalia',              '🇸🇴', '+252', 'SOS', 'ش.ص', jsonb_build_array('ar','en'),               20),
 ('DJ', 'جيبوتي',       'Djibouti',             '🇩🇯', '+253', 'DJF', 'ف.ج', jsonb_build_array('ar','en'),               21),
 ('KM', 'جزر القمر',    'Comoros',              '🇰🇲', '+269', 'KMF', 'ف.ق', jsonb_build_array('ar','en'),               22) ON CONFLICT DO NOTHING;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE regions ADD COLUMN IF NOT EXISTS country_id INT DEFAULT NULL$ryza_sql_0$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE regions ADD COLUMN IF NOT EXISTS country_id INT DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 UPDATE regions SET country_id = (SELECT id FROM countries WHERE code = 'SA') WHERE country_id IS NULL;
 CREATE INDEX IF NOT EXISTS idx_region_country ON regions(country_id);
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE users ADD COLUMN IF NOT EXISTS country_id INT DEFAULT NULL$ryza_sql_0$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE users ADD COLUMN IF NOT EXISTS country_id INT DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 CREATE INDEX IF NOT EXISTS idx_user_country ON users(country_id);
 UPDATE users SET country_id = (SELECT id FROM countries WHERE code = 'SA') WHERE country_id IS NULL AND region_id IS NOT NULL;
 INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description) VALUES
@@ -1918,21 +1918,21 @@ WHERE NOT EXISTS (
 INSERT INTO schema_migrations(name) VALUES ('024_backfill_governorate_cities.sql');
 
 -- migrations/025_terms_acceptance.sql
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE users ADD COLUMN IF NOT EXISTS terms_accepted_at TIMESTAMP NULL DEFAULT NULL$ryza_sql_0$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE users ADD COLUMN IF NOT EXISTS terms_accepted_at TIMESTAMP NULL DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE users ADD COLUMN IF NOT EXISTS terms_accepted_version VARCHAR(20) DEFAULT NULL$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE users ADD COLUMN IF NOT EXISTS terms_accepted_version VARCHAR(20) DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description) VALUES
 ('terms_version', '1.0', 'string', 'legal', 1, 'إصدار وثيقة الشروط الحالي'),
 ('terms_text',
-'<h3>الشروط والأحكام — منصة ريزا</h3>
+'<h3>الشروط والأحكام — منصة أي خدمة</h3>
 
 <p><b>١. قبول الاستخدام</b><br>
-بتسجيلك في منصة ريزا فإنك توافق على هذه الشروط وتقر بأنك تجاوزت سن الرشد وفقاً للأنظمة المعمول بها في بلدك.</p>
+بتسجيلك في منصة أي خدمة فإنك توافق على هذه الشروط وتقر بأنك تجاوزت سن الرشد وفقاً للأنظمة المعمول بها في بلدك.</p>
 
 <p><b>٢. صدق المعلومات</b><br>
 تتعهد بأن جميع البيانات التي تقدمها (الاسم، الجوال، البريد، الموقع، الوثائق) صحيحة. أي معلومات مضللة قد تؤدي إلى تعليق حسابك فوراً.</p>
@@ -1977,48 +1977,48 @@ BEGIN
     UPDATE users SET is_super_admin = 1 WHERE role = 'admin';
   END IF;
 END $$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE users ADD COLUMN IF NOT EXISTS permissions JSONB DEFAULT NULL$ryza_sql_0$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE users ADD COLUMN IF NOT EXISTS permissions JSONB DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 INSERT INTO schema_migrations(name) VALUES ('026_admin_permissions.sql');
 
 -- migrations/027_postgres_perf_indexes.sql
-DO $ryza_optional$ BEGIN
-  EXECUTE $ryza_sql_0$CREATE EXTENSION IF NOT EXISTS postgis$ryza_sql_0$;
+DO $ayk_optional$ BEGIN
+  EXECUTE $ayk_sql_0$CREATE EXTENSION IF NOT EXISTS postgis$ayk_sql_0$;
 EXCEPTION WHEN insufficient_privilege OR feature_not_supported OR undefined_file THEN
   RAISE NOTICE 'Optional PostGIS extension unavailable';
-END $ryza_optional$;
-DO $ryza_optional$ BEGIN
+END $ayk_optional$;
+DO $ayk_optional$ BEGIN
   IF to_regtype('geography') IS NOT NULL THEN
-    EXECUTE $ryza_sql_0$ALTER TABLE users             ADD COLUMN IF NOT EXISTS geom geography(Point, 4326)$ryza_sql_0$;
+    EXECUTE $ayk_sql_0$ALTER TABLE users             ADD COLUMN IF NOT EXISTS geom geography(Point, 4326)$ayk_sql_0$;
   END IF;
-END $ryza_optional$;
-DO $ryza_optional$ BEGIN
+END $ayk_optional$;
+DO $ayk_optional$ BEGIN
   IF to_regtype('geography') IS NOT NULL THEN
-    EXECUTE $ryza_sql_0$CREATE INDEX IF NOT EXISTS idx_users_geom              ON users USING GIST (geom)$ryza_sql_0$;
+    EXECUTE $ayk_sql_0$CREATE INDEX IF NOT EXISTS idx_users_geom              ON users USING GIST (geom)$ayk_sql_0$;
   END IF;
-END $ryza_optional$;
-DO $ryza_optional$ BEGIN
+END $ayk_optional$;
+DO $ayk_optional$ BEGIN
   IF to_regtype('geography') IS NOT NULL THEN
-    EXECUTE $ryza_sql_0$ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS geom geography(Point, 4326)$ryza_sql_0$;
+    EXECUTE $ayk_sql_0$ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS geom geography(Point, 4326)$ayk_sql_0$;
   END IF;
-END $ryza_optional$;
-DO $ryza_optional$ BEGIN
+END $ayk_optional$;
+DO $ayk_optional$ BEGIN
   IF to_regtype('geography') IS NOT NULL THEN
-    EXECUTE $ryza_sql_0$CREATE INDEX IF NOT EXISTS idx_provider_profiles_geom  ON provider_profiles USING GIST (geom)$ryza_sql_0$;
+    EXECUTE $ayk_sql_0$CREATE INDEX IF NOT EXISTS idx_provider_profiles_geom  ON provider_profiles USING GIST (geom)$ayk_sql_0$;
   END IF;
-END $ryza_optional$;
-DO $ryza_optional$ BEGIN
+END $ayk_optional$;
+DO $ayk_optional$ BEGIN
   IF to_regtype('geography') IS NOT NULL THEN
-    EXECUTE $ryza_sql_0$ALTER TABLE requests          ADD COLUMN IF NOT EXISTS geom geography(Point, 4326)$ryza_sql_0$;
+    EXECUTE $ayk_sql_0$ALTER TABLE requests          ADD COLUMN IF NOT EXISTS geom geography(Point, 4326)$ayk_sql_0$;
   END IF;
-END $ryza_optional$;
-DO $ryza_optional$ BEGIN
+END $ayk_optional$;
+DO $ayk_optional$ BEGIN
   IF to_regtype('geography') IS NOT NULL THEN
-    EXECUTE $ryza_sql_0$CREATE INDEX IF NOT EXISTS idx_requests_geom           ON requests USING GIST (geom)$ryza_sql_0$;
+    EXECUTE $ayk_sql_0$CREATE INDEX IF NOT EXISTS idx_requests_geom           ON requests USING GIST (geom)$ayk_sql_0$;
   END IF;
-END $ryza_optional$;
+END $ayk_optional$;
 CREATE INDEX IF NOT EXISTS idx_users_permissions       ON users USING GIN (permissions);
 CREATE INDEX IF NOT EXISTS idx_countries_langs         ON countries USING GIN (languages_enabled);
 CREATE INDEX IF NOT EXISTS idx_provider_profiles_svc   ON provider_profiles USING GIN (service_ids);
@@ -2036,10 +2036,10 @@ CREATE INDEX IF NOT EXISTS idx_disputes_status         ON disputes (status, open
 INSERT INTO schema_migrations(name) VALUES ('027_postgres_perf_indexes.sql');
 
 -- migrations/028_optional_email.sql
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE users ALTER COLUMN email DROP NOT NULL$ryza_sql_0$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE users ALTER COLUMN email DROP NOT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 INSERT INTO schema_migrations(name) VALUES ('028_optional_email.sql');
 
 -- migrations/029_durable_uploads.sql
@@ -2059,8 +2059,8 @@ CREATE INDEX IF NOT EXISTS uploaded_media_owner_idx ON uploaded_media(owner_id);
 CREATE INDEX IF NOT EXISTS uploaded_media_scope_idx ON uploaded_media(scope, scope_id);
 INSERT INTO schema_migrations(name) VALUES ('029_durable_uploads.sql');
 
--- migrations/030_ryza_launch.sql
-UPDATE settings SET setting_value = 'RYZA' WHERE setting_key = 'site_name';
+-- migrations/030_ayk_launch.sql
+UPDATE settings SET setting_value = 'أي خدمة' WHERE setting_key = 'site_name';
 UPDATE settings SET setting_value = 'خدمات المنزل في القصيم والمجمعة' WHERE setting_key = 'site_description';
 UPDATE settings SET setting_value = 'ar' WHERE setting_key = 'default_language';
 UPDATE settings SET setting_value = '0' WHERE setting_key = 'commission_percent';
@@ -2080,25 +2080,25 @@ UPDATE categories SET is_active = CASE WHEN id IN (1,2,3,4,5,6,7,8) THEN 1 ELSE 
 UPDATE services SET is_active = CASE
   WHEN category_id IN (SELECT id FROM categories WHERE is_active = 1) THEN 1 ELSE 0 END;
 INSERT INTO services (id, category_id, name_ar, name_en, slug, sort_order, is_active)
-VALUES (3001, 2, 'غسيل الأحواش', 'Yard cleaning', 'ryza-yard-cleaning', 4, 1)
+VALUES (3001, 2, 'غسيل الأحواش', 'Yard cleaning', 'ayk-yard-cleaning', 4, 1)
 ON CONFLICT (id) DO NOTHING;
 UPDATE subscription_plans SET name_ar = 'تجربة مجانية', name_en = 'Free trial',
   description = 'تجربة الخدمة قبل تفعيل تحصيل الاشتراك', is_active = 1
   WHERE id = 1;
 UPDATE subscription_plans SET name_ar = 'اشتراك العامل', name_en = 'Worker subscription',
-  description = 'اشتراك العامل الشهري في RYZA', price = 40, duration_days = 30,
+  description = 'اشتراك العامل الشهري في أي خدمة', price = 40, duration_days = 30,
   max_offers_per_month = NULL, is_featured = 0, badge = NULL, search_priority = 0,
   features = '["استقبال الطلبات في منطقتك", "ملف مقدم الخدمة", "عروض أسعار للعملاء"]', is_active = 1
   WHERE id = 2;
 UPDATE subscription_plans SET is_active = 0 WHERE id NOT IN (1,2);
-INSERT INTO schema_migrations(name) VALUES ('030_ryza_launch.sql');
+INSERT INTO schema_migrations(name) VALUES ('030_ayk_launch.sql');
 
 -- migrations/031_qassim_majmaah_districts.sql
 LOCK TABLE cities, districts IN SHARE ROW EXCLUSIVE MODE;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE cities ADD COLUMN IF NOT EXISTS region_id INT REFERENCES regions(id) ON DELETE SET NULL$ryza_sql_0$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE cities ADD COLUMN IF NOT EXISTS region_id INT REFERENCES regions(id) ON DELETE SET NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 CREATE INDEX IF NOT EXISTS idx_cities_region_id ON cities (region_id);
 UPDATE cities c SET region_id = g.region_id FROM governorates g
 WHERE c.governorate_id = g.id AND c.region_id IS NULL;
@@ -2113,11 +2113,11 @@ BEGIN
     PERFORM setval(sequence_name, GREATEST(next_row_id, next_sequence_id), false);
   END LOOP;
 END $$;
-CREATE TEMP TABLE ryza_district_city_import (
+CREATE TEMP TABLE ayk_district_city_import (
  source_city_id BIGINT PRIMARY KEY, region_id INT, governorate_id INT,
  name_ar TEXT, name_en TEXT, latitude DECIMAL(10,7), longitude DECIMAL(10,7)
 ) ON COMMIT DROP;
-INSERT INTO ryza_district_city_import
+INSERT INTO ayk_district_city_import
 (source_city_id,region_id,governorate_id,name_ar,name_en,latitude,longitude) VALUES
 (24, 1, 5, 'المجمعة', 'Al Majma''ah', 25.90742996, 45.33901994),
 (11, 4, 46, 'بريدة', 'Buraidah', 26.33033999, 43.97435997),
@@ -2141,17 +2141,17 @@ INSERT INTO cities (governorate_id,region_id,name_ar,name_en,latitude,longitude,
 SELECT i.governorate_id,i.region_id,i.name_ar,i.name_en,i.latitude,i.longitude,
  CASE WHEN r.is_active = 1 AND (i.governorate_id IS NULL OR g.is_active = 1) THEN 1 ELSE 0 END,
  COALESCE(g.sort_order,100)
-FROM ryza_district_city_import i
+FROM ayk_district_city_import i
 JOIN regions r ON r.id = i.region_id
 LEFT JOIN governorates g ON g.id = i.governorate_id
 WHERE NOT EXISTS (
  SELECT 1 FROM cities c WHERE c.region_id = i.region_id AND c.name_ar = i.name_ar
  AND c.governorate_id IS NOT DISTINCT FROM i.governorate_id
 );
-CREATE TEMP TABLE ryza_district_name_import (
+CREATE TEMP TABLE ayk_district_name_import (
  source_city_id BIGINT, name_ar TEXT, name_en TEXT
 ) ON COMMIT DROP;
-INSERT INTO ryza_district_name_import (source_city_id,name_ar,name_en) VALUES
+INSERT INTO ayk_district_name_import (source_city_id,name_ar,name_en) VALUES
 (24, 'المرقب', 'Al Marqab Dist.'),
 (24, 'اليرموك', 'Al Yarmuk Dist.'),
 (24, 'الفيحاء', 'Al Fayha Dist.'),
@@ -2540,8 +2540,8 @@ INSERT INTO ryza_district_name_import (source_city_id,name_ar,name_en) VALUES
 (10872, 'المديري', 'Al Mudairy');
 INSERT INTO districts (city_id,name_ar,name_en,is_active)
 SELECT c.id,d.name_ar,d.name_en,c.is_active
-FROM ryza_district_name_import d
-JOIN ryza_district_city_import i ON i.source_city_id = d.source_city_id
+FROM ayk_district_name_import d
+JOIN ayk_district_city_import i ON i.source_city_id = d.source_city_id
 JOIN cities c ON c.region_id = i.region_id AND c.name_ar = i.name_ar
  AND c.governorate_id IS NOT DISTINCT FROM i.governorate_id
 WHERE NOT EXISTS (
@@ -2551,75 +2551,75 @@ WHERE NOT EXISTS (
 INSERT INTO schema_migrations(name) VALUES ('031_qassim_majmaah_districts.sql');
 
 -- migrations/032_restore_ad_workflow_columns.sql
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS user_id INT DEFAULT NULL REFERENCES users(id) ON DELETE CASCADE$ryza_sql_0$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS user_id INT DEFAULT NULL REFERENCES users(id) ON DELETE CASCADE$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS status TEXT CHECK (status IN ('requested','approved','awaiting_payment','active','rejected','expired','cancelled','paused')) NOT NULL DEFAULT 'active'$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS status TEXT CHECK (status IN ('requested','approved','awaiting_payment','active','rejected','expired','cancelled','paused')) NOT NULL DEFAULT 'active'$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS placements JSONB DEFAULT NULL$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS placements JSONB DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS max_views INT DEFAULT NULL$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS max_views INT DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS duration_days INT DEFAULT NULL$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS duration_days INT DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS amount DECIMAL(10,2) NOT NULL DEFAULT 0$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS amount DECIMAL(10,2) NOT NULL DEFAULT 0$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS notes TEXT DEFAULT NULL$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS notes TEXT DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS rejection_reason TEXT DEFAULT NULL$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS rejection_reason TEXT DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS approved_by INT DEFAULT NULL REFERENCES users(id) ON DELETE SET NULL$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS approved_by INT DEFAULT NULL REFERENCES users(id) ON DELETE SET NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS approved_at TIMESTAMP DEFAULT NULL$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS approved_at TIMESTAMP DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS rejected_at TIMESTAMP DEFAULT NULL$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS rejected_at TIMESTAMP DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS paid_at TIMESTAMP DEFAULT NULL$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS paid_at TIMESTAMP DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS payment_id INT DEFAULT NULL REFERENCES payments(id) ON DELETE SET NULL$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS payment_id INT DEFAULT NULL REFERENCES payments(id) ON DELETE SET NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS activated_at TIMESTAMP DEFAULT NULL$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS activated_at TIMESTAMP DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS cancelled_at TIMESTAMP DEFAULT NULL$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS cancelled_at TIMESTAMP DEFAULT NULL$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 CREATE INDEX IF NOT EXISTS idx_ads_user ON ads(user_id);
 CREATE INDEX IF NOT EXISTS idx_ads_status ON ads(status);
 INSERT INTO schema_migrations(name) VALUES ('032_restore_ad_workflow_columns.sql');
 
 -- migrations/033_auth_session_version.sql
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_version INTEGER NOT NULL DEFAULT 0$ryza_sql_0$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_version INTEGER NOT NULL DEFAULT 0$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 CREATE TABLE IF NOT EXISTS auth_rate_limits (
   key VARCHAR(64) PRIMARY KEY,
   total_hits INTEGER NOT NULL,
@@ -2629,15 +2629,15 @@ CREATE INDEX IF NOT EXISTS idx_auth_rate_limits_reset ON auth_rate_limits(reset_
 INSERT INTO schema_migrations(name) VALUES ('033_auth_session_version.sql');
 
 -- migrations/034_dispute_workflow_status.sql
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE disputes DROP CONSTRAINT IF EXISTS disputes_status_check$ryza_sql_0$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE disputes DROP CONSTRAINT IF EXISTS disputes_status_check$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE disputes ADD CONSTRAINT disputes_status_check
-  CHECK (status IN ('open','under_review','waiting_response','escalated','resolved','rejected','closed'))$ryza_sql_0$;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE disputes ADD CONSTRAINT disputes_status_check
+  CHECK (status IN ('open','under_review','waiting_response','escalated','resolved','rejected','closed'))$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 INSERT INTO schema_migrations(name) VALUES ('034_dispute_workflow_status.sql');
 
 -- migrations/035_archive_and_ad_placements.sql
@@ -2656,18 +2656,18 @@ CREATE TABLE IF NOT EXISTS conversation_archives (
 );
 CREATE INDEX IF NOT EXISTS idx_archives_conv ON conversation_archives(conversation_id);
 CREATE INDEX IF NOT EXISTS idx_archives_expires ON conversation_archives(expires_at, status);
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads DROP CONSTRAINT IF EXISTS ads_placement_check$ryza_sql_0$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads DROP CONSTRAINT IF EXISTS ads_placement_check$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
-DO $ryza_duplicate$ BEGIN
-  EXECUTE $ryza_sql_0$ALTER TABLE ads ADD CONSTRAINT ads_placement_check CHECK (placement IN (
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD CONSTRAINT ads_placement_check CHECK (placement IN (
   'home_top','home_hero','home_middle','home_bottom','services_top','services_bottom',
   'category_top','category_bottom','request_details_top','request_details_bottom',
   'sidebar','search','profile_top','chat_sidebar','footer'
-))$ryza_sql_0$;
+))$ayk_sql_0$;
 EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
-END $ryza_duplicate$;
+END $ayk_duplicate$;
 INSERT INTO schema_migrations(name) VALUES ('035_archive_and_ad_placements.sql');
 
 -- migrations/036_security_integrity.sql
@@ -2702,18 +2702,6 @@ CREATE INDEX IF NOT EXISTS idx_reviews_reviewer ON reviews(reviewer_id);
 CREATE INDEX IF NOT EXISTS idx_uploaded_media_created ON uploaded_media(created_at);
 INSERT INTO schema_migrations(name) VALUES ('036_security_integrity.sql');
 
--- migrations/037_riza_rebrand.sql
-UPDATE settings
-SET setting_value = 'RIZA'
-WHERE setting_key = 'site_name' AND setting_value = 'RYZA';
-UPDATE subscription_plans
-SET description = 'اشتراك العامل الشهري في RIZA'
-WHERE id = 2 AND description = 'اشتراك العامل الشهري في RYZA';
-UPDATE install_lock
-SET site_name = 'RIZA'
-WHERE site_name = 'RYZA';
-INSERT INTO schema_migrations(name) VALUES ('037_riza_rebrand.sql');
-
 -- migrations/038_provider_service_mode.sql
 DO $$
 DECLARE
@@ -2740,18 +2728,6 @@ BEGIN
   ALTER TABLE provider_profiles ALTER COLUMN location_mode SET DEFAULT 'mobile';
 END $$;
 INSERT INTO schema_migrations(name) VALUES ('038_provider_service_mode.sql');
-
--- migrations/039_awtad_rebrand.sql
-UPDATE settings
-SET setting_value = 'خدمات أوتاد'
-WHERE setting_key = 'site_name' AND setting_value IN ('RIZA', 'RYZA');
-UPDATE subscription_plans
-SET description = 'اشتراك العامل الشهري في خدمات أوتاد'
-WHERE id = 2 AND description IN ('اشتراك العامل الشهري في RIZA', 'اشتراك العامل الشهري في RYZA');
-UPDATE install_lock
-SET site_name = 'خدمات أوتاد'
-WHERE site_name IN ('RIZA', 'RYZA');
-INSERT INTO schema_migrations(name) VALUES ('039_awtad_rebrand.sql');
 
 -- migrations/040_catalog_language_names.sql
 WITH labels(slug, name_ar, name_en, ur, hi, bn) AS (
@@ -2914,7 +2890,7 @@ WITH labels(slug, name_ar, name_en, ur, hi, bn) AS (
   ('passenger-transport', 'نقل ركاب', 'Passenger transport', 'مسافروں کی نقل و حمل', 'यात्री परिवहन', 'যাত্রী পরিবহন'),
   ('bus-rental', 'تأجير حافلات', 'Bus rental', 'بس کرایہ', 'बस किराया', 'বাস ভাড়া'),
   ('school-transport', 'نقل مدرسي', 'School transport', 'اسکول کی آمد و رفت', 'स्कूल परिवहन', 'স্কুলে যাতায়াত'),
-  ('ryza-yard-cleaning', 'غسيل الأحواش', 'Yard cleaning', 'صحن کی صفائی', 'आँगन की सफ़ाई', 'উঠান পরিষ্কার')
+  ('ayk-yard-cleaning', 'غسيل الأحواش', 'Yard cleaning', 'صحن کی صفائی', 'आँगन की सफ़ाई', 'উঠান পরিষ্কার')
 )
 UPDATE services AS item
 SET name_translations = COALESCE(item.name_translations::jsonb, '{}'::jsonb)
@@ -2982,6 +2958,11 @@ CREATE TABLE IF NOT EXISTS call_reports (
 CREATE UNIQUE INDEX IF NOT EXISTS idx_call_reports_unique ON call_reports (call_id, reporter_id);
 CREATE INDEX IF NOT EXISTS idx_call_reports_status ON call_reports (status, created_at);
 INSERT INTO schema_migrations(name) VALUES ('042_calls.sql');
+
+-- migrations/043_must_change_password.sql
+ALTER TABLE users
+  ADD COLUMN IF NOT EXISTS must_change_password SMALLINT NOT NULL DEFAULT 0;
+INSERT INTO schema_migrations(name) VALUES ('043_must_change_password.sql');
 
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
