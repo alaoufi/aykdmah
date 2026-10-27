@@ -96,7 +96,9 @@ async function settleVerified(verification) {
     if (verification.status === 'completed' && payment.subscription_id) {
       await require('./Subscription').activateSubscription(payment.subscription_id, { paymentId: payment.id, conn });
     }
-    return { payment: { ...payment, status: verification.status }, changed: true };
+    const reward = verification.status === 'completed'
+      ? await require('../services/walletService').awardReferralIn(conn, payment) : null;
+    return { payment: { ...payment, status: verification.status }, changed: true, reward };
   });
 }
 

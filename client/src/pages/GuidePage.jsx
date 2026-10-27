@@ -2,6 +2,8 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
+const WALLET_POINTS = ['coupon', 'invite', 'commission', 'balance', 'withdraw', 'gift', 'security'];
+
 const CLIENT_STEPS = ['browse', 'details', 'location', 'offers', 'chat', 'finish'];
 const PROVIDER_STEPS = ['signup', 'profile', 'find', 'quote', 'work'];
 const QUESTIONS = ['price', 'areas', 'tracking', 'dispute', 'subscription', 'language'];
@@ -85,6 +87,19 @@ export default function GuidePage() {
               </div>
             ))}
           </div>
+        </section>
+
+        <section id="guide-wallet" aria-labelledby="guide-wallet-title" className="mb-10 md:mb-12">
+          <h2 id="guide-wallet-title" className="text-xl md:text-2xl font-extrabold text-fg">💰 {t('help.wallet_title')}</h2>
+          <p className="text-fg-muted text-sm md:text-base leading-loose mt-3 mb-5">{t('help.wallet_intro')}</p>
+          <ol className="space-y-3">
+            {WALLET_POINTS.map((point, index) => (
+              <li key={point} className="card p-4">
+                <h3 className="text-fg font-bold text-base">{index + 1}. {t(`help.wallet_points.${point}.title`)}</h3>
+                <p className="text-fg-muted text-sm leading-loose mt-1">{t(`help.wallet_points.${point}.body`)}</p>
+              </li>
+            ))}
+          </ol>
         </section>
 
         <section aria-labelledby="guide-faq-title">

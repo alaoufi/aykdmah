@@ -8,7 +8,7 @@ DO $ayk_fresh$ BEGIN
   IF EXISTS (
     SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
     WHERE n.nspname = current_schema() AND c.relkind IN ('r','p','v','m','f')
-      AND c.relname IN ('activity_logs','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_reports','calls','categories','cities','conversation_archives','conversation_participants','conversations','countries','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','districts','governorates','install_lock','ip_geo_cache','location_shares','message_files','messages','notifications','offers','payments','provider_badges','provider_profiles','regions','request_files','requests','review_reports','review_translations','review_votes','reviews','roles','schema_migrations','services','settings','subscription_plans','subscriptions','uploaded_media','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests')
+      AND c.relname IN ('activity_logs','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_reports','calls','categories','cities','conversation_archives','conversation_participants','conversations','countries','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','districts','governorates','install_lock','ip_geo_cache','location_shares','message_files','messages','notifications','offers','payments','provider_badges','provider_profiles','referral_rewards','regions','request_files','requests','review_reports','review_translations','review_votes','reviews','roles','schema_migrations','services','settings','subscription_plans','subscriptions','uploaded_media','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','wallet_transactions','withdrawal_requests')
   ) THEN
     RAISE EXCEPTION 'AY KHIDMA bootstrap requires a fresh database schema; use journaled migrations for an existing installation';
   END IF;
@@ -2977,6 +2977,67 @@ UPDATE districts SET is_active = 1
 UPDATE settings SET setting_value = 'خدمات المنزل في جميع مناطق المملكة'
   WHERE setting_key = 'site_description' AND setting_value = 'خدمات المنزل في القصيم والمجمعة';
 INSERT INTO schema_migrations(name) VALUES ('044_activate_kingdom.sql');
+
+-- migrations/045_referrals_wallets.sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS referral_code VARCHAR(12) DEFAULT NULL;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS referred_by INT DEFAULT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_referral_code ON users (referral_code);
+CREATE INDEX IF NOT EXISTS idx_users_referred_by ON users (referred_by);
+CREATE TABLE IF NOT EXISTS wallet_transactions (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL,
+  amount DECIMAL(12,2) NOT NULL,
+  type VARCHAR(30) NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'completed',
+  related_user_id INT DEFAULT NULL,
+  reference_type VARCHAR(30) DEFAULT NULL,
+  reference_id INT DEFAULT NULL,
+  note VARCHAR(500) DEFAULT NULL,
+  created_by INT DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT
+);
+CREATE INDEX IF NOT EXISTS idx_wallet_tx_user ON wallet_transactions (user_id, status);
+CREATE INDEX IF NOT EXISTS idx_wallet_tx_type ON wallet_transactions (type, created_at);
+CREATE TABLE IF NOT EXISTS referral_rewards (
+  id SERIAL PRIMARY KEY,
+  referred_user_id INT NOT NULL UNIQUE,
+  referrer_id INT NOT NULL,
+  payment_id INT NOT NULL UNIQUE,
+  payment_amount DECIMAL(12,2) NOT NULL,
+  percent DECIMAL(5,2) NOT NULL,
+  amount DECIMAL(12,2) NOT NULL,
+  wallet_transaction_id INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (referred_user_id) REFERENCES users(id) ON DELETE RESTRICT,
+  FOREIGN KEY (referrer_id) REFERENCES users(id) ON DELETE RESTRICT
+);
+CREATE INDEX IF NOT EXISTS idx_referral_rewards_referrer ON referral_rewards (referrer_id);
+CREATE TABLE IF NOT EXISTS withdrawal_requests (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL,
+  amount DECIMAL(12,2) NOT NULL,
+  iban VARCHAR(34) NOT NULL,
+  account_name VARCHAR(150) NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'pending',
+  wallet_transaction_id INT NOT NULL,
+  admin_note VARCHAR(500) DEFAULT NULL,
+  transfer_reference VARCHAR(100) DEFAULT NULL,
+  processed_by INT DEFAULT NULL,
+  processed_at TIMESTAMP NULL DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT
+);
+CREATE INDEX IF NOT EXISTS idx_withdrawals_status ON withdrawal_requests (status, created_at);
+CREATE INDEX IF NOT EXISTS idx_withdrawals_user ON withdrawal_requests (user_id);
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description)
+VALUES ('referral_commission_percent', '0', 'number', 'payments', 0, 'نسبة صاحب الكوبون من أول دفعة للمسجل الجديد %')
+ON CONFLICT (setting_key) DO NOTHING;
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description)
+VALUES ('wallet_min_withdrawal', '50', 'number', 'payments', 0, 'أقل مبلغ لطلب سحب الرصيد (ريال)')
+ON CONFLICT (setting_key) DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('045_referrals_wallets.sql');
 
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$

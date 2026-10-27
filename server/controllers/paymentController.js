@@ -56,7 +56,8 @@ const webhook = asyncHandler(async (req, res) => {
       return res.status(400).json({ ok: false });
     }
 
-    const { payment, changed } = await Payment.settleVerified(verification);
+    const { payment, changed, reward } = await Payment.settleVerified(verification);
+    if (changed) require('../services/walletService').notifyCommission(reward);
     if (changed && verification.status === 'completed') {
       if (payment.subscription_id) {
         notificationService.notifyUser(payment.user_id, {

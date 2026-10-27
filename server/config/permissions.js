@@ -35,6 +35,7 @@ const PERMISSIONS = [
   { key: 'ads.manage',           group: 'monetisation', label: 'admin.perm.ads' },
   { key: 'plans.manage',         group: 'monetisation', label: 'admin.perm.plans' },
   { key: 'badges.manage',        group: 'monetisation', label: 'admin.perm.badges' },
+  { key: 'wallets.manage',       group: 'monetisation', label: 'admin.perm.wallets',          sensitive: true },
 
   // system
   { key: 'integrations.manage',  group: 'system',       label: 'admin.perm.integrations' },

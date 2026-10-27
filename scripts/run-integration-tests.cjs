@@ -48,7 +48,7 @@ async function main() {
     PGHOST: '127.0.0.1', PGPORT: String(port), PGUSER: 'postgres', PGPASSWORD: '', PGDATABASE: 'postgres', PGSSLMODE: 'disable',
     AYK_TEST_PORT: String(port), AYK_TEST_DB: names[0], AYK_MEDIA_TEST_DB: names[1], AYK_LOCATION_TEST_DB: names[2],
     AYK_DISTRICTS_TEST_DB: 'ayk_test_districts_suite', AYK_AUTH_LOCATION_TEST_DB: 'ayk_test_authlocation_suite',
-    AYK_GEO_TEST_DB: 'ayk_test_geo_suite', AYK_MAPS_TEST_DB: 'ayk_test_maps_suite', AYK_CALLS_TEST_DB: 'ayk_test_calls_suite', AYK_ADS_TEST_DB: 'ayk_test_ads_suite', AYK_SECURITY_CATALOG_TEST_DB: 'ayk_test_catalog_suite',
+    AYK_GEO_TEST_DB: 'ayk_test_geo_suite', AYK_MAPS_TEST_DB: 'ayk_test_maps_suite', AYK_CALLS_TEST_DB: 'ayk_test_calls_suite', AYK_WALLET_TEST_DB: 'ayk_test_wallet_suite', AYK_ADS_TEST_DB: 'ayk_test_ads_suite', AYK_SECURITY_CATALOG_TEST_DB: 'ayk_test_catalog_suite',
     AYK_ADMIN_USERNAME_TEST: '1', AYK_SECURITY_AUTH_TEST: '1', AYK_SECURITY_VERIFICATION_POLICY_TEST: '1',
     JWT_SECRET: crypto.randomBytes(48).toString('hex'),
     BOOTSTRAP_ADMIN_EMAIL: '', BOOTSTRAP_ADMIN_PASSWORD: '', MAIL_HOST: '', MAIL_USER: '', MAIL_PASSWORD: '',

@@ -46,6 +46,8 @@ export default function RegisterPage() {
     category_id: '', service_ids: [],
     country_id: '', region_id: '', governorate_id: '', city_id: '', district_id: '',
     latitude: null, longitude: null,
+    // A shared invitation link (?ref=CODE) pre-fills the coupon.
+    referral_code: (new URLSearchParams(location.search).get('ref') || '').trim().toUpperCase().slice(0, 12),
   });
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
@@ -252,10 +254,11 @@ export default function RegisterPage() {
         district_id: form.district_id || null,
         terms_accepted: true,
         terms_version: settings.terms_version || '1.0',
+        ...(form.referral_code.trim() ? { referral_code: form.referral_code.trim() } : {}),
       });
       navigate(authReturnTarget(res.user.role, from), { replace: true });
     } catch (err) {
-      setError(apiError(err));
+      setError(err.response?.data?.message === 'coupon_not_found' ? t('wallet.errors.coupon_not_found') : apiError(err));
       if (err.response?.status === 409) {
         const conflicts = (Array.isArray(err.response.data?.errors) ? err.response.data.errors : [])
           .filter(item => IDENTITY_FIELDS.includes(item.field) && typeof item.message === 'string');
@@ -325,6 +328,9 @@ export default function RegisterPage() {
       )}
 
       <PasswordInput label={t('auth.password')} required minLength={4} autoComplete="new-password" value={form.password} onChange={(e) => update('password', e.target.value)} />
+
+      <Input label={t('wallet.register_coupon')} hint={t('wallet.register_coupon_hint')} dir="ltr" maxLength={12}
+        value={form.referral_code} onChange={(e) => update('referral_code', e.target.value.toUpperCase())} placeholder="AB12" />
 
       {form.role === 'provider' && <div className="mb-4 space-y-4">
         <ProviderServicesPicker categoryId={form.category_id} serviceIds={form.service_ids} onChange={updateServices}

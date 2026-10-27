@@ -773,7 +773,8 @@
       "integrations": "External integrations",
       "settings": "Site settings",
       "activity_logs": "Activity logs",
-      "test_data": "Test data"
+      "test_data": "Test data",
+      "wallets": "Manage wallets, coupons and withdrawals"
     },
     "is_blocked": "Blocked",
     "is_active": "Active",
@@ -1311,7 +1312,39 @@
     "start_subtitle": "Browse services, or create a provider account and add your profession and services.",
     "browse_services": "Browse services",
     "provider_signup": "Sign up as a provider",
-    "account_note": "You can read this guide without signing in."
+    "account_note": "You can read this guide without signing in.",
+    "wallet_title": "Coupon and wallet for providers",
+    "wallet_intro": "Every provider gets a personal coupon at sign-up and earns a share when someone registers with it and pays. Find it under “Wallet & coupon” in the provider dashboard.",
+    "wallet_points": {
+      "coupon": {
+        "title": "Your coupon",
+        "body": "A permanent code of two letters and two digits such as KD27, longer when needed. It never changes and is never reused."
+      },
+      "invite": {
+        "title": "Inviting",
+        "body": "Share your coupon or invitation link. The newcomer enters it at sign-up, or later in their wallet before their first payment."
+      },
+      "commission": {
+        "title": "Commission",
+        "body": "When the newcomer's first online payment completes, a percentage set by the administrators is added to your balance automatically, once. Payments made from balances earn no commission."
+      },
+      "balance": {
+        "title": "Balance",
+        "body": "Your balance and every movement appear in “Balance history”; the administrators see the same ledger."
+      },
+      "withdraw": {
+        "title": "Withdrawing",
+        "body": "Request a withdrawal with the amount, IBAN and your password. The amount is held until the administrators transfer it and record the reference; it returns if rejected or you cancel."
+      },
+      "gift": {
+        "title": "Paying for someone else",
+        "body": "Pay another provider's subscription from your balance using their coupon or phone. Their name is shown for confirmation; confirm with your password and it activates immediately."
+      },
+      "security": {
+        "title": "Security",
+        "body": "Every operation that lowers your balance needs your password, and the same money can never be spent twice. An SMS code will be added once an SMS provider is enabled."
+      }
+    }
   },
   "request_location": {
     "title": "Service location",
@@ -1489,6 +1522,129 @@
       "duration": "Duration",
       "when": "When",
       "load_failed": "Could not load call statistics."
+    }
+  },
+  "wallet": {
+    "nav": "Wallet & coupon",
+    "title": "Wallet & coupon",
+    "amount": "SAR {{value}}",
+    "your_coupon": "Your coupon",
+    "copy": "Copy",
+    "copied": "Copied",
+    "share_whatsapp": "Share on WhatsApp",
+    "share_text": "Join Ay Khidma with my coupon {{code}}: {{url}}",
+    "coupon_explainer": "When someone signs up with your coupon and pays their first subscription, {{percent}}% of it is added to your balance.",
+    "coupon_inactive": "The administrators have not set the coupon commission yet.",
+    "balance": "Available balance",
+    "pending_withdrawals": "Withdrawals in review",
+    "earned": "Total commissions",
+    "referrals": "Paid / all sign-ups",
+    "apply_coupon_title": "Did someone invite you?",
+    "apply_coupon_hint": "You can add one coupon, once, before your first payment.",
+    "coupon_code": "Coupon code",
+    "apply": "Apply",
+    "coupon_applied": "Coupon added.",
+    "withdraw_title": "Withdraw to your bank account",
+    "withdraw_hint": "Minimum SAR {{min}}. The amount is held until the administrators transfer it to your IBAN, and returns to your balance if rejected.",
+    "amount_label": "Amount (SAR)",
+    "iban": "IBAN (SA…)",
+    "account_name": "Bank account holder name",
+    "confirm_password": "Password to confirm",
+    "request_withdrawal": "Request withdrawal",
+    "withdrawal_requested": "Withdrawal request sent to the administrators.",
+    "gift_title": "Pay a subscription for another provider",
+    "gift_hint": "The subscription price is deducted from your balance and activated for the recipient immediately.",
+    "recipient": "Recipient",
+    "recipient_placeholder": "Their coupon, phone or username",
+    "plan": "Subscription",
+    "gift_confirm": "SAR {{amount}} will be deducted from your balance for {{name}}'s subscription.",
+    "gift_check": "Check recipient",
+    "gift_pay": "Confirm payment",
+    "change": "Change",
+    "gift_done": "Subscription paid and activated for the recipient.",
+    "withdrawals": "Withdrawal requests",
+    "withdrawal_status": {
+      "pending": "In review",
+      "paid": "Transferred",
+      "rejected": "Rejected",
+      "cancelled": "Cancelled"
+    },
+    "reference": "Transfer ref.",
+    "cancel": "Cancel",
+    "withdrawal_cancelled": "Request cancelled; the amount is back in your balance.",
+    "history": "Balance history",
+    "no_history": "No activity yet.",
+    "tx": {
+      "referral_commission": "Coupon commission",
+      "withdrawal": "Bank withdrawal",
+      "gift_subscription": "Subscription paid for another",
+      "admin_adjustment": "Administrator adjustment"
+    },
+    "tx_status": {
+      "completed": "Completed",
+      "pending": "On hold",
+      "cancelled": "Cancelled"
+    },
+    "register_coupon": "Coupon code (optional)",
+    "register_coupon_hint": "If a provider invited you, enter their coupon here.",
+    "errors": {
+      "generic": "The operation could not be completed. Please try again.",
+      "load_failed": "Could not load the wallet.",
+      "coupon_not_found": "This coupon code is not valid.",
+      "coupon_own": "You cannot use your own coupon.",
+      "coupon_already_used": "You have already added a coupon.",
+      "coupon_after_payment": "A coupon cannot be added after your first payment.",
+      "wrong_password": "Incorrect password.",
+      "invalid_amount": "Enter a valid amount with at most two decimals.",
+      "below_minimum": "The amount is below the minimum withdrawal.",
+      "invalid_iban": "The IBAN must be SA followed by 22 digits.",
+      "invalid_account_name": "Enter the account holder's name as registered at the bank.",
+      "insufficient_balance": "Insufficient balance.",
+      "withdrawal_pending": "You already have a withdrawal in review.",
+      "withdrawal_not_found": "Withdrawal request not found.",
+      "withdrawal_not_pending": "This request was already processed.",
+      "transfer_reference_required": "Enter the bank transfer reference.",
+      "recipient_required": "Enter the recipient's coupon or phone.",
+      "recipient_not_found": "No service provider matches this.",
+      "recipient_self": "You cannot pay for yourself here.",
+      "recipient_has_subscription": "The recipient already has an active or pending subscription.",
+      "plan_not_found": "Choose an available subscription.",
+      "providers_only": "The wallet is for service providers.",
+      "too_many_attempts": "Too many attempts. Wait 15 minutes.",
+      "note_required": "Enter the reason for the adjustment (at least 5 characters).",
+      "invalid_percent": "The percent must be between 0 and 100.",
+      "invalid_action": "Invalid action.",
+      "user_not_found": "User not found."
+    },
+    "admin": {
+      "title": "Wallets & coupons",
+      "liabilities": "Total user balances",
+      "commissions": "Commissions granted",
+      "withdrawn": "Paid out to banks",
+      "pending_withdrawals": "Withdrawals in review",
+      "gifted": "Subscriptions paid from balances",
+      "commission_percent": "Coupon owner's share of the first payment (%)",
+      "min_withdrawal": "Minimum withdrawal (SAR)",
+      "settings_saved": "Settings saved.",
+      "settings_hint": "Applies only to the new account's first completed online payment, once. Zero turns commissions off.",
+      "withdrawals": "Withdrawal requests",
+      "none": "Nothing yet.",
+      "user": "User",
+      "status": "Status",
+      "reference_prompt": "Enter the bank transfer reference after making the transfer:",
+      "mark_paid": "Mark transferred",
+      "marked_paid": "Transfer recorded and the user notified.",
+      "reject_prompt": "Reason for rejection (shown to the user):",
+      "reject": "Reject",
+      "rejected": "Rejected; the amount returned to the user's balance.",
+      "wallets": "User balances",
+      "ledger": "Ledger",
+      "ledger_of": "{{name}}'s ledger",
+      "adjust_amount": "Adjustment (negative to debit)",
+      "adjust_note": "Reason (kept in the ledger)",
+      "adjust": "Record adjustment",
+      "adjusted": "Adjustment recorded.",
+      "rewards": "Coupon commissions"
     }
   }
 }

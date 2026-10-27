@@ -52,6 +52,8 @@ const AdminCountriesPage = lazy(() => import('./pages/admin/AdminCountriesPage')
 const AdminLocationsPage = lazy(() => import('./pages/admin/AdminLocationsPage'));
 const AdminConversationsPage = lazy(() => import('./pages/admin/AdminConversationsPage'));
 const AdminCallsPage = lazy(() => import('./pages/admin/AdminCallsPage'));
+const AdminWalletsPage = lazy(() => import('./pages/admin/AdminWalletsPage'));
+const WalletPage = lazy(() => import('./pages/provider/WalletPage'));
 const TrackingPage = lazy(() => import('./pages/TrackingPage'));
 const VerificationPage = lazy(() => import('./pages/VerificationPage'));
 const DisputeOpenPage = lazy(() => import('./pages/DisputeOpenPage'));
@@ -84,6 +86,7 @@ const PROVIDER_SIDEBAR = [
   { to: '/provider/services', icon: '🛠️', labelKey: 'catalog.my_services' },
   { to: '/opportunities', icon: '🔍', labelKey: 'nav.order_now' },
   { to: '/provider/subscription', icon: '⭐', labelKey: 'nav.subscription' },
+  { to: '/provider/wallet', icon: '💰', labelKey: 'wallet.nav' },
   { to: '/provider/badges', icon: '🛡️', labelKey: 'nav.badges' },
   { to: '/promote', icon: '📣', labelKey: 'nav.promote' },
   { to: '/chat', icon: '💬', labelKey: 'nav.chat' },
@@ -141,6 +144,7 @@ export default function AppRoutes() {
           <Route path="/provider" element={<ProviderDashboardPage />} />
           <Route path="/provider/services" element={<ProviderServicesPage />} />
           <Route path="/provider/subscription" element={<SubscriptionPage />} />
+          <Route path="/provider/wallet" element={<WalletPage />} />
           <Route path="/provider/badges" element={<ProviderBadgesPage />} />
         </Route>
 
@@ -164,6 +168,7 @@ export default function AppRoutes() {
           <Route path="/admin/locations" element={<AdminLocationsPage />} />
           <Route path="/admin/conversations" element={<AdminConversationsPage />} />
           <Route path="/admin/calls" element={<AdminCallsPage />} />
+          <Route path="/admin/wallets" element={<AdminWalletsPage />} />
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />

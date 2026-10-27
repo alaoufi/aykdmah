@@ -114,6 +114,10 @@ const register = asyncHandler(async (req, res) => {
       await require('../config/database').queryOne('SELECT id FROM districts WHERE city_id = ? AND is_active = 1 LIMIT 1', [location.city_id])))) {
     return error(res, req.t('provider_area_required'), 400);
   }
+  // A coupon is checked before the account exists, so a typo never creates a half-linked account.
+  const wallet = require('../services/walletService');
+  const couponCode = String(req.body.referral_code || '').trim();
+  if (couponCode && !await wallet.findReferrerByCode(couponCode)) return error(res, 'coupon_not_found', 400);
   const passwordHash = password ? await hashPassword(password) : await hashPassword(require('crypto').randomBytes(16).toString('hex'));
   let userId;
   try {
@@ -135,6 +139,9 @@ const register = asyncHandler(async (req, res) => {
     if (conflict) return identifierConflict(req, res, [conflict.field]);
     throw err;
   }
+
+  if (couponCode) await wallet.applyReferralCode(userId, couponCode).catch(() => {});
+  if (role === 'provider') await wallet.ensureReferralCode(userId).catch(() => {});
 
   // Record terms acceptance — best-effort, skipped if migration 025 hasn't
   // run yet so registration never breaks on a half-migrated host.

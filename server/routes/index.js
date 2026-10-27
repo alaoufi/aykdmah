@@ -33,6 +33,7 @@ router.use('/requests', require('./requestRoutes'));
 router.use('/offers', require('./offerRoutes'));
 router.use('/chat', require('./chatRoutes'));
 router.use('/calls', require('./callRoutes').router);
+router.use('/wallet', require('./walletRoutes'));
 router.use('/reviews', require('./reviewRoutes'));
 router.use('/notifications', require('./notificationRoutes'));
 router.use('/subscriptions', require('./subscriptionRoutes'));
