@@ -13,6 +13,7 @@
 const { query, queryOne } = require('../config/database');
 const Setting = require('../models/Setting');
 const net = require('net');
+const nominatim = require('./nominatimClient');
 
 const PRIVATE_RANGES = [
   /^127\./, /^10\./, /^192\.168\./, /^172\.(1[6-9]|2[0-9]|3[01])\./,
@@ -138,17 +139,11 @@ async function reverseGeocode({ lat, lon }) {
     // zoom=18 gives the finest level (street/building) so we can
     // pull the neighbourhood / suburb for the district match. The
     // address object scales up: city/state are still included.
-    const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&addressdetails=1&accept-language=ar,en&lat=${encodeURIComponent(lat)}&lon=${encodeURIComponent(lon)}`;
-    const res = await fetch(url, {
-      signal: AbortSignal.timeout(4500),
-      redirect: 'error',
-      headers: {
-        'User-Agent': 'AWTAD-app/1.0 (https://ryza-eta.vercel.app)',
-        'Accept-Language': 'ar,en;q=0.8',
-      },
+    // Rounded to ~1 m so nearby taps share the cache; queued to respect the usage policy.
+    const j = await nominatim.request('/reverse', {
+      zoom: 18, addressdetails: 1, 'accept-language': 'ar,en', lat: lat.toFixed(5), lon: lon.toFixed(5),
     });
-    if (!res.ok) return null;
-    const j = await res.json();
+    if (!j) return null;
     const a = j.address || {};
     const country = (a.country_code || '').toUpperCase();
     if (!country) return null;

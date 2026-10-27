@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
-import { MapContainer, TileLayer, Marker, useMap, useMapEvents } from 'react-leaflet';
+import { MapContainer, Marker, useMap, useMapEvents } from 'react-leaflet';
+import BaseTileLayer from './BaseTileLayer';
 import L from 'leaflet';
 
 const fixIcon = () => {
@@ -31,10 +32,7 @@ export default function MapPicker({ value, onChange, height = 320, defaultCenter
   return (
     <div style={{ height, borderRadius: 12, overflow: 'hidden', border: '1px solid var(--border)' }}>
       <MapContainer center={[position.latitude, position.longitude]} zoom={13} style={{ height: '100%', width: '100%' }}>
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/">OSM</a>'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+        <BaseTileLayer />
         {value && <Marker position={[value.latitude, value.longitude]} />}
         {onChange && <MapClicker onPick={onChange} />}
         {value && <MapView center={value} />}

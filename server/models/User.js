@@ -422,7 +422,8 @@ async function getProviderProfile(userId) {
 async function updateProviderProfile(userId, data) {
   const allowed = ['business_name', 'bio', 'experience_years', 'category_id',
                    'service_radius_km', 'hourly_rate', 'cover_image',
-                   'location_mode', 'fixed_latitude', 'fixed_longitude', 'fixed_address'];
+                   'location_mode', 'fixed_latitude', 'fixed_longitude', 'fixed_address',
+                   'show_location_on_map'];
   const fields = [];
   const values = [];
   for (const k of allowed) {

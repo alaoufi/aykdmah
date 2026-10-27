@@ -49,6 +49,7 @@ export default function Header() {
   const LINKS = [
     { to: '/', label: t('nav.home'), end: true },
     { to: '/services', label: t('nav.services') },
+    { to: '/providers/map', label: t('map.nav_link') },
     { to: '/requests/new', label: t('nav.order_now') },
     { to: '/guide', label: t('help.title') },
     { to: '/chat', label: t('nav.chat'), authOnly: true },

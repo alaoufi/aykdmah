@@ -9,7 +9,7 @@ const { hasPermission } = require('../middleware/roleCheck');
 const { queryOne, query } = require('../config/database');
 const pick = (object, fields) => Object.fromEntries(fields.filter(key => object[key] !== undefined).map(key => [key, object[key]]));
 const PUBLIC_USER_FIELDS = ['id', 'full_name', 'role', 'avatar', 'is_verified', 'is_online', 'city_id', 'district_id', 'country_id', 'region_id', 'governorate_id', 'city_name', 'city_name_ar', 'city_name_en', 'district_name', 'district_name_ar', 'district_name_en', 'governorate_name', 'governorate_name_ar', 'governorate_name_en', 'region_name', 'region_name_ar', 'region_name_en', 'country_name', 'country_name_ar', 'country_name_en'];
-const PUBLIC_PROVIDER_FIELDS = ['id', 'user_id', 'business_name', 'bio', 'experience_years', 'category_id', 'service_ids', 'service_radius_km', 'hourly_rate', 'cover_image', 'gallery', 'rating_avg', 'rating_count', 'completed_orders', 'is_trusted', 'is_featured_badge', 'location_mode', 'fixed_address'];
+const PUBLIC_PROVIDER_FIELDS = ['id', 'user_id', 'business_name', 'bio', 'experience_years', 'category_id', 'service_ids', 'service_radius_km', 'hourly_rate', 'cover_image', 'gallery', 'rating_avg', 'rating_count', 'completed_orders', 'is_trusted', 'is_featured_badge', 'location_mode', 'fixed_address', 'show_location_on_map'];
 const validImageUrl = value => value === null || value === '' || (typeof value === 'string' && value.length <= 255 && /^(?:https?:\/\/|\/(?!\/))/i.test(value) && !/[\u0000-\u0020]/.test(value));
 
 function disconnectUser(req, id) {
@@ -36,7 +36,14 @@ const getOne = asyncHandler(async (req, res) => {
   }
   if (!privateAccess) {
     user = pick(user, PUBLIC_USER_FIELDS);
+    const fullProvider = provider;
     if (provider) provider = pick(provider, PUBLIC_PROVIDER_FIELDS);
+    // The exact work location is public only when the provider opted in to the map.
+    if (provider && Number(fullProvider.show_location_on_map) === 1 && fullProvider.location_mode !== 'mobile'
+        && fullProvider.fixed_latitude != null && fullProvider.fixed_longitude != null) {
+      provider.fixed_latitude = Number(fullProvider.fixed_latitude);
+      provider.fixed_longitude = Number(fullProvider.fixed_longitude);
+    }
   }
   return success(res, { user, provider });
 });
@@ -87,6 +94,10 @@ const updateProvider = asyncHandler(async (req, res) => {
   const currentProfile = await User.getProviderProfile(userId);
   Object.assign(payload, await validateProviderServices(payload, currentProfile || {}, { message: req.t('invalid_data') }));
   if (payload.cover_image !== undefined && !validImageUrl(payload.cover_image)) return error(res, req.t('invalid_data'), 400);
+  if (payload.show_location_on_map !== undefined) {
+    if (![0, 1, true, false, '0', '1'].includes(payload.show_location_on_map)) return error(res, req.t('invalid_data'), 400);
+    payload.show_location_on_map = [1, true, '1'].includes(payload.show_location_on_map) ? 1 : 0;
+  }
   if (payload.location_mode !== undefined && !['fixed', 'mobile', 'both'].includes(payload.location_mode)) return error(res, req.t('invalid_data'), 400);
   if (payload.service_radius_km !== undefined && (!Number.isFinite(Number(payload.service_radius_km)) || Number(payload.service_radius_km) < 1 || Number(payload.service_radius_km) > 200)) return error(res, req.t('invalid_data'), 400);
   for (const [field, max] of [['business_name', 200], ['bio', 10000], ['fixed_address', 255], ['cover_image', 255]]) {

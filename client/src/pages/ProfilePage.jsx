@@ -336,6 +336,7 @@ function ProviderSection({ onSaved, onError, t, refresh }) {
         fixed_latitude: p.fixed_latitude == null ? null : Number(p.fixed_latitude),
         fixed_longitude: p.fixed_longitude == null ? null : Number(p.fixed_longitude),
         fixed_address: p.fixed_address || '',
+        show_location_on_map: Number(p.show_location_on_map) === 1,
       });
       if (p.fixed_latitude != null && p.fixed_longitude != null) {
         setPickPos({ latitude: Number(p.fixed_latitude), longitude: Number(p.fixed_longitude) });
@@ -369,7 +370,7 @@ function ProviderSection({ onSaved, onError, t, refresh }) {
     onError(''); onSaved('');
     setSaving(true);
     try {
-      const payload = { ...provider };
+      const payload = { ...provider, show_location_on_map: provider.show_location_on_map ? 1 : 0 };
       payload.category_id = provider.category_id ? Number(provider.category_id) : null;
       if (pickPos && payload.location_mode !== 'mobile') {
         payload.fixed_latitude = pickPos.latitude;
@@ -433,6 +434,15 @@ function ProviderSection({ onSaved, onError, t, refresh }) {
             <Input label={t('provider.fixed_address')} value={provider.fixed_address}
               onChange={(e) => setProvider({ ...provider, fixed_address: e.target.value })}
               maxLength={255} placeholder={t('location.address')} hint={t('provider.venue_publish_hint')} />
+            <label htmlFor="provider-show-on-map" className="flex items-start gap-2 text-[13px] text-fg cursor-pointer">
+              <input id="provider-show-on-map" name="show_location_on_map" type="checkbox" className="mt-1"
+                checked={!!provider.show_location_on_map}
+                onChange={event => setProvider(previous => ({ ...previous, show_location_on_map: event.target.checked }))} />
+              <span>
+                {t('map.show_on_map')}
+                <span className="block text-[11.5px] text-fg-subtle">{t('map.show_on_map_hint')}</span>
+              </span>
+            </label>
           </>
         )}
 

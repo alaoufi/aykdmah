@@ -2,7 +2,8 @@ import { apiError } from '../services/api';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { MapContainer, TileLayer, Marker, Polyline, useMap, Popup } from 'react-leaflet';
+import { MapContainer, Marker, Polyline, useMap, Popup } from 'react-leaflet';
+import BaseTileLayer from '../components/map/BaseTileLayer';
 import L from 'leaflet';
 import { useAuth } from '../hooks/useAuth';
 import { useSocket } from '../hooks/useSocket';
@@ -264,10 +265,7 @@ export default function TrackingPage() {
           style={{ height: '100%', width: '100%' }}
           zoomControl={false}
         >
-          <TileLayer
-            attribution='&copy; OSM'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
+          <BaseTileLayer />
           {myPosition && (
             <Marker
               position={[myPosition.latitude, myPosition.longitude]}

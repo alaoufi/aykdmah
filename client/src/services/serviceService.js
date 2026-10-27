@@ -84,3 +84,17 @@ export async function getPublicSettings() {
   const { data } = await api.get('/settings/public');
   return data.data;
 }
+
+// Address search inside Saudi Arabia (OpenStreetMap data via the server).
+export async function searchAddress(q, { signal } = {}) {
+  const { data } = await api.get('/geo/search', { params: { q }, timeout: 10000, signal });
+  return data.data.results;
+}
+
+export async function listNearbyProviders({ lat, lon, radiusKm, categoryId, serviceId, signal } = {}) {
+  const params = { lat, lon, radius_km: radiusKm };
+  if (categoryId) params.category_id = categoryId;
+  if (serviceId) params.service_id = serviceId;
+  const { data } = await api.get('/providers/nearby', { params, signal });
+  return data.data;
+}

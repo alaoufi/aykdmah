@@ -1,4 +1,5 @@
 const ipGeo = require('../services/ipGeoService');
+const nominatim = require('../services/nominatimClient');
 const Country = require('../models/Country');
 const { query } = require('../config/database');
 const { success, error } = require('../utils/apiResponse');
@@ -125,4 +126,24 @@ const reverse = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { reverse };
+// GET /api/geo/search?q=: address search inside Saudi Arabia. Results come only from
+// OpenStreetMap; nothing is synthesized when the service has no match.
+const search = asyncHandler(async (req, res) => {
+  const q = String(req.query.q || '').trim().replace(/s+/g, ' ');
+  if (q.length < 3 || q.length > 120) return error(res, 'Search text must be 3-120 characters', 400);
+  const rows = await nominatim.request('/search', {
+    q, countrycodes: 'sa', addressdetails: 1, limit: 6, 'accept-language': 'ar,en',
+  });
+  if (rows === null) return error(res, 'Address search is temporarily unavailable', 503);
+  const results = (Array.isArray(rows) ? rows : [])
+    .map(row => ({
+      label: row.display_name,
+      latitude: Number(row.lat),
+      longitude: Number(row.lon),
+      type: row.addresstype || row.type || null,
+    }))
+    .filter(row => Number.isFinite(row.latitude) && Number.isFinite(row.longitude));
+  return success(res, { results, attribution: 'Data © OpenStreetMap contributors' });
+});
+
+module.exports = { reverse, search };

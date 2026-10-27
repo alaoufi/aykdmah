@@ -1,6 +1,7 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MapContainer, TileLayer, Marker, Polyline, CircleMarker, Popup } from 'react-leaflet';
+import { MapContainer, Marker, Polyline, CircleMarker, Popup } from 'react-leaflet';
+import BaseTileLayer from '../../components/map/BaseTileLayer';
 import L from 'leaflet';
 
 import {
@@ -212,7 +213,7 @@ function ConversationDetail({ id, onBack, locale }) {
                 📍 {t('admin.location_trail')} ({data.locations.length})
               </div>
               <MapContainer center={mapCenter} zoom={13} style={{ height: 320, width: '100%' }}>
-                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; OSM' />
+                <BaseTileLayer />
                 {Object.entries(trailByUser).map(([uid, pts]) => {
                   const u = participantById[uid] || {};
                   const color = u.role === 'client' ? '#0ea5e9' : u.role === 'provider' ? '#10b981' : '#8b5cf6';
@@ -338,7 +339,7 @@ function LiveLocationsTab() {
       ) : (
         <div className="bg-surface rounded-card border border-border overflow-hidden">
           <MapContainer center={center} zoom={6} style={{ height: 500, width: '100%' }}>
-            <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" attribution='&copy; OSM' />
+            <BaseTileLayer />
             {items.map((l) => (
               <Marker key={l.id} position={[Number(l.latitude), Number(l.longitude)]}>
                 <Popup>

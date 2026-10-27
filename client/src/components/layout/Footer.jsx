@@ -15,6 +15,7 @@ export default function Footer() {
       links: [
         { to: '/', label: t('nav.home') },
         { to: '/services', label: t('nav.services') },
+        { to: '/providers/map', label: t('map.nav_link') },
         { to: '/requests/new', label: t('nav.order_now') },
         { to: '/chat', label: t('nav.chat') },
         { to: '/profile', label: t('nav.profile') },

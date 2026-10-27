@@ -2,8 +2,9 @@ import { localizedName } from '../../utils/localize';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
-import { listCities, reverseGeocode } from '../../services/serviceService';
+import { MapContainer, Marker, useMapEvents } from 'react-leaflet';
+import BaseTileLayer from '../map/BaseTileLayer';
+import { listCities, reverseGeocode, searchAddress } from '../../services/serviceService';
 import { getCurrentPosition, isValidCoordinates } from '../../utils/geolocation.mjs';
 import { icon } from 'leaflet';
 import markerImage from 'leaflet/dist/images/marker-icon.png';
@@ -40,6 +41,11 @@ export default function LocationPickerMap({ open, onClose, onConfirm, initialLat
   const [locating, setLocating] = useState(false);
   const [chosen, setChosen] = useState(false);
   const [gpsError, setGpsError] = useState(null);
+  const [searchText, setSearchText] = useState('');
+  const [searchResults, setSearchResults] = useState(null);
+  const [searching, setSearching] = useState(false);
+  const [searchError, setSearchError] = useState(null);
+  const searchRef = useRef(null);
   const mapRef = useRef(null);
   const lookupRef = useRef(null);
   const gpsRef = useRef(null);
@@ -129,7 +135,34 @@ export default function LocationPickerMap({ open, onClose, onConfirm, initialLat
     }
   };
 
-  const close = useCallback(() => { cancel(); onCloseRef.current?.(); }, [cancel]);
+  // Search runs on submit only (no autocomplete), as the OpenStreetMap usage policy requires.
+  const runSearch = async event => {
+    event.preventDefault();
+    const q = searchText.trim();
+    if (q.length < 3 || searching) return;
+    searchRef.current?.abort();
+    const controller = new AbortController();
+    searchRef.current = controller;
+    setSearching(true);
+    setSearchError(null);
+    setSearchResults(null);
+    try {
+      const results = await searchAddress(q, { signal: controller.signal });
+      if (!controller.signal.aborted) setSearchResults(results);
+    } catch (error) {
+      if (!controller.signal.aborted) setSearchError(error?.response?.status === 429 ? 'map.search_rate_limited' : 'map.search_failed');
+    } finally {
+      if (!controller.signal.aborted) setSearching(false);
+    }
+  };
+
+  const chooseResult = result => {
+    setSearchResults(null);
+    mapRef.current?.flyTo([result.latitude, result.longitude], 16);
+    pick(result.latitude, result.longitude);
+  };
+
+  const close = useCallback(() => { cancel(); searchRef.current?.abort(); onCloseRef.current?.(); }, [cancel]);
 
   useEffect(() => {
     if (!open) return undefined;
@@ -174,6 +207,32 @@ export default function LocationPickerMap({ open, onClose, onConfirm, initialLat
           <button type="button" aria-label={t('common.close')} onClick={close} className="px-3 py-1 rounded-pill bg-surface-alt hover:bg-border text-fg-muted text-[12.5px] font-semibold">✕</button>
         </div>
 
+        <form onSubmit={runSearch} className="px-4 pt-3 pb-2 border-b border-border relative">
+          <div className="flex gap-2">
+            <input type="search" name="address_search" value={searchText} maxLength={120}
+              onChange={event => setSearchText(event.target.value)}
+              placeholder={t('map.search_placeholder')} aria-label={t('map.search_placeholder')}
+              className="input flex-1 min-w-0 text-[13.5px]" />
+            <button type="submit" disabled={searching || searchText.trim().length < 3}
+              className="px-4 py-2 rounded-pill bg-primary-grad text-primary-fg font-bold text-[13px] disabled:opacity-60 shrink-0">
+              {searching ? t('map.searching') : t('map.search')}
+            </button>
+          </div>
+          {searchError && <div className="text-[12px] text-amber-700 mt-1">{t(searchError)}</div>}
+          {searchResults && (
+            <ul className="absolute inset-x-4 top-full z-[1100] mt-1 max-h-56 overflow-auto rounded-card bg-surface border border-border shadow-lift">
+              {searchResults.length === 0 && <li className="px-3 py-2 text-[12.5px] text-fg-muted">{t('map.search_no_results')}</li>}
+              {searchResults.map(result => (
+                <li key={`${result.latitude},${result.longitude}`}>
+                  <button type="button" onClick={() => chooseResult(result)}
+                    className="w-full text-start px-3 py-2 text-[12.5px] hover:bg-surface-alt">{result.label}</button>
+                </li>
+              ))}
+              <li className="px-3 py-1 text-[10.5px] text-fg-subtle border-t border-border">© OpenStreetMap</li>
+            </ul>
+          )}
+        </form>
+
         <div className="relative h-[50vh] max-h-[420px]" style={{ height: '50dvh', minHeight: 200 }}>
           <MapContainer
             center={[initialPin.lat, initialPin.lon]}
@@ -181,10 +240,7 @@ export default function LocationPickerMap({ open, onClose, onConfirm, initialLat
             style={{ height: '100%', width: '100%' }}
             ref={mapRef}
           >
-            <TileLayer
-              attribution='&copy; OpenStreetMap'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
+            <BaseTileLayer />
             {chosen && <Marker position={[pin.lat, pin.lon]} icon={pinIcon} draggable
               eventHandlers={{ dragend: event => { const point = event.target.getLatLng(); pick(point.lat, point.lng); } }} />}
             <Picker onPick={pick} />
