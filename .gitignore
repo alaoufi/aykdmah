@@ -15,3 +15,5 @@ playwright-report/
 *.bundle
 __pycache__/
 *.pyc
+# ملفات بناء قديمة يولّدها الخادم عند كل نشر (انظر docs/DECISIONS.md)
+client/compat-assets/

@@ -27,6 +27,13 @@
 - المخرجات أعيد توليدها بالسكربتات `scripts/geo/homaily_districts.py` و`osm_districts.py` و`districts_sql.py`. علامة `` ` `` في بعض الأسماء الإنجليزية استُبدلت بـ «‘» لأن مترجم SQL يعاملها كاقتباس معرّفات.
 
 إعادة التوليد (على خادم فيه Docker):
-1. نزّل `gcc-states-latest.osm.pbf` من Geofabrik واستخرج الأماكن والحدود بـ osmium (انظر CODEX_HANDOFF).
+1. نزّل `gcc-states-latest.osm.pbf` من Geofabrik، ثم استخرج بـ osmium (حاوية debian:bookworm-slim مع `osmium-tool`):
+   ```
+   osmium tags-filter gcc.osm.pbf nwr/place=suburb,neighbourhood,quarter -o places.osm.pbf
+   osmium export places.osm.pbf -f geojsonseq -o places.geojsonseq
+   osmium tags-filter gcc.osm.pbf r/ISO3166-1=SA -o sa-boundary.osm.pbf
+   osmium export sa-boundary.osm.pbf -f geojson -o sa-boundary.geojson --geometry-types=polygon
+   ```
+   ونزّل من Homaily (commit `7e322945`) الملفات `json/cities.json` و`json/districts_lite.json` و`json/regions_lite.json` بأسماء `hom_*.json`.
 2. صدّر `cities.psv` و`regions.psv` و`existing.psv` من القاعدة، وشغّل `homaily_districts.py` ثم `osm_districts.py` ثم `districts_sql.py homaily districts-homaily.json openstreetmap districts-osm.json`.
 3. أضف الناتج كترحيل جديد؛ لا تعدّل الترحيل 046 بعد تطبيقه.

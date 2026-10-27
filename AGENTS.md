@@ -1,8 +1,59 @@
-# Instructions for coding agents (Codex, Claude)
+# AGENTS.md — تعليمات إلزامية لكل مطور (Codex وClaude وغيرهما)
 
-- Read `CODEX_HANDOFF.md` and `docs/PROJECT_PROGRESS.md` first. Work on top of the latest commit of `claude/deploy-setup`.
-- The product name is «أي خدمة» (English: Ay Khidma). Code prefix: `ayk`.
-- Arabic RTL first; every UI string goes into all five locales (`npm run i18n:check` must pass).
-- Run `bash deploy/run-tests.sh` before every push. Never force-push, never commit `.env` or secrets.
-- New migration → `NODE_ENV=test node scripts/append-pg-migrations.cjs`.
-- Back up the database before any change that touches it on the server.
+المشروع: «أي خدمة» (Ay Khidma) · المستودع: `alaoufi/aykdmah` · النطاق: https://aykdmh.com
+GitHub هو المصدر المعتمد للكود. قاعدة البيانات والخادم لهما نسخ احتياطية مستقلة (انظر `docs/DATABASE.md`).
+
+## اقرأ قبل كتابة أي كود
+
+1. `docs/PROJECT_HANDOFF.md`: أين توقف آخر مطور، وما الخطوة التالية بالضبط.
+2. `docs/PROJECT_STATUS.md`: ما يعمل وما لا يعمل وما نُشر.
+3. `docs/TASKS.md`: المهام بمعرفات `AYK-###` ومن المسؤول عنها.
+4. `docs/DECISIONS.md`: قرارات معتمدة، لا تُعاد مناقشتها بلا سبب جديد.
+5. حسب المهمة: `ARCHITECTURE.md` و`DATABASE.md` و`DEPLOYMENT.md` و`SERVER_CONFIG.md`.
+
+## القاعدة الذهبية قبل أي تطوير
+
+1. تأكد أن `origin` هو `alaoufi/aykdmah`.
+2. افحص الفرع و`git status`، وانقل أي تغييرات محلية إلى حفظة أولًا.
+3. `git fetch` ثم حدّث الفرع بـ `pull --ff-only`. لا تكتب فوق تغييرات محلية.
+4. اقرأ الملفات أعلاه.
+5. افحص الكود الموجود للمهمة، وابحث عن الوظائف القائمة قبل إنشاء غيرها.
+6. تأكد في `docs/TASKS.md` أن لا مطور آخر يعمل على الملفات نفسها، ثم سجّل المهمة باسمك وحالة «قيد التنفيذ» قبل البدء.
+7. ممنوع البدء من الصفر أو استبدال وظيفة قائمة لمجرد اختلاف الأسلوب.
+
+## الحفظ المستمر
+
+بعد كل وحدة عمل مكتملة: افحص التغييرات، ثم شغّل `bash deploy/run-tests.sh` على Linux فيه Docker، ثم حدّث التوثيق، ثم احفظ بعنوان واضح، ثم ارفع وتحقق من نجاح الرفع، وسجّل الـ commit في `docs/CHANGELOG.md` و`docs/PROJECT_HANDOFF.md`.
+
+- **ممنوع** `git push --force` و`git reset --hard` وحذف فروع فيها عمل غير مدمج، دون موافقة صريحة من المالك.
+- إن فشل الرفع أو لم تتوفر الصلاحية فقل ذلك صراحة. لا تدّعِ أن العمل محفوظ سحابيًا.
+- لا ترفع `.env` ولا كلمات مرور ولا مفاتيح، ولا بيانات عملاء حقيقية.
+
+## الحالات الثلاث للكود
+
+1. **محفوظ في GitHub:** مرفوع، وليس بالضرورة منشورًا.
+2. **جاهز للنشر:** اجتاز `deploy/run-tests.sh`.
+3. **منشور في الإنتاج:** يعمل على aykdmh.com وتم التحقق منه. يُسجَّل الـ commit المنشور في `docs/PROJECT_STATUS.md`.
+
+لا تنشر قبل مقارنة إصدار الخادم (`git -C /opt/aykdmh log -1`) بما تريد نشره. ولا تنشر نسخة أقدم فوق الأحدث.
+
+## قاعدة البيانات
+
+- كل تغيير في الهيكل يكون ترحيلًا جديدًا في `database/migrations`، ثم `NODE_ENV=test node scripts/append-pg-migrations.cjs`. لا تعدّل ترحيلًا طُبّق.
+- خذ نسخة احتياطية قبل أي تغيير خطر. سكربت النشر يأخذها تلقائيًا.
+- لا تحذف جداول أو بيانات قائمة دون موافقة، واكتب خطة تراجع في رأس الترحيل.
+
+## التنسيق بين Claude وCodex
+
+- مهمة واحدة لمطور واحد في الوقت نفسه، ويُسجَّل ذلك في `docs/TASKS.md`.
+- قبل التسليم: احفظ وارفع، وسجّل آخر commit، ووضّح هل الفرع مدمج، واذكر الاختبارات الناجحة والتي لم تُنفذ.
+- عند الاستلام: اقرأ التسليم، وقارن الفرع بـ `main`، وكمّل من آخر نقطة صحيحة. لا تعِد تنفيذ ما اكتمل.
+
+## اللغة والواجهة
+
+- الواجهة عربية RTL أولًا. كل نص يُضاف باللغات الخمس (ar وen وur وhi وbn)، ويجب أن ينجح `npm run i18n:check`.
+- الاسم «أي خدمة» (بالإنجليزية Ay Khidma)، والبادئة في الكود `ayk`.
+
+## نهاية كل جلسة
+
+حدّث `docs/PROJECT_HANDOFF.md` بالقالب الموجود فيه، دون ترك حقل مهم فارغًا بلا توضيح.

@@ -34,6 +34,10 @@ bash deploy/run-tests.sh
 ## النشر
 
 على الخادم: `cd /opt/aykdmh && git pull && bash deploy/setup-server.sh`
-يأخذ السكربت نسخة احتياطية من القاعدة، ويبني الواجهة في إصدار جديد، ويطبّق الترحيلات. التفاصيل في `docs/PROJECT_PROGRESS.md` و`CODEX_HANDOFF.md`.
+يأخذ السكربت نسخة احتياطية من القاعدة، ويبني الواجهة في إصدار جديد، ويطبّق الترحيلات. التفاصيل في `docs/DEPLOYMENT.md`.
 
 لا تُرفع ملفات `.env` أو أي أسرار إلى Git.
+
+## للمطورين
+
+ابدأ بـ `AGENTS.md`، ثم `docs/PROJECT_HANDOFF.md` و`docs/PROJECT_STATUS.md` و`docs/TASKS.md`. بقية التوثيق في `docs/`: ARCHITECTURE وDATABASE وDEPLOYMENT وSERVER_CONFIG وTEST_RESULTS وDECISIONS وCHANGELOG.
