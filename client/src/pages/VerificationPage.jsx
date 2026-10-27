@@ -210,13 +210,13 @@ export default function VerificationPage() {
               <input
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                placeholder="123456"
-                maxLength={6}
+                placeholder={'1234567890'.slice(0, policy?.otp_length || 4)}
+                maxLength={policy?.otp_length || 4}
                 inputMode="numeric"
                 className="w-full px-3 py-3 rounded-card border border-border bg-surface-alt focus:bg-surface focus:border-primary outline-none text-center text-[22px] tracking-[8px] font-mono"
               />
               <div className="flex gap-2">
-                <button onClick={handleConfirm} disabled={busy || code.length < 4}
+                <button onClick={handleConfirm} disabled={busy || code.length < (policy?.otp_length || 4)}
                   className="flex-1 px-4 py-2.5 rounded-pill text-primary-fg text-[14px] font-bold bg-primary-grad disabled:opacity-60">
                   {t('verify.confirm')}
                 </button>

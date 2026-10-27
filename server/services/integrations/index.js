@@ -35,6 +35,10 @@ function validateIntegration(type, provider, data = {}) {
     try { allowedGatewayUrl(data.credentials?.base_url || data.config?.base_url); }
     catch (_) { throw Object.assign(new Error('Integration URL must use an allowed HTTPS host'), { status: 400 }); }
   }
+  if (typeof adapter.validate === 'function') {
+    try { adapter.validate(data); }
+    catch (_) { throw Object.assign(new Error('Integration URL must use the provider HTTPS host'), { status: 400 }); }
+  }
   return true;
 }
 

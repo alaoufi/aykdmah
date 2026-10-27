@@ -31,7 +31,8 @@ async function getPolicy() {
   const bounded = (value, fallback, min, max) => Number.isInteger(Number(value)) && Number(value) >= min && Number(value) <= max ? Number(value) : fallback;
   return {
     enabled: csv(enabled, ENABLED_DEFAULT),
-    otp_length: bounded(otpLen, 6, 6, 10),
+    // Four digits by the owner's choice; attempts, expiry and resend limits bound guessing.
+    otp_length: bounded(otpLen, 4, 4, 10),
     otp_ttl_minutes: bounded(otpTtl, 10, 1, 30),
     otp_resend_seconds: bounded(otpResend, 60, 30, 3600),
     otp_max_attempts: bounded(otpMax, 5, 1, 10),
@@ -43,8 +44,8 @@ async function getPolicy() {
   };
 }
 
-function generateOtp(length = 6) {
-  if (!Number.isInteger(length) || length < 6 || length > 10) throw new Error('Invalid OTP length');
+function generateOtp(length = 4) {
+  if (!Number.isInteger(length) || length < 4 || length > 10) throw new Error('Invalid OTP length');
   const max = 10 ** length;
   return String(crypto.randomInt(0, max)).padStart(length, '0');
 }

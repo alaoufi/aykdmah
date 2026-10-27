@@ -38,6 +38,14 @@ export const integrationLabels = [
   label('Client ID', 'معرّف العميل', 'کلائنٹ کا شناختی نمبر', 'क्लाइंट की पहचान', 'ক্লায়েন্টের পরিচয়'),
   label('Client Secret', 'المفتاح السري للعميل', 'کلائنٹ کی خفیہ کلید', 'क्लाइंट की गुप्त कुंजी', 'ক্লায়েন্টের গোপন কী'),
   label('Base URL fallback', 'عنوان الربط الأساسي البديل', 'سروس کا متبادل بنیادی پتہ', 'सेवा का वैकल्पिक मूल पता', 'সেবার বিকল্প মূল ঠিকানা'),
+  label('Taqnyat SMS (Bearer token)', 'تقنيات Taqnyat (رمز Bearer)', 'تقنیات Taqnyat (Bearer ٹوکن)', 'तक़नियात Taqnyat (Bearer टोकन)', 'তাকনিয়াত Taqnyat (Bearer টোকেন)'),
+  label('Saudi SMS gateway using a Bearer token (api.taqnyat.sa or api-sms.4jawaly.com)', 'بوابة رسائل نصية سعودية برمز Bearer (api.taqnyat.sa أو api-sms.4jawaly.com)', 'Bearer ٹوکن کے ساتھ سعودی ایس ایم ایس سروس (api.taqnyat.sa یا api-sms.4jawaly.com)', 'Bearer टोकन वाली सऊदी एसएमएस सेवा (api.taqnyat.sa या api-sms.4jawaly.com)', 'Bearer টোকেনসহ সৌদি এসএমএস সেবা (api.taqnyat.sa বা api-sms.4jawaly.com)'),
+  label('4jawaly SMS', 'فور جوالي 4jawaly', 'فور جوالی 4jawaly', '4jawaly एसएमएस', '4jawaly এসএমএস'),
+  label('Saudi SMS gateway (api-sms.4jawaly.com) using an app key and secret', 'بوابة رسائل نصية سعودية (api-sms.4jawaly.com) بمفتاح التطبيق والسر', 'ایپ کلید اور خفیہ کلید کے ساتھ سعودی ایس ایم ایس سروس (api-sms.4jawaly.com)', 'ऐप कुंजी और गुप्त कुंजी वाली सऊदी एसएमएस सेवा (api-sms.4jawaly.com)', 'অ্যাপ কী ও গোপন কীসহ সৌদি এসএমএস সেবা (api-sms.4jawaly.com)'),
+  label('API URL', 'رابط الـAPI', 'API کا لنک', 'API लिंक', 'API লিংক'),
+  label('Bearer token', 'رمز Bearer (app_secret)', 'Bearer ٹوکن (app_secret)', 'Bearer टोकन (app_secret)', 'Bearer টোকেন (app_secret)'),
+  label('App key', 'مفتاح التطبيق (app_key)', 'ایپ کلید (app_key)', 'ऐप कुंजी (app_key)', 'অ্যাপ কী (app_key)'),
+  label('App secret', 'سر التطبيق (app_secret)', 'ایپ کی خفیہ کلید (app_secret)', 'ऐप गुप्त कुंजी (app_secret)', 'অ্যাপ গোপন কী (app_secret)'),
   label('Provider request failed', 'تعذر تنفيذ الطلب لدى المزود', 'فراہم کنندہ کو بھیجی گئی درخواست ناکام ہو گئی', 'प्रदाता को भेजा गया अनुरोध विफल हुआ', 'প্রদানকারীকে পাঠানো অনুরোধ ব্যর্থ হয়েছে'),
 ];
 
