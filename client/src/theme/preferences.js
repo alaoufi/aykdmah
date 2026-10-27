@@ -11,27 +11,45 @@ export const MODES = ['light', 'dark', 'system'];
 export const SCALES = { s: 0.92, m: 1, l: 1.1, xl: 1.22 };
 
 // Every palette keeps white button labels readable (dark enough primaries).
+// The environment palettes also tint surfaces and borders.
 export const PALETTES = {
-  brand: { swatch: '#A45130' },
-  green: {
-    swatch: '#1F7A55',
-    light: { primary: '#1F7A55', 'primary-from': '#16603F', 'primary-to': '#2A9467', 'primary-soft': '#E2F1E9' },
-    dark: { primary: '#1F7A55', 'primary-from': '#16603F', 'primary-to': '#2A9467', 'primary-soft': '#1E3A2F', 'primary-text': '#9FD8BC' },
+  brand: { swatch: 'linear-gradient(135deg, #0B2D56, #A45130)' },
+  // Saudi: the greens of the Saudi emblem and flag.
+  saudi: {
+    swatch: 'linear-gradient(135deg, #00502A, #0B8A47)',
+    light: { primary: '#006C35', 'primary-from': '#00502A', 'primary-to': '#0B8A47', 'primary-soft': '#DDEFE4',
+      bg: '#F4F8F5', 'surface-alt': '#E3EFE7', border: '#C5DCCD', 'border-strong': '#8DB59C', 'primary-text': '#0A3D24' },
+    dark: { primary: '#006C35', 'primary-from': '#00502A', 'primary-to': '#0B8A47', 'primary-soft': '#133A26',
+      bg: '#06170F', surface: '#0A2418', 'surface-alt': '#10301F', border: '#2A5A40', 'border-strong': '#5E9A78', 'primary-text': '#9CD9B4' },
   },
-  blue: {
-    swatch: '#1F5FAF',
-    light: { primary: '#1F5FAF', 'primary-from': '#174C8E', 'primary-to': '#2A75CF', 'primary-soft': '#E3EDF6' },
-    dark: { primary: '#1F5FAF', 'primary-from': '#174C8E', 'primary-to': '#2A75CF', 'primary-soft': '#183D60', 'primary-text': '#A9CBF2' },
+  // Desert: dunes and sand.
+  desert: {
+    swatch: 'linear-gradient(135deg, #7E4F1A, #DCC7A3)',
+    light: { primary: '#9A6324', 'primary-from': '#7E4F1A', 'primary-to': '#B57A35', 'primary-soft': '#F3E6CC',
+      bg: '#FBF6EC', 'surface-alt': '#F1E4CC', border: '#DFCBA6', 'border-strong': '#B99A68', 'primary-text': '#5A3A12' },
+    dark: { primary: '#9A6324', 'primary-from': '#7E4F1A', 'primary-to': '#B57A35', 'primary-soft': '#3A2C1A',
+      bg: '#1C150C', surface: '#261C10', 'surface-alt': '#33261A', border: '#5E4A30', 'border-strong': '#9C7E55', 'primary-text': '#E8C99A' },
+  },
+  // Mountain: grey rock, juniper green and highland mist.
+  mountain: {
+    swatch: 'linear-gradient(135deg, #3E4A52, #5B8170)',
+    light: { primary: '#4A6B5D', 'primary-from': '#3A5649', 'primary-to': '#5B8170', 'primary-soft': '#E1E8E3',
+      bg: '#F4F5F3', 'surface-alt': '#E4E7E2', border: '#C9CEC6', 'border-strong': '#959E92', 'primary-text': '#2F3D36' },
+    dark: { primary: '#4A6B5D', 'primary-from': '#3A5649', 'primary-to': '#5B8170', 'primary-soft': '#23302B',
+      bg: '#12161A', surface: '#1A2026', 'surface-alt': '#232B32', border: '#45525C', 'border-strong': '#7D8C96', 'primary-text': '#B4CFC2' },
+  },
+  // Sea: deep water, turquoise shallows and the coast.
+  sea: {
+    swatch: 'linear-gradient(135deg, #0B5770, #48B8C9)',
+    light: { primary: '#0F6E8C', 'primary-from': '#0B5770', 'primary-to': '#1588AA', 'primary-soft': '#DDF0F5',
+      bg: '#F2F8FA', 'surface-alt': '#DFEEF3', border: '#BCD9E3', 'border-strong': '#7FB3C6', 'primary-text': '#0A4357' },
+    dark: { primary: '#0F6E8C', 'primary-from': '#0B5770', 'primary-to': '#1588AA', 'primary-soft': '#10384A',
+      bg: '#061620', surface: '#0A2230', 'surface-alt': '#0F2D3E', border: '#2B5568', 'border-strong': '#5F95AA', 'primary-text': '#96D3E6' },
   },
   burgundy: {
-    swatch: '#8A2C3E',
+    swatch: 'linear-gradient(135deg, #6E2232, #A43A4F)',
     light: { primary: '#8A2C3E', 'primary-from': '#6E2232', 'primary-to': '#A43A4F', 'primary-soft': '#F5E3E6' },
     dark: { primary: '#8A2C3E', 'primary-from': '#6E2232', 'primary-to': '#A43A4F', 'primary-soft': '#3F2228', 'primary-text': '#E8AEB9' },
-  },
-  sand: {
-    swatch: '#8C6A3F',
-    light: { primary: '#8C6A3F', 'primary-from': '#735630', 'primary-to': '#A5814F', 'primary-soft': '#F3EAD9' },
-    dark: { primary: '#8C6A3F', 'primary-from': '#735630', 'primary-to': '#A5814F', 'primary-soft': '#3A3022', 'primary-text': '#E3CDA6' },
   },
 };
 

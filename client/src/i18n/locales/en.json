@@ -67,18 +67,19 @@
     "mode_light": "Light",
     "mode_dark": "Dark",
     "mode_system": "Device",
-    "color": "Colour",
+    "color": "Theme",
     "palette_brand": "Brand",
-    "palette_green": "Green",
-    "palette_blue": "Blue",
     "palette_burgundy": "Burgundy",
-    "palette_sand": "Sand",
     "text_size": "Text size",
     "scale_s": "Small",
     "scale_m": "Normal",
     "scale_l": "Large",
     "scale_xl": "Extra large",
-    "high_contrast": "High contrast"
+    "high_contrast": "High contrast",
+    "palette_saudi": "Saudi",
+    "palette_desert": "Desert",
+    "palette_mountain": "Mountain",
+    "palette_sea": "Sea"
   },
   "language": {
     "label": "Language",
@@ -1462,7 +1463,7 @@
       }
     },
     "appearance_title": "Appearance and themes",
-    "appearance_body": "Tap the “Appearance” circle at the top to choose light, dark or device mode, one of five colours, one of four text sizes, and high contrast for low vision. Your choice is saved on your device."
+    "appearance_body": "Tap the “Appearance” circle at the top to choose light, dark or device mode, and a theme: Brand, Saudi (greens inspired by the Saudi emblem), Desert (sand colours), Mountain (inspired by the highlands), Sea (inspired by the sea and coast) or Burgundy. Pick one of four text sizes, and high contrast for low vision. Your choice is saved on your device."
   },
   "request_location": {
     "title": "Service location",

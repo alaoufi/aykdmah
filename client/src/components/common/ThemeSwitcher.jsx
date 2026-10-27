@@ -26,7 +26,7 @@ export default function ThemeSwitcher({ className = '', variant = 'default' }) {
       <button ref={btnRef} type="button" onClick={() => setOpen(v => !v)} className={buttonClass}
         aria-label={t('theme.label')} aria-expanded={open}>
         <span className="w-5 h-5 rounded-full ring-2 ring-white/40 shrink-0 grid place-items-center text-[11px]"
-          style={{ background: `linear-gradient(135deg, ${theme.color.bg}, ${swatch})` }} aria-hidden="true" />
+          style={{ background: swatch }} aria-hidden="true" />
         {!compact && <span>{t('theme.label')}</span>}
         {!compact && <span className="text-[10px] opacity-70">▾</span>}
       </button>
@@ -42,7 +42,7 @@ export default function ThemeSwitcher({ className = '', variant = 'default' }) {
           </section>
           <section>
             <div className="text-[11px] font-bold text-fg-subtle mb-1">{t('theme.color')}</div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
               {Object.entries(PALETTES).map(([name, palette]) => (
                 <button key={name} type="button" aria-pressed={prefs.palette === name} title={t(`theme.palette_${name}`)}
                   aria-label={t(`theme.palette_${name}`)} onClick={() => setPrefs({ palette: name })}
