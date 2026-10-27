@@ -10,6 +10,7 @@ import 'leaflet/dist/leaflet.css';
 import api from '../services/api';
 import BaseTileLayer from '../components/map/BaseTileLayer';
 import Avatar from '../components/common/Avatar';
+import AvailabilityBadge, { workingSummary } from '../components/common/AvailabilityBadge';
 import CallButtons from '../components/calls/CallButtons';
 import { LoadingState, ErrorState } from '../components/common/Spinner';
 import { directionsUrl } from '../utils/directions';
@@ -60,6 +61,10 @@ export default function ProviderProfilePage() {
             {user.is_verified ? ` · ✓ ${t('map.verified')}` : ''}
             {city ? ` · ${city}` : ''}
           </div>
+          {provider.availability && <div className="mt-1 space-y-0.5">
+            <AvailabilityBadge availability={provider.availability} />
+            <div className="text-[12px] text-fg-muted">🗓️ {workingSummary(provider.availability, t, i18n.resolvedLanguage || 'ar')}</div>
+          </div>}
         </div>
       </div>
 

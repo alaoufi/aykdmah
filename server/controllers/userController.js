@@ -6,11 +6,12 @@ const { hashPassword } = require('../utils/hash');
 const { validateUserLocation, booleanIntent, locationChanged, isCompleteAccountProfile, requireCompleteAccountProfile } = require('../utils/userLocation');
 const { validateProviderServices } = require('../utils/providerServices');
 const { validateCoverage, saveCoverage } = require('../utils/providerCoverage');
+const { validateAvailability } = require('../utils/providerAvailability');
 const { hasPermission } = require('../middleware/roleCheck');
 const { queryOne, query } = require('../config/database');
 const pick = (object, fields) => Object.fromEntries(fields.filter(key => object[key] !== undefined).map(key => [key, object[key]]));
 const PUBLIC_USER_FIELDS = ['id', 'full_name', 'role', 'avatar', 'is_verified', 'is_online', 'city_id', 'district_id', 'country_id', 'region_id', 'governorate_id', 'city_name', 'city_name_ar', 'city_name_en', 'district_name', 'district_name_ar', 'district_name_en', 'governorate_name', 'governorate_name_ar', 'governorate_name_en', 'region_name', 'region_name_ar', 'region_name_en', 'country_name', 'country_name_ar', 'country_name_en'];
-const PUBLIC_PROVIDER_FIELDS = ['id', 'user_id', 'business_name', 'bio', 'experience_years', 'category_id', 'service_ids', 'service_radius_km', 'hourly_rate', 'cover_image', 'gallery', 'rating_avg', 'rating_count', 'completed_orders', 'is_trusted', 'is_featured_badge', 'location_mode', 'fixed_address', 'show_location_on_map', 'coverage_city_id', 'coverage_districts'];
+const PUBLIC_PROVIDER_FIELDS = ['id', 'user_id', 'business_name', 'bio', 'experience_years', 'category_id', 'service_ids', 'service_radius_km', 'hourly_rate', 'cover_image', 'gallery', 'rating_avg', 'rating_count', 'completed_orders', 'is_trusted', 'is_featured_badge', 'location_mode', 'fixed_address', 'show_location_on_map', 'coverage_city_id', 'coverage_districts', 'availability'];
 const validImageUrl = value => value === null || value === '' || (typeof value === 'string' && value.length <= 255 && /^(?:https?:\/\/|\/(?!\/))/i.test(value) && !/[\u0000-\u0020]/.test(value));
 
 function disconnectUser(req, id) {
@@ -124,6 +125,7 @@ const updateProvider = asyncHandler(async (req, res) => {
     payload.fixed_longitude = null;
     payload.fixed_address = null;
   }
+  Object.assign(payload, validateAvailability(payload, req.t('invalid_data')));
   const coverage = await validateCoverage(payload, { cityId: currentProfile?.coverage_city_id || target.city_id, message: req.t('invalid_data') });
   if (payload.also_client !== undefined && ![true, false, 0, 1, '0', '1'].includes(payload.also_client)) return error(res, req.t('invalid_data'), 400);
   if (coverage) await saveCoverage(query, userId, coverage);

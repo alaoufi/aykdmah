@@ -2,6 +2,7 @@ const { query } = require('../config/database');
 const { success, error } = require('../utils/apiResponse');
 const asyncHandler = require('../utils/asyncHandler');
 const { distanceKm, isValidLatLng } = require('../services/geoService');
+const { availability } = require('../utils/providerAvailability');
 
 const MAX_RADIUS_KM = 200;
 const MAX_RESULTS = 50;
@@ -43,17 +44,26 @@ const nearby = asyncHandler(async (req, res) => {
            pp.business_name, pp.category_id, pp.service_ids, pp.service_radius_km,
            pp.rating_avg, pp.rating_count, pp.completed_orders, pp.location_mode,
            pp.show_location_on_map, pp.fixed_latitude, pp.fixed_longitude,
+           to_jsonb(pp)->>'availability_status' AS availability_status, to_jsonb(pp)->>'vacation_from' AS vacation_from,
+           to_jsonb(pp)->>'vacation_to' AS vacation_to, to_jsonb(pp)->>'work_days' AS work_days,
+           to_jsonb(pp)->>'work_from' AS work_from, to_jsonb(pp)->>'work_to' AS work_to,
            c.latitude AS city_latitude, c.longitude AS city_longitude,
            c.name_ar AS city_name_ar, c.name_en AS city_name_en
     FROM users u
     JOIN provider_profiles pp ON pp.user_id = u.id
     LEFT JOIN cities c ON c.id = u.city_id
-    WHERE u.role = 'provider' AND u.is_active = 1 AND u.is_blocked = 0 AND u.deleted_at IS NULL
-      ${categoryId !== null ? 'AND pp.category_id = ?' : ''}`, categoryId !== null ? [categoryId] : []);
+    WHERE u.role = 'provider' AND u.is_active = 1 AND u.is_blocked = 0 AND u.deleted_at IS NULL`);
+  // A provider may work in several professions: match any of their services.
+  const categoryServices = categoryId !== null
+    ? new Set((await query('SELECT id FROM services WHERE category_id = ?', [categoryId])).map(row => Number(row.id))) : null;
+  const availableOnly = req.query.available === '1';
 
   const providers = [];
   for (const row of rows) {
     if (serviceId !== null && !parseServiceIds(row.service_ids).includes(serviceId)) continue;
+    if (categoryServices && Number(row.category_id) !== categoryId && !parseServiceIds(row.service_ids).some(id => categoryServices.has(id))) continue;
+    const status = availability(row);
+    if (availableOnly && status.state !== 'available') continue;
     const point = publicPoint(row);
     if (!point) continue;
     const distance = distanceKm(lat, lon, point.latitude, point.longitude);
@@ -76,9 +86,11 @@ const nearby = asyncHandler(async (req, res) => {
       longitude: point.longitude,
       location_precision: point.precision,
       distance_km: Math.round(distance * 10) / 10,
+      availability: status,
     });
   }
-  providers.sort((a, b) => a.distance_km - b.distance_km);
+  // Providers available now come first, then by distance.
+  providers.sort((a, b) => (a.availability.state !== 'available') - (b.availability.state !== 'available') || a.distance_km - b.distance_km);
   return success(res, { providers: providers.slice(0, MAX_RESULTS), radius_km: radius });
 });
 

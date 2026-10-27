@@ -10,6 +10,7 @@ import RequestCard from '../../components/requests/RequestCard';
 import { LoadingState, EmptyState } from '../../components/common/Spinner';
 import { formatCurrency } from '../../utils/formatters';
 import { OFFER_STATUS } from '../../utils/constants';
+import AvailabilityBadge from '../../components/common/AvailabilityBadge';
 
 export default function ProviderDashboardPage() {
   const { t, i18n } = useTranslation();
@@ -41,7 +42,11 @@ export default function ProviderDashboardPage() {
 
   return (
     <div>
-      <h2 className="mb-4">{t('nav.dashboard')}</h2>
+      <h2 className="mb-2">{t('nav.dashboard')}</h2>
+      <div className="flex items-center gap-2 flex-wrap mb-4">
+        <AvailabilityBadge availability={provider?.availability} />
+        <Link to="/profile#availability" className="text-[12.5px] font-semibold">{t('availability.manage')}</Link>
+      </div>
       {error && <p role="alert" className="form-error">{t('errors.generic')}</p>}
 
       <div className="grid grid-3 mb-4">

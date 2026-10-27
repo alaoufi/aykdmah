@@ -1420,6 +1420,30 @@
         "title": "Changing things later",
         "body": "From “Profile” you can change your name, location, professions, neighbourhoods and service venue, and turn “Both” on or off. When requesting a service your saved location appears in one line, and opens only when you tap “Edit”."
       }
+    },
+    "availability_title": "Availability, vacations and working hours",
+    "availability_intro": "From “Profile” → “Availability and working hours” a provider controls when they are available; clients see the status in search and on the provider page.",
+    "availability_points": {
+      "pause": {
+        "title": "Pause and resume as you wish",
+        "body": "Tap “Pause” to stop until you tap “Resume”, with no end date."
+      },
+      "vacation": {
+        "title": "Scheduled vacation",
+        "body": "Set the start and end dates; you stop automatically on those days and come back afterwards."
+      },
+      "days": {
+        "title": "Working days",
+        "body": "Choose the weekdays you work; on other days you show as “Not a working day”."
+      },
+      "hours": {
+        "title": "Working hours",
+        "body": "Set from and to hours; they may run past midnight. Leave empty to work all day. Times are Saudi time."
+      },
+      "search": {
+        "title": "Shown in search",
+        "body": "Clients see your status: available now, on vacation until a date, or outside working hours. Available providers come first, and clients can show “Available now” only."
+      }
     }
   },
   "request_location": {
@@ -1741,5 +1765,39 @@
   "opportunities": {
     "matching": "Matching me",
     "all": "All requests"
+  },
+  "availability": {
+    "title": "Availability and working hours",
+    "manage": "Manage availability",
+    "state": {
+      "available": "Available now",
+      "paused": "Paused",
+      "vacation": "On vacation",
+      "off_day": "Not a working day",
+      "off_hours": "Outside working hours"
+    },
+    "vacation_until": "On vacation until {{date}}",
+    "off_hours_range": "Works {{from}} to {{to}}",
+    "hours_range": "{{from}} to {{to}}",
+    "every_day": "Every day",
+    "all_day": "All day",
+    "available_only": "Available now",
+    "active_hint": "You are receiving requests. Pause any time.",
+    "paused_hint": "You are paused until you resume.",
+    "pause": "Pause",
+    "resume": "Resume",
+    "vacation": "Scheduled vacation",
+    "vacation_hint": "You stop automatically on these days and become available again afterwards.",
+    "clear_vacation": "Cancel vacation",
+    "from": "From",
+    "to": "To",
+    "work_days": "Working days",
+    "work_hours": "Working hours",
+    "hours_hint": "Leave empty to work all day. Hours may run past midnight, like 8 pm to 2 am.",
+    "save": "Save working times",
+    "saved": "Availability saved",
+    "vacation_both": "Set both the start and end of the vacation.",
+    "hours_both": "Set both start and end hours, or leave both empty.",
+    "days_required": "Choose at least one working day."
   }
 }

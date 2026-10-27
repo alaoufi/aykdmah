@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 const SIGNUP_POINTS = ['types', 'basics', 'location', 'professions', 'coverage', 'coupon', 'matching', 'edit'];
+const AVAILABILITY_POINTS = ['pause', 'vacation', 'days', 'hours', 'search'];
 const WALLET_POINTS = ['coupon', 'invite', 'commission', 'balance', 'withdraw', 'gift', 'security', 'payments'];
 
 const CLIENT_STEPS = ['browse', 'details', 'location', 'offers', 'chat', 'finish'];
@@ -98,6 +99,19 @@ export default function GuidePage() {
               <li key={point} className="card p-4">
                 <h3 className="text-fg font-bold text-base">{index + 1}. {t(`help.signup_points.${point}.title`)}</h3>
                 <p className="text-fg-muted text-sm leading-loose mt-1">{t(`help.signup_points.${point}.body`)}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section id="guide-availability" aria-labelledby="guide-availability-title" className="mb-10 md:mb-12">
+          <h2 id="guide-availability-title" className="text-xl md:text-2xl font-extrabold text-fg">🗓️ {t('help.availability_title')}</h2>
+          <p className="text-fg-muted text-sm md:text-base leading-loose mt-3 mb-5">{t('help.availability_intro')}</p>
+          <ol className="space-y-3">
+            {AVAILABILITY_POINTS.map((point, index) => (
+              <li key={point} className="card p-4">
+                <h3 className="text-fg font-bold text-base">{index + 1}. {t(`help.availability_points.${point}.title`)}</h3>
+                <p className="text-fg-muted text-sm leading-loose mt-1">{t(`help.availability_points.${point}.body`)}</p>
               </li>
             ))}
           </ol>

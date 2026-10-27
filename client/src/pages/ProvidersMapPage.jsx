@@ -12,6 +12,7 @@ import LocationPickerMap from '../components/common/LocationPickerMap';
 import Avatar from '../components/common/Avatar';
 import { useAuth } from '../hooks/useAuth';
 import { listCategories, listNearbyProviders } from '../services/serviceService';
+import AvailabilityBadge from '../components/common/AvailabilityBadge';
 import { getCurrentPosition, isValidCoordinates } from '../utils/geolocation.mjs';
 import { directionsUrl, formatDistanceKm } from '../utils/directions';
 import { localizedName } from '../utils/localize';
@@ -41,6 +42,7 @@ export default function ProvidersMapPage() {
   const [categories, setCategories] = useState([]);
   const [categoryId, setCategoryId] = useState('');
   const [radiusKm, setRadiusKm] = useState(25);
+  const [availableOnly, setAvailableOnly] = useState(false);
   const [providers, setProviders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -57,12 +59,12 @@ export default function ProvidersMapPage() {
     requestRef.current = controller;
     setLoading(true);
     setError(null);
-    listNearbyProviders({ lat: origin.lat, lon: origin.lon, radiusKm, categoryId, signal: controller.signal })
+    listNearbyProviders({ lat: origin.lat, lon: origin.lon, radiusKm, categoryId, availableOnly, signal: controller.signal })
       .then(data => { if (!controller.signal.aborted) setProviders(data.providers); })
       .catch(() => { if (!controller.signal.aborted) setError('map.providers_failed'); })
       .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
-  }, [origin, radiusKm, categoryId]);
+  }, [origin, radiusKm, categoryId, availableOnly]);
 
   const locate = async () => {
     setLocating(true);
@@ -102,6 +104,10 @@ export default function ProvidersMapPage() {
           className="input w-auto text-sm">
           {RADII.map(r => <option key={r} value={r}>{t('map.within_km', { value: r })}</option>)}
         </select>
+        <label className="inline-flex items-center gap-1.5 px-3 py-2 rounded-pill text-sm bg-surface border border-border cursor-pointer">
+          <input type="checkbox" className="w-4 h-4 accent-primary" checked={availableOnly} onChange={e => setAvailableOnly(e.target.checked)} />
+          {t('availability.available_only')}
+        </label>
       </div>
 
       {error && <div className="text-[12.5px] text-amber-700">{t(error)}</div>}
@@ -119,6 +125,7 @@ export default function ProvidersMapPage() {
               <Popup>
                 <div className="text-[12.5px] space-y-1" dir={lang === 'ar' || lang === 'ur' ? 'rtl' : 'ltr'}>
                   <b>{p.business_name || p.full_name}</b>
+                  <div><AvailabilityBadge availability={p.availability} /></div>
                   <div>⭐ {p.rating_avg.toFixed(1)} · {formatDistanceKm(p.distance_km, t)}</div>
                   {p.location_precision === 'city' && <div className="text-fg-subtle">{t('map.city_precision')}</div>}
                   <Link to={`/providers/${p.id}`}>{t('map.view_profile')}</Link>
@@ -144,6 +151,7 @@ export default function ProvidersMapPage() {
                 ⭐ {p.rating_avg.toFixed(1)} ({p.rating_count}) · {formatDistanceKm(p.distance_km, t)}
                 {p.location_precision === 'city' && ` · ${t('map.city_precision')}`}
               </div>
+              <AvailabilityBadge availability={p.availability} className="mt-1" />
             </div>
             {p.location_precision === 'exact' && (
               <a href={directionsUrl(p.latitude, p.longitude)} target="_blank" rel="noopener noreferrer"

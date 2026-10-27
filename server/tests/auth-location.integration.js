@@ -535,6 +535,58 @@ if (!databasePrefix) {
     assert.equal(Number((await db.queryOne('SELECT COUNT(*) AS total FROM users')).total), countBefore);
   });
 
+  // AYK-029: vacations, pause/resume, working days and hours, shown in search.
+  test('provider availability is saved, validated, computed in Saudi time and shown in search', async () => {
+    const { availability, localNow } = require('../utils/providerAvailability');
+    const at = iso => new Date(iso);
+    assert.equal(availability({ work_from: '08:00', work_to: '17:00' }, at('2026-10-28T15:30:00Z')).state, 'off_hours');
+    assert.equal(availability({ work_from: '20:00', work_to: '02:00' }, at('2026-10-28T20:30:00Z')).state, 'available');
+    assert.equal(availability({ work_days: '0,1' }, at('2026-10-28T10:00:00Z')).state, 'off_day');
+    assert.equal(availability({ availability_status: 'paused', vacation_from: '2026-01-01', vacation_to: '2026-01-02' }).state, 'paused');
+
+    const area = await simpleArea();
+    const categories = await db.query(`SELECT DISTINCT ON (s.category_id) s.id, s.category_id FROM services s JOIN categories c ON c.id = s.category_id
+      WHERE s.is_active = 1 AND s.deleted_at IS NULL AND c.is_active = 1 AND c.deleted_at IS NULL ORDER BY s.category_id, s.id LIMIT 2`);
+    const session = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id,
+      service_ids: categories.map(row => Number(row.id)), coverage_district_ids: area.districts.slice(0, 1) });
+    const update = (body, expected = 200) => api('/users/me/provider', { method: 'PUT', token: session.token, body, expected });
+    const state = async () => (await api(`/users/${session.user.id}`)).provider.availability.state;
+    const search = async (query = '') => (await api(`/providers/nearby?lat=24.7136&lon=46.6753&radius_km=5${query}`)).providers
+      .find(row => Number(row.id) === Number(session.user.id));
+
+    await update({ location_mode: 'fixed', fixed_latitude: 24.7136, fixed_longitude: 46.6753, show_location_on_map: 1 });
+    assert.equal(await state(), 'available');
+    // Search by the provider's SECOND profession still finds them.
+    assert.ok(await search(`&category_id=${categories[1].category_id}`));
+
+    await update({ availability_status: 'paused' });
+    assert.equal(await state(), 'paused');
+    assert.equal((await search()).availability.state, 'paused');
+    assert.equal(await search('&available=1'), undefined);
+
+    const today = localNow().date;
+    const shift = days => new Date(Date.parse(today) + days * 86400000).toISOString().slice(0, 10);
+    await update({ availability_status: 'active', vacation_from: shift(-1), vacation_to: shift(1) });
+    const onVacation = (await api(`/users/${session.user.id}`)).provider.availability;
+    assert.equal(onVacation.state, 'vacation');
+    assert.equal(onVacation.until, shift(1));
+    await update({ vacation_from: shift(-5), vacation_to: shift(-2) });
+    assert.equal(await state(), 'available', 'a past vacation is ignored');
+
+    await update({ work_days: [0, 1, 2, 3, 4, 5, 6], work_from: '08:00', work_to: '22:00' });
+    const saved = await db.queryOne('SELECT work_days, work_from, work_to FROM provider_profiles WHERE user_id = ?', [session.user.id]);
+    assert.deepEqual(saved, { work_days: null, work_from: '08:00', work_to: '22:00' });
+    await update({ work_days: [5, 6, 5], work_from: '', work_to: '' });
+    assert.deepEqual(await db.queryOne('SELECT work_days, work_from, work_to FROM provider_profiles WHERE user_id = ?', [session.user.id]),
+      { work_days: '5,6', work_from: null, work_to: null });
+
+    for (const body of [
+      { availability_status: 'sleeping' }, { vacation_from: shift(2), vacation_to: shift(1) }, { vacation_from: '2026-13-01', vacation_to: '2026-13-02' },
+      { vacation_from: shift(1) }, { work_from: '25:00', work_to: '10:00' }, { work_from: '09:00' }, { work_from: '09:00', work_to: '09:00' },
+      { work_days: [7] }, { work_days: [] }, { work_days: 'sun' },
+    ]) await update(body, 400);
+  });
+
   test('concurrent signups with one fresh username create exactly one account and return a field conflict to the loser', async () => {
     const username = identity();
     const attempts = [

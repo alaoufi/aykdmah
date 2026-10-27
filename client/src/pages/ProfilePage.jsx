@@ -14,6 +14,7 @@ import ProfessionsPicker from '../components/common/ProfessionsPicker';
 import CoverageDistrictsPicker from '../components/common/CoverageDistrictsPicker';
 import { apiError } from '../services/api';
 import { localizedName } from '../utils/localize';
+import AvailabilityEditor from '../components/provider/AvailabilityEditor';
 import { getCurrentPosition, isValidCoordinates, geoSelection, preserveCoordinatesForAreaChange } from '../utils/geolocation.mjs';
 
 const LOCATION_LEVELS = ['country_id', 'region_id', 'governorate_id', 'city_id', 'district_id'];
@@ -295,6 +296,7 @@ export default function ProfilePage() {
         initialLat={mapCenter?.lat} initialLon={mapCenter?.lon}
         initialPointSelected={hasPoint}
         onConfirm={result => { cancelLocation(); applyPoint(result.lat, result.lon, result); setPointConfirmed(true); }} />
+      {user?.role === 'provider' && <AvailabilityEditor onSaved={setMsg} onError={setErr} />}
       {user?.role === 'provider' && <ProviderSection onSaved={setMsg} onError={setErr} t={t} refresh={refresh} />}
       <div className="card" id="change-password">
         <h3>{t('profile.change_password')}</h3>

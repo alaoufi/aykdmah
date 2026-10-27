@@ -6027,6 +6027,15 @@ CREATE TABLE IF NOT EXISTS provider_coverage_districts (
 CREATE INDEX IF NOT EXISTS idx_provider_coverage_district ON provider_coverage_districts (district_id);
 INSERT INTO schema_migrations(name) VALUES ('047_simple_onboarding.sql');
 
+-- migrations/048_provider_availability.sql
+ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS availability_status VARCHAR(10) NOT NULL DEFAULT 'active';
+ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS vacation_from VARCHAR(10) DEFAULT NULL;
+ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS vacation_to VARCHAR(10) DEFAULT NULL;
+ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS work_days VARCHAR(20) DEFAULT NULL;
+ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS work_from VARCHAR(5) DEFAULT NULL;
+ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS work_to VARCHAR(5) DEFAULT NULL;
+INSERT INTO schema_migrations(name) VALUES ('048_provider_availability.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

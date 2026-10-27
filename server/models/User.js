@@ -424,6 +424,7 @@ async function getProviderProfile(userId) {
     row.badge_featured_active = row.is_featured_badge ? 1 : 0;
     row.is_featured = row.is_featured ? 1 : 0;
     row.coverage_districts = await require('../utils/providerCoverage').coverageDistricts(userId);
+    row.availability = require('../utils/providerAvailability').availability(row);
   }
   return row;
 }
@@ -432,7 +433,7 @@ async function updateProviderProfile(userId, data) {
   const allowed = ['business_name', 'bio', 'experience_years', 'category_id',
                    'service_radius_km', 'hourly_rate', 'cover_image',
                    'location_mode', 'fixed_latitude', 'fixed_longitude', 'fixed_address',
-                   'show_location_on_map'];
+                   'show_location_on_map', ...require('../utils/providerAvailability').AVAILABILITY_FIELDS];
   const fields = [];
   const values = [];
   for (const k of allowed) {

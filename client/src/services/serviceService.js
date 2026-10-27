@@ -91,8 +91,9 @@ export async function searchAddress(q, { signal } = {}) {
   return data.data.results;
 }
 
-export async function listNearbyProviders({ lat, lon, radiusKm, categoryId, serviceId, signal } = {}) {
+export async function listNearbyProviders({ lat, lon, radiusKm, categoryId, serviceId, availableOnly, signal } = {}) {
   const params = { lat, lon, radius_km: radiusKm };
+  if (availableOnly) params.available = '1';
   if (categoryId) params.category_id = categoryId;
   if (serviceId) params.service_id = serviceId;
   const { data } = await api.get('/providers/nearby', { params, signal });
