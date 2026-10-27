@@ -10,7 +10,8 @@ services:
       - "443:443"
       - "443:443/udp"
     volumes:
-      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      # Mount the directory, not the file, so `git pull` changes are seen on reload.
+      - ./caddy:/etc/caddy:ro
       - /var/www/aykdmh:/srv:ro
       - caddy_data:/data
       - caddy_config:/config
