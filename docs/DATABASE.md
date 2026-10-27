@@ -18,6 +18,7 @@ PostgreSQL 16 في الحاوية `aykdmh-db` (القاعدة والمستخدم
 | 045 | الكوبونات والمحافظ والسحوبات وإعداداتها | في رأس الملف |
 | 046 | 2,931 حيًا بمصدرها وحالة تحقق | في رأس الملف (يحفظ الأحياء المستخدمة) |
 | 047 | `users.also_client` («كلاهما»)، و`provider_profiles.coverage_city_id`، وجدول `provider_coverage_districts` لأحياء التغطية | في رأس الملف |
+| 048 | توفر مقدم الخدمة: `availability_status` و`vacation_from/to` و`work_days` و`work_from/to` في `provider_profiles` | في رأس الملف |
 
 ## الجداول الأساسية
 
