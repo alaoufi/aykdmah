@@ -72,6 +72,14 @@ const register = asyncHandler(async (req, res) => {
     }
     providerLocation.location_mode = mode;
     providerLocation.fixed_address = mode === 'mobile' ? null : (address?.trim() || null);
+    if (mode !== 'mobile' && (req.body.fixed_latitude != null || req.body.fixed_longitude != null)) {
+      const coord = v => (typeof v === 'number' || (typeof v === 'string' && v.trim() !== '')) ? Number(v) : NaN;
+      const lat = coord(req.body.fixed_latitude), lon = coord(req.body.fixed_longitude);
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)
+          || lat < -90 || lat > 90 || lon < -180 || lon > 180) return error(res, req.t('invalid_data'), 400);
+      providerLocation.fixed_latitude = lat;
+      providerLocation.fixed_longitude = lon;
+    }
     Object.assign(providerLocation, await validateProviderServices(req.body, {}, {
       required: hasProviderServices, message: req.t('provider_services_required'),
     }));

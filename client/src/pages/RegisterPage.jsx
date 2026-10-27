@@ -59,6 +59,9 @@ export default function RegisterPage() {
   const [termsOpen, setTermsOpen] = useState(false);
   const [locMsg, setLocMsg] = useState(null);
   const [mapOpen, setMapOpen] = useState(false);
+  // Where a provider with a fixed place (or both) offers the service; separate from the private account point.
+  const [venuePoint, setVenuePoint] = useState(null);
+  const [venueMapOpen, setVenueMapOpen] = useState(false);
   const [pointConfirmed, setPointConfirmed] = useState(false);
   const locationRequest = useRef(0);
   const locationController = useRef(null);
@@ -223,6 +226,7 @@ export default function RegisterPage() {
     if (form.role === 'provider') {
       if (!form.category_id) errors.category_id = t('provider.profession_required');
       if (!form.service_ids.length) errors.service_ids = t('provider.services_required');
+      if (form.location_mode !== 'mobile' && !venuePoint) errors.venue_point = t('provider.venue_point_required');
     }
     if (Object.keys(errors).length) {
       setFieldErrors(errors);
@@ -245,6 +249,7 @@ export default function RegisterPage() {
         ...(form.role === 'provider' ? {
           location_mode,
           fixed_address: location_mode === 'mobile' ? null : fixed_address.trim() || null,
+          ...(location_mode !== 'mobile' && venuePoint ? { fixed_latitude: venuePoint.lat, fixed_longitude: venuePoint.lon } : {}),
           category_id: Number(category_id), service_ids,
         } : {}),
         country_id: form.country_id || null,
@@ -336,6 +341,13 @@ export default function RegisterPage() {
         <ProviderServicesPicker categoryId={form.category_id} serviceIds={form.service_ids} onChange={updateServices}
           required disabled={loading} errors={fieldErrors} />
         <ServiceVenuePicker value={form.location_mode} onChange={mode => update('location_mode', mode)} />
+        {form.location_mode !== 'mobile' && <div className="space-y-1">
+          <Button id="register-venue_point" type="button" variant={venuePoint ? 'outline' : 'primary'} onClick={() => setVenueMapOpen(true)}>
+            📍 {venuePoint ? t('provider.venue_point_change') : t('provider.venue_point_pick')}
+          </Button>
+          {venuePoint && <div className="text-[12px] text-fg-muted">✓ {t('provider.venue_point_set')} <span dir="ltr">{venuePoint.lat.toFixed(5)}, {venuePoint.lon.toFixed(5)}</span></div>}
+          {fieldErrors.venue_point && <div className="form-error">{fieldErrors.venue_point}</div>}
+        </div>}
         {form.location_mode !== 'mobile' && <Input id="register-fixed-address" name="fixed_address"
           label={t('provider.fixed_address_optional')} value={form.fixed_address} maxLength={255}
           onChange={e => update('fixed_address', e.target.value)} placeholder={t('location.address')}
@@ -482,6 +494,15 @@ export default function RegisterPage() {
         {t('auth.have_account')} <Link to="/login" state={loginState}>{t('auth.login_title')}</Link>
       </div>
       </fieldset>
+
+      <LocationPickerMap
+        open={venueMapOpen}
+        initialLat={venuePoint?.lat ?? mapCenter?.lat}
+        initialLon={venuePoint?.lon ?? mapCenter?.lon}
+        initialPointSelected={!!venuePoint}
+        onClose={() => setVenueMapOpen(false)}
+        onConfirm={(res) => setVenuePoint({ lat: res.lat, lon: res.lon })}
+      />
 
       <LocationPickerMap
         open={mapOpen}

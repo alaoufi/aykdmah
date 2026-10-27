@@ -267,6 +267,31 @@ if (!databasePrefix) {
     }
   });
 
+  test('provider registration saves the chosen service place for fixed and both, ignores it for mobile and rejects bad points', async () => {
+    for (const location_mode of ['fixed', 'both']) {
+      const session = await register({ role: 'provider', location_mode, fixed_latitude: 24.7136, fixed_longitude: 46.6753 });
+      const saved = await savedProviderLocation(session.user.id);
+      assert.equal(saved.location_mode, location_mode);
+      assert.equal(Number(saved.fixed_latitude), 24.7136);
+      assert.equal(Number(saved.fixed_longitude), 46.6753);
+    }
+    const mobile = await register({ role: 'provider', location_mode: 'mobile', fixed_latitude: 24.7136, fixed_longitude: 46.6753 });
+    assert.deepEqual(await savedProviderLocation(mobile.user.id), {
+      location_mode: 'mobile', fixed_address: null, fixed_latitude: null, fixed_longitude: null,
+    });
+    const invalids = [
+      { fixed_latitude: 24.7 }, { fixed_longitude: 46.6 }, { fixed_latitude: 91, fixed_longitude: 46.6 },
+      { fixed_latitude: 24.7, fixed_longitude: 181 }, { fixed_latitude: '', fixed_longitude: 46.6 },
+      { fixed_latitude: true, fixed_longitude: 46.6 }, { fixed_latitude: 'abc', fixed_longitude: 46.6 },
+    ];
+    for (const fields of invalids) {
+      const username = identity();
+      const attempt = await registrationAttempt({ username, role: 'provider', location_mode: 'fixed', ...fields });
+      assert.equal(attempt.status, 400, JSON.stringify(fields));
+      assert.equal(await db.queryOne('SELECT id FROM users WHERE username = ?', [username]), null);
+    }
+  });
+
   test('invalid provider modes and addresses reject registration before creating any account or provider profile', async () => {
     const invalids = [
       ...['invalid', '', null, true, 1, [], {}].map(location_mode => ({ location_mode })),

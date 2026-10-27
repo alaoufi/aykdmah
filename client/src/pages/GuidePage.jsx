@@ -76,8 +76,8 @@ export default function GuidePage() {
           <p className="text-fg-muted text-sm md:text-base leading-loose mt-3 mb-5">{t('help.venue_intro')}</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {[
-              { mode: 'mobile', icon: '🚙' },
               { mode: 'fixed', icon: '📍' },
+              { mode: 'mobile', icon: '🚙' },
               { mode: 'both', icon: '🤝' },
             ].map(item => (
               <div key={item.mode} className="rounded-card bg-surface border border-border p-4">

@@ -1,7 +1,8 @@
 import { useId } from 'react';
 import { useTranslation } from 'react-i18next';
 
-const MODES = ['mobile', 'fixed', 'both'];
+// Order chosen by the owner: fixed place, travels to the client, either per the client's choice.
+const MODES = ['fixed', 'mobile', 'both'];
 
 export default function ServiceVenuePicker({ value, onChange, name = 'location_mode', disabled = false }) {
   const { t } = useTranslation();

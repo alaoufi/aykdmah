@@ -135,7 +135,7 @@ async function checkIdentifierConflicts(conn, data, existing = null) {
 async function create({ full_name, username, email, phone, facebook_id, password_hash, role,
                         country_id, region_id, governorate_id, city_id, district_id,
                         latitude, longitude, address, is_active = 1, location_mode = 'mobile', fixed_address = null,
-                        category_id, service_ids }) {
+                        fixed_latitude = null, fixed_longitude = null, category_id, service_ids }) {
   let providerServices = {};
   const privateAddress = address === undefined ? undefined : accountAddress(address);
   if (role === 'provider') {
@@ -177,8 +177,12 @@ async function create({ full_name, username, email, phone, facebook_id, password
     if (role === 'provider') {
       // Public work details are supplied explicitly; private account GPS is
       // never copied into the provider's work address or coordinates.
-      await conn.execute('INSERT INTO provider_profiles (user_id, location_mode, fixed_address, category_id, service_ids) VALUES (?, ?, ?, ?, ?)',
+      // The service venue point is the one the provider picked for it, never the account point.
+      const venue = location_mode !== 'mobile' && fixed_latitude != null && fixed_longitude != null;
+      await conn.execute(`INSERT INTO provider_profiles (user_id, location_mode, fixed_address, fixed_latitude, fixed_longitude, category_id, service_ids)
+        VALUES (?, ?, ?, ?, ?, ?, ?)`,
         [userId, location_mode, location_mode === 'mobile' ? null : (fixed_address?.trim() || null),
+          venue ? fixed_latitude : null, venue ? fixed_longitude : null,
           providerServices.category_id ?? null, providerServices.service_ids ? JSON.stringify(providerServices.service_ids) : null]);
     }
     if (role === 'client' || role === 'provider' || privateAddress !== undefined) {
