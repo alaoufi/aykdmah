@@ -1,4 +1,4 @@
-const { query, queryOne } = require('../config/database');
+const { query, queryOne, tableHasColumn } = require('../config/database');
 const { ApiError } = require('../middleware/errorHandler');
 
 const validId = value => ['number', 'string'].includes(typeof value)
@@ -35,6 +35,7 @@ async function saveCoverage(execute, userId, coverage) {
 }
 
 async function coverageDistricts(userId) {
+  if (!await tableHasColumn('provider_coverage_districts', 'district_id')) return [];
   return query(`SELECT d.id, d.name_ar, d.name_en FROM provider_coverage_districts pc
     JOIN districts d ON d.id = pc.district_id WHERE pc.user_id = ? ORDER BY d.name_ar`, [userId]);
 }

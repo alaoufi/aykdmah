@@ -23,13 +23,13 @@ function cookieMutationAllowed(req) {
 
 async function loadSessionUser(payload) {
   // A deployment without the permission schema must fail closed for admins.
-  const [hasAdminCols, hasVersion] = await Promise.all([
-    tableHasColumn('users', 'is_super_admin'), tableHasColumn('users', 'auth_version'),
+  const [hasAdminCols, hasVersion, hasAlsoClient] = await Promise.all([
+    tableHasColumn('users', 'is_super_admin'), tableHasColumn('users', 'auth_version'), tableHasColumn('users', 'also_client'),
   ]);
   if (!hasVersion) throw new ApiError('Authentication schema is unavailable', 503);
-  const extra = (hasAdminCols ? ', is_super_admin, permissions' : '') + (hasVersion ? ', auth_version' : '');
+  const extra = (hasAdminCols ? ', is_super_admin, permissions' : '') + (hasVersion ? ', auth_version' : '') + (hasAlsoClient ? ', also_client' : '');
   const user = await queryOne(
-    `SELECT id, full_name, email, phone, role, is_active, is_blocked, avatar, also_client${extra}
+    `SELECT id, full_name, email, phone, role, is_active, is_blocked, avatar${extra}
      FROM users WHERE id = ? AND deleted_at IS NULL`, [payload.id]
   );
   if (!user) return null;

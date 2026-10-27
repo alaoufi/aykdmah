@@ -106,7 +106,7 @@ async function create(data) {
   if (!clientId) throw new ApiError('invalid_data', 422);
   return transaction(async (conn) => {
     const read = async (sql, params) => (await conn.query(sql, params))[0][0] || null;
-    const account = await read(`SELECT u.id, u.role, u.also_client, u.city_id, u.district_id, u.latitude, u.longitude, p.address,
+    const account = await read(`SELECT u.id, u.role, to_jsonb(u)->>'also_client' AS also_client, u.city_id, u.district_id, u.latitude, u.longitude, p.address,
       to_jsonb(u)->>'country_id' AS country_id, to_jsonb(u)->>'region_id' AS region_id,
       to_jsonb(u)->>'governorate_id' AS governorate_id
       FROM users u LEFT JOIN user_profiles p ON p.user_id = u.id

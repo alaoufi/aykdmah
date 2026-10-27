@@ -10,7 +10,7 @@ const SELECT_FIELDS = `
   u.id, u.full_name, u.username, u.email, u.phone, u.facebook_id, u.role, u.avatar,
   u.is_active, u.is_blocked, u.is_verified, u.is_online,
   u.city_id, u.district_id, u.latitude, u.longitude,
-  u.last_seen_at, u.created_at, u.must_change_password, u.also_client
+  u.last_seen_at, u.created_at, u.must_change_password
 `;
 
 // Hydrate admin-only fields (is_super_admin, permissions) when they
@@ -27,13 +27,13 @@ function hydrateAdmin(row) {
 }
 
 async function findById(id) {
-  const [hasAdminCols, hasCountry, hasRegion, hasGov, hasCityRegion, hasRegionCountry, hasCountries] = await Promise.all([
+  const [hasAdminCols, hasCountry, hasRegion, hasGov, hasCityRegion, hasRegionCountry, hasCountries, hasAlsoClient] = await Promise.all([
     tableHasColumn('users', 'is_super_admin'), tableHasColumn('users', 'country_id'),
     tableHasColumn('users', 'region_id'), tableHasColumn('users', 'governorate_id'),
     tableHasColumn('cities', 'region_id'), tableHasColumn('regions', 'country_id'),
-    tableHasColumn('countries', 'id'),
+    tableHasColumn('countries', 'id'), tableHasColumn('users', 'also_client'),
   ]);
-  const extra = hasAdminCols ? ', u.is_super_admin, u.permissions' : '';
+  const extra = (hasAdminCols ? ', u.is_super_admin, u.permissions' : '') + (hasAlsoClient ? ', u.also_client' : '');
   const govId = hasGov ? 'COALESCE(u.governorate_id, c.governorate_id)' : 'c.governorate_id';
   const regionPaths = [hasRegion && 'u.region_id', hasCityRegion && 'c.region_id', 'g.region_id'].filter(Boolean);
   const regionId = regionPaths.length > 1 ? `COALESCE(${regionPaths.join(', ')})` : regionPaths[0];

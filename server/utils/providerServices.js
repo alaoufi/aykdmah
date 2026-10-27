@@ -9,6 +9,9 @@ const validId = value => ['number', 'string'].includes(typeof value)
 // Provider services must belong to one active profession. The same rules are
 // used at registration and profile editing; legacy profiles remain editable.
 async function validateProviderServices(input, existing = {}, { required = false, message = 'Invalid provider services' } = {}) {
+  // Simplified onboarding: services may come from several professions (a
+  // plumber who is also an electrician). The first service sets category_id.
+  if (input.any_category === true && has(input, 'service_ids')) return validateServiceList(input.service_ids, { required, message });
   const hasCategory = has(input, 'category_id');
   const hasServices = has(input, 'service_ids');
   if (!hasCategory && !hasServices && !required) return {};
