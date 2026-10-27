@@ -32,6 +32,7 @@ const NAV_GROUPS = [
     items: [
       { to: '/admin/requests',      icon: '📋', labelKey: 'admin.requests',              perm: 'requests.manage' },
       { to: '/admin/conversations', icon: '💬', labelKey: 'admin.conversations_monitor', perm: 'conversations.read' },
+      { to: '/admin/calls', icon: '📞', labelKey: 'calls.admin.title', perm: 'conversations.read' },
       { to: '/admin/reviews',       icon: '⭐', labelKey: 'admin.reviews',               perm: 'reviews.manage' },
       { to: '/admin/disputes',      icon: '⚖️', labelKey: 'dispute.admin_title',         perm: 'disputes.manage' },
     ],

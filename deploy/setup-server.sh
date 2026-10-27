@@ -36,6 +36,12 @@ if [[ ! -f "$ENV_FILE" ]]; then
 else
     echo "Using existing $ENV_FILE"
 fi
+# Added after the first release; appended once without touching existing secrets.
+if ! grep -q '^LIVEKIT_API_SECRET=' "$ENV_FILE"; then
+    echo "LIVEKIT_API_SECRET=$(openssl rand -hex 32)" >> "$ENV_FILE"
+    cp "$ENV_FILE" "/root/backups/aykdmh-env-$STAMP"
+    echo "Added LIVEKIT_API_SECRET to $ENV_FILE"
+fi
 chmod 600 "$ENV_FILE"
 
 echo "== Backups =="
@@ -50,11 +56,14 @@ if ufw status | grep -q "Status: active"; then
     ufw allow 80/tcp comment 'aykdmh web' >/dev/null
     ufw allow 443/tcp comment 'aykdmh web' >/dev/null
     ufw allow 443/udp comment 'aykdmh web' >/dev/null
+    ufw allow 7881/tcp comment 'aykdmh calls ICE/TCP' >/dev/null
+    ufw allow 7882/udp comment 'aykdmh calls media' >/dev/null
+    ufw allow 3478/udp comment 'aykdmh calls TURN' >/dev/null
 fi
 
 echo "== Building client release $STAMP =="
 docker run --rm -v "$REPO_DIR":/src -w /src \
-    -e ONNXRUNTIME_NODE_INSTALL_CUDA=skip -e VITE_REALTIME_MODE=polling -e HOME=/tmp \
+    -e ONNXRUNTIME_NODE_INSTALL_CUDA=skip -e VITE_REALTIME_MODE=socket -e HOME=/tmp \
     node:22-bookworm sh -c "npm --prefix client ci --include=dev --no-audit --no-fund && npm --prefix client run build"
 mkdir -p "$SITE_ROOT/releases/$STAMP"
 cp -r "$REPO_DIR/client/dist/." "$SITE_ROOT/releases/$STAMP/"
@@ -70,6 +79,7 @@ require('./server/services/installService').setupFromEnv().then(r => {
   console.log('Database ready. Administrators:', r.admins);
   process.exit(0);
 }).catch(e => { console.error(e.message); process.exit(1); });"
+"${COMPOSE[@]}" up -d livekit
 "${COMPOSE[@]}" up -d app
 
 echo "== Switching to release $STAMP =="

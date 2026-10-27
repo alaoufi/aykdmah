@@ -10,10 +10,18 @@ router.use('/media', require('./mediaRoutes'));
 
 router.use('/auth', require('./authRoutes'));
 router.use('/users', require('./userRoutes'));
+router.get('/providers/nearby', require('../middleware/auth').optionalAuth,
+  require('../middleware/verificationPolicy').requireMarketplaceBrowse,
+  require('../controllers/providerMapController').nearby);
 router.use('/countries', require('./countryRoutes'));
 
 // Reverse geocoding for the register form's GPS auto-fill.
 router.get('/geo/reverse', require('../controllers/geoController').reverse);
+// Forward address search; a tighter limit protects the shared Nominatim quota.
+router.get('/geo/search', require('express-rate-limit')({
+  windowMs: 60 * 1000, max: 20, standardHeaders: true, legacyHeaders: false,
+  message: { success: false, message: 'تجاوزت الحد المسموح من عمليات البحث. حاول بعد دقيقة.' },
+}), require('../controllers/geoController').search);
 
 router.use('/categories', require('./categoryRoutes'));
 router.use('/services', require('./serviceRoutes'));
@@ -24,6 +32,7 @@ router.use('/districts', require('./districtRoutes'));
 router.use('/requests', require('./requestRoutes'));
 router.use('/offers', require('./offerRoutes'));
 router.use('/chat', require('./chatRoutes'));
+router.use('/calls', require('./callRoutes').router);
 router.use('/reviews', require('./reviewRoutes'));
 router.use('/notifications', require('./notificationRoutes'));
 router.use('/subscriptions', require('./subscriptionRoutes'));

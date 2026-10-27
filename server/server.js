@@ -10,6 +10,7 @@ const io = initSocket(httpServer);
 
 app.set('io', io);
 notificationService.setIo(io);
+require('./services/callService').attach(io);
 
 const PORT = env.APP_PORT;
 httpServer.listen(PORT, () => {

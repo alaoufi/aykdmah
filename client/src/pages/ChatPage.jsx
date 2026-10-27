@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
+import CallButtons from '../components/calls/CallButtons';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -320,6 +321,7 @@ export default function ChatPage() {
                           : ''}
                     </div>
                   </div>
+                  {canSend && <CallButtons conversationId={Number(activeId)} compact />}
                   {requestId && (
                     <Link
                       to={`/requests/${requestId}/track`}

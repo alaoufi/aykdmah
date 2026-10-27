@@ -18,6 +18,8 @@ const NotificationsPage = lazy(() => import('./pages/NotificationsPage'));
 const ReviewPage = lazy(() => import('./pages/ReviewPage'));
 const ProfilePage = lazy(() => import('./pages/ProfilePage'));
 const PolicyPage = lazy(() => import('./pages/PolicyPage'));
+const ProvidersMapPage = lazy(() => import('./pages/ProvidersMapPage'));
+const ProviderProfilePage = lazy(() => import('./pages/ProviderProfilePage'));
 const GuidePage = lazy(() => import('./pages/GuidePage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
@@ -49,6 +51,7 @@ const AdminBadgesPage = lazy(() => import('./pages/admin/AdminBadgesPage'));
 const AdminCountriesPage = lazy(() => import('./pages/admin/AdminCountriesPage'));
 const AdminLocationsPage = lazy(() => import('./pages/admin/AdminLocationsPage'));
 const AdminConversationsPage = lazy(() => import('./pages/admin/AdminConversationsPage'));
+const AdminCallsPage = lazy(() => import('./pages/admin/AdminCallsPage'));
 const TrackingPage = lazy(() => import('./pages/TrackingPage'));
 const VerificationPage = lazy(() => import('./pages/VerificationPage'));
 const DisputeOpenPage = lazy(() => import('./pages/DisputeOpenPage'));
@@ -104,6 +107,8 @@ export default function AppRoutes() {
           <Route path="/privacy" element={<PolicyPage kind="privacy" />} />
           <Route path="/terms" element={<PolicyPage kind="terms" />} />
           <Route path="/guide" element={<GuidePage />} />
+          <Route path="/providers/map" element={<ProvidersMapPage />} />
+          <Route path="/providers/:id" element={<ProviderProfilePage />} />
           {/* RYZA services catalog */}
           <Route path="/services" element={<ServicesCatalogPage />} />
           <Route path="/services/category/:slug" element={<CategoryServicesPage />} />
@@ -156,6 +161,7 @@ export default function AppRoutes() {
           <Route path="/admin/countries" element={<AdminCountriesPage />} />
           <Route path="/admin/locations" element={<AdminLocationsPage />} />
           <Route path="/admin/conversations" element={<AdminConversationsPage />} />
+          <Route path="/admin/calls" element={<AdminCallsPage />} />
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />

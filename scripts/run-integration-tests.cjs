@@ -48,7 +48,7 @@ async function main() {
     PGHOST: '127.0.0.1', PGPORT: String(port), PGUSER: 'postgres', PGPASSWORD: '', PGDATABASE: 'postgres', PGSSLMODE: 'disable',
     RYZA_TEST_PORT: String(port), RYZA_TEST_DB: names[0], RYZA_MEDIA_TEST_DB: names[1], RYZA_LOCATION_TEST_DB: names[2],
     RYZA_DISTRICTS_TEST_DB: 'ryza_test_districts_suite', RYZA_AUTH_LOCATION_TEST_DB: 'ryza_test_authlocation_suite',
-    RYZA_GEO_TEST_DB: 'ryza_test_geo_suite', RYZA_ADS_TEST_DB: 'ryza_test_ads_suite', RYZA_SECURITY_CATALOG_TEST_DB: 'ryza_test_catalog_suite',
+    RYZA_GEO_TEST_DB: 'ryza_test_geo_suite', RYZA_MAPS_TEST_DB: 'ryza_test_maps_suite', RYZA_CALLS_TEST_DB: 'ryza_test_calls_suite', RYZA_ADS_TEST_DB: 'ryza_test_ads_suite', RYZA_SECURITY_CATALOG_TEST_DB: 'ryza_test_catalog_suite',
     RYZA_ADMIN_USERNAME_TEST: '1', RYZA_SECURITY_AUTH_TEST: '1', RYZA_SECURITY_VERIFICATION_POLICY_TEST: '1',
     JWT_SECRET: crypto.randomBytes(48).toString('hex'),
     BOOTSTRAP_ADMIN_EMAIL: '', BOOTSTRAP_ADMIN_PASSWORD: '', MAIL_HOST: '', MAIL_USER: '', MAIL_PASSWORD: '',

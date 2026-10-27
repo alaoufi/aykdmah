@@ -8,7 +8,7 @@ DO $ryza_fresh$ BEGIN
   IF EXISTS (
     SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
     WHERE n.nspname = current_schema() AND c.relkind IN ('r','p','v','m','f')
-      AND c.relname IN ('activity_logs','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','categories','cities','conversation_archives','conversation_participants','conversations','countries','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','districts','governorates','install_lock','ip_geo_cache','location_shares','message_files','messages','notifications','offers','payments','provider_badges','provider_profiles','regions','request_files','requests','review_reports','review_translations','review_votes','reviews','roles','schema_migrations','services','settings','subscription_plans','subscriptions','uploaded_media','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests')
+      AND c.relname IN ('activity_logs','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_reports','calls','categories','cities','conversation_archives','conversation_participants','conversations','countries','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','districts','governorates','install_lock','ip_geo_cache','location_shares','message_files','messages','notifications','offers','payments','provider_badges','provider_profiles','regions','request_files','requests','review_reports','review_translations','review_votes','reviews','roles','schema_migrations','services','settings','subscription_plans','subscriptions','uploaded_media','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests')
   ) THEN
     RAISE EXCEPTION 'AWTAD SERVICES bootstrap requires a fresh database schema; use journaled migrations for an existing installation';
   END IF;
@@ -2935,6 +2935,53 @@ WHERE item.slug = labels.slug
     WHERE NULLIF(btrim(item.name_translations::jsonb ->> missing.lang), '') IS NULL
   );
 INSERT INTO schema_migrations(name) VALUES ('040_catalog_language_names.sql');
+
+-- migrations/041_provider_map_visibility.sql
+ALTER TABLE provider_profiles
+  ADD COLUMN IF NOT EXISTS show_location_on_map SMALLINT NOT NULL DEFAULT 0;
+CREATE INDEX IF NOT EXISTS idx_provider_profiles_fixed_point ON provider_profiles (fixed_latitude, fixed_longitude);
+CREATE INDEX IF NOT EXISTS idx_users_role_city ON users (role, city_id);
+INSERT INTO schema_migrations(name) VALUES ('041_provider_map_visibility.sql');
+
+-- migrations/042_calls.sql
+CREATE TABLE IF NOT EXISTS calls (
+  id SERIAL PRIMARY KEY,
+  room_name VARCHAR(64) NOT NULL UNIQUE,
+  conversation_id INT NOT NULL,
+  request_id INT DEFAULT NULL,
+  caller_id INT NOT NULL,
+  callee_id INT NOT NULL,
+  call_type VARCHAR(10) NOT NULL DEFAULT 'audio',
+  status VARCHAR(20) NOT NULL DEFAULT 'ringing',
+  end_reason VARCHAR(40) DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  answered_at TIMESTAMP NULL DEFAULT NULL,
+  ended_at TIMESTAMP NULL DEFAULT NULL,
+  duration_seconds INT DEFAULT NULL,
+  FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+  FOREIGN KEY (caller_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (callee_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_calls_callee_status ON calls (callee_id, status);
+CREATE INDEX IF NOT EXISTS idx_calls_caller_status ON calls (caller_id, status);
+CREATE INDEX IF NOT EXISTS idx_calls_conversation ON calls (conversation_id);
+CREATE INDEX IF NOT EXISTS idx_calls_request ON calls (request_id);
+CREATE INDEX IF NOT EXISTS idx_calls_created ON calls (created_at);
+CREATE TABLE IF NOT EXISTS call_reports (
+  id SERIAL PRIMARY KEY,
+  call_id INT NOT NULL,
+  reporter_id INT NOT NULL,
+  reason VARCHAR(500) NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'open',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  reviewed_at TIMESTAMP NULL DEFAULT NULL,
+  reviewed_by INT DEFAULT NULL,
+  FOREIGN KEY (call_id) REFERENCES calls(id) ON DELETE CASCADE,
+  FOREIGN KEY (reporter_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_call_reports_unique ON call_reports (call_id, reporter_id);
+CREATE INDEX IF NOT EXISTS idx_call_reports_status ON call_reports (status, created_at);
+INSERT INTO schema_migrations(name) VALUES ('042_calls.sql');
 
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$

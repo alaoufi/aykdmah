@@ -1,6 +1,6 @@
 import { localizedJoinedName } from '../utils/localizeJoined';
 import { safeUrl } from '../utils/urlSafety';
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -17,6 +17,10 @@ import Input from '../components/common/Input';
 import Avatar from '../components/common/Avatar';
 import ProviderServiceModeBadge from '../components/common/ProviderServiceModeBadge';
 import ConfirmDialog from '../components/common/ConfirmDialog';
+
+// Loaded on demand so the request page stays light for viewers who are not a party.
+const CallButtons = lazy(() => import('../components/calls/CallButtons'));
+const CallHistory = lazy(() => import('../components/calls/CallHistory'));
 import { apiError } from '../services/api';
 import { createConversation } from '../services/chatService';
 
@@ -240,6 +244,7 @@ export default function RequestDetailsPage() {
               <Button variant="outline" onClick={() => navigate(`/requests/${request.id}/track`)}>
                 🗺️ {t('tracking.title')}
               </Button>
+              <Suspense fallback={null}><CallButtons userId={user?.id === request.client_id ? request.assigned_provider_id : request.client_id} /></Suspense>
             </>
           )}
           {isOwner && request.status === 'assigned' && (
@@ -261,6 +266,9 @@ export default function RequestDetailsPage() {
             <Link to={`/disputes/new/${request.id}`} className="btn btn-outline">⚖️ {t('dispute.open_dispute')}</Link>
           )}
         </div>
+        {request.assigned_provider_id && (user?.id === request.client_id || user?.id === request.assigned_provider_id) && (
+          <Suspense fallback={null}><CallHistory requestId={request.id} /></Suspense>
+        )}
       </div>
 
       {canOffer && (
