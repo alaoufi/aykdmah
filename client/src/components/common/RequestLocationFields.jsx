@@ -14,6 +14,8 @@ export default function RequestLocationFields({ control, prefix = 'request', dis
   const point = locationPoint(control.location);
   const selectedArea = [localizedName(control.city, lang), localizedName(control.district, lang)].filter(Boolean).join(' · ');
   const openMap = () => { control.cancelPending(); setMapOpen(true); };
+  // The saved account area is filled in already; details open only on "Edit".
+  const compact = control.complete && !control.editing && !control.error;
   const confirmMap = selected => { control.confirmMapPoint(selected); setMapOpen(false); };
   const field = (key, label, rows, unavailable = false) => (
     <div className="form-group" key={key}>
@@ -27,18 +29,19 @@ export default function RequestLocationFields({ control, prefix = 'request', dis
   );
 
   return (
-    <section aria-labelledby={`${prefix}-location-title`} className="border border-border rounded-card bg-surface-alt p-4 md:p-5 mb-5">
-      <div className="flex items-start justify-between gap-3 mb-2">
+    <section aria-labelledby={`${prefix}-location-title`} className={`border border-border rounded-card bg-surface-alt ${compact ? 'px-3 py-2 mb-4' : 'p-4 md:p-5 mb-5'}`}>
+      <div className={`flex items-start justify-between gap-3 ${compact ? '' : 'mb-2'}`}>
         <div className="min-w-0">
           <h3 id={`${prefix}-location-title`} className="text-base font-bold text-fg">{t('request_location.title')}</h3>
           {selectedArea && <p className="text-sm text-fg font-semibold leading-relaxed mt-1">{selectedArea}</p>}
-          {control.location.address && <p className="text-sm text-fg-muted leading-relaxed mt-1 break-words">{control.location.address}</p>}
-          {control.hasPoint && <span className="inline-flex mt-2 text-xs font-semibold text-primary">📍 {t(control.source === 'saved' ? 'request_location.saved_point' : 'location.location_captured')}</span>}
+          {!compact && control.location.address && <p className="text-sm text-fg-muted leading-relaxed mt-1 break-words">{control.location.address}</p>}
+          {!compact && control.hasPoint && <span className="inline-flex mt-2 text-xs font-semibold text-primary">📍 {t(control.source === 'saved' ? 'request_location.saved_point' : 'location.location_captured')}</span>}
         </div>
         <Button type="button" variant="outline" size="sm" disabled={disabled || control.loading} onClick={() => control.setEditing(!control.editing)}>
           {t('request_location.edit')}
         </Button>
       </div>
+      {!compact && <>
       <p className="text-xs text-fg-muted leading-relaxed mb-3">
         {t(control.loading ? 'request_location.location_loading' : control.source === 'saved' ? 'request_location.saved_hint' : control.source === 'query' ? 'request_location.query_hint' : 'request_location.missing_hint')}
       </p>
@@ -48,6 +51,7 @@ export default function RequestLocationFields({ control, prefix = 'request', dis
         </Button>
         {!control.complete && <Link to="/profile" className="text-sm text-primary font-semibold self-center">{t('nav.profile')}</Link>}
       </div>
+      </>}
       {control.error && <div role="alert" className="form-error mb-3 flex flex-wrap gap-2 items-center">
         <span>{t('location.options_unavailable')}</span>
         <Button type="button" size="sm" variant="outline" onClick={control.retry} disabled={disabled}>{t('provider.retry_catalog')}</Button>
@@ -77,12 +81,14 @@ export default function RequestLocationFields({ control, prefix = 'request', dis
         {!control.hasPoint && <p className="text-xs text-fg-muted leading-relaxed mb-3">{t('request_location.point_needed')}</p>}
       </div>}
 
+      {!compact && <>
       <label className={`flex items-start gap-2 text-sm leading-relaxed ${control.complete ? 'text-fg cursor-pointer' : 'text-fg-muted'}`}>
         <input id={`${prefix}-remember-location`} name="remember_location" type="checkbox" checked={control.remember}
           onChange={event => control.setRemember(event.target.checked)} disabled={disabled || !control.complete} className="mt-1 accent-primary" />
         <span>{t('request_location.remember')}</span>
       </label>
       <p className="text-xs text-fg-muted leading-relaxed mt-1">{t(control.complete ? 'request_location.remember_hint' : 'request_location.complete_to_remember')}</p>
+      </>}
       <LocationPickerMap open={mapOpen && !disabled} onClose={() => setMapOpen(false)} onConfirm={confirmMap}
         initialLat={point?.latitude} initialLon={point?.longitude} initialPointSelected={Boolean(point)} />
     </section>

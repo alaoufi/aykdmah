@@ -67,11 +67,15 @@ function Protected({ children, roles, loginPath = '/login' }) {
   const location = useLocation();
   if (loading) return <LoadingState />;
   if (!user) return <Navigate to={loginPath} replace state={{ from: location.pathname + location.search + location.hash }} />;
-  if (roles && !roles.includes(user.role)) return <Navigate to="/" replace />;
+  // A "both" account is a provider that may also use the requester pages.
+  const allowed = !roles || roles.includes(user.role) || (roles.includes('client') && isBothAccount(user));
+  if (!allowed) return <Navigate to="/" replace />;
   // A generated first password must be replaced before anything else.
   if (Number(user.must_change_password) === 1 && location.pathname !== '/profile') return <Navigate to="/profile" replace />;
   return children;
 }
+
+const isBothAccount = user => user?.role === 'provider' && Number(user.also_client) === 1;
 
 const CLIENT_SIDEBAR = [
   { to: '/client', icon: '📋', labelKey: 'nav.my_requests', end: true },
@@ -94,6 +98,20 @@ const PROVIDER_SIDEBAR = [
   { to: '/notifications', icon: '🔔', labelKey: 'nav.notifications' },
   { to: '/profile', icon: '👤', labelKey: 'nav.profile' },
 ];
+
+// "Both" accounts keep the provider menu with the requester entries added.
+const BOTH_SIDEBAR = [
+  PROVIDER_SIDEBAR[0],
+  { to: '/client', icon: '📋', labelKey: 'nav.my_requests', end: true },
+  { to: '/requests/new', icon: '➕', labelKey: 'request.create_title' },
+  ...PROVIDER_SIDEBAR.slice(1),
+];
+
+function RoleDashboard() {
+  const { user } = useAuth();
+  const items = isBothAccount(user) ? BOTH_SIDEBAR : user?.role === 'provider' ? PROVIDER_SIDEBAR : CLIENT_SIDEBAR;
+  return <DashboardLayout sidebarItems={items} />;
+}
 
 export default function AppRoutes() {
   const { pathname } = useLocation();
@@ -138,11 +156,11 @@ export default function AppRoutes() {
         <Route path="/chat/:id" element={<Protected><ChatPage /></Protected>} />
         <Route path="/requests/:id/track" element={<Protected><TrackingPage /></Protected>} />
 
-        <Route element={<Protected roles={['client']}><DashboardLayout sidebarItems={CLIENT_SIDEBAR} /></Protected>}>
+        <Route element={<Protected roles={['client']}><RoleDashboard /></Protected>}>
           <Route path="/client" element={<MyRequestsPage />} />
         </Route>
 
-        <Route element={<Protected roles={['provider']}><DashboardLayout sidebarItems={PROVIDER_SIDEBAR} /></Protected>}>
+        <Route element={<Protected roles={['provider']}><RoleDashboard /></Protected>}>
           <Route path="/provider" element={<ProviderDashboardPage />} />
           <Route path="/provider/services" element={<ProviderServicesPage />} />
           <Route path="/provider/subscription" element={<SubscriptionPage />} />

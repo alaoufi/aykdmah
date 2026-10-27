@@ -235,7 +235,27 @@
     "location_confirmation_required": "Confirm that the selected point matches your address.",
     "location_confirmation": "I confirm that this point, city and neighborhood are my correct location.",
     "location_required_hint": "Select your city and neighborhood, then use device location or pick a point on the map. You can choose on the map without granting location access.",
-    "account_phone_unavailable": "Registration is temporarily unavailable because phone registration is disabled. Please try again later."
+    "account_phone_unavailable": "Registration is temporarily unavailable because phone registration is disabled. Please try again later.",
+    "role_both": "Both",
+    "role_both_hint": "Offer your services and request other services with the same account.",
+    "account_type": "Account type",
+    "name_optional": "Name (optional)",
+    "password_min": "Password must be at least 4 characters",
+    "simple_location_required": "Set your location: allow location access or pick it on the map.",
+    "simple_district_required": "Choose your neighbourhood.",
+    "simple_choose_district": "Choose neighbourhood",
+    "simple_location_set": "Location set",
+    "simple_location_pick": "Your location is not set yet",
+    "location_change": "Change",
+    "retry": "Retry",
+    "have_coupon": "Have an invitation coupon?",
+    "sms_later_note": "SMS verification will be enabled later.",
+    "welcome_title": "Your account is ready",
+    "welcome_coupon_title": "Your coupon",
+    "welcome_coupon_hint": "This is your own shareable code. Share it; you earn a commission on the first payment of everyone who signs up with it.",
+    "copy": "Copy",
+    "copied": "Copied",
+    "continue": "Continue"
   },
   "request": {
     "create_title": "Create a new request",
@@ -527,7 +547,19 @@
     "venue_point_pick": "Pick your service place on the map",
     "venue_point_change": "Change the service place",
     "venue_point_set": "Service place set:",
-    "venue_point_required": "Pick your service place on the map, or choose “I go to the client”."
+    "venue_point_required": "Pick your service place on the map, or choose “I go to the client”.",
+    "professions": "Your professions",
+    "professions_hint": "Pick one or more professions; their services are selected for you. Tap “Services” to untick what you don't offer.",
+    "professions_required": "Choose at least one profession.",
+    "edit_services": "Services",
+    "coverage": "Neighbourhoods you cover",
+    "coverage_city_first": "Set your location first to list your city's neighbourhoods.",
+    "coverage_whole_city": "Your city has no listed neighbourhoods, so you cover the whole city.",
+    "coverage_search": "Search neighbourhood",
+    "coverage_all": "All",
+    "coverage_clear": "Clear",
+    "coverage_count": "Selected: {{count}}",
+    "coverage_required": "Choose at least one neighbourhood."
   },
   "review": {
     "rate_provider": "Rate provider",
@@ -1263,8 +1295,8 @@
     },
     "provider_steps": {
       "signup": {
-        "title": "Complete your account with your phone number",
-        "body": "Choose “{{role_provider}}”, then enter your name, phone number and password. Complete your account address, select your city and neighborhood, then pick a point on the map or use device location and confirm it. Provider registration does not require an email address or username."
+        "title": "Sign up with your phone in a minute",
+        "body": "Choose “{{role_provider}}” or “Both” and enter your phone and password. Your location is taken automatically; then choose your professions, neighbourhoods and service venue. Your coupon appears after signing up."
       },
       "profile": {
         "title": "Choose your profession and services",
@@ -1272,7 +1304,7 @@
       },
       "find": {
         "title": "Find suitable requests",
-        "body": "Browse service requests from your provider account or the opportunities page. Open a request and read the work description and location before making an offer."
+        "body": "Requests matching your professions and neighbourhoods appear directly on your dashboard and the opportunities page. Open a request and read its description and location before quoting."
       },
       "quote": {
         "title": "Send a clear offer",
@@ -1351,6 +1383,42 @@
       "payments": {
         "title": "Payments are in test mode",
         "body": "Until a real payment gateway is connected, a paid subscription opens a “test payment” page stating that no money will be charged. A test payment activates the subscription and calculates the coupon commission for trying things out only; bank withdrawals are disabled in this mode."
+      }
+    },
+    "signup_title": "Quick sign-up",
+    "signup_intro": "Signing up takes a minute, and everything you choose can be changed later from “Profile”.",
+    "signup_points": {
+      "types": {
+        "title": "Choose your account type",
+        "body": "“Client” requests services, “Provider” offers them, and “Both” offers a service and needs others, like a driver who needs an electrician."
+      },
+      "basics": {
+        "title": "Phone and password",
+        "body": "Your phone number and a 4-character password are enough. Your name is optional. SMS verification will be enabled later."
+      },
+      "location": {
+        "title": "Your location, automatically",
+        "body": "Allow location access and your city and neighbourhood are detected automatically. Otherwise, pick your spot on the map. You are asked for the neighbourhood only if it cannot be detected."
+      },
+      "professions": {
+        "title": "Professions (providers)",
+        "body": "Choose at least one profession; you can choose several, like plumber and electrician. Each profession's services are selected for you, and you untick what you do not offer. Clients do not choose professions."
+      },
+      "coverage": {
+        "title": "Neighbourhoods you cover",
+        "body": "Choose one or more neighbourhoods of your city that you serve, or tap “All”. Your own neighbourhood is preselected."
+      },
+      "coupon": {
+        "title": "Your coupon",
+        "body": "After signing up, a provider sees their own coupon: their shareable letters-and-digits code. Anyone with an invitation coupon can enter it while signing up."
+      },
+      "matching": {
+        "title": "Requests that match you",
+        "body": "Providers see requests matching their services and neighbourhoods straight away, with no need to pick them again. Tap “All requests” to see the rest."
+      },
+      "edit": {
+        "title": "Changing things later",
+        "body": "From “Profile” you can change your name, location, professions, neighbourhoods and service venue, and turn “Both” on or off. When requesting a service your saved location appears in one line, and opens only when you tap “Edit”."
       }
     }
   },
@@ -1669,5 +1737,9 @@
     "already_done": "This payment was already processed.",
     "not_found": "Test payment not found.",
     "failed": "The operation failed. Please try again."
+  },
+  "opportunities": {
+    "matching": "Matching me",
+    "all": "All requests"
   }
 }

@@ -509,6 +509,13 @@ if (!databasePrefix) {
     assert.equal(Number(providerOnly.user.also_client), 0);
     await api('/requests', { method: 'POST', token: providerOnly.token, expected: 403, body: {
       title: 'طلب', description: 'وصف طلب تجريبي', city_id: area.city_id, district_id: area.district_id } });
+
+    // "Matching me": a request outside the provider's professions is hidden; "All" still shows it.
+    const requestId = Number(request.id || request.request?.id);
+    const all = await api('/requests/nearby?limit=50', { token: providerOnly.token });
+    assert.ok(all.some(row => Number(row.id) === requestId));
+    const matching = await api('/requests/nearby?limit=50&matching=1', { token: providerOnly.token });
+    assert.ok(!matching.some(row => Number(row.id) === requestId));
   });
 
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {

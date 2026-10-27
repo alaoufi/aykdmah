@@ -10,7 +10,8 @@ import Button from '../components/common/Button';
 import Avatar from '../components/common/Avatar';
 import LocationPickerMap from '../components/common/LocationPickerMap';
 import ServiceVenuePicker from '../components/common/ServiceVenuePicker';
-import ProviderServicesPicker from '../components/common/ProviderServicesPicker';
+import ProfessionsPicker from '../components/common/ProfessionsPicker';
+import CoverageDistrictsPicker from '../components/common/CoverageDistrictsPicker';
 import { apiError } from '../services/api';
 import { localizedName } from '../utils/localize';
 import { getCurrentPosition, isValidCoordinates, geoSelection, preserveCoordinatesForAreaChange } from '../utils/geolocation.mjs';
@@ -319,6 +320,7 @@ export default function ProfilePage() {
 // Visible only when the logged-in user has role='provider'.
 // ----------------------------------------------------------------------
 function ProviderSection({ onSaved, onError, t, refresh }) {
+  const { user } = useAuth();
   const [provider, setProvider] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -335,6 +337,9 @@ function ProviderSection({ onSaved, onError, t, refresh }) {
       setProvider({
         category_id: p.category_id ?? '',
         service_ids: Array.isArray(p.service_ids) ? p.service_ids : [],
+        coverage: Array.isArray(p.coverage_districts) ? p.coverage_districts.map(row => Number(row.id)) : [],
+        coverage_city_id: p.coverage_city_id || '',
+        also_client: Number(u.user?.also_client) === 1,
         business_name: p.business_name || '',
         bio: p.bio || '',
         experience_years: p.experience_years ?? 0,
@@ -379,8 +384,11 @@ function ProviderSection({ onSaved, onError, t, refresh }) {
     onError(''); onSaved('');
     setSaving(true);
     try {
-      const payload = { ...provider, show_location_on_map: provider.show_location_on_map ? 1 : 0 };
-      payload.category_id = provider.category_id ? Number(provider.category_id) : null;
+      // Services may span several professions; coverage is one city's districts.
+      const { coverage, coverage_city_id, category_id: _category, ...fields } = provider;
+      const payload = { ...fields, show_location_on_map: provider.show_location_on_map ? 1 : 0,
+        any_category: true, also_client: provider.also_client ? 1 : 0, coverage_district_ids: coverage,
+        ...(coverage_city_id ? { coverage_city_id: Number(coverage_city_id) } : {}) };
       if (pickPos && payload.location_mode !== 'mobile') {
         payload.fixed_latitude = pickPos.latitude;
         payload.fixed_longitude = pickPos.longitude;
@@ -409,8 +417,15 @@ function ProviderSection({ onSaved, onError, t, refresh }) {
     <div className="card mb-4">
       <h3 className="mb-3">{t('provider.section_title')}</h3>
       <form onSubmit={save} className="space-y-3">
-        <ProviderServicesPicker categoryId={provider.category_id} serviceIds={provider.service_ids} disabled={saving}
-          onChange={values => setProvider(previous => ({ ...previous, ...values }))} />
+        <ProfessionsPicker serviceIds={provider.service_ids} disabled={saving}
+          onChange={ids => setProvider(previous => ({ ...previous, service_ids: ids }))} />
+        <CoverageDistrictsPicker cityId={provider.coverage_city_id || user?.city_id} value={provider.coverage} disabled={saving}
+          onChange={ids => setProvider(previous => ({ ...previous, coverage: ids }))} />
+        <label className="flex items-start gap-2 text-[13px]">
+          <input type="checkbox" className="mt-1 w-4 h-4 accent-primary shrink-0" checked={provider.also_client}
+            onChange={e => setProvider(previous => ({ ...previous, also_client: e.target.checked }))} />
+          <span><b>{t('auth.role_both')}</b> — {t('auth.role_both_hint')}</span>
+        </label>
         <Input label={t('profile.business_name')} value={provider.business_name}
           onChange={(e) => setProvider({ ...provider, business_name: e.target.value })} />
 

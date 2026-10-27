@@ -93,6 +93,8 @@ const updateProvider = asyncHandler(async (req, res) => {
   if (!target || target.role !== 'provider') return notFound(res);
   const payload = { ...req.body };
   const currentProfile = await User.getProviderProfile(userId);
+  // A provider always keeps at least one profession (AYK-027).
+  if (payload.any_category === true && Array.isArray(payload.service_ids) && payload.service_ids.length === 0) return error(res, req.t('provider_services_required'), 400);
   Object.assign(payload, await validateProviderServices(payload, currentProfile || {}, { message: req.t('invalid_data') }));
   if (payload.cover_image !== undefined && !validImageUrl(payload.cover_image)) return error(res, req.t('invalid_data'), 400);
   if (payload.show_location_on_map !== undefined) {

@@ -25,7 +25,7 @@ export default function ProviderDashboardPage() {
     let current = true;
     setLoading(true);
     setError(false);
-    const params = position ? { latitude: position.latitude, longitude: position.longitude, limit: 6 } : { limit: 6 };
+    const params = position ? { latitude: position.latitude, longitude: position.longitude, limit: 6, matching: '1' } : { limit: 6, matching: '1' };
     Promise.all([
       listNearbyRequests(params).then(r => r.data || []),
       listMyOffers({ limit: 5 }).then(r => r.data || []),
