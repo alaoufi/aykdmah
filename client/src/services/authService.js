@@ -55,3 +55,14 @@ export async function updateProviderProfile(payload) {
   const { data } = await api.put('/users/me/provider', payload);
   return data.data;
 }
+
+// Phone codes for sign-up and "forgot password" (AYK-016).
+export async function sendPhoneCode(phone, purpose) {
+  const { data } = await api.post('/auth/phone-code', { phone, purpose });
+  return data.data;
+}
+
+export async function resetPassword(payload) {
+  const { data } = await api.post('/auth/reset-password', payload);
+  return data;
+}

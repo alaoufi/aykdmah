@@ -587,6 +587,62 @@ if (!databasePrefix) {
     ]) await update(body, 400);
   });
 
+  // AYK-016: with an active SMS provider, sign-up and "forgot password" need a phone code.
+  test('an active SMS provider requires a 4-digit code for simple sign-up and resets passwords by phone', async () => {
+    const ApiIntegration = require('../models/ApiIntegration');
+    const integration = await ApiIntegration.create({ type: 'sms', provider: 'taqnyat', label: 'test',
+      credentials: { token: 'test-token', sender: 'AyKhidma' }, is_enabled: 1, is_primary: 1 });
+    const sent = [];
+    const originalFetch = global.fetch;
+    global.fetch = async (url, options) => {
+      if (String(url).startsWith('https://api.taqnyat.sa/')) {
+        sent.push(JSON.parse(options.body));
+        return new Response(JSON.stringify({ messageId: sent.length }), { status: 201, headers: { 'Content-Type': 'application/json' } });
+      }
+      return originalFetch(url, options);
+    };
+    const lastCode = () => /(\d{4})/.exec(sent.at(-1).body)[1];
+    const wrongCode = () => (lastCode() === '0000' ? '1111' : '0000');
+    const sendCode = (body, expected = 200) => api('/auth/phone-code', { method: 'POST', body, expected });
+    try {
+      const area = await simpleArea();
+      const phone = phoneIdentity();
+      const account = { role: 'client', phone, city_id: area.city_id, district_id: area.district_id };
+
+      await simpleRegister(account, 400);
+      const result = await sendCode({ phone, purpose: 'signup' });
+      assert.equal(result.required, true);
+      assert.equal(result.length, 4);
+      assert.deepEqual(sent.at(-1).recipients, ['966' + phone.slice(1)]);
+      await sendCode({ phone, purpose: 'signup' }, 429);
+      await simpleRegister({ ...account, phone_code: wrongCode() }, 400);
+      const session = await simpleRegister({ ...account, phone_code: lastCode() });
+      const saved = await db.queryOne('SELECT is_verified, phone_verified_at FROM users WHERE id = ?', [session.user.id]);
+      assert.equal(Number(saved.is_verified), 1);
+      assert.ok(saved.phone_verified_at);
+      await sendCode({ phone, purpose: 'signup' }, 409);
+
+      await db.query('DELETE FROM auth_rate_limits');
+      const before = sent.length;
+      await sendCode({ phone: phoneIdentity(), purpose: 'reset' });
+      assert.equal(sent.length, before, 'an unknown number gets no message but the same answer');
+      await sendCode({ phone, purpose: 'reset' });
+      const code = lastCode();
+      await api('/auth/reset-password', { method: 'POST', body: { phone, code: wrongCode(), password: '9876' }, expected: 400 });
+      await api('/auth/reset-password', { method: 'POST', body: { phone, code, password: '9876' } });
+      await api('/auth/me', { token: session.token, expected: 401 });
+      await api('/auth/login', { method: 'POST', body: { identifier: phone, password: '9876' } });
+      await api('/auth/reset-password', { method: 'POST', body: { phone, code, password: '5555' }, expected: 400 });
+    } finally {
+      global.fetch = originalFetch;
+      await db.query('DELETE FROM api_integrations WHERE id = ?', [integration.id]);
+    }
+    // Without a provider, sign-up needs no code and recovery says it is unavailable.
+    await db.query('DELETE FROM auth_rate_limits');
+    assert.deepEqual(await sendCode({ phone: phoneIdentity(), purpose: 'signup' }), { required: false });
+    await sendCode({ phone: phoneIdentity(), purpose: 'reset' }, 503);
+  });
+
   test('concurrent signups with one fresh username create exactly one account and return a field conflict to the loser', async () => {
     const username = identity();
     const attempts = [

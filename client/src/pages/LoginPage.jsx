@@ -39,6 +39,7 @@ export default function LoginPage() {
       <p className="text-secondary text-sm mb-4">{t('auth.welcome_back')}</p>
       {isRequestAuthReturn(from) && <p role="status" className="text-sm text-secondary mb-3">{t('auth.request_signin_hint')}</p>}
 
+      {location.state?.notice && !error && <div role="status" className="mb-3 px-3 py-2 rounded-card bg-success-soft text-success text-[13px] font-semibold">✓ {location.state.notice}</div>}
       {error && <div className="form-error mb-3" style={{ background: 'rgba(239,68,68,.1)', padding: 10, borderRadius: 8 }}>{error}</div>}
 
       <Input
@@ -56,6 +57,9 @@ export default function LoginPage() {
         value={form.password}
         onChange={(e) => setForm({ ...form, password: e.target.value })}
       />
+      <div className="text-end -mt-1 mb-3">
+        <Link to="/forgot-password" state={{ identifier: form.identifier }} className="text-[13px] font-semibold">{t('auth.forgot_password')}</Link>
+      </div>
 
       <Button type="submit" block loading={loading} variant="primary">{t('auth.login_button')}</Button>
 

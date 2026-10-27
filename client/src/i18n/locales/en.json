@@ -266,13 +266,27 @@
     "location_change": "Change",
     "retry": "Retry",
     "have_coupon": "Have an invitation coupon?",
-    "sms_later_note": "SMS verification will be enabled later.",
+    "sms_later_note": "You may be asked for a code sent to your phone by SMS.",
     "welcome_title": "Your account is ready",
     "welcome_coupon_title": "Your coupon",
     "welcome_coupon_hint": "This is your own shareable code. Share it; you earn a commission on the first payment of everyone who signs up with it.",
     "copy": "Copy",
     "copied": "Copied",
-    "continue": "Continue"
+    "continue": "Continue",
+    "forgot_title": "Reset your password",
+    "forgot_hint": "Enter your registered phone number and we will send you a code.",
+    "code_sent_to": "We sent a code to {{phone}}",
+    "verification_code": "Verification code",
+    "code_required": "Enter the full verification code.",
+    "new_password": "New password",
+    "send_code": "Send code",
+    "resend_code": "Resend code",
+    "resend_in": "Resend in {{seconds}}s",
+    "change_phone": "Change number",
+    "reset_button": "Change password",
+    "reset_done": "Password changed. Sign in with your new password.",
+    "back_to_login": "Back to sign in",
+    "confirm_and_register": "Confirm code and create account"
   },
   "request": {
     "create_title": "Create a new request",
@@ -1411,7 +1425,7 @@
       },
       "basics": {
         "title": "Phone and password",
-        "body": "Your phone number and a 4-character password are enough. Your name is optional. SMS verification will be enabled later."
+        "body": "Your phone number and a 4-character password are enough; the name is optional. A 4-digit code arrives by SMS to confirm your number. If you forget your password, tap “Forgot password?” on the sign-in page to get a code and choose a new one."
       },
       "location": {
         "title": "Your location, automatically",

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 import usePublicSettings from '../hooks/usePublicSettings';
 import { reverseGeocode, listCountries } from '../services/serviceService';
+import { sendPhoneCode } from '../services/authService';
 import useLocationOptions from '../hooks/useLocationOptions';
 import Input from '../components/common/Input';
 import PasswordInput from '../components/common/PasswordInput';
@@ -59,6 +60,15 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [welcome, setWelcome] = useState(null);
   const [copied, setCopied] = useState(false);
+  // Phone code step: shown only when an SMS provider is active (AYK-016).
+  const [codeStep, setCodeStep] = useState(null);
+  const [phoneCode, setPhoneCode] = useState('');
+  const [wait, setWait] = useState(0);
+  useEffect(() => {
+    if (wait <= 0) return undefined;
+    const timer = setTimeout(() => setWait(value => value - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [wait]);
   const locationController = useRef(null);
   const isProvider = form.role !== 'client';
 
@@ -71,6 +81,7 @@ export default function RegisterPage() {
   const districtMissing = place.city_id && !place.district_id && districts.length > 0;
 
   const update = (key, value) => {
+    if (key === 'phone') { setCodeStep(null); setPhoneCode(''); }
     setForm(previous => ({ ...previous, [key]: value }));
     setFieldErrors(previous => { const { [key]: _removed, ...rest } = previous; return rest; });
     setError('');
@@ -135,8 +146,29 @@ export default function RegisterPage() {
     }
     setLoading(true);
     setError('');
+    if (!codeStep) {
+      try {
+        const sent = await sendPhoneCode(phone, 'signup');
+        if (sent?.required) {
+          setCodeStep({ length: sent.length || 4 });
+          setWait(sent.resend_seconds || 60);
+          setLoading(false);
+          return;
+        }
+      } catch (err) {
+        setError(apiError(err));
+        if (err.response?.status === 409) setFieldErrors({ phone: apiError(err) });
+        setLoading(false);
+        return;
+      }
+    } else if (phoneCode.length < codeStep.length) {
+      setError(t('auth.code_required'));
+      setLoading(false);
+      return;
+    }
     try {
       const res = await register({
+        ...(codeStep ? { phone_code: phoneCode } : {}),
         onboarding_version: 2, role: form.role, phone, password: form.password,
         ...(form.full_name.trim() ? { full_name: form.full_name.trim() } : {}),
         latitude: place.lat, longitude: place.lon,
@@ -265,8 +297,22 @@ export default function RegisterPage() {
           </span>
         </label>
 
+        {codeStep && <div className="rounded-card border-2 border-primary px-3 py-2 space-y-2" data-testid="register-code">
+          <p className="text-[13px] m-0">{t('auth.code_sent_to', { phone: form.phone })}</p>
+          <Input id="register-code" label={t('auth.verification_code')} dir="ltr" inputMode="numeric" autoComplete="one-time-code" autoFocus
+            maxLength={codeStep.length} placeholder={'1234567890'.slice(0, codeStep.length)} value={phoneCode}
+            className="text-center tracking-[.5em] font-mono" onChange={e => { setPhoneCode(e.target.value.replace(/D/g, '')); setError(''); }} />
+          <div className="flex justify-between text-[13px]">
+            <button type="button" className="text-primary font-semibold" onClick={() => { setCodeStep(null); setPhoneCode(''); document.getElementById('register-phone')?.focus(); }}>{t('auth.change_phone')}</button>
+            <button type="button" className="text-primary font-semibold disabled:opacity-50" disabled={wait > 0 || loading}
+              onClick={async () => { try { const sent = await sendPhoneCode(form.phone.trim().replace(/[s()-]/g, ''), 'signup'); setWait(sent?.resend_seconds || 60); setError(''); } catch (err) { setError(apiError(err)); } }}>
+              {wait > 0 ? t('auth.resend_in', { seconds: wait }) : t('auth.resend_code')}
+            </button>
+          </div>
+        </div>}
+
         <Button type="submit" data-testid="register-submit" block loading={loading} variant="primary" disabled={locStatus === 'locating'}>
-          {t('auth.register_button')}
+          {codeStep ? t('auth.confirm_and_register') : t('auth.register_button')}
         </Button>
         <p className="text-center text-[11.5px] text-fg-subtle">{t('auth.sms_later_note')}</p>
 

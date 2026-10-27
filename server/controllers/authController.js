@@ -7,6 +7,9 @@ const asyncHandler = require('../utils/asyncHandler');
 const { validateUserLocation, requireCompleteAccountProfile } = require('../utils/userLocation');
 const { validateProviderServices } = require('../utils/providerServices');
 const { validateCoverage } = require('../utils/providerCoverage');
+const phoneCodes = require('../services/phoneCodeService');
+
+const CODE_ERRORS = { no_active_code: 'phone_code_expired', max_attempts: 'phone_code_expired', invalid_code: 'phone_code_invalid' };
 const env = require('../config/env');
 const cookieOptions = () => ({ httpOnly: true, secure: env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
 
@@ -151,6 +154,13 @@ const register = asyncHandler(async (req, res) => {
   const wallet = require('../services/walletService');
   const couponCode = String(req.body.referral_code || '').trim();
   if (couponCode && !await wallet.findReferrerByCode(couponCode)) return error(res, 'coupon_not_found', 400);
+  // With an active SMS provider, a simple sign-up proves the phone first (AYK-016).
+  const phoneVerified = simple && await phoneCodes.smsAvailable();
+  if (phoneVerified) {
+    if (!req.body.phone_code) return error(res, req.t('phone_code_required'), 400, [{ field: 'phone_code', message: req.t('phone_code_required') }]);
+    const check = await phoneCodes.verifyCode({ phone: filtered.phone, purpose: 'signup', code: req.body.phone_code });
+    if (!check.ok) return error(res, req.t(CODE_ERRORS[check.reason] || 'phone_code_invalid'), 400, [{ field: 'phone_code', message: req.t(CODE_ERRORS[check.reason] || 'phone_code_invalid') }]);
+  }
   const passwordHash = password ? await hashPassword(password) : await hashPassword(require('crypto').randomBytes(16).toString('hex'));
   let userId;
   try {
@@ -173,6 +183,7 @@ const register = asyncHandler(async (req, res) => {
     throw err;
   }
 
+  if (phoneVerified) await markPhoneVerified(userId, filtered.phone);
   if (couponCode) await wallet.applyReferralCode(userId, couponCode).catch(() => {});
   const referralCode = role === 'provider' ? await wallet.ensureReferralCode(userId).catch(() => null) : null;
 
@@ -192,6 +203,53 @@ const register = asyncHandler(async (req, res) => {
   const raw = await User.findByIdRaw(user.id);
   const token = issueSession(res, raw);
   return created(res, { user, token, ...(referralCode ? { referral_code: referralCode } : {}) }, req.t('account_created'));
+});
+
+async function markPhoneVerified(userId, phone) {
+  const db = require('../config/database');
+  await db.query('UPDATE users SET is_verified = 1, phone_verified_at = CURRENT_TIMESTAMP WHERE id = ?', [userId]);
+  await db.query(`INSERT INTO user_verifications (user_id, method, status, identifier, verified_at, metadata)
+    VALUES (?, 'sms', 'verified', ?, CURRENT_TIMESTAMP, ?)
+    ON CONFLICT (user_id, method) DO UPDATE SET status = 'verified', identifier = EXCLUDED.identifier,
+    verified_at = CURRENT_TIMESTAMP, expires_at = NULL, metadata = EXCLUDED.metadata`,
+  [userId, phone, JSON.stringify({ confirmed_via: 'phone_code' })]);
+}
+
+// POST /auth/phone-code { phone, purpose: signup | reset }
+const sendPhoneCode = asyncHandler(async (req, res) => {
+  const { purpose } = req.body;
+  const phone = phoneCodes.normalizePhone(req.body.phone);
+  if (!phoneCodes.PURPOSES.includes(purpose) || !/^\+?\d{8,15}$/.test(phone)) return error(res, req.t('invalid_data'), 400);
+  if (!await phoneCodes.smsAvailable()) {
+    return purpose === 'signup' ? success(res, { required: false }) : error(res, req.t('sms_unavailable'), 503);
+  }
+  const existing = await User.findByPhone(phone);
+  if (purpose === 'signup' && existing) return identifierConflict(req, res, ['phone']);
+  // A reset for an unknown number answers like a sent code, so numbers cannot be probed.
+  if (purpose === 'reset' && !existing) return success(res, { required: true, sent: true }, req.t('code_sent'));
+  try {
+    const result = await phoneCodes.sendCode({ phone, purpose, ip: req.ip });
+    return success(res, result, req.t('code_sent'));
+  } catch (err) {
+    const key = { throttled: 'phone_code_throttled', daily_limit: 'phone_code_daily_limit', sms_failed: 'sms_failed' }[err.message];
+    if (key) return error(res, req.t(key), err.status || 400);
+    throw err;
+  }
+});
+
+// POST /auth/reset-password { phone, code, password }
+const resetPassword = asyncHandler(async (req, res) => {
+  const phone = phoneCodes.normalizePhone(req.body.phone);
+  const { code, password } = req.body;
+  if (!/^\+?\d{8,15}$/.test(phone) || typeof password !== 'string' || password.length < 4 || password.length > 100) return error(res, req.t('invalid_data'), 400);
+  const check = await phoneCodes.verifyCode({ phone, purpose: 'reset', code });
+  if (!check.ok) return error(res, req.t(CODE_ERRORS[check.reason] || 'phone_code_invalid'), 400);
+  const user = await User.findByPhone(phone);
+  if (!user) return error(res, req.t('phone_code_invalid'), 400);
+  // A new auth_version signs out every existing session.
+  await User.updatePassword(user.id, await hashPassword(password));
+  await markPhoneVerified(user.id, user.phone);
+  return success(res, null, req.t('password_reset_done'));
 });
 
 const login = asyncHandler(async (req, res) => {
@@ -251,4 +309,4 @@ const changePassword = asyncHandler(async (req, res) => {
   return success(res, null, req.t('password_changed'));
 });
 
-module.exports = { register, login, logout, me, changePassword };
+module.exports = { register, login, logout, me, changePassword, sendPhoneCode, resetPassword };

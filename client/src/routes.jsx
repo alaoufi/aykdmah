@@ -10,6 +10,7 @@ import { LoadingState } from './components/common/Spinner';
 const HomePage = lazy(() => import('./pages/HomePage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/RegisterPage'));
+const ForgotPasswordPage = lazy(() => import('./pages/ForgotPasswordPage'));
 const OpportunitiesPage = lazy(() => import('./pages/ServicesPage'));
 const CreateRequestPage = lazy(() => import('./pages/CreateRequestPage'));
 const RequestDetailsPage = lazy(() => import('./pages/RequestDetailsPage'));
@@ -121,6 +122,7 @@ export default function AppRoutes() {
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         </Route>
 
         {/* Standalone admin login (no AuthLayout — has its own dark design) */}

@@ -25,6 +25,10 @@ router.post(
   authController.register
 );
 
+// Phone codes for sign-up and "forgot password" (AYK-016).
+router.post('/phone-code', authLimiter, sanitizeBody(['phone']), authController.sendPhoneCode);
+router.post('/reset-password', authLimiter, sanitizeBody(['phone']), authController.resetPassword);
+
 // Login accepts ANY identifier the user signed up with: username,
 // email, phone, or facebook_id. The controller does the routing —
 // here we only enforce that *something* is present and that it's a
