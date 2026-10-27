@@ -1,0 +1,26 @@
+{
+  "name": "خدمات أوتاد",
+  "short_name": "أوتاد",
+  "description": "منصة خدمات محلية — خدمة أسرع، حياة أسهل",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#FAF7F2",
+  "theme_color": "#0B2D56",
+  "icons": [
+    {
+      "src": "/icons/android-chrome-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "orientation": "portrait",
+  "lang": "ar",
+  "dir": "rtl"
+}

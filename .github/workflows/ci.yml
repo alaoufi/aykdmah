@@ -1,0 +1,57 @@
+name: RYZA checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ryza-ci-only-password
+          POSTGRES_DB: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            server/package-lock.json
+            client/package-lock.json
+      - run: npm ci
+      - run: npm --prefix server ci
+      - run: npm --prefix client ci
+        env:
+          ONNXRUNTIME_NODE_INSTALL_CUDA: skip
+      - run: npm test
+      - run: node --test client/tests/*.test.js client/tests/*.test.mjs
+      - run: npm run i18n:check
+      - run: npm run test:integration
+        env:
+          RYZA_TEST_PORT: 5432
+      - name: Report unavailable original browser tests
+        if: ${{ hashFiles('e2e/**/*.spec.cjs') == '' }}
+        run: echo "::notice::Original browser tests were excluded from the deployed source and have not been restored."
+      - run: npx playwright install --with-deps chromium
+        if: ${{ hashFiles('e2e/**/*.spec.cjs') != '' }}
+      - run: npm run test:onboarding:e2e
+        if: ${{ hashFiles('e2e/**/*.spec.cjs') != '' }}
+        env:
+          RYZA_TEST_PORT: 5432
+      - run: npm run build
+        env:
+          VITE_REALTIME_MODE: polling

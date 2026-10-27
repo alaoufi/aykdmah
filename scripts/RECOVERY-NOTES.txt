@@ -1,0 +1,7 @@
+These root scripts were reconstructed for the recovered application snapshot.
+They are new recovery tools, not byte-identical copies of the unpublished d1eb4fd development scripts.
+
+check-translations.js is read-only and checks all five locales, key parity and interpolation variables. --fix never invents or rewrites translations.
+run-integration-tests.cjs uses only a dedicated localhost PostgreSQL test server explicitly selected by RYZA_TEST_PORT=5432 or 55432. It creates three unique base databases, passes them to the recovered suites, enables the opt-in security suites, and drops only databases it created. Other suites create and clean up their own uniquely named databases. It does not use application connection strings or remote services. The --check flag is a no-connection safety preflight, not a passing integration test.
+run-onboarding-e2e.cjs intentionally exits with a clear failure because the original guarded browser runner and E2E specifications were not uploaded. It is not an E2E implementation.
+The original browser scripts and their historical passing results cannot be inferred from these replacement tools.
