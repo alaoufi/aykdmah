@@ -1,0 +1,35 @@
+# aykdmh.com — Caddy obtains and renews Let's Encrypt certificates automatically.
+# Site files come from /srv/current (a symlink to the active release).
+aykdmh.com {
+	root * /srv/current
+	encode zstd gzip
+
+	header {
+		X-Content-Type-Options nosniff
+		Referrer-Policy strict-origin-when-cross-origin
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+
+	# Missing build assets must 404, never fall back to index.html (Safari MIME issue in the handover).
+	@assets path /assets/* *.js *.mjs *.wasm *.css *.map
+	handle @assets {
+		header Cache-Control "public, max-age=31536000, immutable"
+		file_server
+	}
+
+	# When the app server is deployed, proxy its API here:
+	# handle /api/* {
+	# 	reverse_proxy host.docker.internal:3000
+	# }
+
+	handle {
+		header Cache-Control "no-cache"
+		try_files {path} {path}/ /index.html
+		file_server
+	}
+}
+
+www.aykdmh.com {
+	redir https://aykdmh.com{uri} permanent
+}

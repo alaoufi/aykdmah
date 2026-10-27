@@ -1,59 +1,45 @@
 #!/usr/bin/env bash
-# Bootstrap aykdmh.com on a fresh Ubuntu/Debian VPS (Contabo).
-# Run as root from the repo root:  sudo bash deploy/setup-server.sh you@example.com
-# Safe to re-run. Backs up existing nginx config before touching it and never
-# closes the SSH port.
+# Publish aykdmh.com on the Contabo VPS (Ubuntu 24.04 with Docker + private Coolify).
+# Run as root from the repo root:  sudo bash deploy/setup-server.sh
+# Safe to re-run: each run publishes a new release; older ones stay for rollback.
+# Does not touch Coolify, SSH settings, or existing firewall rules.
 set -euo pipefail
 
-DOMAIN=aykdmh.com
-EMAIL="${1:-}"
 SITE_ROOT=/var/www/aykdmh
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 
 if [[ $EUID -ne 0 ]]; then echo "Run as root (sudo)." >&2; exit 1; fi
-if [[ -z "$EMAIL" ]]; then echo "Usage: $0 <email-for-letsencrypt>" >&2; exit 1; fi
+command -v docker >/dev/null || { echo "Docker is required." >&2; exit 1; }
 
-echo "== Backing up current nginx config =="
-if [[ -d /etc/nginx ]]; then
-    mkdir -p /root/backups
-    tar czf "/root/backups/nginx-$STAMP.tgz" -C /etc nginx
-    echo "Saved /root/backups/nginx-$STAMP.tgz"
+if ! docker ps --format '{{.Names}}' | grep -qx aykdmh-web; then
+    if ss -H -ltn '( sport = :80 or sport = :443 )' | grep -q .; then
+        echo "Ports 80/443 are used by another service; stopping." >&2; exit 1
+    fi
 fi
 
-echo "== Installing packages =="
-export DEBIAN_FRONTEND=noninteractive
-apt-get update -y
-apt-get install -y nginx certbot python3-certbot-nginx curl
+echo "== Backing up firewall rules =="
+mkdir -p /root/backups
+tar czf "/root/backups/ufw-$STAMP.tgz" -C /etc ufw
+echo "Saved /root/backups/ufw-$STAMP.tgz"
 
-echo "== Opening firewall for web traffic (SSH stays open) =="
-if command -v ufw >/dev/null && ufw status | grep -q "Status: active"; then
-    ufw allow OpenSSH
-    ufw allow 'Nginx Full'
+echo "== Allowing web traffic (SSH rule unchanged) =="
+if ufw status | grep -q "Status: active"; then
+    ufw allow 80/tcp comment 'aykdmh web'
+    ufw allow 443/tcp comment 'aykdmh web'
+    ufw allow 443/udp comment 'aykdmh web'
 fi
 
-echo "== Publishing homepage as release $STAMP =="
+echo "== Publishing site as release $STAMP =="
 mkdir -p "$SITE_ROOT/releases/$STAMP"
 cp -r "$REPO_DIR/deploy/landing/." "$SITE_ROOT/releases/$STAMP/"
-ln -sfn "$SITE_ROOT/releases/$STAMP" "$SITE_ROOT/current"
-chown -R www-data:www-data "$SITE_ROOT"
+chmod -R a+rX "$SITE_ROOT"
+# Relative link so it resolves inside the container too.
+ln -sfn "releases/$STAMP" "$SITE_ROOT/current"
 
-echo "== Configuring nginx =="
-# Keep any 443 block certbot already wrote; only install our config on first run.
-if [[ ! -f /etc/nginx/sites-available/$DOMAIN ]]; then
-    cp "$REPO_DIR/deploy/nginx/$DOMAIN.conf" "/etc/nginx/sites-available/$DOMAIN"
-fi
-ln -sfn "/etc/nginx/sites-available/$DOMAIN" "/etc/nginx/sites-enabled/$DOMAIN"
-rm -f /etc/nginx/sites-enabled/default
-nginx -t
-systemctl enable --now nginx
-systemctl reload nginx
+echo "== Starting web server =="
+docker compose -p aykdmh -f "$REPO_DIR/deploy/docker-compose.yml" up -d
+docker exec aykdmh-web caddy reload --config /etc/caddy/Caddyfile >/dev/null 2>&1 || true
 
-echo "== Requesting TLS certificate =="
-certbot --nginx -d "$DOMAIN" -d "www.$DOMAIN" \
-    --non-interactive --agree-tos -m "$EMAIL" --redirect --keep-until-expiring
-
-echo "== Checking =="
-curl -fsSI "https://$DOMAIN" | head -1
-echo "Done. Previous releases are in $SITE_ROOT/releases; roll back with:"
-echo "  ln -sfn $SITE_ROOT/releases/<older> $SITE_ROOT/current && systemctl reload nginx"
+echo "Done. Releases are in $SITE_ROOT/releases; roll back with:"
+echo "  ln -sfn releases/<older> $SITE_ROOT/current"

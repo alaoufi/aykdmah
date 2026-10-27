@@ -6,19 +6,22 @@ fail=0
 check() { if eval "$2"; then echo "ok   - $1"; else echo "FAIL - $1"; fail=1; fi; }
 
 page=deploy/landing/index.html
-conf=deploy/nginx/aykdmh.com.conf
+conf=deploy/caddy/Caddyfile
+compose=deploy/docker-compose.yml
 script=deploy/setup-server.sh
 
-check "page is Arabic RTL"            "grep -q '<html lang=\"ar\" dir=\"rtl\">' $page"
-check "page has viewport meta"        "grep -q 'name=\"viewport\"' $page"
-check "page loads no external assets" "! grep -Eq '(src|href)=\"https?://' $page"
-check "page tags balanced"            "[ \$(grep -o '<div' $page | wc -l) -eq \$(grep -o '</div>' $page | wc -l) ]"
-check "nginx serves both hostnames"   "grep -q 'server_name aykdmh.com www.aykdmh.com;' $conf"
-check "nginx braces balanced"         "[ \$(tr -cd '{' < $conf | wc -c) -eq \$(tr -cd '}' < $conf | wc -c) ]"
-check "missing assets return 404"     "grep -q 'try_files \$uri =404;' $conf"
-check "setup script syntax"           "bash -n $script"
-check "setup script backs up nginx"   "grep -q 'tar czf' $script"
-check "setup script keeps SSH open"   "grep -q 'ufw allow OpenSSH' $script"
-check "no secrets committed"          "! git ls-files | grep -Eq '(^|/)\.env'"
+check "page is Arabic RTL"             "grep -q '<html lang=\"ar\" dir=\"rtl\">' $page"
+check "page has viewport meta"         "grep -q 'name=\"viewport\"' $page"
+check "page loads no external assets"  "! grep -Eq '(src|href)=\"https?://' $page"
+check "page tags balanced"             "[ \$(grep -o '<div' $page | wc -l) -eq \$(grep -o '</div>' $page | wc -l) ]"
+check "caddy serves apex domain"       "grep -q '^aykdmh.com {' $conf"
+check "caddy redirects www"            "grep -q 'redir https://aykdmh.com{uri} permanent' $conf"
+check "caddy braces balanced"          "[ \$(tr -cd '{' < $conf | wc -c) -eq \$(tr -cd '}' < $conf | wc -c) ]"
+check "assets never fall back to html" "grep -q 'handle @assets' $conf"
+check "compose pins caddy version"     "grep -Eq 'image: caddy:[0-9]+\.[0-9]+\.[0-9]+' $compose"
+check "setup script syntax"            "bash -n $script"
+check "setup script backs up firewall" "grep -q 'tar czf' $script"
+check "setup script leaves SSH alone"  "! grep -Eq 'ufw (delete|deny|reset)|sshd' $script"
+check "no secrets committed"           "! git ls-files | grep -Eq '(^|/)\.env'"
 
 exit $fail

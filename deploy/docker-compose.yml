@@ -1,0 +1,25 @@
+# Public web server for aykdmh.com. Runs alongside the private Coolify install
+# without touching it. Start: docker compose -p aykdmh -f deploy/docker-compose.yml up -d
+services:
+  web:
+    image: caddy:2.8.4-alpine
+    container_name: aykdmh-web
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - /var/www/aykdmh:/srv:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  caddy_data:
+  caddy_config:
