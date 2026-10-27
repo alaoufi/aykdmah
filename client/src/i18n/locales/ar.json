@@ -182,7 +182,7 @@
     "full_name": "الاسم الكامل",
     "phone": "الجوال",
     "role": "نوع الحساب",
-    "role_client": "عميل (أبحث عن خدمة)",
+    "role_client": "طالب خدمة",
     "role_provider": "مقدم خدمة",
     "login_button": "دخول",
     "register_button": "إنشاء الحساب",
