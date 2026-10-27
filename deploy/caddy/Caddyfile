@@ -33,3 +33,8 @@ aykdmh.com {
 www.aykdmh.com {
 	redir https://aykdmh.com{uri} permanent
 }
+
+# Visiting the server by IP sends people to the domain (no certificate exists for a bare IP).
+http://84.247.166.216 {
+	redir https://aykdmh.com{uri} permanent
+}

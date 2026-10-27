@@ -5,16 +5,16 @@
 ## ما أضافه Claude
 
 - `deploy/landing/index.html` — صفحة رئيسية مؤقتة RTL.
-- `deploy/nginx/aykdmh.com.conf` — موقع nginx (HTTP؛ certbot يضيف 443).
-- `deploy/setup-server.sh` — تجهيز الخادم والشهادة. التشغيل: `sudo bash deploy/setup-server.sh <email>` من جذر المستودع على الخادم.
+- `deploy/caddy/Caddyfile` و`deploy/docker-compose.yml` — حاوية `aykdmh-web` بخادم Caddy مع HTTPS تلقائي.
+- `deploy/setup-server.sh` — نشر إصدار جديد. على الخادم: `cd /opt/aykdmh && git pull && bash deploy/setup-server.sh`.
 - `tests/check-deploy.sh` — `bash tests/check-deploy.sh`.
 - `docs/PROJECT_PROGRESS.md` — الحالة والمتبقي والمشكلات.
 
 ## نقطة الاستلام
 
-الموقع لم يُنشر بعد: الخادم `84.247.166.216` يفتح SSH فقط. الخطوة التالية تشغيل سكربت التجهيز على الخادم، ثم استرجاع كود التطبيق من نشر Vercel `dpl_EobmVg24a2KfZaGUHrLjC5yGfJ9A` (انظر `AWTAD-transfer-kit/HOW-TO-EXPORT.txt`) وإضافته إلى المستودع.
+الصفحة المؤقتة منشورة على https://aykdmh.com. استُخدم Caddy في حاوية بدل nginx على النظام حتى لا يتعارض مع Coolify الخاص المثبت سابقًا (لم يُعدَّل). إن قُرر النشر عبر Coolify لاحقًا، أوقف الحاوية أولًا لتحرير 80/443.
 
-عند نشر التطبيق: ضع ناتج البناء في `/var/www/aykdmh/releases/<stamp>` وحدّث الرابط `current`، وفعّل `location /api/` في إعداد nginx.
+الخطوة التالية: استرجاع كود التطبيق من نشر Vercel `dpl_EobmVg24a2KfZaGUHrLjC5yGfJ9A` (انظر `AWTAD-transfer-kit/HOW-TO-EXPORT.txt`) وإضافته إلى المستودع. عند نشره: ضع ناتج البناء في `/var/www/aykdmh/releases/<stamp>` وحدّث الرابط `current`، وفعّل `handle /api/*` في `Caddyfile`.
 
 ## قواعد
 
