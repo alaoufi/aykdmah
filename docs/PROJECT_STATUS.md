@@ -6,9 +6,9 @@
 
 | البند | القيمة | التحقق |
 |---|---|---|
-| آخر commit على GitHub | `792bcf8` وما بعده من توثيق | `git ls-remote` |
-| الـ commit المنشور على aykdmh.com | `792bcf8` | `git -C /opt/aykdmh log -1` على الخادم |
-| إصدار الواجهة المنشور | `/var/www/aykdmh/releases/20261027-223920` | `readlink /var/www/aykdmh/current` |
+| آخر commit على GitHub | `7cf86ec` وما بعده من توثيق | `git ls-remote` |
+| الـ commit المنشور على aykdmh.com | `7cf86ec` | `git -C /opt/aykdmh log -1` على الخادم |
+| إصدار الواجهة المنشور | `/var/www/aykdmh/releases/20261027-225533` | `readlink /var/www/aykdmh/current` |
 | فرع `main` | `695eb0d`، لم يُدمج فيه شيء بعد | — |
 
 ## ما يعمل في الإنتاج (مُتحقق منه)
