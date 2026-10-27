@@ -62,7 +62,7 @@ chmod -R a+rX "$SITE_ROOT"
 
 echo "== Starting database and API =="
 "${COMPOSE[@]}" build app
-"${COMPOSE[@]}" up -d db
+"${COMPOSE[@]}" up -d --wait db
 "${COMPOSE[@]}" run --rm --no-deps app node -e "
 require('./server/services/installService').setupFromEnv().then(r => {
   const errors = r.migrations.flatMap(m => m.errors);
