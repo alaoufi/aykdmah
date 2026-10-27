@@ -10,7 +10,7 @@ const SELECT_FIELDS = `
   u.id, u.full_name, u.username, u.email, u.phone, u.facebook_id, u.role, u.avatar,
   u.is_active, u.is_blocked, u.is_verified, u.is_online,
   u.city_id, u.district_id, u.latitude, u.longitude,
-  u.last_seen_at, u.created_at
+  u.last_seen_at, u.created_at, u.must_change_password
 `;
 
 // Hydrate admin-only fields (is_super_admin, permissions) when they
