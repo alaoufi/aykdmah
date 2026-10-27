@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
-const WALLET_POINTS = ['coupon', 'invite', 'commission', 'balance', 'withdraw', 'gift', 'security'];
+const WALLET_POINTS = ['coupon', 'invite', 'commission', 'balance', 'withdraw', 'gift', 'security', 'payments'];
 
 const CLIENT_STEPS = ['browse', 'details', 'location', 'offers', 'chat', 'finish'];
 const PROVIDER_STEPS = ['signup', 'profile', 'find', 'quote', 'work'];

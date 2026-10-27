@@ -1343,6 +1343,10 @@
       "security": {
         "title": "Security",
         "body": "Every operation that lowers your balance needs your password, and the same money can never be spent twice. An SMS code will be added once an SMS provider is enabled."
+      },
+      "payments": {
+        "title": "Payments are in test mode",
+        "body": "Until a real payment gateway is connected, a paid subscription opens a “test payment” page stating that no money will be charged. A test payment activates the subscription and calculates the coupon commission for trying things out only; bank withdrawals are disabled in this mode."
       }
     }
   },
