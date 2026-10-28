@@ -4,6 +4,7 @@ import { useAuth } from '../hooks/useAuth';
 import { updateProfile, changePassword, updateProviderProfile, me } from '../services/authService';
 import { listCountries, reverseGeocode } from '../services/serviceService';
 import useLocationOptions from '../hooks/useLocationOptions';
+import { useLocation } from 'react-router-dom';
 import Input from '../components/common/Input';
 import PasswordInput from '../components/common/PasswordInput';
 import Button from '../components/common/Button';
@@ -32,13 +33,15 @@ export default function ProfilePage() {
   const lang = i18n.resolvedLanguage || 'ar';
   const { user, refresh } = useAuth();
   const [form, setForm] = useState(() => formFromUser(user));
-  // Links such as "Edit your area" (/profile#my-area) open on that section.
+  // Links such as "Edit your area" (/profile#my-area) open on that section,
+  // also when the profile page is already open.
+  const { hash } = useLocation();
   useEffect(() => {
-    const id = window.location.hash.slice(1);
+    const id = hash.slice(1);
     if (!id) return undefined;
     const timer = setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
     return () => clearTimeout(timer);
-  }, []);
+  }, [hash]);
   const [entryUser, setEntryUser] = useState(user);
   const [completeOnEntry, setCompleteOnEntry] = useState(false);
   const [locationEdited, setLocationEdited] = useState(false);

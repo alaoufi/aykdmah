@@ -251,6 +251,21 @@ export default function Header() {
                 </NavLink>
               ))}
             </div>
+            {user && (
+              <div className="flex flex-col mt-2 pt-2 border-t border-border">
+                <Link to="/profile" onClick={() => setMobileOpen(false)} className="text-right px-3 py-3 rounded-card font-semibold no-underline text-fg-muted hover:bg-surface-alt">
+                  👤 {t('nav.profile')}
+                </Link>
+                {['client', 'provider'].includes(user.role) && (
+                  <Link to="/profile#account-type" onClick={() => setMobileOpen(false)} className="text-right px-3 py-3 rounded-card font-semibold no-underline text-fg-muted hover:bg-surface-alt" data-testid="mobile-account-type">
+                    🔁 {t('profile.change_account_type')}
+                  </Link>
+                )}
+                <Link to="/disputes" onClick={() => setMobileOpen(false)} className="text-right px-3 py-3 rounded-card font-semibold no-underline text-fg-muted hover:bg-surface-alt">
+                  ⚖️ {t('dispute.my_disputes')}
+                </Link>
+              </div>
+            )}
             <div className="mt-3 mb-2 flex items-center justify-center gap-2">
               <LanguageSwitcher />
               <ThemeSwitcher />
