@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useGeolocation } from '../../hooks/useGeolocation';
 import { useAuth } from '../../hooks/useAuth';
+import { canRequestService } from '../../utils/canRequest';
 import { IconPin, IconSearch, IconPlus } from '../common/Icons';
 import { readCatalogFilters, readRememberedCatalogSearch } from '../../utils/catalogFilters';
 
@@ -66,10 +67,10 @@ export default function Hero() {
         </form>
 
         <div className="mt-2.5 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-          <button onClick={() => navigate('/requests/new')}
+          {canRequestService(user) && <button onClick={() => navigate('/requests/new')}
             className="shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-pill bg-surface text-fg text-[12.5px] font-bold shadow-soft">
             <IconPlus size={14} /> {t('home.new_request')}
-          </button>
+          </button>}
           {popular.map((c) => (
             <button key={c} type="button" onClick={() => setQuery(c)}
               className="shrink-0 px-2.5 py-1 rounded-pill bg-white/15 hover:bg-white/25 border border-white/25 text-white text-[12px] font-medium transition">

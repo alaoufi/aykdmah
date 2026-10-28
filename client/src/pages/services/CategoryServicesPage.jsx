@@ -71,7 +71,7 @@ export default function CategoryServicesPage() {
         </>}
         {!category && !showProviders && (
           <div className="card text-center">
-            <Link to="/requests/new" className="btn btn-primary">{t('home.new_request')}</Link>
+            <Link to={dbCategory?.id ? `/requests/new?category=${dbCategory.id}` : '/requests/new'} className="btn btn-primary">{t('home.new_request')}</Link>
           </div>
         )}
       </div>

@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
+import { canRequestService } from '../../utils/canRequest';
 import { useNotifications } from '../../hooks/useNotifications';
 import Avatar from '../common/Avatar';
 import LanguageSwitcher from '../common/LanguageSwitcher';
@@ -50,12 +51,12 @@ export default function Header() {
     { to: '/', label: t('nav.home'), end: true },
     { to: '/services', label: t('nav.services') },
     { to: '/providers/map', label: t('map.nav_link') },
-    { to: '/requests/new', label: t('nav.order_now') },
+    { to: '/requests/new', label: t('nav.order_now'), requester: true },
     { to: '/guide', label: t('help.title') },
     { to: '/chat', label: t('nav.chat'), authOnly: true },
   ];
 
-  const visibleLinks = LINKS.filter((l) => !l.authOnly || user);
+  const visibleLinks = LINKS.filter((l) => (!l.authOnly || user) && (!l.requester || canRequestService(user)));
   const dashLink = user?.role === 'admin' ? '/admin' : user?.role === 'provider' ? '/provider' : '/client';
 
   const handleLogout = async () => {

@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
+import { canRequestService } from '../utils/canRequest';
 import { useTranslation } from 'react-i18next';
-import { listCategories, listServices } from '../services/serviceService';
+import { listCategories } from '../services/serviceService';
 import { createRequest } from '../services/requestService';
 import { useAuth } from '../hooks/useAuth';
 import useRequestLocation from '../hooks/useRequestLocation';
@@ -13,18 +14,13 @@ import RequestLocationFields from '../components/common/RequestLocationFields';
 import { apiError } from '../services/api';
 import { localizedName } from '../utils/localize';
 
-const EMPTY_FORM = {
-  title: '', description: '', category_id: '', service_id: '',
-  budget_min: '', budget_max: '', preferred_date: '', is_urgent: false,
-};
+const EMPTY_FORM = { description: '', category_id: '' };
 
 export default function CreateRequestPage() {
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
-  const [services, setServices] = useState([]);
-  const [files, setFiles] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const { user, refresh } = useAuth();
@@ -32,31 +28,21 @@ export default function CreateRequestPage() {
   const { country } = useCountry();
   const requestLocation = useRequestLocation({ user, params, fallbackCountryId: country?.id });
 
-  const [form, setForm] = useState(EMPTY_FORM);
+  // A profession page links here with ?category=<id> already chosen.
+  const startForm = () => ({ ...EMPTY_FORM, category_id: params.get('category') || '' });
+  const [form, setForm] = useState(startForm);
   const operation = useRef(0);
 
   useEffect(() => {
     operation.current += 1;
-    setForm(EMPTY_FORM); setFiles([]); setError(''); setLoading(false);
+    setForm(startForm()); setError(''); setLoading(false);
     return () => { operation.current += 1; };
   }, [user?.id]);
   useEffect(() => {
     listCategories().then(setCategories).catch(() => {});
   }, []);
 
-
-  useEffect(() => {
-    let current = true;
-    setServices([]);
-    if (form.category_id) listServices(form.category_id).then(rows => { if (current) setServices(rows); }).catch(() => {});
-    return () => { current = false; };
-  }, [form.category_id]);
-
-  const update = (k, v) => setForm(f => ({
-    ...f,
-    ...(k === 'category_id' ? { service_id: '' } : {}),
-    [k]: v,
-  }));
+  const update = (k, v) => setForm(f => ({ ...f, [k]: v }));
 
   // The only thing a request truly needs is where the service is.
   const locationMissing = !requestLocation.ready ? null
@@ -77,7 +63,6 @@ export default function CreateRequestPage() {
         if (v !== '' && v !== null && v !== undefined) fd.append(k, v);
       });
       appendRequestLocation(fd, locationSnapshot);
-      files.forEach(f => fd.append('files', f));
       const created = await createRequest(fd);
       if (locationSnapshot.remember_location && current === operation.current) await refresh();
       if (current === operation.current) navigate(`/requests/${created.id}`);
@@ -87,6 +72,9 @@ export default function CreateRequestPage() {
       if (current === operation.current) setLoading(false);
     }
   };
+
+  // A provider-only account works from its requests board.
+  if (!canRequestService(user)) return <Navigate to="/provider" replace />;
 
   return (
     <div className="container page">
@@ -99,8 +87,8 @@ export default function CreateRequestPage() {
       )}
 
       <form onSubmit={submit} className="card" style={{ padding: 24 }}>
-        {/* Simple first: the profession and a few words. The sub-service only appears
-            once a profession that has sub-services is chosen; the rest is optional. */}
+        {/* Only the profession and a few words; the area comes from the account. Price,
+            time and details are agreed in the chat with the provider. */}
         <div className="form-group">
           <label className="form-label">{t('request.category')}</label>
           <select className="select" value={form.category_id} onChange={(e) => update('category_id', e.target.value)} data-testid="request-category">
@@ -108,15 +96,6 @@ export default function CreateRequestPage() {
             {categories.map(c => <option key={c.id} value={c.id}>{localizedName(c, lang)}</option>)}
           </select>
         </div>
-        {form.category_id && services.length > 0 && (
-          <div className="form-group">
-            <label className="form-label">{t('request.subservice')} ({t('common.optional')})</label>
-            <select className="select" value={form.service_id} onChange={(e) => update('service_id', e.target.value)}>
-              <option value="">{t('common.select')}</option>
-              {services.map(s => <option key={s.id} value={s.id}>{localizedName(s, lang)}</option>)}
-            </select>
-          </div>
-        )}
 
         <Input
           as="textarea"
@@ -128,58 +107,6 @@ export default function CreateRequestPage() {
 
         <RequestLocationFields control={requestLocation} disabled={loading} />
 
-        <details className="mb-4">
-          <summary className="cursor-pointer font-semibold text-fg-muted py-2">{t('common.details')} ({t('common.optional')})</summary>
-        <Input
-          label={t('request.title')}
-          maxLength={200}
-          value={form.title}
-          onChange={(e) => update('title', e.target.value)}
-          placeholder={t('request.title_ph')}
-        />
-
-        <div className="grid grid-2">
-          <Input
-            label={`${t('request.budget_min')} (${t('common.currency')})`}
-            type="number" min="0"
-            value={form.budget_min}
-            onChange={(e) => update('budget_min', e.target.value)}
-          />
-          <Input
-            label={`${t('request.budget_max')} (${t('common.currency')})`}
-            type="number" min="0"
-            value={form.budget_max}
-            onChange={(e) => update('budget_max', e.target.value)}
-          />
-        </div>
-
-        <Input
-          label={t('request.preferred_time')}
-          type="datetime-local"
-          value={form.preferred_date}
-          onChange={(e) => update('preferred_date', e.target.value)}
-        />
-
-        <div className="form-group">
-          <label className="form-label">{t('request.attachments_full')}</label>
-          <input
-            type="file"
-            multiple
-            accept="image/*,application/pdf"
-            onChange={(e) => setFiles(Array.from(e.target.files || []).slice(0, 8))}
-          />
-          {files.length > 0 && <div className="text-xs text-muted mt-1">{t('request.files_count', { count: files.length })}</div>}
-        </div>
-
-        <label className="flex items-center gap-2 mb-4">
-          <input
-            type="checkbox"
-            checked={form.is_urgent}
-            onChange={(e) => update('is_urgent', e.target.checked)}
-          />
-          <span>{t('request.urgent_full')}</span>
-        </label>
-        </details>
 
         <Button type="submit" block size="lg" loading={loading} variant="primary" disabled={!requestLocation.ready || !!locationMissing}>
           {t('request.submit')}

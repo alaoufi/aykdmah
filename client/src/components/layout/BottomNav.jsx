@@ -6,6 +6,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { useNotifications } from '../../hooks/useNotifications';
 import { IconHome, IconGrid, IconPlus, IconChat, IconUser } from '../common/Icons';
 import { pageZoom } from '../../utils/pageZoom';
+import { canRequestService } from '../../utils/canRequest';
 
 export default function BottomNav() {
   const navRef = useRef(null);
@@ -48,7 +49,10 @@ export default function BottomNav() {
   const items = [
     { id: 'home', to: '/', label: t('nav.home'), Icon: IconHome, end: true },
     { id: 'services', to: '/services', label: t('nav.services'), Icon: IconGrid },
-    { id: 'request', to: '/requests/new', label: t('nav.order_now'), Icon: IconPlus, fab: true },
+    // A provider-only account gets its requests board here instead of "Order now".
+    canRequestService(user)
+      ? { id: 'request', to: '/requests/new', label: t('nav.order_now'), Icon: IconPlus, fab: true }
+      : { id: 'request', to: '/provider', label: t('nav.dashboard'), Icon: IconGrid, fab: true },
     { id: 'chat', to: user ? '/chat' : '/login', label: t('nav.chat'), Icon: IconChat, badge: unread },
     { id: 'account', to: user ? accountLink : '/login', label: user ? t('nav.profile') : t('nav.login'), Icon: IconUser },
   ];
