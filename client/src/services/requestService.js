@@ -27,6 +27,11 @@ export async function updateRequestStatus(id, payload) {
   return data.data;
 }
 
+export async function setRequestReminders(id, off) {
+  const { data } = await api.put(`/requests/${id}/reminders`, { off });
+  return data.data;
+}
+
 export async function deleteRequest(id) {
   await api.delete(`/requests/${id}`);
 }

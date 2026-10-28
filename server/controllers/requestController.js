@@ -107,6 +107,13 @@ const updateStatus = asyncHandler(async (req, res) => {
   return success(res, updated, req.t('status_updated'));
 });
 
+const setReminders = asyncHandler(async (req, res) => {
+  if (!validId(req.params.id)) return notFound(res);
+  const off = req.body?.off !== false;
+  if (!(await Request.setRemindersOff(Number(req.params.id), req.user.id, off))) return notFound(res);
+  return success(res, { reminders_off: off ? 1 : 0 }, off ? req.t('request_reminders_off') : undefined);
+});
+
 const remove = asyncHandler(async (req, res) => {
   const request = await Request.findById(req.params.id);
   if (!request) return notFound(res);
@@ -129,4 +136,4 @@ const startChat = asyncHandler(async (req, res) => {
   return success(res, { conversation_id: convId });
 });
 
-module.exports = { create, getMy, getNearby, getOne, updateStatus, remove, startChat };
+module.exports = { create, getMy, getNearby, getOne, updateStatus, setReminders, remove, startChat };

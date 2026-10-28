@@ -11,6 +11,7 @@ const io = initSocket(httpServer);
 app.set('io', io);
 notificationService.setIo(io);
 require('./services/callService').attach(io);
+require('./services/requestReminderService').start();
 
 const PORT = env.APP_PORT;
 httpServer.listen(PORT, () => {

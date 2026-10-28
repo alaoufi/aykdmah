@@ -93,7 +93,7 @@ const BASE_SELECT = `
   r.city_id, r.district_id, r.address, r.latitude, r.longitude,
   r.budget_min, r.budget_max, r.preferred_date, r.is_urgent, r.status,
   r.assigned_provider_id, r.accepted_offer_id, r.views_count, r.offers_count,
-  r.completed_at, r.created_at, r.updated_at,
+  r.completed_at, r.created_at, r.updated_at, r.reminders_off,
   u.full_name AS client_name, u.avatar AS client_avatar,
   cat.name_ar AS category_name, cat.name_en AS category_name_en,
   cat.name_translations AS category_name_translations,
@@ -130,14 +130,16 @@ async function create(data) {
     const [result] = await conn.execute(
       `INSERT INTO requests
         (client_id, category_id, service_id, title, description, city_id, district_id,
-         address, latitude, longitude, budget_min, budget_max, preferred_date, is_urgent)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         address, latitude, longitude, budget_min, budget_max, preferred_date, is_urgent, remind_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         data.client_id, data.category_id || null, data.service_id || null, data.title, data.description,
         data.city_id || null, data.district_id || null, data.address || null,
         data.latitude ?? null, data.longitude ?? null,
         data.budget_min ?? null, data.budget_max ?? null,
         data.preferred_date || null, data.is_urgent ? 1 : 0,
+        // First "Did you find someone?" reminder an hour after posting (requestReminderService).
+        new Date(Date.now() + 60 * 60 * 1000),
       ]
     );
     const requestId = result.insertId;
@@ -273,6 +275,12 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
   return { items, total };
 }
 
+// The requester stops (or restarts) the "Did you find someone?" reminders.
+async function setRemindersOff(id, clientId, off) {
+  const result = await query('UPDATE requests SET reminders_off = ? WHERE id = ? AND client_id = ? AND deleted_at IS NULL', [off ? 1 : 0, id, clientId]);
+  return result.affectedRows > 0;
+}
+
 async function updateStatus(id, status, extra = {}) {
   if (!extra.actor || !Number.isSafeInteger(extra.actor.id)) throw new ApiError('forbidden', 403);
   await transaction(async conn => {
@@ -356,4 +364,4 @@ async function listAll({ page = 1, limit = 20, status, search } = {}) {
   return { items, total };
 }
 
-module.exports = { create, findById, incrementViews, findByClient, findNearby, updateStatus, softDelete, listAll, pagination, optionalNumber, publicView, validateInput: validateCreate };
+module.exports = { create, findById, incrementViews, findByClient, findNearby, updateStatus, setRemindersOff, softDelete, listAll, pagination, optionalNumber, publicView, validateInput: validateCreate };

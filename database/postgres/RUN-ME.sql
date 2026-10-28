@@ -6071,6 +6071,12 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_push_subscriptions_endpoint ON push_subscr
 CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user ON push_subscriptions (user_id);
 INSERT INTO schema_migrations(name) VALUES ('051_push_subscriptions.sql');
 
+-- migrations/052_request_reminders.sql
+ALTER TABLE requests ADD COLUMN IF NOT EXISTS remind_at TIMESTAMP NULL DEFAULT NULL;
+ALTER TABLE requests ADD COLUMN IF NOT EXISTS reminders_off SMALLINT NOT NULL DEFAULT 0;
+CREATE INDEX IF NOT EXISTS idx_requests_remind_at ON requests (remind_at);
+INSERT INTO schema_migrations(name) VALUES ('052_request_reminders.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

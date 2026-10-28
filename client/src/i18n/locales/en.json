@@ -344,7 +344,12 @@
     "confirm_completed_title": "Mark as completed?",
     "confirm_completed_body": "Confirm the service was delivered successfully. Both parties may rate after this.",
     "confirm_in_progress_title": "Start work?",
-    "confirm_in_progress_body": "Confirm you are starting this order now?"
+    "confirm_in_progress_body": "Confirm you are starting this order now?",
+    "found_title": "Did you find someone?",
+    "found_hint": "If you have agreed with someone, close the request so other providers stop contacting you. We remind you an hour after posting, then once a day while it is open.",
+    "found_stop": "Yes, close the request",
+    "stop_reminders": "Stop reminders",
+    "reminders_stopped": "Reminders are off for this request"
   },
   "offer": {
     "submit_title": "Send a quote",

@@ -512,8 +512,21 @@ if (!databasePrefix) {
     await api('/requests', { method: 'POST', token: providerOnly.token, expected: 403, body: {
       title: 'طلب', description: 'وصف طلب تجريبي', city_id: area.city_id, district_id: area.district_id } });
 
-    // "Matching me": a request outside the provider's professions is hidden; "All" still shows it.
+    // "Did you find someone?": due an hour after posting, then daily; the requester can stop it.
     const requestId = Number(request.id || request.request?.id);
+    const reminders = require('../services/requestReminderService');
+    const [posted] = await db.query('SELECT remind_at FROM requests WHERE id = ?', [requestId]);
+    assert.ok(new Date(posted.remind_at) > new Date(Date.now() + 50 * 60 * 1000));
+    assert.equal(await reminders.remindDue(new Date(Date.now() + 61 * 60 * 1000)), 1);
+    const [reminder] = await db.query("SELECT title, link FROM notifications WHERE user_id = ? AND type = 'request_reminder'", [session.user.id]);
+    assert.equal(reminder.link, `/requests/${requestId}`);
+    assert.equal(await reminders.remindDue(new Date(Date.now() + 61 * 60 * 1000)), 0);
+    await api(`/requests/${requestId}/reminders`, { method: 'PUT', token: providerOnly.token, expected: 404, body: { off: true } });
+    await api(`/requests/${requestId}/reminders`, { method: 'PUT', token: session.token, body: { off: true } });
+    assert.equal(Number((await api(`/requests/${requestId}`, { token: session.token })).reminders_off), 1);
+    assert.equal(await reminders.remindDue(new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)), 0);
+
+    // "Matching me": a request outside the provider's professions is hidden; "All" still shows it.
     const all = await api('/requests/nearby?limit=50', { token: providerOnly.token });
     assert.ok(all.some(row => Number(row.id) === requestId));
     const matching = await api('/requests/nearby?limit=50&matching=1', { token: providerOnly.token });

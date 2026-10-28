@@ -5,7 +5,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   getRequest, getOffersForRequest, acceptOffer, rejectOffer,
-  createOffer, startRequestChat, updateRequestStatus
+  createOffer, startRequestChat, updateRequestStatus, setRequestReminders
 } from '../services/requestService';
 import { useAuth } from '../hooks/useAuth';
 import { useGeolocation } from '../hooks/useGeolocation';
@@ -184,8 +184,28 @@ export default function RequestDetailsPage() {
     });
   };
 
+  const stopReminders = async () => {
+    try {
+      await setRequestReminders(request.id, true);
+      setRequest(r => ({ ...r, reminders_off: 1 }));
+    } catch (e) { setErr(apiError(e)); }
+  };
+
   return (
     <div className="container page">
+      {/* An open request should not hang: the requester closes it once agreed with someone. */}
+      {isOwner && request.status === 'open' && (
+        <div className="card mb-4" data-testid="request-found-check" style={{ borderInlineStart: '4px solid var(--primary)' }}>
+          <strong>{t('request.found_title')}</strong>
+          <p className="text-sm text-muted mt-1 mb-3">{t('request.found_hint')}</p>
+          <div className="flex gap-2 flex-wrap">
+            <Button variant="primary" size="sm" onClick={() => changeStatus('cancelled')}>{t('request.found_stop')}</Button>
+            {!Number(request.reminders_off)
+              ? <Button variant="outline" size="sm" onClick={stopReminders}>{t('request.stop_reminders')}</Button>
+              : <span className="text-xs text-muted self-center">{t('request.reminders_stopped')}</span>}
+          </div>
+        </div>
+      )}
       {err && <div className="form-error mb-3" style={{ padding: 10, background: 'rgba(239,68,68,.1)', borderRadius: 8 }}>{err}</div>}
 
       <div className="card mb-4">

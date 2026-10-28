@@ -344,7 +344,12 @@
     "confirm_completed_title": "تأكيد إكمال الطلب",
     "confirm_completed_body": "تأكيد أن الخدمة اكتملت بنجاح؟ بعد التأكيد يُسمح للطرفين بالتقييم.",
     "confirm_in_progress_title": "بدء العمل",
-    "confirm_in_progress_body": "تأكيد بدء تنفيذ هذا الطلب؟"
+    "confirm_in_progress_body": "تأكيد بدء تنفيذ هذا الطلب؟",
+    "found_title": "هل وجدت من يخدمك؟",
+    "found_hint": "إن اتفقت مع أحد فأوقف الطلب حتى لا يصلك مقدمو خدمة آخرون. سنذكّرك بعد ساعة من النشر ثم مرة كل يوم ما دام مفتوحًا.",
+    "found_stop": "نعم، أوقف الطلب",
+    "stop_reminders": "أوقف التذكير",
+    "reminders_stopped": "التذكير متوقف لهذا الطلب"
   },
   "offer": {
     "submit_title": "قدم عرض سعر",
