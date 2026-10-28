@@ -123,6 +123,9 @@ const test = asyncHandler(async (req, res) => {
     });
     return success(res, { ok: true });
   } catch (err) {
+    // Adapter errors carry the provider name and status, never a credential.
+    console.warn('[integration test failed]', integration.type, integration.provider,
+      err.message, err.providerMessage || '', err.cause?.code || '');
     await ApiIntegration.recordTestResult(integration.id, false, 'Provider request failed');
     await ApiIntegration.logUsage({
       integration_id: integration.id, type: integration.type, provider: integration.provider,
