@@ -7,6 +7,11 @@ export async function applyMigrations() {
   return data.data;
 }
 
+export async function getMarketingStats(params = {}) {
+  const { data } = await api.get('/admin/marketing', { params });
+  return data.data;
+}
+
 export async function getDashboard() {
   const { data } = await api.get('/admin/dashboard');
   return data.data;

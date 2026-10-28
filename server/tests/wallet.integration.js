@@ -255,4 +255,26 @@ if (!databasePrefix) {
     const sum = ledger.body.data.filter(t => t.status !== 'cancelled').reduce((s, t) => s + Math.round(Number(t.amount) * 100), 0) / 100;
     assert.equal(sum, await balance(target), 'balance always equals the ledger');
   });
+
+  test('marketing statistics count invitations and their money, and hide inviter names without the users permission', async () => {
+    const full = await api('/admin/marketing', { user: users.boss });
+    assert.equal(full.status, 200, full.body?.message);
+    const stats = full.body.data;
+    assert.ok(stats.summary.total >= 3);
+    assert.equal(stats.signups_daily.length, 30);
+    assert.ok(stats.referrals.invited >= 1);
+    const top = stats.referrals.top.find(row => row.id === users.referrer.id);
+    assert.ok(top && top.invited >= 1 && top.full_name);
+    assert.ok(stats.referrals.budget.rewards_total > 0, 'the commission paid earlier is counted');
+    assert.ok(Array.isArray(stats.professions) && Array.isArray(stats.geography.cities));
+    assert.ok(stats.summary.total < (await db.queryOne('SELECT COUNT(*) AS n FROM users')).n, 'admins are not counted');
+
+    const limited = await api('/admin/marketing', { user: users.limitedadmin });
+    assert.equal(limited.status, 200);
+    assert.ok(limited.body.data.referrals.top.every(row => row.full_name === undefined && row.id === undefined));
+    assert.equal((await api('/admin/marketing', { user: users.customer })).status, 403);
+
+    const future = await api('/admin/marketing?from=2999-01-01', { user: users.boss });
+    assert.equal(future.body.data.summary.total, 0, 'the sign-up period filters accounts');
+  });
 }

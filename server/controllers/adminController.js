@@ -640,7 +640,18 @@ const updateUserPermissions = asyncHandler(async (req, res) => {
   }, req.t('updated'));
 });
 
+// GET /admin/marketing?from=YYYY-MM-DD&to=YYYY-MM-DD (AYK-030). Names of the
+// top inviters are personal data, so they need the users permission too.
+const marketing = asyncHandler(async (req, res) => {
+  const stats = await require('../services/marketingStats').marketingStats({ from: req.query.from, to: req.query.to });
+  if (!hasPermission(req.user, 'users.manage')) {
+    stats.referrals.top = stats.referrals.top.map(({ full_name: _name, id: _id, ...row }) => row);
+  }
+  return success(res, stats);
+});
+
 module.exports = {
+  marketing,
   dashboard, listAllRequests, getSettings, updateSettings,
   applyMigrations,
   listVerifications, reviewVerification,

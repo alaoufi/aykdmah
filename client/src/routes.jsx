@@ -55,6 +55,7 @@ const AdminLocationsPage = lazy(() => import('./pages/admin/AdminLocationsPage')
 const AdminConversationsPage = lazy(() => import('./pages/admin/AdminConversationsPage'));
 const AdminCallsPage = lazy(() => import('./pages/admin/AdminCallsPage'));
 const AdminWalletsPage = lazy(() => import('./pages/admin/AdminWalletsPage'));
+const AdminMarketingPage = lazy(() => import('./pages/admin/AdminMarketingPage'));
 const WalletPage = lazy(() => import('./pages/provider/WalletPage'));
 const TrackingPage = lazy(() => import('./pages/TrackingPage'));
 const VerificationPage = lazy(() => import('./pages/VerificationPage'));
@@ -191,6 +192,7 @@ export default function AppRoutes() {
           <Route path="/admin/conversations" element={<AdminConversationsPage />} />
           <Route path="/admin/calls" element={<AdminCallsPage />} />
           <Route path="/admin/wallets" element={<AdminWalletsPage />} />
+          <Route path="/admin/marketing" element={<AdminMarketingPage />} />
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />

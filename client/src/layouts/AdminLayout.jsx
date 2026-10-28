@@ -16,6 +16,7 @@ const NAV_GROUPS = [
     label: 'admin.overview',
     items: [
       { to: '/admin', icon: '📊', labelKey: 'admin.dashboard', end: true, perm: 'dashboard.view' },
+      { to: '/admin/marketing', icon: '📈', labelKey: 'marketing.title', perm: 'dashboard.view' },
     ],
   },
   {

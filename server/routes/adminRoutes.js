@@ -24,6 +24,7 @@ router.param('id', (req, res, next, value) => {
 // pass straight through (requirePermission no-ops when is_super_admin
 // is true). See server/config/permissions.js for the full list.
 router.get('/dashboard', requirePermission('dashboard.view'), c.dashboard);
+router.get('/marketing', requirePermission('dashboard.view'), c.marketing);
 
 // Requests
 router.get('/requests',                 requirePermission('requests.manage'), c.listAllRequests);
