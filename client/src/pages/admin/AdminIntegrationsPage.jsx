@@ -77,13 +77,15 @@ export default function AdminIntegrationsPage() {
     setEditOpen(true);
   };
 
+  const savedKeys = new Set(editing?.credentials_set || []);
+
   const openEdit = (it) => {
     ++editVersion.current;
     setEditing(it);
     setForm({
       type: it.type, provider: it.provider, label: it.label || '',
       mode: it.mode, is_enabled: !!it.is_enabled, is_primary: !!it.is_primary,
-      config: it.config || {}, credentials: {}, webhook_url: it.webhook_url || '',
+      config: it.config || {}, credentials: { ...(it.credentials_public || {}) }, webhook_url: it.webhook_url || '',
     });
     setErr('');
     setEditOpen(true);
@@ -318,7 +320,7 @@ export default function AdminIntegrationsPage() {
                       autoComplete={f.sensitive ? 'new-password' : 'off'}
                       value={form.credentials[f.key] || ''}
                       onChange={(e) => setForm({ ...form, credentials: { ...form.credentials, [f.key]: e.target.value } })}
-                      placeholder={editing ? '••••••••' : ''}
+                      placeholder={editing && savedKeys.has(f.key) ? `✓ ${t('integration.saved_value')}` : ''}
                       className="w-full px-3 py-2 rounded border border-border bg-surface text-[13.5px] font-mono"
                     />
                   </div>

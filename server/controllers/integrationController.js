@@ -37,16 +37,30 @@ function validatedData(body, existing = {}) {
   return data;
 }
 
+// The edit form shows saved non-secret fields (API URL, sender name) as they
+// are, and only which secret fields are already stored.
+async function withSavedFields(row) {
+  if (!row) return row;
+  const adapter = integrations.getAdapter(row.type, row.provider);
+  const full = await ApiIntegration.findById(row.id, { includeSecrets: true });
+  const credentials = full?.credentials || {};
+  const fields = adapter?.fields || [];
+  row.credentials_public = Object.fromEntries(fields.filter(field => !field.sensitive && credentials[field.key])
+    .map(field => [field.key, String(credentials[field.key])]));
+  row.credentials_set = fields.filter(field => credentials[field.key]).map(field => field.key);
+  return row;
+}
+
 const list = asyncHandler(async (req, res) => {
   const { type } = req.query;
   const items = await ApiIntegration.list({ type });
-  return success(res, items);
+  return success(res, await Promise.all(items.map(withSavedFields)));
 });
 
 const get = asyncHandler(async (req, res) => {
   const row = await ApiIntegration.findById(req.params.id);
   if (!row) return notFound(res);
-  return success(res, row);
+  return success(res, await withSavedFields(row));
 });
 
 const create = asyncHandler(async (req, res) => {

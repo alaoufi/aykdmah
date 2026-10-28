@@ -542,7 +542,8 @@
     "last_test": "अंतिम परीक्षण",
     "usage_logs": "उपयोग लॉग",
     "mode_sandbox": "परीक्षण",
-    "mode_live": "वास्तविक"
+    "mode_live": "वास्तविक",
+    "saved_value": "सहेजा गया — रखने के लिए खाली छोड़ें"
   },
   "provider": {
     "section_title": "प्रदाता सेटिंग्स",

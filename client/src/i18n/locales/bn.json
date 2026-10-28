@@ -542,7 +542,8 @@
     "last_test": "শেষ পরীক্ষা",
     "usage_logs": "ব্যবহারের লগ",
     "mode_sandbox": "পরীক্ষামূলক",
-    "mode_live": "চালু"
+    "mode_live": "চালু",
+    "saved_value": "সংরক্ষিত — রাখতে খালি রাখুন"
   },
   "provider": {
     "section_title": "প্রদানকারী সেটিংস",

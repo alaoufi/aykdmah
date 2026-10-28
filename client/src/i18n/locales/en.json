@@ -542,7 +542,8 @@
     "last_test": "last test",
     "usage_logs": "Usage logs",
     "mode_sandbox": "Sandbox",
-    "mode_live": "Live"
+    "mode_live": "Live",
+    "saved_value": "Saved — leave empty to keep it"
   },
   "provider": {
     "section_title": "Provider settings",

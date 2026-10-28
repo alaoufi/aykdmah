@@ -542,7 +542,8 @@
     "last_test": "آخری ٹیسٹ",
     "usage_logs": "استعمال کا لاگ",
     "mode_sandbox": "آزمائشی",
-    "mode_live": "حقیقی"
+    "mode_live": "حقیقی",
+    "saved_value": "محفوظ — برقرار رکھنے کے لیے خالی چھوڑیں"
   },
   "provider": {
     "section_title": "فراہم کنندہ کی ترتیبات",

@@ -149,7 +149,7 @@ module.exports = {
     description: 'Saudi SMS gateway (api-sms.4jawaly.com) using an app key and secret',
     fields: [
       { key: 'api_url',    label: 'API URL', required: false },
-      { key: 'app_key',    label: 'App key', required: true },
+      { key: 'app_key',    label: 'App key', required: true, sensitive: true },
       { key: 'app_secret', label: 'App secret', required: true, sensitive: true },
       { key: 'sender',     label: 'Sender name', required: true },
     ],
