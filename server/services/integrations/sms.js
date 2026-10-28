@@ -82,9 +82,17 @@ async function taqnyatSend({ credentials, config, to, message }) {
     headers: { 'Content-Type': 'application/json', Accept: 'application/json', Authorization: `Bearer ${token}` },
     body: JSON.stringify({ recipients: [saudiNumber(to)], body: message, sender }),
   });
-  if (!r.ok) throw new Error(`taqnyat:${r.status}`);
   const data = await r.json().catch(() => ({}));
+  if (!r.ok) throw providerError('taqnyat', r.status, data, [token]);
   return { provider_id: data?.messageId ? String(data.messageId) : null };
+}
+
+// The provider's own reason (never a secret) is shown to administrators when
+// they test an integration, instead of a generic failure.
+function providerError(name, status, data, secrets = []) {
+  let reason = typeof data?.message === 'string' ? data.message : '';
+  for (const secret of secrets) if (secret) reason = reason.split(String(secret)).join('***');
+  return Object.assign(new Error(`${name}:${status}`), { providerMessage: `${status}${reason ? ` — ${reason.slice(0, 200)}` : ''}` });
 }
 
 async function jawalySend({ credentials, config, to, message }) {
@@ -98,7 +106,7 @@ async function jawalySend({ credentials, config, to, message }) {
     body: JSON.stringify({ messages: [{ text: message, numbers: [saudiNumber(to)], sender }] }),
   });
   const data = await r.json().catch(() => ({}));
-  if (!r.ok || (data.code !== undefined && Number(data.code) !== 200)) throw new Error(`4jawaly:${r.status}`);
+  if (!r.ok || (data.code !== undefined && Number(data.code) !== 200)) throw providerError('4jawaly', r.status, data, [key, secret]);
   return { provider_id: data?.job_id ? String(data.job_id) : null };
 }
 

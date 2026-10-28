@@ -129,7 +129,8 @@ const test = asyncHandler(async (req, res) => {
       user_id: req.user.id, action: 'test', status: 'error',
       error_message: 'Provider request failed', latency_ms: Date.now() - started,
     });
-    return error(res, 'Provider request failed', 502);
+    // Administrators see the provider's own reason (adapters strip secrets from it).
+    return error(res, err.providerMessage ? `Provider: ${err.providerMessage}` : 'Provider request failed', 502);
   }
 });
 
