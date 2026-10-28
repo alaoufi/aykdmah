@@ -1285,7 +1285,8 @@
     "contact": "Contact us",
     "terms": "Terms & conditions",
     "privacy": "Privacy policy",
-    "all_rights_reserved": "All rights reserved"
+    "all_rights_reserved": "All rights reserved",
+    "version": "Version"
   },
   "policy": {
     "privacy_intro": "This policy explains how Ay Khidma uses your information when you register and request home services.",

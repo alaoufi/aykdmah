@@ -75,7 +75,15 @@ export default function Footer() {
         </div>
 
         <div className="mt-10 pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-3 text-[12px] text-white/55">
-          <div>© {year} {t('common.brand')}. {t('footer.all_rights_reserved')}.</div>
+          <div>
+            © {year} {t('common.brand')}. {t('footer.all_rights_reserved')}.
+            {/* The deployed release (commit and date), set by deploy/setup-server.sh. */}
+            {import.meta.env.VITE_APP_VERSION && (
+              <span className="ms-2 text-white/40 text-[11px]" data-testid="app-version">
+                · {t('footer.version')} <span dir="ltr">{import.meta.env.VITE_APP_VERSION}</span>
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-4">
             <Link to="/terms" className="text-white/75 hover:text-white transition no-underline">{t('footer.terms')}</Link>
             <Link to="/privacy" className="text-white/75 hover:text-white transition no-underline">{t('footer.privacy')}</Link>

@@ -73,8 +73,10 @@ if ufw status | grep -q "Status: active"; then
 fi
 
 echo "== Building client release $STAMP =="
+# Shown in the site footer: the deployed commit and the deployment date.
+APP_VERSION="$(git -C "$REPO_DIR" rev-parse --short HEAD 2>/dev/null || echo dev) · $(date +%Y-%m-%d)"
 docker run --rm -v "$REPO_DIR":/src -w /src \
-    -e ONNXRUNTIME_NODE_INSTALL_CUDA=skip -e VITE_REALTIME_MODE=socket -e HOME=/tmp \
+    -e ONNXRUNTIME_NODE_INSTALL_CUDA=skip -e VITE_REALTIME_MODE=socket -e HOME=/tmp -e VITE_APP_VERSION="$APP_VERSION" \
     node:22-bookworm sh -c "npm --prefix client ci --include=dev --no-audit --no-fund && npm --prefix client run build"
 mkdir -p "$SITE_ROOT/releases/$STAMP"
 cp -r "$REPO_DIR/client/dist/." "$SITE_ROOT/releases/$STAMP/"
