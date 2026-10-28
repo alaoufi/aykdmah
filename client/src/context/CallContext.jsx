@@ -110,12 +110,21 @@ export function CallProvider({ children }) {
     setRoom(lkRoom);
     await lkRoom.connect(access.url, access.token, { autoSubscribe: true });
     setRemoteJoined(lkRoom.remoteParticipants.size > 0);
-    await lkRoom.localParticipant.setMicrophoneEnabled(true);
-    if (active.call_type === 'video') {
-      await lkRoom.localParticipant.setCameraEnabled(true, { facingMode: 'user' });
-    }
-    setMicOn(true);
-    setCamOn(active.call_type === 'video');
+    // Once joined, a publishing error never ends the call: a transport hiccup (the other
+    // side dropping and rejoining) can reject a pending publish long after it started.
+    // Only a refused microphone or camera permission is reported to the caller.
+    const publish = async (enable) => {
+      try { await enable(); return true; } catch (err) {
+        if (err?.name === 'NotAllowedError') throw err;
+        console.warn('[call] publish failed:', err?.name, err?.message);
+        return false;
+      }
+    };
+    const mic = await publish(() => lkRoom.localParticipant.setMicrophoneEnabled(true));
+    const cam = active.call_type === 'video'
+      && await publish(() => lkRoom.localParticipant.setCameraEnabled(true, { facingMode: 'user' }));
+    setMicOn(mic);
+    setCamOn(cam);
     setFacing('user');
     if (active.status === 'accepted') setPhase('in_call');
     return Track;
@@ -179,6 +188,10 @@ export function CallProvider({ children }) {
   // Release devices if the user signs out mid-call.
   useEffect(() => { if (!user) { teardown(); setCall(null); setPhase('idle'); } }, [user, teardown]);
 
+  // The call is answered and its room is connected or recovering.
+  const inProgress = () => callRef.current?.status === 'accepted'
+    && ['connected', 'reconnecting', 'signalReconnecting'].includes(roomRef.current?.state);
+
   const start = useCallback(async (conversationId, callType) => {
     if (callRef.current) return;
     setError(null);
@@ -193,7 +206,10 @@ export function CallProvider({ children }) {
       // The call already ended (declined, cancelled): keep that outcome on screen.
       if (endingRef.current) return;
       // Technical detail for support; never includes tokens or media.
-      console.warn('[call] start failed:', err?.name, err?.message);
+      console.warn('[call] start failed:', err?.name, err?.message, roomRef.current?.state);
+      // A late connection error while the room is still up (the other side dropped and
+      // is rejoining) is not a failed call: LiveKit and rejoin() handle the recovery.
+      if (inProgress()) return;
       const code = err?.response?.data?.message || (err?.name === 'NotAllowedError' ? 'media_denied' : 'call_failed');
       setError(code);
       const current = callRef.current;
@@ -216,7 +232,8 @@ export function CallProvider({ children }) {
       setPhase('in_call');
     } catch (err) {
       if (endingRef.current) return;
-      console.warn('[call] accept failed:', err?.name, err?.message);
+      console.warn('[call] accept failed:', err?.name, err?.message, roomRef.current?.state);
+      if (inProgress()) return;
       setError(err?.name === 'NotAllowedError' ? 'media_denied' : err?.response?.data?.message || 'call_failed');
       calls.declineCall(current.id).catch(() => {});
       await finishLocally({ ...current, status: 'failed' });
