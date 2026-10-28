@@ -246,8 +246,9 @@ const changeRole = asyncHandler(async (req, res) => {
   // unless an earlier provider profile already holds them.
   let profile = null;
   if (target !== 'client' && user.role === 'client') {
-    const existing = await User.getProviderProfile(user.id);
-    const hasServices = Array.isArray(existing?.service_ids) ? existing.service_ids.length > 0 : Boolean(existing?.service_ids);
+    // Read the kept profile directly: the public provider view hides non-provider accounts.
+    const existing = await queryOne('SELECT service_ids FROM provider_profiles WHERE user_id = ?', [user.id]);
+    const hasServices = Array.isArray(existing?.service_ids) && existing.service_ids.length > 0;
     const supplied = req.body.service_ids !== undefined;
     if (!existing || !hasServices || supplied) {
       const mode = req.body.location_mode === undefined ? 'mobile' : req.body.location_mode;

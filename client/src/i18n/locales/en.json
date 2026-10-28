@@ -431,7 +431,13 @@
     "location_save_hint": "Save to apply your changes. If you change the address, region, city or neighborhood, choose the correct point and confirm it before saving.",
     "saved_location_hint": "Your saved address and location are filled in automatically for new requests. Changes here apply to future requests.",
     "private_account_address": "Your account address stays private. Set your public shop location separately in the business section below.",
-    "must_change_password": "For your account's security, replace the temporary password now before continuing (at least 4 characters)."
+    "must_change_password": "For your account's security, replace the temporary password now before continuing (at least 4 characters).",
+    "account_type": "Account type",
+    "account_type_hint": "Chose the wrong type when signing up? Change it here at any time.",
+    "account_type_current": "Current",
+    "account_type_work_hint": "To provide services, choose at least one profession, the districts you cover and where you serve.",
+    "account_type_to_client_note": "You will stop appearing as a provider and your pending offers will be withdrawn. Your work details are kept if you return later.",
+    "account_type_save": "Change account type"
   },
   "chat": {
     "title": "Messages",
@@ -1466,6 +1472,10 @@
       "edit": {
         "title": "Changing things later",
         "body": "From “Profile” you can change your name, location, professions, neighbourhoods and service venue, and turn “Both” on or off. When requesting a service your saved location appears in one line, and opens only when you tap “Edit”."
+      },
+      "change_type": {
+        "title": "Changing the account type",
+        "body": "If you chose the wrong type at sign-up, open “Profile” → “Account type” and pick client, provider or both. Becoming a provider needs at least one profession, your districts and where you serve. You cannot leave providing while a job is in progress, nor become “provider only” with open requests (choose “Both”). Switching to client keeps your work details for later."
       }
     },
     "availability_title": "Availability, vacations and working hours",

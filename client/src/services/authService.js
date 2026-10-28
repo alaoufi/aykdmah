@@ -51,6 +51,11 @@ export async function updateProfile(payload) {
   return data.data;
 }
 
+export async function changeAccountType(payload) {
+  const { data } = await api.put('/users/me/role', payload);
+  return data.data;
+}
+
 export async function updateProviderProfile(payload) {
   const { data } = await api.put('/users/me/provider', payload);
   return data.data;
