@@ -37,7 +37,11 @@ function validateIntegration(type, provider, data = {}) {
   }
   if (typeof adapter.validate === 'function') {
     try { adapter.validate(data); }
-    catch (_) { throw Object.assign(new Error('Integration URL must use the provider HTTPS host'), { status: 400 }); }
+    catch (err) {
+      throw Object.assign(new Error(err.message === 'secret field holds a url'
+        ? 'A key field contains a link. Paste the key itself, not the API URL'
+        : 'Integration URL must use the provider HTTPS host'), { status: 400 });
+    }
   }
   return true;
 }

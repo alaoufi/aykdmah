@@ -117,7 +117,9 @@ export default function AdminIntegrationsPage() {
       closeEdit();
       load();
     } catch (e) {
-      if (version === editVersion.current) setErr(apiError(e));
+      if (version === editVersion.current) {
+        setErr(String(e.response?.data?.message || '').startsWith('A key field contains a link') ? t('integration.secret_is_url') : apiError(e));
+      }
     } finally { saveInFlight.current = false; setSaving(false); }
   };
 
@@ -144,7 +146,9 @@ export default function AdminIntegrationsPage() {
       setTestResult({ ok: true, ...res });
       load();
     } catch (e) {
-      setTestResult({ ok: false, message: apiError(e) });
+      // The provider's own reason (secrets already stripped) helps the administrator fix the fields.
+      const reason = e.response?.data?.message;
+      setTestResult({ ok: false, message: typeof reason === 'string' && reason.startsWith('Provider: ') ? `${apiError(e)} — ${reason.slice(10)}` : apiError(e) });
     } finally { testInFlight.current = false; setTesting(false); }
   };
 

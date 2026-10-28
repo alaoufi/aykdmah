@@ -73,6 +73,11 @@ function saudiNumber(value) {
   return digits;
 }
 
+// A link pasted into a key field is a mistake that silently breaks sending.
+function noUrlInSecrets(credentials = {}, keys) {
+  for (const key of keys) if (/^https?:\/\//i.test(String(credentials?.[key] || '').trim())) throw new Error('secret field holds a url');
+}
+
 async function taqnyatSend({ credentials, config, to, message }) {
   const token = credentials.token;
   const sender = credentials.sender || config?.sender;
@@ -149,7 +154,10 @@ module.exports = {
       { key: 'sender',  label: 'Sender name', required: true },
     ],
     config_fields: [],
-    validate: data => smsGatewayUrl(data.credentials?.api_url || data.config?.api_url, TAQNYAT_URL, TAQNYAT_HOSTS),
+    validate: data => {
+      smsGatewayUrl(data.credentials?.api_url || data.config?.api_url, TAQNYAT_URL, TAQNYAT_HOSTS);
+      noUrlInSecrets(data.credentials, ['token']);
+    },
     send: taqnyatSend,
   },
   '4jawaly': {
@@ -162,7 +170,10 @@ module.exports = {
       { key: 'sender',     label: 'Sender name', required: true },
     ],
     config_fields: [],
-    validate: data => smsGatewayUrl(data.credentials?.api_url || data.config?.api_url, JAWALY_URL, JAWALY_HOSTS),
+    validate: data => {
+      smsGatewayUrl(data.credentials?.api_url || data.config?.api_url, JAWALY_URL, JAWALY_HOSTS);
+      noUrlInSecrets(data.credentials, ['app_key', 'app_secret']);
+    },
     send: jawalySend,
   },
   console: {

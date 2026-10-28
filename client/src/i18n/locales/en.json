@@ -543,7 +543,8 @@
     "usage_logs": "Usage logs",
     "mode_sandbox": "Sandbox",
     "mode_live": "Live",
-    "saved_value": "Saved — leave empty to keep it"
+    "saved_value": "Saved — leave empty to keep it",
+    "secret_is_url": "A key field contains a link. Paste the key itself (app_secret), not the API URL."
   },
   "provider": {
     "section_title": "Provider settings",
