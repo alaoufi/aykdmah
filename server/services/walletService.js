@@ -39,10 +39,12 @@ function normalizeCode(value) {
   return String(value || '').trim().toUpperCase().replace(/[\s-]/g, '');
 }
 
-// Gives a provider their permanent coupon code (idempotent).
+// Gives every account its permanent number (idempotent). It is the customer
+// number shown in the header and accepted at sign-in; only a provider's number
+// earns commission as an invitation (findReferrerByCode).
 async function ensureReferralCode(userId) {
   const user = await queryOne('SELECT id, role, referral_code FROM users WHERE id = ?', [userId]);
-  if (!user || user.role !== 'provider') return null;
+  if (!user) return null;
   if (user.referral_code) return user.referral_code;
   for (const [letters, digits] of CODE_TIERS) {
     for (let attempt = 0; attempt < ATTEMPTS_PER_TIER; attempt += 1) {

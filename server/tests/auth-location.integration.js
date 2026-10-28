@@ -642,6 +642,10 @@ if (!databasePrefix) {
       await api('/auth/reset-password', { method: 'POST', body: { phone, code, password: '9876' } });
       await api('/auth/me', { token: session.token, expected: 401 });
       await api('/auth/login', { method: 'POST', body: { identifier: phone, password: '9876' } });
+      // A client also gets a permanent customer number, accepted at sign-in in any letter case.
+      assert.match(session.user.referral_code, /^[A-Z]{2,4}\d{2,4}$/);
+      const byNumber = await api('/auth/login', { method: 'POST', body: { identifier: session.user.referral_code.toLowerCase(), password: '9876' } });
+      assert.equal(Number(byNumber.user.id), Number(session.user.id));
       await api('/auth/reset-password', { method: 'POST', body: { phone, code, password: '5555' }, expected: 400 });
     } finally {
       global.fetch = originalFetch;

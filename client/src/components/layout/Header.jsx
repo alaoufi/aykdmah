@@ -66,6 +66,21 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-40 bg-surface/85 backdrop-blur-md border-b border-border/70">
+      {/* Top strip: the parent site, and the signed-in customer number (also a sign-in identifier). */}
+      <div className="bg-primary text-primary-fg text-[12px] md:text-[13px]" data-testid="top-strip">
+        <div className="max-w-7xl mx-auto px-3 md:px-6 lg:px-8 h-7 flex items-center gap-3">
+          <span className="truncate min-w-0">
+            {t('brand.branch_of')}{' '}
+            <a href="https://trbhh.sa" target="_blank" rel="noopener noreferrer" className="font-bold underline underline-offset-2 text-inherit" dir="ltr">trbhh.sa</a>
+          </span>
+          <span className="flex-1" />
+          {user?.referral_code && (
+            <span className="shrink-0 whitespace-nowrap" data-testid="customer-number">
+              {t('brand.customer_number')}: <b dir="ltr" className="tracking-wider">{user.referral_code}</b>
+            </span>
+          )}
+        </div>
+      </div>
       <div className="max-w-7xl mx-auto px-3 md:px-6 lg:px-8 h-14 md:h-16 lg:h-[72px] flex items-center gap-2 md:gap-4">
         {/* Logo on the start edge of the screen */}
         <Link to="/" className="site-logo w-[140px] min-[360px]:w-[166px] shrink-0 no-underline">
@@ -149,6 +164,7 @@ export default function Header() {
                   <div className="p-3 border-b border-border">
                     <div className="text-sm font-bold text-fg">{user.full_name}</div>
                     <div className="text-xs text-fg-subtle">{user.email}</div>
+                    {user.referral_code && <div className="text-xs text-fg-muted mt-0.5">{t('brand.customer_number')}: <b dir="ltr">{user.referral_code}</b></div>}
                   </div>
                   <div className="p-1.5">
                     <Link to={dashLink} className="block px-3 py-2 rounded text-sm font-semibold text-fg hover:bg-surface-alt no-underline" onClick={() => setMenuOpen(false)}>

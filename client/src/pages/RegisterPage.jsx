@@ -225,7 +225,7 @@ export default function RegisterPage() {
       <div className="text-center space-y-3" data-testid="register-welcome">
         <div className="text-4xl">🎉</div>
         <h2>{t('auth.welcome_title')}</h2>
-        <p className="text-sm text-secondary">{t('auth.welcome_coupon_hint')}</p>
+        <p className="text-sm text-secondary">{t(welcome.role === 'client' ? 'auth.welcome_number_hint_client' : 'auth.welcome_coupon_hint')}</p>
         <div className="rounded-card border-2 border-dashed border-primary bg-primary-soft py-4">
           <div className="text-xs text-secondary mb-1">{t('auth.welcome_coupon_title')}</div>
           <div className="text-3xl font-extrabold tracking-[.2em]" dir="ltr">{welcome.code}</div>

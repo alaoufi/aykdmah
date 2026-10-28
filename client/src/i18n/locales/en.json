@@ -189,8 +189,8 @@
     "register_title": "Create Account",
     "email": "Email",
     "username": "Username",
-    "identifier": "Phone number / Username",
-    "identifier_hint": "Use the phone number you registered with. Existing accounts can also use their original sign-in identifier.",
+    "identifier": "Phone, customer number or email",
+    "identifier_hint": "Sign in with your phone number, the customer number shown at the top of the site (e.g. AB12), or your email.",
     "identifiers_hint": "Add at least one sign-in method (username / email / phone)",
     "password": "Password",
     "show_password": "Show password",
@@ -268,8 +268,8 @@
     "have_coupon": "Have an invitation number?",
     "sms_later_note": "You may be asked for a code sent to your phone by SMS.",
     "welcome_title": "Your account is ready",
-    "welcome_coupon_title": "Your invitation number",
-    "welcome_coupon_hint": "This is your own invitation number. Share it: you earn a commission on the first payment of anyone who signs up with it.",
+    "welcome_coupon_title": "Your customer number",
+    "welcome_coupon_hint": "This is your permanent number: sign in with it and your password, and share it as your invitation number to earn a commission on the first payment of anyone who signs up with it.",
     "copy": "Copy",
     "copied": "Copied",
     "continue": "Continue",
@@ -295,7 +295,8 @@
     "invite_label": "Invitation number (optional)",
     "invite_hint": "If someone invited you, enter their invitation number here (letters and digits). Leave it empty if you have none.",
     "invite_not_found": "The invitation number is not valid. Check it or leave it empty.",
-    "complete_to_enable": "To enable the button: {{item}}"
+    "complete_to_enable": "To enable the button: {{item}}",
+    "welcome_number_hint_client": "This is your permanent number, shown at the top of the site. You can sign in with it or your phone, plus your password."
   },
   "request": {
     "create_title": "Create a new request",
@@ -1451,8 +1452,8 @@
         "body": "Choose one or more neighbourhoods of your city that you serve, or tap “All”. Your own neighbourhood is preselected."
       },
       "coupon": {
-        "title": "Your invitation number",
-        "body": "After signing up you see your own invitation number, made of letters and digits. If someone invited you, type their number in the “Invitation number” field while signing up. The “Create account” button stays off until the required fields are complete and valid, the terms are accepted and the verification code is entered."
+        "title": "Customer number and invitation number",
+        "body": "Every account has a permanent customer number of letters and digits (e.g. AB12), shown at the top of the site and in your account menu; you can sign in with it, your phone or your email. A provider's number is also their invitation number: if a provider invited you, type it in the “Invitation number” field while signing up. The “Create account” button stays off until the required fields are complete and valid, the terms are accepted and the verification code is entered."
       },
       "matching": {
         "title": "Requests that match you",
@@ -1843,5 +1844,9 @@
     "vacation_both": "Set both the start and end of the vacation.",
     "hours_both": "Set both start and end hours, or leave both empty.",
     "days_required": "Choose at least one working day."
+  },
+  "brand": {
+    "branch_of": "Ay Khidma is a branch of",
+    "customer_number": "Customer no."
   }
 }

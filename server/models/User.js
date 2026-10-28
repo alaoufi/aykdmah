@@ -10,7 +10,7 @@ const SELECT_FIELDS = `
   u.id, u.full_name, u.username, u.email, u.phone, u.facebook_id, u.role, u.avatar,
   u.is_active, u.is_blocked, u.is_verified, u.is_online,
   u.city_id, u.district_id, u.latitude, u.longitude,
-  u.last_seen_at, u.created_at, u.must_change_password
+  u.last_seen_at, u.created_at, u.must_change_password, u.referral_code
 `;
 
 // Hydrate admin-only fields (is_super_admin, permissions) when they
@@ -106,8 +106,10 @@ async function findByIdentifier(identifier) {
   const v = String(identifier).trim();
   if (!v) return null;
   const phone = /^[\d+\s\-()]+$/.test(v) ? v.replace(/[\s\-()]/g, '') : null;
+  // The customer number (referral_code) is a sign-in identifier too.
+  const code = /^[A-Za-z]{2,4}\d{2,4}$/.test(v) ? v.toUpperCase() : null;
   const rows = await query(`SELECT * FROM users WHERE deleted_at IS NULL AND
-    (username = ? OR LOWER(email) = LOWER(?) OR facebook_id = ? OR REGEXP_REPLACE(phone, '[[:space:]()-]', '', 'g') = ?) LIMIT 2`, [v, v, v, phone]);
+    (username = ? OR LOWER(email) = LOWER(?) OR facebook_id = ? OR REGEXP_REPLACE(phone, '[[:space:]()-]', '', 'g') = ? OR referral_code = ?) LIMIT 2`, [v, v, v, phone, code]);
   // Dirty legacy records or cross-field collisions must never choose an
   // arbitrary owner. Existing unique formatted phone/email logins still work.
   return rows.length === 1 ? rows[0] : null;

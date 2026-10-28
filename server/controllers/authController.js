@@ -185,7 +185,7 @@ const register = asyncHandler(async (req, res) => {
 
   if (phoneVerified) await markPhoneVerified(userId, filtered.phone);
   if (couponCode) await wallet.applyReferralCode(userId, couponCode).catch(() => {});
-  const referralCode = role === 'provider' ? await wallet.ensureReferralCode(userId).catch(() => null) : null;
+  const referralCode = await wallet.ensureReferralCode(userId).catch(() => null);
 
   // Record terms acceptance — best-effort, skipped if migration 025 hasn't
   // run yet so registration never breaks on a half-migrated host.
@@ -294,6 +294,10 @@ const logout = asyncHandler(async (req, res) => {
 
 const me = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user.id);
+  // Accounts created before every account had a customer number get one here.
+  if (user && !user.referral_code) {
+    user.referral_code = await require('../services/walletService').ensureReferralCode(user.id).catch(() => null);
+  }
   // Refresh a media cookie for clients restoring a bearer session from local
   // storage; the original token's expiry remains the cookie's expiry.
   const bearer = /^Bearer\s+(\S+)$/i.exec(req.headers.authorization || '');
