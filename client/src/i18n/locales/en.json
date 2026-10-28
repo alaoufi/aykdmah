@@ -438,7 +438,8 @@
     "account_type_current": "Current",
     "account_type_work_hint": "To provide services, choose at least one profession, the districts you cover and where you serve.",
     "account_type_to_client_note": "You will stop appearing as a provider and your pending offers will be withdrawn. Your work details are kept if you return later.",
-    "account_type_save": "Change account type"
+    "account_type_save": "Change account type",
+    "change_account_type": "Change account type (requester / provider / both)"
   },
   "chat": {
     "title": "Messages",

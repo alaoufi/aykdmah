@@ -176,6 +176,11 @@ export default function Header() {
                     <Link to="/profile" className="block px-3 py-2 rounded text-sm font-semibold text-fg hover:bg-surface-alt no-underline" onClick={() => setMenuOpen(false)}>
                       {t('nav.profile')}
                     </Link>
+                    {['client', 'provider'].includes(user.role) && (
+                      <Link to="/profile#account-type" className="block px-3 py-2 rounded text-sm font-semibold text-fg hover:bg-surface-alt no-underline" onClick={() => setMenuOpen(false)} data-testid="menu-account-type">
+                        🔁 {t('profile.change_account_type')}
+                      </Link>
+                    )}
                     <Link to="/disputes" className="block px-3 py-2 rounded text-sm font-semibold text-fg hover:bg-surface-alt no-underline" onClick={() => setMenuOpen(false)}>
                       ⚖️ {t('dispute.my_disputes')}
                     </Link>
