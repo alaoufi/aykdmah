@@ -99,7 +99,37 @@ ln -sfn "releases/$STAMP" "$SITE_ROOT/current"
 "${COMPOSE[@]}" up -d web
 docker exec aykdmh-web caddy reload --config /etc/caddy/Caddyfile >/dev/null 2>&1 || true
 
+echo "== Daily backup timer (AYK-015) =="
+cat > /etc/systemd/system/aykdmh-backup.service <<UNIT
+[Unit]
+Description=aykdmh.com daily backup (database, uploads, .env)
+After=docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/bash $REPO_DIR/deploy/backup.sh
+StandardOutput=append:/var/log/aykdmh-backup.log
+StandardError=append:/var/log/aykdmh-backup.log
+UNIT
+cat > /etc/systemd/system/aykdmh-backup.timer <<UNIT
+[Unit]
+Description=Run the aykdmh.com backup every night
+
+[Timer]
+# 00:30 UTC = 03:30 Saudi time, the quietest hour.
+OnCalendar=*-*-* 00:30:00 UTC
+Persistent=true
+RandomizedDelaySec=300
+
+[Install]
+WantedBy=timers.target
+UNIT
+systemctl daemon-reload
+systemctl enable --now aykdmh-backup.timer >/dev/null
+
 echo "Done. Roll back the client with:"
 echo "  ln -sfn releases/<older> $SITE_ROOT/current"
 echo "Restore the database with:"
 echo "  docker exec -i aykdmh-db pg_restore -U aykdmh -d aykdmh --clean < /root/backups/aykdmh-db-<stamp>.dump"
+echo "Nightly backups: /root/backups/daily/<stamp>/ (db.dump, uploads.tgz, env); log /var/log/aykdmh-backup.log"
