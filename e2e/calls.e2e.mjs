@@ -7,7 +7,9 @@ const { BASE, CONV, CLIENT, PROVIDER, OUTSIDER } = process.env;
 const results = [];
 const check = (name, ok, detail = '') => { results.push({ name, ok, detail }); console.log(`${ok ? 'PASS' : 'FAIL'} ${name}${detail ? ` (${detail})` : ''}`); };
 
-const browser = await chromium.launch({
+// The full Chromium build: its headless shell no longer honours the insecure-origin
+// flag, which leaves navigator.mediaDevices undefined on the plain-HTTP staging app.
+const browser = await chromium.launch({ channel: 'chromium',
   args: ['--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream', `--unsafely-treat-insecure-origin-as-secure=${BASE}`],
 });
 

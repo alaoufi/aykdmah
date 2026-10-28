@@ -36,7 +36,11 @@ export function CallProvider({ children }) {
     if (current) { try { await current.disconnect(true); } catch (_) { /* already closed */ } }
   }, []);
 
+  // Set before tearing down, so a connection that this teardown interrupts
+  // (declined while still connecting) does not report itself as a failure.
+  const endingRef = useRef(false);
   const finishLocally = useCallback(async (finalCall, reason) => {
+    endingRef.current = true;
     await teardown();
     setCall(finalCall ? { ...finalCall, end_reason: finalCall.end_reason || reason } : null);
     setPhase(finalCall ? 'ended' : 'idle');
@@ -179,12 +183,15 @@ export function CallProvider({ children }) {
     if (callRef.current) return;
     setError(null);
     leavingRef.current = false;
+    endingRef.current = false;
     try {
       const created = await calls.startCall(conversationId, callType);
       setCall(created);
       setPhase('outgoing');
       await connectMedia(created);
     } catch (err) {
+      // The call already ended (declined, cancelled): keep that outcome on screen.
+      if (endingRef.current) return;
       // Technical detail for support; never includes tokens or media.
       console.warn('[call] start failed:', err?.name, err?.message);
       const code = err?.response?.data?.message || (err?.name === 'NotAllowedError' ? 'media_denied' : 'call_failed');
@@ -201,12 +208,14 @@ export function CallProvider({ children }) {
     const current = callRef.current;
     if (!current) return;
     leavingRef.current = false;
+    endingRef.current = false;
     try {
       const accepted = await calls.acceptCall(current.id);
       setCall(accepted);
       await connectMedia(accepted);
       setPhase('in_call');
     } catch (err) {
+      if (endingRef.current) return;
       console.warn('[call] accept failed:', err?.name, err?.message);
       setError(err?.name === 'NotAllowedError' ? 'media_denied' : err?.response?.data?.message || 'call_failed');
       calls.declineCall(current.id).catch(() => {});
