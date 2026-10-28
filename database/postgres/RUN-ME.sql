@@ -6077,6 +6077,11 @@ ALTER TABLE requests ADD COLUMN IF NOT EXISTS reminders_off SMALLINT NOT NULL DE
 CREATE INDEX IF NOT EXISTS idx_requests_remind_at ON requests (remind_at);
 INSERT INTO schema_migrations(name) VALUES ('052_request_reminders.sql');
 
+-- migrations/053_gulf_new_languages.sql
+UPDATE countries SET languages_enabled = '["ar","ur","hi","bn","ml","fil","id","ne","am","tr","en"]'
+ WHERE languages_enabled = '["ar","en","ur","bn","hi"]';
+INSERT INTO schema_migrations(name) VALUES ('053_gulf_new_languages.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;
