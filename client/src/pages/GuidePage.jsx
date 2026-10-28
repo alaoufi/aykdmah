@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 const SIGNUP_POINTS = ['types', 'basics', 'location', 'professions', 'coverage', 'coupon', 'matching', 'edit', 'change_type'];
 const AVAILABILITY_POINTS = ['pause', 'vacation', 'days', 'hours', 'search'];
-const CALL_POINTS = ['ring', 'closed', 'iphone', 'network'];
+const CALL_POINTS = ['chat', 'delete', 'ring', 'closed', 'iphone', 'network'];
 const WALLET_POINTS = ['coupon', 'invite', 'commission', 'balance', 'withdraw', 'gift', 'security', 'payments'];
 
 const CLIENT_STEPS = ['browse', 'details', 'location', 'offers', 'chat', 'finish'];

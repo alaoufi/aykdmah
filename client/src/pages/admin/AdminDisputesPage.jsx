@@ -267,10 +267,14 @@ export default function AdminDisputesPage() {
               </div>
               <div className="max-h-[400px] overflow-y-auto p-3 bg-slate-50 space-y-2">
                 {chat?.messages?.length ? chat.messages.map((m) => (
-                  <div key={m.id} className="bg-white rounded-card p-2.5 border border-slate-100">
+                  <div key={m.id} data-deleted={m.deleted_at ? 'true' : undefined}
+                    className={`rounded-card p-2.5 border ${m.deleted_at ? 'bg-red-50 border-red-300 text-red-800' : 'bg-white border-slate-100'}`}>
                     <div className="flex items-center justify-between text-[11px] text-slate-500 mb-1">
                       <span className="font-bold text-ink">{m.sender_name}</span>
-                      <span>{formatTime(m.created_at)}</span>
+                      <span>
+                        {m.deleted_at && <span className="text-rose-600 font-semibold">{t('admin.deleted_by_author')} · </span>}
+                        {formatTime(m.created_at)}
+                      </span>
                     </div>
                     {m.message_type === 'location' ? (
                       <a href={`https://www.google.com/maps?q=${m.latitude},${m.longitude}`} target="_blank" rel="noreferrer" className="text-brand-700 text-[13px]">

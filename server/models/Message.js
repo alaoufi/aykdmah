@@ -74,7 +74,8 @@ async function getSenderId(id) {
   return row || null;
 }
 
-async function listByConversation(conversationId, { beforeId = null, limit = 50 } = {}) {
+// includeDeleted: administrators reviewing a dispute also see messages their author deleted.
+async function listByConversation(conversationId, { beforeId = null, limit = 50, includeDeleted = false } = {}) {
   limit = Math.max(1, Math.min(100, Number.parseInt(limit, 10) || 50));
   const params = [conversationId];
   let beforeSql = '';
@@ -92,7 +93,7 @@ async function listByConversation(conversationId, { beforeId = null, limit = 50 
      JOIN users u ON m.sender_id = u.id
       LEFT JOIN messages rm ON m.reply_to_id = rm.id AND rm.conversation_id = m.conversation_id AND rm.deleted_at IS NULL
      LEFT JOIN users ru ON rm.sender_id = ru.id
-     WHERE m.conversation_id = ? AND m.deleted_at IS NULL ${beforeSql}
+     WHERE m.conversation_id = ? ${includeDeleted ? '' : 'AND m.deleted_at IS NULL'} ${beforeSql}
      ORDER BY m.id DESC LIMIT ?`,
     params
   );

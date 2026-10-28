@@ -172,20 +172,6 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
         </div>
       )}
 
-      <div className="chat-composer-toolbar">
-        <button type="button" onClick={startRecording} aria-label={t('chat.voice_message')} disabled={busy} className="chat-composer-media-button">
-          <span aria-hidden="true">🎙️</span> {t('chat.voice_message')}
-        </button>
-        <button type="button" onClick={() => { setShowVideo(value => !value); setShowEmoji(false); }} aria-expanded={showVideo} aria-controls="chat-video-actions" disabled={busy} className="chat-composer-media-button">
-          <span aria-hidden="true">📹</span> {t('chat.video_message')}
-        </button>
-        <button type="button" onClick={() => fileRef.current?.click()} aria-label={t('request.attachments')} title={t('request.attachments')} disabled={busy}>📎</button>
-        <button type="button" onClick={() => { setShowEmoji(value => !value); setShowVideo(false); }} aria-label={t('chat.emoji')} aria-expanded={showEmoji} disabled={busy}>😀</button>
-        {onShareLocation && (
-          <button type="button" onClick={onShareLocation} disabled={busy || sharingLocation} aria-label={t('chat.share_location')} title={t('chat.share_location')}>📍</button>
-        )}
-      </div>
-
       {showVideo && (
         <div className="chat-video-actions" id="chat-video-actions">
           <button type="button" onClick={startVideoRecording} disabled={busy}>🔴 {t('chat.record_video')}</button>
@@ -195,34 +181,46 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
       )}
 
       <div className="input-row">
-        <input ref={inputRef} type="text" value={text} onChange={event => setText(event.target.value)} onKeyDown={handleKey} placeholder={t('chat.placeholder')} aria-label={t('chat.placeholder')} disabled={busy} />
-        <button type="button" className="send-btn" onClick={handleSend} disabled={busy || (!text.trim() && files.length === 0)} aria-label={t('common.send')}>➤</button>
+        <div className="wa-pill">
+          <button type="button" onClick={() => { setShowEmoji(value => !value); setShowVideo(false); }} aria-label={t('chat.emoji')} aria-expanded={showEmoji} disabled={busy}>😀</button>
+          <input ref={inputRef} type="text" value={text} onChange={event => setText(event.target.value)} onKeyDown={handleKey} placeholder={t('chat.placeholder')} aria-label={t('chat.placeholder')} disabled={busy} />
+          <button type="button" onClick={() => fileRef.current?.click()} aria-label={t('request.attachments')} title={t('request.attachments')} disabled={busy}>📎</button>
+          <button type="button" onClick={() => { setShowVideo(value => !value); setShowEmoji(false); }} aria-label={t('chat.video_message')} title={t('chat.video_message')} aria-expanded={showVideo} aria-controls="chat-video-actions" disabled={busy}>📷</button>
+          {onShareLocation && (
+            <button type="button" onClick={onShareLocation} disabled={busy || sharingLocation} aria-label={t('chat.share_location')} title={t('chat.share_location')}>📍</button>
+          )}
+        </div>
+        {/* Like WhatsApp: a microphone while there is nothing to send, then the send arrow. */}
+        {!text.trim() && files.length === 0 && !recording ? (
+          <button type="button" className="send-btn" onClick={startRecording} disabled={busy} aria-label={t('chat.voice_message')} title={t('chat.voice_message')}>🎙️</button>
+        ) : (
+          <button type="button" className="send-btn" onClick={handleSend} disabled={busy || (!text.trim() && files.length === 0)} aria-label={t('common.send')}>➤</button>
+        )}
         <input ref={fileRef} type="file" multiple hidden accept={CHAT_ATTACHMENT_ACCEPT} onChange={selectFiles} />
         <input ref={videoRef} type="file" hidden accept="video/mp4,video/webm,video/ogg,video/quicktime,.mp4,.webm,.mov,.ogv" onChange={selectFiles} />
         <input ref={captureRef} type="file" hidden accept="video/*" capture="environment" onChange={selectFiles} />
       </div>
 
       <style>{`
-        .chat-input { border-top: 1px solid var(--border); background: var(--bg-card); padding: 8px; min-width: 0; }
-        .input-row { display: flex; align-items: center; gap: 6px; }
-        .input-row input { flex: 1; min-width: 0; padding: 10px 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--bg-soft); font: inherit; color: var(--text); }
-        .input-row input:focus { outline: 2px solid var(--primary); outline-offset: 1px; }
+        .chat-input { background: var(--wa-panel, var(--bg-card)); padding: 6px 8px 4px; min-width: 0; }
+        .input-row { display: flex; align-items: flex-end; gap: 6px; }
+        .wa-pill { flex: 1; min-width: 0; display: flex; align-items: center; gap: 0; background: var(--wa-in, var(--bg-card)); border-radius: 24px; padding: 0 4px; box-shadow: 0 1px .5px rgba(11,20,26,.13); }
+        .wa-pill input { flex: 1; min-width: 0; padding: 11px 6px; border: 0; background: transparent; font: inherit; font-size: 15px; color: var(--wa-text, var(--text)); }
+        .wa-pill input:focus { outline: none; }
+        .wa-pill:focus-within { box-shadow: 0 0 0 2px var(--wa-accent, var(--primary)); }
+        .wa-pill > button { min-width: 38px; font-size: 20px; padding: 4px; color: var(--wa-meta, var(--text-secondary)); }
         .chat-input button { cursor: pointer; font: inherit; color: var(--text-secondary); border: 0; background: transparent; border-radius: 8px; min-height: 44px; }
         .chat-input button:disabled { opacity: .45; cursor: not-allowed; }
-        .chat-input button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
-        .chat-input button:hover:not(:disabled) { background: var(--bg-soft); }
-        .input-row .send-btn { flex: 0 0 44px; height: 44px; border-radius: 50%; background: var(--primary); color: #fff; font-size: 20px; }
-        .input-row .send-btn:hover:not(:disabled) { background: var(--primary-dark); }
-        .chat-composer-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 3px; margin-bottom: 5px; }
-        .chat-composer-toolbar > button { padding: 6px 9px; min-width: 44px; font-size: 20px; }
-        .chat-composer-toolbar > .chat-composer-media-button { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; background: var(--bg-soft); }
-        .chat-composer-media-button span { font-size: 20px; }
+        .chat-input button:focus-visible { outline: 2px solid var(--wa-accent, var(--primary)); outline-offset: 2px; }
+        .wa-pill > button:hover:not(:disabled) { background: var(--wa-chip, var(--bg-soft)); border-radius: 50%; }
+        .input-row .send-btn { flex: 0 0 48px; width: 48px; height: 48px; border-radius: 50%; background: var(--wa-accent, var(--primary)); color: #fff; font-size: 20px; box-shadow: 0 1px 2px rgba(11,20,26,.2); }
+        .input-row .send-btn:hover:not(:disabled) { filter: brightness(.95); }
         .chat-composer-error { margin: 0 0 6px; padding: 8px; border-radius: 8px; color: var(--danger); background: var(--bg-soft); font-size: 13px; }
-        .chat-recording-controls { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 6px; background: var(--bg-soft); border-radius: 8px; margin-bottom: 6px; }
+        .chat-recording-controls { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 6px 10px; background: var(--wa-in, var(--bg-soft)); border-radius: 24px; margin-bottom: 6px; }
         .chat-recording-status { flex: 1 1 160px; font-size: 13px; color: var(--danger); }
         .chat-recording-controls button, .chat-video-actions button { padding: 6px 10px; border: 1px solid var(--border); }
         .chat-camera-preview { display: block; width: 100%; max-height: 150px; object-fit: contain; background: #000; border-radius: 8px; margin-bottom: 5px; }
-        .chat-video-actions { display: flex; gap: 6px; flex-wrap: wrap; padding-bottom: 6px; }
+        .chat-video-actions { display: flex; gap: 6px; flex-wrap: wrap; padding: 6px; margin-bottom: 6px; border-radius: 12px; background: var(--wa-in, var(--bg-card)); }
         .chat-draft-attachments { display: flex; flex-wrap: wrap; gap: 8px; max-height: 220px; overflow-y: auto; padding: 6px 0; }
         .chat-draft-attachment { flex: 1 1 200px; min-width: 0; max-width: 100%; border: 1px solid var(--border); background: var(--bg-soft); border-radius: 8px; padding: 6px; }
         .chat-draft-attachment p { font-size: 12px; margin: 0 0 5px; color: var(--text-secondary); }
@@ -232,7 +230,7 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
         .chat-draft-file-details { display: flex; gap: 6px; align-items: center; }
         .chat-draft-file-details span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; direction: ltr; }
         .chat-draft-file-details button { flex: 0 0 44px; }
-        .emoji-row { padding: 6px; display: flex; flex-wrap: wrap; gap: 4px; border-bottom: 1px solid var(--border); }
+        .emoji-row { padding: 6px; display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 6px; border-radius: 12px; background: var(--wa-in, var(--bg-card)); }
         .emoji-row button { font-size: 22px; padding: 4px 6px; }
       `}</style>
     </div>

@@ -46,7 +46,7 @@ check('voice recording shows a preview before sending', true);
 await client.page.getByRole('button', { name: 'إرسال', exact: true }).click();
 const voice = provider.page.locator('audio.voice-player').first();
 try {
-  await voice.waitFor({ timeout: 20000 });
+  await voice.waitFor({ state: 'attached', timeout: 20000 });
   // The provider downloads the recording and the browser decodes real audio from it.
   const audio = await voice.evaluate(async el => {
     const response = await fetch(el.currentSrc || el.src);
@@ -80,6 +80,39 @@ await providerInput.fill('أجي بعد العصر');
 await provider.page.getByRole('button', { name: 'إرسال', exact: true }).click();
 await client.page.getByText('أجي بعد العصر').waitFor({ timeout: 20000 }).then(() => check('provider reply reaches the client', true))
   .catch(() => check('provider reply reaches the client', false));
+
+// 5) A photo, rendered in the WhatsApp-style bubble and opened full screen.
+const png = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==', 'base64');
+await client.page.locator('input[type=file][multiple]').setInputFiles({ name: 'photo.png', mimeType: 'image/png', buffer: png });
+await client.page.getByRole('button', { name: 'إرسال', exact: true }).click();
+try {
+  await provider.page.locator('button.wa-photo img').first().waitFor({ timeout: 20000 });
+  await provider.page.locator('button.wa-photo').first().click();
+  await provider.page.locator('.wa-viewer img').waitFor({ timeout: 5000 });
+  await provider.page.getByRole('button', { name: 'إغلاق' }).first().click().catch(() => provider.page.keyboard.press('Escape'));
+  check('photo reaches the provider and opens full screen', true);
+} catch (_) { check('photo reaches the provider and opens full screen', false); }
+
+// 6) Delete: only the author has the option; after confirming it disappears for both.
+const theirs = client.page.locator('.bubble-row.theirs', { hasText: 'أجي بعد العصر' });
+await theirs.locator('.bubble').hover();
+await theirs.getByRole('button', { name: 'المزيد' }).click();
+check('the receiver cannot delete the other person\'s message', !(await theirs.getByRole('button', { name: /حذف الرسالة/ }).count()));
+await client.page.keyboard.press('Escape');
+await client.page.mouse.move(0, 0);
+const mine = client.page.locator('.bubble-row.mine', { hasText: 'مرحبا، متى تقدر تجي؟' });
+await mine.locator('.bubble').hover();
+await mine.getByRole('button', { name: 'المزيد' }).click();
+await mine.getByRole('button', { name: /حذف الرسالة/ }).click();
+await client.page.getByRole('dialog').getByRole('button', { name: 'حذف الرسالة' }).click();
+await client.page.waitForTimeout(3000);
+const goneClient = !(await client.page.getByText('مرحبا، متى تقدر تجي؟').count());
+await provider.page.reload();
+await provider.page.getByText('أجي بعد العصر').waitFor({ timeout: 20000 });
+const goneProvider = !(await provider.page.getByText('مرحبا، متى تقدر تجي؟').count());
+check('author deletes after confirming; gone for both', goneClient && goneProvider, `client ${goneClient} provider ${goneProvider}`);
+check('admin notice is shown under the chat', await client.page.getByText('الإدارة تستطيع الاطلاع على المحادثات لحفظ الحقوق عند الخلاف').isVisible());
+await provider.page.screenshot({ path: '/e2e/chat-wa.png' });
 
 await browser.close();
 const failed = results.filter(r => !r.ok);

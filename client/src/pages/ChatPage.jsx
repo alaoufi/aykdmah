@@ -340,7 +340,7 @@ export default function ChatPage() {
               {messages.length === 0 ? (
                 <EmptyState title={t('chat.no_messages')} />
               ) : (
-                renderedMessages.map((item) => {
+                renderedMessages.map((item, index) => {
                   if (item.__type === 'separator') {
                     return (
                       <div key={item.key} className="date-separator">
@@ -353,6 +353,7 @@ export default function ChatPage() {
                       key={item.id}
                       message={item}
                       isMine={item.sender_id === user.id}
+                      firstInRun={index === 0 || renderedMessages[index - 1].__type === 'separator' || renderedMessages[index - 1].sender_id !== item.sender_id}
                       onReply={canSend ? setReplyTo : undefined}
                       onDelete={setDeleteCandidate}
                       renderTranslation={message => <LocalMessageTranslation message={message} sessionKey={sessionKey} />}
@@ -390,6 +391,7 @@ export default function ChatPage() {
               sharingLocation={sharingLocation}
               disabled={!canSend || (realtimeMode === 'socket' && !socket)}
             />
+            <p className="chat-admin-notice" data-testid="chat-admin-notice">🔒 {t('chat.admin_notice')}</p>
           </>
         )}
       </section>
@@ -398,7 +400,7 @@ export default function ChatPage() {
         open={activeReady && !!deleteCandidate}
         title={t('chat.delete_message_title')}
         body={t('chat.delete_message_body')}
-        confirmLabel={t('admin.delete')}
+        confirmLabel={t('chat.delete_message')}
         tone="danger"
         onConfirm={confirmDelete}
         onCancel={() => setDeleteCandidate(null)}
@@ -406,8 +408,16 @@ export default function ChatPage() {
 
       <style>{`
         .chat-page {
-          display: grid; grid-template-columns: 320px 1fr;
-          height: calc(100vh - var(--header-h)); background: #f1f5f9;
+          display: grid; grid-template-columns: 340px 1fr;
+          height: calc(100vh - var(--header-h)); background: var(--wa-panel);
+          --wa-bg: #efeae2; --wa-out: #d9fdd3; --wa-in: #ffffff; --wa-text: #111b21; --wa-meta: #667781;
+          --wa-tick: #53bdeb; --wa-accent: #00a884; --wa-chip: rgba(11,20,26,.05); --wa-wave: #b4bcc0;
+          --wa-system: #ffeecd; --wa-panel: #f0f2f5; --wa-action-bg: rgba(255,255,255,.85); --wa-doodle: rgba(11,20,26,.045);
+        }
+        [data-theme="dark"] .chat-page {
+          --wa-bg: #0b141a; --wa-out: #005c4b; --wa-in: #202c33; --wa-text: #e9edef; --wa-meta: #8696a0;
+          --wa-chip: rgba(255,255,255,.06); --wa-wave: #5d6a71; --wa-system: #182229; --wa-panel: #111b21;
+          --wa-action-bg: rgba(32,44,51,.85); --wa-doodle: rgba(255,255,255,.03);
         }
         .chat-sidebar {
           border-inline-end: 1px solid var(--border); background: var(--bg-card);
@@ -442,21 +452,29 @@ export default function ChatPage() {
         }
         .track-btn:hover { transform: scale(1.08); }
         .chat-body {
-          flex: 1; overflow-y: auto; padding: 16px;
-          background-image: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+          flex: 1; overflow-y: auto; padding: 10px 4% 12px;
+          background-color: var(--wa-bg);
+          background-image: radial-gradient(var(--wa-doodle) 1.2px, transparent 1.3px), radial-gradient(var(--wa-doodle) 1.2px, transparent 1.3px);
+          background-size: 22px 22px; background-position: 0 0, 11px 11px;
+        }
+        .chat-header { background: var(--wa-panel) !important; }
+        .chat-admin-notice {
+          margin: 0; padding: 2px 10px 4px; text-align: center; font-size: 10px; line-height: 1.4;
+          color: var(--wa-meta); background: var(--wa-panel);
         }
         .date-separator {
           text-align: center; margin: 16px 0 8px;
         }
+        .date-separator { position: sticky; top: 0; z-index: 2; }
         .date-separator span {
-          display: inline-block; background: rgba(255,255,255,.85);
-          padding: 4px 12px; border-radius: 999px;
-          font-size: 11px; color: #64748b; font-weight: 600;
-          box-shadow: 0 1px 2px rgba(15,23,42,.05);
+          display: inline-block; background: var(--wa-in);
+          padding: 5px 12px; border-radius: 8px;
+          font-size: 12px; color: var(--wa-meta);
+          box-shadow: 0 1px .5px rgba(11,20,26,.13);
         }
         .typing-indicator {
           display: inline-flex; gap: 4px; padding: 8px 14px;
-          background: #fff; border-radius: 14px; margin: 4px 0;
+          background: var(--wa-in); border-radius: 8px; margin: 4px 6px;
           box-shadow: 0 1px 1px rgba(0,0,0,.06);
         }
         .typing-indicator span {

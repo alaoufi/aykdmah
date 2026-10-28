@@ -113,6 +113,15 @@ if (!databaseName) {
     await api(`/chat/conversations/${conversationId}/messages`, { method: 'POST', token: provider.token, expected: 201, body: { content: 'موعدنا غدًا بعد العصر' } });
     const messages = (await api(`/chat/conversations/${conversationId}/messages`, { token: customer.token })).data;
     assert.equal(messages[0].content, 'موعدنا غدًا بعد العصر');
+    // Only the author deletes a message; it disappears for both, and administrators keep it.
+    const extra = (await api(`/chat/conversations/${conversationId}/messages`, { method: 'POST', token: provider.token, expected: 201, body: { content: 'رسالة ستحذف' } })).data;
+    await api(`/chat/conversations/${conversationId}/messages/${extra.id}`, { method: 'DELETE', token: customer.token, expected: 403 });
+    await api(`/chat/conversations/${conversationId}/messages/${extra.id}`, { method: 'DELETE', token: provider.token });
+    for (const token of [customer.token, provider.token]) {
+      assert.ok(!(await api(`/chat/conversations/${conversationId}/messages`, { token })).data.some(m => m.id === extra.id), 'gone for both participants');
+    }
+    const kept = (await Message.listByConversation(conversationId, { includeDeleted: true })).find(m => m.id === extra.id);
+    assert.ok(kept?.deleted_at && kept.content === 'رسالة ستحذف', 'kept for administrators with its deletion time');
     await api(`/requests/${request.id}/status`, { method: 'PUT', token: provider.token, body: { status: 'in_progress' } });
     await api(`/requests/${request.id}/status`, { method: 'PUT', token: customer.token, body: { status: 'completed' } });
     assert.equal((await api(`/requests/${request.id}`, { token: customer.token })).data.status, 'completed');

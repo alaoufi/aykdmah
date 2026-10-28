@@ -28,11 +28,12 @@ export default function ConfirmDialog({
       onClick={onCancel}
     >
       <div
+        role="dialog" aria-modal="true" aria-labelledby="confirm-dialog-title"
         className="bg-white rounded-card shadow-lift w-full max-w-md overflow-hidden animate-[scaleIn_.15s_ease]"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="px-5 pt-5 pb-3">
-          <h3 className="text-ink text-lg font-extrabold mb-2">
+          <h3 id="confirm-dialog-title" className="text-ink text-lg font-extrabold mb-2">
             {title || t('admin.confirm_action')}
           </h3>
           {body && <p className="text-slate-600 text-[14px] leading-relaxed">{body}</p>}

@@ -249,14 +249,15 @@ function ConversationDetail({ id, onBack, locale }) {
                 const isClient = sender.role === 'client';
                 return (
                   <div key={m.id} className={`flex ${isClient ? 'justify-start' : 'justify-end'}`}>
-                    <div className={`max-w-[78%] px-3 py-2 rounded-card text-[13.5px] ${
-                      isClient ? 'bg-surface-alt text-ink' : 'bg-primary-soft text-ink'
+                    <div data-deleted={m.deleted_at ? 'true' : undefined} className={`max-w-[78%] px-3 py-2 rounded-card text-[13.5px] ${
+                      m.deleted_at ? 'bg-red-50 text-red-800 border border-red-300 dark:bg-red-950 dark:text-red-200 dark:border-red-800'
+                        : isClient ? 'bg-surface-alt text-ink' : 'bg-primary-soft text-ink'
                     }`}>
                       <div className="text-[10.5px] text-fg-subtle mb-1 flex items-center gap-1.5">
                         <span className="font-bold">{sender.full_name || `#${m.sender_id}`}</span>
                         <span>·</span>
                         <span>{formatTime(m.created_at, locale)}</span>
-                        {m.deleted_at && <span className="text-rose-500">· {t('admin.deleted')}</span>}
+                        {m.deleted_at && <span className="text-rose-500">· {t('admin.deleted_by_author')}</span>}
                       </div>
                       {m.message_type === 'voice' ? (
                         <div className="flex items-center gap-2">

@@ -141,7 +141,7 @@ const getDisputeConversation = asyncHandler(async (req, res) => {
 
   const conv = await Conversation.findById(dispute.conversation_id);
   const participants = await Conversation.getParticipants(dispute.conversation_id);
-  const messages = await Message.listByConversation(dispute.conversation_id, { limit: 500 });
+  const messages = await Message.listByConversation(dispute.conversation_id, { limit: 500, includeDeleted: true });
   const locations = await LocationShare.getLatestForConversation(dispute.conversation_id);
 
   await Dispute.logAccess({
