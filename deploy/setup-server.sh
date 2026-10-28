@@ -42,6 +42,17 @@ if ! grep -q '^LIVEKIT_API_SECRET=' "$ENV_FILE"; then
     cp "$ENV_FILE" "/root/backups/aykdmh-env-$STAMP"
     echo "Added LIVEKIT_API_SECRET to $ENV_FILE"
 fi
+# Web Push (VAPID) key pair for incoming-call notifications: a P-256 key generated locally.
+if ! grep -q '^PUSH_PRIVATE_KEY=' "$ENV_FILE"; then
+    docker run --rm node:22-bookworm node -e "
+const k = require('crypto').generateKeyPairSync('ec', { namedCurve: 'prime256v1' });
+const pub = k.publicKey.export({ format: 'jwk' }), priv = k.privateKey.export({ format: 'jwk' });
+const point = Buffer.concat([Buffer.from([4]), Buffer.from(pub.x, 'base64url'), Buffer.from(pub.y, 'base64url')]);
+console.log('PUSH_PUBLIC_KEY=' + point.toString('base64url'));
+console.log('PUSH_PRIVATE_KEY=' + priv.d);" >> "$ENV_FILE"
+    cp "$ENV_FILE" "/root/backups/aykdmh-env-$STAMP"
+    echo "Added Web Push keys to $ENV_FILE"
+fi
 chmod 600 "$ENV_FILE"
 
 echo "== Backups =="

@@ -1,5 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import Header from '../components/layout/Header';
+import CallAlerts from '../components/notifications/CallAlerts';
 import Sidebar from '../components/layout/Sidebar';
 import BottomNav from '../components/layout/BottomNav';
 import BackButton from '../components/common/BackButton';
@@ -8,6 +9,7 @@ export default function DashboardLayout({ sidebarItems }) {
   return (
     <>
       <Header />
+      <CallAlerts variant="banner" />
       <div className="dashboard-wrap">
         <Sidebar items={sidebarItems} />
         <main className="dashboard-main">

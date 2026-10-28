@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { getToken, setToken, TOKEN_KEY, TOKEN_CHANGE_EVENT } from '../services/api';
 import { me, login as loginApi, logout as logoutApi, register as registerApi } from '../services/authService';
+import { detachPush } from '../services/pushService';
 
 const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
@@ -93,6 +94,7 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
+    await detachPush();
     ++refreshVersion.current;
     setUser(null);
     setProvider(null);

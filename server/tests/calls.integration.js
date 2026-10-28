@@ -9,6 +9,12 @@ if (!databasePrefix) {
   test('calls integration (set AYK_CALLS_TEST_DB)', { skip: true }, () => {});
 } else {
   if (!/^ayk_test_calls[a-z0-9_]{0,20}$/.test(databasePrefix)) throw new Error('Use a disposable ayk_test_calls* database prefix.');
+  function vapid() {
+    const k = crypto.generateKeyPairSync('ec', { namedCurve: 'prime256v1' });
+    const pub = k.publicKey.export({ format: 'jwk' });
+    const point = Buffer.concat([Buffer.from([4]), Buffer.from(pub.x, 'base64url'), Buffer.from(pub.y, 'base64url')]);
+    return { PUSH_PUBLIC_KEY: point.toString('base64url'), PUSH_PRIVATE_KEY: k.privateKey.export({ format: 'jwk' }).d, PUSH_SUBJECT: 'https://aykdmh.test' };
+  }
   const databaseName = `${databasePrefix}_${crypto.randomBytes(8).toString('hex')}`;
   const port = Number(process.env.AYK_TEST_PORT || '5432');
   const livekitSecret = crypto.randomBytes(32).toString('hex');
@@ -21,7 +27,14 @@ if (!databasePrefix) {
     JWT_SECRET: crypto.randomBytes(48).toString('hex'),
     LIVEKIT_URL: 'wss://calls.test.invalid/livekit', LIVEKIT_API_URL: '',
     LIVEKIT_API_KEY: 'testkey', LIVEKIT_API_SECRET: livekitSecret,
+    ...vapid(),
   });
+  // Push deliveries are recorded instead of sent to a real push service.
+  const pushes = [];
+  require('web-push').sendNotification = async (subscription, body, options) => {
+    pushes.push({ endpoint: subscription.endpoint, body: JSON.parse(body), options });
+    if (subscription.endpoint.endsWith('/gone')) throw Object.assign(new Error('gone'), { statusCode: 410 });
+  };
   const { Client } = require('pg');
   const db = require('../config/database');
   const jwt = require('../utils/jwt');
@@ -196,6 +209,44 @@ if (!databasePrefix) {
     const stats = await calls.stats({ days: 30 });
     assert.ok(stats.totals.total >= 5);
     assert.equal(stats.reports.length, 1);
+  });
+
+  test('an incoming call rings the callee devices through Web Push, and only valid subscriptions are kept', async () => {
+    await endAll();
+    const key = await api('/push/key');
+    assert.equal(key.body.data.key, process.env.PUSH_PUBLIC_KEY);
+    const keys = { p256dh: 'B'.repeat(87), auth: 'a'.repeat(22) };
+    const device = { endpoint: 'https://fcm.googleapis.com/fcm/send/device-1', keys };
+    assert.equal((await api('/push/subscribe', { method: 'POST', body: { subscription: device } })).status, 401);
+    for (const bad of [{ ...device, endpoint: 'https://evil.example/push' }, { ...device, endpoint: 'http://fcm.googleapis.com/x' }, { endpoint: device.endpoint, keys: {} }]) {
+      assert.equal((await api('/push/subscribe', { user: users.provider, method: 'POST', body: { subscription: bad } })).status, 400);
+    }
+    assert.equal((await api('/push/subscribe', { user: users.provider, method: 'POST', body: { subscription: device } })).status, 200);
+    const stale = { endpoint: 'https://fcm.googleapis.com/fcm/send/gone', keys };
+    assert.equal((await api('/push/subscribe', { user: users.provider, method: 'POST', body: { subscription: stale } })).status, 200);
+
+    pushes.length = 0;
+    const call = (await api('/calls', { user: users.client, method: 'POST', body: { conversation_id: conversation, call_type: 'audio' } })).body.data;
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const ring = pushes.find(p => p.endpoint === device.endpoint);
+    assert.ok(ring, 'the callee device is notified');
+    assert.equal(ring.body.kind, 'call');
+    assert.equal(ring.body.url, `/chat/${conversation}`);
+    assert.equal(ring.options.urgency, 'high');
+    assert.ok(ring.options.TTL <= 45, 'the ring expires with the call');
+    assert.ok(!JSON.stringify(ring.body).includes('@'), 'no contact details in the notification');
+    assert.equal(Number((await db.queryOne('SELECT COUNT(*) AS n FROM push_subscriptions WHERE endpoint = ?', [stale.endpoint])).n), 0, 'expired subscriptions are removed');
+
+    pushes.length = 0;
+    await api(`/calls/${call.id}/decline`, { user: users.client, method: 'POST' });
+    await new Promise(resolve => setTimeout(resolve, 300));
+    assert.equal(pushes.find(p => p.endpoint === device.endpoint)?.body.kind, 'call_end', 'a cancelled call clears the notification');
+
+    // The same device signed in to another account rings only for that account.
+    await api('/push/subscribe', { user: users.outsider, method: 'POST', body: { subscription: device } });
+    assert.equal(Number((await db.queryOne('SELECT user_id FROM push_subscriptions WHERE endpoint = ?', [device.endpoint])).user_id), users.outsider.id);
+    await api('/push/unsubscribe', { user: users.outsider, method: 'POST', body: { endpoint: device.endpoint } });
+    assert.equal(Number((await db.queryOne('SELECT COUNT(*) AS n FROM push_subscriptions')).n), 0);
   });
 
   test('unsigned LiveKit webhooks are rejected', async () => {

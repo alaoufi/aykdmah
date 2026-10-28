@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 
 const SIGNUP_POINTS = ['types', 'basics', 'location', 'professions', 'coverage', 'coupon', 'matching', 'edit', 'change_type'];
 const AVAILABILITY_POINTS = ['pause', 'vacation', 'days', 'hours', 'search'];
+const CALL_POINTS = ['ring', 'closed', 'iphone', 'network'];
 const WALLET_POINTS = ['coupon', 'invite', 'commission', 'balance', 'withdraw', 'gift', 'security', 'payments'];
 
 const CLIENT_STEPS = ['browse', 'details', 'location', 'offers', 'chat', 'finish'];
@@ -112,6 +113,19 @@ export default function GuidePage() {
               <li key={point} className="card p-4">
                 <h3 className="text-fg font-bold text-base">{index + 1}. {t(`help.availability_points.${point}.title`)}</h3>
                 <p className="text-fg-muted text-sm leading-loose mt-1">{t(`help.availability_points.${point}.body`)}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <section id="guide-calls" aria-labelledby="guide-calls-title" className="mb-10 md:mb-12">
+          <h2 id="guide-calls-title" className="text-xl md:text-2xl font-extrabold text-fg">📞 {t('help.calls_title')}</h2>
+          <p className="text-fg-muted text-sm md:text-base leading-loose mt-3 mb-5">{t('help.calls_intro')}</p>
+          <ol className="space-y-3">
+            {CALL_POINTS.map((point, index) => (
+              <li key={point} className="card p-4">
+                <h3 className="text-fg font-bold text-base">{index + 1}. {t(`help.calls_points.${point}.title`)}</h3>
+                <p className="text-fg-muted text-sm leading-loose mt-1">{t(`help.calls_points.${point}.body`)}</p>
               </li>
             ))}
           </ol>

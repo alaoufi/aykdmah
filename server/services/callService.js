@@ -15,6 +15,8 @@ const { query, queryOne, transaction } = require('../config/database');
 const Conversation = require('../models/Conversation');
 const { emitUser } = require('../utils/conversationEvents');
 const notificationService = require('./notificationService');
+const pushService = require('./pushService');
+const { translate } = require('../utils/i18n');
 const logger = require('../utils/logger');
 
 const RING_TIMEOUT_MS = 45 * 1000;
@@ -119,6 +121,13 @@ async function start({ caller, conversationId, callType }) {
 
   const row = await findCall(callId);
   if (io) await emitUser(io, callee.id, 'call:incoming', publicCall(row, callee.id)).catch(() => {});
+  // Rings the callee's devices even when the site is closed. It expires with the ring.
+  pushService.sendToUser(callee.id, lang => ({
+    kind: 'call', call_id: callId, tag: `call-${callId}`, url: `/chat/${conversationId}`,
+    title: translate(lang, callType === 'video' ? 'push_call_video' : 'push_call_audio'),
+    body: translate(lang, 'push_call_body', { name: row.caller_name || '' }),
+  }), { TTL: Math.round(RING_TIMEOUT_MS / 1000), urgency: 'high', topic: `call-${callId}` })
+    .catch(err => logger.warn('Call push failed:', err.message));
   return publicCall(row, caller.id);
 }
 
@@ -139,6 +148,11 @@ async function finish(row, status, reason) {
   await closeRoom(row.room_name);
   const final = await findCall(row.id);
   await emitState(final);
+  // Clears the ringing notification on the callee's closed devices (same topic replaces it).
+  if (row.status === 'ringing') {
+    pushService.sendToUser(row.callee_id, { kind: 'call_end', call_id: row.id, tag: `call-${row.id}` },
+      { TTL: 60, urgency: 'high', topic: `call-${row.id}` }).catch(() => {});
+  }
   if (status === 'missed' || (status === 'cancelled' && !row.answered_at)) {
     notificationService.notifyUser(row.callee_id, {
       type: 'missed_call',

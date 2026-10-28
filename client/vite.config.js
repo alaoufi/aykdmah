@@ -50,6 +50,8 @@ export default defineConfig(({ mode }) => {
         },
         workbox: {
           globIgnores: ['install/refresh.html', 'refresh-site.js', 'assets/*.wasm', 'assets/*.mjs', 'assets/localLanguage.worker-*.js'],
+          // Incoming-call notifications (AYK-008).
+          importScripts: ['push-sw.js'],
           skipWaiting: true,
           clientsClaim: true,
           cleanupOutdatedCaches: true,

@@ -1504,7 +1504,27 @@
       }
     },
     "appearance_title": "Appearance and themes",
-    "appearance_body": "Tap the “Appearance” circle at the top to choose light, dark or device mode, and a theme: Brand, Saudi (greens inspired by the Saudi emblem), Desert (sand colours), Mountain (inspired by the highlands), Sea (inspired by the sea and coast) or Burgundy. Pick one of four text sizes, and high contrast for low vision. Your choice is saved on your device."
+    "appearance_body": "Tap the “Appearance” circle at the top to choose light, dark or device mode, and a theme: Brand, Saudi (greens inspired by the Saudi emblem), Desert (sand colours), Mountain (inspired by the highlands), Sea (inspired by the sea and coast) or Burgundy. Pick one of four text sizes, and high contrast for low vision. Your choice is saved on your device.",
+    "calls_title": "Calls and call alerts",
+    "calls_intro": "Clients and providers call each other by voice or video from inside the chat, without sharing phone numbers.",
+    "calls_points": {
+      "ring": {
+        "title": "Ringing while the site is open",
+        "body": "The incoming call screen shows the caller's name with a ringtone, repeated vibration and Answer / Decline buttons."
+      },
+      "closed": {
+        "title": "With the site or app closed",
+        "body": "Turn on “Call alerts” in your profile once per device. You then get a vibrating call notification that stays until you act; tapping it opens the chat to answer."
+      },
+      "iphone": {
+        "title": "On iPhone",
+        "body": "iPhone allows notifications after you add the site to the Home Screen from Safari (Share → Add to Home Screen) and open it from the icon."
+      },
+      "network": {
+        "title": "Weak network",
+        "body": "If either side loses the network for a few seconds the call stays up and resumes automatically; it ends only when hung up or after a long outage."
+      }
+    }
   },
   "request_location": {
     "title": "Service location",
@@ -1930,5 +1950,17 @@
     "withdrawals_paid": "Withdrawals paid",
     "withdrawals_pending": "Withdrawals pending",
     "currency": "SAR"
+  },
+  "push": {
+    "title": "Call alerts on this device",
+    "hint": "When on, every incoming call shows a notification and vibrates even if the site or app is closed. While the site is open you also hear a ringtone and see the Answer / Decline screen.",
+    "enable": "Turn on call alerts",
+    "on": "Alerts are on for this device",
+    "denied": "Notifications are blocked for this site. Allow them in the browser's site settings, then try again.",
+    "failed": "Alerts could not be turned on in this browser. Reload and try in Chrome or Safari.",
+    "unsupported": "This browser does not support call notifications. Use Chrome on Android or desktop, or Safari on iPhone after adding the site to the Home Screen.",
+    "iphone_hint": "On iPhone: tap Share, then “Add to Home Screen”, open the app from the new icon and turn on alerts from your profile.",
+    "banner": "Turn on call alerts so your device rings when someone calls you, even with the site closed.",
+    "later": "Later"
   }
 }

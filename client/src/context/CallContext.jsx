@@ -2,6 +2,8 @@ import { createContext, lazy, Suspense, useCallback, useContext, useEffect, useR
 import { useAuth } from './AuthContext';
 import { useSocket } from './SocketContext';
 import * as calls from '../services/callService';
+import { syncPush } from '../services/pushService';
+import { startTone, stopTone } from '../utils/ringtone';
 
 // The call screen and the LiveKit SDK load only when a call actually starts or rings.
 const CallOverlay = lazy(() => import('../components/calls/CallOverlay'));
@@ -187,6 +189,24 @@ export function CallProvider({ children }) {
 
   // Release devices if the user signs out mid-call.
   useEffect(() => { if (!user) { teardown(); setCall(null); setPhase('idle'); } }, [user, teardown]);
+
+  // A device that already allowed notifications rings for whoever is signed in on it.
+  useEffect(() => { if (user?.id) syncPush().catch(() => {}); }, [user?.id]);
+
+  // Ringing tone for an incoming call, ringback while the other side has not answered.
+  useEffect(() => {
+    if (phase === 'incoming') startTone('incoming');
+    else if (phase === 'outgoing') startTone('outgoing');
+    else stopTone();
+    return stopTone;
+  }, [phase]);
+
+  // Keep vibrating while it rings (phones), not just once.
+  useEffect(() => {
+    if (phase !== 'incoming' || !navigator.vibrate) return undefined;
+    const buzz = setInterval(() => navigator.vibrate([400, 200, 400]), 3000);
+    return () => { clearInterval(buzz); navigator.vibrate(0); };
+  }, [phase]);
 
   // The call is answered and its room is connected or recovering.
   const inProgress = () => callRef.current?.status === 'accepted'

@@ -36,6 +36,7 @@ router.use('/calls', require('./callRoutes').router);
 router.use('/wallet', require('./walletRoutes'));
 router.use('/reviews', require('./reviewRoutes'));
 router.use('/notifications', require('./notificationRoutes'));
+router.use('/push', require('./pushRoutes'));
 router.use('/subscriptions', require('./subscriptionRoutes'));
 router.use('/payments', require('./paymentRoutes'));
 router.use('/admin', require('./adminRoutes'));
