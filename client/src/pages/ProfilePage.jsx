@@ -32,6 +32,13 @@ export default function ProfilePage() {
   const lang = i18n.resolvedLanguage || 'ar';
   const { user, refresh } = useAuth();
   const [form, setForm] = useState(() => formFromUser(user));
+  // Links such as "Edit your area" (/profile#my-area) open on that section.
+  useEffect(() => {
+    const id = window.location.hash.slice(1);
+    if (!id) return undefined;
+    const timer = setTimeout(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
+    return () => clearTimeout(timer);
+  }, []);
   const [entryUser, setEntryUser] = useState(user);
   const [completeOnEntry, setCompleteOnEntry] = useState(false);
   const [locationEdited, setLocationEdited] = useState(false);
@@ -253,7 +260,7 @@ export default function ProfilePage() {
       <h2 className="mb-4">{t('profile.title')}</h2>
       {msg && <div className="badge badge-success mb-3" role="status">{msg}</div>}
       {err && <div role="alert" className="form-error mb-3" style={{ padding: 10, background: 'rgba(239,68,68,.1)', borderRadius: 8 }}>{err}</div>}
-      <div className="card mb-4">
+      <div className="card mb-4" id="my-area">
         <div className="flex items-center gap-3 mb-3">
           <Avatar src={user?.avatar} name={user?.full_name} size="lg" />
           <div><h3 style={{ margin: 0 }}>{user?.full_name}</h3><div className="text-sm text-muted">{user?.email}</div></div>

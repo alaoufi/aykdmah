@@ -27,7 +27,6 @@ export default function ServiceCard({ service, onOrder, query = '', locationLabe
 
         <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[11.5px] text-slate-500 mb-3">
           <span>⏱ {tx(service.duration, lang)}</span>
-          <span>📍 {tx(service.city, lang)}</span>
           {service.ordersCount > 0 && <span>📦 {t('catalog.orders', { count: service.ordersCount })}</span>}
         </div>
 

@@ -1477,8 +1477,8 @@
         "body": "Every account has a permanent customer number of letters and digits (e.g. AB12), shown at the top of the site and in your account menu; you can sign in with it, your phone or your email. A provider's number is also their invitation number: if a provider invited you, type it in the “Invitation number” field while signing up. The “Create account” button stays off until the required fields are complete and valid, the terms are accepted and the verification code is entered."
       },
       "matching": {
-        "title": "Requests that match you",
-        "body": "Providers see requests matching their services and neighbourhoods straight away, with no need to pick them again. Tap “All requests” to see the rest."
+        "title": "What your home page shows",
+        "body": "Providers see open requests in the neighbourhoods they cover and in their professions. Requesters see providers who cover their area in the profession they pick: featured (paid badge) first, then the highest rated. Change your area from “Edit your area” at the top."
       },
       "edit": {
         "title": "Changing things later",
@@ -1980,5 +1980,26 @@
     "iphone_hint": "On iPhone: tap Share, then “Add to Home Screen”, open the app from the new icon and turn on alerts from your profile.",
     "banner": "Turn on call alerts so your device rings when someone calls you, even with the site closed.",
     "later": "Later"
+  },
+  "for_you": {
+    "your_area": "Your area: {{area}}",
+    "no_area": "You have not set your area yet",
+    "no_area_hint": "Set your city and neighbourhood to see the providers who serve it.",
+    "edit_area": "Edit your area",
+    "requests_title": "Requests in your area and profession",
+    "requests_hint": "Based on the neighbourhoods you cover and the professions in your profile",
+    "requests_empty": "No open requests in your area and profession right now. They will appear here as soon as they are posted.",
+    "providers_title": "Service providers in your area",
+    "providers_empty": "No provider for this profession serves your area yet. Post your request so it reaches those who do.",
+    "profession": "Profession",
+    "featured": "Featured",
+    "verified": "Verified",
+    "no_ratings": "No ratings yet",
+    "completed": "{{count}} jobs done",
+    "available": "Available now",
+    "unavailable": "Not available now",
+    "view_profile": "View profile and contact",
+    "view_all": "View all",
+    "coverage_text": "Offered by the providers who cover your area, across the Kingdom"
   }
 }

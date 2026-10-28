@@ -76,7 +76,6 @@ export default function ServiceDetailsPage() {
                 {service.ratingCount > 0 && <span className="text-amber-600 font-bold">★ {service.rating.toFixed(1)} <span className="text-slate-400 font-normal">({service.ratingCount})</span></span>}
                 {service.ordersCount > 0 && <span>📦 {t('catalog.orders', { count: service.ordersCount })}</span>}
                 <span>⏱ {tx(service.duration, lang)}</span>
-                <span>📍 {tx(service.city, lang)}</span>
               </div>
             </div>
 
@@ -120,7 +119,7 @@ export default function ServiceDetailsPage() {
             )}
 
             <Section title={t('catalog.coverage')}>
-              <p className="text-[14px] text-slate-600">📍 {tx(service.coverage, lang)}</p>
+              <p className="text-[14px] text-slate-600">📍 {t('for_you.coverage_text')}</p>
             </Section>
 
             <Section title={t('catalog.terms')}>

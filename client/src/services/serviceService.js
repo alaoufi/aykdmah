@@ -99,3 +99,15 @@ export async function listNearbyProviders({ lat, lon, radiusKm, categoryId, serv
   const { data } = await api.get('/providers/nearby', { params, signal });
   return data.data;
 }
+
+// Providers serving the signed-in user's area (or the given one) in a profession,
+// featured first, then by rating (AYK-035).
+export async function listMatchingProviders({ categoryId, serviceId, cityId, districtId } = {}) {
+  const params = {};
+  if (categoryId) params.category_id = categoryId;
+  if (serviceId) params.service_id = serviceId;
+  if (cityId) params.city_id = cityId;
+  if (districtId) params.district_id = districtId;
+  const { data } = await api.get('/providers/matching', { params });
+  return data.data;
+}

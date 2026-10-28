@@ -74,6 +74,9 @@ export default function Header() {
             <a href="https://trbhh.sa" target="_blank" rel="noopener noreferrer" className="font-bold underline underline-offset-2 text-inherit" dir="ltr">trbhh.sa</a>
           </span>
           <span className="flex-1" />
+          {user && ['client', 'provider'].includes(user.role) && (
+            <Link to="/profile#my-area" className="shrink-0 whitespace-nowrap font-semibold underline underline-offset-2 text-inherit" data-testid="edit-area">📍 {t('for_you.edit_area')}</Link>
+          )}
           {user?.referral_code && (
             <span className="shrink-0 whitespace-nowrap" data-testid="customer-number">
               {t('brand.customer_number')}: <b dir="ltr" className="tracking-wider">{user.referral_code}</b>

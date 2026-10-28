@@ -131,6 +131,45 @@ if (!databaseName) {
     const messageId = await Message.create({ conversation_id: conversationId, sender_id: customer.user.id, files: [file], message_type: 'file' });
     assert.equal((await Message.findById(messageId)).files.length, 1);
   });
+  test('requesters see providers covering their area in the chosen profession: featured first, then by rating', async () => {
+    const suffix = crypto.randomBytes(4).toString('hex');
+    const city = await db.queryOne('SELECT c.id FROM cities c WHERE EXISTS (SELECT 1 FROM districts d WHERE d.city_id = c.id) ORDER BY c.id LIMIT 1');
+    const [home, other] = await db.query('SELECT id FROM districts WHERE city_id = ? ORDER BY id LIMIT 2', [city.id]);
+    const service = await db.queryOne('SELECT id, category_id FROM services WHERE is_active = 1 ORDER BY id LIMIT 1');
+    const otherService = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND category_id <> ? ORDER BY id LIMIT 1', [service.category_id]);
+    const makeProvider = async (name, { rating, districts = [home.id], services = [service.id] }) => {
+      const id = (await db.query("INSERT INTO users (full_name, email, password_hash, role, city_id) VALUES (?, ?, 'unused', 'provider', ?)",
+        [name, `${name}-${suffix}@ayk-test.local`, city.id])).insertId;
+      await db.query('INSERT INTO provider_profiles (user_id, service_ids, rating_avg, rating_count) VALUES (?, ?, ?, ?)', [id, JSON.stringify(services), rating, rating ? 5 : 0]);
+      for (const d of districts) await db.query('INSERT INTO provider_coverage_districts (user_id, district_id) VALUES (?, ?)', [id, d]);
+      return id;
+    };
+    const good = await makeProvider('rated', { rating: 4.9 });
+    const average = await makeProvider('average', { rating: 3.5 });
+    const featured = await makeProvider('featured', { rating: 3.0 });
+    const elsewhere = await makeProvider('elsewhere', { rating: 5, districts: [other.id] });
+    const otherTrade = await makeProvider('othertrade', { rating: 5, services: [otherService.id] });
+    // A paid, verified "featured" badge.
+    const badge = (await db.query(`INSERT INTO provider_badges (user_id, badge_type, status, monthly_fee, insurance_amount, ends_at)
+      VALUES (?, 'featured', 'active', 50, 0, CURRENT_TIMESTAMP + INTERVAL '30 days')`, [featured])).insertId;
+    const payment = (await db.query(`INSERT INTO payments (user_id, provider, amount, currency, status, provider_transaction_id, paid_at, metadata)
+      VALUES (?, 'moyasar', 50, 'SAR', 'completed', ?, CURRENT_TIMESTAMP, ?)`, [featured, `tx-${suffix}`, JSON.stringify({ badge_id: String(badge) })])).insertId;
+    await db.query('UPDATE provider_badges SET payment_id = ? WHERE id = ?', [payment, badge]);
+
+    const client = (await api('/auth/register', { method: 'POST', expected: 201, body: { full_name: 'requester', username: `req_${suffix}`, password: 'AykTestOnly-2026', role: 'client' } })).data;
+    await db.query('UPDATE users SET city_id = ?, district_id = ? WHERE id = ?', [city.id, home.id, client.user.id]);
+    const result = (await api(`/providers/matching?service_id=${service.id}`, { token: client.token })).data;
+    const ids = result.providers.map(p => p.id);
+    assert.equal(result.area.city_id, city.id);
+    assert.deepEqual(ids.filter(id => [good, average, featured].includes(id)), [featured, good, average], 'featured first, then by rating');
+    assert.ok(!ids.includes(elsewhere), 'a provider who does not cover the district is not shown');
+    assert.ok(!ids.includes(otherTrade), 'a provider of another profession is not shown');
+    assert.equal(result.providers.find(p => p.id === featured).is_featured, true);
+    // No area registered: nothing to match yet.
+    await db.query('UPDATE users SET city_id = NULL, district_id = NULL WHERE id = ?', [client.user.id]);
+    assert.equal((await api('/providers/matching', { token: client.token })).data.area, null);
+    await db.query('DELETE FROM users WHERE id IN (?, ?, ?, ?, ?)', [good, average, featured, elsewhere, otherTrade]);
+  });
   test('search-engine pages carry their own title, canonical, structured data and text; the sitemap lists them', async () => {
     const shell = require('path').join(require('os').tmpdir(), `ayk-seo-${crypto.randomBytes(4).toString('hex')}.html`);
     require('fs').writeFileSync(shell, '<!doctype html><html><head><meta name="description" content="x" /><meta property="og:title" content="x" /><meta property="og:description" content="x" /><title>x</title></head><body><div id="root"></div></body></html>');

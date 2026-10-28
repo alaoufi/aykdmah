@@ -204,7 +204,9 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
   if (serviceId) { where.push('r.service_id = ?'); whereParams.push(serviceId); }
   if (providerId) {
     // "Matching me": the provider's registered services and coverage area.
-    const profile = await queryOne('SELECT service_ids, category_id, coverage_city_id FROM provider_profiles WHERE user_id = ?', [providerId]);
+    // Without a coverage city the provider's own city is their area.
+    const profile = await queryOne(`SELECT pp.service_ids, pp.category_id, COALESCE(pp.coverage_city_id, u.city_id) AS coverage_city_id
+      FROM provider_profiles pp JOIN users u ON u.id = pp.user_id WHERE pp.user_id = ?`, [providerId]);
     let services = [];
     try { services = (JSON.parse(profile?.service_ids || '[]') || []).map(Number).filter(Number.isSafeInteger); } catch (_) { services = []; }
     const categories = services.length

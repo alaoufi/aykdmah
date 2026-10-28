@@ -3,6 +3,7 @@ const { success, error } = require('../utils/apiResponse');
 const asyncHandler = require('../utils/asyncHandler');
 const { distanceKm, isValidLatLng } = require('../services/geoService');
 const { availability } = require('../utils/providerAvailability');
+const ProviderBadge = require('../models/ProviderBadge');
 
 const MAX_RADIUS_KM = 200;
 const MAX_RESULTS = 50;
@@ -94,4 +95,74 @@ const nearby = asyncHandler(async (req, res) => {
   return success(res, { providers: providers.slice(0, MAX_RESULTS), radius_km: radius });
 });
 
-module.exports = { nearby, publicPoint };
+// GET /api/providers/matching?service_id|category_id[&district_id&city_id]  (AYK-035)
+// The core of the site: providers who serve the requester's area (their coverage
+// districts, else their coverage city, else their own city) in the profession asked
+// for. Ranked: featured (a paid, verified badge) first, then the highest rated.
+// A signed-in user's registered district and city are used unless others are given.
+const matching = asyncHandler(async (req, res) => {
+  const id = value => (value == null || value === '' ? null : Number(value));
+  const categoryId = id(req.query.category_id), serviceId = id(req.query.service_id);
+  let districtId = id(req.query.district_id), cityId = id(req.query.city_id);
+  if ([categoryId, serviceId, districtId, cityId].some(v => v !== null && !(Number.isSafeInteger(v) && v > 0))) {
+    return error(res, req.t ? req.t('invalid_data') : 'Invalid filter', 400);
+  }
+  if (!districtId && !cityId && req.user) {
+    const me = (await query('SELECT city_id, district_id FROM users WHERE id = ?', [req.user.id]))[0];
+    districtId = me?.district_id ? Number(me.district_id) : null;
+    cityId = me?.city_id ? Number(me.city_id) : null;
+  }
+  if (districtId && !cityId) cityId = Number((await query('SELECT city_id FROM districts WHERE id = ?', [districtId]))[0]?.city_id) || null;
+  if (!cityId) return success(res, { area: null, providers: [] });
+
+  const area = (await query(`SELECT c.name_ar AS city_name_ar, c.name_en AS city_name_en, d.name_ar AS district_name_ar, d.name_en AS district_name_en
+    FROM cities c LEFT JOIN districts d ON d.id = ? AND d.city_id = c.id WHERE c.id = ?`, [districtId, cityId]))[0] || null;
+
+  // Coverage: an explicit district list wins; without one the coverage city, else the home city.
+  const coverage = districtId
+    ? `(EXISTS (SELECT 1 FROM provider_coverage_districts pcd WHERE pcd.user_id = u.id AND pcd.district_id = ?)
+        OR (NOT EXISTS (SELECT 1 FROM provider_coverage_districts pcd WHERE pcd.user_id = u.id)
+            AND COALESCE(pp.coverage_city_id, u.city_id) = ?))`
+    : `(EXISTS (SELECT 1 FROM provider_coverage_districts pcd JOIN districts d ON d.id = pcd.district_id WHERE pcd.user_id = u.id AND d.city_id = ?)
+        OR (NOT EXISTS (SELECT 1 FROM provider_coverage_districts pcd WHERE pcd.user_id = u.id)
+            AND COALESCE(pp.coverage_city_id, u.city_id) = ?))`;
+  const rows = await query(`
+    SELECT u.id, u.full_name, u.avatar, u.is_verified, u.is_online,
+           pp.business_name, pp.category_id, pp.service_ids,
+           pp.rating_avg, pp.rating_count, pp.completed_orders,
+           to_jsonb(pp)->>'availability_status' AS availability_status, to_jsonb(pp)->>'vacation_from' AS vacation_from,
+           to_jsonb(pp)->>'vacation_to' AS vacation_to, to_jsonb(pp)->>'work_days' AS work_days,
+           to_jsonb(pp)->>'work_from' AS work_from, to_jsonb(pp)->>'work_to' AS work_to,
+           EXISTS (SELECT 1 FROM provider_badges pb WHERE pb.user_id = u.id AND pb.badge_type = 'featured' AND pb.status = 'active'
+                   AND pb.ends_at > CURRENT_TIMESTAMP AND ${ProviderBadge.verifiedPaymentSql('pb')}) AS is_featured
+    FROM users u
+    JOIN provider_profiles pp ON pp.user_id = u.id
+    WHERE u.role = 'provider' AND u.is_active = 1 AND u.is_blocked = 0 AND u.deleted_at IS NULL
+      AND u.id <> ? AND ${coverage}`,
+  [req.user?.id || 0, districtId || cityId, cityId]);
+
+  const categoryServices = categoryId !== null
+    ? new Set((await query('SELECT id FROM services WHERE category_id = ?', [categoryId])).map(row => Number(row.id))) : null;
+  const providers = [];
+  for (const row of rows) {
+    const services = parseServiceIds(row.service_ids);
+    if (serviceId !== null && !services.includes(serviceId)) continue;
+    if (categoryServices && Number(row.category_id) !== categoryId && !services.some(s => categoryServices.has(s))) continue;
+    providers.push({
+      id: row.id, full_name: row.full_name, business_name: row.business_name, avatar: row.avatar,
+      is_verified: Number(row.is_verified) === 1, is_online: Number(row.is_online) === 1,
+      is_featured: row.is_featured === true || Number(row.is_featured) === 1,
+      category_id: row.category_id, service_ids: services,
+      rating_avg: Number(row.rating_avg) || 0, rating_count: Number(row.rating_count) || 0,
+      completed_orders: Number(row.completed_orders) || 0,
+      availability: availability(row),
+    });
+  }
+  providers.sort((a, b) => (b.is_featured - a.is_featured)
+    || (b.rating_avg - a.rating_avg) || (b.rating_count - a.rating_count)
+    || ((a.availability.state !== 'available') - (b.availability.state !== 'available'))
+    || (b.completed_orders - a.completed_orders));
+  return success(res, { area: area && { city_id: cityId, district_id: districtId, ...area }, providers: providers.slice(0, MAX_RESULTS) });
+});
+
+module.exports = { nearby, matching, publicPoint };
