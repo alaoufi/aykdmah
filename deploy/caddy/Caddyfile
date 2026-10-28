@@ -30,6 +30,13 @@ aykdmh.com {
 		respond 404
 	}
 
+	# Generated from the catalog (AYK-032); must come before the static-file rule for .xml.
+	@sitemap path /sitemap.xml
+	handle @sitemap {
+		rewrite * /api/seo/sitemap.xml
+		reverse_proxy app:5000
+	}
+
 	root * /srv/current
 
 	# Fingerprinted build output never changes.
@@ -57,11 +64,6 @@ aykdmh.com {
 		rewrite * /api/seo/page{path}
 		reverse_proxy app:5000
 	}
-	handle /sitemap.xml {
-		rewrite * /api/seo/sitemap.xml
-		reverse_proxy app:5000
-	}
-
 	# Client-side routes.
 	handle {
 		header Cache-Control "no-cache, no-store, must-revalidate"
