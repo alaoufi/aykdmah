@@ -19,17 +19,42 @@ function ReplyPreview({ message }) {
   );
 }
 
+// Map preview built from the same OpenStreetMap tiles the app's maps use (the former
+// static-map service no longer answers): a 3×3 tile block positioned so the shared
+// point sits under the pin in the middle of the thumbnail.
+const THUMB_W = 260, THUMB_H = 140, TILE = 256, ZOOM = 16;
+function MapThumb({ lat, lng, label }) {
+  const n = 2 ** ZOOM;
+  const rad = lat * Math.PI / 180;
+  const x = (lng + 180) / 360 * n;
+  const y = (1 - Math.log(Math.tan(rad) + 1 / Math.cos(rad)) / Math.PI) / 2 * n;
+  const tx = Math.floor(x), ty = Math.floor(y);
+  const left = THUMB_W / 2 - (x - tx + 1) * TILE, top = THUMB_H / 2 - (y - ty + 1) * TILE;
+  const tiles = [];
+  for (let dy = -1; dy <= 1; dy += 1) for (let dx = -1; dx <= 1; dx += 1) {
+    tiles.push({ key: `${dx}${dy}`, src: `https://tile.openstreetmap.org/${ZOOM}/${(tx + dx + n) % n}/${ty + dy}.png`, dx, dy });
+  }
+  return (
+    <div className="map-thumb relative overflow-hidden bg-surface-alt" style={{ width: '100%', maxWidth: THUMB_W, height: THUMB_H }} role="img" aria-label={label}>
+      <div className="absolute" style={{ left: `calc(50% - ${THUMB_W / 2}px + ${left}px)`, top, width: TILE * 3, height: TILE * 3 }}>
+        {tiles.map(tile => (
+          <img key={tile.key} src={tile.src} alt="" loading="lazy" referrerPolicy="strict-origin-when-cross-origin" draggable="false"
+            className="absolute max-w-none" style={{ left: (tile.dx + 1) * TILE, top: (tile.dy + 1) * TILE, width: TILE, height: TILE }}
+            onError={e => { e.currentTarget.style.visibility = 'hidden'; }} />
+        ))}
+      </div>
+      <span className="map-pin absolute text-2xl leading-none" style={{ left: '50%', top: '50%', transform: 'translate(-50%, -100%)' }} aria-hidden="true">📍</span>
+      <span className="absolute bottom-0 end-0 bg-surface/80 text-[9px] text-fg-muted px-1" dir="ltr">© OpenStreetMap</span>
+    </div>
+  );
+}
+
 function LocationCard({ lat, lng }) {
   const { t } = useTranslation();
   const gmaps = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=driving`;
-  const previewSrc = `https://staticmap.openstreetmap.de/staticmap.php?center=${lat},${lng}&zoom=15&size=320x180&markers=${lat},${lng},red-pushpin`;
   return (
     <a href={gmaps} target="_blank" rel="noopener noreferrer" className="location-card no-underline">
-      <div className="map-thumb">
-        <img src={previewSrc} alt={t('chat.shared_location')}
-             onError={(e) => { e.currentTarget.style.display = 'none'; }} />
-        <span className="map-pin">📍</span>
-      </div>
+      <MapThumb lat={Number(lat)} lng={Number(lng)} label={t('chat.shared_location')} />
       <div className="location-meta">
         <div className="location-title">{t('chat.shared_location')}</div>
         <div className="location-coords">{Number(lat).toFixed(5)}, {Number(lng).toFixed(5)}</div>

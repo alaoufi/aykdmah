@@ -62,7 +62,9 @@ export default defineConfig(({ mode }) => {
             // the network and never retain them across logout or account changes.
             { urlPattern: ({ url }) => /^\/(?:api|uploads|install)(?:\/|$)/.test(url.pathname), handler: 'NetworkOnly' },
             {
-              urlPattern: ({ request }) => request.destination === 'image',
+              // Same-origin only: the worker's fetch obeys the page CSP connect-src, so routing
+              // cross-origin images (map tiles, previews) through it made them fail to load.
+              urlPattern: ({ request, url }) => request.destination === 'image' && url.origin === self.location.origin,
               handler: 'CacheFirst',
               options: {
                 cacheName: 'public-images-v2',

@@ -3,6 +3,7 @@
 # an isolated staging app + database (removed afterwards) using the live LiveKit
 # server, and two Chromium browsers with fake media devices.
 # Usage (as root, from the deployed repo): bash deploy/e2e-calls.sh
+# Chat test (text, voice message, location): E2E_SCRIPT=chat.e2e.mjs bash deploy/e2e-calls.sh
 set -euo pipefail
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 set -a; . "$REPO_DIR/.env"; set +a
@@ -42,4 +43,4 @@ const Conversation = require('./server/models/Conversation');
 val() { python3 -c "import json,sys; print(json.loads(sys.argv[1])[sys.argv[2]])" "$SEED" "$1"; }
 docker run --rm --network "$NET" --ipc=host -v "$REPO_DIR/e2e":/e2e -w /e2e \
   -e BASE="http://$APP:5000" -e CONV="$(val conv)" -e CLIENT="$(val client)" -e PROVIDER="$(val provider)" -e OUTSIDER="$(val outsider)" \
-  mcr.microsoft.com/playwright:v1.63.0-noble bash -c "npm init -y >/dev/null && npm i --no-audit --no-fund playwright@1.63.0 >/dev/null 2>&1 && node calls.e2e.mjs"
+  mcr.microsoft.com/playwright:v1.63.0-noble bash -c "npm init -y >/dev/null && npm i --no-audit --no-fund playwright@1.63.0 >/dev/null 2>&1 && node ${E2E_SCRIPT:-calls.e2e.mjs}"
