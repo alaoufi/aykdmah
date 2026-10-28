@@ -355,7 +355,13 @@
     "found_hint": "If you have agreed with someone, close the request so other providers stop contacting you. We remind you an hour after posting, then once a day while it is open.",
     "found_stop": "Yes, close the request",
     "stop_reminders": "Stop reminders",
-    "reminders_stopped": "Reminders are off for this request"
+    "reminders_stopped": "Reminders are off for this request",
+    "contact": "Contact",
+    "contact_owner": "Contact the requester",
+    "contact_hint": "No price offers here: contact the requester and agree on the price and time in the chat.",
+    "matching_title": "Providers in your area working now",
+    "contacts_title": "Providers you are talking to",
+    "agreed": "Agreed"
   },
   "offer": {
     "submit_title": "Send a quote",
@@ -515,7 +521,10 @@
     "pause": "Pause",
     "read": "Read",
     "sent": "Sent",
-    "delete_message": "Delete message"
+    "delete_message": "Delete message",
+    "agreed_question": "Did you agree with {{name}}?",
+    "agreed_confirm": "Confirm the agreement with {{name}}? Your other chats about this request will close.",
+    "agreed_hint": "Once you agree, the requester taps \"Agreed\"."
   },
   "tracking": {
     "title": "Live tracking",

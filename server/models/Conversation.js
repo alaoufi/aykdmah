@@ -101,7 +101,8 @@ async function findOrCreateBetween(userA, userB, requestId = null) {
 
 async function findById(id) {
   return queryOne(`SELECT c.*, ${writableConversationSql()} AS can_send,
-    ${writableConversationSql(true)} AS can_share_location
+    ${writableConversationSql(true)} AS can_share_location,
+    r.client_id AS request_client_id, r.status AS request_status
     FROM conversations c LEFT JOIN requests r ON r.id = c.request_id WHERE c.id = ?`, [id]);
 }
 

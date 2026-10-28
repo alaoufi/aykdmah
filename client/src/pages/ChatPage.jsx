@@ -17,6 +17,7 @@ import { LoadingState, EmptyState } from '../components/common/Spinner';
 import { formatRelativeTime, truncate, dayLabel, isSameDay } from '../utils/formatters';
 import { getCurrentPosition } from '../utils/geo';
 import { createPollingLoop } from '../utils/polling';
+import { agreeRequest } from '../services/requestService';
 
 export default function ChatPage() {
   const { t } = useTranslation();
@@ -28,6 +29,7 @@ export default function ChatPage() {
   const [conversations, setConversations] = useState([]);
   const [listOwnerId, setListOwnerId] = useState(null);
   const [active, setActive] = useState(null);
+  const [agreeing, setAgreeing] = useState(false);
   const [activeScope, setActiveScope] = useState(null);
   const [messages, setMessages] = useState([]);
   const [loadingList, setLoadingList] = useState(true);
@@ -251,6 +253,15 @@ export default function ChatPage() {
 
   const otherParticipant = activeReady ? active?.participants?.find(p => p.id !== user.id) : null;
   const requestId = activeReady ? active?.request_id : null;
+  const handleAgree = async () => {
+    if (!requestId || !otherParticipant || agreeing) return;
+    if (!window.confirm(t('chat.agreed_confirm', { name: otherParticipant.full_name }))) return;
+    setAgreeing(true);
+    try {
+      await agreeRequest(requestId, otherParticipant.id);
+      setActive(current => (current && current.id === active.id ? { ...current, request_status: 'assigned' } : current));
+    } catch (_) { /* the request page shows the reason */ } finally { setAgreeing(false); }
+  };
 
   return (
     <div className="chat-page">
@@ -383,6 +394,18 @@ export default function ChatPage() {
             {activeReady && active.can_send === false && (
               <p role="status" className="text-sm text-muted p-3">{t('chat.read_only')}</p>
             )}
+            {/* "Agreed?": the requester may talk to several providers; agreeing with one
+                assigns the request and closes the other conversations about it. */}
+            {activeReady && requestId && active.request_status === 'open' && canSend && otherParticipant && (
+              Number(active.request_client_id) === Number(user.id) ? (
+                <div className="chat-agree" data-testid="chat-agree">
+                  <span>{t('chat.agreed_question', { name: otherParticipant.full_name })}</span>
+                  <button type="button" className="btn btn-primary btn-sm" disabled={agreeing} onClick={handleAgree}>✅ {t('request.agreed')}</button>
+                </div>
+              ) : (
+                <p className="chat-agree text-muted" data-testid="chat-agree-hint">{t('chat.agreed_hint')}</p>
+              )
+            )}
             <ChatInput
               key={sessionKey}
               sessionKey={sessionKey}
@@ -458,6 +481,8 @@ export default function ChatPage() {
           background-size: 22px 22px; background-position: 0 0, 11px 11px;
         }
         .chat-header { background: var(--wa-panel) !important; }
+.chat-agree { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+          margin: 0 10px 6px; padding: 8px 12px; border-radius: 12px; background: var(--bg-soft); font-size: 13px; }
         .chat-admin-notice {
           margin: 0; padding: 2px 10px 4px; text-align: center; font-size: 10px; line-height: 1.4;
           color: var(--wa-meta); background: var(--wa-panel);

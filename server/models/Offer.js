@@ -58,8 +58,9 @@ function normalizeOffer(data) {
   const priceText = ['number', 'string'].includes(typeof data.price) ? String(data.price).trim()
     .replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 0x0660)).replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 0x06F0))
     .replace(/[٫]/g, '.').replace(/[,،٬\s]/g, '') : '';
-  if (!/^\d+(?:\.\d{1,2})?$/.test(priceText)) invalid('price');
-  const price = finiteNumber(priceText, 'price', 0.01, 99999999.99);
+  // A direct contact (no price; agreed in the chat) is stored as a zero-price offer.
+  if (!data.contact && !/^\d+(?:\.\d{1,2})?$/.test(priceText)) invalid('price');
+  const price = data.contact ? 0 : finiteNumber(priceText, 'price', 0.01, 99999999.99);
   if (isEmpty(data.latitude) !== isEmpty(data.longitude)) invalid('location');
   const latitude = isEmpty(data.latitude) ? null : finiteNumber(data.latitude, 'latitude', -90, 90);
   const longitude = isEmpty(data.longitude) ? null : finiteNumber(data.longitude, 'longitude', -180, 180);
@@ -81,6 +82,7 @@ function normalizeOffer(data) {
 
 async function create(data) {
   const { request_id, provider_id, price, message, estimated_duration, available_from, latitude, longitude, location_accuracy } = normalizeOffer(data);
+  const contact = Boolean(data.contact);
   return transaction(async (conn) => {
     const [[request]] = await conn.query('SELECT id, client_id, status, deleted_at FROM requests WHERE id = ? FOR UPDATE', [request_id]);
     if (!request || request.deleted_at) throw new ApiError('الطلب غير موجود', 404);
@@ -93,13 +95,15 @@ async function create(data) {
       throw new ApiError('حساب مقدم الخدمة غير متاح', 403);
     }
     await assertMarketplaceWriteAccess(provider_id, { query: async (sql, params) => (await conn.query(sql, params))[0] });
-    const [[existing]] = await conn.query('SELECT id FROM offers WHERE request_id = ? AND provider_id = ?', [request_id, provider_id]);
+    const [[existing]] = await conn.query('SELECT id, status FROM offers WHERE request_id = ? AND provider_id = ?', [request_id, provider_id]);
+    // Contacting again reopens the same conversation.
+    if (existing && contact && existing.status === 'pending') return existing.id;
     if (existing) throw new ApiError('تم تقديم عرض على هذا الطلب مسبقًا', 409);
     const [[entitlement]] = await conn.query(`SELECT p.max_offers_per_month FROM subscriptions s
       JOIN subscription_plans p ON p.id = s.plan_id
       WHERE s.user_id = ? AND ${Subscription.validEntitlementSql('s', 'p')}
       ORDER BY s.created_at DESC, s.id DESC LIMIT 1 FOR SHARE OF s, p`, [provider_id]);
-    if (entitlement?.max_offers_per_month != null) {
+    if (!contact && entitlement?.max_offers_per_month != null) {
       const maximum = Number(entitlement.max_offers_per_month);
       if (!Number.isSafeInteger(maximum) || maximum < 0) throw new ApiError('حد العروض الشهري غير متاح', 409);
       // Count every submission, including rejected/withdrawn bids and bids on

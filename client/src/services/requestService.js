@@ -27,6 +27,18 @@ export async function updateRequestStatus(id, payload) {
   return data.data;
 }
 
+// Direct contact without a price (provider → requester, or requester → a matching provider).
+export async function contactRequest(id, providerId) {
+  const { data } = await api.post(`/requests/${id}/contact`, providerId ? { provider_id: providerId } : {});
+  return data.data;
+}
+
+// The requester agreed with this provider: the request is assigned and other chats close.
+export async function agreeRequest(id, providerId) {
+  const { data } = await api.post(`/requests/${id}/agree`, { provider_id: providerId });
+  return data.data;
+}
+
 export async function setRequestReminders(id, off) {
   const { data } = await api.put(`/requests/${id}/reminders`, { off });
   return data.data;

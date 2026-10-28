@@ -50,7 +50,9 @@ export function AreaLine({ area, browsing, onPick }) {
   );
 }
 
-export default function MatchingProviders({ categoryId: fixedCategory = '', serviceId = '', showChips = true, title }) {
+// On a request page (fixedArea + onContact) the list is that request's area and profession,
+// only providers working right now, each with a "Contact" button.
+export default function MatchingProviders({ categoryId: fixedCategory = '', serviceId = '', showChips = true, title, fixedArea = null, onContact = null }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
   const [categories, setCategories] = useState([]);
@@ -64,17 +66,19 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
   useEffect(() => {
     let alive = true;
     setResult(null);
-    listMatchingProviders({ categoryId, serviceId, cityId: browse?.city_id, districtId: browse?.district_id }).then(data => { if (alive) setResult(data); })
+    const area = fixedArea || browse;
+    listMatchingProviders({ categoryId, serviceId, cityId: area?.city_id, districtId: area?.district_id })
+      .then(data => { if (alive) setResult(onContact ? { ...data, providers: data.providers.filter(p => p.availability?.state === 'available') } : data); })
       .catch(() => { if (alive) setResult({ area: null, providers: [] }); });
     return () => { alive = false; };
-  }, [categoryId, serviceId, browse]);
+  }, [categoryId, serviceId, browse, fixedArea?.city_id, fixedArea?.district_id, Boolean(onContact)]);
 
   const chip = active => `px-3 py-1.5 rounded-pill text-[13px] font-semibold border transition ${active ? 'bg-primary text-primary-fg border-primary' : 'bg-surface text-fg-muted border-border hover:bg-surface-alt'}`;
   return (
     <div data-testid="providers-for-me">
       <div className="mb-3">
         <h2 className="text-xl md:text-2xl font-extrabold text-fg m-0">👷 {title || t('for_you.providers_title')}</h2>
-        <div className="mt-1"><AreaLine area={result?.area} browsing={Boolean(browse)} onPick={pick} /></div>
+        {!fixedArea && <div className="mt-1"><AreaLine area={result?.area} browsing={Boolean(browse)} onPick={pick} /></div>}
       </div>
       {showChips && <div className="flex gap-2 overflow-x-auto pb-2 mb-3" role="radiogroup" aria-label={t('for_you.profession')}>
         <button type="button" role="radio" aria-checked={!categoryId} className={chip(!categoryId)} onClick={() => setCategoryId('')}>{t('common.all')}</button>
@@ -90,18 +94,19 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
           : result.providers.length === 0 ? (
             <div className="card text-[14px]">
               <p className="text-fg-muted m-0 mb-3">{t('for_you.providers_empty')}</p>
-              <Link to="/requests/new" className="btn btn-primary">{t('home.new_request')}</Link>
+              {!onContact && <Link to="/requests/new" className="btn btn-primary">{t('home.new_request')}</Link>}
             </div>
           ) : (
             <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 list-none p-0 m-0">
-              {result.providers.map(p => <ProviderCard key={p.id} provider={p} />)}
+              {result.providers.map(p => <ProviderCard key={p.id} provider={p} onContact={onContact} />)}
             </ol>
           )}
     </div>
   );
 }
 
-function ProviderCard({ provider: p }) {
+function ProviderCard({ provider: p, onContact }) {
+  const [busy, setBusy] = useState(false);
   const { t } = useTranslation();
   const state = p.availability?.state;
   return (
@@ -118,7 +123,11 @@ function ProviderCard({ provider: p }) {
           {p.completed_orders > 0 && <span>✅ {t('for_you.completed', { count: p.completed_orders })}</span>}
           <span className={state === 'available' ? 'text-success' : ''}>● {t(state === 'available' ? 'for_you.available' : 'for_you.unavailable')}</span>
         </div>
-        <Link to={`/providers/${p.id}`} className="inline-block mt-2 text-[13px] font-semibold text-primary">{t('for_you.view_profile')}</Link>
+        <div className="flex items-center gap-3 mt-2">
+          {onContact && <button type="button" className="btn btn-primary btn-sm" disabled={busy} data-testid="contact-provider"
+            onClick={async () => { setBusy(true); try { await onContact(p); } finally { setBusy(false); } }}>💬 {t('request.contact')}</button>}
+          <Link to={`/providers/${p.id}`} className="text-[13px] font-semibold text-primary">{t('for_you.view_profile')}</Link>
+        </div>
       </div>
     </li>
   );

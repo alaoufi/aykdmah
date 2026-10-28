@@ -87,6 +87,34 @@ const labels = {
       "tr": "Ne yazık ki teklifiniz reddedildi"
     }
   },
+  "request_contact": {
+    "title": {
+      "ar": "تواصل بخصوص طلب",
+      "en": "New contact about a request",
+      "ur": "درخواست کے بارے میں رابطہ",
+      "bn": "অনুরোধ নিয়ে যোগাযোগ",
+      "hi": "अनुरोध के बारे में संपर्क",
+      "ml": "ഒരു അഭ്യർത്ഥന സംബന്ധിച്ച പുതിയ കോൺടാക്റ്റ്",
+      "fil": "Bagong kontak tungkol sa isang kahilingan",
+      "id": "Kontak baru tentang permintaan",
+      "ne": "अनुरोधको बारेमा नयाँ सम्पर्क",
+      "am": "ስለ ጥያቄ አዲስ እውቂያ",
+      "tr": "Bir talebe ilişkin yeni bir iletişim"
+    },
+    "body": {
+      "ar": "{{name}} يتواصل معك بخصوص «{{title}}»",
+      "en": "{{name}} contacted you about \"{{title}}\"",
+      "ur": "{{name}} نے «{{title}}» کے بارے میں آپ سے رابطہ کیا",
+      "bn": "{{name}} «{{title}}» নিয়ে আপনার সাথে যোগাযোগ করেছেন",
+      "hi": "{{name}} ने «{{title}}» के बारे में आपसे संपर्क किया",
+      "ml": "{{name}} നിങ്ങളെ \"{{title}}\" നെ കുറിച്ച് ബന്ധപ്പെട്ടു",
+      "fil": "{{name}} nakipag-ugnay sa iyo tungkol sa \"{{title}}\"",
+      "id": "{{name}} menghubungi Anda tentang \"{{title}}\"",
+      "ne": "{{name}} तपाईंलाई \"{{title}}\" को बारेमा सम्पर्क गरियो",
+      "am": "{{name}} ስለ \"{{title}}\" አነጋግሬያችኋለሁ",
+      "tr": "{{name}} \"{{title}}\" hakkında sizinle iletişime geçti"
+    }
+  },
   "request_reminder": {
     "title": {
       "ar": "هل وجدت من يخدمك؟",

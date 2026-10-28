@@ -355,7 +355,13 @@
     "found_hint": "Kung ikaw ay sumasang-ayon sa isang tao, isara ang kahilingan upang hindi na kayo ikontak ng ibang provider.",
     "found_stop": "Oo, puntahan ang kahilingan",
     "stop_reminders": "I-stop ang mga paalala",
-    "reminders_stopped": "Ang mga paalala ay off para sa hinihiling na ito"
+    "reminders_stopped": "Ang mga paalala ay off para sa hinihiling na ito",
+    "contact": "Kontak",
+    "contact_owner": "Makipag-ugnay sa nag-iimbita",
+    "contact_hint": "Walang mga pahayagan dito: makipag-ugnayan sa nag-iimbita at magkasundo sa presyo at oras sa chat.",
+    "matching_title": "Nagtatrabaho na ngayon ang mga provider sa iyong lugar",
+    "contacts_title": "Ang mga provider na pinag-uusapan mo",
+    "agreed": "Sumasang-ayon"
   },
   "offer": {
     "submit_title": "Ipadala ang isang quote",
@@ -515,7 +521,10 @@
     "pause": "Pagpawis",
     "read": "Basahin",
     "sent": "Nagpadala",
-    "delete_message": "I-delete ang mensahe"
+    "delete_message": "I-delete ang mensahe",
+    "agreed_question": "Sumasang-ayon ka ba sa {{name}}?",
+    "agreed_confirm": "Kumpirmahin ang kasunduan sa {{name}}? ang iyong iba pang mga pag-uusap tungkol sa hinihiling na ito ay matatapos.",
+    "agreed_hint": "Kapag sumasang-ayon ka, ang humihingi ay mag-tap sa \"Sumang-ayon\"."
   },
   "tracking": {
     "title": "Live na pagsubaybay",

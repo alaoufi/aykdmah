@@ -1,5 +1,7 @@
 const Request = require('../models/Request');
 const Conversation = require('../models/Conversation');
+const Offer = require('../models/Offer');
+const { queryOne } = require('../config/database');
 const notificationService = require('../services/notificationService');
 const { success, created, error, notFound, forbidden, paginate } = require('../utils/apiResponse');
 const asyncHandler = require('../utils/asyncHandler');
@@ -114,6 +116,52 @@ const setReminders = asyncHandler(async (req, res) => {
   return success(res, { reminders_off: off ? 1 : 0 }, off ? req.t('request_reminders_off') : undefined);
 });
 
+// Direct contact, no price: a provider contacts the requester, or the requester contacts
+// a matching provider. Either way one conversation per pair is opened for this request.
+const contact = asyncHandler(async (req, res) => {
+  if (!validId(req.params.id)) return notFound(res);
+  const request = await Request.findById(req.params.id);
+  if (!request) return notFound(res);
+  if (request.status !== 'open') return error(res, req.t('request_not_open'), 409);
+  const owner = request.client_id === req.user.id;
+  const providerId = owner ? Number(req.body?.provider_id) : req.user.id;
+  if (!owner && req.user.role !== 'provider') return forbidden(res);
+  if (!Number.isSafeInteger(providerId) || providerId < 1) return error(res, req.t('invalid_data'));
+  await Offer.create({ request_id: request.id, provider_id: providerId, contact: true });
+  const conversationId = await Conversation.findOrCreateBetween(request.client_id, providerId, request.id);
+  await notificationService.notifyUser(owner ? providerId : request.client_id, {
+    type: 'request_contact',
+    title: req.t('request_contact_title'),
+    body: req.t('request_contact_body', { name: req.user.full_name, title: request.title }),
+    link: `/chat/${conversationId}`,
+    data: { request_id: request.id, conversation_id: conversationId },
+  });
+  return success(res, { conversation_id: conversationId });
+});
+
+// "Agreed": the requester picks one provider; the request is assigned to them and the
+// other conversations about this request become read-only.
+const agree = asyncHandler(async (req, res) => {
+  if (!validId(req.params.id)) return notFound(res);
+  const request = await Request.findById(req.params.id);
+  if (!request) return notFound(res);
+  if (request.client_id !== req.user.id) return forbidden(res);
+  if (request.status !== 'open') return error(res, req.t('request_not_open'), 409);
+  const providerId = Number(req.body?.provider_id);
+  if (!Number.isSafeInteger(providerId) || providerId < 1) return error(res, req.t('invalid_data'));
+  let offer = await queryOne("SELECT id FROM offers WHERE request_id = ? AND provider_id = ? AND status = 'pending'", [request.id, providerId]);
+  if (!offer) offer = { id: await Offer.create({ request_id: request.id, provider_id: providerId, contact: true }) };
+  await Offer.acceptOffer(offer.id, req.user.id);
+  await notificationService.notifyUser(providerId, {
+    type: 'offer_accepted',
+    title: req.t('notif_offer_accepted_title'),
+    body: req.t('notif_offer_accepted_body', { title: request.title }),
+    link: `/requests/${request.id}`,
+  });
+  const conversationId = await Conversation.findOrCreateBetween(req.user.id, providerId, request.id);
+  return success(res, { conversation_id: conversationId }, req.t('offer_accepted'));
+});
+
 const remove = asyncHandler(async (req, res) => {
   const request = await Request.findById(req.params.id);
   if (!request) return notFound(res);
@@ -136,4 +184,4 @@ const startChat = asyncHandler(async (req, res) => {
   return success(res, { conversation_id: convId });
 });
 
-module.exports = { create, getMy, getNearby, getOne, updateStatus, setReminders, remove, startChat };
+module.exports = { create, getMy, getNearby, getOne, updateStatus, setReminders, contact, agree, remove, startChat };

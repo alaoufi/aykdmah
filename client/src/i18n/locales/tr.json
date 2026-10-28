@@ -355,7 +355,13 @@
     "found_hint": "Bir kişiyle anlaştığınızda, diğer sağlayıcıların sizinle iletişim kurmayı bırakması için başvuruyu kapatın.",
     "found_stop": "Evet, talebi kapatın",
     "stop_reminders": "Hatırlatmaları durdur",
-    "reminders_stopped": "Bu talebimiz için hatırlatmalar kapatıldı"
+    "reminders_stopped": "Bu talebimiz için hatırlatmalar kapatıldı",
+    "contact": "İletişim",
+    "contact_owner": "Başvuruda bulunan kişiyle iletişime geçin",
+    "contact_hint": "Burada fiyat teklifleri yok: başvuruda bulunan kişiyle iletişime geçin ve sohbette fiyat ve zaman konusunda anlaşın.",
+    "matching_title": "Bölgenizdeki sağlayıcılar şu anda çalışıyor",
+    "contacts_title": "Konuştuğunuz tedarikçiler",
+    "agreed": "Anlaşıldı"
   },
   "offer": {
     "submit_title": "Bir teklif gönder",
@@ -515,7 +521,10 @@
     "pause": "Durum",
     "read": "Oku",
     "sent": "Gönderiliyor",
-    "delete_message": "Mesajı Sil"
+    "delete_message": "Mesajı Sil",
+    "agreed_question": "{{name}} ile aynı fikirde miydin?",
+    "agreed_confirm": "Bu talebinizle ilgili diğer sohbetleriniz sona erecek. {{name}}",
+    "agreed_hint": "Kabul ettiğinizde, başvuruda bulunan kişi \"Tamam\"a tıklar."
   },
   "tracking": {
     "title": "Canlı izleme",

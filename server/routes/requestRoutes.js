@@ -25,6 +25,8 @@ router.post('/', authenticate, requireMarketplaceWrite, uploadLimiter, uploadReq
 router.get('/:id', optionalAuth, requireMarketplaceBrowse, c.getOne);
 router.put('/:id/status', authenticate, c.updateStatus);
 router.put('/:id/reminders', authenticate, c.setReminders);
+router.post('/:id/contact', authenticate, requireMarketplaceWrite, c.contact);
+router.post('/:id/agree', authenticate, requireMarketplaceWrite, c.agree);
 router.delete('/:id', authenticate, c.remove);
 router.post('/:id/chat', authenticate, requireMarketplaceWrite, c.startChat);
 

@@ -526,6 +526,20 @@ if (!databasePrefix) {
     assert.equal(Number((await api(`/requests/${requestId}`, { token: session.token })).reminders_off), 1);
     assert.equal(await reminders.remindDue(new Date(Date.now() + 3 * 24 * 60 * 60 * 1000)), 0);
 
+    // Direct contact without a price, then "Agreed" assigns the request to that provider.
+    const direct = await api('/requests', { method: 'POST', token: session.token, expected: 201, body: {
+      description: 'تسريب في المطبخ', city_id: area.city_id, district_id: area.district_id } });
+    const directId = Number(direct.id || direct.request?.id);
+    const contacted = await api(`/requests/${directId}/contact`, { method: 'POST', token: providerOnly.token });
+    assert.ok(contacted.conversation_id);
+    assert.equal((await api(`/requests/${directId}/contact`, { method: 'POST', token: providerOnly.token })).conversation_id, contacted.conversation_id);
+    await api(`/requests/${directId}/agree`, { method: 'POST', token: providerOnly.token, expected: 403, body: { provider_id: providerOnly.user.id } });
+    await api(`/requests/${directId}/agree`, { method: 'POST', token: session.token, body: { provider_id: providerOnly.user.id } });
+    const agreed = await api(`/requests/${directId}`, { token: session.token });
+    assert.equal(agreed.status, 'assigned');
+    assert.equal(Number(agreed.assigned_provider_id), Number(providerOnly.user.id));
+    await api(`/requests/${directId}/contact`, { method: 'POST', token: providerOnly.token, expected: 409 });
+
     // "Matching me": a request outside the provider's professions is hidden; "All" still shows it.
     const all = await api('/requests/nearby?limit=50', { token: providerOnly.token });
     assert.ok(all.some(row => Number(row.id) === requestId));

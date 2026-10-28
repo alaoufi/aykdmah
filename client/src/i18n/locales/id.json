@@ -355,7 +355,13 @@
     "found_hint": "Jika Anda telah menyetujui dengan seseorang, tutup permintaan sehingga penyedia lain berhenti menghubungi Anda. Kami mengingatkan Anda satu jam setelah posting, kemudian sekali sehari selama itu terbuka.",
     "found_stop": "Ya, tutup permintaan",
     "stop_reminders": "Hentikan pengingat",
-    "reminders_stopped": "Pengingat tidak ada untuk permintaan ini"
+    "reminders_stopped": "Pengingat tidak ada untuk permintaan ini",
+    "contact": "Kontak",
+    "contact_owner": "Hubungi pelamar",
+    "contact_hint": "Tidak ada penawaran harga di sini: hubungi pelamar dan sepakat harga dan waktu dalam obrolan.",
+    "matching_title": "Penyedia di daerah Anda bekerja sekarang",
+    "contacts_title": "Penyedia yang Anda bicarakan",
+    "agreed": "Bersetuju"
   },
   "offer": {
     "submit_title": "Kirimkan kutipan",
@@ -515,7 +521,10 @@
     "pause": "Berhenti",
     "read": "Membaca",
     "sent": "Dikirim",
-    "delete_message": "Hapus pesan"
+    "delete_message": "Hapus pesan",
+    "agreed_question": "Apakah Anda setuju dengan {{name}}?",
+    "agreed_confirm": "Konfirmasi kesepakatan dengan {{name}}? obrolan Anda lainnya tentang permintaan ini akan ditutup.",
+    "agreed_hint": "Setelah Anda setuju, pelamar mengklik \"Setuju\"."
   },
   "tracking": {
     "title": "Pelacakan langsung",

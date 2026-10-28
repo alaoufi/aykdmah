@@ -5,15 +5,14 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   getRequest, getOffersForRequest, acceptOffer, rejectOffer,
-  createOffer, startRequestChat, updateRequestStatus, setRequestReminders
+  startRequestChat, updateRequestStatus, setRequestReminders, contactRequest
 } from '../services/requestService';
+import MatchingProviders from '../components/catalog/MatchingProviders';
 import { useAuth } from '../hooks/useAuth';
-import { useGeolocation } from '../hooks/useGeolocation';
 import { REQUEST_STATUS, OFFER_STATUS } from '../utils/constants';
 import { formatCurrency, formatRelativeTime } from '../utils/formatters';
 import { LoadingState, EmptyState } from '../components/common/Spinner';
 import Button from '../components/common/Button';
-import Input from '../components/common/Input';
 import Avatar from '../components/common/Avatar';
 import ProviderServiceModeBadge from '../components/common/ProviderServiceModeBadge';
 import ConfirmDialog from '../components/common/ConfirmDialog';
@@ -37,13 +36,11 @@ export default function RequestDetailsPage() {
   const { user, hasPermission } = useAuth();
   const canManageRequests = hasPermission('requests.manage');
   const navigate = useNavigate();
-  const { request: requestLocation, position, loading: geoLoading, error: geoError } = useGeolocation();
   const [request, setRequest] = useState(null);
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [detailsScope, setDetailsScope] = useState(null);
   const [confirm, setConfirm] = useState({ open: false });
-  const [offerForm, setOfferForm] = useState({ price: '', message: '', estimated_duration: '' });
   const [submitting, setSubmitting] = useState(false);
   const [err, setErr] = useState('');
   const [reloadVersion, setReloadVersion] = useState(0);
@@ -93,33 +90,23 @@ export default function RequestDetailsPage() {
     ? offers.find(offer => Number(offer.provider_id) === Number(request.assigned_provider_id))
     : null;
 
-  const submitOffer = async (e) => {
-    e.preventDefault();
+  const contactOwner = async () => {
     setSubmitting(true);
     setErr('');
     try {
-      let coords = position;
-      if (!coords) {
-        try {
-          coords = await requestLocation();
-        } catch (_) {
-          // user denied or geolocation failed — proceed without coords
-        }
-      }
-      await createOffer({
-        request_id: Number(id),
-        ...offerForm,
-        ...(coords ? {
-          latitude: coords.latitude,
-          longitude: coords.longitude,
-          location_accuracy: coords.accuracy,
-        } : {}),
-      });
-      setOfferForm({ price: '', message: '', estimated_duration: '' });
-      await load();
+      const { conversation_id } = await contactRequest(request.id);
+      navigate(`/chat/${conversation_id}`);
     } catch (e2) {
       setErr(apiError(e2));
     } finally { setSubmitting(false); }
+  };
+
+  const contactProvider = async (provider) => {
+    setErr('');
+    try {
+      const { conversation_id } = await contactRequest(request.id, provider.id);
+      navigate(`/chat/${conversation_id}`);
+    } catch (e2) { setErr(apiError(e2)); }
   };
 
   const onAccept = async (offerId) => {
@@ -291,60 +278,23 @@ export default function RequestDetailsPage() {
         )}
       </div>
 
+      {/* No prices here: the provider contacts the requester and they agree in the chat. */}
       {canOffer && (
-        <div className="card mb-4">
-          <h3>{t('offer.submit_title')}</h3>
-          <form onSubmit={submitOffer}>
-            <Input
-              label={`${t('offer.price')} *`}
-              type="text" inputMode="decimal" dir="ltr" required placeholder="150"
-              value={offerForm.price}
-              onChange={(e) => setOfferForm({ ...offerForm, price: e.target.value })}
-            />
-            <Input
-              label={t('offer.duration')}
-              value={offerForm.estimated_duration}
-              onChange={(e) => setOfferForm({ ...offerForm, estimated_duration: e.target.value })}
-              placeholder={t('offer.duration_placeholder')}
-            />
-            <Input
-              as="textarea"
-              label={t('offer.message_to_client')}
-              value={offerForm.message}
-              onChange={(e) => setOfferForm({ ...offerForm, message: e.target.value })}
-            />
+        <div className="card mb-4" data-testid="provider-contact">
+          <p className="text-sm text-muted mb-3">{t('request.contact_hint')}</p>
+          <Button variant="primary" onClick={contactOwner} loading={submitting}>💬 {t('request.contact_owner')}</Button>
+        </div>
+      )}
 
-            <div className="mb-3 p-3 rounded-card" style={{ background: 'var(--bg-soft)', border: '1px dashed var(--border)' }}>
-              <div className="flex items-center justify-between gap-2 flex-wrap">
-                <div className="text-sm">
-                  <strong>📍 {t('location.current_location')}</strong>
-                  <div className="text-xs text-muted mt-1">
-                    {position
-                      ? `${t('location.location_captured')} (${position.latitude.toFixed(4)}, ${position.longitude.toFixed(4)})`
-                      : geoError
-                        ? geoError
-                        : t('location.location_will_be_asked')}
-                  </div>
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => requestLocation().catch(() => {})}
-                  loading={geoLoading}
-                >
-                  {position ? t('location.reset_location') : t('location.set_location')}
-                </Button>
-              </div>
-            </div>
-
-            <Button type="submit" variant="primary" loading={submitting || geoLoading}>{t('offer.submit')}</Button>
-          </form>
+      {isOwner && request.status === 'open' && request.category_id && (
+        <div className="mb-4">
+          <MatchingProviders categoryId={request.category_id} showChips={false} title={t('request.matching_title')}
+            fixedArea={{ city_id: request.city_id, district_id: request.district_id }} onContact={contactProvider} />
         </div>
       )}
 
       {canReadRequestOffers(user, request, canManageRequests) && <div className="card">
-        <h3>{t('offer.offers_list_title')} ({offers.length})</h3>
+        <h3>{t('request.contacts_title')} ({offers.length})</h3>
         {offers.length === 0 ? (
           <EmptyState title={t('request.no_offers_yet')} body={t('request.offers_will_appear')} />
         ) : (
@@ -369,9 +319,9 @@ export default function RequestDetailsPage() {
                       </div>
                     </div>
                     <div className="text-end">
-                      <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--primary)' }}>
+                      {Number(o.price) > 0 && <div style={{ fontSize: 20, fontWeight: 700, color: 'var(--primary)' }}>
                         {formatCurrency(o.price)}
-                      </div>
+                      </div>}
                       <span className={`badge ${oStatus.color}`}>{oStatus.i18nKey ? t(oStatus.i18nKey) : ''}</span>
                     </div>
                   </div>
@@ -382,7 +332,7 @@ export default function RequestDetailsPage() {
                   )}
                   {isOwner && o.status === 'pending' && request.status === 'open' && (
                     <div className="flex gap-2 mt-2">
-                      <Button size="sm" variant="primary" onClick={() => onAccept(o.id)}>{t('offer.accept')}</Button>
+                      <Button size="sm" variant="primary" onClick={() => onAccept(o.id)}>✅ {t('request.agreed')}</Button>
                       <Button size="sm" variant="outline" onClick={() => onReject(o.id)}>{t('offer.reject')}</Button>
                     </div>
                   )}
@@ -396,7 +346,7 @@ export default function RequestDetailsPage() {
                       loading={negotiatingOfferId === o.id}
                       disabled={negotiatingOfferId != null && negotiatingOfferId !== o.id}
                       data-negotiate-offer-id={o.id}
-                    >💬 {t('offer.negotiate')}</Button>
+                    >💬 {t('nav.chat')}</Button>
                   )}
                 </div>
               );
