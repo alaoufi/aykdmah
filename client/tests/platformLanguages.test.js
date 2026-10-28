@@ -38,7 +38,8 @@ test('the original platform terms have complete native copies while custom legal
 });
 
 test('native locale files contain no accidental English-only labels beyond intentional brand and technical values', () => {
-  const allowed = new Set(['common.brand', 'language.english', 'verify.method_sms', 'admin.ad_media_hint']);
+  // Filipino, Indonesian and Turkish are written in Latin letters: their native names stay as written.
+  const allowed = new Set(['common.brand', 'language.english', 'language.filipino', 'language.indonesian', 'language.turkish', 'verify.method_sms', 'admin.ad_media_hint']);
   for (const lang of ['ar', 'ur', 'hi', 'bn']) {
     const walk = (object, prefix = '') => {
       for (const [key, value] of Object.entries(object)) {

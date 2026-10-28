@@ -81,7 +81,8 @@ test('voice requires actual audio; bounded duration is optional client metadata'
 });
 
 test('media validation and total body limit guidance has native translations', () => {
-  const scripts = { ar: /[\u0600-\u06ff]/u, en: /[a-z]/iu, ur: /[\u0600-\u06ff]/u, hi: /[\u0900-\u097f]/u, bn: /[\u0980-\u09ff]/u };
+  const scripts = { ar: /[\u0600-\u06ff]/u, en: /[a-z]/iu, ur: /[\u0600-\u06ff]/u, hi: /[\u0900-\u097f]/u, bn: /[\u0980-\u09ff]/u,
+    ml: /[\u0d00-\u0d7f]/u, fil: /[a-z]/iu, id: /[a-z]/iu, ne: /[\u0900-\u097f]/u, am: /[\u1200-\u137f]/u, tr: /[a-z]/iu };
   for (const key of ['file_content_invalid', 'upload_body_limit']) {
     for (const language of SUPPORTED) {
       assert.notEqual(translate(language, key), key);
