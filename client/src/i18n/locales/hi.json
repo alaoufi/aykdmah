@@ -365,7 +365,8 @@
     "offers_list_title": "प्राप्त ऑफ़र",
     "providers_only": "केवल प्रदाताओं के लिए",
     "not_found": "ऑफ़र नहीं मिला",
-    "negotiate": "संदेशों से बातचीत करें"
+    "negotiate": "संदेशों से बातचीत करें",
+    "price_invalid": "कीमत संख्या में लिखें, जैसे 150।"
   },
   "status": {
     "request": {

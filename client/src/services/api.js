@@ -135,6 +135,7 @@ for (const [code, key, messages] of [
   ["role_change_open_requests", "auth.role_change_open_requests", ["لديك طلبات خدمة مفتوحة. اختر «كلاهما» لتبقى قادرًا على متابعتها، أو أكملها أولًا.","You have open service requests. Choose “Both” to keep following them, or finish them first.","آپ کی خدمت کی درخواستیں کھلی ہیں۔ انہیں جاری رکھنے کے لیے «دونوں» منتخب کریں، یا پہلے مکمل کریں۔","আপনার সেবা অনুরোধ খোলা আছে। সেগুলো চালিয়ে যেতে “উভয়” বেছে নিন, বা আগে শেষ করুন।","आपके सेवा अनुरोध खुले हैं। उन्हें जारी रखने के लिए “दोनों” चुनें, या पहले पूरा करें।"]],
   ["account_type_changed", "auth.account_type_changed", ["تم تغيير نوع الحساب","Account type changed","اکاؤنٹ کی قسم بدل گئی","অ্যাকাউন্টের ধরন বদলেছে","खाते का प्रकार बदल गया"]],
   ["provider_venue_point_required", "auth.provider_venue_point_required", ["حدد موقع مكان تقديم الخدمة على الخريطة","Mark the service venue on the map","نقشے پر خدمت کی جگہ منتخب کریں","মানচিত্রে সেবার স্থান চিহ্নিত করুন","मानचित्र पर सेवा स्थान चुनें"]],
+  ["offer_price_invalid", "offer.price_invalid", ["بيانات العرض غير صحيحة: price"]],
   ["providers_only", "offer.providers_only", ["لمقدمي الخدمة فقط","Providers only","صرف فراہم کنندگان کے لیے","শুধুমাত্র প্রদানকারীদের জন্য","केवल प्रदाताओं के लिए"]]
 ]) {
   errorKeys.set(code, key);

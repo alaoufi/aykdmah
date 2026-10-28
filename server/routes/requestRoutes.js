@@ -16,8 +16,9 @@ const { requireMarketplaceWrite, requireMarketplaceBrowse } = require('../middle
 router.get('/nearby', optionalAuth, requireMarketplaceBrowse, c.getNearby);
 router.get('/my', authenticate, c.getMy);
 router.post('/', authenticate, requireMarketplaceWrite, uploadLimiter, uploadRequest.array('files', 8), [
-  body('title').isString().trim().isLength({ min: 3, max: 200 }),
-  body('description').isString().trim().isLength({ min: 8, max: 10000 }),
+  // Short or empty texts are accepted: the model fills a sensible title and description.
+  body('title').optional({ checkFalsy: true }).isString().trim().isLength({ max: 200 }),
+  body('description').optional({ checkFalsy: true }).isString().trim().isLength({ max: 10000 }),
   body('latitude').optional({ checkFalsy: true }).isFloat({ min: -90, max: 90 }),
   body('longitude').optional({ checkFalsy: true }).isFloat({ min: -180, max: 180 }),
 ], validate, c.create);

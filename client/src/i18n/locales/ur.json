@@ -365,7 +365,8 @@
     "offers_list_title": "موصول شدہ پیشکشیں",
     "providers_only": "صرف فراہم کنندگان کے لیے",
     "not_found": "پیشکش نہیں ملی",
-    "negotiate": "پیغامات سے بات چیت کریں"
+    "negotiate": "پیغامات سے بات چیت کریں",
+    "price_invalid": "قیمت عدد میں لکھیں، جیسے 150۔"
   },
   "status": {
     "request": {

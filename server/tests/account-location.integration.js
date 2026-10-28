@@ -221,7 +221,7 @@ test('failed or incomplete remembered requests leave both account and request ro
   for (const body of [
     { city_id: other.city_id, district_id: other.district_id, address: other.address },
     { ...other, district_id: null }, { ...other, address: '' },
-    { ...other, title: '' }, { ...other, service_id: 2147483647 }, { ...other, budget_min: 20, budget_max: 10 },
+    { ...other, title: 'ط'.repeat(201) }, { ...other, service_id: 2147483647 }, { ...other, budget_min: 20, budget_max: 10 },
   ]) {
     await createRequest(session.token, { ...body, remember_location: true }, 422);
     assert.deepEqual(await accountLocation(session.user.id), before);

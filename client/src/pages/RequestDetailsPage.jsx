@@ -277,7 +277,7 @@ export default function RequestDetailsPage() {
           <form onSubmit={submitOffer}>
             <Input
               label={`${t('offer.price')} *`}
-              type="number" min="1" required
+              type="text" inputMode="decimal" dir="ltr" required placeholder="150"
               value={offerForm.price}
               onChange={(e) => setOfferForm({ ...offerForm, price: e.target.value })}
             />

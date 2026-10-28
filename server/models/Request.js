@@ -45,11 +45,15 @@ function publicView(request) {
 }
 
 async function validateCreate(data, read = queryOne) {
-  if (typeof data.title !== 'string' || data.title.trim().length < 3 || data.title.length > 200
-      || typeof data.description !== 'string' || data.description.trim().length < 8 || data.description.length > 10000
+  const text = value => (value == null ? '' : value);
+  if (typeof text(data.title) !== 'string' || text(data.title).length > 200
+      || typeof text(data.description) !== 'string' || text(data.description).length > 10000
       || [data.title, data.description, data.address].some(value => typeof value === 'string' && value.includes('\0'))
       || (data.address != null && (typeof data.address !== 'string' || data.address.length > 500))) throw new ApiError('invalid_data', 422);
-  data = { ...data, title: data.title.trim(), description: data.description.trim() };
+  // Any text is accepted: a missing title comes from the description (or the
+  // service name, below), and a missing description repeats the title.
+  const description = text(data.description).trim();
+  data = { ...data, title: text(data.title).trim() || description.split('\n')[0].slice(0, 80).trim(), description };
   for (const key of ['client_id', 'category_id', 'service_id', 'city_id', 'district_id']) data[key] = optionalNumber(data[key], 1, 2147483647, true);
   if (!data.client_id) throw new ApiError('invalid_data', 422);
   data.latitude = optionalNumber(data.latitude, -90, 90);
@@ -75,6 +79,12 @@ async function validateCreate(data, read = queryOne) {
     if (!district || (data.city_id && district.city_id !== data.city_id)) throw new ApiError('invalid_district', 422);
     data.city_id = district.city_id;
   }
+  if (!data.title) {
+    const named = data.service_id ? await read('SELECT name_ar FROM services WHERE id = ?', [data.service_id])
+      : data.category_id ? await read('SELECT name_ar FROM categories WHERE id = ?', [data.category_id]) : null;
+    data.title = named?.name_ar || 'طلب خدمة';
+  }
+  if (!data.description) data.description = data.title;
   return data;
 }
 

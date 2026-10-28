@@ -386,3 +386,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
   [data-scale="l"] .site-logo { width: 128px; }
   [data-scale="xl"] .site-logo { width: 104px; }
 }
+
+/* Templates (Saudi, desert, mountain, sea, burgundy): the page itself carries a
+   soft gradient of the template's tinted greys, from its background to its
+   alternate surface. High contrast keeps flat colours. */
+html[data-palette]:not([data-palette="brand"]):not([data-contrast="high"]) body {
+  background: linear-gradient(180deg, rgb(var(--color-bg)) 0%, rgb(var(--color-surface-alt)) 100%) fixed;
+}

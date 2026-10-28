@@ -58,6 +58,11 @@ export default function CreateRequestPage() {
     [k]: v,
   }));
 
+  // The only thing a request truly needs is where the service is.
+  const locationMissing = !requestLocation.ready ? null
+    : !requestLocation.city ? t('auth.simple_location_required')
+      : requestLocation.districts.length > 0 && !requestLocation.district ? t('auth.simple_district_required') : null;
+
   const submit = async (e) => {
     e.preventDefault();
     if (loading || !requestLocation.ready || !requestLocation.city
@@ -95,8 +100,8 @@ export default function CreateRequestPage() {
 
       <form onSubmit={submit} className="card" style={{ padding: 24 }}>
         <Input
-          label={`${t('request.title')} *`}
-          required maxLength={200}
+          label={t('request.title')}
+          maxLength={200}
           value={form.title}
           onChange={(e) => update('title', e.target.value)}
           placeholder={t('request.title_ph')}
@@ -104,8 +109,7 @@ export default function CreateRequestPage() {
 
         <Input
           as="textarea"
-          label={`${t('request.description')} *`}
-          required minLength={10}
+          label={t('request.description')}
           value={form.description}
           onChange={(e) => update('description', e.target.value)}
           placeholder={t('request.description_ph')}
@@ -172,9 +176,10 @@ export default function CreateRequestPage() {
           <span>{t('request.urgent_full')}</span>
         </label>
 
-        <Button type="submit" block size="lg" loading={loading} variant="primary" disabled={!requestLocation.ready || !requestLocation.city || (requestLocation.districts.length > 0 && !requestLocation.district)}>
+        <Button type="submit" block size="lg" loading={loading} variant="primary" disabled={!requestLocation.ready || !!locationMissing}>
           {t('request.submit')}
         </Button>
+        {locationMissing && <p className="text-center text-[12px] text-fg-muted mt-1">{t('auth.complete_to_enable', { item: locationMissing })}</p>}
       </form>
     </div>
   );

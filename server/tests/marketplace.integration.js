@@ -85,13 +85,21 @@ if (!databaseName) {
     const suffix = crypto.randomBytes(5).toString('hex');
     const customer = (await api('/auth/register', { method: 'POST', expected: 201, body: { full_name: 'عميل الاختبار', username: `customer_${suffix}`, password: 'AykTestOnly-2026', role: 'client' } })).data;
     const provider = (await api('/auth/register', { method: 'POST', expected: 201, body: { full_name: 'عامل الاختبار', username: `provider_${suffix}`, password: 'AykTestOnly-2026', role: 'provider' } })).data;
-    await api('/requests', { method: 'POST', token: customer.token, body: { title: '', description: '' }, expected: 422 });
+    // Empty or short texts are accepted; a plain title and description are filled in.
+    const blank = (await api('/requests', { method: 'POST', token: customer.token, body: { title: '', description: '' }, expected: 201 })).data;
+    assert.equal(blank.title, 'طلب خدمة');
+    assert.equal(blank.description, 'طلب خدمة');
+    const short = (await api('/requests', { method: 'POST', token: customer.token, body: { description: 'مكيف' }, expected: 201 })).data;
+    assert.equal(short.title, 'مكيف');
+    await api(`/requests/${blank.id}`, { method: 'DELETE', token: customer.token });
+    await api(`/requests/${short.id}`, { method: 'DELETE', token: customer.token });
     const request = (await api('/requests', { method: 'POST', token: customer.token, expected: 201, body: { title: 'إصلاح تسريب في بريدة', description: 'تسريب تحت حوض المطبخ يحتاج صيانة', address: 'بريدة، حي الريان', latitude: 26.326, longitude: 43.975 } })).data;
     const nearby = await api('/requests/nearby?latitude=26.326&longitude=43.975&radius=5');
     assert.ok(nearby.data.some(item => Number(item.id) === Number(request.id)));
     const far = await api('/requests/nearby?latitude=24.7136&longitude=46.6753&radius=5');
     assert.ok(!far.data.some(item => Number(item.id) === Number(request.id)));
-    const offer = (await api('/offers', { method: 'POST', token: provider.token, expected: 201, body: { request_id: request.id, price: 100, message: 'عرض تجريبي لاختبار التدفق' } })).data;
+    const offer = (await api('/offers', { method: 'POST', token: provider.token, expected: 201, body: { request_id: request.id, price: '١٠٠', message: 'عرض تجريبي لاختبار التدفق' } })).data;
+    assert.equal(Number(offer.price), 100, 'a price typed in Arabic digits is accepted');
     const offers = await api(`/offers/request/${request.id}`, { token: customer.token });
     assert.ok(offers.data.some(item => Number(item.id) === Number(offer.id)));
     await api(`/offers/${offer.id}/accept`, { method: 'PUT', token: customer.token });

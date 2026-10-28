@@ -365,7 +365,8 @@
     "offers_list_title": "العروض المقدمة",
     "providers_only": "لمقدمي الخدمة فقط",
     "not_found": "العرض غير موجود",
-    "negotiate": "تفاوض بالمراسلة"
+    "negotiate": "تفاوض بالمراسلة",
+    "price_invalid": "اكتب السعر رقمًا، مثل 150 أو ١٥٠."
   },
   "status": {
     "request": {

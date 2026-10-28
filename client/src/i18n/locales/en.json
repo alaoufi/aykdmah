@@ -365,7 +365,8 @@
     "offers_list_title": "Offers received",
     "providers_only": "Providers only",
     "not_found": "Offer not found",
-    "negotiate": "Negotiate with messages"
+    "negotiate": "Negotiate with messages",
+    "price_invalid": "Enter the price as a number, e.g. 150."
   },
   "status": {
     "request": {

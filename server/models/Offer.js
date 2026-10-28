@@ -54,7 +54,10 @@ function optionalDate(value) {
 }
 
 function normalizeOffer(data) {
-  const priceText = ['number', 'string'].includes(typeof data.price) ? String(data.price).trim() : '';
+  // Arabic digits, the Arabic decimal mark and thousands commas are accepted as typed.
+  const priceText = ['number', 'string'].includes(typeof data.price) ? String(data.price).trim()
+    .replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 0x0660)).replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 0x06F0))
+    .replace(/[٫]/g, '.').replace(/[,،٬\s]/g, '') : '';
   if (!/^\d+(?:\.\d{1,2})?$/.test(priceText)) invalid('price');
   const price = finiteNumber(priceText, 'price', 0.01, 99999999.99);
   if (isEmpty(data.latitude) !== isEmpty(data.longitude)) invalid('location');

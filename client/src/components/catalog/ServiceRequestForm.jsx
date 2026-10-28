@@ -38,6 +38,9 @@ export default function ServiceRequestForm({ service, open, onClose }) {
     operation.current += 1;
     setCreated(null); setForm(EMPTY); setFiles([]); setError(''); onClose?.();
   };
+  const locationMissing = !requestLocation.ready ? null
+    : !requestLocation.city ? t('auth.simple_location_required')
+      : requestLocation.districts.length > 0 && !requestLocation.district ? t('auth.simple_district_required') : null;
   const submit = async event => {
     event.preventDefault();
     if (!user || loading || !requestLocation.ready || !requestLocation.city
@@ -68,11 +71,12 @@ export default function ServiceRequestForm({ service, open, onClose }) {
     : <form onSubmit={submit}>
       {error && <div role="alert" className="form-error mb-3">{error}</div>}
       <RequestLocationFields control={requestLocation} prefix="catalog" disabled={loading} />
-      <Input as="textarea" label={t('catalog.request_desc')} required minLength={8} maxLength={8000} value={form.desc} onChange={event => set('desc', event.target.value)} />
+      <Input as="textarea" label={t('catalog.request_desc')} maxLength={8000} value={form.desc} onChange={event => set('desc', event.target.value)} />
       <div className="form-group"><label className="form-label" htmlFor="catalog-files">{t('catalog.upload_images')}</label><input id="catalog-files" type="file" multiple accept="image/jpeg,image/png,image/webp" onChange={event => setFiles(Array.from(event.target.files || []).slice(0, 5))} />{files.length > 0 && <div className="text-xs text-muted mt-1">{t('request.files_count', { count: files.length })}</div>}</div>
       <Input label={t('catalog.preferred_time')} type="datetime-local" value={form.preferredTime} onChange={event => set('preferredTime', event.target.value)} />
       <Input as="textarea" label={t('catalog.notes')} maxLength={1000} value={form.notes} onChange={event => set('notes', event.target.value)} />
-      <Button type="submit" block variant="primary" loading={loading} disabled={!requestLocation.ready || !requestLocation.city || (requestLocation.districts.length > 0 && !requestLocation.district)}>{t('catalog.send_order')}</Button>
+      <Button type="submit" block variant="primary" loading={loading} disabled={!requestLocation.ready || !!locationMissing}>{t('catalog.send_order')}</Button>
+      {locationMissing && <p className="text-center text-[12px] text-fg-muted mt-1">{t('auth.complete_to_enable', { item: locationMissing })}</p>}
     </form>}
   </Modal>;
 }
