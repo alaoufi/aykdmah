@@ -25,6 +25,8 @@ check('requester sees the provider covering their neighbourhood', await section.
 check('no region menus on the home page', !(await client.getByText('كل المناطق المتاحة').count()));
 check('"Edit your area" link at the top', await client.getByTestId('edit-area').isVisible());
 await section.screenshot({ path: '/e2e/home-client.png' });
+await client.evaluate(() => window.scrollTo(0, 0));
+await client.screenshot({ path: '/e2e/home-top.png' });
 
 await client.goto(`${BASE}/services/category/electrical`);
 await client.getByText('مقدم تجريبي').first().waitFor({ timeout: 20000 }).then(() => check('profession page lists providers in the neighbourhood', true))

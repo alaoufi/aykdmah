@@ -34,126 +34,62 @@ export default function Hero() {
     navigate(`/services${params.size ? `?${params.toString()}` : ''}`);
   };
 
+  // Compact on phones: one-line headline, a single search row, one row of actions,
+  // so the user's own area ("For you") starts right below without scrolling far.
   return (
     <section className="relative grad-hero overflow-hidden">
       <span className="blob" style={{ width: 420, height: 420, top: -120, right: -80, background: 'rgb(var(--color-accent-soft))' }} />
       <span className="blob" style={{ width: 520, height: 520, bottom: -260, left: -100, background: 'rgb(var(--color-primary-soft))' }} />
 
-      <div className="relative max-w-7xl mx-auto px-3 md:px-6 lg:px-8 pt-5 pb-7 md:pt-16 md:pb-24 lg:pt-20 lg:pb-28">
-        {/* Trust pill */}
-        <div className="flex items-center justify-center mb-3 md:mb-7">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-pill bg-white/15 backdrop-blur-md border border-white/25 text-white text-[13px] font-medium">
-            <span className="w-1.5 h-1.5 rounded-full bg-sand-200 pulse-dot inline-block" />
-            {t('home.trust_pill')}
-          </div>
-        </div>
-
-        {/* Headline */}
-        <h1
-          className="text-white text-center font-extrabold tracking-tight leading-[1.2] text-[26px] sm:text-5xl lg:text-[64px]"
-          style={{ textShadow: '0 2px 12px rgba(0,0,0,.25)' }}
-        >
-          {t('home.headline_1')}
-          <br />
-          <span className="bg-gradient-to-l from-white via-white to-white/90 bg-clip-text text-transparent">
-            {t('home.headline_2')}
-          </span>
+      <div className="relative max-w-3xl mx-auto px-4 md:px-6 pt-4 pb-5 md:pt-12 md:pb-14">
+        <h1 className="text-white text-center font-extrabold tracking-tight leading-snug text-[19px] sm:text-3xl lg:text-[44px]"
+          style={{ textShadow: '0 2px 10px rgba(0,0,0,.25)' }}>
+          {t('home.headline_1')} <span className="text-white/90">{t('home.headline_2')}</span>
         </h1>
-        <p
-          className="mt-4 md:mt-6 text-center text-white text-base md:text-lg lg:text-xl max-w-2xl mx-auto"
-          style={{ textShadow: '0 1px 6px rgba(0,0,0,.30)' }}
-        >
+        <p className="mt-1.5 md:mt-3 text-center text-white/90 text-[12.5px] md:text-base leading-relaxed" style={{ textShadow: '0 1px 6px rgba(0,0,0,.3)' }}>
           {t('home.subtitle')}
         </p>
 
-        {/* Guest registration nudge — tells them WHY signing up makes the
-            search better (region-aware results). Hidden once logged in. */}
-        {!user && (
-          <div className="mt-4 md:mt-8 mx-auto max-w-5xl bg-white/15 backdrop-blur-md border border-white/25 rounded-card px-4 py-2.5 md:px-5 md:py-3 flex flex-wrap items-center justify-center gap-2.5 text-center">
-            <span className="text-[18px]">📍</span>
-            <p className="text-white text-[13px] md:text-[14px] font-medium m-0">
-              {t('home.register_nudge')}
-            </p>
-            <Link to="/register" className="px-4 py-1.5 rounded-pill bg-white text-primary text-[13px] font-bold no-underline shadow-soft hover:shadow-lift transition">
-              {t('auth.register_button')}
-            </Link>
-          </div>
-        )}
-
-        {/* Search box */}
-        <form
-          onSubmit={onSearch}
-          className="mt-4 md:mt-5 mx-auto max-w-5xl bg-surface rounded-[22px] shadow-hero p-3 md:p-3.5"
-        >
-          {/* Row 2: Search input + submit button */}
-          <div className="mt-2 md:mt-2.5 grid grid-cols-1 md:grid-cols-[1fr_auto] gap-2 md:gap-2.5">
-            <label className="relative flex items-center gap-2 px-3.5 py-3 md:py-2.5 rounded-card bg-surface-alt focus-within:bg-surface focus-within:ring-2 focus-within:ring-primary/20 transition">
-              <IconSearch size={18} className="text-fg-subtle shrink-0" />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder={t('home.search_placeholder')}
-                className="bg-transparent text-[15px] text-fg placeholder:text-fg-subtle outline-none w-full"
-              />
-            </label>
-
-            <button
-              type="submit"
-              className="rounded-card px-6 py-3 md:py-2.5 text-white text-[15px] font-bold shadow-soft hover:shadow-lift transition active:scale-[.98] flex items-center justify-center gap-2"
-              style={{ background: 'linear-gradient(135deg, rgb(var(--color-primary-from)), rgb(var(--color-primary-to)))' }}
-            >
-              <IconSearch size={18} />
-              {t('common.search')}
-            </button>
-          </div>
-
-          <div className="hidden md:flex items-center gap-2 mt-3 px-1 text-[12px]">
-            <span className="text-fg-subtle">{t('home.popular')}</span>
-            {popular.map((c) => (
-              <button
-                key={c}
-                type="button"
-                onClick={() => setQuery(c)}
-                className="px-2.5 py-1 rounded-pill bg-surface-alt hover:bg-primary-soft hover:text-primary text-fg-muted font-medium transition"
-              >
-                {c}
-              </button>
-            ))}
-          </div>
+        <form onSubmit={onSearch} className="mt-3 md:mt-6 flex items-center gap-1.5 bg-surface rounded-pill shadow-hero p-1.5 ps-3" role="search">
+          <IconSearch size={17} className="text-fg-subtle shrink-0" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t('home.search_placeholder')}
+            aria-label={t('common.search')}
+            className="flex-1 min-w-0 bg-transparent text-[14px] md:text-[15px] text-fg placeholder:text-fg-subtle outline-none py-2"
+          />
+          <button type="submit" className="shrink-0 rounded-pill px-4 md:px-6 py-2 text-white text-[13.5px] md:text-[15px] font-bold transition active:scale-[.98]"
+            style={{ background: 'linear-gradient(135deg, rgb(var(--color-primary-from)), rgb(var(--color-primary-to)))' }}>
+            {t('common.search')}
+          </button>
         </form>
 
-        {/* Secondary buttons */}
-        <div className="mt-5 md:mt-6 flex flex-wrap items-center justify-center gap-2.5 md:gap-3">
-          <button
-            onClick={() => requestLocation().catch(() => {})}
-            disabled={locLoading}
-            className="inline-flex items-center gap-2 px-4 md:px-5 py-2.5 rounded-pill bg-white/15 hover:bg-white/25 backdrop-blur-md border border-white/30 text-white text-[14px] font-semibold transition disabled:opacity-50"
-          >
-            <IconPin size={16} />
-            {locLoading ? t('home.locating') : position ? t('home.location_acquired') : t('home.use_my_location')}
+        <div className="mt-2.5 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+          <button onClick={() => navigate('/requests/new')}
+            className="shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-pill bg-surface text-fg text-[12.5px] font-bold shadow-soft">
+            <IconPlus size={14} /> {t('home.new_request')}
           </button>
-          <button
-            onClick={() => navigate('/requests/new')}
-            className="inline-flex items-center gap-2 px-4 md:px-5 py-2.5 rounded-pill bg-surface text-fg text-[14px] font-bold shadow-soft hover:shadow-lift transition"
-          >
-            <IconPlus size={16} />
-            {t('home.new_request')}
-          </button>
+          {popular.map((c) => (
+            <button key={c} type="button" onClick={() => setQuery(c)}
+              className="shrink-0 px-2.5 py-1 rounded-pill bg-white/15 hover:bg-white/25 border border-white/25 text-white text-[12px] font-medium transition">
+              {c}
+            </button>
+          ))}
+          {!user && (
+            <button onClick={() => requestLocation().catch(() => {})} disabled={locLoading}
+              className="shrink-0 inline-flex items-center gap-1 px-3 py-1.5 rounded-pill bg-white/15 border border-white/25 text-white text-[12.5px] font-semibold disabled:opacity-50">
+              <IconPin size={14} /> {locLoading ? t('home.locating') : position ? t('home.location_acquired') : t('home.use_my_location')}
+            </button>
+          )}
         </div>
 
-        {/* Launch features */}
-        <div className="mt-10 md:mt-14 grid grid-cols-3 gap-2 md:gap-4 max-w-3xl mx-auto">
-          {[
-            { n: t('home.launch_scope'), l: t('home.launch_scope_label') },
-            { n: t('home.launch_offers'), l: t('home.launch_offers_label') },
-            { n: t('home.launch_contact'), l: t('home.launch_contact_label') },
-          ].map((s, i) => (
-            <div key={i} className="text-center text-white">
-              <div className="text-2xl md:text-3xl font-extrabold">{s.n}</div>
-              <div className="text-white/75 text-[12px] md:text-sm mt-0.5">{s.l}</div>
-            </div>
-          ))}
-        </div>
+        {!user && (
+          <p className="mt-3 text-center text-white/90 text-[12.5px] m-0">
+            📍 {t('home.register_nudge')}{' '}
+            <Link to="/register" className="font-bold text-white underline underline-offset-2">{t('auth.register_button')}</Link>
+          </p>
+        )}
       </div>
     </section>
   );

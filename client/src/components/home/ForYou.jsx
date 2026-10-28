@@ -15,7 +15,7 @@ export default function ForYou() {
   const isProvider = user.role === 'provider';
   const isClient = user.role === 'client' || Number(user.also_client) === 1;
   return (
-    <section className="max-w-7xl mx-auto px-3 md:px-6 lg:px-8 py-6 md:py-10 space-y-10" data-testid="for-you">
+    <section className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-8 space-y-8" data-testid="for-you">
       {isProvider && <RequestsForMe />}
       {isClient && <MatchingProviders />}
     </section>
