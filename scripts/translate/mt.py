@@ -62,7 +62,17 @@ def main():
     for lang in langs:
         path = os.path.join(out_dir, f'{lang}.json')
         done = json.load(open(path, encoding='utf-8')) if os.path.exists(path) else {}
-        todo = [s for s in strings if s not in done]
+        # MT_SHARD=i/n: this worker takes every n-th string and saves to its own file,
+        # so several workers share one language; combine.py folds the shards back in.
+        shard = os.environ.get('MT_SHARD')
+        mine = strings
+        if shard:
+            i, n = map(int, shard.split('/'))
+            mine = [s for k, s in enumerate(strings) if k % n == i]
+            path = os.path.join(out_dir, f'{lang}.s{i}.json')
+            if os.path.exists(path):
+                done.update(json.load(open(path, encoding='utf-8')))
+        todo = [s for s in mine if s not in done]
         t0 = time.time()
         for i in range(0, len(todo), 12):
             chunk = todo[i:i + 12]
@@ -72,7 +82,7 @@ def main():
             for s, (pre, core, post), (_, names), r in zip(chunk, edges, prot, res):
                 done[s] = pre + tidy(core, restore(r, names)) + post
             json.dump(done, open(path, 'w', encoding='utf-8'), ensure_ascii=False, indent=0)
-            print(lang, len(done), '/', len(strings), f'{time.time() - t0:.0f}s', flush=True)
+            print(lang, len(done), '/', len(mine), f'{time.time() - t0:.0f}s', flush=True)
 
 
 if __name__ == '__main__':

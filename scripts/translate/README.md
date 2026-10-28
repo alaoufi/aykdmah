@@ -13,6 +13,9 @@ NLLB-200 مفتوح يعمل على الخادم، بلا خدمة مدفوعة.
 - `merge.cjs <repo> <mtDir>`: يدمج النتائج في `client/src/i18n/locales/<lang>.json`،
   و`referenceNames.json`، و`catalogExtraLanguages.json`، و`server/utils/i18n.js`، و`notificationLabels.js`.
 - `run-fast.sh`: التشغيل السريع على الخادم (نموذج 600M، فك جشع، أربعة عمال).
+- `run-sharded.sh`: الأسرع والمتوازن. كل عامل يأخذ ربع كل لغة (`MT_SHARD=i/4`) ويحفظ في
+  `<lang>.s<i>.json`، فلا يبقى عامل خاملًا في النهاية. ينشئ `done-s<i>` عند انتهاء كل عامل.
+- `combine.py <dir>`: يضم ملفات الأجزاء إلى `<lang>.json`. شغّله على `out` و`out2` قبل الدمج.
 - `progress/out` و`progress/out2`: ما اكتمل حتى آخر حفظ (إنجليزي ← ترجمة) لكل لغة.
 
 ## الاستئناف من الصفر على الخادم
