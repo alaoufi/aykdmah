@@ -8,7 +8,7 @@ Date: 2026-10-28
 
 Repository: alaoufi/aykdmah
 Branch: claude/deploy-setup (غير مدمج في main؛ main = 695eb0d)
-Latest Commit: حفظة التوثيق التي تلي 0c28272 (انظر git log -1)
+Latest Commit: حفظة التوثيق التي تلي 7896af5 (انظر git log -1)
 Push Status: مرفوع ومُتحقق منه بـ git ls-remote
 
 Completed Tasks: AYK-001، 002، 003، 004، 005، 006، 010 (جزئي)، 012، 013، 017، 018، 021، 023، 016، 026، 027، 028، 029
@@ -19,8 +19,8 @@ Tests Passed: خادم 16/16، واجهة 116/116، تكامل 206/206، ترج�
 Tests Failed: e2e «استمرار المكالمة بعد انقطاع 4 ثوانٍ» (AYK-007)
 Tests Not Run: إرسال SMS حقيقي عبر Taqnyat (ينتظر تعبئة المالك للحقول في الإدارة)، تسجيل من جوال حقيقي، دفع حقيقي، حمل عالٍ
 
-Production Commit: 0c28272
-Deployment Status: منشور ويعمل على https://aykdmh.com — الواجهة releases/20261028-080114، الدفع PAYMENT_PROVIDER=test
+Production Commit: 7896af5
+Deployment Status: منشور ويعمل على https://aykdmh.com — الواجهة releases/20261028-081821، الدفع PAYMENT_PROVIDER=test
 
 Known Issues: AYK-007، والنسخ الاحتياطية على الخادم فقط (AYK-015)، ونسبة عمولة الكوبون 0% حتى يحددها المالك، و21 مدينة بلا أحياء، وبيانات التجارب يجب حذفها قبل البوابة الحقيقية (AYK-024)
 Required Environment Variables: على الخادم في /opt/aykdmh/.env: DB_PASSWORD و JWT_SECRET و ENCRYPTION_KEY و LIVEKIT_API_SECRET. والبقية في deploy/docker-compose.yml (منها PAYMENT_PROVIDER=test) و.env.example
