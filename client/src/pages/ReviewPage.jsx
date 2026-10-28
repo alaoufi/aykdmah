@@ -50,7 +50,7 @@ export default function ReviewPage() {
       fd.append('request_id', id);
       fd.append('rating', rating);
       fd.append('comment', comment);
-      fd.append('original_language', (i18n.resolvedLanguage || 'ar').toLowerCase().slice(0, 2));
+      fd.append('original_language', (i18n.resolvedLanguage || 'ar').toLowerCase().split(/[-_]/)[0]);
       if (Object.keys(criteria).length) {
         fd.append('criteria_ratings', JSON.stringify(criteria));
       }

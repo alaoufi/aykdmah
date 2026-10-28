@@ -18,6 +18,12 @@ const SUPPORTED_LANGS = [
   { code: 'ur', label: 'اردو' },
   { code: 'bn', label: 'বাংলা' },
   { code: 'hi', label: 'हिन्दी' },
+  { code: 'ml', label: 'മലയാളം' },
+  { code: 'fil', label: 'Filipino' },
+  { code: 'id', label: 'Bahasa Indonesia' },
+  { code: 'ne', label: 'नेपाली' },
+  { code: 'am', label: 'አማርኛ' },
+  { code: 'tr', label: 'Türkçe' },
 ];
 
 const EMPTY = {

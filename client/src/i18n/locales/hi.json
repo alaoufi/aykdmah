@@ -87,7 +87,13 @@
     "english": "English",
     "urdu": "اردو",
     "bengali": "বাংলা",
-    "hindi": "हिन्दी"
+    "hindi": "हिन्दी",
+    "malayalam": "മലയാളം",
+    "filipino": "Filipino",
+    "indonesian": "Bahasa Indonesia",
+    "nepali": "नेपाली",
+    "amharic": "አማርኛ",
+    "turkish": "Türkçe"
   },
   "home": {
     "trust_pill": "पूरे सऊदी अरब में Ay Khidma की घरेलू सेवाएं",

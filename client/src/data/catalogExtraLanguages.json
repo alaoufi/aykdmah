@@ -1,0 +1,82 @@
+{
+  "Plumbing": {
+    "ml": "പ്ലംബിംഗ്",
+    "fil": "Pag-iimbak ng mga tubo",
+    "id": "Pembuatan pipa",
+    "ne": "पाइपलाइन",
+    "am": "የቧንቧ ሥራ",
+    "tr": "Tesis tesisatı"
+  },
+  "Leak repairs and plumbing maintenance": {
+    "ml": "ചോർച്ച നന്നാക്കലും പ്ലാന്റ് മെയിന്റനൻസ്",
+    "fil": "Pag-aayos ng mga pag-uubos at pag-uusig ng mga plumbing",
+    "id": "Perbaikan kebocoran dan pemeliharaan pipa",
+    "ne": "चुहावटको मरम्मत र पाइपलाइनको मर्मतसम्भार",
+    "am": "የዝውውር ጥገና እና የቧንቧ ማቆያ ጥገና",
+    "tr": "Çıkış tamiri ve tesisat bakımı"
+  },
+  "Electrical": {
+    "ml": "വൈദ്യുതി",
+    "fil": "Mga elektrikal",
+    "id": "Listrik",
+    "ne": "विद्युतीय",
+    "am": "የኤሌክትሪክ",
+    "tr": "Elektrik"
+  },
+  "Home electrical and lighting maintenance": {
+    "ml": "വീട്ടു വൈദ്യുതിയും വിളക്കുകളും പരിപാലനം",
+    "fil": "Pag-uusig ng mga gamit sa kuryente at pag-iilaw sa tahanan",
+    "id": "Pemeliharaan listrik dan pencahayaan rumah tangga",
+    "ne": "घरको विद्युतीय र प्रकाश मर्मतसम्भार",
+    "am": "የቤት ውስጥ ኤሌክትሪክ እና የመብራት ጥገና",
+    "tr": "Ev elektrik ve aydınlatma bakımı"
+  },
+  "Yard cleaning": {
+    "ml": "മുറ്റത്ത് വൃത്തിയാക്കൽ",
+    "fil": "Paglinis ng hardin",
+    "id": "Pembersihan halaman",
+    "ne": "आँगन सफा गर्ने",
+    "am": "የአትክልት ስፍራን ማጽዳት",
+    "tr": "Bahçe temizliği"
+  },
+  "Yard and entrance cleaning": {
+    "ml": "മുറ്റവും പ്രവേശനവും വൃത്തിയാക്കുക",
+    "fil": "Paglinis ng hardin at pagpasok",
+    "id": "Pembersihan halaman dan pintu masuk",
+    "ne": "आँगन र प्रवेशद्वार सफा गर्ने",
+    "am": "የቤት ውስጥ እና የመግቢያ ቦታን ማጽዳት",
+    "tr": "Yard ve giriş temizliği"
+  },
+  "Parts and materials are specified in the offer": {
+    "ml": "ഭാഗങ്ങളും വസ്തുക്കളും ഓഫറിൽ വ്യക്തമാക്കിയിട്ടുണ്ട്",
+    "fil": "Ang mga bahagi at materyales ay nakasaad sa pahandog",
+    "id": "Bagian dan bahan ditentukan dalam penawaran",
+    "ne": "भाग र सामग्रीहरू प्रस्तावमा निर्दिष्ट गरिएका छन्",
+    "am": "ክፍሎችና ቁሳቁሶች በጨረታው የተጠቀሱ ናቸው",
+    "tr": "Parçeler ve malzemeler teklifte belirtilmiştir"
+  },
+  "By agreement": {
+    "ml": "ഒരു കരാറിലൂടെ",
+    "fil": "Sa pamamagitan ng kasunduan",
+    "id": "Dengan persetujuan",
+    "ne": "सहमतिद्वारा",
+    "am": "በስምምነት",
+    "tr": "Anlaşma yoluyla"
+  },
+  "Al-Qassim and Al Majmaah": {
+    "ml": "അൽ-കസിം, അൽ-മജ്മാഅ",
+    "fil": "Al-Qassim at Al Majmaah",
+    "id": "Al-Qassim dan Al Majmaah",
+    "ne": "अल-कसिम र अल-मजमाह",
+    "am": "አል-ቃሲም እና አል ማጅማህ",
+    "tr": "Al-Qassim ve Al Majmaah"
+  },
+  "Receive provider offers after creating a request": {
+    "ml": "ഒരു അഭ്യർത്ഥന സൃഷ്ടിച്ച ശേഷം ദാതാവിന്റെ ഓഫറുകൾ സ്വീകരിക്കുക",
+    "fil": "Tumanggap ng mga alok ng provider pagkatapos mag-create ng isang request",
+    "id": "Terima penawaran penyedia setelah membuat permintaan",
+    "ne": "अनुरोध सिर्जना गरेपछि प्रदायकको प्रस्ताव प्राप्त गर्नुहोस्",
+    "am": "ጥያቄ ካቀረቡ በኋላ የድርጅቱን አቅርቦቶች ይቀበሉ",
+    "tr": "Bir istek oluşturduktan sonra tedarikçi tekliflerini al"
+  }
+}

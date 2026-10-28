@@ -4,7 +4,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const root = path.resolve(__dirname, '..');
-const languages = ['ar', 'en', 'ur', 'hi', 'bn'];
+const languages = ['ar', 'en', 'ur', 'hi', 'bn', 'ml', 'fil', 'id', 'ne', 'am', 'tr'];
 const directory = path.join(root, 'client/src/i18n/locales');
 function flatten(value, prefix = '', result = {}) {
   for (const [key, item] of Object.entries(value)) {

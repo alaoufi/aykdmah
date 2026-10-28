@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { build } from 'esbuild';
 import { localizedTerms } from '../src/utils/localizeTerms.js';
 
-const languages = ['ar', 'en', 'ur', 'hi', 'bn'];
+const languages = ['ar', 'en', 'ur', 'hi', 'bn', 'ml', 'fil', 'id', 'ne', 'am', 'tr'];
 const locales = Object.fromEntries(languages.map(code => [code, JSON.parse(readFileSync(new URL(`../src/i18n/locales/${code}.json`, import.meta.url), 'utf8'))]));
 const sourceMigration = readFileSync(new URL('../../database/migrations/025_terms_acceptance.sql', import.meta.url), 'utf8');
 const defaultTerms = sourceMigration.split("('terms_text',\n'")[1].split("',\n'text'")[0];

@@ -8,7 +8,7 @@ import {
   normalizeLocalLanguage, abortLocalLanguage,
 } from '../../utils/localLanguage.js';
 
-const languageKeys = { ar: 'arabic', en: 'english', ur: 'urdu', hi: 'hindi', bn: 'bengali' };
+const languageKeys = { ar: 'arabic', en: 'english', ur: 'urdu', hi: 'hindi', bn: 'bengali', ml: 'malayalam', fil: 'filipino', id: 'indonesian', ne: 'nepali', am: 'amharic', tr: 'turkish' };
 const idle = { stage: null, percent: null };
 
 export default function LocalMessageTranslation({ message, sessionKey, targetLanguage }) {

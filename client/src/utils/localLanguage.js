@@ -1,6 +1,6 @@
 // Only these public, pinned model files may be downloaded by the language worker.
 // Conversation text, decoded audio and inference results never form a URL.
-export const LOCAL_LANGUAGES = ['ar', 'en', 'ur', 'hi', 'bn'];
+export const LOCAL_LANGUAGES = ['ar', 'ur', 'hi', 'bn', 'ml', 'fil', 'id', 'ne', 'am', 'tr', 'en'];
 export const LOCAL_TEXT_MAX_CHARACTERS = 1500;
 export const LOCAL_AUDIO_MAX_SECONDS = 60;
 export const LOCAL_AUDIO_MAX_BYTES = 3.5 * 1024 * 1024;
@@ -44,6 +44,8 @@ export function normalizeLocalLanguage(value, fallback = 'ar') {
 export function guessLocalSourceLanguage(text) {
   if (typeof text !== 'string' || !text.trim()) return null;
   if (/[\u0980-\u09FF]/u.test(text)) return 'bn';
+  if (/[\u0D00-\u0D7F]/u.test(text)) return 'ml';
+  if (/[\u1200-\u137F]/u.test(text)) return 'am';
   if (/[\u0900-\u097F]/u.test(text)) return 'hi';
   if (/[پچژگٹڈڑںھے]/u.test(text)) return 'ur';
   if (/[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/u.test(text)) return 'ar';

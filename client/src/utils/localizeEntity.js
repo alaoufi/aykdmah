@@ -17,7 +17,7 @@ import { FALLBACK_CHAIN } from '../i18n';
 
 export function pickTranslation(translations, lang, legacy = {}) {
   if (translations && typeof translations === 'object') {
-    const code = (lang || 'ar').toLowerCase().slice(0, 2);
+    const code = (lang || 'ar').toLowerCase().split(/[-_]/)[0];
     if (translations[code]) return translations[code];
     for (const fb of FALLBACK_CHAIN) {
       if (translations[fb]) return translations[fb];
@@ -26,7 +26,7 @@ export function pickTranslation(translations, lang, legacy = {}) {
     if (first) return first;
   }
   // Legacy back-compat
-  const code = (lang || 'ar').toLowerCase().slice(0, 2);
+  const code = (lang || 'ar').toLowerCase().split(/[-_]/)[0];
   if (code === 'en' && legacy.name_en) return legacy.name_en;
   return legacy.name_ar || legacy.name_en || '';
 }

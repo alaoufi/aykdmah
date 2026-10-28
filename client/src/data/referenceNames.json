@@ -7,7 +7,13 @@
       "en": "Home maintenance",
       "ur": "گھر کی دیکھ بھال",
       "hi": "घर की मरम्मत",
-      "bn": "বাড়ির মেরামত"
+      "bn": "বাড়ির মেরামত",
+      "ml": "വീട് പരിപാലനം",
+      "fil": "Pag-uusig sa tahanan",
+      "id": "Pemeliharaan rumah",
+      "ne": "घरको मर्मतसम्भार",
+      "am": "የቤት ጥገና",
+      "tr": "Ev bakımı"
     },
     {
       "kind": "category",
@@ -16,7 +22,13 @@
       "en": "Cleaning",
       "ur": "صفائی",
       "hi": "सफ़ाई",
-      "bn": "পরিষ্কার"
+      "bn": "পরিষ্কার",
+      "ml": "വൃത്തിയാക്കൽ",
+      "fil": "Paglinis",
+      "id": "Pembersihan",
+      "ne": "सफाई",
+      "am": "ማጽዳት",
+      "tr": "Temizlik"
     },
     {
       "kind": "category",
@@ -25,7 +37,13 @@
       "en": "Moving",
       "ur": "سامان کی منتقلی",
       "hi": "सामान की ढुलाई",
-      "bn": "মালামাল স্থানান্তর"
+      "bn": "মালামাল স্থানান্তর",
+      "ml": "നീങ്ങുന്നു",
+      "fil": "Paglilipat",
+      "id": "Pindah",
+      "ne": "सार्दै",
+      "am": "መንቀሳቀስ",
+      "tr": "Hareket"
     },
     {
       "kind": "category",
@@ -34,7 +52,13 @@
       "en": "Electrical",
       "ur": "بجلی کا کام",
       "hi": "बिजली का काम",
-      "bn": "বিদ্যুতের কাজ"
+      "bn": "বিদ্যুতের কাজ",
+      "ml": "വൈദ്യുതി",
+      "fil": "Mga elektrikal",
+      "id": "Listrik",
+      "ne": "विद्युतीय",
+      "am": "የኤሌክትሪክ",
+      "tr": "Elektrik"
     },
     {
       "kind": "category",
@@ -43,7 +67,13 @@
       "en": "Plumbing",
       "ur": "پلمبنگ",
       "hi": "प्लंबिंग",
-      "bn": "প্লাম্বিং"
+      "bn": "প্লাম্বিং",
+      "ml": "പ്ലംബിംഗ്",
+      "fil": "Pag-iimbak ng mga tubo",
+      "id": "Pembuatan pipa",
+      "ne": "पाइपलाइन",
+      "am": "የቧንቧ ሥራ",
+      "tr": "Tesis tesisatı"
     },
     {
       "kind": "category",
@@ -52,7 +82,13 @@
       "en": "AC & cooling",
       "ur": "ایئر کنڈیشننگ اور کولنگ",
       "hi": "एसी और कूलिंग",
-      "bn": "এসি ও কুলিং"
+      "bn": "এসি ও কুলিং",
+      "ml": "എസി & കൂളിംഗ്",
+      "fil": "AC & paglamig",
+      "id": "AC & pendinginan",
+      "ne": "एसी र शीतलन",
+      "am": "የአየር ማቀዝቀዣ እና ማቀዝቀዣ",
+      "tr": "AC ve soğutma"
     },
     {
       "kind": "category",
@@ -61,7 +97,13 @@
       "en": "Paint & décor",
       "ur": "رنگ و سجاوٹ",
       "hi": "पेंट और सजावट",
-      "bn": "রং ও সাজসজ্জা"
+      "bn": "রং ও সাজসজ্জা",
+      "ml": "പെയിന്റ് & ഡെക്കറേഷൻ",
+      "fil": "Pintura & dekorasyon",
+      "id": "Cat & dekorasi",
+      "ne": "पेंट र सजावट",
+      "am": "ቀለም እና ዲኮር",
+      "tr": "Boyalı ve dekorasyon"
     },
     {
       "kind": "category",
@@ -70,7 +112,13 @@
       "en": "Gardens & landscaping",
       "ur": "باغات اور زمین کی آرائش",
       "hi": "बाग़ और भूदृश्य",
-      "bn": "বাগান ও ল্যান্ডস্কেপ"
+      "bn": "বাগান ও ল্যান্ডস্কেপ",
+      "ml": "പൂന്തോട്ടങ്ങളും ലാൻഡ്സ്കേപ്പിംഗും",
+      "fil": "Mga hardin at pag-uukit ng lupa",
+      "id": "Kebun & lansekap",
+      "ne": "बागवानी र परिदृश्य",
+      "am": "የአትክልት ስፍራዎች እና የአትክልት ስፍራዎች",
+      "tr": "Bahçeler ve tarımsal alanlar"
     },
     {
       "kind": "category",
@@ -79,7 +127,13 @@
       "en": "Tutoring",
       "ur": "ٹیوشن",
       "hi": "ट्यूशन",
-      "bn": "প্রাইভেট পড়ানো"
+      "bn": "প্রাইভেট পড়ানো",
+      "ml": "ട്യൂഷൻ",
+      "fil": "Pagtuturo",
+      "id": "Pengajaran",
+      "ne": "शिक्षण",
+      "am": "የማስተማር ሥራ",
+      "tr": "Öğretmenlik"
     },
     {
       "kind": "category",
@@ -88,7 +142,13 @@
       "en": "Cars",
       "ur": "گاڑیوں کی خدمات",
       "hi": "कार सेवाएँ",
-      "bn": "গাড়ির সেবা"
+      "bn": "গাড়ির সেবা",
+      "ml": "കാറുകൾ",
+      "fil": "Mga kotse",
+      "id": "Mobil",
+      "ne": "कारहरू",
+      "am": "መኪናዎች",
+      "tr": "Arabalar"
     },
     {
       "kind": "category",
@@ -97,7 +157,13 @@
       "en": "Tech & computers",
       "ur": "ٹیکنالوجی اور کمپیوٹر",
       "hi": "तकनीक और कंप्यूटर",
-      "bn": "প্রযুক্তি ও কম্পিউটার"
+      "bn": "প্রযুক্তি ও কম্পিউটার",
+      "ml": "സാങ്കേതിക വിദ്യയും കമ്പ്യൂട്ടറുകളും",
+      "fil": "Teknolohiya & computer",
+      "id": "Teknologi & komputer",
+      "ne": "टेक्नोलोजी र कम्प्युटर",
+      "am": "ቴክኖሎጂ እና ኮምፒውተሮች",
+      "tr": "Teknoloji ve bilgisayarlar"
     },
     {
       "kind": "category",
@@ -106,7 +172,13 @@
       "en": "Events & catering",
       "ur": "تقریبات اور کھانے کا انتظام",
       "hi": "कार्यक्रम और खानपान",
-      "bn": "অনুষ্ঠান ও খাবার সরবরাহ"
+      "bn": "অনুষ্ঠান ও খাবার সরবরাহ",
+      "ml": "പരിപാടികളും കാറ്ററിംഗും",
+      "fil": "Mga kaganapan & pag-aalaga",
+      "id": "Acara & katering",
+      "ne": "कार्यक्रम र खानपान",
+      "am": "ዝግጅቶች እና ምግብ",
+      "tr": "Olaylar & yemek"
     },
     {
       "kind": "category",
@@ -115,7 +187,13 @@
       "en": "Home businesses",
       "ur": "گھریلو کاروبار",
       "hi": "घरेलू व्यवसाय",
-      "bn": "ঘরোয়া ব্যবসা"
+      "bn": "ঘরোয়া ব্যবসা",
+      "ml": "വീട്ടുജോലികൾ",
+      "fil": "Mga negosyo sa bahay",
+      "id": "Bisnis rumahan",
+      "ne": "घर व्यवसाय",
+      "am": "የቤት ውስጥ ንግዶች",
+      "tr": "Ev işleri"
     },
     {
       "kind": "category",
@@ -124,7 +202,13 @@
       "en": "Photography & creative",
       "ur": "فوٹوگرافی اور تخلیقی خدمات",
       "hi": "फ़ोटोग्राफ़ी और रचनात्मक सेवाएँ",
-      "bn": "ফটোগ্রাফি ও সৃজনশীল সেবা"
+      "bn": "ফটোগ্রাফি ও সৃজনশীল সেবা",
+      "ml": "ഫോട്ടോഗ്രാഫിയും ക്രിയേറ്റീവും",
+      "fil": "Pinakamahusay na Paglikha",
+      "id": "Fotografi & kreatif",
+      "ne": "फोटोग्राफी र रचनात्मक",
+      "am": "ፎቶግራፍ እና ፈጠራ",
+      "tr": "Fotoğrafçılık & Yaratıcılık"
     },
     {
       "kind": "category",
@@ -133,7 +217,13 @@
       "en": "Digital marketing",
       "ur": "ڈیجیٹل مارکیٹنگ",
       "hi": "डिजिटल मार्केटिंग",
-      "bn": "ডিজিটাল মার্কেটিং"
+      "bn": "ডিজিটাল মার্কেটিং",
+      "ml": "ഡിജിറ്റൽ മാർക്കറ്റിംഗ്",
+      "fil": "Digital marketing",
+      "id": "Pemasaran digital",
+      "ne": "डिजिटल मार्केटिङ",
+      "am": "ዲጂታል ግብይት",
+      "tr": "Dijital pazarlama"
     },
     {
       "kind": "category",
@@ -142,7 +232,13 @@
       "en": "Delivery & shipping",
       "ur": "ڈیلیوری اور شپنگ",
       "hi": "डिलीवरी और शिपिंग",
-      "bn": "ডেলিভারি ও শিপিং"
+      "bn": "ডেলিভারি ও শিপিং",
+      "ml": "ഡെലിവറി & ഷിപ്പിംഗ്",
+      "fil": "Paghatid & pagpapadala",
+      "id": "Pengiriman & pengiriman",
+      "ne": "वितरण र ढुवानी",
+      "am": "መላኪያ እና መላኪያ",
+      "tr": "Teslimat ve nakliye"
     },
     {
       "kind": "category",
@@ -151,7 +247,13 @@
       "en": "Real estate & rentals",
       "ur": "جائیداد اور کرایہ",
       "hi": "संपत्ति और किराये की सेवाएँ",
-      "bn": "সম্পত্তি ও ভাড়া"
+      "bn": "সম্পত্তি ও ভাড়া",
+      "ml": "റിയൽ എസ്റ്റേറ്റ് & വാടക",
+      "fil": "Real estate & rental",
+      "id": "Real estat & sewa",
+      "ne": "घर जग्गा र भाडा",
+      "am": "የሪል እስቴት እና ኪራይ",
+      "tr": "Emlak ve kiralama"
     },
     {
       "kind": "category",
@@ -160,7 +262,13 @@
       "en": "Construction & contracting",
       "ur": "تعمیرات اور ٹھیکیداری",
       "hi": "निर्माण और ठेकेदारी",
-      "bn": "নির্মাণ ও ঠিকাদারি"
+      "bn": "নির্মাণ ও ঠিকাদারি",
+      "ml": "നിർമ്മാണവും കരാറുകളും",
+      "fil": "Pagbuo at pagkontrak",
+      "id": "Konstruksi & Kontraktor",
+      "ne": "निर्माण र ठेक्का सम्झौता",
+      "am": "የግንባታ እና የኮንትራት ስራዎች",
+      "tr": "İnşaat ve sözleşme"
     },
     {
       "kind": "category",
@@ -169,7 +277,13 @@
       "en": "Personal care & beauty",
       "ur": "ذاتی نگہداشت اور خوبصورتی",
       "hi": "व्यक्तिगत देखभाल और सौंदर्य",
-      "bn": "ব্যক্তিগত যত্ন ও সৌন্দর্য"
+      "bn": "ব্যক্তিগত যত্ন ও সৌন্দর্য",
+      "ml": "വ്യക്തി പരിചരണവും സൌന്ദര്യവും",
+      "fil": "Personal na pangangalaga & kagandahan",
+      "id": "Perawatan pribadi & kecantikan",
+      "ne": "व्यक्तिगत हेरचाह र सौन्दर्य",
+      "am": "የግል እንክብካቤና ውበት",
+      "tr": "Kişisel bakım ve güzellik"
     },
     {
       "kind": "category",
@@ -178,7 +292,13 @@
       "en": "Travel & tours",
       "ur": "سفر اور سیاحت",
       "hi": "यात्रा और पर्यटन",
-      "bn": "ভ্রমণ ও পর্যটন"
+      "bn": "ভ্রমণ ও পর্যটন",
+      "ml": "യാത്രകളും ടൂറുകളും",
+      "fil": "Paglakbay & mga tour",
+      "id": "Perjalanan & tur",
+      "ne": "यात्रा र भ्रमण",
+      "am": "የጉዞ እና ጉብኝት",
+      "tr": "Seyahat ve turlar"
     },
     {
       "kind": "category",
@@ -187,7 +307,13 @@
       "en": "Business services",
       "ur": "کاروباری خدمات",
       "hi": "व्यावसायिक सेवाएँ",
-      "bn": "ব্যবসায়িক সেবা"
+      "bn": "ব্যবসায়িক সেবা",
+      "ml": "ബിസിനസ് സേവനങ്ങള്",
+      "fil": "Mga serbisyo sa negosyo",
+      "id": "Layanan bisnis",
+      "ne": "व्यापार सेवाहरू",
+      "am": "የንግድ አገልግሎቶች",
+      "tr": "İşletme hizmetleri"
     },
     {
       "kind": "category",
@@ -196,7 +322,13 @@
       "en": "Home health & care",
       "ur": "گھر پر صحت اور نگہداشت",
       "hi": "घर पर स्वास्थ्य और देखभाल",
-      "bn": "বাড়িতে স্বাস্থ্যসেবা ও যত্ন"
+      "bn": "বাড়িতে স্বাস্থ্যসেবা ও যত্ন",
+      "ml": "ഹോം ഹെൽത്ത് ആൻഡ് കെയർ",
+      "fil": "Pangkalusugan sa tahanan & pangangalaga",
+      "id": "Kesehatan & perawatan di rumah",
+      "ne": "घर स्वास्थ्य र हेरचाह",
+      "am": "የቤት ውስጥ ጤና እና እንክብካቤ",
+      "tr": "Evde sağlık ve bakım"
     },
     {
       "kind": "category",
@@ -205,7 +337,13 @@
       "en": "Training & courses",
       "ur": "تربیت اور کورسز",
       "hi": "प्रशिक्षण और पाठ्यक्रम",
-      "bn": "প্রশিক্ষণ ও কোর্স"
+      "bn": "প্রশিক্ষণ ও কোর্স",
+      "ml": "പരിശീലനവും കോഴ്സുകളും",
+      "fil": "Pag-aaral at mga kurso",
+      "id": "Pelatihan & kursus",
+      "ne": "प्रशिक्षण र पाठ्यक्रम",
+      "am": "ስልጠና እና ኮርሶች",
+      "tr": "Eğitim ve kurslar"
     },
     {
       "kind": "category",
@@ -214,7 +352,13 @@
       "en": "Fitness & sports",
       "ur": "فٹنس اور کھیل",
       "hi": "फ़िटनेस और खेल",
-      "bn": "ফিটনেস ও খেলাধুলা"
+      "bn": "ফিটনেস ও খেলাধুলা",
+      "ml": "ഫിറ്റ്നസും കായികവും",
+      "fil": "Fitness & sports",
+      "id": "Kebugaran & olahraga",
+      "ne": "फिटनेस र खेलकुद",
+      "am": "የአካል ብቃት እንቅስቃሴ እና ስፖርት",
+      "tr": "Fitness & Spor"
     },
     {
       "kind": "category",
@@ -223,7 +367,13 @@
       "en": "Student services",
       "ur": "طلبہ کی خدمات",
       "hi": "छात्र सेवाएँ",
-      "bn": "শিক্ষার্থীদের সেবা"
+      "bn": "শিক্ষার্থীদের সেবা",
+      "ml": "വിദ്യാര് ത്ഥി സേവനങ്ങള്",
+      "fil": "Mga serbisyo sa mga mag-aaral",
+      "id": "Layanan Mahasiswa",
+      "ne": "विद्यार्थी सेवा",
+      "am": "የተማሪዎች አገልግሎት",
+      "tr": "Öğrenci hizmetleri"
     },
     {
       "kind": "category",
@@ -232,7 +382,13 @@
       "en": "Tailoring & sewing",
       "ur": "سلائی اور درزی کی خدمات",
       "hi": "सिलाई और दर्ज़ी सेवाएँ",
-      "bn": "সেলাই ও দর্জির সেবা"
+      "bn": "সেলাই ও দর্জির সেবা",
+      "ml": "തയ്യൽ & തയ്യൽ",
+      "fil": "Pag-uutos at pag-uutos",
+      "id": "Tailoring & menjahit",
+      "ne": "सिलाई र सिलाई",
+      "am": "የልብስ ስፌት እና ስፌት",
+      "tr": "Dükme ve dikişleme"
     },
     {
       "kind": "category",
@@ -241,7 +397,13 @@
       "en": "Transport & mobility",
       "ur": "آمد و رفت",
       "hi": "परिवहन",
-      "bn": "যাতায়াত"
+      "bn": "যাতায়াত",
+      "ml": "ഗതാഗതവും മൊബിലിറ്റിയും",
+      "fil": "Transport & mobility",
+      "id": "Transportasi dan mobilitas",
+      "ne": "यातायात र गतिशीलता",
+      "am": "ትራንስፖርት እና ተንቀሳቃሽነት",
+      "tr": "Taşıma ve hareketlilik"
     },
     {
       "kind": "service",
@@ -250,7 +412,13 @@
       "en": "General maintenance",
       "ur": "عام مرمت",
       "hi": "सामान्य मरम्मत",
-      "bn": "সাধারণ মেরামত"
+      "bn": "সাধারণ মেরামত",
+      "ml": "പൊതുവായ അറ്റകുറ്റപ്പണി",
+      "fil": "pangkalahatang pagpapanatili",
+      "id": "Pemeliharaan umum",
+      "ne": "सामान्य मर्मतसम्भार",
+      "am": "አጠቃላይ ጥገና",
+      "tr": "Genel bakım"
     },
     {
       "kind": "service",
@@ -259,7 +427,13 @@
       "en": "Furniture installation",
       "ur": "فرنیچر کی تنصیب",
       "hi": "फ़र्नीचर लगाना",
-      "bn": "আসবাবপত্র স্থাপন"
+      "bn": "আসবাবপত্র স্থাপন",
+      "ml": "ഫർണിച്ചറുകളുടെ ഇൻസ്റ്റലേഷൻ",
+      "fil": "Pag-install ng mga mubilyo",
+      "id": "Instalasi perabot",
+      "ne": "फर्निचर स्थापना",
+      "am": "የቤት እቃዎች መጫን",
+      "tr": "Mobilya kurulum"
     },
     {
       "kind": "service",
@@ -268,7 +442,13 @@
       "en": "Door & window repair",
       "ur": "دروازوں اور کھڑکیوں کی مرمت",
       "hi": "दरवाज़े और खिड़की की मरम्मत",
-      "bn": "দরজা ও জানালা মেরামত"
+      "bn": "দরজা ও জানালা মেরামত",
+      "ml": "വാതിലുകളും ജനലുകളും നന്നാക്കുക",
+      "fil": "Pag-aayos ng pintuan at bintana",
+      "id": "Perbaikan pintu dan jendela",
+      "ne": "ढोका र झ्यालको मर्मत",
+      "am": "የበሩና መስኮት ጥገና",
+      "tr": "Kapı ve pencere tamiri"
     },
     {
       "kind": "service",
@@ -277,7 +457,13 @@
       "en": "Home cleaning",
       "ur": "گھر کی صفائی",
       "hi": "घर की सफ़ाई",
-      "bn": "বাড়ি পরিষ্কার"
+      "bn": "বাড়ি পরিষ্কার",
+      "ml": "വീട് വൃത്തിയാക്കൽ",
+      "fil": "Paglinis ng tahanan",
+      "id": "Pembersihan rumah",
+      "ne": "घर सफा गर्ने",
+      "am": "የቤት ውስጥ ንፅህና",
+      "tr": "Ev temizliği"
     },
     {
       "kind": "service",
@@ -286,7 +472,13 @@
       "en": "Water tank cleaning",
       "ur": "پانی کی ٹینکی کی صفائی",
       "hi": "पानी की टंकी की सफ़ाई",
-      "bn": "পানির ট্যাংক পরিষ্কার"
+      "bn": "পানির ট্যাংক পরিষ্কার",
+      "ml": "വാട്ടർ ടാങ്ക് വൃത്തിയാക്കൽ",
+      "fil": "Paglinis ng tangke ng tubig",
+      "id": "Pembersihan tangki air",
+      "ne": "पानी ट्यांक सफाई",
+      "am": "የውሃ ማጠራቀሚያ ማጽዳት",
+      "tr": "Su tankı temizliği"
     },
     {
       "kind": "service",
@@ -295,7 +487,13 @@
       "en": "AC cleaning",
       "ur": "ایئر کنڈیشنر کی صفائی",
       "hi": "एसी की सफ़ाई",
-      "bn": "এসি পরিষ্কার"
+      "bn": "এসি পরিষ্কার",
+      "ml": "എസി ക്ലീനിംഗ്",
+      "fil": "Paglinis ng AC",
+      "id": "Pembersihan AC",
+      "ne": "एसी सफाई",
+      "am": "የአየር ንብረት ማጽዳት",
+      "tr": "AC temizliği"
     },
     {
       "kind": "service",
@@ -304,7 +502,13 @@
       "en": "Pest control",
       "ur": "کیڑوں کا خاتمہ",
       "hi": "कीट नियंत्रण",
-      "bn": "কীটপতঙ্গ নিয়ন্ত্রণ"
+      "bn": "কীটপতঙ্গ নিয়ন্ত্রণ",
+      "ml": "കീടനാശിനികളുടെ നിയന്ത്രണം",
+      "fil": "Pagkontrol ng mga parasito",
+      "id": "Pengendalian hama",
+      "ne": "कीरा नियन्त्रण",
+      "am": "የዕፅዋት መቆጣጠሪያ",
+      "tr": "Çekirdekler kontrolü"
     },
     {
       "kind": "service",
@@ -313,7 +517,13 @@
       "en": "Moving in city",
       "ur": "شہر کے اندر سامان کی منتقلی",
       "hi": "शहर के अंदर सामान की ढुलाई",
-      "bn": "শহরের মধ্যে মালামাল স্থানান্তর"
+      "bn": "শহরের মধ্যে মালামাল স্থানান্তর",
+      "ml": "നഗരത്തില് താമസം മാറ്റുക",
+      "fil": "Paglilipat sa lungsod",
+      "id": "Pindah ke kota",
+      "ne": "शहरमा सार्नु",
+      "am": "ወደ ከተማው መዛወር",
+      "tr": "Şehirde taşınmak"
     },
     {
       "kind": "service",
@@ -322,7 +532,13 @@
       "en": "Moving between cities",
       "ur": "شہروں کے درمیان سامان کی منتقلی",
       "hi": "शहरों के बीच सामान की ढुलाई",
-      "bn": "শহরের মধ্যে দূরপাল্লার মালামাল স্থানান্তর"
+      "bn": "শহরের মধ্যে দূরপাল্লার মালামাল স্থানান্তর",
+      "ml": "നഗരങ്ങള് തമ്മില് ചലനം",
+      "fil": "Paglilipat sa pagitan ng mga lungsod",
+      "id": "Pindah-pindah antara kota",
+      "ne": "शहरहरू बीचको सार्नु",
+      "am": "ከተሞች መካከል መጓዝ",
+      "tr": "Şehirler arasında hareket etmek"
     },
     {
       "kind": "service",
@@ -331,7 +547,13 @@
       "en": "Furniture assembly",
       "ur": "فرنیچر کھولنا اور جوڑنا",
       "hi": "फ़र्नीचर खोलना और जोड़ना",
-      "bn": "আসবাবপত্র খোলা ও জোড়া লাগানো"
+      "bn": "আসবাবপত্র খোলা ও জোড়া লাগানো",
+      "ml": "ഫർണിച്ചറുകളുടെ കൂട്ടിച്ചേർക്കൽ",
+      "fil": "Pag-aayos ng mga mubilyo",
+      "id": "Pengumpulan furnitur",
+      "ne": "फर्निचरको भेला",
+      "am": "የቤት እቃዎች ስብስብ",
+      "tr": "Mobilya montajı"
     },
     {
       "kind": "service",
@@ -340,7 +562,13 @@
       "en": "Electrical repair",
       "ur": "بجلی کی خرابیوں کی مرمت",
       "hi": "बिजली की ख़राबी की मरम्मत",
-      "bn": "বৈদ্যুতিক ত্রুটি মেরামত"
+      "bn": "বৈদ্যুতিক ত্রুটি মেরামত",
+      "ml": "വൈദ്യുത റിപ്പയർ",
+      "fil": "Pag-aayos ng kuryente",
+      "id": "Perbaikan listrik",
+      "ne": "विद्युतीय मर्मत",
+      "am": "የኤሌክትሪክ ጥገና",
+      "tr": "Elektrik tamiri"
     },
     {
       "kind": "service",
@@ -349,7 +577,13 @@
       "en": "Electrical wiring",
       "ur": "بجلی کی وائرنگ",
       "hi": "बिजली की वायरिंग",
-      "bn": "বৈদ্যুতিক তার লাগানো"
+      "bn": "বৈদ্যুতিক তার লাগানো",
+      "ml": "വൈദ്യുത വയറിംഗ്",
+      "fil": "Mga cable ng kuryente",
+      "id": "Kabel listrik",
+      "ne": "विद्युतीय तार",
+      "am": "የኤሌክትሪክ ሽቦ",
+      "tr": "Elektrik kabloları"
     },
     {
       "kind": "service",
@@ -358,7 +592,13 @@
       "en": "Leak repair",
       "ur": "پانی کے رساؤ کی مرمت",
       "hi": "पानी के रिसाव की मरम्मत",
-      "bn": "পানির লিক মেরামত"
+      "bn": "পানির লিক মেরামত",
+      "ml": "ചോർച്ച പരിഹാരം",
+      "fil": "Pag-aayos ng pag-uubos",
+      "id": "Perbaikan kebocoran",
+      "ne": "चुहावटको मर्मत",
+      "am": "የውሃ ፍሳሽ ጥገና",
+      "tr": "Çıkış tamiri"
     },
     {
       "kind": "service",
@@ -367,7 +607,13 @@
       "en": "Drain cleaning",
       "ur": "نالی کی صفائی",
       "hi": "नाली की सफ़ाई",
-      "bn": "নালা পরিষ্কার"
+      "bn": "নালা পরিষ্কার",
+      "ml": "ഡെക്നിംഗ് ക്ലീനിംഗ്",
+      "fil": "Paglinis ng drenage",
+      "id": "Pembersihan saluran air",
+      "ne": "जल निकासीको सफाई",
+      "am": "የውሃ ፍሳሽ ማጽዳት",
+      "tr": "Çöp temizliği"
     },
     {
       "kind": "service",
@@ -376,7 +622,13 @@
       "en": "Split AC service",
       "ur": "اسپلٹ اے سی کی مرمت",
       "hi": "स्प्लिट एसी की सर्विस",
-      "bn": "স্প্লিট এসি সার্ভিস"
+      "bn": "স্প্লিট এসি সার্ভিস",
+      "ml": "വിഭജിത എസി സേവനം",
+      "fil": "Serbisyo ng split AC",
+      "id": "Layanan AC terbagi",
+      "ne": "विभाजित AC सेवा",
+      "am": "የተከፋፈለ የአየር ንብረት አገልግሎት",
+      "tr": "Bölünmüş AC servisi"
     },
     {
       "kind": "service",
@@ -385,7 +637,13 @@
       "en": "Central AC service",
       "ur": "سنٹرل اے سی کی مرمت",
       "hi": "सेंट्रल एसी की सर्विस",
-      "bn": "সেন্ট্রাল এসি সার্ভিস"
+      "bn": "সেন্ট্রাল এসি সার্ভিস",
+      "ml": "കേന്ദ്ര എസി സേവനം",
+      "fil": "Serbisyo ng sentral na AC",
+      "id": "Layanan AC pusat",
+      "ne": "केन्द्रीय एसी सेवा",
+      "am": "ማዕከላዊ የአየር ንብረት አገልግሎት",
+      "tr": "Merkez AC hizmeti"
     },
     {
       "kind": "service",
@@ -394,7 +652,13 @@
       "en": "Home painting",
       "ur": "گھر کی رنگائی",
       "hi": "घर की पुताई",
-      "bn": "বাড়ির রং করা"
+      "bn": "বাড়ির রং করা",
+      "ml": "വീട് പെയിന്റിംഗ്",
+      "fil": "Pagluluto ng bahay",
+      "id": "Lukisan rumah",
+      "ne": "घरको चित्रकला",
+      "am": "የቤት ውስጥ ሥዕል",
+      "tr": "Ev resimleri"
     },
     {
       "kind": "service",
@@ -403,7 +667,13 @@
       "en": "Wallpaper",
       "ur": "وال پیپر",
       "hi": "वॉलपेपर",
-      "bn": "ওয়ালপেপার"
+      "bn": "ওয়ালপেপার",
+      "ml": "വാൾപേപ്പർ",
+      "fil": "Wallpaper",
+      "id": "Wallpaper",
+      "ne": "भित्ताको कागज",
+      "am": "የግድግዳ ወረቀት",
+      "tr": "Duvar kağıdı"
     },
     {
       "kind": "service",
@@ -412,7 +682,13 @@
       "en": "Garden landscaping",
       "ur": "باغ کی آرائش",
       "hi": "बाग़ का भूदृश्य",
-      "bn": "বাগান সাজানো"
+      "bn": "বাগান সাজানো",
+      "ml": "തോട്ടങ്ങളുടെ ലാൻഡ്സ്കേപ്പിംഗ്",
+      "fil": "Pag-uuma ng lupa sa hardin",
+      "id": "Taman lansekap",
+      "ne": "बागवानी",
+      "am": "የአትክልት ስፍራ አከባቢ",
+      "tr": "Bahçe tarzı"
     },
     {
       "kind": "service",
@@ -421,7 +697,13 @@
       "en": "Private tutoring",
       "ur": "نجی ٹیوشن",
       "hi": "निजी ट्यूशन",
-      "bn": "প্রাইভেট পড়ানো"
+      "bn": "প্রাইভেট পড়ানো",
+      "ml": "സ്വകാര്യ ട്യൂട്ടോറിയൽ",
+      "fil": "Privadong tutoring",
+      "id": "Pelajaran pribadi",
+      "ne": "निजी शिक्षण",
+      "am": "የግል ትምህርት",
+      "tr": "Özel öğretim"
     },
     {
       "kind": "service",
@@ -430,7 +712,13 @@
       "en": "Computer repair",
       "ur": "کمپیوٹر کی مرمت",
       "hi": "कंप्यूटर की मरम्मत",
-      "bn": "কম্পিউটার মেরামত"
+      "bn": "কম্পিউটার মেরামত",
+      "ml": "കമ്പ്യൂട്ടർ നന്നാക്കൽ",
+      "fil": "Pagrepara ng computer",
+      "id": "Perbaikan komputer",
+      "ne": "कम्प्युटर मर्मत",
+      "am": "የኮምፒውተር ጥገና",
+      "tr": "Bilgisayar onarımı"
     },
     {
       "kind": "service",
@@ -439,7 +727,13 @@
       "en": "Web design",
       "ur": "ویب سائٹ ڈیزائن",
       "hi": "वेबसाइट डिज़ाइन",
-      "bn": "ওয়েবসাইট ডিজাইন"
+      "bn": "ওয়েবসাইট ডিজাইন",
+      "ml": "വെബ് ഡിസൈൻ",
+      "fil": "Pag-disenyo ng Web",
+      "id": "Desain web",
+      "ne": "वेब डिजाइन",
+      "am": "የድር ዲዛይን",
+      "tr": "Web tasarımı"
     },
     {
       "kind": "service",
@@ -448,7 +742,13 @@
       "en": "Event planning",
       "ur": "تقریبات کی منصوبہ بندی",
       "hi": "कार्यक्रम की योजना",
-      "bn": "অনুষ্ঠান আয়োজন"
+      "bn": "অনুষ্ঠান আয়োজন",
+      "ml": "പരിപാടി ആസൂത്രണം",
+      "fil": "Pag-aayos ng kaganapan",
+      "id": "Perencanaan acara",
+      "ne": "कार्यक्रमको योजना",
+      "am": "የክስተት እቅድ",
+      "tr": "Olay planlaması"
     },
     {
       "kind": "service",
@@ -457,7 +757,13 @@
       "en": "Curtain installation",
       "ur": "پردوں کی تنصیب",
       "hi": "परदे लगाना",
-      "bn": "পর্দা লাগানো"
+      "bn": "পর্দা লাগানো",
+      "ml": "മൂടുശീല സ്ഥാപനം",
+      "fil": "Pag-install ng mga kurtina",
+      "id": "Instalasi tirai",
+      "ne": "पर्दा स्थापना",
+      "am": "መጋረጃ ማዋቀር",
+      "tr": "Perdeler kurulum"
     },
     {
       "kind": "service",
@@ -466,7 +772,13 @@
       "en": "Carpet cleaning",
       "ur": "قالین کی صفائی",
       "hi": "कालीन की सफ़ाई",
-      "bn": "কার্পেট পরিষ্কার"
+      "bn": "কার্পেট পরিষ্কার",
+      "ml": "പരവതാനി ശുചീകരണം",
+      "fil": "Paglinis ng mga karpet",
+      "id": "Pembersihan karpet",
+      "ne": "कार्पेट सफा गर्ने",
+      "am": "የካርፕትን ማጽዳት",
+      "tr": "Halı temizliği"
     },
     {
       "kind": "service",
@@ -475,7 +787,13 @@
       "en": "Lighting installation",
       "ur": "روشنیوں کی تنصیب",
       "hi": "बत्तियाँ लगाना",
-      "bn": "বাতি লাগানো"
+      "bn": "বাতি লাগানো",
+      "ml": "വെളിച്ചം സ്ഥാപിക്കുക",
+      "fil": "Pag-install ng ilaw",
+      "id": "Instalasi pencahayaan",
+      "ne": "प्रकाश स्थापना",
+      "am": "የመብራት መጫን",
+      "tr": "Işıklandırma tesisatı"
     },
     {
       "kind": "service",
@@ -484,7 +802,13 @@
       "en": "Heater installation",
       "ur": "پانی کے ہیٹر کی تنصیب",
       "hi": "पानी का हीटर लगाना",
-      "bn": "পানির হিটার লাগানো"
+      "bn": "পানির হিটার লাগানো",
+      "ml": "ചൂടാക്കൽ സംവിധാനം",
+      "fil": "Pag-install ng heater",
+      "id": "Instalasi pemanas",
+      "ne": "हीटर स्थापना",
+      "am": "የሙቀት መሙያ ማቀነባበሪያ",
+      "tr": "Isıtma tesisatı"
     },
     {
       "kind": "service",
@@ -493,7 +817,13 @@
       "en": "AC installation",
       "ur": "ایئر کنڈیشنر کی تنصیب",
       "hi": "एसी लगाना",
-      "bn": "এসি লাগানো"
+      "bn": "এসি লাগানো",
+      "ml": "എസി ഇൻസ്റ്റലേഷൻ",
+      "fil": "Pag-install ng AC",
+      "id": "Instalasi AC",
+      "ne": "एसी स्थापना",
+      "am": "የአየር ንብረት ማቀነባበሪያ",
+      "tr": "AC kurulum"
     },
     {
       "kind": "service",
@@ -502,7 +832,13 @@
       "en": "Gypsum decor",
       "ur": "جپسم کی سجاوٹ",
       "hi": "जिप्सम की सजावट",
-      "bn": "জিপসামের সাজসজ্জা"
+      "bn": "জিপসামের সাজসজ্জা",
+      "ml": "ഗിപ്സസ് അലങ്കാരങ്ങൾ",
+      "fil": "Mga dekorasyon ng gypsum",
+      "id": "Dekorasi gypsum",
+      "ne": "ग्यासको सजावट",
+      "am": "የጂፕስ ማስጌጫ",
+      "tr": "Dükkanlı dekorasyon"
     },
     {
       "kind": "service",
@@ -511,7 +847,13 @@
       "en": "Lawn care",
       "ur": "لان کی دیکھ بھال",
       "hi": "लॉन की देखभाल",
-      "bn": "লনের যত্ন"
+      "bn": "লনের যত্ন",
+      "ml": "പുൽത്തകിടി സംരക്ഷണം",
+      "fil": "Pag-aalaga ng mga halaman",
+      "id": "Perawatan rumput",
+      "ne": "घाँसको हेरचाह",
+      "am": "የሣር እርሻ",
+      "tr": "Çimen bakımı"
     },
     {
       "kind": "service",
@@ -520,7 +862,13 @@
       "en": "Quran teaching",
       "ur": "قرآن کی تعلیم",
       "hi": "क़ुरआन की शिक्षा",
-      "bn": "কুরআন শিক্ষা"
+      "bn": "কুরআন শিক্ষা",
+      "ml": "ഖുര് ആന് പഠിപ്പിക്കൽ",
+      "fil": "Pagtuturo ng Qur'an",
+      "id": "Pengajaran Al-Quran",
+      "ne": "कुरानको शिक्षा",
+      "am": "ቁርአን ማስተማር",
+      "tr": "Kur'an öğretimi"
     },
     {
       "kind": "service",
@@ -529,7 +877,13 @@
       "en": "Language tutoring",
       "ur": "زبانوں کی تعلیم",
       "hi": "भाषाओं की शिक्षा",
-      "bn": "ভাষা শিক্ষা"
+      "bn": "ভাষা শিক্ষা",
+      "ml": "ഭാഷാ പഠന",
+      "fil": "Pagtuturo sa wika",
+      "id": "Pelajaran bahasa",
+      "ne": "भाषा शिक्षण",
+      "am": "የቋንቋ ትምህርት",
+      "tr": "Dil eğitimi"
     },
     {
       "kind": "service",
@@ -538,7 +892,13 @@
       "en": "Car wash",
       "ur": "گاڑی کی دھلائی",
       "hi": "कार की धुलाई",
-      "bn": "গাড়ি ধোয়া"
+      "bn": "গাড়ি ধোয়া",
+      "ml": "കാർ വാഷ്",
+      "fil": "Paghuhugas ng kotse",
+      "id": "Pembersih mobil",
+      "ne": "कार धुने",
+      "am": "የመኪና ማጠቢያ",
+      "tr": "Araba yıkama"
     },
     {
       "kind": "service",
@@ -547,7 +907,13 @@
       "en": "Car polishing",
       "ur": "گاڑی کی پالش",
       "hi": "कार की पॉलिश",
-      "bn": "গাড়ি পালিশ"
+      "bn": "গাড়ি পালিশ",
+      "ml": "കാറുകളുടെ പൊളിഷിംഗ്",
+      "fil": "Pag-polish ng kotse",
+      "id": "Polishing mobil",
+      "ne": "कार पोलिशिंग",
+      "am": "የመኪና ማጣሪያ",
+      "tr": "Otomobil cilalama"
     },
     {
       "kind": "service",
@@ -556,7 +922,13 @@
       "en": "Oil change",
       "ur": "انجن کا تیل تبدیل کرنا",
       "hi": "इंजन का तेल बदलना",
-      "bn": "ইঞ্জিনের তেল বদলানো"
+      "bn": "ইঞ্জিনের তেল বদলানো",
+      "ml": "എണ്ണ മാറ്റം",
+      "fil": "Pagbabago ng langis",
+      "id": "Perubahan minyak",
+      "ne": "तेल परिवर्तन",
+      "am": "የነዳጅ ለውጥ",
+      "tr": "Petrol değişimi"
     },
     {
       "kind": "service",
@@ -565,7 +937,13 @@
       "en": "Mobile mechanic",
       "ur": "موقع پر گاڑی کا مکینک",
       "hi": "आपके पास आने वाला मैकेनिक",
-      "bn": "আপনার কাছে আসা মেকানিক"
+      "bn": "আপনার কাছে আসা মেকানিক",
+      "ml": "മൊബൈൽ മെക്കാനിക്",
+      "fil": "Mobile mekaniko",
+      "id": "Mekanik seluler",
+      "ne": "मोबाइल मेकानिक",
+      "am": "ተንቀሳቃሽ ሜካኒክ",
+      "tr": "Mobil mekanikçi"
     },
     {
       "kind": "service",
@@ -574,7 +952,13 @@
       "en": "Tech support",
       "ur": "تکنیکی معاونت",
       "hi": "तकनीकी सहायता",
-      "bn": "প্রযুক্তিগত সহায়তা"
+      "bn": "প্রযুক্তিগত সহায়তা",
+      "ml": "സാങ്കേതിക പിന്തുണ",
+      "fil": "Teknolohikal na suporta",
+      "id": "Dukungan teknis",
+      "ne": "प्राविधिक सहयोग",
+      "am": "የቴክኒክ ድጋፍ",
+      "tr": "Teknoloji desteği"
     },
     {
       "kind": "service",
@@ -583,7 +967,13 @@
       "en": "Network installation",
       "ur": "نیٹ ورک کی تنصیب",
       "hi": "नेटवर्क लगाना",
-      "bn": "নেটওয়ার্ক স্থাপন"
+      "bn": "নেটওয়ার্ক স্থাপন",
+      "ml": "നെറ്റ് വർക്ക് ഇൻസ്റ്റലേഷൻ",
+      "fil": "Pag-install ng network",
+      "id": "Instalasi jaringan",
+      "ne": "नेटवर्क स्थापना",
+      "am": "የአውታረ መረብ መጫን",
+      "tr": "Ağ kurulum"
     },
     {
       "kind": "service",
@@ -592,7 +982,13 @@
       "en": "Camera installation",
       "ur": "کیمروں کی تنصیب",
       "hi": "कैमरे लगाना",
-      "bn": "ক্যামেরা লাগানো"
+      "bn": "ক্যামেরা লাগানো",
+      "ml": "ക്യാമറ ഇൻസ്റ്റലേഷൻ",
+      "fil": "Pag-install ng camera",
+      "id": "Instalasi kamera",
+      "ne": "क्यामेरा स्थापना",
+      "am": "ካሜራ መጫን",
+      "tr": "Kamera kurulum"
     },
     {
       "kind": "service",
@@ -601,7 +997,13 @@
       "en": "App development",
       "ur": "ایپ کی تیاری",
       "hi": "ऐप बनाना",
-      "bn": "অ্যাপ তৈরি"
+      "bn": "অ্যাপ তৈরি",
+      "ml": "ആപ്ലിക്കേഷന് വികസനം",
+      "fil": "Pagbuo ng app",
+      "id": "Pengembangan aplikasi",
+      "ne": "अनुप्रयोग विकास",
+      "am": "የመተግበሪያ ልማት",
+      "tr": "Uygulama geliştirme"
     },
     {
       "kind": "service",
@@ -610,7 +1012,13 @@
       "en": "Wedding stages",
       "ur": "شادی کے اسٹیج کی سجاوٹ",
       "hi": "शादी का मंच सजाना",
-      "bn": "বিয়ের মঞ্চ সাজানো"
+      "bn": "বিয়ের মঞ্চ সাজানো",
+      "ml": "വിവാഹ ഘട്ടങ്ങൾ",
+      "fil": "Mga yugto ng kasal",
+      "id": "Tahap pernikahan",
+      "ne": "विवाहको चरण",
+      "am": "የሠርግ ደረጃዎች",
+      "tr": "Düğün aşamaları"
     },
     {
       "kind": "service",
@@ -619,7 +1027,13 @@
       "en": "Event photography",
       "ur": "تقریبات کی فوٹوگرافی",
       "hi": "कार्यक्रम की फ़ोटोग्राफ़ी",
-      "bn": "অনুষ্ঠানের ফটোগ্রাফি"
+      "bn": "অনুষ্ঠানের ফটোগ্রাফি",
+      "ml": "ഇവന്റ് ഫോട്ടോഗ്രാഫി",
+      "fil": "Pag-aaral ng pangyayari",
+      "id": "Fotografi acara",
+      "ne": "घटनाको फोटोग्राफी",
+      "am": "የክስተት ፎቶግራፍ",
+      "tr": "Olay fotoğrafı"
     },
     {
       "kind": "service",
@@ -628,7 +1042,13 @@
       "en": "Chair & table rental",
       "ur": "کرسیوں اور میزوں کا کرایہ",
       "hi": "कुर्सियाँ और मेज़ किराये पर देना",
-      "bn": "চেয়ার ও টেবিল ভাড়া"
+      "bn": "চেয়ার ও টেবিল ভাড়া",
+      "ml": "കസേരയും മേശയും വാടകയ്ക്കെടുക്കുക",
+      "fil": "Pag-upa ng upuan at mesa",
+      "id": "Sewa kursi & meja",
+      "ne": "कुर्सी र टेबल भाडा",
+      "am": "ወንበር እና ጠረጴዛ ኪራይ",
+      "tr": "Sandalye ve masa kiralama"
     },
     {
       "kind": "service",
@@ -637,7 +1057,13 @@
       "en": "Home cooking",
       "ur": "گھر کا کھانا",
       "hi": "घर का खाना",
-      "bn": "ঘরোয়া রান্না"
+      "bn": "ঘরোয়া রান্না",
+      "ml": "ഹോം പാചകം",
+      "fil": "Pagluluto sa bahay",
+      "id": "Masakan di rumah",
+      "ne": "घरमै खाना पकाउने",
+      "am": "የቤት ውስጥ ምግብ ማብሰል",
+      "tr": "Ev yemekleri"
     },
     {
       "kind": "service",
@@ -646,7 +1072,13 @@
       "en": "Coffee & sweets",
       "ur": "کافی اور مٹھائیاں",
       "hi": "कॉफ़ी और मिठाइयाँ",
-      "bn": "কফি ও মিষ্টি"
+      "bn": "কফি ও মিষ্টি",
+      "ml": "കാപ്പിയും മധുരപലഹാരങ്ങളും",
+      "fil": "Coffee & sweets",
+      "id": "Kopi & permen",
+      "ne": "कफी र मिठाई",
+      "am": "ቡና እና ጣፋጮች",
+      "tr": "Kahve ve tatlılar"
     },
     {
       "kind": "service",
@@ -655,7 +1087,13 @@
       "en": "Catering meat & feasts",
       "ur": "گوشت اور دعوت کا انتظام",
       "hi": "मांस और दावत का खानपान",
-      "bn": "মাংস ও ভোজের খাবার সরবরাহ"
+      "bn": "মাংস ও ভোজের খাবার সরবরাহ",
+      "ml": "ഭക്ഷണശാലയും ഭക്ഷണവിഭവങ്ങളും",
+      "fil": "Pagluluto ng karne & mga pista",
+      "id": "Catering daging & pesta",
+      "ne": "खानपान मासु & भोज",
+      "am": "ምግብ ቤት ሥጋ እና ግብዣዎች",
+      "tr": "Et ve ziyafetler"
     },
     {
       "kind": "service",
@@ -664,7 +1102,13 @@
       "en": "Traditional foods",
       "ur": "روایتی کھانے",
       "hi": "पारंपरिक भोजन",
-      "bn": "ঐতিহ্যবাহী খাবার"
+      "bn": "ঐতিহ্যবাহী খাবার",
+      "ml": "പരമ്പരാഗത ഭക്ഷണങ്ങൾ",
+      "fil": "Mga tradisyonal na pagkain",
+      "id": "Makanan tradisional",
+      "ne": "परम्परागत खाद्य पदार्थ",
+      "am": "ባህላዊ ምግቦች",
+      "tr": "Geleneksel gıdalar"
     },
     {
       "kind": "service",
@@ -673,7 +1117,13 @@
       "en": "Bakery",
       "ur": "بیکری",
       "hi": "बेकरी",
-      "bn": "বেকারি"
+      "bn": "বেকারি",
+      "ml": "ബേക്കറി",
+      "fil": "Panadero",
+      "id": "Bakery",
+      "ne": "बेकरी",
+      "am": "የቦካ ቤት",
+      "tr": "Çömlekçi"
     },
     {
       "kind": "service",
@@ -682,7 +1132,13 @@
       "en": "Product photography",
       "ur": "مصنوعات کی فوٹوگرافی",
       "hi": "उत्पाद फ़ोटोग्राफ़ी",
-      "bn": "পণ্যের ফটোগ্রাফি"
+      "bn": "পণ্যের ফটোগ্রাফি",
+      "ml": "ഉൽപ്പന്ന ഫോട്ടോഗ്രാഫി",
+      "fil": "Pag-iwan ng mga produkto",
+      "id": "Foto produk",
+      "ne": "उत्पादन फोटोग्राफी",
+      "am": "የምርት ፎቶግራፍ",
+      "tr": "Ürün fotoğrafçılığı"
     },
     {
       "kind": "service",
@@ -691,7 +1147,13 @@
       "en": "Video shooting",
       "ur": "ویڈیو شوٹنگ",
       "hi": "वीडियो शूटिंग",
-      "bn": "ভিডিও ধারণ"
+      "bn": "ভিডিও ধারণ",
+      "ml": "വീഡിയോ ഷൂട്ടിംഗ്",
+      "fil": "Pag-shoot ng video",
+      "id": "Pemotretan video",
+      "ne": "भिडियो शूट",
+      "am": "የቪዲዮ ቀረፃ",
+      "tr": "Video çekimleri"
     },
     {
       "kind": "service",
@@ -700,7 +1162,13 @@
       "en": "Design & printing",
       "ur": "ڈیزائن اور طباعت",
       "hi": "डिज़ाइन और प्रिंटिंग",
-      "bn": "ডিজাইন ও মুদ্রণ"
+      "bn": "ডিজাইন ও মুদ্রণ",
+      "ml": "ഡിസൈൻ & പ്രിന്റിംഗ്",
+      "fil": "Pag-disenyo & pag-print",
+      "id": "Desain & Pencetakan",
+      "ne": "डिजाइन र मुद्रण",
+      "am": "ዲዛይን እና ማተሚያ",
+      "tr": "Tasarım ve baskı"
     },
     {
       "kind": "service",
@@ -709,7 +1177,13 @@
       "en": "Video editing",
       "ur": "ویڈیو ایڈیٹنگ",
       "hi": "वीडियो संपादन",
-      "bn": "ভিডিও সম্পাদনা"
+      "bn": "ভিডিও সম্পাদনা",
+      "ml": "വീഡിയോ എഡിറ്റിംഗ്",
+      "fil": "Pag-edit ng video",
+      "id": "Pengeditan video",
+      "ne": "भिडियो सम्पादन",
+      "am": "የቪዲዮ አርትዖት",
+      "tr": "Video düzenleme"
     },
     {
       "kind": "service",
@@ -718,7 +1192,13 @@
       "en": "Drone aerial shoots",
       "ur": "ڈرون سے فضائی عکس بندی",
       "hi": "ड्रोन से हवाई फ़ोटोग्राफ़ी",
-      "bn": "ড্রোন দিয়ে আকাশ থেকে ছবি তোলা"
+      "bn": "ড্রোন দিয়ে আকাশ থেকে ছবি তোলা",
+      "ml": "ഡ്രോൺ വിമാനങ്ങൾ",
+      "fil": "Mga drone na nag-shoot sa hangin",
+      "id": "Menembak udara drone",
+      "ne": "ड्रोन हवाई गोली",
+      "am": "የበረራ አየር ተኩስ",
+      "tr": "Uçak uçuşları"
     },
     {
       "kind": "service",
@@ -727,7 +1207,13 @@
       "en": "Digital marketing",
       "ur": "ڈیجیٹل مارکیٹنگ",
       "hi": "डिजिटल मार्केटिंग",
-      "bn": "ডিজিটাল মার্কেটিং"
+      "bn": "ডিজিটাল মার্কেটিং",
+      "ml": "ഡിജിറ്റൽ മാർക്കറ്റിംഗ്",
+      "fil": "Digital marketing",
+      "id": "Pemasaran digital",
+      "ne": "डिजिटल मार्केटिङ",
+      "am": "ዲጂታል ግብይት",
+      "tr": "Dijital pazarlama"
     },
     {
       "kind": "service",
@@ -736,7 +1222,13 @@
       "en": "Social media management",
       "ur": "سوشل میڈیا اکاؤنٹس کا انتظام",
       "hi": "सोशल मीडिया खाते प्रबंधन",
-      "bn": "সামাজিক মাধ্যম অ্যাকাউন্ট পরিচালনা"
+      "bn": "সামাজিক মাধ্যম অ্যাকাউন্ট পরিচালনা",
+      "ml": "സോഷ്യൽ മീഡിയ മാനേജ്മെന്റ്",
+      "fil": "Pag-aari ng social media",
+      "id": "Manajemen media sosial",
+      "ne": "सामाजिक सञ्जाल व्यवस्थापन",
+      "am": "ማህበራዊ ሚዲያ አስተዳደር",
+      "tr": "Sosyal medya yönetimi"
     },
     {
       "kind": "service",
@@ -745,7 +1237,13 @@
       "en": "Paid ads",
       "ur": "معاوضے کے اشتہارات",
       "hi": "सशुल्क विज्ञापन",
-      "bn": "অর্থপ্রদত্ত বিজ্ঞাপন"
+      "bn": "অর্থপ্রদত্ত বিজ্ঞাপন",
+      "ml": "പണമടച്ചുള്ള പരസ്യങ്ങൾ",
+      "fil": "Pagbabayad na mga ad",
+      "id": "Iklan berbayar",
+      "ne": "सशुल्क विज्ञापन",
+      "am": "የሚከፈልባቸው ማስታወቂያዎች",
+      "tr": "Ödenmiş reklamlar"
     },
     {
       "kind": "service",
@@ -754,7 +1252,13 @@
       "en": "SEO",
       "ur": "سرچ انجن کی بہتری",
       "hi": "खोज इंजन अनुकूलन",
-      "bn": "সার্চ ইঞ্জিন অপ্টিমাইজেশন"
+      "bn": "সার্চ ইঞ্জিন অপ্টিমাইজেশন",
+      "ml": "സെ. ഒ",
+      "fil": "SEO",
+      "id": "SEO",
+      "ne": "एसईओ",
+      "am": "የ SEO",
+      "tr": "SEO"
     },
     {
       "kind": "service",
@@ -763,7 +1267,13 @@
       "en": "Influencer marketing",
       "ur": "انفلوئنسر مارکیٹنگ",
       "hi": "प्रभावशाली व्यक्तियों से प्रचार",
-      "bn": "ইনফ্লুয়েন্সার মার্কেটিং"
+      "bn": "ইনফ্লুয়েন্সার মার্কেটিং",
+      "ml": "സ്വാധീനം ചെലുത്തുന്ന വിപണനം",
+      "fil": "Pamamahagi ng mga influencer",
+      "id": "Pemasaran influencer",
+      "ne": "प्रभावकारी मार्केटिङ",
+      "am": "ተጽዕኖ ፈጣሪ ግብይት",
+      "tr": "Etkileyiciler pazarlaması"
     },
     {
       "kind": "service",
@@ -772,7 +1282,13 @@
       "en": "Parcel delivery",
       "ur": "پارسل کی ترسیل",
       "hi": "पार्सल डिलीवरी",
-      "bn": "পার্সেল পৌঁছে দেওয়া"
+      "bn": "পার্সেল পৌঁছে দেওয়া",
+      "ml": "പാക്കേജ് കൈമാറൽ",
+      "fil": "Paghatid ng pakete",
+      "id": "Pengiriman paket",
+      "ne": "प्याकेज वितरण",
+      "am": "የፓርስ መላኪያ",
+      "tr": "Paket teslimatı"
     },
     {
       "kind": "service",
@@ -781,7 +1297,13 @@
       "en": "Local shipping",
       "ur": "ملک کے اندر شپنگ",
       "hi": "देश के अंदर शिपिंग",
-      "bn": "দেশের মধ্যে শিপিং"
+      "bn": "দেশের মধ্যে শিপিং",
+      "ml": "പ്രാദേശിക കപ്പൽ",
+      "fil": "Lokal na pagpapadala",
+      "id": "Pengangkutan lokal",
+      "ne": "स्थानीय शिपिंग",
+      "am": "የአካባቢው የመርከብ አገልግሎት",
+      "tr": "Yerel gemi taşımacılığı"
     },
     {
       "kind": "service",
@@ -790,7 +1312,13 @@
       "en": "Intercity shipping",
       "ur": "شہروں کے درمیان شپنگ",
       "hi": "शहरों के बीच शिपिंग",
-      "bn": "শহরের মধ্যে দূরপাল্লার শিপিং"
+      "bn": "শহরের মধ্যে দূরপাল্লার শিপিং",
+      "ml": "നഗരാന്തര കടൽ യാത്ര",
+      "fil": "Paglalakbay sa Intercity",
+      "id": "Pengangkutan antar kota",
+      "ne": "अन्तर-शहर शिपिंग",
+      "am": "የከተማ መርከብ",
+      "tr": "Şehirlerarası nakliye"
     },
     {
       "kind": "service",
@@ -799,7 +1327,13 @@
       "en": "Delivery rep",
       "ur": "ڈیلیوری کا نمائندہ",
       "hi": "डिलीवरी प्रतिनिधि",
-      "bn": "ডেলিভারি প্রতিনিধি"
+      "bn": "ডেলিভারি প্রতিনিধি",
+      "ml": "വിതരണ പ്രതിനിധി",
+      "fil": "Rep sa paghahatid",
+      "id": "Rep pengiriman",
+      "ne": "वितरण प्रतिनिधि",
+      "am": "የጭነት ማቅረቢያ",
+      "tr": "Teslimat temsilcisi"
     },
     {
       "kind": "service",
@@ -808,7 +1342,13 @@
       "en": "Daily rental",
       "ur": "روزانہ کرایہ",
       "hi": "दैनिक किराया",
-      "bn": "দৈনিক ভাড়া"
+      "bn": "দৈনিক ভাড়া",
+      "ml": "ദിവസേനയുള്ള വാടക",
+      "fil": "Araw-araw na rental",
+      "id": "Pendapatan harian",
+      "ne": "दैनिक भाडा",
+      "am": "ዕለታዊ ኪራይ",
+      "tr": "Günde kiralama"
     },
     {
       "kind": "service",
@@ -817,7 +1357,13 @@
       "en": "Furnished apartments",
       "ur": "فرنیچر والے اپارٹمنٹس",
       "hi": "सुसज्जित अपार्टमेंट",
-      "bn": "সজ্জিত অ্যাপার্টমেন্ট"
+      "bn": "সজ্জিত অ্যাপার্টমেন্ট",
+      "ml": "ഫർണിച്ചറുകള്",
+      "fil": "Mga apartment na may muble",
+      "id": "Apartemen yang mebel",
+      "ne": "फर्निचर भएका अपार्टमेन्टहरू",
+      "am": "የተሸከሙ አፓርታማዎች",
+      "tr": "Mobilyalanmış daireler"
     },
     {
       "kind": "service",
@@ -826,7 +1372,13 @@
       "en": "Chalets & resorts",
       "ur": "شالے اور ریزورٹس",
       "hi": "शैले और रिसॉर्ट",
-      "bn": "শালে ও রিসোর্ট"
+      "bn": "শালে ও রিসোর্ট",
+      "ml": "ചാലറ്റുകൾ & റിസോർട്ടുകൾ",
+      "fil": "Mga Chalets & resort",
+      "id": "Chalets & resorts",
+      "ne": "चलेट्स र रिसोर्ट्स",
+      "am": "ካሌቶች እና ሪዞርቶች",
+      "tr": "Chalets & resorts"
     },
     {
       "kind": "service",
@@ -835,7 +1387,13 @@
       "en": "Property management",
       "ur": "جائیداد کا انتظام",
       "hi": "संपत्ति प्रबंधन",
-      "bn": "সম্পত্তি পরিচালনা"
+      "bn": "সম্পত্তি পরিচালনা",
+      "ml": "സ്വത്ത് മാനേജ്മെന്റ്",
+      "fil": "Pamamahala ng mga kabtangan",
+      "id": "Pengelolaan properti",
+      "ne": "सम्पत्ति व्यवस्थापन",
+      "am": "የንብረት አስተዳደር",
+      "tr": "Mülkiyet yönetimi"
     },
     {
       "kind": "service",
@@ -844,7 +1402,13 @@
       "en": "Finishing",
       "ur": "تعمیر کے آخری کام",
       "hi": "निर्माण का अंतिम काम",
-      "bn": "নির্মাণের শেষ পর্যায়ের কাজ"
+      "bn": "নির্মাণের শেষ পর্যায়ের কাজ",
+      "ml": "പൂര് ത്തിയാക്കല്",
+      "fil": "Pag-aalis",
+      "id": "Pembuatan",
+      "ne": "समाप्ति",
+      "am": "ማጠናቀቅ",
+      "tr": "Bitirme"
     },
     {
       "kind": "service",
@@ -853,7 +1417,13 @@
       "en": "Carpentry",
       "ur": "بڑھئی کا کام",
       "hi": "बढ़ई का काम",
-      "bn": "কাঠের কাজ"
+      "bn": "কাঠের কাজ",
+      "ml": "കല്പ്പനശാല",
+      "fil": "Karpentero",
+      "id": "Tanah liat",
+      "ne": "कारीगरी",
+      "am": "የእንጨት ሥራ",
+      "tr": "Çömlekçülük"
     },
     {
       "kind": "service",
@@ -862,7 +1432,13 @@
       "en": "Welding",
       "ur": "ویلڈنگ",
       "hi": "वेल्डिंग",
-      "bn": "ওয়েল্ডিং"
+      "bn": "ওয়েল্ডিং",
+      "ml": "വെൽഡിംഗ്",
+      "fil": "Pag-aalis",
+      "id": "Pengelasan",
+      "ne": "वेल्डिंग",
+      "am": "የመሳሪያ ማቀነባበሪያ",
+      "tr": "Çalçalanma"
     },
     {
       "kind": "service",
@@ -871,7 +1447,13 @@
       "en": "Gypsum work",
       "ur": "جپسم کا کام",
       "hi": "जिप्सम का काम",
-      "bn": "জিপসামের কাজ"
+      "bn": "জিপসামের কাজ",
+      "ml": "ഗിപ്സും",
+      "fil": "Mga gawaing gypsum",
+      "id": "Pekerjaan gypsum",
+      "ne": "जिप्समको काम",
+      "am": "የጂፕስ ሥራ",
+      "tr": "Dükükük işlemi"
     },
     {
       "kind": "service",
@@ -880,7 +1462,13 @@
       "en": "Renovation",
       "ur": "عمارت کی مرمت اور تجدید",
       "hi": "भवन की मरम्मत और नवीनीकरण",
-      "bn": "ভবন মেরামত ও সংস্কার"
+      "bn": "ভবন মেরামত ও সংস্কার",
+      "ml": "പുനരുദ്ധാരണ",
+      "fil": "Pag- Renovation",
+      "id": "Renovasi",
+      "ne": "नवीकरण",
+      "am": "እድሳት",
+      "tr": "Yenilenme"
     },
     {
       "kind": "service",
@@ -889,7 +1477,13 @@
       "en": "Barbering",
       "ur": "حجامت",
       "hi": "बाल काटना",
-      "bn": "চুল কাটা"
+      "bn": "চুল কাটা",
+      "ml": "മുടിയിഴപ്പിക്കൽ",
+      "fil": "Pag-aalis ng buhok",
+      "id": "Berambut",
+      "ne": "बायरबर्इङ",
+      "am": "የጭጉር ሥራ",
+      "tr": "Saçlama"
     },
     {
       "kind": "service",
@@ -898,7 +1492,13 @@
       "en": "Makeup",
       "ur": "میک اپ",
       "hi": "मेकअप",
-      "bn": "মেকআপ"
+      "bn": "মেকআপ",
+      "ml": "മേക്കപ്പ്",
+      "fil": "Mga makeup",
+      "id": "Make-up",
+      "ne": "मेकअप",
+      "am": "ሜካፕ",
+      "tr": "Makyaj"
     },
     {
       "kind": "service",
@@ -907,7 +1507,13 @@
       "en": "Hair care",
       "ur": "بالوں کی دیکھ بھال",
       "hi": "बालों की देखभाल",
-      "bn": "চুলের যত্ন"
+      "bn": "চুলের যত্ন",
+      "ml": "മുടി സംരക്ഷണം",
+      "fil": "Pag-aalaga ng buhok",
+      "id": "Perawatan rambut",
+      "ne": "कपाल हेरचाह",
+      "am": "የፀጉር እንክብካቤ",
+      "tr": "Saç bakımı"
     },
     {
       "kind": "service",
@@ -916,7 +1522,13 @@
       "en": "Nail care",
       "ur": "ناخنوں کی دیکھ بھال",
       "hi": "नाख़ूनों की देखभाल",
-      "bn": "নখের যত্ন"
+      "bn": "নখের যত্ন",
+      "ml": "നഖ സംരക്ഷണം",
+      "fil": "Pag-aalaga sa kuko",
+      "id": "Perawatan kuku",
+      "ne": "नाखूनको हेरचाह",
+      "am": "የጥፍር እንክብካቤ",
+      "tr": "Mıçı bakımı"
     },
     {
       "kind": "service",
@@ -925,7 +1537,13 @@
       "en": "Spa & massage",
       "ur": "اسپا اور مالش",
       "hi": "स्पा और मालिश",
-      "bn": "স্পা ও ম্যাসাজ"
+      "bn": "স্পা ও ম্যাসাজ",
+      "ml": "സ്പാ & മസാജ്",
+      "fil": "Spa & massage",
+      "id": "Spa & pijat",
+      "ne": "स्पा र मसाज",
+      "am": "ስፓ እና ማሰጅ",
+      "tr": "Spa ve masaj"
     },
     {
       "kind": "service",
@@ -934,7 +1552,13 @@
       "en": "Tour organisation",
       "ur": "سیاحتی دوروں کا انتظام",
       "hi": "यात्रा आयोजन",
-      "bn": "ভ্রমণ আয়োজন"
+      "bn": "ভ্রমণ আয়োজন",
+      "ml": "ടൂർ സംഘടിപ്പിക്കൽ",
+      "fil": "Pag-organisa ng tour",
+      "id": "Organisasi tur",
+      "ne": "भ्रमणको आयोजना",
+      "am": "የጉዞ አደረጃጀት",
+      "tr": "Tur örgütlemesi"
     },
     {
       "kind": "service",
@@ -943,7 +1567,13 @@
       "en": "Hotel booking",
       "ur": "ہوٹل کی بکنگ",
       "hi": "होटल बुकिंग",
-      "bn": "হোটেল বুকিং"
+      "bn": "হোটেল বুকিং",
+      "ml": "ഹോട്ടൽ ബുക്കിംഗ്",
+      "fil": "Pag-reserbar ng hotel",
+      "id": "Pemesanan hotel",
+      "ne": "होटल बुकिंग",
+      "am": "የሆቴል ቦታ ማስያዝ",
+      "tr": "Otel rezervasyonu"
     },
     {
       "kind": "service",
@@ -952,7 +1582,13 @@
       "en": "Tour guide",
       "ur": "سیاحتی رہنما",
       "hi": "पर्यटन गाइड",
-      "bn": "পর্যটন গাইড"
+      "bn": "পর্যটন গাইড",
+      "ml": "ടൂർ ഗൈഡ്",
+      "fil": "Mga gabay sa paglibot",
+      "id": "Panduan wisata",
+      "ne": "भ्रमण गाइड",
+      "am": "የጉዞ መመሪያ",
+      "tr": "Tur rehberi"
     },
     {
       "kind": "service",
@@ -961,7 +1597,13 @@
       "en": "Car rental",
       "ur": "گاڑی کرائے پر دینا",
       "hi": "कार किराये पर लेना",
-      "bn": "গাড়ি ভাড়া"
+      "bn": "গাড়ি ভাড়া",
+      "ml": "കാർ വാടക",
+      "fil": "Pag-upa ng kotse",
+      "id": "Penyewaan mobil",
+      "ne": "कार भाडा",
+      "am": "የመኪና ኪራይ",
+      "tr": "Araba kiralama"
     },
     {
       "kind": "service",
@@ -970,7 +1612,13 @@
       "en": "Management consulting",
       "ur": "انتظامی مشاورت",
       "hi": "प्रबंधन परामर्श",
-      "bn": "ব্যবস্থাপনা পরামর্শ"
+      "bn": "ব্যবস্থাপনা পরামর্শ",
+      "ml": "മാനേജ്മെന്റ് കൺസൾട്ടിംഗ്",
+      "fil": "Pagkonsulta sa pamamahala",
+      "id": "Konsultasi manajemen",
+      "ne": "व्यवस्थापन सल्लाह",
+      "am": "የአስተዳደር አማካሪነት",
+      "tr": "Yönetim danışmanlığı"
     },
     {
       "kind": "service",
@@ -979,7 +1627,13 @@
       "en": "Legal services",
       "ur": "قانونی خدمات",
       "hi": "कानूनी सेवाएँ",
-      "bn": "আইনি সেবা"
+      "bn": "আইনি সেবা",
+      "ml": "നിയമ സേവനങ്ങൾ",
+      "fil": "Mga serbisyo sa ligal",
+      "id": "Layanan hukum",
+      "ne": "कानूनी सेवाहरू",
+      "am": "የሕግ አገልግሎቶች",
+      "tr": "Hukuk hizmetleri"
     },
     {
       "kind": "service",
@@ -988,7 +1642,13 @@
       "en": "Accounting",
       "ur": "حساب کتاب",
       "hi": "लेखांकन",
-      "bn": "হিসাবরক্ষণ"
+      "bn": "হিসাবরক্ষণ",
+      "ml": "അക്കൌണ്ടിംഗ്",
+      "fil": "Pag-uulat",
+      "id": "Akuntansi",
+      "ne": "लेखा",
+      "am": "የሂሳብ አያያዝ",
+      "tr": "Muhasebe"
     },
     {
       "kind": "service",
@@ -997,7 +1657,13 @@
       "en": "Company formation",
       "ur": "کمپنی کی تشکیل",
       "hi": "कंपनी की स्थापना",
-      "bn": "কোম্পানি প্রতিষ্ঠা"
+      "bn": "কোম্পানি প্রতিষ্ঠা",
+      "ml": "കമ്പനി രൂപീകരണം",
+      "fil": "Pagbuo ng kumpanya",
+      "id": "Pembentukan perusahaan",
+      "ne": "कम्पनी गठन",
+      "am": "የኩባንያ ምስረታ",
+      "tr": "Şirket kurulması"
     },
     {
       "kind": "service",
@@ -1006,7 +1672,13 @@
       "en": "Feasibility studies",
       "ur": "منصوبے کی عملی جانچ",
       "hi": "परियोजना की व्यवहार्यता का अध्ययन",
-      "bn": "প্রকল্পের সম্ভাব্যতা যাচাই"
+      "bn": "প্রকল্পের সম্ভাব্যতা যাচাই",
+      "ml": "സാധ്യമായ പഠനങ്ങൾ",
+      "fil": "Mga pag-aaral ng pagiging posible",
+      "id": "Studi kelayakan",
+      "ne": "सम्भाव्यता अध्ययन",
+      "am": "የማስቻቻል ጥናቶች",
+      "tr": "Yapılandırılabilirlik çalışmaları"
     },
     {
       "kind": "service",
@@ -1015,7 +1687,13 @@
       "en": "Home nursing",
       "ur": "گھر پر نرسنگ",
       "hi": "घर पर नर्सिंग",
-      "bn": "বাড়িতে নার্সিং"
+      "bn": "বাড়িতে নার্সিং",
+      "ml": "ഹോം നഴ്സിംഗ്",
+      "fil": "Pag-aalaga sa tahanan",
+      "id": "Perawat di rumah",
+      "ne": "घरमै नर्सिंग",
+      "am": "የቤት ውስጥ ነርሶች",
+      "tr": "Ev bakım"
     },
     {
       "kind": "service",
@@ -1024,7 +1702,13 @@
       "en": "Elderly care",
       "ur": "بزرگوں کی نگہداشت",
       "hi": "बुज़ुर्गों की देखभाल",
-      "bn": "বয়স্কদের যত্ন"
+      "bn": "বয়স্কদের যত্ন",
+      "ml": "പ്രായമായവരെ പരിചരിക്കുക",
+      "fil": "Pag-aalaga sa mga may edad na",
+      "id": "Penjagaan orang tua",
+      "ne": "वृद्धवृद्धाको हेरचाह",
+      "am": "የአረጋውያን እንክብካቤ",
+      "tr": "Yaşlılar"
     },
     {
       "kind": "service",
@@ -1033,7 +1717,13 @@
       "en": "Babysitting",
       "ur": "بچوں کی دیکھ بھال",
       "hi": "बच्चों की देखभाल",
-      "bn": "শিশুদের যত্ন"
+      "bn": "শিশুদের যত্ন",
+      "ml": "കുട്ടികളെ പരിപാലിക്കുക",
+      "fil": "Pag-aalaga ng sanggol",
+      "id": "Menjaga bayi",
+      "ne": "बच्चाको हेरचाह",
+      "am": "ሕፃናት መጠበቅ",
+      "tr": "Bebek bakımı"
     },
     {
       "kind": "service",
@@ -1042,7 +1732,13 @@
       "en": "Physical therapy",
       "ur": "فزیوتھراپی",
       "hi": "फ़िज़ियोथेरेपी",
-      "bn": "ফিজিওথেরাপি"
+      "bn": "ফিজিওথেরাপি",
+      "ml": "ശാരീരിക ചികിത്സ",
+      "fil": "Terapia ng katawan",
+      "id": "Terapi fisik",
+      "ne": "शारीरिक उपचार",
+      "am": "አካላዊ ሕክምና",
+      "tr": "Fiziksel terapiler"
     },
     {
       "kind": "service",
@@ -1051,7 +1747,13 @@
       "en": "Home lab tests",
       "ur": "گھر پر لیبارٹری ٹیسٹ",
       "hi": "घर पर लैब जाँच",
-      "bn": "বাড়িতে ল্যাব পরীক্ষা"
+      "bn": "বাড়িতে ল্যাব পরীক্ষা",
+      "ml": "ഹോം ലാബോറട്ടറി പരിശോധനകൾ",
+      "fil": "Mga pagsubok sa laboratoryo sa bahay",
+      "id": "Tes laboratorium rumah",
+      "ne": "होम ल्याब परीक्षण",
+      "am": "የቤት ውስጥ ላቦራቶሪ ምርመራዎች",
+      "tr": "Evde laboratuvar testleri"
     },
     {
       "kind": "service",
@@ -1060,7 +1762,13 @@
       "en": "Professional courses",
       "ur": "پیشہ ورانہ کورسز",
       "hi": "पेशेवर पाठ्यक्रम",
-      "bn": "পেশাগত কোর্স"
+      "bn": "পেশাগত কোর্স",
+      "ml": "പ്രൊഫഷണൽ കോഴ്സുകൾ",
+      "fil": "Mga kurso ng propesyonal",
+      "id": "Kursus profesional",
+      "ne": "व्यावसायिक पाठ्यक्रमहरू",
+      "am": "የሙያ ኮርሶች",
+      "tr": "Mesleki kurslar"
     },
     {
       "kind": "service",
@@ -1069,7 +1777,13 @@
       "en": "Language courses",
       "ur": "زبان کے کورسز",
       "hi": "भाषा पाठ्यक्रम",
-      "bn": "ভাষা কোর্স"
+      "bn": "ভাষা কোর্স",
+      "ml": "ഭാഷാ കോഴ്സുകൾ",
+      "fil": "Mga kurso sa wika",
+      "id": "Kursus bahasa",
+      "ne": "भाषा पाठ्यक्रम",
+      "am": "የቋንቋ ኮርሶች",
+      "tr": "Dil kursları"
     },
     {
       "kind": "service",
@@ -1078,7 +1792,13 @@
       "en": "Tech courses",
       "ur": "تکنیکی کورسز",
       "hi": "तकनीकी पाठ्यक्रम",
-      "bn": "প্রযুক্তিগত কোর্স"
+      "bn": "প্রযুক্তিগত কোর্স",
+      "ml": "സാങ്കേതിക കോഴ്സുകൾ",
+      "fil": "Mga kurso sa teknolohiya",
+      "id": "Kursus teknis",
+      "ne": "प्राविधिक पाठ्यक्रमहरू",
+      "am": "የቴክኒክ ኮርሶች",
+      "tr": "Teknoloji dersleri"
     },
     {
       "kind": "service",
@@ -1087,7 +1807,13 @@
       "en": "Vocational training",
       "ur": "پیشہ ورانہ تربیت",
       "hi": "व्यावसायिक प्रशिक्षण",
-      "bn": "পেশাগত প্রশিক্ষণ"
+      "bn": "পেশাগত প্রশিক্ষণ",
+      "ml": "തൊഴില് പരിശീലനം",
+      "fil": "Pag-aaral ng propesyon",
+      "id": "Pelatihan Profesional",
+      "ne": "व्यावसायिक प्रशिक्षण",
+      "am": "የሙያ ስልጠና",
+      "tr": "Mesleki eğitim"
     },
     {
       "kind": "service",
@@ -1096,7 +1822,13 @@
       "en": "Personal training",
       "ur": "ذاتی فٹنس تربیت",
       "hi": "व्यक्तिगत फ़िटनेस प्रशिक्षण",
-      "bn": "ব্যক্তিগত ফিটনেস প্রশিক্ষণ"
+      "bn": "ব্যক্তিগত ফিটনেস প্রশিক্ষণ",
+      "ml": "വ്യക്തിഗത പരിശീലനം",
+      "fil": "Pag-aaral sa personal",
+      "id": "Pelatihan pribadi",
+      "ne": "व्यक्तिगत प्रशिक्षण",
+      "am": "የግል ስልጠና",
+      "tr": "Kişisel eğitim"
     },
     {
       "kind": "service",
@@ -1105,7 +1837,13 @@
       "en": "Group fitness",
       "ur": "گروپ ورزش",
       "hi": "समूह व्यायाम",
-      "bn": "দলগত ব্যায়াম"
+      "bn": "দলগত ব্যায়াম",
+      "ml": "ഗ്രൂപ്പ് ഫിറ്റ്നസ്",
+      "fil": "Pag-aayos ng grupo",
+      "id": "Kebugaran kelompok",
+      "ne": "समूह फिटनेस",
+      "am": "የቡድን ብቃት",
+      "tr": "Grup fitness"
     },
     {
       "kind": "service",
@@ -1114,7 +1852,13 @@
       "en": "Sports coaching",
       "ur": "کھیلوں کی تربیت",
       "hi": "खेल प्रशिक्षण",
-      "bn": "খেলাধুলার প্রশিক্ষণ"
+      "bn": "খেলাধুলার প্রশিক্ষণ",
+      "ml": "കായിക പരിശീലനം",
+      "fil": "Pag-coach sa isport",
+      "id": "Pelatih olahraga",
+      "ne": "खेलकुद प्रशिक्षक",
+      "am": "የስፖርት አሰልጣኝነት",
+      "tr": "Spor koçluğu"
     },
     {
       "kind": "service",
@@ -1123,7 +1867,13 @@
       "en": "Nutrition & diet",
       "ur": "غذائیت اور خوراک",
       "hi": "पोषण और आहार",
-      "bn": "পুষ্টি ও খাদ্য"
+      "bn": "পুষ্টি ও খাদ্য",
+      "ml": "പോഷകാഹാരവും ഭക്ഷണവും",
+      "fil": "Pagkain & diyeta",
+      "id": "Nutrisi & diet",
+      "ne": "पोषण र आहार",
+      "am": "የአመጋገብ እና የአመጋገብ ስርዓት",
+      "tr": "Beslenme ve beslenme"
     },
     {
       "kind": "service",
@@ -1132,7 +1882,13 @@
       "en": "Yoga & meditation",
       "ur": "یوگا اور مراقبہ",
       "hi": "योग और ध्यान",
-      "bn": "যোগ ও ধ্যান"
+      "bn": "যোগ ও ধ্যান",
+      "ml": "യോഗയും ധ്യാനവും",
+      "fil": "Yoga at pagmumuni-muni",
+      "id": "Yoga & Meditasi",
+      "ne": "योग र ध्यान",
+      "am": "ዮጋና ማሰላሰል",
+      "tr": "Yoga ve Meditasyon"
     },
     {
       "kind": "service",
@@ -1141,7 +1897,13 @@
       "en": "Research writing",
       "ur": "تحقیقی تحریر",
       "hi": "शोध लेखन",
-      "bn": "গবেষণা লেখা"
+      "bn": "গবেষণা লেখা",
+      "ml": "ഗവേഷണ രചന",
+      "fil": "Pagsusulat ng pananaliksik",
+      "id": "Penulisan penelitian",
+      "ne": "अनुसन्धान लेखन",
+      "am": "የምርምር ጽሑፍ",
+      "tr": "Araştırma yazısı"
     },
     {
       "kind": "service",
@@ -1150,7 +1912,13 @@
       "en": "Academic translation",
       "ur": "تعلیمی ترجمہ",
       "hi": "शैक्षणिक अनुवाद",
-      "bn": "একাডেমিক অনুবাদ"
+      "bn": "একাডেমিক অনুবাদ",
+      "ml": "അക്കാദമിക് പരിഭാഷ",
+      "fil": "Pag-aalinlangan ng akademiko",
+      "id": "Terjemahan Akademik",
+      "ne": "शैक्षिक अनुवाद",
+      "am": "የአካዳሚክ ትርጉም",
+      "tr": "Akademik çeviriler"
     },
     {
       "kind": "service",
@@ -1159,7 +1927,13 @@
       "en": "Presentation design",
       "ur": "پریزنٹیشن کا ڈیزائن",
       "hi": "प्रस्तुति डिज़ाइन",
-      "bn": "উপস্থাপনা ডিজাইন"
+      "bn": "উপস্থাপনা ডিজাইন",
+      "ml": "അവതരണ രൂപകൽപ്പന",
+      "fil": "Desinyo ng presentasyon",
+      "id": "Desain presentasi",
+      "ne": "प्रस्तुति डिजाइन",
+      "am": "የዝግጅት አቀራረብ ንድፍ",
+      "tr": "Sunum tasarımı"
     },
     {
       "kind": "service",
@@ -1168,7 +1942,13 @@
       "en": "Homework help",
       "ur": "ہوم ورک میں مدد",
       "hi": "गृहकार्य में मदद",
-      "bn": "বাড়ির পড়ায় সাহায্য"
+      "bn": "বাড়ির পড়ায় সাহায্য",
+      "ml": "ഹോം വർക്ക് സഹായം",
+      "fil": "Tulong sa mga gawaing-bahay",
+      "id": "Bantuan pekerjaan rumah",
+      "ne": "गृहकार्यमा सहयोग",
+      "am": "የቤት ውስጥ ሥራዎች",
+      "tr": "Ev ödevleri için yardım"
     },
     {
       "kind": "service",
@@ -1177,7 +1957,13 @@
       "en": "Mens tailoring",
       "ur": "مردانہ سلائی",
       "hi": "पुरुषों की सिलाई",
-      "bn": "পুরুষদের পোশাক সেলাই"
+      "bn": "পুরুষদের পোশাক সেলাই",
+      "ml": "പുരുഷന്മാരുടെ തുന്നൽ",
+      "fil": "Mga tao na mag-uutos",
+      "id": "Pengrajin pria",
+      "ne": "पुरुष सिलाई",
+      "am": "የወንዶች ሹራብ",
+      "tr": "Erkekler için terzilik"
     },
     {
       "kind": "service",
@@ -1186,7 +1972,13 @@
       "en": "Womens tailoring",
       "ur": "زنانہ سلائی",
       "hi": "महिलाओं की सिलाई",
-      "bn": "নারীদের পোশাক সেলাই"
+      "bn": "নারীদের পোশাক সেলাই",
+      "ml": "വനിതാ തുന്നൽ",
+      "fil": "Mga babae na nag-aayos",
+      "id": "Pengrajin wanita",
+      "ne": "महिला सिलाई",
+      "am": "የሴቶች ሹራብ",
+      "tr": "Kadın terziliği"
     },
     {
       "kind": "service",
@@ -1195,7 +1987,13 @@
       "en": "Clothing alteration",
       "ur": "کپڑوں کی ترمیم",
       "hi": "कपड़ों में बदलाव",
-      "bn": "পোশাকের মাপ ঠিক করা"
+      "bn": "পোশাকের মাপ ঠিক করা",
+      "ml": "വസ്ത്രങ്ങൾ മാറ്റുക",
+      "fil": "Pagbabago ng damit",
+      "id": "Perubahan pakaian",
+      "ne": "कपडा परिवर्तन",
+      "am": "የልብስ ለውጥ",
+      "tr": "Giyim değişimi"
     },
     {
       "kind": "service",
@@ -1204,7 +2002,13 @@
       "en": "Curtain tailoring",
       "ur": "پردوں کی سلائی",
       "hi": "परदों की सिलाई",
-      "bn": "পর্দা সেলাই"
+      "bn": "পর্দা সেলাই",
+      "ml": "കർട്ടൻ തയ്യൽ",
+      "fil": "Pag-uutos ng mga kurtina",
+      "id": "Pengukur gorden",
+      "ne": "पर्दा बनाउनु",
+      "am": "የድንጋይ መጋረጃ",
+      "tr": "Perdeler boyama"
     },
     {
       "kind": "service",
@@ -1213,7 +2017,13 @@
       "en": "Passenger transport",
       "ur": "مسافروں کی نقل و حمل",
       "hi": "यात्री परिवहन",
-      "bn": "যাত্রী পরিবহন"
+      "bn": "যাত্রী পরিবহন",
+      "ml": "യാത്രാ ഗതാഗതം",
+      "fil": "Paglalakbay ng mga pasahero",
+      "id": "Transportasi penumpang",
+      "ne": "यात्रुवाहक",
+      "am": "የጉዞ መጓጓዣ",
+      "tr": "Yolcu taşımacılığı"
     },
     {
       "kind": "service",
@@ -1222,7 +2032,13 @@
       "en": "Bus rental",
       "ur": "بس کرایہ",
       "hi": "बस किराया",
-      "bn": "বাস ভাড়া"
+      "bn": "বাস ভাড়া",
+      "ml": "ബസ് വാടക",
+      "fil": "Pag-abang ng bus",
+      "id": "Sewa bus",
+      "ne": "बस भाडा",
+      "am": "የአውቶቡስ ኪራይ",
+      "tr": "Otobüs kiralama"
     },
     {
       "kind": "service",
@@ -1231,7 +2047,13 @@
       "en": "School transport",
       "ur": "اسکول کی آمد و رفت",
       "hi": "स्कूल परिवहन",
-      "bn": "স্কুলে যাতায়াত"
+      "bn": "স্কুলে যাতায়াত",
+      "ml": "സ്കൂൾ ഗതാഗതം",
+      "fil": "Paglalakbay sa paaralan",
+      "id": "Transportasi sekolah",
+      "ne": "विद्यालय यातायात",
+      "am": "የትምህርት ቤት መጓጓዣ",
+      "tr": "Okul taşımacılığı"
     },
     {
       "kind": "service",
@@ -1240,7 +2062,13 @@
       "en": "Yard cleaning",
       "ur": "صحن کی صفائی",
       "hi": "आँगन की सफ़ाई",
-      "bn": "উঠান পরিষ্কার"
+      "bn": "উঠান পরিষ্কার",
+      "ml": "മുറ്റത്ത് വൃത്തിയാക്കൽ",
+      "fil": "Paglinis ng hardin",
+      "id": "Pembersihan halaman",
+      "ne": "आँगन सफा गर्ने",
+      "am": "የአትክልት ስፍራን ማጽዳት",
+      "tr": "Bahçe temizliği"
     }
   ],
   "geography": [
@@ -1249,2331 +2077,4329 @@
       "en": "Riyadh Region",
       "ur": "ریاض ریجن",
       "hi": "रियाद क्षेत्र",
-      "bn": "রিয়াদ অঞ্চল"
+      "bn": "রিয়াদ অঞ্চল",
+      "ml": "റിയാദ് മേഖല",
+      "fil": "Rehiyon ng Riyadh",
+      "id": "Wilayah Riyadh",
+      "ne": "रियाद क्षेत्र",
+      "am": "የሪያድ ክልል",
+      "tr": "Riyadh Bölgesi"
     },
     {
       "ar": "منطقة مكة المكرمة",
       "en": "Makkah Region",
       "ur": "مکہ مکرمہ ریجن",
       "hi": "मक्का मुकर्रमा क्षेत्र",
-      "bn": "মক্কা মুকাররমা অঞ্চল"
+      "bn": "মক্কা মুকাররমা অঞ্চল",
+      "ml": "മക്ക മേഖല",
+      "fil": "Rehiyon ng Makkah",
+      "id": "Daerah Makkah",
+      "ne": "मक्का क्षेत्र",
+      "am": "የመቃህ ክልል",
+      "tr": "Mekke Bölgesi"
     },
     {
       "ar": "منطقة المدينة المنورة",
       "en": "Madinah Region",
       "ur": "مدینہ منورہ ریجن",
       "hi": "मदीना मुनव्वरा क्षेत्र",
-      "bn": "মদিনা মুনাওয়ারা অঞ্চল"
+      "bn": "মদিনা মুনাওয়ারা অঞ্চল",
+      "ml": "മദീന മേഖല",
+      "fil": "Rehiyon ng Medina",
+      "id": "Wilayah Madinah",
+      "ne": "मदिना क्षेत्र",
+      "am": "የመዲና ክልል",
+      "tr": "Medine Bölgesi"
     },
     {
       "ar": "منطقة القصيم",
       "en": "Al-Qassim Region",
       "ur": "القصیم ریجن",
       "hi": "अल-कासिम क्षेत्र",
-      "bn": "আল-কাসিম অঞ্চল"
+      "bn": "আল-কাসিম অঞ্চল",
+      "ml": "അൽ-കസിം മേഖല",
+      "fil": "Rehiyon ng Al-Qassim",
+      "id": "Wilayah Al-Qassim",
+      "ne": "अल-कसिम क्षेत्र",
+      "am": "አል-ካሲም ክልል",
+      "tr": "Al-Qassim Bölgesi"
     },
     {
       "ar": "المنطقة الشرقية",
       "en": "Eastern Region",
       "ur": "مشرقی ریجن",
       "hi": "पूर्वी क्षेत्र",
-      "bn": "পূর্বাঞ্চল"
+      "bn": "পূর্বাঞ্চল",
+      "ml": "കിഴക്കൻ മേഖല",
+      "fil": "Rehiyon ng Silangang",
+      "id": "Wilayah Timur",
+      "ne": "पूर्वी क्षेत्र",
+      "am": "የምስራቅ ክልል",
+      "tr": "Doğu Bölgesi"
     },
     {
       "ar": "منطقة عسير",
       "en": "Asir Region",
       "ur": "عسیر ریجن",
       "hi": "असीर क्षेत्र",
-      "bn": "আসির অঞ্চল"
+      "bn": "আসির অঞ্চল",
+      "ml": "അസീർ മേഖല",
+      "fil": "Rehiyon ng Asir",
+      "id": "Wilayah Asir",
+      "ne": "असिर क्षेत्र",
+      "am": "የአሲር ክልል",
+      "tr": "Asir Bölgesi"
     },
     {
       "ar": "منطقة تبوك",
       "en": "Tabuk Region",
       "ur": "تبوک ریجن",
       "hi": "तबूक क्षेत्र",
-      "bn": "তাবুক অঞ্চল"
+      "bn": "তাবুক অঞ্চল",
+      "ml": "ടാബുക് മേഖല",
+      "fil": "Rehiyon ng Tabuk",
+      "id": "Wilayah Tabuk",
+      "ne": "ताबुक क्षेत्र",
+      "am": "ታቡክ ክልል",
+      "tr": "Tabuk Bölgesi"
     },
     {
       "ar": "منطقة حائل",
       "en": "Hail Region",
       "ur": "حائل ریجن",
       "hi": "हाइल क्षेत्र",
-      "bn": "হাইল অঞ্চল"
+      "bn": "হাইল অঞ্চল",
+      "ml": "ഹൈലേ മേഖല",
+      "fil": "Rehiyon ng Pag-ulan",
+      "id": "Daerah Hujan",
+      "ne": "हाइल क्षेत्र",
+      "am": "የበረዶ ነፋስ ክልል",
+      "tr": "Grayl Bölgesi"
     },
     {
       "ar": "منطقة الحدود الشمالية",
       "en": "Northern Borders Region",
       "ur": "شمالی سرحدی ریجن",
       "hi": "उत्तरी सीमा क्षेत्र",
-      "bn": "উত্তর সীমান্ত অঞ্চল"
+      "bn": "উত্তর সীমান্ত অঞ্চল",
+      "ml": "വടക്കൻ അതിർത്തി മേഖല",
+      "fil": "Rehiyon ng mga Border sa Hilagang Sulod",
+      "id": "Wilayah Perbatasan Utara",
+      "ne": "उत्तरी सीमा क्षेत्र",
+      "am": "የሰሜን ድንበር ክልል",
+      "tr": "Kuzey Sınırları Bölgesi"
     },
     {
       "ar": "منطقة جازان",
       "en": "Jazan Region",
       "ur": "جازان ریجن",
       "hi": "जाज़ान क्षेत्र",
-      "bn": "জাজান অঞ্চল"
+      "bn": "জাজান অঞ্চল",
+      "ml": "ജസാൻ മേഖല",
+      "fil": "Rehiyon ng Jazan",
+      "id": "Daerah Jazan",
+      "ne": "जजान क्षेत्र",
+      "am": "ጃዛን ክልል",
+      "tr": "Jazan Bölgesi"
     },
     {
       "ar": "منطقة نجران",
       "en": "Najran Region",
       "ur": "نجران ریجن",
       "hi": "नजरान क्षेत्र",
-      "bn": "নাজরান অঞ্চল"
+      "bn": "নাজরান অঞ্চল",
+      "ml": "നജ്രാൻ മേഖല",
+      "fil": "Rehiyon ng Najran",
+      "id": "Wilayah Najran",
+      "ne": "नाज्रान क्षेत्र",
+      "am": "የናጅራን ክልል",
+      "tr": "Najran Bölgesi"
     },
     {
       "ar": "منطقة الباحة",
       "en": "Al-Bahah Region",
       "ur": "الباحہ ریجن",
       "hi": "अल-बाहा क्षेत्र",
-      "bn": "আল-বাহাহ অঞ্চল"
+      "bn": "আল-বাহাহ অঞ্চল",
+      "ml": "അൽ ബഹാ മേഖല",
+      "fil": "Rehiyon ng Al-Bahah",
+      "id": "Wilayah Al-Bahah",
+      "ne": "अल-बाहा क्षेत्र",
+      "am": "አልባሃ ክልል",
+      "tr": "Al-Bahah Bölgesi"
     },
     {
       "ar": "منطقة الجوف",
       "en": "Al-Jouf Region",
       "ur": "الجوف ریجن",
       "hi": "अल-जौफ क्षेत्र",
-      "bn": "আল-জাওফ অঞ্চল"
+      "bn": "আল-জাওফ অঞ্চল",
+      "ml": "അൽ ജുഫ് മേഖല",
+      "fil": "Rehiyon ng Al-Jouf",
+      "id": "Wilayah Al-Jouf",
+      "ne": "अल-जुफ क्षेत्र",
+      "am": "የአል ጁፍ ክልል",
+      "tr": "Al-Jouf Bölgesi"
     },
     {
       "ar": "السعودية",
       "en": "Saudi Arabia",
       "ur": "سعودی عرب",
       "hi": "सऊदी अरब",
-      "bn": "সৌদি আরব"
+      "bn": "সৌদি আরব",
+      "ml": "സൌദി അറേബ്യ",
+      "fil": "Saudi Arabia",
+      "id": "Arab Saudi",
+      "ne": "साउदी अरेबिया",
+      "am": "ሳውዲ አረቢያ",
+      "tr": "Suudi Arabistan"
     },
     {
       "ar": "الإمارات",
       "en": "United Arab Emirates",
       "ur": "متحدہ عرب امارات",
       "hi": "संयुक्त अरब अमीरात",
-      "bn": "সংযুক্ত আরব আমিরাত"
+      "bn": "সংযুক্ত আরব আমিরাত",
+      "ml": "യുണൈറ്റഡ് അറബ് എമിറേറ്റ്സ്",
+      "fil": "United Arab Emirates",
+      "id": "Uni Emirat Arab",
+      "ne": "संयुक्त अरब इमिरेट्स",
+      "am": "የተባበሩት አረብ ኤሚሬቶች",
+      "tr": "Birleşik Arap Emirlikleri"
     },
     {
       "ar": "الكويت",
       "en": "Kuwait",
       "ur": "کویت",
       "hi": "कुवैत",
-      "bn": "কুয়েত"
+      "bn": "কুয়েত",
+      "ml": "കുവൈത്ത്",
+      "fil": "Kuwait",
+      "id": "Kuwait",
+      "ne": "कुवेत",
+      "am": "ኩዌት",
+      "tr": "Kuveyt"
     },
     {
       "ar": "قطر",
       "en": "Qatar",
       "ur": "قطر",
       "hi": "क़तर",
-      "bn": "কাতার"
+      "bn": "কাতার",
+      "ml": "ഖത്തര്",
+      "fil": "Qatar",
+      "id": "Qatar",
+      "ne": "कतार",
+      "am": "ኳታር",
+      "tr": "Katar"
     },
     {
       "ar": "البحرين",
       "en": "Bahrain",
       "ur": "بحرین",
       "hi": "बहरीन",
-      "bn": "বাহরাইন"
+      "bn": "বাহরাইন",
+      "ml": "ബഹ്റൈൻ",
+      "fil": "Bahrain",
+      "id": "Bahrain",
+      "ne": "बहराइन",
+      "am": "ባሕሬን",
+      "tr": "Bahreyn"
     },
     {
       "ar": "عُمان",
       "en": "Oman",
       "ur": "عمان",
       "hi": "ओमान",
-      "bn": "ওমান"
+      "bn": "ওমান",
+      "ml": "ഒമാൻ",
+      "fil": "Oman",
+      "id": "Oman",
+      "ne": "ओमान",
+      "am": "ኦማን",
+      "tr": "Oman"
     },
     {
       "ar": "اليمن",
       "en": "Yemen",
       "ur": "یمن",
       "hi": "यमन",
-      "bn": "ইয়েমেন"
+      "bn": "ইয়েমেন",
+      "ml": "യെമൻ",
+      "fil": "Yemen",
+      "id": "Yaman",
+      "ne": "यमन",
+      "am": "የመን",
+      "tr": "Yemen"
     },
     {
       "ar": "مصر",
       "en": "Egypt",
       "ur": "مصر",
       "hi": "मिस्र",
-      "bn": "মিশর"
+      "bn": "মিশর",
+      "ml": "ഈജിപ്ത്",
+      "fil": "Ehipto",
+      "id": "Mesir",
+      "ne": "मिश्र",
+      "am": "ግብፅ",
+      "tr": "Mısır"
     },
     {
       "ar": "الأردن",
       "en": "Jordan",
       "ur": "اردن",
       "hi": "जॉर्डन",
-      "bn": "জর্ডান"
+      "bn": "জর্ডান",
+      "ml": "ജോർദാൻ",
+      "fil": "Jordan",
+      "id": "Yordania",
+      "ne": "जोर्डन",
+      "am": "ዮርዳኖስ",
+      "tr": "İordana"
     },
     {
       "ar": "فلسطين",
       "en": "Palestine",
       "ur": "فلسطین",
       "hi": "फ़िलिस्तीन",
-      "bn": "ফিলিস্তিন"
+      "bn": "ফিলিস্তিন",
+      "ml": "പലസ്തീൻ",
+      "fil": "Palestina",
+      "id": "Palestina",
+      "ne": "प्यालेस्टाइन",
+      "am": "ፍልስጤም",
+      "tr": "Filistin"
     },
     {
       "ar": "لبنان",
       "en": "Lebanon",
       "ur": "لبنان",
       "hi": "लेबनान",
-      "bn": "লেবানন"
+      "bn": "লেবানন",
+      "ml": "ലെബനൻ",
+      "fil": "Libano",
+      "id": "Lebanon",
+      "ne": "लेबनान",
+      "am": "ሊባኖስ",
+      "tr": "Lübnan"
     },
     {
       "ar": "سوريا",
       "en": "Syria",
       "ur": "شام",
       "hi": "सीरिया",
-      "bn": "সিরিয়া"
+      "bn": "সিরিয়া",
+      "ml": "സിറിയ",
+      "fil": "Syria",
+      "id": "Suriah",
+      "ne": "सिरिया",
+      "am": "ሶሪያ",
+      "tr": "Suriye"
     },
     {
       "ar": "العراق",
       "en": "Iraq",
       "ur": "عراق",
       "hi": "इराक़",
-      "bn": "ইরাক"
+      "bn": "ইরাক",
+      "ml": "ഇറാഖ്",
+      "fil": "Iraq",
+      "id": "Irak",
+      "ne": "इराक",
+      "am": "ኢራቅ",
+      "tr": "Irak"
     },
     {
       "ar": "المغرب",
       "en": "Morocco",
       "ur": "مراکش",
       "hi": "मोरक्को",
-      "bn": "মরক্কো"
+      "bn": "মরক্কো",
+      "ml": "മൊറോക്കോ",
+      "fil": "Morocco",
+      "id": "Maroko",
+      "ne": "मोरक्को",
+      "am": "ሞሮኮ",
+      "tr": "Fas"
     },
     {
       "ar": "الجزائر",
       "en": "Algeria",
       "ur": "الجزائر",
       "hi": "अल्जीरिया",
-      "bn": "আলজেরিয়া"
+      "bn": "আলজেরিয়া",
+      "ml": "അൾജീരിയ",
+      "fil": "Algeria",
+      "id": "Aljazair",
+      "ne": "अल्जेरिया",
+      "am": "አልጄሪያ",
+      "tr": "Cezayir"
     },
     {
       "ar": "تونس",
       "en": "Tunisia",
       "ur": "تونس",
       "hi": "ट्यूनीशिया",
-      "bn": "তিউনিসিয়া"
+      "bn": "তিউনিসিয়া",
+      "ml": "തുനിസ്",
+      "fil": "Tunisia",
+      "id": "Tunisia",
+      "ne": "ट्युनिसिया",
+      "am": "ቱኒዚያ",
+      "tr": "Tunus"
     },
     {
       "ar": "ليبيا",
       "en": "Libya",
       "ur": "لیبیا",
       "hi": "लीबिया",
-      "bn": "লিবিয়া"
+      "bn": "লিবিয়া",
+      "ml": "ലിബിയ",
+      "fil": "Libya",
+      "id": "Libya",
+      "ne": "लिबिया",
+      "am": "ሊቢያ",
+      "tr": "Libya"
     },
     {
       "ar": "السودان",
       "en": "Sudan",
       "ur": "سوڈان",
       "hi": "सूडान",
-      "bn": "সুদান"
+      "bn": "সুদান",
+      "ml": "സുഡാൻ",
+      "fil": "Sudan",
+      "id": "Sudan",
+      "ne": "सुडान",
+      "am": "ሱዳን",
+      "tr": "Sudan"
     },
     {
       "ar": "موريتانيا",
       "en": "Mauritania",
       "ur": "موریطانیہ",
       "hi": "मॉरिटानिया",
-      "bn": "মৌরিতানিয়া"
+      "bn": "মৌরিতানিয়া",
+      "ml": "മൌറീറ്റാന",
+      "fil": "Mauritania",
+      "id": "Mauritania",
+      "ne": "मौर्यटानिया",
+      "am": "ሞሪታንያ",
+      "tr": "Mauritania"
     },
     {
       "ar": "الصومال",
       "en": "Somalia",
       "ur": "صومالیہ",
       "hi": "सोमालिया",
-      "bn": "সোমালিয়া"
+      "bn": "সোমালিয়া",
+      "ml": "സോമാലിയ",
+      "fil": "Somalia",
+      "id": "Somalia",
+      "ne": "सोमालिया",
+      "am": "ሶማሊያ",
+      "tr": "Somali"
     },
     {
       "ar": "جيبوتي",
       "en": "Djibouti",
       "ur": "جبوتی",
       "hi": "जिबूती",
-      "bn": "জিবুতি"
+      "bn": "জিবুতি",
+      "ml": "ജിബൂതി",
+      "fil": "Djibouti",
+      "id": "Djibouti",
+      "ne": "जिबुटी",
+      "am": "ጂቡቲ",
+      "tr": "Djibouti"
     },
     {
       "ar": "جزر القمر",
       "en": "Comoros",
       "ur": "کوموروس",
       "hi": "कोमोरोस",
-      "bn": "কোমোরোস"
+      "bn": "কোমোরোস",
+      "ml": "കോമോറസ്",
+      "fil": "Mga Comoros",
+      "id": "Komoro",
+      "ne": "कमोरस",
+      "am": "ኮሞሮች",
+      "tr": "Komorlar"
     },
     {
       "ar": "الرياض",
       "en": "Riyadh",
       "ur": "ریاض",
       "hi": "रियाद",
-      "bn": "রিয়াদ"
+      "bn": "রিয়াদ",
+      "ml": "റിയാദ്",
+      "fil": "Ang Riyadh",
+      "id": "Riyadh",
+      "ne": "रियाद",
+      "am": "ሪያድ",
+      "tr": "Riyad"
     },
     {
       "ar": "الخرج",
       "en": "Al-Kharj",
       "ur": "الخرج",
       "hi": "अल-ख़र्ज",
-      "bn": "আল-খারজ"
+      "bn": "আল-খারজ",
+      "ml": "അൽ ഖര് ജ്",
+      "fil": "Al-Kharj",
+      "id": "Al-Kharj",
+      "ne": "अल-खार्ज",
+      "am": "አል-ካርጅ",
+      "tr": "Al-Kharj"
     },
     {
       "ar": "المجمعة",
       "en": "Al-Majmaah",
       "ur": "المجمعہ",
       "hi": "अल-मजमाअ",
-      "bn": "আল-মাজমা"
+      "bn": "আল-মাজমা",
+      "ml": "അൽ മജ്മാഅ",
+      "fil": "Al-Majmaah",
+      "id": "Al-Majmaah",
+      "ne": "अल-मजमाह",
+      "am": "አል-ማጅማህ",
+      "tr": "Al-Majmaah"
     },
     {
       "ar": "الزلفي",
       "en": "Az-Zulfi",
       "ur": "الزلفی",
       "hi": "अज़-ज़ुल्फ़ी",
-      "bn": "আজ-জুলফি"
+      "bn": "আজ-জুলফি",
+      "ml": "അസ്-സുല്ഫി",
+      "fil": "Az-Zulfi",
+      "id": "Az-Zulfi",
+      "ne": "अज-जुल्फी",
+      "am": "አዝ-ዙልፊ",
+      "tr": "Az-Zulfi"
     },
     {
       "ar": "مكة المكرمة",
       "en": "Makkah",
       "ur": "مکہ مکرمہ",
       "hi": "मक्का मुकर्रमा",
-      "bn": "মক্কা মুকাররমা"
+      "bn": "মক্কা মুকাররমা",
+      "ml": "മക്ക",
+      "fil": "Makkah",
+      "id": "Mekah",
+      "ne": "मक्का",
+      "am": "መቃ",
+      "tr": "Mekke"
     },
     {
       "ar": "جدة",
       "en": "Jeddah",
       "ur": "جدہ",
       "hi": "जेद्दा",
-      "bn": "জেদ্দা"
+      "bn": "জেদ্দা",
+      "ml": "ജെദ്ദ",
+      "fil": "Jeddah",
+      "id": "Jeddah",
+      "ne": "जेद्दा",
+      "am": "ጂዳ",
+      "tr": "Jeddah"
     },
     {
       "ar": "الطائف",
       "en": "Taif",
       "ur": "طائف",
       "hi": "ताइफ़",
-      "bn": "তায়েফ"
+      "bn": "তায়েফ",
+      "ml": "തൈഫ്",
+      "fil": "Ang mga tao",
+      "id": "Taif",
+      "ne": "ताइफ",
+      "am": "ታይፍ",
+      "tr": "Taif"
     },
     {
       "ar": "المدينة المنورة",
       "en": "Madinah",
       "ur": "مدینہ منورہ",
       "hi": "मदीना मुनव्वरा",
-      "bn": "মদিনা মুনাওয়ারা"
+      "bn": "মদিনা মুনাওয়ারা",
+      "ml": "മദീന",
+      "fil": "Madinah",
+      "id": "Madinah",
+      "ne": "मदिना",
+      "am": "ማዲና",
+      "tr": "Medine'de"
     },
     {
       "ar": "ينبع",
       "en": "Yanbu",
       "ur": "ینبع",
       "hi": "यनबू",
-      "bn": "ইয়ানবু"
+      "bn": "ইয়ানবু",
+      "ml": "യാൻബു",
+      "fil": "Yanbu",
+      "id": "Yanbu",
+      "ne": "यानबु",
+      "am": "ያንቡ",
+      "tr": "Yanbu"
     },
     {
       "ar": "العلا",
       "en": "Al-Ula",
       "ur": "العلا",
       "hi": "अल-उला",
-      "bn": "আল-উলা"
+      "bn": "আল-উলা",
+      "ml": "അൽ ഉല",
+      "fil": "Al-Ula",
+      "id": "Al-Ula",
+      "ne": "अल-उला",
+      "am": "አል-ኡላ",
+      "tr": "Al-Ula"
     },
     {
       "ar": "بريدة",
       "en": "Buraidah",
       "ur": "بریدہ",
       "hi": "बुरैदाह",
-      "bn": "বুরাইদা"
+      "bn": "বুরাইদা",
+      "ml": "ബുറൈദ",
+      "fil": "Buraidah",
+      "id": "Buraidah",
+      "ne": "बुराईदा",
+      "am": "ቡራዳ",
+      "tr": "Buraidah"
     },
     {
       "ar": "عنيزة",
       "en": "Unaizah",
       "ur": "عنیزہ",
       "hi": "उनैज़ा",
-      "bn": "উনাইজা"
+      "bn": "উনাইজা",
+      "ml": "ഉനൈസ",
+      "fil": "Unaizah",
+      "id": "Unaizah",
+      "ne": "उनिजाह",
+      "am": "ኡናይዛ",
+      "tr": "Unaizah"
     },
     {
       "ar": "الرس",
       "en": "Ar-Rass",
       "ur": "الرس",
       "hi": "अर-रस",
-      "bn": "আর-রাস"
+      "bn": "আর-রাস",
+      "ml": "അര്-റസ്",
+      "fil": "Ar-Rass",
+      "id": "Ar-Rass",
+      "ne": "आर-रस",
+      "am": "አር-ራስ",
+      "tr": "Ar-Rass"
     },
     {
       "ar": "المذنب",
       "en": "Al-Mithnab",
       "ur": "المذنب",
       "hi": "अल-मिधनब",
-      "bn": "আল-মিদনাব"
+      "bn": "আল-মিদনাব",
+      "ml": "അൽ മിഥ്നബ്",
+      "fil": "Al-Mithnab",
+      "id": "Al-Mithnab",
+      "ne": "अल-मिथनाब",
+      "am": "አል ሚትናብ",
+      "tr": "Al-Mithnab"
     },
     {
       "ar": "البكيرية",
       "en": "Al-Bukayriyah",
       "ur": "البکیریہ",
       "hi": "अल-बुकैरिया",
-      "bn": "আল-বুকাইরিয়া"
+      "bn": "আল-বুকাইরিয়া",
+      "ml": "അൽ ബുഖൈരിയാ",
+      "fil": "Al-Bukayriyah",
+      "id": "Al-Bukayriyah",
+      "ne": "अल-बुकेरियाह",
+      "am": "አል ቡካሪያ",
+      "tr": "Al-Bukayriyah"
     },
     {
       "ar": "البدائع",
       "en": "Al-Badaie",
       "ur": "البدائع",
       "hi": "अल-बदाइ",
-      "bn": "আল-বাদাই"
+      "bn": "আল-বাদাই",
+      "ml": "അൽ ബദായി",
+      "fil": "Al-Badaie",
+      "id": "Al-Badaie",
+      "ne": "अल-बदई",
+      "am": "አልባዲ",
+      "tr": "Al-Badaie"
     },
     {
       "ar": "الأسياح",
       "en": "Al-Asyah",
       "ur": "الاسیاح",
       "hi": "अल-अस्याह",
-      "bn": "আল-আসিয়াহ"
+      "bn": "আল-আসিয়াহ",
+      "ml": "അല്-അസയ്യ",
+      "fil": "Al-Asyah",
+      "id": "Al-Asyah",
+      "ne": "अल-आसियाह",
+      "am": "አል-አሲያ",
+      "tr": "Al-Asyah"
     },
     {
       "ar": "النبهانية",
       "en": "An-Nabhaniyah",
       "ur": "النبہانیہ",
       "hi": "अन-नभानिया",
-      "bn": "আন-নাবহানিয়া"
+      "bn": "আন-নাবহানিয়া",
+      "ml": "അൻ-നബാനിയ",
+      "fil": "Ang An-Nabhaniyah",
+      "id": "An-Nabhaniyah",
+      "ne": "अन-नबानीया",
+      "am": "አን-ናባንያ",
+      "tr": "An-Nabhaniyah"
     },
     {
       "ar": "الشماسية",
       "en": "Ash-Shamasiyah",
       "ur": "الشماسیہ",
       "hi": "अश-शिमासिया",
-      "bn": "আশ-শিমাসিয়া"
+      "bn": "আশ-শিমাসিয়া",
+      "ml": "അശ്-ശമസ്യാ",
+      "fil": "Ang Ash-Shamasiyah",
+      "id": "Ash-Shamasiyah",
+      "ne": "अश्-शमासियाह",
+      "am": "አሽ-ሻማሲያ",
+      "tr": "Ash-Shamasiyah"
     },
     {
       "ar": "عيون الجواء",
       "en": "Uyun Al-Jiwa",
       "ur": "عیون الجواء",
       "hi": "उयून अल-जवा",
-      "bn": "উয়ুন আল-জাওয়া"
+      "bn": "উয়ুন আল-জাওয়া",
+      "ml": "ഉയൂൻ അൽ ജിവ",
+      "fil": "Uyun Al-Jiwa",
+      "id": "Uyun Al-Jiwa",
+      "ne": "उयुन अल-जिवा",
+      "am": "ዩዩን አል-ጂዋ",
+      "tr": "Uyun Al-Jiwa"
     },
     {
       "ar": "رياض الخبراء",
       "en": "Riyad Al-Khabra",
       "ur": "ریاض الخبراء",
       "hi": "रियाद अल-ख़बरा",
-      "bn": "রিয়াদ আল-খাবরা"
+      "bn": "রিয়াদ আল-খাবরা",
+      "ml": "റിയാദ് അൽ ഖബ്ര",
+      "fil": "Riyad Al-Khabra",
+      "id": "Riyad Al-Khabra",
+      "ne": "रियाद अल-खब्रा",
+      "am": "ሪያድ አል-ክብር",
+      "tr": "Riyad Al-Khabra"
     },
     {
       "ar": "ضرية",
       "en": "Dariyah",
       "ur": "ضریہ",
       "hi": "दरियाह",
-      "bn": "দারিয়া"
+      "bn": "দারিয়া",
+      "ml": "ദരിയാ",
+      "fil": "Ang Dariyah",
+      "id": "Dariyah",
+      "ne": "दारियाह",
+      "am": "ዳሪያህ",
+      "tr": "Dariyah"
     },
     {
       "ar": "عقلة الصقور",
       "en": "Uqlat As-Suqur",
       "ur": "عقلۃ الصقور",
       "hi": "उक़लत अस-सुक़ूर",
-      "bn": "উকলাত আস-সুকুর"
+      "bn": "উকলাত আস-সুকুর",
+      "ml": "ഉക്ലാത്ത് അസ്-സുഖുര്",
+      "fil": "Uqlat As-Suqur",
+      "id": "Uqlat As-Suqur",
+      "ne": "उक्लट अस-सुकुर",
+      "am": "ኡክላት አስ-ሱኩር",
+      "tr": "Uqlat As-Suqur"
     },
     {
       "ar": "الدمام",
       "en": "Dammam",
       "ur": "دمام",
       "hi": "दम्माम",
-      "bn": "দাম্মাম"
+      "bn": "দাম্মাম",
+      "ml": "ഡമ്മമ്മം",
+      "fil": "Ang damam",
+      "id": "Dammam",
+      "ne": "दाँत",
+      "am": "ዳማማ",
+      "tr": "Dammam"
     },
     {
       "ar": "حفر الباطن",
       "en": "Hafar Al-Batin",
       "ur": "حفر الباطن",
       "hi": "हफ़र अल-बातिन",
-      "bn": "হাফার আল-বাতিন"
+      "bn": "হাফার আল-বাতিন",
+      "ml": "ഹഫര് അല് ബാതിന്",
+      "fil": "Hafar Al-Batin",
+      "id": "Hafar Al-Batin",
+      "ne": "हाफर अल-बटिन",
+      "am": "ሀፋር አልባቲን",
+      "tr": "Hafar Al-Batin"
     },
     {
       "ar": "الجبيل",
       "en": "Jubail",
       "ur": "الجبیل",
       "hi": "जुबैल",
-      "bn": "জুবাইল"
+      "bn": "জুবাইল",
+      "ml": "ജൂബിലി",
+      "fil": "Jubail",
+      "id": "Jubail",
+      "ne": "जुबाइल",
+      "am": "ጁባይል",
+      "tr": "Jubail"
     },
     {
       "ar": "القطيف",
       "en": "Qatif",
       "ur": "القطیف",
       "hi": "क़तीफ़",
-      "bn": "কাতিফ"
+      "bn": "কাতিফ",
+      "ml": "ഖാത്തിഫ്",
+      "fil": "Qatif",
+      "id": "Qatif",
+      "ne": "कटिफ",
+      "am": "ካቲፍ",
+      "tr": "Qatif"
     },
     {
       "ar": "الخبر",
       "en": "Khobar",
       "ur": "الخبر",
       "hi": "अल-ख़ोबर",
-      "bn": "আল-খোবার"
+      "bn": "আল-খোবার",
+      "ml": "ഖോബാർ",
+      "fil": "Ang Khobar",
+      "id": "Khobar",
+      "ne": "खबर",
+      "am": "ኮባር",
+      "tr": "Kobar"
     },
     {
       "ar": "الخفجي",
       "en": "Al-Khafji",
       "ur": "الخفجی",
       "hi": "अल-ख़फ़जी",
-      "bn": "আল-খাফজি"
+      "bn": "আল-খাফজি",
+      "ml": "അൽ ഖഫ്ജി",
+      "fil": "Al-Khafji",
+      "id": "Al-Khafji",
+      "ne": "अल-खफजी",
+      "am": "አል-ካፍጂ",
+      "tr": "Al-Khafji"
     },
     {
       "ar": "أبها",
       "en": "Abha",
       "ur": "ابہا",
       "hi": "अभा",
-      "bn": "আভা"
+      "bn": "আভা",
+      "ml": "അബാ",
+      "fil": "Ang Abha",
+      "id": "Abha",
+      "ne": "अबा",
+      "am": "አበበ",
+      "tr": "Abha"
     },
     {
       "ar": "خميس مشيط",
       "en": "Khamis Mushait",
       "ur": "خمیس مشیط",
       "hi": "ख़मीस मुशैत",
-      "bn": "খামিস মুশাইত"
+      "bn": "খামিস মুশাইত",
+      "ml": "ഖാമിസ് മുശൈത്",
+      "fil": "Khamis Mushait",
+      "id": "Khamis Mushait",
+      "ne": "खमीश मुशायत",
+      "am": "ካሚስ ሙሻይት",
+      "tr": "Khamis Mushait"
     },
     {
       "ar": "بيشة",
       "en": "Bisha",
       "ur": "بیشہ",
       "hi": "बीशा",
-      "bn": "বিশা"
+      "bn": "বিশা",
+      "ml": "ബീഷ",
+      "fil": "Bisha",
+      "id": "Bisha",
+      "ne": "बिसिया",
+      "am": "ቢሻ",
+      "tr": "Bisha"
     },
     {
       "ar": "تبوك",
       "en": "Tabuk",
       "ur": "تبوک",
       "hi": "तबूक",
-      "bn": "তাবুক"
+      "bn": "তাবুক",
+      "ml": "ടാബുക്ക്",
+      "fil": "Ang Tabuk",
+      "id": "Tabuk",
+      "ne": "ताबुक",
+      "am": "ታቡክ",
+      "tr": "Tabuk"
     },
     {
       "ar": "حائل",
       "en": "Hail",
       "ur": "حائل",
       "hi": "हाइल",
-      "bn": "হাইল"
+      "bn": "হাইল",
+      "ml": "ഹേലേ",
+      "fil": "Ang pag-ibig",
+      "id": "Selamat tinggal",
+      "ne": "हेलो",
+      "am": "ሰላምታ",
+      "tr": "Merhaba"
     },
     {
       "ar": "عرعر",
       "en": "Arar",
       "ur": "عرعر",
       "hi": "अरअर",
-      "bn": "আরআর"
+      "bn": "আরআর",
+      "ml": "അരാർ",
+      "fil": "Arar",
+      "id": "Arar",
+      "ne": "अरार",
+      "am": "አራር",
+      "tr": "Arar"
     },
     {
       "ar": "جازان",
       "en": "Jazan",
       "ur": "جازان",
       "hi": "जाज़ान",
-      "bn": "জাজান"
+      "bn": "জাজান",
+      "ml": "ജസാൻ",
+      "fil": "Si Jazan",
+      "id": "Jazan",
+      "ne": "जजान",
+      "am": "ጃዛን",
+      "tr": "Jazan"
     },
     {
       "ar": "نجران",
       "en": "Najran",
       "ur": "نجران",
       "hi": "नजरान",
-      "bn": "নাজরান"
+      "bn": "নাজরান",
+      "ml": "നജ്രാൻ",
+      "fil": "Nag-aalaga",
+      "id": "Najran",
+      "ne": "नाज्रान",
+      "am": "ናጅራን",
+      "tr": "Najran"
     },
     {
       "ar": "الباحة",
       "en": "Bahah",
       "ur": "الباحہ",
       "hi": "अल-बाहा",
-      "bn": "আল-বাহা"
+      "bn": "আল-বাহা",
+      "ml": "ബഹാ",
+      "fil": "Bahah",
+      "id": "Bahah",
+      "ne": "बाहा",
+      "am": "ባሃ",
+      "tr": "Bah bah"
     },
     {
       "ar": "سكاكا",
       "en": "Sakaka",
       "ur": "سکاکا",
       "hi": "सकाका",
-      "bn": "সাকাকা"
+      "bn": "সাকাকা",
+      "ml": "സകാ",
+      "fil": "Sakaka",
+      "id": "Sakaka",
+      "ne": "साकाका",
+      "am": "ሳካካ",
+      "tr": "Sakaka"
     },
     {
       "ar": "الهفوف",
       "en": "Hofuf",
       "ur": "الہفوف",
       "hi": "हुफ़ूफ़",
-      "bn": "হুফুফ"
+      "bn": "হুফুফ",
+      "ml": "ഹൊഫുഫ്",
+      "fil": "Ang mga bagay na ito",
+      "id": "Aku tidak tahu",
+      "ne": "होफूफ",
+      "am": "የሆፍፍ",
+      "tr": "Ne oldu?"
     },
     {
       "ar": "المبرز",
       "en": "Al-Mubarraz",
       "ur": "المبرز",
       "hi": "अल-मुबर्रज़",
-      "bn": "আল-মুবাররাজ"
+      "bn": "আল-মুবাররাজ",
+      "ml": "അൽ മുബറാജ്",
+      "fil": "Al-Mubarraz",
+      "id": "Al-Mubarraz",
+      "ne": "अल-मुबारज",
+      "am": "አል ሙባራዝ",
+      "tr": "Al-Mubarraz"
     },
     {
       "ar": "المجمعة",
       "en": "Al Majma'ah",
       "ur": "المجمعہ",
       "hi": "अल-मजमाअ",
-      "bn": "আল-মাজমা"
+      "bn": "আল-মাজমা",
+      "ml": "അൽ മജ്മാഅഹ്",
+      "fil": "Al Majma'ah",
+      "id": "Al Majma'ah",
+      "ne": "अल माजमा'ह",
+      "am": "አል ማጅማህ",
+      "tr": "Al Majma'ah"
     },
     {
       "ar": "عنيزة",
       "en": "Unayzah",
       "ur": "عنیزہ",
       "hi": "उनैज़ा",
-      "bn": "উনাইজা"
+      "bn": "উনাইজা",
+      "ml": "ഉനൈസ",
+      "fil": "Unayzah",
+      "id": "Unayzah",
+      "ne": "उनायजा",
+      "am": "ዩናይዛ",
+      "tr": "Unayzah"
     },
     {
       "ar": "قبة",
       "en": "Qibah",
       "ur": "قبہ",
       "hi": "क़िबा",
-      "bn": "কিবা"
+      "bn": "কিবা",
+      "ml": "ക്യാബാ",
+      "fil": "Ang Qibah",
+      "id": "Qibah",
+      "ne": "कबीह",
+      "am": "ቂባ",
+      "tr": "Qibah"
     },
     {
       "ar": "الأسياح",
       "en": "Al Asyah",
       "ur": "الاسیاح",
       "hi": "अल-अस्याह",
-      "bn": "আল-আসিয়াহ"
+      "bn": "আল-আসিয়াহ",
+      "ml": "അൽ അസ്യാ",
+      "fil": "Al Asyah",
+      "id": "Al Asyah",
+      "ne": "अल असियाह",
+      "am": "አል አሲያ",
+      "tr": "Al Asyah"
     },
     {
       "ar": "عيون الجواء",
       "en": "Uyun Al Jawa'",
       "ur": "عیون الجواء",
       "hi": "उयून अल-जवा",
-      "bn": "উয়ুন আল-জাওয়া"
+      "bn": "উয়ুন আল-জাওয়া",
+      "ml": "ഉയൂൻ അൽ ജാവ'",
+      "fil": "Uyun Al Jawa'",
+      "id": "Uyun Al Jawa'",
+      "ne": "उयुन अल जावा'",
+      "am": "ዩን አል ጃዋ'",
+      "tr": "Uyun Al Jawa'"
     },
     {
       "ar": "الرس",
       "en": "Ar Rass",
       "ur": "الرس",
       "hi": "अर-रस",
-      "bn": "আর-রাস"
+      "bn": "আর-রাস",
+      "ml": "അര് റാസ്",
+      "fil": "Ar Rass",
+      "id": "Ar Rass",
+      "ne": "आर रास",
+      "am": "አር ራስ",
+      "tr": "Ar Rass"
     },
     {
       "ar": "المذنب",
       "en": "Al Midhnab",
       "ur": "المذنب",
       "hi": "अल-मिधनब",
-      "bn": "আল-মিদনাব"
+      "bn": "আল-মিদনাব",
+      "ml": "അൽ മിധ്നബ്",
+      "fil": "Al Midhnab",
+      "id": "Al Midhnab",
+      "ne": "अल मिद्नब",
+      "am": "አል ሚድናብ",
+      "tr": "Al Midhnab"
     },
     {
       "ar": "رياض الخبراء",
       "en": "Riyad Al Khabra",
       "ur": "ریاض الخبراء",
       "hi": "रियाद अल-ख़बरा",
-      "bn": "রিয়াদ আল-খাবরা"
+      "bn": "রিয়াদ আল-খাবরা",
+      "ml": "റിയാദ് അൽ ഖബ്ര",
+      "fil": "Riyad Al Khabra",
+      "id": "Riyad Al Khabra",
+      "ne": "रियाद अल खबरा",
+      "am": "ሪያድ አል ክብራ",
+      "tr": "Riyad Al Khabra"
     },
     {
       "ar": "البدائع",
       "en": "Al Badai'",
       "ur": "البدائع",
       "hi": "अल-बदाइ",
-      "bn": "আল-বাদাই"
+      "bn": "আল-বাদাই",
+      "ml": "അൽ ബദായ്'",
+      "fil": "Al Badai'",
+      "id": "Al Badai'",
+      "ne": "अल बादाई'",
+      "am": "አል ባዳይ'",
+      "tr": "Al Badai'"
     },
     {
       "ar": "الخبراء",
       "en": "Al Khabra'",
       "ur": "الخبراء",
       "hi": "अल-ख़बरा",
-      "bn": "আল-খাবরা"
+      "bn": "আল-খাবরা",
+      "ml": "അൽ ഖബ്ര'",
+      "fil": "Al Khabra'",
+      "id": "Al Khabra'",
+      "ne": "अल खबरा'",
+      "am": "አል-ክብር'",
+      "tr": "Al Khabra'"
     },
     {
       "ar": "الهلالية",
       "en": "Al Hilaliyah",
       "ur": "الہلالیہ",
       "hi": "अल-हिलालिया",
-      "bn": "আল-হিলালিয়া"
+      "bn": "আল-হিলালিয়া",
+      "ml": "അൽ ഹിലിയാ",
+      "fil": "Al Hilaliyah",
+      "id": "Al Hilaliyah",
+      "ne": "अल हिलियाह",
+      "am": "አል ሂላሊያ",
+      "tr": "Al Hilaliyah"
     },
     {
       "ar": "البكيرية",
       "en": "Al Bukayriyah",
       "ur": "البکیریہ",
       "hi": "अल-बुकैरिया",
-      "bn": "আল-বুকাইরিয়া"
+      "bn": "আল-বুকাইরিয়া",
+      "ml": "അൽ ബുഖൈരിയാ",
+      "fil": "Al Bukayriyah",
+      "id": "Al Bukayriyah",
+      "ne": "अल बुकेरियाह",
+      "am": "አል ቡካሪያ",
+      "tr": "Al Bukayriyah"
     },
     {
       "ar": "الشماسية",
       "en": "Ash Shimasiyah",
       "ur": "الشماسیہ",
       "hi": "अश-शिमासिया",
-      "bn": "আশ-শিমাসিয়া"
+      "bn": "আশ-শিমাসিয়া",
+      "ml": "അശ് ഷിമസിയ",
+      "fil": "Ash Shimasiyah",
+      "id": "Ash Shimasiyah",
+      "ne": "अश्वशिमासीह",
+      "am": "አሽሚሳያ",
+      "tr": "Ash Shimasiyah"
     },
     {
       "ar": "عقلة الصقور",
       "en": "Uqlat As Suqur",
       "ur": "عقلۃ الصقور",
       "hi": "उक़लत अस-सुक़ूर",
-      "bn": "উকলাত আস-সুকুর"
+      "bn": "উকলাত আস-সুকুর",
+      "ml": "ഉക്ലാത്ത് സുകുര് എന്ന നിലയില്",
+      "fil": "Uqlat Bilang Suqur",
+      "id": "Uqlat sebagai Suqur",
+      "ne": "सुकुरको रूपमा उक्ल्त",
+      "am": "ኡክላጥ እንደ ሱኩር",
+      "tr": "Üklât, Sükur gibi"
     },
     {
       "ar": "النبهانية",
       "en": "An Nabhaniyah",
       "ur": "النبہانیہ",
       "hi": "अन-नभानिया",
-      "bn": "আন-নাবহানিয়া"
+      "bn": "আন-নাবহানিয়া",
+      "ml": "ഒരു നബാനിയ",
+      "fil": "Isang Nabhaniyah",
+      "id": "Sebuah Nabhaniyah",
+      "ne": "एक नबानीया",
+      "am": "ናቡንያ",
+      "tr": "Bir Nabaniyah"
     },
     {
       "ar": "المرموثة",
       "en": "Al Marmuthah",
       "ur": "المرموثہ",
       "hi": "अल-मरमूथा",
-      "bn": "আল-মারমুথা"
+      "bn": "আল-মারমুথা",
+      "ml": "അൽ മാർമുത",
+      "fil": "Al Marmuthah",
+      "id": "Al Marmuthah",
+      "ne": "अल मार्मुताह",
+      "am": "አል ማርሙታ",
+      "tr": "Al Marmuthah"
     },
     {
       "ar": "الهلالية",
       "en": "Al Halaliyah Dist.",
       "ur": "الهلالیہ محلہ",
       "hi": "अल-हिलालिया इलाका",
-      "bn": "আল-হিলালিয়া এলাকা"
+      "bn": "আল-হিলালিয়া এলাকা",
+      "ml": "അല് ഹലാലിയാഹ് ഡിസ്റ്റി.",
+      "fil": "Al Halaliyah Dist.",
+      "id": "Al Halaliyah Dist.",
+      "ne": "अल हलाल्याह डिस्ट.",
+      "am": "አል ሀላሊያህ ዲስት.",
+      "tr": "Al Halaliyah Bölgesi."
     },
     {
       "ar": "الرياض",
       "en": "Ar Riyadh Dist.",
       "ur": "الریاض محلہ",
       "hi": "अर-रियाद इलाका",
-      "bn": "আর-রিয়াদ এলাকা"
+      "bn": "আর-রিয়াদ এলাকা",
+      "ml": "റിയാദ് ഡിസ്ടി.",
+      "fil": "Ar Riyadh Dist.",
+      "id": "Dist. Riyadh",
+      "ne": "रियाद डिस्ट.",
+      "am": "የሪያድ ዲስት.",
+      "tr": "Riyadh Bölgesi."
     },
     {
       "ar": "القصيم",
       "en": "Al Qassim",
       "ur": "القصیم",
       "hi": "अल-क़सीम",
-      "bn": "আল-কাসিম"
+      "bn": "আল-কাসিম",
+      "ml": "അൽ ഖാസിം",
+      "fil": "Al Qassim",
+      "id": "Al Qassim",
+      "ne": "अल-कसीम",
+      "am": "አል ካሲም",
+      "tr": "Al Qassim"
     },
     {
       "ar": "الرياض",
       "en": "Riyadh Region",
       "ur": "ریاض ریجن",
       "hi": "रियाद क्षेत्र",
-      "bn": "রিয়াদ অঞ্চল"
+      "bn": "রিয়াদ অঞ্চল",
+      "ml": "റിയാദ് മേഖല",
+      "fil": "Rehiyon ng Riyadh",
+      "id": "Wilayah Riyadh",
+      "ne": "रियाद क्षेत्र",
+      "am": "የሪያድ ክልል",
+      "tr": "Riyadh Bölgesi"
     },
     {
       "ar": "المرقب",
       "en": "Al Marqab Dist.",
       "ur": "المرقب محلہ",
       "hi": "अल-मरक़ब इलाका",
-      "bn": "আল-মারকাব এলাকা"
+      "bn": "আল-মারকাব এলাকা",
+      "ml": "അൽ മാര് ക്കാബ് ഡിസ്റ്റി.",
+      "fil": "Al Marqab Dist.",
+      "id": "Al Marqab Dist.",
+      "ne": "अल-मर्कब डिस्ट.",
+      "am": "አል ማርቃብ ዲስት",
+      "tr": "Al Marqab Dist."
     },
     {
       "ar": "اليرموك",
       "en": "Al Yarmuk Dist.",
       "ur": "الیرموک محلہ",
       "hi": "अल-यरमूक इलाका",
-      "bn": "আল-ইয়ারমুক এলাকা"
+      "bn": "আল-ইয়ারমুক এলাকা",
+      "ml": "അല് യര് മുക് ഡിസ്റ്റില് .",
+      "fil": "Al Yarmuk Dist.",
+      "id": "Al Yarmuk Dist.",
+      "ne": "अल यार्मुक डिस्ट.",
+      "am": "አል ያርሙክ ዲስት.",
+      "tr": "Al Yarmuk Dist."
     },
     {
       "ar": "الفيحاء",
       "en": "Al Fayha Dist.",
       "ur": "الفیحاء محلہ",
       "hi": "अल-फ़ैहा इलाका",
-      "bn": "আল-ফাইহা এলাকা"
+      "bn": "আল-ফাইহা এলাকা",
+      "ml": "അല് ഫൈഹ ഡിസ്റ്റില് .",
+      "fil": "Al Fayha Dist.",
+      "id": "Al Fayha Dist.",
+      "ne": "अल फाईहा डिस्ट.",
+      "am": "አል ፋይሃ ዲስት.",
+      "tr": "Al Fayha Dist."
     },
     {
       "ar": "الملك فهد",
       "en": "King Fahd Dist.",
       "ur": "شاہ فهد محلہ",
       "hi": "शाह फ़हद इलाका",
-      "bn": "শাহ ফাহাদ এলাকা"
+      "bn": "শাহ ফাহাদ এলাকা",
+      "ml": "ഫഹദ് രാജാവ്",
+      "fil": "King Fahd Dist.",
+      "id": "Raja Fahd Dist.",
+      "ne": "राजा फहद डिस्ट.",
+      "am": "ንጉሥ ፋህድ ዲስት.",
+      "tr": "Kral Fahd Dist."
     },
     {
       "ar": "الملك سلمان",
       "en": "King Salman Dist.",
       "ur": "شاہ سلمان محلہ",
       "hi": "शाह सलमान इलाका",
-      "bn": "শাহ সালমান এলাকা"
+      "bn": "শাহ সালমান এলাকা",
+      "ml": "രാജാവ് സല് ലാം ഡിസ്റ്റി.",
+      "fil": "Si Hari Salman Dist.",
+      "id": "Raja Salman Dist.",
+      "ne": "राजा सलमान डिस्ट.",
+      "am": "ንጉሥ ሳልማን ዲስት.",
+      "tr": "Kral Salman Dist."
     },
     {
       "ar": "الملك عبدالعزيز",
       "en": "King Abdulaziz Dist.",
       "ur": "شاہ عبدالعزیز محلہ",
       "hi": "शाह अब्दुलअज़ीज़ इलाका",
-      "bn": "শাহ আবদুলআজিজ এলাকা"
+      "bn": "শাহ আবদুলআজিজ এলাকা",
+      "ml": "അബ്ദുലാസിദ് രാജാവ്",
+      "fil": "Hari Abdulaziz Dist.",
+      "id": "Raja Abdulaziz Dist.",
+      "ne": "राजा अब्दुलअज़ीज डिस्ट.",
+      "am": "ንጉሥ አብዱላዚዝ ዲስት.",
+      "tr": "Kral Abdulaziz Dist."
     },
     {
       "ar": "الاندلس",
       "en": "Al Andalus Dist.",
       "ur": "الاندلس محلہ",
       "hi": "अल-अंदलुस इलाका",
-      "bn": "আল-আন্দালুস এলাকা"
+      "bn": "আল-আন্দালুস এলাকা",
+      "ml": "അല് ആൻഡലസ് ഡിസ്റ്റിന് റെ",
+      "fil": "Al Andalus Dist.",
+      "id": "Al Andalus Dist.",
+      "ne": "अल अण्डलस डिस्ट.",
+      "am": "አል አንዳሉስ ዲስት.",
+      "tr": "Al Andalus Dist."
     },
     {
       "ar": "المطار",
       "en": "Al Matar Dist.",
       "ur": "المطار محلہ",
       "hi": "अल-मतार इलाका",
-      "bn": "আল-মাতার এলাকা"
+      "bn": "আল-মাতার এলাকা",
+      "ml": "അല് മാതര് ഡിസ്റ്റില് .",
+      "fil": "Al Matar Dist.",
+      "id": "Al Matar Dist.",
+      "ne": "अल मटर डिस्ट.",
+      "am": "አል ማታር ዲስት",
+      "tr": "Al Matar Dist."
     },
     {
       "ar": "الملك عبدالله",
       "en": "King Abdullah Dist.",
       "ur": "شاہ عبدالله محلہ",
       "hi": "शाह अब्दुल्लाह इलाका",
-      "bn": "শাহ আবদুল্লাহ এলাকা"
+      "bn": "শাহ আবদুল্লাহ এলাকা",
+      "ml": "രാജാവ് അബ്ദുള്ളാ ഡിസ്റ്റി.",
+      "fil": "King Abdullah Dist.",
+      "id": "Raja Abdullah Dist.",
+      "ne": "राजा अब्दुल्ला डिस्ट.",
+      "am": "ንጉሥ አብዱላ ዲስት.",
+      "tr": "Kral Abdullah Dist."
     },
     {
       "ar": "المنطقة الصناعية",
       "en": "Industrial Area",
       "ur": "صنعتی علاقہ",
       "hi": "औद्योगिक क्षेत्र",
-      "bn": "শিল্প এলাকা"
+      "bn": "শিল্প এলাকা",
+      "ml": "വ്യവസായ മേഖല",
+      "fil": "Lalagay ng industriya",
+      "id": "Area Industri",
+      "ne": "औद्योगिक क्षेत्र",
+      "am": "የኢንዱስትሪ አካባቢ",
+      "tr": "Sanayi Alanı"
     },
     {
       "ar": "الجامعيين",
       "en": "Al Jamiyin Dist.",
       "ur": "الجامعیین محلہ",
       "hi": "अल-जामियीन इलाका",
-      "bn": "আল-জামিইন এলাকা"
+      "bn": "আল-জামিইন এলাকা",
+      "ml": "അല് ജമിയിൻ ഡിസ്റ്റി.",
+      "fil": "Al Jamiyin Dist.",
+      "id": "Al Jamiyin Dist.",
+      "ne": "अल जमीइन डिस्ट.",
+      "am": "አል ጃሚይን ዲስት.",
+      "tr": "Al Jamiyin Dist."
     },
     {
       "ar": "المروج",
       "en": "Al Muruj Dist.",
       "ur": "المروج محلہ",
       "hi": "अल-मुरूज इलाका",
-      "bn": "আল-মুরুজ এলাকা"
+      "bn": "আল-মুরুজ এলাকা",
+      "ml": "അൽ മുറൂജ് ഡിസ്റ്റി.",
+      "fil": "Al Muruj Dist.",
+      "id": "Al Muruj Dist.",
+      "ne": "अल मुरुज डिस्ट.",
+      "am": "አል ሙሩጅ ዲስት.",
+      "tr": "Al Muruj Dist."
     },
     {
       "ar": "المستقبل",
       "en": "Al Mustaqbal Dist.",
       "ur": "المستقبل محلہ",
       "hi": "अल-मुस्तक़बल इलाका",
-      "bn": "আল-মুস্তাকবাল এলাকা"
+      "bn": "আল-মুস্তাকবাল এলাকা",
+      "ml": "അൽ മുസ്തക്ബൽ ഡിസ്റ്റി.",
+      "fil": "Al Mustaqbal Dist.",
+      "id": "Al Mustaqbal Dist.",
+      "ne": "अल मुस्तकबल डिस्ट.",
+      "am": "አል ሙስጠፋል ዲስት",
+      "tr": "Al Mustaqbal Dist."
     },
     {
       "ar": "اليرموك",
       "en": "Al Yarmouk Dist.",
       "ur": "الیرموک محلہ",
       "hi": "अल-यरमूक इलाका",
-      "bn": "আল-ইয়ারমুক এলাকা"
+      "bn": "আল-ইয়ারমুক এলাকা",
+      "ml": "അല് യര് മുക് ഡിസ്റ്റില് .",
+      "fil": "Al Yarmouk Dist.",
+      "id": "Al Yarmouk Dist.",
+      "ne": "अल यार्मुक डिस्ट.",
+      "am": "አል ያርሙክ ዲስት.",
+      "tr": "Al Yarmouk Bölgesi."
     },
     {
       "ar": "الرمال",
       "en": "Ar Rimal Dist.",
       "ur": "الرمال محلہ",
       "hi": "अर-रिमाल इलाका",
-      "bn": "আর-রিমাল এলাকা"
+      "bn": "আর-রিমাল এলাকা",
+      "ml": "അര് റിമല് ഡിസ്റ്റി.",
+      "fil": "Ar Rimal Dist.",
+      "id": "Ar Rimal Dist.",
+      "ne": "आर रिमाल डिस्ट.",
+      "am": "አር ሪማል ዲስት",
+      "tr": "Ar Rimal Dist."
     },
     {
       "ar": "المروة",
       "en": "Al Marwah Dist.",
       "ur": "المروہ محلہ",
       "hi": "अल-मरवा इलाका",
-      "bn": "আল-মারওয়া এলাকা"
+      "bn": "আল-মারওয়া এলাকা",
+      "ml": "അല് മാര് വഹ ഡിസ്റ്റി",
+      "fil": "Al Marwah Dist.",
+      "id": "Distribusi Al Marwah",
+      "ne": "अल मारवाह डिस्ट.",
+      "am": "አል ማርዋህ ዲስት.",
+      "tr": "Al Marwah Bölgesi."
     },
     {
       "ar": "الخضر",
       "en": "Al Khudar Dist.",
       "ur": "الخضر محلہ",
       "hi": "अल-ख़ुदर इलाका",
-      "bn": "আল-খুদার এলাকা"
+      "bn": "আল-খুদার এলাকা",
+      "ml": "അല് ഖുദര് ഡിസ്റ്റി.",
+      "fil": "Al Khudar Dist.",
+      "id": "Al Khudar Dist.",
+      "ne": "अल खुदार डिस्ट.",
+      "am": "አል ቹዳር ዲስት",
+      "tr": "Al Khudar Dist."
     },
     {
       "ar": "اللسيب",
       "en": "Al Lusayb Dist.",
       "ur": "اللسیب محلہ",
       "hi": "अल-लुसैब इलाका",
-      "bn": "আল-লুসাইব এলাকা"
+      "bn": "আল-লুসাইব এলাকা",
+      "ml": "അൽ ലൂസൈബ് ഡിസ്റ്റി.",
+      "fil": "Al Lusayb Dist.",
+      "id": "Al Lusayb Dist.",
+      "ne": "अल-लुसाइब डिस्ट.",
+      "am": "አል ሉሳይብ ዲስት",
+      "tr": "Al Lusayb Dist."
     },
     {
       "ar": "النور",
       "en": "Al Nur Dist.",
       "ur": "النور محلہ",
       "hi": "अन-नूर इलाका",
-      "bn": "আন-নুর এলাকা"
+      "bn": "আন-নুর এলাকা",
+      "ml": "അല് നൂർ ഡിസ്റ്റില് .",
+      "fil": "Al Nur Dist.",
+      "id": "Al Nur Dist.",
+      "ne": "अल नुर डिस्ट",
+      "am": "አል ኑር ዲስት",
+      "tr": "Al Nur Dist."
     },
     {
       "ar": "رواق",
       "en": "Rawaq Dist.",
       "ur": "رواق محلہ",
       "hi": "रवाक़ इलाका",
-      "bn": "রাওয়াক এলাকা"
+      "bn": "রাওয়াক এলাকা",
+      "ml": "റാവാക് ഡിസ്റ്റി.",
+      "fil": "Ang Rawaq Dist.",
+      "id": "Rawaq Dist.",
+      "ne": "रावक डिस्ट.",
+      "am": "ራውክ ዲስት.",
+      "tr": "Rawaq Dist."
     },
     {
       "ar": "القصيعة",
       "en": "Al Qusayah Dist.",
       "ur": "القصیعہ محلہ",
       "hi": "अल-क़ुसैया इलाका",
-      "bn": "আল-কুসাইয়া এলাকা"
+      "bn": "আল-কুসাইয়া এলাকা",
+      "ml": "അല് ഖുസയ്യാ ഡിസ്റ്റി.",
+      "fil": "Al Qusayah Dist.",
+      "id": "Al Qusayah Dist.",
+      "ne": "अल कुसाया डिस्ट.",
+      "am": "አል ኩሳያ ዲስት.",
+      "tr": "Al Qusayah Dist."
     },
     {
       "ar": "الغدير",
       "en": "Al Ghadir Dist.",
       "ur": "الغدیر محلہ",
       "hi": "अल-ग़दीर इलाका",
-      "bn": "আল-গাদির এলাকা"
+      "bn": "আল-গাদির এলাকা",
+      "ml": "അൽ ഗാദിര് ഡിസ്റ്റി.",
+      "fil": "Al Ghadir Dist.",
+      "id": "Al Ghadir Dist.",
+      "ne": "अल गदिर डिस्ट.",
+      "am": "አልጋዲር ዲስት",
+      "tr": "Al Ghadir Dist."
     },
     {
       "ar": "السالمية",
       "en": "As Salmiya Dist.",
       "ur": "السالمیہ محلہ",
       "hi": "अस-सालमिया इलाका",
-      "bn": "আস-সালমিয়া এলাকা"
+      "bn": "আস-সালমিয়া এলাকা",
+      "ml": "സല് മിയ ഡിസ്റ്റിന് റെ സ്ഥാനത്ത്.",
+      "fil": "Bilang Salmiya Dist.",
+      "id": "Sebagai Salmiya Dist.",
+      "ne": "सलमिया डिस्टको रूपमा।",
+      "am": "እንደ ሳልሚያ ዲስት.",
+      "tr": "Salmiya Dist. olarak."
     },
     {
       "ar": "الروابي",
       "en": "Al Rawabi Dist.",
       "ur": "الروابی محلہ",
       "hi": "अर-रवाबी इलाका",
-      "bn": "আর-রাওয়াবি এলাকা"
+      "bn": "আর-রাওয়াবি এলাকা",
+      "ml": "അല് റാവാബി ഡിസ്റ്റി.",
+      "fil": "Al Rawabi Dist.",
+      "id": "Al Rawabi Dist.",
+      "ne": "अल रावाबी डिस्ट.",
+      "am": "አል ራዋቢ ዲስት.",
+      "tr": "Al Rawabi Dist."
     },
     {
       "ar": "حويلان",
       "en": "Huwailan Dist.",
       "ur": "حویلان محلہ",
       "hi": "हुवैलान इलाका",
-      "bn": "হুওয়াইলান এলাকা"
+      "bn": "হুওয়াইলান এলাকা",
+      "ml": "ഹുവായലാൻ ഡിസ്റ്റി.",
+      "fil": "Huwailan Dist.",
+      "id": "Huwailan Dist.",
+      "ne": "Huwailan Dist.",
+      "am": "ሁዋላን ዲስት.",
+      "tr": "Huwailan Dist."
     },
     {
       "ar": "الصباخ",
       "en": "As Sabbakh Dist.",
       "ur": "الصباخ محلہ",
       "hi": "अस-सब्बाख़ इलाका",
-      "bn": "আস-সাব্বাখ এলাকা"
+      "bn": "আস-সাব্বাখ এলাকা",
+      "ml": "സബ്ബഖ് ഡിസ്റ്റിന് റെ സ്ഥാനത്ത്.",
+      "fil": "Bilang Sabbakh Dist.",
+      "id": "Sebagai Sabbakh Dist.",
+      "ne": "सबबख डिस्ट.",
+      "am": "እንደ ሳብባክ ዲስት.",
+      "tr": "Sabbakh Dist. olarak."
     },
     {
       "ar": "واسط",
       "en": "Wasit Dist.",
       "ur": "واسط محلہ",
       "hi": "वासित इलाका",
-      "bn": "ওয়াসিত এলাকা"
+      "bn": "ওয়াসিত এলাকা",
+      "ml": "അത് വിദൂരമായിരുന്നു.",
+      "fil": "Ito ay dist.",
+      "id": "Wasit Dist.",
+      "ne": "यो विषाक्त पदार्थ थियो ।",
+      "am": "የዳሰሳ ጥቃት",
+      "tr": "Bu bir şey."
     },
     {
       "ar": "خضيراء",
       "en": "Khudayra Dist.",
       "ur": "خضیراء محلہ",
       "hi": "ख़ुदैरा इलाका",
-      "bn": "খুদাইরা এলাকা"
+      "bn": "খুদাইরা এলাকা",
+      "ml": "ഖുദൈര ഡിസ്റ്റി.",
+      "fil": "Khudayra Dist.",
+      "id": "Khudayra Dist.",
+      "ne": "खुडयरा डिस्ट.",
+      "am": "የኩዳይራ ዲስት.",
+      "tr": "Khudayra Dist."
     },
     {
       "ar": "السلام",
       "en": "As Salam Dist.",
       "ur": "السلام محلہ",
       "hi": "अस-सलाम इलाका",
-      "bn": "আস-সালাম এলাকা"
+      "bn": "আস-সালাম এলাকা",
+      "ml": "സലാം ഡിസ്റ്റിന് റെ പേരായി.",
+      "fil": "Bilang Salam Dist.",
+      "id": "Sebagai Salam Dist.",
+      "ne": "सलाम डिस्टको रूपमा।",
+      "am": "እንደ ሳላም ዲስት.",
+      "tr": "Salam Dist olarak."
     },
     {
       "ar": "الجنوب",
       "en": "Al Janub Dist.",
       "ur": "الجنوب محلہ",
       "hi": "अल-जनूब इलाका",
-      "bn": "আল-জানুব এলাকা"
+      "bn": "আল-জানুব এলাকা",
+      "ml": "അൽ ജനുബ് ഡിസ്റ്റി.",
+      "fil": "Al Janub Dist.",
+      "id": "Al Janub Dist.",
+      "ne": "अल जानूब डिस्ट.",
+      "am": "አል ጃኑብ ዲስት.",
+      "tr": "Al Janub Dist."
     },
     {
       "ar": "الخليج",
       "en": "Al Khalij Dist.",
       "ur": "الخلیج محلہ",
       "hi": "अल-ख़लीज इलाका",
-      "bn": "আল-খালিজ এলাকা"
+      "bn": "আল-খালিজ এলাকা",
+      "ml": "അൽ ഖാലിജ് ഡിസ്റ്റി.",
+      "fil": "Al Khalij Dist.",
+      "id": "Al Khalij Dist.",
+      "ne": "अल खलिज डिस्ट.",
+      "am": "አል ካሊጅ ዲስት.",
+      "tr": "Al Khalij Dist."
     },
     {
       "ar": "الضاحي",
       "en": "Ad Dahi Dist.",
       "ur": "الضاحی محلہ",
       "hi": "अद-दाही इलाका",
-      "bn": "আদ-দাহি এলাকা"
+      "bn": "আদ-দাহি এলাকা",
+      "ml": "അദ് ദഹി ഡിസ്റ്റിന് റെ",
+      "fil": "Ad Dahi Dist.",
+      "id": "Ad Dahi Dist.",
+      "ne": "'अद दाही'",
+      "am": "የአድ ዳሂ ዲስት",
+      "tr": "Ad Dahi Dist."
     },
     {
       "ar": "خب البريدي",
       "en": "Khub Al Buraydi Dist.",
       "ur": "خب البریدی محلہ",
       "hi": "ख़ुब अल-बुरैदी इलाका",
-      "bn": "খুব আল-বুরাইদি এলাকা"
+      "bn": "খুব আল-বুরাইদি এলাকা",
+      "ml": "ഖുബ് അൽ ബുറൈദി ഡിസ്റ്റി.",
+      "fil": "Khub Al Buraydi Dist.",
+      "id": "Khub Al Buraydi Dist.",
+      "ne": "कुब अल बुरादी डिस्ट.",
+      "am": "ኩብ አል ቡራዲ ዲስት.",
+      "tr": "Khub Al Buraydi Dist."
     },
     {
       "ar": "السادة",
       "en": "As Sadah Dist.",
       "ur": "السادہ محلہ",
       "hi": "अस-सादा इलाका",
-      "bn": "আস-সাদা এলাকা"
+      "bn": "আস-সাদা এলাকা",
+      "ml": "സദാ ഡിസ്റ്റിന് റെ നിലയില് .",
+      "fil": "Bilang Sadah Dist.",
+      "id": "Sebagai Sadah Dist.",
+      "ne": "सादाह डिस्टको रूपमा।",
+      "am": "እንደ ሳዳ Dist.",
+      "tr": "Sadah Dist."
     },
     {
       "ar": "العريمضي",
       "en": "Al Uraymdi Dist.",
       "ur": "العریمضی محلہ",
       "hi": "अल-उरैमदी इलाका",
-      "bn": "আল-উরাইমদি এলাকা"
+      "bn": "আল-উরাইমদি এলাকা",
+      "ml": "അല് യുര്മി ഡിസ്റ്റി.",
+      "fil": "Al Uraymdi Dist.",
+      "id": "Distribusi Al Uraymdi",
+      "ne": "अल उरुमी डिस्ट.",
+      "am": "የአል ኡራሚዲ ዲስት.",
+      "tr": "Al Uraymdi Dist."
     },
     {
       "ar": "الهلال",
       "en": "Al Hilal Dist.",
       "ur": "الهلال محلہ",
       "hi": "अल-हिलाल इलाका",
-      "bn": "আল-হিলাল এলাকা"
+      "bn": "আল-হিলাল এলাকা",
+      "ml": "അല് ഹിലല് ഡിസ്റ്റി.",
+      "fil": "Al Hilal Dist.",
+      "id": "Al Hilal Dist.",
+      "ne": "अल हिलल डिस्ट.",
+      "am": "አል ሂላል ዲስት",
+      "tr": "Al Hilal Dist."
     },
     {
       "ar": "العجيبة",
       "en": "Al Ujaybah Dist.",
       "ur": "العجیبہ محلہ",
       "hi": "अल-उजैबा इलाका",
-      "bn": "আল-উজাইবা এলাকা"
+      "bn": "আল-উজাইবা এলাকা",
+      "ml": "അൽ ഉജയ്ബാ ഡിസ്റ്റി.",
+      "fil": "Al Ujaybah Dist.",
+      "id": "Al Ujaybah Dist.",
+      "ne": "अल उज्जयबाह डिस्ट.",
+      "am": "አል ኡጃይባ ዲስት.",
+      "tr": "Al Ujaybah Bölgesi."
     },
     {
       "ar": "البساتين",
       "en": "Al Basatin Dist.",
       "ur": "البساتین محلہ",
       "hi": "अल-बसातीन इलाका",
-      "bn": "আল-বাসাতিন এলাকা"
+      "bn": "আল-বাসাতিন এলাকা",
+      "ml": "അല് ബസതിന് ഡിസ്റ്റി.",
+      "fil": "Al Basatin Dist.",
+      "id": "Al Basatin Dist.",
+      "ne": "अल बासटिन डिस्ट.",
+      "am": "አል ባሳቲን ዲስት",
+      "tr": "Al Basatin Dist."
     },
     {
       "ar": "النسيم",
       "en": "Al Naseem Dist.",
       "ur": "النسیم محلہ",
       "hi": "अन-नसीम इलाका",
-      "bn": "আন-নাসিম এলাকা"
+      "bn": "আন-নাসিম এলাকা",
+      "ml": "അൽ നസീം ഡിസ്റ്റി.",
+      "fil": "Al Naseem Dist.",
+      "id": "Al Naseem Dist.",
+      "ne": "अल नसीम डिस्ट.",
+      "am": "አል ናሲም ዲስት",
+      "tr": "Al Naseem Dist."
     },
     {
       "ar": "الموطا",
       "en": "Al Mawta Dist.",
       "ur": "الموطا محلہ",
       "hi": "अल-मवता इलाका",
-      "bn": "আল-মাওতা এলাকা"
+      "bn": "আল-মাওতা এলাকা",
+      "ml": "അല് മൌത ഡിസ്റ്റില് .",
+      "fil": "Al Mawta Dist.",
+      "id": "Al Mawta Dist.",
+      "ne": "अल माउटा डिस्ट.",
+      "am": "አል ማውታ ዲስት",
+      "tr": "Al Mawta Dist."
     },
     {
       "ar": "التعليم",
       "en": "At Taalim Dist.",
       "ur": "التعلیم محلہ",
       "hi": "अत-तालीम इलाका",
-      "bn": "আত-তালিম এলাকা"
+      "bn": "আত-তালিম এলাকা",
+      "ml": "താലിം ഡിസ്റ്റില് .",
+      "fil": "Sa Taalim Dist.",
+      "id": "Di Taalim Dist.",
+      "ne": "तालिम डिस्टिमा ।",
+      "am": "በጣሊም ዲስት.",
+      "tr": "Taalim Dist."
     },
     {
       "ar": "الجردة",
       "en": "Al Jardah Dist.",
       "ur": "الجردہ محلہ",
       "hi": "अल-जरदा इलाका",
-      "bn": "আল-জারদা এলাকা"
+      "bn": "আল-জারদা এলাকা",
+      "ml": "അല് ജര് ദാ ഡിസ്റ്റി.",
+      "fil": "Al Jardah Dist.",
+      "id": "Al Jardah Dist.",
+      "ne": "अल जर्दाह डिस्ट.",
+      "am": "አል ጃርዳ ዲስት.",
+      "tr": "Al Jardah Bölgesi."
     },
     {
       "ar": "الصالحية",
       "en": "As Salhiyah Dist.",
       "ur": "الصالحیہ محلہ",
       "hi": "अस-सालहिया इलाका",
-      "bn": "আস-সালহিয়া এলাকা"
+      "bn": "আস-সালহিয়া এলাকা",
+      "ml": "സല് ഹിയാ ഡിസ്റ്റിന് റെ സ്ഥാനത്ത് .",
+      "fil": "Bilang Salhiyah Dist.",
+      "id": "Sebagai Salhiyah Dist.",
+      "ne": "साल्हीया डिस्टको रूपमा।",
+      "am": "እንደ ሳልሂያ ዲስት.",
+      "tr": "Salhiyah Dist. olarak."
     },
     {
       "ar": "المريديسية",
       "en": "Al Muraydisiyyah Dist.",
       "ur": "المریدیسیہ محلہ",
       "hi": "अल-मुरैदिसिया इलाका",
-      "bn": "আল-মুরাইদিসিয়া এলাকা"
+      "bn": "আল-মুরাইদিসিয়া এলাকা",
+      "ml": "അൽ മുറൈദീസിയാ ഡിസ്റ്റി.",
+      "fil": "Al Muraydisiyyah Dist.",
+      "id": "Al Muraydisiyyah Dist.",
+      "ne": "अल मुरायदीसियाह डिस्ट.",
+      "am": "አል ሙራዲሲያ ዲስት.",
+      "tr": "Al Muraydisiyyah Dist."
     },
     {
       "ar": "الشروق",
       "en": "Al Shorouq Dist.",
       "ur": "الشروق محلہ",
       "hi": "अश-शुरूक़ इलाका",
-      "bn": "আশ-শুরুক এলাকা"
+      "bn": "আশ-শুরুক এলাকা",
+      "ml": "അല് ഷോറൂക് ഡിസ്റ്റില് .",
+      "fil": "Al Shorouq Dist.",
+      "id": "Al Shorouq Dist.",
+      "ne": "अल शोरुक डिस्ट.",
+      "am": "አል ሹሩክ ዲስት.",
+      "tr": "Al Shorouq Dist."
     },
     {
       "ar": "خب الثنيان",
       "en": "Khub Ath Thanyan Dist.",
       "ur": "خب الثنیان محلہ",
       "hi": "ख़ुब अथ-थनयान इलाका",
-      "bn": "খুব আথ-থানিয়ান এলাকা"
+      "bn": "খুব আথ-থানিয়ান এলাকা",
+      "ml": "ഖുബ് അഥ് താനിയാൻ ഡിസ്റ്റിന് റെ",
+      "fil": "Khub Ath Thanyan Dist.",
+      "id": "Khub Ath Thanyan Dist.",
+      "ne": "कुब अथ थानियन डिस्ट.",
+      "am": "ክቡ አት ታንያን ዲስት.",
+      "tr": "Khub Ath Thanyan Dist."
     },
     {
       "ar": "الشماس",
       "en": "Ash Shammas Dist.",
       "ur": "الشماس محلہ",
       "hi": "अश-शम्मास इलाका",
-      "bn": "আশ-শাম্মাস এলাকা"
+      "bn": "আশ-শাম্মাস এলাকা",
+      "ml": "അഷ് ഷാമസ് ഡിസ്റ്റിന് .",
+      "fil": "Ang Ash Shammas Dist.",
+      "id": "Ash Shammas Dist.",
+      "ne": "आश् श्मा डिस्ट.",
+      "am": "የአሽ ሻማዎች ዲስት.",
+      "tr": "Ash Shammas Dist."
     },
     {
       "ar": "القادسية",
       "en": "Al Qadisiyah Dist.",
       "ur": "القادسیہ محلہ",
       "hi": "अल-क़ादिसिया इलाका",
-      "bn": "আল-কাদিসিয়া এলাকা"
+      "bn": "আল-কাদিসিয়া এলাকা",
+      "ml": "അൽ ഖദിസിയാ ഡിസ്റ്റി.",
+      "fil": "Al Qadisiyah Dist.",
+      "id": "Al Qadisiyah Dist.",
+      "ne": "अल-कदीसिया डिस्ट.",
+      "am": "አል ካዲሲያ ዲስት.",
+      "tr": "Al Qadisiyah Dist."
     },
     {
       "ar": "الصفا",
       "en": "As Safa Dist.",
       "ur": "الصفا محلہ",
       "hi": "अस-सफ़ा इलाका",
-      "bn": "আস-সাফা এলাকা"
+      "bn": "আস-সাফা এলাকা",
+      "ml": "സഫാ ഡിസ്റ്റിന് റെ സ്ഥാനത്ത്.",
+      "fil": "Bilang Safa Dist.",
+      "id": "Sebagai Safa Dist.",
+      "ne": "सफा डिस्टको रूपमा।",
+      "am": "እንደ ሳፋ ዲስት.",
+      "tr": "Safa Dist olarak."
     },
     {
       "ar": "الخبيب",
       "en": "Al Khabib Dist.",
       "ur": "الخبیب محلہ",
       "hi": "अल-ख़बीब इलाका",
-      "bn": "আল-খাবিব এলাকা"
+      "bn": "আল-খাবিব এলাকা",
+      "ml": "അൽ ഖബീബ് ഡിസ്റ്റി.",
+      "fil": "Al Khabib Dist.",
+      "id": "Al Khabib Dist.",
+      "ne": "अल-खबीब डिस्ट.",
+      "am": "አል ካቢብ ዲስት",
+      "tr": "Al Khabib Dist."
     },
     {
       "ar": "الربيع",
       "en": "Ar Rabie Dist.",
       "ur": "الربیع محلہ",
       "hi": "अर-रबी इलाका",
-      "bn": "আর-রাবি এলাকা"
+      "bn": "আর-রাবি এলাকা",
+      "ml": "അര് റാബി ഡിസ്റ്റിന് റെ",
+      "fil": "Ang Ar Rabie Dist.",
+      "id": "Ar Rabie Dist.",
+      "ne": "रबि डिस्ट.",
+      "am": "የአር ራቢ ዲስት.",
+      "tr": "Ar Rabie Dist."
     },
     {
       "ar": "الرفيعة",
       "en": "Ar Rafiah Dist.",
       "ur": "الرفیعہ محلہ",
       "hi": "अर-रफ़ीआ इलाका",
-      "bn": "আর-রাফিয়া এলাকা"
+      "bn": "আর-রাফিয়া এলাকা",
+      "ml": "അര് റഫിഅ ഡിസ്റ്റി.",
+      "fil": "Ar Rafiah Dist.",
+      "id": "Ar Rafiah Dist.",
+      "ne": "आर रफियाह डिस्ट.",
+      "am": "አር ራፊያ ዲስት.",
+      "tr": "Ar Rafiah Dist."
     },
     {
       "ar": "الزرقاء",
       "en": "Az Zarqa Dist.",
       "ur": "الزرقاء محلہ",
       "hi": "अज़-ज़रक़ा इलाका",
-      "bn": "আজ-জারকা এলাকা"
+      "bn": "আজ-জারকা এলাকা",
+      "ml": "അസ് സര് ക്കാ ഡിസ്റ്റി.",
+      "fil": "Az Zarqa Dist.",
+      "id": "Az Zarqa Dist.",
+      "ne": "अज ज़रक़ा डिस्ट.",
+      "am": "አዝ ዛርቃ ዲስት.",
+      "tr": "Az Zarqa Dist."
     },
     {
       "ar": "الحمر",
       "en": "Al Humar Dist.",
       "ur": "الحمر محلہ",
       "hi": "अल-हुमर इलाका",
-      "bn": "আল-হুমার এলাকা"
+      "bn": "আল-হুমার এলাকা",
+      "ml": "അല് ഹുമാര് ഡിസ്റ്റി.",
+      "fil": "Al Humar Dist.",
+      "id": "Al Humar Dist.",
+      "ne": "अल हुमार डिस्ट.",
+      "am": "አል ሁማር ዲስት",
+      "tr": "Al Humar Dist."
     },
     {
       "ar": "الشفق",
       "en": "Ash Shafaq Dist.",
       "ur": "الشفق محلہ",
       "hi": "अश-शफ़क़ इलाका",
-      "bn": "আশ-শাফাক এলাকা"
+      "bn": "আশ-শাফাক এলাকা",
+      "ml": "അഷ് ഷഫക് ഡിസ്റ്റി.",
+      "fil": "Ang Ash Shafaq Dist.",
+      "id": "Ash Shafaq Dist.",
+      "ne": "अश शाफक डिस्ट.",
+      "am": "የአሽ ሻፋክ ዲስት.",
+      "tr": "Ash Shafaq Dist."
     },
     {
       "ar": "القاع البارد",
       "en": "Al Qaa Al Barid Dist.",
       "ur": "القاع البارد محلہ",
       "hi": "अल-क़ा अल-बारिद इलाका",
-      "bn": "আল-কা আল-বারিদ এলাকা"
+      "bn": "আল-কা আল-বারিদ এলাকা",
+      "ml": "അൽ ഖാ അൽ ബരിദ് ഡിസ്റ്റിന് റെ",
+      "fil": "Al Qaa Al Barid Dist.",
+      "id": "Al Qaa Al Barid Dist.",
+      "ne": "अल-कआ अल-बरिद",
+      "am": "አልቃ አል ባሪድ ዲስት",
+      "tr": "Al Qaa Al Barid Dist."
     },
     {
       "ar": "المنار",
       "en": "Al Manar Dist.",
       "ur": "المنار محلہ",
       "hi": "अल-मनार इलाका",
-      "bn": "আল-মানার এলাকা"
+      "bn": "আল-মানার এলাকা",
+      "ml": "അല് മാനര് ഡിസ്റ്റില് .",
+      "fil": "Al Manar Dist.",
+      "id": "Al Manar Dist.",
+      "ne": "अल-मनार डिस्ट",
+      "am": "አል ማናር ዲስት",
+      "tr": "Al Manar Dist."
     },
     {
       "ar": "الوسيطا",
       "en": "Al Wusayta Dist.",
       "ur": "الوسیطا محلہ",
       "hi": "अल-वुसैता इलाका",
-      "bn": "আল-উসাইতা এলাকা"
+      "bn": "আল-উসাইতা এলাকা",
+      "ml": "അല് വുസൈത ഡിസ്റ്റി.",
+      "fil": "Al Wusayta Dist.",
+      "id": "Al Wusayta Dist.",
+      "ne": "अल वसाईता डिस्ट.",
+      "am": "አል ኡሳይታ ዲስት.",
+      "tr": "Al Wusayta Dist."
     },
     {
       "ar": "الربوة",
       "en": "Ar Rabwah Dist.",
       "ur": "الربوہ محلہ",
       "hi": "अर-रबवा इलाका",
-      "bn": "আর-রাবওয়া এলাকা"
+      "bn": "আর-রাবওয়া এলাকা",
+      "ml": "അര് റബ്വഹ ഡിസ്റ്റിന്",
+      "fil": "Ar Rabwah Dist.",
+      "id": "Distribusi Ar Rabwah",
+      "ne": "अर् रब्वाह डिस्ट.",
+      "am": "አር ራብዋ Dist.",
+      "tr": "Ar Rabwah Bölgesi."
     },
     {
       "ar": "المنتزه",
       "en": "Al Muntazah Dist.",
       "ur": "المنتزه محلہ",
       "hi": "अल-मुनतज़ह इलाका",
-      "bn": "আল-মুনতাজাহ এলাকা"
+      "bn": "আল-মুনতাজাহ এলাকা",
+      "ml": "അൽ മുന്തസഹാ ഡിസ്റ്റി.",
+      "fil": "Al Muntazah Dist.",
+      "id": "Al Muntazah Dist.",
+      "ne": "अल मुन्टाजाह डिस्ट.",
+      "am": "አል ሙንታዛ Dist.",
+      "tr": "Al Muntazah Dist."
     },
     {
       "ar": "الصفراء",
       "en": "As Safra Dist.",
       "ur": "الصفراء محلہ",
       "hi": "अस-सफ़रा इलाका",
-      "bn": "আস-সাফরা এলাকা"
+      "bn": "আস-সাফরা এলাকা",
+      "ml": "സഫ്ര ഡിസ്റ്റിന് റെ സ്ഥാനത്ത്.",
+      "fil": "Bilang Safra Dist.",
+      "id": "Sebagai Safra Dist.",
+      "ne": "सफ्रा डिस्टको रूपमा।",
+      "am": "እንደ ሳፍራ ዲስት",
+      "tr": "Safra Dist olarak."
     },
     {
       "ar": "النقع",
       "en": "An Naqa Dist.",
       "ur": "النقع محلہ",
       "hi": "अन-नक़ा इलाका",
-      "bn": "আন-নাকা এলাকা"
+      "bn": "আন-নাকা এলাকা",
+      "ml": "ഒരു നഖാ ഡിസ്റ്റിന് റെ",
+      "fil": "Isang Naqa Dist.",
+      "id": "Sebuah Naqa Dist.",
+      "ne": "एक नाक़ा डिस्ट.",
+      "am": "የናቃ ዲስት",
+      "tr": "Bir Naqa Dist."
     },
     {
       "ar": "الفايزية",
       "en": "Al Fayziyah Dist.",
       "ur": "الفایزیہ محلہ",
       "hi": "अल-फ़ैज़िया इलाका",
-      "bn": "আল-ফাইজিয়া এলাকা"
+      "bn": "আল-ফাইজিয়া এলাকা",
+      "ml": "അൽ ഫൈസിയാ ഡിസ്റ്റി.",
+      "fil": "Al Fayziyah Dist.",
+      "id": "Al Fayziyah Dist.",
+      "ne": "अल फाजीया डिस्ट.",
+      "am": "አል ፋይዚያ ዲስት.",
+      "tr": "Al Fayziyah Dist."
     },
     {
       "ar": "النخيل",
       "en": "Al Nakhil Dist.",
       "ur": "النخیل محلہ",
       "hi": "अन-नख़ील इलाका",
-      "bn": "আন-নাখিল এলাকা"
+      "bn": "আন-নাখিল এলাকা",
+      "ml": "അല് നഖില് ഡിസ്റ്റില് .",
+      "fil": "Al Nakhil Dist.",
+      "id": "Al Nakhil Dist.",
+      "ne": "अल नखिल डिस्ट.",
+      "am": "አል ናኪል ዲስት",
+      "tr": "Al Nakhil Dist."
     },
     {
       "ar": "الروضه",
       "en": "Ar Rawdah Dist.",
       "ur": "الروضه محلہ",
       "hi": "अर-रवदा इलाका",
-      "bn": "আর-রাওদা এলাকা"
+      "bn": "আর-রাওদা এলাকা",
+      "ml": "അര് റാവ്ദാ ഡിസ്റ്റിന് .",
+      "fil": "Ar Rawdah Dist.",
+      "id": "Ar Rawdah Dist.",
+      "ne": "आर राउदाह डिस्ट.",
+      "am": "አር ራውዳ ዲስት.",
+      "tr": "Ar Rawdah Dist."
     },
     {
       "ar": "النفل",
       "en": "An Nafl Dist.",
       "ur": "النفل محلہ",
       "hi": "अन-नफ़ल इलाका",
-      "bn": "আন-নাফাল এলাকা"
+      "bn": "আন-নাফাল এলাকা",
+      "ml": "ഒരു നാഫ്ല് ഡിസ്റ്റി.",
+      "fil": "Isang Nafl Dist.",
+      "id": "Sebuah Nafl Dist.",
+      "ne": "एक नेफ्ल डिस्ट.",
+      "am": "የናፍሎስ ዲስት.",
+      "tr": "Bir Nafl Dist."
     },
     {
       "ar": "الإسكان",
       "en": "Al Iskan Dist.",
       "ur": "الإسکان محلہ",
       "hi": "अल-इसकान इलाका",
-      "bn": "আল-ইসকান এলাকা"
+      "bn": "আল-ইসকান এলাকা",
+      "ml": "അല് ഇസ്കാന് ഡിസ്റ്റി.",
+      "fil": "Al Iskan Dist.",
+      "id": "Al Iskan Dist.",
+      "ne": "अल इस्कान डिस्ट.",
+      "am": "አል ኢስካን ዲስት.",
+      "tr": "Al Iskan Dist."
     },
     {
       "ar": "الأخضر",
       "en": "Al Akhdar Dist.",
       "ur": "الأخضر محلہ",
       "hi": "अल-अख़दर इलाका",
-      "bn": "আল-আখদার এলাকা"
+      "bn": "আল-আখদার এলাকা",
+      "ml": "അല് അഖ്ദര് ഡിസ്റ്റില് .",
+      "fil": "Al Akhdar Dist.",
+      "id": "Al Akhdar Dist.",
+      "ne": "अल-अखदार डिस्ट.",
+      "am": "አል አክዳር ዲስት",
+      "tr": "Al Akhdar Dist."
     },
     {
       "ar": "الشقة",
       "en": "Ash Shiqah Dist.",
       "ur": "الشقہ محلہ",
       "hi": "अश-शिक़ा इलाका",
-      "bn": "আশ-শিকা এলাকা"
+      "bn": "আশ-শিকা এলাকা",
+      "ml": "അഷ് ഷികാ ഡിസ്റ്റിന് .",
+      "fil": "Ang Ash Shiqah Dist.",
+      "id": "Ash Shiqah Dist.",
+      "ne": "अश शिखा जिल्ला",
+      "am": "የአሽ ሺቃ ዲስት.",
+      "tr": "Ash Shiqah Dist."
     },
     {
       "ar": "الرابية",
       "en": "Ar Rabiyah Dist.",
       "ur": "الرابیہ محلہ",
       "hi": "अर-राबिया इलाका",
-      "bn": "আর-রাবিয়া এলাকা"
+      "bn": "আর-রাবিয়া এলাকা",
+      "ml": "അര് റബിയാ ഡിസ്റ്റിന് .",
+      "fil": "Ar Rabiyah Dist.",
+      "id": "Ar Rabiyah Dist.",
+      "ne": "आर रबीया डिस्ट.",
+      "am": "አር ራቢያ ዲስት.",
+      "tr": "Ar Rabiyah Dist."
     },
     {
       "ar": "الريان",
       "en": "Ar Rayyan Dist.",
       "ur": "الریان محلہ",
       "hi": "अर-रय्यान इलाका",
-      "bn": "আর-রাইয়ান এলাকা"
+      "bn": "আর-রাইয়ান এলাকা",
+      "ml": "അര് റയന് ഡിസ്റ്റി.",
+      "fil": "Ar Rayyan Dist.",
+      "id": "Ar Rayyan Dist.",
+      "ne": "आर रयान डिस्ट.",
+      "am": "አር ሬያን ዲስት.",
+      "tr": "Ar Rayyan Dist."
     },
     {
       "ar": "النهضة",
       "en": "An Nahdah Dist.",
       "ur": "النهضہ محلہ",
       "hi": "अन-नहदा इलाका",
-      "bn": "আন-নাহদা এলাকা"
+      "bn": "আন-নাহদা এলাকা",
+      "ml": "ഒരു നഹ്ദാ ഡിസ്റ്റി.",
+      "fil": "Isang distritong Nahdah.",
+      "id": "Distribusi Nahdah.",
+      "ne": "एक नाहदा जिल्ला।",
+      "am": "ናህዳ ዲስት.",
+      "tr": "Nahdah Bölgesi."
     },
     {
       "ar": "الافق",
       "en": "Al Ufuq Dist.",
       "ur": "الافق محلہ",
       "hi": "अल-उफ़ुक़ इलाका",
-      "bn": "আল-উফুক এলাকা"
+      "bn": "আল-উফুক এলাকা",
+      "ml": "അല് ഉഫുഖ് ഡിസ്റ്റി.",
+      "fil": "Al Ufuq Dist.",
+      "id": "Al Ufuq Dist.",
+      "ne": "अल उफुक डिस्ट.",
+      "am": "አል ኡፉክ ዲስት",
+      "tr": "Al Ufuq Dist."
     },
     {
       "ar": "الورود",
       "en": "Al Wurud Dist.",
       "ur": "الورود محلہ",
       "hi": "अल-वुरूद इलाका",
-      "bn": "আল-উরুদ এলাকা"
+      "bn": "আল-উরুদ এলাকা",
+      "ml": "അല് വുറുദ് ഡിസ്റ്റി.",
+      "fil": "Al Wurud Dist.",
+      "id": "Al Wurud Dist.",
+      "ne": "अल-उरुद डिस्ट.",
+      "am": "አል ዎሩድ ዲስት",
+      "tr": "Al Wurud Dist."
     },
     {
       "ar": "الخزامى",
       "en": "Al Khuzama Dist.",
       "ur": "الخزامی محلہ",
       "hi": "अल-ख़ुज़ामा इलाका",
-      "bn": "আল-খুজামা এলাকা"
+      "bn": "আল-খুজামা এলাকা",
+      "ml": "അല് ഖുജാമ ഡിസ്റ്റി.",
+      "fil": "Al Khuzama Dist.",
+      "id": "Distribusi Al Khuzama",
+      "ne": "अल खुजामा डिस्ट.",
+      "am": "አል ኩዛማ ዲስት.",
+      "tr": "Al Khuzama Dist."
     },
     {
       "ar": "الجزيرة",
       "en": "Al Jazirah Dist.",
       "ur": "الجزیرہ محلہ",
       "hi": "अल-जज़ीरा इलाका",
-      "bn": "আল-জাজিরা এলাকা"
+      "bn": "আল-জাজিরা এলাকা",
+      "ml": "അൽ ജസീറ ഡിസ്റ്റി.",
+      "fil": "Al Jazirah Dist.",
+      "id": "Al Jazirah Dist.",
+      "ne": "अल जजीराह डिस्ट.",
+      "am": "አልጀዚራ ዲስት.",
+      "tr": "Al Jazirah Dist."
     },
     {
       "ar": "الرحاب",
       "en": "Al Rehab Dist.",
       "ur": "الرحاب محلہ",
       "hi": "अर-रिहाब इलाका",
-      "bn": "আর-রিহাব এলাকা"
+      "bn": "আর-রিহাব এলাকা",
+      "ml": "അല് റീഹാബ് ഡിസ്റ്റി.",
+      "fil": "Al Rehab Dist.",
+      "id": "Al Rehab Dist.",
+      "ne": "अल रिहाब डिस्ट.",
+      "am": "አል ሪሃብ ዲስት.",
+      "tr": "Al Rehab Dist."
     },
     {
       "ar": "الحزم",
       "en": "Al Hazm Dist.",
       "ur": "الحزم محلہ",
       "hi": "अल-हज़्म इलाका",
-      "bn": "আল-হাজম এলাকা"
+      "bn": "আল-হাজম এলাকা",
+      "ml": "അല് ഹസ്മ് ഡിസ്റ്റി.",
+      "fil": "Al Hazm Dist.",
+      "id": "Al Hazm Dist.",
+      "ne": "अल हाज्म डिस्ट.",
+      "am": "አል ሀዝም ዲስት",
+      "tr": "Al Hazm Dist."
     },
     {
       "ar": "الفاروق",
       "en": "Al Farouq Dist.",
       "ur": "الفاروق محلہ",
       "hi": "अल-फ़ारूक़ इलाका",
-      "bn": "আল-ফারুক এলাকা"
+      "bn": "আল-ফারুক এলাকা",
+      "ml": "അൽ ഫറൂഖ് ഡിസ്റ്റി.",
+      "fil": "Al Farouq Dist.",
+      "id": "Al Farouq Dist.",
+      "ne": "अल फ़ारुक डिस्ट.",
+      "am": "አል ፋሩክ ዲስት",
+      "tr": "Al Farouq Dist."
     },
     {
       "ar": "التشليح",
       "en": "At Tashlih Dist.",
       "ur": "التشلیح محلہ",
       "hi": "अत-तशलीह इलाका",
-      "bn": "আত-তাশলিহ এলাকা"
+      "bn": "আত-তাশলিহ এলাকা",
+      "ml": "താഷ്ലിഹ് ഡിസ്റ്റിന് റെ",
+      "fil": "Sa Tashlih Dist.",
+      "id": "Di Tashlih Dist.",
+      "ne": "ताशलिह डिस्टिङमा।",
+      "am": "በታሽሊህ ዲስት.",
+      "tr": "Tashlih Bölgesi'nde."
     },
     {
       "ar": "حطين",
       "en": "Hiteen Dist.",
       "ur": "حطین محلہ",
       "hi": "हित्तीन इलाका",
-      "bn": "হিত্তিন এলাকা"
+      "bn": "হিত্তিন এলাকা",
+      "ml": "ഹീറ്റൻ ഡിസ്റ്റി.",
+      "fil": "Hiteen Dist.",
+      "id": "Hiteen Dist.",
+      "ne": "हिटेन डिस्ट.",
+      "am": "ሂቴን ዲስት.",
+      "tr": "Hiteen Dist."
     },
     {
       "ar": "سنام",
       "en": "Snam Dist.",
       "ur": "سنام محلہ",
       "hi": "सनाम इलाका",
-      "bn": "সানাম এলাকা"
+      "bn": "সানাম এলাকা",
+      "ml": "സ്നാം ഡിസ്റ്റി.",
+      "fil": "Snam Dist.",
+      "id": "Snam Dist.",
+      "ne": "स्नाम डिस्ट.",
+      "am": "ስናም ዲስት.",
+      "tr": "Snam Dist."
     },
     {
       "ar": "الروضة",
       "en": "Ar Rawdah Dist.",
       "ur": "الروضہ محلہ",
       "hi": "अर-रवदा इलाका",
-      "bn": "আর-রাওদা এলাকা"
+      "bn": "আর-রাওদা এলাকা",
+      "ml": "അര് റാവ്ദാ ഡിസ്റ്റിന് .",
+      "fil": "Ar Rawdah Dist.",
+      "id": "Ar Rawdah Dist.",
+      "ne": "आर राउदाह डिस्ट.",
+      "am": "አር ራውዳ ዲስት.",
+      "tr": "Ar Rawdah Dist."
     },
     {
       "ar": "الدوحة",
       "en": "Ad Dawhah Dist.",
       "ur": "الدوحہ محلہ",
       "hi": "अद-दवहा इलाका",
-      "bn": "আদ-দাওহা এলাকা"
+      "bn": "আদ-দাওহা এলাকা",
+      "ml": "അദ് ദൌഹാ വിദൂര",
+      "fil": "Ad Dawhah Dist.",
+      "id": "Ad Dawhah Dist.",
+      "ne": "आदौहा डिस्ट.",
+      "am": "የአድ ዳውሃ ዲስት",
+      "tr": "Ad Dawhah Dist."
     },
     {
       "ar": "الحاجب",
       "en": "Al Hajeb Dist.",
       "ur": "الحاجب محلہ",
       "hi": "अल-हाजिब इलाका",
-      "bn": "আল-হাজিব এলাকা"
+      "bn": "আল-হাজিব এলাকা",
+      "ml": "അല് ഹജെബ് ഡിസ്റ്റി.",
+      "fil": "Al Hajeb Dist.",
+      "id": "Al Hajeb Dist.",
+      "ne": "अल-हजेब डिस्ट.",
+      "am": "አል ሀጄብ ዲስት.",
+      "tr": "Al Hajeb Dist."
     },
     {
       "ar": "الحفيرة",
       "en": "Al Hufayrah Dist.",
       "ur": "الحفیرہ محلہ",
       "hi": "अल-हुफ़ैरा इलाका",
-      "bn": "আল-হুফাইরা এলাকা"
+      "bn": "আল-হুফাইরা এলাকা",
+      "ml": "അൽ ഹുഫൈറ ഡിസ്റ്റിന് .",
+      "fil": "Al Hufayrah Dist.",
+      "id": "Al Hufayrah Dist.",
+      "ne": "अल हुफयराह डिस्ट.",
+      "am": "አል ሁፋይራ ዲስት.",
+      "tr": "Al Hufayrah Dist."
     },
     {
       "ar": "الملك خالد",
       "en": "King Khalid Dist.",
       "ur": "شاہ خالد محلہ",
       "hi": "शाह ख़ालिद इलाका",
-      "bn": "শাহ খালিদ এলাকা"
+      "bn": "শাহ খালিদ এলাকা",
+      "ml": "രാജാവ് ഖാലിദ് ഡിസ്റ്റി.",
+      "fil": "Hari Khalid Dist.",
+      "id": "Raja Khalid Dist.",
+      "ne": "राजा खालिद डिस्ट.",
+      "am": "ንጉሥ ካሊድ ዲስት",
+      "tr": "Kral Khalid Dist."
     },
     {
       "ar": "الرياضى",
       "en": "Ar Riyadi Dist.",
       "ur": "الریاضی محلہ",
       "hi": "अर-रियादी इलाका",
-      "bn": "আর-রিয়াদি এলাকা"
+      "bn": "আর-রিয়াদি এলাকা",
+      "ml": "അര് റിയാദി ഡിസ്റ്റിന്",
+      "fil": "Ar Riyadi Dist.",
+      "id": "Ar Riyadi Dist.",
+      "ne": "आर रियादी डिस्ट.",
+      "am": "አር ሪያዲ ዲስት.",
+      "tr": "Ar Riyadi Bölümü."
     },
     {
       "ar": "القيروان",
       "en": "Al Qirawan Dist.",
       "ur": "القیروان محلہ",
       "hi": "अल-क़ैरवान इलाका",
-      "bn": "আল-কাইরাওয়ান এলাকা"
+      "bn": "আল-কাইরাওয়ান এলাকা",
+      "ml": "അൽ കിറാവാൻ ഡിസ്റ്റി.",
+      "fil": "Al Qirawan Dist.",
+      "id": "Al Qirawan Dist.",
+      "ne": "अल-किरावान डिस्ट.",
+      "am": "አል ኪራዋን ዲስት",
+      "tr": "Al Qirawan Dist."
     },
     {
       "ar": "غرناطة",
       "en": "Ghirnatah Dist.",
       "ur": "غرناطہ محلہ",
       "hi": "ग़रनाता इलाका",
-      "bn": "গারনাতা এলাকা"
+      "bn": "গারনাতা এলাকা",
+      "ml": "ഗിര് നാഥാ ഡിസ്റ്റി.",
+      "fil": "Ghirnatah Dist.",
+      "id": "Ghirnatah Dist.",
+      "ne": "घिरनाताह डिस्ट.",
+      "am": "የጊርናታህ ዲስት.",
+      "tr": "Ghirnatah Bölgesi."
     },
     {
       "ar": "قرطبة",
       "en": "Qurtubah Dist.",
       "ur": "قرطبہ محلہ",
       "hi": "क़ुरतुबा इलाका",
-      "bn": "কুরতুবা এলাকা"
+      "bn": "কুরতুবা এলাকা",
+      "ml": "ക്ര് തുബാ ഡിസ്റ്റി.",
+      "fil": "Qurtubah Dist.",
+      "id": "Dist. Qurtubah",
+      "ne": "कर्टुबा डिस्ट.",
+      "am": "የኩርቱባ ዲስት.",
+      "tr": "Qurtubah Dist."
     },
     {
       "ar": "العقيق",
       "en": "Al Aqiq Dist.",
       "ur": "العقیق محلہ",
       "hi": "अल-अक़ीक़ इलाका",
-      "bn": "আল-আকিক এলাকা"
+      "bn": "আল-আকিক এলাকা",
+      "ml": "അല് അഖിഖ് ഡിസ്റ്റില് .",
+      "fil": "Al Aqiq Dist.",
+      "id": "Al Aqiq Dist.",
+      "ne": "अल अकिक़ा Dist.",
+      "am": "አል አኪቅ ዲስት",
+      "tr": "Al Aqiq Dist."
     },
     {
       "ar": "الشفاء",
       "en": "Ash Shifa Dist.",
       "ur": "الشفاء محلہ",
       "hi": "अश-शिफ़ा इलाका",
-      "bn": "আশ-শিফা এলাকা"
+      "bn": "আশ-শিফা এলাকা",
+      "ml": "അഷ് ഷിഫാ ഡിസ്റ്റി.",
+      "fil": "Ang Ash Shifa Dist.",
+      "id": "Ash Shifa Dist.",
+      "ne": "अश शिफा डिस्ट.",
+      "am": "የአሽ ሺፋ ዲስት.",
+      "tr": "Ash Shifa Dist."
     },
     {
       "ar": "السليمانية",
       "en": "As Sulimaniyah Dist.",
       "ur": "السلیمانیہ محلہ",
       "hi": "अस-सुलैमानिया इलाका",
-      "bn": "আস-সুলাইমানিয়া এলাকা"
+      "bn": "আস-সুলাইমানিয়া এলাকা",
+      "ml": "സുലൈമാനിഹാ ഡിസ്റ്റിന് റെ സ്ഥാനത്ത്.",
+      "fil": "Bilang Sulimaniyah Dist.",
+      "id": "Sebagai Sulimaniyah Dist.",
+      "ne": "सुलेमानिया डिस्ट.",
+      "am": "እንደ ሱሊማኒያ ዲስት.",
+      "tr": "Sulimaniyah Dist. olarak."
     },
     {
       "ar": "الوسطى",
       "en": "Al Wusta Dist.",
       "ur": "الوسطی محلہ",
       "hi": "अल-वुस्ता इलाका",
-      "bn": "আল-উসতা এলাকা"
+      "bn": "আল-উসতা এলাকা",
+      "ml": "അല് വുസ്ത ഡിസ്റ്റിന് റെ",
+      "fil": "Al Wusta Dist.",
+      "id": "Al Wusta Dist.",
+      "ne": "अल वस्टा डिस्ट",
+      "am": "አል ዊስታ ዲስት",
+      "tr": "Al Wusta Dist."
     },
     {
       "ar": "المنطقة الصناعية الثانية",
       "en": "2nd Industrial Area",
       "ur": "دوسرا صنعتی علاقہ",
       "hi": "दूसरा औद्योगिक क्षेत्र",
-      "bn": "দ্বিতীয় শিল্প এলাকা"
+      "bn": "দ্বিতীয় শিল্প এলাকা",
+      "ml": "രണ്ടാമത്തെ വ്യവസായ മേഖല",
+      "fil": "2nd Industrial Area",
+      "id": "Zona Industri Kedua",
+      "ne": "दोस्रो औद्योगिक क्षेत्र",
+      "am": "2ኛ የኢንዱስትሪ ዞን",
+      "tr": "2. Sanayi Bölgesi"
     },
     {
       "ar": "المنطقة الصناعية الاولى",
       "en": "1st Industrial Area",
       "ur": "پہلا صنعتی علاقہ",
       "hi": "पहला औद्योगिक क्षेत्र",
-      "bn": "প্রথম শিল্প এলাকা"
+      "bn": "প্রথম শিল্প এলাকা",
+      "ml": "ഒന്നാം വ്യവസായ മേഖല",
+      "fil": "1st Industrial Area",
+      "id": "Zona Industri Pertama",
+      "ne": "पहिलो औद्योगिक क्षेत्र",
+      "am": "1ኛ የኢንዱስትሪ ዞን",
+      "tr": "1. Sanayi Bölgesi"
     },
     {
       "ar": "المستودعات",
       "en": "Warehouse Dist.",
       "ur": "المستودعات محلہ",
       "hi": "गोदाम क्षेत्र इलाका",
-      "bn": "গুদাম এলাকা এলাকা"
+      "bn": "গুদাম এলাকা এলাকা",
+      "ml": "വെയർഹൌസ് ഡിസ്റ്റി.",
+      "fil": "Mga Disponsor ng Warehouse.",
+      "id": "Warehouse Dist.",
+      "ne": "गोदाम डिस्ट.",
+      "am": "መጋዘን ዲስት.",
+      "tr": "Depo Bölümü."
     },
     {
       "ar": "الهداء",
       "en": "Al Hadaa Dist.",
       "ur": "الهداء محلہ",
       "hi": "अल-हदा इलाका",
-      "bn": "আল-হাদা এলাকা"
+      "bn": "আল-হাদা এলাকা",
+      "ml": "അല് ഹദാ ഡിസ്റ്റി.",
+      "fil": "Al Hadaa Dist.",
+      "id": "Al Hadaa Dist.",
+      "ne": "अल-हदाउ डिस्ट.",
+      "am": "አል ሀዳዳ ዲስት.",
+      "tr": "Al Hadaa Dist."
     },
     {
       "ar": "المنتزة",
       "en": "Al Muntazah Dist.",
       "ur": "المنتزہ محلہ",
       "hi": "अल-मुनतज़ह इलाका",
-      "bn": "আল-মুনতাজাহ এলাকা"
+      "bn": "আল-মুনতাজাহ এলাকা",
+      "ml": "അൽ മുന്തസഹാ ഡിസ്റ്റി.",
+      "fil": "Al Muntazah Dist.",
+      "id": "Al Muntazah Dist.",
+      "ne": "अल मुन्टाजाह डिस्ट.",
+      "am": "አል ሙንታዛ Dist.",
+      "tr": "Al Muntazah Dist."
     },
     {
       "ar": "الرحمانية",
       "en": "Ar Rahmaniyah Dist.",
       "ur": "الرحمانیہ محلہ",
       "hi": "अर-रहमानिया इलाका",
-      "bn": "আর-রাহমানিয়া এলাকা"
+      "bn": "আর-রাহমানিয়া এলাকা",
+      "ml": "അര് റഹ്മാനിയാ ഡിസ്റ്റിന് .",
+      "fil": "Ar Rahmaniyah Dist.",
+      "id": "Ar Rahmaniyah Dist.",
+      "ne": "आर रहमानिया डिस्ट.",
+      "am": "አር ራህማኒያ ዲስት.",
+      "tr": "Ar Rahmaniyah Bölümü."
     },
     {
       "ar": "دمشية",
       "en": "Damshiah Dist.",
       "ur": "دمشیہ محلہ",
       "hi": "दमशिया इलाका",
-      "bn": "দামশিয়া এলাকা"
+      "bn": "দামশিয়া এলাকা",
+      "ml": "ദാംഷിയ ഡിസ്റ്റി.",
+      "fil": "Damshiah Dist.",
+      "id": "Damshiah Dist.",
+      "ne": "दम्शिया डिस्ट.",
+      "am": "ዳምሺያ ዲስት.",
+      "tr": "Damshiah Dist."
     },
     {
       "ar": "المحمدية",
       "en": "Al Muhammadiyah Dist.",
       "ur": "المحمدیہ محلہ",
       "hi": "अल-मुहम्मदिया इलाका",
-      "bn": "আল-মুহাম্মদিয়া এলাকা"
+      "bn": "আল-মুহাম্মদিয়া এলাকা",
+      "ml": "അൽ മുഹമ്മദിയാ ഡിസ്റ്റി.",
+      "fil": "Al Muhammadiyah Dist.",
+      "id": "Al Muhammadiyah Dist.",
+      "ne": "अल मुहम्मदियाह डिस्ट.",
+      "am": "አል ሙሐማዲያ ዲስት.",
+      "tr": "Al Muhammadiyah Dist."
     },
     {
       "ar": "العبسة",
       "en": "Al Absiah Dist.",
       "ur": "العبسہ محلہ",
       "hi": "अल-अबसिया इलाका",
-      "bn": "আল-আবাসিয়া এলাকা"
+      "bn": "আল-আবাসিয়া এলাকা",
+      "ml": "അല് അബ്സിയാ ഡിസ്റ്റി.",
+      "fil": "Al Absiah Dist.",
+      "id": "Al Absiah Dist.",
+      "ne": "अल अब्साह डिस्ट.",
+      "am": "አል አቢሲያ ዲስት.",
+      "tr": "Al Absiah Dist."
     },
     {
       "ar": "بدر",
       "en": "Badr Dist.",
       "ur": "بدر محلہ",
       "hi": "बद्र इलाका",
-      "bn": "বদর এলাকা"
+      "bn": "বদর এলাকা",
+      "ml": "ബാഡര് ഡിസ്റ്റി.",
+      "fil": "Badr Dist.",
+      "id": "Badr Dist.",
+      "ne": "Badr Dist.",
+      "am": "የባድር ዲስት.",
+      "tr": "Badr Dist."
     },
     {
       "ar": "الوهلان",
       "en": "Al Wahlan Dist.",
       "ur": "الوهلان محلہ",
       "hi": "अल-वहलान इलाका",
-      "bn": "আল-ওয়াহলান এলাকা"
+      "bn": "আল-ওয়াহলান এলাকা",
+      "ml": "അല് വഹ് ലാന് ഡിസ്റ്റി.",
+      "fil": "Al Wahlan Dist.",
+      "id": "Al Wahlan Dist.",
+      "ne": "अल वहलान डिस्ट.",
+      "am": "አል ዋላን ዲስት.",
+      "tr": "Al Wahlan Dist."
     },
     {
       "ar": "مليحة",
       "en": "Mlihah Dist.",
       "ur": "ملیحہ محلہ",
       "hi": "मुलैहा इलाका",
-      "bn": "মুলাইহা এলাকা"
+      "bn": "মুলাইহা এলাকা",
+      "ml": "മ്ലിഹാ ഡിസ്റ്റി.",
+      "fil": "Mlihah Dist.",
+      "id": "Mlihah Dist.",
+      "ne": "Mlihah Dist.",
+      "am": "ሚሊሃ ዲስት.",
+      "tr": "Mlihah Dist."
     },
     {
       "ar": "مربيدة",
       "en": "Marbidah Dist.",
       "ur": "مربیدہ محلہ",
       "hi": "मरबीदा इलाका",
-      "bn": "মারবিদা এলাকা"
+      "bn": "মারবিদা এলাকা",
+      "ml": "മാര് ബിദാ ഡിസ്റ്റി.",
+      "fil": "Marbidah Dist.",
+      "id": "Marbidah Dist.",
+      "ne": "मार्बिडाह डिस्ट.",
+      "am": "የማርቢዳ ዲስት.",
+      "tr": "Marbidah Dist."
     },
     {
       "ar": "العليا",
       "en": "Al Olaya Dist.",
       "ur": "العلیا محلہ",
       "hi": "अल-उलैया इलाका",
-      "bn": "আল-উলাইয়া এলাকা"
+      "bn": "আল-উলাইয়া এলাকা",
+      "ml": "അല് ഒലയ ഡിസ്റ്റി.",
+      "fil": "Al Olaya Dist.",
+      "id": "Al Olaya Dist.",
+      "ne": "अल ओल्या डिस्ट.",
+      "am": "አል ኦላያ ዲስት.",
+      "tr": "Al Olaya Dist."
     },
     {
       "ar": "وسط المدينة",
       "en": "City Center",
       "ur": "شہر کا مرکز",
       "hi": "शहर का केंद्र",
-      "bn": "শহরের কেন্দ্র"
+      "bn": "শহরের কেন্দ্র",
+      "ml": "സിറ്റി സെന്റർ",
+      "fil": "City Center",
+      "id": "Pusat Kota",
+      "ne": "शहरको केन्द्र",
+      "am": "የከተማው ማዕከል",
+      "tr": "Şehir Merkezi"
     },
     {
       "ar": "الريان",
       "en": "Ar Rayan Dist.",
       "ur": "الریان محلہ",
       "hi": "अर-रय्यान इलाका",
-      "bn": "আর-রাইয়ান এলাকা"
+      "bn": "আর-রাইয়ান এলাকা",
+      "ml": "അര് റയന് ഡിസ്റ്റി.",
+      "fil": "Ar Rayan Dist.",
+      "id": "Ar Rayan Dist.",
+      "ne": "आर रायन डिस्ट.",
+      "am": "አር ራያን ዲስት.",
+      "tr": "Ar Rayan Dist."
     },
     {
       "ar": "الفاخرية",
       "en": "Al Fakhriyah Dist.",
       "ur": "الفاخریہ محلہ",
       "hi": "अल-फ़ाख़रिया इलाका",
-      "bn": "আল-ফাখরিয়া এলাকা"
+      "bn": "আল-ফাখরিয়া এলাকা",
+      "ml": "അൽ ഫഖ്രിയാ ഡിസ്റ്റി.",
+      "fil": "Al Fakhriyah Dist.",
+      "id": "Al Fakhriyah Dist.",
+      "ne": "अल फखरियाह डिस्ट.",
+      "am": "አል ፋክሪያ ዲስት.",
+      "tr": "Al Fakhriyah Bölgesi."
     },
     {
       "ar": "النقيلية",
       "en": "An Nuqailiah Dist.",
       "ur": "النقیلیہ محلہ",
       "hi": "अन-नुक़ैलिया इलाका",
-      "bn": "আন-নুকাইলিয়া এলাকা"
+      "bn": "আন-নুকাইলিয়া এলাকা",
+      "ml": "ഒരു നുഖൈലിയ ഡിസ്റ്റി.",
+      "fil": "Isang Nuqailiah Dist.",
+      "id": "Sebuah Dist Nuqailiah.",
+      "ne": "नुकाइल्याह डिस्ट.",
+      "am": "የኑካይሊያ ዲስት.",
+      "tr": "Nuqailiah Dist."
     },
     {
       "ar": "السحيمية",
       "en": "As Suhaymiyyah Dist.",
       "ur": "السحیمیہ محلہ",
       "hi": "अस-सुहैमिया इलाका",
-      "bn": "আস-সুহাইমিয়া এলাকা"
+      "bn": "আস-সুহাইমিয়া এলাকা",
+      "ml": "സുഹൈമിയാ ഡിസ്റ്റിന് റെ പേരായി.",
+      "fil": "Bilang Suhaymiyyah Dist.",
+      "id": "Sebagai Suhaymiyyah Dist.",
+      "ne": "सुहामियाह डिस्ट.",
+      "am": "እንደ ሱሃይሚያ ዲስት.",
+      "tr": "Suhaymiyyah Dist. olarak."
     },
     {
       "ar": "البديعة",
       "en": "Al Badiah Dist.",
       "ur": "البدیعہ محلہ",
       "hi": "अल-बदिया इलाका",
-      "bn": "আল-বাদিয়া এলাকা"
+      "bn": "আল-বাদিয়া এলাকা",
+      "ml": "അല് ബദീയാ ഡിസ്റ്റി.",
+      "fil": "Al Badiah Dist.",
+      "id": "Al Badiah Dist.",
+      "ne": "अल बदियाह डिस्ट.",
+      "am": "አል ባዲያ ዲስት",
+      "tr": "Al Badiah Dist."
     },
     {
       "ar": "اشبيلية",
       "en": "Ishbiliyah Dist.",
       "ur": "اشبیلیہ محلہ",
       "hi": "इश्बीलिया इलाका",
-      "bn": "ইশবিলিয়া এলাকা"
+      "bn": "ইশবিলিয়া এলাকা",
+      "ml": "ഇഷ്ബിലിയാ ഡിസ്റ്റി.",
+      "fil": "Ishbiliyah Dist.",
+      "id": "Ishbiliyah Dist.",
+      "ne": "इश्बिलियाह डिस्ट.",
+      "am": "ኢሽቢሊያህ ዲስት.",
+      "tr": "İshbiliyah Dist."
     },
     {
       "ar": "العونية",
       "en": "Al Awniyah Dist.",
       "ur": "العونیہ محلہ",
       "hi": "अल-अवनिया इलाका",
-      "bn": "আল-আওনিয়া এলাকা"
+      "bn": "আল-আওনিয়া এলাকা",
+      "ml": "അല് അവ്നിയാ ഡിസ്റ്റി.",
+      "fil": "Al Awniyah Dist.",
+      "id": "Al Awniyah Dist.",
+      "ne": "अल-अवनीयाह डिस्ट.",
+      "am": "አል አዋኒያ ዲስት.",
+      "tr": "Al Awniyah Dist."
     },
     {
       "ar": "الحمراء",
       "en": "Al Hamra Dist.",
       "ur": "الحمراء محلہ",
       "hi": "अल-हमरा इलाका",
-      "bn": "আল-হামরা এলাকা"
+      "bn": "আল-হামরা এলাকা",
+      "ml": "അല് ഹംറ ഡിസ്റ്റില് .",
+      "fil": "Al Hamra Dist.",
+      "id": "Al Hamra Dist.",
+      "ne": "अल-हमरा डिस्ट.",
+      "am": "አል ሀምራ ዲስት",
+      "tr": "Al Hamra Dist."
     },
     {
       "ar": "الجامعي",
       "en": "Al Jamie Dist.",
       "ur": "الجامعی محلہ",
       "hi": "अल-जामिई इलाका",
-      "bn": "আল-জামিই এলাকা"
+      "bn": "আল-জামিই এলাকা",
+      "ml": "അല് ജാമി ഡിസ്റ്റി.",
+      "fil": "Al Jamie Dist.",
+      "id": "Al Jamie Dist.",
+      "ne": "अल जेमी डिस्ट.",
+      "am": "አል ጄሚ ዲስት",
+      "tr": "Al Jamie Dist."
     },
     {
       "ar": "اليمامة",
       "en": "Al Yamamah Dist.",
       "ur": "الیمامہ محلہ",
       "hi": "अल-यमामा इलाका",
-      "bn": "আল-ইয়ামামা এলাকা"
+      "bn": "আল-ইয়ামামা এলাকা",
+      "ml": "അല് യമമ ഡിസ്റ്റി.",
+      "fil": "Al Yamamah Dist.",
+      "id": "Al Yamamah Dist.",
+      "ne": "अल यामामा डिस्ट.",
+      "am": "አል ያማማ ዲስት.",
+      "tr": "Al Yamamah Bölgesi."
     },
     {
       "ar": "الاشرفية",
       "en": "Al Ashrafiyah Dist.",
       "ur": "الاشرفیہ محلہ",
       "hi": "अल-अशरफ़िया इलाका",
-      "bn": "আল-আশরাফিয়া এলাকা"
+      "bn": "আল-আশরাফিয়া এলাকা",
+      "ml": "അല് അഷ്റഫിയാ ഡിസ്റ്റിന് .",
+      "fil": "Al Ashrafiyah Dist.",
+      "id": "Al Ashrafiyah Dist.",
+      "ne": "अल अशराफियाह डिस्ट.",
+      "am": "አል አሽራፊያ ዲስት.",
+      "tr": "Al Ashrafiyah Bölgesi."
     },
     {
       "ar": "الروغاني",
       "en": "Ar Rawghani Dist.",
       "ur": "الروغانی محلہ",
       "hi": "अर-रवग़ानी इलाका",
-      "bn": "আর-রাওগানি এলাকা"
+      "bn": "আর-রাওগানি এলাকা",
+      "ml": "റൌഘാനി ഡിസ്റ്റിന് റെ റെ റെ",
+      "fil": "Ar Rawghani Dist.",
+      "id": "Ar Rawghani Dist.",
+      "ne": "आर रावगानी डिस्ट.",
+      "am": "አር ራውጋኒ ዲስት.",
+      "tr": "Ar Rawghani Dist."
     },
     {
       "ar": "الزهراء",
       "en": "Az Zahra Dist.",
       "ur": "الزهراء محلہ",
       "hi": "अज़-ज़हरा इलाका",
-      "bn": "আজ-জাহরা এলাকা"
+      "bn": "আজ-জাহরা এলাকা",
+      "ml": "അസ് ജഹ്റ ഡിസ്റ്റി.",
+      "fil": "Az Zahra Dist.",
+      "id": "Az Zahra Dist.",
+      "ne": "अज ज़हरा डिस्ट.",
+      "am": "አዝ ዛህራ ዲስት",
+      "tr": "Az Zahra Dist."
     },
     {
       "ar": "الصفراء",
       "en": "As Safraa Dist.",
       "ur": "الصفراء محلہ",
       "hi": "अस-सफ़रा इलाका",
-      "bn": "আস-সাফরা এলাকা"
+      "bn": "আস-সাফরা এলাকা",
+      "ml": "സഫ്രാ ഡിസ്റ്റിന് റെ സ്ഥാനത്ത്.",
+      "fil": "Bilang Safraa Dist.",
+      "id": "Sebagai Safraa Dist.",
+      "ne": "सफरा डिस्टको रूपमा।",
+      "am": "እንደ ሳፍራ ዲስት.",
+      "tr": "Safraa Dist. olarak."
     },
     {
       "ar": "المباركية",
       "en": "Al Mubarkiah Dist.",
       "ur": "المبارکیہ محلہ",
       "hi": "अल-मुबारकिया इलाका",
-      "bn": "আল-মুবারাকিয়া এলাকা"
+      "bn": "আল-মুবারাকিয়া এলাকা",
+      "ml": "അൽ മുബര് ക്കിയാ ഡിസ്റ്റിന് .",
+      "fil": "Al Mubarkiah Dist.",
+      "id": "Al Mubarkiah Dist.",
+      "ne": "अल मुबारकिया डिस्ट.",
+      "am": "አል ሙባርኪያ ዲስት.",
+      "tr": "Al Mubarkiah Dist."
     },
     {
       "ar": "المدوية",
       "en": "Al Mudwiah Dist.",
       "ur": "المدویہ محلہ",
       "hi": "अल-मुदविया इलाका",
-      "bn": "আল-মুদাওয়া এলাকা"
+      "bn": "আল-মুদাওয়া এলাকা",
+      "ml": "അൽ മുദ്വിയാ ഡിസ്റ്റി.",
+      "fil": "Al Mudwiah Dist.",
+      "id": "Al Mudwiah Dist.",
+      "ne": "अल मुदुविया डिस्ट.",
+      "am": "አል ሙድዋያ ዲስት.",
+      "tr": "Al Mudwiah Dist."
     },
     {
       "ar": "النظيم",
       "en": "An Nadheem Dist.",
       "ur": "النظیم محلہ",
       "hi": "अन-नज़ीम इलाका",
-      "bn": "আন-নাজিম এলাকা"
+      "bn": "আন-নাজিম এলাকা",
+      "ml": "ഒരു നദ്ഹീം ഡിസ്റ്റി.",
+      "fil": "Isang Nadheem Dist.",
+      "id": "Sebuah Nadheem Dist.",
+      "ne": "एक नादिम डिस्ट.",
+      "am": "ናዲም ዲስት",
+      "tr": "Nadheem Dist."
     },
     {
       "ar": "التحلية",
       "en": "At Tahliyah Dist.",
       "ur": "التحلیہ محلہ",
       "hi": "अत-तहलिया इलाका",
-      "bn": "আত-তাহলিয়া এলাকা"
+      "bn": "আত-তাহলিয়া এলাকা",
+      "ml": "താഹ്ലിയാ ഡിസ്റ്റിന് റെ റെ",
+      "fil": "Sa Tahliyah Dist.",
+      "id": "Di Tahliyah Dist.",
+      "ne": "ताहल्याह डिस्टिमा",
+      "am": "በጣሊያን ዲስት",
+      "tr": "Tahliyah Bölgesi'nde."
     },
     {
       "ar": "البستان",
       "en": "Al Bustan Dist.",
       "ur": "البستان محلہ",
       "hi": "अल-बुस्तान इलाका",
-      "bn": "আল-বুস্তান এলাকা"
+      "bn": "আল-বুস্তান এলাকা",
+      "ml": "അല് ബുസ്താന് ഡിസ്റ്റി.",
+      "fil": "Al Bustan Dist.",
+      "id": "Al Bustan Dist.",
+      "ne": "अल बुस्तान डिस्ट",
+      "am": "አል ቡስታን ዲስት",
+      "tr": "Al Bustan Dist."
     },
     {
       "ar": "الوفاء",
       "en": "Al Wafa Dist.",
       "ur": "الوفاء محلہ",
       "hi": "अल-वफ़ा इलाका",
-      "bn": "আল-ওয়াফা এলাকা"
+      "bn": "আল-ওয়াফা এলাকা",
+      "ml": "അല് വാഫ ഡിസ്റ്റി.",
+      "fil": "Al Wafa Dist.",
+      "id": "Al Wafa Dist.",
+      "ne": "अल वाफा डिस्ट.",
+      "am": "አል ዋፋ ዲስት.",
+      "tr": "Al Wafa Dist."
     },
     {
       "ar": "الزاهر",
       "en": "Az Zahir Dist.",
       "ur": "الزاهر محلہ",
       "hi": "अज़-ज़ाहिर इलाका",
-      "bn": "আজ-জাহির এলাকা"
+      "bn": "আজ-জাহির এলাকা",
+      "ml": "അസ് ജഹീര് ഡിസ്റ്റി.",
+      "fil": "Az Zahir Dist.",
+      "id": "Az Zahir Dist.",
+      "ne": "अज Zahir Dist.",
+      "am": "አዝ ዛሂር ዲስት",
+      "tr": "Az Zahir Dist."
     },
     {
       "ar": "الواحة",
       "en": "Al Wahah Dist.",
       "ur": "الواحہ محلہ",
       "hi": "अल-वाहा इलाका",
-      "bn": "আল-ওয়াহা এলাকা"
+      "bn": "আল-ওয়াহা এলাকা",
+      "ml": "അല് വാഹാ ഡിസ്റ്റി.",
+      "fil": "Al Wahah Dist.",
+      "id": "Al Wahah Dist.",
+      "ne": "अल वाहा डिस्ट.",
+      "am": "አል ዋሃ ዲስት.",
+      "tr": "Al Wahah Dist."
     },
     {
       "ar": "سوق الماشية",
       "en": "Suq Al Mashiya Dist.",
       "ur": "سوق الماشیہ محلہ",
       "hi": "सूक़ अल-माशिया इलाका",
-      "bn": "সুক আল-মাশিয়া এলাকা"
+      "bn": "সুক আল-মাশিয়া এলাকা",
+      "ml": "സുകുൽ മാശിയ ഡിസ്റ്റി.",
+      "fil": "Suq Al Mashiya Dist.",
+      "id": "Suq Al Mashiya Dist.",
+      "ne": "सुक अल मशीया डिस्ट.",
+      "am": "ሱቅ አል ማሺያ ዲስት",
+      "tr": "Suq Al Mashiya Dist."
     },
     {
       "ar": "الجلده",
       "en": "Al Jaldah Dist.",
       "ur": "الجلده محلہ",
       "hi": "अल-जलदा इलाका",
-      "bn": "আল-জালদা এলাকা"
+      "bn": "আল-জালদা এলাকা",
+      "ml": "അൽ ജല് ദാ ഡിസ്റ്റി",
+      "fil": "Al Jaldah Dist.",
+      "id": "Distribusi Al Jaldah",
+      "ne": "अल जल्दाह डिस्ट.",
+      "am": "አል ጃልዳ ዲስት.",
+      "tr": "Al Jaldah Bölgesi."
     },
     {
       "ar": "الندى",
       "en": "An Nada Dist.",
       "ur": "الندی محلہ",
       "hi": "अन-नदा इलाका",
-      "bn": "আন-নাদা এলাকা"
+      "bn": "আন-নাদা এলাকা",
+      "ml": "ഒരു നാഡ ഡിസ്റ്റിന് .",
+      "fil": "Isang Nada Dist.",
+      "id": "Tidak ada yang berbeda.",
+      "ne": "एउटा नाडा डिस्ट ।",
+      "am": "ምንም ዓይነት ልዩነት የለውም።",
+      "tr": "Hiçbir şey yok."
     },
     {
       "ar": "ربوة الحاجب",
       "en": "Rabwat Al Hajeb Dist.",
       "ur": "ربوہ الحاجب محلہ",
       "hi": "रबवत अल-हाजिब इलाका",
-      "bn": "রাবওয়াত আল-হাজিব এলাকা"
+      "bn": "রাবওয়াত আল-হাজিব এলাকা",
+      "ml": "റബ്വാത് അൽ ഹജബ് ഡിസ്റ്റി.",
+      "fil": "Rabwat Al Hajeb Dist.",
+      "id": "Rabwat Al Hajeb Dist.",
+      "ne": "रब्वत अल-हजेब डिस्ट.",
+      "am": "ራብዋት አል ሀጅብ ዲስት.",
+      "tr": "Rabwat Al Hajeb Dist."
     },
     {
       "ar": "الغضا",
       "en": "Al Kada Dist.",
       "ur": "الغضا محلہ",
       "hi": "अल-ग़दा इलाका",
-      "bn": "আল-গাদা এলাকা"
+      "bn": "আল-গাদা এলাকা",
+      "ml": "അല് കദ ഡിസ്റ്റില് .",
+      "fil": "Al Kada Dist.",
+      "id": "Al Kada Dist.",
+      "ne": "अल कडा डिस्ट",
+      "am": "አል ካዳ ዲስት",
+      "tr": "Al Kada Dist."
     },
     {
       "ar": "الشعيب",
       "en": "Ash Shuaib Dist.",
       "ur": "الشعیب محلہ",
       "hi": "अश-शुऐब इलाका",
-      "bn": "আশ-শুয়াইব এলাকা"
+      "bn": "আশ-শুয়াইব এলাকা",
+      "ml": "അശ് ഷുഐബ് ഡിസ്റ്റി.",
+      "fil": "Ang Ash Shuaib Dist.",
+      "id": "Ash Shuaib Dist.",
+      "ne": "अश शुआइब डिस्ट.",
+      "am": "የአሽ ሽዋይብ ዲስት.",
+      "tr": "Ash Shuaib Dist."
     },
     {
       "ar": "البويطن",
       "en": "Al Buaiten Dist.",
       "ur": "البویطن محلہ",
       "hi": "अल-बुवैतन इलाका",
-      "bn": "আল-বুওয়াইতান এলাকা"
+      "bn": "আল-বুওয়াইতান এলাকা",
+      "ml": "അല് ബുഅൈറ്റ് ഡിസ്റ്റി.",
+      "fil": "Al Buaiten Dist.",
+      "id": "Al Buaiten Dist.",
+      "ne": "अल बुआइटन डिस्ट.",
+      "am": "አል ቡአይቲን ዲስት.",
+      "tr": "Al Buaiten Dist."
     },
     {
       "ar": "النرجس",
       "en": "An Narjis Dist.",
       "ur": "النرجس محلہ",
       "hi": "अन-नरजिस इलाका",
-      "bn": "আন-নারজিস এলাকা"
+      "bn": "আন-নারজিস এলাকা",
+      "ml": "ഒരു നര് ജിസ് ഡിസ്റ്റി.",
+      "fil": "Isang Narjis Dist.",
+      "id": "Sebuah Narjis Dist.",
+      "ne": "एक नार्जीज डिस्ट.",
+      "am": "የናርጂስ ዲስት.",
+      "tr": "Bir Narjis Dist."
     },
     {
       "ar": "عكاظ",
       "en": "Uqaz Dist.",
       "ur": "عکاظ محلہ",
       "hi": "उकाज़ इलाका",
-      "bn": "উকাজ এলাকা"
+      "bn": "উকাজ এলাকা",
+      "ml": "ഉഖാസ് ഡിസ്റ്റി.",
+      "fil": "Uqaz Dist.",
+      "id": "Uqaz Dist.",
+      "ne": "उकाज डिस्ट.",
+      "am": "የኡቃዝ ዲስት.",
+      "tr": "Uqaz Dist."
     },
     {
       "ar": "النفود",
       "en": "An Nofoad Dist.",
       "ur": "النفود محلہ",
       "hi": "अन-नफ़ूद इलाका",
-      "bn": "আন-নাফুদ এলাকা"
+      "bn": "আন-নাফুদ এলাকা",
+      "ml": "ഒരു നോഫുഡ് ഡിസ്റ്റി.",
+      "fil": "Isang Nofoad Dist.",
+      "id": "Sebuah Nofoad Dist.",
+      "ne": "एउटा नोफोड डिस्ट.",
+      "am": "የከንቱ ምግብ ማጣሪያ።",
+      "tr": "Bir Nofoad Dist."
     },
     {
       "ar": "الوادي",
       "en": "Al Wadi Dist.",
       "ur": "الوادی محلہ",
       "hi": "अल-वादी इलाका",
-      "bn": "আল-ওয়াদি এলাকা"
+      "bn": "আল-ওয়াদি এলাকা",
+      "ml": "അല് വാദി ഡിസ്റ്റി.",
+      "fil": "Al Wadi Dist.",
+      "id": "Al Wadi Dist.",
+      "ne": "अल वादी डिस्ट.",
+      "am": "አል ዋዲ ዲስት.",
+      "tr": "Al Wadi Dist."
     },
     {
       "ar": "القصور",
       "en": "Al Qusor Dist.",
       "ur": "القصور محلہ",
       "hi": "अल-क़ुसूर इलाका",
-      "bn": "আল-কুসুর এলাকা"
+      "bn": "আল-কুসুর এলাকা",
+      "ml": "അല് കുസര് ഡിസ്റ്റില് .",
+      "fil": "Al Qusor Dist.",
+      "id": "Al Qusor Dist.",
+      "ne": "अल कुसर डिस्ट",
+      "am": "አል ኩሶር ዲስት",
+      "tr": "Al Qusor Dist."
     },
     {
       "ar": "الحديقة",
       "en": "Al Hadiqah Dist.",
       "ur": "الحدیقہ محلہ",
       "hi": "अल-हदीक़ा इलाका",
-      "bn": "আল-হাদিকা এলাকা"
+      "bn": "আল-হাদিকা এলাকা",
+      "ml": "അല് ഹദികാ ഡിസ്റ്റില് .",
+      "fil": "Al Hadiqah Dist.",
+      "id": "Al Hadiqah Dist.",
+      "ne": "अल हादीकहा डिस्ट.",
+      "am": "አል ሀዲቃ Dist.",
+      "tr": "Al Hadiqah Dist."
     },
     {
       "ar": "المصيف",
       "en": "Al Masif Dist.",
       "ur": "المصیف محلہ",
       "hi": "अल-मसीफ़ इलाका",
-      "bn": "আল-মাসিফ এলাকা"
+      "bn": "আল-মাসিফ এলাকা",
+      "ml": "അല് മാസിഫ് ഡിസ്റ്റി.",
+      "fil": "Al Masif Dist.",
+      "id": "Al Masif Dist.",
+      "ne": "अल मासिफ डिस्ट.",
+      "am": "አል ማሲፍ ዲስት.",
+      "tr": "Al Masif Dist."
     },
     {
       "ar": "الجوهرة",
       "en": "Al Jawharah Dist.",
       "ur": "الجوهرہ محلہ",
       "hi": "अल-जवहरा इलाका",
-      "bn": "আল-জাওহারা এলাকা"
+      "bn": "আল-জাওহারা এলাকা",
+      "ml": "അൽ ജവഹറാ ഡിസ്റ്റിന് .",
+      "fil": "Al Jawharah Dist.",
+      "id": "Distribusi Al Jawharah",
+      "ne": "अल-ज्वाहराह डिस्ट.",
+      "am": "አል ጃዋራ Dist.",
+      "tr": "Al Jawharah Dist."
     },
     {
       "ar": "الثقافة",
       "en": "Athaqafah Dist.",
       "ur": "الثقافہ محلہ",
       "hi": "अथ-थक़ाफ़ा इलाका",
-      "bn": "আথ-থাকাফা এলাকা"
+      "bn": "আথ-থাকাফা এলাকা",
+      "ml": "അഥഖ്ഫാ ഡിസ്റ്റി.",
+      "fil": "Athaqafah Dist.",
+      "id": "Distribusi Athaqafah",
+      "ne": "अथाकफाह डिस्ट.",
+      "am": "የአትካፋ ዲስት.",
+      "tr": "Athaqafah Dist."
     },
     {
       "ar": "الفخامة",
       "en": "Al Fakamah Dist.",
       "ur": "الفخامہ محلہ",
       "hi": "अल-फ़ख़ामा इलाका",
-      "bn": "আল-ফাখামা এলাকা"
+      "bn": "আল-ফাখামা এলাকা",
+      "ml": "അല് ഫഖാമ ഡിസ്റ്റി.",
+      "fil": "Al Fakamah Dist.",
+      "id": "Al Fakamah Dist.",
+      "ne": "अल फकमाह डिस्ट.",
+      "am": "አል ፋካማ Dist.",
+      "tr": "Al Fakamah Bölgesi."
     },
     {
       "ar": "الفيصلية",
       "en": "Al Faisaliyah Dist.",
       "ur": "الفیصلیہ محلہ",
       "hi": "अल-फ़ैसलिया इलाका",
-      "bn": "আল-ফাইসালিয়া এলাকা"
+      "bn": "আল-ফাইসালিয়া এলাকা",
+      "ml": "അൽ ഫൈസാലിയാ ഡിസ്റ്റി.",
+      "fil": "Al Faisaliyah Dist.",
+      "id": "Al Faisaliyah Dist.",
+      "ne": "अल फैसालिहा डिस्ट.",
+      "am": "አል ፋይሳሊያ ዲስት.",
+      "tr": "Al Faisaliyah Dist."
     },
     {
       "ar": "الزغيبة",
       "en": "Az Zugaibah Dist.",
       "ur": "الزغیبہ محلہ",
       "hi": "अज़-ज़ुग़ैबा इलाका",
-      "bn": "আজ-জুগাইবা এলাকা"
+      "bn": "আজ-জুগাইবা এলাকা",
+      "ml": "അസ് ജുഗൈബാ ഡിസ്റ്റി.",
+      "fil": "Az Zugaibah Dist.",
+      "id": "Az Zugaibah Dist.",
+      "ne": "अज जुगाईबाह डिस्ट.",
+      "am": "አዝ ዙጋይባ ዲስት.",
+      "tr": "Az Zugaibah Bölgesi."
     },
     {
       "ar": "الاسكان",
       "en": "Al Iskan Dist.",
       "ur": "الاسکان محلہ",
       "hi": "अल-इसकान इलाका",
-      "bn": "আল-ইসকান এলাকা"
+      "bn": "আল-ইসকান এলাকা",
+      "ml": "അല് ഇസ്കാന് ഡിസ്റ്റി.",
+      "fil": "Al Iskan Dist.",
+      "id": "Al Iskan Dist.",
+      "ne": "अल इस्कान डिस्ट.",
+      "am": "አል ኢስካን ዲስት.",
+      "tr": "Al Iskan Dist."
     },
     {
       "ar": "المنتزة",
       "en": "Al Montazah Dist.",
       "ur": "المنتزہ محلہ",
       "hi": "अल-मुनतज़ह इलाका",
-      "bn": "আল-মুনতাজাহ এলাকা"
+      "bn": "আল-মুনতাজাহ এলাকা",
+      "ml": "അല് മോന് റ്റാസാ ഡിസ്റ്റിന് റെ",
+      "fil": "Al Montazah Dist.",
+      "id": "Al Montazah Dist.",
+      "ne": "अल मोन्टाजाह डिस्ट.",
+      "am": "አል ሞንታዛ Dist.",
+      "tr": "Al Montazah Dist."
     },
     {
       "ar": "الروضة",
       "en": "Al Rawdah Dist.",
       "ur": "الروضہ محلہ",
       "hi": "अर-रवदा इलाका",
-      "bn": "আর-রাওদা এলাকা"
+      "bn": "আর-রাওদা এলাকা",
+      "ml": "അല് റൌദ ഡിസ്റ്റില് .",
+      "fil": "Al Rawdah Dist.",
+      "id": "Al Rawdah Dist.",
+      "ne": "अल राउदाह डिस्ट.",
+      "am": "አል ራውዳ ዲስት",
+      "tr": "Al Rawdah Dist."
     },
     {
       "ar": "الزهرة",
       "en": "Al Zahrah Dist.",
       "ur": "الزهرہ محلہ",
       "hi": "अज़-ज़हरा इलाका",
-      "bn": "আজ-জাহরা এলাকা"
+      "bn": "আজ-জাহরা এলাকা",
+      "ml": "അൽ ജഹ്റാ ഡിസ്റ്റി.",
+      "fil": "Al Zahrah Dist.",
+      "id": "Al Zahrah Dist.",
+      "ne": "अल-जहरह डिस्ट.",
+      "am": "አል ዛህራ ዲስት.",
+      "tr": "Al Zahrah Dist."
     },
     {
       "ar": "العزيزية",
       "en": "Al Aziziyah Dist.",
       "ur": "العزیزیہ محلہ",
       "hi": "अल-अज़ीज़िया इलाका",
-      "bn": "আল-আজিজিয়া এলাকা"
+      "bn": "আল-আজিজিয়া এলাকা",
+      "ml": "അല് അസീസിയാ ഡിസ്റ്റി.",
+      "fil": "Al Aziziyah Dist.",
+      "id": "Al Aziziyah Dist.",
+      "ne": "अल-अज़ीज़ियाह डिस्ट.",
+      "am": "አል አዚዚያ ዲስት.",
+      "tr": "Al Aziziyah Dist."
     },
     {
       "ar": "الازهار",
       "en": "Al Azhar Dist.",
       "ur": "الازهار محلہ",
       "hi": "अल-अज़हार इलाका",
-      "bn": "আল-আজহার এলাকা"
+      "bn": "আল-আজহার এলাকা",
+      "ml": "അല് അസഹര് ഡിസ്റ്റി",
+      "fil": "Al Azhar Dist.",
+      "id": "Al Azhar Dist.",
+      "ne": "अल अजर डिस्ट.",
+      "am": "አል አዛር ዲስት",
+      "tr": "Al Azhar Dist."
     },
     {
       "ar": "النزهة",
       "en": "Al Nuzhah Dist.",
       "ur": "النزهہ محلہ",
       "hi": "अन-नुज़्हा इलाका",
-      "bn": "আন-নুজহা এলাকা"
+      "bn": "আন-নুজহা এলাকা",
+      "ml": "അല് നുജാഹ് ഡിസ്റ്റി.",
+      "fil": "Al Nuzhah Dist.",
+      "id": "Al Nuzhah Dist.",
+      "ne": "अल नुजाह डिस्ट.",
+      "am": "አል ኑዛህ ዲስት.",
+      "tr": "Al Nuzhah Dist."
     },
     {
       "ar": "النهضة",
       "en": "Al Nahdah Dist.",
       "ur": "النهضہ محلہ",
       "hi": "अन-नहदा इलाका",
-      "bn": "আন-নাহদা এলাকা"
+      "bn": "আন-নাহদা এলাকা",
+      "ml": "അല് നഹ്ദാ ഡിസ്റ്റിന് .",
+      "fil": "Al Nahdah Dist.",
+      "id": "Distribusi Al Nahdah",
+      "ne": "अल नाहदा डिस्ट.",
+      "am": "የአል ናህዳ ዲስት.",
+      "tr": "Al Nahdah Bölgesi."
     },
     {
       "ar": "الاستراحات",
       "en": "Al Estrahat Dist.",
       "ur": "الاستراحات محلہ",
       "hi": "अल-इस्तिराहात इलाका",
-      "bn": "আল-ইস্তিরাহাত এলাকা"
+      "bn": "আল-ইস্তিরাহাত এলাকা",
+      "ml": "അല് എസ്ട്രാഹാത് ഡിസ്റ്റി.",
+      "fil": "Al Estrahat Dist.",
+      "id": "Al Estrahat Dist.",
+      "ne": "अल इस्ट्राहट डिस्ट.",
+      "am": "አል ኢስትራሃት ዲስት.",
+      "tr": "Al Estrahat Dist."
     },
     {
       "ar": "خصيبة",
       "en": "Khusayyibah Dist.",
       "ur": "خصیبہ محلہ",
       "hi": "ख़ुसैबा इलाका",
-      "bn": "খুসাইবা এলাকা"
+      "bn": "খুসাইবা এলাকা",
+      "ml": "ഖുസൈയിബ ഡിസ്റ്റി.",
+      "fil": "Khusayyibah Dist.",
+      "id": "Khusayyibah Dist.",
+      "ne": "खुसाईबीह डिस्ट.",
+      "am": "የኩሴይይባ ዲስት.",
+      "tr": "Khusayyibah Bölgesi."
     },
     {
       "ar": "البرود",
       "en": "Al Burud Dist.",
       "ur": "البرود محلہ",
       "hi": "अल-बुरूद इलाका",
-      "bn": "আল-বুরুদ এলাকা"
+      "bn": "আল-বুরুদ এলাকা",
+      "ml": "അല് ബുറുദ് ഡിസ്റ്റില് .",
+      "fil": "Al Burud Dist.",
+      "id": "Al Burud Dist.",
+      "ne": "अल बुरुड डिस्ट",
+      "am": "አል ቡሩድ ዲስት",
+      "tr": "Al Burud Dist."
     },
     {
       "ar": "الفهيد",
       "en": "Al Fuhaid Dist.",
       "ur": "الفهید محلہ",
       "hi": "अल-फ़ुहैद इलाका",
-      "bn": "আল-ফুহাইদ এলাকা"
+      "bn": "আল-ফুহাইদ এলাকা",
+      "ml": "അല് ഫുഹൈദ് ഡിസ്റ്റി.",
+      "fil": "Al Fuhaid Dist.",
+      "id": "Al Fuhaid Dist.",
+      "ne": "अल फुहाइड डिस्ट.",
+      "am": "አልፉሃይድ ዲስት",
+      "tr": "Al Fuhaid Dist."
     },
     {
       "ar": "الخزان",
       "en": "Al Khazzan Dist.",
       "ur": "الخزان محلہ",
       "hi": "अल-ख़ज़्ज़ान इलाका",
-      "bn": "আল-খাজ্জান এলাকা"
+      "bn": "আল-খাজ্জান এলাকা",
+      "ml": "അൽ ഖസാൻ ഡിസ്റ്റി.",
+      "fil": "Al Khazzan Dist.",
+      "id": "Al Khazzan Dist.",
+      "ne": "अल-खाजान डिस्ट.",
+      "am": "አል ካዛን ዲስት.",
+      "tr": "Al Khazzan Dist."
     },
     {
       "ar": "التعليم",
       "en": "At Talim Dist.",
       "ur": "التعلیم محلہ",
       "hi": "अत-तालीम इलाका",
-      "bn": "আত-তালিম এলাকা"
+      "bn": "আত-তালিম এলাকা",
+      "ml": "താലിം ഡിസ്റ്റില് .",
+      "fil": "Sa Talim Dist.",
+      "id": "Di Talim Dist.",
+      "ne": "तालिम डिस्टिमा",
+      "am": "በጣሊም ዲስት.",
+      "tr": "Talim Dist'de."
     },
     {
       "ar": "النزهة",
       "en": "An Nuzhah Dist.",
       "ur": "النزهہ محلہ",
       "hi": "अन-नुज़्हा इलाका",
-      "bn": "আন-নুজহা এলাকা"
+      "bn": "আন-নুজহা এলাকা",
+      "ml": "ഒരു നുജാഹ് ഡിസ്റ്റി.",
+      "fil": "Isang Nuzhah Dist.",
+      "id": "Sebuah Dist Nuzhah.",
+      "ne": "एक नुजहा डिस्ट.",
+      "am": "የኑዛህ ዲስት.",
+      "tr": "Bir Nuzhah Dist."
     },
     {
       "ar": "الاحتفالات",
       "en": "Al Ihtifalat Dist.",
       "ur": "الاحتفالات محلہ",
       "hi": "अल-इहतिफ़ालात इलाका",
-      "bn": "আল-ইহতিফালাত এলাকা"
+      "bn": "আল-ইহতিফালাত এলাকা",
+      "ml": "അല് ഇഹതിഫലത് ഡിസ്റ്റി.",
+      "fil": "Al Ihtifalat Dist.",
+      "id": "Al Ihtifalat Dist.",
+      "ne": "अल इख्तिफल्त डिस्ट.",
+      "am": "አል ኢሂታፋላት ዲስት.",
+      "tr": "Al Ihtifalat Dist."
     },
     {
       "ar": "الصناعية",
       "en": "As Sinaiyah Dist.",
       "ur": "الصناعیہ محلہ",
       "hi": "अस-सिनाइया इलाका",
-      "bn": "আস-সিনাইয়া এলাকা"
+      "bn": "আস-সিনাইয়া এলাকা",
+      "ml": "സിനിഹാ ഡിസ്റ്റിന് റെ സ്ഥാനത്ത്.",
+      "fil": "Bilang Sinaiyah Dist.",
+      "id": "Sebagai Sinaiyah Dist.",
+      "ne": "सिनाईया जिल्लाको रूपमा।",
+      "am": "እንደ ሲናይያ ዲስት.",
+      "tr": "Sinaiyah Bölgesi olarak."
     },
     {
       "ar": "الجندل",
       "en": "Al Jandal Dist.",
       "ur": "الجندل محلہ",
       "hi": "अल-जंदल इलाका",
-      "bn": "আল-জানদাল এলাকা"
+      "bn": "আল-জানদাল এলাকা",
+      "ml": "അല് ജന് ഡല് ഡിസ്റ്റി.",
+      "fil": "Al Jandal Dist.",
+      "id": "Al Jandal Dist.",
+      "ne": "अल जण्डल डिस्ट.",
+      "am": "አል ጃንዳል ዲስት",
+      "tr": "Al Jandal Dist."
     },
     {
       "ar": "وادي الرمة",
       "en": "Wadi Ar Rimma Dist.",
       "ur": "وادی الرمہ محلہ",
       "hi": "वादी अर-रिम्मा इलाका",
-      "bn": "ওয়াদি আর-রিম্মা এলাকা"
+      "bn": "ওয়াদি আর-রিম্মা এলাকা",
+      "ml": "വദി ആര് റിംമ ഡിസ്റ്റി.",
+      "fil": "Wadi Ar Rimma Dist.",
+      "id": "Wadi Ar Rimma Dist.",
+      "ne": "वादी अर रिम्मा डिस्ट.",
+      "am": "የዋዲ አር ሪማ ዲስት.",
+      "tr": "Wadi Ar Rimma Dist."
     },
     {
       "ar": "الملك فيصل",
       "en": "King Faisal Dist.",
       "ur": "شاہ فیصل محلہ",
       "hi": "शाह फ़ैसल इलाका",
-      "bn": "শাহ ফাইসাল এলাকা"
+      "bn": "শাহ ফাইসাল এলাকা",
+      "ml": "ഫെയ്സല് രാജാവ് ഡിസ്റ്റി.",
+      "fil": "King Faisal Dist.",
+      "id": "Raja Faisal Dist.",
+      "ne": "राजा फैसल डिस्ट.",
+      "am": "ንጉሥ ፋይሳል ዲስት.",
+      "tr": "Kral Faisal Dist."
     },
     {
       "ar": "الزهرة",
       "en": "Az Zahrah Dist.",
       "ur": "الزهرہ محلہ",
       "hi": "अज़-ज़हरा इलाका",
-      "bn": "আজ-জাহরা এলাকা"
+      "bn": "আজ-জাহরা এলাকা",
+      "ml": "അസ് ജഹ്റാ ഡിസ്റ്റി.",
+      "fil": "Az Zahrah Dist.",
+      "id": "Az Zahrah Dist.",
+      "ne": "अजजहराह डिस्ट.",
+      "am": "አዝ ዛህራ ዲስት",
+      "tr": "Az Zahrah Dist."
     },
     {
       "ar": "السعادة",
       "en": "As Saadah Dist.",
       "ur": "السعادہ محلہ",
       "hi": "अस-सआदा इलाका",
-      "bn": "আস-সাআদা এলাকা"
+      "bn": "আস-সাআদা এলাকা",
+      "ml": "സദാ ഡിസ്റ്റിന് റെ പേരായി.",
+      "fil": "Bilang Saadah Dist.",
+      "id": "Sebagai Saadah Dist.",
+      "ne": "सादाह डिस्टको रूपमा।",
+      "am": "እንደ ሳዳዳ ዲስት",
+      "tr": "Saadah Dist. olarak."
     },
     {
       "ar": "قصر بن عقيل",
       "en": "Qasr Ibn Aqil Dist.",
       "ur": "قصر بن عقیل محلہ",
       "hi": "क़स्र इब्न अक़ील इलाका",
-      "bn": "কাসর ইবন আকিল এলাকা"
+      "bn": "কাসর ইবন আকিল এলাকা",
+      "ml": "ഖസ്ര ഇബ്നു അഖിലി ഡിസ്റ്റി.",
+      "fil": "Qasr Ibn Aqil Dist.",
+      "id": "Qasr Ibn Aqil Dist.",
+      "ne": "कसर इब्न अक्किल",
+      "am": "ካስር ኢብኑ አኪል ዲስት.",
+      "tr": "Qasr Ibn Aqil Dist."
     },
     {
       "ar": "الحوطة",
       "en": "Al Hutah Dist.",
       "ur": "الحوطہ محلہ",
       "hi": "अल-हूता इलाका",
-      "bn": "আল-হুতা এলাকা"
+      "bn": "আল-হুতা এলাকা",
+      "ml": "അൽ ഹുതഹ് ഡിസ്റ്റി.",
+      "fil": "Al Hutah Dist.",
+      "id": "Al Hutah Dist.",
+      "ne": "अल हुताह डिस्ट.",
+      "am": "አል ሁታ ዲስት",
+      "tr": "Al Hutah Dist."
     },
     {
       "ar": "المدينة",
       "en": "Al Madinah Dist.",
       "ur": "المدینہ محلہ",
       "hi": "अल-मदीना इलाका",
-      "bn": "আল-মদিনা এলাকা"
+      "bn": "আল-মদিনা এলাকা",
+      "ml": "അൽ മദീന ഡിസ്റ്റില് .",
+      "fil": "Al Madinah Dist.",
+      "id": "Al Madinah Dist.",
+      "ne": "अल-मदिना डिस्ट.",
+      "am": "አል ማዲና ዲስት",
+      "tr": "Al Madinah Dist."
     },
     {
       "ar": "الروابي",
       "en": "Ar Rawabi Dist.",
       "ur": "الروابی محلہ",
       "hi": "अर-रवाबी इलाका",
-      "bn": "আর-রাওয়াবি এলাকা"
+      "bn": "আর-রাওয়াবি এলাকা",
+      "ml": "റാവാബി ഡിസ്റ്റിന് റെ",
+      "fil": "Ar Rawabi Dist.",
+      "id": "Ar Rawabi Dist.",
+      "ne": "आर रावाबी डिस्ट.",
+      "am": "አር ራዋቢ ዲስት.",
+      "tr": "Ar Rawabi Dist."
     },
     {
       "ar": "الجريف",
       "en": "Al Juraif Dist.",
       "ur": "الجریف محلہ",
       "hi": "अल-जुरैफ़ इलाका",
-      "bn": "আল-জুরাইফ এলাকা"
+      "bn": "আল-জুরাইফ এলাকা",
+      "ml": "അൽ ജുറൈഫ് ഡിസ്റ്റി.",
+      "fil": "Al Juraif Dist.",
+      "id": "Al Juraif Dist.",
+      "ne": "अल ज्युराइफ डिस्ट.",
+      "am": "አል ጁራይፍ ዲስት.",
+      "tr": "Al Juraif Dist."
     },
     {
       "ar": "بهجة",
       "en": "Bahjah Dist.",
       "ur": "بهجہ محلہ",
       "hi": "बहजा इलाका",
-      "bn": "বাহজা এলাকা"
+      "bn": "বাহজা এলাকা",
+      "ml": "ബഹജാ ഡിസ്റ്റി.",
+      "fil": "Bahjah Dist.",
+      "id": "Bahjah Dist.",
+      "ne": "बाहजा डिस्ट.",
+      "am": "የባህጃ ዲስት.",
+      "tr": "Bahjah Dist."
     },
     {
       "ar": "الشنانة الشمالية",
       "en": "Al Shinanah Ash Shamaliyyah Dist.",
       "ur": "الشنانہ الشمالیہ محلہ",
       "hi": "अश-शिनाना उत्तरी इलाका",
-      "bn": "আশ-শিনানা উত্তর এলাকা"
+      "bn": "আশ-শিনানা উত্তর এলাকা",
+      "ml": "അൽ ഷിനാനാ അഷ് ഷമലിയാ ഡിസ്റ്റിന്",
+      "fil": "Al Shinanah Ash Shamaliyyah Dist.",
+      "id": "Al Shinanah Ash Shamaliyyah Dist.",
+      "ne": "अल शिनानाह अश् शमालीया जिल्ला",
+      "am": "አል ሺናና አሽ ሻማሊያ ዲስት.",
+      "tr": "Al Shinanah Ash Shamaliyyah Bölgesi."
     },
     {
       "ar": "الالغربي",
       "en": "Al Gharbi Dist.",
       "ur": "الالغربی محلہ",
       "hi": "अल-ग़रबी इलाका",
-      "bn": "আল-গারবি এলাকা"
+      "bn": "আল-গারবি এলাকা",
+      "ml": "അല് ഗര് ബി ഡിസ്റ്റി.",
+      "fil": "Al Gharbi Dist.",
+      "id": "Al Gharbi Dist.",
+      "ne": "अल घर्बी डिस्ट.",
+      "am": "አል ጋርቢ ዲስት.",
+      "tr": "Al Gharbi Dist."
     },
     {
       "ar": "الريان",
       "en": "Ar Rayyan  Dist.",
       "ur": "الریان محلہ",
       "hi": "अर-रय्यान इलाका",
-      "bn": "আর-রাইয়ান এলাকা"
+      "bn": "আর-রাইয়ান এলাকা",
+      "ml": "അര് റയന് ഡിസ്റ്റി.",
+      "fil": "Ar Rayyan Dist.",
+      "id": "Ar Rayyan Dist.",
+      "ne": "आर रयान डिस्ट.",
+      "am": "አር ሬያን ዲስት.",
+      "tr": "Ar Rayyan Dist."
     },
     {
       "ar": "سوق الماشيه الجديد",
       "en": "Suq Mashiya Al Jadid Dist.",
       "ur": "سوق الماشیه الجدید محلہ",
       "hi": "नया सूक़ अल-माशिया इलाका",
-      "bn": "নতুন সুক আল-মাশিয়া এলাকা"
+      "bn": "নতুন সুক আল-মাশিয়া এলাকা",
+      "ml": "സുകു മാശിയ അൽ ജാദിദ് ഡിസ്റ്റി.",
+      "fil": "Suq Mashiya Al Jadid Dist.",
+      "id": "Suq Mashiya Al Jadid Dist.",
+      "ne": "सुक मशीया अल जदीद डिस्ट.",
+      "am": "ሱቅ ማሺያ አል ጃዲድ ዲስት",
+      "tr": "Suq Mashiya Al Jadid Dist."
     },
     {
       "ar": "الشنانة الجنوبية",
       "en": "Al Shinanah Al Janubiyah Dist.",
       "ur": "الشنانہ الجنوبیہ محلہ",
       "hi": "अश-शिनाना दक्षिणी इलाका",
-      "bn": "আশ-শিনানা দক্ষিণ এলাকা"
+      "bn": "আশ-শিনানা দক্ষিণ এলাকা",
+      "ml": "അൽ ഷിനാനാഹ് അൽ ജാനുബിയാ ഡിസ്റ്റി.",
+      "fil": "Al Shinanah Al Janubiyah Dist.",
+      "id": "Al Shinanah Al Janubiyah Dist.",
+      "ne": "अल शिनानाह अल जनुबियाह डिस्ट.",
+      "am": "አል ሺናና አል ጃኑቢያ Dist.",
+      "tr": "Al Shinanah Al Janubiyah Bölgesi."
     },
     {
       "ar": "الجديدة",
       "en": "Al Jadidah Dist.",
       "ur": "الجدیدہ محلہ",
       "hi": "अल-जदीदा इलाका",
-      "bn": "আল-জাদিদা এলাকা"
+      "bn": "আল-জাদিদা এলাকা",
+      "ml": "അൽ ജദീദാ ഡിസ്റ്റി.",
+      "fil": "Al Jadidah Dist.",
+      "id": "Al Jadidah Dist.",
+      "ne": "अल जदीदा जिल्ला",
+      "am": "አል ጃዲዳ ዲስት.",
+      "tr": "Al Jadidah Bölgesi."
     },
     {
       "ar": "الخالدية",
       "en": "Al Khalidiyah Dist.",
       "ur": "الخالدیہ محلہ",
       "hi": "अल-ख़ालिदिया इलाका",
-      "bn": "আল-খালিদিয়া এলাকা"
+      "bn": "আল-খালিদিয়া এলাকা",
+      "ml": "അൽ ഖാലിദിയാ ഡിസ്റ്റി.",
+      "fil": "Al Khalidiyah Dist.",
+      "id": "Al Khalidiyah Dist.",
+      "ne": "अल खलिदियाह डिस्ट.",
+      "am": "አል ካሊዲያ ዲስት.",
+      "tr": "Al Khalidiyah Bölgesi."
     },
     {
       "ar": "القفيفة",
       "en": "Al Qifayfah Dist.",
       "ur": "القفیفہ محلہ",
       "hi": "अल-क़िफ़ैफ़ा इलाका",
-      "bn": "আল-কিফাইফা এলাকা"
+      "bn": "আল-কিফাইফা এলাকা",
+      "ml": "അല് ക്യ്ഫൈഫാ ഡിസ്റ്റിന് .",
+      "fil": "Al Qifayfah Dist.",
+      "id": "Al Qifayfah Dist.",
+      "ne": "अल-किफाइफाह डिस्ट.",
+      "am": "አል ቂፋይፋ ዲስት.",
+      "tr": "Al Qifayfah Dist."
     },
     {
       "ar": "ام عشيرة",
       "en": "Umm Ushayrah Dist.",
       "ur": "ام عشیرہ محلہ",
       "hi": "उम्म उशैरा इलाका",
-      "bn": "উম্ম উশাইরা এলাকা"
+      "bn": "উম্ম উশাইরা এলাকা",
+      "ml": "ഉമ്മു ഉഷൈറ ഡിസ്റ്റി.",
+      "fil": "Umm Ushayrah Dist.",
+      "id": "Umm Ushayrah Dist.",
+      "ne": "उम्म उशैरा डिस्ट.",
+      "am": "ኡም ኡሻይራ ዲስት.",
+      "tr": "Umm Ushayrah Dist."
     },
     {
       "ar": "التعاون",
       "en": "At Taawun Dist.",
       "ur": "التعاون محلہ",
       "hi": "अत-तआवुन इलाका",
-      "bn": "আত-তাআওউন এলাকা"
+      "bn": "আত-তাআওউন এলাকা",
+      "ml": "ടൌൺ ഡിസ്റ്റില് .",
+      "fil": "Sa Taawun Dist.",
+      "id": "Di Taawun Dist.",
+      "ne": "ताउङ डिस्टमा।",
+      "am": "በታዋውን ዲስት.",
+      "tr": "Taawun Dist'de."
     },
     {
       "ar": "الافراح",
       "en": "Al Afrah Dist.",
       "ur": "الافراح محلہ",
       "hi": "अल-अफ़राह इलाका",
-      "bn": "আল-আফরাহ এলাকা"
+      "bn": "আল-আফরাহ এলাকা",
+      "ml": "അൽ അഫ്രാ ഡിസ്റ്റി.",
+      "fil": "Al Afrah Dist.",
+      "id": "Al Afrah Dist.",
+      "ne": "अल अफ्राह डिस्ट.",
+      "am": "አል አፍራ Dist.",
+      "tr": "Al Afrah Dist."
     },
     {
       "ar": "القدس",
       "en": "Al Quds Dist.",
       "ur": "القدس محلہ",
       "hi": "अल-क़ुद्स इलाका",
-      "bn": "আল-কুদস এলাকা"
+      "bn": "আল-কুদস এলাকা",
+      "ml": "അൽ ഖുദ്സ് ഡിസ്റ്റിന് റെ റെ റെ",
+      "fil": "Al Quds Dist.",
+      "id": "Al Quds Dist.",
+      "ne": "अल क़ुद्स डिस्ट.",
+      "am": "አል ኩድስ ዲስት",
+      "tr": "Al Quds Dist."
     },
     {
       "ar": "زبيدة",
       "en": "Zubaiydah Dist.",
       "ur": "زبیدہ محلہ",
       "hi": "ज़ुबैदा इलाका",
-      "bn": "জুবাইদা এলাকা"
+      "bn": "জুবাইদা এলাকা",
+      "ml": "സുബായിദാ ഡിസ്ട്രിക്ട്",
+      "fil": "Dist. ng Zubaiydah.",
+      "id": "Dist Zubaiydah",
+      "ne": "जुबाइदा जिल्ला",
+      "am": "የዙባይዳ ዲስት.",
+      "tr": "Zubaiydah Bölgesi."
     },
     {
       "ar": "ام ثلعة",
       "en": "Umm Thalaah Dist.",
       "ur": "ام ثلعہ محلہ",
       "hi": "उम्म थलआ इलाका",
-      "bn": "উম্ম থালআ এলাকা"
+      "bn": "উম্ম থালআ এলাকা",
+      "ml": "ഉം. താലാഹ് ഡിസ്റ്റി.",
+      "fil": "Umm Thalaah Dist.",
+      "id": "Umm Thalaah Dist.",
+      "ne": "उम्म तल्लाह डिस्ट.",
+      "am": "ኡም ታይላሃ ዲስት.",
+      "tr": "Umm Thalaah Dist."
     },
     {
       "ar": "العبيلة",
       "en": "Al Ubaylah Dist.",
       "ur": "العبیلہ محلہ",
       "hi": "अल-उबैला इलाका",
-      "bn": "আল-উবাইলা এলাকা"
+      "bn": "আল-উবাইলা এলাকা",
+      "ml": "അൽ ഉബൈല ഡിസ്റ്റി.",
+      "fil": "Al Ubaylah Dist.",
+      "id": "Al Ubaylah Dist.",
+      "ne": "अल उबाइला डिस्ट.",
+      "am": "አል ኡባይላ ዲስት",
+      "tr": "Al Ubaylah Dist."
     },
     {
       "ar": "العثمانية",
       "en": "Al Uthmaniyah Dist.",
       "ur": "العثمانیہ محلہ",
       "hi": "अल-उस्मानिया इलाका",
-      "bn": "আল-উসমানিয়া এলাকা"
+      "bn": "আল-উসমানিয়া এলাকা",
+      "ml": "അൽ ഉസ്മാനിഅ ഡിസ്റ്റി.",
+      "fil": "Al Uthmaniyah Dist.",
+      "id": "Al Uthmaniyah Dist.",
+      "ne": "अल-उत्मानिया डिस्ट.",
+      "am": "አል ኡስማንያ ዲስት.",
+      "tr": "Al Uthmaniyah Dist."
     },
     {
       "ar": "الشيرمي",
       "en": "Ash Shayrami Dist.",
       "ur": "الشیرمی محلہ",
       "hi": "अश-शैरमी इलाका",
-      "bn": "আশ-শাইরামি এলাকা"
+      "bn": "আশ-শাইরামি এলাকা",
+      "ml": "അശ് ശൈരമി ഡിസ്റ്റി.",
+      "fil": "Ash Shayrami Dist.",
+      "id": "Ash Shayrami Dist.",
+      "ne": "अश शयरामी डिस्ट.",
+      "am": "የአሽ ሻይራሚ ዲስት.",
+      "tr": "Ash Shayrami Dist."
     },
     {
       "ar": "المستشفى",
       "en": "Al Mustashfa Dist.",
       "ur": "المستشفی محلہ",
       "hi": "अल-मुस्तशफ़ा इलाका",
-      "bn": "আল-মুস্তাশফা এলাকা"
+      "bn": "আল-মুস্তাশফা এলাকা",
+      "ml": "അല് മുസ്താഷ്ഫ ഡിസ്റ്റി.",
+      "fil": "Al Mustashfa Dist.",
+      "id": "Al Mustashfa Dist.",
+      "ne": "अल मुस्ताफ्फा डिस्ट.",
+      "am": "አል ሙስታሻፋ ዲስት.",
+      "tr": "Al Mustashfa Dist."
     },
     {
       "ar": "الرمة",
       "en": "Ar Rimmah Dist.",
       "ur": "الرمہ محلہ",
       "hi": "अर-रिम्मा इलाका",
-      "bn": "আর-রিম্মা এলাকা"
+      "bn": "আর-রিম্মা এলাকা",
+      "ml": "അര് റിംഹാ ഡിസ്റ്റിന് .",
+      "fil": "Ar Rimmah Dist.",
+      "id": "Distribusi Ar Rimmah",
+      "ne": "आर रिम्मा डिस्ट.",
+      "am": "የአር ሪምማ ዲስት.",
+      "tr": "Ar Rimmah Bölgesi."
     },
     {
       "ar": "الاصفر",
       "en": "Al Asfar Dist.",
       "ur": "الاصفر محلہ",
       "hi": "अल-असफ़र इलाका",
-      "bn": "আল-আসফার এলাকা"
+      "bn": "আল-আসফার এলাকা",
+      "ml": "അല് അസ്ഫര് ഡിസ്റ്റില് .",
+      "fil": "Al Asfar Dist.",
+      "id": "Al Asfar Dist.",
+      "ne": "अल असफर डिस्ट.",
+      "am": "አል አስፋር ዲስት",
+      "tr": "Al Asfar Dist."
     },
     {
       "ar": "رامات",
       "en": "Ramat Dist.",
       "ur": "رامات محلہ",
       "hi": "रामात इलाका",
-      "bn": "রামাত এলাকা"
+      "bn": "রামাত এলাকা",
+      "ml": "റമത് ഡിസ്റ്റി",
+      "fil": "Ramat Dist.",
+      "id": "Ramat Dist.",
+      "ne": "रामत डिस्ट.",
+      "am": "ራማት ዲስት.",
+      "tr": "Ramat Dist."
     },
     {
       "ar": "العبدلية",
       "en": "Al Abdaliyah Dist.",
       "ur": "العبدلیہ محلہ",
       "hi": "अल-अबदलिया इलाका",
-      "bn": "আল-আবদালিয়া এলাকা"
+      "bn": "আল-আবদালিয়া এলাকা",
+      "ml": "അല് അബ്ദാലിയാഹ് ഡിസ്റ്റി",
+      "fil": "Al Abdaliyah Dist.",
+      "id": "Al Abdaliyah Dist.",
+      "ne": "अल अब्दल्याह डिस्ट.",
+      "am": "አል አብዳሊያህ ዲስት",
+      "tr": "Al Abdaliyah Dist."
     },
     {
       "ar": "الدحلة",
       "en": "Ad Dahlah Dist.",
       "ur": "الدحلہ محلہ",
       "hi": "अद-दहला इलाका",
-      "bn": "আদ-দাহলা এলাকা"
+      "bn": "আদ-দাহলা এলাকা",
+      "ml": "അദ് ദഹ് ലാ ഡിസ്റ്റി.",
+      "fil": "Ad Dahlah Dist.",
+      "id": "Ad Dahlah Dist.",
+      "ne": "एड दाहला डिस्ट.",
+      "am": "የአድ ዳህላ ዲስት",
+      "tr": "Ad Dahlah Dist."
     },
     {
       "ar": "السحابين الشمالي",
       "en": "As Sahabin Ash Shamali Dist.",
       "ur": "السحابین الشمالی محلہ",
       "hi": "अस-सहाबीन उत्तरी इलाका",
-      "bn": "আস-সাহাবিন উত্তর এলাকা"
+      "bn": "আস-সাহাবিন উত্তর এলাকা",
+      "ml": "സഹാബിൻ അഷ് ഷമാലി ഡിസ്റ്റിന് റെ പേരായി.",
+      "fil": "Bilang Sahabin Ash Shamali Dist.",
+      "id": "Sebagai Sahabin Ash Shamali Dist.",
+      "ne": "सहबिन अश शमाली डिस्ट.",
+      "am": "እንደ ሳሃቢን አሽ ሻማሊ ዲስት.",
+      "tr": "Sahabin Ash Shamali Dist. olarak."
     },
     {
       "ar": "الخبراء القديمة",
       "en": "Al Khabra Al Qadima Dist.",
       "ur": "الخبراء القدیمہ محلہ",
       "hi": "पुराना अल-ख़बरा इलाका",
-      "bn": "পুরোনো আল-খাবরা এলাকা"
+      "bn": "পুরোনো আল-খাবরা এলাকা",
+      "ml": "അൽ ഖബ്റ അൽ ഖാദിമ ഡിസ്റ്റി",
+      "fil": "Al Khabra Al Qadima Dist.",
+      "id": "Al Khabra Al Qadima Dist.",
+      "ne": "अल खबरा अल क़ादिमा",
+      "am": "አል-ክብር አል-ቃዲማ ዲስት",
+      "tr": "Al Khabra Al Qadima Dist."
     },
     {
       "ar": "الياسمين",
       "en": "Al Yasmin Dist.",
       "ur": "الیاسمین محلہ",
       "hi": "अल-यासमीन इलाका",
-      "bn": "আল-ইয়াসমিন এলাকা"
+      "bn": "আল-ইয়াসমিন এলাকা",
+      "ml": "അല് യാസ്മിന് ഡിസ്റ്റി.",
+      "fil": "Al Yasmin Dist.",
+      "id": "Al Yasmin Dist.",
+      "ne": "अल यास्मीन डिस्ट.",
+      "am": "አል ያዝሚን ዲስት",
+      "tr": "Al Yasmin Dist."
     },
     {
       "ar": "الأندلس",
       "en": "Al Andalus Dist.",
       "ur": "الأندلس محلہ",
       "hi": "अल-अंदलुस इलाका",
-      "bn": "আল-আন্দালুস এলাকা"
+      "bn": "আল-আন্দালুস এলাকা",
+      "ml": "അല് ആൻഡലസ് ഡിസ്റ്റിന് റെ",
+      "fil": "Al Andalus Dist.",
+      "id": "Al Andalus Dist.",
+      "ne": "अल अण्डलस डिस्ट.",
+      "am": "አል አንዳሉስ ዲስት.",
+      "tr": "Al Andalus Dist."
     },
     {
       "ar": "السحابين الجنوبي",
       "en": "As Sahabin Al Janubi Dist.",
       "ur": "السحابین الجنوبی محلہ",
       "hi": "अस-सहाबीन दक्षिणी इलाका",
-      "bn": "আস-সাহাবিন দক্ষিণ এলাকা"
+      "bn": "আস-সাহাবিন দক্ষিণ এলাকা",
+      "ml": "സഹാബിൻ അൽ ജനുബി ഡിസ്റ്റി.",
+      "fil": "Bilang Sahabin Al Janubi Dist.",
+      "id": "Sebagai Sahabin Al Janubi Dist.",
+      "ne": "सहबिन अल जनुबी डिस्ट.",
+      "am": "እንደ ሳሃቢን አል ጃኑቢ ዲስት.",
+      "tr": "Sahabin Al Janubi Dist. olarak."
     },
     {
       "ar": "الملاح",
       "en": "Al Mallah Dist.",
       "ur": "الملاح محلہ",
       "hi": "अल-मल्लाह इलाका",
-      "bn": "আল-মাল্লাহ এলাকা"
+      "bn": "আল-মাল্লাহ এলাকা",
+      "ml": "അല് മല്ലാ ഡിസ്റ്റി.",
+      "fil": "Al Mallah Dist.",
+      "id": "Al Mallah Dist.",
+      "ne": "अल मल्ल डिस्ट.",
+      "am": "አል ማላህ ዲስት",
+      "tr": "Al Mallah Dist."
     },
     {
       "ar": "حى الرفيعة",
       "en": "Ar Rafiah Dist.",
       "ur": "حی الرفیعہ محلہ",
       "hi": "अर-रफ़ीआ इलाका",
-      "bn": "আর-রাফিয়া এলাকা"
+      "bn": "আর-রাফিয়া এলাকা",
+      "ml": "അര് റഫിഅ ഡിസ്റ്റി.",
+      "fil": "Ar Rafiah Dist.",
+      "id": "Ar Rafiah Dist.",
+      "ne": "आर रफियाह डिस्ट.",
+      "am": "አር ራፊያ ዲስት.",
+      "tr": "Ar Rafiah Dist."
     },
     {
       "ar": "البيضاء",
       "en": "Al Baida Dist.",
       "ur": "البیضاء محلہ",
       "hi": "अल-बैदा इलाका",
-      "bn": "আল-বাইদা এলাকা"
+      "bn": "আল-বাইদা এলাকা",
+      "ml": "അല് ബേദ ഡിസ്റ്റില് .",
+      "fil": "Al Baida Dist.",
+      "id": "Al Baida Dist.",
+      "ne": "अल बाइडा डिस्ट.",
+      "am": "አል ባይዳ ዲስት.",
+      "tr": "Al Baida Dist."
     },
     {
       "ar": "السلاح",
       "en": "As Silah Dist.",
       "ur": "السلاح محلہ",
       "hi": "अस-सिलाह इलाका",
-      "bn": "আস-সিলাহ এলাকা"
+      "bn": "আস-সিলাহ এলাকা",
+      "ml": "സിലാ ഡിസ്റ്റിന് റെ സ്ഥാനത്ത് .",
+      "fil": "Bilang Silah Dist.",
+      "id": "Sebagai Silah Dist.",
+      "ne": "सिला डिस्टको रूपमा।",
+      "am": "እንደ ሲላ ዲስት",
+      "tr": "Silah Dist olarak."
     },
     {
       "ar": "الامل",
       "en": "Al Amal Dist.",
       "ur": "الامل محلہ",
       "hi": "अल-अमल इलाका",
-      "bn": "আল-আমাল এলাকা"
+      "bn": "আল-আমাল এলাকা",
+      "ml": "അല് അമാല് ഡിസ്റ്റില് .",
+      "fil": "Al Amal Dist.",
+      "id": "Al Amal Dist.",
+      "ne": "अल अमाल डिस्ट.",
+      "am": "አል አማል ዲስት",
+      "tr": "Al Amal Dist."
     },
     {
       "ar": "الديرة",
       "en": "Al Dirah Dist.",
       "ur": "الدیرہ محلہ",
       "hi": "अद-दीरा इलाका",
-      "bn": "আদ-দিরা এলাকা"
+      "bn": "আদ-দিরা এলাকা",
+      "ml": "അൽ ദീറാ ഡിസ്റ്റി",
+      "fil": "Al Dirah Dist.",
+      "id": "Al Dirah Dist.",
+      "ne": "अल-दिराह डिस्ट.",
+      "am": "አል ዲራህ ዲስት",
+      "tr": "Al Dirah Dist."
     },
     {
       "ar": "المجد",
       "en": "Al Majd Dist.",
       "ur": "المجد محلہ",
       "hi": "अल-मज्द इलाका",
-      "bn": "আল-মাজদ এলাকা"
+      "bn": "আল-মাজদ এলাকা",
+      "ml": "അല് മജദ് ഡിസ്റ്റില് .",
+      "fil": "Al Majd Dist.",
+      "id": "Al Majd Dist.",
+      "ne": "अल मज्द डिस्ट",
+      "am": "አል ማጅድ ዲስት",
+      "tr": "Al Majd Dist."
     },
     {
       "ar": "التقنية",
       "en": "Al Taqniyah Dist.",
       "ur": "التقنیہ محلہ",
       "hi": "अत-तक़निया इलाका",
-      "bn": "আত-তাকনিয়া এলাকা"
+      "bn": "আত-তাকনিয়া এলাকা",
+      "ml": "അല് തക്നിയാഹ് ഡിസ്റ്റില് .",
+      "fil": "Al Taqniyah Dist.",
+      "id": "Al Taqniyah Dist.",
+      "ne": "अल ताक्नीया डिस्ट.",
+      "am": "አል ታክኒያ ዲስት.",
+      "tr": "Al Taqniyah Dist."
     },
     {
       "ar": "المتحف",
       "en": "Al Mathaf Dist.",
       "ur": "المتحف محلہ",
       "hi": "अल-मतहफ़ इलाका",
-      "bn": "আল-মাতহাফ এলাকা"
+      "bn": "আল-মাতহাফ এলাকা",
+      "ml": "അല് മാതഫ് ഡിസ്റ്റി.",
+      "fil": "Al Mathaf Dist.",
+      "id": "Al Mathaf Dist.",
+      "ne": "अल मताफ डिस्ट.",
+      "am": "አል ማታፍ ዲስት.",
+      "tr": "Al Mathaf Dist."
     },
     {
       "ar": "الشماس",
       "en": "Al Shamas Dist.",
       "ur": "الشماس محلہ",
       "hi": "अश-शम्मास इलाका",
-      "bn": "আশ-শাম্মাস এলাকা"
+      "bn": "আশ-শাম্মাস এলাকা",
+      "ml": "അല് ഷമസ് ഡിസ്റ്റി.",
+      "fil": "Al Shamas Dist.",
+      "id": "Al Shamas Dist.",
+      "ne": "अल शमास डिस्ट.",
+      "am": "አል ሻማስ ዲስት.",
+      "tr": "Al Shamas Dist."
     },
     {
       "ar": "البلاد",
       "en": "Al Bilad Dist.",
       "ur": "البلاد محلہ",
       "hi": "अल-बिलाद इलाका",
-      "bn": "আল-বিলাদ এলাকা"
+      "bn": "আল-বিলাদ এলাকা",
+      "ml": "അല് ബിലാദ് ഡിസ്റ്റി.",
+      "fil": "Al Bilad Dist.",
+      "id": "Al Bilad Dist.",
+      "ne": "अल बिलाद डिस्ट.",
+      "am": "አል ቢላድ ዲስት",
+      "tr": "Al Bilad Dist."
     },
     {
       "ar": "برزة",
       "en": "Barzah Dist.",
       "ur": "برزہ محلہ",
       "hi": "बरज़ा इलाका",
-      "bn": "বারজা এলাকা"
+      "bn": "বারজা এলাকা",
+      "ml": "ബര് സഹ് ഡിസ്റ്റി.",
+      "fil": "Barzah Dist.",
+      "id": "Barzah Dist.",
+      "ne": "बार्जा डिस्ट.",
+      "am": "የባርዛ ዲስት.",
+      "tr": "Barzah Dist."
     },
     {
       "ar": "الواسط",
       "en": "Al Wasit Dist.",
       "ur": "الواسط محلہ",
       "hi": "अल-वासित इलाका",
-      "bn": "আল-ওয়াসিত এলাকা"
+      "bn": "আল-ওয়াসিত এলাকা",
+      "ml": "അല് വാസിറ്റ് ഡിസ്റ്റി.",
+      "fil": "Al Wasit Dist.",
+      "id": "Al Wasit Dist.",
+      "ne": "अल वासिट डिस्ट",
+      "am": "አል ቫሲት ዲስት",
+      "tr": "Al Wasit Dist."
     },
     {
       "ar": "البدع",
       "en": "Al Bada Dist.",
       "ur": "البدع محلہ",
       "hi": "अल-बदअ इलाका",
-      "bn": "আল-বাদআ এলাকা"
+      "bn": "আল-বাদআ এলাকা",
+      "ml": "അല് ബദ ഡിസ്റ്റില് .",
+      "fil": "Al Bada Dist.",
+      "id": "Al Bada Dist.",
+      "ne": "अल बाडा डिस्ट.",
+      "am": "አል ባዳ ዲስት",
+      "tr": "Al Bada Dist."
     },
     {
       "ar": "الجال",
       "en": "Al Jal Dist.",
       "ur": "الجال محلہ",
       "hi": "अल-जाल इलाका",
-      "bn": "আল-জাল এলাকা"
+      "bn": "আল-জাল এলাকা",
+      "ml": "അല് ജല് ഡിസ്റ്റില് .",
+      "fil": "Al Jal Dist.",
+      "id": "Al Jal Dist.",
+      "ne": "अल जल डिस्ट",
+      "am": "አል ጃል ዲስት",
+      "tr": "Al Jal Dist."
     },
     {
       "ar": "الميدان",
       "en": "Al Midan Dist.",
       "ur": "المیدان محلہ",
       "hi": "अल-मैदान इलाका",
-      "bn": "আল-মাইদান এলাকা"
+      "bn": "আল-মাইদান এলাকা",
+      "ml": "അല് മിദാന് ഡിസ്റ്റില് .",
+      "fil": "Al Midan Dist.",
+      "id": "Al Midan Dist.",
+      "ne": "अल मिदान डिस्ट.",
+      "am": "አል ሚዳን ዲስት",
+      "tr": "Al Midan Dist."
     },
     {
       "ar": "الصفاء",
       "en": "Al Safa Dist.",
       "ur": "الصفاء محلہ",
       "hi": "अस-सफ़ा इलाका",
-      "bn": "আস-সাফা এলাকা"
+      "bn": "আস-সাফা এলাকা",
+      "ml": "അല് സഫാ ഡിസ്റ്റില് .",
+      "fil": "Al Safa Dist.",
+      "id": "Al Safa Dist.",
+      "ne": "अल साफा डिस्ट.",
+      "am": "አል ሳፋ ዲስት",
+      "tr": "Al Safa Dist."
     },
     {
       "ar": "المتوكل",
       "en": "Al Mutawakil Dist.",
       "ur": "المتوکل محلہ",
       "hi": "अल-मुतवक्किल इलाका",
-      "bn": "আল-মুতাওয়াক্কিল এলাকা"
+      "bn": "আল-মুতাওয়াক্কিল এলাকা",
+      "ml": "അൽ മുതവാകില് ഡിസ്റ്റി.",
+      "fil": "Al Mutawakil Dist.",
+      "id": "Al Mutawakil Dist.",
+      "ne": "अल मुतावाकिल डिस्ट.",
+      "am": "አል ሙታዋኪል ዲስት.",
+      "tr": "Al Mutawakil Dist."
     },
     {
       "ar": "الازدهار",
       "en": "Al Izdihar Dist.",
       "ur": "الازدهار محلہ",
       "hi": "अल-इज़दिहार इलाका",
-      "bn": "আল-ইজদিহার এলাকা"
+      "bn": "আল-ইজদিহার এলাকা",
+      "ml": "അൽ ഇസ്ദിഹാർ ഡിസ്റ്റി.",
+      "fil": "Al Izdihar Dist.",
+      "id": "Al Izdihar Dist.",
+      "ne": "अल इज्दिहार डिस्ट.",
+      "am": "አል ኢዝዲሃር ዲስት.",
+      "tr": "Al Izdihar Dist."
     },
     {
       "ar": "فيضة ابان الاحمر",
       "en": "Faidat Aban Alahmar",
       "ur": "فیضہ ابان الاحمر",
       "hi": "फ़ैदत अबान अल-अहमर",
-      "bn": "ফাইদাত আবান আল-আহমার"
+      "bn": "ফাইদাত আবান আল-আহমার",
+      "ml": "ഫൈദാദ് അബാൻ അലഹ്മർ",
+      "fil": "Faidat Aban Alahmar",
+      "id": "Faidat Aban Alahmar",
+      "ne": "फाईदाद अबान अलहमर",
+      "am": "ፋይዳድ አበነ አላማር",
+      "tr": "Faidat Aban Alahmar"
     },
     {
       "ar": "النويصفة",
       "en": "Al Nuwaisifah",
       "ur": "النویصفہ",
       "hi": "अल-नुवैसिफ़ा",
-      "bn": "আল-নুওয়াইসিফা"
+      "bn": "আল-নুওয়াইসিফা",
+      "ml": "അൽ നുവൈസിഫ",
+      "fil": "Al Nuwaisifah",
+      "id": "Al Nuwaisifah",
+      "ne": "अल नुवाइसिफा",
+      "am": "አል ኑዌይሲፋ",
+      "tr": "Al Nuwaisifah"
     },
     {
       "ar": "مشرفة عمودان",
       "en": "Mishrifat Amudan",
       "ur": "مشرفہ عمودان",
       "hi": "मिशरिफ़त अमूदान",
-      "bn": "মিশরিফাত আমুদান"
+      "bn": "মিশরিফাত আমুদান",
+      "ml": "മിശ്രഫാത്ത് അമുദാൻ",
+      "fil": "Misrifat Amudan",
+      "id": "Mishrifat Amudan",
+      "ne": "मिश्रीफात अमूदन",
+      "am": "ሚሽሪፋት አሙዳን",
+      "tr": "Mishrifat Amudan"
     },
     {
       "ar": "كفت",
       "en": "Kofat",
       "ur": "کفت",
       "hi": "कुफ़त",
-      "bn": "কুফাত"
+      "bn": "কুফাত",
+      "ml": "കോഫാറ്റ്",
+      "fil": "Ang mga ito ay",
+      "id": "Kofat",
+      "ne": "कोफाट",
+      "am": "ኮፋት",
+      "tr": "Kofat"
     },
     {
       "ar": "ج1",
       "en": "C1 Dist.",
       "ur": "ج1 محلہ",
       "hi": "ज1 इलाका",
-      "bn": "জ1 এলাকা"
+      "bn": "জ1 এলাকা",
+      "ml": "സി 1 ഡിസ്റ്റി.",
+      "fil": "C1 Dist.",
+      "id": "C1 Dist.",
+      "ne": "C1 डिस्ट.",
+      "am": "C1 ዲስት.",
+      "tr": "C1 Dist."
     },
     {
       "ar": "الرمثية",
       "en": "Ar Ramthyah Dist.",
       "ur": "الرمثیہ محلہ",
       "hi": "अर-रमथिया इलाका",
-      "bn": "আর-রামথিয়া এলাকা"
+      "bn": "আর-রামথিয়া এলাকা",
+      "ml": "അര് രാംഥ്യാ ഡിസ്റ്റി.",
+      "fil": "Ar Ramthyah Dist.",
+      "id": "Ar Ramthyah Dist.",
+      "ne": "आर रामथियाह डिस्ट.",
+      "am": "አር ራምታያ ዲስት.",
+      "tr": "Ar Ramthyah Dist."
     },
     {
       "ar": "الغربية",
       "en": "Al Gharbiyyah Dist.",
       "ur": "الغربیہ محلہ",
       "hi": "अल-ग़रबिया इलाका",
-      "bn": "আল-গারবিয়া এলাকা"
+      "bn": "আল-গারবিয়া এলাকা",
+      "ml": "അൽ ഗര് ബിയാ ഡിസ്റ്റി.",
+      "fil": "Al Gharbiyyah Dist.",
+      "id": "Al Gharbiyyah Dist.",
+      "ne": "अल घर्बीया जिल्ला",
+      "am": "አል ገርቢያ ዲስት.",
+      "tr": "Al Gharbiyyah Bölgesi."
     },
     {
       "ar": "فيضة السلمات",
       "en": "Faidat Al Salamat",
       "ur": "فیضہ السلمات",
       "hi": "फ़ैदत अस-सलमात",
-      "bn": "ফাইদাত আস-সালমাত"
+      "bn": "ফাইদাত আস-সালমাত",
+      "ml": "ഫൈദാദ് അൽ സലാമത്",
+      "fil": "Faidat Al Salamat",
+      "id": "Faidat Al Salamat",
+      "ne": "फाईदाद अल सलाम",
+      "am": "ፋይዳ አል ሳላም",
+      "tr": "Faidat Al Salamat"
     },
     {
       "ar": "المرموثة الشمالية",
       "en": "Al Marmuthah Ash Shamaliyah",
       "ur": "المرموثہ الشمالیہ",
       "hi": "अल-मरमूथा उत्तरी",
-      "bn": "আল-মারমুথা উত্তর"
+      "bn": "আল-মারমুথা উত্তর",
+      "ml": "അൽ മാർമുത അഷ് ഷമലിയാ",
+      "fil": "Al Marmuthah Ash Shamaliyah",
+      "id": "Al Marmuthah Ash Shamaliyah",
+      "ne": "अल-मरमुतहा अश् शमालीयाह",
+      "am": "አል ማርሙታ አሽ ሻማሊያ",
+      "tr": "Al Marmuthah Ash Shamaliyah"
     },
     {
       "ar": "الخريشاء",
       "en": "Al Kharisha",
       "ur": "الخریشاء",
       "hi": "अल-ख़रीशा",
-      "bn": "আল-খারিশা"
+      "bn": "আল-খারিশা",
+      "ml": "അൽ ഖരിഷ",
+      "fil": "Al Kharisha",
+      "id": "Al Kharisha",
+      "ne": "अल खरिशा",
+      "am": "አል ካሪሻ",
+      "tr": "Al Kharisha"
     },
     {
       "ar": "المديري",
       "en": "Al Mudairy",
       "ur": "المدیری",
       "hi": "अल-मुदैरी",
-      "bn": "আল-মুদাইরি"
+      "bn": "আল-মুদাইরি",
+      "ml": "അൽ മുദൈരി",
+      "fil": "Al Mudairy",
+      "id": "Al Mudairy",
+      "ne": "अल मुदिरि",
+      "am": "አል ሙዳሪ",
+      "tr": "Al Mudairy"
     }
   ],
   "plans": [
@@ -3582,175 +6408,325 @@
       "en": "Free trial",
       "ur": "مفت آزمائش",
       "hi": "निःशुल्क परीक्षण",
-      "bn": "বিনামূল্যে ট্রায়াল"
+      "bn": "বিনামূল্যে ট্রায়াল",
+      "ml": "സൌജന്യ ട്രയൽ",
+      "fil": "Libre na pagsubok",
+      "id": "Percobaan gratis",
+      "ne": "निःशुल्क परीक्षण",
+      "am": "ነፃ ሙከራ",
+      "tr": "Ücretsiz deneme"
     },
     {
       "ar": "اشتراك العامل",
       "en": "Worker subscription",
       "ur": "کارکن کی رکنیت",
       "hi": "कर्मी सदस्यता",
-      "bn": "কর্মীর সাবস্ক্রিপশন"
+      "bn": "কর্মীর সাবস্ক্রিপশন",
+      "ml": "തൊഴിലാളികളുടെ സബ്സ്ക്രിപ്ഷൻ",
+      "fil": "Pag-sign up ng manggagawa",
+      "id": "Langganan pekerja",
+      "ne": "श्रमिकको सदस्यता",
+      "am": "የሰራተኛ ምዝገባ",
+      "tr": "İşçi aboneliği"
     },
     {
       "ar": "تجربة الخدمة قبل تفعيل تحصيل الاشتراك",
       "en": "Try the service before subscription billing is enabled",
       "ur": "رکنیت کی ادائیگی شروع ہونے سے پہلے خدمت آزمائیں",
       "hi": "सदस्यता शुल्क शुरू होने से पहले सेवा आज़माएँ",
-      "bn": "সাবস্ক্রিপশন বিল চালু হওয়ার আগে সেবাটি ব্যবহার করে দেখুন"
+      "bn": "সাবস্ক্রিপশন বিল চালু হওয়ার আগে সেবাটি ব্যবহার করে দেখুন",
+      "ml": "സബ്സ്ക്രിപ്ഷൻ ബില്ലിംഗ് പ്രവർത്തനക്ഷമമാകുന്നതിനു മുമ്പ് സേവനം പരീക്ഷിക്കുക",
+      "fil": "Subukan ang serbisyo bago ma-enable ang pagbuwis ng subscription",
+      "id": "Cobalah layanan sebelum tagihan berlangganan diaktifkan",
+      "ne": "सदस्यता बिलिङ सक्षम हुनु अघि सेवा प्रयास गर्नुहोस्",
+      "am": "የደንበኝነት ምዝገባ ክፍያ ከመደረጉ በፊት አገልግሎቱን ይሞክሩ",
+      "tr": "Ücretleme işleminin etkinleştirilmeden önce hizmeti deneyin"
     },
     {
       "ar": "اشتراك العامل الشهري في أي خدمة",
       "en": "Monthly worker subscription at Ay Khidma",
       "ur": "أي خدمة سروسز میں کارکن کی ماہانہ رکنیت",
       "hi": "औताद सर्विसेज़ में कर्मी की मासिक सदस्यता",
-      "bn": "আওতাদ সার্ভিসেসে কর্মীর মাসিক সাবস্ক্রিপশন"
+      "bn": "আওতাদ সার্ভিসেসে কর্মীর মাসিক সাবস্ক্রিপশন",
+      "ml": "ഐ ഖിദ്ദമയിലെ പ്രതിമാസ തൊഴിലാളികളുടെ സബ്സ്ക്രിപ്ഷൻ",
+      "fil": "Pag-sign ng buwanang manggagawa sa Ay Khidma",
+      "id": "Langganan bulanan pekerja di Ay Khidma",
+      "ne": "आय खेदमा मासिक कर्मचारी सदस्यता",
+      "am": "በ Ay Khidma ውስጥ ወርሃዊ የሰራተኛ ምዝገባ",
+      "tr": "Ay Khidma'da aylık işçi aboneliği"
     },
     {
       "ar": "استقبال الطلبات في منطقتك",
       "en": "Receive requests in your area",
       "ur": "اپنے علاقے میں درخواستیں وصول کریں",
       "hi": "अपने क्षेत्र में अनुरोध पाएँ",
-      "bn": "আপনার এলাকায় অনুরোধ গ্রহণ করুন"
+      "bn": "আপনার এলাকায় অনুরোধ গ্রহণ করুন",
+      "ml": "നിങ്ങളുടെ പ്രദേശത്ത് അപേക്ഷകൾ സ്വീകരിക്കുക",
+      "fil": "Makatanggap ng mga kahilingan sa iyong lugar",
+      "id": "Terima permintaan di daerah Anda",
+      "ne": "तपाईंको क्षेत्रमा अनुरोधहरू प्राप्त गर्नुहोस्",
+      "am": "በአካባቢያችሁ ያሉ ጥያቄዎችን ተቀበሉ",
+      "tr": "Bölgenizdeki istekleri kabul edin"
     },
     {
       "ar": "ملف مقدم الخدمة",
       "en": "Service provider profile",
       "ur": "خدمت فراہم کنندہ کی پروفائل",
       "hi": "सेवा प्रदाता प्रोफ़ाइल",
-      "bn": "সেবাদাতার প্রোফাইল"
+      "bn": "সেবাদাতার প্রোফাইল",
+      "ml": "സേവന ദാതാവിന്റെ പ്രൊഫൈൽ",
+      "fil": "Profil ng tagapagbigay ng serbisyo",
+      "id": "Profil penyedia layanan",
+      "ne": "सेवा प्रदायकको प्रोफाइल",
+      "am": "የአገልግሎት አቅራቢ መገለጫ",
+      "tr": "Hizmet sağlayıcısının profilü"
     },
     {
       "ar": "عروض أسعار للعملاء",
       "en": "Quotes for customers",
       "ur": "گاہکوں کے لیے قیمت کی پیشکشیں",
       "hi": "ग्राहकों के लिए मूल्य प्रस्ताव",
-      "bn": "গ্রাহকদের জন্য মূল্য প্রস্তাব"
+      "bn": "গ্রাহকদের জন্য মূল্য প্রস্তাব",
+      "ml": "ഉപഭോക്താക്കൾക്ക് ഉദ്ധരണി",
+      "fil": "Mga quote para sa mga customer",
+      "id": "Kutipan untuk pelanggan",
+      "ne": "ग्राहकहरूको लागि उद्धरण",
+      "am": "ለደንበኞች የሚሆን ዋጋ",
+      "tr": "Müşteriler için alıntılar"
     },
     {
       "ar": "مجاني",
       "en": "Free",
       "ur": "مفت",
       "hi": "निःशुल्क",
-      "bn": "বিনামূল্যে"
+      "bn": "বিনামূল্যে",
+      "ml": "സൌജന്യമായി",
+      "fil": "Libre",
+      "id": "Bebas",
+      "ne": "निःशुल्क",
+      "am": "ነፃ",
+      "tr": "Ücretsiz"
     },
     {
       "ar": "مميز",
       "en": "Premium",
       "ur": "پریمیم",
       "hi": "प्रीमियम",
-      "bn": "প্রিমিয়াম"
+      "bn": "প্রিমিয়াম",
+      "ml": "പ്രീമിയം",
+      "fil": "Premium",
+      "id": "Premium",
+      "ne": "प्रीमियम",
+      "am": "የቅድመ ክፍያ",
+      "tr": "Premium"
     },
     {
       "ar": "احترافي",
       "en": "Professional",
       "ur": "پیشہ ورانہ",
       "hi": "पेशेवर",
-      "bn": "পেশাদার"
+      "bn": "পেশাদার",
+      "ml": "പ്രൊഫഷണൽ",
+      "fil": "Mga propesyonal",
+      "id": "Profesional",
+      "ne": "व्यावसायिक",
+      "am": "ሙያዊ",
+      "tr": "Profesyonel"
     },
     {
       "ar": "الباقة المجانية للمبتدئين",
       "en": "Free plan for beginners",
       "ur": "نئے صارفین کے لیے مفت منصوبہ",
       "hi": "नए उपयोगकर्ताओं के लिए निःशुल्क योजना",
-      "bn": "নতুন ব্যবহারকারীদের জন্য বিনামূল্যের পরিকল্পনা"
+      "bn": "নতুন ব্যবহারকারীদের জন্য বিনামূল্যের পরিকল্পনা",
+      "ml": "തുടക്കക്കാർക്ക് സൌജന്യ പ്ലാൻ",
+      "fil": "Libre na plano para sa mga nagsisimula",
+      "id": "Rencana gratis untuk pemula",
+      "ne": "शुरुवातकर्ताहरूको लागि निःशुल्क योजना",
+      "am": "ለጀማሪዎች ነፃ ዕቅድ",
+      "tr": "Başlangıç için ücretsiz plan"
     },
     {
       "ar": "الباقة المميزة لزيادة الأعمال",
       "en": "Premium plan to grow your business",
       "ur": "کاروبار بڑھانے کے لیے پریمیم منصوبہ",
       "hi": "व्यवसाय बढ़ाने के लिए प्रीमियम योजना",
-      "bn": "ব্যবসা বাড়ানোর জন্য প্রিমিয়াম পরিকল্পনা"
+      "bn": "ব্যবসা বাড়ানোর জন্য প্রিমিয়াম পরিকল্পনা",
+      "ml": "നിങ്ങളുടെ ബിസിനസ്സിനെ വളര് ത്തിക്കാന് പ്രീമിയം പ്ലാന്റ്",
+      "fil": "Premium na plano upang madagdagan ang iyong negosyo",
+      "id": "Rencana premium untuk mengembangkan bisnis Anda",
+      "ne": "तपाईंको व्यवसाय बढाउनको लागि प्रीमियम योजना",
+      "am": "ንግድዎን ለማሳደግ ፕሪሚየም ዕቅድ",
+      "tr": "İşinizi büyütmek için premium plan"
     },
     {
       "ar": "الباقة الاحترافية للمحترفين",
       "en": "Professional plan for professionals",
       "ur": "ماہرین کے لیے پیشہ ورانہ منصوبہ",
       "hi": "पेशेवरों के लिए पेशेवर योजना",
-      "bn": "পেশাদারদের জন্য পেশাদার পরিকল্পনা"
+      "bn": "পেশাদারদের জন্য পেশাদার পরিকল্পনা",
+      "ml": "പ്രൊഫഷണലുകൾക്കുള്ള പ്രൊഫഷണൽ പ്ലാൻ",
+      "fil": "Pansyal na plano para sa mga propesyonal",
+      "id": "Rencana profesional untuk profesional",
+      "ne": "व्यावसायिकहरुको लागि व्यावसायिक योजना",
+      "am": "ለባለሙያዎች የሙያ እቅድ",
+      "tr": "Profesyoneller için profesyonel plan"
     },
     {
       "ar": "5 عروض شهرياً",
       "en": "5 offers per month",
       "ur": "ماہانہ 5 پیشکشیں",
       "hi": "हर महीने 5 प्रस्ताव",
-      "bn": "প্রতি মাসে ৫টি প্রস্তাব"
+      "bn": "প্রতি মাসে ৫টি প্রস্তাব",
+      "ml": "പ്രതിമാസം 5 ഓഫറുകൾ",
+      "fil": "5 na alok sa buwan",
+      "id": "5 penawaran per bulan",
+      "ne": "प्रति महिना ५ वटा प्रस्ताव",
+      "am": "በወር 5 ቅናሾች",
+      "tr": "Ayda 5 teklif"
     },
     {
       "ar": "ظهور عادي",
       "en": "Standard visibility",
       "ur": "عام نمایاں ہونا",
       "hi": "सामान्य दृश्यता",
-      "bn": "সাধারণভাবে প্রদর্শন"
+      "bn": "সাধারণভাবে প্রদর্শন",
+      "ml": "സാധാരണ ദൃശ്യപരത",
+      "fil": "Standard na pagkakakita",
+      "id": "Visibilitas standar",
+      "ne": "मानक दृश्यता",
+      "am": "መደበኛ ታይነት",
+      "tr": "Standart görünürlük"
     },
     {
       "ar": "دعم عبر البريد",
       "en": "Email support",
       "ur": "ای میل کے ذریعے مدد",
       "hi": "ईमेल सहायता",
-      "bn": "ইমেইল সহায়তা"
+      "bn": "ইমেইল সহায়তা",
+      "ml": "ഇമെയിൽ പിന്തുണ",
+      "fil": "Suporta sa email",
+      "id": "Dukungan email",
+      "ne": "ईमेल समर्थन",
+      "am": "የኢሜይል ድጋፍ",
+      "tr": "E-posta desteği"
     },
     {
       "ar": "50 عرض شهرياً",
       "en": "50 offers per month",
       "ur": "ماہانہ 50 پیشکشیں",
       "hi": "हर महीने 50 प्रस्ताव",
-      "bn": "প্রতি মাসে ৫০টি প্রস্তাব"
+      "bn": "প্রতি মাসে ৫০টি প্রস্তাব",
+      "ml": "പ്രതിമാസം 50 ഓഫറുകൾ",
+      "fil": "50 na alok sa buwan",
+      "id": "50 penawaran per bulan",
+      "ne": "प्रति महिना ५० प्रस्ताव",
+      "am": "በወር 50 ቅናሾች",
+      "tr": "Ayda 50 teklif"
     },
     {
       "ar": "إبراز في النتائج",
       "en": "Highlighted in results",
       "ur": "نتائج میں نمایاں ہونا",
       "hi": "परिणामों में विशेष रूप से दिखाना",
-      "bn": "ফলাফলে বিশেষভাবে প্রদর্শন"
+      "bn": "ফলাফলে বিশেষভাবে প্রদর্শন",
+      "ml": "ഫലങ്ങള് ൽ പ്രാധാന്യം",
+      "fil": "Ipinapakita sa mga resulta",
+      "id": "Ditekankan dalam hasil",
+      "ne": "परिणामहरूमा हाइलाइट गरियो",
+      "am": "ውጤቶች ላይ ጎላ",
+      "tr": "Sonuçlarda vurgulanıyor"
     },
     {
       "ar": "شارة موثق",
       "en": "Verified badge",
       "ur": "تصدیق شدہ نشان",
       "hi": "सत्यापित बैज",
-      "bn": "যাচাইকৃত ব্যাজ"
+      "bn": "যাচাইকৃত ব্যাজ",
+      "ml": "പരിശോധിച്ച ബാഡ്ജ്",
+      "fil": "Pinapakita na badge",
+      "id": "Pendaftaran",
+      "ne": "प्रमाणित ब्याज",
+      "am": "የተረጋገጠ ባጅ",
+      "tr": "Doğrulanmış rozet"
     },
     {
       "ar": "دعم سريع",
       "en": "Fast support",
       "ur": "فوری مدد",
       "hi": "त्वरित सहायता",
-      "bn": "দ্রুত সহায়তা"
+      "bn": "দ্রুত সহায়তা",
+      "ml": "വേഗത്തിലുള്ള പിന്തുണ",
+      "fil": "Mabilis na suporta",
+      "id": "Dukungan cepat",
+      "ne": "छिटो समर्थन",
+      "am": "ፈጣን ድጋፍ",
+      "tr": "Hızlı destek"
     },
     {
       "ar": "عروض غير محدودة",
       "en": "Unlimited offers",
       "ur": "لامحدود پیشکشیں",
       "hi": "असीमित प्रस्ताव",
-      "bn": "সীমাহীন প্রস্তাব"
+      "bn": "সীমাহীন প্রস্তাব",
+      "ml": "പരിധിയില്ലാത്ത ഓഫറുകൾ",
+      "fil": "Walang limitasyong mga alok",
+      "id": "Tawaran tak terbatas",
+      "ne": "असीमित प्रस्तावहरू",
+      "am": "ያልተገደበ ቅናሾች",
+      "tr": "Sınırsız teklifler"
     },
     {
       "ar": "ظهور في أعلى النتائج",
       "en": "Shown at the top of results",
       "ur": "نتائج میں سب سے اوپر دکھانا",
       "hi": "परिणामों में सबसे ऊपर दिखाना",
-      "bn": "ফলাফলের শীর্ষে প্রদর্শন"
+      "bn": "ফলাফলের শীর্ষে প্রদর্শন",
+      "ml": "ഫലങ്ങളുടെ മുകളില് കാണിച്ചിരിക്കുന്ന",
+      "fil": "Ipinakita sa tuktok ng mga resulta",
+      "id": "Ditampilkan di bagian atas hasil",
+      "ne": "परिणामहरूको शीर्षमा देखाइएको",
+      "am": "ውጤቶች አናት ላይ ይታያል",
+      "tr": "Sonuçların en üst kısmında gösterilmiştir"
     },
     {
       "ar": "شارة احترافي",
       "en": "Professional badge",
       "ur": "پیشہ ورانہ نشان",
       "hi": "पेशेवर बैज",
-      "bn": "পেশাদার ব্যাজ"
+      "bn": "পেশাদার ব্যাজ",
+      "ml": "പ്രൊഫഷണൽ ബാഡ്ജ്",
+      "fil": "Karapatan ng propesyonal",
+      "id": "Pakar profesional",
+      "ne": "व्यावसायिक प्रतिमा",
+      "am": "የባለሙያ ባጅ",
+      "tr": "Mesleki rozet"
     },
     {
       "ar": "إعلانات داخلية مجانية",
       "en": "Free in-app ads",
       "ur": "ایپ میں مفت اشتہارات",
       "hi": "ऐप में निःशुल्क विज्ञापन",
-      "bn": "অ্যাপে বিনামূল্যে বিজ্ঞাপন"
+      "bn": "অ্যাপে বিনামূল্যে বিজ্ঞাপন",
+      "ml": "സൌജന്യമായി അപ്ലിക്കേഷനിലെ പരസ്യങ്ങൾ",
+      "fil": "Libre na mga ad sa app",
+      "id": "Iklan gratis di dalam aplikasi",
+      "ne": "निःशुल्क इन-एप विज्ञापनहरू",
+      "am": "ነፃ መተግበሪያ ውስጥ ማስታወቂያዎች",
+      "tr": "Uygulama içindeki ücretsiz reklamlar"
     },
     {
       "ar": "دعم متميز 24/7",
       "en": "Premium support 24/7",
       "ur": "ہر وقت پریمیم مدد",
       "hi": "हर समय प्रीमियम सहायता",
-      "bn": "সারাক্ষণ প্রিমিয়াম সহায়তা"
+      "bn": "সারাক্ষণ প্রিমিয়াম সহায়তা",
+      "ml": "24/7 പ്രീമിയം പിന്തുണ",
+      "fil": "Suporta sa premium 24/7",
+      "id": "Dukungan premium 24/7",
+      "ne": "प्रिमियम समर्थन २//७",
+      "am": "የቀጥታ ድጋፍ 24/7",
+      "tr": "24/24 destek"
     }
   ]
 }

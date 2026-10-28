@@ -1,7 +1,7 @@
 const { ApiError } = require('../middleware/errorHandler');
 const { queryOne } = require('../config/database');
 
-const LANGUAGES = ['ar', 'en', 'ur', 'bn', 'hi'];
+const LANGUAGES = ['ar', 'en', 'ur', 'bn', 'hi', 'ml', 'fil', 'id', 'ne', 'am', 'tr'];
 const own = (value, key) => Object.prototype.hasOwnProperty.call(value, key);
 const empty = value => value == null || (typeof value === 'string' && !value.trim());
 const plain = value => value && typeof value === 'object' && !Array.isArray(value)

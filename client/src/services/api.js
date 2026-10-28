@@ -38,7 +38,7 @@ api.interceptors.request.use((config) => {
   // Resolve this at dispatch time so changing language also changes API
   // validation and account messages without a reload.
   if (!config.headers.has('Accept-Language')) {
-    const language = String(i18n.resolvedLanguage || i18n.language || 'en').slice(0, 2).toLowerCase();
+    const language = String(i18n.resolvedLanguage || i18n.language || 'en').toLowerCase().split(/[-_]/)[0];
     config.headers.set('Accept-Language', SUPPORTED_LANG_CODES.includes(language) ? language : 'en');
   }
   return config;

@@ -1,7 +1,7 @@
 import i18n from '../i18n';
 
 export function activeLocale() {
-  return (i18n.resolvedLanguage || i18n.language || 'ar').slice(0, 2);
+  return (i18n.resolvedLanguage || i18n.language || 'ar').split(/[-_]/)[0];
 }
 
 export function formatDate(date, withTime = false) {

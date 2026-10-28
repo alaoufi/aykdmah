@@ -8,7 +8,7 @@
 
 const Setting = require('../models/Setting');
 
-const SUPPORTED = ['ar', 'en', 'ur', 'bn', 'hi'];
+const SUPPORTED = ['ar', 'en', 'ur', 'bn', 'hi', 'ml', 'fil', 'id', 'ne', 'am', 'tr'];
 
 async function detectLanguageFallback(text) {
   // Very cheap heuristic — covers our 5 active scripts. A real detector

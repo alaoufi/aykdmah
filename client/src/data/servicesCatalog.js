@@ -1,5 +1,8 @@
 // Service types available at launch. Customers receive provider offers after creating a request.
-const L = (ar, en, ur, hi, bn) => ({ ar, en, ur, hi, bn });
+import extraLanguages from './catalogExtraLanguages.json' with { type: 'json' };
+
+// The newer languages (AYK-037) are looked up by the English text.
+const L = (ar, en, ur, hi, bn) => ({ ar, en, ur, hi, bn, ...(extraLanguages[en] || {}) });
 export const ORDER_STATUSES = ['new','reviewing','accepted','in_progress','completed','cancelled'];
 export const CATEGORIES = [
   { id:5, slug:'plumbing', icon:'🔧', tint:'#0ea5e9', bg:'#e0f2fe', name:L('سباكة','Plumbing','پلمبنگ','प्लंबिंग','প্লাম্বিং'), desc:L('إصلاح التسريبات وصيانة الأدوات الصحية','Leak repairs and plumbing maintenance','پانی کے رساؤ کی مرمت اور پلمبنگ کی دیکھ بھال','पानी के रिसाव की मरम्मत और प्लंबिंग का रखरखाव','পানির লিক মেরামত ও প্লাম্বিং রক্ষণাবেক্ষণ'), subs:[] },

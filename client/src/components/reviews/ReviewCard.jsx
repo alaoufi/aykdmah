@@ -17,7 +17,7 @@ function langLabel(code) {
 export default function ReviewCard({ review, canReply = false, onChange }) {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
-  const viewerLang = (i18n.resolvedLanguage || 'ar').toLowerCase().slice(0, 2);
+  const viewerLang = (i18n.resolvedLanguage || 'ar').toLowerCase().split(/[-_]/)[0];
 
   const needsTranslation = review.comment
     && review.original_language

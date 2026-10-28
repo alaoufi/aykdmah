@@ -13,10 +13,10 @@ const translationService = require('./translationService');
 // Source-of-truth language list. Keep in sync with client/i18n/index.js.
 // (Adding 'fr' here later auto-translates every new/updated category
 //  into French — zero schema or controller changes needed.)
-const TARGET_LANGS = ['ar', 'en', 'ur', 'bn', 'hi'];
+const TARGET_LANGS = ['ar', 'en', 'ur', 'bn', 'hi', 'ml', 'fil', 'id', 'ne', 'am', 'tr'];
 
 async function translateAllLanguages(text, sourceLang = 'ar') {
-  const src = (sourceLang || 'ar').toLowerCase().slice(0, 2);
+  const src = (sourceLang || 'ar').toLowerCase().split(/[-_]/)[0];
   const map = { [src]: text };
   if (!text || !String(text).trim()) {
     for (const l of TARGET_LANGS) map[l] = text || '';

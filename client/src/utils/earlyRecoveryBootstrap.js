@@ -27,13 +27,19 @@
     const root = document.getElementById('root');
     if (!root || root.childNodes.length) return;
     let lang = 'ar';
-    try { lang = (localStorage.getItem('lsm_lang') || 'ar').slice(0, 2); } catch (_) {}
+    try { lang = (localStorage.getItem('lsm_lang') || 'ar').split(/[-_]/)[0]; } catch (_) {}
     const copies = {
       ar: ['تعذّر تحميل الموقع', 'أعد تحميل الصفحة للحصول على أحدث نسخة.', 'إعادة التحميل'],
       en: ['Unable to load the site', 'Reload this page to get the latest version.', 'Reload'],
       ur: ['سائٹ لوڈ نہیں ہو سکی', 'تازہ ترین ورژن کے لیے صفحہ دوبارہ لوڈ کریں۔', 'دوبارہ لوڈ کریں'],
       hi: ['साइट लोड नहीं हो सकी', 'नवीनतम संस्करण के लिए पेज फिर से लोड करें।', 'फिर से लोड करें'],
       bn: ['সাইট লোড করা যায়নি', 'সর্বশেষ সংস্করণের জন্য পৃষ্ঠাটি আবার লোড করুন।', 'আবার লোড করুন'],
+      ml: ['സൈറ്റ് ലോഡ് ചെയ്യാനായില്ല', 'ഏറ്റവും പുതിയ പതിപ്പിനായി ഈ പേജ് വീണ്ടും ലോഡ് ചെയ്യുക.', 'വീണ്ടും ലോഡ് ചെയ്യുക'],
+      fil: ['Hindi ma-load ang site', 'I-reload ang pahinang ito para makuha ang pinakabagong bersyon.', 'I-reload'],
+      id: ['Situs tidak dapat dimuat', 'Muat ulang halaman ini untuk mendapatkan versi terbaru.', 'Muat ulang'],
+      ne: ['साइट लोड गर्न सकिएन', 'नयाँ संस्करणका लागि यो पृष्ठ फेरि लोड गर्नुहोस्।', 'फेरि लोड गर्नुहोस्'],
+      am: ['ድረ-ገጹን መጫን አልተቻለም', 'የቅርብ ጊዜውን ስሪት ለማግኘት ይህን ገጽ እንደገና ይጫኑ።', 'እንደገና ጫን'],
+      tr: ['Site yüklenemedi', 'En son sürümü almak için bu sayfayı yeniden yükleyin.', 'Yeniden yükle'],
     };
     const copy = copies[lang] || copies.ar;
     const box = document.createElement('div');

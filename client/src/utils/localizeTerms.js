@@ -4,7 +4,7 @@ const normalize = value => String(value || '').replace(/منصة (?:«أي خد�
 const DEFAULT_SIGNATURE = normalize(ORIGINAL_TERMS);
 
 export function localizedTerms(settings, lang, translate) {
-  const code = (lang || 'ar').toLowerCase().slice(0, 2);
+  const code = (lang || 'ar').toLowerCase().split(/[-_]/)[0];
   const explicit = settings?.[`terms_text_${code}`];
   if (typeof explicit === 'string' && explicit.trim()) return explicit;
   const source = settings?.terms_text;

@@ -31,7 +31,8 @@ test('interpolation retains established missing-key and language fallbacks', () 
 });
 
 test('account completion and saved-location guidance has native text in all five languages', () => {
-  const scripts = { ar: /[\u0600-\u06ff]/u, en: /[a-z]/iu, ur: /[\u0600-\u06ff]/u, hi: /[\u0900-\u097f]/u, bn: /[\u0980-\u09ff]/u };
+  const scripts = { ar: /[\u0600-\u06ff]/u, en: /[a-z]/iu, ur: /[\u0600-\u06ff]/u, hi: /[\u0900-\u097f]/u, bn: /[\u0980-\u09ff]/u,
+    ml: /[\u0d00-\u0d7f]/u, fil: /[a-z]/iu, id: /[a-z]/iu, ne: /[\u0900-\u097f]/u, am: /[\u1200-\u137f]/u, tr: /[a-z\u00e7\u011f\u0131\u00f6\u015f\u00fc]/iu };
   for (const key of ['account_phone_unavailable', 'account_profile_required', 'account_location_required']) {
     for (const language of SUPPORTED) {
       const message = translate(language, key);

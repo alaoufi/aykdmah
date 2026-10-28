@@ -13,6 +13,12 @@ const POPULAR_BY_LANG = {
   ur: ['پلمبنگ', 'بجلی', 'صحن کی صفائی'],
   bn: ['প্লাম্বিং', 'বৈদ্যুতিক কাজ', 'উঠান পরিষ্কার'],
   hi: ['प्लंबिंग', 'बिजली का काम', 'आंगन की सफाई'],
+  ml: ['പ്ലംബിംഗ്', 'ഇലക്ട്രിക്കൽ', 'മുറ്റം വൃത്തിയാക്കൽ'],
+  fil: ['Tubero', 'Elektrisyan', 'Paglilinis ng bakuran'],
+  id: ['Ledeng', 'Listrik', 'Bersih halaman'],
+  ne: ['प्लम्बिङ', 'बिजुली काम', 'आँगन सफाइ'],
+  am: ['የቧንቧ ሥራ', 'የኤሌክትሪክ ሥራ', 'የግቢ ጽዳት'],
+  tr: ['Tesisat', 'Elektrik', 'Bahçe temizliği'],
 };
 
 export default function Hero() {

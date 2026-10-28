@@ -53,7 +53,9 @@ if (self.caches) {
 let translator = null;
 let speech = null;
 let running = false;
-const languageNames = { ar: 'arabic', en: 'english', ur: 'urdu', hi: 'hindi', bn: 'bengali' };
+const languageNames = { ar: 'arabic', en: 'english', ur: 'urdu', hi: 'hindi', bn: 'bengali', ml: 'malayalam', fil: 'tagalog', id: 'indonesian', ne: 'nepali', am: 'amharic', tr: 'turkish' };
+// The translation model names Filipino by its ISO 639-1 code.
+const modelCode = code => (code === 'fil' ? 'tl' : code);
 
 function report(id, stage, percent = null) { self.postMessage({ type: 'progress', id, stage, percent }); }
 
@@ -122,7 +124,7 @@ async function translateText(id, text, sourceLanguage, targetLanguage) {
     // The standard TranslationPipeline silently enables input truncation.
     // Use its tokenizer/model with explicit bounds and reject incomplete
     // generation instead of presenting only part of a long message.
-    const options = { src_lang: sourceLanguage, tgt_lang: targetLanguage, max_new_tokens: 256, num_beams: 1 };
+    const options = { src_lang: modelCode(sourceLanguage), tgt_lang: modelCode(targetLanguage), max_new_tokens: 256, num_beams: 1 };
     const inputs = model.tokenizer._build_translation_inputs(piece, { padding: true, truncation: false }, options);
     if (inputs.input_ids.dims.at(-1) > 480) throw localLanguageError('too_long');
     const tokens = await model.model.generate({ ...inputs, ...options });
