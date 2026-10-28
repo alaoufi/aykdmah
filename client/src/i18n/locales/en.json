@@ -265,11 +265,11 @@
     "simple_location_pick": "Your location is not set yet",
     "location_change": "Change",
     "retry": "Retry",
-    "have_coupon": "Have an invitation coupon?",
+    "have_coupon": "Have an invitation number?",
     "sms_later_note": "You may be asked for a code sent to your phone by SMS.",
     "welcome_title": "Your account is ready",
-    "welcome_coupon_title": "Your coupon",
-    "welcome_coupon_hint": "This is your own shareable code. Share it; you earn a commission on the first payment of everyone who signs up with it.",
+    "welcome_coupon_title": "Your invitation number",
+    "welcome_coupon_hint": "This is your own invitation number. Share it: you earn a commission on the first payment of anyone who signs up with it.",
     "copy": "Copy",
     "copied": "Copied",
     "continue": "Continue",
@@ -291,7 +291,11 @@
     "sms_failed": "The verification code could not be sent. Check the number and try again shortly",
     "sms_unavailable": "Password recovery by phone is not available yet. Contact the administration",
     "phone_registered": "This number is already registered. Sign in, or use “Forgot password”.",
-    "phone_available": "✓ Valid number, not registered yet"
+    "phone_available": "✓ Valid number, not registered yet",
+    "invite_label": "Invitation number (optional)",
+    "invite_hint": "If someone invited you, enter their invitation number here (letters and digits). Leave it empty if you have none.",
+    "invite_not_found": "The invitation number is not valid. Check it or leave it empty.",
+    "complete_to_enable": "To enable the button: {{item}}"
   },
   "request": {
     "create_title": "Create a new request",
@@ -1447,8 +1451,8 @@
         "body": "Choose one or more neighbourhoods of your city that you serve, or tap “All”. Your own neighbourhood is preselected."
       },
       "coupon": {
-        "title": "Your coupon",
-        "body": "After signing up, a provider sees their own coupon: their shareable letters-and-digits code. Anyone with an invitation coupon can enter it while signing up."
+        "title": "Your invitation number",
+        "body": "After signing up you see your own invitation number, made of letters and digits. If someone invited you, type their number in the “Invitation number” field while signing up. The “Create account” button stays off until the required fields are complete and valid, the terms are accepted and the verification code is entered."
       },
       "matching": {
         "title": "Requests that match you",

@@ -52,7 +52,7 @@ export default function RegisterPage() {
   const [mapOpen, setMapOpen] = useState(false);
   const [venuePoint, setVenuePoint] = useState(null);
   const [venueMapOpen, setVenueMapOpen] = useState(false);
-  const [couponOpen, setCouponOpen] = useState(Boolean(form.referral_code));
+  const [couponOpen, setCouponOpen] = useState(true);
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
   const [coverageCount, setCoverageCount] = useState(null);
@@ -141,8 +141,8 @@ export default function RegisterPage() {
     } catch (_) { setPhoneStatus(''); }
   };
 
-  const handleSubmit = async event => {
-    event.preventDefault();
+  // Every rule the account needs; the submit button stays off until none is left.
+  const formErrors = () => {
     const errors = {};
     const phone = cleanPhone(form.phone);
     if (!isSaudiMobile(phone)) errors.phone = t('auth.phone_invalid');
@@ -157,6 +157,16 @@ export default function RegisterPage() {
       if (form.location_mode !== 'mobile' && !venuePoint) errors.venue_point = t('provider.venue_point_required');
     }
     if (!termsAccepted) errors.terms = t('auth.terms_required');
+    if (codeStep && phoneCode.length < codeStep.length) errors.code = t('auth.code_required');
+    return errors;
+  };
+  const pending = Object.values(formErrors());
+  const canSubmit = pending.length === 0 && phoneStatus !== 'checking' && locStatus !== 'locating';
+
+  const handleSubmit = async event => {
+    event.preventDefault();
+    const phone = cleanPhone(form.phone);
+    const errors = formErrors();
     if (Object.keys(errors).length) {
       setFieldErrors(errors);
       setError(Object.values(errors)[0]);
@@ -202,7 +212,7 @@ export default function RegisterPage() {
       if (res.referral_code) setWelcome({ code: res.referral_code, role: res.user.role });
       else navigate(authReturnTarget(res.user.role, from), { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message === 'coupon_not_found' ? t('wallet.errors.coupon_not_found') : apiError(err));
+      setError(err.response?.data?.message === 'coupon_not_found' ? t('auth.invite_not_found') : apiError(err));
       if (err.response?.status === 409) setFieldErrors({ phone: apiError(err) });
     } finally { setLoading(false); }
   };
@@ -309,7 +319,7 @@ export default function RegisterPage() {
           </div>}
         </>}
 
-        {couponOpen ? <Input label={t('wallet.register_coupon')} hint={t('wallet.register_coupon_hint')} dir="ltr" maxLength={12}
+        {couponOpen ? <Input label={t('auth.invite_label')} hint={t('auth.invite_hint')} dir="ltr" maxLength={12}
           value={form.referral_code} onChange={e => update('referral_code', e.target.value.toUpperCase())} placeholder="AB12" /> :
           <button type="button" className="text-[13px] text-primary font-semibold" onClick={() => setCouponOpen(true)}>🎟️ {t('auth.have_coupon')}</button>}
 
@@ -326,7 +336,7 @@ export default function RegisterPage() {
           <p className="text-[13px] m-0">{t('auth.code_sent_to', { phone: form.phone })}</p>
           <Input id="register-code" label={t('auth.verification_code')} dir="ltr" inputMode="numeric" autoComplete="one-time-code" autoFocus
             maxLength={codeStep.length} placeholder={'1234567890'.slice(0, codeStep.length)} value={phoneCode}
-            className="text-center tracking-[.5em] font-mono" onChange={e => { setPhoneCode(e.target.value.replace(/D/g, '')); setError(''); }} />
+            className="text-center tracking-[.5em] font-mono" onChange={e => { setPhoneCode(cleanPhone(e.target.value).replace(/\D/g, '')); setError(''); }} />
           <div className="flex justify-between text-[13px]">
             <button type="button" className="text-primary font-semibold" onClick={() => { setCodeStep(null); setPhoneCode(''); document.getElementById('register-phone')?.focus(); }}>{t('auth.change_phone')}</button>
             <button type="button" className="text-primary font-semibold disabled:opacity-50" disabled={wait > 0 || loading}
@@ -336,9 +346,10 @@ export default function RegisterPage() {
           </div>
         </div>}
 
-        <Button type="submit" data-testid="register-submit" block loading={loading} variant="primary" disabled={locStatus === 'locating'}>
+        <Button type="submit" data-testid="register-submit" block loading={loading} variant="primary" disabled={!canSubmit}>
           {codeStep ? t('auth.confirm_and_register') : t('auth.register_button')}
         </Button>
+        {!canSubmit && pending.length > 0 && <p className="text-center text-[12px] text-fg-muted -mt-1" data-testid="register-pending">{t('auth.complete_to_enable', { item: pending[0] })}</p>}
         <p className="text-center text-[11.5px] text-fg-subtle">{t('auth.sms_later_note')}</p>
 
         <div className="text-center text-sm text-secondary">
