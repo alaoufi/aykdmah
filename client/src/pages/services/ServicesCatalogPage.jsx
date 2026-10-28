@@ -9,11 +9,15 @@ import SearchAndFilters from '../../components/catalog/SearchAndFilters';
 import CatalogLocationNotice from '../../components/catalog/CatalogLocationNotice';
 import ServiceRequestForm from '../../components/catalog/ServiceRequestForm';
 import { EmptyState } from '../../components/common/Spinner';
+import MatchingProviders from '../../components/catalog/MatchingProviders';
+import { useAuth } from '../../hooks/useAuth';
 
 export default function ServicesCatalogPage() {
   const { t, i18n } = useTranslation();
   const [orderService, setOrderService] = useState(null);
   const discovery = useCatalogFilters();
+  const { user } = useAuth();
+  const isRequester = user && (user.role === 'client' || Number(user.also_client) === 1);
   const results = filterCatalogServices(SERVICES, CATEGORIES, discovery.filters,
     i18n.resolvedLanguage || 'ar', discovery.valid);
   const categories = CATEGORIES.filter(category => results.some(service => service.categoryId === category.id));
@@ -26,6 +30,7 @@ export default function ServicesCatalogPage() {
           <h1 className="text-ink text-3xl md:text-4xl font-extrabold tracking-tight">{t('catalog.hero_title')}</h1>
           <p className="text-slate-500 text-sm md:text-[15px] mt-3">{t('catalog.hero_subtitle')}</p>
         </div>
+        {isRequester && <div className="mb-8"><MatchingProviders /></div>}
         <SearchAndFilters value={discovery.values} onChange={discovery.change} onReset={discovery.reset} options={discovery.options} />
         <CatalogLocationNotice {...discovery} />
         {!discovery.loading && categories.length > 0 && <>

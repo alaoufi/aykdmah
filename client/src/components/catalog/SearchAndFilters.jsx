@@ -1,4 +1,6 @@
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../../hooks/useAuth';
 import { IconSearch } from '../common/Icons';
 import { localizedName } from '../../utils/localize';
 import { CATALOG_SORTS } from '../../utils/catalogFilters';
@@ -6,6 +8,9 @@ import { CATALOG_SORTS } from '../../utils/catalogFilters';
 export default function SearchAndFilters({ value, onChange, onReset, options }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
+  const { user } = useAuth();
+  // A signed-in user's area is the one registered on the account (changed from "Edit your area").
+  const ownArea = Boolean(user?.city_id);
   const fields = [
     { key: 'region', data: options.regions, placeholder: 'home.available_regions', disabled: false },
     { key: 'governorate', data: options.governorates, placeholder: 'location.all_governorates', disabled: !value.region },
@@ -25,7 +30,11 @@ export default function SearchAndFilters({ value, onChange, onReset, options }) 
           className="bg-transparent text-[14px] text-ink placeholder:text-slate-400 outline-none w-full"
         />
       </label>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+      {ownArea ? (
+        <p className="text-[13px] text-fg-muted m-0" data-testid="own-area">📍 {t('for_you.using_your_area')}{' '}
+          <Link to="/profile#my-area" className="font-semibold text-primary">{t('for_you.edit_area')}</Link>
+        </p>
+      ) : <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
         {fields.map(({ key, data, placeholder, disabled }) => {
           const hasSelection = data.rows.some(row => String(row.id) === value[key]);
           const emptyLabel = data.loading ? t('common.loading') : data.error ? t('location.options_unavailable') :
@@ -47,7 +56,7 @@ export default function SearchAndFilters({ value, onChange, onReset, options }) 
             </label>
           );
         })}
-      </div>
+      </div>}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <label className="text-[11px] text-slate-500 font-semibold">
           {t('catalog.sort_by')}

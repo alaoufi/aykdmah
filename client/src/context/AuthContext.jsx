@@ -95,6 +95,8 @@ export function AuthProvider({ children }) {
 
   const logout = async () => {
     await detachPush();
+    // A neighbourhood picked for browsing belongs to this account only.
+    try { localStorage.removeItem('ayk_browse_area'); } catch (_) { /* private mode */ }
     ++refreshVersion.current;
     setUser(null);
     setProvider(null);

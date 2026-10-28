@@ -32,8 +32,15 @@ const Conversation = require('./server/models/Conversation');
   await install.setupFromEnv();
   const add = async (name, role) => (await db.query('INSERT INTO users (full_name, email, password_hash, role, is_active) VALUES (?, ?, ?, ?, 1)', [name, role + Math.random().toString(36).slice(2) + '@e2e.invalid', 'unused', role])).insertId;
   const c = await add('عميل تجريبي', 'client'), p = await add('مقدم تجريبي', 'provider'), o = await add('مستخدم ثالث', 'client');
-  await db.query('INSERT INTO provider_profiles (user_id) VALUES (?)', [p]);
-  const r = (await db.query(\"INSERT INTO requests (client_id, title, description, assigned_provider_id, status) VALUES (?, ?, ?, ?, 'assigned')\", [c, 'طلب اختبار', 'اختبار مكالمة', p])).insertId;
+  // Both live in the same neighbourhood; the provider covers it as an electrician (home page test).
+  const area = (await db.query('SELECT d.id, d.city_id FROM districts d ORDER BY d.id LIMIT 1'))[0];
+  const trade = (await db.query(\"SELECT s.id, s.category_id FROM services s JOIN categories k ON k.id = s.category_id WHERE k.slug = 'electrical' ORDER BY s.id LIMIT 1\"))[0];
+  await db.query('UPDATE users SET city_id = ?, district_id = ? WHERE id IN (?, ?)', [area.city_id, area.id, c, p]);
+  await db.query('INSERT INTO provider_profiles (user_id, service_ids, rating_avg, rating_count) VALUES (?, ?, 4.8, 12)', [p, JSON.stringify([trade.id])]);
+  await db.query('INSERT INTO provider_coverage_districts (user_id, district_id) VALUES (?, ?)', [p, area.id]);
+  await db.query(\"INSERT INTO requests (client_id, title, description, service_id, category_id, city_id, district_id, status) VALUES (?, ?, ?, ?, ?, ?, ?, 'open')\",
+    [o, 'إصلاح فيش كهرباء', 'فيش المطبخ لا يعمل', trade.id, trade.category_id, area.city_id, area.id]);
+  const r =(await db.query(\"INSERT INTO requests (client_id, title, description, assigned_provider_id, status) VALUES (?, ?, ?, ?, 'assigned')\", [c, 'طلب اختبار', 'اختبار مكالمة', p])).insertId;
   const conv = await Conversation.findOrCreateBetween(c, p, r);
   const t = (id, role) => jwt.sign({ id, role, auth_version: 0 });
   console.log(JSON.stringify({ conv, client: t(c, 'client'), provider: t(p, 'provider'), outsider: t(o, 'client') }));

@@ -1478,7 +1478,7 @@
       },
       "matching": {
         "title": "What your home page shows",
-        "body": "Providers see open requests in the neighbourhoods they cover and in their professions. Requesters see providers who cover their area in the profession they pick: featured (paid badge) first, then the highest rated. Change your area from “Edit your area” at the top."
+        "body": "Providers see open requests in the neighbourhoods they cover and in their professions. Requesters see providers who cover their area in the profession they pick: featured (paid badge) first, then the highest rated. Change your area from “Edit your area” at the top. If you manage more than one home, tap “Another neighbourhood” to see the providers there without changing your registered one."
       },
       "edit": {
         "title": "Changing things later",
@@ -2000,6 +2000,11 @@
     "unavailable": "Not available now",
     "view_profile": "View profile and contact",
     "view_all": "View all",
-    "coverage_text": "Offered by the providers who cover your area, across the Kingdom"
+    "coverage_text": "Offered by the providers who cover your area, across the Kingdom",
+    "using_your_area": "Results follow your registered area",
+    "providers_in_profession": "{{name}} providers in your neighbourhood",
+    "browsing_area": "Showing: {{area}}",
+    "other_district": "Another neighbourhood",
+    "back_to_mine": "Back to my neighbourhood"
   }
 }
