@@ -11,7 +11,9 @@ const privateAccess = (user, request) => user && (user.id === request.client_id
 const validId = value => typeof value === 'string' && /^[1-9][0-9]{0,9}$/.test(value) && Number(value) <= 2147483647;
 
 const create = asyncHandler(async (req, res) => {
-  if (!(req.user.role === 'client' || (req.user.role === 'provider' && Number(req.user.also_client) === 1))) return forbidden(res);
+  // Admins may post requests too (the owner tests the site with the admin account).
+  const canRequest = ['client', 'admin'].includes(req.user.role) || (req.user.role === 'provider' && Number(req.user.also_client) === 1);
+  if (!canRequest) return forbidden(res, req.t('request_client_only'));
   const data = {
     client_id: req.user.id,
     category_id: req.body.category_id,

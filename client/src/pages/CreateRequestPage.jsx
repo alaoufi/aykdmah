@@ -99,13 +99,24 @@ export default function CreateRequestPage() {
       )}
 
       <form onSubmit={submit} className="card" style={{ padding: 24 }}>
-        <Input
-          label={t('request.title')}
-          maxLength={200}
-          value={form.title}
-          onChange={(e) => update('title', e.target.value)}
-          placeholder={t('request.title_ph')}
-        />
+        {/* Simple first: the profession and a few words. The sub-service only appears
+            once a profession that has sub-services is chosen; the rest is optional. */}
+        <div className="form-group">
+          <label className="form-label">{t('request.category')}</label>
+          <select className="select" value={form.category_id} onChange={(e) => update('category_id', e.target.value)} data-testid="request-category">
+            <option value="">{t('common.select')}</option>
+            {categories.map(c => <option key={c.id} value={c.id}>{localizedName(c, lang)}</option>)}
+          </select>
+        </div>
+        {form.category_id && services.length > 0 && (
+          <div className="form-group">
+            <label className="form-label">{t('request.subservice')} ({t('common.optional')})</label>
+            <select className="select" value={form.service_id} onChange={(e) => update('service_id', e.target.value)}>
+              <option value="">{t('common.select')}</option>
+              {services.map(s => <option key={s.id} value={s.id}>{localizedName(s, lang)}</option>)}
+            </select>
+          </div>
+        )}
 
         <Input
           as="textarea"
@@ -115,24 +126,17 @@ export default function CreateRequestPage() {
           placeholder={t('request.description_ph')}
         />
 
-        <div className="grid grid-2">
-          <div className="form-group">
-            <label className="form-label">{t('request.category')}</label>
-            <select className="select" value={form.category_id} onChange={(e) => update('category_id', e.target.value)}>
-              <option value="">{t('common.select')}</option>
-              {categories.map(c => <option key={c.id} value={c.id}>{localizedName(c, lang)}</option>)}
-            </select>
-          </div>
-          <div className="form-group">
-            <label className="form-label">{t('request.subservice')}</label>
-            <select className="select" value={form.service_id} onChange={(e) => update('service_id', e.target.value)} disabled={!form.category_id}>
-              <option value="">{t('common.select')}</option>
-              {services.map(s => <option key={s.id} value={s.id}>{localizedName(s, lang)}</option>)}
-            </select>
-          </div>
-        </div>
-
         <RequestLocationFields control={requestLocation} disabled={loading} />
+
+        <details className="mb-4">
+          <summary className="cursor-pointer font-semibold text-fg-muted py-2">{t('common.details')} ({t('common.optional')})</summary>
+        <Input
+          label={t('request.title')}
+          maxLength={200}
+          value={form.title}
+          onChange={(e) => update('title', e.target.value)}
+          placeholder={t('request.title_ph')}
+        />
 
         <div className="grid grid-2">
           <Input
@@ -175,6 +179,7 @@ export default function CreateRequestPage() {
           />
           <span>{t('request.urgent_full')}</span>
         </label>
+        </details>
 
         <Button type="submit" block size="lg" loading={loading} variant="primary" disabled={!requestLocation.ready || !!locationMissing}>
           {t('request.submit')}
