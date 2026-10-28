@@ -57,6 +57,8 @@ services:
       PUSH_SUBJECT: https://aykdmh.com
     volumes:
       - uploads:/app/server/uploads
+      # AYK-032: the active client release, read for search-engine pages (index.html only).
+      - /var/www/aykdmh:/srv/site:ro
     depends_on:
       db:
         condition: service_healthy

@@ -46,11 +46,37 @@ aykdmh.com {
 		file_server
 	}
 
+	# AYK-032: public pages get their own title, description, structured data and text
+	# from the API so search engines index each service and category.
+	@seo {
+		method GET HEAD
+		path / /services /services/* /guide /providers/map /privacy /terms
+	}
+	handle @seo {
+		header Cache-Control "no-cache, no-store, must-revalidate"
+		rewrite * /api/seo/page{path}
+		reverse_proxy app:5000
+	}
+	handle /sitemap.xml {
+		rewrite * /api/seo/sitemap.xml
+		reverse_proxy app:5000
+	}
+
 	# Client-side routes.
 	handle {
 		header Cache-Control "no-cache, no-store, must-revalidate"
 		rewrite * /index.html
 		file_server
+	}
+
+	# While the API restarts, public pages fall back to the plain app shell.
+	handle_errors 502 503 504 {
+		@page expression `!{http.request.orig_uri.path}.startsWith("/api") && !{http.request.orig_uri.path}.startsWith("/socket.io") && !{http.request.orig_uri.path}.startsWith("/livekit")`
+		handle @page {
+			header Cache-Control "no-cache, no-store, must-revalidate"
+			rewrite * /index.html
+			file_server
+		}
 	}
 }
 

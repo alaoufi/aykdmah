@@ -122,6 +122,46 @@ if (!databaseName) {
     const messageId = await Message.create({ conversation_id: conversationId, sender_id: customer.user.id, files: [file], message_type: 'file' });
     assert.equal((await Message.findById(messageId)).files.length, 1);
   });
+  test('search-engine pages carry their own title, canonical, structured data and text; the sitemap lists them', async () => {
+    const shell = require('path').join(require('os').tmpdir(), `ayk-seo-${crypto.randomBytes(4).toString('hex')}.html`);
+    require('fs').writeFileSync(shell, '<!doctype html><html><head><meta name="description" content="x" /><meta property="og:title" content="x" /><meta property="og:description" content="x" /><title>x</title></head><body><div id="root"></div></body></html>');
+    process.env.SEO_INDEX_HTML = shell;
+    const service = await db.queryOne('SELECT id, name_ar FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    const category = await db.queryOne('SELECT slug, name_ar FROM categories WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    const page = async p => { const r = await fetch(`${base}/seo/page${p}`); return { status: r.status, html: await r.text() }; };
+
+    const home = await page('/');
+    assert.equal(home.status, 200);
+    assert.match(home.html, /<title>أي خدمة \| صيانة منزلية/);
+    assert.match(home.html, /<link rel="canonical" href="https:\/\/aykdmh.com\/" \/>/);
+    assert.match(home.html, /"@type":"WebSite"/);
+    assert.ok(home.html.includes(`href="/services/${service.id}"`), 'home links every service');
+
+    const one = await page(`/services/${service.id}`);
+    assert.equal(one.status, 200);
+    assert.ok(one.html.includes(`<title>${service.name_ar}`), 'service title');
+    assert.ok(one.html.includes(`<h1>${service.name_ar}</h1>`), 'readable heading without JavaScript');
+    assert.match(one.html, /"@type":"Service"/);
+    assert.match(one.html, /"@type":"BreadcrumbList"/);
+    assert.equal((await page(`/services/category/${category.slug}`)).status, 200);
+
+    const missing = await page('/services/999999999');
+    assert.equal(missing.status, 404);
+    assert.match(missing.html, /noindex/);
+    const sitemap = await fetch(`${base}/seo/sitemap.xml`);
+    assert.equal(sitemap.status, 200);
+    const xml = await sitemap.text();
+    assert.ok(xml.includes(`<loc>https://aykdmh.com/services/${service.id}</loc>`));
+    assert.ok(xml.includes(`<loc>https://aykdmh.com/services/category/${category.slug}</loc>`));
+    require('fs').unlinkSync(shell);
+  });
+  test('search-engine text is escaped', () => {
+    const seo = require('../services/seoService');
+    const html = seo.render({ title: '<b>t</b>', description: '"d"', path: '/x', ld: [{ name: '</script><script>alert(1)</script>' }], body: '<h1>ok</h1>' });
+    assert.ok(html, 'the app shell is cached from the previous test');
+    assert.ok(html.includes('<title>&lt;b&gt;t&lt;/b&gt;</title>'), 'title is escaped');
+    assert.ok(!html.includes('</script><script>alert(1)'), 'JSON-LD cannot close its script tag');
+  });
   test('a failed transaction rolls back every write', async () => {
     await assert.rejects(db.transaction(async conn => {
       await conn.execute("INSERT INTO settings (setting_key, setting_value) VALUES ('rollback_probe', 'value')");

@@ -81,6 +81,8 @@ app.use('/api', (req, res, next) => {
   return bootMigrations().then(() => next(), next);
 });
 
+// Search-engine pages and sitemap: crawlers fetch many pages, so no per-IP API limit.
+app.use('/api/seo', require('./routes/seoRoutes'));
 app.use('/api', generalLimiter, apiRoutes);
 
 if (env.NODE_ENV === 'production' && fs.existsSync(env.PATHS.CLIENT_DIST)) {

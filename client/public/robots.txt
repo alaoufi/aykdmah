@@ -2,4 +2,11 @@ User-agent: *
 Disallow: /admin
 Disallow: /install
 Disallow: /api
+Disallow: /chat
+Disallow: /profile
+Disallow: /client
+Disallow: /provider/
+Disallow: /payments
 Allow: /
+
+Sitemap: https://aykdmh.com/sitemap.xml
