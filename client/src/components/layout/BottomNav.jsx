@@ -12,7 +12,8 @@ export default function BottomNav() {
   const { t } = useTranslation();
   const { user } = useAuth();
   const { unread } = useNotifications();
-  const dashLink = user?.role === 'admin' ? '/admin' : user?.role === 'provider' ? '/provider' : '/client';
+  // Admins go to their panel; everyone else opens their own profile (account type, area, password).
+  const accountLink = user?.role === 'admin' ? '/admin' : '/profile';
 
   useEffect(() => {
     const viewport = window.visualViewport;
@@ -49,7 +50,7 @@ export default function BottomNav() {
     { id: 'services', to: '/services', label: t('nav.services'), Icon: IconGrid },
     { id: 'request', to: '/requests/new', label: t('nav.order_now'), Icon: IconPlus, fab: true },
     { id: 'chat', to: user ? '/chat' : '/login', label: t('nav.chat'), Icon: IconChat, badge: unread },
-    { id: 'account', to: user ? dashLink : '/login', label: user ? t('nav.profile') : t('nav.login'), Icon: IconUser },
+    { id: 'account', to: user ? accountLink : '/login', label: user ? t('nav.profile') : t('nav.login'), Icon: IconUser },
   ];
 
   return createPortal(
