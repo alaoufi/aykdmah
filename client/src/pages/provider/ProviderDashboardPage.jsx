@@ -11,6 +11,7 @@ import { LoadingState, EmptyState } from '../../components/common/Spinner';
 import { formatCurrency } from '../../utils/formatters';
 import { OFFER_STATUS } from '../../utils/constants';
 import AvailabilityBadge from '../../components/common/AvailabilityBadge';
+import MyMarket from '../../components/provider/MyMarket';
 
 export default function ProviderDashboardPage() {
   const { t, i18n } = useTranslation();
@@ -48,6 +49,7 @@ export default function ProviderDashboardPage() {
         <Link to="/profile#availability" className="text-[12.5px] font-semibold">{t('availability.manage')}</Link>
       </div>
       {error && <p role="alert" className="form-error">{t('errors.generic')}</p>}
+      <div className="mb-5"><MyMarket /></div>
 
       <div className="grid grid-3 mb-4">
         <div className="stat-card">

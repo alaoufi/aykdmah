@@ -100,24 +100,36 @@ const nearby = asyncHandler(async (req, res) => {
 // districts, else their coverage city, else their own city) in the profession asked
 // for. Ranked: featured (a paid, verified badge) first, then the highest rated.
 // A signed-in user's registered district and city are used unless others are given.
-const matching = asyncHandler(async (req, res) => {
-  const id = value => (value == null || value === '' ? null : Number(value));
-  const categoryId = id(req.query.category_id), serviceId = id(req.query.service_id);
-  let districtId = id(req.query.district_id), cityId = id(req.query.city_id);
-  if ([categoryId, serviceId, districtId, cityId].some(v => v !== null && !(Number.isSafeInteger(v) && v > 0))) {
-    return error(res, req.t ? req.t('invalid_data') : 'Invalid filter', 400);
-  }
+const optionalId = value => (value == null || value === '' ? null : Number(value));
+const validIds = ids => ids.every(v => v === null || (Number.isSafeInteger(v) && v > 0));
+
+// The area to look at: the given district/city, else the signed-in user's registered one.
+async function resolveArea(req) {
+  let districtId = optionalId(req.query.district_id), cityId = optionalId(req.query.city_id);
+  if (!validIds([districtId, cityId])) return { invalid: true };
   if (!districtId && !cityId && req.user) {
     const me = (await query('SELECT city_id, district_id FROM users WHERE id = ?', [req.user.id]))[0];
     districtId = me?.district_id ? Number(me.district_id) : null;
     cityId = me?.city_id ? Number(me.city_id) : null;
   }
   if (districtId && !cityId) cityId = Number((await query('SELECT city_id FROM districts WHERE id = ?', [districtId]))[0]?.city_id) || null;
-  if (!cityId) return success(res, { area: null, providers: [] });
+  if (!cityId) return { districtId: null, cityId: null, area: null };
+  const names = (await query(`SELECT c.name_ar AS city_name_ar, c.name_en AS city_name_en, d.name_ar AS district_name_ar, d.name_en AS district_name_en
+    FROM cities c LEFT JOIN districts d ON d.id = ? AND d.city_id = c.id WHERE c.id = ?`, [districtId, cityId]))[0] || {};
+  return { districtId, cityId, area: { city_id: cityId, district_id: districtId, ...names } };
+}
 
-  const area = (await query(`SELECT c.name_ar AS city_name_ar, c.name_en AS city_name_en, d.name_ar AS district_name_ar, d.name_en AS district_name_en
-    FROM cities c LEFT JOIN districts d ON d.id = ? AND d.city_id = c.id WHERE c.id = ?`, [districtId, cityId]))[0] || null;
+// Category of every service, so a provider's services count per profession.
+async function serviceCategories() {
+  return new Map((await query('SELECT id, category_id FROM services')).map(row => [Number(row.id), Number(row.category_id)]));
+}
+const providerCategories = (row, byService) => new Set([
+  ...parseServiceIds(row.service_ids).map(id => byService.get(id)).filter(Boolean),
+  ...(row.category_id ? [Number(row.category_id)] : []),
+]);
 
+// Active providers serving a district (or a whole city).
+function coveringProviders({ districtId, cityId, excludeId = 0 }) {
   // Coverage: an explicit district list wins; without one the coverage city, else the home city.
   const coverage = districtId
     ? `(EXISTS (SELECT 1 FROM provider_coverage_districts pcd WHERE pcd.user_id = u.id AND pcd.district_id = ?)
@@ -126,7 +138,7 @@ const matching = asyncHandler(async (req, res) => {
     : `(EXISTS (SELECT 1 FROM provider_coverage_districts pcd JOIN districts d ON d.id = pcd.district_id WHERE pcd.user_id = u.id AND d.city_id = ?)
         OR (NOT EXISTS (SELECT 1 FROM provider_coverage_districts pcd WHERE pcd.user_id = u.id)
             AND COALESCE(pp.coverage_city_id, u.city_id) = ?))`;
-  const rows = await query(`
+  return query(`
     SELECT u.id, u.full_name, u.avatar, u.is_verified, u.is_online,
            pp.business_name, pp.category_id, pp.service_ids,
            pp.rating_avg, pp.rating_count, pp.completed_orders,
@@ -139,7 +151,15 @@ const matching = asyncHandler(async (req, res) => {
     JOIN provider_profiles pp ON pp.user_id = u.id
     WHERE u.role = 'provider' AND u.is_active = 1 AND u.is_blocked = 0 AND u.deleted_at IS NULL
       AND u.id <> ? AND ${coverage}`,
-  [req.user?.id || 0, districtId || cityId, cityId]);
+  [excludeId, districtId || cityId, cityId]);
+}
+
+const matching = asyncHandler(async (req, res) => {
+  const categoryId = optionalId(req.query.category_id), serviceId = optionalId(req.query.service_id);
+  const where = await resolveArea(req);
+  if (where.invalid || !validIds([categoryId, serviceId])) return error(res, req.t ? req.t('invalid_data') : 'Invalid filter', 400);
+  if (!where.cityId) return success(res, { area: null, providers: [] });
+  const rows = await coveringProviders({ ...where, excludeId: req.user?.id || 0 });
 
   const categoryServices = categoryId !== null
     ? new Set((await query('SELECT id FROM services WHERE category_id = ?', [categoryId])).map(row => Number(row.id))) : null;
@@ -162,7 +182,87 @@ const matching = asyncHandler(async (req, res) => {
     || (b.rating_avg - a.rating_avg) || (b.rating_count - a.rating_count)
     || ((a.availability.state !== 'available') - (b.availability.state !== 'available'))
     || (b.completed_orders - a.completed_orders));
-  return success(res, { area: area && { city_id: cityId, district_id: districtId, ...area }, providers: providers.slice(0, MAX_RESULTS) });
+  return success(res, { area: where.area, providers: providers.slice(0, MAX_RESULTS) });
 });
 
-module.exports = { nearby, matching, publicPoint };
+// GET /api/providers/area-stats[?district_id&city_id]  (AYK-036)
+// For requesters: per profession in their area, how many providers serve it, how many
+// are available now and featured, their average rating, and open requests there.
+const areaStats = asyncHandler(async (req, res) => {
+  const where = await resolveArea(req);
+  if (where.invalid) return error(res, req.t ? req.t('invalid_data') : 'Invalid filter', 400);
+  if (!where.cityId) return success(res, { area: null, categories: [], totals: null });
+  const [rows, byService] = await Promise.all([coveringProviders({ ...where, excludeId: req.user?.id || 0 }), serviceCategories()]);
+  const stats = new Map();
+  const entry = id => { if (!stats.has(id)) stats.set(id, { category_id: id, providers: 0, available: 0, featured: 0, rated: 0, rating_sum: 0, open_requests: 0 }); return stats.get(id); };
+  let available = 0;
+  for (const row of rows) {
+    const isAvailable = availability(row).state === 'available';
+    if (isAvailable) available += 1;
+    for (const categoryId of providerCategories(row, byService)) {
+      const e = entry(categoryId);
+      e.providers += 1;
+      if (isAvailable) e.available += 1;
+      if (row.is_featured === true || Number(row.is_featured) === 1) e.featured += 1;
+      if (Number(row.rating_count) > 0) { e.rated += 1; e.rating_sum += Number(row.rating_avg) || 0; }
+    }
+  }
+  const open = await query(`SELECT COALESCE(r.category_id, s.category_id) AS category_id, COUNT(*) AS n
+    FROM requests r LEFT JOIN services s ON s.id = r.service_id
+    WHERE r.status = 'open' AND r.deleted_at IS NULL AND ${where.districtId ? 'r.district_id = ?' : 'r.city_id = ?'}
+    GROUP BY COALESCE(r.category_id, s.category_id)`, [where.districtId || where.cityId]);
+  for (const row of open) if (row.category_id) entry(Number(row.category_id)).open_requests = Number(row.n);
+  const categories = [...stats.values()].map(({ rated, rating_sum, ...e }) => ({ ...e, rating_avg: rated ? Math.round((rating_sum / rated) * 10) / 10 : null }));
+  return success(res, {
+    area: where.area, categories,
+    totals: { providers: rows.length, available, open_requests: open.reduce((sum, row) => sum + Number(row.n), 0) },
+  });
+});
+
+// GET /api/providers/my-market  (AYK-036)
+// For a provider: per profession in the neighbourhoods they cover, how many other
+// providers compete, how many open requests wait now, how many requesters asked in the
+// last 30 days, and how many requesters live there.
+const myMarket = asyncHandler(async (req, res) => {
+  if (req.user?.role !== 'provider') return error(res, req.t ? req.t('forbidden') : 'Forbidden', 403);
+  const me = (await query(`SELECT pp.service_ids, pp.category_id, COALESCE(pp.coverage_city_id, u.city_id) AS city_id
+    FROM provider_profiles pp JOIN users u ON u.id = pp.user_id WHERE pp.user_id = ?`, [req.user.id]))[0];
+  if (!me) return success(res, { areas: 0, categories: [] });
+  const byService = await serviceCategories();
+  const mine = [...providerCategories(me, byService)];
+  const covered = (await query('SELECT district_id FROM provider_coverage_districts WHERE user_id = ?', [req.user.id])).map(row => Number(row.district_id));
+  const areas = covered.length ? covered.map(districtId => ({ districtId, cityId: null })) : me.city_id ? [{ districtId: null, cityId: Number(me.city_id) }] : [];
+  if (!areas.length || !mine.length) return success(res, { areas: areas.length, categories: [] });
+  if (covered.length) {
+    const cities = await query(`SELECT id, city_id FROM districts WHERE id IN (${covered.map(() => '?').join(', ')})`, covered);
+    for (const a of areas) a.cityId = Number(cities.find(c => Number(c.id) === a.districtId)?.city_id) || null;
+  }
+  // Competitors: other providers in the same profession serving any of the same neighbourhoods.
+  const competitors = new Map(mine.map(id => [id, new Set()]));
+  for (const a of areas.filter(x => x.cityId)) {
+    for (const row of await coveringProviders({ ...a, excludeId: req.user.id })) {
+      for (const categoryId of providerCategories(row, byService)) competitors.get(categoryId)?.add(Number(row.id));
+    }
+  }
+  const areaSql = covered.length ? `r.district_id IN (${covered.map(() => '?').join(', ')})` : 'r.city_id = ?';
+  const areaParams = covered.length ? covered : [Number(me.city_id)];
+  const catSql = mine.map(() => '?').join(', ');
+  const requests = await query(`SELECT COALESCE(r.category_id, s.category_id) AS category_id,
+      SUM(CASE WHEN r.status = 'open' THEN 1 ELSE 0 END) AS open_now,
+      COUNT(DISTINCT CASE WHEN r.created_at > CURRENT_TIMESTAMP - INTERVAL '30 days' THEN r.client_id END) AS requesters_30d,
+      SUM(CASE WHEN r.created_at > CURRENT_TIMESTAMP - INTERVAL '30 days' THEN 1 ELSE 0 END) AS requests_30d
+    FROM requests r LEFT JOIN services s ON s.id = r.service_id
+    WHERE r.deleted_at IS NULL AND ${areaSql} AND COALESCE(r.category_id, s.category_id) IN (${catSql})
+    GROUP BY COALESCE(r.category_id, s.category_id)`, [...areaParams, ...mine]);
+  const userAreaSql = covered.length ? `u.district_id IN (${covered.map(() => '?').join(', ')})` : 'u.city_id = ?';
+  const residents = Number((await query(`SELECT COUNT(*) AS n FROM users u WHERE u.deleted_at IS NULL AND u.is_active = 1
+      AND (u.role = 'client' OR COALESCE(u.also_client, 0) = 1) AND u.id <> ? AND ${userAreaSql}`, [req.user.id, ...areaParams]))[0]?.n) || 0;
+  const categories = mine.map(id => {
+    const r = requests.find(row => Number(row.category_id) === id) || {};
+    return { category_id: id, competitors: competitors.get(id).size, open_now: Number(r.open_now) || 0,
+      requesters_30d: Number(r.requesters_30d) || 0, requests_30d: Number(r.requests_30d) || 0 };
+  });
+  return success(res, { areas: areas.length, requesters_in_area: residents, categories });
+});
+
+module.exports = { nearby, matching, areaStats, myMarket, publicPoint };

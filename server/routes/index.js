@@ -10,6 +10,11 @@ router.use('/media', require('./mediaRoutes'));
 
 router.use('/auth', require('./authRoutes'));
 router.use('/users', require('./userRoutes'));
+router.get('/providers/area-stats', require('../middleware/auth').optionalAuth,
+  require('../middleware/verificationPolicy').requireMarketplaceBrowse,
+  require('../controllers/providerMapController').areaStats);
+router.get('/providers/my-market', require('../middleware/auth').authenticate,
+  require('../controllers/providerMapController').myMarket);
 router.get('/providers/matching', require('../middleware/auth').optionalAuth,
   require('../middleware/verificationPolicy').requireMarketplaceBrowse,
   require('../controllers/providerMapController').matching);

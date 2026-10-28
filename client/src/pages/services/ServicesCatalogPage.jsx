@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { CATEGORIES, SERVICES } from '../../data/servicesCatalog';
 import { filterCatalogServices } from '../../utils/catalogFilters';
 import useCatalogFilters from '../../hooks/useCatalogFilters';
-import CategoryCard from '../../components/catalog/CategoryCard';
+import ProfessionsSection from '../../components/catalog/ProfessionsSection';
 import ServiceCard from '../../components/catalog/ServiceCard';
 import SearchAndFilters from '../../components/catalog/SearchAndFilters';
 import CatalogLocationNotice from '../../components/catalog/CatalogLocationNotice';
@@ -20,7 +20,6 @@ export default function ServicesCatalogPage() {
   const isRequester = user && (user.role === 'client' || Number(user.also_client) === 1);
   const results = filterCatalogServices(SERVICES, CATEGORIES, discovery.filters,
     i18n.resolvedLanguage || 'ar', discovery.valid);
-  const categories = CATEGORIES.filter(category => results.some(service => service.categoryId === category.id));
 
   return (
     <div className="bg-cream min-h-screen">
@@ -33,12 +32,7 @@ export default function ServicesCatalogPage() {
         {isRequester && <div className="mb-8"><MatchingProviders /></div>}
         <SearchAndFilters value={discovery.values} onChange={discovery.change} onReset={discovery.reset} options={discovery.options} />
         <CatalogLocationNotice {...discovery} />
-        {!discovery.loading && categories.length > 0 && <>
-          <h2 className="text-ink text-xl md:text-2xl font-extrabold mb-5">{t('catalog.categories_title')}</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
-            {categories.map(category => <CategoryCard key={category.id} category={category} query={discovery.query} />)}
-          </div>
-        </>}
+        <ProfessionsSection query={discovery.query} />
         {!discovery.loading && <>
           <div className="flex flex-wrap items-end justify-between gap-2 mb-5">
             <h2 className="text-ink text-xl md:text-2xl font-extrabold">{t('catalog.popular_title')}</h2>

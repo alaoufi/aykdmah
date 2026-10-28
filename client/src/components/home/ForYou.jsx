@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import { listNearbyRequests } from '../../services/requestService';
 import MatchingProviders from '../catalog/MatchingProviders';
+import MyMarket from '../provider/MyMarket';
 import RequestCard from './RequestCard';
 
 // The heart of the site (AYK-035): a provider sees open requests in their coverage
@@ -16,6 +17,7 @@ export default function ForYou() {
   const isClient = user.role === 'client' || Number(user.also_client) === 1;
   return (
     <section className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-8 space-y-8" data-testid="for-you">
+      {isProvider && <MyMarket />}
       {isProvider && <RequestsForMe />}
       {isClient && <MatchingProviders />}
     </section>

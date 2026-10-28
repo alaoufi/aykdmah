@@ -1489,6 +1489,10 @@
       "change_type": {
         "title": "Changing the account type",
         "body": "If you chose the wrong type at sign-up, open “Profile” → “Account type” and pick client, provider or both. Becoming a provider needs at least one profession, your districts and where you serve. You cannot leave providing while a job is in progress, nor become “provider only” with open requests (choose “Both”). Switching to client keeps your work details for later."
+      },
+      "stats": {
+        "title": "Numbers that help you",
+        "body": "The services page lists every profession; each card shows how many providers serve your area, how many are available now or featured, their average rating and the open requests. Providers see “Your market in your area” on their dashboard: requesters registered in their neighbourhoods, open requests now, requesters in the last 30 days and competitors."
       }
     },
     "availability_title": "Availability, vacations and working hours",
@@ -2007,6 +2011,25 @@
     "providers_in_profession": "{{name}} providers in your neighbourhood",
     "browsing_area": "Showing: {{area}}",
     "other_district": "Another neighbourhood",
-    "back_to_mine": "Back to my neighbourhood"
+    "back_to_mine": "Back to my neighbourhood",
+    "choose_profession": "Choose a profession…",
+    "area_totals": "In your area: {{providers}} providers, {{available}} available now, {{requests}} open requests",
+    "stat_providers": "{{count}} providers in your area",
+    "stat_available": "{{count}} available now",
+    "stat_featured": "{{count}} featured",
+    "stat_open": "{{count}} open requests",
+    "sign_in_for_stats": "Sign in to see how many providers serve your area"
+  },
+  "market": {
+    "title": "Your market in your area",
+    "hint": "Numbers for the neighbourhoods you cover ({{count}}) in your professions",
+    "requesters_in_area": "registered requesters in your area",
+    "open_now": "open requests now in your profession",
+    "requesters_30d": "requesters in your profession, last 30 days",
+    "competitors": "other providers in your profession and area",
+    "open_now_short": "Open now",
+    "requests_30d_short": "Requests (30 days)",
+    "competitors_short": "Competitors",
+    "setup_hint": "Complete your profession and the neighbourhoods you cover in your profile to see your market."
   }
 }

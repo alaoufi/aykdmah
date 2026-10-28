@@ -52,6 +52,19 @@ if (await district.locator('option').count() > 1) {
   await section.getByText('مقدم تجريبي').waitFor({ timeout: 15000 }).then(() => check('back to my neighbourhood', true)).catch(() => check('back to my neighbourhood', false));
 } else check('another neighbourhood can be browsed', false, 'no districts in the chosen city');
 
+// Services page: every profession in a dropdown, and area numbers inside each card.
+await client.goto(`${BASE}/services`);
+const professions = client.getByTestId('professions');
+await professions.waitFor({ timeout: 30000 });
+await professions.getByTestId('area-totals').waitFor({ timeout: 15000 }).catch(() => {});
+check('profession dropdown lists every profession', await professions.getByTestId('profession-select').locator('option').count() >= 9);
+check('profession cards show providers in the area', await professions.getByText(/مقدم خدمة في منطقتك/).count() > 0);
+await professions.scrollIntoViewIfNeeded();
+await client.screenshot({ path: '/e2e/professions.png' });
+await professions.getByTestId('profession-select').selectOption('electrical');
+await client.waitForURL(/\/services\/category\/electrical/, { timeout: 10000 }).then(() => check('choosing a profession opens its page', true))
+  .catch(() => check('choosing a profession opens its page', false));
+
 const provider = await open(PROVIDER);
 await provider.goto(`${BASE}/`);
 const requests = provider.getByTestId('requests-for-me');
@@ -59,6 +72,10 @@ await requests.waitFor({ timeout: 30000 });
 await requests.getByText('إصلاح فيش كهرباء').waitFor({ timeout: 15000 }).then(() => check('provider sees the open request in their area and profession', true))
   .catch(() => check('provider sees the open request in their area and profession', false));
 await requests.screenshot({ path: '/e2e/home-provider.png' });
+const market = provider.getByTestId('my-market');
+await market.waitFor({ timeout: 15000 }).catch(() => {});
+check('provider sees their market numbers', await market.getByText(/طالب خدمة مسجل في نطاقك/).count() > 0);
+await market.screenshot({ path: '/e2e/my-market.png' }).catch(() => {});
 
 await browser.close();
 const failed = results.filter(r => !r.ok);

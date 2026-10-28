@@ -165,6 +165,21 @@ if (!databaseName) {
     assert.ok(!ids.includes(elsewhere), 'a provider who does not cover the district is not shown');
     assert.ok(!ids.includes(otherTrade), 'a provider of another profession is not shown');
     assert.equal(result.providers.find(p => p.id === featured).is_featured, true);
+    // Area numbers for the requester: per profession, providers, featured and open requests.
+    await db.query("INSERT INTO requests (client_id, title, description, service_id, category_id, city_id, district_id, status) VALUES (?, 'r', 'r', ?, ?, ?, ?, 'open')",
+      [client.user.id, service.id, service.category_id, city.id, home.id]);
+    const stats = (await api('/providers/area-stats', { token: client.token })).data;
+    const trade = stats.categories.find(row => Number(row.category_id) === Number(service.category_id));
+    assert.ok(trade.providers >= 3 && trade.featured >= 1, 'providers covering the district are counted per profession');
+    assert.ok(trade.open_requests >= 1);
+    // The provider's market: requesters living in the covered district, open requests now, competitors.
+    const providerToken = require('../utils/jwt').sign({ id: good, role: 'provider', auth_version: 0 });
+    const market = (await api('/providers/my-market', { token: providerToken })).data;
+    const mine = market.categories.find(row => Number(row.category_id) === Number(service.category_id));
+    assert.ok(market.requesters_in_area >= 1, 'the requester living there is counted');
+    assert.ok(mine.open_now >= 1 && mine.requesters_30d >= 1);
+    assert.ok(mine.competitors >= 2, 'other providers of the profession covering the same district');
+    await api('/providers/my-market', { token: client.token, expected: 403 });
     // No area registered: nothing to match yet.
     await db.query('UPDATE users SET city_id = NULL, district_id = NULL WHERE id = ?', [client.user.id]);
     assert.equal((await api('/providers/matching', { token: client.token })).data.area, null);

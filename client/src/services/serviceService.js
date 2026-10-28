@@ -111,3 +111,18 @@ export async function listMatchingProviders({ categoryId, serviceId, cityId, dis
   const { data } = await api.get('/providers/matching', { params });
   return data.data;
 }
+
+// Per-profession numbers for the requester's area (AYK-036).
+export async function getAreaStats({ cityId, districtId } = {}) {
+  const params = {};
+  if (cityId) params.city_id = cityId;
+  if (districtId) params.district_id = districtId;
+  const { data } = await api.get('/providers/area-stats', { params });
+  return data.data;
+}
+
+// A provider's market in the neighbourhoods they cover (AYK-036).
+export async function getMyMarket() {
+  const { data } = await api.get('/providers/my-market');
+  return data.data;
+}
