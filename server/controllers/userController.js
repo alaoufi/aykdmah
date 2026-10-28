@@ -219,7 +219,78 @@ const updateByAdmin = asyncHandler(async (req, res) => {
   return success(res, user, req.t('profile_updated'));
 });
 
+// PUT /users/me/role { role: client | provider | both, service_ids, coverage_district_ids, location_mode, fixed_latitude, fixed_longitude }
+// Lets an account fix the type chosen at sign-up. Work in progress is never
+// orphaned: a provider with assigned jobs cannot leave, and a client with open
+// requests can only move to "both". A former provider's profile is kept and reused.
+const ACTIVE_REQUEST = ['open', 'assigned', 'in_progress'];
+const changeRole = asyncHandler(async (req, res) => {
+  const target = req.body.role;
+  if (!['client', 'provider', 'both'].includes(target)) return error(res, req.t('type_invalid'), 400);
+  const user = await queryOne(`SELECT id, role, to_jsonb(users)->>'also_client' AS also_client, city_id FROM users WHERE id = ? AND deleted_at IS NULL`, [req.user.id]);
+  if (!user || !['client', 'provider'].includes(user.role)) return forbidden(res);
+  const current = user.role === 'client' ? 'client' : Number(user.also_client) === 1 ? 'both' : 'provider';
+  if (current === target) return success(res, await User.findById(user.id), req.t('updated'));
+
+  const placeholders = ACTIVE_REQUEST.map(() => '?').join(', ');
+  if (target === 'client') {
+    const job = await queryOne(`SELECT id FROM requests WHERE assigned_provider_id = ? AND status IN ('assigned', 'in_progress') AND deleted_at IS NULL LIMIT 1`, [user.id]);
+    if (job) return error(res, req.t('role_change_active_jobs'), 409);
+  }
+  if (target === 'provider' && current !== 'provider') {
+    const own = await queryOne(`SELECT id FROM requests WHERE client_id = ? AND status IN (${placeholders}) AND deleted_at IS NULL LIMIT 1`, [user.id, ...ACTIVE_REQUEST]);
+    if (own) return error(res, req.t('role_change_open_requests'), 409);
+  }
+
+  // Becoming a provider needs the same work details as a provider sign-up,
+  // unless an earlier provider profile already holds them.
+  let profile = null;
+  if (target !== 'client' && user.role === 'client') {
+    const existing = await User.getProviderProfile(user.id);
+    const hasServices = Array.isArray(existing?.service_ids) ? existing.service_ids.length > 0 : Boolean(existing?.service_ids);
+    const supplied = req.body.service_ids !== undefined;
+    if (!existing || !hasServices || supplied) {
+      const mode = req.body.location_mode === undefined ? 'mobile' : req.body.location_mode;
+      if (!['fixed', 'mobile', 'both'].includes(mode)) return error(res, req.t('invalid_data'), 400);
+      profile = { location_mode: mode, fixed_latitude: null, fixed_longitude: null };
+      if (mode !== 'mobile') {
+        const point = await validateUserLocation({ latitude: req.body.fixed_latitude, longitude: req.body.fixed_longitude }, {}, req.t('invalid_data'));
+        if (point.latitude == null || point.longitude == null) return error(res, req.t('provider_venue_point_required'), 400);
+        profile.fixed_latitude = point.latitude;
+        profile.fixed_longitude = point.longitude;
+      }
+      Object.assign(profile, await validateProviderServices({ service_ids: req.body.service_ids, any_category: true }, {}, {
+        required: true, message: req.t('provider_services_required'),
+      }));
+      profile.coverage = await validateCoverage(req.body, { cityId: user.city_id, required: true, message: req.t('provider_area_required') });
+    }
+  }
+
+  const { transaction } = require('../config/database');
+  await transaction(async conn => {
+    if (target === 'client') {
+      // Pending bids from an account that no longer provides services are withdrawn.
+      await conn.execute(`UPDATE offers SET status = 'withdrawn' WHERE provider_id = ? AND status = 'pending'`, [user.id]);
+      await conn.execute(`UPDATE users SET role = 'client', also_client = 0 WHERE id = ?`, [user.id]);
+      return;
+    }
+    await conn.execute(`UPDATE users SET role = 'provider', also_client = ? WHERE id = ?`, [target === 'both' ? 1 : 0, user.id]);
+    if (!profile) return;
+    const [[row]] = await conn.query('SELECT id FROM provider_profiles WHERE user_id = ?', [user.id]);
+    const values = [profile.location_mode, profile.fixed_latitude, profile.fixed_longitude, profile.category_id ?? null,
+      profile.service_ids ? JSON.stringify(profile.service_ids) : null];
+    if (row) {
+      await conn.execute(`UPDATE provider_profiles SET location_mode = ?, fixed_latitude = ?, fixed_longitude = ?, category_id = ?, service_ids = ? WHERE user_id = ?`, [...values, user.id]);
+    } else {
+      await conn.execute(`INSERT INTO provider_profiles (location_mode, fixed_latitude, fixed_longitude, category_id, service_ids, user_id) VALUES (?, ?, ?, ?, ?, ?)`, [...values, user.id]);
+    }
+    if (profile.coverage) await saveCoverage((sql, params) => conn.execute(sql, params), user.id, profile.coverage);
+  });
+  return success(res, await User.findById(user.id), req.t('account_type_changed'));
+});
+
 module.exports = {
+  changeRole,
   list, getOne, updateMe, updateProvider, getProviderReviews,
   block, unblock, remove, createByAdmin, updateByAdmin,
 };

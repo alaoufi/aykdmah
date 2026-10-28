@@ -29,6 +29,7 @@ router.get('/',                ...gate, userController.list);
 router.post('/',               ...gate, ...accountValidation, userController.createByAdmin);
 router.put('/me', authenticate, userController.updateMe);
 router.put('/me/provider', authenticate, userController.updateProvider);
+router.put('/me/role', authenticate, userController.changeRole);
 router.get('/:id', optionalAuth, requireMarketplaceBrowse, userController.getOne);
 router.put('/:id',             ...gate, ...accountValidation, userController.updateByAdmin);
 router.get('/:id/reviews', optionalAuth, requireMarketplaceBrowse, userController.getProviderReviews);

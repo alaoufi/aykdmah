@@ -520,6 +520,41 @@ if (!databasePrefix) {
     assert.ok(!matching.some(row => Number(row.id) === requestId));
   });
 
+  test('an account changes its type: client to "both" with work details, back to client, and provider again reusing the kept profile', async () => {
+    const area = await simpleArea();
+    const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    const session = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const change = (body, expected = 200) => api('/users/me/role', { method: 'PUT', token: session.token, body, expected });
+
+    await change({ role: 'admin' }, 400);
+    await change({ role: 'both' }, 400); // no profession yet
+    await change({ role: 'both', service_ids: [Number(service.id)] }, 400); // no coverage
+    await change({ role: 'both', service_ids: [Number(service.id)], coverage_district_ids: area.districts.slice(0, 1), location_mode: 'fixed' }, 400); // no venue point
+    const both = await change({ role: 'both', service_ids: [Number(service.id)], coverage_district_ids: area.districts.slice(0, 1), location_mode: 'mobile' });
+    assert.equal(both.role, 'provider');
+    assert.equal(Number(both.also_client), 1);
+    assert.deepEqual((await db.queryOne('SELECT service_ids FROM provider_profiles WHERE user_id = ?', [session.user.id])).service_ids, [Number(service.id)]);
+
+    // An open request as a client blocks "provider only", but not staying "both".
+    const request = await api('/requests', { method: 'POST', token: session.token, expected: 201, body: {
+      title: 'أحتاج سباك', description: 'تسريب في الحمام', city_id: area.city_id, district_id: area.district_id, latitude: 24.7136, longitude: 46.6753 } });
+    await change({ role: 'provider' }, 409);
+    await db.query(`UPDATE requests SET status = 'cancelled' WHERE id = ?`, [Number(request.id || request.request?.id)]);
+
+    // An assigned job blocks leaving the provider side.
+    const job = await db.queryOne(`INSERT INTO requests (client_id, title, description, status, assigned_provider_id, city_id)
+      VALUES (?, 'عمل جارٍ', 'عمل مسند لمقدم الخدمة', 'assigned', ?, ?) RETURNING id`, [session.user.id, session.user.id, area.city_id]);
+    await change({ role: 'client' }, 409);
+    await db.query('DELETE FROM requests WHERE id = ?', [job.id]);
+
+    const client = await change({ role: 'client' });
+    assert.equal(client.role, 'client');
+    // The kept provider profile means no work details are needed to return.
+    const provider = await change({ role: 'provider' });
+    assert.equal(provider.role, 'provider');
+    assert.equal(Number(provider.also_client), 0);
+  });
+
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
