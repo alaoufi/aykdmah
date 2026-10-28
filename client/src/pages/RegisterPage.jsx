@@ -305,7 +305,7 @@ export default function RegisterPage() {
           <div className="flex justify-between text-[13px]">
             <button type="button" className="text-primary font-semibold" onClick={() => { setCodeStep(null); setPhoneCode(''); document.getElementById('register-phone')?.focus(); }}>{t('auth.change_phone')}</button>
             <button type="button" className="text-primary font-semibold disabled:opacity-50" disabled={wait > 0 || loading}
-              onClick={async () => { try { const sent = await sendPhoneCode(form.phone.trim().replace(/[s()-]/g, ''), 'signup'); setWait(sent?.resend_seconds || 60); setError(''); } catch (err) { setError(apiError(err)); } }}>
+              onClick={async () => { try { const sent = await sendPhoneCode(form.phone.trim().replace(/[\s()-]/g, ''), 'signup'); setWait(sent?.resend_seconds || 60); setError(''); } catch (err) { setError(apiError(err)); } }}>
               {wait > 0 ? t('auth.resend_in', { seconds: wait }) : t('auth.resend_code')}
             </button>
           </div>
