@@ -289,7 +289,9 @@
     "confirm_and_register": "Confirm code and create account",
     "phone_invalid": "The mobile number is not valid. Enter 10 digits starting with 05, e.g. 0512345678",
     "sms_failed": "The verification code could not be sent. Check the number and try again shortly",
-    "sms_unavailable": "Password recovery by phone is not available yet. Contact the administration"
+    "sms_unavailable": "Password recovery by phone is not available yet. Contact the administration",
+    "phone_registered": "This number is already registered. Sign in, or use “Forgot password”.",
+    "phone_available": "✓ Valid number, not registered yet"
   },
   "request": {
     "create_title": "Create a new request",

@@ -6,6 +6,7 @@ import PasswordInput from '../components/common/PasswordInput';
 import Button from '../components/common/Button';
 import { sendPhoneCode, resetPassword } from '../services/authService';
 import { apiError } from '../services/api';
+import { cleanPhone, isSaudiMobile } from '../utils/saudiPhone';
 
 // "Forgot password": a code to the registered phone, then a new password (AYK-016).
 export default function ForgotPasswordPage() {
@@ -29,8 +30,8 @@ export default function ForgotPasswordPage() {
   }, [wait]);
 
   const send = async () => {
-    const normalized = phone.trim().replace(/[\s()-]/g, '');
-    if (!/^\+?\d{8,15}$/.test(normalized)) { setError(t('auth.account_phone_required')); return; }
+    const normalized = cleanPhone(phone);
+    if (!isSaudiMobile(normalized)) { setError(t('auth.phone_invalid')); return; }
     setLoading(true); setError('');
     try {
       const result = await sendPhoneCode(normalized, 'reset');
@@ -48,7 +49,7 @@ export default function ForgotPasswordPage() {
     if (password.length < 4) { setError(t('auth.password_min')); return; }
     setLoading(true); setError('');
     try {
-      await resetPassword({ phone: phone.trim().replace(/[\s()-]/g, ''), code, password });
+      await resetPassword({ phone: cleanPhone(phone), code, password });
       navigate('/login', { replace: true, state: { identifier: phone.trim(), notice: t('auth.reset_done') } });
     } catch (err) { setError(apiError(err)); }
     finally { setLoading(false); }

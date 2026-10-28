@@ -5,7 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 import usePublicSettings from '../hooks/usePublicSettings';
 import { reverseGeocode, listCountries } from '../services/serviceService';
-import { sendPhoneCode } from '../services/authService';
+import { sendPhoneCode, checkPhone } from '../services/authService';
+import { cleanPhone, isSaudiMobile } from '../utils/saudiPhone';
 import useLocationOptions from '../hooks/useLocationOptions';
 import Input from '../components/common/Input';
 import PasswordInput from '../components/common/PasswordInput';
@@ -57,6 +58,8 @@ export default function RegisterPage() {
   const [coverageCount, setCoverageCount] = useState(null);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
+  // '' | 'checking' | 'available' | 'taken' — checked when the phone field loses focus.
+  const [phoneStatus, setPhoneStatus] = useState('');
   const [loading, setLoading] = useState(false);
   const [welcome, setWelcome] = useState(null);
   const [copied, setCopied] = useState(false);
@@ -81,7 +84,7 @@ export default function RegisterPage() {
   const districtMissing = place.city_id && !place.district_id && districts.length > 0;
 
   const update = (key, value) => {
-    if (key === 'phone') { setCodeStep(null); setPhoneCode(''); }
+    if (key === 'phone') { setCodeStep(null); setPhoneCode(''); setPhoneStatus(''); }
     setForm(previous => ({ ...previous, [key]: value }));
     setFieldErrors(previous => { const { [key]: _removed, ...rest } = previous; return rest; });
     setError('');
@@ -124,11 +127,26 @@ export default function RegisterPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isProvider, place.district_id]);
 
+  const verifyPhone = async () => {
+    const value = cleanPhone(form.phone);
+    if (!value) return;
+    if (!isSaudiMobile(value)) { setFieldErrors(previous => ({ ...previous, phone: t('auth.phone_invalid') })); return; }
+    setPhoneStatus('checking');
+    try {
+      const result = await checkPhone(value);
+      if (result?.available === false) {
+        setPhoneStatus('taken');
+        setFieldErrors(previous => ({ ...previous, phone: t('auth.phone_registered') }));
+      } else setPhoneStatus(result?.valid ? 'available' : '');
+    } catch (_) { setPhoneStatus(''); }
+  };
+
   const handleSubmit = async event => {
     event.preventDefault();
     const errors = {};
-    const phone = form.phone.trim().replace(/[\s()-]/g, '');
-    if (!/^\+?\d{8,15}$/.test(phone)) errors.phone = t('auth.account_phone_required');
+    const phone = cleanPhone(form.phone);
+    if (!isSaudiMobile(phone)) errors.phone = t('auth.phone_invalid');
+    else if (phoneStatus === 'taken') errors.phone = t('auth.phone_registered');
     if (form.password.length < 4) errors.password = t('auth.password_min');
     if (form.full_name.trim() && form.full_name.trim().length < 2) errors.full_name = t('auth.account_name_required');
     if (!isValidCoordinates(place.lat, place.lon) || !place.city_id) errors.location = t('auth.simple_location_required');
@@ -157,7 +175,7 @@ export default function RegisterPage() {
         }
       } catch (err) {
         setError(apiError(err));
-        if (err.response?.status === 409) setFieldErrors({ phone: apiError(err) });
+        if ([400, 409].includes(err.response?.status)) setFieldErrors({ phone: apiError(err) });
         setLoading(false);
         return;
       }
@@ -229,7 +247,14 @@ export default function RegisterPage() {
 
         <Input id="register-phone" name="phone" label={t('auth.phone')} type="tel" required maxLength={30} dir="ltr"
           value={form.phone} error={fieldErrors.phone} autoComplete="tel" inputMode="tel" placeholder="05XXXXXXXX"
-          onChange={e => update('phone', e.target.value)} />
+          hint={phoneStatus === 'available' ? t('auth.phone_available') : phoneStatus === 'checking' ? '…' : undefined}
+          onBlur={verifyPhone} onChange={e => update('phone', e.target.value)} />
+        {phoneStatus === 'taken' && (
+          <div className="flex gap-4 text-[13px] -mt-2">
+            <Link to="/login" state={{ identifier: cleanPhone(form.phone) }} className="text-primary font-semibold">{t('auth.login_button')}</Link>
+            <Link to="/forgot-password" state={{ identifier: cleanPhone(form.phone) }} className="text-primary font-semibold">{t('auth.forgot_password')}</Link>
+          </div>
+        )}
         <PasswordInput label={t('auth.password')} required minLength={4} autoComplete="new-password"
           value={form.password} error={fieldErrors.password} onChange={e => update('password', e.target.value)} />
         <Input id="register-full_name" name="full_name" label={t('auth.name_optional')} maxLength={150}
@@ -305,7 +330,7 @@ export default function RegisterPage() {
           <div className="flex justify-between text-[13px]">
             <button type="button" className="text-primary font-semibold" onClick={() => { setCodeStep(null); setPhoneCode(''); document.getElementById('register-phone')?.focus(); }}>{t('auth.change_phone')}</button>
             <button type="button" className="text-primary font-semibold disabled:opacity-50" disabled={wait > 0 || loading}
-              onClick={async () => { try { const sent = await sendPhoneCode(form.phone.trim().replace(/[\s()-]/g, ''), 'signup'); setWait(sent?.resend_seconds || 60); setError(''); } catch (err) { setError(apiError(err)); } }}>
+              onClick={async () => { try { const sent = await sendPhoneCode(cleanPhone(form.phone), 'signup'); setWait(sent?.resend_seconds || 60); setError(''); } catch (err) { setError(apiError(err)); } }}>
               {wait > 0 ? t('auth.resend_in', { seconds: wait }) : t('auth.resend_code')}
             </button>
           </div>

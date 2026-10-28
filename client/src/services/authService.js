@@ -62,6 +62,11 @@ export async function sendPhoneCode(phone, purpose) {
   return data.data;
 }
 
+export async function checkPhone(phone) {
+  const { data } = await api.post('/auth/phone-check', { phone });
+  return data.data;
+}
+
 export async function resetPassword(payload) {
   const { data } = await api.post('/auth/reset-password', payload);
   return data;

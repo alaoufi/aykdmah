@@ -238,6 +238,16 @@ const sendPhoneCode = asyncHandler(async (req, res) => {
   }
 });
 
+// POST /auth/phone-check { phone } — checked as soon as the sign-up phone field
+// loses focus. It reveals no more than sign-up itself, which answers 409 for a used number.
+const checkPhone = asyncHandler(async (req, res) => {
+  const phone = phoneCodes.normalizePhone(req.body.phone);
+  if (!phoneCodes.saudiMobile(phone)) return success(res, { valid: false });
+  const local = '0' + phone.slice(-9);
+  const existing = await User.findByPhone(phone) || (local !== phone ? await User.findByPhone(local) : null);
+  return success(res, { valid: true, available: !existing });
+});
+
 // POST /auth/reset-password { phone, code, password }
 const resetPassword = asyncHandler(async (req, res) => {
   const phone = phoneCodes.normalizePhone(req.body.phone);
@@ -310,4 +320,4 @@ const changePassword = asyncHandler(async (req, res) => {
   return success(res, null, req.t('password_changed'));
 });
 
-module.exports = { register, login, logout, me, changePassword, sendPhoneCode, resetPassword };
+module.exports = { register, login, logout, me, changePassword, sendPhoneCode, checkPhone, resetPassword };

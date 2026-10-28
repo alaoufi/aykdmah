@@ -27,6 +27,7 @@ router.post(
 
 // Phone codes for sign-up and "forgot password" (AYK-016).
 router.post('/phone-code', authLimiter, sanitizeBody(['phone']), authController.sendPhoneCode);
+router.post('/phone-check', authLimiter, sanitizeBody(['phone']), authController.checkPhone);
 router.post('/reset-password', authLimiter, sanitizeBody(['phone']), authController.resetPassword);
 
 // Login accepts ANY identifier the user signed up with: username,

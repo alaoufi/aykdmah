@@ -625,6 +625,12 @@ if (!databasePrefix) {
       assert.equal(Number(saved.is_verified), 1);
       assert.ok(saved.phone_verified_at);
       await sendCode({ phone, purpose: 'signup' }, 409);
+      // The sign-up form checks the number as soon as the field loses focus.
+      const check = body => api('/auth/phone-check', { method: 'POST', body });
+      assert.deepEqual(await check({ phone }), { valid: true, available: false });
+      assert.deepEqual(await check({ phone: '966' + phone.slice(1) }), { valid: true, available: false });
+      assert.deepEqual(await check({ phone: '05489999968' }), { valid: false });
+      assert.deepEqual(await check({ phone: phoneIdentity() }), { valid: true, available: true });
 
       await db.query('DELETE FROM auth_rate_limits');
       const before = sent.length;
