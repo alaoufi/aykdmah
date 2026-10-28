@@ -471,7 +471,9 @@ if (!databasePrefix) {
     assert.match(session.user.full_name, /^مستخدم \d{4}$/);
     assert.equal(session.user.role, 'client');
     assert.ok(session.user.address && session.user.address.length >= 2);
-    assert.equal(session.referral_code, undefined);
+    // Every account gets a permanent customer number, clients included.
+    assert.match(session.referral_code, /^[A-Z]{2,4}\d{2,4}$/);
+    assert.equal(session.user.referral_code, session.referral_code);
     const named = await simpleRegister({ role: 'client', full_name: 'سارة', city_id: area.city_id, district_id: area.district_id });
     assert.equal(named.user.full_name, 'سارة');
     await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id, latitude: undefined, longitude: undefined }, 400);
