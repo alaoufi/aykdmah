@@ -164,6 +164,8 @@ test('combined files remain under the upload body budget and failed message writ
 
 test('file validation errors use the reader language across all native locales', async () => {
   const before = await count();
+  // One upload per language (11 now): clear the upload rate limit so it is not what answers.
+  await db.query('DELETE FROM auth_rate_limits');
   for (const language of SUPPORTED) {
     const response = await call(`/api/chat/conversations/${conversation}/messages`, {
       user: users.client, headers: { 'Accept-Language': language },
