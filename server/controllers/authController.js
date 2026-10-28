@@ -223,6 +223,7 @@ const sendPhoneCode = asyncHandler(async (req, res) => {
   if (!await phoneCodes.smsAvailable()) {
     return purpose === 'signup' ? success(res, { required: false }) : error(res, req.t('sms_unavailable'), 503);
   }
+  if (!phoneCodes.saudiMobile(phone)) return error(res, req.t('phone_invalid'), 400);
   const existing = await User.findByPhone(phone);
   if (purpose === 'signup' && existing) return identifierConflict(req, res, ['phone']);
   // A reset for an unknown number answers like a sent code, so numbers cannot be probed.

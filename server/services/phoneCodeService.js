@@ -10,6 +10,8 @@ const DAILY_LIMIT = 10; // per phone and purpose, to bound SMS cost and abuse
 
 const normalizePhone = value => String(value || '').trim().replace(/[\s()-]/g, '');
 const validPhone = phone => /^\+?\d{8,15}$/.test(phone);
+// The SMS gateways are Saudi: 05XXXXXXXX, 5XXXXXXXX, 9665XXXXXXXX, +9665… or 009665…
+const saudiMobile = phone => /^(?:\+966|00966|966|0)?5\d{8}$/.test(phone);
 const fail = (message, status = 400, extra = {}) => Object.assign(new Error(message), { status, ...extra });
 
 // Sign-up verification is on whenever an SMS provider is active in the admin panel.
@@ -45,6 +47,8 @@ async function sendCode({ phone, purpose, ip = null }) {
   try {
     await adapter.send({ credentials: integration.credentials || {}, config: integration.config || {}, to: phone, message });
   } catch (err) {
+    // Adapter errors carry the provider name and status, never a credential.
+    console.warn('[phone code send failed]', purpose, err.message, err.providerMessage || '');
     // A code that never left must not block a retry for the resend wait.
     await query('DELETE FROM phone_codes WHERE phone = ? AND purpose = ? AND consumed_at IS NULL', [phone, purpose]);
     throw fail('sms_failed', 502);
@@ -74,4 +78,4 @@ async function verifyCode({ phone, purpose, code }) {
   });
 }
 
-module.exports = { sendCode, verifyCode, smsAvailable, normalizePhone, PURPOSES };
+module.exports = { sendCode, verifyCode, smsAvailable, normalizePhone, saudiMobile, PURPOSES };

@@ -128,6 +128,9 @@ for (const [code, key, messages] of [
   ["request_not_found", "request.not_found", ["الطلب غير موجود","Request not found","درخواست نہیں ملی","অনুরোধ পাওয়া যায়নি","अनुरोध नहीं मिला"]],
   ["request_not_open", "request.no_longer_open", ["الطلب لم يعد مفتوحاً","This request is no longer open","یہ درخواست اب کھلی نہیں","এই অনুরোধটি আর খোলা নেই","यह अनुरोध अब खुला नहीं है"]],
   ["offer_not_found", "offer.not_found", ["العرض غير موجود","Offer not found","پیشکش نہیں ملی","অফার পাওয়া যায়নি","ऑफ़र नहीं मिला"]],
+  ["phone_invalid", "auth.phone_invalid", ["رقم الجوال غير صحيح. اكتبه بعشرة أرقام يبدأ بـ 05، مثل 0512345678","The mobile number is not valid. Enter 10 digits starting with 05, e.g. 0512345678","موبائل نمبر درست نہیں۔ 05 سے شروع ہونے والے 10 ہندسے لکھیں، جیسے 0512345678","মোবাইল নম্বর সঠিক নয়। 05 দিয়ে শুরু ১০ অঙ্ক লিখুন, যেমন 0512345678","मोबाइल नंबर सही नहीं है। 05 से शुरू होने वाले 10 अंक लिखें, जैसे 0512345678"]],
+  ["sms_failed", "auth.sms_failed", ["تعذر إرسال رمز التحقق. تأكد من رقم الجوال وحاول بعد قليل","The verification code could not be sent. Check the number and try again shortly","تصدیقی کوڈ نہیں بھیجا جا سکا۔ نمبر چیک کریں اور تھوڑی دیر بعد کوشش کریں","যাচাইকরণ কোড পাঠানো যায়নি। নম্বর দেখে একটু পরে চেষ্টা করুন","सत्यापन कोड नहीं भेजा जा सका। नंबर जाँचें और थोड़ी देर बाद कोशिश करें"]],
+  ["sms_unavailable", "auth.sms_unavailable", ["استعادة كلمة المرور بالجوال غير متاحة حاليًا. تواصل مع الإدارة","Password recovery by phone is not available yet. Contact the administration","فون کے ذریعے پاس ورڈ بحالی ابھی دستیاب نہیں۔ انتظامیہ سے رابطہ کریں","ফোনে পাসওয়ার্ড পুনরুদ্ধার এখনো চালু নেই। প্রশাসনের সাথে যোগাযোগ করুন","फ़ोन से पासवर्ड वापसी अभी उपलब्ध नहीं है। प्रशासन से संपर्क करें"]],
   ["providers_only", "offer.providers_only", ["لمقدمي الخدمة فقط","Providers only","صرف فراہم کنندگان کے لیے","শুধুমাত্র প্রদানকারীদের জন্য","केवल प्रदाताओं के लिए"]]
 ]) {
   errorKeys.set(code, key);
@@ -140,7 +143,8 @@ export function apiError(err) {
   const data = response?.data;
   let key;
 
-  if (status >= 500) key = 'errors.generic';
+  // 502/503 carry a known server message (e.g. the SMS code could not be sent); other 5xx stay generic.
+  if (status >= 500 && !((status === 502 || status === 503) && errorMessages.has(String(data?.message || '').trim()))) key = 'errors.generic';
   if (!key && typeof data?.code === 'string') key = errorKeys.get(data.code);
   if (!key && typeof data?.message === 'string') key = errorMessages.get(data.message.trim());
 
