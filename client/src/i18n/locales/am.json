@@ -1053,7 +1053,8 @@
     "deleted_by_author": "በደራሲው የተሰረዘ",
     "districts": "ሰፈሮች",
     "search_districts": "ሰፈር ፈልግ",
-    "no_districts_hint": "ለዚህ ከተማ እስካሁን ሰፈሮች የሉም። ተጠቃሚዎች እንዲመርጡ እዚህ ያክሉ።"
+    "no_districts_hint": "ለዚህ ከተማ እስካሁን ሰፈሮች የሉም። ተጠቃሚዎች እንዲመርጡ እዚህ ያክሉ።",
+    "districts_hint": "የከተማውን ስም ተጭነው ሰፈሮቹን ይዩ፣ ሰፈር ያክሉ ወይም ስም ያስተካክሉ።"
   },
   "errors": {
     "generic": "የሆነ ነገር ተበላሸ",

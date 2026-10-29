@@ -1053,7 +1053,8 @@
     "deleted_by_author": "dihapus oleh penulisnya",
     "districts": "Lingkungan",
     "search_districts": "Cari lingkungan",
-    "no_districts_hint": "Kota ini belum memiliki lingkungan. Tambahkan di sini agar pengguna dapat memilihnya."
+    "no_districts_hint": "Kota ini belum memiliki lingkungan. Tambahkan di sini agar pengguna dapat memilihnya.",
+    "districts_hint": "Ketuk nama kota untuk melihat lingkungannya, menambah atau memperbaiki nama."
   },
   "errors": {
     "generic": "Sesuatu yang salah",

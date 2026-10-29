@@ -1053,7 +1053,8 @@
     "deleted_by_author": "na tinanggal ng may-akda nito",
     "districts": "Mga distrito",
     "search_districts": "Maghanap ng distrito",
-    "no_districts_hint": "Wala pang distrito ang lungsod na ito. Idagdag dito para mapili ng mga user."
+    "no_districts_hint": "Wala pang distrito ang lungsod na ito. Idagdag dito para mapili ng mga user.",
+    "districts_hint": "I-tap ang pangalan ng lungsod para makita ang mga distrito nito, magdagdag o itama ang pangalan."
   },
   "errors": {
     "generic": "May nagkamali",

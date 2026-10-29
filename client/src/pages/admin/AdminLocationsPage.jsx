@@ -354,6 +354,8 @@ function CitiesPanel({ country, region, onPick, onMsg }) {
         <h2 className="text-[15px] font-extrabold text-ink">{t('admin.cities')} ({items.length})</h2>
         <AdminButton variant="primary" icon="+" onClick={openCreate}>{t('admin.new')}</AdminButton>
       </div>
+      {/* Districts are managed inside each city (AYK-045). */}
+      <p className="text-[12.5px] text-fg-muted m-0" data-testid="cities-districts-hint">🏘️ {t('admin.districts_hint')}</p>
 
       {loading ? <Skeleton /> : items.length === 0 ? (
         <div className="bg-surface rounded-card border border-border"><EmptyState icon="🏙️" title={t('admin.no_results')} /></div>
@@ -364,7 +366,7 @@ function CitiesPanel({ country, region, onPick, onMsg }) {
           renderRow={(c, dragProps) => (
             <LocationRow
               item={c}
-              subtitle={c.code || ''}
+              subtitle={`🏘️ ${t('admin.districts')} ›`}
               onTap={() => onPick(c)}
               onEdit={() => openEdit(c)}
               onDelete={() => askDelete(c)}

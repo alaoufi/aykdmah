@@ -1053,7 +1053,8 @@
     "deleted_by_author": "deleted by its author",
     "districts": "Districts",
     "search_districts": "Search districts",
-    "no_districts_hint": "No districts for this city yet. Add them here so users can choose them."
+    "no_districts_hint": "No districts for this city yet. Add them here so users can choose them.",
+    "districts_hint": "Tap a city name to see its districts, add one or fix a name."
   },
   "errors": {
     "generic": "Something went wrong",

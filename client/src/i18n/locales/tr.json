@@ -1053,7 +1053,8 @@
     "deleted_by_author": "yazarı tarafından silinmiştir",
     "districts": "Mahalleler",
     "search_districts": "Mahalle ara",
-    "no_districts_hint": "Bu şehrin henüz mahallesi yok. Kullanıcılar seçebilsin diye buraya ekleyin."
+    "no_districts_hint": "Bu şehrin henüz mahallesi yok. Kullanıcılar seçebilsin diye buraya ekleyin.",
+    "districts_hint": "Mahallelerini görmek, eklemek veya adını düzeltmek için şehir adına dokunun."
   },
   "errors": {
     "generic": "Bir şey ters gitti",
