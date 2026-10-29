@@ -59,6 +59,8 @@ const AdminConversationsPage = lazy(() => import('./pages/admin/AdminConversatio
 const AdminCallsPage = lazy(() => import('./pages/admin/AdminCallsPage'));
 const AdminWalletsPage = lazy(() => import('./pages/admin/AdminWalletsPage'));
 const AdminMarketingPage = lazy(() => import('./pages/admin/AdminMarketingPage'));
+const AdminSupportPage = lazy(() => import('./pages/admin/AdminSupportPage'));
+const SupportPage = lazy(() => import('./pages/SupportPage'));
 const WalletPage = lazy(() => import('./pages/provider/WalletPage'));
 const TrackingPage = lazy(() => import('./pages/TrackingPage'));
 const VerificationPage = lazy(() => import('./pages/VerificationPage'));
@@ -165,6 +167,8 @@ export default function AppRoutes() {
           <Route path="/disputes/new/:requestId" element={<Protected><DisputeOpenPage /></Protected>} />
           <Route path="/disputes/:id" element={<Protected><DisputeDetailsPage /></Protected>} />
           <Route path="/promote" element={<Protected><PromotePage /></Protected>} />
+          <Route path="/support" element={<Protected><SupportPage /></Protected>} />
+          <Route path="/support/:id" element={<Protected><SupportPage /></Protected>} />
           <Route path="/directory" element={<Protected><RequesterPage><DirectoryPage /></RequesterPage></Protected>} />
         </Route>
 
@@ -203,6 +207,8 @@ export default function AppRoutes() {
           <Route path="/admin/countries" element={<AdminCountriesPage />} />
           <Route path="/admin/locations" element={<AdminLocationsPage />} />
           <Route path="/admin/conversations" element={<AdminConversationsPage />} />
+          <Route path="/admin/support" element={<AdminSupportPage />} />
+          <Route path="/admin/support/:id" element={<AdminSupportPage />} />
           <Route path="/admin/calls" element={<AdminCallsPage />} />
           <Route path="/admin/wallets" element={<AdminWalletsPage />} />
           <Route path="/admin/marketing" element={<AdminMarketingPage />} />

@@ -60,6 +60,14 @@ router.put('/ads-pricing',      requirePermission('ads.manage'), adC.adminBulkUp
 router.get('/ads-preview-live', requirePermission('ads.manage'), adC.adminPreviewLive);
 router.get('/ads/:id/diagnose', requirePermission('ads.manage'), adC.adminDiagnose);
 
+// Messages to the administration (AYK-046).
+const support = require('../controllers/supportController');
+router.get('/support', requirePermission('users.manage'), support.adminList);
+router.get('/support/unread', requirePermission('users.manage'), support.adminUnread);
+router.get('/support/:id', requirePermission('users.manage'), support.adminGet);
+router.post('/support/:id/messages', requirePermission('users.manage'), support.adminReply);
+router.put('/support/:id/status', requirePermission('users.manage'), support.adminStatus);
+
 // Where monthly subscriptions apply, by area and profession (AYK-042).
 const rules = require('../controllers/subscriptionRulesController');
 router.get('/subscription-rules', requirePermission('plans.manage'), rules.list);

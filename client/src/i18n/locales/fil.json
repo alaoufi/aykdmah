@@ -1441,6 +1441,10 @@
       "language": {
         "question": "Paano ko maiiimbak ang wika at i-translate ang mga mensahe?",
         "answer": "Gamitin ang pindutan ng wika sa tuktok ng pahina upang piliin ang Arabic, Ingles, Urdu, Hindi o Bengali. Ang nakasulat ng gumagamit na teksto at mga pangalan ay nananatiling gaya ng isinumite. Sa chat, piliin ang Translate sa aking aparato para sa teksto o audio ng attachment, at piliin ang wika ng pagrekord para sa audio. Kailangan ng iyong pahintulot ang tampok upang mai-download ang malalaking modelo sa unang pagkakataon, pagkatapos ay ipinaproseso ang mensahe sa iyong aparato; maaaring hindi suportahan ito ng ilang mga aparato. Ang orihinal ay nananatiling magagamit. Kunin ang presyo at oras sa ibang tao."
+      },
+      "contact": {
+        "question": "Paano makipag-ugnayan sa pamamahala o magpadala ng mungkahi?",
+        "answer": "Sa menu ☰ piliin ang \"Makipag-ugnayan sa pamamahala\", piliin ang paksa (teknikal na suporta, mungkahi o pamamahala) at isulat ang mensahe. Darating ang sagot sa parehong pahina na may notification, at may numero sa menu para sa mga bagong sagot."
       }
     },
     "start_title": "Handa na magsimula?",
@@ -2159,5 +2163,25 @@
     "resume": "Ituloy",
     "provider_needed": "Kailangan ng buwanang subscription ang iyong propesyon sa iyong lugar: kung wala ito, hindi ka makakatanggap ng kahilingan at hindi ka makikita ng mga humihiling.",
     "subscribe_now": "Mag-subscribe na"
+  },
+  "support": {
+    "title": "Makipag-ugnayan sa pamamahala",
+    "hint": "Sumulat sa pamamahala: teknikal na problema, mungkahi, o iba pa. Dito darating ang mga sagot at ipapaalala namin ang mga ito.",
+    "topic": "Paksa",
+    "topic_support": "Teknikal na suporta",
+    "topic_suggestion": "Mungkahi",
+    "topic_admin": "Pamamahala",
+    "status": "Katayuan",
+    "status_open": "Naghihintay ng sagot",
+    "status_answered": "Nasagot na",
+    "status_closed": "Sarado",
+    "body_ph": "Isulat dito ang iyong mensahe…",
+    "reply_ph": "Isulat ang iyong sagot…",
+    "send": "Ipadala",
+    "my_messages": "Aking mga mensahe",
+    "none": "Wala pang mensahe.",
+    "from_admin": "Pamamahala",
+    "closed_hint": "Sarado na ang mensaheng ito. Sumulat ng bago kung kailangan.",
+    "admin_title": "Mga mensahe ng user"
   }
 }

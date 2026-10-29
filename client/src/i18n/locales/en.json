@@ -1441,6 +1441,10 @@
       "language": {
         "question": "How do I change the language and translate messages?",
         "answer": "Use the language button at the top of the page to choose Arabic, English, Urdu, Hindi or Bengali. User-written text and names stay as entered. In chat, choose “Translate on my device” for text or attachment audio, and select the recording language for audio. The feature needs your consent to download large models the first time, then processes the message on your device; some devices may not support it. The original stays available. Confirm the price and time with the other person."
+      },
+      "contact": {
+        "question": "How do I contact the administration or send a suggestion?",
+        "answer": "From the ☰ menu choose \"Contact the administration\", pick the topic (technical support, suggestion or administration) and write your message. The reply comes on the same page with a notification, and a number on the menu shows new replies."
       }
     },
     "start_title": "Ready to begin?",
@@ -2159,5 +2163,25 @@
     "resume": "Resume",
     "provider_needed": "Your profession in your area needs a monthly subscription: without it you get no requests and requesters don't see you.",
     "subscribe_now": "Subscribe now"
+  },
+  "support": {
+    "title": "Contact the administration",
+    "hint": "Write to the administration: a technical problem, a suggestion, or anything else. Replies come here and we remind you of them.",
+    "topic": "Topic",
+    "topic_support": "Technical support",
+    "topic_suggestion": "Suggestion",
+    "topic_admin": "Administration",
+    "status": "Status",
+    "status_open": "Awaiting reply",
+    "status_answered": "Replied",
+    "status_closed": "Closed",
+    "body_ph": "Write your message here…",
+    "reply_ph": "Write your reply…",
+    "send": "Send",
+    "my_messages": "My messages",
+    "none": "No messages yet.",
+    "from_admin": "Administration",
+    "closed_hint": "This message is closed. Write a new one if you need to.",
+    "admin_title": "User messages"
   }
 }

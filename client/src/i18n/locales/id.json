@@ -1441,6 +1441,10 @@
       "language": {
         "question": "Bagaimana saya mengubah bahasa dan menerjemahkan pesan?",
         "answer": "Gunakan tombol bahasa di bagian atas halaman untuk memilih bahasa Arab, Inggris, Urdu, Hindi atau Bengali. Teks dan nama yang ditulis pengguna tetap seperti yang dimasukkan. Dalam obrolan, pilih Translate on my device untuk teks atau audio lampiran, dan pilih bahasa rekaman untuk audio. Fitur ini membutuhkan persetujuan Anda untuk mengunduh model besar pertama kali, kemudian memproses pesan di perangkat Anda; beberapa perangkat mungkin tidak mendukungnya. Asli tetap tersedia. Konfirmasi harga dan waktu dengan orang lain."
+      },
+      "contact": {
+        "question": "Bagaimana menghubungi administrasi atau mengirim saran?",
+        "answer": "Dari menu ☰ pilih \"Hubungi administrasi\", pilih topik (dukungan teknis, saran atau administrasi) lalu tulis pesan. Balasan datang di halaman yang sama dengan notifikasi, dan angka di menu menunjukkan balasan baru."
       }
     },
     "start_title": "Siap untuk memulai?",
@@ -2159,5 +2163,25 @@
     "resume": "Aktifkan",
     "provider_needed": "Profesi Anda di area Anda memerlukan langganan bulanan: tanpanya Anda tidak menerima permintaan dan pencari layanan tidak melihat Anda.",
     "subscribe_now": "Berlangganan sekarang"
+  },
+  "support": {
+    "title": "Hubungi administrasi",
+    "hint": "Tulis ke administrasi: masalah teknis, saran, atau hal lain. Balasan datang di sini dan kami akan mengingatkan Anda.",
+    "topic": "Topik",
+    "topic_support": "Dukungan teknis",
+    "topic_suggestion": "Saran",
+    "topic_admin": "Administrasi",
+    "status": "Status",
+    "status_open": "Menunggu balasan",
+    "status_answered": "Sudah dibalas",
+    "status_closed": "Ditutup",
+    "body_ph": "Tulis pesan Anda di sini…",
+    "reply_ph": "Tulis balasan Anda…",
+    "send": "Kirim",
+    "my_messages": "Pesan saya",
+    "none": "Belum ada pesan.",
+    "from_admin": "Administrasi",
+    "closed_hint": "Pesan ini sudah ditutup. Tulis pesan baru jika perlu.",
+    "admin_title": "Pesan pengguna"
   }
 }

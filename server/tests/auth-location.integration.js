@@ -770,6 +770,48 @@ if (!databasePrefix) {
     assert.equal(Number(next.district_id), area.district_id);
   });
 
+  test('messages to the administration with reply reminders, and the admin manages a city districts (AYK-045, AYK-046)', async () => {
+    const area = await simpleArea();
+    const writer = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const other = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await db.query('UPDATE users SET role = ?, is_super_admin = 1 WHERE id = ?', ['admin', owner.user.id]);
+    const account = await db.queryOne('SELECT auth_version FROM users WHERE id = ?', [owner.user.id]);
+    const admin = require('../utils/jwt').sign({ id: owner.user.id, role: 'admin', auth_version: Number(account.auth_version || 0) });
+
+    // A suggestion reaches the admin inbox as unread, and the admins are told.
+    await api('/support', { method: 'POST', token: writer.token, expected: 400, body: { topic: 'suggestion', body: '  ' } });
+    const ticket = await api('/support', { method: 'POST', token: writer.token, expected: 201, body: { topic: 'suggestion', body: 'أقترح إضافة مهنة' } });
+    assert.equal(ticket.topic, 'suggestion');
+    assert.ok((await api('/admin/support/unread', { token: admin })).count >= 1);
+    assert.ok(await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'support_new'", [owner.user.id]));
+    await api('/admin/support', { token: writer.token, expected: 403 });
+    await api(`/support/${ticket.id}`, { token: other.token, expected: 404 });
+
+    // The admin reads and replies: the writer gets a notification and an unread count.
+    const opened = await api(`/admin/support/${ticket.id}`, { token: admin });
+    assert.equal(opened.messages.length, 1);
+    await api(`/admin/support/${ticket.id}/messages`, { method: 'POST', token: admin, expected: 201, body: { body: 'شكرًا، سنضيفها' } });
+    assert.equal((await api('/support/unread', { token: writer.token })).count, 1);
+    assert.ok(await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'support_reply'", [writer.user.id]));
+    const read = await api(`/support/${ticket.id}`, { token: writer.token });
+    assert.equal(read.messages.length, 2);
+    assert.equal(read.status, 'answered');
+    assert.equal((await api('/support/unread', { token: writer.token })).count, 0);
+    await api(`/support/${ticket.id}/messages`, { method: 'POST', token: writer.token, expected: 201, body: { body: 'متى؟' } });
+    await api(`/admin/support/${ticket.id}/status`, { method: 'PUT', token: admin, body: { status: 'closed' } });
+    assert.equal((await api('/support', { token: writer.token })).find(row => row.id === ticket.id).status, 'closed');
+
+    // The admin adds, renames and switches off a district of a city.
+    const made = await api('/districts', { method: 'POST', token: admin, expected: 201, body: { city_id: area.city_id, name_ar: 'حي التجربة' } });
+    await api(`/districts/${made.id}`, { method: 'PUT', token: admin, body: { name_ar: 'حي التجربة الجديد', is_active: 0 } });
+    const all = await api(`/districts?city_id=${area.city_id}&all=true`, { token: admin });
+    assert.ok(all.some(row => row.id === made.id && row.name_ar === 'حي التجربة الجديد' && Number(row.is_active) === 0));
+    const visible = await api(`/districts?city_id=${area.city_id}`);
+    assert.ok(!visible.some(row => row.id === made.id));
+    await api('/districts', { method: 'POST', token: writer.token, expected: 403, body: { city_id: area.city_id, name_ar: 'حي' } });
+  });
+
   test('an account changes its type: client to "both" with work details, back to client, and provider again reusing the kept profile', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');

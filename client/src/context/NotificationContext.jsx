@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { localizedNotification } from '../data/notificationLabels';
 
 import { createPollingLoop } from '../utils/polling';
+import { supportUnread } from '../services/supportService';
 
 const NotificationContext = createContext(null);
 
@@ -17,6 +18,8 @@ export function NotificationProvider({ children }) {
   const [unread, setUnread] = useState(0);
   // Unread chat messages, shown on "Chats"; the notification count stays on the bell.
   const [chatUnread, setChatUnread] = useState(0);
+  // Unread replies from the administration (AYK-046), shown in the menu.
+  const [supportCount, setSupportCount] = useState(0);
   const [toasts, setToasts] = useState([]);
 
   const pollRef = useRef(null);
@@ -40,11 +43,12 @@ export function NotificationProvider({ children }) {
     setItems([]);
     setUnread(0);
     setChatUnread(0);
+    setSupportCount(0);
     setToasts([]);
     if (!user?.id) return;
     let seenIds = null;
-    const poll = createPollingLoop(() => Promise.all([listNotifications({ limit: 30 }), getChatUnread().catch(() => null)])
-      .then(([res, chats]) => { if (chats !== null) setChatUnread(chats); return res; }), {
+    const poll = createPollingLoop(() => Promise.all([listNotifications({ limit: 30 }), getChatUnread().catch(() => null), supportUnread().catch(() => null)])
+      .then(([res, chats, support]) => { if (chats !== null) setChatUnread(chats); if (support !== null) setSupportCount(support); return res; }), {
       intervalMs: realtimeMode === 'polling' ? 10000 : null,
       onResult: (res) => {
         const next = res.data || [];
@@ -94,7 +98,7 @@ export function NotificationProvider({ children }) {
   };
 
   return (
-    <NotificationContext.Provider value={{ items, unread, chatUnread, toasts, refresh, markRead, markAllRead, showToast }}>
+    <NotificationContext.Provider value={{ items, unread, chatUnread, supportCount, toasts, refresh, markRead, markAllRead, showToast }}>
       {children}
       <div className="toast-container">
         {toasts.map(t => <div key={t.id} className="toast">{t.notification ? localizedNotification(t.notification, i18n.language).title : t.message}</div>)}

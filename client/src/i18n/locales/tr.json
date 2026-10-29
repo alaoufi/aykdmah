@@ -1441,6 +1441,10 @@
       "language": {
         "question": "Dilini ve mesajları nasıl değiştiririm?",
         "answer": "Sayfanın üstündeki dil düğmesini kullanarak Arap, İngilizce, Urdu, Hindi veya Bengali seçin. Kullanıcı tarafından yazılmış metin ve isimler girdiği gibi kalır. Çat'ta, metin veya ekleme sesleri için Translate on my device seçin ve ses için kaydetme dilini seçin. Özellik ilk kez büyük modelleri indirmek için onayınıza ihtiyaç duyar, sonra mesajı cihazınızda işlemelidir; bazı cihazlar destekleyemeyebilir. Orijinal mevcut kalır. Fiyatı ve zamanı diğer kişiyle onaylayın."
+      },
+      "contact": {
+        "question": "Yönetimle nasıl iletişime geçer veya öneri gönderirim?",
+        "answer": "☰ menüsünden \"Yönetimle iletişim\"i seçin, konuyu (teknik destek, öneri veya yönetim) belirleyip mesajınızı yazın. Yanıt aynı sayfaya bildirimle gelir ve menüde yeni yanıtların sayısı görünür."
       }
     },
     "start_title": "Başlamaya hazır mısın?",
@@ -2159,5 +2163,25 @@
     "resume": "Başlat",
     "provider_needed": "Bölgenizde mesleğiniz aylık abonelik gerektiriyor: abonelik olmadan talep almazsınız ve hizmet arayanlar sizi görmez.",
     "subscribe_now": "Şimdi abone ol"
+  },
+  "support": {
+    "title": "Yönetimle iletişim",
+    "hint": "Yönetime yazın: teknik bir sorun, öneri veya başka bir konu. Yanıtlar buraya gelir ve size hatırlatırız.",
+    "topic": "Konu",
+    "topic_support": "Teknik destek",
+    "topic_suggestion": "Öneri",
+    "topic_admin": "Yönetim",
+    "status": "Durum",
+    "status_open": "Yanıt bekliyor",
+    "status_answered": "Yanıtlandı",
+    "status_closed": "Kapalı",
+    "body_ph": "Mesajınızı buraya yazın…",
+    "reply_ph": "Yanıtınızı yazın…",
+    "send": "Gönder",
+    "my_messages": "Mesajlarım",
+    "none": "Henüz mesaj yok.",
+    "from_admin": "Yönetim",
+    "closed_hint": "Bu mesaj kapatıldı. Gerekirse yeni bir mesaj yazın.",
+    "admin_title": "Kullanıcı mesajları"
   }
 }

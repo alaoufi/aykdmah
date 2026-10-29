@@ -14,7 +14,7 @@ import { IconMenu, IconBell, IconClose } from '../common/Icons';
 export default function Header() {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
-  const { unread, chatUnread } = useNotifications();
+  const { unread, chatUnread, supportCount } = useNotifications();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -114,13 +114,14 @@ export default function Header() {
           ref={mobileButton}
           type="button"
           onClick={() => setMobileOpen((value) => !value)}
-          className="w-10 h-10 grid place-items-center rounded-pill text-fg-muted hover:bg-surface-alt"
+          className="relative w-10 h-10 grid place-items-center rounded-pill text-fg-muted hover:bg-surface-alt"
           aria-label={t('common.more')}
           aria-expanded={mobileOpen}
           aria-controls="ayk-mobile-menu"
           aria-haspopup="dialog"
         >
           <IconMenu />
+          {supportCount > 0 && <span className="absolute -top-0.5 -left-0.5 w-2.5 h-2.5 rounded-full bg-danger" aria-hidden="true" />}
         </button>
         </div>
 
@@ -287,6 +288,12 @@ export default function Header() {
                     🔁 {t('profile.change_account_type')}
                   </Link>
                 )}
+                {/* Writing to the administration (AYK-046), with the count of unread replies. */}
+                <Link to="/support" onClick={() => setMobileOpen(false)} data-testid="mobile-support"
+                  className="text-right px-3 py-3 rounded-card font-semibold no-underline text-fg-muted hover:bg-surface-alt flex items-center justify-between">
+                  <span>📨 {t('support.title')}</span>
+                  {supportCount > 0 && <span className="min-w-[20px] h-5 px-1.5 rounded-full bg-danger text-white text-[11px] font-bold grid place-items-center">{supportCount}</span>}
+                </Link>
                 <Link to="/disputes" onClick={() => setMobileOpen(false)} className="text-right px-3 py-3 rounded-card font-semibold no-underline text-fg-muted hover:bg-surface-alt">
                   ⚖️ {t('dispute.my_disputes')}
                 </Link>

@@ -32,6 +32,7 @@ const NAV_GROUPS = [
     label: 'admin.requests',
     items: [
       { to: '/admin/requests',      icon: '📋', labelKey: 'admin.requests',              perm: 'requests.manage' },
+      { to: '/admin/support', icon: '📨', labelKey: 'support.admin_title', perm: 'users.manage' },
       { to: '/admin/conversations', icon: '💬', labelKey: 'admin.conversations_monitor', perm: 'conversations.read' },
       { to: '/admin/calls', icon: '📞', labelKey: 'calls.admin.title', perm: 'conversations.read' },
       { to: '/admin/wallets', icon: '💰', labelKey: 'wallet.admin.title', perm: 'wallets.manage' },
