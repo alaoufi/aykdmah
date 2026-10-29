@@ -23,7 +23,8 @@ export default function ServicesPage() {
   // requests directly, with "All requests" one tap away.
   const isProvider = user?.role === 'provider';
   const canRequest = !isProvider || Number(user?.also_client) === 1;
-  const matching = isProvider && params.get('all') !== '1';
+  // A provider-only account sees its own professions and districts only (AYK-040).
+  const matching = isProvider && (!canRequest || params.get('all') !== '1');
 
   const categoryId = params.get('category') || '';
   const cityId = params.get('city') || '';
@@ -66,10 +67,10 @@ export default function ServicesPage() {
 
   return (
     <div className="container page">
-      <h2 className="mb-4">{t('nav.services')}</h2>
+      <h2 className="mb-4">{isProvider ? t('work.requests_title') : t('nav.services')}</h2>
       {error && <p role="alert" className="form-error">{t('errors.generic')}</p>}
 
-      {isProvider && <div className="flex gap-1.5 mb-3" role="tablist">
+      {isProvider && canRequest && <div className="flex gap-1.5 mb-3" role="tablist">
         {[['1', 'opportunities.matching'], ['', 'opportunities.all']].map(([value, label]) => {
           const active = (value === '1') === matching;
           return <button key={label} type="button" role="tab" aria-selected={active} onClick={() => setParam('all', value === '1' ? '' : '1')}
@@ -97,7 +98,7 @@ export default function ServicesPage() {
       </div>
 
       {loading ? <LoadingState /> :
-       requests.length === 0 ? <EmptyState title={t('common.none')} /> :
+       requests.length === 0 ? <EmptyState title={isProvider ? t('work.no_requests') : t('common.none')} /> :
        <div className="grid grid-2">{requests.map(r => <RequestCard key={r.id} request={r} />)}</div>}
     </div>
   );

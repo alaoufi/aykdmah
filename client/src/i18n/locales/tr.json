@@ -357,11 +357,11 @@
     "stop_reminders": "Hatırlatmaları durdur",
     "reminders_stopped": "Bu talebimiz için hatırlatmalar kapatıldı",
     "contact": "İletişim",
-    "contact_owner": "Başvuruda bulunan kişiyle iletişime geçin",
+    "contact_owner": "Talep sahibiyle iletişime geç",
     "contact_hint": "Burada fiyat teklifleri yok: başvuruda bulunan kişiyle iletişime geçin ve sohbette fiyat ve zaman konusunda anlaşın.",
     "matching_title": "Bölgenizdeki sağlayıcılar şu anda çalışıyor",
     "contacts_title": "Konuştuğunuz tedarikçiler",
-    "agreed": "Anlaşıldı"
+    "agreed": "Anlaştık"
   },
   "offer": {
     "submit_title": "Bir teklif gönder",
@@ -1359,20 +1359,20 @@
         "body": "Tesis tesisatları, elektrik işleri ve bahçe temizliği gibi hizmetleri tarayın. {{role_client}}"
       },
       "details": {
-        "title": "İhtiyacınız olanları açıklayın",
-        "body": "İşin başlığını ve açıklamasını yazın ve hizmet seçin."
+        "title": "Mesleği seçin ve ihtiyacınızı yazın",
+        "body": "“Şimdi sipariş ver”e dokunun, mesleği seçin, ihtiyacınızı kısaca yazın ve talebi yayınlayın. Mahalleniz kaydınızdan alınır ve fiyat yazmazsınız: fiyatı ve zamanı sohbette kararlaştırırsınız."
       },
       "location": {
         "title": "Hizmet yerini kontrol edin",
         "body": "Kaydedilen hesap adresiniz ve konumunuz otomatik olarak doldurulur. Gerekirse bu talepleri kontrol edin ve düzenleyin. Gelecek talepleri için hesabınızı güncellemek için, Gelecek talepleri için bu konumumu varsayılan olarak kaydetmenizi seçin; değişiklik, talebi başarılı bir şekilde gönderildikten sonra kaydedilir. Haritada nokta seçin veya cihaz konumunu kullanın."
       },
       "offers": {
-        "title": "Teklifleri karşılaştır ve kabul et",
-        "body": "Arama bilgilerinizi sunucu tekliflerini incelemek için açın. Fiyat, süresi, derecelendirme ve hizmet konumu karşılaştırın. Size uygun olanı kabul etmeden önce ayrıntıları açıklamak için bir teklif üzerinde  Mesajlarla müzakere edin seçin."
+        "title": "Hizmet verenlerle iletişime geçin",
+        "body": "Talep sayfanızda o meslekte ve mahallenizde şu anda çalışan hizmet verenler görünür; önce öne çıkanlar, sonra en yüksek puanlılar. Seçtiğinizle sohbet açmak için “İletişim”e dokunun; onlar da sizinle iletişime geçebilir."
       },
       "chat": {
-        "title": "Anlaşmayı sohbette onaylayın",
-        "body": "İş, zaman, adres ve fiyatı açıklamak için teklif sohbetini açın. 60 saniyeye kadar ses kaydet veya 20 saniyeye kadar video kaydet veya cihazınızdan bir dosya ekleyin. Ses için mikrofon erişimi, video için kamera ve mikrofon erişimi izin verin, ardından ön izlemeyi kontrol edin ve Gönder basın. Bağlantılar toplamı 3,5 MB'ye kadar olabilir. Bir teklif kabul ettikten sonra, kimin kime seyahat ettiğini doğrulayın."
+        "title": "Anlaşınca “Anlaştık”a dokunun",
+        "body": "Sohbette işi, fiyatı ve zamanı yazı, ses veya video ile kararlaştırın. Biriyle anlaştığınızda sohbette ya da talep sayfasında “Anlaştık”a dokunun: talep ona atanır ve diğer sohbetler kapanır. Yayından bir saat sonra “Birini buldunuz mu?” diye sorarız; talebi veya hatırlatmayı durdurabilirsiniz."
       },
       "finish": {
         "title": "Tamamlandığını onayla ve bir inceleme bırak",
@@ -1381,24 +1381,24 @@
     },
     "provider_steps": {
       "signup": {
-        "title": "Bir dakika içinde telefonunu kullan",
-        "body": "{{role_provider}} veya Both seçin ve telefonunuzu ve şifrenizi girin. Yeriniz otomatik olarak alınır; sonra mesleklerinizi, mahallelerinizi ve hizmet alanınızı seçin. Kuponunuz kaydolduğunuzda görünür."
+        "title": "Bir dakikada telefonla kaydolun",
+        "body": "“{{role_provider}}” veya “İkisi de”yi seçin, telefonunuzu ve şifrenizi girin. Konumunuz otomatik alınır; ardından mesleklerinizi, mahallelerinizi, çalışma gün ve saatlerinizi ve hizmet şeklinizi seçin. Kayıttan sonra kişisel kuponunuz görünür."
       },
       "profile": {
-        "title": "Mesleğinizi ve hizmetlerinizi seçin",
-        "body": "İş alanınızı ve en az bir hizmetinizi seçin, sonra iş şehrinizi, mevcut olan mahalleyi ve hizmetinizi nasıl sağlayacağınızı seçin. Müşteriler mağazanı ziyaret ederse, iş detaylarına adresini ve konumunu ayrı olarak ekleyin. Hesap adresiniz gizlidir. Bu ayrıntıları profilinizde güncelleyebilirsiniz."
+        "title": "“İşim” paneli",
+        "body": "“İşim” mesleklerinizi, hizmet verdiğiniz mahalleleri ve çalışma saatlerinizi gösterir. Buradan yeni meslek ekler, meşgulken duraklatıp sonra devam eder, saatleri ve izni düzenlersiniz. Yalnızca mesleğinizdeki ve bölgenizdeki talepleri görürsünüz."
       },
       "find": {
-        "title": "Uygun istekleri bulun",
-        "body": "Meslekleriniz ve mahallelerinizle eşleşen talepleri doğrudan arac tablosunuzda ve fırsatlar sayfasında görünür."
+        "title": "Otomatik olarak görünürsünüz",
+        "body": "Müsait olduğunuz sürece adınız, mesleğinizde ve mahallenizde hizmet isteyen herkese görünür; dinlenme ve izin zamanlarında gizlenirsiniz. “Bana uygun işler”de mesleğinizdeki ve bölgenizdeki açık talepler yer alır."
       },
       "quote": {
-        "title": "Açık bir teklif gönder",
-        "body": "Açık bir talebe göre, fiyatınızı, beklenen süreyi ve işin içeriğini açıklayan bir mesaj girin. Teklif sohbetinde, metin, sesli mesajlar veya video kullanarak kabulden önce müşteriden müzakere edebilirsiniz. Hesabınızdaki teklif durumunu takip edin; müşteriler kendilerine uygun olan teklifi seçer."
+        "title": "Anlaşana kadar konuşun",
+        "body": "Talebi açıp “Talep sahibiyle iletişime geç”e dokunun ya da sizinle iletişime geçmesini bekleyin. Sohbette işi, fiyatı ve zamanı fiyat teklifi olmadan kararlaştırın. Talep sahibi sizi seçtiğinde “Anlaştık”a dokunur."
       },
       "work": {
-        "title": "İşleri koordine etmek, tamamlamak ve incelemek",
-        "body": "Teklifiniz kabul edildiğinde, talep sohbetini açın ve zaman ve yeri belirleyin. İş bittikten sonra tamamlanmayı onaylayın."
+        "title": "İşi yapın, sonra puan verin",
+        "body": "Anlaştıktan sonra talep size atanır. Zamanı ve yeri ayarlayın, iş bitince tamamlandığını onaylayın. Talep tamamlanınca her iki taraf da birbirine puan verir."
       }
     },
     "venue_title": "Kim kime seyahat ediyor?",
@@ -2051,5 +2051,28 @@
     "requests_30d_short": "Başvurular (30 gün)",
     "competitors_short": "Yarışmacılar",
     "setup_hint": "Profilinizde işinizi ve pazarınızı görmek için kapsadığınız mahalleleri tamamlayın."
+  },
+  "work": {
+    "title": "İşim",
+    "hint": "Hizmet arayanların sizinle ilgili gördüğü budur: meslekleriniz, hizmet verdiğiniz mahalleler ve çalışma saatleriniz. Müsait olduğunuz sürece onlara otomatik olarak görünürsünüz.",
+    "professions": "Mesleklerim",
+    "no_professions": "Henüz meslek seçilmedi",
+    "add_profession": "Meslek ekle",
+    "save_professions": "Meslekleri kaydet",
+    "saved": "Meslekleriniz kaydedildi",
+    "areas": "Hizmet verdiğim mahalleler",
+    "whole_city": "Tüm şehir",
+    "edit_areas": "Mahalleleri düzenle",
+    "hours": "Çalışma saatleri",
+    "edit_times": "Saatleri ve izni düzenle",
+    "visible_now": "Hizmet arayanlar sizi çalışma saatlerinizde görür",
+    "hidden_now": "Duraklattınız; hizmet arayanlar sizi görmüyor",
+    "requests_nav": "Bana uygun işler",
+    "requests_title": "Mesleğinizdeki ve bölgenizdeki talepler",
+    "see_all": "Tümünü gör",
+    "no_requests": "Şu anda mesleğinizde ve bölgenizde talep yok",
+    "switch_type": "Hesap türünü değiştir",
+    "register_title": "Çalışma günleri ve saatleri",
+    "register_hint": "Hizmet arayanlar sizi yalnızca bu gün ve saatlerde görür. Gün boyu görünmek için saatleri boş bırakın."
   }
 }

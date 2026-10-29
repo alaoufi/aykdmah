@@ -39,7 +39,7 @@
   "nav": {
     "home": "Sa bahay",
     "services": "Mga Serbisyo",
-    "order_now": "Mag-order na Ngayon",
+    "order_now": "Mag-order ngayon",
     "login": "Pag-login",
     "register": "Mag-sign up",
     "logout": "Paglagay ng mga larawan",
@@ -356,12 +356,12 @@
     "found_stop": "Oo, puntahan ang kahilingan",
     "stop_reminders": "I-stop ang mga paalala",
     "reminders_stopped": "Ang mga paalala ay off para sa hinihiling na ito",
-    "contact": "Kontak",
-    "contact_owner": "Makipag-ugnay sa nag-iimbita",
+    "contact": "Makipag-ugnayan",
+    "contact_owner": "Kontakin ang humiling",
     "contact_hint": "Walang mga pahayagan dito: makipag-ugnayan sa nag-iimbita at magkasundo sa presyo at oras sa chat.",
     "matching_title": "Nagtatrabaho na ngayon ang mga provider sa iyong lugar",
     "contacts_title": "Ang mga provider na pinag-uusapan mo",
-    "agreed": "Sumasang-ayon"
+    "agreed": "Nagkasundo"
   },
   "offer": {
     "submit_title": "Ipadala ang isang quote",
@@ -1359,20 +1359,20 @@
         "body": "Mag-browse sa mga serbisyo tulad ng plumbing, electrical work at paglilinis ng yard. Upang lumikha ng isang kahilingan, mag-sign in o lumikha ng isang account at piliin {{role_client}}."
       },
       "details": {
-        "title": "Ilarawan ang kailangan mo",
-        "body": "Isulat ang isang pamagat at paglalarawan ng gawa at piliin ang serbisyo. Magdagdag ng mga mapangahulugan na larawan, at tukuyin ang mas gusto mong oras at badyet kung gusto mo."
+        "title": "Piliin ang propesyon at isulat ang kailangan mo",
+        "body": "Pindutin ang “Mag-order ngayon”, piliin ang propesyon, isulat ang maikling paglalarawan ng kailangan mo at i-publish ang kahilingan. Kinukuha ang iyong lugar mula sa pagpaparehistro, at huwag maglagay ng presyo: pag-usapan ang presyo at oras sa chat."
       },
       "location": {
         "title": "Suriin ang lokasyon ng serbisyo",
         "body": "Ang iyong nai-save na address at lokasyon ay awtomatikong napuno. Suriin ang mga ito at i-edit ang mga ito para sa hinihiling na ito kung kinakailangan. Upang i-update ang iyong account para sa mga hinaharap na hangarin, piliin ang Save this location as my default for future requests; ang pagbabago ay nai-save pagkatapos ang hangarin ay matagumpay na ipinadala. Pumili ng punto sa mapa o gamitin ang lokasyon ng aparato."
       },
       "offers": {
-        "title": "I-compare ang mga alok at tanggapin ang isa",
-        "body": "Buksan ang iyong mga detalye ng kahilingan upang suriin ang mga alok ng provider. Ihahambing ang presyo, tagal, rating at lokasyon ng serbisyo. Piliin ang Negotiate with messages sa isang alok upang ipaliwanag ang mga detalye bago tanggapin ang isa na angkop sa iyo."
+        "title": "Makipag-ugnayan sa mga tagapagbigay ng serbisyo",
+        "body": "Sa pahina ng iyong kahilingan makikita ang mga tagapagbigay sa propesyong iyon at sa iyong lugar na nagtatrabaho ngayon, una ang featured at sunod ang may pinakamataas na rating. Pindutin ang “Makipag-ugnayan” para magbukas ng chat sa pipiliin mo; maaari ka rin nilang kontakin."
       },
       "chat": {
-        "title": "Kumpirmahin ang kasunduan sa chat",
-        "body": "Buksan ang chat ng alok upang ipaliwanag ang trabaho, oras, address at presyo. I-record ang audio hanggang 60 segundo o video hanggang 20 segundo, o mag-attach ng isang file mula sa iyong aparato. Bigyan ng pag-access ng mikropono para sa audio, at pag-access ng kamera at mikropono para sa video, pagkatapos ay suriin ang preview at pindutin ang Send. Ang mga attachment ay maaaring magdagdag hanggang sa 3.5 MB. Pagkatapos tanggapin ang isang alok, kumpirmahin kung sino ang naglakbay sa sino."
+        "title": "Pindutin ang “Nagkasundo” kapag nagkasundo kayo",
+        "body": "Pag-usapan sa chat ang trabaho, presyo at oras, sa text, boses o video. Kapag nagkasundo kayo ng isa, pindutin ang “Nagkasundo” sa chat o sa pahina ng kahilingan: maiaatas sa kanya ang kahilingan at magsasara ang ibang mga chat. Isang oras matapos mag-publish, itatanong namin “May nakita ka na ba?”, at maaari mong ihinto ang kahilingan o ang paalala."
       },
       "finish": {
         "title": "Kumpirmahin ang pagkumpleto at mag-iwan ng pagsusuri",
@@ -1381,24 +1381,24 @@
     },
     "provider_steps": {
       "signup": {
-        "title": "Mag-sign up sa iyong telepono sa isang minuto",
-        "body": "Piliin ang {{role_provider}} o Both at ipasok ang iyong telepono at password. Automatikong kinuha ang iyong lokasyon; pagkatapos ay piliin ang iyong mga propesyon, kapitbahayan at lugar ng serbisyo."
+        "title": "Magparehistro gamit ang telepono sa isang minuto",
+        "body": "Piliin ang “{{role_provider}}” o “Pareho” at ilagay ang iyong telepono at password. Awtomatikong kinukuha ang iyong lokasyon; pagkatapos ay piliin ang iyong mga propesyon, mga lugar, mga araw at oras ng trabaho at paraan ng paghahatid ng serbisyo. Lalabas ang iyong personal na coupon pagkatapos magparehistro."
       },
       "profile": {
-        "title": "Piliin ang iyong propesyon at mga serbisyo",
-        "body": "Piliin ang iyong propesyon at hindi bababa sa isang serbisyo na ibinibigay mo, pagkatapos ay piliin ang iyong lungsod ng trabaho, kapitbahayan kung magagamit, at kung paano mo ibinibigay ang serbisyo. Kung bisitahin ng mga customer ang iyong tindahan, magdagdag ng address at lokasyon nito nang hiwalay sa mga detalye ng negosyo. Ang iyong address ng account ay nananatiling pribado. Maaari mong i-update ang mga detalye na ito sa iyong profile."
+        "title": "Ang panel na “Trabaho ko”",
+        "body": "Makikita sa “Trabaho ko” ang iyong mga propesyon, mga lugar na sakop at oras ng trabaho. Dito ka magdadagdag ng bagong propesyon, magpa-pause kapag abala at magpapatuloy, at babaguhin ang oras at bakasyon. Mga kahilingan lang sa iyong propesyon at lugar ang makikita mo."
       },
       "find": {
-        "title": "Maghanap ng angkop na mga kahilingan",
-        "body": "Ang mga kahilingan na tumutugma sa iyong mga propesyon at lugar ay makikita nang direkta sa iyong dashboard at sa pahina ng mga pagkakataon. Buksan ang isang kahilingan at basahin ang paglalarawan at lokasyon nito bago mag-quote."
+        "title": "Awtomatiko kang nakikita",
+        "body": "Habang available ka, lumalabas ang pangalan mo sa lahat ng humihingi ng serbisyo sa iyong propesyon at lugar, at nakatago ka sa oras ng pahinga at bakasyon. Nasa “Mga trabaho para sa akin” ang mga bukas na kahilingan sa iyong propesyon at lugar."
       },
       "quote": {
-        "title": "Ipadala ang isang malinaw na alok",
-        "body": "Para sa isang bukas na kahilingan, ipasok ang iyong presyo, inaasahang tagal at isang mensahe na naglalarawan kung ano ang kinabibilangan ng trabaho. Maaari kang makipag-ugnayan sa customer sa chat ng alok bago tanggapin gamit ang text, mga mensahe sa boses o video. Sundin ang status ng alok sa iyong account; ang customer ay pumili ng alok na tumutugma sa kanila."
+        "title": "Mag-usap hanggang magkasundo",
+        "body": "Buksan ang kahilingan at pindutin ang “Kontakin ang humiling”, o hintaying kontakin ka nila. Pag-usapan sa chat ang trabaho, presyo at oras, nang walang alok na presyo. Pipindutin ng humiling ang “Nagkasundo” kapag pinili ka niya."
       },
       "work": {
-        "title": "Pag-aayos, pagtatapos ng trabaho at pag-aralan",
-        "body": "Kapag tinanggap ang iyong alok, buksan ang chat ng kahilingan at kumunsad sa oras at lokasyon."
+        "title": "Gawin ang trabaho, saka mag-rate",
+        "body": "Pagkatapos magkasundo, maiaatas sa iyo ang kahilingan. Ayusin ang oras at lugar, at kumpirmahin ang pagkumpleto pagkatapos ng trabaho. Magre-rate ang bawat panig sa isa't isa kapag nakumpleto ang kahilingan."
       }
     },
     "venue_title": "Sino ang naglakbay sa sino?",
@@ -2051,5 +2051,28 @@
     "requests_30d_short": "Mga kahilingan (30 araw)",
     "competitors_short": "Mga kakumpitensya",
     "setup_hint": "Mag-complete ng iyong propesyon at ng mga kapitbahayan na iyong nasasakupan sa iyong profile upang makita ang iyong merkado."
+  },
+  "work": {
+    "title": "Trabaho ko",
+    "hint": "Ito ang nakikita ng mga humihingi ng serbisyo tungkol sa iyo: ang iyong mga propesyon, mga lugar na sakop mo at oras ng trabaho. Awtomatiko kang lumalabas sa kanila habang available ka.",
+    "professions": "Mga propesyon ko",
+    "no_professions": "Wala pang napiling propesyon",
+    "add_profession": "Magdagdag ng propesyon",
+    "save_professions": "I-save ang mga propesyon",
+    "saved": "Na-save ang iyong mga propesyon",
+    "areas": "Mga lugar na sakop ko",
+    "whole_city": "Buong lungsod",
+    "edit_areas": "Baguhin ang mga lugar",
+    "hours": "Oras ng trabaho",
+    "edit_times": "Baguhin ang oras at bakasyon",
+    "visible_now": "Nakikita ka ng mga humihingi ng serbisyo sa oras ng trabaho mo",
+    "hidden_now": "Naka-pause ka at hindi ka nakikita ng mga humihingi ng serbisyo",
+    "requests_nav": "Mga trabaho para sa akin",
+    "requests_title": "Mga kahilingan sa iyong propesyon at lugar",
+    "see_all": "Tingnan lahat",
+    "no_requests": "Walang kahilingan sa iyong propesyon at lugar ngayon",
+    "switch_type": "Palitan ang uri ng account",
+    "register_title": "Mga araw at oras ng trabaho",
+    "register_hint": "Makikita ka lang ng mga humihingi ng serbisyo sa mga araw at oras na ito. Iwanang blangko ang oras para lumabas buong araw."
   }
 }

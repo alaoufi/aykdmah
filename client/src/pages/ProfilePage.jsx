@@ -430,7 +430,7 @@ function ProviderSection({ onSaved, onError, t, refresh }) {
   if (!provider) return null;
 
   return (
-    <div className="card mb-4">
+    <div className="card mb-4" id="provider">
       <h3 className="mb-3">{t('provider.section_title')}</h3>
       <form onSubmit={save} className="space-y-3">
         <ProfessionsPicker serviceIds={provider.service_ids} disabled={saving}

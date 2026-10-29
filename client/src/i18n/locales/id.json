@@ -39,7 +39,7 @@
   "nav": {
     "home": "Rumah",
     "services": "Layanan",
-    "order_now": "Pesan Sekarang",
+    "order_now": "Pesan sekarang",
     "login": "Login",
     "register": "Mendaftar",
     "logout": "Keluar",
@@ -356,12 +356,12 @@
     "found_stop": "Ya, tutup permintaan",
     "stop_reminders": "Hentikan pengingat",
     "reminders_stopped": "Pengingat tidak ada untuk permintaan ini",
-    "contact": "Kontak",
-    "contact_owner": "Hubungi pelamar",
+    "contact": "Hubungi",
+    "contact_owner": "Hubungi pemohon",
     "contact_hint": "Tidak ada penawaran harga di sini: hubungi pelamar dan sepakat harga dan waktu dalam obrolan.",
     "matching_title": "Penyedia di daerah Anda bekerja sekarang",
     "contacts_title": "Penyedia yang Anda bicarakan",
-    "agreed": "Bersetuju"
+    "agreed": "Sepakat"
   },
   "offer": {
     "submit_title": "Kirimkan kutipan",
@@ -1359,20 +1359,20 @@
         "body": "Periksa layanan seperti pipa, pekerjaan listrik dan pembersihan halaman. Untuk membuat permintaan, masuk atau membuat akun dan pilih {{role_client}}."
       },
       "details": {
-        "title": "Jelaskan apa yang Anda butuhkan",
-        "body": "Tuliskan judul dan deskripsi karya dan pilih layanan. Tambahkan foto yang berguna, dan tentukan waktu dan anggaran yang Anda inginkan."
+        "title": "Pilih profesi dan tulis kebutuhan Anda",
+        "body": "Ketuk “Pesan sekarang”, pilih profesi, tulis deskripsi singkat kebutuhan Anda lalu terbitkan permintaan. Wilayah Anda diambil dari pendaftaran, dan Anda tidak menulis harga: harga dan waktu disepakati di chat."
       },
       "location": {
         "title": "Periksa lokasi layanan",
         "body": "Alamat dan lokasi akun yang disimpan Anda diisi secara otomatis. Periksa dan edit untuk permintaan ini jika diperlukan. Untuk memperbarui akun Anda untuk permintaan masa depan, pilih Simpan lokasi ini sebagai standar untuk permintaan masa depan; perubahan disimpan setelah permintaan dikirim dengan sukses. Pilih titik di peta atau gunakan lokasi perangkat."
       },
       "offers": {
-        "title": "Bandingkan penawaran dan terima satu",
-        "body": "Buka rincian permintaan Anda untuk meninjau penawaran penyedia. Bandingkan harga, durasi, peringkat dan lokasi layanan. Pilih Negotiate with messages pada penawaran untuk memperjelas rincian sebelum menerima yang sesuai dengan Anda."
+        "title": "Hubungi penyedia layanan",
+        "body": "Halaman permintaan Anda menampilkan penyedia di profesi itu dan wilayah Anda yang sedang bekerja, yang unggulan dulu lalu yang berperingkat terbaik. Ketuk “Hubungi” untuk membuka chat dengan yang Anda pilih; mereka juga bisa menghubungi Anda."
       },
       "chat": {
-        "title": "Konfirmasi kesepakatan dalam obrolan",
-        "body": "Buka obrolan penawaran untuk menjelaskan pekerjaan, waktu, alamat dan harga. Rekam audio hingga 60 detik atau video hingga 20 detik, atau lampiran file dari perangkat Anda. Izinkan akses mikrofon untuk audio, dan akses kamera dan mikrofon untuk video, kemudian periksa pratinjau dan tekan Kirim. lampiran dapat total hingga 3,5 MB. Setelah menerima penawaran, konfirmasi siapa yang bepergian ke siapa."
+        "title": "Ketuk “Sepakat” saat Anda sepakat",
+        "body": "Sepakati pekerjaan, harga, dan waktu di chat lewat teks, suara, atau video. Saat Anda sepakat dengan salah satunya, ketuk “Sepakat” di chat atau di halaman permintaan: permintaan diberikan kepadanya dan chat lain ditutup. Satu jam setelah diterbitkan kami bertanya “Sudah menemukan seseorang?”, dan Anda bisa menghentikan permintaan atau pengingat."
       },
       "finish": {
         "title": "Konfirmasi selesai dan tinggalkan review",
@@ -1381,24 +1381,24 @@
     },
     "provider_steps": {
       "signup": {
-        "title": "Daftarkan dengan ponsel Anda dalam satu menit",
-        "body": "Pilih {{role_provider}} atau Both dan masukkan ponsel dan kata sandi Anda. Lokasi Anda diambil secara otomatis; kemudian pilih profesi, lingkungan dan tempat layanan Anda. Kupon Anda muncul setelah mendaftar."
+        "title": "Daftar dengan ponsel dalam semenit",
+        "body": "Pilih “{{role_provider}}” atau “Keduanya” lalu masukkan ponsel dan kata sandi. Lokasi Anda diambil otomatis; lalu pilih profesi, wilayah, hari dan jam kerja, serta cara memberikan layanan. Kupon pribadi Anda muncul setelah mendaftar."
       },
       "profile": {
-        "title": "Pilih profesi dan layanan Anda",
-        "body": "Pilih profesi Anda dan setidaknya satu layanan yang Anda berikan, kemudian pilih kota kerja Anda, lingkungan dimana tersedia, dan bagaimana Anda memberikan layanan. Jika pelanggan mengunjungi toko Anda, tambahkan alamat dan lokasi secara terpisah dalam rincian bisnis. Alamat akun Anda tetap pribadi. Anda dapat memperbarui rincian ini di profil Anda."
+        "title": "Panel “Pekerjaan saya”",
+        "body": "“Pekerjaan saya” menampilkan profesi, wilayah yang Anda layani, dan jam kerja. Dari sana Anda menambah profesi baru, menjeda saat sibuk lalu melanjutkan, serta mengubah jam dan cuti. Anda hanya melihat permintaan di profesi dan wilayah Anda."
       },
       "find": {
-        "title": "Temukan permintaan yang sesuai",
-        "body": "Permintaan yang sesuai dengan profesi dan lingkungan Anda akan muncul langsung di dashboard Anda dan halaman peluang."
+        "title": "Anda tampil otomatis",
+        "body": "Selama Anda tersedia, nama Anda tampil bagi semua orang yang meminta layanan di profesi dan wilayah Anda, dan Anda tersembunyi saat istirahat dan cuti. “Pekerjaan untuk saya” berisi permintaan terbuka di profesi dan wilayah Anda."
       },
       "quote": {
-        "title": "Kirimkan tawaran yang jelas",
-        "body": "Untuk permintaan terbuka, masukkan harga, jangka waktu yang diharapkan dan pesan yang menjelaskan apa yang termasuk pekerjaan. Anda dapat bernegosiasi dengan pelanggan dalam obrolan penawaran sebelum penerimaan menggunakan teks, pesan suara atau video. Ikuti status penawaran di akun Anda; pelanggan memilih penawaran yang sesuai dengan mereka."
+        "title": "Bicarakan hingga sepakat",
+        "body": "Buka permintaan lalu ketuk “Hubungi pemohon”, atau tunggu mereka menghubungi Anda. Sepakati pekerjaan, harga, dan waktu di chat tanpa penawaran harga. Pemohon mengetuk “Sepakat” saat memilih Anda."
       },
       "work": {
-        "title": "Koordinasi, penyelesaian pekerjaan dan tinjauan",
-        "body": "Setelah tawaran Anda diterima, buka obrolan permintaan dan sepakatlah waktu dan lokasi. Konfirmasi selesai setelah pekerjaan selesai. Anda dapat meninjau pelanggan setelah permintaan selesai."
+        "title": "Kerjakan, lalu beri penilaian",
+        "body": "Setelah sepakat, permintaan diberikan kepada Anda. Atur waktu dan tempat, lalu konfirmasi selesai setelah bekerja. Kedua pihak saling menilai setelah permintaan selesai."
       }
     },
     "venue_title": "Siapa yang bepergian ke siapa?",
@@ -2051,5 +2051,28 @@
     "requests_30d_short": "Permintaan (30 hari)",
     "competitors_short": "Kompetitor",
     "setup_hint": "Tuliskan profesi Anda dan daerah yang Anda tulis dalam profil Anda untuk melihat pasar Anda."
+  },
+  "work": {
+    "title": "Pekerjaan saya",
+    "hint": "Inilah yang dilihat pencari layanan tentang Anda: profesi Anda, wilayah yang Anda layani, dan jam kerja. Anda otomatis tampil bagi mereka selama Anda tersedia.",
+    "professions": "Profesi saya",
+    "no_professions": "Belum ada profesi yang dipilih",
+    "add_profession": "Tambah profesi",
+    "save_professions": "Simpan profesi",
+    "saved": "Profesi Anda telah disimpan",
+    "areas": "Wilayah yang saya layani",
+    "whole_city": "Seluruh kota",
+    "edit_areas": "Ubah wilayah",
+    "hours": "Jam kerja",
+    "edit_times": "Ubah jam dan cuti",
+    "visible_now": "Pencari layanan melihat Anda pada jam kerja Anda",
+    "hidden_now": "Anda sedang jeda dan tidak terlihat oleh pencari layanan",
+    "requests_nav": "Pekerjaan untuk saya",
+    "requests_title": "Permintaan di profesi dan wilayah Anda",
+    "see_all": "Lihat semua",
+    "no_requests": "Belum ada permintaan di profesi dan wilayah Anda saat ini",
+    "switch_type": "Ubah jenis akun",
+    "register_title": "Hari dan jam kerja",
+    "register_hint": "Pencari layanan hanya melihat Anda pada hari dan jam ini. Kosongkan jam agar tampil sepanjang hari."
   }
 }

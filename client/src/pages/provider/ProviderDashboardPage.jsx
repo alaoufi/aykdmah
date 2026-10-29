@@ -4,14 +4,13 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { listNearbyRequests, listMyOffers } from '../../services/requestService';
 import { getCurrentSubscription } from '../../services/adminService';
-import { useGeolocation } from '../../hooks/useGeolocation';
 import { useAuth } from '../../hooks/useAuth';
 import RequestCard from '../../components/requests/RequestCard';
 import { LoadingState, EmptyState } from '../../components/common/Spinner';
 import { formatCurrency } from '../../utils/formatters';
 import { OFFER_STATUS } from '../../utils/constants';
-import AvailabilityBadge from '../../components/common/AvailabilityBadge';
 import MyMarket from '../../components/provider/MyMarket';
+import WorkPanel from '../../components/provider/WorkPanel';
 
 export default function ProviderDashboardPage() {
   const { t, i18n } = useTranslation();
@@ -21,13 +20,13 @@ export default function ProviderDashboardPage() {
   const [sub, setSub] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
-  const { position, request: requestLoc } = useGeolocation();
 
   useEffect(() => {
     let current = true;
     setLoading(true);
     setError(false);
-    const params = position ? { latitude: position.latitude, longitude: position.longitude, limit: 6, matching: '1' } : { limit: 6, matching: '1' };
+    // Requests in the provider's own professions and districts only (AYK-040).
+    const params = { limit: 6, matching: '1' };
     Promise.all([
       listNearbyRequests(params).then(r => r.data || []),
       listMyOffers({ limit: 5 }).then(r => r.data || []),
@@ -37,18 +36,25 @@ export default function ProviderDashboardPage() {
       .catch(() => { if (current) setError(true); })
       .finally(() => { if (current) setLoading(false); });
     return () => { current = false; };
-  }, [position]);
+  }, []);
 
   if (loading) return <LoadingState />;
 
   return (
     <div>
-      <h2 className="mb-2">{t('nav.dashboard')}</h2>
-      <div className="flex items-center gap-2 flex-wrap mb-4">
-        <AvailabilityBadge availability={provider?.availability} />
-        <Link to="/profile#availability" className="text-[12.5px] font-semibold">{t('availability.manage')}</Link>
-      </div>
       {error && <p role="alert" className="form-error">{t('errors.generic')}</p>}
+      <WorkPanel />
+
+      <div className="card mb-4" data-testid="work-requests">
+        <div className="flex justify-between items-center gap-2 flex-wrap mb-3">
+          <h3 style={{ margin: 0 }}>📨 {t('work.requests_title')}</h3>
+          <Link to="/opportunities" className="text-[13px] font-semibold">{t('work.see_all')}</Link>
+        </div>
+        {nearby.length === 0
+          ? <EmptyState title={t('work.no_requests')} />
+          : <div className="grid grid-2">{nearby.map(r => <RequestCard key={r.id} request={r} />)}</div>}
+      </div>
+
       <div className="mb-5"><MyMarket /></div>
 
       <div className="grid grid-3 mb-4">
@@ -68,20 +74,8 @@ export default function ProviderDashboardPage() {
         </div>
       </div>
 
-      <div className="card mb-4">
-        <div className="flex justify-between items-center mb-3">
-          <h3 style={{ margin: 0 }}>{t('nav.services')}</h3>
-          {!position && (
-            <button className="btn btn-outline btn-sm" onClick={() => requestLoc().catch(() => {})}>📍 {t('home.use_my_location')}</button>
-          )}
-        </div>
-        {nearby.length === 0
-          ? <EmptyState title={t('common.none')} />
-          : <div className="grid grid-2">{nearby.map(r => <RequestCard key={r.id} request={r} />)}</div>}
-      </div>
-
       <div className="card">
-        <h3>{t('nav.my_offers')}</h3>
+        <h3>{t('request.contacts_title')}</h3>
         {offers.length === 0
           ? <EmptyState title={t('common.none')} />
           : (
@@ -94,7 +88,7 @@ export default function ProviderDashboardPage() {
                       <strong>{o.request_title}</strong>
                       <div className="text-xs text-muted">{oStatus.i18nKey ? t(oStatus.i18nKey) : o.status}</div>
                     </div>
-                    <div style={{ fontWeight: 700, color: 'var(--primary)' }}>{formatCurrency(o.price)}</div>
+                    {Number(o.price) > 0 && <div style={{ fontWeight: 700, color: 'var(--primary)' }}>{formatCurrency(o.price)}</div>}
                   </Link>
                 );
               })}

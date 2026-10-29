@@ -6,6 +6,12 @@ const ProviderBadge = require('./ProviderBadge');
 const Subscription = require('./Subscription');
 const { accountAddress } = require('../utils/userLocation');
 
+function parseIdList(value) {
+  if (Array.isArray(value)) return value.map(Number).filter(Number.isSafeInteger);
+  try { const parsed = JSON.parse(value || '[]'); return Array.isArray(parsed) ? parsed.map(Number).filter(Number.isSafeInteger) : []; }
+  catch (_) { return []; }
+}
+
 const SELECT_FIELDS = `
   u.id, u.full_name, u.username, u.email, u.phone, u.facebook_id, u.role, u.avatar,
   u.is_active, u.is_blocked, u.is_verified, u.is_online,
@@ -427,6 +433,12 @@ async function getProviderProfile(userId) {
     row.is_featured = row.is_featured ? 1 : 0;
     row.coverage_districts = await require('../utils/providerCoverage').coverageDistricts(userId);
     row.availability = require('../utils/providerAvailability').availability(row);
+    // The provider's professions, for the "My work" panel (AYK-040).
+    const serviceIds = parseIdList(row.service_ids);
+    const fromServices = serviceIds.length
+      ? await query(`SELECT DISTINCT category_id FROM services WHERE id IN (${serviceIds.map(() => '?').join(', ')})`, serviceIds) : [];
+    row.category_ids = [...new Set([row.category_id, ...fromServices.map(item => item.category_id)]
+      .filter(id => id !== null && id !== undefined).map(Number))];
   }
   return row;
 }

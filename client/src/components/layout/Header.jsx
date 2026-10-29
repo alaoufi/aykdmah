@@ -47,14 +47,20 @@ export default function Header() {
     };
   }, [mobileOpen]);
 
-  const LINKS = [
+  // Provider-only accounts see their work and their requests, not other professions (AYK-040).
+  const LINKS = canRequestService(user) ? [
     { to: '/', label: t('nav.home'), end: true },
     { to: '/services', label: t('nav.services') },
     { to: '/providers/map', label: t('map.nav_link') },
     { to: '/requests/new', label: t('nav.order_now'), requester: true },
+  ] : [
+    { to: '/provider', label: t('work.title'), end: true },
+    { to: '/opportunities', label: t('work.requests_nav') },
+  ];
+  LINKS.push(
     { to: '/guide', label: t('help.title') },
     { to: '/chat', label: t('nav.chat'), authOnly: true },
-  ];
+  );
 
   const visibleLinks = LINKS.filter((l) => (!l.authOnly || user) && (!l.requester || canRequestService(user)));
   const dashLink = user?.role === 'admin' ? '/admin' : user?.role === 'provider' ? '/provider' : '/client';

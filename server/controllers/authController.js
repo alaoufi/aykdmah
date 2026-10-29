@@ -146,6 +146,10 @@ const register = asyncHandler(async (req, res) => {
   if (simple && role === 'provider') {
     providerLocation.coverage = await validateCoverage(req.body, { cityId: location.city_id, required: true, message: req.t('provider_area_required') });
   }
+  // Working days and hours chosen at sign-up (AYK-040); outside them the provider is hidden.
+  const workHours = role === 'provider' ? require('../utils/providerAvailability').validateAvailability(
+    Object.fromEntries(['work_days', 'work_from', 'work_to'].filter(key => req.body[key] !== undefined).map(key => [key, req.body[key]])),
+    req.t('invalid_data')) : {};
   if (hasProviderServices && (!location.city_id || (!location.district_id &&
       await require('../config/database').queryOne('SELECT id FROM districts WHERE city_id = ? AND is_active = 1 LIMIT 1', [location.city_id])))) {
     return error(res, req.t('provider_area_required'), 400);
@@ -183,6 +187,7 @@ const register = asyncHandler(async (req, res) => {
     throw err;
   }
 
+  if (Object.keys(workHours).length) await User.updateProviderProfile(userId, workHours);
   if (phoneVerified) await markPhoneVerified(userId, filtered.phone);
   if (couponCode) await wallet.applyReferralCode(userId, couponCode).catch(() => {});
   const referralCode = await wallet.ensureReferralCode(userId).catch(() => null);

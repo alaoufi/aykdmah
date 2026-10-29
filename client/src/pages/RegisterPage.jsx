@@ -15,6 +15,7 @@ import LocationPickerMap from '../components/common/LocationPickerMap';
 import ServiceVenuePicker from '../components/common/ServiceVenuePicker';
 import ProfessionsPicker from '../components/common/ProfessionsPicker';
 import CoverageDistrictsPicker from '../components/common/CoverageDistrictsPicker';
+import { weekdayName } from '../components/common/AvailabilityBadge';
 import SafeHtml from '../components/common/SafeHtml';
 import { apiError } from '../services/api';
 import { localizedName } from '../utils/localize';
@@ -44,6 +45,7 @@ export default function RegisterPage() {
     role: ['provider', 'both'].includes(params.get('role')) ? params.get('role') : 'client',
     phone: '', password: '', full_name: '',
     service_ids: [], coverage: [], location_mode: 'mobile',
+    work_days: [0, 1, 2, 3, 4, 5, 6], work_from: '', work_to: '',
     // A shared invitation link (?ref=CODE) pre-fills the coupon.
     referral_code: (params.get('ref') || '').trim().toUpperCase().slice(0, 12),
   });
@@ -155,6 +157,8 @@ export default function RegisterPage() {
       if (!form.service_ids.length) errors.service_ids = t('provider.professions_required');
       if (coverageCount > 0 && !form.coverage.length) errors.coverage = t('provider.coverage_required');
       if (form.location_mode !== 'mobile' && !venuePoint) errors.venue_point = t('provider.venue_point_required');
+      if (!form.work_days.length) errors.work_time = t('availability.days_required');
+      else if (Boolean(form.work_from) !== Boolean(form.work_to)) errors.work_time = t('availability.hours_both');
     }
     if (!termsAccepted) errors.terms = t('auth.terms_required');
     if (codeStep && phoneCode.length < codeStep.length) errors.code = t('auth.code_required');
@@ -204,6 +208,7 @@ export default function RegisterPage() {
         city_id: place.city_id, district_id: place.district_id || null,
         ...(isProvider ? {
           service_ids: form.service_ids, coverage_district_ids: form.coverage, location_mode: form.location_mode,
+          work_days: form.work_days, ...(form.work_from && form.work_to ? { work_from: form.work_from, work_to: form.work_to } : {}),
           ...(form.location_mode !== 'mobile' && venuePoint ? { fixed_latitude: venuePoint.lat, fixed_longitude: venuePoint.lon } : {}),
         } : {}),
         terms_accepted: true, terms_version: settings.terms_version || '1.0',
@@ -309,6 +314,26 @@ export default function RegisterPage() {
           <ProfessionsPicker serviceIds={form.service_ids} onChange={ids => update('service_ids', ids)} error={fieldErrors.service_ids} />
           <CoverageDistrictsPicker cityId={place.city_id} value={form.coverage} onChange={ids => update('coverage', ids)}
             error={fieldErrors.coverage} onDistrictsLoaded={setCoverageCount} />
+          <fieldset className="border-0 p-0 m-0 min-w-0" data-testid="register-work-time">
+            <legend className="form-label">🗓️ {t('work.register_title')}</legend>
+            <p className="text-xs text-muted mb-2">{t('work.register_hint')}</p>
+            <div className="flex flex-wrap gap-1.5 mb-2">
+              {[0, 1, 2, 3, 4, 5, 6].map(day => {
+                const active = form.work_days.includes(day);
+                return <button key={day} type="button" aria-pressed={active}
+                  onClick={() => update('work_days', active ? form.work_days.filter(value => value !== day) : [...form.work_days, day].sort())}
+                  className={`px-2.5 py-1 rounded-pill border text-[12.5px] ${active ? 'border-primary bg-primary-soft font-semibold' : 'border-border bg-surface-alt text-fg-muted'}`}>
+                  {weekdayName(day, lang)}</button>;
+              })}
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <label className="text-[12px] text-fg-muted">{t('availability.from')}
+                <input type="time" className="input mt-0.5" value={form.work_from} onChange={e => update('work_from', e.target.value)} /></label>
+              <label className="text-[12px] text-fg-muted">{t('availability.to')}
+                <input type="time" className="input mt-0.5" value={form.work_to} onChange={e => update('work_to', e.target.value)} /></label>
+            </div>
+            {fieldErrors.work_time && <p role="alert" className="form-error mt-1">{fieldErrors.work_time}</p>}
+          </fieldset>
           <ServiceVenuePicker value={form.location_mode} onChange={mode => update('location_mode', mode)} />
           {form.location_mode !== 'mobile' && <div>
             <Button id="register-venue_point" type="button" variant={venuePoint ? 'outline' : 'primary'} onClick={() => setVenueMapOpen(true)}>

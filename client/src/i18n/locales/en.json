@@ -1359,20 +1359,20 @@
         "body": "Browse services such as plumbing, electrical work and yard cleaning. To create a request, sign in or create an account and choose “{{role_client}}”."
       },
       "details": {
-        "title": "Describe what you need",
-        "body": "Write a title and description of the work and select the service. Add helpful photos, and specify a preferred time and budget if you wish."
+        "title": "Choose the profession and describe what you need",
+        "body": "Tap “Order now”, choose the profession, write a short description of what you need and publish the request. Your district comes from your sign-up, and you write no price: you agree on the price and time in the chat."
       },
       "location": {
         "title": "Check the service location",
         "body": "Your saved account address and location are filled in automatically. Check them and edit them for this request if needed. To update your account for future requests, select “Save this location as my default for future requests”; the change is saved after the request is sent successfully. Pick the point on the map or use device location."
       },
       "offers": {
-        "title": "Compare offers and accept one",
-        "body": "Open your request details to review provider offers. Compare the price, duration, rating and service location. Choose “Negotiate with messages” on an offer to clarify details before accepting the one that suits you."
+        "title": "Contact service providers",
+        "body": "Your request page shows the providers in that profession and your district who are working now, featured first and then the best rated. Tap “Contact” to open a chat with the one you choose; providers may also contact you."
       },
       "chat": {
-        "title": "Confirm the agreement in chat",
-        "body": "Open the offer chat to clarify the work, time, address and price. Record audio up to 60 seconds or video up to 20 seconds, or attach a file from your device. Allow microphone access for audio, and camera and microphone access for video, then check the preview and press Send. Attachments can total up to 3.5 MB. After accepting an offer, confirm who travels to whom."
+        "title": "Tap “Agreed” when you agree",
+        "body": "Agree in the chat on the work, price and time, by text, voice or video. When you agree with one of them, tap “Agreed” in the chat or on the request page: the request is assigned to them and the other chats close. An hour after publishing we ask “Did you find someone?”, and you can stop the request or stop the reminder."
       },
       "finish": {
         "title": "Confirm completion and leave a review",
@@ -1382,23 +1382,23 @@
     "provider_steps": {
       "signup": {
         "title": "Sign up with your phone in a minute",
-        "body": "Choose “{{role_provider}}” or “Both” and enter your phone and password. Your location is taken automatically; then choose your professions, neighbourhoods and service venue. Your coupon appears after signing up."
+        "body": "Choose “{{role_provider}}” or “Both” and enter your phone and password. Your location is taken automatically; then choose your professions, covered districts, working days and hours and how you deliver the service. Your personal coupon appears after sign-up."
       },
       "profile": {
-        "title": "Choose your profession and services",
-        "body": "Select your profession and at least one service you provide, then choose your work city, neighborhood where available, and how you provide the service. If customers visit your shop, add its address and location separately in the business details. Your account address stays private. You can update these details in your profile."
+        "title": "The “My work” panel",
+        "body": "“My work” shows your professions, the districts you cover and your working hours. From there you add a new profession, pause when you are busy and resume, and edit your hours and vacation. You only see requests in your profession and area."
       },
       "find": {
-        "title": "Find suitable requests",
-        "body": "Requests matching your professions and neighbourhoods appear directly on your dashboard and the opportunities page. Open a request and read its description and location before quoting."
+        "title": "Requesters see you automatically",
+        "body": "While you are available, your name appears to everyone requesting a service in your profession and district, and you are hidden during rest time and vacation. “Jobs for me” lists the open requests in your profession and area."
       },
       "quote": {
-        "title": "Send a clear offer",
-        "body": "For an open request, enter your price, expected duration and a message explaining what the work includes. You can negotiate with the customer in the offer chat before acceptance using text, voice messages or video. Follow the offer status in your account; the customer chooses the offer that suits them."
+        "title": "Talk until you agree",
+        "body": "Open the request and tap “Contact the requester”, or wait for them to contact you. Agree in the chat on the work, price and time, with no price quotes. The requester taps “Agreed” when they choose you."
       },
       "work": {
-        "title": "Coordinate, complete the work and review",
-        "body": "When your offer is accepted, open the request chat and agree on the time and location. Confirm completion after the work is done. You can review the customer once the request is completed."
+        "title": "Do the work, then rate",
+        "body": "After you agree, the request is assigned to you. Arrange the time and place, and confirm completion after the work. Each side rates the other once the request is completed."
       }
     },
     "venue_title": "Who travels to whom?",
@@ -2051,5 +2051,28 @@
     "requests_30d_short": "Requests (30 days)",
     "competitors_short": "Competitors",
     "setup_hint": "Complete your profession and the neighbourhoods you cover in your profile to see your market."
+  },
+  "work": {
+    "title": "My work",
+    "hint": "This is what requesters see about you: your professions, the districts you cover and your working hours. You appear to them automatically while you are available.",
+    "professions": "My professions",
+    "no_professions": "No profession chosen yet",
+    "add_profession": "Add a profession",
+    "save_professions": "Save professions",
+    "saved": "Your professions were saved",
+    "areas": "Districts I cover",
+    "whole_city": "The whole city",
+    "edit_areas": "Edit districts",
+    "hours": "Working hours",
+    "edit_times": "Edit hours and vacation",
+    "visible_now": "Requesters see you during your working hours",
+    "hidden_now": "You are paused and hidden from requesters",
+    "requests_nav": "Jobs for me",
+    "requests_title": "Requests in your profession and area",
+    "see_all": "See all",
+    "no_requests": "No requests in your profession and area right now",
+    "switch_type": "Change account type",
+    "register_title": "Working days and hours",
+    "register_hint": "Requesters see you only on these days and hours. Leave the hours empty to appear all day."
   }
 }

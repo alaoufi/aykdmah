@@ -507,8 +507,18 @@ if (!databasePrefix) {
       latitude: 24.7136, longitude: 46.6753 } });
     assert.ok(request.id || request.request?.id);
     const providerOnly = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id,
-      service_ids: serviceIds.slice(0, 1), coverage_district_ids: area.districts.slice(0, 1) });
+      service_ids: serviceIds.slice(0, 1), coverage_district_ids: area.districts.slice(0, 1),
+      work_days: [0, 1, 2, 3, 4], work_from: '08:00', work_to: '17:00' });
     assert.equal(Number(providerOnly.user.also_client), 0);
+    // AYK-040: working time chosen at sign-up, and the professions for the "My work" panel.
+    const work = (await api('/auth/me', { token: providerOnly.token })).provider;
+    assert.equal(work.work_days, '0,1,2,3,4');
+    assert.equal(work.work_from, '08:00');
+    assert.equal(work.work_to, '17:00');
+    const [firstService] = await db.query('SELECT category_id FROM services WHERE id = ?', [serviceIds[0]]);
+    assert.deepEqual(work.category_ids, [Number(firstService.category_id)]);
+    await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id,
+      service_ids: serviceIds.slice(0, 1), coverage_district_ids: area.districts.slice(0, 1), work_from: '25:00', work_to: '17:00' }, 400);
     await api('/requests', { method: 'POST', token: providerOnly.token, expected: 403, body: {
       title: 'طلب', description: 'وصف طلب تجريبي', city_id: area.city_id, district_id: area.district_id } });
 

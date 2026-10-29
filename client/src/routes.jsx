@@ -6,6 +6,7 @@ import AuthLayout from './layouts/AuthLayout';
 import AdminLayout from './layouts/AdminLayout';
 import { useAuth } from './hooks/useAuth';
 import { LoadingState } from './components/common/Spinner';
+import { canRequestService } from './utils/canRequest';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
@@ -77,6 +78,13 @@ function Protected({ children, roles, loginPath = '/login' }) {
   return children;
 }
 
+// A provider-only account works from its own panel; the home page and the
+// catalogue of all professions are for requesters (AYK-040).
+function RequesterPage({ children }) {
+  const { user } = useAuth();
+  return canRequestService(user) ? children : <Navigate to="/provider" replace />;
+}
+
 const isBothAccount = user => user?.role === 'provider' && Number(user.also_client) === 1;
 
 const CLIENT_SIDEBAR = [
@@ -90,8 +98,7 @@ const CLIENT_SIDEBAR = [
 
 const PROVIDER_SIDEBAR = [
   { to: '/provider', icon: '📊', labelKey: 'nav.dashboard', end: true },
-  { to: '/provider/services', icon: '🛠️', labelKey: 'catalog.my_services' },
-  { to: '/opportunities', icon: '🔍', labelKey: 'nav.order_now' },
+  { to: '/opportunities', icon: '🔍', labelKey: 'work.requests_nav' },
   { to: '/provider/subscription', icon: '⭐', labelKey: 'nav.subscription' },
   { to: '/provider/wallet', icon: '💰', labelKey: 'wallet.nav' },
   { to: '/provider/badges', icon: '🛡️', labelKey: 'nav.badges' },
@@ -130,7 +137,7 @@ export default function AppRoutes() {
         <Route path="/admin/login" element={<AdminLoginPage />} />
 
         <Route element={<MainLayout />}>
-          <Route path="/" element={<HomePage />} />
+          <Route path="/" element={<RequesterPage><HomePage /></RequesterPage>} />
           <Route path="/privacy" element={<PolicyPage kind="privacy" />} />
           <Route path="/terms" element={<PolicyPage kind="terms" />} />
           <Route path="/guide" element={<GuidePage />} />
@@ -138,8 +145,8 @@ export default function AppRoutes() {
           <Route path="/payments/test/:id" element={<Protected><TestCheckoutPage /></Protected>} />
           <Route path="/providers/:id" element={<ProviderProfilePage />} />
           {/* AYK services catalog */}
-          <Route path="/services" element={<ServicesCatalogPage />} />
-          <Route path="/services/category/:slug" element={<CategoryServicesPage />} />
+          <Route path="/services" element={<RequesterPage><ServicesCatalogPage /></RequesterPage>} />
+          <Route path="/services/category/:slug" element={<RequesterPage><CategoryServicesPage /></RequesterPage>} />
           <Route path="/services/:id" element={<ServiceDetailsPage />} />
           {/* Provider opportunities = browse open client requests (legacy services list) */}
           <Route path="/opportunities" element={<OpportunitiesPage />} />
