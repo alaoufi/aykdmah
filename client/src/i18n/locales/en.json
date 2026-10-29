@@ -526,7 +526,8 @@
     "delete_message": "Delete message",
     "agreed_question": "Did you agree with {{name}}?",
     "agreed_confirm": "Confirm the agreement with {{name}}? Your other chats about this request will close.",
-    "agreed_hint": "Once you agree, the requester taps \"Agreed\"."
+    "agreed_hint": "Once you agree, the requester taps \"Agreed\".",
+    "translated": "translated"
   },
   "tracking": {
     "title": "Live tracking",
@@ -1065,7 +1066,14 @@
     "current_password_wrong": "The current password is incorrect.",
     "account_inactive": "Your account is inactive. Contact support.",
     "verification_required": "Complete the required account verification to continue.",
-    "conflict": "The data has changed or conflicts with this action. Refresh the page and try again."
+    "conflict": "The data has changed or conflicts with this action. Refresh the page and try again.",
+    "reason_offline_title": "No internet connection",
+    "reason_offline_body": "Check your phone network, then tap \"Retry\".",
+    "reason_update_title": "A new version of the site is out",
+    "reason_update_body": "We are reloading the page now. If it does not reload, tap \"Retry\".",
+    "reason_ours_title": "Something went wrong on our side",
+    "reason_ours_body": "It was not your fault, and we were told automatically. Tap \"Retry\"; if it happens again, send us the error code.",
+    "reason_code": "Error code: {{code}}"
   },
   "catalog": {
     "title": "Services",
@@ -2128,7 +2136,8 @@
     "delete_request": "Delete the request",
     "delete_confirm": "Delete the request \"{{title}}\"? Providers will no longer see it.",
     "chat_archive": "Chat archive",
-    "chat_archive_empty": "No archived chats yet. Chats about finished or closed requests move here."
+    "chat_archive_empty": "No archived chats yet. Chats about finished or closed requests move here.",
+    "forward_none": "No one else is talking with you on this request yet. When others contact you, you can forward it to them."
   },
   "subrules": {
     "title": "Where the monthly subscription applies",

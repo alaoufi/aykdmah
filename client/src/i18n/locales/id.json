@@ -526,7 +526,8 @@
     "delete_message": "Hapus pesan",
     "agreed_question": "Apakah Anda setuju dengan {{name}}?",
     "agreed_confirm": "Konfirmasi kesepakatan dengan {{name}}? obrolan Anda lainnya tentang permintaan ini akan ditutup.",
-    "agreed_hint": "Setelah Anda setuju, pelamar mengklik \"Setuju\"."
+    "agreed_hint": "Setelah Anda setuju, pelamar mengklik \"Setuju\".",
+    "translated": "diterjemahkan"
   },
   "tracking": {
     "title": "Pelacakan langsung",
@@ -1065,7 +1066,14 @@
     "current_password_wrong": "Kata sandi saat ini salah.",
     "account_inactive": "Akunmu tidak aktif.",
     "verification_required": "Lengkapi verifikasi akun yang diperlukan untuk melanjutkan.",
-    "conflict": "Data telah berubah atau bertentangan dengan tindakan ini. Perbarui halaman dan coba lagi."
+    "conflict": "Data telah berubah atau bertentangan dengan tindakan ini. Perbarui halaman dan coba lagi.",
+    "reason_offline_title": "Tidak ada koneksi internet",
+    "reason_offline_body": "Periksa jaringan ponsel Anda, lalu ketuk \"Coba lagi\".",
+    "reason_update_title": "Versi baru situs sudah tersedia",
+    "reason_update_body": "Kami memuat ulang halaman sekarang. Jika tidak, ketuk \"Coba lagi\".",
+    "reason_ours_title": "Terjadi kesalahan di pihak kami",
+    "reason_ours_body": "Ini bukan kesalahan Anda, dan kami sudah diberi tahu otomatis. Ketuk \"Coba lagi\"; jika terulang, kirimkan kode kesalahannya.",
+    "reason_code": "Kode kesalahan: {{code}}"
   },
   "catalog": {
     "title": "Layanan",
@@ -2128,7 +2136,8 @@
     "delete_request": "Hapus permintaan",
     "delete_confirm": "Hapus permintaan \"{{title}}\"? Penyedia tidak akan melihatnya lagi.",
     "chat_archive": "Arsip obrolan",
-    "chat_archive_empty": "Belum ada obrolan diarsipkan. Obrolan permintaan yang selesai atau ditutup pindah ke sini."
+    "chat_archive_empty": "Belum ada obrolan diarsipkan. Obrolan permintaan yang selesai atau ditutup pindah ke sini.",
+    "forward_none": "Belum ada orang lain yang menghubungi Anda di permintaan ini. Saat ada yang lain, Anda bisa meneruskannya."
   },
   "subrules": {
     "title": "Di mana langganan bulanan berlaku",

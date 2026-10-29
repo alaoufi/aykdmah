@@ -12,7 +12,7 @@ import { useSocket } from '../hooks/useSocket';
 import MessageBubble from '../components/chat/MessageBubble';
 import ChatInput from '../components/chat/ChatInput';
 import RequestBrief from '../components/chat/RequestBrief';
-import LocalMessageTranslation from '../components/chat/LocalMessageTranslation';
+import AutoTranslation from '../components/chat/AutoTranslation';
 import Avatar from '../components/common/Avatar';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import { LoadingState, EmptyState } from '../components/common/Spinner';
@@ -190,6 +190,7 @@ export default function ChatPage() {
   // voice note, a video, text) to every provider on this request, or to one of them.
   const siblings = active?.request_id && Number(active.request_client_id) === Number(user.id)
     ? conversations.filter(c => Number(c.request_id) === Number(active.request_id) && Number(c.id) !== Number(activeId) && c.can_send) : [];
+  const isRequestOwner = Boolean(active?.request_id) && Number(active.request_client_id) === Number(user.id);
   const [forwarding, setForwarding] = useState(null);
   const [forwardNote, setForwardNote] = useState('');
   const forwardTo = async target => {
@@ -399,9 +400,9 @@ export default function ChatPage() {
                       isMine={item.sender_id === user.id}
                       firstInRun={index === 0 || renderedMessages[index - 1].__type === 'separator' || renderedMessages[index - 1].sender_id !== item.sender_id}
                       onReply={canSend ? setReplyTo : undefined}
-                      onForward={item.sender_id === user.id && siblings.length > 0 && item.message_type !== 'location' ? message => { setForwardNote(''); setForwarding(message); } : undefined}
+                      onForward={item.sender_id === user.id && isRequestOwner && item.message_type !== 'location' ? message => { setForwardNote(''); setForwarding(message); } : undefined}
                       onDelete={setDeleteCandidate}
-                      renderTranslation={message => <LocalMessageTranslation message={message} sessionKey={sessionKey} />}
+                      renderTranslation={message => <AutoTranslation message={message} isMine={message.sender_id === user.id} />}
                     />
                   );
                 })
@@ -442,10 +443,10 @@ export default function ChatPage() {
             )}
             {forwarding && (
               <div className="chat-audience" role="dialog" aria-label={t('requester.forward_title')} data-testid="chat-forward">
-                <span>↪ {t('requester.forward_title')}</span>
+                <span>↪ {t(siblings.length ? 'requester.forward_title' : 'requester.forward_none')}</span>
                 <div className="flex gap-2 flex-wrap">
-                  <button type="button" className="btn btn-primary btn-sm" onClick={() => forwardTo(null)} data-testid="forward-all">
-                    📣 {t('requester.forward_all', { count: siblings.length })}</button>
+                  {siblings.length > 0 && <button type="button" className="btn btn-primary btn-sm" onClick={() => forwardTo(null)} data-testid="forward-all">
+                    📣 {t('requester.forward_all', { count: siblings.length })}</button>}
                   {siblings.map(c => (
                     <button key={c.id} type="button" className="btn btn-outline btn-sm" onClick={() => forwardTo(c.id)} data-testid="forward-one">
                       👤 {c.other_user?.full_name}{c.other_user?.referral_code ? ` · ${t('requester.number')} ${c.other_user.referral_code}` : ''}</button>

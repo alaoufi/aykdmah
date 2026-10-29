@@ -713,6 +713,15 @@ if (!databasePrefix) {
     const everyone = await api(`/chat/conversations/${one.conversation_id}/messages`, { method: 'POST', token: client.token, expected: 201,
       body: { content: 'هل تستطيع الحضور اليوم؟', broadcast: '1' } });
     assert.equal(everyone.broadcast_count, 2);
+    // Messages are translated for the reader automatically; only participants may ask.
+    const translated = await api(`/chat/conversations/${two.conversation_id}/messages/${everyone.id}/translation?lang=ar`, { token: second.token });
+    assert.equal(typeof translated.text, "string");
+    await api(`/chat/conversations/${two.conversation_id}/messages/${everyone.id}/translation?lang=en`, { token: outsider.token, expected: 403 });
+    // A page error reported by the browser is kept in the activity log.
+    const reported = await fetch(`${base}/client-errors`, { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code: "TEST01", message: "boom", path: "/requests/1", version: "v" }) });
+    assert.equal(reported.status, 204);
+    assert.ok(await db.queryOne("SELECT id FROM activity_logs WHERE action = 'client.error' AND description LIKE 'TEST01%'"));
     // The "Chats" badge counts unread chat messages, not notifications.
     assert.ok((await api('/chat/unread', { token: second.token })).count >= 1);
     assert.equal((await api('/chat/unread', { token: client.token })).count, 0);

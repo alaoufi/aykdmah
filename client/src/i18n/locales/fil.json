@@ -526,7 +526,8 @@
     "delete_message": "I-delete ang mensahe",
     "agreed_question": "Sumasang-ayon ka ba sa {{name}}?",
     "agreed_confirm": "Kumpirmahin ang kasunduan sa {{name}}? ang iyong iba pang mga pag-uusap tungkol sa hinihiling na ito ay matatapos.",
-    "agreed_hint": "Kapag sumasang-ayon ka, ang humihingi ay mag-tap sa \"Sumang-ayon\"."
+    "agreed_hint": "Kapag sumasang-ayon ka, ang humihingi ay mag-tap sa \"Sumang-ayon\".",
+    "translated": "isinalin"
   },
   "tracking": {
     "title": "Live na pagsubaybay",
@@ -1065,7 +1066,14 @@
     "current_password_wrong": "Hindi tama ang kasalukuyang password.",
     "account_inactive": "Hindi aktibo ang iyong account.",
     "verification_required": "Mag-complete ng kinakailangang pag-verify ng account upang magpatuloy.",
-    "conflict": "Ang data ay nagbago o nakikipag-away sa pagkilos na ito. I-refresh ang pahina at subukan muli."
+    "conflict": "Ang data ay nagbago o nakikipag-away sa pagkilos na ito. I-refresh ang pahina at subukan muli.",
+    "reason_offline_title": "Walang koneksyon sa internet",
+    "reason_offline_body": "Suriin ang network ng iyong telepono, saka pindutin ang \"Subukan muli\".",
+    "reason_update_title": "May bagong bersyon ng site",
+    "reason_update_body": "Nire-reload namin ang pahina ngayon. Kung hindi, pindutin ang \"Subukan muli\".",
+    "reason_ours_title": "May mali sa pahina sa aming panig",
+    "reason_ours_body": "Hindi ikaw ang may mali, at awtomatiko kaming naabisuhan. Pindutin ang \"Subukan muli\"; kung maulit, ipadala sa amin ang error code.",
+    "reason_code": "Error code: {{code}}"
   },
   "catalog": {
     "title": "Mga Serbisyo",
@@ -2128,7 +2136,8 @@
     "delete_request": "Burahin ang kahilingan",
     "delete_confirm": "Burahin ang kahilingang \"{{title}}\"? Hindi na ito makikita ng mga provider.",
     "chat_archive": "Archive ng chat",
-    "chat_archive_empty": "Wala pang naka-archive na chat. Dito napupunta ang chat ng mga tapos o saradong kahilingan."
+    "chat_archive_empty": "Wala pang naka-archive na chat. Dito napupunta ang chat ng mga tapos o saradong kahilingan.",
+    "forward_none": "Wala pang ibang kausap mo sa kahilingang ito. Kapag may kumontak pa, maipapasa mo ito sa kanila."
   },
   "subrules": {
     "title": "Saan ipinapatupad ang buwanang subscription",

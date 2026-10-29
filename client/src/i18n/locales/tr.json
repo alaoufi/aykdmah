@@ -526,7 +526,8 @@
     "delete_message": "Mesajı Sil",
     "agreed_question": "{{name}} ile aynı fikirde miydin?",
     "agreed_confirm": "Bu talebinizle ilgili diğer sohbetleriniz sona erecek. {{name}}",
-    "agreed_hint": "Kabul ettiğinizde, başvuruda bulunan kişi \"Tamam\"a tıklar."
+    "agreed_hint": "Kabul ettiğinizde, başvuruda bulunan kişi \"Tamam\"a tıklar.",
+    "translated": "çevrildi"
   },
   "tracking": {
     "title": "Canlı izleme",
@@ -1065,7 +1066,14 @@
     "current_password_wrong": "Mevcut şifre yanlış.",
     "account_inactive": "Hesabınız aktif değil.",
     "verification_required": "Başlamak için gerekli hesap doğrulamalarını tamamlayın.",
-    "conflict": "Veriler değişti veya bu eylemle çelişki gösterdi. Sayfayı yenilentiyle tekrar dene."
+    "conflict": "Veriler değişti veya bu eylemle çelişki gösterdi. Sayfayı yenilentiyle tekrar dene.",
+    "reason_offline_title": "İnternet bağlantısı yok",
+    "reason_offline_body": "Telefonunuzun ağını kontrol edin, ardından \"Tekrar dene\"ye dokunun.",
+    "reason_update_title": "Sitenin yeni sürümü çıktı",
+    "reason_update_body": "Sayfayı şimdi otomatik yeniliyoruz. Yenilenmezse \"Tekrar dene\"ye dokunun.",
+    "reason_ours_title": "Sayfada bizden kaynaklı bir hata oluştu",
+    "reason_ours_body": "Hata sizden kaynaklanmadı ve bize otomatik bildirildi. \"Tekrar dene\"ye dokunun; tekrarlarsa hata kodunu bize gönderin.",
+    "reason_code": "Hata kodu: {{code}}"
   },
   "catalog": {
     "title": "Hizmetler",
@@ -2128,7 +2136,8 @@
     "delete_request": "Talebi sil",
     "delete_confirm": "\"{{title}}\" talebi silinsin mi? Hizmet verenler artık görmeyecek.",
     "chat_archive": "Sohbet arşivi",
-    "chat_archive_empty": "Henüz arşivlenmiş sohbet yok. Tamamlanan veya kapatılan taleplerin sohbetleri buraya taşınır."
+    "chat_archive_empty": "Henüz arşivlenmiş sohbet yok. Tamamlanan veya kapatılan taleplerin sohbetleri buraya taşınır.",
+    "forward_none": "Bu talepte henüz başka kimse sizinle iletişimde değil. Başkaları iletişime geçince onlara iletebilirsiniz."
   },
   "subrules": {
     "title": "Aylık aboneliğin uygulandığı yerler",

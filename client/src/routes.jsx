@@ -4,6 +4,7 @@ import MainLayout from './layouts/MainLayout';
 import DashboardLayout from './layouts/DashboardLayout';
 import AuthLayout from './layouts/AuthLayout';
 import AdminLayout from './layouts/AdminLayout';
+import ErrorBoundary from './components/common/ErrorBoundary';
 import { useAuth } from './hooks/useAuth';
 import { LoadingState } from './components/common/Spinner';
 import { canRequestService } from './utils/canRequest';
@@ -129,6 +130,7 @@ export default function AppRoutes() {
   const { pathname } = useLocation();
   return (
     <Suspense fallback={<LoadingState />}>
+      <ErrorBoundary key={pathname}>
       <Routes key={pathname}>
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<LoginPage />} />
@@ -208,6 +210,7 @@ export default function AppRoutes() {
 
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
+      </ErrorBoundary>
     </Suspense>
   );
 }
