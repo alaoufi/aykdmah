@@ -209,6 +209,15 @@ if (!databasePrefix) {
     const stats = await calls.stats({ days: 30 });
     assert.ok(stats.totals.total >= 5);
     assert.equal(stats.reports.length, 1);
+    // Live load for the admin calls page (AYK-050).
+    assert.equal(typeof stats.live.now.total, 'number');
+    assert.ok(stats.live.today.total >= 1);
+    assert.ok(stats.live.capacity.video > 0 && stats.live.capacity.used_percent >= 0 && stats.live.capacity.used_percent <= 100);
+    const at = minutes => new Date(Date.UTC(2026, 0, 1, 10, minutes));
+    assert.equal(calls.peakConcurrent([
+      { answered_at: at(0), ended_at: at(10) }, { answered_at: at(5), ended_at: at(15) },
+      { answered_at: at(10), ended_at: at(20) }, { answered_at: at(30), ended_at: null },
+    ], at(40).getTime()), 2);
   });
 
   test('an incoming call rings the callee devices through Web Push, and only valid subscriptions are kept', async () => {

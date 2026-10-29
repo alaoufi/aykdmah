@@ -89,11 +89,16 @@ export function CallProvider({ children }) {
 
   const connectMedia = useCallback(async (active) => {
     setPhase(prev => (prev === 'outgoing' ? 'outgoing' : 'connecting'));
-    const [{ Room, RoomEvent, Track, DisconnectReason }, access] = await Promise.all([loadLiveKit(), calls.callToken(active.id)]);
+    const [{ Room, RoomEvent, Track, DisconnectReason, VideoPresets }, access] = await Promise.all([loadLiveKit(), calls.callToken(active.id)]);
     // Ended on purpose (hang-up, room closed by the server): no rejoin attempts.
     const finalReasons = [DisconnectReason.CLIENT_INITIATED, DisconnectReason.ROOM_DELETED, DisconnectReason.PARTICIPANT_REMOVED,
       DisconnectReason.DUPLICATE_IDENTITY, DisconnectReason.ROOM_CLOSED].filter(r => r !== undefined);
-    const lkRoom = new Room({ adaptiveStream: true, dynacast: true, stopLocalTrackOnUnpublish: true });
+    // Video at 360p, up to 24 fps and ~600 kbps: clear on a phone, light on the server and on data.
+    const lkRoom = new Room({
+      adaptiveStream: true, dynacast: true, stopLocalTrackOnUnpublish: true,
+      videoCaptureDefaults: VideoPresets?.h360 ? { resolution: VideoPresets.h360.resolution } : undefined,
+      publishDefaults: { simulcast: true, videoEncoding: { maxBitrate: 600_000, maxFramerate: 24 } },
+    });
     lkRoom
       .on(RoomEvent.ParticipantConnected, () => setRemoteJoined(true))
       .on(RoomEvent.ParticipantDisconnected, () => setRemoteJoined(false))

@@ -285,6 +285,49 @@ async function endIfAbandoned(callId) {
   if (present < 2) await finish(row, 'ended', 'participant_left');
 }
 
+// What this server carries comfortably at once (8 CPU): about 100 video or 500 voice calls.
+// Override with CALL_CAPACITY_VIDEO / CALL_CAPACITY_AUDIO after moving to a bigger server.
+const CAPACITY = {
+  video: Number(process.env.CALL_CAPACITY_VIDEO) || 100,
+  audio: Number(process.env.CALL_CAPACITY_AUDIO) || 500,
+};
+
+// Highest number of calls talking at the same time since `since`.
+function peakConcurrent(rows, now = Date.now()) {
+  const edges = [];
+  for (const row of rows) {
+    const start = new Date(row.answered_at).getTime();
+    const end = row.ended_at ? new Date(row.ended_at).getTime() : now;
+    if (!Number.isFinite(start) || end < start) continue;
+    edges.push([start, 1], [end, -1]);
+  }
+  edges.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+  let current = 0; let peak = 0;
+  for (const [, step] of edges) { current += step; peak = Math.max(peak, current); }
+  return peak;
+}
+
+async function liveLoad() {
+  // The day starts at midnight Saudi time (UTC+3).
+  const dayMs = 86400000; const offset = 3 * 3600000;
+  const dayStart = new Date(Math.floor((Date.now() + offset) / dayMs) * dayMs - offset);
+  const now = await queryOne(`SELECT
+      SUM(CASE WHEN call_type = 'video' THEN 1 ELSE 0 END) AS video,
+      SUM(CASE WHEN call_type = 'video' THEN 0 ELSE 1 END) AS audio,
+      SUM(CASE WHEN status = 'ringing' THEN 1 ELSE 0 END) AS ringing
+    FROM calls WHERE status IN ('ringing', 'accepted')`);
+  const today = await queryOne(`SELECT COUNT(*) AS total, COALESCE(SUM(duration_seconds), 0) AS seconds
+    FROM calls WHERE created_at >= ?`, [dayStart]);
+  const talked = await query(`SELECT answered_at, ended_at FROM calls
+    WHERE answered_at IS NOT NULL AND (ended_at IS NULL OR ended_at >= ?)`, [dayStart]);
+  const video = Number(now?.video) || 0; const audio = Number(now?.audio) || 0;
+  return {
+    now: { total: video + audio, video, audio, ringing: Number(now?.ringing) || 0 },
+    today: { total: Number(today?.total) || 0, seconds: Number(today?.seconds) || 0, peak: peakConcurrent(talked) },
+    capacity: { ...CAPACITY, used_percent: Math.min(100, Math.round((video / CAPACITY.video + audio / CAPACITY.audio) * 100)) },
+  };
+}
+
 async function stats({ days = 30 } = {}) {
   const since = new Date(Date.now() - Math.min(Math.max(Number(days) || 30, 1), 365) * 86400000);
   const totals = await queryOne(`SELECT COUNT(*) AS total,
@@ -314,6 +357,7 @@ async function stats({ days = 30 } = {}) {
     errors,
     configured: isConfigured(),
     system,
+    live: await liveLoad(),
     recent: recent.map(row => ({
       id: row.id, call_type: row.call_type, status: row.status, end_reason: row.end_reason,
       caller_name: row.caller_name, callee_name: row.callee_name, request_id: row.request_id,
@@ -333,5 +377,5 @@ async function reviewReport(reportId, adminId, status) {
 
 module.exports = {
   attach, isConfigured, start, accept, decline, joinToken, active, history, eligibility,
-  report, sweep, handleWebhook, stats, reviewReport, RING_TIMEOUT_MS,
+  report, sweep, handleWebhook, stats, reviewReport, RING_TIMEOUT_MS, peakConcurrent,
 };

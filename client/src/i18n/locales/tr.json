@@ -1768,7 +1768,16 @@
       "status": "Durum",
       "duration": "Süresi",
       "when": "Ne zaman ?",
-      "load_failed": "Telefon istatistiklerini yükleyemedim."
+      "load_failed": "Telefon istatistiklerini yükleyemedim.",
+      "live_title": "Şu anki aramalar",
+      "live_now": "Şu an süren",
+      "live_video_audio": "Video / ses",
+      "today_total": "Bugünkü aramalar",
+      "today_peak": "Bugün aynı anda en fazla",
+      "today_minutes": "Bugünkü dakikalar",
+      "load_now": "Sunucudaki mevcut yük",
+      "capacity": "Sunucu kapasitesi: aynı anda yaklaşık {{video}} görüntülü veya {{audio}} sesli arama",
+      "capacity_warning": "Yük sunucu kapasitesine yakın. Ek bir arama sunucusu düşünün."
     }
   },
   "wallet": {

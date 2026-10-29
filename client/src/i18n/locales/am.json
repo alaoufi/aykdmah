@@ -1768,7 +1768,16 @@
       "status": "ሁኔታ",
       "duration": "የጊዜ ገደብ",
       "when": "መቼ ነው",
-      "load_failed": "የስልክ ስታትስቲክስ መጫን አልቻለም."
+      "load_failed": "የስልክ ስታትስቲክስ መጫን አልቻለም.",
+      "live_title": "አሁን ያሉ ጥሪዎች",
+      "live_now": "አሁን በሂደት ላይ",
+      "live_video_audio": "ቪዲዮ / ድምፅ",
+      "today_total": "የዛሬ ጥሪዎች",
+      "today_peak": "ዛሬ በአንድ ጊዜ ከፍተኛው",
+      "today_minutes": "የዛሬ ደቂቃዎች",
+      "load_now": "በአገልጋዩ ላይ ያለው ጭነት",
+      "capacity": "የአገልጋይ አቅም፦ በአንድ ጊዜ ወደ {{video}} የቪዲዮ ወይም {{audio}} የድምፅ ጥሪዎች",
+      "capacity_warning": "ጭነቱ ወደ አገልጋዩ አቅም ተቃርቧል። ተጨማሪ የጥሪ አገልጋይ ያስቡ።"
     }
   },
   "wallet": {

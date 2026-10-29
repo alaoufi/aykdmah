@@ -1768,7 +1768,16 @@
       "status": "Status",
       "duration": "Duration",
       "when": "When",
-      "load_failed": "Could not load call statistics."
+      "load_failed": "Could not load call statistics.",
+      "live_title": "Calls now",
+      "live_now": "On now",
+      "live_video_audio": "Video / voice",
+      "today_total": "Calls today",
+      "today_peak": "Peak at once today",
+      "today_minutes": "Minutes today",
+      "load_now": "Current server load",
+      "capacity": "Server capacity: about {{video}} video or {{audio}} voice calls at once",
+      "capacity_warning": "Load is close to server capacity. Consider an extra call server."
     }
   },
   "wallet": {

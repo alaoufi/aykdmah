@@ -16,10 +16,15 @@ export default function AdminCallsPage() {
     adminCallStats(days).then(setData).catch(() => setError('calls.admin.load_failed'));
   }, [days]);
   useEffect(() => { load(); }, [load]);
+  // The live numbers refresh every half minute while the page is open.
+  useEffect(() => {
+    const timer = setInterval(() => { if (!document.hidden) adminCallStats(days).then(setData).catch(() => {}); }, 30000);
+    return () => clearInterval(timer);
+  }, [days]);
 
   if (error) return <ErrorState message={t(error)} />;
   if (!data) return <LoadingState />;
-  const { totals, system } = data;
+  const { totals, system, live } = data;
   const minutes = s => Math.round((Number(s) || 0) / 60);
   const cards = [
     ['total', totals.total], ['completed', totals.completed], ['missed', totals.missed], ['rejected', totals.rejected],
@@ -39,6 +44,32 @@ export default function AdminCallsPage() {
       </div>
       {!data.configured && <div className="px-3 py-2 rounded-card bg-amber-50 text-amber-800 text-[13px]">{t('calls.admin.not_configured')}</div>}
       <p className="text-[12.5px] text-fg-subtle">{t('calls.admin.privacy_note')}</p>
+
+      {live && (
+        <div className="card p-3 space-y-2" data-testid="calls-live">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <b className="text-fg">🟢 {t('calls.admin.live_title')}</b>
+            <span className="text-[12px] text-fg-muted">{t('calls.admin.capacity', { video: live.capacity.video, audio: live.capacity.audio })}</span>
+          </div>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {[['live_now', live.now.total], ['live_video_audio', `${live.now.video} / ${live.now.audio}`], ['today_total', live.today.total],
+              ['today_peak', live.today.peak], ['today_minutes', minutes(live.today.seconds)]].map(([key, value]) => (
+              <div key={key} className="rounded-card bg-surface-alt p-2">
+                <div className="text-[11.5px] text-fg-muted">{t(`calls.admin.${key}`)}</div>
+                <div className="text-lg font-extrabold text-fg">{value}</div>
+              </div>
+            ))}
+          </div>
+          <div>
+            <div className="flex justify-between text-[12px] text-fg-muted"><span>{t('calls.admin.load_now')}</span><span>{live.capacity.used_percent}%</span></div>
+            <div className="h-2 rounded-full bg-surface-alt overflow-hidden" role="meter" aria-valuenow={live.capacity.used_percent} aria-valuemin={0} aria-valuemax={100}>
+              <div className={`h-full rounded-full ${live.capacity.used_percent >= 80 ? 'bg-danger' : live.capacity.used_percent >= 50 ? 'bg-amber-500' : 'bg-success'}`}
+                style={{ width: `${Math.max(live.capacity.used_percent, 1)}%` }} />
+            </div>
+            {live.capacity.used_percent >= 80 && <p className="text-[12px] text-danger mt-1 m-0">⚠️ {t('calls.admin.capacity_warning')}</p>}
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2">
         {cards.map(([key, value]) => (

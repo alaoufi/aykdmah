@@ -1768,7 +1768,16 @@
       "status": "Status",
       "duration": "Durasi",
       "when": "Kapan?",
-      "load_failed": "Tidak bisa memuat statistik panggilan."
+      "load_failed": "Tidak bisa memuat statistik panggilan.",
+      "live_title": "Panggilan sekarang",
+      "live_now": "Berlangsung",
+      "live_video_audio": "Video / suara",
+      "today_total": "Panggilan hari ini",
+      "today_peak": "Puncak bersamaan hari ini",
+      "today_minutes": "Menit hari ini",
+      "load_now": "Beban server saat ini",
+      "capacity": "Kapasitas server: sekitar {{video}} panggilan video atau {{audio}} suara sekaligus",
+      "capacity_warning": "Beban mendekati kapasitas server. Pertimbangkan server panggilan tambahan."
     }
   },
   "wallet": {

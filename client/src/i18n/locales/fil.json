@@ -1768,7 +1768,16 @@
       "status": "Katayuan",
       "duration": "Katagal",
       "when": "Kailan",
-      "load_failed": "Hindi ko na nai-load ang mga istatistika ng tawag."
+      "load_failed": "Hindi ko na nai-load ang mga istatistika ng tawag.",
+      "live_title": "Mga tawag ngayon",
+      "live_now": "Kasalukuyan",
+      "live_video_audio": "Video / boses",
+      "today_total": "Mga tawag ngayong araw",
+      "today_peak": "Pinakamarami nang sabay ngayong araw",
+      "today_minutes": "Mga minuto ngayong araw",
+      "load_now": "Kasalukuyang load ng server",
+      "capacity": "Kapasidad ng server: mga {{video}} video o {{audio}} voice call nang sabay",
+      "capacity_warning": "Malapit na sa kapasidad ng server. Isaalang-alang ang dagdag na call server."
     }
   },
   "wallet": {
