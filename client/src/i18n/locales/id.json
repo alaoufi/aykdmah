@@ -528,7 +528,8 @@
     "agreed_confirm": "Konfirmasi kesepakatan dengan {{name}}? obrolan Anda lainnya tentang permintaan ini akan ditutup.",
     "agreed_hint": "Setelah Anda setuju, pelamar mengklik \"Setuju\".",
     "translated": "diterjemahkan",
-    "voice_too_short": "Rekaman terlalu pendek. Ketuk 🎙️ dan bicara, lalu ketuk kirim."
+    "voice_too_short": "Rekaman terlalu pendek. Ketuk 🎙️ dan bicara, lalu ketuk kirim.",
+    "recording_time_long": "Merekam {{time}} · hingga {{limit}}"
   },
   "tracking": {
     "title": "Pelacakan langsung",
@@ -2126,7 +2127,7 @@
     "voice_record": "Rekam kebutuhan",
     "voice_stop": "Berhenti",
     "voice_delete": "Hapus",
-    "voice_hint": "Opsional, maksimal satu menit. Setiap penyedia yang Anda hubungi mendengarnya, jadi tidak perlu mengulang.",
+    "voice_hint": "Opsional, hingga 10 menit. Setiap penyedia yang Anda hubungi mendengarnya, jadi tidak perlu mengulang.",
     "attach_label": "Foto atau video",
     "publish": "Terbitkan",
     "publish_hint": "Permintaan Anda langsung sampai ke penyedia profesi tersebut di area Anda. Deskripsi dan foto Anda tampil di atas setiap obrolan, dan detail serta harga disepakati di sana.",

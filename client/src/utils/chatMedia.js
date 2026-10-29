@@ -1,6 +1,7 @@
 export const CHAT_MEDIA_MAX_FILES = 4;
 export const CHAT_MEDIA_MAX_BYTES = 3.5 * 1024 * 1024;
-export const VOICE_MAX_SECONDS = 60;
+// Ten minutes of speech at 32 kbps is about 2.4 MB, inside the upload limit.
+export const VOICE_MAX_SECONDS = 600;
 export const VIDEO_MAX_SECONDS = 20;
 export const CHAT_ATTACHMENT_ACCEPT = 'image/jpeg,image/png,image/webp,application/pdf,audio/mpeg,audio/mp3,audio/wav,audio/webm,audio/ogg,audio/mp4,audio/x-m4a,video/mp4,video/webm,video/ogg,video/quicktime,.jpg,.jpeg,.png,.webp,.pdf,.mp3,.wav,.webm,.ogg,.m4a,.mp4,.mov,.ogv';
 export const VIDEO_CAPTURE_CONSTRAINTS = {
@@ -155,7 +156,7 @@ export function createVoiceRecording({
       }
       stream = requestedStream;
       const mimeType = video ? preferredVideoMime(Recorder) : preferredVoiceMime(Recorder);
-      const active = new Recorder(stream, { audioBitsPerSecond: 48000, ...(video ? { videoBitsPerSecond: 384000 } : {}), ...(mimeType ? { mimeType } : {}) });
+      const active = new Recorder(stream, { audioBitsPerSecond: video ? 48000 : 32000, ...(video ? { videoBitsPerSecond: 384000 } : {}), ...(mimeType ? { mimeType } : {}) });
       recorder = active;
       chunks = [];
       bytes = 0;

@@ -528,7 +528,8 @@
     "agreed_confirm": "Bu talebinizle ilgili diğer sohbetleriniz sona erecek. {{name}}",
     "agreed_hint": "Kabul ettiğinizde, başvuruda bulunan kişi \"Tamam\"a tıklar.",
     "translated": "çevrildi",
-    "voice_too_short": "Kayıt çok kısa. 🎙️ simgesine dokunup konuşun, sonra gönder'e dokunun."
+    "voice_too_short": "Kayıt çok kısa. 🎙️ simgesine dokunup konuşun, sonra gönder'e dokunun.",
+    "recording_time_long": "Kayıt {{time}} · en fazla {{limit}}"
   },
   "tracking": {
     "title": "Canlı izleme",
@@ -2126,7 +2127,7 @@
     "voice_record": "İhtiyacı kaydet",
     "voice_stop": "Durdur",
     "voice_delete": "Sil",
-    "voice_hint": "İsteğe bağlı, en fazla bir dakika. Konuştuğunuz her hizmet veren bunu dinler, tekrar etmenize gerek kalmaz.",
+    "voice_hint": "İsteğe bağlı, en fazla 10 dakika. Konuştuğunuz her hizmet veren bunu dinler, tekrar etmenize gerek kalmaz.",
     "attach_label": "Fotoğraf veya video",
     "publish": "Yayımla",
     "publish_hint": "Talebiniz hemen bölgenizdeki o mesleğin hizmet verenlerine ulaşır. Açıklamanız ve fotoğraflarınız her sohbetin üstünde görünür; ayrıntıları ve fiyatı orada kararlaştırırsınız.",

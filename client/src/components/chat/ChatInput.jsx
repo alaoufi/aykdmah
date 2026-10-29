@@ -156,7 +156,8 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
             <span className="chat-recording-status" role="status" aria-live="polite">
               {activeRecorder.status === 'pending'
                 ? t(videoRecording ? 'chat.camera_pending' : 'chat.microphone_pending')
-                : t(videoRecording ? 'chat.video_recording_time' : 'chat.recording_time', { time: recordingTime(activeRecorder.elapsedMs), limit: videoRecording ? VIDEO_MAX_SECONDS : VOICE_MAX_SECONDS })}
+                : videoRecording ? t('chat.video_recording_time', { time: recordingTime(activeRecorder.elapsedMs), limit: VIDEO_MAX_SECONDS })
+                  : t('chat.recording_time_long', { time: recordingTime(activeRecorder.elapsedMs), limit: recordingTime(VOICE_MAX_SECONDS * 1000) })}
             </span>
             {activeRecorder.status === 'recording' && <button type="button" onClick={activeRecorder.stop}>⏹ {t('chat.stop_recording')}</button>}
             <button type="button" onClick={activeRecorder.cancel}>{t('chat.cancel_recording')}</button>

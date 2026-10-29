@@ -528,7 +528,8 @@
     "agreed_confirm": "Confirm the agreement with {{name}}? Your other chats about this request will close.",
     "agreed_hint": "Once you agree, the requester taps \"Agreed\".",
     "translated": "translated",
-    "voice_too_short": "The recording is too short. Tap 🎙️ and speak, then tap send."
+    "voice_too_short": "The recording is too short. Tap 🎙️ and speak, then tap send.",
+    "recording_time_long": "Recording {{time}} · up to {{limit}}"
   },
   "tracking": {
     "title": "Live tracking",
@@ -2126,7 +2127,7 @@
     "voice_record": "Record what you need",
     "voice_stop": "Stop",
     "voice_delete": "Delete",
-    "voice_hint": "Optional, up to one minute. Every provider you talk with hears it, so you don't repeat it.",
+    "voice_hint": "Optional, up to 10 minutes. Every provider you talk with hears it, so you don't repeat it.",
     "attach_label": "Photo or video",
     "publish": "Post",
     "publish_hint": "Your request reaches providers of that profession in your area right away. Your description and photos appear at the top of every chat, where you agree on details and price.",
