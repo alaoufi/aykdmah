@@ -2126,7 +2126,9 @@
     "manage_hint": "Itigil ang kahilingan kapag may nakita ka na (at i-rate siya), o burahin kung hindi mo na kailangan.",
     "stop_request": "Itigil ang kahilingan",
     "delete_request": "Burahin ang kahilingan",
-    "delete_confirm": "Burahin ang kahilingang \"{{title}}\"? Hindi na ito makikita ng mga provider."
+    "delete_confirm": "Burahin ang kahilingang \"{{title}}\"? Hindi na ito makikita ng mga provider.",
+    "chat_archive": "Archive ng chat",
+    "chat_archive_empty": "Wala pang naka-archive na chat. Dito napupunta ang chat ng mga tapos o saradong kahilingan."
   },
   "subrules": {
     "title": "Saan ipinapatupad ang buwanang subscription",

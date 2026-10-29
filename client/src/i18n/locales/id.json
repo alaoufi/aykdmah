@@ -2126,7 +2126,9 @@
     "manage_hint": "Hentikan permintaan setelah menemukan penyedia (dan beri nilai), atau hapus jika tidak lagi dibutuhkan.",
     "stop_request": "Hentikan permintaan",
     "delete_request": "Hapus permintaan",
-    "delete_confirm": "Hapus permintaan \"{{title}}\"? Penyedia tidak akan melihatnya lagi."
+    "delete_confirm": "Hapus permintaan \"{{title}}\"? Penyedia tidak akan melihatnya lagi.",
+    "chat_archive": "Arsip obrolan",
+    "chat_archive_empty": "Belum ada obrolan diarsipkan. Obrolan permintaan yang selesai atau ditutup pindah ke sini."
   },
   "subrules": {
     "title": "Di mana langganan bulanan berlaku",

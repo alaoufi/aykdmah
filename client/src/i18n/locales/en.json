@@ -2126,7 +2126,9 @@
     "manage_hint": "Stop a request once you find someone (and rate them), or delete it if you no longer need it.",
     "stop_request": "Stop the request",
     "delete_request": "Delete the request",
-    "delete_confirm": "Delete the request \"{{title}}\"? Providers will no longer see it."
+    "delete_confirm": "Delete the request \"{{title}}\"? Providers will no longer see it.",
+    "chat_archive": "Chat archive",
+    "chat_archive_empty": "No archived chats yet. Chats about finished or closed requests move here."
   },
   "subrules": {
     "title": "Where the monthly subscription applies",

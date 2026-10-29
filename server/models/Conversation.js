@@ -206,7 +206,7 @@ async function listForUser(userId, { page = 1, limit = 20 } = {}) {
   return query(
     `SELECT c.id, c.request_id, c.last_message_id, c.last_message_at, ${writableConversationSql()} AS can_send,
             ${writableConversationSql(true)} AS can_share_location,
-            r.title AS request_title,
+            r.title AS request_title, r.status AS request_status,
             (SELECT COUNT(*) FROM messages m
               WHERE m.conversation_id = c.id AND m.sender_id != ? AND m.is_read = 0 AND m.deleted_at IS NULL) AS unread_count,
             (SELECT JSON_OBJECT('id', u2.id, 'full_name', u2.full_name, 'avatar', u2.avatar, 'is_online', u2.is_online, 'referral_code', u2.referral_code)

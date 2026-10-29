@@ -2126,7 +2126,9 @@
     "manage_hint": "Birini bulduğunuzda talebi durdurun (ve değerlendirin), ya da artık gerekmiyorsa silin.",
     "stop_request": "Talebi durdur",
     "delete_request": "Talebi sil",
-    "delete_confirm": "\"{{title}}\" talebi silinsin mi? Hizmet verenler artık görmeyecek."
+    "delete_confirm": "\"{{title}}\" talebi silinsin mi? Hizmet verenler artık görmeyecek.",
+    "chat_archive": "Sohbet arşivi",
+    "chat_archive_empty": "Henüz arşivlenmiş sohbet yok. Tamamlanan veya kapatılan taleplerin sohbetleri buraya taşınır."
   },
   "subrules": {
     "title": "Aylık aboneliğin uygulandığı yerler",

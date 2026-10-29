@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import CallButtons from '../components/calls/CallButtons';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   listConversations, getConversation, getMessages, sendMessage, markRead, forwardMessage,
@@ -31,6 +31,11 @@ export default function ChatPage() {
   const navigate = useNavigate();
 
   const [conversations, setConversations] = useState([]);
+  // Chats and their archive (AYK-044): a chat about a finished or closed request, or
+  // one closed when the requester agreed with someone else, moves to the archive.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const showArchive = searchParams.get('archive') === '1';
+  const archived = c => Boolean(c.request_id) && (!c.can_send || ['completed', 'closed', 'cancelled'].includes(c.request_status));
   const [listOwnerId, setListOwnerId] = useState(null);
   const [active, setActive] = useState(null);
   const [agreeing, setAgreeing] = useState(false);
@@ -288,13 +293,19 @@ export default function ChatPage() {
       <aside className={`chat-sidebar ${activeId ? 'hide-on-mobile' : ''}`}>
         <div className="sidebar-header">
           <h3>{t('chat.title')}</h3>
+          <div className="chat-tabs" role="tablist">
+            <button type="button" role="tab" aria-selected={!showArchive} className={!showArchive ? 'active' : ''} onClick={() => setSearchParams({})} data-testid="chat-tab-active">
+              💬 {t('chat.title')} ({conversations.filter(c => !archived(c)).length})</button>
+            <button type="button" role="tab" aria-selected={showArchive} className={showArchive ? 'active' : ''} onClick={() => setSearchParams({ archive: '1' })} data-testid="chat-tab-archive">
+              🗄️ {t('requester.chat_archive')} ({conversations.filter(archived).length})</button>
+          </div>
           {listReady && listError && <p role="alert" className="text-xs text-danger">{t('errors.generic')}</p>}
         </div>
         {loadingList || !listReady ? <LoadingState /> :
-         conversations.length === 0 ? <EmptyState title={t('chat.no_conversations')} /> :
+         conversations.filter(c => archived(c) === showArchive).length === 0 ? <EmptyState title={t(showArchive ? 'requester.chat_archive_empty' : 'chat.no_conversations')} /> :
          (
           <div className="conv-list">
-            {conversations.map(c => {
+            {conversations.filter(c => archived(c) === showArchive).map(c => {
               const other = typeof c.other_user === 'string' ? JSON.parse(c.other_user) : c.other_user;
               const last = typeof c.last_message === 'string' ? JSON.parse(c.last_message) : c.last_message;
               const isActive = Number(activeId) === c.id;
@@ -484,6 +495,9 @@ export default function ChatPage() {
           display: flex; flex-direction: column; overflow: hidden;
         }
         .sidebar-header { padding: 16px; border-bottom: 1px solid var(--border); }
+        .chat-tabs { display: flex; gap: 6px; margin-top: 8px; }
+        .chat-tabs button { flex: 1; padding: 6px 8px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg-card); font: inherit; font-size: 12.5px; font-weight: 600; color: var(--text-secondary); cursor: pointer; }
+        .chat-tabs button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
         .conv-list { overflow-y: auto; flex: 1; }
         .conv-item {
           display: flex; align-items: center; gap: 12px; padding: 14px 16px;

@@ -617,6 +617,8 @@ if (!databasePrefix) {
     assert.ok(!providerChats.some(chat => Number(chat.id) === Number(direct.conversation_id)));
     const clientChats = await api('/chat/conversations', { token: client.token });
     assert.ok(clientChats.some(chat => Number(chat.id) === Number(direct.conversation_id)));
+    // The finished request's chat carries its status, so it shows in the chat archive.
+    assert.equal(clientChats.find(chat => Number(chat.id) === Number(direct.conversation_id)).request_status, 'completed');
     const archive = await api('/requests/my?status=completed', { token: client.token });
     assert.ok(archive.some(item => Number(item.id) === Number(direct.request_id) && item.assigned_provider_name === 'سباك الحي'));
 

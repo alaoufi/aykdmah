@@ -273,6 +273,12 @@ export default function Header() {
                     📋 {t('requester.manage_title')}
                   </Link>
                 )}
+                <Link to="/chat" onClick={() => setMobileOpen(false)} className="text-right px-3 py-3 rounded-card font-semibold no-underline text-fg-muted hover:bg-surface-alt" data-testid="mobile-chats">
+                  💬 {t('chat.title')}{chatUnread > 0 ? ` (${chatUnread})` : ''}
+                </Link>
+                <Link to="/chat?archive=1" onClick={() => setMobileOpen(false)} className="text-right px-3 py-3 rounded-card font-semibold no-underline text-fg-muted hover:bg-surface-alt" data-testid="mobile-chat-archive">
+                  🗄️ {t('requester.chat_archive')}
+                </Link>
                 <Link to="/profile" onClick={() => setMobileOpen(false)} className="text-right px-3 py-3 rounded-card font-semibold no-underline text-fg-muted hover:bg-surface-alt">
                   👤 {t('nav.profile')}
                 </Link>
