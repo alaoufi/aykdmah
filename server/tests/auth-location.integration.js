@@ -555,6 +555,72 @@ if (!databasePrefix) {
     assert.ok(!matching.some(row => Number(row.id) === requestId));
   });
 
+  test('requester journey (AYK-041): phone sign-in, new requests announced, directory, direct contact and finished tasks leave the provider a day later', async () => {
+    const area = await simpleArea();
+    // Without SMS a requester still needs a password, and phone-code sign-in is unavailable.
+    await simpleRegister({ role: 'client', password: '', city_id: area.city_id, district_id: area.district_id }, 400);
+    await api('/auth/phone-code', { method: 'POST', expected: 503, body: { phone: '0551234567', purpose: 'login' } });
+
+    const service = await db.queryOne('SELECT id, category_id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    const provider = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id,
+      service_ids: [Number(service.id)], coverage_district_ids: [area.district_id], full_name: 'سباك الحي' });
+    const other = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id,
+      service_ids: [Number(service.id)], coverage_district_ids: [area.district_id] });
+    const client = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+
+    // A new request is announced to providers of that profession in the district who work now.
+    const posted = await api('/requests', { method: 'POST', token: client.token, expected: 201, body: {
+      title: 'تسريب', description: 'تسريب في المطبخ', category_id: service.category_id } });
+    const postedId = Number(posted.id);
+    const notice = await db.queryOne("SELECT link FROM notifications WHERE user_id = ? AND type = 'request_new' ORDER BY id DESC LIMIT 1", [provider.user.id]);
+    assert.equal(notice.link, `/requests/${postedId}`);
+
+    // "My directory": add, list (with profession and district), ids.
+    await api(`/users/me/directory/${provider.user.id}`, { method: 'POST', token: client.token });
+    await api(`/users/me/directory/${provider.user.id}`, { method: 'POST', token: client.token });
+    const directory = await api('/users/me/directory', { token: client.token });
+    assert.equal(directory.length, 1);
+    assert.equal(Number(directory[0].id), Number(provider.user.id));
+    assert.ok(directory[0].district_name_ar);
+    assert.ok(directory[0].availability.state);
+    assert.deepEqual(await api('/users/me/directory/ids', { token: client.token }), [Number(provider.user.id)]);
+    await api(`/users/me/directory/${client.user.id}`, { method: 'POST', token: client.token, expected: 400 });
+
+    // Direct contact: a request seen by that provider only, reopened rather than duplicated.
+    const direct = await api('/requests/direct', { method: 'POST', token: client.token, body: { provider_id: provider.user.id } });
+    assert.ok(direct.conversation_id);
+    const again = await api('/requests/direct', { method: 'POST', token: client.token, body: { provider_id: provider.user.id } });
+    assert.equal(again.request_id, direct.request_id);
+    assert.equal(again.conversation_id, direct.conversation_id);
+    const row = await db.queryOne('SELECT direct_provider_id, client_id FROM requests WHERE id = ?', [direct.request_id]);
+    assert.equal(Number(row.direct_provider_id), Number(provider.user.id));
+    const board = await api('/requests/nearby?limit=50', { token: other.token });
+    assert.ok(!board.some(item => Number(item.id) === Number(direct.request_id)));
+    assert.ok(board.some(item => Number(item.id) === postedId));
+    await api(`/requests/${direct.request_id}`, { token: other.token, expected: 404 });
+    await api(`/requests/${direct.request_id}/contact`, { method: 'POST', token: other.token, expected: 403 });
+    assert.equal(Number((await api(`/requests/${direct.request_id}`, { token: provider.token })).id), Number(direct.request_id));
+    await api('/requests/direct', { method: 'POST', token: provider.token, expected: 403, body: { provider_id: other.user.id } });
+
+    // "I found the provider": agreed and done; a day later it leaves the provider's lists, not the requester's archive.
+    await api(`/requests/${direct.request_id}/agree`, { method: 'POST', token: client.token, body: { provider_id: provider.user.id } });
+    await api(`/requests/${direct.request_id}/status`, { method: 'PUT', token: client.token, body: { status: 'completed' } });
+    const offersNow = await api('/offers/my?limit=50', { token: provider.token });
+    assert.ok(offersNow.some(offer => Number(offer.request_id) === Number(direct.request_id)));
+    await db.query("UPDATE requests SET completed_at = CURRENT_TIMESTAMP - INTERVAL '2 days', updated_at = CURRENT_TIMESTAMP - INTERVAL '2 days' WHERE id = ?", [direct.request_id]);
+    const offersLater = await api('/offers/my?limit=50', { token: provider.token });
+    assert.ok(!offersLater.some(offer => Number(offer.request_id) === Number(direct.request_id)));
+    const providerChats = await api('/chat/conversations', { token: provider.token });
+    assert.ok(!providerChats.some(chat => Number(chat.id) === Number(direct.conversation_id)));
+    const clientChats = await api('/chat/conversations', { token: client.token });
+    assert.ok(clientChats.some(chat => Number(chat.id) === Number(direct.conversation_id)));
+    const archive = await api('/requests/my?status=completed', { token: client.token });
+    assert.ok(archive.some(item => Number(item.id) === Number(direct.request_id) && item.assigned_provider_name === 'سباك الحي'));
+
+    await api(`/users/me/directory/${provider.user.id}`, { method: 'DELETE', token: client.token });
+    assert.deepEqual(await api('/users/me/directory/ids', { token: client.token }), []);
+  });
+
   test('an account changes its type: client to "both" with work details, back to client, and provider again reusing the kept profile', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
