@@ -280,8 +280,8 @@ const myMarket = asyncHandler(async (req, res) => {
       COUNT(DISTINCT CASE WHEN r.created_at > CURRENT_TIMESTAMP - INTERVAL '30 days' THEN r.client_id END) AS requesters_30d,
       SUM(CASE WHEN r.created_at > CURRENT_TIMESTAMP - INTERVAL '30 days' THEN 1 ELSE 0 END) AS requests_30d
     FROM requests r LEFT JOIN services s ON s.id = r.service_id
-    WHERE r.deleted_at IS NULL AND ${areaSql} AND COALESCE(r.category_id, s.category_id) IN (${catSql})
-    GROUP BY COALESCE(r.category_id, s.category_id)`, [...areaParams, ...mine]);
+    WHERE r.deleted_at IS NULL AND r.client_id <> ? AND ${areaSql} AND COALESCE(r.category_id, s.category_id) IN (${catSql})
+    GROUP BY COALESCE(r.category_id, s.category_id)`, [req.user.id, ...areaParams, ...mine]);
   const userAreaSql = covered.length ? `u.district_id IN (${covered.map(() => '?').join(', ')})` : 'u.city_id = ?';
   const residents = Number((await query(`SELECT COUNT(*) AS n FROM users u WHERE u.deleted_at IS NULL AND u.is_active = 1
       AND (u.role = 'client' OR COALESCE(u.also_client, 0) = 1) AND u.id <> ? AND ${userAreaSql}`, [req.user.id, ...areaParams]))[0]?.n) || 0;

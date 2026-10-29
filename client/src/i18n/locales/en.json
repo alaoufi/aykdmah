@@ -2119,7 +2119,9 @@
     "number": "No.",
     "forward_done": "Forwarded to {{count}} chats",
     "voice_media": "What is needed",
-    "open_maps": "Open in Google Maps"
+    "open_maps": "Open in Google Maps",
+    "badge_mine": "Your request",
+    "badge_service": "For your service"
   },
   "subrules": {
     "title": "Where the monthly subscription applies",

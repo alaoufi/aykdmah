@@ -2119,7 +2119,9 @@
     "number": "ቁጥር",
     "forward_done": "ወደ {{count}} ውይይቶች ተላልፏል",
     "voice_media": "የሚፈለገው",
-    "open_maps": "በGoogle ካርታ ክፈት"
+    "open_maps": "በGoogle ካርታ ክፈት",
+    "badge_mine": "የእርስዎ ጥያቄ",
+    "badge_service": "ለአገልግሎትዎ"
   },
   "subrules": {
     "title": "ወርሃዊ ምዝገባ የሚተገበርበት",

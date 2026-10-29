@@ -506,6 +506,9 @@ if (!databasePrefix) {
       title: 'أحتاج كهربائي', description: 'تمديد كهرباء في المطبخ', city_id: area.city_id, district_id: area.district_id,
       latitude: 24.7136, longitude: 46.6753 } });
     assert.ok(request.id || request.request?.id);
+    // A "both" account never sees its own request as work for it (AYK-044).
+    const ownBoard = await api('/requests/nearby?limit=50&matching=1', { token: session.token });
+    assert.ok(!ownBoard.some(row => Number(row.id) === Number(request.id || request.request?.id)));
     const providerOnly = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id,
       service_ids: serviceIds.slice(0, 1), coverage_district_ids: area.districts.slice(0, 1),
       work_days: [0, 1, 2, 3, 4], work_from: '08:00', work_to: '17:00' });

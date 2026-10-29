@@ -2119,7 +2119,9 @@
     "number": "No.",
     "forward_done": "Diteruskan ke {{count}} obrolan",
     "voice_media": "Kebutuhan",
-    "open_maps": "Buka di Google Maps"
+    "open_maps": "Buka di Google Maps",
+    "badge_mine": "Permintaan Anda",
+    "badge_service": "Untuk layanan Anda"
   },
   "subrules": {
     "title": "Di mana langganan bulanan berlaku",

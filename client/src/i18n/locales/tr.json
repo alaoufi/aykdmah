@@ -2119,7 +2119,9 @@
     "number": "No.",
     "forward_done": "{{count}} sohbete iletildi",
     "voice_media": "İhtiyaç",
-    "open_maps": "Google Haritalar’da aç"
+    "open_maps": "Google Haritalar’da aç",
+    "badge_mine": "Talebiniz",
+    "badge_service": "Hizmetiniz için"
   },
   "subrules": {
     "title": "Aylık aboneliğin uygulandığı yerler",

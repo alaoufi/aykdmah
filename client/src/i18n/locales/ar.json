@@ -2119,7 +2119,9 @@
     "number": "رقم",
     "forward_done": "حُوِّلت الرسالة إلى {{count}} محادثة",
     "voice_media": "وصف المطلوب",
-    "open_maps": "افتح في خرائط جوجل"
+    "open_maps": "افتح في خرائط جوجل",
+    "badge_mine": "طلبك",
+    "badge_service": "لخدمتك"
   },
   "subrules": {
     "title": "أين يُطبَّق الاشتراك الشهري",

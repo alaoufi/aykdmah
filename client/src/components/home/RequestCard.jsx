@@ -1,20 +1,21 @@
 import { localizedJoinedName } from '../../utils/localizeJoined';
-import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { IconClock, IconPin, IconArrow } from '../common/Icons';
-import { formatCurrency, formatRelativeTime, truncate } from '../../utils/formatters';
+import { formatRelativeTime, truncate } from '../../utils/formatters';
+import useOpenRequest from '../../hooks/useOpenRequest';
+import { OwnerBadge } from '../requests/RequestCard';
 
 export default function RequestCard({ item, urgent = false }) {
   const { t, i18n } = useTranslation();
   const tag = localizedJoinedName(item, 'category', i18n.resolvedLanguage) || localizedJoinedName(item, 'service', i18n.resolvedLanguage) || t('nav.services');
   const cityLine = [localizedJoinedName(item, 'city', i18n.resolvedLanguage), localizedJoinedName(item, 'district', i18n.resolvedLanguage)].filter(Boolean).join(' — ');
-  const price = item.budget_min
-    ? formatCurrency(item.budget_min) + (item.budget_max ? ` - ${formatCurrency(item.budget_max)}` : '')
-    : t('request.budget_not_set');
+  const { open, opening, mine, forMyService } = useOpenRequest();
 
   return (
     <article
-      className={`group bg-white rounded-card border ${
+      role="link" tabIndex={0} data-testid="request-card"
+      onClick={() => open(item)} onKeyDown={e => { if (e.key === 'Enter') open(item); }}
+      className={`cursor-pointer ${mine(item) ? 'ring-2 ring-sky-300 ' : forMyService(item) ? 'ring-2 ring-emerald-300 ' : ''}`group bg-white rounded-card border ${
         urgent ? 'border-rose-100' : 'border-slate-200/80'
       } p-4 md:p-5 flex flex-col gap-3 transition hover:shadow-card hover:-translate-y-0.5 hover:border-brand-200`}
     >
@@ -33,6 +34,8 @@ export default function RequestCard({ item, urgent = false }) {
         </span>
       </div>
 
+      <OwnerBadge mine={mine(item)} forService={forMyService(item)} />
+
       <h3 className="text-[15px] md:text-[16px] font-extrabold text-ink leading-snug">
         {item.title}
       </h3>
@@ -49,19 +52,15 @@ export default function RequestCard({ item, urgent = false }) {
       )}
 
       <div className="flex items-center justify-between pt-3 mt-auto border-t border-slate-100">
-        <div className="flex flex-col">
-          <span className="text-[10px] text-slate-400 font-medium">{t('offer.price')}</span>
-          <span className="text-[15px] font-extrabold text-ink">{price}</span>
-        </div>
-        <Link
-          to={`/requests/${item.id}`}
+        <span />
+        <span
           className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-pill text-[12.5px] font-bold text-white transition active:scale-[.97] no-underline ${
             urgent ? 'bg-rose-500 hover:bg-rose-600' : 'bg-ink hover:bg-slate-800'
           }`}
         >
-          {t('common.details')}
+          {opening === item.id ? '…' : forMyService(item) ? `💬 ${t('request.contact_owner')}` : t('common.details')}
           <IconArrow size={14} className="rotate-180" />
-        </Link>
+        </span>
       </div>
     </article>
   );

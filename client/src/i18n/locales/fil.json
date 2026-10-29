@@ -2119,7 +2119,9 @@
     "number": "Blg.",
     "forward_done": "Naipasa sa {{count}} chat",
     "voice_media": "Ang kailangan",
-    "open_maps": "Buksan sa Google Maps"
+    "open_maps": "Buksan sa Google Maps",
+    "badge_mine": "Iyong kahilingan",
+    "badge_service": "Para sa iyong serbisyo"
   },
   "subrules": {
     "title": "Saan ipinapatupad ang buwanang subscription",

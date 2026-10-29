@@ -2119,7 +2119,9 @@
     "number": "नंबर",
     "forward_done": "{{count}} चैट में भेजा गया",
     "voice_media": "ज़रूरत",
-    "open_maps": "Google Maps में खोलें"
+    "open_maps": "Google Maps में खोलें",
+    "badge_mine": "आपका अनुरोध",
+    "badge_service": "आपकी सेवा के लिए"
   },
   "subrules": {
     "title": "मासिक सदस्यता कहाँ लागू है",
