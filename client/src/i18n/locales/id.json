@@ -306,7 +306,9 @@
     "role_change_active_jobs": "Anda memiliki pekerjaan yang sedang berlangsung sebagai penyedia. menyelesaikan atau membatalkan mereka pertama, kemudian mengubah jenis akun.",
     "role_change_open_requests": "Anda memiliki permintaan layanan terbuka. Pilih Both untuk terus mengikuti mereka, atau menyelesaikannya terlebih dahulu.",
     "account_type_changed": "Berubah jenis akun",
-    "provider_venue_point_required": "Tandai tempat pelayanan di peta"
+    "provider_venue_point_required": "Tandai tempat pelayanan di peta",
+    "location_later": "Tidak apa-apa: kami mengambil lokasi Anda otomatis saat permintaan pertama, dan Anda bisa mengubahnya.",
+    "terms_by_signup": "Dengan membuat akun, Anda menyetujui"
   },
   "request": {
     "create_title": "Buat permintaan baru",

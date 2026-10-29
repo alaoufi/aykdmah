@@ -306,7 +306,9 @@
     "role_change_active_jobs": "Bir sunucu olarak işlerin devam ediyor. Önce bitir ya da iptal et, sonra hesap türünü değiştir.",
     "role_change_open_requests": "Açık hizmet istekleriniz var. Onları takip etmeye devam etmek için Both seçin veya önce bitir.",
     "account_type_changed": "Hesap türü değiştirildi",
-    "provider_venue_point_required": "Haritada hizmet yeri işaretleyin"
+    "provider_venue_point_required": "Haritada hizmet yeri işaretleyin",
+    "location_later": "Sorun değil: ilk talebinizde konumunuzu otomatik alırız, siz de değiştirebilirsiniz.",
+    "terms_by_signup": "Hesap oluşturarak şunları kabul etmiş olursunuz:"
   },
   "request": {
     "create_title": "Yeni bir talebi oluştur",

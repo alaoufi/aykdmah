@@ -56,7 +56,6 @@ export default function RegisterPage() {
   const [venuePoint, setVenuePoint] = useState(null);
   const [venueMapOpen, setVenueMapOpen] = useState(false);
   const [couponOpen, setCouponOpen] = useState(Boolean(params.get('ref')));
-  const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
   const [coverageCount, setCoverageCount] = useState(null);
   const [error, setError] = useState('');
@@ -152,8 +151,10 @@ export default function RegisterPage() {
     else if (phoneStatus === 'taken') errors.phone = t('auth.phone_registered');
     if (form.password.length < 4) errors.password = t('auth.password_min');
     if (form.full_name.trim() && form.full_name.trim().length < 2) errors.full_name = t('auth.account_name_required');
-    if (!isValidCoordinates(place.lat, place.lon) || !place.city_id) errors.location = t('auth.simple_location_required');
-    else if (districtMissing) errors.location = t('auth.simple_district_required');
+    // Only providers must have an area to sign up; a requester's location is taken
+    // automatically when possible and otherwise at the first request (AYK-044).
+    if (isProvider && (!isValidCoordinates(place.lat, place.lon) || !place.city_id)) errors.location = t('auth.simple_location_required');
+    else if (isProvider && districtMissing) errors.location = t('auth.simple_district_required');
     if (isProvider) {
       if (!form.service_ids.length) errors.service_ids = t('provider.professions_required');
       if (coverageCount > 0 && !form.coverage.length) errors.coverage = t('provider.coverage_required');
@@ -161,7 +162,6 @@ export default function RegisterPage() {
       if (!form.work_days.length) errors.work_time = t('availability.days_required');
       else if (Boolean(form.work_from) !== Boolean(form.work_to)) errors.work_time = t('availability.hours_both');
     }
-    if (!termsAccepted) errors.terms = t('auth.terms_required');
     if (codeStep && phoneCode.length < codeStep.length) errors.code = t('auth.code_required');
     return errors;
   };
@@ -204,9 +204,11 @@ export default function RegisterPage() {
         ...(codeStep ? { phone_code: phoneCode } : {}),
         onboarding_version: 2, role: form.role, phone, password: form.password,
         ...(form.full_name.trim() ? { full_name: form.full_name.trim() } : {}),
-        latitude: place.lat, longitude: place.lon,
-        region_id: place.region_id || null, governorate_id: place.governorate_id || null,
-        city_id: place.city_id, district_id: place.district_id || null,
+        ...(isValidCoordinates(place.lat, place.lon) && place.city_id ? {
+          latitude: place.lat, longitude: place.lon,
+          region_id: place.region_id || null, governorate_id: place.governorate_id || null,
+          city_id: place.city_id, district_id: place.district_id || null,
+        } : {}),
         ...(isProvider ? {
           service_ids: form.service_ids, coverage_district_ids: form.coverage, location_mode: form.location_mode,
           work_days: form.work_days, ...(form.work_from && form.work_to ? { work_from: form.work_from, work_to: form.work_to } : {}),
@@ -310,6 +312,7 @@ export default function RegisterPage() {
             {districts.map(row => <option key={row.id} value={row.id}>{localizedName(row, lang)}</option>)}
           </select>}
           {fieldErrors.location && <p role="alert" className="form-error mt-1">{fieldErrors.location}</p>}
+          {!isProvider && locStatus !== 'ok' && locStatus !== 'locating' && <p className="text-[12px] text-fg-muted mt-1 mb-0" data-testid="register-location-later">{t('auth.location_later')}</p>}
         </div>
 
         {isProvider && <>
@@ -346,14 +349,11 @@ export default function RegisterPage() {
           value={form.referral_code} onChange={e => update('referral_code', e.target.value.toUpperCase())} placeholder="AB12" /> :
           <button type="button" className="text-[13px] text-primary font-semibold" onClick={() => setCouponOpen(true)}>🎟️ {t('auth.have_coupon')}</button>}
 
-        <label className="flex items-start gap-2 cursor-pointer text-[13px] leading-relaxed">
-          <input type="checkbox" checked={termsAccepted} onChange={e => { setTermsAccepted(e.target.checked); setFieldErrors(({ terms: _t, ...rest }) => rest); }}
-            className="mt-1 w-4 h-4 accent-primary shrink-0" />
-          <span>
-            {t('auth.terms_prefix')}{' '}
-            <button type="button" onClick={() => setTermsOpen(true)} className="text-primary font-semibold underline underline-offset-2">{t('auth.terms_link')}</button>
-          </span>
-        </label>
+        {/* No checkbox to tick: creating the account accepts the terms (AYK-044). */}
+        <p className="text-[12.5px] text-fg-muted m-0" data-testid="register-terms">
+          {t('auth.terms_by_signup')}{' '}
+          <button type="button" onClick={() => setTermsOpen(true)} className="text-primary font-semibold underline underline-offset-2">{t('auth.terms_link')}</button>
+        </p>
 
         {codeStep && <div className="rounded-card border-2 border-primary px-3 py-2 space-y-2" data-testid="register-code">
           <p className="text-[13px] m-0">{t('auth.code_sent_to', { phone: form.phone })}</p>
@@ -390,7 +390,7 @@ export default function RegisterPage() {
             <SafeHtml className="overflow-y-auto p-4 text-[13.5px] leading-[1.85] text-ink" html={termsHtml || t('auth.terms_fallback')} />
             <div className="border-t border-border px-4 py-3 flex justify-between gap-2">
               <button type="button" onClick={() => setTermsOpen(false)} className="px-4 py-2 rounded-pill bg-surface-alt text-fg-muted text-[13px] font-semibold">{t('admin.cancel_btn')}</button>
-              <button type="button" onClick={() => { setTermsAccepted(true); setTermsOpen(false); }}
+              <button type="button" onClick={() => setTermsOpen(false)}
                 className="px-4 py-2 rounded-pill bg-primary text-primary-fg text-[13px] font-bold">✓ {t('auth.terms_accept')}</button>
             </div>
           </div>

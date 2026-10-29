@@ -139,7 +139,12 @@ const register = asyncHandler(async (req, res) => {
       location.address = [district?.name_ar, city?.name_ar].filter(Boolean).join('، ') || null;
     }
   }
-  if (completeOnboarding) {
+  // A requester is never stopped by the location (AYK-044): it is taken from the device
+  // when possible and otherwise at the first request. Providers still need their area.
+  const requesterWithoutArea = simple && role === 'client' && (!location.city_id || !location.district_id);
+  if (completeOnboarding && requesterWithoutArea) {
+    if (!filtered.phone || !/^+?d{8,15}$/.test(filtered.phone)) return error(res, req.t('account_profile_required'), 400);
+  } else if (completeOnboarding) {
     await requireCompleteAccountProfile({ ...req.body, full_name, ...location, phone: filtered.phone, ...(simple ? { location_confirmed: true } : {}) },
       req.t('account_profile_required'), { confirmed: true });
   }

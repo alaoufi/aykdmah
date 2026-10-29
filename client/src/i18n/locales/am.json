@@ -306,7 +306,9 @@
     "role_change_active_jobs": "እንደ አቅራቢ ሥራዎች አሉህ፤ መጀመሪያ ጨርሳቸው ወይም ሰርዘው፤ ከዚያም የመለያውን አይነት ይቀይሩ።",
     "role_change_open_requests": "ክፍት የሆኑ የአገልግሎት ጥያቄዎች አሉዎት፣ እነሱን ለመከታተል  ሁለቱም ን ይምረጡ፣ ወይም መጀመሪያ ያጠናቅቁ።",
     "account_type_changed": "የመለያ አይነት ተቀይሯል",
-    "provider_venue_point_required": "አገልግሎት የሚሰጥበትን ቦታ በካርታው ላይ ምልክት አድርግ"
+    "provider_venue_point_required": "አገልግሎት የሚሰጥበትን ቦታ በካርታው ላይ ምልክት አድርግ",
+    "location_later": "ችግር የለም፤ በመጀመሪያ ጥያቄዎ ቦታዎን በራሱ እንወስዳለን፣ መቀየርም ይችላሉ።",
+    "terms_by_signup": "መለያ በመፍጠር በሚከተለው ይስማማሉ፦"
   },
   "request": {
     "create_title": "አዲስ ጥያቄ ይፍጠሩ",

@@ -306,7 +306,9 @@
     "role_change_active_jobs": "Mayroon kang mga gawain na patuloy bilang isang provider. tapusin o i-cancel sila muna, pagkatapos ay baguhin ang uri ng account.",
     "role_change_open_requests": "Mayroon kang mga kahilingan ng serbisyo na bukas. Pumili ng Both upang patuloy na sundin ang mga ito, o tapusin muna ang mga ito.",
     "account_type_changed": "Nagbago ang uri ng account",
-    "provider_venue_point_required": "I-mark ang lugar ng serbisyo sa mapa"
+    "provider_venue_point_required": "I-mark ang lugar ng serbisyo sa mapa",
+    "location_later": "Ayos lang: kukunin namin ang iyong lokasyon nang awtomatiko sa una mong kahilingan, at mababago mo ito.",
+    "terms_by_signup": "Sa paggawa ng account, sumasang-ayon ka sa"
   },
   "request": {
     "create_title": "Gumawa ng bagong kahilingan",

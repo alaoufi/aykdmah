@@ -734,6 +734,28 @@ if (!databasePrefix) {
     assert.ok(!(await api(`/chat/conversations/${two.conversation_id}/messages`, { token: second.token })).some(message => message.content === 'خاص'));
   });
 
+  test('a requester signs up without a location and their first request keeps its place on the account (AYK-044)', async () => {
+    const area = await simpleArea();
+    const service = await db.queryOne('SELECT id, category_id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    // No location at all, and a city without its district: both sign up.
+    const bare = await simpleRegister({ role: 'client', latitude: undefined, longitude: undefined });
+    await simpleRegister({ role: 'client', city_id: area.city_id });
+    // A provider still needs an area.
+    await simpleRegister({ role: 'provider', latitude: undefined, longitude: undefined, service_ids: [Number(service.id)], coverage_district_ids: [area.district_id] }, 400);
+    const before = await db.queryOne('SELECT city_id FROM users WHERE id = ?', [bare.user.id]);
+    assert.equal(before.city_id, null);
+    // Posting with the device location saves it, with the area names as the address.
+    await api('/requests', { method: 'POST', token: bare.token, expected: 201, body: {
+      category_id: service.category_id, city_id: area.city_id, district_id: area.district_id, latitude: 24.7136, longitude: 46.6753 } });
+    const after = await db.queryOne('SELECT u.city_id, u.district_id, p.address FROM users u LEFT JOIN user_profiles p ON p.user_id = u.id WHERE u.id = ?', [bare.user.id]);
+    assert.equal(Number(after.city_id), area.city_id);
+    assert.equal(Number(after.district_id), area.district_id);
+    assert.ok(after.address);
+    // The next request needs nothing but the profession.
+    const next = await api('/requests', { method: 'POST', token: bare.token, expected: 201, body: { category_id: service.category_id } });
+    assert.equal(Number(next.district_id), area.district_id);
+  });
+
   test('an account changes its type: client to "both" with work details, back to client, and provider again reusing the kept profile', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');

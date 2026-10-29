@@ -306,7 +306,9 @@
     "role_change_active_jobs": "You have jobs in progress as a provider. Finish or cancel them first, then change the account type.",
     "role_change_open_requests": "You have open service requests. Choose “Both” to keep following them, or finish them first.",
     "account_type_changed": "Account type changed",
-    "provider_venue_point_required": "Mark the service venue on the map"
+    "provider_venue_point_required": "Mark the service venue on the map",
+    "location_later": "No problem: we take your location automatically at your first request, and you can change it.",
+    "terms_by_signup": "By creating an account you agree to the"
   },
   "request": {
     "create_title": "Create a new request",

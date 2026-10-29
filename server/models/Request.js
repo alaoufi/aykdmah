@@ -2,7 +2,7 @@ const { query, queryOne, transaction } = require('../config/database');
 const { ApiError } = require('../middleware/errorHandler');
 const { hasPermission } = require('../middleware/roleCheck');
 const { assertMarketplaceWriteAccess } = require('../middleware/verificationPolicy');
-const { booleanIntent } = require('../utils/userLocation');
+const { booleanIntent, requireCompleteLocation } = require('../utils/userLocation');
 const { resolveRequestLocation } = require('../utils/requestLocation');
 const User = require('./User');
 
@@ -154,6 +154,16 @@ async function create(data) {
       );
     }
     if (booleanIntent(data.remember_location, 'invalid_data')) await User.saveAccountLocation(conn, clientId, location);
+    else if (!account.city_id && location.city_id && location.latitude != null && location.longitude != null) {
+      // An account without a location keeps its first request's place for next time
+      // (AYK-044); the address is the district and city names when none was typed.
+      const district = location.district_id ? await read('SELECT name_ar FROM districts WHERE id = ?', [location.district_id]) : null;
+      const city = await read('SELECT name_ar FROM cities WHERE id = ?', [location.city_id]);
+      const kept = { ...location, address: location.address || [district?.name_ar, city?.name_ar].filter(Boolean).join('، ') };
+      let complete = true;
+      try { await requireCompleteLocation(kept, 'account_location_required', database); } catch (_) { complete = false; }
+      if (complete) await User.saveAccountLocation(conn, clientId, kept);
+    }
     return requestId;
   });
 }
