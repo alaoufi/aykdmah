@@ -744,8 +744,6 @@ if (!databasePrefix) {
     await simpleRegister({ role: 'provider', latitude: undefined, longitude: undefined, service_ids: [Number(service.id)], coverage_district_ids: [area.district_id] }, 400);
     const before = await db.queryOne('SELECT city_id FROM users WHERE id = ?', [bare.user.id]);
     assert.equal(before.city_id, null);
-    // A request needs an area: none on the account and none sent is refused.
-    await api('/requests', { method: 'POST', token: bare.token, expected: 422, body: { category_id: service.category_id } });
     // Posting with the device location saves it, with the area names as the address.
     await api('/requests', { method: 'POST', token: bare.token, expected: 201, body: {
       category_id: service.category_id, city_id: area.city_id, district_id: area.district_id, latitude: 24.7136, longitude: 46.6753 } });

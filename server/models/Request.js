@@ -129,8 +129,6 @@ async function create(data) {
       FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = ? AND column_name = ? LIMIT 1`, [table, column]) };
     await assertMarketplaceWriteAccess(clientId, { query: async (sql, params) => (await conn.query(sql, params))[0] });
     const location = await resolveRequestLocation(data, account, database);
-    // Without an area the request cannot reach providers (AYK-044).
-    if (!location.city_id) throw new ApiError('request_location_required', 422);
     data = await validateCreate({ ...data, client_id: clientId, ...location }, read);
     const [result] = await conn.execute(
       `INSERT INTO requests
