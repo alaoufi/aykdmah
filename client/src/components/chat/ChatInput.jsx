@@ -36,7 +36,15 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
       setFiles(result.files);
     }
   };
-  const voice = useVoiceRecording(file => addFiles([file]), sessionKey);
+  // A finished voice note is sent at once when the user released the held mic or
+  // pressed ➤ while recording; otherwise it waits as a draft.
+  const autoSendRef = useRef(false);
+  const stopWhenReadyRef = useRef(false);
+  const pressRef = useRef({ at: 0, started: false });
+  const [handsFree, setHandsFree] = useState(false);
+  const voice = useVoiceRecording(file => {
+    if (autoSendRef.current) { autoSendRef.current = false; sendVoice(file); } else addFiles([file]);
+  }, sessionKey);
   const video = useVideoRecording(file => addFiles([file]), sessionKey);
   const videoRecording = video.status !== 'idle';
   const activeRecorder = videoRecording ? video : voice;
@@ -94,6 +102,52 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
       }
     }
   };
+
+  const sendVoice = async file => {
+    if (disabled || sendingRef.current) { addFiles([file]); return; }
+    const ownerRevision = ownerRevisionRef.current;
+    sendingRef.current = true;
+    setSending(true);
+    setError(null);
+    try {
+      const sent = await onSend({ content: '', files: [file] });
+      if (sent === false && mountedRef.current && ownerRevision === ownerRevisionRef.current) addFiles([file]);
+    } catch (_) { if (mountedRef.current) addFiles([file]); }
+    finally {
+      if (ownerRevision === ownerRevisionRef.current) {
+        sendingRef.current = false;
+        if (mountedRef.current) setSending(false);
+      }
+    }
+  };
+  const finishVoice = () => {
+    autoSendRef.current = true;
+    setHandsFree(false);
+    if (voice.status === 'recording') voice.stop();
+    else if (voice.status === 'pending') stopWhenReadyRef.current = true;
+  };
+  useEffect(() => {
+    if (voice.status === 'recording' && stopWhenReadyRef.current) { stopWhenReadyRef.current = false; voice.stop(); }
+    if (voice.status === 'idle') { stopWhenReadyRef.current = false; setHandsFree(false); }
+  }, [voice.status, voice.stop]);
+  const pressVoice = event => {
+    if (disabled || sending) return;
+    event.preventDefault();
+    if (voice.status === 'idle') {
+      pressRef.current = { at: Date.now(), started: true };
+      autoSendRef.current = false;
+      startRecording();
+    } else pressRef.current = { at: Date.now(), started: false };
+  };
+  const releaseVoice = () => {
+    const { at, started } = pressRef.current;
+    pressRef.current = { at: 0, started: false };
+    if (!at) return;
+    // Held: release sends. A quick tap: keep recording hands-free until ➤.
+    if (!started || Date.now() - at >= 600) finishVoice();
+    else setHandsFree(true);
+  };
+  const cancelVoice = () => { autoSendRef.current = false; stopWhenReadyRef.current = false; setHandsFree(false); voice.cancel(); };
 
   const handleKey = event => {
     if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) {
@@ -159,8 +213,9 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
                 : videoRecording ? t('chat.video_recording_time', { time: recordingTime(activeRecorder.elapsedMs), limit: VIDEO_MAX_SECONDS })
                   : t('chat.recording_time_long', { time: recordingTime(activeRecorder.elapsedMs), limit: recordingTime(VOICE_MAX_SECONDS * 1000) })}
             </span>
-            {activeRecorder.status === 'recording' && <button type="button" onClick={activeRecorder.stop}>⏹ {t('chat.stop_recording')}</button>}
-            <button type="button" onClick={activeRecorder.cancel}>{t('chat.cancel_recording')}</button>
+            {videoRecording && activeRecorder.status === 'recording' && <button type="button" onClick={activeRecorder.stop}>⏹ {t('chat.stop_recording')}</button>}
+            {!videoRecording && <span className="text-[12px] text-fg-muted">{t(handsFree ? 'chat.tap_to_send' : 'chat.release_to_send')}</span>}
+            <button type="button" onClick={videoRecording ? activeRecorder.cancel : cancelVoice}>{t('chat.cancel_recording')}</button>
           </div>
         </div>
       )}
@@ -192,8 +247,13 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
           )}
         </div>
         {/* Like WhatsApp: a microphone while there is nothing to send, then the send arrow. */}
-        {!text.trim() && files.length === 0 && !recording ? (
-          <button type="button" className="send-btn" onClick={startRecording} disabled={busy} aria-label={t('chat.voice_message')} title={t('chat.voice_message')}>🎙️</button>
+        {/* Hold to record and release to send, like WhatsApp; a quick tap records hands-free and ➤ sends. */}
+        {!text.trim() && files.length === 0 && !videoRecording ? (
+          <button type="button" className={`send-btn voice-btn ${voice.status !== 'idle' ? 'is-recording' : ''}`} data-testid="voice-button"
+            onPointerDown={pressVoice} onPointerUp={releaseVoice} onPointerCancel={cancelVoice} onContextMenu={event => event.preventDefault()}
+            disabled={disabled || sending} aria-label={voice.status !== 'idle' ? t('common.send') : t('chat.voice_message')} title={t('chat.hold_to_record')}>
+            {voice.status !== 'idle' ? '➤' : '🎙️'}
+          </button>
         ) : (
           <button type="button" className="send-btn" onClick={handleSend} disabled={busy || (!text.trim() && files.length === 0)} aria-label={t('common.send')}>➤</button>
         )}
@@ -216,6 +276,8 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
         .wa-pill > button:hover:not(:disabled) { background: var(--wa-chip, var(--bg-soft)); border-radius: 50%; }
         .input-row .send-btn { flex: 0 0 48px; width: 48px; height: 48px; border-radius: 50%; background: var(--wa-accent, var(--primary)); color: #fff; font-size: 20px; box-shadow: 0 1px 2px rgba(11,20,26,.2); }
         .input-row .send-btn:hover:not(:disabled) { filter: brightness(.95); }
+        .input-row .voice-btn { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+        .input-row .voice-btn.is-recording { background: var(--danger); transform: scale(1.12); transition: transform .15s; }
         .chat-composer-error { margin: 0 0 6px; padding: 8px; border-radius: 8px; color: var(--danger); background: var(--bg-soft); font-size: 13px; }
         .chat-recording-controls { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; padding: 6px 10px; background: var(--wa-in, var(--bg-soft)); border-radius: 24px; margin-bottom: 6px; }
         .chat-recording-status { flex: 1 1 160px; font-size: 13px; color: var(--danger); }

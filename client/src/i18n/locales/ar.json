@@ -529,7 +529,10 @@
     "agreed_hint": "عند الاتفاق يضغط صاحب الطلب «تم الاتفاق».",
     "translated": "مترجمة",
     "voice_too_short": "التسجيل قصير جدًا. اضغط 🎙️ وتكلم، ثم اضغط إرسال.",
-    "recording_time_long": "التسجيل {{time}} · حتى {{limit}}"
+    "recording_time_long": "التسجيل {{time}} · حتى {{limit}}",
+    "release_to_send": "ارفع إصبعك للإرسال",
+    "tap_to_send": "اضغط ➤ للإرسال",
+    "hold_to_record": "اضغط مطولًا للتسجيل، وارفع إصبعك للإرسال"
   },
   "tracking": {
     "title": "تتبع مباشر",

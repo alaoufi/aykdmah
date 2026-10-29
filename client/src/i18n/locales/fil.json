@@ -529,7 +529,10 @@
     "agreed_hint": "Kapag sumasang-ayon ka, ang humihingi ay mag-tap sa \"Sumang-ayon\".",
     "translated": "isinalin",
     "voice_too_short": "Masyadong maikli ang recording. Pindutin ang 🎙️ at magsalita, saka pindutin ang ipadala.",
-    "recording_time_long": "Nire-record {{time}} · hanggang {{limit}}"
+    "recording_time_long": "Nire-record {{time}} · hanggang {{limit}}",
+    "release_to_send": "Bitawan para ipadala",
+    "tap_to_send": "Pindutin ang ➤ para ipadala",
+    "hold_to_record": "Pindutin nang matagal para mag-record, bitawan para ipadala"
   },
   "tracking": {
     "title": "Live na pagsubaybay",

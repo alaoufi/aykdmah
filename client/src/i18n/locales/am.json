@@ -529,7 +529,10 @@
     "agreed_hint": "አንዴ ከተስማማህ በኋላ ጥያቄው \"ተስማማ\" የሚለውን ጠቅ ያድርግ።",
     "translated": "የተተረጎመ",
     "voice_too_short": "ቀረጻው በጣም አጭር ነው። 🎙️ ን ጭነው ይናገሩ፣ ከዚያ ላክ ን ይጫኑ።",
-    "recording_time_long": "በመቅዳት ላይ {{time}} · እስከ {{limit}}"
+    "recording_time_long": "በመቅዳት ላይ {{time}} · እስከ {{limit}}",
+    "release_to_send": "ለመላክ ጣትዎን ያንሱ",
+    "tap_to_send": "ለመላክ ➤ ን ይጫኑ",
+    "hold_to_record": "ለመቅዳት ተጭነው ይያዙ፣ ለመላክ ይልቀቁ"
   },
   "tracking": {
     "title": "የቀጥታ ስርጭት መከታተያ",

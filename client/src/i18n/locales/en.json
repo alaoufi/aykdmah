@@ -529,7 +529,10 @@
     "agreed_hint": "Once you agree, the requester taps \"Agreed\".",
     "translated": "translated",
     "voice_too_short": "The recording is too short. Tap 🎙️ and speak, then tap send.",
-    "recording_time_long": "Recording {{time}} · up to {{limit}}"
+    "recording_time_long": "Recording {{time}} · up to {{limit}}",
+    "release_to_send": "Release to send",
+    "tap_to_send": "Tap ➤ to send",
+    "hold_to_record": "Hold to record, release to send"
   },
   "tracking": {
     "title": "Live tracking",

@@ -529,7 +529,10 @@
     "agreed_hint": "চুক্তি হলে অনুরোধকারী «চুক্তি হয়েছে» চাপবেন।",
     "translated": "অনূদিত",
     "voice_too_short": "রেকর্ডিং খুব ছোট। 🎙️ চেপে কথা বলুন, তারপর পাঠান চাপুন।",
-    "recording_time_long": "রেকর্ডিং {{time}} · {{limit}} পর্যন্ত"
+    "recording_time_long": "রেকর্ডিং {{time}} · {{limit}} পর্যন্ত",
+    "release_to_send": "পাঠাতে আঙুল তুলুন",
+    "tap_to_send": "পাঠাতে ➤ চাপুন",
+    "hold_to_record": "রেকর্ড করতে চেপে ধরুন, পাঠাতে ছেড়ে দিন"
   },
   "tracking": {
     "title": "লাইভ ট্র্যাকিং",

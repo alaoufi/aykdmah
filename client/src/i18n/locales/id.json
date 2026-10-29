@@ -529,7 +529,10 @@
     "agreed_hint": "Setelah Anda setuju, pelamar mengklik \"Setuju\".",
     "translated": "diterjemahkan",
     "voice_too_short": "Rekaman terlalu pendek. Ketuk 🎙️ dan bicara, lalu ketuk kirim.",
-    "recording_time_long": "Merekam {{time}} · hingga {{limit}}"
+    "recording_time_long": "Merekam {{time}} · hingga {{limit}}",
+    "release_to_send": "Lepas untuk mengirim",
+    "tap_to_send": "Ketuk ➤ untuk mengirim",
+    "hold_to_record": "Tahan untuk merekam, lepas untuk mengirim"
   },
   "tracking": {
     "title": "Pelacakan langsung",
