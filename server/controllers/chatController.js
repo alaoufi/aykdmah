@@ -2,6 +2,9 @@ const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
 const { query, queryOne } = require('../config/database');
 const notificationService = require('../services/notificationService');
+const pushService = require('../services/pushService');
+const { translate: i18nText } = require('../utils/i18n');
+const logger = require('../utils/logger');
 const { success, created, error, notFound, forbidden } = require('../utils/apiResponse');
 const asyncHandler = require('../utils/asyncHandler');
 const { withUploadedFiles } = require('../utils/uploadPersistence');
@@ -159,6 +162,13 @@ async function notifyParticipants(req, conversationId, { content, isLocation }) 
         },
         link: `/chat/${conversationId}`,
       });
+      // The phone notification, also when the site is closed. One per conversation:
+      // a newer message replaces the older one instead of piling up.
+      pushService.sendToUser(p.id, lang => ({
+        kind: 'message', tag: `chat-${conversationId}`, url: `/chat/${conversationId}`,
+        title: req.user.full_name || i18nText(lang, 'notif_new_message_title'),
+        body: isLocation ? '📍' : content ? content.slice(0, 80) : i18nText(lang, 'notif_new_attachment'),
+      }), { TTL: 24 * 60 * 60, urgency: 'high' }).catch(err => logger.warn('Message push failed:', err.message));
     }
   }
 }
