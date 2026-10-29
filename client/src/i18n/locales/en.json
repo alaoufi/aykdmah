@@ -2195,6 +2195,8 @@
     "camera": "Camera",
     "bar": "Allow location, microphone, camera and notifications so messages and calls work.",
     "blocked": "The browser blocked this earlier and will not ask again. Tap 🔒 next to aykdmh.com at the top → \"Permissions\" → set to \"Allow\", then tap \"Allow all\".",
-    "busy": "The microphone or camera is busy in another app. Close it, then tap \"Allow all\"."
+    "busy": "The microphone or camera is busy in another app. Close it, then tap \"Allow all\".",
+    "enabled": "Enabled",
+    "tap_to_enable": "Tap to enable"
   }
 }
