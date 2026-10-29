@@ -142,7 +142,7 @@ export default function CreateRequestPage() {
         />
 
         <div className="form-group" data-testid="request-voice">
-          <label className="form-label">🎤 {optional(t('requester.voice_label'))}</label>
+          <label className="form-label">🎤 {t('requester.voice_label')}</label>
           {voiceFile ? (
             <div className="flex items-center gap-2 flex-wrap">
               <VoiceNote src={voiceUrl.current} seed="request-draft" />

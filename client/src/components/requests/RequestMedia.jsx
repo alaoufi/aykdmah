@@ -19,7 +19,7 @@ export default function RequestMedia({ files = [] }) {
     <div className="space-y-2" data-testid="request-media">
       {files.filter(f => kind(f) === 'audio').map(f => (
         <div key={f.id} className="max-w-sm">
-          <div className="text-[12px] text-fg-muted mb-1">🎤 {t('requester.voice_label')}</div>
+          <div className="text-[12px] text-fg-muted mb-1">🎤 {t('requester.voice_media')}</div>
           <VoiceNote src={safeUrl(f.file_url)} seed={f.id} fallbackName={f.file_name} />
         </div>
       ))}

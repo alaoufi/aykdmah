@@ -1359,8 +1359,8 @@
         "body": "Mag-sign up gamit ang numero ng telepono at simpleng password na hindi bababa sa 4 na numero, para walang ibang makapasok sa ngalan mo; opsyonal ang pangalan, at awtomatikong natutukoy ang iyong lugar at mababago mo ito. Sa home page, pumili ng propesyon sa listahan para makita kung ilang provider ang nasa iyong lugar at ilan ang available ngayon."
       },
       "details": {
-        "title": "Piliin ang propesyon, i-record ang problema",
-        "body": "Pindutin ang \"Mag-order na\" at piliin ang propesyong kailangan, ang tanging kailangang sagutan. Opsyonal ang sub-serbisyo at pamagat, at maaari mong i-record ang problema gamit ang boses at maglakip ng larawan o video. Pindutin ang \"I-post\": alam na ang iyong lokasyon, at sa chat pag-uusapan ang presyo at oras."
+        "title": "Piliin ang propesyon, i-record ang kailangan",
+        "body": "Pindutin ang \"Mag-order na\" at piliin ang propesyong kailangan, ang tanging kailangang sagutan. Opsyonal ang sub-serbisyo at pamagat, at maaari mong i-record ang kailangan mo gamit ang boses at maglakip ng larawan o video. Pindutin ang \"I-post\": alam na ang iyong lokasyon, at sa chat pag-uusapan ang presyo at oras."
       },
       "location": {
         "title": "Suriin ang lokasyon ng serbisyo",
@@ -2101,11 +2101,11 @@
     "profession": "Propesyong kailangan",
     "sub_service": "Sub-serbisyo",
     "choose_profession": "piliin ang propesyong kailangan",
-    "voice_label": "Ilarawan ang problema gamit ang boses",
-    "voice_record": "I-record ang problema",
+    "voice_label": "I-record ang kailangan mo gamit ang boses",
+    "voice_record": "I-record ang kailangan",
     "voice_stop": "Itigil",
     "voice_delete": "Burahin",
-    "voice_hint": "Hanggang isang minuto. Maririnig ito ng bawat provider na kausap mo, kaya hindi mo na uulitin.",
+    "voice_hint": "Opsyonal, hanggang isang minuto. Maririnig ito ng bawat provider na kausap mo, kaya hindi mo na uulitin.",
     "attach_label": "Larawan o video",
     "publish": "I-post",
     "publish_hint": "Agad na makakarating ang iyong kahilingan sa mga provider ng propesyong iyon sa iyong lugar. Lalabas ang iyong paglalarawan at larawan sa itaas ng bawat chat, at doon ninyo pag-uusapan ang detalye at presyo.",
@@ -2114,7 +2114,8 @@
     "forward_title": "I-forward ang mensaheng ito kay",
     "forward_all": "Lahat sa kahilingang ito ({{count}})",
     "number": "Blg.",
-    "forward_done": "Naipasa sa {{count}} chat"
+    "forward_done": "Naipasa sa {{count}} chat",
+    "voice_media": "Ang kailangan"
   },
   "subrules": {
     "title": "Saan ipinapatupad ang buwanang subscription",

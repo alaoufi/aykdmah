@@ -1359,8 +1359,8 @@
         "body": "Sign up with your phone number and a simple password of at least 4 digits, so no one else signs in as you; the name is optional, and your area is detected automatically and can be changed. On the home page pick a profession from the list to see how many providers serve your area and how many are available now."
       },
       "details": {
-        "title": "Pick the profession, record the problem by voice",
-        "body": "Tap \"Order now\" and pick the profession needed, the only required field. The sub-service and title are optional, and you can describe the problem by voice and attach a photo or video. Tap \"Post\": your location is known from sign-up, and price and time are agreed in the chat."
+        "title": "Pick the profession, record what you need",
+        "body": "Tap \"Order now\" and pick the profession needed, the only required field. The sub-service and title are optional, and you can record what you need by voice and attach a photo or video. Tap \"Post\": your location is known from sign-up, and price and time are agreed in the chat."
       },
       "location": {
         "title": "Check the service location",
@@ -2101,11 +2101,11 @@
     "profession": "Profession needed",
     "sub_service": "Sub-service",
     "choose_profession": "choose the profession needed",
-    "voice_label": "Describe the problem by voice",
-    "voice_record": "Record the problem",
+    "voice_label": "Record what you need by voice",
+    "voice_record": "Record what you need",
     "voice_stop": "Stop",
     "voice_delete": "Delete",
-    "voice_hint": "Up to one minute. Every provider you talk with hears it, so you don't repeat it.",
+    "voice_hint": "Optional, up to one minute. Every provider you talk with hears it, so you don't repeat it.",
     "attach_label": "Photo or video",
     "publish": "Post",
     "publish_hint": "Your request reaches providers of that profession in your area right away. Your description and photos appear at the top of every chat, where you agree on details and price.",
@@ -2114,7 +2114,8 @@
     "forward_title": "Forward this message to",
     "forward_all": "Everyone on this request ({{count}})",
     "number": "No.",
-    "forward_done": "Forwarded to {{count}} chats"
+    "forward_done": "Forwarded to {{count}} chats",
+    "voice_media": "What is needed"
   },
   "subrules": {
     "title": "Where the monthly subscription applies",

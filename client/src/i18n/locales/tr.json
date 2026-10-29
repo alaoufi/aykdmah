@@ -1359,8 +1359,8 @@
         "body": "Başkası sizin adınıza giriş yapamasın diye telefon numaranız ve en az 4 rakamlı basit bir şifreyle kaydolun; ad isteğe bağlıdır, bölgeniz otomatik algılanır ve değiştirilebilir. Ana sayfada listeden bir meslek seçerek bölgenizdeki hizmet verenlerin ve şu anda müsait olanların sayısını görün."
       },
       "details": {
-        "title": "Mesleği seçin, sorunu sesle kaydedin",
-        "body": "\"Şimdi sipariş ver\"e dokunun ve ihtiyaç duyulan mesleği seçin; zorunlu olan yalnızca budur. Alt hizmet ve başlık isteğe bağlıdır; sorunu sesinizle kaydedip fotoğraf veya video ekleyebilirsiniz. \"Yayımla\"ya dokunun: konumunuz kayıttan bilinir, fiyat ve zaman sohbette kararlaştırılır."
+        "title": "Mesleği seçin, ihtiyacınızı sesle kaydedin",
+        "body": "\"Şimdi sipariş ver\"e dokunun ve ihtiyaç duyulan mesleği seçin; zorunlu olan yalnızca budur. Alt hizmet ve başlık isteğe bağlıdır; ihtiyacınızı sesinizle kaydedip fotoğraf veya video ekleyebilirsiniz. \"Yayımla\"ya dokunun: konumunuz kayıttan bilinir, fiyat ve zaman sohbette kararlaştırılır."
       },
       "location": {
         "title": "Hizmet yerini kontrol edin",
@@ -2101,11 +2101,11 @@
     "profession": "İhtiyaç duyulan meslek",
     "sub_service": "Alt hizmet",
     "choose_profession": "ihtiyaç duyulan mesleği seçin",
-    "voice_label": "Sorunu sesinizle anlatın",
-    "voice_record": "Sorunu kaydet",
+    "voice_label": "İhtiyacınızı sesinizle kaydedin",
+    "voice_record": "İhtiyacı kaydet",
     "voice_stop": "Durdur",
     "voice_delete": "Sil",
-    "voice_hint": "En fazla bir dakika. Konuştuğunuz her hizmet veren bunu dinler, tekrar etmenize gerek kalmaz.",
+    "voice_hint": "İsteğe bağlı, en fazla bir dakika. Konuştuğunuz her hizmet veren bunu dinler, tekrar etmenize gerek kalmaz.",
     "attach_label": "Fotoğraf veya video",
     "publish": "Yayımla",
     "publish_hint": "Talebiniz hemen bölgenizdeki o mesleğin hizmet verenlerine ulaşır. Açıklamanız ve fotoğraflarınız her sohbetin üstünde görünür; ayrıntıları ve fiyatı orada kararlaştırırsınız.",
@@ -2114,7 +2114,8 @@
     "forward_title": "Bu mesajı ilet",
     "forward_all": "Bu talepteki herkese ({{count}})",
     "number": "No.",
-    "forward_done": "{{count}} sohbete iletildi"
+    "forward_done": "{{count}} sohbete iletildi",
+    "voice_media": "İhtiyaç"
   },
   "subrules": {
     "title": "Aylık aboneliğin uygulandığı yerler",

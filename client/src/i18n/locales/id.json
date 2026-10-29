@@ -1359,8 +1359,8 @@
         "body": "Daftar dengan nomor ponsel dan kata sandi sederhana minimal 4 angka, agar tidak ada orang lain yang masuk atas nama Anda; nama bersifat opsional, dan area Anda terdeteksi otomatis serta dapat diubah. Di beranda, pilih profesi dari daftar untuk melihat berapa penyedia di area Anda dan berapa yang tersedia sekarang."
       },
       "details": {
-        "title": "Pilih profesi, rekam masalah dengan suara",
-        "body": "Ketuk \"Pesan sekarang\" dan pilih profesi yang dibutuhkan, satu-satunya isian wajib. Sub-layanan dan judul opsional, dan Anda dapat merekam masalah dengan suara serta melampirkan foto atau video. Ketuk \"Terbitkan\": lokasi Anda sudah diketahui, dan harga serta waktu disepakati di obrolan."
+        "title": "Pilih profesi, rekam kebutuhan dengan suara",
+        "body": "Ketuk \"Pesan sekarang\" dan pilih profesi yang dibutuhkan, satu-satunya isian wajib. Sub-layanan dan judul opsional, dan Anda dapat merekam kebutuhan dengan suara serta melampirkan foto atau video. Ketuk \"Terbitkan\": lokasi Anda sudah diketahui, dan harga serta waktu disepakati di obrolan."
       },
       "location": {
         "title": "Periksa lokasi layanan",
@@ -2101,11 +2101,11 @@
     "profession": "Profesi yang dibutuhkan",
     "sub_service": "Sub-layanan",
     "choose_profession": "pilih profesi yang dibutuhkan",
-    "voice_label": "Jelaskan masalah dengan suara",
-    "voice_record": "Rekam masalahnya",
+    "voice_label": "Rekam kebutuhan Anda dengan suara",
+    "voice_record": "Rekam kebutuhan",
     "voice_stop": "Berhenti",
     "voice_delete": "Hapus",
-    "voice_hint": "Maksimal satu menit. Setiap penyedia yang Anda hubungi mendengarnya, jadi tidak perlu mengulang.",
+    "voice_hint": "Opsional, maksimal satu menit. Setiap penyedia yang Anda hubungi mendengarnya, jadi tidak perlu mengulang.",
     "attach_label": "Foto atau video",
     "publish": "Terbitkan",
     "publish_hint": "Permintaan Anda langsung sampai ke penyedia profesi tersebut di area Anda. Deskripsi dan foto Anda tampil di atas setiap obrolan, dan detail serta harga disepakati di sana.",
@@ -2114,7 +2114,8 @@
     "forward_title": "Teruskan pesan ini ke",
     "forward_all": "Semua di permintaan ini ({{count}})",
     "number": "No.",
-    "forward_done": "Diteruskan ke {{count}} obrolan"
+    "forward_done": "Diteruskan ke {{count}} obrolan",
+    "voice_media": "Kebutuhan"
   },
   "subrules": {
     "title": "Di mana langganan bulanan berlaku",
