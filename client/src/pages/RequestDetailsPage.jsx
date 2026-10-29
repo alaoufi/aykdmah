@@ -47,6 +47,10 @@ export default function RequestDetailsPage() {
   const [err, setErr] = useState('');
   const [reloadVersion, setReloadVersion] = useState(0);
   const [negotiatingOfferId, setNegotiatingOfferId] = useState(null);
+  // Hooks stay above the early returns below. "Stop" from the requests management
+  // page opens the close box directly (#close).
+  const { hash } = useLocation();
+  const [closing, setClosing] = useState({ open: hash === '#close', found: false, providerId: '' });
   const negotiationRef = useRef(null);
   const scopeRef = useRef(null);
   scopeRef.current = `${user?.id}:${id}`;
@@ -175,9 +179,6 @@ export default function RequestDetailsPage() {
 
   // "Stop the request" closes it (AYK-041). With "I found a provider" ticked, the
   // request is agreed with that provider, marked done, and the rating page opens.
-  // "Stop" from the requests management page opens this box directly (#close).
-  const { hash } = useLocation();
-  const [closing, setClosing] = useState({ open: hash === '#close', found: false, providerId: '' });
   const contactedProviders = offers.filter((o, i) => offers.findIndex(x => x.provider_id === o.provider_id) === i);
   const closeRequest = async () => {
     setSubmitting(true);
