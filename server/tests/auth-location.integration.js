@@ -675,6 +675,47 @@ if (!databasePrefix) {
     assert.equal((await api('/admin/subscription-rules', { token: admin })).rules.length, 0);
   });
 
+  test('request voice description and photos reach contacted providers; the requester sends one message to all of them (AYK-043)', async () => {
+    const area = await simpleArea();
+    const service = await db.queryOne('SELECT id, category_id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    const join = () => simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id,
+      service_ids: [Number(service.id)], coverage_district_ids: [area.district_id] });
+    const [first, second, outsider] = [await join(), await join(), await join()];
+    const client = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+
+    // Only the profession is required; the problem is described by a voice note.
+    const form = new FormData();
+    form.append('category_id', String(service.category_id));
+    form.append('files', new Blob([Buffer.concat([Buffer.from('ID3'), Buffer.alloc(64, 1)])], { type: 'audio/mpeg' }), 'problem.mp3');
+    const response = await fetch(`${base}/requests`, { method: 'POST', headers: { Authorization: `Bearer ${client.token}` }, body: form });
+    const posted = (await response.json()).data;
+    assert.equal(response.status, 201);
+    assert.equal(posted.files.length, 1);
+    assert.equal(posted.files[0].file_type, 'audio/mpeg');
+    const media = (token, expected) => fetch(base.replace(/\/api$/, '') + posted.files[0].file_url, { headers: { Authorization: `Bearer ${token}` } })
+      .then(res => assert.equal(res.status, expected));
+
+    // A provider sees the voice note once in contact about the request, not before.
+    await media(first.token, 404);
+    assert.equal((await api(`/requests/${posted.id}`, { token: outsider.token })).files, undefined);
+    const one = await api(`/requests/${posted.id}/contact`, { method: 'POST', token: first.token });
+    const two = await api(`/requests/${posted.id}/contact`, { method: 'POST', token: second.token });
+    assert.equal((await api(`/requests/${posted.id}`, { token: first.token })).files.length, 1);
+    await media(first.token, 200);
+    await media(outsider.token, 404);
+
+    // "To everyone": one message from the requester lands in both chats.
+    const everyone = await api(`/chat/conversations/${one.conversation_id}/messages`, { method: 'POST', token: client.token, expected: 201,
+      body: { content: 'هل تستطيع الحضور اليوم؟', broadcast: '1' } });
+    assert.equal(everyone.broadcast_count, 2);
+    const inSecond = await api(`/chat/conversations/${two.conversation_id}/messages`, { token: second.token });
+    assert.ok(inSecond.some(message => message.content === 'هل تستطيع الحضور اليوم؟'));
+    // "Private", and a provider's broadcast request, stay in one chat.
+    assert.equal((await api(`/chat/conversations/${one.conversation_id}/messages`, { method: 'POST', token: client.token, expected: 201, body: { content: 'خاص' } })).broadcast_count, 1);
+    assert.equal((await api(`/chat/conversations/${two.conversation_id}/messages`, { method: 'POST', token: second.token, expected: 201, body: { content: 'رد', broadcast: '1' } })).broadcast_count, 1);
+    assert.ok(!(await api(`/chat/conversations/${two.conversation_id}/messages`, { token: second.token })).some(message => message.content === 'خاص'));
+  });
+
   test('an account changes its type: client to "both" with work details, back to client, and provider again reusing the kept profile', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');

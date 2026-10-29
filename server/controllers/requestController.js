@@ -99,6 +99,10 @@ const getOne = asyncHandler(async (req, res) => {
   const allowed = privateAccess(req.user, request);
   if (!allowed && (request.status !== 'open' || request.direct_provider_id)) return notFound(res);
   await Request.incrementViews(req.params.id);
+  // A provider already in contact about the request also gets its voice note and photos.
+  if (!allowed && req.user?.role === 'provider' && await queryOne('SELECT 1 AS ok FROM offers WHERE request_id = ? AND provider_id = ?', [request.id, req.user.id])) {
+    return success(res, { ...Request.publicView(request), files: request.files });
+  }
   return success(res, allowed ? request : Request.publicView(request));
 });
 

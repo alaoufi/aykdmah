@@ -116,7 +116,8 @@ function createUploader(subFolder, allowedMimes = ALL_MIME, alwaysMemory = false
 }
 
 module.exports = {
-  uploadRequest: createUploader('requests', [...ALLOWED_FILE_TYPES.IMAGE, ...ALLOWED_FILE_TYPES.DOCUMENT]),
+  // A request carries photos, a short video and a voice description (AYK-043).
+  uploadRequest: createUploader('requests', [...ALLOWED_FILE_TYPES.IMAGE, ...ALLOWED_FILE_TYPES.DOCUMENT, ...ALLOWED_FILE_TYPES.AUDIO, ...ALLOWED_FILE_TYPES.VIDEO]),
   uploadChat: createUploader('chat', [...ALL_MIME, ...ALLOWED_FILE_TYPES.VIDEO]),
   uploadReview: createUploader('reviews', ALLOWED_FILE_TYPES.IMAGE),
   uploadVoice: createUploader('voices', ALLOWED_FILE_TYPES.AUDIO),

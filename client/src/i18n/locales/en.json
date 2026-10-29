@@ -1359,8 +1359,8 @@
         "body": "Sign up with your phone number and a simple password of at least 4 digits, so no one else signs in as you; the name is optional, and your area is detected automatically and can be changed. On the home page pick a profession from the list to see how many providers serve your area and how many are available now."
       },
       "details": {
-        "title": "Pick the profession needed; the rest is optional",
-        "body": "Tap \"Order now\" and pick the profession needed, the only required field. The sub-service, title and description are optional. Your location is known from sign-up, and you write no price: you agree on price and time in the chat."
+        "title": "Pick the profession, record the problem by voice",
+        "body": "Tap \"Order now\" and pick the profession needed, the only required field. The sub-service and title are optional, and you can describe the problem by voice and attach a photo or video. Tap \"Post\": your location is known from sign-up, and price and time are agreed in the chat."
       },
       "location": {
         "title": "Check the service location",
@@ -1371,8 +1371,8 @@
         "body": "Your request reaches providers of that profession working now in your area straight away, and they contact you. You can also contact whoever is available, or add the ones you like to \"My directory\" to contact them directly later without posting a request."
       },
       "chat": {
-        "title": "Tap \"Agreed\", then close the request and rate",
-        "body": "Several providers may contact you. When you agree with one, tap \"Agreed\": the other chats close and yours stays open until the work is done. Or tap \"Yes, stop the request\" and tick \"I found a service provider\" to close it and rate them. The request stays in your archive to come back to."
+        "title": "Your description in every chat; send to all at once",
+        "body": "Your request's description, voice and photos appear at the top of every chat, so you never repeat them to each provider. When you send, we ask: \"All providers on this request\" or \"Only\" the one you're talking with. When you agree with one, tap \"Agreed\" and the other chats close; or tap \"Yes, stop the request\" and tick \"I found a service provider\" to close and rate. The request stays in your archive."
       },
       "finish": {
         "title": "Confirm completion and leave a review",
@@ -2100,7 +2100,19 @@
     "close_request": "Close the request",
     "profession": "Profession needed",
     "sub_service": "Sub-service",
-    "choose_profession": "choose the profession needed"
+    "choose_profession": "choose the profession needed",
+    "voice_label": "Describe the problem by voice",
+    "voice_record": "Record the problem",
+    "voice_stop": "Stop",
+    "voice_delete": "Delete",
+    "voice_hint": "Up to one minute. Every provider you talk with hears it, so you don't repeat it.",
+    "attach_label": "Photo or video",
+    "publish": "Post",
+    "publish_hint": "Your request reaches providers of that profession in your area right away. Your description and photos appear at the top of every chat, where you agree on details and price.",
+    "brief_title": "Request",
+    "audience_title": "Who is this message for?",
+    "audience_all": "All providers on this request",
+    "audience_one": "Only {{name}}"
   },
   "subrules": {
     "title": "Where the monthly subscription applies",

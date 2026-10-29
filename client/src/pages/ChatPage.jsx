@@ -10,6 +10,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useSocket } from '../hooks/useSocket';
 import MessageBubble from '../components/chat/MessageBubble';
 import ChatInput from '../components/chat/ChatInput';
+import RequestBrief from '../components/chat/RequestBrief';
 import LocalMessageTranslation from '../components/chat/LocalMessageTranslation';
 import Avatar from '../components/common/Avatar';
 import ConfirmDialog from '../components/common/ConfirmDialog';
@@ -177,11 +178,26 @@ export default function ChatPage() {
     endRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages.length, messages.at(-1)?.id, typingUserId]);
 
+  // "To everyone or private?" (AYK-043): the requester talking with several providers
+  // about one request can send a message once to all of them.
+  const [audienceAsk, setAudienceAsk] = useState(null);
+  const askAudience = () => new Promise(resolve => setAudienceAsk({ resolve }));
+  const answerAudience = value => { audienceAsk?.resolve(value); setAudienceAsk(null); };
+
   const handleSend = async ({ content, files }) => {
     if (!activeId || !canSend) return false;
     const scope = scopeRef.current;
+    const siblings = active?.request_id && Number(active.request_client_id) === Number(user.id)
+      ? conversations.filter(c => Number(c.request_id) === Number(active.request_id) && Number(c.id) !== Number(activeId) && c.can_send).length : 0;
+    let everyone = false;
+    if (siblings > 0) {
+      const choice = await askAudience();
+      if (choice === null) return false;
+      everyone = choice === 'all';
+    }
     try {
       const fd = new FormData();
+      if (everyone) fd.append('broadcast', '1');
       if (content) fd.append('content', content);
       const isVoice = files.length === 1 && files[0].type?.startsWith('audio/');
       if (isVoice) fd.append('message_type', 'voice');
@@ -347,6 +363,7 @@ export default function ChatPage() {
               )}
             </header>
             {currentMessageError && <p role="alert" className="text-xs text-danger p-2">{t('errors.generic')}</p>}
+            {activeReady && requestId && <RequestBrief requestId={requestId} />}
             <div className="chat-body">
               {messages.length === 0 ? (
                 <EmptyState title={t('chat.no_messages')} />
@@ -405,6 +422,16 @@ export default function ChatPage() {
               ) : (
                 <p className="chat-agree text-muted" data-testid="chat-agree-hint">{t('chat.agreed_hint')}</p>
               )
+            )}
+            {audienceAsk && (
+              <div className="chat-audience" role="dialog" aria-label={t('requester.audience_title')} data-testid="chat-audience">
+                <span>{t('requester.audience_title')}</span>
+                <div className="flex gap-2 flex-wrap">
+                  <button type="button" className="btn btn-primary btn-sm" onClick={() => answerAudience('all')} data-testid="send-all">📣 {t('requester.audience_all')}</button>
+                  <button type="button" className="btn btn-outline btn-sm" onClick={() => answerAudience('one')} data-testid="send-one">👤 {t('requester.audience_one', { name: otherParticipant?.full_name || '' })}</button>
+                  <button type="button" className="btn btn-sm" onClick={() => answerAudience(null)}>{t('admin.cancel_btn')}</button>
+                </div>
+              </div>
             )}
             <ChatInput
               key={sessionKey}
@@ -481,7 +508,9 @@ export default function ChatPage() {
           background-size: 22px 22px; background-position: 0 0, 11px 11px;
         }
         .chat-header { background: var(--wa-panel) !important; }
-.chat-agree { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+.chat-audience { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
+          margin: 0 10px 6px; padding: 10px 12px; border-radius: 12px; background: var(--bg-soft); border: 1px solid var(--primary); font-size: 13px; font-weight: 600; }
+        .chat-agree { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
           margin: 0 10px 6px; padding: 8px 12px; border-radius: 12px; background: var(--bg-soft); font-size: 13px; }
         .chat-admin-notice {
           margin: 0; padding: 2px 10px 4px; text-align: center; font-size: 10px; line-height: 1.4;

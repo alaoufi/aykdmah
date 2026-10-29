@@ -1,5 +1,6 @@
 const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
+const { query, queryOne } = require('../config/database');
 const notificationService = require('../services/notificationService');
 const { success, created, error, notFound, forbidden } = require('../utils/apiResponse');
 const asyncHandler = require('../utils/asyncHandler');
@@ -47,22 +48,49 @@ const sendMessage = asyncHandler(async (req, res) => {
     duration = recordingDuration(req.body.duration_seconds, req.files || []);
   } catch (_) { return error(res, req.t('invalid_data')); }
 
-  const messageId = await withUploadedFiles(req.files, { ownerId: req.user.id, scope: 'chat', scopeId: conversationId }, files => Message.create({
-    conversation_id: conversationId,
-    sender_id: req.user.id,
-    content,
-    message_type,
-    reply_to_id: reply_to_id || null,
-    files: duration == null ? files : files.map(file => ({ ...file, duration_seconds: duration })),
-    latitude: isLocation ? Number(latitude) : null,
-    longitude: isLocation ? Number(longitude) : null,
-    accuracy_m: isLocation && accuracy_m ? Number(accuracy_m) : null,
-  }));
-  const message = await Message.findById(messageId);
+  // "To everyone" (AYK-043): the requester sends one message to every provider they
+  // are talking with about this request, instead of repeating it in each chat.
+  const targets = [Number(conversationId)];
+  if (String(req.body.broadcast) === '1') {
+    const conversation = await Conversation.findById(conversationId);
+    const request = conversation?.request_id ? await queryOne('SELECT client_id FROM requests WHERE id = ? AND deleted_at IS NULL', [conversation.request_id]) : null;
+    if (request && Number(request.client_id) === Number(req.user.id)) {
+      const others = await query(`SELECT c.id FROM conversations c JOIN conversation_participants cp ON cp.conversation_id = c.id AND cp.user_id = ?
+        WHERE c.request_id = ? AND c.id <> ? ORDER BY c.id`, [req.user.id, conversation.request_id, conversationId]);
+      for (const other of others) if (await Conversation.canSend(other.id, req.user.id)) targets.push(Number(other.id));
+    }
+  }
 
-  const participants = await Conversation.getParticipants(conversationId);
+  const messageIds = await withUploadedFiles(req.files, { ownerId: req.user.id, scope: 'chat', scopeId: conversationId }, async files => {
+    const ids = [];
+    for (const target of targets) {
+      ids.push(await Message.create({
+        conversation_id: target,
+        sender_id: req.user.id,
+        content,
+        message_type,
+        reply_to_id: target === Number(conversationId) ? reply_to_id || null : null,
+        files: duration == null ? files : files.map(file => ({ ...file, duration_seconds: duration })),
+        latitude: isLocation ? Number(latitude) : null,
+        longitude: isLocation ? Number(longitude) : null,
+        accuracy_m: isLocation && accuracy_m ? Number(accuracy_m) : null,
+      }));
+    }
+    return ids;
+  });
   const io = req.app.get('io');
-  await emitConversation(io, conversationId, 'chat:message', message);
+  let message = null;
+  for (const [index, target] of targets.entries()) {
+    const sent = await Message.findById(messageIds[index]);
+    if (index === 0) message = sent;
+    await emitConversation(io, target, 'chat:message', sent);
+    await notifyParticipants(req, target, { content, isLocation });
+  }
+  return created(res, { ...message, broadcast_count: targets.length });
+});
+
+async function notifyParticipants(req, conversationId, { content, isLocation }) {
+  const participants = await Conversation.getParticipants(conversationId);
   for (const p of participants) {
     if (p.id !== req.user.id) {
       const bodyPreview = isLocation ? '📍'
@@ -79,8 +107,7 @@ const sendMessage = asyncHandler(async (req, res) => {
       });
     }
   }
-  return created(res, message);
-});
+}
 
 const deleteMessage = asyncHandler(async (req, res) => {
   const messageId = req.params.messageId;

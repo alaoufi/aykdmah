@@ -31,13 +31,19 @@ async function canRead(file, user = null) {
   const admin = permission => user.role === 'admin' && (user.is_super_admin || (Array.isArray(user.permissions) && user.permissions.includes(permission)));
   if (file.scope === 'chat') {
     // A deleted message or removed participant must not keep attachment access.
-    const message = await queryOne('SELECT m.conversation_id FROM message_files mf JOIN messages m ON m.id = mf.message_id WHERE mf.file_url = ? AND m.deleted_at IS NULL', [url]);
-    return !!message && (admin('conversations.read') || await Conversation.isParticipant(message.conversation_id, user.id));
+    // One attachment may be sent to several chats at once ("to everyone", AYK-043).
+    const messages = await query('SELECT DISTINCT m.conversation_id FROM message_files mf JOIN messages m ON m.id = mf.message_id WHERE mf.file_url = ? AND m.deleted_at IS NULL', [url]);
+    if (!messages.length) return false;
+    if (admin('conversations.read')) return true;
+    for (const message of messages) if (await Conversation.isParticipant(message.conversation_id, user.id)) return true;
+    return false;
   }
   if (file.scope === 'requests') {
     return !!await queryOne(`SELECT r.id FROM request_files rf JOIN requests r ON r.id = rf.request_id
-      WHERE rf.file_url = ? AND r.deleted_at IS NULL AND (r.client_id = ? OR r.assigned_provider_id = ? OR ? = 1)`,
-    [url, user.id, user.id, admin('requests.manage') ? 1 : 0]);
+      WHERE rf.file_url = ? AND r.deleted_at IS NULL AND (r.client_id = ? OR r.assigned_provider_id = ? OR ? = 1
+        -- A provider in contact about the request hears its voice note and sees its photos (AYK-043).
+        OR EXISTS (SELECT 1 FROM offers o WHERE o.request_id = r.id AND o.provider_id = ?))`,
+    [url, user.id, user.id, admin('requests.manage') ? 1 : 0, user.id]);
   }
   if (file.scope === 'disputes') {
     return !!await queryOne(`SELECT d.id FROM dispute_evidence e JOIN disputes d ON d.id = e.dispute_id

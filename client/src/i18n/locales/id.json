@@ -1359,8 +1359,8 @@
         "body": "Daftar dengan nomor ponsel dan kata sandi sederhana minimal 4 angka, agar tidak ada orang lain yang masuk atas nama Anda; nama bersifat opsional, dan area Anda terdeteksi otomatis serta dapat diubah. Di beranda, pilih profesi dari daftar untuk melihat berapa penyedia di area Anda dan berapa yang tersedia sekarang."
       },
       "details": {
-        "title": "Pilih profesi yang dibutuhkan; sisanya opsional",
-        "body": "Ketuk \"Pesan sekarang\" dan pilih profesi yang dibutuhkan, satu-satunya isian wajib. Sub-layanan, judul dan deskripsi bersifat opsional. Lokasi Anda sudah diketahui dari pendaftaran, dan tidak perlu menulis harga: harga dan waktu disepakati di obrolan."
+        "title": "Pilih profesi, rekam masalah dengan suara",
+        "body": "Ketuk \"Pesan sekarang\" dan pilih profesi yang dibutuhkan, satu-satunya isian wajib. Sub-layanan dan judul opsional, dan Anda dapat merekam masalah dengan suara serta melampirkan foto atau video. Ketuk \"Terbitkan\": lokasi Anda sudah diketahui, dan harga serta waktu disepakati di obrolan."
       },
       "location": {
         "title": "Periksa lokasi layanan",
@@ -1371,8 +1371,8 @@
         "body": "Permintaan Anda langsung sampai ke penyedia profesi tersebut yang sedang bekerja di area Anda, dan mereka menghubungi Anda. Anda juga bisa menghubungi yang tersedia, atau menambahkan yang Anda suka ke \"Direktori saya\" untuk dihubungi langsung nanti tanpa membuat permintaan."
       },
       "chat": {
-        "title": "Ketuk \"Sepakat\", lalu tutup dan beri nilai",
-        "body": "Beberapa penyedia mungkin menghubungi Anda. Saat sepakat dengan salah satunya, ketuk \"Sepakat\": obrolan lain ditutup dan obrolan Anda tetap terbuka sampai pekerjaan selesai. Atau ketuk \"Ya, hentikan permintaan\" dan centang \"Saya sudah menemukan penyedia\" untuk menutup dan menilainya. Permintaan tetap ada di arsip Anda."
+        "title": "Deskripsi Anda di setiap obrolan; kirim ke semua sekaligus",
+        "body": "Deskripsi, suara dan foto permintaan Anda tampil di atas setiap obrolan, jadi tidak perlu mengulang ke setiap penyedia. Saat mengirim, kami bertanya: \"Semua penyedia di permintaan ini\" atau \"Hanya\" dia. Saat sepakat dengan salah satunya, ketuk \"Sepakat\" dan obrolan lain ditutup; atau ketuk \"Ya, hentikan permintaan\" dan centang \"Saya sudah menemukan penyedia\" untuk menutup dan menilai. Permintaan tetap di arsip Anda."
       },
       "finish": {
         "title": "Konfirmasi selesai dan tinggalkan review",
@@ -2100,7 +2100,19 @@
     "close_request": "Tutup permintaan",
     "profession": "Profesi yang dibutuhkan",
     "sub_service": "Sub-layanan",
-    "choose_profession": "pilih profesi yang dibutuhkan"
+    "choose_profession": "pilih profesi yang dibutuhkan",
+    "voice_label": "Jelaskan masalah dengan suara",
+    "voice_record": "Rekam masalahnya",
+    "voice_stop": "Berhenti",
+    "voice_delete": "Hapus",
+    "voice_hint": "Maksimal satu menit. Setiap penyedia yang Anda hubungi mendengarnya, jadi tidak perlu mengulang.",
+    "attach_label": "Foto atau video",
+    "publish": "Terbitkan",
+    "publish_hint": "Permintaan Anda langsung sampai ke penyedia profesi tersebut di area Anda. Deskripsi dan foto Anda tampil di atas setiap obrolan, dan detail serta harga disepakati di sana.",
+    "brief_title": "Permintaan",
+    "audience_title": "Untuk siapa pesan ini?",
+    "audience_all": "Semua penyedia di permintaan ini",
+    "audience_one": "Hanya {{name}}"
   },
   "subrules": {
     "title": "Di mana langganan bulanan berlaku",

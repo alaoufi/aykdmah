@@ -1359,8 +1359,8 @@
         "body": "Başkası sizin adınıza giriş yapamasın diye telefon numaranız ve en az 4 rakamlı basit bir şifreyle kaydolun; ad isteğe bağlıdır, bölgeniz otomatik algılanır ve değiştirilebilir. Ana sayfada listeden bir meslek seçerek bölgenizdeki hizmet verenlerin ve şu anda müsait olanların sayısını görün."
       },
       "details": {
-        "title": "İhtiyaç duyulan mesleği seçin; gerisi isteğe bağlı",
-        "body": "\"Şimdi sipariş ver\"e dokunun ve ihtiyaç duyulan mesleği seçin; zorunlu olan yalnızca budur. Alt hizmet, başlık ve açıklama isteğe bağlıdır. Konumunuz kayıttan bilinir ve fiyat yazmazsınız: fiyat ve zamanı sohbette kararlaştırırsınız."
+        "title": "Mesleği seçin, sorunu sesle kaydedin",
+        "body": "\"Şimdi sipariş ver\"e dokunun ve ihtiyaç duyulan mesleği seçin; zorunlu olan yalnızca budur. Alt hizmet ve başlık isteğe bağlıdır; sorunu sesinizle kaydedip fotoğraf veya video ekleyebilirsiniz. \"Yayımla\"ya dokunun: konumunuz kayıttan bilinir, fiyat ve zaman sohbette kararlaştırılır."
       },
       "location": {
         "title": "Hizmet yerini kontrol edin",
@@ -1371,8 +1371,8 @@
         "body": "Talebiniz hemen bölgenizde şu anda çalışan o mesleğin hizmet verenlerine ulaşır ve sizinle iletişime geçerler. Siz de müsait olanla iletişime geçebilir ya da beğendiklerinizi \"Rehberim\"e ekleyip sonra talep oluşturmadan doğrudan iletişime geçebilirsiniz."
       },
       "chat": {
-        "title": "\"Anlaştık\"a dokunun, sonra kapatıp değerlendirin",
-        "body": "Birden fazla hizmet veren sizinle iletişime geçebilir. Biriyle anlaştığınızda \"Anlaştık\"a dokunun: diğer sohbetler kapanır ve sizinki iş bitene kadar açık kalır. Ya da \"Evet, talebi durdur\"a dokunup \"Hizmet veren buldum\"u işaretleyerek kapatın ve değerlendirin. Talep arşivinizde kalır."
+        "title": "Açıklamanız her sohbette; herkese tek seferde gönderin",
+        "body": "Talebinizin açıklaması, sesi ve fotoğrafları her sohbetin üstünde görünür; her hizmet verene tekrar anlatmazsınız. Gönderirken sorarız: \"Bu talepteki tüm hizmet verenler\" mi, \"yalnızca\" o mu. Biriyle anlaştığınızda \"Anlaştık\"a dokunun, diğer sohbetler kapanır; ya da \"Evet, talebi durdur\"a dokunup \"Hizmet veren buldum\"u işaretleyerek kapatıp değerlendirin. Talep arşivinizde kalır."
       },
       "finish": {
         "title": "Tamamlandığını onayla ve bir inceleme bırak",
@@ -2100,7 +2100,19 @@
     "close_request": "Talebi kapat",
     "profession": "İhtiyaç duyulan meslek",
     "sub_service": "Alt hizmet",
-    "choose_profession": "ihtiyaç duyulan mesleği seçin"
+    "choose_profession": "ihtiyaç duyulan mesleği seçin",
+    "voice_label": "Sorunu sesinizle anlatın",
+    "voice_record": "Sorunu kaydet",
+    "voice_stop": "Durdur",
+    "voice_delete": "Sil",
+    "voice_hint": "En fazla bir dakika. Konuştuğunuz her hizmet veren bunu dinler, tekrar etmenize gerek kalmaz.",
+    "attach_label": "Fotoğraf veya video",
+    "publish": "Yayımla",
+    "publish_hint": "Talebiniz hemen bölgenizdeki o mesleğin hizmet verenlerine ulaşır. Açıklamanız ve fotoğraflarınız her sohbetin üstünde görünür; ayrıntıları ve fiyatı orada kararlaştırırsınız.",
+    "brief_title": "Talep",
+    "audience_title": "Bu mesaj kimin için?",
+    "audience_all": "Bu talepteki tüm hizmet verenler",
+    "audience_one": "Yalnızca {{name}}"
   },
   "subrules": {
     "title": "Aylık aboneliğin uygulandığı yerler",

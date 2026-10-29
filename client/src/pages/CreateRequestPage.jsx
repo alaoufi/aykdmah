@@ -13,8 +13,11 @@ import Button from '../components/common/Button';
 import RequestLocationFields from '../components/common/RequestLocationFields';
 import { apiError } from '../services/api';
 import { localizedName } from '../utils/localize';
+import useVoiceRecording from '../hooks/useVoiceRecording';
+import { addChatAttachments, CHAT_MEDIA_MAX_BYTES, recordingTime } from '../utils/chatMedia';
+import VoiceNote from '../components/chat/VoiceNote';
 
-const EMPTY_FORM = { category_id: '', service_id: '', title: '', description: '' };
+const EMPTY_FORM = { category_id: '', service_id: '', title: '' };
 
 export default function CreateRequestPage() {
   const { t, i18n } = useTranslation();
@@ -29,7 +32,7 @@ export default function CreateRequestPage() {
   const requestLocation = useRequestLocation({ user, params, fallbackCountryId: country?.id });
 
   // A profession page links here with ?category=<id> already chosen.
-  const startForm = () => ({ ...EMPTY_FORM, category_id: params.get('category') || '' });
+  const startForm = () => ({ ...EMPTY_FORM, category_id: params.get('category') || '', service_id: params.get('service') || '' });
   const [form, setForm] = useState(startForm);
   const operation = useRef(0);
 
@@ -43,6 +46,20 @@ export default function CreateRequestPage() {
   }, []);
 
   const update = (k, v) => setForm(f => ({ ...f, [k]: v, ...(k === 'category_id' ? { service_id: '' } : {}) }));
+  // The problem is described by voice, with optional photos or a short video (AYK-043).
+  const [voiceFile, setVoiceFile] = useState(null);
+  const [media, setMedia] = useState([]);
+  const [mediaError, setMediaError] = useState('');
+  const voice = useVoiceRecording(file => setVoiceFile(file), user?.id);
+  const voiceUrl = useRef(null);
+  if (voiceFile && !voiceUrl.current) voiceUrl.current = URL.createObjectURL(voiceFile);
+  const clearVoice = () => { if (voiceUrl.current) URL.revokeObjectURL(voiceUrl.current); voiceUrl.current = null; setVoiceFile(null); };
+  const addMedia = selected => {
+    const result = addChatAttachments(voiceFile ? [voiceFile, ...media] : media, selected);
+    if (result.error) { setMediaError(t(result.error)); return; }
+    setMediaError('');
+    setMedia(result.files.filter(file => file !== voiceFile));
+  };
   // The sub-service is optional and listed only for the chosen profession.
   const [services, setServices] = useState([]);
   useEffect(() => {
@@ -69,6 +86,8 @@ export default function CreateRequestPage() {
       Object.entries(form).forEach(([k, v]) => {
         if (v !== '' && v !== null && v !== undefined) fd.append(k, v);
       });
+      if (voiceFile) fd.append('files', voiceFile);
+      media.forEach(file => fd.append('files', file));
       appendRequestLocation(fd, locationSnapshot);
       const created = await createRequest(fd);
       if (locationSnapshot.remember_location && current === operation.current) await refresh();
@@ -122,20 +141,47 @@ export default function CreateRequestPage() {
           data-testid="request-title"
         />
 
-        <Input
-          as="textarea"
-          label={optional(t('request.description'))}
-          value={form.description}
-          onChange={(e) => update('description', e.target.value)}
-          placeholder={t('request.description_ph')}
-        />
+        <div className="form-group" data-testid="request-voice">
+          <label className="form-label">🎤 {optional(t('requester.voice_label'))}</label>
+          {voiceFile ? (
+            <div className="flex items-center gap-2 flex-wrap">
+              <VoiceNote src={voiceUrl.current} seed="request-draft" />
+              <button type="button" className="text-[13px] font-semibold text-danger" onClick={clearVoice}>✕ {t('requester.voice_delete')}</button>
+            </div>
+          ) : voice.status !== 'idle' ? (
+            <div className="flex items-center gap-3">
+              <span className="text-danger font-bold" role="status">● {recordingTime(voice.elapsedMs)}</span>
+              <Button type="button" size="sm" variant="primary" onClick={voice.stop}>⏹ {t('requester.voice_stop')}</Button>
+              <button type="button" className="text-[13px] text-fg-muted" onClick={voice.cancel}>{t('admin.cancel_btn')}</button>
+            </div>
+          ) : (
+            <Button type="button" variant="outline" onClick={() => voice.start(CHAT_MEDIA_MAX_BYTES - media.reduce((sum, file) => sum + file.size, 0))}>
+              🎤 {t('requester.voice_record')}</Button>
+          )}
+          {voice.error && <p role="alert" className="form-error mt-1">{t(voice.error)}</p>}
+          <p className="text-[12px] text-fg-muted mt-1 mb-0">{t('requester.voice_hint')}</p>
+        </div>
+
+        <div className="form-group" data-testid="request-attachments">
+          <label className="form-label" htmlFor="request-files">📷 {optional(t('requester.attach_label'))}</label>
+          <input id="request-files" type="file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime"
+            onChange={(e) => { addMedia(e.target.files); e.target.value = ''; }} />
+          {media.length > 0 && <div className="flex flex-wrap gap-2 mt-2">
+            {media.map((file, index) => <span key={`${file.name}-${index}`} className="badge">
+              {file.type.startsWith('video/') ? '🎬' : '🖼️'} {file.name}
+              <button type="button" className="ms-1" aria-label={t('requester.voice_delete')} onClick={() => setMedia(list => list.filter((_, i) => i !== index))}>✕</button>
+            </span>)}
+          </div>}
+          {mediaError && <p role="alert" className="form-error mt-1">{mediaError}</p>}
+        </div>
 
         <RequestLocationFields control={requestLocation} disabled={loading} />
 
 
         <Button type="submit" block size="lg" loading={loading} variant="primary" disabled={!requestLocation.ready || !!locationMissing}>
-          {t('request.submit')}
+          {t('requester.publish')}
         </Button>
+        <p className="text-center text-[12.5px] text-fg-muted mt-2 mb-0" data-testid="publish-hint">{t('requester.publish_hint')}</p>
         {locationMissing && <p className="text-center text-[12px] text-fg-muted mt-1">{t('auth.complete_to_enable', { item: locationMissing })}</p>}
       </form>
     </div>

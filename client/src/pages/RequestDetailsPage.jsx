@@ -8,6 +8,7 @@ import {
   startRequestChat, updateRequestStatus, contactRequest, agreeRequest
 } from '../services/requestService';
 import MatchingProviders from '../components/catalog/MatchingProviders';
+import RequestMedia from '../components/requests/RequestMedia';
 import { useAuth } from '../hooks/useAuth';
 import { REQUEST_STATUS, OFFER_STATUS } from '../utils/constants';
 import { formatCurrency, formatRelativeTime } from '../utils/formatters';
@@ -247,13 +248,7 @@ export default function RequestDetailsPage() {
         {request.files && request.files.length > 0 && (
           <div className="mt-4">
             <h4>{t('request.attachments')}</h4>
-            <div className="flex flex-wrap gap-2">
-              {request.files.map(f => (
-                <a key={f.id} href={safeUrl(f.file_url) || undefined} target="_blank" rel="noopener noreferrer" className="badge">
-                  📎 {f.file_name}
-                </a>
-              ))}
-            </div>
+            <RequestMedia files={request.files} />
           </div>
         )}
 

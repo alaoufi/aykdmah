@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Modal from '../common/Modal';
 import Input from '../common/Input';
@@ -26,6 +26,15 @@ export default function ServiceRequestForm({ service, open, onClose }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const operation = useRef(0);
+  // One request form for everyone (AYK-043): a signed-in user goes to it with this
+  // profession and service chosen; this window only asks guests to sign in.
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (open && user && service) {
+      onClose?.();
+      navigate(`/requests/new?category=${service.categoryId || ''}&service=${service.id}`);
+    }
+  }, [open, user?.id, service?.id]);
   useEffect(() => {
     operation.current += 1;
     setCreated(null); setForm(EMPTY); setFiles([]); setError(''); setLoading(false);
