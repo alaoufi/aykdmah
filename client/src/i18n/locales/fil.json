@@ -2012,11 +2012,12 @@
     "enable": "I-activate ang mga alerto ng tawag",
     "on": "Ang mga alerto ay naka-on para sa aparato na ito",
     "denied": "Ang mga pahibalo ay naka-block para sa site na ito. I-allow ang mga ito sa mga setting ng site ng browser, at pagkatapos ay subukan muli.",
-    "failed": "Hindi maaaring i-activate ang mga alerto sa browser na ito. I-reload at subukan sa Chrome o Safari.",
+    "failed": "Hindi ito maisaaktibo ngayon. Suriin ang koneksyon at subukan muli.",
     "unsupported": "Ang browser na ito ay hindi sumusuporta sa mga pahibalo ng tawag. Gamitin ang Chrome sa Android o desktop, o Safari sa iPhone pagkatapos magdagdag ng site sa Home Screen.",
     "iphone_hint": "Sa iPhone: pindutin ang Ibahagi, pagkatapos ay Add sa Home Screen, buksan ang app mula sa bagong icon at i-activate ang mga alerto mula sa iyong profile.",
     "banner": "I-activate ang mga alerto ng tawag upang ang iyong aparato ay mag-ring kapag may tumawag sa iyo, kahit na ang site ay nasira.",
-    "later": "Pagkatapos"
+    "later": "Pagkatapos",
+    "no_service": "Hindi sinusuportahan ng iyong device ang notification habang sarado ang site (hal. mga Huawei na walang Google services). Makakatanggap ka ng notification at tawag sa loob ng site habang bukas ito."
   },
   "for_you": {
     "your_area": "Ang iyong lugar: {{area}}",

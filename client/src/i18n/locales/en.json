@@ -2012,11 +2012,12 @@
     "enable": "Turn on call alerts",
     "on": "Alerts are on for this device",
     "denied": "Notifications are blocked for this site. Allow them in the browser's site settings, then try again.",
-    "failed": "Alerts could not be turned on in this browser. Reload and try in Chrome or Safari.",
+    "failed": "Could not turn it on right now. Check your connection and try again.",
     "unsupported": "This browser does not support call notifications. Use Chrome on Android or desktop, or Safari on iPhone after adding the site to the Home Screen.",
     "iphone_hint": "On iPhone: tap Share, then “Add to Home Screen”, open the app from the new icon and turn on alerts from your profile.",
     "banner": "Turn on call alerts so your device rings when someone calls you, even with the site closed.",
-    "later": "Later"
+    "later": "Later",
+    "no_service": "Your device does not support notifications while the site is closed (for example Huawei phones without Google services). You will get notifications and calls inside the site while it is open."
   },
   "for_you": {
     "your_area": "Your area: {{area}}",

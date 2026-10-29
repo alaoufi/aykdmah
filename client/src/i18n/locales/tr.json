@@ -2012,11 +2012,12 @@
     "enable": "Çağrı uyarılarını etkinleştir",
     "on": "Bu cihaz için uyarılar açıldı",
     "denied": "Bu site için bildirimler engellenmiştir. Arayıcı sitesi ayarlarında izin verin, sonra tekrar deneyin.",
-    "failed": "Alarmlar bu tarayıcıda etkinleştirilmedi. Chrome veya Safari'de yeniden yükle ve den.",
+    "failed": "Şu anda açılamadı. Bağlantınızı kontrol edip tekrar deneyin.",
     "unsupported": "Bu tarayıcı arama bildirimlerini desteklemiyor. Siteni Ana Ekrana ekledikten sonra Android veya masaüstü veya iPhone'da Safari kullanın.",
     "iphone_hint": "iPhone'da: Paylaşmaya dokunun, sonra Ana Ekrana Ekleyin, yeni simgesinden uygulamayı açın ve profilinizden uyarıları etkinleştirin.",
     "banner": "Site kapanmış olsa bile, birileri sizi ararsa cihazınız çalsın diye arama uyarılarını etkinleştirin.",
-    "later": "Daha sonra"
+    "later": "Daha sonra",
+    "no_service": "Cihazınız site kapalıyken anlık bildirimleri desteklemiyor (örneğin Google hizmetleri olmayan Huawei telefonlar). Site açıkken bildirimleri ve aramaları site içinde alırsınız."
   },
   "for_you": {
     "your_area": "Bölge: {{area}}",

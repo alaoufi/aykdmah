@@ -2012,11 +2012,12 @@
     "enable": "Putarkan peringatan panggilan",
     "on": "Peringatan untuk perangkat ini diaktifkan",
     "denied": "Pemberitahuan diblokir untuk situs ini. Izinkan mereka di pengaturan situs browser, lalu coba lagi.",
-    "failed": "Peringatan tidak bisa diaktifkan di browser ini.",
+    "failed": "Tidak dapat diaktifkan sekarang. Periksa koneksi lalu coba lagi.",
     "unsupported": "Browser ini tidak mendukung pemberitahuan panggilan. Gunakan Chrome di Android atau desktop, atau Safari di iPhone setelah menambahkan situs ke Home Screen.",
     "iphone_hint": "Pada iPhone: ketuk Share, kemudian Tambahkan ke Home Screen, buka aplikasi dari ikon baru dan aktifkan peringatan dari profil Anda.",
     "banner": "Pindahkan alarm panggilan sehingga perangkat Anda berdering ketika seseorang memanggil Anda, bahkan dengan situs ditutup.",
-    "later": "Kemudian"
+    "later": "Kemudian",
+    "no_service": "Perangkat Anda tidak mendukung notifikasi saat situs ditutup (misalnya ponsel Huawei tanpa layanan Google). Notifikasi dan panggilan tetap muncul di dalam situs saat dibuka."
   },
   "for_you": {
     "your_area": "Daerah Anda: {{area}}",

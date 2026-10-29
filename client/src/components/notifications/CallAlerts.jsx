@@ -28,7 +28,13 @@ export default function CallAlerts({ variant = 'card' }) {
       const next = await enablePush();
       setState(next);
       if (next === 'denied') setError(t('push.denied'));
-    } catch (_) { setError(t('push.failed')); }
+    } catch (err) {
+      // No push service in this browser (e.g. Huawei phones without Google services):
+      // say so plainly and stop offering it on this device (AYK-044).
+      const noService = err?.name === 'AbortError' || err?.name === 'NotSupportedError' || /push service|registration failed|gcm|fcm/i.test(String(err?.message || ''));
+      setError(t(noService ? 'push.no_service' : 'push.failed'));
+      if (noService) { try { localStorage.setItem(DISMISS_KEY, '1'); } catch (_) { /* private mode */ } }
+    }
     finally { setBusy(false); }
   };
   const iphone = needsHomeScreen();
