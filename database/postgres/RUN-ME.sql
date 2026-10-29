@@ -8,7 +8,7 @@ DO $ayk_fresh$ BEGIN
   IF EXISTS (
     SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
     WHERE n.nspname = current_schema() AND c.relkind IN ('r','p','v','m','f')
-      AND c.relname IN ('activity_logs','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_reports','calls','categories','cities','conversation_archives','conversation_participants','conversations','countries','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','districts','governorates','install_lock','ip_geo_cache','location_shares','message_files','messages','notifications','offers','payments','phone_codes','provider_badges','provider_coverage_districts','provider_profiles','push_subscriptions','referral_rewards','regions','request_files','requests','review_reports','review_translations','review_votes','reviews','roles','saved_providers','schema_migrations','services','settings','subscription_plans','subscriptions','uploaded_media','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','wallet_transactions','withdrawal_requests')
+      AND c.relname IN ('activity_logs','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_reports','calls','categories','cities','conversation_archives','conversation_participants','conversations','countries','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','districts','governorates','install_lock','ip_geo_cache','location_shares','message_files','messages','notifications','offers','payments','phone_codes','provider_badges','provider_coverage_districts','provider_profiles','push_subscriptions','referral_rewards','regions','request_files','requests','review_reports','review_translations','review_votes','reviews','roles','saved_providers','schema_migrations','services','settings','subscription_plans','subscription_rules','subscriptions','uploaded_media','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','wallet_transactions','withdrawal_requests')
   ) THEN
     RAISE EXCEPTION 'AY KHIDMA bootstrap requires a fresh database schema; use journaled migrations for an existing installation';
   END IF;
@@ -6093,6 +6093,22 @@ CREATE TABLE IF NOT EXISTS saved_providers (
 );
 ALTER TABLE requests ADD COLUMN IF NOT EXISTS direct_provider_id INT NULL DEFAULT NULL;
 INSERT INTO schema_migrations(name) VALUES ('054_requester_directory.sql');
+
+-- migrations/055_subscription_rules.sql
+CREATE TABLE IF NOT EXISTS subscription_rules (
+  id SERIAL PRIMARY KEY,
+  region_id INT NULL,
+  city_id INT NULL,
+  category_id INT NULL,
+  is_free SMALLINT NOT NULL DEFAULT 0,
+  is_active SMALLINT NOT NULL DEFAULT 1,
+  note VARCHAR(255) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_subscription_rules_region FOREIGN KEY (region_id) REFERENCES regions(id) ON DELETE CASCADE,
+  CONSTRAINT fk_subscription_rules_city FOREIGN KEY (city_id) REFERENCES cities(id) ON DELETE CASCADE,
+  CONSTRAINT fk_subscription_rules_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+);
+INSERT INTO schema_migrations(name) VALUES ('055_subscription_rules.sql');
 
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
