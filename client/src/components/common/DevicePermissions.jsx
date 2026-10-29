@@ -42,6 +42,9 @@ export default function DevicePermissions({ variant = 'card' }) {
   const [checked, setChecked] = useState(false);
   const [state, setState] = useState({ location: 'prompt', media: 'prompt', push: 'off' });
   const [busy, setBusy] = useState('');
+  // The outcome of the last tap, said in words: enabled, or not and why.
+  const [result, setResult] = useState(null);
+  const NAMES = { location: 'permissions.location', media: 'permissions.media', push: 'permissions.notifications' };
 
   // Read the current state, also when the user comes back to the page (a permission
   // switched off in the browser shows as tappable again).
@@ -63,17 +66,21 @@ export default function DevicePermissions({ variant = 'card' }) {
     setBusy(key);
     const value = await ASK[key]();
     setState(previous => ({ ...previous, [key]: value }));
+    setResult({ enabled: ok(value) ? [key] : [], failed: ok(value) ? [] : [key], value });
     setBusy('');
   };
   const allowAll = async () => {
     if (busy) return;
     // Notifications first, while the tap still counts as the user's own action.
+    const enabled = []; const failed = []; let last = null;
     for (const key of ['push', 'media', 'location']) {
       if (ok(state[key]) || state[key] === 'unsupported') continue;
       setBusy(key);
       const value = await ASK[key]();
       setState(previous => ({ ...previous, [key]: value }));
+      if (ok(value)) enabled.push(key); else { failed.push(key); last = value; }
     }
+    setResult({ enabled, failed, value: last, nothing: !enabled.length && !failed.length });
     setBusy('');
   };
 
@@ -94,13 +101,22 @@ export default function DevicePermissions({ variant = 'card' }) {
     );
   };
 
+  const names = keys => keys.map(key => t(NAMES[key])).join('، ');
+  const outcome = result && (
+    <div role="status" data-testid="permissions-result" className={`text-[13px] font-semibold text-center rounded-card px-3 py-2 ${result.failed.length ? 'bg-danger-soft text-danger' : 'bg-success-soft text-success'}`}>
+      {result.nothing && `✓ ${t('permissions.all_enabled')}`}
+      {result.enabled.length > 0 && <div>✓ {t('permissions.result_enabled', { names: names(result.enabled) })}</div>}
+      {result.failed.length > 0 && <div>✗ {t('permissions.result_failed', { names: names(result.failed) })} {t(result.value === 'failed' ? 'permissions.busy' : 'permissions.blocked')}</div>}
+    </div>
+  );
+
   if (variant === 'bar') {
     if (!user || hidden || !checked || done) return null;
     return (
       <div className="bg-primary-soft border-b border-border px-4 py-2 flex flex-wrap items-center justify-center gap-2 text-[13px]" data-testid="permissions-bar">
         <span>📍🎤📷🔔 {t('permissions.bar')}</span>
         <button type="button" className="btn btn-primary btn-sm" disabled={busy !== ''} onClick={allowAll} data-testid="bar-allow-all">{busy ? '⏳' : `✅ ${t('permissions.allow')}`}</button>
-        {refused && <span className="w-full text-center text-danger" role="alert">{t(state.media === 'failed' ? 'permissions.busy' : 'permissions.blocked')}</span>}
+        {outcome && <div className="w-full">{outcome}</div>}
         <button type="button" className="text-fg-muted underline" onClick={() => { try { localStorage.setItem(LATER_KEY, '1'); } catch (_) { /* private mode */ } setHidden(true); }}>{t('push.later')}</button>
       </div>
     );
@@ -111,7 +127,8 @@ export default function DevicePermissions({ variant = 'card' }) {
       {chip('location', `📍 ${t('permissions.location')}`)}
       {chip('media', `🎤 ${t('permissions.microphone')} · 📷 ${t('permissions.camera')}`)}
       {chip('push', `🔔 ${t('permissions.notifications')}`)}
-      {refused && <p className="text-[12.5px] text-danger m-0 text-center" role="alert" data-testid="permissions-blocked">
+      {outcome}
+      {!result && refused && <p className="text-[12.5px] text-danger m-0 text-center" role="alert" data-testid="permissions-blocked">
         {t(state.media === 'failed' ? 'permissions.busy' : 'permissions.blocked')}</p>}
       {!done && <button type="button" className="btn btn-primary btn-block" disabled={busy !== ''} onClick={allowAll} data-testid="allow-all">
         {busy ? '⏳' : `✅ ${t('permissions.allow')}`}</button>}

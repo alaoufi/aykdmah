@@ -2197,6 +2197,10 @@
     "blocked": "Tarayıcı bunu daha önce engelledi ve tekrar sormayacak. Üstte aykdmh.com yanındaki 🔒 simgesine dokunun → \"İzinler\" → \"İzin ver\" yapın, sonra \"Tümüne izin ver\"e dokunun.",
     "busy": "Mikrofon veya kamera başka bir uygulamada kullanılıyor. Onu kapatıp \"Tümüne izin ver\"e dokunun.",
     "enabled": "Açık",
-    "tap_to_enable": "Açmak için dokunun"
+    "tap_to_enable": "Açmak için dokunun",
+    "media": "Mikrofon ve kamera",
+    "result_enabled": "Açıldı: {{names}}",
+    "result_failed": "Açılmadı: {{names}}.",
+    "all_enabled": "Tüm izinler açık."
   }
 }

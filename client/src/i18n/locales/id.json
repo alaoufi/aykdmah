@@ -2197,6 +2197,10 @@
     "blocked": "Browser sudah memblokir ini sebelumnya dan tidak akan bertanya lagi. Ketuk 🔒 di samping aykdmh.com di atas → \"Izin\" → ubah ke \"Izinkan\", lalu ketuk \"Izinkan semua\".",
     "busy": "Mikrofon atau kamera sedang dipakai aplikasi lain. Tutup aplikasinya, lalu ketuk \"Izinkan semua\".",
     "enabled": "Aktif",
-    "tap_to_enable": "Ketuk untuk mengaktifkan"
+    "tap_to_enable": "Ketuk untuk mengaktifkan",
+    "media": "Mikrofon dan kamera",
+    "result_enabled": "Diaktifkan: {{names}}",
+    "result_failed": "Tidak aktif: {{names}}.",
+    "all_enabled": "Semua izin sudah aktif."
   }
 }

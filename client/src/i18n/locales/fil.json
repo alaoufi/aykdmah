@@ -2197,6 +2197,10 @@
     "blocked": "Hinarang ito ng browser dati at hindi na magtatanong. Pindutin ang 🔒 sa tabi ng aykdmh.com sa itaas → \"Mga Pahintulot\" → gawing \"Payagan\", saka pindutin ang \"Payagan lahat\".",
     "busy": "Ginagamit ng ibang app ang mikropono o camera. Isara ito, saka pindutin ang \"Payagan lahat\".",
     "enabled": "Naka-on",
-    "tap_to_enable": "Pindutin para i-on"
+    "tap_to_enable": "Pindutin para i-on",
+    "media": "Mikropono at camera",
+    "result_enabled": "Na-on: {{names}}",
+    "result_failed": "Hindi na-on: {{names}}.",
+    "all_enabled": "Naka-on ang lahat ng pahintulot."
   }
 }
