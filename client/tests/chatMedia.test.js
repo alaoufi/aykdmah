@@ -106,7 +106,7 @@ test('a newer recording is not cancelled by a late stream from the previous perm
   const old = h.recorder.start(); h.recorder.cancel(); const fresh = h.recorder.start();
   resolvers[1](h.stream); await fresh; resolvers[0](h.stream); await old;
   assert.equal(h.instances.length, 1); assert.equal(h.states.at(-1).status, 'recording');
-  h.recorder.stop(); assert.equal(h.drafts.length, 1); assert.equal(h.stopped(), 2);
+  h.advance(1000); h.recorder.stop(); assert.equal(h.drafts.length, 1); assert.equal(h.stopped(), 2);
 });
 
 test('recording cancellation and disposal detach late stop/data events and release every track', async () => {
@@ -142,7 +142,7 @@ test('permission and device errors map to native-language messages and remain re
     let fail = true;
     const h = harness({ media: async () => { if (fail) throw { name }; return h.stream; } });
     await h.recorder.start(); assert.equal(h.states.at(-1).error, key); assert.equal(h.states.at(-1).status, 'idle');
-    fail = false; await h.recorder.start(); h.recorder.stop(); assert.equal(h.drafts.length, 1);
+    fail = false; await h.recorder.start(); h.advance(1000); h.recorder.stop(); assert.equal(h.drafts.length, 1);
   }
   assert.equal(recordingErrorKey({ name: 'UnknownError' }), 'chat.recording_failed');
 });
@@ -207,9 +207,14 @@ test('recorded file MIME excludes codec parameters so real multipart uploads rem
     ['audio/webm;codecs=opus', 'audio', 'audio/webm'],
   ]) {
     const h = harness({ kind, supported: [kind === 'video' ? 'video/webm;codecs=vp8,opus' : 'audio/webm;codecs=opus'] });
-    await h.recorder.start(); h.instances[0].mimeType = mime; h.recorder.stop();
+    await h.recorder.start(); h.instances[0].mimeType = mime; h.advance(1000); h.recorder.stop();
     assert.equal(h.drafts[0][0].type, expected);
     assert.equal(h.drafts[0][0].type.includes(';'), false);
     assert.equal(h.instances[0].options.mimeType.includes('codecs='), true);
   }
+});
+
+test('a voice note under one second is not sent and says it was too short (AYK-047)', async () => {
+  const h = harness(); await h.recorder.start(); h.advance(400); h.recorder.stop();
+  assert.equal(h.drafts.length, 0); assert.equal(h.states.at(-1).error, 'chat.voice_too_short'); assert.equal(h.stopped(), 1);
 });

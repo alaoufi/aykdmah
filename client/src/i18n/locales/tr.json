@@ -527,7 +527,8 @@
     "agreed_question": "{{name}} ile aynı fikirde miydin?",
     "agreed_confirm": "Bu talebinizle ilgili diğer sohbetleriniz sona erecek. {{name}}",
     "agreed_hint": "Kabul ettiğinizde, başvuruda bulunan kişi \"Tamam\"a tıklar.",
-    "translated": "çevrildi"
+    "translated": "çevrildi",
+    "voice_too_short": "Kayıt çok kısa. 🎙️ simgesine dokunup konuşun, sonra gönder'e dokunun."
   },
   "tracking": {
     "title": "Canlı izleme",

@@ -527,7 +527,8 @@
     "agreed_question": "Sumasang-ayon ka ba sa {{name}}?",
     "agreed_confirm": "Kumpirmahin ang kasunduan sa {{name}}? ang iyong iba pang mga pag-uusap tungkol sa hinihiling na ito ay matatapos.",
     "agreed_hint": "Kapag sumasang-ayon ka, ang humihingi ay mag-tap sa \"Sumang-ayon\".",
-    "translated": "isinalin"
+    "translated": "isinalin",
+    "voice_too_short": "Masyadong maikli ang recording. Pindutin ang 🎙️ at magsalita, saka pindutin ang ipadala."
   },
   "tracking": {
     "title": "Live na pagsubaybay",

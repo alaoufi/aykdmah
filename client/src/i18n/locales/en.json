@@ -527,7 +527,8 @@
     "agreed_question": "Did you agree with {{name}}?",
     "agreed_confirm": "Confirm the agreement with {{name}}? Your other chats about this request will close.",
     "agreed_hint": "Once you agree, the requester taps \"Agreed\".",
-    "translated": "translated"
+    "translated": "translated",
+    "voice_too_short": "The recording is too short. Tap 🎙️ and speak, then tap send."
   },
   "tracking": {
     "title": "Live tracking",

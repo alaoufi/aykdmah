@@ -180,6 +180,8 @@ export function createVoiceRecording({
         recorder = null;
         release();
         if (!recordedChunks.length) { publish('idle', 'chat.media_empty'); return; }
+        // Under a second holds no speech; say so instead of sending a silent note (AYK-047).
+        if (!video && now() - startedAt < 1000) { publish('idle', 'chat.voice_too_short'); return; }
         const extension = type.includes('mp4') ? (video ? 'mp4' : 'm4a') : type.includes('ogg') ? 'ogg' : 'webm';
         try {
           // Recorder codec parameters belong to its configuration. A comma in

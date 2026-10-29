@@ -527,7 +527,8 @@
     "agreed_question": "Apakah Anda setuju dengan {{name}}?",
     "agreed_confirm": "Konfirmasi kesepakatan dengan {{name}}? obrolan Anda lainnya tentang permintaan ini akan ditutup.",
     "agreed_hint": "Setelah Anda setuju, pelamar mengklik \"Setuju\".",
-    "translated": "diterjemahkan"
+    "translated": "diterjemahkan",
+    "voice_too_short": "Rekaman terlalu pendek. Ketuk 🎙️ dan bicara, lalu ketuk kirim."
   },
   "tracking": {
     "title": "Pelacakan langsung",
