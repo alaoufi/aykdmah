@@ -39,7 +39,7 @@ function optionalDate(value) {
 function publicView(request) {
   if (!request) return request;
   const view = { ...request };
-  for (const key of ['address', 'latitude', 'longitude', 'files', 'assigned_provider_id', 'accepted_offer_id']) delete view[key];
+  for (const key of ['address', 'latitude', 'longitude', 'files', 'assigned_provider_id', 'accepted_offer_id', 'assigned_provider_name', 'direct_provider_id']) delete view[key];
   if (view.distance_km != null) view.distance_km = Math.round(Number(view.distance_km));
   return view;
 }
@@ -93,7 +93,8 @@ const BASE_SELECT = `
   r.city_id, r.district_id, r.address, r.latitude, r.longitude,
   r.budget_min, r.budget_max, r.preferred_date, r.is_urgent, r.status,
   r.assigned_provider_id, r.accepted_offer_id, r.views_count, r.offers_count,
-  r.completed_at, r.created_at, r.updated_at, r.reminders_off,
+  r.completed_at, r.created_at, r.updated_at, r.reminders_off, r.direct_provider_id,
+  ap.full_name AS assigned_provider_name,
   u.full_name AS client_name, u.avatar AS client_avatar,
   cat.name_ar AS category_name, cat.name_en AS category_name_en,
   cat.name_translations AS category_name_translations,
@@ -105,6 +106,7 @@ const BASE_SELECT = `
 
 const BASE_JOINS = `
   LEFT JOIN users u ON r.client_id = u.id
+  LEFT JOIN users ap ON r.assigned_provider_id = ap.id
   LEFT JOIN categories cat ON r.category_id = cat.id
   LEFT JOIN services svc ON r.service_id = svc.id
   LEFT JOIN cities city ON r.city_id = city.id
@@ -138,8 +140,8 @@ async function create(data) {
         data.latitude ?? null, data.longitude ?? null,
         data.budget_min ?? null, data.budget_max ?? null,
         data.preferred_date || null, data.is_urgent ? 1 : 0,
-        // First "Did you find someone?" reminder an hour after posting (requestReminderService).
-        new Date(Date.now() + 60 * 60 * 1000),
+        // No reminders: the requester waits for providers to contact them (AYK-041).
+        null,
       ]
     );
     const requestId = result.insertId;
@@ -200,7 +202,8 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
   radiusKm = optionalNumber(radiusKm, 0.1, 250);
   if (radiusKm == null) radiusKm = 25;
   categoryId = optionalNumber(categoryId, 1, 2147483647, true); serviceId = optionalNumber(serviceId, 1, 2147483647, true);
-  const where = ['r.deleted_at IS NULL', 'r.status = ?'];
+  // A direct contact from the requester's directory is not on the board (AYK-041).
+  const where = ['r.deleted_at IS NULL', 'r.status = ?', 'r.direct_provider_id IS NULL'];
   const whereParams = [status];
   if (categoryId) { where.push('r.category_id = ?'); whereParams.push(categoryId); }
   if (serviceId) { where.push('r.service_id = ?'); whereParams.push(serviceId); }

@@ -165,6 +165,8 @@ const register = asyncHandler(async (req, res) => {
     const check = await phoneCodes.verifyCode({ phone: filtered.phone, purpose: 'signup', code: req.body.phone_code });
     if (!check.ok) return error(res, req.t(CODE_ERRORS[check.reason] || 'phone_code_invalid'), 400, [{ field: 'phone_code', message: req.t(CODE_ERRORS[check.reason] || 'phone_code_invalid') }]);
   }
+  // Without SMS a password is the only way back in, so it is required then (AYK-041).
+  if (!password && !phoneVerified) return error(res, req.t('invalid_data'), 400, [{ field: 'password', message: req.t('invalid_data') }]);
   const passwordHash = password ? await hashPassword(password) : await hashPassword(require('crypto').randomBytes(16).toString('hex'));
   let userId;
   try {
@@ -232,7 +234,7 @@ const sendPhoneCode = asyncHandler(async (req, res) => {
   const existing = await User.findByPhone(phone);
   if (purpose === 'signup' && existing) return identifierConflict(req, res, ['phone']);
   // A reset for an unknown number answers like a sent code, so numbers cannot be probed.
-  if (purpose === 'reset' && !existing) return success(res, { required: true, sent: true }, req.t('code_sent'));
+  if (['reset', 'login'].includes(purpose) && !existing) return success(res, { required: true, sent: true }, req.t('code_sent'));
   try {
     const result = await phoneCodes.sendCode({ phone, purpose, ip: req.ip });
     return success(res, result, req.t('code_sent'));
@@ -276,8 +278,14 @@ const login = asyncHandler(async (req, res) => {
 
   let user = await User.findByIdentifier(id);
   if (!user) return unauthorized(res, req.t('invalid_credentials'));
-  const valid = await comparePassword(password || '', user.password_hash || '');
-  if (!valid) return unauthorized(res, req.t('invalid_credentials'));
+  // Phone sign-in (AYK-041): a code sent by SMS instead of a password.
+  if (req.body.phone_code) {
+    const check = await phoneCodes.verifyCode({ phone: phoneCodes.normalizePhone(id), purpose: 'login', code: req.body.phone_code });
+    if (!check.ok) return unauthorized(res, req.t(CODE_ERRORS[check.reason] || 'phone_code_invalid'));
+  } else {
+    const valid = await comparePassword(password || '', user.password_hash || '');
+    if (!valid) return unauthorized(res, req.t('invalid_credentials'));
+  }
   user = await User.completeLogin(user.id, user.password_hash);
   if (!user) return unauthorized(res, req.t('invalid_credentials'));
   if (user.is_blocked) return error(res, req.t('account_blocked'), 403);

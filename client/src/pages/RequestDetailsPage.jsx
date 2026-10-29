@@ -5,7 +5,7 @@ import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   getRequest, getOffersForRequest, acceptOffer, rejectOffer,
-  startRequestChat, updateRequestStatus, setRequestReminders, contactRequest
+  startRequestChat, updateRequestStatus, contactRequest, agreeRequest
 } from '../services/requestService';
 import MatchingProviders from '../components/catalog/MatchingProviders';
 import { useAuth } from '../hooks/useAuth';
@@ -171,11 +171,24 @@ export default function RequestDetailsPage() {
     });
   };
 
-  const stopReminders = async () => {
+  // "Stop the request" closes it (AYK-041). With "I found a provider" ticked, the
+  // request is agreed with that provider, marked done, and the rating page opens.
+  const [closing, setClosing] = useState({ open: false, found: false, providerId: '' });
+  const contactedProviders = offers.filter((o, i) => offers.findIndex(x => x.provider_id === o.provider_id) === i);
+  const closeRequest = async () => {
+    setSubmitting(true);
+    setErr('');
     try {
-      await setRequestReminders(request.id, true);
-      setRequest(r => ({ ...r, reminders_off: 1 }));
-    } catch (e) { setErr(apiError(e)); }
+      if (closing.found && closing.providerId) {
+        await agreeRequest(request.id, Number(closing.providerId));
+        await updateRequestStatus(request.id, { status: 'completed' });
+        navigate(`/requests/${request.id}/review`);
+        return;
+      }
+      await updateRequestStatus(request.id, { status: 'cancelled' });
+      setClosing({ open: false, found: false, providerId: '' });
+      await load();
+    } catch (e) { setErr(apiError(e)); } finally { setSubmitting(false); }
   };
 
   return (
@@ -185,12 +198,27 @@ export default function RequestDetailsPage() {
         <div className="card mb-4" data-testid="request-found-check" style={{ borderInlineStart: '4px solid var(--primary)' }}>
           <strong>{t('request.found_title')}</strong>
           <p className="text-sm text-muted mt-1 mb-3">{t('request.found_hint')}</p>
-          <div className="flex gap-2 flex-wrap">
-            <Button variant="primary" size="sm" onClick={() => changeStatus('cancelled')}>{t('request.found_stop')}</Button>
-            {!Number(request.reminders_off)
-              ? <Button variant="outline" size="sm" onClick={stopReminders}>{t('request.stop_reminders')}</Button>
-              : <span className="text-xs text-muted self-center">{t('request.reminders_stopped')}</span>}
-          </div>
+          {!closing.open ? <Button variant="primary" size="sm" onClick={() => setClosing(c => ({ ...c, open: true }))} data-testid="close-request">{t('request.found_stop')}</Button>
+            : <div className="space-y-2" data-testid="close-request-box">
+              <label className="flex items-center gap-2 text-[14px] font-semibold cursor-pointer">
+                <input type="checkbox" className="w-4 h-4 accent-primary" checked={closing.found} data-testid="found-provider"
+                  onChange={e => setClosing(c => ({ ...c, found: e.target.checked, providerId: e.target.checked && contactedProviders.length === 1 ? String(contactedProviders[0].provider_id) : '' }))} />
+                {t('requester.found_provider')}
+              </label>
+              {closing.found && (contactedProviders.length === 0
+                ? <p className="text-xs text-muted m-0">{t('requester.found_none')}</p>
+                : <select className="select" value={closing.providerId} data-testid="found-provider-select" aria-label={t('requester.found_which')}
+                  onChange={e => setClosing(c => ({ ...c, providerId: e.target.value }))}>
+                  <option value="">{t('requester.found_which')}</option>
+                  {contactedProviders.map(o => <option key={o.provider_id} value={o.provider_id}>{o.provider_name}</option>)}
+                </select>)}
+              {closing.found && closing.providerId && <p className="text-xs text-muted m-0">⭐ {t('requester.found_rate_next')}</p>}
+              <div className="flex gap-2 flex-wrap">
+                <Button variant="primary" size="sm" loading={submitting} disabled={closing.found && !closing.providerId} onClick={closeRequest} data-testid="close-request-confirm">
+                  {closing.found ? t('requester.close_and_rate') : t('requester.close_request')}</Button>
+                <Button variant="outline" size="sm" onClick={() => setClosing({ open: false, found: false, providerId: '' })}>{t('admin.cancel_btn')}</Button>
+              </div>
+            </div>}
         </div>
       )}
       {err && <div className="form-error mb-3" style={{ padding: 10, background: 'rgba(239,68,68,.1)', borderRadius: 8 }}>{err}</div>}

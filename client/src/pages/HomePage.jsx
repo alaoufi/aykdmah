@@ -9,10 +9,21 @@ import HowItWorks from '../components/home/HowItWorks';
 import Latest from '../components/home/Latest';
 import StatsStrip from '../components/home/StatsStrip';
 import AdSlot from '../components/ads/AdSlot';
+import RequesterHome from '../components/home/RequesterHome';
 
 export default function HomePage() {
   const { position } = useGeolocation();
   const { user } = useAuth();
+
+  // A signed-in requester sees only what they need (AYK-041).
+  if (user?.role === 'client') {
+    return (
+      <main className="pb-24 md:pb-0">
+        <div className="container max-w-5xl mx-auto px-4 pt-4"><AdSlot placement="home_top" /></div>
+        <RequesterHome />
+      </main>
+    );
+  }
 
   return (
     <main className="pb-24 md:pb-0">

@@ -142,6 +142,8 @@ function coveringProviders({ districtId, cityId, excludeId = 0 }) {
     SELECT u.id, u.full_name, u.avatar, u.is_verified, u.is_online,
            pp.business_name, pp.category_id, pp.service_ids,
            pp.rating_avg, pp.rating_count, pp.completed_orders,
+           cat.name_ar AS category_name_ar, cat.name_en AS category_name_en, cat.name_translations AS category_name_translations,
+           dist.name_ar AS district_name_ar, dist.name_en AS district_name_en,
            to_jsonb(pp)->>'availability_status' AS availability_status, to_jsonb(pp)->>'vacation_from' AS vacation_from,
            to_jsonb(pp)->>'vacation_to' AS vacation_to, to_jsonb(pp)->>'work_days' AS work_days,
            to_jsonb(pp)->>'work_from' AS work_from, to_jsonb(pp)->>'work_to' AS work_to,
@@ -149,6 +151,8 @@ function coveringProviders({ districtId, cityId, excludeId = 0 }) {
                    AND pb.ends_at > CURRENT_TIMESTAMP AND ${ProviderBadge.verifiedPaymentSql('pb')}) AS is_featured
     FROM users u
     JOIN provider_profiles pp ON pp.user_id = u.id
+    LEFT JOIN categories cat ON cat.id = pp.category_id
+    LEFT JOIN districts dist ON dist.id = u.district_id
     WHERE u.role = 'provider' AND u.is_active = 1 AND u.is_blocked = 0 AND u.deleted_at IS NULL
       AND u.id <> ? AND ${coverage}`,
   [excludeId, districtId || cityId, cityId]);
@@ -176,6 +180,9 @@ const matching = asyncHandler(async (req, res) => {
       rating_avg: Number(row.rating_avg) || 0, rating_count: Number(row.rating_count) || 0,
       completed_orders: Number(row.completed_orders) || 0,
       availability: availability(row),
+      // Shown on the card: profession and district (AYK-041).
+      category_name_ar: row.category_name_ar, category_name_en: row.category_name_en, category_name_translations: row.category_name_translations,
+      district_name_ar: row.district_name_ar, district_name_en: row.district_name_en,
     });
   }
   providers.sort((a, b) => (b.is_featured - a.is_featured)
@@ -184,6 +191,20 @@ const matching = asyncHandler(async (req, res) => {
     || (b.completed_orders - a.completed_orders));
   return success(res, { area: where.area, providers: providers.slice(0, MAX_RESULTS) });
 });
+
+// Providers to tell about a new request right away (AYK-041): those covering its
+// district (or city) in its profession who are working now.
+async function availableForRequest({ districtId, cityId, categoryId, serviceId, excludeId = 0 }) {
+  if (!cityId) return [];
+  const rows = await coveringProviders({ districtId: districtId || null, cityId, excludeId });
+  const categoryServices = categoryId ? new Set((await query('SELECT id FROM services WHERE category_id = ?', [categoryId])).map(row => Number(row.id))) : null;
+  return rows.filter(row => {
+    const services = parseServiceIds(row.service_ids);
+    if (serviceId && !services.includes(Number(serviceId))) return false;
+    if (categoryServices && Number(row.category_id) !== Number(categoryId) && !services.some(s => categoryServices.has(s))) return false;
+    return availability(row).state === 'available';
+  }).map(row => Number(row.id));
+}
 
 // GET /api/providers/area-stats[?district_id&city_id]  (AYK-036)
 // For requesters: per profession in their area, how many providers serve it, how many
@@ -265,4 +286,4 @@ const myMarket = asyncHandler(async (req, res) => {
   return success(res, { areas: areas.length, requesters_in_area: residents, categories });
 });
 
-module.exports = { nearby, matching, areaStats, myMarket, publicPoint };
+module.exports = { nearby, matching, areaStats, myMarket, publicPoint, availableForRequest };

@@ -28,6 +28,12 @@ router.param('id', (req, res, next, value) => {
 router.get('/',                ...gate, userController.list);
 router.post('/',               ...gate, ...accountValidation, userController.createByAdmin);
 router.put('/me', authenticate, userController.updateMe);
+// The requester's own directory of providers (AYK-041).
+const directory = require('../controllers/directoryController');
+router.get('/me/directory', authenticate, directory.list);
+router.get('/me/directory/ids', authenticate, directory.ids);
+router.post('/me/directory/:providerId', authenticate, directory.add);
+router.delete('/me/directory/:providerId', authenticate, directory.remove);
 router.put('/me/provider', authenticate, userController.updateProvider);
 router.put('/me/role', authenticate, userController.changeRole);
 router.get('/:id', optionalAuth, requireMarketplaceBrowse, userController.getOne);

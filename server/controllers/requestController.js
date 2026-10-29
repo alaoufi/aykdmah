@@ -1,7 +1,7 @@
 const Request = require('../models/Request');
 const Conversation = require('../models/Conversation');
 const Offer = require('../models/Offer');
-const { queryOne } = require('../config/database');
+const { query, queryOne } = require('../config/database');
 const notificationService = require('../services/notificationService');
 const { success, created, error, notFound, forbidden, paginate } = require('../utils/apiResponse');
 const asyncHandler = require('../utils/asyncHandler');
@@ -9,7 +9,7 @@ const { withUploadedFiles } = require('../utils/uploadPersistence');
 const { hasPermission } = require('../middleware/roleCheck');
 
 const privateAccess = (user, request) => user && (user.id === request.client_id
-  || user.id === request.assigned_provider_id || hasPermission(user, 'requests.manage'));
+  || user.id === request.assigned_provider_id || user.id === request.direct_provider_id || hasPermission(user, 'requests.manage'));
 const validId = value => typeof value === 'string' && /^[1-9][0-9]{0,9}$/.test(value) && Number(value) <= 2147483647;
 
 const create = asyncHandler(async (req, res) => {
@@ -47,8 +47,27 @@ const create = asyncHandler(async (req, res) => {
 
   const io = req.app.get('io');
   if (io) io.emit('request:new_nearby', Request.publicView(request));
+  await announceToProviders(req, request);
   return created(res, request, req.t('request_created'));
 });
+
+// Right after posting, providers of that profession covering the request's area who
+// are working now are told, so they can contact the requester (AYK-041).
+async function announceToProviders(req, request) {
+  try {
+    const ids = await require('./providerMapController').availableForRequest({
+      districtId: request.district_id, cityId: request.city_id, categoryId: request.category_id,
+      serviceId: request.service_id, excludeId: request.client_id,
+    });
+    await notificationService.broadcast(ids, {
+      type: 'request_new',
+      title: req.t('request_new_title'),
+      body: req.t('request_new_body', { title: request.title }),
+      link: `/requests/${request.id}`,
+      data: { request_id: request.id },
+    });
+  } catch (_) { /* The request is posted; a failed notice must not undo it. */ }
+}
 
 const getMy = asyncHandler(async (req, res) => {
   const { status } = req.query;
@@ -78,7 +97,7 @@ const getOne = asyncHandler(async (req, res) => {
   const request = await Request.findById(req.params.id);
   if (!request) return notFound(res);
   const allowed = privateAccess(req.user, request);
-  if (!allowed && request.status !== 'open') return notFound(res);
+  if (!allowed && (request.status !== 'open' || request.direct_provider_id)) return notFound(res);
   await Request.incrementViews(req.params.id);
   return success(res, allowed ? request : Request.publicView(request));
 });
@@ -127,6 +146,7 @@ const contact = asyncHandler(async (req, res) => {
   const providerId = owner ? Number(req.body?.provider_id) : req.user.id;
   if (!owner && req.user.role !== 'provider') return forbidden(res);
   if (!Number.isSafeInteger(providerId) || providerId < 1) return error(res, req.t('invalid_data'));
+  if (request.direct_provider_id && providerId !== Number(request.direct_provider_id)) return forbidden(res);
   await Offer.create({ request_id: request.id, provider_id: providerId, contact: true });
   const conversationId = await Conversation.findOrCreateBetween(request.client_id, providerId, request.id);
   await notificationService.notifyUser(owner ? providerId : request.client_id, {
@@ -162,6 +182,46 @@ const agree = asyncHandler(async (req, res) => {
   return success(res, { conversation_id: conversationId }, req.t('offer_accepted'));
 });
 
+// POST /requests/direct { provider_id, category_id? } — the requester contacts a provider
+// from their directory without posting to the board. It is still a request (counted
+// in the statistics, archived, agreed and rated as usual), seen by that provider only.
+const direct = asyncHandler(async (req, res) => {
+  const canRequest = req.user.role === 'client' || (req.user.role === 'provider' && Number(req.user.also_client) === 1);
+  if (!canRequest) return forbidden(res, req.t('request_client_only'));
+  const providerId = Number(req.body?.provider_id);
+  if (!Number.isSafeInteger(providerId) || providerId < 1 || providerId === req.user.id) return error(res, req.t('invalid_data'));
+  const provider = await queryOne(`SELECT u.id, pp.category_id FROM users u JOIN provider_profiles pp ON pp.user_id = u.id
+    WHERE u.id = ? AND u.role = 'provider' AND u.deleted_at IS NULL AND u.is_active = 1 AND u.is_blocked = 0`, [providerId]);
+  if (!provider) return notFound(res);
+  // An open direct contact with the same provider is reopened rather than duplicated.
+  const existing = await queryOne(`SELECT id FROM requests WHERE client_id = ? AND direct_provider_id = ? AND deleted_at IS NULL
+    AND status IN ('open', 'assigned', 'in_progress') ORDER BY id DESC LIMIT 1`, [req.user.id, providerId]);
+  let requestId = existing?.id;
+  if (!requestId) {
+    const categoryId = req.body?.category_id || provider.category_id || null;
+    try {
+      requestId = await Request.create({ client_id: req.user.id, category_id: categoryId, title: req.body?.title, description: req.body?.description });
+    } catch (err) {
+      if (err.message === 'account_location_required') err.message = req.t('account_location_required');
+      throw err;
+    }
+    await query('UPDATE requests SET direct_provider_id = ?, reminders_off = 1 WHERE id = ?', [providerId, requestId]);
+    await Offer.create({ request_id: requestId, provider_id: providerId, contact: true });
+  }
+  const request = await Request.findById(requestId);
+  const conversationId = await Conversation.findOrCreateBetween(req.user.id, providerId, requestId);
+  if (!existing) {
+    await notificationService.notifyUser(providerId, {
+      type: 'request_contact',
+      title: req.t('request_contact_title'),
+      body: req.t('request_contact_body', { name: req.user.full_name, title: request.title }),
+      link: `/chat/${conversationId}`,
+      data: { request_id: requestId, conversation_id: conversationId },
+    });
+  }
+  return success(res, { request_id: requestId, conversation_id: conversationId });
+});
+
 const remove = asyncHandler(async (req, res) => {
   const request = await Request.findById(req.params.id);
   if (!request) return notFound(res);
@@ -184,4 +244,4 @@ const startChat = asyncHandler(async (req, res) => {
   return success(res, { conversation_id: convId });
 });
 
-module.exports = { create, getMy, getNearby, getOne, updateStatus, setReminders, contact, agree, remove, startChat };
+module.exports = { create, getMy, getNearby, getOne, updateStatus, setReminders, contact, agree, direct, remove, startChat };

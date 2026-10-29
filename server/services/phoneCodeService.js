@@ -5,7 +5,7 @@ const { getPolicy, generateOtp } = require('./verificationService');
 const UserVerification = require('../models/UserVerification');
 
 // Codes sent before a session exists: sign-up and "forgot password" (AYK-016).
-const PURPOSES = ['signup', 'reset'];
+const PURPOSES = ['signup', 'reset', 'login'];
 const DAILY_LIMIT = 10; // per phone and purpose, to bound SMS cost and abuse
 
 const normalizePhone = value => String(value || '').trim().replace(/[\s()-]/g, '');

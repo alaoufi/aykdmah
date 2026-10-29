@@ -352,7 +352,7 @@
     "confirm_in_progress_title": "İşlemeye mi başlıyorsun?",
     "confirm_in_progress_body": "Bu siparişi şimdi başlatıyor musunuz?",
     "found_title": "Birini buldun mu?",
-    "found_hint": "Bir kişiyle anlaştığınızda, diğer sağlayıcıların sizinle iletişim kurmayı bırakması için başvuruyu kapatın.",
+    "found_hint": "Birini bulduysanız başkaları sizinle iletişime geçmesin diye talebi kapatın. Değerlendirmek için \"Hizmet veren buldum\"u işaretleyin.",
     "found_stop": "Evet, talebi kapatın",
     "stop_reminders": "Hatırlatmaları durdur",
     "reminders_stopped": "Bu talebimiz için hatırlatmalar kapatıldı",
@@ -1355,24 +1355,24 @@
     "provider_intro": "Müşterilere mesleğiniz, hizmetleriniz ve iş alanınız hakkında bilgi verin ve uygun istekler için açık teklifler gönderin.",
     "client_steps": {
       "browse": {
-        "title": "Bir hizmet seçin ve giriş yapın",
-        "body": "Tesis tesisatları, elektrik işleri ve bahçe temizliği gibi hizmetleri tarayın. {{role_client}}"
+        "title": "Yalnızca telefonunuzla kaydolun",
+        "body": "Telefon numaranız ve doğrulama koduyla kaydolun; ad isteğe bağlıdır, bölgeniz otomatik algılanır ve değiştirilebilir. Ana sayfada listeden bir meslek seçerek bölgenizdeki hizmet verenlerin ve şu anda müsait olanların sayısını görün."
       },
       "details": {
-        "title": "Mesleği seçin ve ihtiyacınızı yazın",
-        "body": "“Şimdi sipariş ver”e dokunun, mesleği seçin, ihtiyacınızı kısaca yazın ve talebi yayınlayın. Mahalleniz kaydınızdan alınır ve fiyat yazmazsınız: fiyatı ve zamanı sohbette kararlaştırırsınız."
+        "title": "Başlık ve açıklama yazın, mesleği seçin",
+        "body": "\"Şimdi sipariş ver\"e dokunun, bir başlık ve kısa açıklama yazıp mesleği seçin, sonra talebi yayımlayın. Konumunuz kayıttan bilinir ve fiyat yazmazsınız: fiyat ve zamanı sohbette kararlaştırırsınız."
       },
       "location": {
         "title": "Hizmet yerini kontrol edin",
         "body": "Kaydedilen hesap adresiniz ve konumunuz otomatik olarak doldurulur. Gerekirse bu talepleri kontrol edin ve düzenleyin. Gelecek talepleri için hesabınızı güncellemek için, Gelecek talepleri için bu konumumu varsayılan olarak kaydetmenizi seçin; değişiklik, talebi başarılı bir şekilde gönderildikten sonra kaydedilir. Haritada nokta seçin veya cihaz konumunu kullanın."
       },
       "offers": {
-        "title": "Hizmet verenlerle iletişime geçin",
-        "body": "Talep sayfanızda o meslekte ve mahallenizde şu anda çalışan hizmet verenler görünür; önce öne çıkanlar, sonra en yüksek puanlılar. Seçtiğinizle sohbet açmak için “İletişim”e dokunun; onlar da sizinle iletişime geçebilir."
+        "title": "Hizmet verenleri bekleyin ya da kendiniz iletişime geçin",
+        "body": "Talebiniz hemen bölgenizde şu anda çalışan o mesleğin hizmet verenlerine ulaşır ve sizinle iletişime geçerler. Siz de müsait olanla iletişime geçebilir ya da beğendiklerinizi \"Rehberim\"e ekleyip sonra talep oluşturmadan doğrudan iletişime geçebilirsiniz."
       },
       "chat": {
-        "title": "Anlaşınca “Anlaştık”a dokunun",
-        "body": "Sohbette işi, fiyatı ve zamanı yazı, ses veya video ile kararlaştırın. Biriyle anlaştığınızda sohbette ya da talep sayfasında “Anlaştık”a dokunun: talep ona atanır ve diğer sohbetler kapanır. Yayından bir saat sonra “Birini buldunuz mu?” diye sorarız; talebi veya hatırlatmayı durdurabilirsiniz."
+        "title": "\"Anlaştık\"a dokunun, sonra kapatıp değerlendirin",
+        "body": "Birden fazla hizmet veren sizinle iletişime geçebilir. Biriyle anlaştığınızda \"Anlaştık\"a dokunun: diğer sohbetler kapanır ve sizinki iş bitene kadar açık kalır. Ya da \"Evet, talebi durdur\"a dokunup \"Hizmet veren buldum\"u işaretleyerek kapatın ve değerlendirin. Talep arşivinizde kalır."
       },
       "finish": {
         "title": "Tamamlandığını onayla ve bir inceleme bırak",
@@ -2074,5 +2074,33 @@
     "switch_type": "Hesap türünü değiştir",
     "register_title": "Çalışma günleri ve saatleri",
     "register_hint": "Hizmet arayanlar sizi yalnızca bu gün ve saatlerde görür. Gün boyu görünmek için saatleri boş bırakın."
+  },
+  "requester": {
+    "no_password_hint": "Şifre gerekmez: doğrulamak için telefonunuza bir kod göndeririz, daha sonra telefon koduyla giriş yaparsınız.",
+    "code_unavailable": "Telefon koduyla giriş şu anda kullanılamıyor. Şifrenizle giriş yapın.",
+    "send_code": "Giriş kodu gönder",
+    "login_with_password": "Şifreyle giriş yap",
+    "login_with_code": "Telefon koduyla giriş yap",
+    "all_professions": "Tüm meslekler",
+    "stat_total": "Bölgenizde {{count}} hizmet veren",
+    "stat_available": "{{count}} şu anda müsait",
+    "contact_direct": "İletişime geç",
+    "in_directory": "Rehberimde",
+    "add_directory": "Rehberime ekle",
+    "remove_directory": "Kaldır",
+    "directory_title": "Rehberim",
+    "directory_nav": "Rehber",
+    "directory_hint": "Eklediğiniz hizmet verenler. Talep oluşturmadan herhangi biriyle doğrudan iletişime geçin.",
+    "directory_empty": "Rehberiniz boş. Herhangi bir hizmet verenin kartında \"Rehberime ekle\"ye dokunun.",
+    "home_title": "Bugün neye ihtiyacınız var?",
+    "home_hint": "Bir talep oluşturun, bölgenizdeki o mesleğin hizmet verenlerine ulaşsın; ya da bir meslek seçip şu anda müsait olanla iletişime geçin.",
+    "request_title": "Talep başlığı",
+    "request_title_ph": "Örnek: mutfakta su sızıntısı",
+    "found_provider": "Hizmet veren buldum",
+    "found_none": "Bu talep için henüz kimse sizinle iletişime geçmedi.",
+    "found_which": "Hangi hizmet veren?",
+    "found_rate_next": "Kapattıktan sonra hizmet vereni değerlendirirsiniz.",
+    "close_and_rate": "Kapat ve değerlendir",
+    "close_request": "Talebi kapat"
   }
 }

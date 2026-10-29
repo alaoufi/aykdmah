@@ -53,6 +53,27 @@ export async function startRequestChat(id) {
   return data.data;
 }
 
+// The requester's own directory of providers, and contacting one directly (AYK-041).
+export async function listDirectory() {
+  const { data } = await api.get('/users/me/directory');
+  return data.data || [];
+}
+
+export async function listDirectoryIds() {
+  const { data } = await api.get('/users/me/directory/ids');
+  return data.data || [];
+}
+
+export async function saveToDirectory(providerId, saved = true) {
+  const { data } = await (saved ? api.post : api.delete)(`/users/me/directory/${providerId}`);
+  return data.data;
+}
+
+export async function contactDirect(providerId, categoryId) {
+  const { data } = await api.post('/requests/direct', { provider_id: providerId, ...(categoryId ? { category_id: categoryId } : {}) });
+  return data.data;
+}
+
 // Offers
 export async function createOffer(payload) {
   const { data } = await api.post('/offers', payload);

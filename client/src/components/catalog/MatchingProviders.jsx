@@ -1,9 +1,13 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { listCategories, listMatchingProviders, listCities, listDistricts } from '../../services/serviceService';
 import { localizedName } from '../../utils/localize';
 import Avatar from '../common/Avatar';
+import { useAuth } from '../../hooks/useAuth';
+import { canRequestService } from '../../utils/canRequest';
+import { listDirectoryIds, saveToDirectory, contactDirect } from '../../services/requestService';
+import { apiError } from '../../services/api';
 
 // Providers who serve the signed-in requester's registered district in a profession
 // (AYK-035): every provider covering that district, featured (paid) first, then by
@@ -73,21 +77,32 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
     return () => { alive = false; };
   }, [categoryId, serviceId, browse, fixedArea?.city_id, fixedArea?.district_id, Boolean(onContact)]);
 
-  const chip = active => `px-3 py-1.5 rounded-pill text-[13px] font-semibold border transition ${active ? 'bg-primary text-primary-fg border-primary' : 'bg-surface text-fg-muted border-border hover:bg-surface-alt'}`;
+  // A requester can keep a provider in "My directory" and contact them directly (AYK-041).
+  const { user } = useAuth();
+  const requester = Boolean(user) && canRequestService(user) && !onContact;
+  const [saved, setSaved] = useState(() => new Set());
+  useEffect(() => { if (requester) listDirectoryIds().then(ids => setSaved(new Set(ids))).catch(() => {}); }, [requester]);
+  const toggleSaved = async id => {
+    const next = !saved.has(id);
+    await saveToDirectory(id, next);
+    setSaved(previous => { const copy = new Set(previous); if (next) copy.add(id); else copy.delete(id); return copy; });
+  };
+  const availableCount = result?.providers?.filter(p => p.availability?.state === 'available').length || 0;
   return (
     <div data-testid="providers-for-me">
       <div className="mb-3">
         <h2 className="text-xl md:text-2xl font-extrabold text-fg m-0">👷 {title || t('for_you.providers_title')}</h2>
         {!fixedArea && <div className="mt-1"><AreaLine area={result?.area} browsing={Boolean(browse)} onPick={pick} /></div>}
       </div>
-      {showChips && <div className="flex gap-2 overflow-x-auto pb-2 mb-3" role="radiogroup" aria-label={t('for_you.profession')}>
-        <button type="button" role="radio" aria-checked={!categoryId} className={chip(!categoryId)} onClick={() => setCategoryId('')}>{t('common.all')}</button>
-        {categories.map(c => (
-          <button key={c.id} type="button" role="radio" aria-checked={String(categoryId) === String(c.id)} className={`${chip(String(categoryId) === String(c.id))} whitespace-nowrap`}
-            onClick={() => setCategoryId(String(c.id))}>
-            {c.icon} {localizedName(c, lang)}
-          </button>
-        ))}
+      {/* The professions as a drop-down list (AYK-041). */}
+      {showChips && <select className="select mb-3 max-w-md" aria-label={t('for_you.profession')} data-testid="profession-select"
+        value={categoryId} onChange={e => setCategoryId(e.target.value)}>
+        <option value="">{t('requester.all_professions')}</option>
+        {categories.map(c => <option key={c.id} value={c.id}>{c.icon} {localizedName(c, lang)}</option>)}
+      </select>}
+      {result?.area && result.providers.length > 0 && <div className="flex flex-wrap gap-2 mb-3 text-[13px]" data-testid="providers-stats">
+        <span className="px-3 py-1 rounded-pill bg-surface-alt font-semibold">👷 {t('requester.stat_total', { count: result.providers.length })}</span>
+        <span className="px-3 py-1 rounded-pill bg-success-soft text-success font-semibold">● {t('requester.stat_available', { count: availableCount })}</span>
       </div>}
       {result === null ? <p className="text-fg-muted">{t('common.loading')}</p>
         : !result.area ? <p className="card text-fg-muted text-[14px]">{t('for_you.no_area_hint')} <Link to="/profile#my-area" className="font-semibold text-primary">{t('for_you.edit_area')}</Link></p>
@@ -98,16 +113,21 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
             </div>
           ) : (
             <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 list-none p-0 m-0">
-              {result.providers.map(p => <ProviderCard key={p.id} provider={p} onContact={onContact} />)}
+              {result.providers.map(p => <ProviderCard key={p.id} provider={p} onContact={onContact}
+                requester={requester} saved={saved.has(p.id)} onToggleSaved={toggleSaved} categoryId={categoryId} />)}
             </ol>
           )}
     </div>
   );
 }
 
-function ProviderCard({ provider: p, onContact }) {
+function ProviderCard({ provider: p, onContact, requester = false, saved = false, onToggleSaved, categoryId }) {
   const [busy, setBusy] = useState(false);
-  const { t } = useTranslation();
+  const [problem, setProblem] = useState('');
+  const { t, i18n } = useTranslation();
+  const lang = i18n.resolvedLanguage || 'ar';
+  const navigate = useNavigate();
+  const run = async action => { setBusy(true); setProblem(''); try { await action(); } catch (err) { setProblem(apiError(err)); } finally { setBusy(false); } };
   const state = p.availability?.state;
   return (
     <li className={`card p-4 flex gap-3 items-start ${p.is_featured ? 'ring-2 ring-amber-400' : ''}`} data-testid="provider-card">
@@ -119,6 +139,8 @@ function ProviderCard({ provider: p, onContact }) {
           {p.is_verified && <span className="text-[11px] text-success font-semibold">✓ {t('for_you.verified')}</span>}
         </div>
         <div className="text-[13px] text-fg-muted mt-1 flex flex-wrap gap-x-3 gap-y-1">
+          {p.category_name_ar && <span>🛠️ {localizedName({ name_ar: p.category_name_ar, name_en: p.category_name_en, name_translations: p.category_name_translations }, lang)}</span>}
+          {p.district_name_ar && <span>📍 {localizedName({ name_ar: p.district_name_ar, name_en: p.district_name_en }, lang)}</span>}
           <span>⭐ {p.rating_count ? `${p.rating_avg.toFixed(1)} (${p.rating_count})` : t('for_you.no_ratings')}</span>
           {p.completed_orders > 0 && <span>✅ {t('for_you.completed', { count: p.completed_orders })}</span>}
           <span className={state === 'available' ? 'text-success' : ''}>● {t(state === 'available' ? 'for_you.available' : 'for_you.unavailable')}</span>
@@ -126,8 +148,13 @@ function ProviderCard({ provider: p, onContact }) {
         <div className="flex items-center gap-3 mt-2">
           {onContact && <button type="button" className="btn btn-primary btn-sm" disabled={busy} data-testid="contact-provider"
             onClick={async () => { setBusy(true); try { await onContact(p); } finally { setBusy(false); } }}>💬 {t('request.contact')}</button>}
+          {requester && <button type="button" className="btn btn-primary btn-sm" disabled={busy} data-testid="direct-contact"
+            onClick={() => run(async () => { const res = await contactDirect(p.id, categoryId); navigate(`/chat/${res.conversation_id}`); })}>💬 {t('requester.contact_direct')}</button>}
+          {requester && <button type="button" className="text-[13px] font-semibold text-primary" disabled={busy} aria-pressed={saved} data-testid="save-provider"
+            onClick={() => run(() => onToggleSaved(p.id))}>{saved ? `★ ${t('requester.in_directory')}` : `☆ ${t('requester.add_directory')}`}</button>}
           <Link to={`/providers/${p.id}`} className="text-[13px] font-semibold text-primary">{t('for_you.view_profile')}</Link>
         </div>
+        {problem && <p role="alert" className="form-error mt-1 text-[12px]">{problem}</p>}
       </div>
     </li>
   );

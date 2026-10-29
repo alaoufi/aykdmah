@@ -22,6 +22,8 @@ router.post('/', authenticate, requireMarketplaceWrite, uploadLimiter, uploadReq
   body('latitude').optional({ checkFalsy: true }).isFloat({ min: -90, max: 90 }),
   body('longitude').optional({ checkFalsy: true }).isFloat({ min: -180, max: 180 }),
 ], validate, c.create);
+// Contact a provider from the directory: a direct request, not on the board (AYK-041).
+router.post('/direct', authenticate, requireMarketplaceWrite, c.direct);
 router.get('/:id', optionalAuth, requireMarketplaceBrowse, c.getOne);
 router.put('/:id/status', authenticate, c.updateStatus);
 router.put('/:id/reminders', authenticate, c.setReminders);

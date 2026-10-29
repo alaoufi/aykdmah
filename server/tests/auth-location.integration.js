@@ -526,10 +526,8 @@ if (!databasePrefix) {
     const requestId = Number(request.id || request.request?.id);
     const reminders = require('../services/requestReminderService');
     const [posted] = await db.query('SELECT remind_at FROM requests WHERE id = ?', [requestId]);
-    assert.ok(new Date(posted.remind_at) > new Date(Date.now() + 50 * 60 * 1000));
-    assert.equal(await reminders.remindDue(new Date(Date.now() + 61 * 60 * 1000)), 1);
-    const [reminder] = await db.query("SELECT title, link FROM notifications WHERE user_id = ? AND type = 'request_reminder'", [session.user.id]);
-    assert.equal(reminder.link, `/requests/${requestId}`);
+    // AYK-041: the requester is not reminded; providers contact them.
+    assert.equal(posted.remind_at, null);
     assert.equal(await reminders.remindDue(new Date(Date.now() + 61 * 60 * 1000)), 0);
     await api(`/requests/${requestId}/reminders`, { method: 'PUT', token: providerOnly.token, expected: 404, body: { off: true } });
     await api(`/requests/${requestId}/reminders`, { method: 'PUT', token: session.token, body: { off: true } });

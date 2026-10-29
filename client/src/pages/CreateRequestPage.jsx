@@ -14,7 +14,7 @@ import RequestLocationFields from '../components/common/RequestLocationFields';
 import { apiError } from '../services/api';
 import { localizedName } from '../utils/localize';
 
-const EMPTY_FORM = { description: '', category_id: '' };
+const EMPTY_FORM = { title: '', description: '', category_id: '' };
 
 export default function CreateRequestPage() {
   const { t, i18n } = useTranslation();
@@ -87,15 +87,16 @@ export default function CreateRequestPage() {
       )}
 
       <form onSubmit={submit} className="card" style={{ padding: 24 }}>
-        {/* Only the profession and a few words; the area comes from the account. Price,
-            time and details are agreed in the chat with the provider. */}
-        <div className="form-group">
-          <label className="form-label">{t('request.category')}</label>
-          <select className="select" value={form.category_id} onChange={(e) => update('category_id', e.target.value)} data-testid="request-category">
-            <option value="">{t('common.select')}</option>
-            {categories.map(c => <option key={c.id} value={c.id}>{localizedName(c, lang)}</option>)}
-          </select>
-        </div>
+        {/* Only a title, a few words and the profession; the area comes from the account.
+            Price, time and details are agreed in the chat with the provider (AYK-041). */}
+        <Input
+          label={t('requester.request_title')}
+          value={form.title}
+          maxLength={200}
+          onChange={(e) => update('title', e.target.value)}
+          placeholder={t('requester.request_title_ph')}
+          data-testid="request-title"
+        />
 
         <Input
           as="textarea"
@@ -104,6 +105,14 @@ export default function CreateRequestPage() {
           onChange={(e) => update('description', e.target.value)}
           placeholder={t('request.description_ph')}
         />
+
+        <div className="form-group">
+          <label className="form-label">{t('request.category')}</label>
+          <select className="select" value={form.category_id} onChange={(e) => update('category_id', e.target.value)} data-testid="request-category">
+            <option value="">{t('common.select')}</option>
+            {categories.map(c => <option key={c.id} value={c.id}>{localizedName(c, lang)}</option>)}
+          </select>
+        </div>
 
         <RequestLocationFields control={requestLocation} disabled={loading} />
 

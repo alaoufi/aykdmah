@@ -189,8 +189,9 @@ async function findByProvider(providerId, { status, page = 1, limit = 20 } = {})
   if (page > 1000000 || limit > 100) invalid('pagination');
   if (status && !OFFER_STATUSES.includes(status)) invalid('status');
   const offset = (page - 1) * limit;
-  const where = ['o.provider_id = ?', 'r.deleted_at IS NULL'];
-  const params = [providerId];
+  // A finished task (or one agreed with someone else) leaves a day later (AYK-041).
+  const where = ['o.provider_id = ?', 'r.deleted_at IS NULL', `NOT (r.client_id <> ? AND (r.status IN ('completed', 'closed', 'cancelled') OR (r.assigned_provider_id IS NOT NULL AND r.assigned_provider_id <> ?)) AND COALESCE(r.completed_at, r.updated_at) < CURRENT_TIMESTAMP - INTERVAL '1 day')`];
+  const params = [providerId, providerId, providerId];
   if (status) { where.push('o.status = ?'); params.push(status); }
   const whereSql = where.join(' AND ');
 

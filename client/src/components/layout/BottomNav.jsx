@@ -52,7 +52,9 @@ export default function BottomNav() {
   const items = [
     ...(requester ? [
       { id: 'home', to: '/', label: t('nav.home'), Icon: IconHome, end: true },
-      { id: 'services', to: '/services', label: t('nav.services'), Icon: IconGrid },
+      // Signed in, a requester's second tab is their own directory (AYK-041).
+      user ? { id: 'services', to: '/directory', label: t('requester.directory_nav'), Icon: IconGrid }
+        : { id: 'services', to: '/services', label: t('nav.services'), Icon: IconGrid },
       { id: 'request', to: '/requests/new', label: t('nav.order_now'), Icon: IconPlus, fab: true },
     ] : [
       { id: 'home', to: '/provider', label: t('work.title'), Icon: IconHome, end: true },

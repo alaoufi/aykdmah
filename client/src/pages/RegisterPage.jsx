@@ -54,7 +54,7 @@ export default function RegisterPage() {
   const [mapOpen, setMapOpen] = useState(false);
   const [venuePoint, setVenuePoint] = useState(null);
   const [venueMapOpen, setVenueMapOpen] = useState(false);
-  const [couponOpen, setCouponOpen] = useState(true);
+  const [couponOpen, setCouponOpen] = useState(Boolean(params.get('ref')));
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [termsOpen, setTermsOpen] = useState(false);
   const [coverageCount, setCoverageCount] = useState(null);
@@ -76,6 +76,10 @@ export default function RegisterPage() {
   }, [wait]);
   const locationController = useRef(null);
   const isProvider = form.role !== 'client';
+  // A requester signs up with the phone alone; the SMS code proves it (AYK-041).
+  // Without SMS on the site a password is asked for, as the only way back in.
+  const [needPassword, setNeedPassword] = useState(false);
+  const askPassword = isProvider || needPassword;
 
   // Area lists are only needed when the device location did not resolve them.
   const [countryId, setCountryId] = useState('');
@@ -149,7 +153,7 @@ export default function RegisterPage() {
     const phone = cleanPhone(form.phone);
     if (!isSaudiMobile(phone)) errors.phone = t('auth.phone_invalid');
     else if (phoneStatus === 'taken') errors.phone = t('auth.phone_registered');
-    if (form.password.length < 4) errors.password = t('auth.password_min');
+    if (askPassword && form.password.length < 4) errors.password = t('auth.password_min');
     if (form.full_name.trim() && form.full_name.trim().length < 2) errors.full_name = t('auth.account_name_required');
     if (!isValidCoordinates(place.lat, place.lon) || !place.city_id) errors.location = t('auth.simple_location_required');
     else if (districtMissing) errors.location = t('auth.simple_district_required');
@@ -187,6 +191,12 @@ export default function RegisterPage() {
           setLoading(false);
           return;
         }
+        if (!askPassword) {
+          setNeedPassword(true);
+          setFieldErrors({ password: t('auth.password_min') });
+          setLoading(false);
+          return;
+        }
       } catch (err) {
         setError(apiError(err));
         if ([400, 409].includes(err.response?.status)) setFieldErrors({ phone: apiError(err) });
@@ -201,7 +211,7 @@ export default function RegisterPage() {
     try {
       const res = await register({
         ...(codeStep ? { phone_code: phoneCode } : {}),
-        onboarding_version: 2, role: form.role, phone, password: form.password,
+        onboarding_version: 2, role: form.role, phone, ...(askPassword ? { password: form.password } : {}),
         ...(form.full_name.trim() ? { full_name: form.full_name.trim() } : {}),
         latitude: place.lat, longitude: place.lon,
         region_id: place.region_id || null, governorate_id: place.governorate_id || null,
@@ -270,8 +280,9 @@ export default function RegisterPage() {
             <Link to="/forgot-password" state={{ identifier: cleanPhone(form.phone) }} className="text-primary font-semibold">{t('auth.forgot_password')}</Link>
           </div>
         )}
-        <PasswordInput label={t('auth.password')} required minLength={4} autoComplete="new-password"
+        {askPassword ? <PasswordInput label={t('auth.password')} required minLength={4} autoComplete="new-password"
           value={form.password} error={fieldErrors.password} onChange={e => update('password', e.target.value)} />
+          : <p className="text-xs text-secondary -mt-1" data-testid="register-no-password">🔐 {t('requester.no_password_hint')}</p>}
         <Input id="register-full_name" name="full_name" label={t('auth.name_optional')} maxLength={150}
           autoComplete="name" value={form.full_name} error={fieldErrors.full_name} onChange={e => update('full_name', e.target.value)} />
 

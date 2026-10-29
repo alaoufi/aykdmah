@@ -15,7 +15,8 @@ router.post(
     // Required for the legacy form; optional in onboarding version 2 (checked in the controller).
     body('full_name').optional({ values: 'null' }).isString().isLength({ max: 150 }),
     body('email').optional({ checkFalsy: true }).isEmail().normalizeEmail(),
-    body('password').isString().isLength({ min: 4, max: 100 }),
+    // Optional when the phone is proved by an SMS code (checked in the controller).
+    body('password').optional({ values: 'falsy' }).isString().isLength({ min: 4, max: 100 }),
     body('phone').optional({ checkFalsy: true }).isString().isLength({ max: 30 }).matches(/^[+\d\s()-]+$/),
     body('username').optional({ checkFalsy: true }).isString().isLength({ min: 1, max: 60 }).matches(/^[\p{L}\p{N}_.-]+$/u),
     body('facebook_id').optional({ checkFalsy: true }).isString().isLength({ min: 1, max: 120 }),
@@ -42,7 +43,8 @@ router.post(
   [
     body('identifier').optional({ checkFalsy: true }).isString().isLength({ min: 1, max: 200 }),
     body('email').optional({ checkFalsy: true }).isString().isLength({ min: 1, max: 200 }),
-    body('password').isString().isLength({ min: 1, max: 4096 }),
+    body('password').if((value, { req }) => !req.body.phone_code).isString().isLength({ min: 1, max: 4096 }),
+    body('phone_code').optional({ values: 'falsy' }).isString().matches(/^\d{4,10}$/),
   ],
   validate,
   authController.login

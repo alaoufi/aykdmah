@@ -352,7 +352,7 @@
     "confirm_in_progress_title": "Mulai bekerja?",
     "confirm_in_progress_body": "Mengkonfirmasi Anda mulai pesanan ini sekarang?",
     "found_title": "Apa kau menemukan seseorang?",
-    "found_hint": "Jika Anda telah menyetujui dengan seseorang, tutup permintaan sehingga penyedia lain berhenti menghubungi Anda. Kami mengingatkan Anda satu jam setelah posting, kemudian sekali sehari selama itu terbuka.",
+    "found_hint": "Jika sudah menemukan seseorang, tutup permintaan agar yang lain berhenti menghubungi Anda. Centang \"Saya sudah menemukan penyedia\" untuk memberinya nilai.",
     "found_stop": "Ya, tutup permintaan",
     "stop_reminders": "Hentikan pengingat",
     "reminders_stopped": "Pengingat tidak ada untuk permintaan ini",
@@ -1355,24 +1355,24 @@
     "provider_intro": "Beritahu pelanggan tentang profesi, layanan dan area kerja Anda, kemudian kirimkan penawaran yang jelas untuk permintaan yang sesuai.",
     "client_steps": {
       "browse": {
-        "title": "Pilih layanan dan masuk",
-        "body": "Periksa layanan seperti pipa, pekerjaan listrik dan pembersihan halaman. Untuk membuat permintaan, masuk atau membuat akun dan pilih {{role_client}}."
+        "title": "Daftar hanya dengan nomor ponsel",
+        "body": "Daftar dengan nomor ponsel dan kode verifikasi; nama bersifat opsional, dan area Anda terdeteksi otomatis serta dapat diubah. Di beranda, pilih profesi dari daftar untuk melihat berapa penyedia di area Anda dan berapa yang tersedia sekarang."
       },
       "details": {
-        "title": "Pilih profesi dan tulis kebutuhan Anda",
-        "body": "Ketuk “Pesan sekarang”, pilih profesi, tulis deskripsi singkat kebutuhan Anda lalu terbitkan permintaan. Wilayah Anda diambil dari pendaftaran, dan Anda tidak menulis harga: harga dan waktu disepakati di chat."
+        "title": "Tulis judul dan deskripsi, pilih profesi",
+        "body": "Ketuk \"Pesan sekarang\", tulis judul dan deskripsi singkat lalu pilih profesi, kemudian terbitkan permintaan. Lokasi Anda sudah diketahui dari pendaftaran, dan tidak perlu menulis harga: harga dan waktu disepakati di obrolan."
       },
       "location": {
         "title": "Periksa lokasi layanan",
         "body": "Alamat dan lokasi akun yang disimpan Anda diisi secara otomatis. Periksa dan edit untuk permintaan ini jika diperlukan. Untuk memperbarui akun Anda untuk permintaan masa depan, pilih Simpan lokasi ini sebagai standar untuk permintaan masa depan; perubahan disimpan setelah permintaan dikirim dengan sukses. Pilih titik di peta atau gunakan lokasi perangkat."
       },
       "offers": {
-        "title": "Hubungi penyedia layanan",
-        "body": "Halaman permintaan Anda menampilkan penyedia di profesi itu dan wilayah Anda yang sedang bekerja, yang unggulan dulu lalu yang berperingkat terbaik. Ketuk “Hubungi” untuk membuka chat dengan yang Anda pilih; mereka juga bisa menghubungi Anda."
+        "title": "Tunggu penyedia, atau hubungi sendiri",
+        "body": "Permintaan Anda langsung sampai ke penyedia profesi tersebut yang sedang bekerja di area Anda, dan mereka menghubungi Anda. Anda juga bisa menghubungi yang tersedia, atau menambahkan yang Anda suka ke \"Direktori saya\" untuk dihubungi langsung nanti tanpa membuat permintaan."
       },
       "chat": {
-        "title": "Ketuk “Sepakat” saat Anda sepakat",
-        "body": "Sepakati pekerjaan, harga, dan waktu di chat lewat teks, suara, atau video. Saat Anda sepakat dengan salah satunya, ketuk “Sepakat” di chat atau di halaman permintaan: permintaan diberikan kepadanya dan chat lain ditutup. Satu jam setelah diterbitkan kami bertanya “Sudah menemukan seseorang?”, dan Anda bisa menghentikan permintaan atau pengingat."
+        "title": "Ketuk \"Sepakat\", lalu tutup dan beri nilai",
+        "body": "Beberapa penyedia mungkin menghubungi Anda. Saat sepakat dengan salah satunya, ketuk \"Sepakat\": obrolan lain ditutup dan obrolan Anda tetap terbuka sampai pekerjaan selesai. Atau ketuk \"Ya, hentikan permintaan\" dan centang \"Saya sudah menemukan penyedia\" untuk menutup dan menilainya. Permintaan tetap ada di arsip Anda."
       },
       "finish": {
         "title": "Konfirmasi selesai dan tinggalkan review",
@@ -2074,5 +2074,33 @@
     "switch_type": "Ubah jenis akun",
     "register_title": "Hari dan jam kerja",
     "register_hint": "Pencari layanan hanya melihat Anda pada hari dan jam ini. Kosongkan jam agar tampil sepanjang hari."
+  },
+  "requester": {
+    "no_password_hint": "Tidak perlu kata sandi: kami mengirim kode ke ponsel Anda untuk memastikannya, dan nanti Anda masuk dengan kode ponsel.",
+    "code_unavailable": "Masuk dengan kode ponsel sedang tidak tersedia. Masuk dengan kata sandi.",
+    "send_code": "Kirim kode masuk",
+    "login_with_password": "Masuk dengan kata sandi",
+    "login_with_code": "Masuk dengan kode ponsel",
+    "all_professions": "Semua profesi",
+    "stat_total": "{{count}} penyedia di area Anda",
+    "stat_available": "{{count}} tersedia sekarang",
+    "contact_direct": "Hubungi",
+    "in_directory": "Di direktori saya",
+    "add_directory": "Tambah ke direktori saya",
+    "remove_directory": "Hapus",
+    "directory_title": "Direktori saya",
+    "directory_nav": "Direktori",
+    "directory_hint": "Penyedia yang Anda tambahkan. Hubungi siapa pun secara langsung tanpa membuat permintaan.",
+    "directory_empty": "Direktori Anda kosong. Ketuk \"Tambah ke direktori saya\" pada kartu penyedia mana pun.",
+    "home_title": "Apa yang Anda butuhkan hari ini?",
+    "home_hint": "Buat permintaan dan permintaan itu sampai ke penyedia profesi tersebut di area Anda, atau pilih profesi dan hubungi yang tersedia sekarang.",
+    "request_title": "Judul permintaan",
+    "request_title_ph": "Contoh: kebocoran air di dapur",
+    "found_provider": "Saya sudah menemukan penyedia",
+    "found_none": "Belum ada yang menghubungi Anda untuk permintaan ini.",
+    "found_which": "Penyedia yang mana?",
+    "found_rate_next": "Setelah ditutup, Anda memberi nilai pada penyedia.",
+    "close_and_rate": "Tutup dan beri nilai",
+    "close_request": "Tutup permintaan"
   }
 }

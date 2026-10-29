@@ -352,7 +352,7 @@
     "confirm_in_progress_title": "Magsimula sa trabaho?",
     "confirm_in_progress_body": "Kumpirma ka na magsimula ng order ngayon?",
     "found_title": "May nakita ka ba?",
-    "found_hint": "Kung ikaw ay sumasang-ayon sa isang tao, isara ang kahilingan upang hindi na kayo ikontak ng ibang provider.",
+    "found_hint": "Kung may nakita ka na, isara ang kahilingan para hindi na kumontak ang iba. Lagyan ng tsek ang \"Nakahanap ako ng provider\" para bigyan siya ng rating.",
     "found_stop": "Oo, puntahan ang kahilingan",
     "stop_reminders": "I-stop ang mga paalala",
     "reminders_stopped": "Ang mga paalala ay off para sa hinihiling na ito",
@@ -1355,24 +1355,24 @@
     "provider_intro": "Sabihin sa mga customer tungkol sa iyong propesyon, serbisyo at lugar ng trabaho, at pagkatapos ay magpadala ng malinaw na mga alok para sa mga angkop na kahilingan.",
     "client_steps": {
       "browse": {
-        "title": "Pumili ng isang serbisyo at mag-sign in",
-        "body": "Mag-browse sa mga serbisyo tulad ng plumbing, electrical work at paglilinis ng yard. Upang lumikha ng isang kahilingan, mag-sign in o lumikha ng isang account at piliin {{role_client}}."
+        "title": "Mag-sign up gamit lang ang iyong telepono",
+        "body": "Mag-sign up gamit ang numero ng telepono at verification code; opsyonal ang pangalan, at awtomatikong natutukoy ang iyong lugar at mababago mo ito. Sa home page, pumili ng propesyon sa listahan para makita kung ilang provider ang nasa iyong lugar at ilan ang available ngayon."
       },
       "details": {
-        "title": "Piliin ang propesyon at isulat ang kailangan mo",
-        "body": "Pindutin ang “Mag-order ngayon”, piliin ang propesyon, isulat ang maikling paglalarawan ng kailangan mo at i-publish ang kahilingan. Kinukuha ang iyong lugar mula sa pagpaparehistro, at huwag maglagay ng presyo: pag-usapan ang presyo at oras sa chat."
+        "title": "Isulat ang pamagat at paglalarawan, pumili ng propesyon",
+        "body": "Pindutin ang \"Mag-order na\", isulat ang pamagat at maikling paglalarawan at pumili ng propesyon, saka i-post ang kahilingan. Alam na ang iyong lokasyon mula sa pag-sign up, at walang presyong isusulat: pag-uusapan ninyo ang presyo at oras sa chat."
       },
       "location": {
         "title": "Suriin ang lokasyon ng serbisyo",
         "body": "Ang iyong nai-save na address at lokasyon ay awtomatikong napuno. Suriin ang mga ito at i-edit ang mga ito para sa hinihiling na ito kung kinakailangan. Upang i-update ang iyong account para sa mga hinaharap na hangarin, piliin ang Save this location as my default for future requests; ang pagbabago ay nai-save pagkatapos ang hangarin ay matagumpay na ipinadala. Pumili ng punto sa mapa o gamitin ang lokasyon ng aparato."
       },
       "offers": {
-        "title": "Makipag-ugnayan sa mga tagapagbigay ng serbisyo",
-        "body": "Sa pahina ng iyong kahilingan makikita ang mga tagapagbigay sa propesyong iyon at sa iyong lugar na nagtatrabaho ngayon, una ang featured at sunod ang may pinakamataas na rating. Pindutin ang “Makipag-ugnayan” para magbukas ng chat sa pipiliin mo; maaari ka rin nilang kontakin."
+        "title": "Hintayin ang mga provider, o kontakin mo sila",
+        "body": "Agad na makakarating ang iyong kahilingan sa mga provider ng propesyong iyon na nagtatrabaho ngayon sa iyong lugar, at kokontakin ka nila. Maaari mo ring kontakin ang available, o idagdag ang gusto mo sa \"Aking direktoryo\" para direktang kontakin sa susunod nang walang kahilingan."
       },
       "chat": {
-        "title": "Pindutin ang “Nagkasundo” kapag nagkasundo kayo",
-        "body": "Pag-usapan sa chat ang trabaho, presyo at oras, sa text, boses o video. Kapag nagkasundo kayo ng isa, pindutin ang “Nagkasundo” sa chat o sa pahina ng kahilingan: maiaatas sa kanya ang kahilingan at magsasara ang ibang mga chat. Isang oras matapos mag-publish, itatanong namin “May nakita ka na ba?”, at maaari mong ihinto ang kahilingan o ang paalala."
+        "title": "Pindutin ang \"Nagkasundo\", saka isara at i-rate",
+        "body": "Maaaring kumontak sa iyo ang ilang provider. Kapag nagkasundo kayo ng isa, pindutin ang \"Nagkasundo\": magsasara ang ibang chat at mananatili ang inyong usapan hanggang matapos ang trabaho. O pindutin ang \"Oo, itigil ang kahilingan\" at lagyan ng tsek ang \"Nakahanap ako ng provider\" para isara at i-rate siya. Nananatili ang kahilingan sa iyong archive."
       },
       "finish": {
         "title": "Kumpirmahin ang pagkumpleto at mag-iwan ng pagsusuri",
@@ -2074,5 +2074,33 @@
     "switch_type": "Palitan ang uri ng account",
     "register_title": "Mga araw at oras ng trabaho",
     "register_hint": "Makikita ka lang ng mga humihingi ng serbisyo sa mga araw at oras na ito. Iwanang blangko ang oras para lumabas buong araw."
+  },
+  "requester": {
+    "no_password_hint": "Walang password na kailangan: magpapadala kami ng code sa iyong telepono para kumpirmahin ito, at mag-sign in ka sa susunod gamit ang code sa telepono.",
+    "code_unavailable": "Hindi available ngayon ang pag-sign in gamit ang code sa telepono. Mag-sign in gamit ang password.",
+    "send_code": "Ipadala ang sign-in code",
+    "login_with_password": "Mag-sign in gamit ang password",
+    "login_with_code": "Mag-sign in gamit ang code sa telepono",
+    "all_professions": "Lahat ng propesyon",
+    "stat_total": "{{count}} provider sa iyong lugar",
+    "stat_available": "{{count}} available ngayon",
+    "contact_direct": "Kontakin",
+    "in_directory": "Nasa aking direktoryo",
+    "add_directory": "Idagdag sa aking direktoryo",
+    "remove_directory": "Alisin",
+    "directory_title": "Aking direktoryo",
+    "directory_nav": "Direktoryo",
+    "directory_hint": "Mga provider na idinagdag mo. Kontakin ang sinuman sa kanila nang direkta nang hindi gumagawa ng kahilingan.",
+    "directory_empty": "Walang laman ang iyong direktoryo. Pindutin ang \"Idagdag sa aking direktoryo\" sa card ng kahit sinong provider.",
+    "home_title": "Ano ang kailangan mo ngayon?",
+    "home_hint": "Gumawa ng kahilingan at makakarating ito sa mga provider ng propesyong iyon sa iyong lugar, o pumili ng propesyon at kontakin ang available ngayon.",
+    "request_title": "Pamagat ng kahilingan",
+    "request_title_ph": "Halimbawa: tagas ng tubig sa kusina",
+    "found_provider": "Nakahanap ako ng provider",
+    "found_none": "Wala pang kumontak sa iyo tungkol sa kahilingang ito.",
+    "found_which": "Aling provider?",
+    "found_rate_next": "Pagkatapos isara, bibigyan mo ng rating ang provider.",
+    "close_and_rate": "Isara at i-rate",
+    "close_request": "Isara ang kahilingan"
   }
 }

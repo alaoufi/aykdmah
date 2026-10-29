@@ -32,6 +32,7 @@ const CategoryServicesPage = lazy(() => import('./pages/services/CategoryService
 const ServiceDetailsPage = lazy(() => import('./pages/services/ServiceDetailsPage'));
 
 const MyRequestsPage = lazy(() => import('./pages/client/MyRequestsPage'));
+const DirectoryPage = lazy(() => import('./pages/client/DirectoryPage'));
 const ProviderDashboardPage = lazy(() => import('./pages/provider/ProviderDashboardPage'));
 const ProviderServicesPage = lazy(() => import('./pages/provider/ProviderServicesPage'));
 const SubscriptionPage = lazy(() => import('./pages/provider/SubscriptionPage'));
@@ -90,6 +91,7 @@ const isBothAccount = user => user?.role === 'provider' && Number(user.also_clie
 const CLIENT_SIDEBAR = [
   { to: '/client', icon: '📋', labelKey: 'nav.my_requests', end: true },
   { to: '/requests/new', icon: '➕', labelKey: 'request.create_title' },
+  { to: '/directory', icon: '📒', labelKey: 'requester.directory_title' },
   { to: '/chat', icon: '💬', labelKey: 'nav.chat' },
   { to: '/notifications', icon: '🔔', labelKey: 'nav.notifications' },
   { to: '/promote', icon: '📣', labelKey: 'nav.promote' },
@@ -113,6 +115,7 @@ const BOTH_SIDEBAR = [
   PROVIDER_SIDEBAR[0],
   { to: '/client', icon: '📋', labelKey: 'nav.my_requests', end: true },
   { to: '/requests/new', icon: '➕', labelKey: 'request.create_title' },
+  { to: '/directory', icon: '📒', labelKey: 'requester.directory_title' },
   ...PROVIDER_SIDEBAR.slice(1),
 ];
 
@@ -160,6 +163,7 @@ export default function AppRoutes() {
           <Route path="/disputes/new/:requestId" element={<Protected><DisputeOpenPage /></Protected>} />
           <Route path="/disputes/:id" element={<Protected><DisputeDetailsPage /></Protected>} />
           <Route path="/promote" element={<Protected><PromotePage /></Protected>} />
+          <Route path="/directory" element={<Protected><RequesterPage><DirectoryPage /></RequesterPage></Protected>} />
         </Route>
 
         <Route path="/chat" element={<Protected><ChatPage /></Protected>} />
