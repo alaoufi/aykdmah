@@ -557,7 +557,7 @@ if (!databasePrefix) {
 
   test('requester journey (AYK-041): phone sign-in, new requests announced, directory, direct contact and finished tasks leave the provider a day later', async () => {
     const area = await simpleArea();
-    // Without SMS a requester still needs a password, and phone-code sign-in is unavailable.
+    // A password is always required, and phone-code sign-in is unavailable without SMS.
     await simpleRegister({ role: 'client', password: '', city_id: area.city_id, district_id: area.district_id }, 400);
     await api('/auth/phone-code', { method: 'POST', expected: 503, body: { phone: '0551234567', purpose: 'login' } });
 
@@ -786,11 +786,11 @@ if (!databasePrefix) {
       assert.equal(Number(byNumber.user.id), Number(session.user.id));
       await api('/auth/reset-password', { method: 'POST', body: { phone, code, password: '5555' }, expected: 400 });
 
-      // AYK-041: a requester signs up with the phone code alone and signs in with a new code.
+      // A requester signs up with a password and the phone code; a code sent by SMS also signs in.
       await db.query('DELETE FROM auth_rate_limits');
       const quick = phoneIdentity();
       await sendCode({ phone: quick, purpose: 'signup' });
-      const quickSession = await simpleRegister({ role: 'client', phone: quick, password: '', city_id: area.city_id, district_id: area.district_id, phone_code: lastCode() });
+      const quickSession = await simpleRegister({ role: 'client', phone: quick, city_id: area.city_id, district_id: area.district_id, phone_code: lastCode() });
       const beforeLogin = sent.length;
       await sendCode({ phone: phoneIdentity(), purpose: 'login' });
       assert.equal(sent.length, beforeLogin, 'an unknown number gets no sign-in code');

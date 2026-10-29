@@ -1355,8 +1355,8 @@
     "provider_intro": "Müşterilere mesleğiniz, hizmetleriniz ve iş alanınız hakkında bilgi verin ve uygun istekler için açık teklifler gönderin.",
     "client_steps": {
       "browse": {
-        "title": "Yalnızca telefonunuzla kaydolun",
-        "body": "Telefon numaranız ve doğrulama koduyla kaydolun; ad isteğe bağlıdır, bölgeniz otomatik algılanır ve değiştirilebilir. Ana sayfada listeden bir meslek seçerek bölgenizdeki hizmet verenlerin ve şu anda müsait olanların sayısını görün."
+        "title": "Telefon ve basit bir şifreyle kaydolun",
+        "body": "Başkası sizin adınıza giriş yapamasın diye telefon numaranız ve en az 4 rakamlı basit bir şifreyle kaydolun; ad isteğe bağlıdır, bölgeniz otomatik algılanır ve değiştirilebilir. Ana sayfada listeden bir meslek seçerek bölgenizdeki hizmet verenlerin ve şu anda müsait olanların sayısını görün."
       },
       "details": {
         "title": "Başlık ve açıklama yazın, mesleği seçin",
@@ -2076,11 +2076,6 @@
     "register_hint": "Hizmet arayanlar sizi yalnızca bu gün ve saatlerde görür. Gün boyu görünmek için saatleri boş bırakın."
   },
   "requester": {
-    "no_password_hint": "Şifre gerekmez: doğrulamak için telefonunuza bir kod göndeririz, daha sonra telefon koduyla giriş yaparsınız.",
-    "code_unavailable": "Telefon koduyla giriş şu anda kullanılamıyor. Şifrenizle giriş yapın.",
-    "send_code": "Giriş kodu gönder",
-    "login_with_password": "Şifreyle giriş yap",
-    "login_with_code": "Telefon koduyla giriş yap",
     "all_professions": "Tüm meslekler",
     "stat_total": "Bölgenizde {{count}} hizmet veren",
     "stat_available": "{{count}} şu anda müsait",

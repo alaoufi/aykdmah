@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 export default function PasswordInput({
   label, error, hint, value, onChange, name = 'password',
   autoComplete = 'current-password', required = false, minLength, placeholder,
-  className = '',
+  className = '', inputMode,
 }) {
   const { t } = useTranslation();
   const inputId = useId();
@@ -27,6 +27,7 @@ export default function PasswordInput({
           required={required}
           minLength={minLength}
           placeholder={placeholder}
+          inputMode={inputMode}
           className={`input ${className}`}
           style={{ paddingInlineEnd: '44px' }}
         />

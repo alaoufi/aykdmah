@@ -1355,8 +1355,8 @@
     "provider_intro": "Sabihin sa mga customer tungkol sa iyong propesyon, serbisyo at lugar ng trabaho, at pagkatapos ay magpadala ng malinaw na mga alok para sa mga angkop na kahilingan.",
     "client_steps": {
       "browse": {
-        "title": "Mag-sign up gamit lang ang iyong telepono",
-        "body": "Mag-sign up gamit ang numero ng telepono at verification code; opsyonal ang pangalan, at awtomatikong natutukoy ang iyong lugar at mababago mo ito. Sa home page, pumili ng propesyon sa listahan para makita kung ilang provider ang nasa iyong lugar at ilan ang available ngayon."
+        "title": "Mag-sign up gamit ang telepono at simpleng password",
+        "body": "Mag-sign up gamit ang numero ng telepono at simpleng password na hindi bababa sa 4 na numero, para walang ibang makapasok sa ngalan mo; opsyonal ang pangalan, at awtomatikong natutukoy ang iyong lugar at mababago mo ito. Sa home page, pumili ng propesyon sa listahan para makita kung ilang provider ang nasa iyong lugar at ilan ang available ngayon."
       },
       "details": {
         "title": "Isulat ang pamagat at paglalarawan, pumili ng propesyon",
@@ -2076,11 +2076,6 @@
     "register_hint": "Makikita ka lang ng mga humihingi ng serbisyo sa mga araw at oras na ito. Iwanang blangko ang oras para lumabas buong araw."
   },
   "requester": {
-    "no_password_hint": "Walang password na kailangan: magpapadala kami ng code sa iyong telepono para kumpirmahin ito, at mag-sign in ka sa susunod gamit ang code sa telepono.",
-    "code_unavailable": "Hindi available ngayon ang pag-sign in gamit ang code sa telepono. Mag-sign in gamit ang password.",
-    "send_code": "Ipadala ang sign-in code",
-    "login_with_password": "Mag-sign in gamit ang password",
-    "login_with_code": "Mag-sign in gamit ang code sa telepono",
     "all_professions": "Lahat ng propesyon",
     "stat_total": "{{count}} provider sa iyong lugar",
     "stat_available": "{{count}} available ngayon",

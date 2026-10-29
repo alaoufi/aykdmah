@@ -1355,8 +1355,8 @@
     "provider_intro": "Tell customers about your profession, services and work area, then send clear offers for suitable requests.",
     "client_steps": {
       "browse": {
-        "title": "Sign up with just your phone",
-        "body": "Sign up with your phone number and a verification code; the name is optional, and your area is detected automatically and can be changed. On the home page pick a profession from the list to see how many providers serve your area and how many are available now."
+        "title": "Sign up with your phone and a simple password",
+        "body": "Sign up with your phone number and a simple password of at least 4 digits, so no one else signs in as you; the name is optional, and your area is detected automatically and can be changed. On the home page pick a profession from the list to see how many providers serve your area and how many are available now."
       },
       "details": {
         "title": "Write a title and description, pick the profession",
@@ -2076,11 +2076,6 @@
     "register_hint": "Requesters see you only on these days and hours. Leave the hours empty to appear all day."
   },
   "requester": {
-    "no_password_hint": "No password needed: we send a code to your phone to confirm it, and you sign in later with a phone code.",
-    "code_unavailable": "Phone-code sign-in is not available right now. Sign in with your password.",
-    "send_code": "Send sign-in code",
-    "login_with_password": "Sign in with password",
-    "login_with_code": "Sign in with a phone code",
     "all_professions": "All professions",
     "stat_total": "{{count}} providers in your area",
     "stat_available": "{{count}} available now",

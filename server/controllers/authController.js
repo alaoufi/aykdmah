@@ -165,8 +165,8 @@ const register = asyncHandler(async (req, res) => {
     const check = await phoneCodes.verifyCode({ phone: filtered.phone, purpose: 'signup', code: req.body.phone_code });
     if (!check.ok) return error(res, req.t(CODE_ERRORS[check.reason] || 'phone_code_invalid'), 400, [{ field: 'phone_code', message: req.t(CODE_ERRORS[check.reason] || 'phone_code_invalid') }]);
   }
-  // Without SMS a password is the only way back in, so it is required then (AYK-041).
-  if (!password && !phoneVerified) return error(res, req.t('invalid_data'), 400, [{ field: 'password', message: req.t('invalid_data') }]);
+  // Every account has a password, so the phone number alone never signs anyone in.
+  if (!password) return error(res, req.t('invalid_data'), 400, [{ field: 'password', message: req.t('invalid_data') }]);
   const passwordHash = password ? await hashPassword(password) : await hashPassword(require('crypto').randomBytes(16).toString('hex'));
   let userId;
   try {

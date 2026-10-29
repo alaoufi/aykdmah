@@ -1355,8 +1355,8 @@
     "provider_intro": "Beritahu pelanggan tentang profesi, layanan dan area kerja Anda, kemudian kirimkan penawaran yang jelas untuk permintaan yang sesuai.",
     "client_steps": {
       "browse": {
-        "title": "Daftar hanya dengan nomor ponsel",
-        "body": "Daftar dengan nomor ponsel dan kode verifikasi; nama bersifat opsional, dan area Anda terdeteksi otomatis serta dapat diubah. Di beranda, pilih profesi dari daftar untuk melihat berapa penyedia di area Anda dan berapa yang tersedia sekarang."
+        "title": "Daftar dengan ponsel dan kata sandi sederhana",
+        "body": "Daftar dengan nomor ponsel dan kata sandi sederhana minimal 4 angka, agar tidak ada orang lain yang masuk atas nama Anda; nama bersifat opsional, dan area Anda terdeteksi otomatis serta dapat diubah. Di beranda, pilih profesi dari daftar untuk melihat berapa penyedia di area Anda dan berapa yang tersedia sekarang."
       },
       "details": {
         "title": "Tulis judul dan deskripsi, pilih profesi",
@@ -2076,11 +2076,6 @@
     "register_hint": "Pencari layanan hanya melihat Anda pada hari dan jam ini. Kosongkan jam agar tampil sepanjang hari."
   },
   "requester": {
-    "no_password_hint": "Tidak perlu kata sandi: kami mengirim kode ke ponsel Anda untuk memastikannya, dan nanti Anda masuk dengan kode ponsel.",
-    "code_unavailable": "Masuk dengan kode ponsel sedang tidak tersedia. Masuk dengan kata sandi.",
-    "send_code": "Kirim kode masuk",
-    "login_with_password": "Masuk dengan kata sandi",
-    "login_with_code": "Masuk dengan kode ponsel",
     "all_professions": "Semua profesi",
     "stat_total": "{{count}} penyedia di area Anda",
     "stat_available": "{{count}} tersedia sekarang",
