@@ -16,6 +16,7 @@ import ServiceVenuePicker from '../components/common/ServiceVenuePicker';
 import ProfessionsPicker from '../components/common/ProfessionsPicker';
 import CoverageDistrictsPicker from '../components/common/CoverageDistrictsPicker';
 import { weekdayName } from '../components/common/AvailabilityBadge';
+import WorkHoursPicker from '../components/common/WorkHoursPicker';
 import SafeHtml from '../components/common/SafeHtml';
 import { apiError } from '../services/api';
 import { localizedName } from '../utils/localize';
@@ -327,12 +328,8 @@ export default function RegisterPage() {
                   {weekdayName(day, lang)}</button>;
               })}
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              <label className="text-[12px] text-fg-muted">{t('availability.from')}
-                <input type="time" className="input mt-0.5" value={form.work_from} onChange={e => update('work_from', e.target.value)} /></label>
-              <label className="text-[12px] text-fg-muted">{t('availability.to')}
-                <input type="time" className="input mt-0.5" value={form.work_to} onChange={e => update('work_to', e.target.value)} /></label>
-            </div>
+            <WorkHoursPicker from={form.work_from} to={form.work_to}
+              onChange={hours => { update('work_from', hours.work_from); update('work_to', hours.work_to); }} />
             {fieldErrors.work_time && <p role="alert" className="form-error mt-1">{fieldErrors.work_time}</p>}
           </fieldset>
           <ServiceVenuePicker value={form.location_mode} onChange={mode => update('location_mode', mode)} />

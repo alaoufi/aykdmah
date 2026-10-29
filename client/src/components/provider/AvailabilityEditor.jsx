@@ -4,6 +4,7 @@ import { me, updateProviderProfile } from '../../services/authService';
 import { apiError } from '../../services/api';
 import Button from '../common/Button';
 import AvailabilityBadge, { weekdayName } from '../common/AvailabilityBadge';
+import WorkHoursPicker from '../common/WorkHoursPicker';
 
 const ALL_DAYS = [0, 1, 2, 3, 4, 5, 6];
 
@@ -96,17 +97,8 @@ export default function AvailabilityEditor({ onSaved, onError }) {
 
         <fieldset className="border-0 p-0 m-0 min-w-0">
           <legend className="form-label">{t('availability.work_hours')}</legend>
-          <div className="grid grid-cols-2 gap-2">
-            <label className="text-[12px] text-fg-muted">{t('availability.from')}
-              <input type="time" className="input mt-0.5" value={state.work_from}
-                onChange={e => setState(previous => ({ ...previous, work_from: e.target.value }))} /></label>
-            <label className="text-[12px] text-fg-muted">{t('availability.to')}
-              <input type="time" className="input mt-0.5" value={state.work_to}
-                onChange={e => setState(previous => ({ ...previous, work_to: e.target.value }))} /></label>
-          </div>
+          <WorkHoursPicker from={state.work_from} to={state.work_to} onChange={hours => setState(previous => ({ ...previous, ...hours }))} />
           <p className="text-[11.5px] text-fg-subtle mt-1">{t('availability.hours_hint')}</p>
-          {(state.work_from || state.work_to) && <button type="button" className="text-[12px] text-primary font-semibold"
-            onClick={() => setState(previous => ({ ...previous, work_from: '', work_to: '' }))}>{t('availability.all_day')}</button>}
         </fieldset>
 
         <Button type="submit" variant="primary" block loading={saving}>{t('availability.save')}</Button>

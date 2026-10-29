@@ -1917,12 +1917,13 @@
     "to": "Sa",
     "work_days": "Mga araw ng trabaho",
     "work_hours": "Mga oras ng trabaho",
-    "hours_hint": "Iwan ang walang laman upang magtrabaho sa buong araw. Ang mga oras ay maaaring tumagal ng mahigit sa kalahati ng gabi, tulad ng 8 ng hapon hanggang 2 ng umaga.",
+    "hours_hint": "Piliin ang \"24 oras\" kung buong araw kang nagtatrabaho, o itakda ang oras ng simula at pagtatapos. Maaaring lumampas sa hatinggabi, hal. 8 pm hanggang 2 am.",
     "save": "Mag-save ng oras ng trabaho",
     "saved": "Ang pag-access na nai-save",
     "vacation_both": "Mag-set ng simula at pagtatapos ng bakasyon.",
     "hours_both": "I-set ang parehong oras ng pagsisimula at pagtatapos, o i-save ang parehong walang laman.",
-    "days_required": "Piliin ang isa pang araw ng trabaho."
+    "days_required": "Piliin ang isa pang araw ng trabaho.",
+    "hours_24": "24 oras"
   },
   "brand": {
     "branch_of": "Ay Khidma ay isang sangay ng",
@@ -2073,7 +2074,7 @@
     "no_requests": "Walang kahilingan sa iyong propesyon at lugar ngayon",
     "switch_type": "Palitan ang uri ng account",
     "register_title": "Mga araw at oras ng trabaho",
-    "register_hint": "Makikita ka lang ng mga humihingi ng serbisyo sa mga araw at oras na ito. Iwanang blangko ang oras para lumabas buong araw."
+    "register_hint": "Makikita ka lang ng mga humihiling sa mga araw at oras na ito. Piliin ang \"24 oras\" para makita buong araw."
   },
   "requester": {
     "all_professions": "Lahat ng propesyon",

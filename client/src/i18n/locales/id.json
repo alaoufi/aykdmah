@@ -1917,12 +1917,13 @@
     "to": "Untuk",
     "work_days": "Hari kerja",
     "work_hours": "Jam kerja",
-    "hours_hint": "Tinggalkan kosong untuk bekerja sepanjang hari. Jam mungkin berlalu setelah tengah malam, seperti jam 8 malam sampai jam 2 pagi.",
+    "hours_hint": "Pilih \"24 jam\" jika Anda bekerja sepanjang hari, atau atur jam mulai dan selesai. Jam bisa melewati tengah malam, mis. 8 malam sampai 2 pagi.",
     "save": "Menghemat waktu kerja",
     "saved": "Ketersediaan yang disimpan",
     "vacation_both": "Tentukan awal dan akhir liburan.",
     "hours_both": "Tentukan jam mulai dan akhir, atau tinggalkan keduanya kosong.",
-    "days_required": "Pilih setidaknya satu hari kerja."
+    "days_required": "Pilih setidaknya satu hari kerja.",
+    "hours_24": "24 jam"
   },
   "brand": {
     "branch_of": "Ay Khidma adalah cabang dari",
@@ -2073,7 +2074,7 @@
     "no_requests": "Belum ada permintaan di profesi dan wilayah Anda saat ini",
     "switch_type": "Ubah jenis akun",
     "register_title": "Hari dan jam kerja",
-    "register_hint": "Pencari layanan hanya melihat Anda pada hari dan jam ini. Kosongkan jam agar tampil sepanjang hari."
+    "register_hint": "Pencari layanan hanya melihat Anda pada hari dan jam ini. Pilih \"24 jam\" agar tampil sepanjang hari."
   },
   "requester": {
     "all_professions": "Semua profesi",

@@ -1917,12 +1917,13 @@
     "to": "To",
     "work_days": "Working days",
     "work_hours": "Working hours",
-    "hours_hint": "Leave empty to work all day. Hours may run past midnight, like 8 pm to 2 am.",
+    "hours_hint": "Choose \"24 hours\" if you work all day, or set a start and end time. Hours can run past midnight, e.g. 8 pm to 2 am.",
     "save": "Save working times",
     "saved": "Availability saved",
     "vacation_both": "Set both the start and end of the vacation.",
     "hours_both": "Set both start and end hours, or leave both empty.",
-    "days_required": "Choose at least one working day."
+    "days_required": "Choose at least one working day.",
+    "hours_24": "24 hours"
   },
   "brand": {
     "branch_of": "Ay Khidma is a branch of",
@@ -2073,7 +2074,7 @@
     "no_requests": "No requests in your profession and area right now",
     "switch_type": "Change account type",
     "register_title": "Working days and hours",
-    "register_hint": "Requesters see you only on these days and hours. Leave the hours empty to appear all day."
+    "register_hint": "Requesters see you only on these days and hours. Choose \"24 hours\" to be shown all day."
   },
   "requester": {
     "all_professions": "All professions",

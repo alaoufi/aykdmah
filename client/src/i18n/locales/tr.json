@@ -1917,12 +1917,13 @@
     "to": "Evet",
     "work_days": "İş günleri",
     "work_hours": "Çalışma saatleri",
-    "hours_hint": "Gece yarısı geçebilir, akşam 8'den sabah 2'ye kadar.",
+    "hours_hint": "Gün boyu çalışıyorsanız \"24 saat\"i seçin ya da başlangıç ve bitiş saatini belirleyin. Saatler gece yarısını geçebilir, örn. 20:00 ile 02:00 arası.",
     "save": "Çalışma saatlerini tasarruf et",
     "saved": "Kaydedilen kullanılabilirlik",
     "vacation_both": "Tatil başlangıcını da, sonunu da belirle.",
     "hours_both": "Başlama ve son saatlerini ayarlayın veya her ikisini de boş bırakın.",
-    "days_required": "En az bir iş günü seçin."
+    "days_required": "En az bir iş günü seçin.",
+    "hours_24": "24 saat"
   },
   "brand": {
     "branch_of": "Ay Khidma,",
@@ -2073,7 +2074,7 @@
     "no_requests": "Şu anda mesleğinizde ve bölgenizde talep yok",
     "switch_type": "Hesap türünü değiştir",
     "register_title": "Çalışma günleri ve saatleri",
-    "register_hint": "Hizmet arayanlar sizi yalnızca bu gün ve saatlerde görür. Gün boyu görünmek için saatleri boş bırakın."
+    "register_hint": "Hizmet arayanlar sizi yalnızca bu gün ve saatlerde görür. Gün boyu görünmek için \"24 saat\"i seçin."
   },
   "requester": {
     "all_professions": "Tüm meslekler",
