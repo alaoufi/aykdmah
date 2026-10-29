@@ -17,6 +17,7 @@ import ProfessionsPicker from '../components/common/ProfessionsPicker';
 import CoverageDistrictsPicker from '../components/common/CoverageDistrictsPicker';
 import { weekdayName } from '../components/common/AvailabilityBadge';
 import WorkHoursPicker from '../components/common/WorkHoursPicker';
+import DevicePermissions from '../components/common/DevicePermissions';
 import SafeHtml from '../components/common/SafeHtml';
 import { apiError } from '../services/api';
 import { localizedName } from '../utils/localize';
@@ -238,6 +239,8 @@ export default function RegisterPage() {
           <div className="text-xs text-secondary mb-1">{t('auth.welcome_coupon_title')}</div>
           <div className="text-3xl font-extrabold tracking-[.2em]" dir="ltr">{welcome.code}</div>
         </div>
+        {/* Microphone/camera and notifications are asked for here, once (AYK-047). */}
+        <DevicePermissions />
         <div className="flex gap-2">
           <Button type="button" variant="outline" block onClick={copy}>{copied ? `✓ ${t('auth.copied')}` : `📋 ${t('auth.copy')}`}</Button>
           <Button type="button" variant="primary" block onClick={() => navigate(authReturnTarget(welcome.role, from), { replace: true })}>{t('auth.continue')}</Button>

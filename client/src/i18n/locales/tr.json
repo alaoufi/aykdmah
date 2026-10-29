@@ -495,7 +495,7 @@
     "media_limit": "Toplam boyutunda {{size}} MB olan {{count}} dosyalara kadar ekleyebilirsiniz.",
     "media_unsupported": "Bir resim, PDF, ses veya video dosyası seçin.",
     "media_empty": "Bu dosya boş, başka bir dosya seç.",
-    "microphone_denied": "Tarayıcı ayarlarınızda mikrofon erişimini izin verin, sonra tekrar deneyin.",
+    "microphone_denied": "Mikrofona izin verilmedi. İzin isteği çıkınca \"İzin ver\"e dokunun.",
     "microphone_unavailable": "Bu cihazda mikrofon bulunmuyor.",
     "microphone_busy": "Mikrofon meşgul, diğer kayıt uygulamalarını kapat ve tekrar dene.",
     "recording_unsupported": "Bu tarayıcı ses kaydetemez. Var olan bir ses veya video dosyası ekleyebilirsiniz.",
@@ -2184,5 +2184,12 @@
     "from_admin": "Yönetim",
     "closed_hint": "Bu mesaj kapatıldı. Gerekirse yeni bir mesaj yazın.",
     "admin_title": "Kullanıcı mesajları"
+  },
+  "permissions": {
+    "microphone": "Mikrofon",
+    "notifications": "Bildirimler",
+    "allow": "Tümüne izin ver",
+    "location": "Konum",
+    "camera": "Kamera"
   }
 }

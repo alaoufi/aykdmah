@@ -495,7 +495,7 @@
     "media_limit": "Maaari mong i-attach hanggang sa {{count}} mga file, na may kabuuang laki ng {{size}} MB.",
     "media_unsupported": "Piliin ang isang imahe, PDF, audio, o video file.",
     "media_empty": "Ang file na ito ay walang laman. Pumili ng isa pang file.",
-    "microphone_denied": "Bigyan ng microphone access sa iyong browser setting, at subukan muli.",
+    "microphone_denied": "Hindi pinapayagan ang mikropono. Pindutin ang \"Payagan\" kapag lumabas ang hiling.",
     "microphone_unavailable": "Walang microphone sa aparato na ito.",
     "microphone_busy": "Busy ang mikropono. I-lock ang iba pang mga app ng pag-record at subukan muli.",
     "recording_unsupported": "Hindi maaaring magrekord ng audio ang browser na ito. Maaari mong mag-attach ng isang umiiral na audio o video file.",
@@ -2184,5 +2184,12 @@
     "from_admin": "Pamamahala",
     "closed_hint": "Sarado na ang mensaheng ito. Sumulat ng bago kung kailangan.",
     "admin_title": "Mga mensahe ng user"
+  },
+  "permissions": {
+    "microphone": "Mikropono",
+    "notifications": "Mga notification",
+    "allow": "Payagan lahat",
+    "location": "Lokasyon",
+    "camera": "Camera"
   }
 }

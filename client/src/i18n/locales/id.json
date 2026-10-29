@@ -495,7 +495,7 @@
     "media_limit": "Anda dapat melampirkan hingga {{count}} file, dengan ukuran total {{size}} MB.",
     "media_unsupported": "Pilih gambar, PDF, file audio, atau video.",
     "media_empty": "File ini kosong. Pilih file lain.",
-    "microphone_denied": "Izinkan akses mikrofon di pengaturan browser Anda, lalu coba lagi.",
+    "microphone_denied": "Mikrofon tidak diizinkan. Ketuk \"Izinkan\" saat permintaan izin muncul.",
     "microphone_unavailable": "Tidak ada mikrofon yang tersedia pada perangkat ini.",
     "microphone_busy": "Mikrofonnya sibuk, tutup aplikasi rekaman lainnya dan coba lagi.",
     "recording_unsupported": "Browser ini tidak dapat merekam audio. Anda dapat melampirkan file audio atau video yang sudah ada.",
@@ -2184,5 +2184,12 @@
     "from_admin": "Administrasi",
     "closed_hint": "Pesan ini sudah ditutup. Tulis pesan baru jika perlu.",
     "admin_title": "Pesan pengguna"
+  },
+  "permissions": {
+    "microphone": "Mikrofon",
+    "notifications": "Notifikasi",
+    "allow": "Izinkan semua",
+    "location": "Lokasi",
+    "camera": "Kamera"
   }
 }

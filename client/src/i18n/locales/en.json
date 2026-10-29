@@ -495,7 +495,7 @@
     "media_limit": "You can attach up to {{count}} files, with a total size of {{size}} MB.",
     "media_unsupported": "Choose an image, PDF, audio, or video file.",
     "media_empty": "This file is empty. Choose another file.",
-    "microphone_denied": "Allow microphone access in your browser settings, then try again.",
+    "microphone_denied": "The microphone is not allowed. Tap \"Allow\" when the permission request appears.",
     "microphone_unavailable": "No microphone is available on this device.",
     "microphone_busy": "The microphone is busy. Close other recording apps and try again.",
     "recording_unsupported": "This browser cannot record audio. You can attach an existing audio or video file.",
@@ -2184,5 +2184,12 @@
     "from_admin": "Administration",
     "closed_hint": "This message is closed. Write a new one if you need to.",
     "admin_title": "User messages"
+  },
+  "permissions": {
+    "microphone": "Microphone",
+    "notifications": "Notifications",
+    "allow": "Allow all",
+    "location": "Location",
+    "camera": "Camera"
   }
 }

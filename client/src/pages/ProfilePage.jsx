@@ -18,6 +18,7 @@ import { localizedName } from '../utils/localize';
 import AvailabilityEditor from '../components/provider/AvailabilityEditor';
 import AccountTypeSection from '../components/profile/AccountTypeSection';
 import CallAlerts from '../components/notifications/CallAlerts';
+import DevicePermissions from '../components/common/DevicePermissions';
 import { getCurrentPosition, isValidCoordinates, geoSelection, preserveCoordinatesForAreaChange } from '../utils/geolocation.mjs';
 
 const LOCATION_LEVELS = ['country_id', 'region_id', 'governorate_id', 'city_id', 'district_id'];
@@ -307,6 +308,8 @@ export default function ProfilePage() {
         initialLat={mapCenter?.lat} initialLon={mapCenter?.lon}
         initialPointSelected={hasPoint}
         onConfirm={result => { cancelLocation(); applyPoint(result.lat, result.lon, result); setPointConfirmed(true); }} />
+      {/* The same one-tap permissions as at sign-up, for existing accounts (AYK-047). */}
+      <div className="mb-4"><DevicePermissions /></div>
       <CallAlerts />
       <AccountTypeSection onSaved={setMsg} onError={setErr} />
       {user?.role === 'provider' && <AvailabilityEditor onSaved={setMsg} onError={setErr} />}
