@@ -188,8 +188,7 @@ const matching = asyncHandler(async (req, res) => {
   // Providers who need a subscription here and have none are not listed (AYK-042).
   const allowed = await require('../services/subscriptionRules').keepAllowed(providers, {
     cityId: where.cityId, categoryOf: p => categoryId || p.category_id });
-  providers.length = 0;
-  providers.push(...allowed);
+  providers.splice(0, providers.length, ...[...allowed]);
   providers.sort((a, b) => (b.is_featured - a.is_featured)
     || (b.rating_avg - a.rating_avg) || (b.rating_count - a.rating_count)
     || ((a.availability.state !== 'available') - (b.availability.state !== 'available'))
