@@ -2193,6 +2193,8 @@
     "allow": "Izinkan semua",
     "location": "Lokasi",
     "camera": "Kamera",
-    "bar": "Izinkan lokasi, mikrofon, kamera, dan notifikasi agar pesan dan panggilan berfungsi."
+    "bar": "Izinkan lokasi, mikrofon, kamera, dan notifikasi agar pesan dan panggilan berfungsi.",
+    "blocked": "Browser sudah memblokir ini sebelumnya dan tidak akan bertanya lagi. Ketuk 🔒 di samping aykdmh.com di atas → \"Izin\" → ubah ke \"Izinkan\", lalu ketuk \"Izinkan semua\".",
+    "busy": "Mikrofon atau kamera sedang dipakai aplikasi lain. Tutup aplikasinya, lalu ketuk \"Izinkan semua\"."
   }
 }

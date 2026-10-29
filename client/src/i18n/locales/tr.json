@@ -2193,6 +2193,8 @@
     "allow": "Tümüne izin ver",
     "location": "Konum",
     "camera": "Kamera",
-    "bar": "Mesajlar ve aramalar çalışsın diye konum, mikrofon, kamera ve bildirimlere izin verin."
+    "bar": "Mesajlar ve aramalar çalışsın diye konum, mikrofon, kamera ve bildirimlere izin verin.",
+    "blocked": "Tarayıcı bunu daha önce engelledi ve tekrar sormayacak. Üstte aykdmh.com yanındaki 🔒 simgesine dokunun → \"İzinler\" → \"İzin ver\" yapın, sonra \"Tümüne izin ver\"e dokunun.",
+    "busy": "Mikrofon veya kamera başka bir uygulamada kullanılıyor. Onu kapatıp \"Tümüne izin ver\"e dokunun."
   }
 }

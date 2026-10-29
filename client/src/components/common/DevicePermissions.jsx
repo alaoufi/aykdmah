@@ -36,6 +36,7 @@ export default function DevicePermissions({ variant = 'card' }) {
   const [checked, setChecked] = useState(false);
   const [state, setState] = useState({ location: 'prompt', media: 'prompt', push: 'off' });
   const [busy, setBusy] = useState(false);
+  const [tried, setTried] = useState(false);
   useEffect(() => {
     Promise.all([permissionState('geolocation'), permissionState('microphone'), pushState().catch(() => 'unsupported')])
       .then(([location, media, push]) => { setState({ location, media, push }); setChecked(true); });
@@ -51,6 +52,7 @@ export default function DevicePermissions({ variant = 'card' }) {
     const media = ok(state.media) ? state.media : await askMedia();
     const location = ok(state.location) ? state.location : await askLocation();
     setState({ location, media, push });
+    setTried(true);
     setBusy(false);
   };
 
@@ -64,6 +66,7 @@ export default function DevicePermissions({ variant = 'card' }) {
       <div className="bg-primary-soft border-b border-border px-4 py-2 flex flex-wrap items-center justify-center gap-2 text-[13px]" data-testid="permissions-bar">
         <span>📍🎤📷🔔 {t('permissions.bar')}</span>
         <button type="button" className="btn btn-primary btn-sm" disabled={busy} onClick={allowAll} data-testid="bar-allow-all">{busy ? '…' : `✅ ${t('permissions.allow')}`}</button>
+        {tried && !done && <span className="w-full text-center text-danger" role="alert">{t(state.media === 'failed' ? 'permissions.busy' : 'permissions.blocked')}</span>}
         <button type="button" className="text-fg-muted underline" onClick={() => { try { localStorage.setItem(LATER_KEY, '1'); } catch (_) { /* private mode */ } setHidden(true); }}>{t('push.later')}</button>
       </div>
     );
@@ -76,6 +79,11 @@ export default function DevicePermissions({ variant = 'card' }) {
         {tick(state.media, `🎤 ${t('permissions.microphone')} · 📷 ${t('permissions.camera')}`)}
         {tick(state.push, `🔔 ${t('permissions.notifications')}`)}
       </div>
+      {tried && !done && (
+        <p className="text-[12.5px] text-danger m-0 text-center" role="alert" data-testid="permissions-blocked">
+          {t(state.media === 'failed' ? 'permissions.busy' : 'permissions.blocked')}
+        </p>
+      )}
       {!done && <button type="button" className="btn btn-primary btn-block" disabled={busy} onClick={allowAll} data-testid="allow-all">
         {busy ? '…' : `✅ ${t('permissions.allow')}`}</button>}
     </div>

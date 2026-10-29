@@ -2193,6 +2193,8 @@
     "allow": "Payagan lahat",
     "location": "Lokasyon",
     "camera": "Camera",
-    "bar": "Payagan ang lokasyon, mikropono, camera at notification para gumana ang mensahe at tawag."
+    "bar": "Payagan ang lokasyon, mikropono, camera at notification para gumana ang mensahe at tawag.",
+    "blocked": "Hinarang ito ng browser dati at hindi na magtatanong. Pindutin ang 🔒 sa tabi ng aykdmh.com sa itaas → \"Mga Pahintulot\" → gawing \"Payagan\", saka pindutin ang \"Payagan lahat\".",
+    "busy": "Ginagamit ng ibang app ang mikropono o camera. Isara ito, saka pindutin ang \"Payagan lahat\"."
   }
 }
