@@ -36,4 +36,9 @@ const current = asyncHandler(async (req, res) => {
   return success(res, sub);
 });
 
-module.exports = { listPlans, subscribe, cancel, current };
+const requirement = asyncHandler(async (req, res) => {
+  if (req.user.role !== 'provider') return success(res, { enabled: false, required_category_ids: [], subscribed: false });
+  return success(res, await require('../services/subscriptionRules').statusFor(req.user.id));
+});
+
+module.exports = { listPlans, subscribe, cancel, current, requirement };

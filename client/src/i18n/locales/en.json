@@ -1422,8 +1422,8 @@
         "answer": "In the assigned request’s details, choose “Open a dispute”, select a reason, explain the issue and attach supporting information if you wish. Follow replies and updates on the dispute page."
       },
       "subscription": {
-        "question": "How do I check provider subscription plans?",
-        "answer": "Open “Subscription” in the provider account to see the displayed plans, prices, durations and features. Review the plan details before choosing one."
+        "question": "Is sign-up free? When do I need a subscription?",
+        "answer": "Sign-up is free, and requesters never pay. The monthly subscription is for providers only and applies in the areas and professions the administration sets; some professions stay free. If your profession needs a subscription in your area, a message appears in \"My work\" with a link to the subscription page."
       },
       "language": {
         "question": "How do I change the language and translate messages?",
@@ -2100,5 +2100,22 @@
     "profession": "Profession needed",
     "sub_service": "Sub-service",
     "choose_profession": "choose the profession needed"
+  },
+  "subrules": {
+    "title": "Where the monthly subscription applies",
+    "hint": "Sign-up is free while subscriptions are off. Once on, providers need a subscription in the areas and professions added here; a \"free\" rule keeps a rare profession free. Requesters never pay.",
+    "enabled": "Subscriptions on",
+    "disabled": "Subscriptions off (sign-up is free)",
+    "all_regions": "All regions",
+    "all_cities": "All cities",
+    "kind": "Rule type",
+    "paid": "Subscription required",
+    "free": "Free",
+    "add": "Add rule",
+    "empty": "No rules yet: no one is asked to subscribe.",
+    "pause": "Pause",
+    "resume": "Resume",
+    "provider_needed": "Your profession in your area needs a monthly subscription: without it you get no requests and requesters don't see you.",
+    "subscribe_now": "Subscribe now"
   }
 }

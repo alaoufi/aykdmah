@@ -60,6 +60,14 @@ router.put('/ads-pricing',      requirePermission('ads.manage'), adC.adminBulkUp
 router.get('/ads-preview-live', requirePermission('ads.manage'), adC.adminPreviewLive);
 router.get('/ads/:id/diagnose', requirePermission('ads.manage'), adC.adminDiagnose);
 
+// Where monthly subscriptions apply, by area and profession (AYK-042).
+const rules = require('../controllers/subscriptionRulesController');
+router.get('/subscription-rules', requirePermission('plans.manage'), rules.list);
+router.put('/subscription-rules/enabled', requirePermission('plans.manage'), rules.setEnabled);
+router.post('/subscription-rules', requirePermission('plans.manage'), rules.create);
+router.put('/subscription-rules/:id', requirePermission('plans.manage'), rules.update);
+router.delete('/subscription-rules/:id', requirePermission('plans.manage'), rules.remove);
+
 // Subscription plans
 router.get('/plans',          requirePermission('plans.manage'), c.listPlans);
 router.post('/plans',         requirePermission('plans.manage'), c.createPlan);

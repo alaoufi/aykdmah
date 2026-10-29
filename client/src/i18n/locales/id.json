@@ -1422,8 +1422,8 @@
         "answer": "Dalam detail permintaan yang diberikan, pilih Buka perselisihan, pilih alasan, jelaskan masalah dan lampiran informasi pendukung jika Anda mau. Ikuti jawaban dan pembaruan di halaman perselisihan."
       },
       "subscription": {
-        "question": "Bagaimana cara memeriksa rencana langganan penyedia?",
-        "answer": "Buka Tanggal langganan di akun penyedia untuk melihat rencana, harga, durasi dan fitur yang ditampilkan. Periksa rincian rencana sebelum memilih salah satu."
+        "question": "Apakah pendaftaran gratis? Kapan saya perlu berlangganan?",
+        "answer": "Pendaftaran gratis, dan pencari layanan tidak pernah membayar. Langganan bulanan hanya untuk penyedia dan berlaku di area dan profesi yang ditetapkan administrasi; beberapa profesi tetap gratis. Jika profesi Anda memerlukan langganan di area Anda, pesan muncul di \"Pekerjaan saya\" dengan tautan ke halaman langganan."
       },
       "language": {
         "question": "Bagaimana saya mengubah bahasa dan menerjemahkan pesan?",
@@ -2100,5 +2100,22 @@
     "profession": "Profesi yang dibutuhkan",
     "sub_service": "Sub-layanan",
     "choose_profession": "pilih profesi yang dibutuhkan"
+  },
+  "subrules": {
+    "title": "Di mana langganan bulanan berlaku",
+    "hint": "Pendaftaran gratis selama langganan nonaktif. Setelah aktif, penyedia memerlukan langganan di area dan profesi yang ditambahkan di sini; aturan \"gratis\" membuat profesi langka tetap gratis. Pencari layanan tidak pernah membayar.",
+    "enabled": "Langganan aktif",
+    "disabled": "Langganan nonaktif (pendaftaran gratis)",
+    "all_regions": "Semua wilayah",
+    "all_cities": "Semua kota",
+    "kind": "Jenis aturan",
+    "paid": "Wajib langganan",
+    "free": "Gratis",
+    "add": "Tambah aturan",
+    "empty": "Belum ada aturan: tidak ada yang diminta berlangganan.",
+    "pause": "Jeda",
+    "resume": "Aktifkan",
+    "provider_needed": "Profesi Anda di area Anda memerlukan langganan bulanan: tanpanya Anda tidak menerima permintaan dan pencari layanan tidak melihat Anda.",
+    "subscribe_now": "Berlangganan sekarang"
   }
 }

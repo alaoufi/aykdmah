@@ -11,6 +11,7 @@ import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import AdminButton from '../../components/admin/AdminButton';
 import EmptyState from '../../components/admin/EmptyState';
 import AdminFab from '../../components/admin/AdminFab';
+import SubscriptionRules from '../../components/admin/SubscriptionRules';
 import { formatCurrency } from '../../utils/formatters';
 
 const EMPTY = {
@@ -118,6 +119,8 @@ export default function AdminPlansPage() {
       <AdminPageHeader title={t('admin.plans')} count={items.length}>
         <AdminButton variant="primary" icon="+" onClick={openCreate}>{t('admin.new')}</AdminButton>
       </AdminPageHeader>
+
+      <SubscriptionRules />
 
       {error && <div role="alert" className="text-rose-700 text-[13px]">{error}</div>}
 

@@ -305,6 +305,30 @@ export async function listActivityLogs(params = {}) {
   return data;
 }
 
+// --- Where monthly subscriptions apply (AYK-042) ---
+export async function listSubscriptionRules() {
+  const { data } = await api.get('/admin/subscription-rules');
+  return data.data;
+}
+
+export async function setSubscriptionsEnabled(enabled) {
+  const { data } = await api.put('/admin/subscription-rules/enabled', { enabled });
+  return data.data;
+}
+
+export async function createSubscriptionRule(payload) {
+  const { data } = await api.post('/admin/subscription-rules', payload);
+  return data.data;
+}
+
+export async function updateSubscriptionRule(id, payload) {
+  await api.put(`/admin/subscription-rules/${id}`, payload);
+}
+
+export async function deleteSubscriptionRule(id) {
+  await api.delete(`/admin/subscription-rules/${id}`);
+}
+
 // --- Subscription plans (admin CRUD) ---
 export async function listPlansAdmin() {
   const { data } = await api.get('/admin/plans');

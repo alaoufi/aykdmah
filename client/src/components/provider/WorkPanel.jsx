@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { me, updateProviderProfile } from '../../services/authService';
 import { listCategories } from '../../services/serviceService';
-import { apiError } from '../../services/api';
+import api, { apiError } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
 import { localizedName } from '../../utils/localize';
 import Button from '../common/Button';
@@ -23,6 +23,8 @@ export default function WorkPanel() {
   const [serviceIds, setServiceIds] = useState([]);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState({ ok: '', error: '' });
+  // Whether this provider's work needs a monthly subscription in their area (AYK-042).
+  const [plan, setPlan] = useState(null);
 
   const load = async () => {
     const data = await me();
@@ -33,6 +35,7 @@ export default function WorkPanel() {
   useEffect(() => {
     load().catch(() => setProfile({}));
     listCategories().then(rows => setCategories(new Map(rows.map(row => [Number(row.id), row])))).catch(() => {});
+    api.get('/subscriptions/requirement').then(res => setPlan(res.data.data)).catch(() => {});
   }, []);
 
   if (!profile) return null;
@@ -59,6 +62,11 @@ export default function WorkPanel() {
         <AvailabilityBadge availability={profile.availability} />
       </div>
       <p className="text-[13px] text-fg-muted m-0">{t('work.hint')}</p>
+      {plan?.enabled && plan.required_category_ids.length > 0 && !plan.subscribed && (
+        <div role="alert" className="rounded-card border border-amber-300 bg-amber-50 text-amber-900 px-3 py-2 text-[13px]" data-testid="work-subscription-needed">
+          💳 {t('subrules.provider_needed')} <Link to="/provider/subscription" className="font-bold underline">{t('subrules.subscribe_now')}</Link>
+        </div>
+      )}
 
       <div>
         <div className="form-label">{t('work.professions')}</div>

@@ -147,6 +147,11 @@ const contact = asyncHandler(async (req, res) => {
   if (!owner && req.user.role !== 'provider') return forbidden(res);
   if (!Number.isSafeInteger(providerId) || providerId < 1) return error(res, req.t('invalid_data'));
   if (request.direct_provider_id && providerId !== Number(request.direct_provider_id)) return forbidden(res);
+  // A provider starting the contact needs a subscription where one applies (AYK-042);
+  // a requester contacting a provider is never stopped.
+  if (!owner && await require('../services/subscriptionRules').blocks(providerId, { categoryId: request.category_id, cityId: request.city_id })) {
+    return error(res, req.t('subscription_required'), 402);
+  }
   await Offer.create({ request_id: request.id, provider_id: providerId, contact: true });
   const conversationId = await Conversation.findOrCreateBetween(request.client_id, providerId, request.id);
   await notificationService.notifyUser(owner ? providerId : request.client_id, {

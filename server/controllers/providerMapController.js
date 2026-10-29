@@ -185,6 +185,11 @@ const matching = asyncHandler(async (req, res) => {
       district_name_ar: row.district_name_ar, district_name_en: row.district_name_en,
     });
   }
+  // Providers who need a subscription here and have none are not listed (AYK-042).
+  const allowed = await require('../services/subscriptionRules').keepAllowed(providers, {
+    cityId: where.cityId, categoryOf: p => categoryId || p.category_id });
+  providers.length = 0;
+  providers.push(...allowed);
   providers.sort((a, b) => (b.is_featured - a.is_featured)
     || (b.rating_avg - a.rating_avg) || (b.rating_count - a.rating_count)
     || ((a.availability.state !== 'available') - (b.availability.state !== 'available'))
@@ -198,12 +203,15 @@ async function availableForRequest({ districtId, cityId, categoryId, serviceId, 
   if (!cityId) return [];
   const rows = await coveringProviders({ districtId: districtId || null, cityId, excludeId });
   const categoryServices = categoryId ? new Set((await query('SELECT id FROM services WHERE category_id = ?', [categoryId])).map(row => Number(row.id))) : null;
-  return rows.filter(row => {
+  const working = rows.filter(row => {
     const services = parseServiceIds(row.service_ids);
     if (serviceId && !services.includes(Number(serviceId))) return false;
     if (categoryServices && Number(row.category_id) !== Number(categoryId) && !services.some(s => categoryServices.has(s))) return false;
     return availability(row).state === 'available';
-  }).map(row => Number(row.id));
+  });
+  // Without a needed subscription, a provider is not told about the request (AYK-042).
+  const allowed = await require('../services/subscriptionRules').keepAllowed(working, { cityId, categoryOf: row => categoryId || row.category_id });
+  return allowed.map(row => Number(row.id));
 }
 
 // GET /api/providers/area-stats[?district_id&city_id]  (AYK-036)

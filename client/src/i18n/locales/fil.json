@@ -1422,8 +1422,8 @@
         "answer": "Sa mga detalye ng hinihingi na kahilingan, piliin ang Buksan ang isang dispute, piliin ang isang dahilan, paliwanag ang isyu at mag-attach ng mga supportive information kung nais mo. Sundin ang mga sagot at mga update sa pahina ng dispute."
       },
       "subscription": {
-        "question": "Paano ko mai-check ang mga plano ng subscription ng provider?",
-        "answer": "Buksan ang Subscription sa account ng provider upang makita ang mga ipinapakita na plano, presyo, tagal at tampok. Suriin ang mga detalye ng plano bago pumili ng isa."
+        "question": "Libre ba ang pag-sign up? Kailan ko kailangan ng subscription?",
+        "answer": "Libre ang pag-sign up, at hindi kailanman nagbabayad ang humihiling ng serbisyo. Ang buwanang subscription ay para lamang sa mga provider at ipinapatupad sa mga lugar at propesyong itinakda ng pamamahala; may mga propesyong nananatiling libre. Kung kailangan ng subscription ang iyong propesyon sa iyong lugar, may lalabas na mensahe sa \"Trabaho ko\" na may link sa pahina ng subscription."
       },
       "language": {
         "question": "Paano ko maiiimbak ang wika at i-translate ang mga mensahe?",
@@ -2100,5 +2100,22 @@
     "profession": "Propesyong kailangan",
     "sub_service": "Sub-serbisyo",
     "choose_profession": "piliin ang propesyong kailangan"
+  },
+  "subrules": {
+    "title": "Saan ipinapatupad ang buwanang subscription",
+    "hint": "Libre ang pag-sign up habang naka-off ang subscription. Kapag naka-on, kailangan ng provider ng subscription sa mga lugar at propesyong idinagdag dito; ang patakarang \"libre\" ay nagpapanatiling libre sa bihirang propesyon. Hindi nagbabayad ang humihiling ng serbisyo.",
+    "enabled": "Naka-on ang subscription",
+    "disabled": "Naka-off ang subscription (libre ang pag-sign up)",
+    "all_regions": "Lahat ng rehiyon",
+    "all_cities": "Lahat ng lungsod",
+    "kind": "Uri ng patakaran",
+    "paid": "Kailangan ng subscription",
+    "free": "Libre",
+    "add": "Magdagdag ng patakaran",
+    "empty": "Wala pang patakaran: walang hinihingan ng subscription.",
+    "pause": "I-pause",
+    "resume": "Ituloy",
+    "provider_needed": "Kailangan ng buwanang subscription ang iyong propesyon sa iyong lugar: kung wala ito, hindi ka makakatanggap ng kahilingan at hindi ka makikita ng mga humihiling.",
+    "subscribe_now": "Mag-subscribe na"
   }
 }

@@ -621,6 +621,58 @@ if (!databasePrefix) {
     assert.deepEqual(await api('/users/me/directory/ids', { token: client.token }), []);
   });
 
+  test('monthly subscriptions by area and profession (AYK-042): off by default, paid rules hide unsubscribed providers, free rules win', async () => {
+    const area = await simpleArea();
+    const service = await db.queryOne('SELECT id, category_id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id DESC LIMIT 1');
+    const categoryId = Number(service.category_id);
+    const provider = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id,
+      service_ids: [Number(service.id)], coverage_district_ids: [area.district_id] });
+    const client = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await db.query('UPDATE users SET role = ?, is_super_admin = 1 WHERE id = ?', ['admin', owner.user.id]);
+    const account = await db.queryOne('SELECT auth_version FROM users WHERE id = ?', [owner.user.id]);
+    const admin = require('../utils/jwt').sign({ id: owner.user.id, role: 'admin', auth_version: Number(account.auth_version || 0) });
+    const notified = async requestId => Boolean(await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_new' AND link = ?", [provider.user.id, `/requests/${requestId}`]));
+    const post = async () => Number((await api('/requests', { method: 'POST', token: client.token, expected: 201, body: { category_id: categoryId } })).id);
+    const listed = async () => (await api(`/providers/matching?category_id=${categoryId}`, { token: client.token })).providers.some(p => Number(p.id) === Number(provider.user.id));
+    try {
+      // Off by default: nothing changes, nobody is asked to subscribe.
+      assert.equal((await api('/admin/subscription-rules', { token: admin })).enabled, false);
+      await api('/admin/subscription-rules', { token: client.token, expected: 403 });
+      assert.ok(await notified(await post()));
+      assert.ok(await listed());
+
+      // On, with a paid rule for this profession in this city.
+      await api('/admin/subscription-rules/enabled', { method: 'PUT', token: admin, body: { enabled: true } });
+      const paid = await api('/admin/subscription-rules', { method: 'POST', token: admin, expected: 201, body: { city_id: area.city_id, category_id: categoryId } });
+      await api('/admin/subscription-rules', { method: 'POST', token: admin, expected: 400, body: { city_id: 'x' } });
+      const hidden = await post();
+      assert.equal(await notified(hidden), false);
+      assert.equal(await listed(), false);
+      await api(`/requests/${hidden}/contact`, { method: 'POST', token: provider.token, expected: 402 });
+      const status = await api('/subscriptions/requirement', { token: provider.token });
+      assert.deepEqual(status, { enabled: true, required_category_ids: [categoryId], subscribed: false });
+      // The requester is never stopped: contacting the provider still works.
+      assert.ok((await api(`/requests/${hidden}/contact`, { method: 'POST', token: client.token, body: { provider_id: provider.user.id } })).conversation_id);
+
+      // A paused rule no longer applies.
+      await api(`/admin/subscription-rules/${paid.id}`, { method: 'PUT', token: admin, body: { is_active: false } });
+      assert.ok(await listed());
+      await api(`/admin/subscription-rules/${paid.id}`, { method: 'PUT', token: admin, body: { is_active: true } });
+      assert.equal(await listed(), false);
+
+      // A "free" rule for this rare profession wins over the paid one.
+      await api('/admin/subscription-rules', { method: 'POST', token: admin, expected: 201, body: { category_id: categoryId, is_free: true } });
+      assert.ok(await listed());
+      assert.ok(await notified(await post()));
+      assert.deepEqual((await api('/subscriptions/requirement', { token: provider.token })).required_category_ids, []);
+    } finally {
+      await db.query('DELETE FROM subscription_rules');
+      await api('/admin/subscription-rules/enabled', { method: 'PUT', token: admin, body: { enabled: false } });
+    }
+    assert.equal((await api('/admin/subscription-rules', { token: admin })).rules.length, 0);
+  });
+
   test('an account changes its type: client to "both" with work details, back to client, and provider again reusing the kept profile', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');

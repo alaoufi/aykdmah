@@ -1422,8 +1422,8 @@
         "answer": "Gönderilen talebin ayrıntılarında Bir anlaşmazlığı açın, bir neden seçin, sorunu açıklayın ve istekiniz varsa destekleyici bilgileri ekleyin."
       },
       "subscription": {
-        "question": "Sağlayıcı abonelik planlarını nasıl kontrol edebilirim?",
-        "answer": "Sergilenen planları, fiyatları, süreleri ve özelliklerini görmek için sağlayıcı hesabında Abonelik açın."
+        "question": "Kayıt ücretsiz mi? Ne zaman abonelik gerekir?",
+        "answer": "Kayıt ücretsizdir ve hizmet arayanlar asla ödeme yapmaz. Aylık abonelik yalnızca hizmet verenler içindir ve yönetimin belirlediği bölge ve mesleklerde uygulanır; bazı meslekler ücretsiz kalır. Bölgenizde mesleğiniz abonelik gerektirirse \"İşim\" bölümünde abonelik sayfasına bağlantıyla bir mesaj görünür."
       },
       "language": {
         "question": "Dilini ve mesajları nasıl değiştiririm?",
@@ -2100,5 +2100,22 @@
     "profession": "İhtiyaç duyulan meslek",
     "sub_service": "Alt hizmet",
     "choose_profession": "ihtiyaç duyulan mesleği seçin"
+  },
+  "subrules": {
+    "title": "Aylık aboneliğin uygulandığı yerler",
+    "hint": "Abonelik kapalıyken kayıt ücretsizdir. Açıldığında burada eklenen bölge ve mesleklerde hizmet verenlerin aboneliği gerekir; \"ücretsiz\" kuralı nadir bir mesleği ücretsiz tutar. Hizmet arayanlar asla ödeme yapmaz.",
+    "enabled": "Abonelik açık",
+    "disabled": "Abonelik kapalı (kayıt ücretsiz)",
+    "all_regions": "Tüm bölgeler",
+    "all_cities": "Tüm şehirler",
+    "kind": "Kural türü",
+    "paid": "Abonelik gerekli",
+    "free": "Ücretsiz",
+    "add": "Kural ekle",
+    "empty": "Henüz kural yok: kimseden abonelik istenmiyor.",
+    "pause": "Durdur",
+    "resume": "Başlat",
+    "provider_needed": "Bölgenizde mesleğiniz aylık abonelik gerektiriyor: abonelik olmadan talep almazsınız ve hizmet arayanlar sizi görmez.",
+    "subscribe_now": "Şimdi abone ol"
   }
 }
