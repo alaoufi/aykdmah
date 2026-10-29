@@ -293,7 +293,11 @@ export default function ChatPage() {
     <div className="chat-page">
       <aside className={`chat-sidebar ${activeId ? 'hide-on-mobile' : ''}`}>
         <div className="sidebar-header">
-          <h3>{t('chat.title')}</h3>
+          {/* The chats page has no site header, so it carries its own way back (AYK-044). */}
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="m-0">{t('chat.title')}</h3>
+            <Link to="/" className="chat-home" data-testid="chat-home">🏠 {t('nav.home')}</Link>
+          </div>
           <div className="chat-tabs" role="tablist">
             <button type="button" role="tab" aria-selected={!showArchive} className={!showArchive ? 'active' : ''} onClick={() => setSearchParams({})} data-testid="chat-tab-active">
               💬 {t('chat.title')} ({conversations.filter(c => !archived(c)).length})</button>
@@ -322,7 +326,7 @@ export default function ChatPage() {
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div className="flex justify-between">
                       <strong>{other?.full_name || '—'}</strong>
-                      <span className="text-xs text-muted">{last ? formatRelativeTime(last.created_at) : ''}</span>
+                      <span className="text-xs text-muted">{last ? (isSameDay(last.created_at, new Date()) ? formatTime(last.created_at) : dayLabel(last.created_at, t)) : ''}</span>
                     </div>
                     <div className="text-sm text-muted" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                       {truncate(lastPreview, 50)}
@@ -349,6 +353,7 @@ export default function ChatPage() {
           <>
             <header className="chat-header">
               <Link to="/chat" className="back-btn">←</Link>
+              <Link to="/" className="chat-home chat-home-compact" aria-label={t('nav.home')} title={t('nav.home')} data-testid="chat-home-inside">🏠</Link>
               {otherParticipant && (
                 <>
                   <Avatar src={otherParticipant.avatar} name={otherParticipant.full_name} />
@@ -497,6 +502,8 @@ export default function ChatPage() {
           display: flex; flex-direction: column; overflow: hidden;
         }
         .sidebar-header { padding: 16px; border-bottom: 1px solid var(--border); }
+        .chat-home { padding: 6px 12px; border-radius: 999px; background: var(--bg-soft); color: var(--text); font-size: 13px; font-weight: 700; text-decoration: none; white-space: nowrap; }
+        .chat-home-compact { padding: 6px 9px; font-size: 16px; }
         .chat-tabs { display: flex; gap: 6px; margin-top: 8px; }
         .chat-tabs button { flex: 1; padding: 6px 8px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg-card); font: inherit; font-size: 12.5px; font-weight: 600; color: var(--text-secondary); cursor: pointer; }
         .chat-tabs button.active { background: var(--primary); color: #fff; border-color: var(--primary); }

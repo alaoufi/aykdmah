@@ -714,7 +714,7 @@ if (!databasePrefix) {
       body: { content: 'هل تستطيع الحضور اليوم؟', broadcast: '1' } });
     assert.equal(everyone.broadcast_count, 2);
     // Messages are translated for the reader automatically; only participants may ask.
-    const translated = await api(`/chat/conversations/${two.conversation_id}/messages/${everyone.id}/translation?lang=ar`, { token: second.token });
+    const translated = await api(`/chat/conversations/${two.conversation_id}/messages/${(await api(`/chat/conversations/${two.conversation_id}/messages`, { token: second.token })).at(-1).id}/translation?lang=ar`, { token: second.token });
     assert.equal(typeof translated.text, "string");
     await api(`/chat/conversations/${two.conversation_id}/messages/${everyone.id}/translation?lang=en`, { token: outsider.token, expected: 403 });
     // A page error reported by the browser is kept in the activity log.
