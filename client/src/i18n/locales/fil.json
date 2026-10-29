@@ -2117,7 +2117,8 @@
     "forward_all": "Lahat sa kahilingang ito ({{count}})",
     "number": "Blg.",
     "forward_done": "Naipasa sa {{count}} chat",
-    "voice_media": "Ang kailangan"
+    "voice_media": "Ang kailangan",
+    "open_maps": "Buksan sa Google Maps"
   },
   "subrules": {
     "title": "Saan ipinapatupad ang buwanang subscription",

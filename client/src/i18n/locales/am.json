@@ -2117,7 +2117,8 @@
     "forward_all": "በዚህ ጥያቄ ላሉ ሁሉ ({{count}})",
     "number": "ቁጥር",
     "forward_done": "ወደ {{count}} ውይይቶች ተላልፏል",
-    "voice_media": "የሚፈለገው"
+    "voice_media": "የሚፈለገው",
+    "open_maps": "በGoogle ካርታ ክፈት"
   },
   "subrules": {
     "title": "ወርሃዊ ምዝገባ የሚተገበርበት",

@@ -40,7 +40,7 @@ const create = asyncHandler(async (req, res) => {
   try {
     id = await withUploadedFiles(req.files, { ownerId: req.user.id, scope: 'requests' }, files => Request.create({ ...data, files }));
   } catch (err) {
-    if (err.message === 'account_location_required') err.message = req.t('account_location_required');
+    if (['account_location_required', 'request_location_required'].includes(err.message)) err.message = req.t(err.message);
     throw err;
   }
   const request = await Request.findById(id);
@@ -211,7 +211,7 @@ const direct = asyncHandler(async (req, res) => {
     try {
       requestId = await Request.create({ client_id: req.user.id, category_id: categoryId, title: req.body?.title, description: req.body?.description });
     } catch (err) {
-      if (err.message === 'account_location_required') err.message = req.t('account_location_required');
+      if (['account_location_required', 'request_location_required'].includes(err.message)) err.message = req.t(err.message);
       throw err;
     }
     await query('UPDATE requests SET direct_provider_id = ?, reminders_off = 1 WHERE id = ?', [providerId, requestId]);

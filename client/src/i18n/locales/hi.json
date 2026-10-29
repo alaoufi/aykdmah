@@ -2117,7 +2117,8 @@
     "forward_all": "इस अनुरोध के सभी को ({{count}})",
     "number": "नंबर",
     "forward_done": "{{count}} चैट में भेजा गया",
-    "voice_media": "ज़रूरत"
+    "voice_media": "ज़रूरत",
+    "open_maps": "Google Maps में खोलें"
   },
   "subrules": {
     "title": "मासिक सदस्यता कहाँ लागू है",

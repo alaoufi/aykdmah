@@ -2117,7 +2117,8 @@
     "forward_all": "Bu talepteki herkese ({{count}})",
     "number": "No.",
     "forward_done": "{{count}} sohbete iletildi",
-    "voice_media": "İhtiyaç"
+    "voice_media": "İhtiyaç",
+    "open_maps": "Google Haritalar’da aç"
   },
   "subrules": {
     "title": "Aylık aboneliğin uygulandığı yerler",

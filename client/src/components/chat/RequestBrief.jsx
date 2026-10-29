@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { getRequest } from '../../services/requestService';
 import { localizedJoinedName } from '../../utils/localizeJoined';
 import RequestMedia from '../requests/RequestMedia';
+import { requestMapsUrl } from '../../utils/directions';
 
 // The request's own description (voice, photos, video) pinned at the top of every chat
 // about it, so the requester never has to repeat it to each provider (AYK-043).
@@ -29,7 +30,10 @@ export default function RequestBrief({ requestId }) {
       {open && <div className="request-brief-body">
         {text && <p className="m-0 mb-2 text-[13px]">{text}</p>}
         <RequestMedia files={request.files || []} />
-        <Link to={`/requests/${request.id}`} className="text-[12px] font-semibold text-primary">{t('request.details_title')}</Link>
+        <div className="flex gap-3 flex-wrap mt-1">
+          {requestMapsUrl(request) && <a href={requestMapsUrl(request)} target="_blank" rel="noopener noreferrer" className="text-[12px] font-semibold text-primary" data-testid="brief-maps">🗺️ {t('requester.open_maps')}</a>}
+          <Link to={`/requests/${request.id}`} className="text-[12px] font-semibold text-primary">{t('request.details_title')}</Link>
+        </div>
       </div>}
       <style>{`
         .request-brief { border-bottom: 1px solid var(--border); background: var(--bg-soft, var(--bg-card)); }

@@ -2117,7 +2117,8 @@
     "forward_all": "اس درخواست میں سب کو ({{count}})",
     "number": "نمبر",
     "forward_done": "{{count}} گفتگو میں بھیج دیا گیا",
-    "voice_media": "مطلوبہ کام"
+    "voice_media": "مطلوبہ کام",
+    "open_maps": "گوگل میپس میں کھولیں"
   },
   "subrules": {
     "title": "ماہانہ سبسکرپشن کہاں لاگو ہے",

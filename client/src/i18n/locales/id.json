@@ -2117,7 +2117,8 @@
     "forward_all": "Semua di permintaan ini ({{count}})",
     "number": "No.",
     "forward_done": "Diteruskan ke {{count}} obrolan",
-    "voice_media": "Kebutuhan"
+    "voice_media": "Kebutuhan",
+    "open_maps": "Buka di Google Maps"
   },
   "subrules": {
     "title": "Di mana langganan bulanan berlaku",

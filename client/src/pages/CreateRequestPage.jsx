@@ -70,7 +70,7 @@ export default function CreateRequestPage() {
 
   // The only thing a request truly needs is where the service is.
   // The location is taken from the device automatically when the account has none,
-  // and stays editable; knowing the city is enough to post (AYK-044).
+  // and stays editable; without it the requester picks region, city and district from lists (AYK-044).
   const autoLocated = useRef(false);
   useEffect(() => {
     if (requestLocation.ready && !requestLocation.city && !requestLocation.locating && !autoLocated.current && navigator.geolocation) {
@@ -81,11 +81,13 @@ export default function CreateRequestPage() {
   }, [requestLocation.ready, requestLocation.city]);
   const locationMissing = !form.category_id ? t('requester.choose_profession') : !requestLocation.ready ? null
     : requestLocation.locating ? t('auth.locating')
-      : !requestLocation.city ? t('auth.simple_location_required') : null;
+      : !requestLocation.city ? t('auth.simple_location_required')
+        : requestLocation.districts.length > 0 && !requestLocation.district ? t('auth.simple_district_required') : null;
 
   const submit = async (e) => {
     e.preventDefault();
-    if (loading || !form.category_id || !requestLocation.ready || !requestLocation.city) return;
+    if (loading || !form.category_id || !requestLocation.ready || !requestLocation.city
+        || (requestLocation.districts.length > 0 && !requestLocation.district)) return;
     const current = ++operation.current;
     const locationSnapshot = requestLocationFields(requestLocation.location, requestLocation.remember);
     setError('');

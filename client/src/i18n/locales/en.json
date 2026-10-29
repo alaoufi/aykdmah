@@ -2117,7 +2117,8 @@
     "forward_all": "Everyone on this request ({{count}})",
     "number": "No.",
     "forward_done": "Forwarded to {{count}} chats",
-    "voice_media": "What is needed"
+    "voice_media": "What is needed",
+    "open_maps": "Open in Google Maps"
   },
   "subrules": {
     "title": "Where the monthly subscription applies",
