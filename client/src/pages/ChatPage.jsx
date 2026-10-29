@@ -364,14 +364,15 @@ export default function ChatPage() {
                     </div>
                   </div>
                   {canSend && <CallButtons conversationId={Number(activeId)} compact />}
-                  {requestId && (
+                  {/* Live tracking works only for the agreed pair, so it shows only then, named. */}
+                  {requestId && canShareLocation && (
                     <Link
                       to={`/requests/${requestId}/track`}
-                      className="track-btn"
+                      className="track-btn track-labelled"
                       aria-label={t('tracking.title')}
                       title={t('tracking.title')}
                     >
-                      🗺️
+                      📍 <span>{t('tracking.title')}</span>
                     </Link>
                   )}
                 </>
@@ -525,6 +526,7 @@ export default function ChatPage() {
           text-decoration: none; transition: transform .15s;
         }
         .track-btn:hover { transform: scale(1.08); }
+        .track-btn.track-labelled { width: auto; display: flex; align-items: center; border-radius: 999px; padding: 0 10px; gap: 4px; font-size: 12px; font-weight: 700; white-space: nowrap; }
         .chat-body {
           flex: 1; overflow-y: auto; padding: 10px 4% 12px;
           background-color: var(--wa-bg);
