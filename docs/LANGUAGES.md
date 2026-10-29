@@ -25,4 +25,6 @@
 
 - رمز اللغة قد يكون ثلاثة أحرف (`fil`): لا تقص الرمز بـ `slice(0, 2)` بل افصله بـ `split(/[-_]/)[0]`.
 
+- 2026-10-29 (AYK-040): مفاتيح `work.*` ونصوص دليل `help.client_steps` و`help.provider_steps` الجديدة كُتبت يدويًا باللغات الإحدى عشرة، وصُححت تسميات `request.agreed` و`request.contact` و`request.contact_owner` و`nav.order_now` التي جاءت من الترجمة الآلية غير دقيقة.
+
 > للبحث عن أي موضع منسي: `git grep -nE "'bn'|\bbn:" -- client/src server scripts client/public`
