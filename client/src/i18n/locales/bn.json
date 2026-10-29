@@ -1050,7 +1050,10 @@
     "plan_features_placeholder": "বৈশিষ্ট্য ১, বৈশিষ্ট্য ২, বৈশিষ্ট্য ৩",
     "migrate_ok_count": "প্রয়োগ হয়েছে: {{count}}",
     "migrate_skipped_count": "এড়িয়ে যাওয়া হয়েছে: {{count}}",
-    "deleted_by_author": "লেখক মুছেছেন"
+    "deleted_by_author": "লেখক মুছেছেন",
+    "districts": "এলাকা",
+    "search_districts": "এলাকা খুঁজুন",
+    "no_districts_hint": "এই শহরের এখনো কোনো এলাকা নেই। ব্যবহারকারীরা বাছতে পারবেন, তাই এখানে যোগ করুন।"
   },
   "errors": {
     "generic": "কিছু ভুল হয়েছে",

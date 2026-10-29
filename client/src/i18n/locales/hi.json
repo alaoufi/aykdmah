@@ -1050,7 +1050,10 @@
     "plan_features_placeholder": "विशेषता १, विशेषता २, विशेषता ३",
     "migrate_ok_count": "लागू: {{count}}",
     "migrate_skipped_count": "छोड़े गए: {{count}}",
-    "deleted_by_author": "लेखक ने हटाया"
+    "deleted_by_author": "लेखक ने हटाया",
+    "districts": "इलाके",
+    "search_districts": "इलाका खोजें",
+    "no_districts_hint": "इस शहर के अभी कोई इलाके नहीं। यहाँ जोड़ें ताकि उपयोगकर्ता चुन सकें।"
   },
   "errors": {
     "generic": "कुछ गलत हो गया",

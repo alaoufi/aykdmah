@@ -1050,7 +1050,10 @@
     "plan_features_placeholder": "Özellik 1, Özellik 2, Özellik 3",
     "migrate_ok_count": "Uygulan: {{count}}",
     "migrate_skipped_count": "Atlayarak: {{count}}",
-    "deleted_by_author": "yazarı tarafından silinmiştir"
+    "deleted_by_author": "yazarı tarafından silinmiştir",
+    "districts": "Mahalleler",
+    "search_districts": "Mahalle ara",
+    "no_districts_hint": "Bu şehrin henüz mahallesi yok. Kullanıcılar seçebilsin diye buraya ekleyin."
   },
   "errors": {
     "generic": "Bir şey ters gitti",

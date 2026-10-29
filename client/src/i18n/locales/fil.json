@@ -1050,7 +1050,10 @@
     "plan_features_placeholder": "Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Karaniwang Kar",
     "migrate_ok_count": "Ang mga ito ay may kaugnayan sa mga sumusunod na mga sumusunod: {{count}}",
     "migrate_skipped_count": "Nag-uubos: {{count}}",
-    "deleted_by_author": "na tinanggal ng may-akda nito"
+    "deleted_by_author": "na tinanggal ng may-akda nito",
+    "districts": "Mga distrito",
+    "search_districts": "Maghanap ng distrito",
+    "no_districts_hint": "Wala pang distrito ang lungsod na ito. Idagdag dito para mapili ng mga user."
   },
   "errors": {
     "generic": "May nagkamali",

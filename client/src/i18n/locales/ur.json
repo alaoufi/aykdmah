@@ -1050,7 +1050,10 @@
     "plan_features_placeholder": "خصوصیت ۱، خصوصیت ۲، خصوصیت ۳",
     "migrate_ok_count": "لاگو: {{count}}",
     "migrate_skipped_count": "چھوڑ دیا: {{count}}",
-    "deleted_by_author": "لکھنے والے نے حذف کیا"
+    "deleted_by_author": "لکھنے والے نے حذف کیا",
+    "districts": "محلے",
+    "search_districts": "محلہ تلاش کریں",
+    "no_districts_hint": "اس شہر کے ابھی کوئی محلے نہیں۔ یہاں شامل کریں تاکہ صارفین چن سکیں۔"
   },
   "errors": {
     "generic": "کچھ غلط ہو گیا",

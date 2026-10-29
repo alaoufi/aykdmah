@@ -1050,7 +1050,10 @@
     "plan_features_placeholder": "Fitur 1, Fitur 2, Fitur 3",
     "migrate_ok_count": "Aplikasi: {{count}}",
     "migrate_skipped_count": "Lolos: {{count}}",
-    "deleted_by_author": "dihapus oleh penulisnya"
+    "deleted_by_author": "dihapus oleh penulisnya",
+    "districts": "Lingkungan",
+    "search_districts": "Cari lingkungan",
+    "no_districts_hint": "Kota ini belum memiliki lingkungan. Tambahkan di sini agar pengguna dapat memilihnya."
   },
   "errors": {
     "generic": "Sesuatu yang salah",

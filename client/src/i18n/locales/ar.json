@@ -1050,7 +1050,10 @@
     "plan_features_placeholder": "ميزة ١، ميزة ٢، ميزة ٣",
     "migrate_ok_count": "تم: {{count}}",
     "migrate_skipped_count": "تم تخطي: {{count}}",
-    "deleted_by_author": "حذفها كاتبها"
+    "deleted_by_author": "حذفها كاتبها",
+    "districts": "الأحياء",
+    "search_districts": "ابحث عن حي",
+    "no_districts_hint": "لا أحياء لهذه المدينة بعد. أضفها هنا ليختارها المستخدمون."
   },
   "errors": {
     "generic": "حدث خطأ",

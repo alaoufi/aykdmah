@@ -1050,7 +1050,10 @@
     "plan_features_placeholder": "സവിശേഷത 1, സവിശേഷത 2, സവിശേഷത 3",
     "migrate_ok_count": "ബാധകമായത്ഃ {{count}}",
     "migrate_skipped_count": "{{count}}",
-    "deleted_by_author": "അതിന്റെ രചയിതാവ് നീക്കംചെയ്തു"
+    "deleted_by_author": "അതിന്റെ രചയിതാവ് നീക്കംചെയ്തു",
+    "districts": "പ്രദേശങ്ങൾ",
+    "search_districts": "പ്രദേശം തിരയുക",
+    "no_districts_hint": "ഈ നഗരത്തിന് ഇതുവരെ പ്രദേശങ്ങളില്ല. ഉപയോക്താക്കൾക്ക് തിരഞ്ഞെടുക്കാൻ ഇവിടെ ചേർക്കുക."
   },
   "errors": {
     "generic": "എന്തോ കുഴപ്പം സംഭവിച്ചു",

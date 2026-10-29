@@ -254,6 +254,26 @@ export async function adminCreateCity(payload) {
   return data.data;
 }
 
+// Districts (AYK-045): every district of a city, inactive ones included.
+export async function adminListDistricts(cityId) {
+  const { data } = await api.get('/districts', { params: { city_id: cityId, all: 'true' } });
+  return data.data;
+}
+
+export async function adminCreateDistrict(payload) {
+  const { data } = await api.post('/districts', payload);
+  return data.data;
+}
+
+export async function adminUpdateDistrict(id, payload) {
+  const { data } = await api.put(`/districts/${id}`, payload);
+  return data.data;
+}
+
+export async function adminDeleteDistrict(id) {
+  await api.delete(`/districts/${id}`);
+}
+
 export async function adminUpdateCity(id, payload) {
   const { data } = await api.put(`/cities/${id}`, payload);
   return data.data;

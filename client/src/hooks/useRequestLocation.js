@@ -108,8 +108,8 @@ export default function useRequestLocation({ user, params, enabled = true, fallb
   const governorates = catalog.governorates.filter(row => activeLocationRow(row) && locationId(row.region_id) === location.region_id);
   const cities = catalog.cities.filter(row => {
     const resolved = requestCityLocation(row.id, catalog);
-    return resolved && resolved.country_id === location.country_id && resolved.region_id === location.region_id
-      && (!location.governorate_id || resolved.governorate_id === location.governorate_id);
+    // Every city of the region: the governorate step is skipped (it follows the city).
+    return resolved && resolved.country_id === location.country_id && resolved.region_id === location.region_id;
   });
 
   const change = (key, value) => {

@@ -1050,7 +1050,10 @@
     "plan_features_placeholder": "विशेषता १, विशेषता २, विशेषता ३",
     "migrate_ok_count": "लागू हुन्छः {{count}}",
     "migrate_skipped_count": "[०] {{count}}",
-    "deleted_by_author": "लेखकद्वारा हटाइयो"
+    "deleted_by_author": "लेखकद्वारा हटाइयो",
+    "districts": "टोलहरू",
+    "search_districts": "टोल खोज्नुहोस्",
+    "no_districts_hint": "यो शहरका अहिलेसम्म टोल छैनन्। प्रयोगकर्ताले छान्न सकून् भनी यहाँ थप्नुहोस्।"
   },
   "errors": {
     "generic": "केही गल्ती भयो",

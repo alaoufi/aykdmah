@@ -1050,7 +1050,10 @@
     "plan_features_placeholder": "Feature 1, Feature 2, Feature 3",
     "migrate_ok_count": "Applied: {{count}}",
     "migrate_skipped_count": "Skipped: {{count}}",
-    "deleted_by_author": "deleted by its author"
+    "deleted_by_author": "deleted by its author",
+    "districts": "Districts",
+    "search_districts": "Search districts",
+    "no_districts_hint": "No districts for this city yet. Add them here so users can choose them."
   },
   "errors": {
     "generic": "Something went wrong",

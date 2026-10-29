@@ -1050,7 +1050,10 @@
     "plan_features_placeholder": "ባህሪ 1፣ ባህሪ 2፣ ባህሪ 3",
     "migrate_ok_count": "የሚተገበር፦ {{count}}",
     "migrate_skipped_count": "{{count}}",
-    "deleted_by_author": "በደራሲው የተሰረዘ"
+    "deleted_by_author": "በደራሲው የተሰረዘ",
+    "districts": "ሰፈሮች",
+    "search_districts": "ሰፈር ፈልግ",
+    "no_districts_hint": "ለዚህ ከተማ እስካሁን ሰፈሮች የሉም። ተጠቃሚዎች እንዲመርጡ እዚህ ያክሉ።"
   },
   "errors": {
     "generic": "የሆነ ነገር ተበላሸ",

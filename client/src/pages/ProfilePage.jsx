@@ -70,7 +70,7 @@ export default function ProfilePage() {
   const { rows: regions, loading: regionsLoading, error: regionsError } = useLocationOptions('regions', form.country_id);
   const { rows: governorates, loading: governoratesLoading, error: governoratesError } = useLocationOptions('governorates', form.region_id);
   const { rows: cities, loading: citiesLoading, error: citiesError } = useLocationOptions(
-    form.governorate_id ? 'cities' : 'regionCities', form.governorate_id || form.region_id,
+    'regionCities', form.region_id,
   );
   const { rows: districts, loading: districtsLoading, error: districtsError } = useLocationOptions('districts', form.city_id);
   const { rows: entryDistricts, loading: entryDistrictsLoading, error: entryDistrictsError } = useLocationOptions('districts', entryUser?.city_id);
@@ -279,7 +279,6 @@ export default function ProfilePage() {
           <div className="grid grid-2">
             {countries.length !== 1 && selectLevel('country_id', countries, countriesLoading, false, countriesError)}
             {selectLevel('region_id', regions, regionsLoading, !form.country_id, regionsError)}
-            {selectLevel('governorate_id', governorates, governoratesLoading, !form.region_id, governoratesError)}
             {selectLevel('city_id', cities, citiesLoading, !form.region_id, citiesError)}
             {selectLevel('district_id', districts, districtsLoading, !form.city_id, districtsError)}
           </div>
