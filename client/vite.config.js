@@ -52,6 +52,8 @@ export default defineConfig(({ mode }) => {
           globIgnores: ['install/refresh.html', 'refresh-site.js', 'assets/*.wasm', 'assets/*.mjs', 'assets/localLanguage.worker-*.js'],
           // Incoming-call notifications (AYK-008).
           importScripts: ['push-sw.js'],
+          // The main bundle passed the 2 MiB default; it must stay in the offline cache.
+          maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
           skipWaiting: true,
           clientsClaim: true,
           cleanupOutdatedCaches: true,
