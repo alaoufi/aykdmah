@@ -2121,7 +2121,12 @@
     "voice_media": "İhtiyaç",
     "open_maps": "Google Haritalar’da aç",
     "badge_mine": "Talebiniz",
-    "badge_service": "Hizmetiniz için"
+    "badge_service": "Hizmetiniz için",
+    "manage_title": "Taleplerimi yönet",
+    "manage_hint": "Birini bulduğunuzda talebi durdurun (ve değerlendirin), ya da artık gerekmiyorsa silin.",
+    "stop_request": "Talebi durdur",
+    "delete_request": "Talebi sil",
+    "delete_confirm": "\"{{title}}\" talebi silinsin mi? Hizmet verenler artık görmeyecek."
   },
   "subrules": {
     "title": "Aylık aboneliğin uygulandığı yerler",

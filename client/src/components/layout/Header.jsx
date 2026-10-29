@@ -266,6 +266,13 @@ export default function Header() {
             </div>
             {user && (
               <div className="flex flex-col mt-2 pt-2 border-t border-border">
+                {/* Managing one's requests (stop, delete) has its own clear entry (AYK-044). */}
+                {canRequestService(user) && (
+                  <Link to="/client" onClick={() => setMobileOpen(false)} data-testid="mobile-manage-requests"
+                    className="text-right px-3 py-3 rounded-card font-bold no-underline bg-primary-soft text-primary mb-1">
+                    📋 {t('requester.manage_title')}
+                  </Link>
+                )}
                 <Link to="/profile" onClick={() => setMobileOpen(false)} className="text-right px-3 py-3 rounded-card font-semibold no-underline text-fg-muted hover:bg-surface-alt">
                   👤 {t('nav.profile')}
                 </Link>

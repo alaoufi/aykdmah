@@ -1,7 +1,7 @@
 import { localizedJoinedName } from '../utils/localizeJoined';
 import { safeUrl } from '../utils/urlSafety';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
   getRequest, getOffersForRequest, acceptOffer, rejectOffer,
@@ -175,7 +175,9 @@ export default function RequestDetailsPage() {
 
   // "Stop the request" closes it (AYK-041). With "I found a provider" ticked, the
   // request is agreed with that provider, marked done, and the rating page opens.
-  const [closing, setClosing] = useState({ open: false, found: false, providerId: '' });
+  // "Stop" from the requests management page opens this box directly (#close).
+  const { hash } = useLocation();
+  const [closing, setClosing] = useState({ open: hash === '#close', found: false, providerId: '' });
   const contactedProviders = offers.filter((o, i) => offers.findIndex(x => x.provider_id === o.provider_id) === i);
   const closeRequest = async () => {
     setSubmitting(true);

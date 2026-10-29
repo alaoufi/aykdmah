@@ -2121,7 +2121,12 @@
     "voice_media": "የሚፈለገው",
     "open_maps": "በGoogle ካርታ ክፈት",
     "badge_mine": "የእርስዎ ጥያቄ",
-    "badge_service": "ለአገልግሎትዎ"
+    "badge_service": "ለአገልግሎትዎ",
+    "manage_title": "ጥያቄዎቼን አስተዳድር",
+    "manage_hint": "አገልግሎት ሰጪ ሲያገኙ ጥያቄውን ያቁሙ (ይገምግሙም)፣ ካላስፈለገዎ ይሰርዙት።",
+    "stop_request": "ጥያቄውን አቁም",
+    "delete_request": "ጥያቄውን ሰርዝ",
+    "delete_confirm": "ጥያቄው «{{title}}» ይሰረዝ? አገልግሎት ሰጪዎች ከእንግዲህ አያዩትም።"
   },
   "subrules": {
     "title": "ወርሃዊ ምዝገባ የሚተገበርበት",

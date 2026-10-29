@@ -2121,7 +2121,12 @@
     "voice_media": "Ang kailangan",
     "open_maps": "Buksan sa Google Maps",
     "badge_mine": "Iyong kahilingan",
-    "badge_service": "Para sa iyong serbisyo"
+    "badge_service": "Para sa iyong serbisyo",
+    "manage_title": "Pamahalaan ang aking mga kahilingan",
+    "manage_hint": "Itigil ang kahilingan kapag may nakita ka na (at i-rate siya), o burahin kung hindi mo na kailangan.",
+    "stop_request": "Itigil ang kahilingan",
+    "delete_request": "Burahin ang kahilingan",
+    "delete_confirm": "Burahin ang kahilingang \"{{title}}\"? Hindi na ito makikita ng mga provider."
   },
   "subrules": {
     "title": "Saan ipinapatupad ang buwanang subscription",

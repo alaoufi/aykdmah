@@ -2121,7 +2121,12 @@
     "voice_media": "Kebutuhan",
     "open_maps": "Buka di Google Maps",
     "badge_mine": "Permintaan Anda",
-    "badge_service": "Untuk layanan Anda"
+    "badge_service": "Untuk layanan Anda",
+    "manage_title": "Kelola permintaan saya",
+    "manage_hint": "Hentikan permintaan setelah menemukan penyedia (dan beri nilai), atau hapus jika tidak lagi dibutuhkan.",
+    "stop_request": "Hentikan permintaan",
+    "delete_request": "Hapus permintaan",
+    "delete_confirm": "Hapus permintaan \"{{title}}\"? Penyedia tidak akan melihatnya lagi."
   },
   "subrules": {
     "title": "Di mana langganan bulanan berlaku",

@@ -2121,7 +2121,12 @@
     "voice_media": "What is needed",
     "open_maps": "Open in Google Maps",
     "badge_mine": "Your request",
-    "badge_service": "For your service"
+    "badge_service": "For your service",
+    "manage_title": "Manage my requests",
+    "manage_hint": "Stop a request once you find someone (and rate them), or delete it if you no longer need it.",
+    "stop_request": "Stop the request",
+    "delete_request": "Delete the request",
+    "delete_confirm": "Delete the request \"{{title}}\"? Providers will no longer see it."
   },
   "subrules": {
     "title": "Where the monthly subscription applies",

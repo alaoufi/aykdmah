@@ -170,7 +170,7 @@ export default function AppRoutes() {
         <Route path="/chat/:id" element={<Protected><ChatPage /></Protected>} />
         <Route path="/requests/:id/track" element={<Protected><TrackingPage /></Protected>} />
 
-        <Route element={<Protected roles={['client']}><RoleDashboard /></Protected>}>
+        <Route element={<Protected roles={['client', 'admin']}><RoleDashboard /></Protected>}>
           <Route path="/client" element={<MyRequestsPage />} />
         </Route>
 

@@ -2121,7 +2121,12 @@
     "voice_media": "وصف المطلوب",
     "open_maps": "افتح في خرائط جوجل",
     "badge_mine": "طلبك",
-    "badge_service": "لخدمتك"
+    "badge_service": "لخدمتك",
+    "manage_title": "إدارة طلباتي",
+    "manage_hint": "أوقف الطلب عندما تجد من يخدمك (وقيّمه)، أو احذفه إن لم تعد تحتاجه.",
+    "stop_request": "إيقاف الطلب",
+    "delete_request": "حذف الطلب",
+    "delete_confirm": "حذف الطلب «{{title}}»؟ لن يراه مقدمو الخدمة بعد الآن."
   },
   "subrules": {
     "title": "أين يُطبَّق الاشتراك الشهري",

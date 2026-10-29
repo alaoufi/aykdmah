@@ -15,7 +15,7 @@ export default function RequestCard({ item, urgent = false }) {
     <article
       role="link" tabIndex={0} data-testid="request-card"
       onClick={() => open(item)} onKeyDown={e => { if (e.key === 'Enter') open(item); }}
-      className={`cursor-pointer ${mine(item) ? 'ring-2 ring-sky-300 ' : forMyService(item) ? 'ring-2 ring-emerald-300 ' : ''}`group bg-white rounded-card border ${
+      className={`cursor-pointer ${mine(item) ? 'ring-2 ring-sky-300 ' : forMyService(item) ? 'ring-2 ring-emerald-300 ' : ''}group bg-white rounded-card border ${
         urgent ? 'border-rose-100' : 'border-slate-200/80'
       } p-4 md:p-5 flex flex-col gap-3 transition hover:shadow-card hover:-translate-y-0.5 hover:border-brand-200`}
     >
