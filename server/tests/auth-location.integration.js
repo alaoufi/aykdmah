@@ -785,6 +785,23 @@ if (!databasePrefix) {
       const byNumber = await api('/auth/login', { method: 'POST', body: { identifier: session.user.referral_code.toLowerCase(), password: '9876' } });
       assert.equal(Number(byNumber.user.id), Number(session.user.id));
       await api('/auth/reset-password', { method: 'POST', body: { phone, code, password: '5555' }, expected: 400 });
+
+      // AYK-041: a requester signs up with the phone code alone and signs in with a new code.
+      await db.query('DELETE FROM auth_rate_limits');
+      const quick = phoneIdentity();
+      await sendCode({ phone: quick, purpose: 'signup' });
+      const quickSession = await simpleRegister({ role: 'client', phone: quick, password: '', city_id: area.city_id, district_id: area.district_id, phone_code: lastCode() });
+      const beforeLogin = sent.length;
+      await sendCode({ phone: phoneIdentity(), purpose: 'login' });
+      assert.equal(sent.length, beforeLogin, 'an unknown number gets no sign-in code');
+      await sendCode({ phone: quick, purpose: 'login' });
+      await api('/auth/login', { method: 'POST', body: { identifier: quick, phone_code: wrongCode() }, expected: 401 });
+      await db.query('DELETE FROM phone_codes WHERE phone = ? AND purpose = ?', [quick, 'login']);
+      await db.query('DELETE FROM auth_rate_limits');
+      await sendCode({ phone: quick, purpose: 'login' });
+      const byCode = await api('/auth/login', { method: 'POST', body: { identifier: quick, phone_code: lastCode() } });
+      assert.equal(Number(byCode.user.id), Number(quickSession.user.id));
+      await api('/auth/login', { method: 'POST', body: { identifier: quick, phone_code: lastCode() }, expected: 401 });
     } finally {
       global.fetch = originalFetch;
       await db.query('DELETE FROM api_integrations WHERE id = ?', [integration.id]);
