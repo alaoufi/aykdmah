@@ -1359,8 +1359,8 @@
         "body": "Sign up with your phone number and a simple password of at least 4 digits, so no one else signs in as you; the name is optional, and your area is detected automatically and can be changed. On the home page pick a profession from the list to see how many providers serve your area and how many are available now."
       },
       "details": {
-        "title": "Write a title and description, pick the profession",
-        "body": "Tap \"Order now\", write a title and a short description and pick the profession, then post the request. Your location is known from sign-up, and you write no price: you agree on price and time in the chat."
+        "title": "Pick the profession needed; the rest is optional",
+        "body": "Tap \"Order now\" and pick the profession needed, the only required field. The sub-service, title and description are optional. Your location is known from sign-up, and you write no price: you agree on price and time in the chat."
       },
       "location": {
         "title": "Check the service location",
@@ -2096,6 +2096,9 @@
     "found_which": "Which provider?",
     "found_rate_next": "After closing, you rate the provider.",
     "close_and_rate": "Close and rate",
-    "close_request": "Close the request"
+    "close_request": "Close the request",
+    "profession": "Profession needed",
+    "sub_service": "Sub-service",
+    "choose_profession": "choose the profession needed"
   }
 }

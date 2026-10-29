@@ -558,7 +558,7 @@ if (!databasePrefix) {
   test('requester journey (AYK-041): phone sign-in, new requests announced, directory, direct contact and finished tasks leave the provider a day later', async () => {
     const area = await simpleArea();
     // A password is always required, and phone-code sign-in is unavailable without SMS.
-    await simpleRegister({ role: 'client', password: '', city_id: area.city_id, district_id: area.district_id }, 400);
+    await simpleRegister({ role: 'client', password: '', city_id: area.city_id, district_id: area.district_id }, 422);
     await api('/auth/phone-code', { method: 'POST', expected: 503, body: { phone: '0551234567', purpose: 'login' } });
 
     const service = await db.queryOne('SELECT id, category_id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');

@@ -1359,8 +1359,8 @@
         "body": "Mag-sign up gamit ang numero ng telepono at simpleng password na hindi bababa sa 4 na numero, para walang ibang makapasok sa ngalan mo; opsyonal ang pangalan, at awtomatikong natutukoy ang iyong lugar at mababago mo ito. Sa home page, pumili ng propesyon sa listahan para makita kung ilang provider ang nasa iyong lugar at ilan ang available ngayon."
       },
       "details": {
-        "title": "Isulat ang pamagat at paglalarawan, pumili ng propesyon",
-        "body": "Pindutin ang \"Mag-order na\", isulat ang pamagat at maikling paglalarawan at pumili ng propesyon, saka i-post ang kahilingan. Alam na ang iyong lokasyon mula sa pag-sign up, at walang presyong isusulat: pag-uusapan ninyo ang presyo at oras sa chat."
+        "title": "Piliin ang propesyong kailangan; opsyonal ang iba",
+        "body": "Pindutin ang \"Mag-order na\" at piliin ang propesyong kailangan, ang tanging kailangang sagutan. Opsyonal ang sub-serbisyo, pamagat at paglalarawan. Alam na ang iyong lokasyon mula sa pag-sign up, at walang presyong isusulat: pag-uusapan ninyo ang presyo at oras sa chat."
       },
       "location": {
         "title": "Suriin ang lokasyon ng serbisyo",
@@ -2096,6 +2096,9 @@
     "found_which": "Aling provider?",
     "found_rate_next": "Pagkatapos isara, bibigyan mo ng rating ang provider.",
     "close_and_rate": "Isara at i-rate",
-    "close_request": "Isara ang kahilingan"
+    "close_request": "Isara ang kahilingan",
+    "profession": "Propesyong kailangan",
+    "sub_service": "Sub-serbisyo",
+    "choose_profession": "piliin ang propesyong kailangan"
   }
 }

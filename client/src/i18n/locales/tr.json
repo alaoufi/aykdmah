@@ -1359,8 +1359,8 @@
         "body": "Başkası sizin adınıza giriş yapamasın diye telefon numaranız ve en az 4 rakamlı basit bir şifreyle kaydolun; ad isteğe bağlıdır, bölgeniz otomatik algılanır ve değiştirilebilir. Ana sayfada listeden bir meslek seçerek bölgenizdeki hizmet verenlerin ve şu anda müsait olanların sayısını görün."
       },
       "details": {
-        "title": "Başlık ve açıklama yazın, mesleği seçin",
-        "body": "\"Şimdi sipariş ver\"e dokunun, bir başlık ve kısa açıklama yazıp mesleği seçin, sonra talebi yayımlayın. Konumunuz kayıttan bilinir ve fiyat yazmazsınız: fiyat ve zamanı sohbette kararlaştırırsınız."
+        "title": "İhtiyaç duyulan mesleği seçin; gerisi isteğe bağlı",
+        "body": "\"Şimdi sipariş ver\"e dokunun ve ihtiyaç duyulan mesleği seçin; zorunlu olan yalnızca budur. Alt hizmet, başlık ve açıklama isteğe bağlıdır. Konumunuz kayıttan bilinir ve fiyat yazmazsınız: fiyat ve zamanı sohbette kararlaştırırsınız."
       },
       "location": {
         "title": "Hizmet yerini kontrol edin",
@@ -2096,6 +2096,9 @@
     "found_which": "Hangi hizmet veren?",
     "found_rate_next": "Kapattıktan sonra hizmet vereni değerlendirirsiniz.",
     "close_and_rate": "Kapat ve değerlendir",
-    "close_request": "Talebi kapat"
+    "close_request": "Talebi kapat",
+    "profession": "İhtiyaç duyulan meslek",
+    "sub_service": "Alt hizmet",
+    "choose_profession": "ihtiyaç duyulan mesleği seçin"
   }
 }

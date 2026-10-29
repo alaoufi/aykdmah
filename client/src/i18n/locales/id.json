@@ -1359,8 +1359,8 @@
         "body": "Daftar dengan nomor ponsel dan kata sandi sederhana minimal 4 angka, agar tidak ada orang lain yang masuk atas nama Anda; nama bersifat opsional, dan area Anda terdeteksi otomatis serta dapat diubah. Di beranda, pilih profesi dari daftar untuk melihat berapa penyedia di area Anda dan berapa yang tersedia sekarang."
       },
       "details": {
-        "title": "Tulis judul dan deskripsi, pilih profesi",
-        "body": "Ketuk \"Pesan sekarang\", tulis judul dan deskripsi singkat lalu pilih profesi, kemudian terbitkan permintaan. Lokasi Anda sudah diketahui dari pendaftaran, dan tidak perlu menulis harga: harga dan waktu disepakati di obrolan."
+        "title": "Pilih profesi yang dibutuhkan; sisanya opsional",
+        "body": "Ketuk \"Pesan sekarang\" dan pilih profesi yang dibutuhkan, satu-satunya isian wajib. Sub-layanan, judul dan deskripsi bersifat opsional. Lokasi Anda sudah diketahui dari pendaftaran, dan tidak perlu menulis harga: harga dan waktu disepakati di obrolan."
       },
       "location": {
         "title": "Periksa lokasi layanan",
@@ -2096,6 +2096,9 @@
     "found_which": "Penyedia yang mana?",
     "found_rate_next": "Setelah ditutup, Anda memberi nilai pada penyedia.",
     "close_and_rate": "Tutup dan beri nilai",
-    "close_request": "Tutup permintaan"
+    "close_request": "Tutup permintaan",
+    "profession": "Profesi yang dibutuhkan",
+    "sub_service": "Sub-layanan",
+    "choose_profession": "pilih profesi yang dibutuhkan"
   }
 }
