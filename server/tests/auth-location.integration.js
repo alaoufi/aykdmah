@@ -713,6 +713,21 @@ if (!databasePrefix) {
     assert.equal((await api('/chat/unread', { token: client.token })).count, 0);
     const inSecond = await api(`/chat/conversations/${two.conversation_id}/messages`, { token: second.token });
     assert.ok(inSecond.some(message => message.content === 'هل تستطيع الحضور اليوم؟'));
+    // "Forward" after sending: one voice note to one chosen provider, then to everyone.
+    const voice = new FormData();
+    voice.append("message_type", "voice");
+    voice.append("files", new Blob([Buffer.concat([Buffer.from("ID3"), Buffer.alloc(64, 2)])], { type: "audio/mpeg" }), "note.mp3");
+    const sentVoice = (await (await fetch(`${base}/chat/conversations/${one.conversation_id}/messages`, { method: "POST", headers: { Authorization: `Bearer ${client.token}` }, body: voice })).json()).data;
+    const forward = (body, token = client.token, expected = 200) => api(`/chat/conversations/${one.conversation_id}/messages/${sentVoice.id}/forward`, { method: "POST", token, expected, body });
+    assert.equal((await forward({ conversation_id: two.conversation_id })).count, 1);
+    assert.equal((await forward({})).count, 1);
+    await forward({ conversation_id: one.conversation_id }, client.token, 403);
+    await forward({}, first.token, 404);
+    const voices = (await api(`/chat/conversations/${two.conversation_id}/messages`, { token: second.token })).filter(message => message.message_type === "voice");
+    assert.equal(voices.length, 2);
+    const heard = await fetch(base.replace(//api$/, "") + voices[0].files[0].file_url, { headers: { Authorization: `Bearer ${second.token}` } });
+    assert.equal(heard.status, 200);
+    assert.equal((await api("/chat/conversations", { token: client.token })).find(c => Number(c.id) === Number(two.conversation_id)).other_user.referral_code, second.user.referral_code);
     // "Private", and a provider's broadcast request, stay in one chat.
     assert.equal((await api(`/chat/conversations/${one.conversation_id}/messages`, { method: 'POST', token: client.token, expected: 201, body: { content: 'خاص' } })).broadcast_count, 1);
     assert.equal((await api(`/chat/conversations/${two.conversation_id}/messages`, { method: 'POST', token: second.token, expected: 201, body: { content: 'رد', broadcast: '1' } })).broadcast_count, 1);

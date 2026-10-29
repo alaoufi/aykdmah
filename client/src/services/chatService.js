@@ -5,6 +5,13 @@ export async function listConversations() {
   return data.data;
 }
 
+// Forward my message to every provider on this request, or to one chat (AYK-043).
+export async function forwardMessage(conversationId, messageId, targetConversationId) {
+  const { data } = await api.post(`/chat/conversations/${conversationId}/messages/${messageId}/forward`,
+    targetConversationId ? { conversation_id: targetConversationId } : {});
+  return data.data;
+}
+
 export async function getChatUnread() {
   const { data } = await api.get('/chat/unread');
   return Number(data.data?.count) || 0;

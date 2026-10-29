@@ -1371,8 +1371,8 @@
         "body": "Talebiniz hemen bölgenizde şu anda çalışan o mesleğin hizmet verenlerine ulaşır ve sizinle iletişime geçerler. Siz de müsait olanla iletişime geçebilir ya da beğendiklerinizi \"Rehberim\"e ekleyip sonra talep oluşturmadan doğrudan iletişime geçebilirsiniz."
       },
       "chat": {
-        "title": "Açıklamanız her sohbette; herkese tek seferde gönderin",
-        "body": "Talebinizin açıklaması, sesi ve fotoğrafları her sohbetin üstünde görünür; her hizmet verene tekrar anlatmazsınız. Gönderirken sorarız: \"Bu talepteki tüm hizmet verenler\" mi, \"yalnızca\" o mu. Biriyle anlaştığınızda \"Anlaştık\"a dokunun, diğer sohbetler kapanır; ya da \"Evet, talebi durdur\"a dokunup \"Hizmet veren buldum\"u işaretleyerek kapatıp değerlendirin. Talep arşivinizde kalır."
+        "title": "Açıklamanız her sohbette; mesajlarınızı \"İlet\"",
+        "body": "Talebinizin açıklaması, sesi ve fotoğrafları her sohbetin üstünde görünür; tekrar anlatmazsınız. Herhangi bir mesaj (ses, video veya yazı) gönderdikten sonra yanında \"İlet\" görünür; bu talepteki herkese ya da adı ve numarasıyla birine gönderebilirsiniz. Biriyle anlaştığınızda \"Anlaştık\"a dokunun, diğer sohbetler kapanır; ya da \"Evet, talebi durdur\"a dokunup \"Hizmet veren buldum\"u işaretleyerek kapatıp değerlendirin. Talep arşivinizde kalır."
       },
       "finish": {
         "title": "Tamamlandığını onayla ve bir inceleme bırak",
@@ -2110,9 +2110,11 @@
     "publish": "Yayımla",
     "publish_hint": "Talebiniz hemen bölgenizdeki o mesleğin hizmet verenlerine ulaşır. Açıklamanız ve fotoğraflarınız her sohbetin üstünde görünür; ayrıntıları ve fiyatı orada kararlaştırırsınız.",
     "brief_title": "Talep",
-    "audience_title": "Bu mesaj kimin için?",
-    "audience_all": "Bu talepteki tüm hizmet verenler",
-    "audience_one": "Yalnızca {{name}}"
+    "forward": "İlet",
+    "forward_title": "Bu mesajı ilet",
+    "forward_all": "Bu talepteki herkese ({{count}})",
+    "number": "No.",
+    "forward_done": "{{count}} sohbete iletildi"
   },
   "subrules": {
     "title": "Aylık aboneliğin uygulandığı yerler",

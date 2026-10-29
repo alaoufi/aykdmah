@@ -91,6 +91,38 @@ const sendMessage = asyncHandler(async (req, res) => {
   return created(res, { ...message, broadcast_count: targets.length });
 });
 
+// POST /chat/conversations/:id/messages/:messageId/forward { conversation_id? } (AYK-043)
+// After sending, the requester forwards their own message (a voice note, a video,
+// text) to every provider they are talking with about this request, or to one.
+const forwardMessage = asyncHandler(async (req, res) => {
+  if (!/^[1-9][0-9]{0,9}$/.test(req.params.messageId) || !/^[1-9][0-9]{0,9}$/.test(req.params.id)) return notFound(res);
+  const message = await Message.findById(req.params.messageId);
+  if (!message || message.deleted_at || Number(message.conversation_id) !== Number(req.params.id)
+      || Number(message.sender_id) !== Number(req.user.id)) return notFound(res);
+  const conversation = await Conversation.findById(req.params.id);
+  const request = conversation?.request_id ? await queryOne('SELECT client_id FROM requests WHERE id = ? AND deleted_at IS NULL', [conversation.request_id]) : null;
+  if (!request || Number(request.client_id) !== Number(req.user.id)) return forbidden(res);
+  const others = await query(`SELECT c.id FROM conversations c JOIN conversation_participants cp ON cp.conversation_id = c.id AND cp.user_id = ?
+    WHERE c.request_id = ? AND c.id <> ? ORDER BY c.id`, [req.user.id, conversation.request_id, conversation.id]);
+  const wanted = req.body?.conversation_id == null ? null : Number(req.body.conversation_id);
+  const targets = [];
+  for (const other of others) {
+    if (wanted !== null && Number(other.id) !== wanted) continue;
+    if (await Conversation.canSend(other.id, req.user.id)) targets.push(Number(other.id));
+  }
+  if (wanted !== null && !targets.length) return forbidden(res);
+  const files = (message.files || []).map(file => ({ file_url: file.file_url, file_name: file.file_name,
+    file_type: file.file_type, file_size: file.file_size, duration_seconds: file.duration_seconds }));
+  const io = req.app.get('io');
+  for (const target of targets) {
+    const id = await Message.create({ conversation_id: target, sender_id: req.user.id, content: message.content,
+      message_type: message.message_type, files, latitude: message.latitude, longitude: message.longitude, accuracy_m: message.accuracy_m });
+    await emitConversation(io, target, 'chat:message', await Message.findById(id));
+    await notifyParticipants(req, target, { content: message.content, isLocation: message.message_type === 'location' });
+  }
+  return success(res, { count: targets.length });
+});
+
 async function notifyParticipants(req, conversationId, { content, isLocation }) {
   const participants = await Conversation.getParticipants(conversationId);
   for (const p of participants) {
@@ -156,6 +188,6 @@ const getConversation = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
-  listConversations, unreadCount, createConversation, getMessages, sendMessage, markRead,
+  listConversations, unreadCount, forwardMessage, createConversation, getMessages, sendMessage, markRead,
   getConversation, deleteMessage, searchMessages,
 };

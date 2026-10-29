@@ -67,7 +67,7 @@ function LocationCard({ lat, lng }) {
 
 // WhatsApp-style bubble: tail on the first message of a run, time and ticks inside the
 // bubble, voice notes with a waveform, photos that open full screen, inline video.
-export default function MessageBubble({ message, isMine, onReply, onDelete, renderTranslation, firstInRun = true }) {
+export default function MessageBubble({ message, isMine, onReply, onDelete, onForward, renderTranslation, firstInRun = true }) {
   const { t } = useTranslation();
   const [showMenu, setShowMenu] = useState(false);
   const [viewer, setViewer] = useState(null);
@@ -151,6 +151,9 @@ export default function MessageBubble({ message, isMine, onReply, onDelete, rend
             </span>
           )}
         </div>
+
+        {/* Shown beside the requester's own message in a request chat (AYK-043). */}
+        {onForward && <button type="button" className="msg-forward" data-testid="forward-message" onClick={() => onForward(message)}>↪ {t('requester.forward')}</button>}
 
         <button className="msg-action" onClick={() => setShowMenu(v => !v)} aria-label={t('common.more')}>⌄</button>
         {showMenu && (
@@ -249,6 +252,8 @@ export default function MessageBubble({ message, isMine, onReply, onDelete, rend
           background: var(--wa-chip); font-size: 18px;
         }
         .voice-note-audio { display: none; }
+        .msg-forward { display: block; margin-top: 4px; padding: 2px 10px; border-radius: 999px; border: 1px solid currentColor;
+          background: transparent; color: var(--primary); font: inherit; font-size: 11.5px; font-weight: 700; cursor: pointer; }
         .msg-action {
           position: absolute; top: 2px; inset-inline-end: 2px; width: 24px; height: 22px; border-radius: 50%; border: 0;
           background: var(--wa-action-bg); color: var(--wa-meta); opacity: 0; cursor: pointer; font-size: 15px; line-height: 1;

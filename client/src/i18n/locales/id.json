@@ -1371,8 +1371,8 @@
         "body": "Permintaan Anda langsung sampai ke penyedia profesi tersebut yang sedang bekerja di area Anda, dan mereka menghubungi Anda. Anda juga bisa menghubungi yang tersedia, atau menambahkan yang Anda suka ke \"Direktori saya\" untuk dihubungi langsung nanti tanpa membuat permintaan."
       },
       "chat": {
-        "title": "Deskripsi Anda di setiap obrolan; kirim ke semua sekaligus",
-        "body": "Deskripsi, suara dan foto permintaan Anda tampil di atas setiap obrolan, jadi tidak perlu mengulang ke setiap penyedia. Saat mengirim, kami bertanya: \"Semua penyedia di permintaan ini\" atau \"Hanya\" dia. Saat sepakat dengan salah satunya, ketuk \"Sepakat\" dan obrolan lain ditutup; atau ketuk \"Ya, hentikan permintaan\" dan centang \"Saya sudah menemukan penyedia\" untuk menutup dan menilai. Permintaan tetap di arsip Anda."
+        "title": "Deskripsi Anda di setiap obrolan; \"Teruskan\" pesan Anda",
+        "body": "Deskripsi, suara dan foto permintaan Anda tampil di atas setiap obrolan, jadi tidak perlu mengulang. Setelah mengirim pesan apa pun (suara, video atau teks), \"Teruskan\" muncul di sampingnya untuk mengirimkannya ke semua di permintaan ini, atau ke salah satunya menurut nama dan nomor. Saat sepakat dengan salah satunya, ketuk \"Sepakat\" dan obrolan lain ditutup; atau ketuk \"Ya, hentikan permintaan\" dan centang \"Saya sudah menemukan penyedia\" untuk menutup dan menilai. Permintaan tetap di arsip Anda."
       },
       "finish": {
         "title": "Konfirmasi selesai dan tinggalkan review",
@@ -2110,9 +2110,11 @@
     "publish": "Terbitkan",
     "publish_hint": "Permintaan Anda langsung sampai ke penyedia profesi tersebut di area Anda. Deskripsi dan foto Anda tampil di atas setiap obrolan, dan detail serta harga disepakati di sana.",
     "brief_title": "Permintaan",
-    "audience_title": "Untuk siapa pesan ini?",
-    "audience_all": "Semua penyedia di permintaan ini",
-    "audience_one": "Hanya {{name}}"
+    "forward": "Teruskan",
+    "forward_title": "Teruskan pesan ini ke",
+    "forward_all": "Semua di permintaan ini ({{count}})",
+    "number": "No.",
+    "forward_done": "Diteruskan ke {{count}} obrolan"
   },
   "subrules": {
     "title": "Di mana langganan bulanan berlaku",

@@ -1371,8 +1371,8 @@
         "body": "Agad na makakarating ang iyong kahilingan sa mga provider ng propesyong iyon na nagtatrabaho ngayon sa iyong lugar, at kokontakin ka nila. Maaari mo ring kontakin ang available, o idagdag ang gusto mo sa \"Aking direktoryo\" para direktang kontakin sa susunod nang walang kahilingan."
       },
       "chat": {
-        "title": "Ang paglalarawan mo sa bawat chat; ipadala sa lahat nang isang beses",
-        "body": "Lalabas ang paglalarawan, boses at larawan ng iyong kahilingan sa itaas ng bawat chat, kaya hindi mo na uulitin sa bawat provider. Sa pagpapadala, itatanong namin: \"Lahat ng provider sa kahilingang ito\" o para sa kanya \"lang\". Kapag nagkasundo kayo ng isa, pindutin ang \"Nagkasundo\" at magsasara ang ibang chat; o pindutin ang \"Oo, itigil ang kahilingan\" at lagyan ng tsek ang \"Nakahanap ako ng provider\" para isara at i-rate. Nananatili ang kahilingan sa iyong archive."
+        "title": "Ang paglalarawan mo sa bawat chat; \"I-forward\" ang mga mensahe",
+        "body": "Lalabas ang paglalarawan, boses at larawan ng iyong kahilingan sa itaas ng bawat chat, kaya hindi mo na uulitin. Pagkatapos magpadala ng anumang mensahe (boses, video o teksto), lalabas sa tabi nito ang \"I-forward\" para ipadala sa lahat sa kahilingang ito, o sa isa sa kanila ayon sa pangalan at numero. Kapag nagkasundo kayo ng isa, pindutin ang \"Nagkasundo\" at magsasara ang ibang chat; o pindutin ang \"Oo, itigil ang kahilingan\" at lagyan ng tsek ang \"Nakahanap ako ng provider\" para isara at i-rate. Nananatili ang kahilingan sa iyong archive."
       },
       "finish": {
         "title": "Kumpirmahin ang pagkumpleto at mag-iwan ng pagsusuri",
@@ -2110,9 +2110,11 @@
     "publish": "I-post",
     "publish_hint": "Agad na makakarating ang iyong kahilingan sa mga provider ng propesyong iyon sa iyong lugar. Lalabas ang iyong paglalarawan at larawan sa itaas ng bawat chat, at doon ninyo pag-uusapan ang detalye at presyo.",
     "brief_title": "Kahilingan",
-    "audience_title": "Para kanino ang mensaheng ito?",
-    "audience_all": "Lahat ng provider sa kahilingang ito",
-    "audience_one": "Para kay {{name}} lang"
+    "forward": "I-forward",
+    "forward_title": "I-forward ang mensaheng ito kay",
+    "forward_all": "Lahat sa kahilingang ito ({{count}})",
+    "number": "Blg.",
+    "forward_done": "Naipasa sa {{count}} chat"
   },
   "subrules": {
     "title": "Saan ipinapatupad ang buwanang subscription",

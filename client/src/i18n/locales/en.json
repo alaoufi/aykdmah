@@ -1371,8 +1371,8 @@
         "body": "Your request reaches providers of that profession working now in your area straight away, and they contact you. You can also contact whoever is available, or add the ones you like to \"My directory\" to contact them directly later without posting a request."
       },
       "chat": {
-        "title": "Your description in every chat; send to all at once",
-        "body": "Your request's description, voice and photos appear at the top of every chat, so you never repeat them to each provider. When you send, we ask: \"All providers on this request\" or \"Only\" the one you're talking with. When you agree with one, tap \"Agreed\" and the other chats close; or tap \"Yes, stop the request\" and tick \"I found a service provider\" to close and rate. The request stays in your archive."
+        "title": "Your description in every chat; \"Forward\" your messages",
+        "body": "Your request description, voice and photos appear at the top of every chat, so you never repeat them. After you send any message (voice, video or text), \"Forward\" appears beside it to send it to everyone on this request, or to one of them by name and number. When you agree with one, tap \"Agreed\" and the other chats close; or tap \"Yes, stop the request\" and tick \"I found a service provider\" to close and rate. The request stays in your archive."
       },
       "finish": {
         "title": "Confirm completion and leave a review",
@@ -2110,9 +2110,11 @@
     "publish": "Post",
     "publish_hint": "Your request reaches providers of that profession in your area right away. Your description and photos appear at the top of every chat, where you agree on details and price.",
     "brief_title": "Request",
-    "audience_title": "Who is this message for?",
-    "audience_all": "All providers on this request",
-    "audience_one": "Only {{name}}"
+    "forward": "Forward",
+    "forward_title": "Forward this message to",
+    "forward_all": "Everyone on this request ({{count}})",
+    "number": "No.",
+    "forward_done": "Forwarded to {{count}} chats"
   },
   "subrules": {
     "title": "Where the monthly subscription applies",
