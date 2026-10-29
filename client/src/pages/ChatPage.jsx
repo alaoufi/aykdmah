@@ -16,7 +16,7 @@ import LocalMessageTranslation from '../components/chat/LocalMessageTranslation'
 import Avatar from '../components/common/Avatar';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import { LoadingState, EmptyState } from '../components/common/Spinner';
-import { formatRelativeTime, truncate, dayLabel, isSameDay } from '../utils/formatters';
+import { formatRelativeTime, formatTime, truncate, dayLabel, isSameDay } from '../utils/formatters';
 import { getCurrentPosition } from '../utils/geo';
 import { createPollingLoop } from '../utils/polling';
 import { agreeRequest } from '../services/requestService';
@@ -359,7 +359,7 @@ export default function ChatPage() {
                         : otherParticipant.is_online
                         ? '🟢 ' + t('chat.online')
                         : otherParticipant.last_seen_at
-                          ? `${t('chat.last_seen')} ${formatRelativeTime(otherParticipant.last_seen_at)}`
+                          ? `${t('chat.last_seen')} ${dayLabel(otherParticipant.last_seen_at, t)} ${formatTime(otherParticipant.last_seen_at)}`
                           : ''}
                     </div>
                   </div>
