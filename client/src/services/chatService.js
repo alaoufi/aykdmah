@@ -5,6 +5,11 @@ export async function listConversations() {
   return data.data;
 }
 
+export async function getChatUnread() {
+  const { data } = await api.get('/chat/unread');
+  return Number(data.data?.count) || 0;
+}
+
 export async function getConversation(id) {
   const { data } = await api.get(`/chat/conversations/${id}`);
   return data.data;

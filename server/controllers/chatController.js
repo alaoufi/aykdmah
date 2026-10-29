@@ -8,6 +8,8 @@ const { withUploadedFiles } = require('../utils/uploadPersistence');
 const { emitConversation } = require('../utils/conversationEvents');
 const { validateChatMessage, recordingDuration } = require('../utils/chatMessageValidation');
 
+const unreadCount = asyncHandler(async (req, res) => success(res, { count: await Conversation.unreadTotal(req.user.id) }));
+
 const listConversations = asyncHandler(async (req, res) => {
   const { page = 1, limit = 20 } = req.query;
   const items = await Conversation.listForUser(req.user.id, { page, limit });
@@ -154,6 +156,6 @@ const getConversation = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
-  listConversations, createConversation, getMessages, sendMessage, markRead,
+  listConversations, unreadCount, createConversation, getMessages, sendMessage, markRead,
   getConversation, deleteMessage, searchMessages,
 };

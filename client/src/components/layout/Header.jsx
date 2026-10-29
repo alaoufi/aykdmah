@@ -14,7 +14,7 @@ import { IconMenu, IconBell, IconClose } from '../common/Icons';
 export default function Header() {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
-  const { unread } = useNotifications();
+  const { unread, chatUnread } = useNotifications();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -103,6 +103,12 @@ export default function Header() {
         {/* Mobile controls cluster — sits on the END edge */}
         <ThemeSwitcher variant="compact" className="md:hidden" />
         <LanguageSwitcher variant="compact" className="md:hidden" />
+        {/* The notifications bell on phones too: its count is not the chats count. */}
+        {user && <Link to="/notifications" data-testid="mobile-bell"
+          className="md:hidden relative w-10 h-10 grid place-items-center rounded-pill text-fg-muted hover:bg-surface-alt no-underline" aria-label={t('notification.title')}>
+          <IconBell size={18} />
+          {unread > 0 && <span className="absolute -top-0.5 -left-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-danger text-white text-[10px] font-bold grid place-items-center">{unread > 9 ? '9+' : unread}</span>}
+        </Link>}
         <div className="xl:hidden shrink-0">
         <button
           ref={mobileButton}
@@ -134,9 +140,9 @@ export default function Header() {
               }
             >
               {l.label}
-              {l.to === '/chat' && unread > 0 && (
+              {l.to === '/chat' && chatUnread > 0 && (
                 <span className="absolute -top-0.5 -left-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-danger text-white text-[10px] font-bold grid place-items-center">
-                  {unread > 9 ? '9+' : unread}
+                  {chatUnread > 9 ? '9+' : chatUnread}
                 </span>
               )}
             </NavLink>

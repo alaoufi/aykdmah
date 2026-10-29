@@ -231,6 +231,13 @@ async function listForUser(userId, { page = 1, limit = 20 } = {}) {
   );
 }
 
+// Unread messages in the chats the user can see, for the chat badge (the
+// notification count belongs to the bell, not to "Chats").
+async function unreadTotal(userId) {
+  const rows = await listForUser(userId, { page: 1, limit: 100 });
+  return rows.reduce((sum, row) => sum + (Number(row.unread_count) || 0), 0);
+}
+
 async function updateLastRead(conversationId, userId) {
   await query(
     'UPDATE conversation_participants SET last_read_at = CURRENT_TIMESTAMP WHERE conversation_id = ? AND user_id = ?',
@@ -243,6 +250,7 @@ async function updateLastRead(conversationId, userId) {
 }
 
 module.exports = {
+  unreadTotal,
   findOrCreateBetween, findById, getParticipants, isParticipant, canSend, assertCanSend,
   canShareLocation, assertCanShareLocation, getContacts, listForUser, updateLastRead,
 };

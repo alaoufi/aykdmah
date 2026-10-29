@@ -7,6 +7,7 @@ import {
   deleteMessage, sendLocationMessage,
 } from '../services/chatService';
 import { useAuth } from '../hooks/useAuth';
+import { useNotifications } from '../hooks/useNotifications';
 import { useSocket } from '../hooks/useSocket';
 import MessageBubble from '../components/chat/MessageBubble';
 import ChatInput from '../components/chat/ChatInput';
@@ -24,6 +25,8 @@ export default function ChatPage() {
   const { t } = useTranslation();
   const { id: activeId } = useParams();
   const { user } = useAuth();
+  // Reading a chat updates the unread count on "Chats".
+  const { refresh: refreshBadges } = useNotifications();
   const { socket, realtimeMode } = useSocket();
   const navigate = useNavigate();
 
@@ -104,7 +107,7 @@ export default function ChatPage() {
           setMessageErrorScope(null);
           if (!markingRead && msgs?.some(m => m.sender_id !== user.id && !m.is_read)) {
             markingRead = true;
-            markRead(activeId).then(loadList).catch(() => {}).finally(() => { markingRead = false; });
+            markRead(activeId).then(() => { loadList(); refreshBadges(); }).catch(() => {}).finally(() => { markingRead = false; });
           }
         },
         onError: (error) => {
@@ -132,7 +135,7 @@ export default function ChatPage() {
       if (scopeRef.current !== scope) return;
       if (Number(msg.conversation_id) === Number(activeId)) {
         setMessages(prev => prev.some(m => m.id === msg.id) ? prev : [...prev, msg]);
-        markRead(activeId).catch(() => {});
+        markRead(activeId).then(refreshBadges).catch(() => {});
       }
       loadList();
     };

@@ -12,7 +12,7 @@ export default function BottomNav() {
   const navRef = useRef(null);
   const { t } = useTranslation();
   const { user } = useAuth();
-  const { unread } = useNotifications();
+  const { chatUnread } = useNotifications();
   // Admins go to their panel; everyone else opens their own profile (account type, area, password).
   const accountLink = user?.role === 'admin' ? '/admin' : '/profile';
 
@@ -61,7 +61,7 @@ export default function BottomNav() {
       { id: 'services', to: '/notifications', label: t('nav.notifications'), Icon: IconBell },
       { id: 'request', to: '/opportunities', label: t('work.requests_nav'), Icon: IconSearch, fab: true },
     ]),
-    { id: 'chat', to: user ? '/chat' : '/login', label: t('nav.chat'), Icon: IconChat, badge: unread },
+    { id: 'chat', to: user ? '/chat' : '/login', label: t('nav.chat'), Icon: IconChat, badge: chatUnread },
     { id: 'account', to: user ? accountLink : '/login', label: user ? t('nav.profile') : t('nav.login'), Icon: IconUser },
   ];
 

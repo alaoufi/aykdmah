@@ -8,6 +8,7 @@ const { uploadLimiter } = require('../middleware/rateLimiter');
 const { requireMarketplaceWrite } = require('../middleware/verificationPolicy');
 
 router.get('/conversations', authenticate, c.listConversations);
+router.get('/unread', authenticate, c.unreadCount);
 router.post('/conversations', authenticate, requireMarketplaceWrite, c.createConversation);
 router.get('/conversations/:id', authenticate, c.getConversation);
 router.get('/conversations/:id/messages', authenticate, c.getMessages);

@@ -708,6 +708,9 @@ if (!databasePrefix) {
     const everyone = await api(`/chat/conversations/${one.conversation_id}/messages`, { method: 'POST', token: client.token, expected: 201,
       body: { content: 'هل تستطيع الحضور اليوم؟', broadcast: '1' } });
     assert.equal(everyone.broadcast_count, 2);
+    // The "Chats" badge counts unread chat messages, not notifications.
+    assert.ok((await api('/chat/unread', { token: second.token })).count >= 1);
+    assert.equal((await api('/chat/unread', { token: client.token })).count, 0);
     const inSecond = await api(`/chat/conversations/${two.conversation_id}/messages`, { token: second.token });
     assert.ok(inSecond.some(message => message.content === 'هل تستطيع الحضور اليوم؟'));
     // "Private", and a provider's broadcast request, stay in one chat.
