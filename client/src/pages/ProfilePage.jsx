@@ -264,6 +264,8 @@ export default function ProfilePage() {
       <h2 className="mb-4">{t('profile.title')}</h2>
       {msg && <div className="badge badge-success mb-3" role="status">{msg}</div>}
       {err && <div role="alert" className="form-error mb-3" style={{ padding: 10, background: 'rgba(239,68,68,.1)', borderRadius: 8 }}>{err}</div>}
+      {/* The same one-tap permissions as at sign-up, first on the page (AYK-047). */}
+      <div className="mb-4"><DevicePermissions /></div>
       <div className="card mb-4" id="my-area">
         <div className="flex items-center gap-3 mb-3">
           <Avatar src={user?.avatar} name={user?.full_name} size="lg" />
@@ -308,8 +310,6 @@ export default function ProfilePage() {
         initialLat={mapCenter?.lat} initialLon={mapCenter?.lon}
         initialPointSelected={hasPoint}
         onConfirm={result => { cancelLocation(); applyPoint(result.lat, result.lon, result); setPointConfirmed(true); }} />
-      {/* The same one-tap permissions as at sign-up, for existing accounts (AYK-047). */}
-      <div className="mb-4"><DevicePermissions /></div>
       <CallAlerts />
       <AccountTypeSection onSaved={setMsg} onError={setErr} />
       {user?.role === 'provider' && <AvailabilityEditor onSaved={setMsg} onError={setErr} />}

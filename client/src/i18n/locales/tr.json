@@ -2192,6 +2192,7 @@
     "notifications": "Bildirimler",
     "allow": "Tümüne izin ver",
     "location": "Konum",
-    "camera": "Kamera"
+    "camera": "Kamera",
+    "bar": "Mesajlar ve aramalar çalışsın diye konum, mikrofon, kamera ve bildirimlere izin verin."
   }
 }

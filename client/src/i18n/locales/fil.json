@@ -2192,6 +2192,7 @@
     "notifications": "Mga notification",
     "allow": "Payagan lahat",
     "location": "Lokasyon",
-    "camera": "Camera"
+    "camera": "Camera",
+    "bar": "Payagan ang lokasyon, mikropono, camera at notification para gumana ang mensahe at tawag."
   }
 }

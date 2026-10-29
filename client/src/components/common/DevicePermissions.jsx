@@ -1,6 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { enablePush, pushState } from '../../services/pushService';
+import { useAuth } from '../../hooks/useAuth';
+
+const LATER_KEY = 'ayk_permissions_later';
+const later = () => { try { return localStorage.getItem(LATER_KEY) === '1'; } catch (_) { return false; } };
 
 // One tap right after sign-up asks for everything the site needs (AYK-047): the
 // location, the microphone and camera (one prompt), and notifications. Kept simple:
@@ -24,13 +28,17 @@ async function askMedia() {
   } catch (err) { return err?.name === 'NotAllowedError' ? 'denied' : 'failed'; }
 }
 
-export default function DevicePermissions() {
+// variant 'card' (sign-up, profile) or 'bar' (top of every page while something is missing).
+export default function DevicePermissions({ variant = 'card' }) {
   const { t } = useTranslation();
+  const { user } = useAuth();
+  const [hidden, setHidden] = useState(variant === 'bar' && later());
+  const [checked, setChecked] = useState(false);
   const [state, setState] = useState({ location: 'prompt', media: 'prompt', push: 'off' });
   const [busy, setBusy] = useState(false);
   useEffect(() => {
     Promise.all([permissionState('geolocation'), permissionState('microphone'), pushState().catch(() => 'unsupported')])
-      .then(([location, media, push]) => setState({ location, media, push }));
+      .then(([location, media, push]) => { setState({ location, media, push }); setChecked(true); });
   }, []);
   const ok = value => value === 'granted' || value === 'on';
   const done = ok(state.location) && ok(state.media) && (ok(state.push) || state.push === 'unsupported');
@@ -49,6 +57,17 @@ export default function DevicePermissions() {
   const tick = (value, label) => (
     <span className={`text-[13px] ${ok(value) ? 'text-success font-bold' : 'text-fg-muted'}`}>{ok(value) ? '✓' : '○'} {label}</span>
   );
+
+  if (variant === 'bar') {
+    if (!user || hidden || !checked || done) return null;
+    return (
+      <div className="bg-primary-soft border-b border-border px-4 py-2 flex flex-wrap items-center justify-center gap-2 text-[13px]" data-testid="permissions-bar">
+        <span>📍🎤📷🔔 {t('permissions.bar')}</span>
+        <button type="button" className="btn btn-primary btn-sm" disabled={busy} onClick={allowAll} data-testid="bar-allow-all">{busy ? '…' : `✅ ${t('permissions.allow')}`}</button>
+        <button type="button" className="text-fg-muted underline" onClick={() => { try { localStorage.setItem(LATER_KEY, '1'); } catch (_) { /* private mode */ } setHidden(true); }}>{t('push.later')}</button>
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-card border border-border bg-surface-alt p-3 space-y-2" data-testid="device-permissions">

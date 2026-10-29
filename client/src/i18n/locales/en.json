@@ -2192,6 +2192,7 @@
     "notifications": "Notifications",
     "allow": "Allow all",
     "location": "Location",
-    "camera": "Camera"
+    "camera": "Camera",
+    "bar": "Allow location, microphone, camera and notifications so messages and calls work."
   }
 }

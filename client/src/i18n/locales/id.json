@@ -2192,6 +2192,7 @@
     "notifications": "Notifikasi",
     "allow": "Izinkan semua",
     "location": "Lokasi",
-    "camera": "Kamera"
+    "camera": "Kamera",
+    "bar": "Izinkan lokasi, mikrofon, kamera, dan notifikasi agar pesan dan panggilan berfungsi."
   }
 }
