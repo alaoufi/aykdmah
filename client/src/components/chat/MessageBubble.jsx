@@ -161,6 +161,10 @@ export default function MessageBubble({ message, isMine, onReply, onDelete, onFo
             {onReply && (
               <button onClick={() => { setShowMenu(false); onReply(message); }}>↩ {t('chat.reply')}</button>
             )}
+            {/* Forwarding is the requester's only (onForward is never given to providers). */}
+            {onForward && (
+              <button onClick={() => { setShowMenu(false); onForward(message); }} data-testid="menu-forward">↪ {t('requester.forward')}</button>
+            )}
             {message.content && navigator.clipboard && (
               <button onClick={() => { setShowMenu(false); navigator.clipboard.writeText(message.content).catch(() => {}); }}>📋 {t('chat.copy')}</button>
             )}
