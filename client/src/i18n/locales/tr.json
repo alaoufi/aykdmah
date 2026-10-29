@@ -2053,7 +2053,8 @@
     "open_now_short": "Aç şimdi",
     "requests_30d_short": "Başvurular (30 gün)",
     "competitors_short": "Yarışmacılar",
-    "setup_hint": "Profilinizde işinizi ve pazarınızı görmek için kapsadığınız mahalleleri tamamlayın."
+    "setup_hint": "Profilinizde işinizi ve pazarınızı görmek için kapsadığınız mahalleleri tamamlayın.",
+    "requesters_note": "Hizmet verdiğiniz mahallelerde kayıtlı hizmet arayanlar. Gizlilikleri için adları gösterilmez; talepleri yayımlanır yayımlanmaz size ulaşır."
   },
   "work": {
     "title": "İşim",

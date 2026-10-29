@@ -2053,7 +2053,8 @@
     "open_now_short": "Open now",
     "requests_30d_short": "Requests (30 days)",
     "competitors_short": "Competitors",
-    "setup_hint": "Complete your profession and the neighbourhoods you cover in your profile to see your market."
+    "setup_hint": "Complete your profession and the neighbourhoods you cover in your profile to see your market.",
+    "requesters_note": "Requesters registered in the districts you cover. Their names are not shown, for their privacy; their requests reach you as soon as they post them, in \"Requests in my profession\"."
   },
   "work": {
     "title": "My work",

@@ -11,6 +11,7 @@ export default function MyMarket() {
   const lang = i18n.resolvedLanguage || 'ar';
   const [data, setData] = useState(null);
   const [names, setNames] = useState(new Map());
+  const [note, setNote] = useState(false);
   useEffect(() => {
     getMyMarket().then(setData).catch(() => setData({ categories: [] }));
     listCategories().then(rows => setNames(new Map(rows.map(row => [Number(row.id), row])))).catch(() => {});
@@ -24,22 +25,26 @@ export default function MyMarket() {
     );
   }
   const total = key => data.categories.reduce((sum, row) => sum + (row[key] || 0), 0);
-  const tile = (icon, value, label) => (
-    <div className="rounded-card bg-surface border border-border p-3 text-center">
-      <div className="text-xl md:text-2xl font-extrabold text-fg">{icon} {value}</div>
-      <div className="text-[11.5px] md:text-[12.5px] text-fg-muted mt-0.5 leading-snug">{label}</div>
-    </div>
-  );
+  // Every number opens what it counts (AYK-044): the requests board, the providers
+  // map, or, for registered requesters (never listed, for their privacy), a short note.
+  const box = 'block rounded-card bg-surface border border-border p-3 text-center no-underline text-inherit hover:border-primary transition';
+  const inner = (icon, value, label) => (<>
+    <div className="text-xl md:text-2xl font-extrabold text-fg">{icon} {value}</div>
+    <div className="text-[11.5px] md:text-[12.5px] text-fg-muted mt-0.5 leading-snug">{label} ‹</div>
+  </>);
+  const tile = (icon, value, label, to) => <Link to={to} className={box} data-testid="market-tile">{inner(icon, value, label)}</Link>;
   return (
     <section data-testid="my-market" aria-labelledby="my-market-title">
       <h2 id="my-market-title" className="text-xl md:text-2xl font-extrabold text-fg m-0">📊 {t('market.title')}</h2>
       <p className="text-[13px] text-fg-muted mt-1 mb-3">{t('market.hint', { count: data.areas })}</p>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
-        {tile('🙋', data.requesters_in_area, t('market.requesters_in_area'))}
-        {tile('📨', total('open_now'), t('market.open_now'))}
-        {tile('📈', total('requesters_30d'), t('market.requesters_30d'))}
-        {tile('👷', Math.max(...data.categories.map(row => row.competitors)), t('market.competitors'))}
+        <button type="button" className={`${box} w-full font-[inherit] cursor-pointer`} aria-expanded={note} onClick={() => setNote(v => !v)} data-testid="market-tile">
+          {inner('🙋', data.requesters_in_area, t('market.requesters_in_area'))}</button>
+        {tile('📨', total('open_now'), t('market.open_now'), '/opportunities')}
+        {tile('📈', total('requesters_30d'), t('market.requesters_30d'), '/opportunities')}
+        {tile('👷', Math.max(...data.categories.map(row => row.competitors)), t('market.competitors'), '/providers/map')}
       </div>
+      {note && <p className="text-[12.5px] text-fg-muted mt-2 mb-0 card" role="status">🙋 {t('market.requesters_note')}</p>}
       {data.categories.length > 1 && (
         <div className="mt-3 overflow-x-auto">
           <table className="w-full text-[13px] text-fg">

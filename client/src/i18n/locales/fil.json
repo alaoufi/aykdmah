@@ -2053,7 +2053,8 @@
     "open_now_short": "Buksan ngayon",
     "requests_30d_short": "Mga kahilingan (30 araw)",
     "competitors_short": "Mga kakumpitensya",
-    "setup_hint": "Mag-complete ng iyong propesyon at ng mga kapitbahayan na iyong nasasakupan sa iyong profile upang makita ang iyong merkado."
+    "setup_hint": "Mag-complete ng iyong propesyon at ng mga kapitbahayan na iyong nasasakupan sa iyong profile upang makita ang iyong merkado.",
+    "requesters_note": "Mga humihiling na nakarehistro sa mga distritong sakop mo. Hindi ipinapakita ang kanilang pangalan para sa privacy; darating sa iyo ang kanilang kahilingan sa sandaling i-post nila."
   },
   "work": {
     "title": "Trabaho ko",

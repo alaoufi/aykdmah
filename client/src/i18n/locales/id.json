@@ -2053,7 +2053,8 @@
     "open_now_short": "Buka sekarang",
     "requests_30d_short": "Permintaan (30 hari)",
     "competitors_short": "Kompetitor",
-    "setup_hint": "Tuliskan profesi Anda dan daerah yang Anda tulis dalam profil Anda untuk melihat pasar Anda."
+    "setup_hint": "Tuliskan profesi Anda dan daerah yang Anda tulis dalam profil Anda untuk melihat pasar Anda.",
+    "requesters_note": "Pencari layanan yang terdaftar di lingkungan yang Anda layani. Nama mereka tidak ditampilkan demi privasi; permintaan mereka sampai ke Anda begitu diterbitkan."
   },
   "work": {
     "title": "Pekerjaan saya",
