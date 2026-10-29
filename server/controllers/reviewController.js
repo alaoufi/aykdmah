@@ -19,7 +19,7 @@ const create = asyncHandler(async (req, res) => {
   // Direction is inferred from who's writing
   const isClient = request.client_id === req.user.id;
   const isProvider = request.assigned_provider_id === req.user.id;
-  if (!isClient && !isProvider) return forbidden(res);
+  if (!isClient && !isProvider) return forbidden(res, req.t('deny_review_parties'));
 
   const review_type = isClient ? 'on_provider' : 'on_requester';
   const target_user_id = isClient ? request.assigned_provider_id : request.client_id;
@@ -116,7 +116,7 @@ const reply = asyncHandler(async (req, res) => {
   const review = await Review.findById(req.params.id);
   if (!review) return notFound(res);
   // Only the target of the review (the rated user) may reply
-  if (review.target_user_id !== req.user.id) return forbidden(res);
+  if (review.target_user_id !== req.user.id) return forbidden(res, req.t('deny_review_reply'));
   await Review.addReply(req.params.id, replyText);
   return success(res, null, req.t('reply_added'));
 });

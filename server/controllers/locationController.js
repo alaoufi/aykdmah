@@ -20,7 +20,7 @@ function inferRole(user, request) {
 const shareInConversation = asyncHandler(async (req, res) => {
   const conversationId = req.params.id;
   const ok = await Conversation.canShareLocation(conversationId, req.user.id);
-  if (!ok) return forbidden(res);
+  if (!ok) return forbidden(res, req.t('deny_tracking'));
 
   const { latitude, longitude, accuracy_m, heading, speed_kmh, is_live = true } = req.body;
   if (latitude == null || longitude == null) return error(res, req.t('invalid_data'));
@@ -68,7 +68,7 @@ const shareInConversation = asyncHandler(async (req, res) => {
 const getLatestForConversation = asyncHandler(async (req, res) => {
   const conversationId = req.params.id;
   const ok = await Conversation.isParticipant(conversationId, req.user.id);
-  if (!ok) return forbidden(res);
+  if (!ok) return forbidden(res, req.t('deny_chat_participant'));
   const items = await LocationShare.getLatestForConversation(conversationId);
   return success(res, items);
 });
@@ -77,7 +77,7 @@ const getLatestForConversation = asyncHandler(async (req, res) => {
 const stopSharing = asyncHandler(async (req, res) => {
   const conversationId = req.params.id;
   const ok = await Conversation.isParticipant(conversationId, req.user.id);
-  if (!ok) return forbidden(res);
+  if (!ok) return forbidden(res, req.t('deny_chat_participant'));
   await LocationShare.stopSharing(req.user.id, conversationId);
   const io = req.app.get('io');
   if (io) await emitConversation(io, conversationId, 'location:stop', { conversationId: Number(conversationId), userId: req.user.id });
@@ -91,7 +91,7 @@ const getRequestTracking = asyncHandler(async (req, res) => {
   const allowed = hasPermission(req.user, 'requests.manage')
     || request.client_id === req.user.id
     || request.assigned_provider_id === req.user.id;
-  if (!allowed) return forbidden(res);
+  if (!allowed) return forbidden(res, req.t('deny_tracking'));
 
   const conv = await require('../config/database').queryOne(
     `SELECT c.id FROM conversations c

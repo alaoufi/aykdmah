@@ -16,7 +16,7 @@ const create = asyncHandler(async (req, res) => {
   const request = await Request.findById(request_id);
   if (!request) return notFound(res, req.t('request_not_found'));
   if (request.status !== 'open') return error(res, req.t('request_not_open'), 409);
-  if (request.client_id === req.user.id) return forbidden(res);
+  if (request.client_id === req.user.id) return forbidden(res, req.t('deny_own_request'));
 
   const offerId = await Offer.create({
     request_id, provider_id: req.user.id, price, message, estimated_duration, available_from,
@@ -39,7 +39,7 @@ const getForRequest = asyncHandler(async (req, res) => {
   if (!request) return notFound(res);
   const isOwner = request.client_id === req.user.id;
   const canViewAll = isOwner || hasPermission(req.user, 'requests.manage');
-  if (!canViewAll && req.user.role !== 'provider') return forbidden(res);
+  if (!canViewAll && req.user.role !== 'provider') return forbidden(res, req.t('deny_providers_only'));
   const items = await Offer.findByRequest(req.params.requestId, canViewAll ? {} : { providerId: req.user.id });
   return success(res, items);
 });
@@ -55,7 +55,7 @@ const accept = asyncHandler(async (req, res) => {
   if (!offer) return notFound(res);
   const request = await Request.findById(offer.request_id);
   if (!request) return notFound(res);
-  if (request.client_id !== req.user.id) return forbidden(res);
+  if (request.client_id !== req.user.id) return forbidden(res, req.t('deny_request_owner'));
   if (request.status !== 'open') return error(res, req.t('request_not_open'), 409);
 
   await Offer.acceptOffer(req.params.id, req.user.id);
@@ -76,7 +76,7 @@ const reject = asyncHandler(async (req, res) => {
   if (!offer) return notFound(res);
   const request = await Request.findById(offer.request_id);
   if (!request) return notFound(res);
-  if (request.client_id !== req.user.id) return forbidden(res);
+  if (request.client_id !== req.user.id) return forbidden(res, req.t('deny_request_owner'));
 
   const updated = await Offer.rejectOffer(req.params.id, req.user.id);
   await notificationService.notifyUser(offer.provider_id, {

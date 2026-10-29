@@ -113,7 +113,7 @@ const updateStatus = asyncHandler(async (req, res) => {
   const isOwner = request.client_id === req.user.id;
   const isAssigned = request.assigned_provider_id === req.user.id;
   const isAdmin = hasPermission(req.user, 'requests.manage');
-  if (!isOwner && !isAssigned && !isAdmin) return forbidden(res);
+  if (!isOwner && !isAssigned && !isAdmin) return forbidden(res, req.t('deny_request_parties'));
 
   const { status, cancellation_reason } = req.body;
   const allowed = ['in_progress', 'completed', 'cancelled', 'closed'];
@@ -148,9 +148,9 @@ const contact = asyncHandler(async (req, res) => {
   if (request.status !== 'open') return error(res, req.t('request_not_open'), 409);
   const owner = request.client_id === req.user.id;
   const providerId = owner ? Number(req.body?.provider_id) : req.user.id;
-  if (!owner && req.user.role !== 'provider') return forbidden(res);
+  if (!owner && req.user.role !== 'provider') return forbidden(res, req.t('deny_providers_only'));
   if (!Number.isSafeInteger(providerId) || providerId < 1) return error(res, req.t('invalid_data'));
-  if (request.direct_provider_id && providerId !== Number(request.direct_provider_id)) return forbidden(res);
+  if (request.direct_provider_id && providerId !== Number(request.direct_provider_id)) return forbidden(res, req.t('deny_direct_request'));
   // A provider starting the contact needs a subscription where one applies (AYK-042);
   // a requester contacting a provider is never stopped.
   if (!owner && await require('../services/subscriptionRules').blocks(providerId, { categoryId: request.category_id, cityId: request.city_id })) {
@@ -174,7 +174,7 @@ const agree = asyncHandler(async (req, res) => {
   if (!validId(req.params.id)) return notFound(res);
   const request = await Request.findById(req.params.id);
   if (!request) return notFound(res);
-  if (request.client_id !== req.user.id) return forbidden(res);
+  if (request.client_id !== req.user.id) return forbidden(res, req.t('deny_request_owner'));
   if (request.status !== 'open') return error(res, req.t('request_not_open'), 409);
   const providerId = Number(req.body?.provider_id);
   if (!Number.isSafeInteger(providerId) || providerId < 1) return error(res, req.t('invalid_data'));
@@ -234,7 +234,7 @@ const direct = asyncHandler(async (req, res) => {
 const remove = asyncHandler(async (req, res) => {
   const request = await Request.findById(req.params.id);
   if (!request) return notFound(res);
-  if (request.client_id !== req.user.id && !hasPermission(req.user, 'requests.manage')) return forbidden(res);
+  if (request.client_id !== req.user.id && !hasPermission(req.user, 'requests.manage')) return forbidden(res, req.t('deny_request_owner'));
   await Request.softDelete(req.params.id, req.user);
   return success(res, null, req.t('request_deleted'));
 });
@@ -243,7 +243,7 @@ const startChat = asyncHandler(async (req, res) => {
   const request = await Request.findById(req.params.id);
   if (!request) return notFound(res);
 
-  if (![request.client_id, request.assigned_provider_id].includes(req.user.id)) return forbidden(res);
+  if (![request.client_id, request.assigned_provider_id].includes(req.user.id)) return forbidden(res, req.t('deny_request_parties'));
   const otherUserId = req.user.id === request.client_id
     ? request.assigned_provider_id
     : request.client_id;

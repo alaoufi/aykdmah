@@ -27,7 +27,7 @@ const createConversation = asyncHandler(async (req, res) => {
 const getMessages = asyncHandler(async (req, res) => {
   const conversationId = req.params.id;
   const isParticipant = await Conversation.isParticipant(conversationId, req.user.id);
-  if (!isParticipant) return forbidden(res);
+  if (!isParticipant) return forbidden(res, req.t('deny_chat_participant'));
 
   const { before, limit = 50 } = req.query;
   const messages = await Message.listByConversation(conversationId, { beforeId: before, limit });
@@ -37,10 +37,10 @@ const getMessages = asyncHandler(async (req, res) => {
 const sendMessage = asyncHandler(async (req, res) => {
   const conversationId = req.params.id;
   const isParticipant = await Conversation.isParticipant(conversationId, req.user.id);
-  if (!isParticipant) return forbidden(res);
+  if (!isParticipant) return forbidden(res, req.t('deny_chat_participant'));
 
   const { content, message_type = 'text', reply_to_id, latitude, longitude, accuracy_m } = req.body;
-  if (!await Conversation.canSend(conversationId, req.user.id)) return forbidden(res);
+  if (!await Conversation.canSend(conversationId, req.user.id)) return forbidden(res, req.t('deny_chat_closed'));
   const isLocation = message_type === 'location' && latitude != null && longitude != null;
   if (!content && !(req.files || []).length && !isLocation) return error(res, req.t('message_empty'));
 
@@ -101,7 +101,7 @@ const forwardMessage = asyncHandler(async (req, res) => {
       || Number(message.sender_id) !== Number(req.user.id)) return notFound(res);
   const conversation = await Conversation.findById(req.params.id);
   const request = conversation?.request_id ? await queryOne('SELECT client_id FROM requests WHERE id = ? AND deleted_at IS NULL', [conversation.request_id]) : null;
-  if (!request || Number(request.client_id) !== Number(req.user.id)) return forbidden(res);
+  if (!request || Number(request.client_id) !== Number(req.user.id)) return forbidden(res, req.t('deny_request_owner'));
   const others = await query(`SELECT c.id FROM conversations c JOIN conversation_participants cp ON cp.conversation_id = c.id AND cp.user_id = ?
     WHERE c.request_id = ? AND c.id <> ? ORDER BY c.id`, [req.user.id, conversation.request_id, conversation.id]);
   const wanted = req.body?.conversation_id == null ? null : Number(req.body.conversation_id);
@@ -110,7 +110,7 @@ const forwardMessage = asyncHandler(async (req, res) => {
     if (wanted !== null && Number(other.id) !== wanted) continue;
     if (await Conversation.canSend(other.id, req.user.id)) targets.push(Number(other.id));
   }
-  if (wanted !== null && !targets.length) return forbidden(res);
+  if (wanted !== null && !targets.length) return forbidden(res, req.t('deny_chat_closed'));
   const files = (message.files || []).map(file => ({ file_url: file.file_url, file_name: file.file_name,
     file_type: file.file_type, file_size: file.file_size, duration_seconds: file.duration_seconds }));
   const io = req.app.get('io');
@@ -128,7 +128,7 @@ const forwardMessage = asyncHandler(async (req, res) => {
 const translations = new Map();
 const translateMessage = asyncHandler(async (req, res) => {
   if (!/^[1-9][0-9]{0,9}$/.test(req.params.messageId) || !/^[1-9][0-9]{0,9}$/.test(req.params.id)) return notFound(res);
-  if (!await Conversation.isParticipant(req.params.id, req.user.id)) return forbidden(res);
+  if (!await Conversation.isParticipant(req.params.id, req.user.id)) return forbidden(res, req.t('deny_chat_participant'));
   const message = await Message.findById(req.params.messageId);
   if (!message || Number(message.conversation_id) !== Number(req.params.id) || !message.content) return notFound(res);
   const { translate, SUPPORTED } = require('../services/translationService');
@@ -168,7 +168,7 @@ const deleteMessage = asyncHandler(async (req, res) => {
   const row = await Message.getSenderId(messageId);
   if (!row) return notFound(res);
   if (Number(row.sender_id) !== Number(req.user.id) || Number(row.conversation_id) !== Number(req.params.id)
-      || !await Conversation.isParticipant(row.conversation_id, req.user.id)) return forbidden(res);
+      || !await Conversation.isParticipant(row.conversation_id, req.user.id)) return forbidden(res, req.t('deny_own_message'));
   await Message.softDelete(messageId);
   const io = req.app.get('io');
   await emitConversation(io, row.conversation_id, 'chat:deleted', {
@@ -180,7 +180,7 @@ const deleteMessage = asyncHandler(async (req, res) => {
 const searchMessages = asyncHandler(async (req, res) => {
   const conversationId = req.params.id;
   const isParticipant = await Conversation.isParticipant(conversationId, req.user.id);
-  if (!isParticipant) return forbidden(res);
+  if (!isParticipant) return forbidden(res, req.t('deny_chat_participant'));
   const q = (req.query.q || '').trim();
   if (!q) return success(res, []);
   const items = await Message.searchInConversation(conversationId, q, { limit: 30 });
@@ -190,7 +190,7 @@ const searchMessages = asyncHandler(async (req, res) => {
 const markRead = asyncHandler(async (req, res) => {
   const conversationId = req.params.id;
   const isParticipant = await Conversation.isParticipant(conversationId, req.user.id);
-  if (!isParticipant) return forbidden(res);
+  if (!isParticipant) return forbidden(res, req.t('deny_chat_participant'));
   await Conversation.updateLastRead(conversationId, req.user.id);
   const io = req.app.get('io');
   await emitConversation(io, conversationId, 'chat:read', { conversationId, userId: req.user.id });
@@ -200,7 +200,7 @@ const markRead = asyncHandler(async (req, res) => {
 const getConversation = asyncHandler(async (req, res) => {
   const conversationId = req.params.id;
   const isParticipant = await Conversation.isParticipant(conversationId, req.user.id);
-  if (!isParticipant) return forbidden(res);
+  if (!isParticipant) return forbidden(res, req.t('deny_chat_participant'));
   const conv = await Conversation.findById(conversationId);
   if (!conv) return notFound(res);
   const participants = await Conversation.getParticipants(conversationId);
