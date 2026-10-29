@@ -123,7 +123,8 @@ async function create(data) {
       to_jsonb(u)->>'governorate_id' AS governorate_id
       FROM users u LEFT JOIN user_profiles p ON p.user_id = u.id
       WHERE u.id = ? AND u.deleted_at IS NULL FOR UPDATE OF u`, [clientId]);
-    if (!account || !(account.role === 'client' || (account.role === 'provider' && Number(account.also_client) === 1))) throw new ApiError('forbidden', 403);
+    // Admins may post too: the owner tests the site with the admin account.
+    if (!account || !(['client', 'admin'].includes(account.role) || (account.role === 'provider' && Number(account.also_client) === 1))) throw new ApiError('forbidden', 403);
     const database = { queryOne: read, tableHasColumn: async (table, column) => !!await read(`SELECT 1
       FROM information_schema.columns WHERE table_schema = current_schema() AND table_name = ? AND column_name = ? LIMIT 1`, [table, column]) };
     await assertMarketplaceWriteAccess(clientId, { query: async (sql, params) => (await conn.query(sql, params))[0] });

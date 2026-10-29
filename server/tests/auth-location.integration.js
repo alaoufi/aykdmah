@@ -635,6 +635,8 @@ if (!databasePrefix) {
     const notified = async requestId => Boolean(await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_new' AND link = ?", [provider.user.id, `/requests/${requestId}`]));
     const post = async () => Number((await api('/requests', { method: 'POST', token: client.token, expected: 201, body: { category_id: categoryId } })).id);
     const listed = async () => (await api(`/providers/matching?category_id=${categoryId}`, { token: client.token })).providers.some(p => Number(p.id) === Number(provider.user.id));
+    // The admin account may post a request (the owner tests the site with it).
+    await api('/requests', { method: 'POST', token: admin, expected: 201, body: { category_id: categoryId } });
     try {
       // Off by default: nothing changes, nobody is asked to subscribe.
       assert.equal((await api('/admin/subscription-rules', { token: admin })).enabled, false);
