@@ -725,7 +725,7 @@ if (!databasePrefix) {
     await forward({}, first.token, 404);
     const voices = (await api(`/chat/conversations/${two.conversation_id}/messages`, { token: second.token })).filter(message => message.message_type === "voice");
     assert.equal(voices.length, 2);
-    const heard = await fetch(base.replace(//api$/, "") + voices[0].files[0].file_url, { headers: { Authorization: `Bearer ${second.token}` } });
+    const heard = await fetch(base.replace(/\/api$/, "") + voices[0].files[0].file_url, { headers: { Authorization: `Bearer ${second.token}` } });
     assert.equal(heard.status, 200);
     assert.equal((await api("/chat/conversations", { token: client.token })).find(c => Number(c.id) === Number(two.conversation_id)).other_user.referral_code, second.user.referral_code);
     // "Private", and a provider's broadcast request, stay in one chat.
