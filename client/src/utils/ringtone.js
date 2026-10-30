@@ -6,7 +6,8 @@ let nodes = [];
 
 const PATTERNS = {
   incoming: { freqs: [660, 880], gain: 0.25, bursts: [[0, 0.4], [0.6, 0.4]], every: 3000 },
-  outgoing: { freqs: [425], gain: 0.08, bursts: [[0, 1.0]], every: 4000 },
+  // The caller's ringback: loud enough to hear on a phone speaker (was 0.08, barely audible).
+  outgoing: { freqs: [425], gain: 0.25, bursts: [[0, 1.0]], every: 4000 },
 };
 
 // The user's tone volume (0–100, default 80), kept on this device (AYK-057).

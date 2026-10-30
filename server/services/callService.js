@@ -20,6 +20,8 @@ const { translate } = require('../utils/i18n');
 const logger = require('../utils/logger');
 
 const RING_TIMEOUT_MS = 45 * 1000;
+// How often a still-ringing call is announced again on the callee's devices (AYK-067).
+const RING_REPEAT_MS = 8 * 1000;
 const MAX_CALL_MS = 4 * 60 * 60 * 1000;
 const TOKEN_TTL = '15m';
 const REJOIN_GRACE_MS = 30 * 1000;
@@ -129,15 +131,28 @@ async function start({ caller, conversationId, callType }) {
   const row = await findCall(callId);
   if (io) await emitUser(io, callee.id, 'call:incoming', publicCall(row, callee.id)).catch(() => {});
   // Rings the callee's devices even when the site is closed. It expires with the ring.
-  pushService.sendToUser(callee.id, lang => ({
+  // Sent again every 8 s while it is still ringing: each one sounds and vibrates again
+  // (renotify, same tag), so a closed app keeps "ringing" until answered or ended (AYK-067).
+  const ringPayload = lang => ({
     kind: 'call', call_id: callId, tag: `call-${callId}`, url: `/chat/${conversationId}`,
     answer_url: `/chat/${conversationId}?answer=${callId}`,
     actions: [{ action: 'answer', title: translate(lang, 'push_call_answer') }, { action: 'decline', title: translate(lang, 'push_call_decline') }],
     title: translate(lang, callType === 'video' ? 'push_call_video' : 'push_call_audio'),
     body: translate(lang, 'push_call_body', { name: row.caller_name || '' }),
-  }), { TTL: Math.round(RING_TIMEOUT_MS / 1000), urgency: 'high', topic: `call-${callId}` })
-    .then(sent => logger.info(`Push call call=${callId} user=${callee.id} devices=${sent}`))
+  });
+  const ring = round => pushService.sendToUser(callee.id, ringPayload,
+    { TTL: Math.max(5, Math.round((RING_TIMEOUT_MS - round * RING_REPEAT_MS) / 1000)), urgency: 'high', topic: `call-${callId}` })
+    .then(sent => logger.info(`Push call call=${callId} user=${callee.id} round=${round} devices=${sent}`))
     .catch(err => logger.warn('Call push failed:', err.message));
+  ring(0);
+  let round = 0;
+  const repeat = setInterval(async () => {
+    round += 1;
+    const current = await findCall(callId).catch(() => null);
+    if (!current || current.status !== 'ringing' || round * RING_REPEAT_MS >= RING_TIMEOUT_MS) { clearInterval(repeat); return; }
+    ring(round);
+  }, RING_REPEAT_MS);
+  repeat.unref?.();
   // Can it ring anywhere? The site open on a device, or notifications enabled on one.
   let reachable = true;
   try {
