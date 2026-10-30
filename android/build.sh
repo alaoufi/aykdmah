@@ -23,6 +23,8 @@ yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" "build-tools;34.0.0" "
 set +o pipefail
 yes | bubblewrap update --skipVersionUpgrade --manifest=./twa-manifest.json
 set -o pipefail
+# Native incoming-call screen (AYK-068): Bubblewrap regenerates the project, so add it every time.
+node /native/apply.cjs /work
 # Bubblewrap generated the Gradle project; build and sign it directly (its own "build" step
 # insists on the legacy sdkmanager). The bundle (.aab) is for Google Play; the .apk is for
 # installing on a phone directly to test.
@@ -43,4 +45,5 @@ INNER
 docker run --rm -u root \
   -e BUBBLEWRAP_KEYSTORE_PASSWORD="$KEYSTORE_PASSWORD" -e BUBBLEWRAP_KEY_PASSWORD="$KEY_PASSWORD" \
   -v "$WORK/project":/work -v "$WORK/keys":/keys -v "$WORK/inner.sh":/inner.sh:ro \
+  -v "$REPO_DIR/android/native":/native:ro \
   cimg/android:2024.10.1-node bash /inner.sh
