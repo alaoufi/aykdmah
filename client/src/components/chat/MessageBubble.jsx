@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { isValidCoordinates } from '../../utils/geolocation.mjs';
 import { formatTime } from '../../utils/formatters';
 import VoiceNote from './VoiceNote';
+import { useAutoTranslation } from './AutoTranslation';
 
 function ReplyPreview({ message }) {
   const { t } = useTranslation();
@@ -70,6 +71,9 @@ function LocationCard({ lat, lng }) {
 export default function MessageBubble({ message, isMine, onReply, onDelete, onForward, renderTranslation, firstInRun = true }) {
   const { t } = useTranslation();
   const [showMenu, setShowMenu] = useState(false);
+  // The other side's words in my language, in place of the original (AYK-065).
+  const translated = useAutoTranslation(message, isMine);
+  const [showOriginal, setShowOriginal] = useState(false);
   const [viewer, setViewer] = useState(null);
   const rowRef = useRef(null);
 
@@ -140,8 +144,13 @@ export default function MessageBubble({ message, isMine, onReply, onDelete, onFo
           </div>
         )}
 
-        {message.content && <div className={`content ${isLocation ? 'content-after-location' : ''}`}>{message.content}<span className="meta-spacer" aria-hidden="true" /></div>}
-        {(message.content || hasMedia) && renderTranslation?.(message)}
+        {message.content && <div className={`content ${isLocation ? 'content-after-location' : ''}`} data-testid={translated && !showOriginal ? 'auto-translation' : undefined}>
+          {translated && !showOriginal ? translated : message.content}<span className="meta-spacer" aria-hidden="true" /></div>}
+        {translated && (
+          <button type="button" className="translated-note" onClick={() => setShowOriginal(v => !v)}>
+            🌐 {t(showOriginal ? 'chat.show_translation' : 'chat.translated_show_original')}
+          </button>
+        )}
 
         <div className={`meta ${mediaOnly ? 'on-media' : ''}`}>
           <span>{formatTime(message.created_at)}</span>
@@ -226,6 +235,7 @@ export default function MessageBubble({ message, isMine, onReply, onDelete, onFo
           position: absolute; bottom: 8px; inset-inline-end: 10px; top: auto; margin: 0; float: none;
           color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.6);
         }
+        .translated-note { display: block; font-size: 11px; opacity: .6; background: none; border: 0; padding: 0; margin-top: 2px; color: inherit; cursor: pointer; }
         .read-ticks { letter-spacing: -3px; font-weight: 700; padding-inline-end: 3px; }
         .read-ticks.read { color: var(--wa-tick); }
         .reply-preview {

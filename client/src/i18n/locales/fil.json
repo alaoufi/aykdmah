@@ -536,7 +536,9 @@
     "not_read_yet": "Hindi pa nababasa",
     "nudge": "Paalalahanan",
     "nudge_sent": "🔔 Nakatanggap sila ng bagong abiso.",
-    "nudge_failed": "Hindi naipadala ang paalala. Subukan ulit."
+    "nudge_failed": "Hindi naipadala ang paalala. Subukan ulit.",
+    "translated_show_original": "Isinalin · ipakita ang orihinal",
+    "show_translation": "Ipakita ang salin"
   },
   "tracking": {
     "title": "Live na pagsubaybay",

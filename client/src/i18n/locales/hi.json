@@ -536,7 +536,9 @@
     "not_read_yet": "अभी नहीं पढ़ा",
     "nudge": "याद दिलाएँ",
     "nudge_sent": "🔔 उन्हें नई सूचना पहुँच गई।",
-    "nudge_failed": "याद नहीं दिला सके। फिर कोशिश करें।"
+    "nudge_failed": "याद नहीं दिला सके। फिर कोशिश करें।",
+    "translated_show_original": "अनूदित · मूल देखें",
+    "show_translation": "अनुवाद देखें"
   },
   "tracking": {
     "title": "लाइव ट्रैकिंग",

@@ -536,7 +536,9 @@
     "not_read_yet": "এখনও পড়েনি",
     "nudge": "মনে করান",
     "nudge_sent": "🔔 তার কাছে নতুন সতর্কতা গেছে।",
-    "nudge_failed": "মনে করানো যায়নি। আবার চেষ্টা করুন।"
+    "nudge_failed": "মনে করানো যায়নি। আবার চেষ্টা করুন।",
+    "translated_show_original": "অনূদিত · মূল দেখুন",
+    "show_translation": "অনুবাদ দেখুন"
   },
   "tracking": {
     "title": "লাইভ ট্র্যাকিং",

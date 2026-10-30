@@ -536,7 +536,9 @@
     "not_read_yet": "Not read yet",
     "nudge": "Remind",
     "nudge_sent": "🔔 They got a new alert.",
-    "nudge_failed": "Could not send the reminder. Try again."
+    "nudge_failed": "Could not send the reminder. Try again.",
+    "translated_show_original": "Translated · show original",
+    "show_translation": "Show translation"
   },
   "tracking": {
     "title": "Live tracking",

@@ -536,7 +536,9 @@
     "not_read_yet": "Belum dibaca",
     "nudge": "Ingatkan",
     "nudge_sent": "🔔 Mereka menerima pemberitahuan baru.",
-    "nudge_failed": "Gagal mengingatkan. Coba lagi."
+    "nudge_failed": "Gagal mengingatkan. Coba lagi.",
+    "translated_show_original": "Diterjemahkan · lihat asli",
+    "show_translation": "Lihat terjemahan"
   },
   "tracking": {
     "title": "Pelacakan langsung",

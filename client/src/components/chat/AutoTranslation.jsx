@@ -3,17 +3,18 @@ import { useTranslation } from 'react-i18next';
 import api from '../../services/api';
 import { guessLocalSourceLanguage } from '../../utils/localLanguage.js';
 
-// The other person's message, translated into the language this user signed up with
-// (the site language), automatically and without a button (AYK-044). A message that
-// is already in that language is left alone.
-export default function AutoTranslation({ message, isMine }) {
-  const { t, i18n } = useTranslation();
+// The other person's message in this reader's language (the site language), fetched
+// automatically (AYK-044). The bubble shows it in place of the original (AYK-065), so the
+// conversation reads as if both wrote the same language. A message already in that language,
+// or without real words, is left alone.
+export function useAutoTranslation(message, isMine) {
+  const { i18n } = useTranslation();
   const lang = (i18n.resolvedLanguage || 'ar').split('-')[0];
   const [text, setText] = useState('');
   const content = typeof message?.content === 'string' ? message.content.trim() : '';
   const guessed = guessLocalSourceLanguage(content);
   const needed = !isMine && content && message?.id && message.message_type !== 'location'
-    && !(guessed && guessed === lang) && !(lang === 'ar' && guessed === 'ar');
+    && !(guessed && guessed === lang) && /\p{L}{3,}/u.test(content);
   useEffect(() => {
     let alive = true;
     setText('');
@@ -23,6 +24,7 @@ export default function AutoTranslation({ message, isMine }) {
       .catch(() => {});
     return () => { alive = false; };
   }, [message?.id, lang, needed]);
-  if (!text) return null;
-  return <div className="auto-translation" data-testid="auto-translation" style={{ fontSize: 13, opacity: 0.85, marginTop: 4, borderTop: '1px dashed currentColor', paddingTop: 4 }}>🌐 {text}<span className="sr-only"> ({t('chat.translated')})</span></div>;
+  return text;
 }
+
+export default function AutoTranslation() { return null; }

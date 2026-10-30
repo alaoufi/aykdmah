@@ -536,7 +536,9 @@
     "not_read_yet": "Henüz okunmadı",
     "nudge": "Hatırlat",
     "nudge_sent": "🔔 Yeni bir bildirim aldı.",
-    "nudge_failed": "Hatırlatma gönderilemedi. Tekrar deneyin."
+    "nudge_failed": "Hatırlatma gönderilemedi. Tekrar deneyin.",
+    "translated_show_original": "Çevrildi · aslını göster",
+    "show_translation": "Çeviriyi göster"
   },
   "tracking": {
     "title": "Canlı izleme",

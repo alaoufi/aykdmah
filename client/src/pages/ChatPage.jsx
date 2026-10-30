@@ -12,7 +12,6 @@ import { useSocket } from '../hooks/useSocket';
 import MessageBubble from '../components/chat/MessageBubble';
 import ChatInput from '../components/chat/ChatInput';
 import RequestBrief from '../components/chat/RequestBrief';
-import AutoTranslation from '../components/chat/AutoTranslation';
 import Avatar from '../components/common/Avatar';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import { LoadingState, EmptyState } from '../components/common/Spinner';
@@ -419,7 +418,6 @@ export default function ChatPage() {
                       onReply={canSend ? setReplyTo : undefined}
                       onForward={item.sender_id === user.id && isRequestOwner && item.message_type !== 'location' ? message => { setForwardNote(''); setForwarding(message); } : undefined}
                       onDelete={setDeleteCandidate}
-                      renderTranslation={message => <AutoTranslation message={message} isMine={message.sender_id === user.id} />}
                     />
                   );
                 })

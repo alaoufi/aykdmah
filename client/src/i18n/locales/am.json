@@ -536,7 +536,9 @@
     "not_read_yet": "ገና አላነበበም",
     "nudge": "አስታውስ",
     "nudge_sent": "🔔 አዲስ ማሳወቂያ ደርሶታል።",
-    "nudge_failed": "ማስታወስ አልተቻለም። እንደገና ይሞክሩ።"
+    "nudge_failed": "ማስታወስ አልተቻለም። እንደገና ይሞክሩ።",
+    "translated_show_original": "የተተረጎመ · ዋናውን አሳይ",
+    "show_translation": "ትርጉሙን አሳይ"
   },
   "tracking": {
     "title": "የቀጥታ ስርጭት መከታተያ",

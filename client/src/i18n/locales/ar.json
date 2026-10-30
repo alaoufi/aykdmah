@@ -536,7 +536,9 @@
     "not_read_yet": "لم يقرأها بعد",
     "nudge": "نبّهه",
     "nudge_sent": "🔔 وصله تنبيه جديد.",
-    "nudge_failed": "تعذّر التنبيه. حاول مرة أخرى."
+    "nudge_failed": "تعذّر التنبيه. حاول مرة أخرى.",
+    "translated_show_original": "مترجمة · عرض الأصل",
+    "show_translation": "عرض الترجمة"
   },
   "tracking": {
     "title": "تتبع مباشر",
