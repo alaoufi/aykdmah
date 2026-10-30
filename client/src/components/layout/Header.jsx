@@ -241,6 +241,37 @@ export default function Header() {
                 )}
               </div>
             )}
+            {/* "Manage" right under "your number" (AYK-075/076): what this member needs, by role. */}
+            {user && (canRequestService(user) || user.role === 'provider') && (
+              <div className="mb-3 p-2.5 rounded-card border-2 border-primary bg-primary-soft" data-testid="menu-manage">
+                <div className="px-1 pb-1.5 text-[15px] font-extrabold text-primary">🗂️ {t('manage.title')}</div>
+                {[
+                  canRequestService(user) && { key: 'requests', icon: '📋', label: t('nav.my_requests'), to: '/client', extra: [
+                    { to: '/requests/new', label: `➕ ${t('request.create_title')}` },
+                    { to: '/directory', label: `📒 ${t('requester.directory_title')}`, testid: 'menu-directory' },
+                  ] },
+                  user.role === 'provider' && { key: 'tasks', icon: '🧰', label: t('work.tasks_title'), to: '/provider/tasks', extra: [
+                    { to: '/opportunities', label: `🔍 ${t('work.requests_nav')}` },
+                    { to: '/profile#work', label: `🛠️ ${t('work.title')}` },
+                    { to: '/provider/wallet', label: `💰 ${t('wallet.nav')}` },
+                  ] },
+                ].filter(Boolean).map(g => (
+                  <div key={g.key} className="mb-1.5 last:mb-0 p-2 rounded-card bg-surface" data-testid={`menu-manage-${g.key}`}>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold text-fg flex-1 text-[15px]">{g.icon} {g.label}</span>
+                      <Link to={g.to} onClick={() => setMobileOpen(false)} className="px-3 py-1.5 rounded-pill bg-primary text-white text-[13px] font-semibold no-underline">{t('manage.active')}</Link>
+                      <Link to={`${g.to}?tab=archive`} onClick={() => setMobileOpen(false)} className="px-3 py-1.5 rounded-pill bg-surface-alt text-[13px] font-semibold text-fg no-underline">🗄️ {t('manage.archive')}</Link>
+                    </div>
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {g.extra.map(x => (
+                        <Link key={x.to} to={x.to} onClick={() => setMobileOpen(false)} data-testid={x.testid}
+                          className="px-3 py-1.5 rounded-pill border border-border text-[13px] font-semibold text-fg no-underline hover:bg-surface-alt">{x.label}</Link>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
             <div className="flex flex-col">
               {visibleLinks.map((l) => (
                 <NavLink
@@ -260,22 +291,6 @@ export default function Header() {
             </div>
             {user && (
               <div className="flex flex-col mt-2 pt-2 border-t border-border">
-                {/* "Manage" (AYK-075): my requests and my professional tasks, each active or archived. */}
-                {(canRequestService(user) || user.role === 'provider') && (
-                  <div className="mb-2 p-2 rounded-card bg-primary-soft" data-testid="menu-manage">
-                    <div className="px-1 pb-1 text-[13px] font-bold text-primary">🗂️ {t('manage.title')}</div>
-                    {[
-                      canRequestService(user) && { key: 'requests', icon: '📋', label: t('nav.my_requests'), to: '/client' },
-                      user.role === 'provider' && { key: 'tasks', icon: '🧰', label: t('work.tasks_title'), to: '/provider/tasks' },
-                    ].filter(Boolean).map(g => (
-                      <div key={g.key} className="flex items-center gap-2 px-1 py-1.5" data-testid={`menu-manage-${g.key}`}>
-                        <span className="font-bold text-fg flex-1">{g.icon} {g.label}</span>
-                        <Link to={g.to} onClick={() => setMobileOpen(false)} className="px-3 py-1.5 rounded-pill bg-surface text-[13px] font-semibold text-primary no-underline">🟢 {t('manage.active')}</Link>
-                        <Link to={`${g.to}?tab=archive`} onClick={() => setMobileOpen(false)} className="px-3 py-1.5 rounded-pill bg-surface text-[13px] font-semibold text-fg-muted no-underline">🗄️ {t('manage.archive')}</Link>
-                      </div>
-                    ))}
-                  </div>
-                )}
                 <Link to="/chat" onClick={() => setMobileOpen(false)} className="text-right px-3 py-3 rounded-card font-semibold no-underline text-fg-muted hover:bg-surface-alt" data-testid="mobile-chats">
                   💬 {t('chat.title')}{chatUnread > 0 ? ` (${chatUnread})` : ''}
                 </Link>
