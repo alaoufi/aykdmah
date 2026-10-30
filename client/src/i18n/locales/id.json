@@ -1785,7 +1785,8 @@
       "capacity": "Kapasitas server: sekitar {{video}} panggilan video atau {{audio}} suara sekaligus",
       "capacity_warning": "Beban mendekati kapasitas server. Pertimbangkan server panggilan tambahan."
     },
-    "callee_unreachable": "Situsnya tertutup dan notifikasi mati, jadi mungkin tidak mendengar dering. Kirim juga pesan."
+    "callee_unreachable": "Situsnya tertutup dan notifikasi mati, jadi mungkin tidak mendengar dering. Kirim juga pesan.",
+    "tap_for_audio": "Ketuk di sini untuk mendengar suara"
   },
   "wallet": {
     "nav": "Dompet & Kupon",

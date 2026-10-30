@@ -1785,7 +1785,8 @@
       "capacity": "Kapasidad ng server: mga {{video}} video o {{audio}} voice call nang sabay",
       "capacity_warning": "Malapit na sa kapasidad ng server. Isaalang-alang ang dagdag na call server."
     },
-    "callee_unreachable": "Sarado ang site nila at naka-off ang abiso, kaya baka hindi nila marinig ang ring. Magpadala rin ng mensahe."
+    "callee_unreachable": "Sarado ang site nila at naka-off ang abiso, kaya baka hindi nila marinig ang ring. Magpadala rin ng mensahe.",
+    "tap_for_audio": "Pindutin dito para marinig ang tawag"
   },
   "wallet": {
     "nav": "Wallet & coupon",

@@ -103,6 +103,13 @@ async function start({ caller, conversationId, callType }) {
   if (!await Conversation.canSend(conversationId, callee.id)) throw fail(403, 'call_forbidden');
   const conversation = await Conversation.findById(conversationId);
 
+  // Calling the same person again (the last try did not connect) replaces the caller's own
+  // earlier call to them instead of refusing with "busy" (AYK-058). Only after 5 s, so a double
+  // tap still makes one call; the other side calling back meanwhile is still "busy".
+  const stale = await query(`${CALL_SELECT} WHERE k.status IN ('ringing', 'accepted') AND k.caller_id = ? AND k.callee_id = ?
+    AND k.created_at < CURRENT_TIMESTAMP - INTERVAL '5 seconds'`, [caller.id, callee.id]);
+  for (const row of stale) await finish(row, row.status === 'accepted' ? 'ended' : 'cancelled', 'replaced');
+
   const roomName = `call_${crypto.randomUUID().replace(/-/g, '')}`;
   const callId = await transaction(async conn => {
     // Lock both users so two simultaneous calls cannot both pass the busy check.

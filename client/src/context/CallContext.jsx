@@ -24,6 +24,8 @@ export function CallProvider({ children }) {
   const [camOn, setCamOn] = useState(true);
   const [facing, setFacing] = useState('user');
   const [remoteJoined, setRemoteJoined] = useState(false);
+  // The browser refused to play the other side's audio until a tap (Chrome on Android).
+  const [audioBlocked, setAudioBlocked] = useState(false);
   const roomRef = useRef(null);
   const callRef = useRef(null);
   const leavingRef = useRef(false);
@@ -34,6 +36,7 @@ export function CallProvider({ children }) {
     roomRef.current = null;
     setRoom(null);
     setRemoteJoined(false);
+    setAudioBlocked(false);
     // Disconnecting with stopTracks releases the camera and microphone.
     if (current) { try { await current.disconnect(true); } catch (_) { /* already closed */ } }
   }, []);
@@ -102,6 +105,7 @@ export function CallProvider({ children }) {
     lkRoom
       .on(RoomEvent.ParticipantConnected, () => setRemoteJoined(true))
       .on(RoomEvent.ParticipantDisconnected, () => setRemoteJoined(false))
+      .on(RoomEvent.AudioPlaybackStatusChanged, () => setAudioBlocked(!lkRoom.canPlaybackAudio))
       .on(RoomEvent.Reconnecting, () => setPhase('reconnecting'))
       .on(RoomEvent.Reconnected, () => setPhase('in_call'))
       .on(RoomEvent.Disconnected, reason => {
@@ -116,6 +120,9 @@ export function CallProvider({ children }) {
     roomRef.current = lkRoom;
     setRoom(lkRoom);
     await lkRoom.connect(access.url, access.token, { autoSubscribe: true });
+    // Still inside the tap that started or answered the call: unlock audio playback now.
+    await lkRoom.startAudio().catch(() => {});
+    setAudioBlocked(!lkRoom.canPlaybackAudio);
     setRemoteJoined(lkRoom.remoteParticipants.size > 0);
     // Once joined, a publishing error never ends the call: a transport hiccup (the other
     // side dropping and rejoining) can reject a pending publish long after it started.
@@ -276,6 +283,14 @@ export function CallProvider({ children }) {
     catch (_) { await finishLocally({ ...current, status: 'ended' }); }
   }, [finishLocally]);
 
+  const enableAudio = useCallback(async () => {
+    const lk = roomRef.current; if (!lk) return;
+    try { await lk.startAudio(); } catch (_) { /* still blocked: the button stays */ }
+    // Replay any remote audio element that was refused before the tap.
+    document.querySelectorAll('[role="dialog"] audio').forEach(el => el.play?.().catch(() => {}));
+    setAudioBlocked(!lk.canPlaybackAudio);
+  }, []);
+
   const toggleMic = useCallback(async () => {
     const lk = roomRef.current; if (!lk) return;
     await lk.localParticipant.setMicrophoneEnabled(!micOn);
@@ -297,7 +312,7 @@ export function CallProvider({ children }) {
     catch (_) { setError('camera_switch_failed'); }
   }, [camOn, facing]);
 
-  const value = { call, phase, error, room, micOn, camOn, facing, remoteJoined, start, accept, hangup, toggleMic, toggleCam, switchCamera };
+  const value = { call, phase, error, room, micOn, camOn, facing, remoteJoined, audioBlocked, enableAudio, start, accept, hangup, toggleMic, toggleCam, switchCamera };
   return (
     <CallContext.Provider value={value}>
       {children}

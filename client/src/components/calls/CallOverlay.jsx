@@ -67,7 +67,7 @@ function RoundButton({ onClick, label, tone = 'neutral', children, disabled }) {
 
 export default function CallOverlay() {
   const { t } = useTranslation();
-  const { call, phase, error, room, micOn, camOn, remoteJoined, accept, hangup, toggleMic, toggleCam, switchCamera } = useCall();
+  const { call, phase, error, room, micOn, camOn, remoteJoined, audioBlocked, enableAudio, accept, hangup, toggleMic, toggleCam, switchCamera } = useCall();
   const remoteVideo = useRef(null);
   const localVideo = useRef(null);
   const remoteAudio = useRef(null);
@@ -100,7 +100,13 @@ export default function CallOverlay() {
   return (
     <div role="dialog" aria-modal="true" aria-label={t('calls.title')}
       className="fixed inset-0 z-[3000] bg-slate-950 text-white flex flex-col" style={{ height: '100dvh' }}>
-      <audio ref={remoteAudio} autoPlay />
+      <audio ref={remoteAudio} autoPlay playsInline />
+      {live && audioBlocked && (
+        <button type="button" onClick={enableAudio} data-testid="enable-audio"
+          className="absolute z-10 top-1/3 inset-x-6 mx-auto max-w-sm py-4 rounded-card bg-emerald-600 text-white text-lg font-extrabold shadow-lift">
+          🔊 {t('calls.tap_for_audio')}
+        </button>
+      )}
       <div className="relative flex-1 overflow-hidden">
         {video && live && (
           <video ref={remoteVideo} autoPlay playsInline className="absolute inset-0 w-full h-full object-cover bg-black" />

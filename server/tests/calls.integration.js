@@ -169,6 +169,15 @@ if (!databasePrefix) {
     assert.equal(busy.status, 409);
     await api(`/calls/${first.body.data.id}/decline`, { user: users.client, method: 'POST' });
 
+    // Calling the same person again after a few seconds replaces the earlier try (AYK-058).
+    const earlier = (await api('/calls', { user: users.client, method: 'POST', body: { conversation_id: conversation, call_type: 'audio' } })).body.data;
+    await db.query("UPDATE calls SET created_at = created_at - INTERVAL '10 seconds' WHERE id = ?", [earlier.id]);
+    const again = await api('/calls', { user: users.client, method: 'POST', body: { conversation_id: conversation, call_type: 'audio' } });
+    assert.equal(again.status, 200);
+    const replaced = await db.queryOne('SELECT status, end_reason FROM calls WHERE id = ?', [earlier.id]);
+    assert.deepEqual([replaced.status, replaced.end_reason], ['cancelled', 'replaced']);
+    await api(`/calls/${again.body.data.id}/decline`, { user: users.client, method: 'POST' });
+
     await db.query('UPDATE users SET is_blocked = 1 WHERE id = ?', [users.provider.id]);
     try {
       assert.equal((await api('/calls', { user: users.client, method: 'POST', body: { conversation_id: conversation, call_type: 'audio' } })).status, 403);
