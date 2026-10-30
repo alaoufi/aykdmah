@@ -14,7 +14,10 @@ const NotificationContext = createContext(null);
 export function NotificationProvider({ children }) {
   const { i18n } = useTranslation();
   const { user } = useAuth();
-  const { socket, realtimeMode } = useSocket();
+  const { socket, realtimeMode, connected } = useSocket();
+  // While the live connection is down, polling also announces new notifications (AYK-056).
+  const connectedRef = useRef(connected);
+  connectedRef.current = connected;
   const [items, setItems] = useState([]);
   const [unread, setUnread] = useState(0);
   // Unread chat messages, shown on "Chats"; the notification count stays on the bell.
@@ -50,10 +53,10 @@ export function NotificationProvider({ children }) {
     let seenIds = null;
     const poll = createPollingLoop(() => Promise.all([listNotifications({ limit: 30 }), getChatUnread().catch(() => null), supportUnread().catch(() => null)])
       .then(([res, chats, support]) => { if (chats !== null) setChatUnread(chats); if (support !== null) setSupportCount(support); return res; }), {
-      intervalMs: realtimeMode === 'polling' ? 10000 : null,
+      intervalMs: realtimeMode === 'polling' ? 10000 : 15000,
       onResult: (res) => {
         const next = res.data || [];
-        if (seenIds && realtimeMode === 'polling') {
+        if (seenIds && (realtimeMode === 'polling' || !connectedRef.current)) {
           const fresh = next.filter(n => !seenIds.has(n.id) && !n.is_read);
           fresh.forEach(n => showToast('', n));
           if (fresh.length) chime();

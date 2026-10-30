@@ -1784,7 +1784,8 @@
       "load_now": "Beban server saat ini",
       "capacity": "Kapasitas server: sekitar {{video}} panggilan video atau {{audio}} suara sekaligus",
       "capacity_warning": "Beban mendekati kapasitas server. Pertimbangkan server panggilan tambahan."
-    }
+    },
+    "callee_unreachable": "Situsnya tertutup dan notifikasi mati, jadi mungkin tidak mendengar dering. Kirim juga pesan."
   },
   "wallet": {
     "nav": "Dompet & Kupon",

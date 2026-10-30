@@ -1784,7 +1784,8 @@
       "load_now": "Sunucudaki mevcut yük",
       "capacity": "Sunucu kapasitesi: aynı anda yaklaşık {{video}} görüntülü veya {{audio}} sesli arama",
       "capacity_warning": "Yük sunucu kapasitesine yakın. Ek bir arama sunucusu düşünün."
-    }
+    },
+    "callee_unreachable": "Sitesi kapalı ve bildirimleri kapalı, çalışını duymayabilir. Bir mesaj da gönderin."
   },
   "wallet": {
     "nav": "Cüzdan & Kupon",

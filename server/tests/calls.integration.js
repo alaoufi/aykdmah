@@ -98,6 +98,8 @@ if (!databasePrefix) {
     assert.equal(started.status, 200, started.body?.message);
     const call = started.body.data;
     assert.equal(call.status, 'ringing');
+    // No site open and no notifications for the provider in this test: the caller is told (AYK-056).
+    assert.equal(call.callee_reachable, false);
     assert.equal(call.request_id, requestId);
     assert.equal(call.peer.id, users.provider.id);
     assert.equal(call.peer.phone, undefined, 'no phone numbers in call payloads');

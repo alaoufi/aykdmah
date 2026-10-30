@@ -57,7 +57,7 @@ export default function BottomNav() {
         : { id: 'services', to: '/services', label: t('nav.services'), Icon: IconGrid },
       { id: 'request', to: '/requests/new', label: t('nav.order_now'), Icon: IconPlus, fab: true },
     ] : [
-      { id: 'home', to: '/provider', label: t('work.title'), Icon: IconHome, end: true },
+      { id: 'home', to: '/provider', label: t('nav.home'), Icon: IconHome, end: true },
       { id: 'services', to: '/notifications', label: t('nav.notifications'), Icon: IconBell },
       { id: 'request', to: '/opportunities', label: t('work.requests_nav'), Icon: IconSearch, fab: true },
     ]),

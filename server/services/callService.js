@@ -128,7 +128,13 @@ async function start({ caller, conversationId, callType }) {
     body: translate(lang, 'push_call_body', { name: row.caller_name || '' }),
   }), { TTL: Math.round(RING_TIMEOUT_MS / 1000), urgency: 'high', topic: `call-${callId}` })
     .catch(err => logger.warn('Call push failed:', err.message));
-  return publicCall(row, caller.id);
+  // Can it ring anywhere? The site open on a device, or notifications enabled on one.
+  let reachable = true;
+  try {
+    const online = io ? (await io.in(`user:${callee.id}`).fetchSockets()).length > 0 : true;
+    reachable = online || (await require('../models/PushSubscription').listForUser(callee.id)).length > 0;
+  } catch (_) { reachable = true; }
+  return { ...publicCall(row, caller.id), callee_reachable: reachable };
 }
 
 async function participantCall(callId, userId) {

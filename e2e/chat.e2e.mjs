@@ -37,13 +37,16 @@ await provider.page.getByText('مرحبا، متى تقدر تجي؟').waitFor({
   .catch(() => check('text message reaches the provider', false));
 
 // 2) Voice message: record ~3 s from the fake microphone, preview, send.
-await client.page.getByRole('button', { name: 'رسالة صوتية', exact: true }).click();
-await client.page.getByRole('button', { name: /إيقاف التسجيل/ }).waitFor({ timeout: 15000 });
+// WhatsApp style (AYK-047): hold the mic for 3 s, release, and it is sent at once.
+const mic = client.page.getByTestId('voice-button');
+await mic.waitFor({ timeout: 15000 });
+const box = await mic.boundingBox();
+await client.page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+await client.page.mouse.down();
+await client.page.getByText('ارفع إصبعك للإرسال').waitFor({ timeout: 15000 });
+check('holding the mic records (release-to-send hint shown)', true);
 await client.page.waitForTimeout(3000);
-await client.page.getByRole('button', { name: /إيقاف التسجيل/ }).click();
-await client.page.getByText('استمع إلى التسجيل قبل إرساله').waitFor({ timeout: 10000 });
-check('voice recording shows a preview before sending', true);
-await client.page.getByRole('button', { name: 'إرسال', exact: true }).click();
+await client.page.mouse.up();
 const voice = provider.page.locator('audio.voice-player').first();
 try {
   await voice.waitFor({ state: 'attached', timeout: 20000 });

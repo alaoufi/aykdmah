@@ -4,6 +4,7 @@ import UpdateBar from '../components/common/UpdateBar';
 import DevicePermissions from '../components/common/DevicePermissions';
 import Sidebar from '../components/layout/Sidebar';
 import BottomNav from '../components/layout/BottomNav';
+import Footer from '../components/layout/Footer';
 import BackButton from '../components/common/BackButton';
 
 export default function DashboardLayout({ sidebarItems }) {
@@ -21,6 +22,7 @@ export default function DashboardLayout({ sidebarItems }) {
           </div>
         </main>
       </div>
+      <Footer />
       <BottomNav />
       <style>{`
         .dashboard-wrap { display: flex; min-height: calc(100vh - var(--header-h)); }

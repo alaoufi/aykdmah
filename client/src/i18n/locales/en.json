@@ -1784,7 +1784,8 @@
       "load_now": "Current server load",
       "capacity": "Server capacity: about {{video}} video or {{audio}} voice calls at once",
       "capacity_warning": "Load is close to server capacity. Consider an extra call server."
-    }
+    },
+    "callee_unreachable": "Their site is closed and notifications are off, so they may not hear it ring. Send a message too."
   },
   "wallet": {
     "nav": "Wallet & coupon",

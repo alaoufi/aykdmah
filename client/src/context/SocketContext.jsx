@@ -28,17 +28,29 @@ export function SocketProvider({ children }) {
     const sock = io(url, {
       auth: { token },
       transports: ['websocket', 'polling'],
+      // Never give up (a deploy, a network change, a phone asleep); retry at most every 5 s.
       reconnection: true,
-      reconnectionAttempts: 8,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
     });
 
     sock.on('connect', () => setConnected(true));
     sock.on('disconnect', () => setConnected(false));
     sock.on('connect_error', () => setConnected(false));
 
+    // Back on screen or back online: reconnect now instead of waiting for the next retry.
+    const wake = () => { if (!document.hidden && !sock.connected) sock.connect(); };
+    document.addEventListener('visibilitychange', wake);
+    window.addEventListener('online', wake);
+    window.addEventListener('focus', wake);
+
     socketRef.current = sock;
 
     return () => {
+      document.removeEventListener('visibilitychange', wake);
+      window.removeEventListener('online', wake);
+      window.removeEventListener('focus', wake);
       sock.disconnect();
       socketRef.current = null;
       setConnected(false);

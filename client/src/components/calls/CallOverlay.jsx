@@ -111,6 +111,9 @@ export default function CallOverlay() {
               <div className="mx-auto w-fit"><Avatar src={call.peer?.avatar} name={peerName} size="lg" /></div>
               <div className="text-2xl font-extrabold">{peerName}</div>
               <div className="text-white/80" aria-live="polite">{statusText}</div>
+              {phase === 'outgoing' && call.callee_reachable === false && (
+                <div className="text-amber-300 text-sm max-w-xs mx-auto" data-testid="callee-unreachable">⚠️ {t('calls.callee_unreachable')}</div>
+              )}
               {error && <div className="text-amber-300 text-sm">{t(`calls.errors.${error}`, { defaultValue: t('calls.errors.call_failed') })}</div>}
             </div>
           </div>
