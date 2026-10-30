@@ -34,7 +34,7 @@ export default defineConfig(({ mode }) => {
       },
       VitePWA({
         registerType: 'autoUpdate',
-        includeAssets: ['offline.js', 'theme-init.js', 'offline.html', 'favicon.ico', 'icons/favicon-16.png', 'icons/favicon-32.png', 'icons/apple-touch-icon.png', 'icons/android-chrome-192x192.png', 'icons/android-chrome-512x512.png', 'brand/aykdmh-logo-256.webp', 'brand/aykdmh-logo.webp'],
+        includeAssets: ['offline.js', 'theme-init.js', 'offline.html', 'favicon.ico', 'icons/favicon-16.png', 'icons/favicon-32.png', 'icons/apple-touch-icon.png', 'icons/android-chrome-192x192.png', 'icons/android-chrome-512x512.png', 'icons/app-icon-192.png', 'icons/app-icon-512.png', 'icons/app-icon-maskable-192.png', 'icons/app-icon-maskable-512.png', 'brand/aykdmh-logo-256.webp', 'brand/aykdmh-logo.webp'],
         // Replace the old SW immediately + claim open tabs so a stale
         // index.html doesn't keep pointing at chunks that no longer
         // exist after a redeploy ("Failed to fetch dynamically imported
@@ -51,8 +51,11 @@ export default defineConfig(({ mode }) => {
           lang: 'ar',
           dir: 'rtl',
           icons: [
-            { src: '/icons/android-chrome-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
-            { src: '/icons/android-chrome-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+            // The owner's app logo (AYK-072): plain, and a "maskable" one on white for Android's round icons.
+            { src: '/icons/app-icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+            { src: '/icons/app-icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+            { src: '/icons/app-icon-maskable-192.png', sizes: '192x192', type: 'image/png', purpose: 'maskable' },
+            { src: '/icons/app-icon-maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
           ],
         },
         workbox: {
