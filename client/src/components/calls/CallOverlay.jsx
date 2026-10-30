@@ -59,7 +59,7 @@ function RoundButton({ onClick, label, tone = 'neutral', children, disabled }) {
   };
   return (
     <button type="button" onClick={onClick} disabled={disabled} aria-label={label} title={label}
-      className={`${tone === 'danger' || tone === 'accept' ? 'w-16 h-16' : 'w-14 h-14'} rounded-full grid place-items-center text-xl shadow-lift disabled:opacity-50 ${tones[tone]}`}>
+      className={`${tone === 'danger' || tone === 'accept' ? 'w-16 h-16' : 'w-12 h-12 min-[400px]:w-14 min-[400px]:h-14'} shrink-0 rounded-full grid place-items-center text-xl shadow-lift disabled:opacity-50 ${tones[tone]}`}>
       {children}
     </button>
   );
@@ -179,7 +179,8 @@ export default function CallOverlay() {
         )}
       </div>
 
-      <div className="p-5 pb-8 flex items-center justify-center gap-4 flex-wrap bg-slate-900/80">
+      {/* One row on every phone, the red end button in the middle (AYK-066). */}
+      <div className="px-3 pt-4 flex items-center justify-center gap-3 min-[400px]:gap-4 bg-slate-900/80" style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}>
         {phase === 'incoming' && (
           <>
             <RoundButton tone="danger" onClick={hangup} label={t('calls.decline')}><Handset down /></RoundButton>
@@ -188,20 +189,16 @@ export default function CallOverlay() {
         )}
         {['outgoing', 'connecting', 'in_call', 'reconnecting'].includes(phase) && (
           <>
+            {video && <RoundButton onClick={switchCamera} disabled={!room || !camOn} label={t('calls.switch_camera')}>🔄</RoundButton>}
             <RoundButton tone={micOn ? 'neutral' : 'off'} onClick={toggleMic} disabled={!room}
               label={micOn ? t('calls.mute') : t('calls.unmute')}>{micOn ? '🎙️' : '🔇'}</RoundButton>
+            <RoundButton tone="danger" onClick={hangup} label={t('calls.hangup')}><Handset down /></RoundButton>
             {/* Speaker / earpiece or headset (AYK-060). Phones switch to a plugged-in or Bluetooth
                 headset on their own; where the browser lists several outputs, this button cycles them. */}
             <RoundButton onClick={async () => { if (!(await nextOutput())) setOutputHint(true); }} disabled={!room}
               label={t('calls.audio_output')}>{outputs.length > 1 ? '🔈' : '🔊'}</RoundButton>
-            {video && (
-              <>
-                <RoundButton tone={camOn ? 'neutral' : 'off'} onClick={toggleCam} disabled={!room}
-                  label={camOn ? t('calls.camera_off') : t('calls.camera_on')}>{camOn ? '📷' : '🚫'}</RoundButton>
-                <RoundButton onClick={switchCamera} disabled={!room || !camOn} label={t('calls.switch_camera')}>🔄</RoundButton>
-              </>
-            )}
-            <RoundButton tone="danger" onClick={hangup} label={t('calls.hangup')}><Handset down /></RoundButton>
+            {video && <RoundButton tone={camOn ? 'neutral' : 'off'} onClick={toggleCam} disabled={!room}
+              label={camOn ? t('calls.camera_off') : t('calls.camera_on')}>{camOn ? '📷' : '🚫'}</RoundButton>}
           </>
         )}
         {phase === 'ended' && call.id && call.answered_at && (
