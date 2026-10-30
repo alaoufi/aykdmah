@@ -34,8 +34,32 @@ final class CallAlert {
         return isCallTag(tag) && n != null && n.actions != null && n.actions.length >= 2;
     }
 
+    /** One notification per call (AYK-094): "…call-58-r2" from Chrome and "call-58" from FCM. */
+    static String canonical(String tag) {
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("call-(\\d+)").matcher(tag == null ? "" : tag);
+        return m.find() ? "call-" + m.group(1) : tag;
+    }
+
     private static int idFor(String tag) {
-        return 0x5A000000 | (tag.hashCode() & 0x00FFFFFF);
+        return 0x5A000000 | (canonical(tag).hashCode() & 0x00FFFFFF);
+    }
+
+    /** Opens the site in the app at this path (answer / decline / the chat). */
+    private static PendingIntent openSite(Context context, String path, int request) {
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://aykdmh.com" + path))
+                .setClass(context, LauncherActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
+        return PendingIntent.getActivity(context, request, intent, flags);
+    }
+
+    /** An incoming call from Firebase (AYK-094): the app rings by itself, even when closed. */
+    static void ringPush(Context context, String callId, String conversationId, String title, String text) {
+        String chat = conversationId != null && conversationId.matches("\\d+") ? "/chat/" + conversationId : "/chat";
+        int base = idFor("call-" + callId);
+        show(context, "call-" + callId, title, text,
+                openSite(context, chat + "?answer=" + callId, base + 1),
+                openSite(context, chat + "?decline=" + callId, base + 2));
     }
 
     private static void ensureChannel(Context context) {
@@ -56,12 +80,16 @@ final class CallAlert {
     }
 
     static void ring(Context context, String tag, Notification source) {
-        ensureChannel(context);
         Bundle extras = source.extras;
         CharSequence title = extras != null ? extras.getCharSequence(Notification.EXTRA_TITLE) : null;
         CharSequence text = extras != null ? extras.getCharSequence(Notification.EXTRA_TEXT) : null;
-        PendingIntent answer = source.actions[0].actionIntent;
-        PendingIntent decline = source.actions[1].actionIntent;
+        show(context, tag, title, text, source.actions[0].actionIntent, source.actions[1].actionIntent);
+    }
+
+    private static void show(Context context, String rawTag, CharSequence title, CharSequence text,
+                             PendingIntent answer, PendingIntent decline) {
+        ensureChannel(context);
+        String tag = canonical(rawTag);
 
         Intent screen = new Intent(context, CallActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_NO_USER_ACTION)
@@ -98,7 +126,8 @@ final class CallAlert {
         context.getSystemService(NotificationManager.class).notify(tag, idFor(tag), call);
     }
 
-    static void stop(Context context, String tag) {
+    static void stop(Context context, String rawTag) {
+        String tag = canonical(rawTag);
         context.getSystemService(NotificationManager.class).cancel(tag, idFor(tag));
         context.sendBroadcast(new Intent(ACTION_STOP).setPackage(context.getPackageName()).putExtra(CallActivity.EXTRA_TAG, tag));
     }

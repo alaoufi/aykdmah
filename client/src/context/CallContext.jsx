@@ -3,7 +3,8 @@ import { createContext, lazy, Suspense, useCallback, useContext, useEffect, useR
 import { useAuth } from './AuthContext';
 import { useSocket } from './SocketContext';
 import * as calls from '../services/callService';
-import { syncPush } from '../services/pushService';
+import { syncPush, syncNativePush } from '../services/pushService';
+import { nativeAppVersion } from '../utils/nativeApp';
 import { sendDeviceReport } from '../utils/deviceReport';
 import { startTone, stopTone, primeAudio, toneAudible } from '../utils/ringtone';
 import { collectCallStats } from '../utils/callStats';
@@ -308,12 +309,27 @@ export function CallProvider({ children }) {
   }, [phase, call?.id]);
   const acceptRef = useRef(null);
 
+  // "Decline" on the app's call screen opens /chat/:id?decline=<call id> (AYK-094).
+  const autoDeclineRef = useRef((() => { try { return Number(new URLSearchParams(window.location.search).get('decline')) || 0; } catch (_) { return 0; } })());
+  useEffect(() => {
+    const id = autoDeclineRef.current;
+    if (!id || !user) return;
+    autoDeclineRef.current = 0;
+    try { const url = new URL(window.location.href); url.searchParams.delete('decline'); window.history.replaceState(null, '', url); } catch (_) { /* keep the URL */ }
+    calls.declineCall(id).catch(() => {});
+    if (callRef.current?.id === id) { setCall(null); setPhase('idle'); }
+  }, [user]);
+
   // Release devices if the user signs out mid-call.
   useEffect(() => { if (!user) { teardown(); setCall(null); setPhase('idle'); } }, [user, teardown]);
 
   // A device that already allowed notifications rings for whoever is signed in on it.
   // Then this device reports its system and capabilities for the devices log (AYK-062).
-  useEffect(() => { if (user?.id) syncPush().catch(() => {}).finally(() => sendDeviceReport().catch(() => {})); }, [user?.id]);
+  useEffect(() => {
+    if (!user?.id) return;
+    syncNativePush(nativeAppVersion()).catch(() => {});
+    syncPush().catch(() => {}).finally(() => sendDeviceReport().catch(() => {}));
+  }, [user?.id]);
 
   // Last resort (AYK-083): the server ends an unanswered call after 45 s; if that never arrives,
   // the caller's "Calling…" screen closes on its own at 50 s instead of hanging.

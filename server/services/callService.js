@@ -16,6 +16,7 @@ const Conversation = require('../models/Conversation');
 const { emitUser, emitConversation } = require('../utils/conversationEvents');
 const notificationService = require('./notificationService');
 const pushService = require('./pushService');
+const fcm = require('./fcmService');
 const { translate } = require('../utils/i18n');
 const logger = require('../utils/logger');
 
@@ -147,6 +148,17 @@ async function start({ caller, conversationId, callType }) {
     .then(sent => logger.info(`Push call call=${callId} user=${callee.id} round=${round} devices=${sent}`))
     .catch(err => logger.warn('Call push failed:', err.message));
   ring(0);
+  // The Android app rings by itself, continuously, with a call screen over other apps (AYK-094).
+  const calleeLang = callee.language || callee.preferred_language || 'ar';
+  fcm.sendToUser(callee.id, {
+    kind: 'call', call_id: callId, conversation_id: conversationId, call_type: callType,
+    title: translate(calleeLang, callType === 'video' ? 'push_call_video' : 'push_call_audio'),
+    body: translate(calleeLang, 'push_call_body', { name: row.caller_name || '' }),
+    answer_label: translate(calleeLang, 'push_call_answer'),
+    decline_label: translate(calleeLang, 'push_call_decline'),
+  }, { ttlSeconds: Math.round(RING_TIMEOUT_MS / 1000) })
+    .then(sent => logger.info(`FCM call call=${callId} user=${callee.id} devices=${sent}`))
+    .catch(err => logger.warn('FCM call failed:', err.message));
   let round = 0;
   const repeat = setInterval(async () => {
     round += 1;
@@ -160,7 +172,8 @@ async function start({ caller, conversationId, callType }) {
   try {
     // Online only when a live connection proves it; otherwise notifications must reach a device.
     const online = io ? (await io.in(`user:${callee.id}`).fetchSockets()).length > 0 : false;
-    reachable = online || (await require('../models/PushSubscription').listForUser(callee.id)).length > 0;
+    reachable = online || (await require('../models/PushSubscription').listForUser(callee.id)).length > 0
+      || (await fcm.countForUser(callee.id)) > 0;
   } catch (_) { reachable = true; }
   return { ...publicCall(row, caller.id), callee_reachable: reachable };
 }
@@ -196,6 +209,9 @@ async function finish(row, status, reason) {
       : { kind: 'call_end', call_id: row.id, tag: `call-${row.id}` },
     { TTL: missed ? 24 * 3600 : 60, urgency: 'high', topic: `call-${row.id}` })
       .then(sent => logger.info(`Push ${missed ? 'missed_call' : 'call_end'} call=${row.id} user=${row.callee_id} devices=${sent}`))
+      .catch(() => {});
+    // The app stops ringing (and shows nothing more: the missed call comes as a notification).
+    fcm.sendToUser(row.callee_id, { kind: missed ? 'missed_call' : 'call_end', call_id: row.id, conversation_id: row.conversation_id }, { ttlSeconds: missed ? 3600 : 60 })
       .catch(() => {});
     if (missed) await recordMissedCall(row).catch(err => logger.warn('Missed call line failed:', err.message));
   }

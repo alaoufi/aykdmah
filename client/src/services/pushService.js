@@ -51,6 +51,27 @@ export async function syncPush() {
   if (existing) await api.post('/push/subscribe', { subscription: existing.toJSON() });
 }
 
+// The Android app passes its Firebase token in the address it opens (?fcm=), so calls ring the
+// app itself, continuously, even when it is closed (AYK-094). Kept on the device and sent again
+// for whoever signs in.
+const FCM_KEY = 'ayk_fcm_token';
+export function nativePushToken() {
+  try {
+    const url = new URL(window.location.href);
+    const fresh = url.searchParams.get('fcm');
+    if (fresh) {
+      localStorage.setItem(FCM_KEY, fresh);
+      url.searchParams.delete('fcm');
+      window.history.replaceState(window.history.state, '', url);
+    }
+    return fresh || localStorage.getItem(FCM_KEY);
+  } catch (_) { return null; }
+}
+export async function syncNativePush(appVersion) {
+  const token = nativePushToken();
+  if (token) await api.post('/push/native', { token, app_version: appVersion || null });
+}
+
 // Before sign-out, so the device stops ringing for this account.
 export async function detachPush() {
   if (!pushSupported()) return;

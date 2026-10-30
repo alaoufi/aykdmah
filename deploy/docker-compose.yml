@@ -59,6 +59,8 @@ services:
       PUSH_PUBLIC_KEY: ${PUSH_PUBLIC_KEY:-}
       PUSH_PRIVATE_KEY: ${PUSH_PRIVATE_KEY:-}
       PUSH_SUBJECT: https://aykdmh.com
+      # AYK-094: the Android app's ringing calls (Firebase service-account key, base64; .env only).
+      FCM_SERVICE_ACCOUNT_B64: ${FCM_SERVICE_ACCOUNT_B64:-}
     volumes:
       - uploads:/app/server/uploads
       # AYK-032: the active client release, read for search-engine pages (index.html only).

@@ -25,6 +25,14 @@ router.post('/subscribe', authenticate, asyncHandler(async (req, res) => {
   return success(res, { subscribed: true });
 }));
 
+// The Android app's own push token (AYK-094), passed to the site when the app opens.
+router.post('/native', authenticate, asyncHandler(async (req, res) => {
+  const fcm = require('../services/fcmService');
+  if (!await fcm.saveToken(req.user.id, req.body?.token, req.body?.app_version)) return error(res, 'push_invalid_subscription', 400);
+  logger.info(`Native push token saved: user=${req.user.id}`);
+  return success(res, { saved: true });
+}));
+
 // A test notification to the user's own devices (AYK-061), at most once every 20 s.
 const lastTest = new Map();
 router.post('/test', authenticate, asyncHandler(async (req, res) => {

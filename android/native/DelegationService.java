@@ -24,8 +24,9 @@ public class DelegationService extends com.google.androidbrowserhelper.trusted.D
 
     @Override
     public void onCancelNotification(String platformTag, int platformId) {
-        // Declined, answered elsewhere, or the caller hung up: stop the ring and close the screen.
-        if (CallAlert.isCallTag(platformTag)) CallAlert.stop(this, platformTag);
+        // A call's notifications are replaced every 8 s (a new round): closing one must not stop
+        // the ring. It stops with "call_end" / "missed_call", an answer, or after 50 s (AYK-094).
+        if (CallAlert.isCallTag(platformTag)) return;
         super.onCancelNotification(platformTag, platformId);
     }
 }

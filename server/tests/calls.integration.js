@@ -257,6 +257,14 @@ if (!databasePrefix) {
       assert.equal((await api('/push/subscribe', { user: users.provider, method: 'POST', body: { subscription: bad } })).status, 400);
     }
     assert.equal((await api('/push/subscribe', { user: users.provider, method: 'POST', body: { subscription: device } })).status, 200);
+    // The Android app's own token (AYK-094): saved for whoever signs in on the device, invalid ones refused.
+    const nativeToken = 'fcm-token_' + 'x'.repeat(40);
+    assert.equal((await api('/push/native', { method: 'POST', body: { token: nativeToken } })).status, 401);
+    assert.equal((await api('/push/native', { user: users.outsider, method: 'POST', body: { token: 'bad token!' } })).status, 400);
+    assert.equal((await api('/push/native', { user: users.outsider, method: 'POST', body: { token: nativeToken, app_version: '1.2.0' } })).status, 200);
+    assert.equal((await api('/push/native', { user: users.provider, method: 'POST', body: { token: nativeToken, app_version: '1.2.0' } })).status, 200);
+    assert.equal(Number((await db.queryOne('SELECT user_id FROM native_push_tokens WHERE token = ?', [nativeToken])).user_id), Number(users.provider.id));
+    await db.query('DELETE FROM native_push_tokens WHERE token = ?', [nativeToken]);
     const stale = { endpoint: 'https://fcm.googleapis.com/fcm/send/gone', keys };
     assert.equal((await api('/push/subscribe', { user: users.provider, method: 'POST', body: { subscription: stale } })).status, 200);
 

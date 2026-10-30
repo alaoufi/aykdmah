@@ -8,7 +8,7 @@ const project = process.argv[2] || '/work';
 const src = path.join(project, 'app/src/main');
 const javaDir = path.join(src, 'java/sa/aykdmh/app');
 
-for (const file of ['DelegationService.java', 'CallAlert.java', 'CallActivity.java']) {
+for (const file of ['DelegationService.java', 'CallAlert.java', 'CallActivity.java', 'FcmService.java', 'LauncherActivity.java']) {
   fs.copyFileSync(path.join(__dirname, file), path.join(javaDir, file));
 }
 
@@ -43,5 +43,34 @@ if (!manifest.includes('.CallActivity')) {
             android:theme="@android:style/Theme.Material.NoActionBar.Fullscreen" />
     </application>`);
 }
+// Firebase Cloud Messaging (AYK-094): calls ring the app itself even when it is closed. The
+// google-services.json comes from the server's keys folder, never from the repository.
+if (!manifest.includes('.FcmService')) {
+  manifest = manifest.replace('</application>', `    <service android:name=".FcmService" android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+    </application>`);
+}
+const notifyLine = '<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>';
+if (!manifest.includes('POST_NOTIFICATIONS')) manifest = manifest.replace(/(<manifest[^>]*>)/, `$1\n    ${notifyLine}`);
 fs.writeFileSync(manifestFile, manifest);
-console.log('native call screen added');
+
+const keys = process.env.KEYS_DIR || '/keys';
+fs.copyFileSync(path.join(keys, 'google-services.json'), path.join(project, 'app/google-services.json'));
+const rootGradle = path.join(project, 'build.gradle');
+let root = fs.readFileSync(rootGradle, 'utf8');
+if (!root.includes('google-services')) {
+  root = root.replace(/(classpath 'com\.android\.tools\.build:gradle:[^']+')/, "$1\n        classpath 'com.google.gms:google-services:4.4.2'");
+}
+root = root.replace(/allprojects \{\s*repositories \{\s*google\(\)/, m => (m.includes('mavenCentral') ? m : `${m}\n        mavenCentral()`));
+fs.writeFileSync(rootGradle, root);
+const appGradle = path.join(project, 'app/build.gradle');
+let app = fs.readFileSync(appGradle, 'utf8');
+if (!app.includes('firebase-messaging')) {
+  app = app.replace(/dependencies \{\n/, "dependencies {\n    implementation 'com.google.firebase:firebase-messaging:24.1.0'\n");
+  app += "\napply plugin: 'com.google.gms.google-services'\n";
+}
+fs.writeFileSync(appGradle, app);
+console.log('native call screen and Firebase added');
