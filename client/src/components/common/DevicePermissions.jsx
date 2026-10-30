@@ -1,11 +1,13 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { enablePush, pushState } from '../../services/pushService';
+import { enablePush, pushState, needsHomeScreen } from '../../services/pushService';
 import { useAuth } from '../../hooks/useAuth';
 import { sendDeviceReport } from '../../utils/deviceReport';
 
 const LATER_KEY = 'ayk_permissions_later';
-const later = () => { try { return localStorage.getItem(LATER_KEY) === '1'; } catch (_) { return false; } };
+// "Later" hides the bar for a day, not for good: without notifications calls never ring (AYK-092).
+const DAY = 24 * 60 * 60 * 1000;
+const later = () => { try { return Date.now() - Number(localStorage.getItem(LATER_KEY) || 0) < DAY; } catch (_) { return false; } };
 
 // The site's permissions (AYK-047): location, microphone and camera, notifications.
 // Each one is a button: a tap asks for it, shows that it is working, then turns into
@@ -114,13 +116,22 @@ export default function DevicePermissions({ variant = 'card' }) {
   );
 
   if (variant === 'bar') {
+    // iPhone in Safari: calls and messages reach it only from the home-screen app (AYK-092).
+    if (user && !hidden && needsHomeScreen()) {
+      return (
+        <div className="bg-amber-100 text-amber-950 border-b border-amber-300 px-4 py-2 flex flex-wrap items-center justify-center gap-2 text-[13px] font-semibold" data-testid="ios-install-bar">
+          <span>📲 {t('permissions.ios_install')}</span>
+          <button type="button" className="text-amber-900 underline" onClick={() => { try { localStorage.setItem(LATER_KEY, String(Date.now())); } catch (_) { /* private mode */ } setHidden(true); }}>{t('push.later')}</button>
+        </div>
+      );
+    }
     if (!user || hidden || !checked || done) return null;
     return (
       <div className="bg-primary-soft border-b border-border px-4 py-2 flex flex-wrap items-center justify-center gap-2 text-[13px]" data-testid="permissions-bar">
-        <span>📍🎤📷🔔 {t('permissions.bar')}</span>
+        <span>📍🎤📷🔔 {t(ok(state.push) || state.push === 'unsupported' ? 'permissions.bar' : 'permissions.bar_no_ring')}</span>
         <button type="button" className="btn btn-primary btn-sm" disabled={busy !== ''} onClick={allowAll} data-testid="bar-allow-all">{busy ? '⏳' : `✅ ${t('permissions.allow')}`}</button>
         {outcome && <div className="w-full">{outcome}</div>}
-        <button type="button" className="text-fg-muted underline" onClick={() => { try { localStorage.setItem(LATER_KEY, '1'); } catch (_) { /* private mode */ } setHidden(true); }}>{t('push.later')}</button>
+        <button type="button" className="text-fg-muted underline" onClick={() => { try { localStorage.setItem(LATER_KEY, String(Date.now())); } catch (_) { /* private mode */ } setHidden(true); }}>{t('push.later')}</button>
       </div>
     );
   }

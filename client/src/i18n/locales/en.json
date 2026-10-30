@@ -2309,7 +2309,9 @@
     "media": "Microphone and camera",
     "result_enabled": "Enabled: {{names}}",
     "result_failed": "Not enabled: {{names}}.",
-    "all_enabled": "All permissions are enabled."
+    "all_enabled": "All permissions are enabled.",
+    "ios_install": "To get calls and messages with the phone locked: tap Share ⬆️ then \"Add to Home Screen\", open the app from its icon and turn on notifications.",
+    "bar_no_ring": "Notifications are off on this phone: it will not ring for calls or show messages while the app is closed. Tap \"Allow\"."
   },
   "update": {
     "available": "A new version of the site is available.",

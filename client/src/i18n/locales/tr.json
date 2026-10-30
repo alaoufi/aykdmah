@@ -2309,7 +2309,9 @@
     "media": "Mikrofon ve kamera",
     "result_enabled": "Açıldı: {{names}}",
     "result_failed": "Açılmadı: {{names}}.",
-    "all_enabled": "Tüm izinler açık."
+    "all_enabled": "Tüm izinler açık.",
+    "ios_install": "Telefon kilitliyken arama ve mesaj almak için: Paylaş ⬆️ ardından «Ana Ekrana Ekle», uygulamayı simgesinden açıp bildirimleri açın.",
+    "bar_no_ring": "Bu telefonda bildirimler kapalı: uygulama kapalıyken aramalarda çalmaz. «İzin ver»e dokunun."
   },
   "update": {
     "available": "Sitenin yeni sürümü hazır.",

@@ -24,8 +24,10 @@ export function setToneVolume(value) {
 
 function beep(pattern) {
   const now = ctx.currentTime;
-  // 80 keeps the designed loudness; 100 is 25% louder, 0 is silent.
-  const level = (pattern.gain * getToneVolume()) / 80;
+  // 80 keeps the designed loudness; 100 is 25% louder, 0 is silent. A call's ring never goes
+  // below 50, so a muted message tone cannot silence calls (AYK-092).
+  const volume = pattern === PATTERNS.incoming ? Math.max(50, getToneVolume()) : getToneVolume();
+  const level = (pattern.gain * volume) / 80;
   for (const [start, length] of pattern.bursts) {
     const gain = ctx.createGain();
     gain.gain.setValueAtTime(0, now + start);
@@ -84,6 +86,9 @@ export function startTone(kind) {
     timer = setInterval(() => { nodes = []; beep(pattern); }, pattern.every);
   } catch (_) { /* no audio output: the call screen and vibration still show */ }
 }
+
+// Is sound actually playing? Browsers keep it suspended until the page has had a tap (AYK-092).
+export const toneAudible = () => Boolean(ctx && ctx.state === 'running');
 
 export function stopTone() {
   clearInterval(timer);

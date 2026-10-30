@@ -1,10 +1,11 @@
+import { useTranslation } from 'react-i18next';
 import { createContext, lazy, Suspense, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useAuth } from './AuthContext';
 import { useSocket } from './SocketContext';
 import * as calls from '../services/callService';
 import { syncPush } from '../services/pushService';
 import { sendDeviceReport } from '../utils/deviceReport';
-import { startTone, stopTone, primeAudio } from '../utils/ringtone';
+import { startTone, stopTone, primeAudio, toneAudible } from '../utils/ringtone';
 import { collectCallStats } from '../utils/callStats';
 
 // The call screen and the LiveKit SDK load only when a call actually starts or rings.
@@ -30,6 +31,7 @@ export function CallProvider({ children }) {
   const [remoteVideo, setRemoteVideo] = useState(false);
   // The browser refused to play the other side's audio until a tap (Chrome on Android).
   const [audioBlocked, setAudioBlocked] = useState(false);
+  const { t } = useTranslation();
   const [network, setNetwork] = useState({ mine: 'unknown', theirs: 'unknown' });
   // Who is talking right now, from the audio actually flowing through the call server.
   const [speaking, setSpeaking] = useState({ mine: false, theirs: false });
@@ -325,6 +327,30 @@ export function CallProvider({ children }) {
     document.addEventListener('visibilitychange', take);
     return () => { alive = false; document.removeEventListener('visibilitychange', take); lock?.release().catch(() => {}); };
   }, [phase]);
+
+  // The page is open but was never tapped, so the browser keeps the ring silent: show the system
+  // notification instead, with its own sound and vibration, until answered or ended (AYK-092).
+  useEffect(() => {
+    if (phase !== 'incoming' || !call?.id) return undefined;
+    let shown = null;
+    const tag = `call-${call.id}-page`;
+    const check = setTimeout(async () => {
+      if (toneAudible() || typeof Notification === 'undefined' || Notification.permission !== 'granted' || !navigator.serviceWorker) return;
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        await reg.showNotification(call.peer?.full_name || t('calls.title'), {
+          body: t(call.call_type === 'video' ? 'calls.incoming_video' : 'calls.incoming_audio'), tag, renotify: true, requireInteraction: true,
+          vibrate: [800, 400, 800, 400, 800, 400, 800], icon: '/icons/android-chrome-192x192.png',
+          data: { url: window.location.pathname },
+        });
+        shown = reg;
+      } catch (_) { /* notifications unavailable: the call screen still shows */ }
+    }, 800);
+    return () => {
+      clearTimeout(check);
+      shown?.getNotifications({ tag }).then(list => list.forEach(n => n.close())).catch(() => {});
+    };
+  }, [phase, call?.id, call?.call_type, call?.peer?.full_name, t]);
 
   // Ringing tone for an incoming call, ringback while the other side has not answered.
   useEffect(() => {

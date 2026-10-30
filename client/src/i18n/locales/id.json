@@ -2309,7 +2309,9 @@
     "media": "Mikrofon dan kamera",
     "result_enabled": "Diaktifkan: {{names}}",
     "result_failed": "Tidak aktif: {{names}}.",
-    "all_enabled": "Semua izin sudah aktif."
+    "all_enabled": "Semua izin sudah aktif.",
+    "ios_install": "Agar panggilan dan pesan masuk saat ponsel terkunci: ketuk Bagikan ⬆️ lalu «Tambahkan ke Layar Utama», buka aplikasi dari ikonnya dan aktifkan notifikasi.",
+    "bar_no_ring": "Notifikasi mati di ponsel ini: tidak akan berdering untuk panggilan saat aplikasi tertutup. Ketuk «Izinkan»."
   },
   "update": {
     "available": "Versi baru situs tersedia.",

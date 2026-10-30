@@ -2309,7 +2309,9 @@
     "media": "Mikropono at camera",
     "result_enabled": "Na-on: {{names}}",
     "result_failed": "Hindi na-on: {{names}}.",
-    "all_enabled": "Naka-on ang lahat ng pahintulot."
+    "all_enabled": "Naka-on ang lahat ng pahintulot.",
+    "ios_install": "Para makatanggap ng tawag at mensahe kahit naka-lock: pindutin ang Share ⬆️ at «Add to Home Screen», buksan ang app mula sa icon at i-on ang notifications.",
+    "bar_no_ring": "Naka-off ang notifications sa phone na ito: hindi ito magri-ring kapag sarado ang app. Pindutin ang «Payagan»."
   },
   "update": {
     "available": "May bagong bersyon ng site.",
