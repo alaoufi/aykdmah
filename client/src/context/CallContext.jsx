@@ -47,6 +47,14 @@ export function CallProvider({ children }) {
   const leavingRef = useRef(false);
   callRef.current = call;
 
+  // What this side sends and receives right now (AYK-093/098): source, unsubscribed (-), muted (m),
+  // and whether the call's audio element is playing.
+  const trackSnapshot = lkRoom => {
+    const pubs = p => [...(p?.trackPublications?.values() || [])].map(pub => `${pub.source}${pub.isSubscribed === false ? '-' : ''}${pub.isMuted ? 'm' : ''}`).join(',');
+    const audioEl = document.querySelector('[role="dialog"] audio');
+    return { me: pubs(lkRoom?.localParticipant), peer: pubs([...(lkRoom?.remoteParticipants?.values() || [])][0]), el: audioEl ? (audioEl.paused ? 'paused' : 'playing') : 'none' };
+  };
+
   const teardown = useCallback(async () => {
     const current = roomRef.current;
     // Report how the connection behaved before closing it (answered calls only).
@@ -59,12 +67,9 @@ export function CallProvider({ children }) {
       const fresh = await Promise.race([collectCallStats(current).catch(() => ({})), new Promise(resolve => setTimeout(() => resolve({}), 1500))]);
       const stats = (fresh.audio_kb_in || fresh.audio_kb_out) ? fresh : (log.lastStats || fresh);
       // Which tracks were really sent and received (AYK-093): source, subscribed (s), muted (m).
-      const pubs = p => [...(p?.trackPublications?.values() || [])].map(pub => `${pub.source}${pub.isSubscribed === false ? '-' : ''}${pub.isMuted ? 'm' : ''}`).join(',');
-      const audioEl = document.querySelector('[role="dialog"] audio');
-      const details = JSON.stringify({
-        me: pubs(current.localParticipant), peer: pubs([...current.remoteParticipants.values()][0]),
-        el: audioEl ? (audioEl.paused ? 'paused' : 'playing') : 'none', errs: log.errors || [],
-      }).slice(0, 600);
+      // The tracks as they were during the call (the last 10 s snapshot), not after it closed (AYK-098).
+      const now = trackSnapshot(current);
+      const details = JSON.stringify({ ...(now.me || !log.lastTracks ? now : log.lastTracks), errs: log.errors || [], snaps: log.snaps || 0 }).slice(0, 600);
       calls.sendCallDiagnostics(ended.id, {
         ...stats, poor_seconds: Math.round(poorMs / 1000), reconnects: log.reconnects, audio_blocked: log.audioBlocked, details,
       }).catch(() => {});
@@ -169,7 +174,10 @@ export function CallProvider({ children }) {
     clearInterval(statsTimerRef.current);
     statsTimerRef.current = setInterval(() => {
       if (roomRef.current !== lkRoom) { clearInterval(statsTimerRef.current); return; }
-      collectCallStats(lkRoom).then(stats => { if (stats.audio_kb_in || stats.audio_kb_out) qualityLog.current.lastStats = stats; }).catch(() => {});
+      const log = qualityLog.current;
+      log.lastTracks = trackSnapshot(lkRoom);
+      log.snaps = (log.snaps || 0) + 1;
+      collectCallStats(lkRoom).then(stats => { if (stats.audio_kb_in || stats.audio_kb_out || !log.lastStats) log.lastStats = stats; }).catch(err => { log.errors = [...(log.errors || []), `stats:${err?.name || 'Error'}`].slice(-6); });
     }, 10000);
     navigator.mediaDevices?.enumerateDevices?.().then(list => {
       const outs = list.filter(d => d.kind === 'audiooutput' && d.deviceId);
