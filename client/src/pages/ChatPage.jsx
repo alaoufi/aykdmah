@@ -103,7 +103,8 @@ export default function ChatPage() {
     const poll = createPollingLoop(
       () => Promise.all([getConversation(activeId), getMessages(activeId, { limit: 80 })]),
       {
-        intervalMs: realtimeMode === 'polling' ? 5000 : null,
+        // With the socket too, every 15 s: read ticks (✓✓) and missed messages after a dropped connection.
+        intervalMs: realtimeMode === 'polling' ? 5000 : 15000,
         onResult: ([conv, msgs]) => {
           setActive(conv);
           setActiveScope(scope);

@@ -74,24 +74,24 @@ export default function Header() {
   return (
     <header className="sticky top-0 z-40 bg-surface/85 backdrop-blur-md border-b border-border/70">
       <div className="max-w-7xl mx-auto px-3 md:px-6 lg:px-8 h-14 md:h-16 lg:h-[72px] flex items-center gap-2 md:gap-4">
-        {/* Logo on the start edge of the screen */}
-        <Link to="/" className="site-logo w-[140px] min-[360px]:w-[166px] shrink-0 no-underline">
+        {/* Phones and tablets (owner): ☰ on the page's right edge, logo on the left edge. */}
+        <Link to="/" className="site-logo w-[140px] min-[360px]:w-[166px] shrink-0 no-underline max-xl:order-5">
           <BrandLogo wordSize={26} />
         </Link>
 
-        {/* Spacer pushes the controls to the OPPOSITE edge */}
-        <div className="flex-1" />
+        {/* Spacer pushes the logo to the opposite edge */}
+        <div className="flex-1 max-xl:order-4" />
 
         {/* Mobile controls cluster — sits on the END edge */}
-        <ThemeSwitcher variant="compact" className="md:hidden" />
-        <LanguageSwitcher variant="compact" className="md:hidden" />
+        <ThemeSwitcher variant="compact" className="md:hidden max-xl:order-3" />
+        <LanguageSwitcher variant="compact" className="md:hidden max-xl:order-3" />
         {/* The notifications bell on phones too: its count is not the chats count. */}
         {user && <Link to="/notifications" data-testid="mobile-bell"
-          className="md:hidden relative w-10 h-10 grid place-items-center rounded-pill text-fg-muted hover:bg-surface-alt no-underline" aria-label={t('notification.title')}>
+          className="md:hidden max-xl:order-2 relative w-10 h-10 grid place-items-center rounded-pill text-fg-muted hover:bg-surface-alt no-underline" aria-label={t('notification.title')}>
           <IconBell size={18} />
           {unread > 0 && <span className="absolute -top-0.5 -left-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-danger text-white text-[10px] font-bold grid place-items-center">{unread > 9 ? '9+' : unread}</span>}
         </Link>}
-        <div className="xl:hidden shrink-0">
+        <div className="xl:hidden shrink-0 max-xl:order-1">
         <button
           ref={mobileButton}
           type="button"

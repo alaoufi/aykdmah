@@ -29,29 +29,23 @@ function beep(pattern) {
   }
 }
 
-// One short two-note chime for a new message or notification (AYK-052).
+// The site's own message tone (AYK-052): three rising notes, loud enough to notice. The same
+// tone plays for the receiver (new message) and for the sender (message sent).
 export function chime() {
   const AudioContext = typeof window !== 'undefined' && (window.AudioContext || window.webkitAudioContext);
   if (!AudioContext || timer) return; // a call is ringing: its tone is enough
   try {
     ctx ||= new AudioContext();
     ctx.resume?.().catch(() => {});
-    beep({ freqs: [880], gain: 0.15, bursts: [[0, 0.12]] });
-    beep({ freqs: [1175], gain: 0.15, bursts: [[0.15, 0.18]] });
-    navigator.vibrate?.(150);
+    beep({ freqs: [784], gain: 0.35, bursts: [[0, 0.11]] });
+    beep({ freqs: [1047], gain: 0.35, bursts: [[0.13, 0.11]] });
+    beep({ freqs: [1568], gain: 0.35, bursts: [[0.26, 0.22]] });
+    navigator.vibrate?.([120, 60, 120]);
   } catch (_) { /* no audio output */ }
 }
 
-// A soft single tone when my own message is sent.
-export function sentTone() {
-  const AudioContext = typeof window !== 'undefined' && (window.AudioContext || window.webkitAudioContext);
-  if (!AudioContext || timer) return;
-  try {
-    ctx ||= new AudioContext();
-    ctx.resume?.().catch(() => {});
-    beep({ freqs: [1320], gain: 0.08, bursts: [[0, 0.09]] });
-  } catch (_) { /* no audio output */ }
-}
+// The sender hears the same tone as the receiver (owner: "the sound they hear, I hear").
+export const sentTone = () => chime();
 
 export function startTone(kind) {
   stopTone();
