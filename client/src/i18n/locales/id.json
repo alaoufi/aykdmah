@@ -1334,7 +1334,8 @@
     "all_rights_reserved": "Semua hak dilindungi",
     "version": "Versi",
     "branch_of_before": "Ay Khidmah adalah cabang dari",
-    "parent_site": "Trbhh"
+    "parent_site": "Trbhh",
+    "app_version": "Aplikasi"
   },
   "policy": {
     "privacy_intro": "Kebijakan ini menjelaskan bagaimana Ay Khidma menggunakan informasi Anda saat Anda mendaftar dan meminta layanan rumah.",

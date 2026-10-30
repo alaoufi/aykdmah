@@ -2,6 +2,7 @@
 // device, sent to the server at most twice a day (and after a new site version) so problems
 // can be studied per operating system. No personal data; the device key is random.
 import api from '../services/api';
+import { nativeAppVersion } from './nativeApp';
 
 const KEY = 'ayk_device_key';
 const SENT = 'ayk_device_report';
@@ -42,7 +43,7 @@ export async function sendDeviceReport({ force = false } = {}) {
   const version = import.meta.env.VITE_APP_VERSION || '';
   try {
     const last = JSON.parse(localStorage.getItem(SENT) || 'null');
-    if (!force && last && last.version === version && Date.now() - last.at < 12 * 3600 * 1000) return;
+    if (!force && last && last.version === version && last.app === nativeAppVersion() && Date.now() - last.at < 12 * 3600 * 1000) return;
   } catch (_) { /* send anyway */ }
   let subscription = null;
   try { subscription = await (await navigator.serviceWorker?.getRegistration())?.pushManager?.getSubscription(); } catch (_) { subscription = null; }
@@ -59,8 +60,9 @@ export async function sendDeviceReport({ force = false } = {}) {
     camera_permission: await permission('camera'),
     webrtc: typeof RTCPeerConnection === 'function',
     network_type: navigator.connection?.effectiveType || null,
-    app_version: version,
+    // Site version, plus the Android app version when it runs inside the app (AYK-069).
+    app_version: nativeAppVersion() ? `${version} · app ${nativeAppVersion()}`.slice(0, 40) : version,
   };
   await api.post('/client-devices', report);
-  try { localStorage.setItem(SENT, JSON.stringify({ version, at: Date.now() })); } catch (_) { /* private mode */ }
+  try { localStorage.setItem(SENT, JSON.stringify({ version, app: nativeAppVersion(), at: Date.now() })); } catch (_) { /* private mode */ }
 }

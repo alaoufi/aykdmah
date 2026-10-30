@@ -1334,7 +1334,8 @@
     "all_rights_reserved": "सर्वाधिकार सुरक्षित",
     "version": "संस्करण",
     "branch_of_before": "ऐ ख़िदमा इस साइट की शाखा है:",
-    "parent_site": "तरबह (Trbhh)"
+    "parent_site": "तरबह (Trbhh)",
+    "app_version": "ऐप"
   },
   "policy": {
     "privacy_intro": "यह नीति बताती है कि Ay Khidma पर पंजीकरण और घरेलू सेवाओं के अनुरोध के दौरान आपकी जानकारी कैसे इस्तेमाल होती है।",

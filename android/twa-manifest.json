@@ -13,7 +13,7 @@
   "navigationDividerColorDark": "#0B2D56",
   "backgroundColor": "#FAF7F2",
   "enableNotifications": true,
-  "startUrl": "/",
+  "startUrl": "/?app=1.1.0",
   "iconUrl": "https://aykdmh.com/icons/android-chrome-512x512.png",
   "splashScreenFadeOutDuration": 300,
   "signingKey": {
@@ -27,7 +27,9 @@
   "webManifestUrl": "https://aykdmh.com/manifest.webmanifest",
   "fallbackType": "customtabs",
   "features": {},
-  "alphaDependencies": { "enabled": false },
+  "alphaDependencies": {
+    "enabled": false
+  },
   "enableSiteSettingsShortcut": true,
   "isChromeOSOnly": false,
   "isMetaQuest": false,

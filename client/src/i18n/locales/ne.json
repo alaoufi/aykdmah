@@ -1334,7 +1334,8 @@
     "all_rights_reserved": "सबै अधिकार सुरक्षित",
     "version": "संस्करण",
     "branch_of_before": "ऐ खिदमा यस साइटको शाखा हो:",
-    "parent_site": "Trbhh"
+    "parent_site": "Trbhh",
+    "app_version": "एप"
   },
   "policy": {
     "privacy_intro": "यस नीतिले बताउँछ कि Ay Khidma ले तपाईंको जानकारी कसरी प्रयोग गर्दछ जब तपाईं दर्ता गर्नुहुन्छ र घर सेवाहरू अनुरोध गर्नुहुन्छ।",

@@ -1334,7 +1334,8 @@
     "all_rights_reserved": "সমস্ত অধিকার সংরক্ষিত",
     "version": "সংস্করণ",
     "branch_of_before": "আই খিদমাহ যে সাইটের শাখা:",
-    "parent_site": "তারবাহ (Trbhh)"
+    "parent_site": "তারবাহ (Trbhh)",
+    "app_version": "অ্যাপ"
   },
   "policy": {
     "privacy_intro": "Ay Khidma-তে নিবন্ধন ও গৃহসেবার অনুরোধ করার সময় আপনার তথ্য কীভাবে ব্যবহৃত হয় তা এই নীতিতে বলা হয়েছে।",

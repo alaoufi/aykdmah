@@ -1334,7 +1334,8 @@
     "all_rights_reserved": "ሁሉም መብቶች የተጠበቁ",
     "version": "ስሪት",
     "branch_of_before": "አይ ኺድማ የዚህ ጣቢያ ቅርንጫፍ ነው፦",
-    "parent_site": "Trbhh"
+    "parent_site": "Trbhh",
+    "app_version": "መተግበሪያ"
   },
   "policy": {
     "privacy_intro": "ይህ ፖሊሲ የአይ ኪድማ የቤት ውስጥ አገልግሎቶችን ሲመዘገቡ እና ሲጠይቁ መረጃዎን እንዴት እንደሚጠቀም ያብራራል ።",

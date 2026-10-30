@@ -1200,7 +1200,8 @@
     "all_rights_reserved": "جميع الحقوق محفوظة",
     "version": "الإصدار",
     "branch_of_before": "موقع أي خدمة فرع من موقع",
-    "parent_site": "تربح"
+    "parent_site": "تربح",
+    "app_version": "التطبيق"
   },
   "promote": {
     "page_title": "أعلن عن خدمتك",

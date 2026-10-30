@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import BrandLogo from '../common/BrandLogo';
 import usePublicSettings from '../../hooks/usePublicSettings';
+import { nativeAppVersion } from '../../utils/nativeApp';
 
 export default function Footer() {
   const { t } = useTranslation();
@@ -84,6 +85,7 @@ export default function Footer() {
             {import.meta.env.VITE_APP_VERSION && (
               <span className="ms-2 text-white/40 text-[11px]" data-testid="app-version">
                 · {t('footer.version')} <span dir="ltr">{import.meta.env.VITE_APP_VERSION}</span>
+                {nativeAppVersion() && <> · {t('footer.app_version')} <span dir="ltr">{nativeAppVersion()}</span></>}
               </span>
             )}
           </div>
