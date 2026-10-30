@@ -1331,7 +1331,8 @@
     "privacy": "Privacy policy",
     "all_rights_reserved": "All rights reserved",
     "version": "Version",
-    "branch_of_before": "Ay Khidmah is a branch of"
+    "branch_of_before": "Ay Khidmah is a branch of",
+    "parent_site": "Trbhh"
   },
   "policy": {
     "privacy_intro": "This policy explains how Ay Khidma uses your information when you register and request home services.",

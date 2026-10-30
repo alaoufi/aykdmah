@@ -1331,7 +1331,8 @@
     "privacy": "Mga patakaran sa privacy",
     "all_rights_reserved": "Lahat ng karapatan ay nakabantayan",
     "version": "Versiyon",
-    "branch_of_before": "Ang Ay Khidmah ay sangay ng"
+    "branch_of_before": "Ang Ay Khidmah ay sangay ng",
+    "parent_site": "Trbhh"
   },
   "policy": {
     "privacy_intro": "Ipaliwanag ng patakaran na ito kung paano ginagamit ng Ay Khidma ang iyong impormasyon kapag nag-register ka at humingi ng mga serbisyo sa bahay.",

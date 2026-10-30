@@ -1331,7 +1331,8 @@
     "privacy": "Gizlilik politikası",
     "all_rights_reserved": "Tüm haklar korunmaktadır",
     "version": "Versiyon",
-    "branch_of_before": "Ay Khidmah şu sitenin bir şubesidir:"
+    "branch_of_before": "Ay Khidmah şu sitenin bir şubesidir:",
+    "parent_site": "Trbhh"
   },
   "policy": {
     "privacy_intro": "Bu politika, Ay Khidma'nın ev hizmetlerini kayıt edince ve talep ettiğinizde bilgilerinizi nasıl kullandığını açıklar.",

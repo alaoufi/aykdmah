@@ -73,24 +73,23 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-40 bg-surface/85 backdrop-blur-md border-b border-border/70">
-      {/* Top strip: the parent site, and the signed-in customer number (also a sign-in identifier). */}
+      {/* Top strip for signed-in users: "Your number" (also a sign-in identifier) and their area.
+          The parent site (تربح) is named in the footer. */}
+      {user && (
       <div className="bg-primary text-primary-fg text-[12px] md:text-[13px]" data-testid="top-strip">
         <div className="max-w-7xl mx-auto px-3 md:px-6 lg:px-8 h-7 flex items-center gap-3">
-          <span className="truncate min-w-0">
-            {t('brand.branch_of')}{' '}
-            <a href="https://trbhh.sa" target="_blank" rel="noopener noreferrer" className="font-bold underline underline-offset-2 text-inherit" dir="ltr">trbhh.sa</a>
-          </span>
-          <span className="flex-1" />
-          {user && ['client', 'provider'].includes(user.role) && (
-            <Link to="/profile#my-area" className="shrink-0 whitespace-nowrap font-semibold underline underline-offset-2 text-inherit" data-testid="edit-area">📍 {t('for_you.edit_area')}</Link>
-          )}
-          {user?.referral_code && (
+          {user.referral_code && (
             <span className="shrink-0 whitespace-nowrap" data-testid="customer-number">
               {t('brand.your_number')}: <b dir="ltr" className="tracking-wider">{user.referral_code}</b>
             </span>
           )}
+          <span className="flex-1" />
+          {user && ['client', 'provider'].includes(user.role) && (
+            <Link to="/profile#my-area" className="shrink-0 whitespace-nowrap font-semibold underline underline-offset-2 text-inherit" data-testid="edit-area">📍 {t('for_you.edit_area')}</Link>
+          )}
         </div>
       </div>
+      )}
       <div className="max-w-7xl mx-auto px-3 md:px-6 lg:px-8 h-14 md:h-16 lg:h-[72px] flex items-center gap-2 md:gap-4">
         {/* Logo on the start edge of the screen */}
         <Link to="/" className="site-logo w-[140px] min-[360px]:w-[166px] shrink-0 no-underline">

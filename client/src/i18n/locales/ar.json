@@ -1197,7 +1197,8 @@
     "privacy": "سياسة الخصوصية",
     "all_rights_reserved": "جميع الحقوق محفوظة",
     "version": "الإصدار",
-    "branch_of_before": "موقع أي خدمة فرع من موقع"
+    "branch_of_before": "موقع أي خدمة فرع من موقع",
+    "parent_site": "تربح"
   },
   "promote": {
     "page_title": "أعلن عن خدمتك",
