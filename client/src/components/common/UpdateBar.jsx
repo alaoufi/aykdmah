@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { nativeAppVersion } from '../../utils/nativeApp';
 
 const CURRENT = import.meta.env.VITE_APP_VERSION || '';
 
@@ -50,7 +51,24 @@ export default function UpdateBar() {
     window.location.reload();
   };
 
-  if (!available) return null;
+  // Inside the Android app, update on its own (AYK-073): no call or dialog on screen and nothing
+  // being typed; otherwise try again on the next check (return to the app, or 5 minutes).
+  const inApp = Boolean(nativeAppVersion());
+  useEffect(() => {
+    if (!inApp || !available || busy) return undefined;
+    const tryNow = () => {
+      if (document.hidden) return;
+      const typing = ['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName) && document.activeElement.value;
+      if (document.querySelector('[role="dialog"][aria-modal="true"]') || typing) return;
+      update();
+    };
+    tryNow();
+    const timer = setInterval(tryNow, 15000);
+    document.addEventListener('visibilitychange', tryNow);
+    return () => { clearInterval(timer); document.removeEventListener('visibilitychange', tryNow); };
+  }, [inApp, available, busy]);
+
+  if (!available || (inApp && !busy)) return null;
   return (
     <div className="bg-success-soft border-b border-border px-4 py-2 flex flex-wrap items-center justify-center gap-2 text-[13px]" role="status" data-testid="update-bar">
       {busy ? (
