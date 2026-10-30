@@ -68,7 +68,7 @@ function LocationCard({ lat, lng }) {
 
 // WhatsApp-style bubble: tail on the first message of a run, time and ticks inside the
 // bubble, voice notes with a waveform, photos that open full screen, inline video.
-export default function MessageBubble({ message, isMine, onReply, onDelete, onForward, renderTranslation, firstInRun = true }) {
+export default function MessageBubble({ message, isMine, onReply, onDelete, onForward, renderTranslation, firstInRun = true, onCallBack }) {
   const { t } = useTranslation();
   const [showMenu, setShowMenu] = useState(false);
   // The other side's words in my language, in place of the original (AYK-065).
@@ -94,6 +94,24 @@ export default function MessageBubble({ message, isMine, onReply, onDelete, onFo
   const isSystem = message.message_type === 'system';
   const mediaOnly = !message.content && files.length > 0 && files.every(f => ['image', 'video'].includes(kind(f)));
 
+  // A missed call recorded in the chat (AYK-088): "call:missed:audio|video".
+  const missed = isSystem && /^call:missed:(audio|video)$/.exec(message.content || '');
+  if (missed) {
+    const kind = missed[1];
+    const time = message.created_at ? new Date(message.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+    return (
+      <div className="text-center my-3" data-testid="missed-call-line">
+        <span className="wa-system inline-flex items-center gap-2 flex-wrap justify-center">
+          <span>{kind === 'video' ? '📹' : '📞'} {t(isMine ? 'calls.missed_out' : `calls.missed_in_${kind}`)} · {time}</span>
+          {!isMine && onCallBack && (
+            <button type="button" className="font-bold text-primary underline underline-offset-2" onClick={() => onCallBack(kind)} data-testid="missed-call-back">
+              {t('calls.call_back')}
+            </button>
+          )}
+        </span>
+      </div>
+    );
+  }
   if (isSystem) {
     return (
       <div className="text-center my-3">

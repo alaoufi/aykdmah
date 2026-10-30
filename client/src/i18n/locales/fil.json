@@ -1856,7 +1856,12 @@
     "audio_output": "Speaker",
     "audio_output_hint": "Nasa speaker ang tunog. Magkabit ng earphones o Bluetooth at doon ito lilipat; hindi pinapayagan ng teleponong ito ang website na pumili ng earpiece.",
     "remote_camera_off": "Hindi dumarating ang larawan ni {{name}}: naka-off o naharang ang camera sa telepono niya.",
-    "my_camera_off": "Hindi gumagana ang camera mo. Pindutin ang 🔒 sa tabi ng aykdmh.com → Pahintulot → Camera → Payagan."
+    "my_camera_off": "Hindi gumagana ang camera mo. Pindutin ang 🔒 sa tabi ng aykdmh.com → Pahintulot → Camera → Payagan.",
+    "missed_in_audio": "Hindi nasagot na voice call",
+    "missed_in_video": "Hindi nasagot na video call",
+    "missed_out": "Hindi sinagot ang tawag mo",
+    "call_back": "Tumawag pabalik",
+    "missed_short": "Hindi nasagot na tawag"
   },
   "wallet": {
     "nav": "Wallet & coupon",

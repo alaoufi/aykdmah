@@ -13,7 +13,7 @@ export function useAutoTranslation(message, isMine) {
   const [text, setText] = useState('');
   const content = typeof message?.content === 'string' ? message.content.trim() : '';
   const guessed = guessLocalSourceLanguage(content);
-  const needed = !isMine && content && message?.id && message.message_type !== 'location'
+  const needed = !isMine && content && message?.id && message.message_type !== 'location' && message.message_type !== 'system'
     && !(guessed && guessed === lang) && /\p{L}{3,}/u.test(content);
   useEffect(() => {
     let alive = true;

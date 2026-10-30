@@ -1856,7 +1856,12 @@
     "audio_output": "Speaker",
     "audio_output_hint": "Suara di speaker. Pasang earphone atau Bluetooth dan suara pindah otomatis; ponsel ini tidak mengizinkan situs memilih earpiece panggilan.",
     "remote_camera_off": "Gambar {{name}} tidak sampai: kameranya mati atau diblokir di ponselnya.",
-    "my_camera_off": "Kamera Anda tidak berfungsi. Ketuk 🔒 di samping aykdmh.com → Izin → Kamera → Izinkan."
+    "my_camera_off": "Kamera Anda tidak berfungsi. Ketuk 🔒 di samping aykdmh.com → Izin → Kamera → Izinkan.",
+    "missed_in_audio": "Panggilan suara tak terjawab",
+    "missed_in_video": "Panggilan video tak terjawab",
+    "missed_out": "Panggilan Anda tidak dijawab",
+    "call_back": "Telepon balik",
+    "missed_short": "Panggilan tak terjawab"
   },
   "wallet": {
     "nav": "Dompet & Kupon",

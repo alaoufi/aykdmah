@@ -202,6 +202,9 @@ if (!databasePrefix) {
     await new Promise(resolve => setTimeout(resolve, 100));
     const note = await db.queryOne("SELECT link FROM notifications WHERE user_id = ? AND type = 'missed_call' ORDER BY id DESC", [users.provider.id]);
     assert.equal(note?.link, `/chat/${conversation}`);
+    // It stays in the chat as a line to call back from (AYK-088).
+    const line = await db.queryOne("SELECT sender_id, content, message_type FROM messages WHERE conversation_id = ? ORDER BY id DESC LIMIT 1", [conversation]);
+    assert.deepEqual([Number(line.sender_id), line.content, line.message_type], [Number(users.client.id), `call:missed:${call.call_type || 'audio'}`, 'system']);
   });
 
   test('eligibility finds the shared request conversation', async () => {

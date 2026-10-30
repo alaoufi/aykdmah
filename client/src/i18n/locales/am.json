@@ -1856,7 +1856,12 @@
     "audio_output": "ድምፅ ማጉያ",
     "audio_output_hint": "ድምፁ በድምፅ ማጉያ ነው። የጆሮ ማዳመጫ ወይም ብሉቱዝ ሲያገናኙ በራሱ ወደዚያ ይቀየራል፤ ይህ ስልክ ድረ ገጾች የጥሪ ማዳመጫ እንዲመርጡ አይፈቅድም።",
     "remote_camera_off": "የ{{name}} ምስል እየደረሰ አይደለም፦ ካሜራቸው ጠፍቷል ወይም በስልካቸው ታግዷል።",
-    "my_camera_off": "ካሜራዎ እየሰራ አይደለም። ከaykdmh.com አጠገብ 🔒 → ፈቃዶች → ካሜራ → ፍቀድ።"
+    "my_camera_off": "ካሜራዎ እየሰራ አይደለም። ከaykdmh.com አጠገብ 🔒 → ፈቃዶች → ካሜራ → ፍቀድ።",
+    "missed_in_audio": "ያመለጠ የድምፅ ጥሪ",
+    "missed_in_video": "ያመለጠ የቪዲዮ ጥሪ",
+    "missed_out": "ጥሪዎ አልተመለሰም",
+    "call_back": "መልሰው ይደውሉ",
+    "missed_short": "ያመለጠ ጥሪ"
   },
   "wallet": {
     "nav": "Wallet & ኩፖን",

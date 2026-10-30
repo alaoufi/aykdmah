@@ -1856,7 +1856,12 @@
     "audio_output": "Hoparlör",
     "audio_output_hint": "Ses hoparlörde. Kulaklık ya da Bluetooth takarsanız oraya kendiliğinden geçer; bu telefon sitelerin arama kulaklığını seçmesine izin vermiyor.",
     "remote_camera_off": "{{name}} görüntüsü gelmiyor: kamerası kapalı ya da telefonunda engelli.",
-    "my_camera_off": "Kameranız çalışmıyor. aykdmh.com yanındaki 🔒 → İzinler → Kamera → İzin ver."
+    "my_camera_off": "Kameranız çalışmıyor. aykdmh.com yanındaki 🔒 → İzinler → Kamera → İzin ver.",
+    "missed_in_audio": "Cevapsız sesli arama",
+    "missed_in_video": "Cevapsız görüntülü arama",
+    "missed_out": "Aramanız cevaplanmadı",
+    "call_back": "Geri ara",
+    "missed_short": "Cevapsız arama"
   },
   "wallet": {
     "nav": "Cüzdan & Kupon",

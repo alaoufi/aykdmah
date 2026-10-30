@@ -1856,7 +1856,12 @@
     "audio_output": "Speaker",
     "audio_output_hint": "Sound is on the speaker. Plug in earphones or Bluetooth and it switches to them; this phone does not let websites pick the call earpiece.",
     "remote_camera_off": "{{name}}'s picture is not arriving: their camera is off or blocked on their phone.",
-    "my_camera_off": "Your camera is not working. Tap 🔒 next to aykdmh.com → Permissions → Camera → Allow."
+    "my_camera_off": "Your camera is not working. Tap 🔒 next to aykdmh.com → Permissions → Camera → Allow.",
+    "missed_in_audio": "Missed voice call",
+    "missed_in_video": "Missed video call",
+    "missed_out": "Your call was not answered",
+    "call_back": "Call back",
+    "missed_short": "Missed call"
   },
   "wallet": {
     "nav": "Wallet & coupon",

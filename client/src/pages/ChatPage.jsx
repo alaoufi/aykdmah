@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import CallButtons from '../components/calls/CallButtons';
+import { useCall } from '../context/CallContext';
 import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -40,6 +41,7 @@ export default function ChatPage() {
   const [listOwnerId, setListOwnerId] = useState(null);
   const [active, setActive] = useState(null);
   const [blockProblem, setBlockProblem] = useState('');
+  const { start: startCall } = useCall();
   const [agreeing, setAgreeing] = useState(false);
   const [activeScope, setActiveScope] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -343,7 +345,8 @@ export default function ChatPage() {
               const isActive = Number(activeId) === c.id;
               const lastPreview = last
                 ? last.message_type === 'location' ? '📍 ' + t('chat.shared_location')
-                  : last.message_type === 'voice' ? '🎙️ ' + t('chat.voice_message')
+                  : last.message_type === 'system' && /^call:missed:/.test(last.content || '') ? '📞 ' + t('calls.missed_short')
+                : last.message_type === 'voice' ? '🎙️ ' + t('chat.voice_message')
                   : last.message_type === 'image' ? '🖼️ ' + (last.content || t('chat.image'))
                   : last.content || '📎'
                 : t('chat.no_messages');
@@ -438,6 +441,7 @@ export default function ChatPage() {
                       onReply={canSend ? setReplyTo : undefined}
                       onForward={item.sender_id === user.id && isRequestOwner && item.message_type !== 'location' ? message => { setForwardNote(''); setForwarding(message); } : undefined}
                       onDelete={setDeleteCandidate}
+                      onCallBack={canSend ? kind => startCall(Number(activeId), kind) : undefined}
                     />
                   );
                 })

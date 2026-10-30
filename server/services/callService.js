@@ -13,7 +13,7 @@ const crypto = require('crypto');
 const { AccessToken, RoomServiceClient, TrackSource, WebhookReceiver } = require('livekit-server-sdk');
 const { query, queryOne, transaction } = require('../config/database');
 const Conversation = require('../models/Conversation');
-const { emitUser } = require('../utils/conversationEvents');
+const { emitUser, emitConversation } = require('../utils/conversationEvents');
 const notificationService = require('./notificationService');
 const pushService = require('./pushService');
 const { translate } = require('../utils/i18n');
@@ -195,6 +195,7 @@ async function finish(row, status, reason) {
     { TTL: missed ? 24 * 3600 : 60, urgency: 'high', topic: `call-${row.id}` })
       .then(sent => logger.info(`Push ${missed ? 'missed_call' : 'call_end'} call=${row.id} user=${row.callee_id} devices=${sent}`))
       .catch(() => {});
+    if (missed) await recordMissedCall(row).catch(err => logger.warn('Missed call line failed:', err.message));
   }
   if (status === 'missed' || (status === 'cancelled' && !row.answered_at)) {
     notificationService.notifyUser(row.callee_id, {
@@ -206,6 +207,17 @@ async function finish(row, status, reason) {
     }).catch(() => {});
   }
   return final;
+}
+
+// A missed call stays in the chat as a line, like WhatsApp: the callee sees it later and calls
+// back from it (AYK-088). The content is a code the app shows in the reader's language.
+async function recordMissedCall(row) {
+  const kind = row.call_type === 'video' ? 'video' : 'audio';
+  const inserted = await query("INSERT INTO messages (conversation_id, sender_id, content, message_type) VALUES (?, ?, ?, 'system')",
+    [row.conversation_id, row.caller_id, `call:missed:${kind}`]);
+  await query('UPDATE conversations SET last_message_id = ?, last_message_at = CURRENT_TIMESTAMP WHERE id = ?', [inserted.insertId, row.conversation_id]);
+  const message = await require('../models/Message').findById(inserted.insertId);
+  if (io && message) await emitConversation(io, row.conversation_id, 'chat:message', message).catch(() => {});
 }
 
 async function accept(callId, user) {
