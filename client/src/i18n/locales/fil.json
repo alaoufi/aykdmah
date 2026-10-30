@@ -2237,6 +2237,6 @@
   "tone": {
     "title": "Lakas ng abiso",
     "try": "Subukan",
-    "hint": "Tono ng mensahe at ring ng tawag habang bukas ang site. Kapag sarado, sumusunod sa lakas ng telepono."
+    "hint": "Tono ng mensahe at ring ng tawag habang bukas ang site. Ang volume buttons ng telepono ay nagpapalakas at nagpapahina rin nito (media volume). Kapag sarado, sumusunod sa lakas ng abiso ng telepono."
   }
 }

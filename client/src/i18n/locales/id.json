@@ -2237,6 +2237,6 @@
   "tone": {
     "title": "Volume notifikasi",
     "try": "Coba",
-    "hint": "Nada pesan dan dering panggilan saat situs terbuka. Saat situs tertutup, mengikuti volume ponsel."
+    "hint": "Nada pesan dan dering panggilan saat situs terbuka. Tombol volume ponsel juga menaikkan dan menurunkannya (volume media). Saat situs tertutup, mengikuti volume notifikasi ponsel."
   }
 }

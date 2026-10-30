@@ -2237,6 +2237,6 @@
   "tone": {
     "title": "Bildirim sesi",
     "try": "Dene",
-    "hint": "Site açıkken mesaj tonu ve arama zili. Site kapalıyken telefonunuzun sesine göre."
+    "hint": "Site açıkken mesaj tonu ve arama zili. Telefonun ses tuşları da bunu açar ve kısar (medya sesi). Site kapalıyken telefonunuzun bildirim sesine göre."
   }
 }

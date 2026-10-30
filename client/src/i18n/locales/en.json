@@ -2237,6 +2237,6 @@
   "tone": {
     "title": "Notification volume",
     "try": "Try",
-    "hint": "Message tone and call ring while the site is open. With the site closed, alerts follow your phone volume."
+    "hint": "Message tone and call ring while the site is open. Your phone volume keys raise and lower it too (media volume). With the site closed, alerts follow your phone notification volume."
   }
 }
