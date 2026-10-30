@@ -1112,7 +1112,9 @@
     "reason_update_body": "Sayfayı şimdi otomatik yeniliyoruz. Yenilenmezse \"Tekrar dene\"ye dokunun.",
     "reason_ours_title": "Sayfada bizden kaynaklı bir hata oluştu",
     "reason_ours_body": "Hata sizden kaynaklanmadı ve bize otomatik bildirildi. \"Tekrar dene\"ye dokunun; tekrarlarsa hata kodunu bize gönderin.",
-    "reason_code": "Hata kodu: {{code}}"
+    "reason_code": "Hata kodu: {{code}}",
+    "blocked": "İletişim mümkün değil: taraflardan biri diğerini engelledi. ✅",
+    "block_during_work": "Birlikte iş sürerken veya inceleme ve garanti günlerinde engelleyemezsiniz."
   },
   "catalog": {
     "title": "Hizmetler",

@@ -94,6 +94,8 @@ for (const [code, key, messages] of [
   ["route_not_found", "errors.not_found", ["المسار غير موجود","Route not found","راستہ نہیں ملا","রুট পাওয়া যায়নি","मार्ग नहीं मिला"]],
   ["plan_not_found", "errors.not_found", ["الباقة غير موجودة","Plan not found","پلان نہیں ملا","প্ল্যান পাওয়া যায়নি","योजना नहीं मिली"]],
   ["account_not_found", "errors.not_found", ["الحساب غير موجود","Account not found","اکاؤنٹ نہیں ملا","অ্যাকাউন্ট পাওয়া যায়নি","खाता नहीं मिला"]],
+  ["deny_blocked", "errors.blocked", ["لا يمكن التواصل: أحد الطرفين حظر الآخر.","Contact is not possible: one side blocked the other.","رابطہ ممکن نہیں: ایک فریق نے دوسرے کو بلاک کیا ہے۔","যোগাযোগ সম্ভব নয়: এক পক্ষ অন্যকে ব্লক করেছে।","संपर्क संभव नहीं: एक पक्ष ने दूसरे को ब्लॉक किया है।"]],
+  ["block_during_work", "errors.block_during_work", ["لا يمكن الحظر أثناء العمل المسند بينكما أو خلال أيام المراجعة والضمان.","You cannot block while you work together on a request or during its review and warranty days.","آپ دونوں کے درمیان جاری کام یا جائزے اور وارنٹی کے دنوں میں بلاک نہیں کیا جا سکتا۔","আপনাদের মধ্যে চলমান কাজ বা পর্যালোচনা ও ওয়ারেন্টির দিনে ব্লক করা যাবে না।","आपके बीच चल रहे काम या समीक्षा और वारंटी के दिनों में ब्लॉक नहीं किया जा सकता।"]],
   ["forbidden", "errors.forbidden", ["لا تملك صلاحية للوصول","You do not have permission","آپ کو اجازت نہیں","আপনার অনুমতি নেই","आपके पास अनुमति नहीं है"]],
   ["cannot_block_self", "errors.forbidden", ["لا يمكن حظر نفسك","You cannot block yourself","آپ خود کو بلاک نہیں کر سکتے","আপনি নিজেকে ব্লক করতে পারবেন না","आप स्वयं को ब्लॉक नहीं कर सकते"]],
   ["cannot_delete_self", "errors.forbidden", ["لا يمكن حذف نفسك","You cannot delete yourself","آپ خود کو حذف نہیں کر سکتے","আপনি নিজেকে মুছতে পারবেন না","आप स्वयं को हटा नहीं सकते"]],

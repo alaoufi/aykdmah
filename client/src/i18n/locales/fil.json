@@ -1112,7 +1112,9 @@
     "reason_update_body": "Nire-reload namin ang pahina ngayon. Kung hindi, pindutin ang \"Subukan muli\".",
     "reason_ours_title": "May mali sa pahina sa aming panig",
     "reason_ours_body": "Hindi ikaw ang may mali, at awtomatiko kaming naabisuhan. Pindutin ang \"Subukan muli\"; kung maulit, ipadala sa amin ang error code.",
-    "reason_code": "Error code: {{code}}"
+    "reason_code": "Error code: {{code}}",
+    "blocked": "Hindi puwedeng makipag-ugnayan: may nag-block sa isa. ✅",
+    "block_during_work": "Hindi puwedeng mag-block habang may trabaho kayo o sa mga araw ng pagsusuri at warranty."
   },
   "catalog": {
     "title": "Mga Serbisyo",

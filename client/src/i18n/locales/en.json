@@ -1112,7 +1112,9 @@
     "reason_update_body": "We are reloading the page now. If it does not reload, tap \"Retry\".",
     "reason_ours_title": "Something went wrong on our side",
     "reason_ours_body": "It was not your fault, and we were told automatically. Tap \"Retry\"; if it happens again, send us the error code.",
-    "reason_code": "Error code: {{code}}"
+    "reason_code": "Error code: {{code}}",
+    "blocked": "Contact is not possible: one side blocked the other. If it was you, open your chat with them and tap ✅ at the top to unblock.",
+    "block_during_work": "You cannot block while you work together on a request or during its review and warranty days."
   },
   "catalog": {
     "title": "Services",

@@ -1112,7 +1112,9 @@
     "reason_update_body": "Kami memuat ulang halaman sekarang. Jika tidak, ketuk \"Coba lagi\".",
     "reason_ours_title": "Terjadi kesalahan di pihak kami",
     "reason_ours_body": "Ini bukan kesalahan Anda, dan kami sudah diberi tahu otomatis. Ketuk \"Coba lagi\"; jika terulang, kirimkan kode kesalahannya.",
-    "reason_code": "Kode kesalahan: {{code}}"
+    "reason_code": "Kode kesalahan: {{code}}",
+    "blocked": "Tidak bisa berkomunikasi: salah satu pihak memblokir yang lain. ✅",
+    "block_during_work": "Tidak bisa memblokir selama pekerjaan bersama atau masa peninjauan dan garansi."
   },
   "catalog": {
     "title": "Layanan",
