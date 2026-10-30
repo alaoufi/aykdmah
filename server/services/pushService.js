@@ -23,7 +23,9 @@ function configure() {
 
 // Only the browsers' own push services are accepted, so a stored endpoint can
 // never make the server send requests to an arbitrary host.
-const HOSTS = ['fcm.googleapis.com', 'updates.push.services.mozilla.com', 'web.push.apple.com'];
+// jmt17.google.com: Chrome on Android hands out this Google push host too (seen 2026-10-30,
+// it was rejected and the owner's phone never got notifications); android.googleapis.com: older Chrome.
+const HOSTS = ['fcm.googleapis.com', 'jmt17.google.com', 'android.googleapis.com', 'updates.push.services.mozilla.com', 'web.push.apple.com'];
 const HOST_SUFFIXES = ['.notify.windows.com', '.wns.windows.com', '.push.apple.com'];
 function validSubscription(subscription) {
   let endpoint;
