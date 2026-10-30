@@ -59,7 +59,7 @@ function RoundButton({ onClick, label, tone = 'neutral', children, disabled }) {
   };
   return (
     <button type="button" onClick={onClick} disabled={disabled} aria-label={label} title={label}
-      className={`${tone === 'danger' || tone === 'accept' ? 'w-16 h-16' : 'w-12 h-12 min-[400px]:w-14 min-[400px]:h-14'} shrink-0 rounded-full grid place-items-center text-xl shadow-lift disabled:opacity-50 ${tones[tone]}`}>
+      className={`${tone === 'danger' || tone === 'accept' ? 'w-14 h-14 [@media(min-height:560px)]:w-16 [@media(min-height:560px)]:h-16' : 'w-11 h-11 min-[400px]:w-14 min-[400px]:h-14'} shrink-0 rounded-full grid place-items-center text-xl shadow-lift disabled:opacity-50 ${tones[tone]}`}>
       {children}
     </button>
   );
@@ -99,11 +99,13 @@ export default function CallOverlay() {
     finally { setReporting(false); }
   };
 
+  // Pinned to the visible edges, not a 100dvh height that can run past the screen in the app
+  // with a large font; the buttons never shrink away (AYK-082).
   return (
     <div role="dialog" aria-modal="true" aria-label={t('calls.title')}
-      className="fixed inset-0 z-[3000] bg-slate-950 text-white flex flex-col" style={{ height: '100dvh' }}>
+      className="fixed inset-0 z-[3000] bg-slate-950 text-white flex flex-col overflow-hidden">
       <audio ref={remoteAudio} autoPlay playsInline />
-      <div className="relative flex-1 overflow-hidden">
+      <div className="relative flex-1 min-h-0 overflow-hidden">
         {video && live && (
           <video ref={remoteVideo} autoPlay playsInline className="absolute inset-0 w-full h-full object-cover bg-black" />
         )}
@@ -180,7 +182,7 @@ export default function CallOverlay() {
       </div>
 
       {/* One row on every phone, the red end button in the middle (AYK-066). */}
-      <div className="px-3 pt-4 flex items-center justify-center gap-3 min-[400px]:gap-4 bg-slate-900/80" style={{ paddingBottom: 'max(1.5rem, env(safe-area-inset-bottom))' }}>
+      <div className="shrink-0 px-3 pt-3 flex items-center justify-center gap-2 min-[400px]:gap-4 bg-slate-900/80" style={{ paddingBottom: 'max(1rem, calc(env(safe-area-inset-bottom) + 0.5rem))' }} data-testid="call-controls">
         {phase === 'incoming' && (
           <>
             <RoundButton tone="danger" onClick={hangup} label={t('calls.decline')}><Handset down /></RoundButton>
