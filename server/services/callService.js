@@ -185,7 +185,7 @@ async function finish(row, status, reason) {
   // the chat, like WhatsApp (AYK-064); declined or answered elsewhere just closes it.
   if (row.status === 'ringing') {
     // A call replaced by the caller's next try is not "missed": the new one is ringing.
-    const missed = status === 'missed' || (status === 'cancelled' && reason !== 'replaced');
+    const missed = status === 'missed' || (status === 'cancelled' && reason !== 'replaced' && reason !== 'failed');
     pushService.sendToUser(row.callee_id, missed
       ? lang => ({
         kind: 'missed_call', call_id: row.id, tag: `call-${row.id}`, url: `/chat/${row.conversation_id}`,
@@ -224,11 +224,13 @@ async function accept(callId, user) {
   return publicCall(final, user.id);
 }
 
-async function decline(callId, user) {
+async function decline(callId, user, why) {
   const row = await participantCall(callId, user.id);
   const isCaller = Number(row.caller_id) === Number(user.id);
   const status = row.status === 'accepted' ? 'ended' : isCaller ? 'cancelled' : 'rejected';
-  const reason = row.status === 'accepted' ? (isCaller ? 'caller_hangup' : 'callee_hangup') : status;
+  // The caller's own device failed (camera or microphone refused, no connection): not a missed call (AYK-087).
+  const failed = isCaller && row.status === 'ringing' && why === 'failed';
+  const reason = row.status === 'accepted' ? (isCaller ? 'caller_hangup' : 'callee_hangup') : failed ? 'failed' : status;
   return publicCall(await finish(row, status, reason), user.id);
 }
 

@@ -284,6 +284,15 @@ if (!databasePrefix) {
     await new Promise(resolve => setTimeout(resolve, 300));
     assert.equal(pushes.find(p => p.endpoint === device.endpoint)?.body.kind, 'call_end', 'a declined call clears the notification');
 
+    // The caller's own device failed: the ring is cleared, no missed call is left (AYK-087).
+    const broken = (await api('/calls', { user: users.client, method: 'POST', body: { conversation_id: conversation, call_type: 'video' } })).body.data;
+    await new Promise(resolve => setTimeout(resolve, 300));
+    pushes.length = 0;
+    await api(`/calls/${broken.id}/decline`, { user: users.client, method: 'POST', body: { reason: 'failed' } });
+    await new Promise(resolve => setTimeout(resolve, 300));
+    assert.equal(pushes.find(p => p.endpoint === device.endpoint)?.body.kind, 'call_end', 'no missed call after a failed start');
+    assert.equal((await db.queryOne('SELECT end_reason FROM calls WHERE id = ?', [broken.id])).end_reason, 'failed');
+
     // Important notices reach the phone too, even with the app closed (AYK-078); chat notices do not repeat the message push.
     const notices = require('../services/notificationService');
     pushes.length = 0;

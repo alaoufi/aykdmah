@@ -5,7 +5,8 @@ export async function startCall(conversationId, callType) {
   return data.data;
 }
 export async function acceptCall(id) { return (await api.post(`/calls/${id}/accept`)).data.data; }
-export async function declineCall(id) { return (await api.post(`/calls/${id}/decline`)).data.data; }
+// `reason: 'failed'` when this device could not start the call: the other side gets no missed call (AYK-087).
+export async function declineCall(id, reason) { return (await api.post(`/calls/${id}/decline`, reason ? { reason } : undefined)).data.data; }
 export async function callToken(id) { return (await api.post(`/calls/${id}/token`)).data.data; }
 export async function activeCalls() { return (await api.get('/calls/active')).data.data; }
 export async function callEligibility(userId) { return (await api.get(`/calls/eligibility/${userId}`)).data.data; }

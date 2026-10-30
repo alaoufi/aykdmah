@@ -33,7 +33,7 @@ router.get('/admin/stats', authenticate, requireAdmin, handle(req => calls.stats
 router.patch('/admin/reports/:id', authenticate, requireAdmin, handle(req =>
   calls.reviewReport(req.params.id, req.user.id, req.body?.status)));
 router.post('/:id/accept', authenticate, handle(req => calls.accept(req.params.id, req.user)));
-router.post('/:id/decline', authenticate, handle(req => calls.decline(req.params.id, req.user)));
+router.post('/:id/decline', authenticate, handle(req => calls.decline(req.params.id, req.user, req.body?.reason)));
 router.post('/:id/token', authenticate, handle(req => calls.joinToken(req.params.id, req.user)));
 router.post('/:id/report', authenticate, handle(req => calls.report(req.params.id, req.user, req.body?.reason)));
 router.post('/:id/diagnostics', authenticate, handle(req => calls.diagnostics(req.params.id, req.user, req.body)));

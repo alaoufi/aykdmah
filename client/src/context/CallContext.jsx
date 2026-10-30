@@ -343,7 +343,7 @@ export function CallProvider({ children }) {
       const code = err?.response?.data?.message || (err?.name === 'NotAllowedError' ? 'media_denied' : 'call_failed');
       setError(code);
       const current = callRef.current;
-      if (current) calls.declineCall(current.id).catch(() => {});
+      if (current) calls.declineCall(current.id, 'failed').catch(() => {});
       await finishLocally(null);
       setPhase('ended');
       setCall({ status: 'failed', end_reason: code, call_type: callType, peer: {} });
