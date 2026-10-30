@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { chime, getToneVolume, setToneVolume } from '../../utils/ringtone';
 import api, { apiError } from '../../services/api';
+import { nativePushState } from '../../services/pushService';
+import { nativeAppVersion } from '../../utils/nativeApp';
 
 // iPhone / iPad (also iPadOS that reports itself as a Mac with touch).
 const isIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
@@ -19,8 +21,16 @@ export default function ToneVolume() {
     try { const { data } = await api.post('/push/test'); setTest(data.data.sent ? t('tone.test_sent') : t('tone.test_none')); }
     catch (err) { setTest(apiError(err)); }
   };
+  // In the Android app: does an incoming call ring the app itself? (AYK-095)
+  const appVersion = nativeAppVersion();
+  const ring = appVersion ? nativePushState() : null;
   return (
     <div className="card mb-4" id="tone-volume" data-testid="tone-volume">
+      {ring && (
+        <p className={`text-[14px] font-bold mb-3 px-3 py-2 rounded-card ${ring === 'linked' ? 'bg-success-soft text-success' : 'bg-amber-100 text-amber-900'}`} data-testid="native-ring-state">
+          🔔 {t('tone.app_ring')}: {ring === 'linked' ? `✅ ${t('tone.app_ring_on')}` : `⏳ ${t('tone.app_ring_reopen')}`} · app {appVersion}
+        </p>
+      )}
       <label htmlFor="tone-volume-range" className="font-bold block mb-2">
         {volume === 0 ? '🔇' : volume < 50 ? '🔉' : '🔊'} {t('tone.title')}: {volume}%
       </label>

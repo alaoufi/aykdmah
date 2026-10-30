@@ -5,15 +5,20 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 
 /**
  * Bubblewrap's launcher, plus (AYK-094): the app's Firebase token is added to the address it
  * opens (?fcm=), so the site links this device to whoever signs in and calls ring the app itself.
+ * Without a token yet (first launch), the site waits up to 3 s for Firebase (AYK-095).
  */
 public class LauncherActivity
         extends com.google.androidbrowserhelper.trusted.LauncherActivity {
+    private static final long TOKEN_WAIT_MS = 3000;
+    private boolean launched;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,9 +35,25 @@ public class LauncherActivity
                 && checkSelfPermission("android.permission.POST_NOTIFICATIONS") != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[] {"android.permission.POST_NOTIFICATIONS"}, 7);
         }
+        boolean waiting = FcmService.token(this) == null;
         try {
-            FirebaseMessaging.getInstance().getToken().addOnSuccessListener(token -> FcmService.saveToken(this, token));
+            FirebaseMessaging.getInstance().getToken()
+                    .addOnSuccessListener(token -> { FcmService.saveToken(this, token); if (waiting) launchOnce(); })
+                    .addOnFailureListener(error -> { if (waiting) launchOnce(); });
         } catch (RuntimeException ignored) { /* Firebase unavailable: calls still ring through Chrome */ }
+        if (waiting) new Handler(Looper.getMainLooper()).postDelayed(this::launchOnce, TOKEN_WAIT_MS);
+    }
+
+    /** Opens the site immediately when the token is known; otherwise once it arrives (or 3 s pass). */
+    @Override
+    protected boolean shouldLaunchImmediately() {
+        return FcmService.token(this) != null;
+    }
+
+    private void launchOnce() {
+        if (launched || isFinishing()) return;
+        launched = true;
+        launchTwa();
     }
 
     @Override

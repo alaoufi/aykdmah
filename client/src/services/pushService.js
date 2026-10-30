@@ -55,21 +55,34 @@ export async function syncPush() {
 // app itself, continuously, even when it is closed (AYK-094). Kept on the device and sent again
 // for whoever signs in.
 const FCM_KEY = 'ayk_fcm_token';
-export function nativePushToken() {
+const FCM_OK_KEY = 'ayk_fcm_linked';
+// Read as soon as the site loads, before any page redirects and drops it (AYK-095).
+(() => {
   try {
     const url = new URL(window.location.href);
     const fresh = url.searchParams.get('fcm');
-    if (fresh) {
-      localStorage.setItem(FCM_KEY, fresh);
-      url.searchParams.delete('fcm');
-      window.history.replaceState(window.history.state, '', url);
-    }
-    return fresh || localStorage.getItem(FCM_KEY);
-  } catch (_) { return null; }
+    if (!fresh) return;
+    if (localStorage.getItem(FCM_KEY) !== fresh) localStorage.removeItem(FCM_OK_KEY);
+    localStorage.setItem(FCM_KEY, fresh);
+    url.searchParams.delete('fcm');
+    window.history.replaceState(window.history.state, '', url);
+  } catch (_) { /* no storage: the app passes it again next time */ }
+})();
+export function nativePushToken() {
+  try { return localStorage.getItem(FCM_KEY); } catch (_) { return null; }
+}
+// 'linked' (calls ring the app), 'waiting' (token known, not linked yet) or 'none'.
+export function nativePushState() {
+  try {
+    if (!localStorage.getItem(FCM_KEY)) return 'none';
+    return localStorage.getItem(FCM_OK_KEY) === '1' ? 'linked' : 'waiting';
+  } catch (_) { return 'none'; }
 }
 export async function syncNativePush(appVersion) {
   const token = nativePushToken();
-  if (token) await api.post('/push/native', { token, app_version: appVersion || null });
+  if (!token) return;
+  await api.post('/push/native', { token, app_version: appVersion || null });
+  try { localStorage.setItem(FCM_OK_KEY, '1'); } catch (_) { /* private mode */ }
 }
 
 // Before sign-out, so the device stops ringing for this account.

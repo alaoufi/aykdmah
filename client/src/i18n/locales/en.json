@@ -2329,7 +2329,10 @@
     "android_steps": "Open phone Settings → Apps → Chrome → Notifications.|Scroll to \"Sites\" and tap aykdmh.com.|Turn on \"Pop on screen\".|Tap \"Sound\" and pick a distinct tone for Ay Khidmah.|Turn on \"Override Do Not Disturb\" if you never want to miss calls.|Come back and tap \"🔔 Test notification\" to check.",
     "ios_must_install": "On iPhone, alerts arrive with the site closed only after adding it to the Home Screen and opening it from its icon.",
     "ios_title": "iPhone notifications (iOS 16.4 or later)",
-    "ios_steps": "Open aykdmh.com in Safari.|Tap the Share button (square with arrow) at the bottom.|Choose \"Add to Home Screen\", then \"Add\".|Open Ay Khidmah from its new icon and sign in.|In \"My profile\" tap \"🔔 Notifications\" and allow them.|In Settings → Notifications → Ay Khidmah: turn on Banners and Sounds, and Time Sensitive Notifications.|Tap \"🔔 Test notification\" to check."
+    "ios_steps": "Open aykdmh.com in Safari.|Tap the Share button (square with arrow) at the bottom.|Choose \"Add to Home Screen\", then \"Add\".|Open Ay Khidmah from its new icon and sign in.|In \"My profile\" tap \"🔔 Notifications\" and allow them.|In Settings → Notifications → Ay Khidmah: turn on Banners and Sounds, and Time Sensitive Notifications.|Tap \"🔔 Test notification\" to check.",
+    "app_ring": "Call ringing in the app",
+    "app_ring_on": "on",
+    "app_ring_reopen": "close the app fully and open it again"
   },
   "manage": {
     "title": "Manage",
