@@ -371,7 +371,17 @@
     "confirm_open_title": "ከዚህ ጥያቄ ይውጡ?",
     "confirm_open_body": "ሌላ አገልግሎት ሰጪ እንዲያገኝ ጥያቄው ለባለቤቱ እንደገና ይከፈታል፣ ይነገራቸዋልም።",
     "open": "ከጥያቄው ውጣ",
-    "turned_down": "ጠያቂው ቅናሽዎን አልተቀበሉም፣ ስለዚህ በዚህ ጥያቄ ላይ ማግኘት አይችሉም።"
+    "turned_down": "ጠያቂው ቅናሽዎን አልተቀበሉም፣ ስለዚህ በዚህ ጥያቄ ላይ ማግኘት አይችሉም።",
+    "warranty_title": "ግምገማ እና ዋስትና",
+    "contact_days": "ጥያቄው ካለቀ በኋላ ለ{{days}} ቀናት ስራውን ለመገምገም እና ለዋስትና ግንኙነት ክፍት ይሆናል።",
+    "contact_until": "ውይይቱ እስከ {{date}} ክፍት ነው",
+    "contact_closed": "የግንኙነት ጊዜ አልቋል፤ ውይይቱ በማህደር ለንባብ ብቻ ነው።",
+    "warranty_agreed": "የተስማሙበት ዋስትና፦ {{days}} ቀናት",
+    "warranty_propose": "የዋስትና ጊዜ ያቅርቡ",
+    "warranty_days_label": "የቀናት ብዛት",
+    "warranty_waiting": "ሌላኛው ወገን {{days}} ቀናትን እንዲቀበል በመጠበቅ ላይ",
+    "warranty_offer": "ሌላኛው ወገን የ{{days}} ቀናት ዋስትና አቅርቧል",
+    "warranty_accept": "እስማማለሁ"
   },
   "offer": {
     "submit_title": "ዋጋ ላክ",

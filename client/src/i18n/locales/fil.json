@@ -371,7 +371,17 @@
     "confirm_open_title": "Umatras sa kahilingang ito?",
     "confirm_open_body": "Bubukas muli ang kahilingan para makahanap ang may-ari ng ibang provider, at aabisuhan siya.",
     "open": "Umatras sa kahilingan",
-    "turned_down": "Tinanggihan ng humiling ang alok mo, kaya hindi ka makakakontak tungkol sa kahilingang ito."
+    "turned_down": "Tinanggihan ng humiling ang alok mo, kaya hindi ka makakakontak tungkol sa kahilingang ito.",
+    "warranty_title": "Pagsusuri at warranty",
+    "contact_days": "Bukas ang komunikasyon nang {{days}} araw matapos ang kahilingan para sa pagsusuri at warranty.",
+    "contact_until": "Bukas ang chat hanggang {{date}}",
+    "contact_closed": "Tapos na ang panahon ng komunikasyon; pagbabasa na lang ang chat sa archive.",
+    "warranty_agreed": "Napagkasunduang warranty: {{days}} araw",
+    "warranty_propose": "Magmungkahi ng warranty",
+    "warranty_days_label": "Bilang ng araw",
+    "warranty_waiting": "Hinihintay ang pagsang-ayon sa {{days}} araw",
+    "warranty_offer": "Nagmumungkahi ang kabila ng {{days}} araw na warranty",
+    "warranty_accept": "Sang-ayon"
   },
   "offer": {
     "submit_title": "Ipadala ang isang quote",

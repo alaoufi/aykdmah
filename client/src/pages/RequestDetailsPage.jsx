@@ -9,6 +9,7 @@ import {
 } from '../services/requestService';
 import MatchingProviders from '../components/catalog/MatchingProviders';
 import RequestMedia from '../components/requests/RequestMedia';
+import WarrantyBox from '../components/requests/WarrantyBox';
 import { requestMapsUrl } from '../utils/directions';
 import { useAuth } from '../hooks/useAuth';
 import { REQUEST_STATUS, OFFER_STATUS } from '../utils/constants';
@@ -213,6 +214,9 @@ export default function RequestDetailsPage() {
               : <Button variant="outline" onClick={() => changeStatus('open')} data-testid="manage-withdraw">↩ {t('request.withdraw')}</Button>}
           </div>
         </div>
+      )}
+      {(isOwner || (user && user.id === request.assigned_provider_id)) && request.assigned_provider_id && ['assigned', 'in_progress', 'completed', 'cancelled', 'closed'].includes(request.status) && (
+        <WarrantyBox request={request} userId={user?.id} onChange={load} />
       )}
       {/* An open request should not hang: the requester closes it once agreed with someone. */}
       {isOwner && request.status === 'open' && (

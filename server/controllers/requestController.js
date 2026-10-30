@@ -1,4 +1,5 @@
 const Request = require('../models/Request');
+const contactWindow = require('../utils/contactWindow');
 const Conversation = require('../models/Conversation');
 const Offer = require('../models/Offer');
 const { query, queryOne } = require('../config/database');
@@ -103,7 +104,12 @@ const getOne = asyncHandler(async (req, res) => {
   if (!allowed && req.user?.role === 'provider' && await queryOne('SELECT 1 AS ok FROM offers WHERE request_id = ? AND provider_id = ?', [request.id, req.user.id])) {
     return success(res, { ...Request.publicView(request), files: request.files });
   }
-  return success(res, allowed ? request : Request.publicView(request));
+  if (!allowed) return success(res, Request.publicView(request));
+  // How long the two sides can still write after it ends (AYK-081).
+  const contactInfo = await queryOne(`SELECT ${contactWindow.DONE_DAYS_SQL} AS days,
+      CASE WHEN ${contactWindow.FINISHED_SQL} THEN ${contactWindow.UNTIL_SQL} END AS until
+    FROM requests r WHERE r.id = ?`, [request.id]);
+  return success(res, { ...request, contact_days: Number(contactInfo?.days) || 7, contact_until: contactInfo?.until || null });
 });
 
 const updateStatus = asyncHandler(async (req, res) => {
@@ -263,4 +269,43 @@ const startChat = asyncHandler(async (req, res) => {
   return success(res, { conversation_id: convId });
 });
 
-module.exports = { create, getMy, getNearby, getOne, updateStatus, setReminders, contact, agree, direct, remove, startChat };
+// A warranty agreed between the two sides (AYK-081): one proposes the days, the other accepts.
+const WARRANTY_STATES = ['assigned', 'in_progress', 'completed'];
+async function warrantyParties(req, res) {
+  if (!validId(req.params.id)) { notFound(res); return null; }
+  const request = await Request.findById(req.params.id);
+  if (!request) { notFound(res); return null; }
+  const owner = request.client_id === req.user.id;
+  if (!owner && request.assigned_provider_id !== req.user.id) { forbidden(res, req.t('deny_request_parties')); return null; }
+  if (!WARRANTY_STATES.includes(request.status)) { error(res, req.t('request_not_open'), 409); return null; }
+  return { request, other: owner ? request.assigned_provider_id : request.client_id };
+}
+
+const proposeWarranty = asyncHandler(async (req, res) => {
+  const days = Number(req.body?.days);
+  if (!Number.isSafeInteger(days) || days < 1 || days > 365) return error(res, req.t('invalid_data'));
+  const found = await warrantyParties(req, res);
+  if (!found) return undefined;
+  await query('UPDATE requests SET warranty_proposed_days = ?, warranty_proposed_by = ? WHERE id = ?', [days, req.user.id, found.request.id]);
+  await notificationService.notifyUser(found.other, {
+    type: 'request_warranty', title: req.t('warranty_proposed_title', { days }),
+    body: req.t('warranty_proposed_body', { name: req.user.full_name, title: found.request.title }),
+    link: `/requests/${found.request.id}`, data: { request_id: found.request.id },
+  });
+  return success(res, await Request.findById(found.request.id));
+});
+
+const acceptWarranty = asyncHandler(async (req, res) => {
+  const found = await warrantyParties(req, res);
+  if (!found) return undefined;
+  const { request } = found;
+  if (!request.warranty_proposed_days || request.warranty_proposed_by === req.user.id) return error(res, req.t('invalid_data'), 409);
+  await query('UPDATE requests SET warranty_days = warranty_proposed_days, warranty_proposed_days = NULL, warranty_proposed_by = NULL WHERE id = ?', [request.id]);
+  await notificationService.notifyUser(found.other, {
+    type: 'request_warranty', title: req.t('warranty_agreed_title', { days: request.warranty_proposed_days }),
+    body: request.title, link: `/requests/${request.id}`, data: { request_id: request.id },
+  });
+  return success(res, await Request.findById(request.id));
+});
+
+module.exports = { create, getMy, getNearby, getOne, updateStatus, setReminders, contact, agree, direct, remove, startChat, proposeWarranty, acceptWarranty };

@@ -19,6 +19,7 @@ export const SETTING_LABELS = Object.freeze({
   allow_registration: L('السماح بالتسجيل', 'Allow registration', 'رجسٹریشن کی اجازت', 'पंजीकरण की अनुमति', 'নিবন্ধনের অনুমতি'),
   require_email_verification: L('يتطلب توثيق البريد', 'Require email verification', 'ای میل کی تصدیق ضروری ہے', 'ईमेल सत्यापन आवश्यक है', 'ইমেইল যাচাই প্রয়োজন'),
   require_provider_verification: L('يتطلب توثيق مقدمي الخدمة', 'Require service provider verification', 'خدمت فراہم کرنے والوں کی تصدیق ضروری ہے', 'सेवा प्रदाताओं का सत्यापन आवश्यक है', 'সেবাদাতাদের যাচাই প্রয়োজন'),
+  contact_after_done_days: L('أيام بقاء المحادثة مفتوحة بعد انتهاء الطلب', 'Days the chat stays open after a request ends', 'درخواست ختم ہونے کے بعد گفتگو کھلی رہنے کے دن', 'अनुरोध समाप्त होने के बाद चैट खुली रहने के दिन', 'অনুরোধ শেষের পর চ্যাট খোলা থাকার দিন'),
   max_offers_per_request: L('حد أقصى للعروض', 'Maximum offers per request', 'فی درخواست پیشکشوں کی زیادہ سے زیادہ تعداد', 'प्रति अनुरोध प्रस्तावों की अधिकतम संख्या', 'প্রতি অনুরোধে প্রস্তাবের সর্বোচ্চ সংখ্যা'),
   commission_percent: L('نسبة العمولة %', 'Commission percentage (%)', 'کمیشن کی شرح (%)', 'कमीशन की दर (%)', 'কমিশনের হার (%)'),
   maintenance_mode: L('وضع الصيانة', 'Maintenance mode', 'دیکھ بھال کا موڈ', 'रखरखाव मोड', 'রক্ষণাবেক্ষণ মোড'),

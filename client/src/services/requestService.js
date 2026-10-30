@@ -22,6 +22,17 @@ export async function getRequest(id) {
   return data.data;
 }
 
+// A warranty agreed between the two sides (AYK-081).
+export async function proposeWarranty(id, days) {
+  const { data } = await api.put(`/requests/${id}/warranty`, { days });
+  return data.data;
+}
+
+export async function acceptWarranty(id) {
+  const { data } = await api.post(`/requests/${id}/warranty/accept`);
+  return data.data;
+}
+
 export async function updateRequestStatus(id, payload) {
   const { data } = await api.put(`/requests/${id}/status`, payload);
   return data.data;

@@ -27,6 +27,8 @@ router.post('/direct', authenticate, requireMarketplaceWrite, c.direct);
 router.get('/:id', optionalAuth, requireMarketplaceBrowse, c.getOne);
 router.put('/:id/status', authenticate, c.updateStatus);
 router.put('/:id/reminders', authenticate, c.setReminders);
+router.put('/:id/warranty', authenticate, c.proposeWarranty);
+router.post('/:id/warranty/accept', authenticate, c.acceptWarranty);
 router.post('/:id/contact', authenticate, requireMarketplaceWrite, c.contact);
 router.post('/:id/agree', authenticate, requireMarketplaceWrite, c.agree);
 router.delete('/:id', authenticate, c.remove);

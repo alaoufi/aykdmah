@@ -371,7 +371,17 @@
     "confirm_open_title": "Bu talepten çekilinsin mi?",
     "confirm_open_body": "Talep, sahibinin başka bir hizmet veren bulması için yeniden açılır ve kendisine bildirilir.",
     "open": "Talepten çekil",
-    "turned_down": "Talep sahibi teklifinizi reddetti, bu talep için iletişime geçemezsiniz."
+    "turned_down": "Talep sahibi teklifinizi reddetti, bu talep için iletişime geçemezsiniz.",
+    "warranty_title": "İnceleme ve garanti",
+    "contact_days": "Talep bittikten sonra işi incelemek ve garanti için iletişim {{days}} gün açık kalır.",
+    "contact_until": "Sohbet {{date}} tarihine kadar açık",
+    "contact_closed": "İletişim süresi bitti; sohbet arşivde salt okunur.",
+    "warranty_agreed": "Kabul edilen garanti: {{days}} gün",
+    "warranty_propose": "Garanti süresi öner",
+    "warranty_days_label": "Gün sayısı",
+    "warranty_waiting": "Karşı tarafın {{days}} günü kabul etmesi bekleniyor",
+    "warranty_offer": "Karşı taraf {{days}} günlük garanti öneriyor",
+    "warranty_accept": "Kabul et"
   },
   "offer": {
     "submit_title": "Bir teklif gönder",

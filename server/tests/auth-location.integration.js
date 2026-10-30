@@ -631,7 +631,25 @@ if (!databasePrefix) {
     await api(`/requests/${direct.request_id}/status`, { method: 'PUT', token: client.token, body: { status: 'completed' } });
     const offersNow = await api('/offers/my?limit=50', { token: provider.token });
     assert.ok(offersNow.some(offer => Number(offer.request_id) === Number(direct.request_id)));
+    // Review and warranty (AYK-081): one side proposes, the other accepts; the chat stays writable that long.
+    await api(`/requests/${direct.request_id}/warranty`, { method: 'PUT', token: other.token, expected: 403, body: { days: 30 } });
+    await api(`/requests/${direct.request_id}/warranty`, { method: 'PUT', token: provider.token, expected: 400, body: { days: 0 } });
+    await api(`/requests/${direct.request_id}/warranty`, { method: 'PUT', token: provider.token, body: { days: 30 } });
+    await api(`/requests/${direct.request_id}/warranty/accept`, { method: 'POST', token: provider.token, expected: 409 });
+    await api(`/requests/${direct.request_id}/warranty/accept`, { method: 'POST', token: client.token });
+    const warranted = await api(`/requests/${direct.request_id}`, { token: client.token });
+    assert.deepEqual([Number(warranted.warranty_days), warranted.warranty_proposed_days, Number(warranted.contact_days)], [30, null, 30]);
+    assert.ok(warranted.contact_until);
+    const Conversation = require('../models/Conversation');
+    await db.query("UPDATE requests SET completed_at = CURRENT_TIMESTAMP - INTERVAL '20 days' WHERE id = ?", [direct.request_id]);
+    assert.equal(await Conversation.canSend(direct.conversation_id, provider.user.id), true, 'inside the agreed warranty');
+    await db.query("UPDATE requests SET warranty_days = NULL WHERE id = ?", [direct.request_id]);
+    assert.equal(await Conversation.canSend(direct.conversation_id, provider.user.id), false, 'past the market days without a warranty');
     await db.query("UPDATE requests SET completed_at = CURRENT_TIMESTAMP - INTERVAL '2 days', updated_at = CURRENT_TIMESTAMP - INTERVAL '2 days' WHERE id = ?", [direct.request_id]);
+    assert.equal(await Conversation.canSend(direct.conversation_id, provider.user.id), true, 'within the market days');
+    const providerChatsSoon = await api('/chat/conversations', { token: provider.token });
+    assert.ok(providerChatsSoon.some(chat => Number(chat.id) === Number(direct.conversation_id)), 'still in the provider chats');
+    await db.query("UPDATE requests SET completed_at = CURRENT_TIMESTAMP - INTERVAL '8 days', updated_at = CURRENT_TIMESTAMP - INTERVAL '8 days' WHERE id = ?", [direct.request_id]);
     const offersLater = await api('/offers/my?limit=50', { token: provider.token });
     assert.ok(!offersLater.some(offer => Number(offer.request_id) === Number(direct.request_id)));
     // Its archive keeps it; the active list does not (AYK-075).

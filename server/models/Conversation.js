@@ -1,4 +1,5 @@
 const { query, queryOne, transaction } = require('../config/database');
+const contactWindow = require('../utils/contactWindow');
 
 // A request conversation is always its owner and one specific provider. An
 // offer author may negotiate before selection; past offers retain only the
@@ -7,7 +8,7 @@ const { query, queryOne, transaction } = require('../config/database');
 function requestPairSql(participantAlias = 'cp', writable = false) {
   const offerStatus = writable ? "AND negotiation_offer.status = 'pending'" : '';
   const pairState = writable
-    ? `(r.assigned_provider_id = provider_member.user_id
+    ? `((r.assigned_provider_id = provider_member.user_id AND ${contactWindow.OPEN_SQL})
         OR (r.status = 'open' AND r.assigned_provider_id IS NULL AND EXISTS (
           SELECT 1 FROM offers negotiation_offer WHERE negotiation_offer.request_id = r.id
           AND negotiation_offer.provider_id = provider_member.user_id ${offerStatus})))`
@@ -221,10 +222,12 @@ async function listForUser(userId, { page = 1, limit = 20 } = {}) {
      LEFT JOIN requests r ON c.request_id = r.id
       WHERE cp.user_id = ? AND self_user.deleted_at IS NULL AND self_user.is_active = 1 AND self_user.is_blocked = 0
         AND ${requestPairSql()}
-        -- The provider's side: a finished task leaves the list a day later (AYK-041).
-        AND (r.id IS NULL OR NOT (r.client_id <> ? AND (r.status IN ('completed', 'closed', 'cancelled')
-          OR (r.assigned_provider_id IS NOT NULL AND r.assigned_provider_id <> ?))
-        AND COALESCE(r.completed_at, r.updated_at) < CURRENT_TIMESTAMP - INTERVAL '1 day'))
+        -- The provider's side: a task given to someone else leaves the list a day later (AYK-041);
+        -- a finished one stays while its two sides can still write (AYK-081).
+        AND (r.id IS NULL OR r.client_id = ? OR NOT (
+          ((r.assigned_provider_id IS NOT NULL AND r.assigned_provider_id <> ?)
+            AND COALESCE(r.completed_at, r.updated_at) < CURRENT_TIMESTAMP - INTERVAL '1 day')
+          OR NOT ${contactWindow.OPEN_SQL}))
      ORDER BY c.last_message_at DESC NULLS LAST, c.created_at DESC, c.id DESC
      LIMIT ? OFFSET ?`,
     [userId, userId, userId, userId, userId, Number(limit), Number(offset)]

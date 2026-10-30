@@ -371,7 +371,17 @@
     "confirm_open_title": "Withdraw from this request?",
     "confirm_open_body": "The request opens again for its owner to find another provider, and they are notified.",
     "open": "Withdraw from request",
-    "turned_down": "The requester declined your offer, so you cannot contact them about this request."
+    "turned_down": "The requester declined your offer, so you cannot contact them about this request.",
+    "warranty_title": "Review and warranty",
+    "contact_days": "Contact stays open {{days}} days after the request ends, to review the work and for warranty.",
+    "contact_until": "Chat open until {{date}}",
+    "contact_closed": "The contact period has ended; the chat is read-only in the archive.",
+    "warranty_agreed": "Agreed warranty: {{days}} days",
+    "warranty_propose": "Propose a warranty",
+    "warranty_days_label": "Days",
+    "warranty_waiting": "Waiting for the other side to accept {{days}} days",
+    "warranty_offer": "The other side proposes a {{days}}-day warranty",
+    "warranty_accept": "Accept"
   },
   "offer": {
     "submit_title": "Send a quote",

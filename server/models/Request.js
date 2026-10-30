@@ -94,6 +94,7 @@ const BASE_SELECT = `
   r.budget_min, r.budget_max, r.preferred_date, r.is_urgent, r.status,
   r.assigned_provider_id, r.accepted_offer_id, r.views_count, r.offers_count,
   r.completed_at, r.created_at, r.updated_at, r.reminders_off, r.direct_provider_id,
+  r.warranty_days, r.warranty_proposed_days, r.warranty_proposed_by,
   ap.full_name AS assigned_provider_name,
   u.full_name AS client_name, u.avatar AS client_avatar,
   cat.name_ar AS category_name, cat.name_en AS category_name_en,
