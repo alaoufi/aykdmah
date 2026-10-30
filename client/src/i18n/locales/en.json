@@ -2179,7 +2179,9 @@
     "register_title": "Working days and hours",
     "register_hint": "Requesters see you only on these days and hours. Choose \"24 hours\" to be shown all day.",
     "paused_notice": "You are paused, so requesters cannot see you.",
-    "resume_in_profile": "Resume in my profile"
+    "resume_in_profile": "Resume in my profile",
+    "my_contacts_title": "Requests you contacted",
+    "assigned_to_you": "Assigned to you: open it to finish or withdraw"
   },
   "requester": {
     "all_professions": "All professions",

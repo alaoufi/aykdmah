@@ -57,7 +57,7 @@ export default function ProviderDashboardPage() {
 
 
       <div className="card">
-        <h3>{t('request.contacts_title')}</h3>
+        <h3>{t('work.my_contacts_title')}</h3>
         {offers.length === 0
           ? <EmptyState title={t('common.none')} />
           : (
@@ -68,7 +68,7 @@ export default function ProviderDashboardPage() {
                   <Link key={o.id} to={`/requests/${o.request_id}`} className="offer-list-item">
                     <div style={{ flex: 1 }}>
                       <strong>{o.request_title}</strong>
-                      <div className="text-xs text-muted">{oStatus.i18nKey ? t(oStatus.i18nKey) : o.status}</div>
+                      <div className="text-xs text-muted">{o.status === 'accepted' ? <b className="text-primary">📌 {t('work.assigned_to_you')}</b> : (oStatus.i18nKey ? t(oStatus.i18nKey) : o.status)}</div>
                     </div>
                     {Number(o.price) > 0 && <div style={{ fontWeight: 700, color: 'var(--primary)' }}>{formatCurrency(o.price)}</div>}
                   </Link>

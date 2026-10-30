@@ -2179,7 +2179,9 @@
     "register_title": "Çalışma günleri ve saatleri",
     "register_hint": "Hizmet arayanlar sizi yalnızca bu gün ve saatlerde görür. Gün boyu görünmek için \"24 saat\"i seçin.",
     "paused_notice": "Şu an duraklatıldınız, talep sahipleri sizi göremez.",
-    "resume_in_profile": "Profilimden devam et"
+    "resume_in_profile": "Profilimden devam et",
+    "my_contacts_title": "İletişime geçtiğiniz talepler",
+    "assigned_to_you": "Size atandı: bitirmek ya da çekilmek için açın"
   },
   "requester": {
     "all_professions": "Tüm meslekler",

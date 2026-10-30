@@ -2179,7 +2179,9 @@
     "register_title": "أيام العمل وساعاته",
     "register_hint": "تظهر لطالبي الخدمة في هذه الأيام والساعات فقط. اختر «24 ساعة» لتظهر طوال اليوم.",
     "paused_notice": "أنت متوقف الآن، فلا يراك طالبو الخدمة.",
-    "resume_in_profile": "استأنف من ملفي"
+    "resume_in_profile": "استأنف من ملفي",
+    "my_contacts_title": "طلبات تواصلت معها",
+    "assigned_to_you": "مسند إليك: افتحه لتنجزه أو تنسحب"
   },
   "requester": {
     "all_professions": "كل المهن",

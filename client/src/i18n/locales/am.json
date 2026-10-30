@@ -2179,7 +2179,9 @@
     "register_title": "የሥራ ቀናትና ሰዓታት",
     "register_hint": "አገልግሎት ፈላጊዎች በእነዚህ ቀናትና ሰዓታት ብቻ ያዩዎታል። ቀኑን ሙሉ ለመታየት «24 ሰዓት» ይምረጡ።",
     "paused_notice": "አሁን ቆመዋል፣ ስለዚህ ጠያቂዎች አያዩዎትም።",
-    "resume_in_profile": "ከመገለጫዬ ይቀጥሉ"
+    "resume_in_profile": "ከመገለጫዬ ይቀጥሉ",
+    "my_contacts_title": "ያገኟቸው ጥያቄዎች",
+    "assigned_to_you": "ለእርስዎ የተሰጠ፦ ለመጨረስ ወይም ለመውጣት ይክፈቱ"
   },
   "requester": {
     "all_professions": "ሁሉም ሙያዎች",

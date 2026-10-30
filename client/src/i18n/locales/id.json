@@ -2179,7 +2179,9 @@
     "register_title": "Hari dan jam kerja",
     "register_hint": "Pencari layanan hanya melihat Anda pada hari dan jam ini. Pilih \"24 jam\" agar tampil sepanjang hari.",
     "paused_notice": "Anda sedang berhenti, jadi pemohon tidak dapat melihat Anda.",
-    "resume_in_profile": "Lanjutkan di profil saya"
+    "resume_in_profile": "Lanjutkan di profil saya",
+    "my_contacts_title": "Permintaan yang Anda hubungi",
+    "assigned_to_you": "Ditugaskan kepada Anda: buka untuk menyelesaikan atau mundur"
   },
   "requester": {
     "all_professions": "Semua profesi",
