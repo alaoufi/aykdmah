@@ -73,23 +73,6 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-40 bg-surface/85 backdrop-blur-md border-b border-border/70">
-      {/* Top strip for signed-in users: "Your number" (also a sign-in identifier) and their area.
-          The parent site (تربح) is named in the footer. */}
-      {user && (
-      <div className="bg-primary text-primary-fg text-[12px] md:text-[13px]" data-testid="top-strip">
-        <div className="max-w-7xl mx-auto px-3 md:px-6 lg:px-8 h-7 flex items-center gap-3">
-          {user.referral_code && (
-            <span className="shrink-0 whitespace-nowrap" data-testid="customer-number">
-              {t('brand.your_number')}: <b dir="ltr" className="tracking-wider">{user.referral_code}</b>
-            </span>
-          )}
-          <span className="flex-1" />
-          {user && ['client', 'provider'].includes(user.role) && (
-            <Link to="/profile#my-area" className="shrink-0 whitespace-nowrap font-semibold underline underline-offset-2 text-inherit" data-testid="edit-area">📍 {t('for_you.edit_area')}</Link>
-          )}
-        </div>
-      </div>
-      )}
       <div className="max-w-7xl mx-auto px-3 md:px-6 lg:px-8 h-14 md:h-16 lg:h-[72px] flex items-center gap-2 md:gap-4">
         {/* Logo on the start edge of the screen */}
         <Link to="/" className="site-logo w-[140px] min-[360px]:w-[166px] shrink-0 no-underline">
@@ -247,6 +230,17 @@ export default function Header() {
                 <IconClose size={18} />
               </button>
             </div>
+            {/* "Your number" first (it is also a sign-in identifier), then the user's area. */}
+            {user && (
+              <div className="mb-3 px-3 py-2.5 rounded-card bg-primary-soft flex items-center justify-between gap-2 flex-wrap" data-testid="menu-your-number">
+                {user.referral_code && (
+                  <span className="text-[15px] text-fg">{t('brand.your_number')}: <b dir="ltr" className="tracking-wider text-[17px]">{user.referral_code}</b></span>
+                )}
+                {['client', 'provider'].includes(user.role) && (
+                  <Link to="/profile#my-area" onClick={() => setMobileOpen(false)} className="text-[13px] font-semibold text-primary underline underline-offset-2" data-testid="edit-area">📍 {t('for_you.edit_area')}</Link>
+                )}
+              </div>
+            )}
             <div className="flex flex-col">
               {visibleLinks.map((l) => (
                 <NavLink

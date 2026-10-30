@@ -121,6 +121,11 @@ export default function AdminLayout() {
           </button>
         </div>
 
+        {user?.referral_code && (
+          <div className="mx-3 mt-3 px-3 py-2 rounded-card bg-white/10 text-white text-[14px]" data-testid="admin-your-number">
+            {t('brand.your_number')}: <b dir="ltr" className="tracking-wider text-[16px]">{user.referral_code}</b>
+          </div>
+        )}
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
           {visibleGroups.map((g) => (
             <div key={g.label}>
