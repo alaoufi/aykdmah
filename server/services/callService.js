@@ -24,7 +24,8 @@ const RING_TIMEOUT_MS = 45 * 1000;
 const RING_REPEAT_MS = 8 * 1000;
 const MAX_CALL_MS = 4 * 60 * 60 * 1000;
 const TOKEN_TTL = '15m';
-const REJOIN_GRACE_MS = 30 * 1000;
+// Two minutes: time to step out of the app and back during a call (AYK-089).
+const REJOIN_GRACE_MS = 2 * 60 * 1000;
 const ACTIVE = ['ringing', 'accepted'];
 
 const config = () => ({

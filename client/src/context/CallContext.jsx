@@ -103,6 +103,10 @@ export function CallProvider({ children }) {
     setPhase('reconnecting');
     try {
       for (let attempt = 0; attempt < 10 && !leavingRef.current; attempt += 1) {
+        // Out of the app (AYK-089): wait for the user to come back, up to 2 minutes, instead of
+        // using up the attempts and ending the call while the phone keeps it in the background.
+        const away = Date.now();
+        while (document.hidden && !leavingRef.current && Date.now() - away < 120000) await new Promise(resolve => setTimeout(resolve, 1000));
         if (attempt > 0 || navigator.onLine === false) await new Promise(resolve => setTimeout(resolve, 3000));
         if (navigator.onLine === false) continue;
         try {
@@ -205,7 +209,9 @@ export function CallProvider({ children }) {
     };
     const [mic, cam] = await Promise.all([
       publish(() => lkRoom.localParticipant.setMicrophoneEnabled(true)),
-      active.call_type === 'video' ? publish(() => lkRoom.localParticipant.setCameraEnabled(true, { facingMode: 'user' })) : false,
+      // A refused camera does not end a video call: it goes on as voice, camera off (AYK-089).
+      active.call_type === 'video' ? publish(() => lkRoom.localParticipant.setCameraEnabled(true, { facingMode: 'user' }))
+        .catch(err => { if (err?.name === 'NotAllowedError') return false; throw err; }) : false,
     ]);
     setMicOn(mic);
     setCamOn(cam);
