@@ -4,8 +4,8 @@ import { localizedSettingLabel, SETTING_LABELS } from '../src/data/settingLabels
 
 const scripts = { ar: /[\u0600-\u06ff]/u, en: /[a-z]/iu, ur: /[\u0600-\u06ff]/u, hi: /[\u0900-\u097f]/u, bn: /[\u0980-\u09ff]/u };
 
-test('all 56 seeded setting labels have native translations in each supported language', () => {
-  assert.equal(Object.keys(SETTING_LABELS).length, 56);
+test('all 57 seeded setting labels have native translations in each supported language', () => {
+  assert.equal(Object.keys(SETTING_LABELS).length, 57);
   for (const [setting_key, labels] of Object.entries(SETTING_LABELS)) {
     const setting = { setting_key, description: labels.ar };
     for (const [lang, script] of Object.entries(scripts)) {
