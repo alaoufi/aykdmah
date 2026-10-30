@@ -21,7 +21,9 @@ function useDuration(answeredAt, running) {
 }
 
 // Attaches the current local/remote tracks of the room to the given elements.
-function useMediaElements(room, { remoteVideo, localVideo, remoteAudio }) {
+// `shown` changes whenever a video element appears or goes (camera on/off, call live): the
+// tracks are attached again then, since LiveKit's events may fire before it exists (AYK-085).
+function useMediaElements(room, { remoteVideo, localVideo, remoteAudio }, shown) {
   useEffect(() => {
     if (!room) return undefined;
     const sync = () => {
@@ -38,7 +40,7 @@ function useMediaElements(room, { remoteVideo, localVideo, remoteAudio }) {
     events.forEach(e => room.on(e, sync));
     sync();
     return () => events.forEach(e => room.off(e, sync));
-  }, [room, remoteVideo, localVideo, remoteAudio]);
+  }, [room, remoteVideo, localVideo, remoteAudio, shown]);
 }
 
 // A phone handset: green to answer, red (turned down) to hang up or decline.
@@ -77,7 +79,7 @@ export default function CallOverlay() {
   useEffect(() => { if (!outputHint) return undefined; const timer = setTimeout(() => setOutputHint(false), 6000); return () => clearTimeout(timer); }, [outputHint]);
   const live = phase === 'in_call' || phase === 'reconnecting';
   const duration = useDuration(call?.answered_at, live);
-  useMediaElements(room, { remoteVideo, localVideo, remoteAudio });
+  useMediaElements(room, { remoteVideo, localVideo, remoteAudio }, `${call?.call_type}-${live}-${camOn}-${hasRemoteVideo}`);
 
   if (!call) return null;
   const video = call.call_type === 'video';
