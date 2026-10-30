@@ -6210,6 +6210,10 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_user_blocks_pair ON user_blocks (blocker_id
 CREATE INDEX IF NOT EXISTS idx_user_blocks_blocked ON user_blocks (blocked_id);
 INSERT INTO schema_migrations(name) VALUES ('060_user_blocks.sql');
 
+-- migrations/061_call_diagnostics_details.sql
+ALTER TABLE call_diagnostics ADD COLUMN IF NOT EXISTS details VARCHAR(600) NULL DEFAULT NULL;
+INSERT INTO schema_migrations(name) VALUES ('061_call_diagnostics_details.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;
