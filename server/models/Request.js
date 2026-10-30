@@ -184,12 +184,16 @@ async function incrementViews(id) {
   await query('UPDATE requests SET views_count = views_count + 1 WHERE id = ?', [id]);
 }
 
-async function findByClient(clientId, { status, page = 1, limit = 20 } = {}) {
+async function findByClient(clientId, { status, scope, page = 1, limit = 20 } = {}) {
   ({ page, limit } = pagination(page, limit));
   const offset = (page - 1) * limit;
   const where = ['r.client_id = ?', 'r.deleted_at IS NULL'];
   const params = [clientId];
   if (status) { where.push('r.status = ?'); params.push(status); }
+  // Active requests and the archive of finished ones (AYK-075).
+  if (scope === 'active') where.push("r.status IN ('open', 'assigned', 'in_progress')");
+  else if (scope === 'archive') where.push("r.status NOT IN ('open', 'assigned', 'in_progress')");
+  else if (scope) throw new ApiError('invalid_scope', 422);
   const whereSql = where.join(' AND ');
 
   const items = await query(

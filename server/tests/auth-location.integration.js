@@ -622,6 +622,16 @@ if (!databasePrefix) {
     await db.query("UPDATE requests SET completed_at = CURRENT_TIMESTAMP - INTERVAL '2 days', updated_at = CURRENT_TIMESTAMP - INTERVAL '2 days' WHERE id = ?", [direct.request_id]);
     const offersLater = await api('/offers/my?limit=50', { token: provider.token });
     assert.ok(!offersLater.some(offer => Number(offer.request_id) === Number(direct.request_id)));
+    // Its archive keeps it; the active list does not (AYK-075).
+    const tasksArchive = await api('/offers/my?scope=archive&limit=50', { token: provider.token });
+    assert.ok(tasksArchive.some(offer => Number(offer.request_id) === Number(direct.request_id)));
+    const tasksActive = await api('/offers/my?scope=active&limit=50', { token: provider.token });
+    assert.ok(!tasksActive.some(offer => Number(offer.request_id) === Number(direct.request_id)));
+    await api('/offers/my?scope=bad', { token: provider.token, expected: 422 });
+    const reqArchive = await api('/requests/my?scope=archive', { token: client.token });
+    assert.ok(reqArchive.some(item => Number(item.id) === Number(direct.request_id)));
+    const reqActive = await api('/requests/my?scope=active', { token: client.token });
+    assert.ok(!reqActive.some(item => Number(item.id) === Number(direct.request_id)));
     const providerChats = await api('/chat/conversations', { token: provider.token });
     assert.ok(!providerChats.some(chat => Number(chat.id) === Number(direct.conversation_id)));
     const clientChats = await api('/chat/conversations', { token: client.token });

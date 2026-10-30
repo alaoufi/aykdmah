@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { listMyRequests, deleteRequest } from '../../services/requestService';
 import { apiError } from '../../services/api';
@@ -10,7 +10,9 @@ export default function MyRequestsPage() {
   const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [status, setStatus] = useState('');
+  // Two tabs (AYK-075): active requests and the archive of finished ones.
+  const [params, setParams] = useSearchParams();
+  const scope = params.get('tab') === 'archive' ? 'archive' : 'active';
   const [error, setError] = useState(false);
   const [reload, setReload] = useState(0);
   const [problem, setProblem] = useState('');
@@ -27,20 +29,16 @@ export default function MyRequestsPage() {
     let current = true;
     setLoading(true);
     setError(false);
-    listMyRequests({ status, limit: 30 })
+    listMyRequests({ scope, limit: 50 })
       .then(res => { if (current) setItems(res.data || []); })
       .catch(() => { if (current) { setItems([]); setError(true); } })
       .finally(() => { if (current) setLoading(false); });
     return () => { current = false; };
-  }, [status, reload]);
+  }, [scope, reload]);
 
-  const statuses = [
-    { value: '', label: t('common.all') },
-    { value: 'open', label: t('status.request.open') },
-    { value: 'assigned', label: t('status.request.assigned') },
-    { value: 'in_progress', label: t('status.request.in_progress') },
-    { value: 'completed', label: t('status.request.completed') },
-    { value: 'cancelled', label: t('status.request.cancelled') },
+  const tabs = [
+    { value: 'active', label: `🟢 ${t('manage.active')}` },
+    { value: 'archive', label: `🗄️ ${t('manage.archive')}` },
   ];
 
   return (
@@ -54,8 +52,8 @@ export default function MyRequestsPage() {
       </div>
 
       <div className="status-tabs mb-4">
-        {statuses.map(s => (
-          <button key={s.value} className={status === s.value ? 'active' : ''} onClick={() => setStatus(s.value)}>
+        {tabs.map(s => (
+          <button key={s.value} type="button" data-testid={`tab-${s.value}`} className={scope === s.value ? 'active' : ''} onClick={() => setParams(s.value === 'archive' ? { tab: 'archive' } : {}, { replace: true })}>
             {s.label}
           </button>
         ))}

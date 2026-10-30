@@ -35,6 +35,7 @@ const ServiceDetailsPage = lazy(() => import('./pages/services/ServiceDetailsPag
 const MyRequestsPage = lazy(() => import('./pages/client/MyRequestsPage'));
 const DirectoryPage = lazy(() => import('./pages/client/DirectoryPage'));
 const ProviderDashboardPage = lazy(() => import('./pages/provider/ProviderDashboardPage'));
+const MyTasksPage = lazy(() => import('./pages/provider/MyTasksPage'));
 const ProviderServicesPage = lazy(() => import('./pages/provider/ProviderServicesPage'));
 const SubscriptionPage = lazy(() => import('./pages/provider/SubscriptionPage'));
 const ProviderBadgesPage = lazy(() => import('./pages/provider/ProviderBadgesPage'));
@@ -103,6 +104,7 @@ const CLIENT_SIDEBAR = [
 
 const PROVIDER_SIDEBAR = [
   { to: '/provider', icon: '📊', labelKey: 'nav.dashboard', end: true },
+  { to: '/provider/tasks', icon: '🧰', labelKey: 'work.tasks_title' },
   { to: '/opportunities', icon: '🔍', labelKey: 'work.requests_nav' },
   { to: '/provider/subscription', icon: '⭐', labelKey: 'nav.subscription' },
   { to: '/provider/wallet', icon: '💰', labelKey: 'wallet.nav' },
@@ -182,6 +184,7 @@ export default function AppRoutes() {
 
         <Route element={<Protected roles={['provider']}><RoleDashboard /></Protected>}>
           <Route path="/provider" element={<ProviderDashboardPage />} />
+          <Route path="/provider/tasks" element={<MyTasksPage />} />
           <Route path="/provider/services" element={<ProviderServicesPage />} />
           <Route path="/provider/subscription" element={<SubscriptionPage />} />
           <Route path="/provider/wallet" element={<WalletPage />} />

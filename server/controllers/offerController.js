@@ -45,8 +45,8 @@ const getForRequest = asyncHandler(async (req, res) => {
 });
 
 const getMy = asyncHandler(async (req, res) => {
-  const { status, page = 1, limit = 20 } = req.query;
-  const { items, total } = await Offer.findByProvider(req.user.id, { status, page, limit });
+  const { status, scope, page = 1, limit = 20 } = req.query;
+  const { items, total } = await Offer.findByProvider(req.user.id, { status, scope, page, limit });
   return paginate(res, items, total, page, limit);
 });
 

@@ -2181,7 +2181,10 @@
     "paused_notice": "Naka-pause ka, kaya hindi ka nakikita ng mga humihiling.",
     "resume_in_profile": "Ituloy sa aking profile",
     "my_contacts_title": "Mga kahilingang kinontak mo",
-    "assigned_to_you": "Nakatalaga sa iyo: buksan para tapusin o umatras"
+    "assigned_to_you": "Nakatalaga sa iyo: buksan para tapusin o umatras",
+    "tasks_title": "Aking mga propesyonal na gawain",
+    "tasks_hint": "Mga kahilingang kinontak mo o itinalaga sa iyo. Kailangan ka ngayon ng mga aktibo; nasa archive ang tapos o kinansela.",
+    "task_waiting": "Naghihintay sa humiling"
   },
   "requester": {
     "all_professions": "Lahat ng propesyon",
@@ -2305,5 +2308,10 @@
     "ios_must_install": "Sa iPhone, darating lang ang abiso kapag sarado ang site kung idinagdag ito sa Home Screen at binuksan mula sa icon.",
     "ios_title": "Mga abiso sa iPhone (iOS 16.4 o mas bago)",
     "ios_steps": "Buksan ang aykdmh.com sa Safari.|Pindutin ang Share button (kahon at arrow) sa ibaba.|Piliin ang «Add to Home Screen», saka «Add».|Buksan ang Ay Khidmah mula sa bagong icon at mag-sign in.|Sa «ملفي» pindutin ang «🔔 Mga abiso» at payagan.|Sa Settings → Notifications → Ay Khidmah: i-on ang Banners, Sounds at Time Sensitive.|Pindutin ang «🔔 Subukan ang abiso» para tiyakin."
+  },
+  "manage": {
+    "title": "Pamahalaan",
+    "active": "Aktibo",
+    "archive": "Archive"
   }
 }

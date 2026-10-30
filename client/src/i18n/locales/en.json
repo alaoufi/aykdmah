@@ -2181,7 +2181,10 @@
     "paused_notice": "You are paused, so requesters cannot see you.",
     "resume_in_profile": "Resume in my profile",
     "my_contacts_title": "Requests you contacted",
-    "assigned_to_you": "Assigned to you: open it to finish or withdraw"
+    "assigned_to_you": "Assigned to you: open it to finish or withdraw",
+    "tasks_title": "My professional tasks",
+    "tasks_hint": "Requests you contacted or were assigned. Active ones need you now; the archive keeps what ended or was cancelled.",
+    "task_waiting": "Waiting for the requester"
   },
   "requester": {
     "all_professions": "All professions",
@@ -2305,5 +2308,10 @@
     "ios_must_install": "On iPhone, alerts arrive with the site closed only after adding it to the Home Screen and opening it from its icon.",
     "ios_title": "iPhone notifications (iOS 16.4 or later)",
     "ios_steps": "Open aykdmh.com in Safari.|Tap the Share button (square with arrow) at the bottom.|Choose \"Add to Home Screen\", then \"Add\".|Open Ay Khidmah from its new icon and sign in.|In \"My profile\" tap \"🔔 Notifications\" and allow them.|In Settings → Notifications → Ay Khidmah: turn on Banners and Sounds, and Time Sensitive Notifications.|Tap \"🔔 Test notification\" to check."
+  },
+  "manage": {
+    "title": "Manage",
+    "active": "Active",
+    "archive": "Archive"
   }
 }

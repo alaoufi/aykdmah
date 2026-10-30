@@ -182,16 +182,25 @@ async function findByRequest(requestId, { providerId } = {}) {
   );
 }
 
-async function findByProvider(providerId, { status, page = 1, limit = 20 } = {}) {
+async function findByProvider(providerId, { status, scope, page = 1, limit = 20 } = {}) {
   providerId = positiveId(providerId, 'provider_id');
   page = positiveId(page, 'page');
   limit = positiveId(limit, 'limit');
   if (page > 1000000 || limit > 100) invalid('pagination');
   if (status && !OFFER_STATUSES.includes(status)) invalid('status');
+  if (scope && !['active', 'archive'].includes(scope)) invalid('scope');
   const offset = (page - 1) * limit;
-  // A finished task (or one agreed with someone else) leaves a day later (AYK-041).
-  const where = ['o.provider_id = ?', 'r.deleted_at IS NULL', `NOT (r.client_id <> ? AND (r.status IN ('completed', 'closed', 'cancelled') OR (r.assigned_provider_id IS NOT NULL AND r.assigned_provider_id <> ?)) AND COALESCE(r.completed_at, r.updated_at) < CURRENT_TIMESTAMP - INTERVAL '1 day')`];
-  const params = [providerId, providerId, providerId];
+  const where = ['o.provider_id = ?', 'r.deleted_at IS NULL'];
+  const params = [providerId];
+  // "Active" tasks still need the provider; the archive keeps everything else (AYK-075).
+  const active = `(r.status IN ('open', 'assigned', 'in_progress') AND o.status IN ('pending', 'accepted') AND (r.assigned_provider_id IS NULL OR r.assigned_provider_id = ?))`;
+  if (scope === 'active') { where.push(active); params.push(providerId); }
+  else if (scope === 'archive') { where.push(`NOT ${active}`); params.push(providerId); }
+  else {
+    // A finished task (or one agreed with someone else) leaves a day later (AYK-041).
+    where.push(`NOT (r.client_id <> ? AND (r.status IN ('completed', 'closed', 'cancelled') OR (r.assigned_provider_id IS NOT NULL AND r.assigned_provider_id <> ?)) AND COALESCE(r.completed_at, r.updated_at) < CURRENT_TIMESTAMP - INTERVAL '1 day')`);
+    params.push(providerId, providerId);
+  }
   if (status) { where.push('o.status = ?'); params.push(status); }
   const whereSql = where.join(' AND ');
 

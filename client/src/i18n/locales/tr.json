@@ -2181,7 +2181,10 @@
     "paused_notice": "Şu an duraklatıldınız, talep sahipleri sizi göremez.",
     "resume_in_profile": "Profilimden devam et",
     "my_contacts_title": "İletişime geçtiğiniz talepler",
-    "assigned_to_you": "Size atandı: bitirmek ya da çekilmek için açın"
+    "assigned_to_you": "Size atandı: bitirmek ya da çekilmek için açın",
+    "tasks_title": "Mesleki işlerim",
+    "tasks_hint": "İletişime geçtiğiniz veya size atanan talepler. Aktif olanlar şimdi sizi bekliyor; arşivde biten ya da iptal edilenler var.",
+    "task_waiting": "Talep sahibi bekleniyor"
   },
   "requester": {
     "all_professions": "Tüm meslekler",
@@ -2305,5 +2308,10 @@
     "ios_must_install": "iPhone’da site kapalıyken bildirim, yalnızca site Ana Ekrana eklenip simgesinden açılınca gelir.",
     "ios_title": "iPhone bildirimleri (iOS 16.4 veya üstü)",
     "ios_steps": "aykdmh.com’u Safari’de açın.|Alttaki Paylaş düğmesine (kare ve ok) dokunun.|«Ana Ekrana Ekle» ve ardından «Ekle»yi seçin.|Ay Khidmah’ı yeni simgesinden açıp giriş yapın.|«ملفي» içinde «🔔 Bildirimler»e dokunup izin verin.|Ayarlar → Bildirimler → Ay Khidmah: Afişler, Sesler ve Zamana Duyarlı Bildirimleri açın.|Kontrol için «🔔 Bildirimi dene»ye dokunun."
+  },
+  "manage": {
+    "title": "Yönet",
+    "active": "Aktif",
+    "archive": "Arşiv"
   }
 }

@@ -2181,7 +2181,10 @@
     "paused_notice": "Anda sedang berhenti, jadi pemohon tidak dapat melihat Anda.",
     "resume_in_profile": "Lanjutkan di profil saya",
     "my_contacts_title": "Permintaan yang Anda hubungi",
-    "assigned_to_you": "Ditugaskan kepada Anda: buka untuk menyelesaikan atau mundur"
+    "assigned_to_you": "Ditugaskan kepada Anda: buka untuk menyelesaikan atau mundur",
+    "tasks_title": "Tugas profesional saya",
+    "tasks_hint": "Permintaan yang Anda hubungi atau ditugaskan kepada Anda. Yang aktif membutuhkan Anda sekarang; arsip menyimpan yang selesai atau dibatalkan.",
+    "task_waiting": "Menunggu pemohon"
   },
   "requester": {
     "all_professions": "Semua profesi",
@@ -2305,5 +2308,10 @@
     "ios_must_install": "Di iPhone, notifikasi saat situs tertutup hanya datang setelah situs ditambahkan ke Layar Utama dan dibuka dari ikonnya.",
     "ios_title": "Notifikasi iPhone (iOS 16.4 atau lebih baru)",
     "ios_steps": "Buka aykdmh.com di Safari.|Ketuk tombol Bagikan (kotak dan panah) di bawah.|Pilih «Tambah ke Layar Utama», lalu «Tambah».|Buka Ay Khidmah dari ikon barunya dan masuk.|Di «ملفي» ketuk «🔔 Notifikasi» dan izinkan.|Di Pengaturan → Notifikasi → Ay Khidmah: aktifkan Banner, Suara, dan Notifikasi Sensitif Waktu.|Ketuk «🔔 Uji notifikasi» untuk memastikan."
+  },
+  "manage": {
+    "title": "Kelola",
+    "active": "Aktif",
+    "archive": "Arsip"
   }
 }

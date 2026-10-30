@@ -70,9 +70,9 @@ async function announceToProviders(req, request) {
 }
 
 const getMy = asyncHandler(async (req, res) => {
-  const { status } = req.query;
+  const { status, scope } = req.query;
   const { page, limit } = Request.pagination(req.query.page, req.query.limit);
-  const { items, total } = await Request.findByClient(req.user.id, { status, page, limit });
+  const { items, total } = await Request.findByClient(req.user.id, { status, scope, page, limit });
   return paginate(res, items, total, page, limit);
 });
 

@@ -260,12 +260,21 @@ export default function Header() {
             </div>
             {user && (
               <div className="flex flex-col mt-2 pt-2 border-t border-border">
-                {/* Managing one's requests (stop, delete) has its own clear entry (AYK-044). */}
-                {canRequestService(user) && (
-                  <Link to="/client" onClick={() => setMobileOpen(false)} data-testid="mobile-manage-requests"
-                    className="text-right px-3 py-3 rounded-card font-bold no-underline bg-primary-soft text-primary mb-1">
-                    📋 {t('requester.manage_title')}
-                  </Link>
+                {/* "Manage" (AYK-075): my requests and my professional tasks, each active or archived. */}
+                {(canRequestService(user) || user.role === 'provider') && (
+                  <div className="mb-2 p-2 rounded-card bg-primary-soft" data-testid="menu-manage">
+                    <div className="px-1 pb-1 text-[13px] font-bold text-primary">🗂️ {t('manage.title')}</div>
+                    {[
+                      canRequestService(user) && { key: 'requests', icon: '📋', label: t('nav.my_requests'), to: '/client' },
+                      user.role === 'provider' && { key: 'tasks', icon: '🧰', label: t('work.tasks_title'), to: '/provider/tasks' },
+                    ].filter(Boolean).map(g => (
+                      <div key={g.key} className="flex items-center gap-2 px-1 py-1.5" data-testid={`menu-manage-${g.key}`}>
+                        <span className="font-bold text-fg flex-1">{g.icon} {g.label}</span>
+                        <Link to={g.to} onClick={() => setMobileOpen(false)} className="px-3 py-1.5 rounded-pill bg-surface text-[13px] font-semibold text-primary no-underline">🟢 {t('manage.active')}</Link>
+                        <Link to={`${g.to}?tab=archive`} onClick={() => setMobileOpen(false)} className="px-3 py-1.5 rounded-pill bg-surface text-[13px] font-semibold text-fg-muted no-underline">🗄️ {t('manage.archive')}</Link>
+                      </div>
+                    ))}
+                  </div>
                 )}
                 <Link to="/chat" onClick={() => setMobileOpen(false)} className="text-right px-3 py-3 rounded-card font-semibold no-underline text-fg-muted hover:bg-surface-alt" data-testid="mobile-chats">
                   💬 {t('chat.title')}{chatUnread > 0 ? ` (${chatUnread})` : ''}

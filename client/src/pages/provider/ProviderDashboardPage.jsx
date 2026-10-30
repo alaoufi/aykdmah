@@ -57,7 +57,10 @@ export default function ProviderDashboardPage() {
 
 
       <div className="card">
-        <h3>{t('work.my_contacts_title')}</h3>
+        <div className="flex items-center justify-between gap-2">
+          <h3>{t('work.my_contacts_title')}</h3>
+          <Link to="/provider/tasks" className="text-[13px] font-semibold underline">{t('work.see_all')}</Link>
+        </div>
         {offers.length === 0
           ? <EmptyState title={t('common.none')} />
           : (
