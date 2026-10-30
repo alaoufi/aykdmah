@@ -14,6 +14,8 @@ self.addEventListener('push', (event) => {
     // An open, visible tab already rings with the in-app call screen.
     const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
     if (data.kind === 'call' && windows.some(w => w.visibilityState === 'visible')) return;
+    // Other notices (AYK-078) show in the open app already, with its sound.
+    if (data.kind === 'notice' && windows.some(w => w.visibilityState === 'visible')) return;
     const url = typeof data.url === 'string' && data.url.startsWith('/') ? data.url : '/';
     // A message for the conversation already open on screen needs no notification.
     if (data.kind === 'message' && windows.some(w => w.visibilityState === 'visible' && new URL(w.url).pathname === url)) return;

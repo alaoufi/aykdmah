@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import useLiveRefresh from '../../hooks/useLiveRefresh';
 import { listMyRequests, deleteRequest } from '../../services/requestService';
 import { apiError } from '../../services/api';
 import RequestCard from '../../components/requests/RequestCard';
@@ -25,16 +26,17 @@ export default function MyRequestsPage() {
     try { await deleteRequest(request.id); setReload(value => value + 1); } catch (err) { setProblem(apiError(err)); }
   };
 
+  const [tick, quiet] = useLiveRefresh(['notification:new']);
   useEffect(() => {
     let current = true;
-    setLoading(true);
+    if (!quiet) setLoading(true);
     setError(false);
     listMyRequests({ scope, limit: 50 })
       .then(res => { if (current) setItems(res.data || []); })
       .catch(() => { if (current) { setItems([]); setError(true); } })
       .finally(() => { if (current) setLoading(false); });
     return () => { current = false; };
-  }, [scope, reload]);
+  }, [scope, reload, tick]);
 
   const tabs = [
     { value: 'active', label: `🟢 ${t('manage.active')}` },

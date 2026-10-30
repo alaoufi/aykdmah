@@ -6,10 +6,12 @@ const authController = require('../controllers/authController');
 const { authenticate } = require('../middleware/auth');
 const { authLimiter, accountAuthLimiter } = require('../middleware/rateLimiter');
 const { validate, sanitizeBody } = require('../middleware/validate');
+const providersChanged = require('../middleware/providersChanged');
 
 router.post(
   '/register',
   authLimiter,
+  providersChanged,
   sanitizeBody(['full_name', 'email', 'phone', 'username', 'facebook_id']),
   [
     // Required for the legacy form; optional in onboarding version 2 (checked in the controller).

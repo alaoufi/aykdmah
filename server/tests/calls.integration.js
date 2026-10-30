@@ -284,6 +284,17 @@ if (!databasePrefix) {
     await new Promise(resolve => setTimeout(resolve, 300));
     assert.equal(pushes.find(p => p.endpoint === device.endpoint)?.body.kind, 'call_end', 'a declined call clears the notification');
 
+    // Important notices reach the phone too, even with the app closed (AYK-078); chat notices do not repeat the message push.
+    const notices = require('../services/notificationService');
+    pushes.length = 0;
+    await notices.notifyUser(users.provider.id, { type: 'request_new', title: 'طلب جديد في مهنتك', body: 'صيانة', link: '/requests/77', data: { request_id: 77 } });
+    await notices.notifyUser(users.provider.id, { type: 'new_message', title: 'x', body: 'y', link: '/chat/1' });
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const notice = pushes.filter(p => p.endpoint === device.endpoint);
+    assert.equal(notice.length, 1, 'only the request notice is pushed');
+    assert.deepEqual([notice[0].body.kind, notice[0].body.tag, notice[0].body.url], ['notice', 'n-request_new-77', '/requests/77']);
+    assert.equal(notice[0].options.urgency, 'high');
+
     // The same device signed in to another account rings only for that account.
     await api('/push/subscribe', { user: users.outsider, method: 'POST', body: { subscription: device } });
     assert.equal(Number((await db.queryOne('SELECT user_id FROM push_subscriptions WHERE endpoint = ?', [device.endpoint])).user_id), users.outsider.id);

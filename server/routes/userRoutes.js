@@ -6,6 +6,7 @@ const { requireAdmin, requirePermission } = require('../middleware/roleCheck');
 const { body } = require('express-validator');
 const { validate, sanitizeBody } = require('../middleware/validate');
 const { requireMarketplaceBrowse } = require('../middleware/verificationPolicy');
+const providersChanged = require('../middleware/providersChanged');
 
 const accountValidators = () => [
   body('full_name').optional().isString().bail().isLength({ min: 2, max: 150 }),
@@ -34,8 +35,8 @@ router.get('/me/directory', authenticate, directory.list);
 router.get('/me/directory/ids', authenticate, directory.ids);
 router.post('/me/directory/:providerId', authenticate, directory.add);
 router.delete('/me/directory/:providerId', authenticate, directory.remove);
-router.put('/me/provider', authenticate, userController.updateProvider);
-router.put('/me/role', authenticate, userController.changeRole);
+router.put('/me/provider', authenticate, providersChanged, userController.updateProvider);
+router.put('/me/role', authenticate, providersChanged, userController.changeRole);
 router.get('/:id', optionalAuth, requireMarketplaceBrowse, userController.getOne);
 router.put('/:id',             ...gate, ...accountValidation, userController.updateByAdmin);
 router.get('/:id/reviews', optionalAuth, requireMarketplaceBrowse, userController.getProviderReviews);

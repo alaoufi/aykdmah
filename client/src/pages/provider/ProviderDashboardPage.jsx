@@ -7,6 +7,7 @@ import RequestCard from '../../components/requests/RequestCard';
 import { LoadingState, EmptyState } from '../../components/common/Spinner';
 import { formatCurrency } from '../../utils/formatters';
 import { OFFER_STATUS } from '../../utils/constants';
+import useLiveRefresh from '../../hooks/useLiveRefresh';
 
 export default function ProviderDashboardPage() {
   const { t } = useTranslation();
@@ -15,10 +16,12 @@ export default function ProviderDashboardPage() {
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  // New requests appear on their own (AYK-078).
+  const [tick, quiet] = useLiveRefresh(['request:new_nearby', 'notification:new']);
 
   useEffect(() => {
     let current = true;
-    setLoading(true);
+    if (!quiet) setLoading(true);
     setError(false);
     // Requests in the provider's own professions and districts only (AYK-040).
     const params = { limit: 20, matching: '1' };
@@ -30,7 +33,7 @@ export default function ProviderDashboardPage() {
       .catch(() => { if (current) setError(true); })
       .finally(() => { if (current) setLoading(false); });
     return () => { current = false; };
-  }, []);
+  }, [tick]);
 
   if (loading) return <LoadingState />;
 

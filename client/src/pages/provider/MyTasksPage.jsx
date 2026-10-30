@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import useLiveRefresh from '../../hooks/useLiveRefresh';
 import { listMyOffers } from '../../services/requestService';
 import { LoadingState, EmptyState } from '../../components/common/Spinner';
 import { formatCurrency } from '../../utils/formatters';
@@ -16,16 +17,17 @@ export default function MyTasksPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
+  const [tick, quiet] = useLiveRefresh(['notification:new']);
   useEffect(() => {
     let current = true;
-    setLoading(true);
+    if (!quiet) setLoading(true);
     setError(false);
     listMyOffers({ scope, limit: 50 })
       .then(res => { if (current) setItems(res.data || []); })
       .catch(() => { if (current) { setItems([]); setError(true); } })
       .finally(() => { if (current) setLoading(false); });
     return () => { current = false; };
-  }, [scope]);
+  }, [scope, tick]);
 
   const label = o => {
     if (scope === 'active') return o.status === 'accepted' ? <b className="text-primary">📌 {t('work.assigned_to_you')}</b> : t('work.task_waiting');

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import useLiveRefresh from '../../hooks/useLiveRefresh';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { listCategories, listMatchingProviders, listCities, listDistricts } from '../../services/serviceService';
@@ -67,15 +68,17 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
 
   useEffect(() => { if (showChips) listCategories().then(setCategories).catch(() => {}); }, [showChips]);
   useEffect(() => { setCategoryId(fixedCategory ? String(fixedCategory) : ''); }, [fixedCategory]);
+  // A new provider, or one who starts or stops working, shows up on its own (AYK-078).
+  const [tick, quiet] = useLiveRefresh(['providers:changed']);
   useEffect(() => {
     let alive = true;
-    setResult(null);
+    if (!quiet) setResult(null);
     const area = fixedArea || browse;
     listMatchingProviders({ categoryId, serviceId, cityId: area?.city_id, districtId: area?.district_id })
       .then(data => { if (alive) setResult(onContact ? { ...data, providers: data.providers.filter(p => p.availability?.state === 'available') } : data); })
       .catch(() => { if (alive) setResult({ area: null, providers: [] }); });
     return () => { alive = false; };
-  }, [categoryId, serviceId, browse, fixedArea?.city_id, fixedArea?.district_id, Boolean(onContact)]);
+  }, [categoryId, serviceId, browse, fixedArea?.city_id, fixedArea?.district_id, Boolean(onContact), tick]);
 
   // A requester can keep a provider in "My directory" and contact them directly (AYK-041).
   const { user } = useAuth();

@@ -7,6 +7,7 @@ import RequestCard from '../components/requests/RequestCard';
 import { LoadingState, EmptyState } from '../components/common/Spinner';
 import { localizedName } from '../utils/localize';
 import { useAuth } from '../hooks/useAuth';
+import useLiveRefresh from '../hooks/useLiveRefresh';
 
 export default function ServicesPage() {
   const { t, i18n } = useTranslation();
@@ -42,9 +43,10 @@ export default function ServicesPage() {
     return () => { current = false; };
   }, [categoryId]);
 
+  const [tick, quiet] = useLiveRefresh(['request:new_nearby']);
   useEffect(() => {
     let current = true;
-    setLoading(true);
+    if (!quiet) setLoading(true);
     setError(false);
     const q = {};
     if (categoryId) q.category_id = categoryId;
@@ -56,7 +58,7 @@ export default function ServicesPage() {
       .catch(() => { if (current) { setRequests([]); setError(true); } })
       .finally(() => { if (current) setLoading(false); });
     return () => { current = false; };
-  }, [categoryId, serviceId, cityId, matching]);
+  }, [categoryId, serviceId, cityId, matching, tick]);
 
   const setParam = (key, value) => {
     const next = new URLSearchParams(params);
