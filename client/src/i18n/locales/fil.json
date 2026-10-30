@@ -363,7 +363,14 @@
     "contact_hint": "Walang mga pahayagan dito: makipag-ugnayan sa nag-iimbita at magkasundo sa presyo at oras sa chat.",
     "matching_title": "Nagtatrabaho na ngayon ang mga provider sa iyong lugar",
     "contacts_title": "Ang mga provider na pinag-uusapan mo",
-    "agreed": "Nagkasundo"
+    "agreed": "Nagkasundo",
+    "manage_title": "Pamahalaan ang kahilingang ito",
+    "manage_owner_hint": "Nakatalaga ang kahilingan sa isang provider. Kapag tapos na, pindutin ang «Tapos na» at i-rate; kung hindi na kailangan, pindutin ang «Kanselahin ang kahilingan».",
+    "manage_provider_hint": "Nakatalaga sa iyo ang kahilingang ito. Kapag tapos na, pindutin ang «Tapos na»; kung hindi mo matapos, pindutin ang «Umatras sa kahilingan» at bubukas muli ito para sa may-ari.",
+    "withdraw": "Umatras sa kahilingan",
+    "confirm_open_title": "Umatras sa kahilingang ito?",
+    "confirm_open_body": "Bubukas muli ang kahilingan para makahanap ang may-ari ng ibang provider, at aabisuhan siya.",
+    "open": "Umatras sa kahilingan"
   },
   "offer": {
     "submit_title": "Ipadala ang isang quote",

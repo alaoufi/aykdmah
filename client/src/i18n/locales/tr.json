@@ -363,7 +363,14 @@
     "contact_hint": "Burada fiyat teklifleri yok: başvuruda bulunan kişiyle iletişime geçin ve sohbette fiyat ve zaman konusunda anlaşın.",
     "matching_title": "Bölgenizdeki sağlayıcılar şu anda çalışıyor",
     "contacts_title": "Konuştuğunuz tedarikçiler",
-    "agreed": "Anlaştık"
+    "agreed": "Anlaştık",
+    "manage_title": "Bu talebi yönet",
+    "manage_owner_hint": "Talep bir hizmet verene atandı. İş bitince «Tamamlandı»ya dokunup puan verin; artık gerekmiyorsa «Talebi iptal et»e dokunun.",
+    "manage_provider_hint": "Bu talep size atandı. İş bitince «Tamamlandı»ya dokunun; bitiremiyorsanız «Talepten çekil»e dokunun, sahibi için yeniden açılır.",
+    "withdraw": "Talepten çekil",
+    "confirm_open_title": "Bu talepten çekilinsin mi?",
+    "confirm_open_body": "Talep, sahibinin başka bir hizmet veren bulması için yeniden açılır ve kendisine bildirilir.",
+    "open": "Talepten çekil"
   },
   "offer": {
     "submit_title": "Bir teklif gönder",

@@ -607,6 +607,15 @@ if (!databasePrefix) {
 
     // "I found the provider": agreed and done; a day later it leaves the provider's lists, not the requester's archive.
     await api(`/requests/${direct.request_id}/agree`, { method: 'POST', token: client.token, body: { provider_id: provider.user.id } });
+    // The assigned provider may withdraw (AYK-071): the request opens again and its owner is told;
+    // the owner and outsiders cannot "withdraw".
+    await api(`/requests/${direct.request_id}/status`, { method: 'PUT', token: client.token, expected: 403, body: { status: 'open' } });
+    await api(`/requests/${direct.request_id}/status`, { method: 'PUT', token: other.token, expected: 403, body: { status: 'open' } });
+    await api(`/requests/${direct.request_id}/status`, { method: 'PUT', token: provider.token, body: { status: 'open' } });
+    const reopened = await db.queryOne('SELECT status, assigned_provider_id FROM requests WHERE id = ?', [direct.request_id]);
+    assert.deepEqual([reopened.status, reopened.assigned_provider_id], ['open', null]);
+    assert.ok(await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_withdrawn'", [client.user.id]));
+    await api(`/requests/${direct.request_id}/agree`, { method: 'POST', token: client.token, body: { provider_id: provider.user.id } });
     await api(`/requests/${direct.request_id}/status`, { method: 'PUT', token: client.token, body: { status: 'completed' } });
     const offersNow = await api('/offers/my?limit=50', { token: provider.token });
     assert.ok(offersNow.some(offer => Number(offer.request_id) === Number(direct.request_id)));

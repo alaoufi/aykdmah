@@ -198,6 +198,19 @@ export default function RequestDetailsPage() {
 
   return (
     <div className="container page">
+      {/* What each side can do with this request, at the top and in words (AYK-071). */}
+      {(isOwner || (user && user.id === request.assigned_provider_id)) && ['assigned', 'in_progress'].includes(request.status) && (
+        <div className="card mb-4" data-testid="request-manage" style={{ borderInlineStart: '4px solid var(--primary)' }}>
+          <strong>🗂️ {t('request.manage_title')}</strong>
+          <p className="text-sm text-muted mt-1 mb-3">{t(isOwner ? 'request.manage_owner_hint' : 'request.manage_provider_hint')}</p>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="primary" onClick={() => changeStatus('completed')} data-testid="manage-complete">✅ {t('request.complete')}</Button>
+            {isOwner
+              ? <Button variant="danger" onClick={() => changeStatus('cancelled')} data-testid="manage-cancel">✖ {t('request.cancel')}</Button>
+              : <Button variant="outline" onClick={() => changeStatus('open')} data-testid="manage-withdraw">↩ {t('request.withdraw')}</Button>}
+          </div>
+        </div>
+      )}
       {/* An open request should not hang: the requester closes it once agreed with someone. */}
       {isOwner && request.status === 'open' && (
         <div className="card mb-4" data-testid="request-found-check" style={{ borderInlineStart: '4px solid var(--primary)' }}>
@@ -285,10 +298,7 @@ export default function RequestDetailsPage() {
           {isOwner && request.status === 'assigned' && (
             <Button variant="outline" onClick={() => changeStatus('in_progress')}>{t('request.start_progress')}</Button>
           )}
-          {(isOwner || user?.id === request.assigned_provider_id) && (request.status === 'assigned' || request.status === 'in_progress') && (
-            <Button variant="primary" onClick={() => changeStatus('completed')}>{t('request.complete')}</Button>
-          )}
-          {isOwner && (request.status === 'open' || request.status === 'assigned') && (
+          {isOwner && request.status === 'open' && (
             <Button variant="danger" onClick={() => changeStatus('cancelled')}>{t('request.cancel')}</Button>
           )}
           {request.status === 'completed' && isOwner && (

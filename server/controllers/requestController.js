@@ -116,10 +116,20 @@ const updateStatus = asyncHandler(async (req, res) => {
   if (!isOwner && !isAssigned && !isAdmin) return forbidden(res, req.t('deny_request_parties'));
 
   const { status, cancellation_reason } = req.body;
-  const allowed = ['in_progress', 'completed', 'cancelled', 'closed'];
+  const allowed = ['in_progress', 'completed', 'cancelled', 'closed', 'open'];
   if (!allowed.includes(status)) return error(res, req.t('invalid_status'));
 
   const updated = await Request.updateStatus(req.params.id, status, { cancellation_reason, actor: req.user });
+
+  // The provider withdrew: the request is open again; tell its owner (AYK-071).
+  if (status === 'open' && isAssigned && updated.client_id) {
+    await notificationService.notifyUser(updated.client_id, {
+      type: 'request_withdrawn',
+      title: req.t('notif_request_withdrawn_title'),
+      body: `${req.user.full_name || ''} — ${updated.title || ''}`.trim(),
+      link: `/requests/${updated.id}`,
+    }).catch(() => {});
+  }
 
   if (status === 'completed' && updated.assigned_provider_id && updated.client_id) {
     await notificationService.notifyUser(updated.client_id, {

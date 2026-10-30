@@ -363,7 +363,14 @@
     "contact_hint": "No price offers here: contact the requester and agree on the price and time in the chat.",
     "matching_title": "Providers in your area working now",
     "contacts_title": "Providers you are talking to",
-    "agreed": "Agreed"
+    "agreed": "Agreed",
+    "manage_title": "Manage this request",
+    "manage_owner_hint": "The request is assigned to a provider. When the work is done tap \"Done\" and rate them; if it is no longer needed tap \"Cancel request\".",
+    "manage_provider_hint": "This request is assigned to you. When the work is done tap \"Done\"; if you cannot finish it tap \"Withdraw from request\" and it opens again for its owner.",
+    "withdraw": "Withdraw from request",
+    "confirm_open_title": "Withdraw from this request?",
+    "confirm_open_body": "The request opens again for its owner to find another provider, and they are notified.",
+    "open": "Withdraw from request"
   },
   "offer": {
     "submit_title": "Send a quote",

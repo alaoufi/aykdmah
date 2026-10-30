@@ -363,7 +363,14 @@
     "contact_hint": "Tidak ada penawaran harga di sini: hubungi pelamar dan sepakat harga dan waktu dalam obrolan.",
     "matching_title": "Penyedia di daerah Anda bekerja sekarang",
     "contacts_title": "Penyedia yang Anda bicarakan",
-    "agreed": "Sepakat"
+    "agreed": "Sepakat",
+    "manage_title": "Kelola permintaan ini",
+    "manage_owner_hint": "Permintaan ditugaskan ke penyedia. Jika selesai ketuk «Selesai» lalu beri nilai; jika tidak diperlukan lagi ketuk «Batalkan permintaan».",
+    "manage_provider_hint": "Permintaan ini ditugaskan kepada Anda. Jika selesai ketuk «Selesai»; jika tidak bisa menyelesaikannya ketuk «Mundur dari permintaan» dan terbuka lagi untuk pemiliknya.",
+    "withdraw": "Mundur dari permintaan",
+    "confirm_open_title": "Mundur dari permintaan ini?",
+    "confirm_open_body": "Permintaan terbuka lagi agar pemiliknya mencari penyedia lain, dan ia diberi tahu.",
+    "open": "Mundur dari permintaan"
   },
   "offer": {
     "submit_title": "Kirimkan kutipan",

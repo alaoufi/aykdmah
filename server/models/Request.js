@@ -308,9 +308,11 @@ async function updateStatus(id, status, extra = {}) {
     const admin = hasPermission(actor, 'requests.manage');
     if (actor && !owner && !assigned && !admin) throw new ApiError('forbidden', 403);
     if (!admin && ['cancelled', 'closed'].includes(status) && !owner) throw new ApiError('forbidden', 403);
+    // Withdrawing (back to open) is for the assigned provider only (AYK-071).
+    if (status === 'open' && !assigned) throw new ApiError('forbidden', 403);
     const transitions = {
-      open: ['assigned', 'cancelled'], assigned: ['in_progress', 'completed', 'cancelled'],
-      in_progress: ['completed', 'cancelled'], completed: ['closed'], cancelled: ['closed'], closed: [],
+      open: ['assigned', 'cancelled'], assigned: ['in_progress', 'completed', 'cancelled', 'open'],
+      in_progress: ['completed', 'cancelled', 'open'], completed: ['closed'], cancelled: ['closed'], closed: [],
     };
     if (!transitions[request.status]?.includes(status)) throw new ApiError('invalid_status_transition', 409);
     if (status === 'assigned' && (!admin || !extra.assigned_provider_id)) throw new ApiError('invalid_assignment', 409);
@@ -327,6 +329,7 @@ async function updateStatus(id, status, extra = {}) {
       await conn.execute("UPDATE offers SET status = 'rejected', rejected_at = CURRENT_TIMESTAMP WHERE request_id = ? AND status = 'pending'", [id]);
     }
     if (status === 'completed') fields.push('completed_at = CURRENT_TIMESTAMP');
+    if (status === 'open') fields.push('assigned_provider_id = NULL', 'accepted_offer_id = NULL');
     if (status === 'cancelled') {
       fields.push('cancelled_at = CURRENT_TIMESTAMP');
       if (extra.cancellation_reason != null) {
