@@ -1330,7 +1330,8 @@
     "terms": "Şartlar ve koşullar",
     "privacy": "Gizlilik politikası",
     "all_rights_reserved": "Tüm haklar korunmaktadır",
-    "version": "Versiyon"
+    "version": "Versiyon",
+    "branch_of_before": "Ay Khidmah şu sitenin bir şubesidir:"
   },
   "policy": {
     "privacy_intro": "Bu politika, Ay Khidma'nın ev hizmetlerini kayıt edince ve talep ettiğinizde bilgilerinizi nasıl kullandığını açıklar.",
@@ -1963,7 +1964,8 @@
   },
   "brand": {
     "branch_of": "Ay Khidma,",
-    "customer_number": "Müşteri hayır."
+    "customer_number": "Müşteri hayır.",
+    "your_number": "Numaranız"
   },
   "marketing": {
     "title": "İstatistik ve pazarlama",

@@ -86,7 +86,7 @@ export default function Header() {
           )}
           {user?.referral_code && (
             <span className="shrink-0 whitespace-nowrap" data-testid="customer-number">
-              {t('brand.customer_number')}: <b dir="ltr" className="tracking-wider">{user.referral_code}</b>
+              {t('brand.your_number')}: <b dir="ltr" className="tracking-wider">{user.referral_code}</b>
             </span>
           )}
         </div>
@@ -181,7 +181,7 @@ export default function Header() {
                   <div className="p-3 border-b border-border">
                     <div className="text-sm font-bold text-fg">{user.full_name}</div>
                     <div className="text-xs text-fg-subtle">{user.email}</div>
-                    {user.referral_code && <div className="text-xs text-fg-muted mt-0.5">{t('brand.customer_number')}: <b dir="ltr">{user.referral_code}</b></div>}
+                    {user.referral_code && <div className="text-xs text-fg-muted mt-0.5">{t('brand.your_number')}: <b dir="ltr">{user.referral_code}</b></div>}
                   </div>
                   <div className="p-1.5">
                     <Link to={dashLink} className="block px-3 py-2 rounded text-sm font-semibold text-fg hover:bg-surface-alt no-underline" onClick={() => setMenuOpen(false)}>

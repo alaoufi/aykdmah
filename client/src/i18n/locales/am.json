@@ -1330,7 +1330,8 @@
     "terms": "ውሎች እና ሁኔታዎች",
     "privacy": "የግላዊነት ፖሊሲ",
     "all_rights_reserved": "ሁሉም መብቶች የተጠበቁ",
-    "version": "ስሪት"
+    "version": "ስሪት",
+    "branch_of_before": "አይ ኺድማ የዚህ ጣቢያ ቅርንጫፍ ነው፦"
   },
   "policy": {
     "privacy_intro": "ይህ ፖሊሲ የአይ ኪድማ የቤት ውስጥ አገልግሎቶችን ሲመዘገቡ እና ሲጠይቁ መረጃዎን እንዴት እንደሚጠቀም ያብራራል ።",
@@ -1963,7 +1964,8 @@
   },
   "brand": {
     "branch_of": "አይ ቄድማ የ",
-    "customer_number": "ደንበኛ አይደለም."
+    "customer_number": "ደንበኛ አይደለም.",
+    "your_number": "ቁጥርዎ"
   },
   "marketing": {
     "title": "ስታቲስቲክስ እና ግብይት",

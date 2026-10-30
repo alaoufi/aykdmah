@@ -1330,7 +1330,8 @@
     "terms": "Syarat & Ketentuan",
     "privacy": "Kebijakan Privasi",
     "all_rights_reserved": "Semua hak dilindungi",
-    "version": "Versi"
+    "version": "Versi",
+    "branch_of_before": "Ay Khidmah adalah cabang dari"
   },
   "policy": {
     "privacy_intro": "Kebijakan ini menjelaskan bagaimana Ay Khidma menggunakan informasi Anda saat Anda mendaftar dan meminta layanan rumah.",
@@ -1963,7 +1964,8 @@
   },
   "brand": {
     "branch_of": "Ay Khidma adalah cabang dari",
-    "customer_number": "Pelanggan tidak."
+    "customer_number": "Pelanggan tidak.",
+    "your_number": "Nomor Anda"
   },
   "marketing": {
     "title": "Statistik & Pemasaran",

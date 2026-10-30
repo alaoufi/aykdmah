@@ -76,6 +76,9 @@ export default function Footer() {
 
         <div className="mt-10 pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-3 text-[12px] text-white/55">
           <div>
+            <div className="mb-1">
+              {t('footer.branch_of_before')} <a href="https://trbhh.sa" target="_blank" rel="noopener" className="text-white/80 hover:text-white underline" dir="ltr">trbhh.sa</a>
+            </div>
             © {year} {t('common.brand')}. {t('footer.all_rights_reserved')}.
             {/* The deployed release (commit and date), set by deploy/setup-server.sh. */}
             {import.meta.env.VITE_APP_VERSION && (
