@@ -74,6 +74,7 @@ await requests.waitFor({ timeout: 30000 });
 await requests.getByText('إصلاح فيش كهرباء').waitFor({ timeout: 15000 }).then(() => check('provider sees the open request in their area and profession', true))
   .catch(() => check('provider sees the open request in their area and profession', false));
 await requests.screenshot({ path: '/e2e/home-provider.png' });
+await provider.goto(`${BASE}/profile`);
 const market = provider.getByTestId('my-market');
 await market.waitFor({ timeout: 15000 }).catch(() => {});
 check('provider sees their market numbers', await market.getByText(/طالب خدمة مسجل في نطاقك/).count() > 0);

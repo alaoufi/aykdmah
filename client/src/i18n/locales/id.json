@@ -2115,7 +2115,9 @@
     "no_requests": "Belum ada permintaan di profesi dan wilayah Anda saat ini",
     "switch_type": "Ubah jenis akun",
     "register_title": "Hari dan jam kerja",
-    "register_hint": "Pencari layanan hanya melihat Anda pada hari dan jam ini. Pilih \"24 jam\" agar tampil sepanjang hari."
+    "register_hint": "Pencari layanan hanya melihat Anda pada hari dan jam ini. Pilih \"24 jam\" agar tampil sepanjang hari.",
+    "paused_notice": "Anda sedang berhenti, jadi pemohon tidak dapat melihat Anda.",
+    "resume_in_profile": "Lanjutkan di profil saya"
   },
   "requester": {
     "all_professions": "Semua profesi",

@@ -2115,7 +2115,9 @@
     "no_requests": "Walang kahilingan sa iyong propesyon at lugar ngayon",
     "switch_type": "Palitan ang uri ng account",
     "register_title": "Mga araw at oras ng trabaho",
-    "register_hint": "Makikita ka lang ng mga humihiling sa mga araw at oras na ito. Piliin ang \"24 oras\" para makita buong araw."
+    "register_hint": "Makikita ka lang ng mga humihiling sa mga araw at oras na ito. Piliin ang \"24 oras\" para makita buong araw.",
+    "paused_notice": "Naka-pause ka, kaya hindi ka nakikita ng mga humihiling.",
+    "resume_in_profile": "Ituloy sa aking profile"
   },
   "requester": {
     "all_professions": "Lahat ng propesyon",

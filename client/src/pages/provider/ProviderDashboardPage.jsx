@@ -1,23 +1,18 @@
-import { localizedJoinedName } from '../../utils/localizeJoined';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { listNearbyRequests, listMyOffers } from '../../services/requestService';
-import { getCurrentSubscription } from '../../services/adminService';
 import { useAuth } from '../../hooks/useAuth';
 import RequestCard from '../../components/requests/RequestCard';
 import { LoadingState, EmptyState } from '../../components/common/Spinner';
 import { formatCurrency } from '../../utils/formatters';
 import { OFFER_STATUS } from '../../utils/constants';
-import MyMarket from '../../components/provider/MyMarket';
-import WorkPanel from '../../components/provider/WorkPanel';
 
 export default function ProviderDashboardPage() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { provider } = useAuth();
   const [nearby, setNearby] = useState([]);
   const [offers, setOffers] = useState([]);
-  const [sub, setSub] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
@@ -26,13 +21,12 @@ export default function ProviderDashboardPage() {
     setLoading(true);
     setError(false);
     // Requests in the provider's own professions and districts only (AYK-040).
-    const params = { limit: 6, matching: '1' };
+    const params = { limit: 20, matching: '1' };
     Promise.all([
       listNearbyRequests(params).then(r => r.data || []),
       listMyOffers({ limit: 5 }).then(r => r.data || []),
-      getCurrentSubscription().catch(() => null),
     ])
-      .then(([n, o, s]) => { if (current) { setNearby(n); setOffers(o); setSub(s); } })
+      .then(([n, o]) => { if (current) { setNearby(n); setOffers(o); } })
       .catch(() => { if (current) setError(true); })
       .finally(() => { if (current) setLoading(false); });
     return () => { current = false; };
@@ -43,7 +37,13 @@ export default function ProviderDashboardPage() {
   return (
     <div>
       {error && <p role="alert" className="form-error">{t('errors.generic')}</p>}
-      <WorkPanel />
+      {/* Paused: say so first, since requesters cannot see them; the settings live in "ملفي". */}
+      {provider?.availability_status === 'paused' && (
+        <div className="card mb-4 flex items-center justify-between gap-2 flex-wrap" role="status" data-testid="paused-notice">
+          <span>⏸ {t('work.paused_notice')}</span>
+          <Link to="/profile#work" className="btn btn-primary btn-sm">▶ {t('work.resume_in_profile')}</Link>
+        </div>
+      )}
 
       <div className="card mb-4" data-testid="work-requests">
         <div className="flex justify-between items-center gap-2 flex-wrap mb-3">
@@ -55,24 +55,6 @@ export default function ProviderDashboardPage() {
           : <div className="grid grid-2">{nearby.map(r => <RequestCard key={r.id} request={r} />)}</div>}
       </div>
 
-      <div className="mb-5"><MyMarket /></div>
-
-      <div className="grid grid-3 mb-4">
-        <div className="stat-card">
-          <div className="label">{t('common.rating')}</div>
-          <div className="value">⭐ {Number(provider?.rating_avg || 0).toFixed(1)}</div>
-          <div className="text-xs text-muted">{provider?.rating_count || 0} {t('offer.rating_count')}</div>
-        </div>
-        <div className="stat-card">
-          <div className="label">{t('status.request.completed')}</div>
-          <div className="value">{provider?.completed_orders || 0}</div>
-        </div>
-        <div className="stat-card">
-          <div className="label">{t('nav.subscription')}</div>
-          <div className="value" style={{ fontSize: 18 }}>{localizedJoinedName(sub, 'plan', i18n.resolvedLanguage) || '—'}</div>
-          {!sub && <Link to="/provider/subscription" className="text-sm">{t('common.more')}</Link>}
-        </div>
-      </div>
 
       <div className="card">
         <h3>{t('request.contacts_title')}</h3>
@@ -97,12 +79,6 @@ export default function ProviderDashboardPage() {
       </div>
 
       <style>{`
-        .stat-card {
-          background: var(--bg-card); padding: 18px; border-radius: var(--radius-lg);
-          border: 1px solid var(--border);
-        }
-        .stat-card .label { font-size: 12px; color: var(--text-muted); }
-        .stat-card .value { font-size: 26px; font-weight: 700; color: var(--primary); margin-top: 6px; }
         .offer-list-item {
           display: flex; align-items: center; gap: 12px; padding: 12px 14px;
           border: 1px solid var(--border); border-radius: var(--radius); color: inherit; text-decoration: none;

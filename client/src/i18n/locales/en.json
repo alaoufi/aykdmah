@@ -2115,7 +2115,9 @@
     "no_requests": "No requests in your profession and area right now",
     "switch_type": "Change account type",
     "register_title": "Working days and hours",
-    "register_hint": "Requesters see you only on these days and hours. Choose \"24 hours\" to be shown all day."
+    "register_hint": "Requesters see you only on these days and hours. Choose \"24 hours\" to be shown all day.",
+    "paused_notice": "You are paused, so requesters cannot see you.",
+    "resume_in_profile": "Resume in my profile"
   },
   "requester": {
     "all_professions": "All professions",

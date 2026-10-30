@@ -2115,7 +2115,9 @@
     "no_requests": "Şu anda mesleğinizde ve bölgenizde talep yok",
     "switch_type": "Hesap türünü değiştir",
     "register_title": "Çalışma günleri ve saatleri",
-    "register_hint": "Hizmet arayanlar sizi yalnızca bu gün ve saatlerde görür. Gün boyu görünmek için \"24 saat\"i seçin."
+    "register_hint": "Hizmet arayanlar sizi yalnızca bu gün ve saatlerde görür. Gün boyu görünmek için \"24 saat\"i seçin.",
+    "paused_notice": "Şu an duraklatıldınız, talep sahipleri sizi göremez.",
+    "resume_in_profile": "Profilimden devam et"
   },
   "requester": {
     "all_professions": "Tüm meslekler",
