@@ -1,0 +1,8 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "sa.aykdmh.app",
+    "sha256_cert_fingerprints": ["F8:A1:AB:9D:6C:A3:6B:33:0B:76:0E:CD:3F:5F:5B:2C:75:2E:7F:6A:DA:69:5A:0E:B3:F3:57:C5:24:DA:46:97"]
+  }
+}]
