@@ -1783,7 +1783,21 @@
       "today_minutes": "Minutes today",
       "load_now": "Current server load",
       "capacity": "Server capacity: about {{video}} video or {{audio}} voice calls at once",
-      "capacity_warning": "Load is close to server capacity. Consider an extra call server."
+      "capacity_warning": "Load is close to server capacity. Consider an extra call server.",
+      "quality_title": "Call quality log",
+      "quality_hint": "Summary from each side's phone at the end of the call. Red row: 5%+ packet loss, 400 ms+ delay, over 10 s of weak internet, blocked audio, or no audio arrived.",
+      "quality_empty": "No calls logged in this period yet.",
+      "q_call": "Call",
+      "q_user": "Party",
+      "q_path": "Path",
+      "q_rtt": "Delay",
+      "q_loss": "Packet loss",
+      "q_jitter": "Jitter",
+      "q_audio_in": "Audio received",
+      "q_poor": "Weak internet",
+      "q_reconnects": "Reconnects",
+      "q_blocked": "Audio blocked",
+      "q_network": "Network"
     },
     "callee_unreachable": "Their site is closed and notifications are off, so they may not hear it ring. Send a message too.",
     "tap_for_audio": "Tap here to hear the call",
@@ -1797,7 +1811,9 @@
     "they_quiet": "Quiet",
     "mine_sending": "Your voice is going through",
     "mine_quiet": "Speak to send your voice",
-    "mic_muted": "Your mic is muted"
+    "mic_muted": "Your mic is muted",
+    "audio_output": "Speaker",
+    "audio_output_hint": "Sound is on the speaker. Plug in earphones or Bluetooth and it switches to them; this phone does not let websites pick the call earpiece."
   },
   "wallet": {
     "nav": "Wallet & coupon",

@@ -217,7 +217,17 @@ if (!databasePrefix) {
     await api(`/calls/${row.id}/report`, { user: users.provider, method: 'POST', body: { reason: 'Again' } });
     assert.equal(Number((await db.queryOne('SELECT COUNT(*) AS n FROM call_reports')).n), 1);
     assert.equal((await api('/calls/admin/stats', { user: users.client })).status, 403);
+    // Call quality log (AYK-060): answered calls only, numbers clamped, one row per participant, outsiders refused.
+    const answered = await db.queryOne('SELECT id FROM calls WHERE answered_at IS NOT NULL ORDER BY id LIMIT 1');
+    const summary = { connection_type: 'relay-tls', rtt_ms: 120, jitter_ms: 8, packet_loss_pct: 250, audio_kb_in: 300, poor_seconds: 4, reconnects: 1, audio_blocked: true, device: 'test phone' };
+    assert.equal((await api(`/calls/${answered.id}/diagnostics`, { user: users.provider, method: 'POST', body: summary })).body.data.saved, true);
+    await api(`/calls/${answered.id}/diagnostics`, { user: users.provider, method: 'POST', body: { ...summary, rtt_ms: 999 } });
+    assert.equal((await api(`/calls/${answered.id}/diagnostics`, { user: users.bidder, method: 'POST', body: summary })).status, 404);
+    const logged = await db.query('SELECT * FROM call_diagnostics WHERE call_id = ?', [answered.id]);
+    assert.equal(logged.length, 1);
+    assert.deepEqual([logged[0].connection_type, logged[0].rtt_ms, Number(logged[0].packet_loss_pct), logged[0].audio_blocked], ['relay-tls', 120, 100, 1]);
     const stats = await calls.stats({ days: 30 });
+    assert.ok(stats.quality.some(q => q.call_id === answered.id));
     assert.ok(stats.totals.total >= 5);
     assert.equal(stats.reports.length, 1);
     // Live load for the admin calls page (AYK-050).

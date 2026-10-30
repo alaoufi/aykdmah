@@ -4,6 +4,7 @@ import { useSocket } from './SocketContext';
 import * as calls from '../services/callService';
 import { syncPush } from '../services/pushService';
 import { startTone, stopTone } from '../utils/ringtone';
+import { collectCallStats } from '../utils/callStats';
 
 // The call screen and the LiveKit SDK load only when a call actually starts or rings.
 const CallOverlay = lazy(() => import('../components/calls/CallOverlay'));
@@ -29,6 +30,11 @@ export function CallProvider({ children }) {
   const [network, setNetwork] = useState({ mine: 'unknown', theirs: 'unknown' });
   // Who is talking right now, from the audio actually flowing through the call server.
   const [speaking, setSpeaking] = useState({ mine: false, theirs: false });
+  // For the quality log (AYK-060): seconds of weak internet, reconnects, a blocked-audio moment.
+  const qualityLog = useRef({ poorSince: 0, poorMs: 0, reconnects: 0, audioBlocked: false });
+  // Audio output (speaker / earpiece or headset) where the browser lets a page choose it.
+  const [outputs, setOutputs] = useState([]);
+  const [outputId, setOutputId] = useState('');
   const roomRef = useRef(null);
   const callRef = useRef(null);
   const leavingRef = useRef(false);
@@ -36,6 +42,18 @@ export function CallProvider({ children }) {
 
   const teardown = useCallback(async () => {
     const current = roomRef.current;
+    // Report how the connection behaved before closing it (answered calls only).
+    const ended = callRef.current;
+    if (current && ended?.id && ended.answered_at) {
+      const log = qualityLog.current;
+      const poorMs = log.poorMs + (log.poorSince ? Date.now() - log.poorSince : 0);
+      // Read the statistics while the connection still exists (at most 1.5 s), then send them.
+      const stats = await Promise.race([collectCallStats(current).catch(() => ({})), new Promise(resolve => setTimeout(() => resolve({}), 1500))]);
+      calls.sendCallDiagnostics(ended.id, {
+        ...stats, poor_seconds: Math.round(poorMs / 1000), reconnects: log.reconnects, audio_blocked: log.audioBlocked,
+      }).catch(() => {});
+    }
+    qualityLog.current = { poorSince: 0, poorMs: 0, reconnects: 0, audioBlocked: false };
     roomRef.current = null;
     setRoom(null);
     setRemoteJoined(false);
@@ -115,7 +133,15 @@ export function CallProvider({ children }) {
     lkRoom
       .on(RoomEvent.ParticipantConnected, () => setRemoteJoined(true))
       .on(RoomEvent.ParticipantDisconnected, () => setRemoteJoined(false))
-      .on(RoomEvent.AudioPlaybackStatusChanged, () => setAudioBlocked(!lkRoom.canPlaybackAudio))
+      .on(RoomEvent.AudioPlaybackStatusChanged, () => {
+        setAudioBlocked(!lkRoom.canPlaybackAudio);
+    navigator.mediaDevices?.enumerateDevices?.().then(list => {
+      const outs = list.filter(d => d.kind === 'audiooutput' && d.deviceId);
+      setOutputs(outs.map(d => ({ id: d.deviceId, label: d.label })));
+      setOutputId(lkRoom.getActiveDevice?.('audiooutput') || 'default');
+    }).catch(() => {});
+        if (!lkRoom.canPlaybackAudio) qualityLog.current.audioBlocked = true;
+      })
       .on(RoomEvent.ActiveSpeakersChanged, speakers => setSpeaking({
         mine: speakers.some(p => p.isLocal), theirs: speakers.some(p => !p.isLocal),
       }))
@@ -124,8 +150,13 @@ export function CallProvider({ children }) {
         const level = quality === ConnectionQuality?.Excellent ? 'excellent' : quality === ConnectionQuality?.Good ? 'good'
           : quality === ConnectionQuality?.Poor ? 'poor' : quality === ConnectionQuality?.Lost ? 'lost' : 'unknown';
         setNetwork(previous => ({ ...previous, [participant?.isLocal ? 'mine' : 'theirs']: level }));
+        if (participant?.isLocal) {
+          const log = qualityLog.current; const weak = level === 'poor' || level === 'lost';
+          if (weak && !log.poorSince) log.poorSince = Date.now();
+          if (!weak && log.poorSince) { log.poorMs += Date.now() - log.poorSince; log.poorSince = 0; }
+        }
       })
-      .on(RoomEvent.Reconnecting, () => setPhase('reconnecting'))
+      .on(RoomEvent.Reconnecting, () => { qualityLog.current.reconnects += 1; setPhase('reconnecting'); })
       .on(RoomEvent.Reconnected, () => setPhase('in_call'))
       .on(RoomEvent.Disconnected, reason => {
         if (leavingRef.current || roomRef.current !== lkRoom) return;
@@ -314,6 +345,14 @@ export function CallProvider({ children }) {
     catch (_) { await finishLocally({ ...current, status: 'ended' }); }
   }, [finishLocally]);
 
+  // Next audio output (speaker → earpiece/headset → …), where the browser offers more than one.
+  const nextOutput = useCallback(async () => {
+    const lk = roomRef.current; if (!lk || outputs.length < 2) return false;
+    const index = outputs.findIndex(o => o.id === outputId);
+    const next = outputs[(index + 1) % outputs.length];
+    try { await lk.switchActiveDevice('audiooutput', next.id); setOutputId(next.id); return true; } catch (_) { return false; }
+  }, [outputs, outputId]);
+
   const enableAudio = useCallback(async () => {
     const lk = roomRef.current; if (!lk) return;
     try { await lk.startAudio(); } catch (_) { /* still blocked: the button stays */ }
@@ -343,7 +382,7 @@ export function CallProvider({ children }) {
     catch (_) { setError('camera_switch_failed'); }
   }, [camOn, facing]);
 
-  const value = { call, phase, error, room, micOn, camOn, facing, remoteJoined, audioBlocked, enableAudio, network, speaking, start, accept, hangup, toggleMic, toggleCam, switchCamera };
+  const value = { call, phase, error, room, micOn, camOn, facing, remoteJoined, audioBlocked, enableAudio, network, speaking, outputs, outputId, nextOutput, start, accept, hangup, toggleMic, toggleCam, switchCamera };
   return (
     <CallContext.Provider value={value}>
       {children}

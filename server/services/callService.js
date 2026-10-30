@@ -267,6 +267,28 @@ async function report(callId, user, reason) {
   return { reported: true };
 }
 
+// Quality summary of an answered call from one participant's browser (AYK-060). Numbers only,
+// clamped; one row per participant and call (a second report is ignored).
+async function diagnostics(callId, user, body = {}) {
+  const row = await participantCall(callId, user.id);
+  if (!row.answered_at) return { saved: false };
+  const int = (value, max) => { const n = Math.round(Number(value)); return Number.isFinite(n) && n >= 0 ? Math.min(n, max) : null; };
+  const text = (value, max) => (typeof value === 'string' && value.trim() ? value.trim().slice(0, max) : null);
+  const loss = Number(body.packet_loss_pct);
+  await query(`INSERT INTO call_diagnostics (call_id, user_id, connection_type, rtt_ms, jitter_ms, packet_loss_pct,
+      audio_kb_in, audio_kb_out, video_kb_in, poor_seconds, reconnects, audio_blocked, network_type, device)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (call_id, user_id) DO NOTHING`, [
+    row.id, user.id,
+    ['udp', 'tcp', 'relay-udp', 'relay-tcp', 'relay-tls'].includes(body.connection_type) ? body.connection_type : null,
+    int(body.rtt_ms, 60000), int(body.jitter_ms, 60000),
+    Number.isFinite(loss) && loss >= 0 ? Math.min(Math.round(loss * 100) / 100, 100) : null,
+    int(body.audio_kb_in, 10000000), int(body.audio_kb_out, 10000000), int(body.video_kb_in, 10000000),
+    int(body.poor_seconds, 86400) || 0, int(body.reconnects, 1000) || 0, body.audio_blocked ? 1 : 0,
+    text(body.network_type, 20), text(body.device, 160),
+  ]);
+  return { saved: true };
+}
+
 // Ends calls that rang too long or outlived the maximum duration.
 async function sweep() {
   const stale = await query(`${CALL_SELECT} WHERE (k.status = 'ringing' AND k.created_at < ?)
@@ -362,6 +384,10 @@ async function stats({ days = 30 } = {}) {
   const recent = await query(`${CALL_SELECT} ORDER BY k.id DESC LIMIT 50`);
   const reports = await query(`SELECT r.id, r.call_id, r.reason, r.status, r.created_at, u.full_name AS reporter_name
     FROM call_reports r JOIN users u ON u.id = r.reporter_id ORDER BY (r.status = 'open') DESC, r.id DESC LIMIT 50`);
+  // Quality log of recent calls (AYK-060), newest first.
+  const quality = await query(`SELECT d.*, u.full_name AS user_name, k.call_type, k.duration_seconds
+    FROM call_diagnostics d JOIN users u ON u.id = d.user_id JOIN calls k ON k.id = d.call_id
+    WHERE d.created_at >= ? ORDER BY d.id DESC LIMIT 100`, [since]);
   const os = require('os');
   const system = {
     load1: os.loadavg()[0], cpus: os.cpus().length,
@@ -374,6 +400,7 @@ async function stats({ days = 30 } = {}) {
     configured: isConfigured(),
     system,
     live: await liveLoad(),
+    quality,
     recent: recent.map(row => ({
       id: row.id, call_type: row.call_type, status: row.status, end_reason: row.end_reason,
       caller_name: row.caller_name, callee_name: row.callee_name, request_id: row.request_id,
@@ -393,5 +420,5 @@ async function reviewReport(reportId, adminId, status) {
 
 module.exports = {
   attach, isConfigured, start, accept, decline, joinToken, active, history, eligibility,
-  report, sweep, handleWebhook, stats, reviewReport, RING_TIMEOUT_MS, peakConcurrent,
+  report, sweep, handleWebhook, stats, reviewReport, RING_TIMEOUT_MS, peakConcurrent, diagnostics,
 };

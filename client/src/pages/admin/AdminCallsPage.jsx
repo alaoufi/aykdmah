@@ -88,6 +88,42 @@ export default function AdminCallsPage() {
         </div>
       )}
 
+      {/* Call quality log (AYK-060): how each answered call behaved on each phone. */}
+      <section className="card p-3" data-testid="call-quality-log">
+        <h2 className="font-bold text-fg mb-1">📶 {t('calls.admin.quality_title')}</h2>
+        <p className="text-[12px] text-fg-muted mt-0 mb-2">{t('calls.admin.quality_hint')}</p>
+        {!(data.quality?.length) ? <div className="text-[12.5px] text-fg-muted">{t('calls.admin.quality_empty')}</div> : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-[12px]">
+              <thead><tr className="text-fg-muted text-start">
+                {['q_call', 'q_user', 'q_path', 'q_rtt', 'q_loss', 'q_jitter', 'q_audio_in', 'q_poor', 'q_reconnects', 'q_blocked', 'q_network']
+                  .map(key => <th key={key} className="px-2 py-1 font-semibold whitespace-nowrap">{t(`calls.admin.${key}`)}</th>)}
+              </tr></thead>
+              <tbody>
+                {data.quality.map(q => {
+                  const bad = Number(q.packet_loss_pct) >= 5 || Number(q.rtt_ms) >= 400 || q.poor_seconds > 10 || q.audio_blocked || Number(q.audio_kb_in) === 0;
+                  return (
+                    <tr key={q.id} className={`border-t border-border ${bad ? 'bg-danger-soft' : ''}`}>
+                      <td className="px-2 py-1 whitespace-nowrap">#{q.call_id} {q.call_type === 'video' ? '📹' : '📞'} {q.duration_seconds != null ? `${q.duration_seconds}s` : ''}</td>
+                      <td className="px-2 py-1 whitespace-nowrap">{q.user_name}</td>
+                      <td className="px-2 py-1" dir="ltr">{q.connection_type || '—'}</td>
+                      <td className="px-2 py-1" dir="ltr">{q.rtt_ms != null ? `${q.rtt_ms} ms` : '—'}</td>
+                      <td className="px-2 py-1" dir="ltr">{q.packet_loss_pct != null ? `${Number(q.packet_loss_pct)}%` : '—'}</td>
+                      <td className="px-2 py-1" dir="ltr">{q.jitter_ms != null ? `${q.jitter_ms} ms` : '—'}</td>
+                      <td className="px-2 py-1" dir="ltr">{q.audio_kb_in != null ? `${q.audio_kb_in} KB` : '—'}</td>
+                      <td className="px-2 py-1">{q.poor_seconds}s</td>
+                      <td className="px-2 py-1">{q.reconnects}</td>
+                      <td className="px-2 py-1">{q.audio_blocked ? '⚠️' : '—'}</td>
+                      <td className="px-2 py-1" dir="ltr">{q.network_type || '—'}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
       {data.errors.length > 0 && (
         <div className="card p-3">
           <h2 className="font-bold text-fg mb-2">{t('calls.admin.errors')}</h2>

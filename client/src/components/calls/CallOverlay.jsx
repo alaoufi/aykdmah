@@ -67,12 +67,14 @@ function RoundButton({ onClick, label, tone = 'neutral', children, disabled }) {
 
 export default function CallOverlay() {
   const { t } = useTranslation();
-  const { call, phase, error, room, micOn, camOn, remoteJoined, audioBlocked, enableAudio, network, speaking, accept, hangup, toggleMic, toggleCam, switchCamera } = useCall();
+  const { call, phase, error, room, micOn, camOn, remoteJoined, audioBlocked, enableAudio, network, speaking, outputs, nextOutput, accept, hangup, toggleMic, toggleCam, switchCamera } = useCall();
   const remoteVideo = useRef(null);
   const localVideo = useRef(null);
   const remoteAudio = useRef(null);
   const [reporting, setReporting] = useState(false);
   const [reported, setReported] = useState(false);
+  const [outputHint, setOutputHint] = useState(false);
+  useEffect(() => { if (!outputHint) return undefined; const timer = setTimeout(() => setOutputHint(false), 6000); return () => clearTimeout(timer); }, [outputHint]);
   const live = phase === 'in_call' || phase === 'reconnecting';
   const duration = useDuration(call?.answered_at, live);
   useMediaElements(room, { remoteVideo, localVideo, remoteAudio });
@@ -128,6 +130,11 @@ export default function CallOverlay() {
           {{ excellent: '🟢', good: '🟡', poor: '🔴', lost: '⚫' }[network.mine]} {t(`calls.network_${network.mine}`)}
         </div>
       )}
+      {outputHint && (
+        <div className="absolute z-10 top-16 inset-x-3 mx-auto max-w-sm px-3 py-2 rounded-card bg-black/80 text-white text-[13px] text-center" role="status" data-testid="output-hint">
+          🎧 {t('calls.audio_output_hint')}
+        </div>
+      )}
       {live && audioBlocked && (
         <button type="button" onClick={enableAudio} data-testid="enable-audio"
           className="absolute z-10 top-1/3 inset-x-6 mx-auto max-w-sm py-4 rounded-card bg-emerald-600 text-white text-lg font-extrabold shadow-lift">
@@ -171,6 +178,10 @@ export default function CallOverlay() {
           <>
             <RoundButton tone={micOn ? 'neutral' : 'off'} onClick={toggleMic} disabled={!room}
               label={micOn ? t('calls.mute') : t('calls.unmute')}>{micOn ? '🎙️' : '🔇'}</RoundButton>
+            {/* Speaker / earpiece or headset (AYK-060). Phones switch to a plugged-in or Bluetooth
+                headset on their own; where the browser lists several outputs, this button cycles them. */}
+            <RoundButton onClick={async () => { if (!(await nextOutput())) setOutputHint(true); }} disabled={!room}
+              label={t('calls.audio_output')}>{outputs.length > 1 ? '🔈' : '🔊'}</RoundButton>
             {video && (
               <>
                 <RoundButton tone={camOn ? 'neutral' : 'off'} onClick={toggleCam} disabled={!room}

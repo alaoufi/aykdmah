@@ -1783,7 +1783,21 @@
       "today_minutes": "Mga minuto ngayong araw",
       "load_now": "Kasalukuyang load ng server",
       "capacity": "Kapasidad ng server: mga {{video}} video o {{audio}} voice call nang sabay",
-      "capacity_warning": "Malapit na sa kapasidad ng server. Isaalang-alang ang dagdag na call server."
+      "capacity_warning": "Malapit na sa kapasidad ng server. Isaalang-alang ang dagdag na call server.",
+      "quality_title": "Talaan ng kalidad ng tawag",
+      "quality_hint": "Buod mula sa telepono ng bawat panig sa dulo ng tawag. Pulang hanay: 5%+ nawalang packet, 400 ms+ antala, higit 10 s mahinang internet, naharang na tunog, o walang dumating na tunog.",
+      "quality_empty": "Wala pang naitalang tawag sa panahong ito.",
+      "q_call": "Tawag",
+      "q_user": "Panig",
+      "q_path": "Daan",
+      "q_rtt": "Antala",
+      "q_loss": "Nawalang packet",
+      "q_jitter": "Jitter",
+      "q_audio_in": "Natanggap na tunog",
+      "q_poor": "Mahinang internet",
+      "q_reconnects": "Muling pagkonekta",
+      "q_blocked": "Naharang na tunog",
+      "q_network": "Network"
     },
     "callee_unreachable": "Sarado ang site nila at naka-off ang abiso, kaya baka hindi nila marinig ang ring. Magpadala rin ng mensahe.",
     "tap_for_audio": "Pindutin dito para marinig ang tawag",
@@ -1797,7 +1811,9 @@
     "they_quiet": "Tahimik",
     "mine_sending": "Umaabot ang boses mo",
     "mine_quiet": "Magsalita para umabot ang boses mo",
-    "mic_muted": "Naka-mute ang mic mo"
+    "mic_muted": "Naka-mute ang mic mo",
+    "audio_output": "Speaker",
+    "audio_output_hint": "Nasa speaker ang tunog. Magkabit ng earphones o Bluetooth at doon ito lilipat; hindi pinapayagan ng teleponong ito ang website na pumili ng earpiece."
   },
   "wallet": {
     "nav": "Wallet & coupon",

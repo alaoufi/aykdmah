@@ -1783,7 +1783,21 @@
       "today_minutes": "Menit hari ini",
       "load_now": "Beban server saat ini",
       "capacity": "Kapasitas server: sekitar {{video}} panggilan video atau {{audio}} suara sekaligus",
-      "capacity_warning": "Beban mendekati kapasitas server. Pertimbangkan server panggilan tambahan."
+      "capacity_warning": "Beban mendekati kapasitas server. Pertimbangkan server panggilan tambahan.",
+      "quality_title": "Log kualitas panggilan",
+      "quality_hint": "Ringkasan dari ponsel tiap pihak di akhir panggilan. Baris merah: 5%+ paket hilang, 400 ms+ jeda, lebih dari 10 dtk internet lemah, suara diblokir, atau tidak ada suara masuk.",
+      "quality_empty": "Belum ada panggilan tercatat pada periode ini.",
+      "q_call": "Panggilan",
+      "q_user": "Pihak",
+      "q_path": "Jalur",
+      "q_rtt": "Jeda",
+      "q_loss": "Paket hilang",
+      "q_jitter": "Jitter",
+      "q_audio_in": "Suara diterima",
+      "q_poor": "Internet lemah",
+      "q_reconnects": "Sambung ulang",
+      "q_blocked": "Suara diblokir",
+      "q_network": "Jaringan"
     },
     "callee_unreachable": "Situsnya tertutup dan notifikasi mati, jadi mungkin tidak mendengar dering. Kirim juga pesan.",
     "tap_for_audio": "Ketuk di sini untuk mendengar suara",
@@ -1797,7 +1811,9 @@
     "they_quiet": "Diam",
     "mine_sending": "Suara Anda terkirim",
     "mine_quiet": "Bicaralah agar suara terkirim",
-    "mic_muted": "Mikrofon Anda dibisukan"
+    "mic_muted": "Mikrofon Anda dibisukan",
+    "audio_output": "Speaker",
+    "audio_output_hint": "Suara di speaker. Pasang earphone atau Bluetooth dan suara pindah otomatis; ponsel ini tidak mengizinkan situs memilih earpiece panggilan."
   },
   "wallet": {
     "nav": "Dompet & Kupon",

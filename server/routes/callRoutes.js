@@ -36,6 +36,7 @@ router.post('/:id/accept', authenticate, handle(req => calls.accept(req.params.i
 router.post('/:id/decline', authenticate, handle(req => calls.decline(req.params.id, req.user)));
 router.post('/:id/token', authenticate, handle(req => calls.joinToken(req.params.id, req.user)));
 router.post('/:id/report', authenticate, handle(req => calls.report(req.params.id, req.user, req.body?.reason)));
+router.post('/:id/diagnostics', authenticate, handle(req => calls.diagnostics(req.params.id, req.user, req.body)));
 
 // LiveKit webhook (mounted before the JSON parser in app.js; the signature covers the raw body).
 const webhook = express.Router();

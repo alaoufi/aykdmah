@@ -13,3 +13,8 @@ export async function reportCall(id, reason) { return (await api.post(`/calls/${
 export async function callHistory(params) { return (await api.get('/calls/history', { params })).data.data; }
 export async function adminCallStats(days = 30) { return (await api.get('/calls/admin/stats', { params: { days } })).data.data; }
 export async function reviewCallReport(id, status) { return (await api.patch(`/calls/admin/reports/${id}`, { status })).data.data; }
+
+// End-of-call quality summary for the call quality log (AYK-060). Best effort.
+export async function sendCallDiagnostics(callId, summary) {
+  await api.post(`/calls/${callId}/diagnostics`, summary);
+}
