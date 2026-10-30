@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import { changeAccountType } from '../../services/authService';
 import { apiError } from '../../services/api';
+import { Link } from 'react-router-dom';
 import Button from '../common/Button';
 import ProfessionsPicker from '../common/ProfessionsPicker';
 import CoverageDistrictsPicker from '../common/CoverageDistrictsPicker';
@@ -38,8 +39,11 @@ export default function AccountTypeSection({ onSaved, onError }) {
         : mode !== 'mobile' && !venue ? t('provider.venue_point_required') : null;
   const canSave = target !== current && !missing && !saving;
 
+  // Jobs that stop the change to requester, listed with links (AYK-070).
+  const [blockingJobs, setBlockingJobs] = useState([]);
+
   const save = async () => {
-    onError(''); onSaved('');
+    onError(''); onSaved(''); setBlockingJobs([]);
     setSaving(true);
     try {
       await changeAccountType({
@@ -53,11 +57,23 @@ export default function AccountTypeSection({ onSaved, onError }) {
       onSaved(t('auth.account_type_changed'));
     } catch (err) {
       onError(apiError(err));
+      setBlockingJobs(err?.response?.data?.errors?.jobs || []);
     } finally { setSaving(false); }
   };
 
   return (
     <div className="card mb-4" id="account-type" data-testid="account-type">
+      {blockingJobs.length > 0 && (
+        <div className="mb-3 p-3 rounded-card bg-danger-soft text-[13.5px]" role="alert" data-testid="blocking-jobs">
+          <p className="m-0 mb-2 font-semibold">{t('profile.blocking_jobs_title')}</p>
+          <ul className="m-0 ps-5 space-y-1">
+            {blockingJobs.map(job => (
+              <li key={job.id}><Link to={`/requests/${job.id}`} className="font-semibold text-primary underline">{job.title || `#${job.id}`}</Link></li>
+            ))}
+          </ul>
+          <p className="m-0 mt-2 text-fg-muted">{t('profile.blocking_jobs_hint')}</p>
+        </div>
+      )}
       <h3 className="mb-1">{t('profile.account_type')}</h3>
       <p className="text-[12.5px] text-fg-muted mb-3">{t('profile.account_type_hint')}</p>
       <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label={t('profile.account_type')}>

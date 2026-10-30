@@ -458,7 +458,9 @@
     "account_type_work_hint": "Hizmetleri sağlamak için en az bir meslek, hizmet ettiğiniz bölge ve hizmet ettiğiniz yer seçin.",
     "account_type_to_client_note": "Bir sunucu olarak görünmeyi bırakır ve bekleyen teklifleriniz geri alınır.",
     "account_type_save": "Hesap türünü değiştir",
-    "change_account_type": "Hesap türünü değiştir ( talep eden / sağlayıcı / her ikisi de)"
+    "change_account_type": "Hesap türünü değiştir ( talep eden / sağlayıcı / her ikisi de)",
+    "blocking_jobs_title": "Bu işler size atandı ve bitmedi:",
+    "blocking_jobs_hint": "Her birini açıp iş bittiyse «✅ Tamamlandı»ya dokunun ya da sahibinden iptal etmesini isteyin, sonra hesap türünü değiştirin."
   },
   "chat": {
     "title": "Mesajlar",

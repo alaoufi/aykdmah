@@ -234,8 +234,9 @@ const changeRole = asyncHandler(async (req, res) => {
 
   const placeholders = ACTIVE_REQUEST.map(() => '?').join(', ');
   if (target === 'client') {
-    const job = await queryOne(`SELECT id FROM requests WHERE assigned_provider_id = ? AND status IN ('assigned', 'in_progress') AND deleted_at IS NULL LIMIT 1`, [user.id]);
-    if (job) return error(res, req.t('role_change_active_jobs'), 409);
+    // Name the jobs that block the change, so the user can open and finish them (AYK-070).
+    const jobs = await query(`SELECT id, title, status FROM requests WHERE assigned_provider_id = ? AND status IN ('assigned', 'in_progress') AND deleted_at IS NULL ORDER BY id LIMIT 20`, [user.id]);
+    if (jobs.length) return error(res, req.t('role_change_active_jobs'), 409, { jobs: jobs.map(j => ({ id: j.id, title: j.title, status: j.status })) });
   }
   if (target === 'provider' && current !== 'provider') {
     const own = await queryOne(`SELECT id FROM requests WHERE client_id = ? AND status IN (${placeholders}) AND deleted_at IS NULL LIMIT 1`, [user.id, ...ACTIVE_REQUEST]);

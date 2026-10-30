@@ -458,7 +458,9 @@
     "account_type_work_hint": "Untuk memberikan layanan, pilih setidaknya satu profesi, distrik yang Anda lapisi dan di mana Anda melayani.",
     "account_type_to_client_note": "Anda akan berhenti tampil sebagai penyedia dan penawaran Anda yang sedang menunggu akan ditarik.",
     "account_type_save": "Mengubah jenis akun",
-    "change_account_type": "Mengubah jenis akun (pemohon / penyedia / keduanya)"
+    "change_account_type": "Mengubah jenis akun (pemohon / penyedia / keduanya)",
+    "blocking_jobs_title": "Pekerjaan ini ditugaskan kepada Anda dan belum selesai:",
+    "blocking_jobs_hint": "Buka masing-masing dan ketuk «✅ Selesai» jika sudah, atau minta pemiliknya membatalkan, lalu ubah jenis akun."
   },
   "chat": {
     "title": "Pesan",
