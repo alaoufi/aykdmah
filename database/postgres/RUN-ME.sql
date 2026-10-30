@@ -6188,6 +6188,15 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_device_reports_user_device ON device_report
 CREATE INDEX IF NOT EXISTS idx_device_reports_updated ON device_reports (updated_at);
 INSERT INTO schema_migrations(name) VALUES ('058_device_reports.sql');
 
+-- migrations/059_contact_window_warranty.sql
+ALTER TABLE requests ADD COLUMN IF NOT EXISTS warranty_days INT NULL DEFAULT NULL;
+ALTER TABLE requests ADD COLUMN IF NOT EXISTS warranty_proposed_days INT NULL DEFAULT NULL;
+ALTER TABLE requests ADD COLUMN IF NOT EXISTS warranty_proposed_by INT NULL DEFAULT NULL;
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description)
+VALUES ('contact_after_done_days', '7', 'number', 'requests', 1, 'أيام بقاء المحادثة مفتوحة بعد انتهاء الطلب')
+ON CONFLICT (setting_key) DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('059_contact_window_warranty.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;
