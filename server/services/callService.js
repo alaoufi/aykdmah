@@ -131,7 +131,8 @@ async function start({ caller, conversationId, callType }) {
   // Can it ring anywhere? The site open on a device, or notifications enabled on one.
   let reachable = true;
   try {
-    const online = io ? (await io.in(`user:${callee.id}`).fetchSockets()).length > 0 : true;
+    // Online only when a live connection proves it; otherwise notifications must reach a device.
+    const online = io ? (await io.in(`user:${callee.id}`).fetchSockets()).length > 0 : false;
     reachable = online || (await require('../models/PushSubscription').listForUser(callee.id)).length > 0;
   } catch (_) { reachable = true; }
   return { ...publicCall(row, caller.id), callee_reachable: reachable };
