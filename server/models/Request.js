@@ -223,6 +223,8 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
   if (categoryId) { where.push('r.category_id = ?'); whereParams.push(categoryId); }
   if (serviceId) { where.push('r.service_id = ?'); whereParams.push(serviceId); }
   if (providerId) {
+    // A request sent straight to this provider from a directory is theirs to see (AYK-079).
+    where[2] = '(r.direct_provider_id IS NULL OR r.direct_provider_id = ?)'; whereParams.splice(1, 0, providerId);
     // A "both" account's own requests are not work for it as a provider (AYK-044).
     where.push('r.client_id <> ?'); whereParams.push(providerId);
     // "Matching me": the provider's registered services and coverage area.
@@ -230,20 +232,25 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
     const profile = await queryOne(`SELECT pp.service_ids, pp.category_id, COALESCE(pp.coverage_city_id, u.city_id) AS coverage_city_id
       FROM provider_profiles pp JOIN users u ON u.id = pp.user_id WHERE pp.user_id = ?`, [providerId]);
     let services = [];
-    try { services = (JSON.parse(profile?.service_ids || '[]') || []).map(Number).filter(Number.isSafeInteger); } catch (_) { services = []; }
+    // PostgreSQL returns the JSON list already parsed; older rows may still be text (AYK-079).
+    const rawServices = profile?.service_ids;
+    try { services = (Array.isArray(rawServices) ? rawServices : JSON.parse(rawServices || '[]') || []).map(Number).filter(Number.isSafeInteger); } catch (_) { services = []; }
     const categories = services.length
       ? (await query(`SELECT DISTINCT category_id FROM services WHERE id IN (${services.map(() => '?').join(', ')})`, services)).map(row => Number(row.category_id))
       : profile?.category_id ? [Number(profile.category_id)] : [];
+    // Profession and area; a request sent straight to this provider skips both (AYK-079).
+    const fit = []; const fitParams = [];
     const match = [];
-    if (services.length) { match.push(`r.service_id IN (${services.map(() => '?').join(', ')})`); whereParams.push(...services); }
-    if (categories.length) { match.push(`(r.service_id IS NULL AND r.category_id IN (${categories.map(() => '?').join(', ')}))`); whereParams.push(...categories); }
-    if (match.length) where.push(`(${match.join(' OR ')})`);
+    if (services.length) { match.push(`r.service_id IN (${services.map(() => '?').join(', ')})`); fitParams.push(...services); }
+    if (categories.length) { match.push(`(r.service_id IS NULL AND r.category_id IN (${categories.map(() => '?').join(', ')}))`); fitParams.push(...categories); }
+    if (match.length) fit.push(`(${match.join(' OR ')})`);
     const covered = await query('SELECT district_id FROM provider_coverage_districts WHERE user_id = ?', [providerId]);
     if (covered.length) {
-      where.push(`r.district_id IN (${covered.map(() => '?').join(', ')})`); whereParams.push(...covered.map(row => Number(row.district_id)));
+      fit.push(`r.district_id IN (${covered.map(() => '?').join(', ')})`); fitParams.push(...covered.map(row => Number(row.district_id)));
     } else if (profile?.coverage_city_id) {
-      where.push('r.city_id = ?'); whereParams.push(Number(profile.coverage_city_id));
+      fit.push('r.city_id = ?'); fitParams.push(Number(profile.coverage_city_id));
     }
+    if (fit.length) { where.push(`(r.direct_provider_id = ? OR (${fit.join(' AND ')}))`); whereParams.push(providerId, ...fitParams); }
   }
 
   const hasGeo = latitude != null && longitude != null;

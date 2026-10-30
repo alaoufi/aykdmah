@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from './AuthContext';
 import { getToken } from '../services/api';
+import { setLiveSocket } from '../utils/socketBus';
 
 const SocketContext = createContext(null);
 const realtimeMode = import.meta.env.VITE_REALTIME_MODE === 'polling' ? 'polling' : 'socket';
@@ -46,11 +47,13 @@ export function SocketProvider({ children }) {
     window.addEventListener('focus', wake);
 
     socketRef.current = sock;
+    setLiveSocket(sock);
 
     return () => {
       document.removeEventListener('visibilitychange', wake);
       window.removeEventListener('online', wake);
       window.removeEventListener('focus', wake);
+      setLiveSocket(null);
       sock.disconnect();
       socketRef.current = null;
       setConnected(false);

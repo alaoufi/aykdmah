@@ -577,6 +577,9 @@ if (!databasePrefix) {
     const postedId = Number(posted.id);
     const notice = await db.queryOne("SELECT link FROM notifications WHERE user_id = ? AND type = 'request_new' ORDER BY id DESC LIMIT 1", [provider.user.id]);
     assert.equal(notice.link, `/requests/${postedId}`);
+    // "Requests in your profession" lists it (AYK-079: the stored profession list is read correctly).
+    const mine = await api('/requests/nearby?limit=50&matching=1', { token: provider.token });
+    assert.ok(mine.some(item => Number(item.id) === postedId), 'a request in my profession and district is listed');
 
     // "My directory": add, list (with profession and district), ids.
     await api(`/users/me/directory/${provider.user.id}`, { method: 'POST', token: client.token });
@@ -597,6 +600,11 @@ if (!databasePrefix) {
     assert.equal(again.conversation_id, direct.conversation_id);
     const row = await db.queryOne('SELECT direct_provider_id, client_id FROM requests WHERE id = ?', [direct.request_id]);
     assert.equal(Number(row.direct_provider_id), Number(provider.user.id));
+    // The provider it was sent to sees it among their requests; others do not (AYK-079).
+    const mineDirect = await api('/requests/nearby?limit=50&matching=1', { token: provider.token });
+    assert.ok(mineDirect.some(item => Number(item.id) === Number(direct.request_id)));
+    const otherDirect = await api('/requests/nearby?limit=50&matching=1', { token: other.token });
+    assert.ok(!otherDirect.some(item => Number(item.id) === Number(direct.request_id)));
     const board = await api('/requests/nearby?limit=50', { token: other.token });
     assert.ok(!board.some(item => Number(item.id) === Number(direct.request_id)));
     assert.ok(board.some(item => Number(item.id) === postedId));
