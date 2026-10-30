@@ -23,7 +23,7 @@ function useDuration(answeredAt, running) {
 // Attaches the current local/remote tracks of the room to the given elements.
 // `shown` changes whenever a video element appears or goes (camera on/off, call live): the
 // tracks are attached again then, since LiveKit's events may fire before it exists (AYK-085).
-function useMediaElements(room, { remoteVideo, localVideo, remoteAudio }, shown) {
+function useMediaElements(room, { remoteVideo, localVideo, remoteAudio }, shown, onAudioBlocked) {
   useEffect(() => {
     if (!room) return undefined;
     const sync = () => {
@@ -32,7 +32,11 @@ function useMediaElements(room, { remoteVideo, localVideo, remoteAudio }, shown)
       const remoteMic = remote?.getTrackPublication(Track.Source.Microphone)?.audioTrack;
       const localCam = room.localParticipant.getTrackPublication(Track.Source.Camera)?.videoTrack;
       if (remoteVideo.current) { if (remoteCam) remoteCam.attach(remoteVideo.current); else remoteVideo.current.srcObject = null; }
-      if (remoteAudio.current && remoteMic) remoteMic.attach(remoteAudio.current);
+      if (remoteAudio.current && remoteMic) {
+        remoteMic.attach(remoteAudio.current);
+        // Refused without a tap in the page: ask for one instead of staying silent (AYK-091).
+        Promise.resolve(remoteAudio.current.play?.()).catch(err => { if (err?.name === 'NotAllowedError') onAudioBlocked?.(); });
+      }
       if (localVideo.current) { if (localCam) localCam.attach(localVideo.current); else localVideo.current.srcObject = null; }
     };
     const events = [RoomEvent.TrackSubscribed, RoomEvent.TrackUnsubscribed, RoomEvent.LocalTrackPublished,
@@ -40,7 +44,7 @@ function useMediaElements(room, { remoteVideo, localVideo, remoteAudio }, shown)
     events.forEach(e => room.on(e, sync));
     sync();
     return () => events.forEach(e => room.off(e, sync));
-  }, [room, remoteVideo, localVideo, remoteAudio, shown]);
+  }, [room, remoteVideo, localVideo, remoteAudio, shown, onAudioBlocked]);
 }
 
 // A phone handset: green to answer, red (turned down) to hang up or decline.
@@ -69,7 +73,7 @@ function RoundButton({ onClick, label, tone = 'neutral', children, disabled }) {
 
 export default function CallOverlay() {
   const { t } = useTranslation();
-  const { call, phase, error, room, micOn, camOn, remoteJoined, remoteVideo: hasRemoteVideo, audioBlocked, enableAudio, network, speaking, outputs, nextOutput, accept, hangup, toggleMic, toggleCam, switchCamera } = useCall();
+  const { call, phase, error, room, micOn, camOn, remoteJoined, remoteVideo: hasRemoteVideo, audioBlocked, enableAudio, reportAudioBlocked, network, speaking, outputs, nextOutput, accept, hangup, toggleMic, toggleCam, switchCamera } = useCall();
   const remoteVideo = useRef(null);
   const localVideo = useRef(null);
   const remoteAudio = useRef(null);
@@ -79,7 +83,7 @@ export default function CallOverlay() {
   useEffect(() => { if (!outputHint) return undefined; const timer = setTimeout(() => setOutputHint(false), 6000); return () => clearTimeout(timer); }, [outputHint]);
   const live = phase === 'in_call' || phase === 'reconnecting';
   const duration = useDuration(call?.answered_at, live);
-  useMediaElements(room, { remoteVideo, localVideo, remoteAudio }, `${call?.call_type}-${live}-${camOn}-${hasRemoteVideo}`);
+  useMediaElements(room, { remoteVideo, localVideo, remoteAudio }, `${call?.call_type}-${live}-${camOn}-${hasRemoteVideo}`, reportAudioBlocked);
 
   if (!call) return null;
   const video = call.call_type === 'video';

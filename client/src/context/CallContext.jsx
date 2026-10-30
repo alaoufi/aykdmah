@@ -416,10 +416,16 @@ export function CallProvider({ children }) {
   const enableAudio = useCallback(async () => {
     const lk = roomRef.current; if (!lk) return;
     try { await lk.startAudio(); } catch (_) { /* still blocked: the button stays */ }
-    // Replay any remote audio element that was refused before the tap.
-    document.querySelectorAll('[role="dialog"] audio').forEach(el => el.play?.().catch(() => {}));
-    setAudioBlocked(!lk.canPlaybackAudio);
+    // Replay any remote audio element that was refused before the tap, and keep the button
+    // while one still refuses (AYK-091).
+    const played = await Promise.all([...document.querySelectorAll('[role="dialog"] audio')]
+      .map(el => Promise.resolve(el.play?.()).then(() => true, () => false)));
+    setAudioBlocked(!lk.canPlaybackAudio || played.includes(false));
   }, []);
+
+  // The call's own audio element was refused (answered from a notification, no tap in the page):
+  // show "Tap to hear" (AYK-091).
+  const reportAudioBlocked = useCallback(() => { qualityLog.current.audioBlocked = true; setAudioBlocked(true); }, []);
 
   const toggleMic = useCallback(async () => {
     const lk = roomRef.current; if (!lk) return;
@@ -442,7 +448,7 @@ export function CallProvider({ children }) {
     catch (_) { setError('camera_switch_failed'); }
   }, [camOn, facing]);
 
-  const value = { call, phase, error, room, micOn, camOn, facing, remoteJoined, audioBlocked, enableAudio, network, speaking, remoteVideo, outputs, outputId, nextOutput, start, accept, hangup, toggleMic, toggleCam, switchCamera };
+  const value = { call, phase, error, room, micOn, camOn, facing, remoteJoined, audioBlocked, enableAudio, reportAudioBlocked, network, speaking, remoteVideo, outputs, outputId, nextOutput, start, accept, hangup, toggleMic, toggleCam, switchCamera };
   return (
     <CallContext.Provider value={value}>
       {children}
