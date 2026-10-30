@@ -187,13 +187,10 @@ export default function AdminLayout() {
 
       <div className="flex-1 min-w-0 flex flex-col">
         <header className="bg-surface border-b border-border/70 px-4 md:px-6 lg:px-8 h-16 flex items-center gap-3 sticky top-0 z-20">
-          <button
-            onClick={() => setOpen(true)}
-            className="lg:hidden w-10 h-10 grid place-items-center rounded-pill text-fg-muted hover:bg-surface-alt"
-            aria-label={t('common.more')}
-          >
-            <IconMenu />
-          </button>
+          {/* Same order as the site header: logo at the start (right in Arabic), ☰ at the end. */}
+          <Link to="/admin" className="lg:hidden shrink-0 no-underline" aria-label={t('admin.panel')}>
+            <BrandLogo wordSize={16} />
+          </Link>
           <div className="flex-1 min-w-0">
             <div className="text-[10.5px] text-fg-subtle font-bold uppercase tracking-wider">
               {t('admin.panel')}
@@ -213,6 +210,13 @@ export default function AdminLayout() {
               </span>
             )}
           </Link>
+          <button
+            onClick={() => setOpen(true)}
+            className="lg:hidden w-10 h-10 grid place-items-center rounded-pill text-fg-muted hover:bg-surface-alt"
+            aria-label={t('common.more')}
+          >
+            <IconMenu />
+          </button>
         </header>
 
         <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-x-hidden">
