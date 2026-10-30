@@ -370,7 +370,8 @@
     "withdraw": "Withdraw from request",
     "confirm_open_title": "Withdraw from this request?",
     "confirm_open_body": "The request opens again for its owner to find another provider, and they are notified.",
-    "open": "Withdraw from request"
+    "open": "Withdraw from request",
+    "turned_down": "The requester declined your offer, so you cannot contact them about this request."
   },
   "offer": {
     "submit_title": "Send a quote",

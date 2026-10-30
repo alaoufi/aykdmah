@@ -90,7 +90,10 @@ export default function RequestDetailsPage() {
   if (!request) return <EmptyState title={t('request.not_found')} />;
 
   const isOwner = user && user.id === request.client_id;
-  const canOffer = user && user.role === 'provider' && !isOwner && request.status === 'open';
+  // A provider the requester turned down sees why instead of a button that fails (AYK-080).
+  const myOffer = user ? offers.find(offer => Number(offer.provider_id) === Number(user.id)) : null;
+  const turnedDown = myOffer?.status === 'rejected';
+  const canOffer = user && user.role === 'provider' && !isOwner && request.status === 'open' && !turnedDown;
   const status = REQUEST_STATUS[request.status] || {};
   const assignedProviderOffer = request.assigned_provider_id
     ? offers.find(offer => Number(offer.provider_id) === Number(request.assigned_provider_id))
@@ -317,6 +320,9 @@ export default function RequestDetailsPage() {
       </div>
 
       {/* No prices here: the provider contacts the requester and they agree in the chat. */}
+      {turnedDown && request.status === 'open' && (
+        <div className="card mb-4 text-sm text-muted" data-testid="provider-turned-down">{t('request.turned_down')}</div>
+      )}
       {canOffer && (
         <div className="card mb-4" data-testid="provider-contact">
           <p className="text-sm text-muted mb-3">{t('request.contact_hint')}</p>

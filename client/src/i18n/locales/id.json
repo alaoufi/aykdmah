@@ -370,7 +370,8 @@
     "withdraw": "Mundur dari permintaan",
     "confirm_open_title": "Mundur dari permintaan ini?",
     "confirm_open_body": "Permintaan terbuka lagi agar pemiliknya mencari penyedia lain, dan ia diberi tahu.",
-    "open": "Mundur dari permintaan"
+    "open": "Mundur dari permintaan",
+    "turned_down": "Pemohon menolak penawaran Anda, jadi Anda tidak bisa menghubunginya untuk permintaan ini."
   },
   "offer": {
     "submit_title": "Kirimkan kutipan",

@@ -623,6 +623,10 @@ if (!databasePrefix) {
     const reopened = await db.queryOne('SELECT status, assigned_provider_id FROM requests WHERE id = ?', [direct.request_id]);
     assert.deepEqual([reopened.status, reopened.assigned_provider_id], ['open', null]);
     assert.ok(await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_withdrawn'", [client.user.id]));
+    // A provider whose offer was withdrawn can contact again instead of a 409 (AYK-080).
+    await db.query("UPDATE offers SET status = 'withdrawn' WHERE request_id = ? AND provider_id = ?", [direct.request_id, provider.user.id]);
+    assert.ok((await api(`/requests/${direct.request_id}/contact`, { method: 'POST', token: provider.token })).conversation_id);
+    assert.equal((await db.queryOne('SELECT status FROM offers WHERE request_id = ? AND provider_id = ?', [direct.request_id, provider.user.id])).status, 'pending');
     await api(`/requests/${direct.request_id}/agree`, { method: 'POST', token: client.token, body: { provider_id: provider.user.id } });
     await api(`/requests/${direct.request_id}/status`, { method: 'PUT', token: client.token, body: { status: 'completed' } });
     const offersNow = await api('/offers/my?limit=50', { token: provider.token });

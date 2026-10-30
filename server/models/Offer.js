@@ -98,6 +98,11 @@ async function create(data) {
     const [[existing]] = await conn.query('SELECT id, status FROM offers WHERE request_id = ? AND provider_id = ?', [request_id, provider_id]);
     // Contacting again reopens the same conversation.
     if (existing && contact && existing.status === 'pending') return existing.id;
+    // A provider who withdrew may come back while the request is open (AYK-080).
+    if (existing && contact && existing.status === 'withdrawn') {
+      await conn.query("UPDATE offers SET status = 'pending' WHERE id = ?", [existing.id]);
+      return existing.id;
+    }
     if (existing) throw new ApiError('تم تقديم عرض على هذا الطلب مسبقًا', 409);
     const [[entitlement]] = await conn.query(`SELECT p.max_offers_per_month FROM subscriptions s
       JOIN subscription_plans p ON p.id = s.plan_id

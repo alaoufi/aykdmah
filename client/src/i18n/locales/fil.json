@@ -370,7 +370,8 @@
     "withdraw": "Umatras sa kahilingan",
     "confirm_open_title": "Umatras sa kahilingang ito?",
     "confirm_open_body": "Bubukas muli ang kahilingan para makahanap ang may-ari ng ibang provider, at aabisuhan siya.",
-    "open": "Umatras sa kahilingan"
+    "open": "Umatras sa kahilingan",
+    "turned_down": "Tinanggihan ng humiling ang alok mo, kaya hindi ka makakakontak tungkol sa kahilingang ito."
   },
   "offer": {
     "submit_title": "Ipadala ang isang quote",

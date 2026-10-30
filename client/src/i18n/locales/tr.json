@@ -370,7 +370,8 @@
     "withdraw": "Talepten çekil",
     "confirm_open_title": "Bu talepten çekilinsin mi?",
     "confirm_open_body": "Talep, sahibinin başka bir hizmet veren bulması için yeniden açılır ve kendisine bildirilir.",
-    "open": "Talepten çekil"
+    "open": "Talepten çekil",
+    "turned_down": "Talep sahibi teklifinizi reddetti, bu talep için iletişime geçemezsiniz."
   },
   "offer": {
     "submit_title": "Bir teklif gönder",
