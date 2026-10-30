@@ -190,7 +190,9 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
   const run = async action => { setBusy(true); setProblem(''); try { await action(); } catch (err) { setProblem(apiError(err)); } finally { setBusy(false); } };
   const state = p.availability?.state;
   return (
-    <li className={`card p-4 flex gap-3 items-start ${p.is_featured ? 'ring-2 ring-amber-400' : ''}`} data-testid="provider-card">
+    // Providers are blue, requests orange, as in the logo (AYK-099).
+    <li className={`card p-3 flex gap-3 items-start ${p.is_featured ? 'ring-2 ring-amber-400' : ''}`} data-testid="provider-card"
+      style={{ background: 'rgba(37, 99, 235, 0.06)', border: '1.5px solid rgba(37, 99, 235, 0.4)' }}>
       <Avatar src={p.avatar} name={p.business_name || p.full_name} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">

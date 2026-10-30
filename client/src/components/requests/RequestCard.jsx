@@ -8,8 +8,8 @@ import useOpenRequest from '../../hooks/useOpenRequest';
 // service" (as a provider), in different colours.
 export function OwnerBadge({ mine, forService }) {
   const { t } = useTranslation();
-  if (mine) return <span className="inline-flex w-fit px-2.5 py-1 rounded-pill bg-sky-100 text-sky-800 text-[11.5px] font-bold" data-testid="badge-mine">📋 {t('requester.badge_mine')}</span>;
-  if (forService) return <span className="inline-flex w-fit px-2.5 py-1 rounded-pill bg-emerald-100 text-emerald-800 text-[11.5px] font-bold" data-testid="badge-service">🛠️ {t('requester.badge_service')}</span>;
+  if (mine) return <span className="inline-flex w-fit px-2 py-0.5 rounded-pill bg-sky-100 text-sky-800 text-[11px] font-bold" data-testid="badge-mine">📋 {t('requester.badge_mine')}</span>;
+  if (forService) return <span className="inline-flex w-fit px-2 py-0.5 rounded-pill bg-emerald-100 text-emerald-800 text-[11px] font-bold" data-testid="badge-service">🛠️ {t('requester.badge_service')}</span>;
   return null;
 }
 
@@ -23,19 +23,20 @@ export default function RequestCard({ request }) {
   return (
     <div role="link" tabIndex={0} onClick={() => open(request)} onKeyDown={e => { if (e.key === 'Enter') open(request); }}
       className={`request-card card card-hover ${mine(request) ? 'own' : forMyService(request) ? 'for-service' : ''}`} data-testid="request-card">
-      <div className="mb-2"><OwnerBadge mine={mine(request)} forService={forMyService(request)} /></div>
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {request.is_urgent ? <span className="badge badge-urgent">⚡ {t('request.urgent')}</span> : null}
-          <span className={`badge ${status.color}`}>{statusLabel}</span>
-        </div>
-        <span className="text-xs text-muted">{formatRelativeTime(request.created_at)}</span>
+      {/* Compact (AYK-099): whose, urgency, status and age on one line. */}
+      <div className="flex items-center gap-1.5 flex-wrap">
+        <OwnerBadge mine={mine(request)} forService={forMyService(request)} />
+        {request.is_urgent ? <span className="badge badge-urgent">⚡ {t('request.urgent')}</span> : null}
+        <span className={`badge ${status.color}`}>{statusLabel}</span>
+        <span className="ms-auto text-[11.5px] text-muted">{formatRelativeTime(request.created_at)}</span>
       </div>
 
-      <h3 className="mt-3 mb-1" style={{ fontSize: 18 }}>{request.title}</h3>
-      <p className="text-secondary text-sm">{truncate(request.description, 110)}</p>
+      <h3 className="mt-1.5 mb-0 text-[16px] font-bold leading-snug">{request.title}</h3>
+      {request.description && request.description.trim() !== String(request.title || '').trim() && (
+        <p className="text-secondary text-[13px] m-0 mt-0.5 truncate">{truncate(request.description, 110)}</p>
+      )}
 
-      <div className="meta flex flex-wrap gap-3 mt-3 text-sm text-secondary">
+      <div className="meta flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5 text-[12.5px] text-secondary">
         {request.category_name && <span>🛠️ {localizedJoinedName(request, 'category', i18n.resolvedLanguage)}</span>}
         {request.city_name && <span>📍 {localizedJoinedName(request, 'city', i18n.resolvedLanguage)}{request.district_name ? ` · ${localizedJoinedName(request, 'district', i18n.resolvedLanguage)}` : ''}</span>}
         {request.distance_km != null && <span>📏 {formatDistance(request.distance_km)}</span>}
@@ -45,11 +46,11 @@ export default function RequestCard({ request }) {
         )}
       </div>
       <style>{`
-        .request-card { display: block; text-decoration: none; color: inherit; padding: 18px; cursor: pointer; }
-        .request-card.own { border-color: #7dd3fc; }
-        .request-card.for-service { border-color: #6ee7b7; }
+        .request-card { display: block; text-decoration: none; color: inherit; padding: 12px 14px; cursor: pointer;
+          background: rgba(249, 115, 22, 0.07); border: 1.5px solid rgba(249, 115, 22, 0.45); }
+        .request-card .badge { padding: 2px 8px; font-size: 11px; }
       `}</style>
-      {forMyService(request) && <div className="mt-3 text-sm font-bold text-primary">{opening === request.id ? '…' : `💬 ${t('request.contact_owner')}`}</div>}
+      {forMyService(request) && <div className="mt-1.5 text-[13px] font-bold text-primary">{opening === request.id ? '…' : `💬 ${t('request.contact_owner')}`}</div>}
     </div>
   );
 }
