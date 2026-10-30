@@ -1829,7 +1829,9 @@
     "mine_quiet": "Bicaralah agar suara terkirim",
     "mic_muted": "Mikrofon Anda dibisukan",
     "audio_output": "Speaker",
-    "audio_output_hint": "Suara di speaker. Pasang earphone atau Bluetooth dan suara pindah otomatis; ponsel ini tidak mengizinkan situs memilih earpiece panggilan."
+    "audio_output_hint": "Suara di speaker. Pasang earphone atau Bluetooth dan suara pindah otomatis; ponsel ini tidak mengizinkan situs memilih earpiece panggilan.",
+    "remote_camera_off": "Gambar {{name}} tidak sampai: kameranya mati atau diblokir di ponselnya.",
+    "my_camera_off": "Kamera Anda tidak berfungsi. Ketuk 🔒 di samping aykdmh.com → Izin → Kamera → Izinkan."
   },
   "wallet": {
     "nav": "Dompet & Kupon",

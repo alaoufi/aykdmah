@@ -1829,7 +1829,9 @@
     "mine_quiet": "Speak to send your voice",
     "mic_muted": "Your mic is muted",
     "audio_output": "Speaker",
-    "audio_output_hint": "Sound is on the speaker. Plug in earphones or Bluetooth and it switches to them; this phone does not let websites pick the call earpiece."
+    "audio_output_hint": "Sound is on the speaker. Plug in earphones or Bluetooth and it switches to them; this phone does not let websites pick the call earpiece.",
+    "remote_camera_off": "{{name}}'s picture is not arriving: their camera is off or blocked on their phone.",
+    "my_camera_off": "Your camera is not working. Tap 🔒 next to aykdmh.com → Permissions → Camera → Allow."
   },
   "wallet": {
     "nav": "Wallet & coupon",

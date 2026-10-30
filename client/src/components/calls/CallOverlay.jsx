@@ -67,7 +67,7 @@ function RoundButton({ onClick, label, tone = 'neutral', children, disabled }) {
 
 export default function CallOverlay() {
   const { t } = useTranslation();
-  const { call, phase, error, room, micOn, camOn, remoteJoined, audioBlocked, enableAudio, network, speaking, outputs, nextOutput, accept, hangup, toggleMic, toggleCam, switchCamera } = useCall();
+  const { call, phase, error, room, micOn, camOn, remoteJoined, remoteVideo: hasRemoteVideo, audioBlocked, enableAudio, network, speaking, outputs, nextOutput, accept, hangup, toggleMic, toggleCam, switchCamera } = useCall();
   const remoteVideo = useRef(null);
   const localVideo = useRef(null);
   const remoteAudio = useRef(null);
@@ -103,44 +103,6 @@ export default function CallOverlay() {
     <div role="dialog" aria-modal="true" aria-label={t('calls.title')}
       className="fixed inset-0 z-[3000] bg-slate-950 text-white flex flex-col" style={{ height: '100dvh' }}>
       <audio ref={remoteAudio} autoPlay playsInline />
-      {/* Internet quality during the call (AYK-059): a warning when either side's connection is weak. */}
-      {live && ['poor', 'lost'].includes(network?.mine) && (
-        <div className="absolute z-10 top-3 inset-x-3 mx-auto max-w-sm px-3 py-2 rounded-card bg-red-600/90 text-white text-[13px] font-bold text-center" role="status" data-testid="network-mine">
-          📶 {t('calls.network_mine_weak')}
-        </div>
-      )}
-      {live && !['poor', 'lost'].includes(network?.mine) && ['poor', 'lost'].includes(network?.theirs) && (
-        <div className="absolute z-10 top-3 inset-x-3 mx-auto max-w-sm px-3 py-2 rounded-card bg-amber-500/90 text-black text-[13px] font-bold text-center" role="status" data-testid="network-theirs">
-          📶 {t('calls.network_theirs_weak')}
-        </div>
-      )}
-      {/* Live talk indicators: my microphone is sending, their voice is arriving. */}
-      {live && remoteJoined && (
-        <div className="absolute z-10 bottom-3 end-3 flex flex-col items-end gap-1 text-[12px]" data-testid="talk-indicators">
-          <span className={`px-2 py-1 rounded-pill transition ${speaking?.theirs ? 'bg-emerald-600 text-white scale-105' : 'bg-black/50 text-white/70'}`}>
-            🔊 {t(speaking?.theirs ? 'calls.they_talking' : 'calls.they_quiet')}
-          </span>
-          <span className={`px-2 py-1 rounded-pill transition ${speaking?.mine ? 'bg-emerald-600 text-white scale-105' : 'bg-black/50 text-white/70'}`}>
-            🎙️ {t(!micOn ? 'calls.mic_muted' : speaking?.mine ? 'calls.mine_sending' : 'calls.mine_quiet')}
-          </span>
-        </div>
-      )}
-      {live && network?.mine && network.mine !== 'unknown' && (
-        <div className="absolute z-10 bottom-3 start-3 px-2 py-1 rounded-pill bg-black/50 text-[12px]" data-testid="network-chip">
-          {{ excellent: '🟢', good: '🟡', poor: '🔴', lost: '⚫' }[network.mine]} {t(`calls.network_${network.mine}`)}
-        </div>
-      )}
-      {outputHint && (
-        <div className="absolute z-10 top-16 inset-x-3 mx-auto max-w-sm px-3 py-2 rounded-card bg-black/80 text-white text-[13px] text-center" role="status" data-testid="output-hint">
-          🎧 {t('calls.audio_output_hint')}
-        </div>
-      )}
-      {live && audioBlocked && (
-        <button type="button" onClick={enableAudio} data-testid="enable-audio"
-          className="absolute z-10 top-1/3 inset-x-6 mx-auto max-w-sm py-4 rounded-card bg-emerald-600 text-white text-lg font-extrabold shadow-lift">
-          🔊 {t('calls.tap_for_audio')}
-        </button>
-      )}
       <div className="relative flex-1 overflow-hidden">
         {video && live && (
           <video ref={remoteVideo} autoPlay playsInline className="absolute inset-0 w-full h-full object-cover bg-black" />
@@ -161,9 +123,59 @@ export default function CallOverlay() {
         {video && live && remoteJoined && (
           <div className="absolute top-4 inset-x-0 text-center text-sm text-white drop-shadow">{peerName} · {statusText}</div>
         )}
+        {/* Why there is no picture (AYK-066): the other side's camera is off or blocked, or mine failed. */}
+        {video && live && remoteJoined && !hasRemoteVideo && (
+          <div className="absolute top-1/2 inset-x-6 mx-auto max-w-sm px-3 py-2 rounded-card bg-black/70 text-white text-[13px] text-center" role="status" data-testid="no-remote-video">
+            📷 {t('calls.remote_camera_off', { name: peerName })}
+          </div>
+        )}
+        {video && live && !camOn && (
+          <div className="absolute bottom-24 inset-x-6 mx-auto max-w-sm px-3 py-2 rounded-card bg-amber-500/90 text-black text-[13px] font-semibold text-center" role="status" data-testid="my-camera-off">
+            📷 {t('calls.my_camera_off')}
+          </div>
+        )}
         {video && live && camOn && (
           <video ref={localVideo} autoPlay playsInline muted
             className="absolute bottom-4 end-4 w-28 h-40 sm:w-40 sm:h-56 object-cover rounded-card border border-white/30 bg-black" style={{ transform: 'scaleX(-1)' }} />
+        )}
+        {/* Indicators live inside the picture area so they never cover the buttons (AYK-066). */}
+        {/* Internet quality during the call (AYK-059): a warning when either side's connection is weak. */}
+        {live && ['poor', 'lost'].includes(network?.mine) && (
+          <div className="absolute z-10 top-3 inset-x-3 mx-auto max-w-sm px-3 py-2 rounded-card bg-red-600/90 text-white text-[13px] font-bold text-center" role="status" data-testid="network-mine">
+            📶 {t('calls.network_mine_weak')}
+          </div>
+        )}
+        {live && !['poor', 'lost'].includes(network?.mine) && ['poor', 'lost'].includes(network?.theirs) && (
+          <div className="absolute z-10 top-3 inset-x-3 mx-auto max-w-sm px-3 py-2 rounded-card bg-amber-500/90 text-black text-[13px] font-bold text-center" role="status" data-testid="network-theirs">
+            📶 {t('calls.network_theirs_weak')}
+          </div>
+        )}
+        {/* Live talk indicators: my microphone is sending, their voice is arriving. */}
+        {live && remoteJoined && (
+          <div className={`absolute z-10 ${video && camOn ? 'bottom-48 sm:bottom-64' : 'bottom-3'} end-3 flex flex-col items-end gap-1 text-[12px]`} data-testid="talk-indicators">
+            <span className={`px-2 py-1 rounded-pill transition ${speaking?.theirs ? 'bg-emerald-600 text-white scale-105' : 'bg-black/50 text-white/70'}`}>
+              🔊 {t(speaking?.theirs ? 'calls.they_talking' : 'calls.they_quiet')}
+            </span>
+            <span className={`px-2 py-1 rounded-pill transition ${speaking?.mine ? 'bg-emerald-600 text-white scale-105' : 'bg-black/50 text-white/70'}`}>
+              🎙️ {t(!micOn ? 'calls.mic_muted' : speaking?.mine ? 'calls.mine_sending' : 'calls.mine_quiet')}
+            </span>
+          </div>
+        )}
+        {live && network?.mine && network.mine !== 'unknown' && (
+          <div className="absolute z-10 bottom-3 start-3 px-2 py-1 rounded-pill bg-black/50 text-[12px]" data-testid="network-chip">
+            {{ excellent: '🟢', good: '🟡', poor: '🔴', lost: '⚫' }[network.mine]} {t(`calls.network_${network.mine}`)}
+          </div>
+        )}
+        {outputHint && (
+          <div className="absolute z-10 top-16 inset-x-3 mx-auto max-w-sm px-3 py-2 rounded-card bg-black/80 text-white text-[13px] text-center" role="status" data-testid="output-hint">
+            🎧 {t('calls.audio_output_hint')}
+          </div>
+        )}
+        {live && audioBlocked && (
+          <button type="button" onClick={enableAudio} data-testid="enable-audio"
+            className="absolute z-10 top-1/3 inset-x-6 mx-auto max-w-sm py-4 rounded-card bg-emerald-600 text-white text-lg font-extrabold shadow-lift">
+            🔊 {t('calls.tap_for_audio')}
+          </button>
         )}
       </div>
 

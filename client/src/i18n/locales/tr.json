@@ -1829,7 +1829,9 @@
     "mine_quiet": "Sesinizin iletilmesi için konuşun",
     "mic_muted": "Mikrofonunuz kapalı",
     "audio_output": "Hoparlör",
-    "audio_output_hint": "Ses hoparlörde. Kulaklık ya da Bluetooth takarsanız oraya kendiliğinden geçer; bu telefon sitelerin arama kulaklığını seçmesine izin vermiyor."
+    "audio_output_hint": "Ses hoparlörde. Kulaklık ya da Bluetooth takarsanız oraya kendiliğinden geçer; bu telefon sitelerin arama kulaklığını seçmesine izin vermiyor.",
+    "remote_camera_off": "{{name}} görüntüsü gelmiyor: kamerası kapalı ya da telefonunda engelli.",
+    "my_camera_off": "Kameranız çalışmıyor. aykdmh.com yanındaki 🔒 → İzinler → Kamera → İzin ver."
   },
   "wallet": {
     "nav": "Cüzdan & Kupon",

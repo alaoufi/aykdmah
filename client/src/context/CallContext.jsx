@@ -26,6 +26,8 @@ export function CallProvider({ children }) {
   const [camOn, setCamOn] = useState(true);
   const [facing, setFacing] = useState('user');
   const [remoteJoined, setRemoteJoined] = useState(false);
+  // The other side's camera picture is arriving (AYK-066).
+  const [remoteVideo, setRemoteVideo] = useState(false);
   // The browser refused to play the other side's audio until a tap (Chrome on Android).
   const [audioBlocked, setAudioBlocked] = useState(false);
   const [network, setNetwork] = useState({ mine: 'unknown', theirs: 'unknown' });
@@ -33,6 +35,7 @@ export function CallProvider({ children }) {
   const [speaking, setSpeaking] = useState({ mine: false, theirs: false });
   // For the quality log (AYK-060): seconds of weak internet, reconnects, a blocked-audio moment.
   const qualityLog = useRef({ poorSince: 0, poorMs: 0, reconnects: 0, audioBlocked: false });
+  const statsTimerRef = useRef(null);
   // Audio output (speaker / earpiece or headset) where the browser lets a page choose it.
   const [outputs, setOutputs] = useState([]);
   const [outputId, setOutputId] = useState('');
@@ -48,8 +51,10 @@ export function CallProvider({ children }) {
     if (current && ended?.id && ended.answered_at) {
       const log = qualityLog.current;
       const poorMs = log.poorMs + (log.poorSince ? Date.now() - log.poorSince : 0);
-      // Read the statistics while the connection still exists (at most 1.5 s), then send them.
-      const stats = await Promise.race([collectCallStats(current).catch(() => ({})), new Promise(resolve => setTimeout(() => resolve({}), 1500))]);
+      // Read the statistics now (at most 1.5 s); if the connection is already gone, use the last
+      // snapshot taken during the call (every 10 s), so the log is never just zeros (AYK-066).
+      const fresh = await Promise.race([collectCallStats(current).catch(() => ({})), new Promise(resolve => setTimeout(() => resolve({}), 1500))]);
+      const stats = (fresh.audio_kb_in || fresh.audio_kb_out) ? fresh : (log.lastStats || fresh);
       calls.sendCallDiagnostics(ended.id, {
         ...stats, poor_seconds: Math.round(poorMs / 1000), reconnects: log.reconnects, audio_blocked: log.audioBlocked,
       }).catch(() => {});
@@ -58,6 +63,8 @@ export function CallProvider({ children }) {
     roomRef.current = null;
     setRoom(null);
     setRemoteJoined(false);
+    setRemoteVideo(false);
+    clearInterval(statsTimerRef.current);
     setAudioBlocked(false);
     setNetwork({ mine: 'unknown', theirs: 'unknown' });
     setSpeaking({ mine: false, theirs: false });
@@ -131,11 +138,22 @@ export function CallProvider({ children }) {
         videoSimulcastLayers: VideoPresets ? [VideoPresets.h180, VideoPresets.h360].filter(Boolean) : undefined,
       },
     });
+    // Is the other side's camera picture arriving? (AYK-066)
+    const syncRemoteVideo = () => setRemoteVideo([...lkRoom.remoteParticipants.values()].some(p =>
+      [...p.trackPublications.values()].some(pub => pub.kind === 'video' && pub.isSubscribed && !pub.isMuted)));
     lkRoom
+      .on(RoomEvent.TrackSubscribed, syncRemoteVideo).on(RoomEvent.TrackUnsubscribed, syncRemoteVideo)
+      .on(RoomEvent.TrackMuted, syncRemoteVideo).on(RoomEvent.TrackUnmuted, syncRemoteVideo)
       .on(RoomEvent.ParticipantConnected, () => setRemoteJoined(true))
       .on(RoomEvent.ParticipantDisconnected, () => setRemoteJoined(false))
       .on(RoomEvent.AudioPlaybackStatusChanged, () => {
         setAudioBlocked(!lkRoom.canPlaybackAudio);
+    // A quality snapshot every 10 s, kept for the end-of-call log (AYK-066).
+    clearInterval(statsTimerRef.current);
+    statsTimerRef.current = setInterval(() => {
+      if (roomRef.current !== lkRoom) { clearInterval(statsTimerRef.current); return; }
+      collectCallStats(lkRoom).then(stats => { if (stats.audio_kb_in || stats.audio_kb_out) qualityLog.current.lastStats = stats; }).catch(() => {});
+    }, 10000);
     navigator.mediaDevices?.enumerateDevices?.().then(list => {
       const outs = list.filter(d => d.kind === 'audiooutput' && d.deviceId);
       setOutputs(outs.map(d => ({ id: d.deviceId, label: d.label })));
@@ -384,7 +402,7 @@ export function CallProvider({ children }) {
     catch (_) { setError('camera_switch_failed'); }
   }, [camOn, facing]);
 
-  const value = { call, phase, error, room, micOn, camOn, facing, remoteJoined, audioBlocked, enableAudio, network, speaking, outputs, outputId, nextOutput, start, accept, hangup, toggleMic, toggleCam, switchCamera };
+  const value = { call, phase, error, room, micOn, camOn, facing, remoteJoined, audioBlocked, enableAudio, network, speaking, remoteVideo, outputs, outputId, nextOutput, start, accept, hangup, toggleMic, toggleCam, switchCamera };
   return (
     <CallContext.Provider value={value}>
       {children}
