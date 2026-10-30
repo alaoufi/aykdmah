@@ -19,6 +19,7 @@ import AvailabilityEditor from '../components/provider/AvailabilityEditor';
 import AccountTypeSection from '../components/profile/AccountTypeSection';
 import CallAlerts from '../components/notifications/CallAlerts';
 import DevicePermissions from '../components/common/DevicePermissions';
+import ToneVolume from '../components/profile/ToneVolume';
 import WorkPanel from '../components/provider/WorkPanel';
 import MyMarket from '../components/provider/MyMarket';
 import { getCurrentPosition, isValidCoordinates, geoSelection, preserveCoordinatesForAreaChange } from '../utils/geolocation.mjs';
@@ -268,6 +269,7 @@ export default function ProfilePage() {
       {err && <div role="alert" className="form-error mb-3" style={{ padding: 10, background: 'rgba(239,68,68,.1)', borderRadius: 8 }}>{err}</div>}
       {/* The same one-tap permissions as at sign-up, first on the page (AYK-047). */}
       <div className="mb-4"><DevicePermissions /></div>
+      <ToneVolume />
       {/* The provider's work settings and market numbers (AYK-054; they used to fill the home page). */}
       {user?.role === 'provider' && <div id="work"><WorkPanel /></div>}
       {user?.role === 'provider' && <div className="mb-4"><MyMarket /></div>}

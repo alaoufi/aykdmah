@@ -2233,5 +2233,10 @@
   "update": {
     "available": "Versi baru situs tersedia.",
     "now": "Perbarui sekarang"
+  },
+  "tone": {
+    "title": "Volume notifikasi",
+    "try": "Coba",
+    "hint": "Nada pesan dan dering panggilan saat situs terbuka. Saat situs tertutup, mengikuti volume ponsel."
   }
 }

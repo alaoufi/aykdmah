@@ -2233,5 +2233,10 @@
   "update": {
     "available": "A new version of the site is available.",
     "now": "Update now"
+  },
+  "tone": {
+    "title": "Notification volume",
+    "try": "Try",
+    "hint": "Message tone and call ring while the site is open. With the site closed, alerts follow your phone volume."
   }
 }

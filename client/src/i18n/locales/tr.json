@@ -2233,5 +2233,10 @@
   "update": {
     "available": "Sitenin yeni sürümü hazır.",
     "now": "Şimdi güncelle"
+  },
+  "tone": {
+    "title": "Bildirim sesi",
+    "try": "Dene",
+    "hint": "Site açıkken mesaj tonu ve arama zili. Site kapalıyken telefonunuzun sesine göre."
   }
 }

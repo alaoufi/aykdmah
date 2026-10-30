@@ -2233,5 +2233,10 @@
   "update": {
     "available": "May bagong bersyon ng site.",
     "now": "I-update ngayon"
+  },
+  "tone": {
+    "title": "Lakas ng abiso",
+    "try": "Subukan",
+    "hint": "Tono ng mensahe at ring ng tawag habang bukas ang site. Kapag sarado, sumusunod sa lakas ng telepono."
   }
 }
