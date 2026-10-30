@@ -8,7 +8,7 @@ DO $ayk_fresh$ BEGIN
   IF EXISTS (
     SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
     WHERE n.nspname = current_schema() AND c.relkind IN ('r','p','v','m','f')
-      AND c.relname IN ('activity_logs','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_diagnostics','call_reports','calls','categories','cities','conversation_archives','conversation_participants','conversations','countries','device_reports','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','districts','governorates','install_lock','ip_geo_cache','location_shares','message_files','messages','notifications','offers','payments','phone_codes','provider_badges','provider_coverage_districts','provider_profiles','push_subscriptions','referral_rewards','regions','request_files','requests','review_reports','review_translations','review_votes','reviews','roles','saved_providers','schema_migrations','services','settings','subscription_plans','subscription_rules','subscriptions','support_messages','support_tickets','uploaded_media','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','wallet_transactions','withdrawal_requests')
+      AND c.relname IN ('activity_logs','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_diagnostics','call_reports','calls','categories','cities','conversation_archives','conversation_participants','conversations','countries','device_reports','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','districts','governorates','install_lock','ip_geo_cache','location_shares','message_files','messages','notifications','offers','payments','phone_codes','provider_badges','provider_coverage_districts','provider_profiles','push_subscriptions','referral_rewards','regions','request_files','requests','review_reports','review_translations','review_votes','reviews','roles','saved_providers','schema_migrations','services','settings','subscription_plans','subscription_rules','subscriptions','support_messages','support_tickets','uploaded_media','user_blocks','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','wallet_transactions','withdrawal_requests')
   ) THEN
     RAISE EXCEPTION 'AY KHIDMA bootstrap requires a fresh database schema; use journaled migrations for an existing installation';
   END IF;
@@ -6196,6 +6196,19 @@ INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, i
 VALUES ('contact_after_done_days', '7', 'number', 'requests', 1, 'أيام بقاء المحادثة مفتوحة بعد انتهاء الطلب')
 ON CONFLICT (setting_key) DO NOTHING;
 INSERT INTO schema_migrations(name) VALUES ('059_contact_window_warranty.sql');
+
+-- migrations/060_user_blocks.sql
+CREATE TABLE IF NOT EXISTS user_blocks (
+  id SERIAL PRIMARY KEY,
+  blocker_id INT NOT NULL,
+  blocked_id INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_user_blocks_blocker FOREIGN KEY (blocker_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_user_blocks_blocked FOREIGN KEY (blocked_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_user_blocks_pair ON user_blocks (blocker_id, blocked_id);
+CREATE INDEX IF NOT EXISTS idx_user_blocks_blocked ON user_blocks (blocked_id);
+INSERT INTO schema_migrations(name) VALUES ('060_user_blocks.sql');
 
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
