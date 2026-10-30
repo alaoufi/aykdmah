@@ -330,6 +330,9 @@ async function updateStatus(id, status, extra = {}) {
     }
     if (status === 'completed') fields.push('completed_at = CURRENT_TIMESTAMP');
     if (status === 'open') fields.push('assigned_provider_id = NULL', 'accepted_offer_id = NULL');
+    // The withdrawing provider's agreement goes back to a plain contact, so the owner may agree with
+    // them again later (AYK-071).
+    if (status === 'open') await conn.execute("UPDATE offers SET status = 'pending', accepted_at = NULL WHERE request_id = ? AND provider_id = ? AND status = 'accepted'", [id, request.assigned_provider_id]);
     if (status === 'cancelled') {
       fields.push('cancelled_at = CURRENT_TIMESTAMP');
       if (extra.cancellation_reason != null) {
