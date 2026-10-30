@@ -168,7 +168,9 @@ async function notifyParticipants(req, conversationId, { content, isLocation }) 
         kind: 'message', tag: `chat-${conversationId}`, url: `/chat/${conversationId}`,
         title: req.user.full_name || i18nText(lang, 'notif_new_message_title'),
         body: isLocation ? '📍' : content ? content.slice(0, 80) : i18nText(lang, 'notif_new_attachment'),
-      }), { TTL: 24 * 60 * 60, urgency: 'high' }).catch(err => logger.warn('Message push failed:', err.message));
+      }), { TTL: 24 * 60 * 60, urgency: 'high' })
+        .then(sent => logger.info(`Push message conversation=${conversationId} user=${p.id} devices=${sent}`))
+        .catch(err => logger.warn('Message push failed:', err.message));
     }
   }
 }

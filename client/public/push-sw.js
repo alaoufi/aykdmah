@@ -22,6 +22,7 @@ self.addEventListener('push', (event) => {
       tag,
       renotify: true,
       requireInteraction: data.kind === 'call',
+      // A missed call replaces the ringing notification (same tag) and stays until opened (AYK-064).
       vibrate: data.kind === 'call' ? [800, 400, 800, 400, 800, 400, 800, 400, 800] : [200],
       icon: '/icons/android-chrome-192x192.png',
       badge: '/icons/android-chrome-192x192.png',

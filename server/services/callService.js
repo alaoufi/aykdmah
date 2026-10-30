@@ -136,6 +136,7 @@ async function start({ caller, conversationId, callType }) {
     title: translate(lang, callType === 'video' ? 'push_call_video' : 'push_call_audio'),
     body: translate(lang, 'push_call_body', { name: row.caller_name || '' }),
   }), { TTL: Math.round(RING_TIMEOUT_MS / 1000), urgency: 'high', topic: `call-${callId}` })
+    .then(sent => logger.info(`Push call call=${callId} user=${callee.id} devices=${sent}`))
     .catch(err => logger.warn('Call push failed:', err.message));
   // Can it ring anywhere? The site open on a device, or notifications enabled on one.
   let reachable = true;
@@ -164,10 +165,21 @@ async function finish(row, status, reason) {
   await closeRoom(row.room_name);
   const final = await findCall(row.id);
   await emitState(final);
-  // Clears the ringing notification on the callee's closed devices (same topic replaces it).
+  // The ringing notification on the callee's closed devices (same tag and topic replace it):
+  // unanswered (the caller gave up, or no answer) becomes a lasting "missed call" that opens
+  // the chat, like WhatsApp (AYK-064); declined or answered elsewhere just closes it.
   if (row.status === 'ringing') {
-    pushService.sendToUser(row.callee_id, { kind: 'call_end', call_id: row.id, tag: `call-${row.id}` },
-      { TTL: 60, urgency: 'high', topic: `call-${row.id}` }).catch(() => {});
+    // A call replaced by the caller's next try is not "missed": the new one is ringing.
+    const missed = status === 'missed' || (status === 'cancelled' && reason !== 'replaced');
+    pushService.sendToUser(row.callee_id, missed
+      ? lang => ({
+        kind: 'missed_call', call_id: row.id, tag: `call-${row.id}`, url: `/chat/${row.conversation_id}`,
+        title: translate(lang, 'push_missed_title'), body: translate(lang, 'push_missed_body', { name: row.caller_name || '' }),
+      })
+      : { kind: 'call_end', call_id: row.id, tag: `call-${row.id}` },
+    { TTL: missed ? 24 * 3600 : 60, urgency: 'high', topic: `call-${row.id}` })
+      .then(sent => logger.info(`Push ${missed ? 'missed_call' : 'call_end'} call=${row.id} user=${row.callee_id} devices=${sent}`))
+      .catch(() => {});
   }
   if (status === 'missed' || (status === 'cancelled' && !row.answered_at)) {
     notificationService.notifyUser(row.callee_id, {

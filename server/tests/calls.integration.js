@@ -270,7 +270,19 @@ if (!databasePrefix) {
     pushes.length = 0;
     await api(`/calls/${call.id}/decline`, { user: users.client, method: 'POST' });
     await new Promise(resolve => setTimeout(resolve, 300));
-    assert.equal(pushes.find(p => p.endpoint === device.endpoint)?.body.kind, 'call_end', 'a cancelled call clears the notification');
+    // The caller gave up: the ringing notification becomes a lasting "missed call" (AYK-064).
+    const missed = pushes.find(p => p.endpoint === device.endpoint);
+    assert.equal(missed?.body.kind, 'missed_call', 'a cancelled call leaves a missed-call notification');
+    assert.equal(missed.body.tag, `call-${call.id}`);
+    assert.equal(missed.body.url, `/chat/${conversation}`);
+
+    // The callee declines: the notification just closes.
+    const declined = (await api('/calls', { user: users.client, method: 'POST', body: { conversation_id: conversation, call_type: 'audio' } })).body.data;
+    await new Promise(resolve => setTimeout(resolve, 300));
+    pushes.length = 0;
+    await api(`/calls/${declined.id}/decline`, { user: users.provider, method: 'POST' });
+    await new Promise(resolve => setTimeout(resolve, 300));
+    assert.equal(pushes.find(p => p.endpoint === device.endpoint)?.body.kind, 'call_end', 'a declined call clears the notification');
 
     // The same device signed in to another account rings only for that account.
     await api('/push/subscribe', { user: users.outsider, method: 'POST', body: { subscription: device } });
