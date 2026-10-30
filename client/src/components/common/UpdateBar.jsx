@@ -3,6 +3,21 @@ import { useTranslation } from 'react-i18next';
 
 const CURRENT = import.meta.env.VITE_APP_VERSION || '';
 
+// Resolves once a new service worker (if any) has finished installing and taken over, or after 60 s.
+async function newVersionReady() {
+  const registration = await navigator.serviceWorker?.getRegistration();
+  if (!registration) return;
+  await registration.update().catch(() => {});
+  const worker = registration.installing || registration.waiting;
+  if (!worker) return;
+  await new Promise(resolve => {
+    const timer = setTimeout(resolve, 60000);
+    const check = () => { if (['activated', 'redundant'].includes(worker.state)) { clearTimeout(timer); resolve(); } };
+    worker.addEventListener('statechange', check);
+    check();
+  });
+}
+
 // "A new version is available" (AYK-053): compares this build's version with the one on the
 // server (/version.json, written at build time) when the app opens or comes back to the
 // screen, and every 5 minutes. The button fetches the new version and reloads.
@@ -16,7 +31,12 @@ export default function UpdateBar() {
     const check = () => {
       if (document.hidden) return;
       fetch('/version.json', { cache: 'no-store' }).then(r => (r.ok ? r.json() : null))
-        .then(v => { if (v?.version && v.version !== CURRENT) setAvailable(true); }).catch(() => {});
+        .then(v => {
+          if (!v?.version || v.version === CURRENT) return;
+          setAvailable(true);
+          // Start downloading it now, so "Update now" is quick.
+          navigator.serviceWorker?.getRegistration().then(r => r?.update()).catch(() => {});
+        }).catch(() => {});
     };
     check();
     const timer = setInterval(check, 5 * 60 * 1000);
@@ -26,17 +46,7 @@ export default function UpdateBar() {
 
   const update = async () => {
     setBusy(true);
-    try {
-      const registration = await navigator.serviceWorker?.getRegistration();
-      if (registration) {
-        await registration.update();
-        // The new worker takes over at once (skipWaiting); wait for it briefly.
-        await new Promise(resolve => {
-          const timer = setTimeout(resolve, 4000);
-          navigator.serviceWorker.addEventListener('controllerchange', () => { clearTimeout(timer); resolve(); }, { once: true });
-        });
-      }
-    } catch (_) { /* reload anyway */ }
+    try { await newVersionReady(); } catch (_) { /* reload anyway */ }
     window.location.reload();
   };
 
