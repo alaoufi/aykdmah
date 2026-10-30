@@ -25,6 +25,19 @@ router.post('/subscribe', authenticate, asyncHandler(async (req, res) => {
   return success(res, { subscribed: true });
 }));
 
+// A test notification to the user's own devices (AYK-061), at most once every 20 s.
+const lastTest = new Map();
+router.post('/test', authenticate, asyncHandler(async (req, res) => {
+  if (Date.now() - (lastTest.get(req.user.id) || 0) < 20000) return error(res, req.t ? req.t('push_test_wait') : 'push_test_wait', 429);
+  lastTest.set(req.user.id, Date.now());
+  const { translate } = require('../utils/i18n');
+  const sent = await pushService.sendToUser(req.user.id, lang => ({
+    kind: 'message', tag: 'ayk-test', url: '/chat',
+    title: translate(lang, 'push_test_title'), body: translate(lang, 'push_test_body'),
+  }), { TTL: 120, urgency: 'high' });
+  return success(res, { sent });
+}));
+
 // Called on sign-out so this device stops ringing for the previous account.
 router.post('/unsubscribe', authenticate, asyncHandler(async (req, res) => {
   const endpoint = String(req.body?.endpoint || '');

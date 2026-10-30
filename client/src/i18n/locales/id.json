@@ -2260,11 +2260,17 @@
   },
   "update": {
     "available": "Versi baru situs tersedia.",
-    "now": "Perbarui sekarang"
+    "now": "Perbarui sekarang",
+    "in_progress": "Memperbarui… jangan tutup halaman"
   },
   "tone": {
     "title": "Volume notifikasi",
     "try": "Coba",
-    "hint": "Nada pesan dan dering panggilan saat situs terbuka. Tombol volume ponsel juga menaikkan dan menurunkannya (volume media). Saat situs tertutup, mengikuti volume notifikasi ponsel."
+    "hint": "Nada pesan dan dering panggilan saat situs terbuka. Tombol volume ponsel juga menaikkan dan menurunkannya (volume media). Saat situs tertutup, mengikuti volume notifikasi ponsel.",
+    "test": "Uji notifikasi",
+    "test_sent": "Notifikasi uji telah dikirim ke ponsel Anda. Tutup situs dan lihat apakah muncul di atas aplikasi lain.",
+    "test_none": "Perangkat ini belum berlangganan. Ketuk «🔔 Notifikasi» di atas «ملفي», lalu uji.",
+    "android_title": "Tampilkan notifikasi di atas aplikasi dengan nada khas (Android)",
+    "android_steps": "Buka Setelan ponsel → Aplikasi → Chrome → Notifikasi.|Gulir ke «Situs» dan ketuk aykdmh.com.|Aktifkan «Muncul di layar».|Ketuk «Suara» dan pilih nada khas untuk Ay Khidmah.|Aktifkan «Abaikan Jangan Ganggu» agar panggilan tidak terlewat.|Kembali dan ketuk «🔔 Uji notifikasi»."
   }
 }

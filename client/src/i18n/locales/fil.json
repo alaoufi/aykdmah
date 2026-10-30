@@ -2260,11 +2260,17 @@
   },
   "update": {
     "available": "May bagong bersyon ng site.",
-    "now": "I-update ngayon"
+    "now": "I-update ngayon",
+    "in_progress": "Nag-a-update… huwag isara ang pahina"
   },
   "tone": {
     "title": "Lakas ng abiso",
     "try": "Subukan",
-    "hint": "Tono ng mensahe at ring ng tawag habang bukas ang site. Ang volume buttons ng telepono ay nagpapalakas at nagpapahina rin nito (media volume). Kapag sarado, sumusunod sa lakas ng abiso ng telepono."
+    "hint": "Tono ng mensahe at ring ng tawag habang bukas ang site. Ang volume buttons ng telepono ay nagpapalakas at nagpapahina rin nito (media volume). Kapag sarado, sumusunod sa lakas ng abiso ng telepono.",
+    "test": "Subukan ang abiso",
+    "test_sent": "May pagsubok na abisong ipinadala sa telepono mo. Isara ang site at tingnan kung lilitaw ito sa ibabaw ng ibang apps.",
+    "test_none": "Hindi pa naka-subscribe ang device na ito. Pindutin ang «🔔 Mga abiso» sa itaas ng «ملفي», saka subukan.",
+    "android_title": "Ipalitaw ang abiso sa ibabaw ng apps na may natatanging tono (Android)",
+    "android_steps": "Buksan ang Settings ng telepono → Apps → Chrome → Notifications.|Pumunta sa «Sites» at pindutin ang aykdmh.com.|I-on ang «Pop on screen».|Pindutin ang «Sound» at pumili ng natatanging tono para sa Ay Khidmah.|I-on ang «Override Do Not Disturb» kung ayaw mong makaligtaan ang tawag.|Bumalik at pindutin ang «🔔 Subukan ang abiso»."
   }
 }

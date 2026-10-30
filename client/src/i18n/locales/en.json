@@ -2260,11 +2260,17 @@
   },
   "update": {
     "available": "A new version of the site is available.",
-    "now": "Update now"
+    "now": "Update now",
+    "in_progress": "Updating… do not close the page"
   },
   "tone": {
     "title": "Notification volume",
     "try": "Try",
-    "hint": "Message tone and call ring while the site is open. Your phone volume keys raise and lower it too (media volume). With the site closed, alerts follow your phone notification volume."
+    "hint": "Message tone and call ring while the site is open. Your phone volume keys raise and lower it too (media volume). With the site closed, alerts follow your phone notification volume.",
+    "test": "Test notification",
+    "test_sent": "A test notification was sent to your phone. Close the site and see if it pops up over other apps.",
+    "test_none": "This device is not subscribed yet. Tap \"🔔 Notifications\" at the top of \"My profile\", then test.",
+    "android_title": "Make alerts pop up over apps with a distinct tone (Android)",
+    "android_steps": "Open phone Settings → Apps → Chrome → Notifications.|Scroll to \"Sites\" and tap aykdmh.com.|Turn on \"Pop on screen\".|Tap \"Sound\" and pick a distinct tone for Ay Khidmah.|Turn on \"Override Do Not Disturb\" if you never want to miss calls.|Come back and tap \"🔔 Test notification\" to check."
   }
 }

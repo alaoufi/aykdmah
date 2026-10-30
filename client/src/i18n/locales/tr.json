@@ -2260,11 +2260,17 @@
   },
   "update": {
     "available": "Sitenin yeni sürümü hazır.",
-    "now": "Şimdi güncelle"
+    "now": "Şimdi güncelle",
+    "in_progress": "Güncelleniyor… sayfayı kapatmayın"
   },
   "tone": {
     "title": "Bildirim sesi",
     "try": "Dene",
-    "hint": "Site açıkken mesaj tonu ve arama zili. Telefonun ses tuşları da bunu açar ve kısar (medya sesi). Site kapalıyken telefonunuzun bildirim sesine göre."
+    "hint": "Site açıkken mesaj tonu ve arama zili. Telefonun ses tuşları da bunu açar ve kısar (medya sesi). Site kapalıyken telefonunuzun bildirim sesine göre.",
+    "test": "Bildirimi dene",
+    "test_sent": "Telefonunuza deneme bildirimi gönderildi. Siteyi kapatın ve diğer uygulamaların üzerinde çıkıp çıkmadığına bakın.",
+    "test_none": "Bu cihaz henüz abone değil. «ملفي» üstündeki «🔔 Bildirimler»e dokunup deneyin.",
+    "android_title": "Bildirimi uygulamaların üzerinde özel tonla göster (Android)",
+    "android_steps": "Telefon Ayarları → Uygulamalar → Chrome → Bildirimler bölümünü açın.|«Siteler» kısmına inip aykdmh.com seçin.|«Ekranda açılır pencere» seçeneğini açın.|«Ses» seçeneğine dokunup Ay Khidmah için özel bir ton seçin.|Aramaları kaçırmamak için «Rahatsız Etmeyin modunu geçersiz kıl» seçeneğini açın.|Geri dönüp «🔔 Bildirimi dene» düğmesine dokunun."
   }
 }

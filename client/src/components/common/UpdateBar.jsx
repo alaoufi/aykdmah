@@ -53,8 +53,17 @@ export default function UpdateBar() {
   if (!available) return null;
   return (
     <div className="bg-success-soft border-b border-border px-4 py-2 flex flex-wrap items-center justify-center gap-2 text-[13px]" role="status" data-testid="update-bar">
-      <span>✨ {t('update.available')}</span>
-      <button type="button" className="btn btn-primary btn-sm" onClick={update} disabled={busy}>{busy ? '⏳' : `🔄 ${t('update.now')}`}</button>
+      {busy ? (
+        <span className="flex items-center gap-2 font-bold" data-testid="update-progress">
+          <span className="inline-block w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin" aria-hidden="true" />
+          {t('update.in_progress')}
+        </span>
+      ) : (
+        <>
+          <span>✨ {t('update.available')}</span>
+          <button type="button" className="btn btn-primary btn-sm" onClick={update}>🔄 {t('update.now')}</button>
+        </>
+      )}
     </div>
   );
 }
