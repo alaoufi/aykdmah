@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { enablePush, pushState } from '../../services/pushService';
 import { useAuth } from '../../hooks/useAuth';
+import { sendDeviceReport } from '../../utils/deviceReport';
 
 const LATER_KEY = 'ayk_permissions_later';
 const later = () => { try { return localStorage.getItem(LATER_KEY) === '1'; } catch (_) { return false; } };
@@ -68,6 +69,7 @@ export default function DevicePermissions({ variant = 'card' }) {
     setState(previous => ({ ...previous, [key]: value }));
     setResult({ enabled: ok(value) ? [key] : [], failed: ok(value) ? [] : [key], value });
     setBusy('');
+    sendDeviceReport({ force: true }).catch(() => {});
   };
   const allowAll = async () => {
     if (busy) return;
@@ -82,6 +84,7 @@ export default function DevicePermissions({ variant = 'card' }) {
     }
     setResult({ enabled, failed, value: last, nothing: !enabled.length && !failed.length });
     setBusy('');
+    sendDeviceReport({ force: true }).catch(() => {});
   };
 
   const chip = (key, label) => {

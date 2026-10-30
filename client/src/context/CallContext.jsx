@@ -3,6 +3,7 @@ import { useAuth } from './AuthContext';
 import { useSocket } from './SocketContext';
 import * as calls from '../services/callService';
 import { syncPush } from '../services/pushService';
+import { sendDeviceReport } from '../utils/deviceReport';
 import { startTone, stopTone } from '../utils/ringtone';
 import { collectCallStats } from '../utils/callStats';
 
@@ -266,7 +267,8 @@ export function CallProvider({ children }) {
   useEffect(() => { if (!user) { teardown(); setCall(null); setPhase('idle'); } }, [user, teardown]);
 
   // A device that already allowed notifications rings for whoever is signed in on it.
-  useEffect(() => { if (user?.id) syncPush().catch(() => {}); }, [user?.id]);
+  // Then this device reports its system and capabilities for the devices log (AYK-062).
+  useEffect(() => { if (user?.id) syncPush().catch(() => {}).finally(() => sendDeviceReport().catch(() => {})); }, [user?.id]);
 
   // Ringing tone for an incoming call, ringback while the other side has not answered.
   useEffect(() => {

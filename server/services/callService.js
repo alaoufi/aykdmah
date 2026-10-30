@@ -388,6 +388,9 @@ async function stats({ days = 30 } = {}) {
   const quality = await query(`SELECT d.*, u.full_name AS user_name, k.call_type, k.duration_seconds
     FROM call_diagnostics d JOIN users u ON u.id = d.user_id JOIN calls k ON k.id = d.call_id
     WHERE d.created_at >= ? ORDER BY d.id DESC LIMIT 100`, [since]);
+  // Devices and capabilities (AYK-062): every device seen in the period, and a summary per system.
+  const devices = await query(`SELECT d.*, u.full_name AS user_name, u.referral_code
+    FROM device_reports d JOIN users u ON u.id = d.user_id WHERE d.updated_at >= ? ORDER BY d.updated_at DESC LIMIT 200`, [since]);
   const os = require('os');
   const system = {
     load1: os.loadavg()[0], cpus: os.cpus().length,
@@ -401,6 +404,7 @@ async function stats({ days = 30 } = {}) {
     system,
     live: await liveLoad(),
     quality,
+    devices,
     recent: recent.map(row => ({
       id: row.id, call_type: row.call_type, status: row.status, end_reason: row.end_reason,
       caller_name: row.caller_name, callee_name: row.callee_name, request_id: row.request_id,

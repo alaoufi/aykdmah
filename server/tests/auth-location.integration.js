@@ -722,6 +722,15 @@ if (!databasePrefix) {
       body: JSON.stringify({ code: "TEST01", message: "boom", path: "/requests/1", version: "v" }) });
     assert.equal(reported.status, 204);
     assert.ok(await db.queryOne("SELECT id FROM activity_logs WHERE action = 'client.error' AND description LIKE 'TEST01%'"));
+    // A device reports its system and capabilities (AYK-062): one row per user and device, updated.
+    const device = body => fetch(`${base}/client-devices`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${client.token}` }, body: JSON.stringify(body) });
+    const caps = { device_key: 'test-device-1', os: 'ios', os_version: '17.4', browser: 'safari', standalone: true, push_permission: 'default', push_subscribed: false, webrtc: true, app_version: 'v1' };
+    assert.equal((await device(caps)).status, 204);
+    assert.equal((await device({ ...caps, push_permission: 'granted', push_subscribed: true, push_host: 'web.push.apple.com' })).status, 204);
+    assert.equal((await fetch(`${base}/client-devices`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(caps) })).status, 401);
+    const rows = await db.query("SELECT * FROM device_reports WHERE device_key = 'test-device-1'");
+    assert.equal(rows.length, 1);
+    assert.deepEqual([rows[0].os, rows[0].standalone, rows[0].push_subscribed, rows[0].push_host], ['ios', 1, 1, 'web.push.apple.com']);
     // The "Chats" badge counts unread chat messages, not notifications.
     assert.ok((await api('/chat/unread', { token: second.token })).count >= 1);
     assert.equal((await api('/chat/unread', { token: client.token })).count, 0);

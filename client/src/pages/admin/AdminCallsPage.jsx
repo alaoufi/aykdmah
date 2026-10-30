@@ -124,6 +124,56 @@ export default function AdminCallsPage() {
         )}
       </section>
 
+      {/* Devices and what they can do (AYK-062): per system, then each device. Red: no alerts or no calls. */}
+      {data.devices && (
+        <section className="card p-3" data-testid="devices-log">
+          <h2 className="font-bold text-fg mb-1">📱 {t('calls.admin.devices_title')}</h2>
+          <p className="text-[12px] text-fg-muted mt-0 mb-2">{t('calls.admin.devices_hint')}</p>
+          <div className="flex flex-wrap gap-2 mb-3 text-[12px]">
+            {Object.entries(data.devices.reduce((groups, d) => {
+              const k = `${d.os || '?'} · ${d.browser || '?'}`;
+              const g = groups[k] || (groups[k] = { all: 0, alerts: 0 });
+              g.all += 1; if (d.push_subscribed) g.alerts += 1; return groups;
+            }, {})).map(([k, g]) => (
+              <span key={k} className={`px-2 py-1 rounded-pill ${g.alerts < g.all ? 'bg-danger-soft text-danger' : 'bg-success-soft text-success'}`} dir="ltr">
+                {k}: {g.alerts}/{g.all} 🔔
+              </span>
+            ))}
+          </div>
+          {data.devices.length === 0 ? <div className="text-[12.5px] text-fg-muted">{t('calls.admin.devices_empty')}</div> : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-[12px]">
+                <thead><tr className="text-fg-muted">
+                  {['d_user', 'd_system', 'd_browser', 'd_home', 'd_alerts', 'd_mic', 'd_camera', 'd_calls', 'd_network', 'd_version', 'd_seen']
+                    .map(key => <th key={key} className="px-2 py-1 font-semibold whitespace-nowrap text-start">{t(`calls.admin.${key}`)}</th>)}
+                </tr></thead>
+                <tbody>
+                  {data.devices.map(d => {
+                    const bad = !d.push_subscribed || !d.webrtc || d.mic_permission === 'denied';
+                    const alerts = d.push_subscribed ? `✅ ${d.push_host || ''}` : d.push_permission === 'unsupported' ? '⛔' : d.push_permission === 'denied' ? '🚫' : '—';
+                    return (
+                      <tr key={d.id} className={`border-t border-border ${bad ? 'bg-danger-soft' : ''}`}>
+                        <td className="px-2 py-1 whitespace-nowrap">{d.user_name} <span dir="ltr" className="text-fg-muted">{d.referral_code}</span></td>
+                        <td className="px-2 py-1" dir="ltr">{d.os} {d.os_version}</td>
+                        <td className="px-2 py-1" dir="ltr">{d.browser} {d.browser_version}</td>
+                        <td className="px-2 py-1">{d.standalone ? '📲' : '—'}</td>
+                        <td className="px-2 py-1" dir="ltr">{alerts}</td>
+                        <td className="px-2 py-1" dir="ltr">{d.mic_permission}</td>
+                        <td className="px-2 py-1" dir="ltr">{d.camera_permission}</td>
+                        <td className="px-2 py-1">{d.webrtc ? '✅' : '⛔'}</td>
+                        <td className="px-2 py-1" dir="ltr">{d.network_type || '—'}</td>
+                        <td className="px-2 py-1" dir="ltr">{d.app_version}</td>
+                        <td className="px-2 py-1 whitespace-nowrap">{formatRelativeTime(d.updated_at)}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      )}
+
       {data.errors.length > 0 && (
         <div className="card p-3">
           <h2 className="font-bold text-fg mb-2">{t('calls.admin.errors')}</h2>
