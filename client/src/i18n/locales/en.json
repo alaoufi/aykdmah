@@ -1786,7 +1786,18 @@
       "capacity_warning": "Load is close to server capacity. Consider an extra call server."
     },
     "callee_unreachable": "Their site is closed and notifications are off, so they may not hear it ring. Send a message too.",
-    "tap_for_audio": "Tap here to hear the call"
+    "tap_for_audio": "Tap here to hear the call",
+    "network_mine_weak": "Your internet is weak; voice and video may break up.",
+    "network_theirs_weak": "The other side's internet is weak.",
+    "network_excellent": "Excellent",
+    "network_good": "Good",
+    "network_poor": "Weak",
+    "network_lost": "Lost",
+    "they_talking": "Talking now",
+    "they_quiet": "Quiet",
+    "mine_sending": "Your voice is going through",
+    "mine_quiet": "Speak to send your voice",
+    "mic_muted": "Your mic is muted"
   },
   "wallet": {
     "nav": "Wallet & coupon",

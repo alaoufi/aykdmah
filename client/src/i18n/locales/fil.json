@@ -1786,7 +1786,18 @@
       "capacity_warning": "Malapit na sa kapasidad ng server. Isaalang-alang ang dagdag na call server."
     },
     "callee_unreachable": "Sarado ang site nila at naka-off ang abiso, kaya baka hindi nila marinig ang ring. Magpadala rin ng mensahe.",
-    "tap_for_audio": "Pindutin dito para marinig ang tawag"
+    "tap_for_audio": "Pindutin dito para marinig ang tawag",
+    "network_mine_weak": "Mahina ang internet mo; maaaring maputol ang boses at video.",
+    "network_theirs_weak": "Mahina ang internet ng kabila.",
+    "network_excellent": "Napakahusay",
+    "network_good": "Maayos",
+    "network_poor": "Mahina",
+    "network_lost": "Nawala",
+    "they_talking": "Nagsasalita ngayon",
+    "they_quiet": "Tahimik",
+    "mine_sending": "Umaabot ang boses mo",
+    "mine_quiet": "Magsalita para umabot ang boses mo",
+    "mic_muted": "Naka-mute ang mic mo"
   },
   "wallet": {
     "nav": "Wallet & coupon",

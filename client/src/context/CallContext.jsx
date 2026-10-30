@@ -26,6 +26,9 @@ export function CallProvider({ children }) {
   const [remoteJoined, setRemoteJoined] = useState(false);
   // The browser refused to play the other side's audio until a tap (Chrome on Android).
   const [audioBlocked, setAudioBlocked] = useState(false);
+  const [network, setNetwork] = useState({ mine: 'unknown', theirs: 'unknown' });
+  // Who is talking right now, from the audio actually flowing through the call server.
+  const [speaking, setSpeaking] = useState({ mine: false, theirs: false });
   const roomRef = useRef(null);
   const callRef = useRef(null);
   const leavingRef = useRef(false);
@@ -37,6 +40,8 @@ export function CallProvider({ children }) {
     setRoom(null);
     setRemoteJoined(false);
     setAudioBlocked(false);
+    setNetwork({ mine: 'unknown', theirs: 'unknown' });
+    setSpeaking({ mine: false, theirs: false });
     // Disconnecting with stopTracks releases the camera and microphone.
     if (current) { try { await current.disconnect(true); } catch (_) { /* already closed */ } }
   }, []);
@@ -92,20 +97,34 @@ export function CallProvider({ children }) {
 
   const connectMedia = useCallback(async (active) => {
     setPhase(prev => (prev === 'outgoing' ? 'outgoing' : 'connecting'));
-    const [{ Room, RoomEvent, Track, DisconnectReason, VideoPresets }, access] = await Promise.all([loadLiveKit(), calls.callToken(active.id)]);
+    const [{ Room, RoomEvent, Track, DisconnectReason, VideoPresets, ConnectionQuality }, access] = await Promise.all([loadLiveKit(), calls.callToken(active.id)]);
     // Ended on purpose (hang-up, room closed by the server): no rejoin attempts.
     const finalReasons = [DisconnectReason.CLIENT_INITIATED, DisconnectReason.ROOM_DELETED, DisconnectReason.PARTICIPANT_REMOVED,
       DisconnectReason.DUPLICATE_IDENTITY, DisconnectReason.ROOM_CLOSED].filter(r => r !== undefined);
-    // Video at 360p, up to 24 fps and ~600 kbps: clear on a phone, light on the server and on data.
+    // Video captured at 540p, up to 1.2 Mbps and 30 fps, sent in layers (simulcast): a strong
+    // network gets the sharp layer, a weak one a lighter layer instead of a frozen picture (AYK-059).
     const lkRoom = new Room({
       adaptiveStream: true, dynacast: true, stopLocalTrackOnUnpublish: true,
-      videoCaptureDefaults: VideoPresets?.h360 ? { resolution: VideoPresets.h360.resolution } : undefined,
-      publishDefaults: { simulcast: true, videoEncoding: { maxBitrate: 600_000, maxFramerate: 24 } },
+      videoCaptureDefaults: VideoPresets?.h540 ? { resolution: VideoPresets.h540.resolution } : undefined,
+      publishDefaults: {
+        simulcast: true,
+        videoEncoding: { maxBitrate: 1_200_000, maxFramerate: 30 },
+        videoSimulcastLayers: VideoPresets ? [VideoPresets.h180, VideoPresets.h360].filter(Boolean) : undefined,
+      },
     });
     lkRoom
       .on(RoomEvent.ParticipantConnected, () => setRemoteJoined(true))
       .on(RoomEvent.ParticipantDisconnected, () => setRemoteJoined(false))
       .on(RoomEvent.AudioPlaybackStatusChanged, () => setAudioBlocked(!lkRoom.canPlaybackAudio))
+      .on(RoomEvent.ActiveSpeakersChanged, speakers => setSpeaking({
+        mine: speakers.some(p => p.isLocal), theirs: speakers.some(p => !p.isLocal),
+      }))
+      // Internet quality for me and for the other side: excellent / good / poor / lost.
+      .on(RoomEvent.ConnectionQualityChanged, (quality, participant) => {
+        const level = quality === ConnectionQuality?.Excellent ? 'excellent' : quality === ConnectionQuality?.Good ? 'good'
+          : quality === ConnectionQuality?.Poor ? 'poor' : quality === ConnectionQuality?.Lost ? 'lost' : 'unknown';
+        setNetwork(previous => ({ ...previous, [participant?.isLocal ? 'mine' : 'theirs']: level }));
+      })
       .on(RoomEvent.Reconnecting, () => setPhase('reconnecting'))
       .on(RoomEvent.Reconnected, () => setPhase('in_call'))
       .on(RoomEvent.Disconnected, reason => {
@@ -202,6 +221,16 @@ export function CallProvider({ children }) {
     };
   }, [user, socketRef, connected, applyState, finishLocally, phase]);
 
+  // "📞 Answer" tapped in the call notification opens /chat/:id?answer=<call id> (AYK-059).
+  const autoAnswerRef = useRef((() => { try { return Number(new URLSearchParams(window.location.search).get('answer')) || 0; } catch (_) { return 0; } })());
+  useEffect(() => {
+    if (!autoAnswerRef.current || phase !== 'incoming' || call?.id !== autoAnswerRef.current) return;
+    autoAnswerRef.current = 0;
+    try { const url = new URL(window.location.href); url.searchParams.delete('answer'); window.history.replaceState(null, '', url); } catch (_) { /* keep the URL */ }
+    acceptRef.current?.();
+  }, [phase, call?.id]);
+  const acceptRef = useRef(null);
+
   // Release devices if the user signs out mid-call.
   useEffect(() => { if (!user) { teardown(); setCall(null); setPhase('idle'); } }, [user, teardown]);
 
@@ -275,6 +304,8 @@ export function CallProvider({ children }) {
     }
   }, [connectMedia, finishLocally]);
 
+  acceptRef.current = accept;
+
   const hangup = useCallback(async () => {
     const current = callRef.current;
     leavingRef.current = true;
@@ -312,7 +343,7 @@ export function CallProvider({ children }) {
     catch (_) { setError('camera_switch_failed'); }
   }, [camOn, facing]);
 
-  const value = { call, phase, error, room, micOn, camOn, facing, remoteJoined, audioBlocked, enableAudio, start, accept, hangup, toggleMic, toggleCam, switchCamera };
+  const value = { call, phase, error, room, micOn, camOn, facing, remoteJoined, audioBlocked, enableAudio, network, speaking, start, accept, hangup, toggleMic, toggleCam, switchCamera };
   return (
     <CallContext.Provider value={value}>
       {children}

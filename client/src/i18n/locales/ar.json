@@ -1786,7 +1786,18 @@
       "capacity_warning": "الحمل قريب من سعة الخادم. فكّر في خادم مكالمات إضافي."
     },
     "callee_unreachable": "الموقع مغلق عنده والتنبيهات غير مفعّلة، فقد لا يسمع الرنين. أرسل له رسالة أيضًا.",
-    "tap_for_audio": "اضغط هنا لسماع الصوت"
+    "tap_for_audio": "اضغط هنا لسماع الصوت",
+    "network_mine_weak": "الإنترنت عندك ضعيف، قد يتقطع الصوت والصورة.",
+    "network_theirs_weak": "الإنترنت عند الطرف الآخر ضعيف.",
+    "network_excellent": "ممتاز",
+    "network_good": "جيد",
+    "network_poor": "ضعيف",
+    "network_lost": "منقطع",
+    "they_talking": "يتكلم الآن",
+    "they_quiet": "صامت",
+    "mine_sending": "صوتك يصل",
+    "mine_quiet": "تكلّم ليصل صوتك",
+    "mic_muted": "ميكروفونك مكتوم"
   },
   "wallet": {
     "nav": "المحفظة والكوبون",

@@ -1786,7 +1786,18 @@
       "capacity_warning": "ጭነቱ ወደ አገልጋዩ አቅም ተቃርቧል። ተጨማሪ የጥሪ አገልጋይ ያስቡ።"
     },
     "callee_unreachable": "ጣቢያው ተዘግቷል ማሳወቂያዎችም ጠፍተዋል፣ ስለዚህ መደወሉን ላይሰሙ ይችላሉ። መልዕክትም ይላኩ።",
-    "tap_for_audio": "ድምፁን ለመስማት እዚህ ይጫኑ"
+    "tap_for_audio": "ድምፁን ለመስማት እዚህ ይጫኑ",
+    "network_mine_weak": "የእርስዎ ኢንተርኔት ደካማ ነው፤ ድምፅና ምስል ሊቆራረጥ ይችላል።",
+    "network_theirs_weak": "የሌላው ወገን ኢንተርኔት ደካማ ነው።",
+    "network_excellent": "በጣም ጥሩ",
+    "network_good": "ጥሩ",
+    "network_poor": "ደካማ",
+    "network_lost": "ተቋርጧል",
+    "they_talking": "አሁን እየተናገሩ ነው",
+    "they_quiet": "ፀጥ",
+    "mine_sending": "ድምፅዎ እየደረሰ ነው",
+    "mine_quiet": "ድምፅዎ እንዲደርስ ይናገሩ",
+    "mic_muted": "ማይክዎ ተዘግቷል"
   },
   "wallet": {
     "nav": "Wallet & ኩፖን",

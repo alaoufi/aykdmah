@@ -25,14 +25,19 @@ self.addEventListener('push', (event) => {
       vibrate: data.kind === 'call' ? [800, 400, 800, 400, 800, 400, 800, 400, 800] : [200],
       icon: '/icons/android-chrome-192x192.png',
       badge: '/icons/android-chrome-192x192.png',
-      data: { url },
+      data: { url, answerUrl: typeof data.answer_url === 'string' && data.answer_url.startsWith('/') ? data.answer_url : url },
+      // Answer / Decline right on the call notification (AYK-059).
+      actions: data.kind === 'call' && Array.isArray(data.actions) ? data.actions.slice(0, 2) : [],
     });
   })());
 });
 
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const target = new URL(event.notification.data?.url || '/', self.location.origin).href;
+  // "Decline": just close it; the call stops ringing on its own after 45 s, or the caller ends it.
+  if (event.action === 'decline') return;
+  const path = event.action === 'answer' ? event.notification.data?.answerUrl : event.notification.data?.url;
+  const target = new URL(path || '/', self.location.origin).href;
   event.waitUntil((async () => {
     const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
     const same = windows.find(w => new URL(w.url).origin === self.location.origin);

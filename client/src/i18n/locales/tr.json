@@ -1786,7 +1786,18 @@
       "capacity_warning": "Yük sunucu kapasitesine yakın. Ek bir arama sunucusu düşünün."
     },
     "callee_unreachable": "Sitesi kapalı ve bildirimleri kapalı, çalışını duymayabilir. Bir mesaj da gönderin.",
-    "tap_for_audio": "Sesi duymak için buraya dokunun"
+    "tap_for_audio": "Sesi duymak için buraya dokunun",
+    "network_mine_weak": "İnternetiniz zayıf; ses ve görüntü kesilebilir.",
+    "network_theirs_weak": "Karşı tarafın interneti zayıf.",
+    "network_excellent": "Mükemmel",
+    "network_good": "İyi",
+    "network_poor": "Zayıf",
+    "network_lost": "Kesildi",
+    "they_talking": "Şu an konuşuyor",
+    "they_quiet": "Sessiz",
+    "mine_sending": "Sesiniz iletiliyor",
+    "mine_quiet": "Sesinizin iletilmesi için konuşun",
+    "mic_muted": "Mikrofonunuz kapalı"
   },
   "wallet": {
     "nav": "Cüzdan & Kupon",

@@ -131,6 +131,8 @@ async function start({ caller, conversationId, callType }) {
   // Rings the callee's devices even when the site is closed. It expires with the ring.
   pushService.sendToUser(callee.id, lang => ({
     kind: 'call', call_id: callId, tag: `call-${callId}`, url: `/chat/${conversationId}`,
+    answer_url: `/chat/${conversationId}?answer=${callId}`,
+    actions: [{ action: 'answer', title: translate(lang, 'push_call_answer') }, { action: 'decline', title: translate(lang, 'push_call_decline') }],
     title: translate(lang, callType === 'video' ? 'push_call_video' : 'push_call_audio'),
     body: translate(lang, 'push_call_body', { name: row.caller_name || '' }),
   }), { TTL: Math.round(RING_TIMEOUT_MS / 1000), urgency: 'high', topic: `call-${callId}` })

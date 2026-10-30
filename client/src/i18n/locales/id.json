@@ -1786,7 +1786,18 @@
       "capacity_warning": "Beban mendekati kapasitas server. Pertimbangkan server panggilan tambahan."
     },
     "callee_unreachable": "Situsnya tertutup dan notifikasi mati, jadi mungkin tidak mendengar dering. Kirim juga pesan.",
-    "tap_for_audio": "Ketuk di sini untuk mendengar suara"
+    "tap_for_audio": "Ketuk di sini untuk mendengar suara",
+    "network_mine_weak": "Internet Anda lemah; suara dan video bisa terputus.",
+    "network_theirs_weak": "Internet pihak lain lemah.",
+    "network_excellent": "Sangat baik",
+    "network_good": "Baik",
+    "network_poor": "Lemah",
+    "network_lost": "Terputus",
+    "they_talking": "Sedang bicara",
+    "they_quiet": "Diam",
+    "mine_sending": "Suara Anda terkirim",
+    "mine_quiet": "Bicaralah agar suara terkirim",
+    "mic_muted": "Mikrofon Anda dibisukan"
   },
   "wallet": {
     "nav": "Dompet & Kupon",

@@ -67,7 +67,7 @@ function RoundButton({ onClick, label, tone = 'neutral', children, disabled }) {
 
 export default function CallOverlay() {
   const { t } = useTranslation();
-  const { call, phase, error, room, micOn, camOn, remoteJoined, audioBlocked, enableAudio, accept, hangup, toggleMic, toggleCam, switchCamera } = useCall();
+  const { call, phase, error, room, micOn, camOn, remoteJoined, audioBlocked, enableAudio, network, speaking, accept, hangup, toggleMic, toggleCam, switchCamera } = useCall();
   const remoteVideo = useRef(null);
   const localVideo = useRef(null);
   const remoteAudio = useRef(null);
@@ -101,6 +101,33 @@ export default function CallOverlay() {
     <div role="dialog" aria-modal="true" aria-label={t('calls.title')}
       className="fixed inset-0 z-[3000] bg-slate-950 text-white flex flex-col" style={{ height: '100dvh' }}>
       <audio ref={remoteAudio} autoPlay playsInline />
+      {/* Internet quality during the call (AYK-059): a warning when either side's connection is weak. */}
+      {live && ['poor', 'lost'].includes(network?.mine) && (
+        <div className="absolute z-10 top-3 inset-x-3 mx-auto max-w-sm px-3 py-2 rounded-card bg-red-600/90 text-white text-[13px] font-bold text-center" role="status" data-testid="network-mine">
+          📶 {t('calls.network_mine_weak')}
+        </div>
+      )}
+      {live && !['poor', 'lost'].includes(network?.mine) && ['poor', 'lost'].includes(network?.theirs) && (
+        <div className="absolute z-10 top-3 inset-x-3 mx-auto max-w-sm px-3 py-2 rounded-card bg-amber-500/90 text-black text-[13px] font-bold text-center" role="status" data-testid="network-theirs">
+          📶 {t('calls.network_theirs_weak')}
+        </div>
+      )}
+      {/* Live talk indicators: my microphone is sending, their voice is arriving. */}
+      {live && remoteJoined && (
+        <div className="absolute z-10 bottom-3 end-3 flex flex-col items-end gap-1 text-[12px]" data-testid="talk-indicators">
+          <span className={`px-2 py-1 rounded-pill transition ${speaking?.theirs ? 'bg-emerald-600 text-white scale-105' : 'bg-black/50 text-white/70'}`}>
+            🔊 {t(speaking?.theirs ? 'calls.they_talking' : 'calls.they_quiet')}
+          </span>
+          <span className={`px-2 py-1 rounded-pill transition ${speaking?.mine ? 'bg-emerald-600 text-white scale-105' : 'bg-black/50 text-white/70'}`}>
+            🎙️ {t(!micOn ? 'calls.mic_muted' : speaking?.mine ? 'calls.mine_sending' : 'calls.mine_quiet')}
+          </span>
+        </div>
+      )}
+      {live && network?.mine && network.mine !== 'unknown' && (
+        <div className="absolute z-10 bottom-3 start-3 px-2 py-1 rounded-pill bg-black/50 text-[12px]" data-testid="network-chip">
+          {{ excellent: '🟢', good: '🟡', poor: '🔴', lost: '⚫' }[network.mine]} {t(`calls.network_${network.mine}`)}
+        </div>
+      )}
       {live && audioBlocked && (
         <button type="button" onClick={enableAudio} data-testid="enable-audio"
           className="absolute z-10 top-1/3 inset-x-6 mx-auto max-w-sm py-4 rounded-card bg-emerald-600 text-white text-lg font-extrabold shadow-lift">
