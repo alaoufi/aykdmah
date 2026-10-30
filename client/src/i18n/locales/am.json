@@ -2079,7 +2079,12 @@
     "stat_available": "{{count}} አሁን ይገኛል",
     "stat_featured": "{{count}} ተለይቶ ይታያል",
     "stat_open": "{{count}} ክፍት ጥያቄዎች",
-    "sign_in_for_stats": "አካባቢያችሁን ስንት አቅራቢዎች እንደሚያገለግሉ ለማየት መግቢያ ይግቡ"
+    "sign_in_for_stats": "አካባቢያችሁን ስንት አቅራቢዎች እንደሚያገለግሉ ለማየት መግቢያ ይግቡ",
+    "district_not_covered": "አሁን በሰፈርዎ ({{district}}) የሚገኝ የለም፣ ስለዚህ ፍለጋውን አስፍተናል፦ እነዚህ አሁን በ{{city}} ይገኛሉ።",
+    "city_none_now": "አሁን በሰፈርዎም ሆነ በ{{city}} የሚገኝ የለም።",
+    "request_and_we_alert": "ጥያቄዎን ይለጥፉ፤ አገልግሎት ሰጪዎች እንደተገኙ እናሳውቃቸዋለን።",
+    "city_box_title": "በ{{city}} የሚያገለግሉ ሁሉ ({{count}})",
+    "city_box_hint": "ከእነርሱ አንዱ ሰፈርዎን ለማገልገል ሊስማማ ይችላል። በቀጥታ ያግኙ።"
   },
   "market": {
     "title": "በአካባቢህ የሚገኘው ገበያ",

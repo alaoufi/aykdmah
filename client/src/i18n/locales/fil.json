@@ -2079,7 +2079,12 @@
     "stat_available": "{{count}} magagamit ngayon",
     "stat_featured": "{{count}} na may tampok",
     "stat_open": "{{count}} bukas na mga kahilingan",
-    "sign_in_for_stats": "Mag-sign in upang makita kung gaano karaming provider ang naglilingkod sa iyong lugar"
+    "sign_in_for_stats": "Mag-sign in upang makita kung gaano karaming provider ang naglilingkod sa iyong lugar",
+    "district_not_covered": "Walang available ngayon sa iyong distrito ({{district}}), kaya pinalawak namin ang paghahanap: available ngayon ang mga ito sa {{city}}.",
+    "city_none_now": "Walang available ngayon sa iyong distrito o sa {{city}}.",
+    "request_and_we_alert": "I-post ang iyong kahilingan at aabisuhan namin ang mga provider kapag available na sila.",
+    "city_box_title": "Lahat ng nagseserbisyo sa {{city}} ({{count}})",
+    "city_box_hint": "Maaaring pumayag ang isa sa kanila na magserbisyo sa iyong distrito. Direktang makipag-ugnayan."
   },
   "market": {
     "title": "Ang iyong merkado sa iyong lugar",

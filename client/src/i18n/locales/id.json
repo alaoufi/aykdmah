@@ -2079,7 +2079,12 @@
     "stat_available": "{{count}} tersedia sekarang",
     "stat_featured": "{{count}} ditampilkan",
     "stat_open": "{{count}} permintaan terbuka",
-    "sign_in_for_stats": "Masuklah untuk melihat berapa banyak penyedia layanan di daerah Anda"
+    "sign_in_for_stats": "Masuklah untuk melihat berapa banyak penyedia layanan di daerah Anda",
+    "district_not_covered": "Tidak ada yang tersedia sekarang di wilayah Anda ({{district}}), jadi pencarian diperluas: mereka tersedia sekarang di {{city}}.",
+    "city_none_now": "Tidak ada yang tersedia sekarang di wilayah Anda maupun di {{city}}.",
+    "request_and_we_alert": "Kirim permintaan Anda dan kami akan memberi tahu penyedia begitu mereka tersedia.",
+    "city_box_title": "Semua yang melayani {{city}} ({{count}})",
+    "city_box_hint": "Salah satu dari mereka mungkin bersedia melayani wilayah Anda. Hubungi langsung."
   },
   "market": {
     "title": "Pasar Anda di daerah Anda",

@@ -6,6 +6,7 @@ const { success, error } = require('../utils/apiResponse');
 const pushService = require('../services/pushService');
 const PushSubscription = require('../models/PushSubscription');
 const { SUPPORTED } = require('../utils/i18n');
+const logger = require('../utils/logger');
 
 // Public: the browser needs the server's VAPID key to subscribe.
 router.get('/key', (req, res) => success(res, { key: pushService.getPublicKey() }));
@@ -13,7 +14,12 @@ router.get('/key', (req, res) => success(res, { key: pushService.getPublicKey() 
 router.post('/subscribe', authenticate, asyncHandler(async (req, res) => {
   const subscription = req.body?.subscription;
   if (!pushService.getPublicKey()) return error(res, 'push_unavailable', 503);
-  if (!pushService.validSubscription(subscription)) return error(res, 'push_invalid_subscription', 400);
+  if (!pushService.validSubscription(subscription)) {
+    let host = 'unparsable';
+    try { host = new URL(subscription?.endpoint).host; } catch (_) { /* keep 'unparsable' */ }
+    logger.warn(`Push subscription rejected: host=${host} user=${req.user.id}`);
+    return error(res, 'push_invalid_subscription', 400);
+  }
   const lang = SUPPORTED.includes(req.lang) ? req.lang : 'ar';
   await PushSubscription.save(req.user.id, subscription, lang);
   return success(res, { subscribed: true });

@@ -163,10 +163,24 @@ const matching = asyncHandler(async (req, res) => {
   const where = await resolveArea(req);
   if (where.invalid || !validIds([categoryId, serviceId])) return error(res, req.t ? req.t('invalid_data') : 'Invalid filter', 400);
   if (!where.cityId) return success(res, { area: null, providers: [] });
-  const rows = await coveringProviders({ ...where, excludeId: req.user?.id || 0 });
-
   const categoryServices = categoryId !== null
     ? new Set((await query('SELECT id FROM services WHERE category_id = ?', [categoryId])).map(row => Number(row.id))) : null;
+  const list = async scope => listProviders(await coveringProviders({ ...scope, excludeId: req.user?.id || 0 }),
+    { categoryId, serviceId, categoryServices, cityId: where.cityId });
+  const providers = await list(where);
+  // With a district: also everyone serving the whole city (AYK-055), for the "widen" step and
+  // the small "everyone in your city" box.
+  const cityProviders = where.districtId ? await list({ districtId: null, cityId: where.cityId }) : null;
+  return success(res, {
+    area: where.area,
+    providers: providers.slice(0, MAX_RESULTS),
+    ...(cityProviders ? { city_providers: cityProviders.slice(0, MAX_RESULTS) } : {}),
+  });
+});
+
+// Filters covering providers by profession, drops those whose required subscription is
+// missing (AYK-042), and ranks them: available now first, then featured, then rating.
+async function listProviders(rows, { categoryId, serviceId, categoryServices, cityId }) {
   const providers = [];
   for (const row of rows) {
     const services = parseServiceIds(row.service_ids);
@@ -186,15 +200,14 @@ const matching = asyncHandler(async (req, res) => {
     });
   }
   // Providers who need a subscription here and have none are not listed (AYK-042).
-  const allowed = await require('../services/subscriptionRules').keepAllowed(providers, {
-    cityId: where.cityId, categoryOf: p => categoryId || p.category_id });
-  providers.splice(0, providers.length, ...[...allowed]);
-  providers.sort((a, b) => (b.is_featured - a.is_featured)
+  const allowed = [...await require('../services/subscriptionRules').keepAllowed(providers, {
+    cityId, categoryOf: p => categoryId || p.category_id })];
+  allowed.sort((a, b) => ((a.availability.state !== 'available') - (b.availability.state !== 'available'))
+    || (b.is_featured - a.is_featured)
     || (b.rating_avg - a.rating_avg) || (b.rating_count - a.rating_count)
-    || ((a.availability.state !== 'available') - (b.availability.state !== 'available'))
     || (b.completed_orders - a.completed_orders));
-  return success(res, { area: where.area, providers: providers.slice(0, MAX_RESULTS) });
-});
+  return allowed;
+}
 
 // Providers to tell about a new request right away (AYK-041): those covering its
 // district (or city) in its profession who are working now.

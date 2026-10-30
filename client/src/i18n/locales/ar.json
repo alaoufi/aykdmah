@@ -2079,7 +2079,12 @@
     "stat_available": "{{count}} متاح الآن",
     "stat_featured": "{{count}} متميز",
     "stat_open": "{{count}} طلب مفتوح",
-    "sign_in_for_stats": "سجّل الدخول لترى عدد مقدمي الخدمة في منطقتك"
+    "sign_in_for_stats": "سجّل الدخول لترى عدد مقدمي الخدمة في منطقتك",
+    "district_not_covered": "لا أحد متاح الآن في حيّك ({{district}})، فوسّعنا البحث: هؤلاء متاحون الآن في {{city}}.",
+    "city_none_now": "لا أحد متاح الآن في حيّك ولا في {{city}}.",
+    "request_and_we_alert": "انشر طلبك، وسننبّه مقدمي الخدمة فور توفرهم.",
+    "city_box_title": "كل من يخدم في {{city}} ({{count}})",
+    "city_box_hint": "قد يوافق أحدهم على خدمة حيّك، تواصل معه مباشرة."
   },
   "market": {
     "title": "سوقك في نطاقك",

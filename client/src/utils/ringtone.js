@@ -42,6 +42,17 @@ export function chime() {
   } catch (_) { /* no audio output */ }
 }
 
+// A soft single tone when my own message is sent.
+export function sentTone() {
+  const AudioContext = typeof window !== 'undefined' && (window.AudioContext || window.webkitAudioContext);
+  if (!AudioContext || timer) return;
+  try {
+    ctx ||= new AudioContext();
+    ctx.resume?.().catch(() => {});
+    beep({ freqs: [1320], gain: 0.08, bursts: [[0, 0.09]] });
+  } catch (_) { /* no audio output */ }
+}
+
 export function startTone(kind) {
   stopTone();
   const pattern = PATTERNS[kind];

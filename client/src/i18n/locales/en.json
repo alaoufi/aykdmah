@@ -2079,7 +2079,12 @@
     "stat_available": "{{count}} available now",
     "stat_featured": "{{count}} featured",
     "stat_open": "{{count}} open requests",
-    "sign_in_for_stats": "Sign in to see how many providers serve your area"
+    "sign_in_for_stats": "Sign in to see how many providers serve your area",
+    "district_not_covered": "Nobody is available now in your district ({{district}}), so we widened the search: these are available now in {{city}}.",
+    "city_none_now": "Nobody is available now in your district or in {{city}}.",
+    "request_and_we_alert": "Post your request and we will alert providers as soon as they are available.",
+    "city_box_title": "Everyone serving {{city}} ({{count}})",
+    "city_box_hint": "One of them may agree to serve your district. Contact them directly."
   },
   "market": {
     "title": "Your market in your area",

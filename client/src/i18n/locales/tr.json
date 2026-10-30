@@ -2079,7 +2079,12 @@
     "stat_available": "{{count}} şimdi mevcut",
     "stat_featured": "{{count}} Özel",
     "stat_open": "Açık talepleri {{count}}",
-    "sign_in_for_stats": "Bölgenize kaç hizmet veren olduğunu görmek için giriş yapın"
+    "sign_in_for_stats": "Bölgenize kaç hizmet veren olduğunu görmek için giriş yapın",
+    "district_not_covered": "Mahallenizde ({{district}}) şu an müsait kimse yok, bu yüzden aramayı genişlettik: bunlar şu an {{city}} içinde müsait.",
+    "city_none_now": "Şu an ne mahallenizde ne de {{city}} içinde müsait kimse var.",
+    "request_and_we_alert": "Talebinizi yayınlayın, hizmet verenler müsait olur olmaz haber vereceğiz.",
+    "city_box_title": "{{city}} içinde hizmet veren herkes ({{count}})",
+    "city_box_hint": "Biri mahallenize gelmeyi kabul edebilir. Doğrudan iletişime geçin."
   },
   "market": {
     "title": "Bölgenizdeki pazar",

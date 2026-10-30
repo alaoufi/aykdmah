@@ -88,6 +88,15 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
     setSaved(previous => { const copy = new Set(previous); if (next) copy.add(id); else copy.delete(id); return copy; });
   };
   const availableCount = result?.providers?.filter(p => p.availability?.state === 'available').length || 0;
+  // The requester's own list (AYK-055): available now in the district; if none, available now in
+  // the city with a "not covered" note. On a request page (onContact) the list stays as it was.
+  const isAvailable = p => p.availability?.state === 'available';
+  const cityList = result?.city_providers || null;
+  const nowInDistrict = (result?.providers || []).filter(isAvailable);
+  const widened = !onContact && cityList !== null && nowInDistrict.length === 0;
+  const shown = onContact || cityList === null ? (result?.providers || []) : widened ? cityList.filter(isAvailable) : nowInDistrict;
+  const districtName = result?.area ? localizedName({ name_ar: result.area.district_name_ar, name_en: result.area.district_name_en }, lang) : '';
+  const cityName = result?.area ? localizedName({ name_ar: result.area.city_name_ar, name_en: result.area.city_name_en }, lang) : '';
   return (
     <div data-testid="providers-for-me">
       <div className="mb-3">
@@ -106,18 +115,66 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
       </div>}
       {result === null ? <p className="text-fg-muted">{t('common.loading')}</p>
         : !result.area ? <p className="card text-fg-muted text-[14px]">{t('for_you.no_area_hint')} <Link to="/profile#my-area" className="font-semibold text-primary">{t('for_you.edit_area')}</Link></p>
-          : result.providers.length === 0 ? (
-            <div className="card text-[14px]">
-              <p className="text-fg-muted m-0 mb-3">{t('for_you.providers_empty')}</p>
-              {!onContact && <Link to="/requests/new" className="btn btn-primary">{t('home.new_request')}</Link>}
-            </div>
-          ) : (
-            <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 list-none p-0 m-0">
-              {result.providers.map(p => <ProviderCard key={p.id} provider={p} onContact={onContact}
-                requester={requester} saved={saved.has(p.id)} onToggleSaved={toggleSaved} categoryId={categoryId} />)}
-            </ol>
+          : (
+            <>
+              {widened && (
+                <p className="card p-3 text-[13.5px] bg-amber-50 text-amber-900 mb-3" role="status" data-testid="district-not-covered">
+                  ⚠️ {t(shown.length ? 'for_you.district_not_covered' : 'for_you.city_none_now', { district: districtName, city: cityName })}
+                </p>
+              )}
+              {shown.length === 0 ? (
+                <div className="card text-[14px]">
+                  <p className="text-fg-muted m-0 mb-3">{t(cityList === null ? 'for_you.providers_empty' : 'for_you.request_and_we_alert')}</p>
+                  {!onContact && <Link to="/requests/new" className="btn btn-primary">{t('home.new_request')}</Link>}
+                </div>
+              ) : (
+                <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 list-none p-0 m-0">
+                  {shown.map(p => <ProviderCard key={p.id} provider={p} onContact={onContact}
+                    requester={requester} saved={saved.has(p.id)} onToggleSaved={toggleSaved} categoryId={categoryId} />)}
+                </ol>
+              )}
+              {!onContact && cityList?.length > 0 && (
+                <CityBox providers={cityList} cityName={cityName} requester={requester} categoryId={categoryId} />
+              )}
+            </>
           )}
     </div>
+  );
+}
+
+// Everyone serving the requester's city, small and scrollable (AYK-055): a provider from
+// another district may still agree to come, so each row can be contacted directly.
+function CityBox({ providers, cityName, requester, categoryId }) {
+  const { t, i18n } = useTranslation();
+  const lang = i18n.resolvedLanguage || 'ar';
+  const navigate = useNavigate();
+  const [busy, setBusy] = useState(0);
+  const [problem, setProblem] = useState('');
+  const contact = async id => {
+    setBusy(id); setProblem('');
+    try { const res = await contactDirect(id, categoryId); navigate(`/chat/${res.conversation_id}`); }
+    catch (err) { setProblem(apiError(err)); } finally { setBusy(0); }
+  };
+  return (
+    <section className="card p-3 mt-4" data-testid="city-providers">
+      <h3 className="text-[15px] font-bold m-0">👥 {t('for_you.city_box_title', { city: cityName, count: providers.length })}</h3>
+      <p className="text-[12.5px] text-fg-muted mt-1 mb-2">{t('for_you.city_box_hint')}</p>
+      <ul className="list-none p-0 m-0 max-h-64 overflow-y-auto divide-y divide-border">
+        {providers.map(p => (
+          <li key={p.id} className="flex items-center gap-2 py-2 text-[13px]" data-testid="city-provider">
+            <span className={p.availability?.state === 'available' ? 'text-success' : 'text-fg-subtle'} aria-label={t(p.availability?.state === 'available' ? 'for_you.available' : 'for_you.unavailable')}>●</span>
+            <Link to={`/providers/${p.id}`} className="font-semibold text-fg truncate">{p.business_name || p.full_name}</Link>
+            <span className="text-fg-muted truncate flex-1">
+              {p.category_name_ar ? localizedName({ name_ar: p.category_name_ar, name_en: p.category_name_en, name_translations: p.category_name_translations }, lang) : ''}
+              {p.district_name_ar ? ` · ${localizedName({ name_ar: p.district_name_ar, name_en: p.district_name_en }, lang)}` : ''}
+            </span>
+            {requester && <button type="button" className="btn btn-outline btn-sm shrink-0" disabled={busy !== 0} onClick={() => contact(p.id)}>
+              {busy === p.id ? '⏳' : `💬 ${t('request.contact')}`}</button>}
+          </li>
+        ))}
+      </ul>
+      {problem && <p role="alert" className="form-error mt-1 text-[12px]">{problem}</p>}
+    </section>
   );
 }
 

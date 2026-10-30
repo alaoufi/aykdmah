@@ -18,6 +18,7 @@ import ConfirmDialog from '../components/common/ConfirmDialog';
 import { LoadingState, EmptyState } from '../components/common/Spinner';
 import { formatRelativeTime, formatTime, truncate, dayLabel, isSameDay } from '../utils/formatters';
 import { getCurrentPosition } from '../utils/geo';
+import { sentTone } from '../utils/ringtone';
 import { createPollingLoop } from '../utils/polling';
 import { agreeRequest } from '../services/requestService';
 
@@ -227,6 +228,7 @@ export default function ChatPage() {
       if (scopeRef.current !== scope) return false;
       messagePollRef.current?.refresh();
       setMessages(prev => prev.some(m => m.id === msg.id) ? prev : [...prev, msg]);
+      sentTone();
       setReplyTo(null);
       loadList();
       return true;
