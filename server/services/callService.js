@@ -141,7 +141,8 @@ async function start({ caller, conversationId, callType }) {
     title: translate(lang, callType === 'video' ? 'push_call_video' : 'push_call_audio'),
     body: translate(lang, 'push_call_body', { name: row.caller_name || '' }),
   });
-  const ring = round => pushService.sendToUser(callee.id, ringPayload,
+  // Each repeat carries its round: the phone shows it as a new notification that rings again (AYK-090).
+  const ring = round => pushService.sendToUser(callee.id, lang => ({ ...ringPayload(lang), round }),
     { TTL: Math.max(5, Math.round((RING_TIMEOUT_MS - round * RING_REPEAT_MS) / 1000)), urgency: 'high', topic: `call-${callId}` })
     .then(sent => logger.info(`Push call call=${callId} user=${callee.id} round=${round} devices=${sent}`))
     .catch(err => logger.warn('Call push failed:', err.message));

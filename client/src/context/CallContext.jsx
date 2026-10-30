@@ -135,6 +135,9 @@ export function CallProvider({ children }) {
     // network gets the sharp layer, a weak one a lighter layer instead of a frozen picture (AYK-059).
     const lkRoom = new Room({
       adaptiveStream: true, dynacast: true, stopLocalTrackOnUnpublish: true,
+      // Switching to another app must not hang up (AYK-090): LiveKit would leave on "pagehide".
+      // A page really closed is ended by the server once its rejoin time runs out.
+      disconnectOnPageLeave: false,
       videoCaptureDefaults: VideoPresets?.h540 ? { resolution: VideoPresets.h540.resolution } : undefined,
       publishDefaults: {
         simulcast: true,
@@ -307,6 +310,21 @@ export function CallProvider({ children }) {
     }, 50000);
     return () => clearTimeout(stuck);
   }, [phase, finishLocally]);
+
+  // Keep the screen on during a call so the phone does not sleep and drop it (AYK-090); asked
+  // again on return, since the system releases it when the app goes to the background.
+  useEffect(() => {
+    if (!['in_call', 'reconnecting', 'connecting', 'outgoing'].includes(phase) || !navigator.wakeLock) return undefined;
+    let lock = null;
+    let alive = true;
+    const take = () => {
+      if (document.visibilityState !== 'visible' || (lock && !lock.released)) return;
+      navigator.wakeLock.request('screen').then(l => { if (alive) lock = l; else l.release().catch(() => {}); }).catch(() => {});
+    };
+    take();
+    document.addEventListener('visibilitychange', take);
+    return () => { alive = false; document.removeEventListener('visibilitychange', take); lock?.release().catch(() => {}); };
+  }, [phase]);
 
   // Ringing tone for an incoming call, ringback while the other side has not answered.
   useEffect(() => {

@@ -6,11 +6,14 @@ self.addEventListener('push', (event) => {
   try { data = event.data ? event.data.json() : {}; } catch (_) { data = {}; }
   event.waitUntil((async () => {
     const tag = typeof data.tag === 'string' ? data.tag : 'ayk';
-    if (data.kind === 'call_end') {
-      const shown = await self.registration.getNotifications({ tag });
-      shown.forEach(n => n.close());
-      return;
-    }
+    // A call's notifications are "call-<id>" plus a round (AYK-090): every repeat is a new one
+    // that rings again, and ending or missing the call closes them all.
+    const closeCall = async () => {
+      const shown = await self.registration.getNotifications();
+      shown.filter(n => n.tag === tag || n.tag.startsWith(`${tag}-r`)).forEach(n => n.close());
+    };
+    if (data.kind === 'call_end') { await closeCall(); return; }
+    if (data.kind === 'call' || data.kind === 'missed_call') await closeCall();
     // An open, visible tab already rings with the in-app call screen.
     const windows = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
     if (data.kind === 'call' && windows.some(w => w.visibilityState === 'visible')) return;
@@ -21,7 +24,7 @@ self.addEventListener('push', (event) => {
     if (data.kind === 'message' && windows.some(w => w.visibilityState === 'visible' && new URL(w.url).pathname === url)) return;
     await self.registration.showNotification(String(data.title || 'أي خدمة'), {
       body: String(data.body || ''),
-      tag,
+      tag: data.kind === 'call' && Number.isInteger(data.round) ? `${tag}-r${data.round}` : tag,
       renotify: true,
       requireInteraction: data.kind === 'call',
       // A missed call replaces the ringing notification (same tag) and stays until opened (AYK-064).

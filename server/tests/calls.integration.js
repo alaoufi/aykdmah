@@ -264,6 +264,7 @@ if (!databasePrefix) {
     const ring = pushes.find(p => p.endpoint === device.endpoint);
     assert.ok(ring, 'the callee device is notified');
     assert.equal(ring.body.kind, 'call');
+    assert.equal(ring.body.round, 0, 'each repeat is numbered so it rings again');
     assert.equal(ring.body.url, `/chat/${conversation}`);
     assert.equal(ring.options.urgency, 'high');
     assert.ok(ring.options.TTL <= 45, 'the ring expires with the call');
