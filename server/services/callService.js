@@ -251,6 +251,9 @@ async function accept(callId, user) {
   if (!updated.affectedRows) throw fail(409, 'call_not_ringing');
   const final = await findCall(row.id);
   await emitState(final);
+  // Answered: every device of the callee stops ringing, the app (FCM) and the browser (AYK-097).
+  fcm.sendToUser(row.callee_id, { kind: 'call_end', call_id: row.id, conversation_id: row.conversation_id }, { ttlSeconds: 60 }).catch(() => {});
+  pushService.sendToUser(row.callee_id, { kind: 'call_end', call_id: row.id, tag: `call-${row.id}` }, { TTL: 60, urgency: 'high', topic: `call-${row.id}` }).catch(() => {});
   return publicCall(final, user.id);
 }
 
