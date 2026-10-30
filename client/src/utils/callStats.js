@@ -13,7 +13,12 @@ export async function collectCallStats(room) {
   }
   for (const pub of room.localParticipant.trackPublications.values()) if (pub.track) tracks.push(pub.track);
   for (const track of tracks) {
-    try { const report = await track.getRTCStatsReport?.(); if (report) reports.push(report); } catch (_) { /* track already stopped */ }
+    try {
+      // Straight from the sender or receiver when the library returns nothing (Android: AYK-093).
+      let report = await track.getRTCStatsReport?.();
+      if (!report || !report.size) report = await (track.receiver || track.sender)?.getStats?.();
+      if (report) reports.push(report);
+    } catch (_) { /* track already stopped */ }
   }
   let lost = 0, received = 0, jitter = [], audioIn = 0, audioOut = 0, videoIn = 0;
   for (const report of reports) {

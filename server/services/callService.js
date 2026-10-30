@@ -319,15 +319,15 @@ async function diagnostics(callId, user, body = {}) {
   const text = (value, max) => (typeof value === 'string' && value.trim() ? value.trim().slice(0, max) : null);
   const loss = Number(body.packet_loss_pct);
   await query(`INSERT INTO call_diagnostics (call_id, user_id, connection_type, rtt_ms, jitter_ms, packet_loss_pct,
-      audio_kb_in, audio_kb_out, video_kb_in, poor_seconds, reconnects, audio_blocked, network_type, device)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (call_id, user_id) DO NOTHING`, [
+      audio_kb_in, audio_kb_out, video_kb_in, poor_seconds, reconnects, audio_blocked, network_type, device, details)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT (call_id, user_id) DO NOTHING`, [
     row.id, user.id,
     ['udp', 'tcp', 'relay-udp', 'relay-tcp', 'relay-tls'].includes(body.connection_type) ? body.connection_type : null,
     int(body.rtt_ms, 60000), int(body.jitter_ms, 60000),
     Number.isFinite(loss) && loss >= 0 ? Math.min(Math.round(loss * 100) / 100, 100) : null,
     int(body.audio_kb_in, 10000000), int(body.audio_kb_out, 10000000), int(body.video_kb_in, 10000000),
     int(body.poor_seconds, 86400) || 0, int(body.reconnects, 1000) || 0, body.audio_blocked ? 1 : 0,
-    text(body.network_type, 20), text(body.device, 160),
+    text(body.network_type, 20), text(body.device, 160), text(body.details, 600),
   ]);
   return { saved: true };
 }

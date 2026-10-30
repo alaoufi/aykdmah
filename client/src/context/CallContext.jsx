@@ -57,11 +57,18 @@ export function CallProvider({ children }) {
       // snapshot taken during the call (every 10 s), so the log is never just zeros (AYK-066).
       const fresh = await Promise.race([collectCallStats(current).catch(() => ({})), new Promise(resolve => setTimeout(() => resolve({}), 1500))]);
       const stats = (fresh.audio_kb_in || fresh.audio_kb_out) ? fresh : (log.lastStats || fresh);
+      // Which tracks were really sent and received (AYK-093): source, subscribed (s), muted (m).
+      const pubs = p => [...(p?.trackPublications?.values() || [])].map(pub => `${pub.source}${pub.isSubscribed === false ? '-' : ''}${pub.isMuted ? 'm' : ''}`).join(',');
+      const audioEl = document.querySelector('[role="dialog"] audio');
+      const details = JSON.stringify({
+        me: pubs(current.localParticipant), peer: pubs([...current.remoteParticipants.values()][0]),
+        el: audioEl ? (audioEl.paused ? 'paused' : 'playing') : 'none', errs: log.errors || [],
+      }).slice(0, 600);
       calls.sendCallDiagnostics(ended.id, {
-        ...stats, poor_seconds: Math.round(poorMs / 1000), reconnects: log.reconnects, audio_blocked: log.audioBlocked,
+        ...stats, poor_seconds: Math.round(poorMs / 1000), reconnects: log.reconnects, audio_blocked: log.audioBlocked, details,
       }).catch(() => {});
     }
-    qualityLog.current = { poorSince: 0, poorMs: 0, reconnects: 0, audioBlocked: false };
+    qualityLog.current = { poorSince: 0, poorMs: 0, reconnects: 0, audioBlocked: false, errors: [] };
     roomRef.current = null;
     setRoom(null);
     setRemoteJoined(false);
@@ -205,19 +212,26 @@ export function CallProvider({ children }) {
     // Once joined, a publishing error never ends the call: a transport hiccup (the other
     // side dropping and rejoining) can reject a pending publish long after it started.
     // Only a refused microphone or camera permission is reported to the caller.
-    const publish = async (enable) => {
-      try { await enable(); return true; } catch (err) {
-        if (err?.name === 'NotAllowedError') throw err;
-        console.warn('[call] publish failed:', err?.name, err?.message);
-        return false;
+    // One after the other, microphone first: some Android phones refuse two requests at once and
+    // one of them failed silently (AYK-093). Retried; the camera at a lower size each time.
+    const publish = async (label, enable, retries) => {
+      for (let attempt = 0; ; attempt += 1) {
+        try { await enable(attempt); return true; } catch (err) {
+          if (err?.name === 'NotAllowedError') throw err;
+          console.warn('[call] publish failed:', label, err?.name, err?.message);
+          qualityLog.current.errors = [...(qualityLog.current.errors || []), `${label}:${err?.name || 'Error'}`].slice(-6);
+          if (attempt >= retries) return false;
+          await new Promise(resolve => setTimeout(resolve, 700));
+        }
       }
     };
-    const [mic, cam] = await Promise.all([
-      publish(() => lkRoom.localParticipant.setMicrophoneEnabled(true)),
-      // A refused camera does not end a video call: it goes on as voice, camera off (AYK-089).
-      active.call_type === 'video' ? publish(() => lkRoom.localParticipant.setCameraEnabled(true, { facingMode: 'user' }))
-        .catch(err => { if (err?.name === 'NotAllowedError') return false; throw err; }) : false,
-    ]);
+    const mic = await publish('mic', () => lkRoom.localParticipant.setMicrophoneEnabled(true), 2);
+    const sizes = [undefined, VideoPresets?.h360?.resolution, VideoPresets?.h180?.resolution];
+    // A refused camera does not end a video call: it goes on as voice, camera off (AYK-089).
+    const cam = active.call_type === 'video'
+      ? await publish('cam', attempt => lkRoom.localParticipant.setCameraEnabled(true, sizes[attempt] ? { facingMode: 'user', resolution: sizes[attempt] } : { facingMode: 'user' }), 2)
+        .catch(err => { qualityLog.current.errors = [...(qualityLog.current.errors || []), `cam:${err?.name}`].slice(-6); if (err?.name === 'NotAllowedError') return false; throw err; })
+      : false;
     setMicOn(mic);
     setCamOn(cam);
     setFacing('user');
