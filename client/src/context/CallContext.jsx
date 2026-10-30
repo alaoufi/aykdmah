@@ -4,7 +4,7 @@ import { useSocket } from './SocketContext';
 import * as calls from '../services/callService';
 import { syncPush } from '../services/pushService';
 import { sendDeviceReport } from '../utils/deviceReport';
-import { startTone, stopTone } from '../utils/ringtone';
+import { startTone, stopTone, primeAudio } from '../utils/ringtone';
 import { collectCallStats } from '../utils/callStats';
 
 // The call screen and the LiveKit SDK load only when a call actually starts or rings.
@@ -263,7 +263,9 @@ export function CallProvider({ children }) {
       } catch (_) { /* offline: try again next tick */ }
     };
     poll();
-    timer = setInterval(poll, connected ? 20000 : 5000);
+    // While a call rings, check every 4 s even if the socket looks connected: on a weak network
+    // it can be silently dead and the end of the call would never arrive (AYK-083).
+    timer = setInterval(poll, ['outgoing', 'incoming'].includes(phase) ? 4000 : connected ? 20000 : 5000);
     return () => {
       socket?.off('call:incoming', onIncoming);
       socket?.off('call:state', onState);
@@ -288,6 +290,18 @@ export function CallProvider({ children }) {
   // Then this device reports its system and capabilities for the devices log (AYK-062).
   useEffect(() => { if (user?.id) syncPush().catch(() => {}).finally(() => sendDeviceReport().catch(() => {})); }, [user?.id]);
 
+  // Last resort (AYK-083): the server ends an unanswered call after 45 s; if that never arrives,
+  // the caller's "Calling…" screen closes on its own at 50 s instead of hanging.
+  useEffect(() => {
+    if (phase !== 'outgoing') return undefined;
+    const id = callRef.current?.id;
+    const stuck = setTimeout(() => {
+      const current = callRef.current;
+      if (current && current.id === id && current.status === 'ringing') finishLocally({ ...current, status: 'missed', end_reason: 'no_answer' });
+    }, 50000);
+    return () => clearTimeout(stuck);
+  }, [phase, finishLocally]);
+
   // Ringing tone for an incoming call, ringback while the other side has not answered.
   useEffect(() => {
     if (phase === 'incoming') startTone('incoming');
@@ -309,6 +323,7 @@ export function CallProvider({ children }) {
 
   const start = useCallback(async (conversationId, callType) => {
     if (callRef.current) return;
+    primeAudio();
     setError(null);
     leavingRef.current = false;
     endingRef.current = false;
@@ -338,6 +353,7 @@ export function CallProvider({ children }) {
   const accept = useCallback(async () => {
     const current = callRef.current;
     if (!current) return;
+    primeAudio();
     leavingRef.current = false;
     endingRef.current = false;
     try {

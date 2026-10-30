@@ -61,6 +61,14 @@ export function chime() {
 // The sender hears the same tone as the receiver (owner: "the sound they hear, I hear").
 export const sentTone = () => chime();
 
+// Called in the tap itself (call / answer): browsers allow sound to start only from a tap, and
+// on a slow network the ringback would otherwise begin seconds later, outside it (AYK-083).
+export function primeAudio() {
+  const AudioContext = typeof window !== 'undefined' && (window.AudioContext || window.webkitAudioContext);
+  if (!AudioContext) return;
+  try { ctx ||= new AudioContext(); ctx.resume?.().catch(() => {}); } catch (_) { /* no audio output */ }
+}
+
 export function startTone(kind) {
   stopTone();
   const pattern = PATTERNS[kind];
