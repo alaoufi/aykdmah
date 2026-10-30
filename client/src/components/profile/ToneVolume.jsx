@@ -3,6 +3,10 @@ import { useTranslation } from 'react-i18next';
 import { chime, getToneVolume, setToneVolume } from '../../utils/ringtone';
 import api, { apiError } from '../../services/api';
 
+// iPhone / iPad (also iPadOS that reports itself as a Mac with touch).
+const isIOS = () => /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+const installed = () => window.matchMedia?.('(display-mode: standalone)').matches || navigator.standalone === true;
+
 // Notification volume (AYK-057): the message tone and the call ring inside the site.
 export default function ToneVolume() {
   const { t } = useTranslation();
@@ -29,9 +33,11 @@ export default function ToneVolume() {
       <div className="mt-3 pt-3 border-t border-border">
         <button type="button" className="btn btn-primary btn-sm" onClick={sendTest} data-testid="push-test">🔔 {t('tone.test')}</button>
         {test && <p className="text-[13px] font-semibold mt-2 mb-0" role="status">{test}</p>}
-        <details className="mt-2 text-[12.5px] text-fg-muted">
-          <summary className="font-semibold text-primary cursor-pointer">{t('tone.android_title')}</summary>
-          <ol className="ps-5 mt-1 mb-0 space-y-1">{t('tone.android_steps').split('|').map(step => <li key={step}>{step}</li>)}</ol>
+        {/* Steps for this phone: iPhone needs the site on the home screen first (AYK-061). */}
+        {isIOS() && !installed() && <p className="text-[12.5px] font-semibold text-danger mt-2 mb-0" data-testid="ios-install">⚠️ {t('tone.ios_must_install')}</p>}
+        <details className="mt-2 text-[12.5px] text-fg-muted" open={isIOS() && !installed()}>
+          <summary className="font-semibold text-primary cursor-pointer">{t(isIOS() ? 'tone.ios_title' : 'tone.android_title')}</summary>
+          <ol className="ps-5 mt-1 mb-0 space-y-1">{t(isIOS() ? 'tone.ios_steps' : 'tone.android_steps').split('|').map(step => <li key={step}>{step}</li>)}</ol>
         </details>
       </div>
     </div>

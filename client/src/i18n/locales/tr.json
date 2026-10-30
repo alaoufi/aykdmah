@@ -2271,6 +2271,9 @@
     "test_sent": "Telefonunuza deneme bildirimi gönderildi. Siteyi kapatın ve diğer uygulamaların üzerinde çıkıp çıkmadığına bakın.",
     "test_none": "Bu cihaz henüz abone değil. «ملفي» üstündeki «🔔 Bildirimler»e dokunup deneyin.",
     "android_title": "Bildirimi uygulamaların üzerinde özel tonla göster (Android)",
-    "android_steps": "Telefon Ayarları → Uygulamalar → Chrome → Bildirimler bölümünü açın.|«Siteler» kısmına inip aykdmh.com seçin.|«Ekranda açılır pencere» seçeneğini açın.|«Ses» seçeneğine dokunup Ay Khidmah için özel bir ton seçin.|Aramaları kaçırmamak için «Rahatsız Etmeyin modunu geçersiz kıl» seçeneğini açın.|Geri dönüp «🔔 Bildirimi dene» düğmesine dokunun."
+    "android_steps": "Telefon Ayarları → Uygulamalar → Chrome → Bildirimler bölümünü açın.|«Siteler» kısmına inip aykdmh.com seçin.|«Ekranda açılır pencere» seçeneğini açın.|«Ses» seçeneğine dokunup Ay Khidmah için özel bir ton seçin.|Aramaları kaçırmamak için «Rahatsız Etmeyin modunu geçersiz kıl» seçeneğini açın.|Geri dönüp «🔔 Bildirimi dene» düğmesine dokunun.",
+    "ios_must_install": "iPhone’da site kapalıyken bildirim, yalnızca site Ana Ekrana eklenip simgesinden açılınca gelir.",
+    "ios_title": "iPhone bildirimleri (iOS 16.4 veya üstü)",
+    "ios_steps": "aykdmh.com’u Safari’de açın.|Alttaki Paylaş düğmesine (kare ve ok) dokunun.|«Ana Ekrana Ekle» ve ardından «Ekle»yi seçin.|Ay Khidmah’ı yeni simgesinden açıp giriş yapın.|«ملفي» içinde «🔔 Bildirimler»e dokunup izin verin.|Ayarlar → Bildirimler → Ay Khidmah: Afişler, Sesler ve Zamana Duyarlı Bildirimleri açın.|Kontrol için «🔔 Bildirimi dene»ye dokunun."
   }
 }

@@ -2271,6 +2271,9 @@
     "test_sent": "A test notification was sent to your phone. Close the site and see if it pops up over other apps.",
     "test_none": "This device is not subscribed yet. Tap \"🔔 Notifications\" at the top of \"My profile\", then test.",
     "android_title": "Make alerts pop up over apps with a distinct tone (Android)",
-    "android_steps": "Open phone Settings → Apps → Chrome → Notifications.|Scroll to \"Sites\" and tap aykdmh.com.|Turn on \"Pop on screen\".|Tap \"Sound\" and pick a distinct tone for Ay Khidmah.|Turn on \"Override Do Not Disturb\" if you never want to miss calls.|Come back and tap \"🔔 Test notification\" to check."
+    "android_steps": "Open phone Settings → Apps → Chrome → Notifications.|Scroll to \"Sites\" and tap aykdmh.com.|Turn on \"Pop on screen\".|Tap \"Sound\" and pick a distinct tone for Ay Khidmah.|Turn on \"Override Do Not Disturb\" if you never want to miss calls.|Come back and tap \"🔔 Test notification\" to check.",
+    "ios_must_install": "On iPhone, alerts arrive with the site closed only after adding it to the Home Screen and opening it from its icon.",
+    "ios_title": "iPhone notifications (iOS 16.4 or later)",
+    "ios_steps": "Open aykdmh.com in Safari.|Tap the Share button (square with arrow) at the bottom.|Choose \"Add to Home Screen\", then \"Add\".|Open Ay Khidmah from its new icon and sign in.|In \"My profile\" tap \"🔔 Notifications\" and allow them.|In Settings → Notifications → Ay Khidmah: turn on Banners and Sounds, and Time Sensitive Notifications.|Tap \"🔔 Test notification\" to check."
   }
 }

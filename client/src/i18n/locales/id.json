@@ -2271,6 +2271,9 @@
     "test_sent": "Notifikasi uji telah dikirim ke ponsel Anda. Tutup situs dan lihat apakah muncul di atas aplikasi lain.",
     "test_none": "Perangkat ini belum berlangganan. Ketuk «🔔 Notifikasi» di atas «ملفي», lalu uji.",
     "android_title": "Tampilkan notifikasi di atas aplikasi dengan nada khas (Android)",
-    "android_steps": "Buka Setelan ponsel → Aplikasi → Chrome → Notifikasi.|Gulir ke «Situs» dan ketuk aykdmh.com.|Aktifkan «Muncul di layar».|Ketuk «Suara» dan pilih nada khas untuk Ay Khidmah.|Aktifkan «Abaikan Jangan Ganggu» agar panggilan tidak terlewat.|Kembali dan ketuk «🔔 Uji notifikasi»."
+    "android_steps": "Buka Setelan ponsel → Aplikasi → Chrome → Notifikasi.|Gulir ke «Situs» dan ketuk aykdmh.com.|Aktifkan «Muncul di layar».|Ketuk «Suara» dan pilih nada khas untuk Ay Khidmah.|Aktifkan «Abaikan Jangan Ganggu» agar panggilan tidak terlewat.|Kembali dan ketuk «🔔 Uji notifikasi».",
+    "ios_must_install": "Di iPhone, notifikasi saat situs tertutup hanya datang setelah situs ditambahkan ke Layar Utama dan dibuka dari ikonnya.",
+    "ios_title": "Notifikasi iPhone (iOS 16.4 atau lebih baru)",
+    "ios_steps": "Buka aykdmh.com di Safari.|Ketuk tombol Bagikan (kotak dan panah) di bawah.|Pilih «Tambah ke Layar Utama», lalu «Tambah».|Buka Ay Khidmah dari ikon barunya dan masuk.|Di «ملفي» ketuk «🔔 Notifikasi» dan izinkan.|Di Pengaturan → Notifikasi → Ay Khidmah: aktifkan Banner, Suara, dan Notifikasi Sensitif Waktu.|Ketuk «🔔 Uji notifikasi» untuk memastikan."
   }
 }

@@ -2271,6 +2271,9 @@
     "test_sent": "May pagsubok na abisong ipinadala sa telepono mo. Isara ang site at tingnan kung lilitaw ito sa ibabaw ng ibang apps.",
     "test_none": "Hindi pa naka-subscribe ang device na ito. Pindutin ang «🔔 Mga abiso» sa itaas ng «ملفي», saka subukan.",
     "android_title": "Ipalitaw ang abiso sa ibabaw ng apps na may natatanging tono (Android)",
-    "android_steps": "Buksan ang Settings ng telepono → Apps → Chrome → Notifications.|Pumunta sa «Sites» at pindutin ang aykdmh.com.|I-on ang «Pop on screen».|Pindutin ang «Sound» at pumili ng natatanging tono para sa Ay Khidmah.|I-on ang «Override Do Not Disturb» kung ayaw mong makaligtaan ang tawag.|Bumalik at pindutin ang «🔔 Subukan ang abiso»."
+    "android_steps": "Buksan ang Settings ng telepono → Apps → Chrome → Notifications.|Pumunta sa «Sites» at pindutin ang aykdmh.com.|I-on ang «Pop on screen».|Pindutin ang «Sound» at pumili ng natatanging tono para sa Ay Khidmah.|I-on ang «Override Do Not Disturb» kung ayaw mong makaligtaan ang tawag.|Bumalik at pindutin ang «🔔 Subukan ang abiso».",
+    "ios_must_install": "Sa iPhone, darating lang ang abiso kapag sarado ang site kung idinagdag ito sa Home Screen at binuksan mula sa icon.",
+    "ios_title": "Mga abiso sa iPhone (iOS 16.4 o mas bago)",
+    "ios_steps": "Buksan ang aykdmh.com sa Safari.|Pindutin ang Share button (kahon at arrow) sa ibaba.|Piliin ang «Add to Home Screen», saka «Add».|Buksan ang Ay Khidmah mula sa bagong icon at mag-sign in.|Sa «ملفي» pindutin ang «🔔 Mga abiso» at payagan.|Sa Settings → Notifications → Ay Khidmah: i-on ang Banners, Sounds at Time Sensitive.|Pindutin ang «🔔 Subukan ang abiso» para tiyakin."
   }
 }
