@@ -558,7 +558,11 @@
     "nudge_sent": "🔔 Mereka menerima pemberitahuan baru.",
     "nudge_failed": "Gagal mengingatkan. Coba lagi.",
     "translated_show_original": "Diterjemahkan · lihat asli",
-    "show_translation": "Lihat terjemahan"
+    "show_translation": "Lihat terjemahan",
+    "block": "Blokir",
+    "unblock": "Buka blokir",
+    "blocked_note": "Anda memblokir orang ini: tidak ada pesan atau panggilan di antara kalian. Buka blokir dengan ✅ di atas obrolan.",
+    "block_confirm": "Blokir {{name}}? Tidak ada pesan atau panggilan darinya; riwayat tetap bisa dibaca."
   },
   "tracking": {
     "title": "Pelacakan langsung",

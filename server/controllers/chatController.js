@@ -236,7 +236,10 @@ const getConversation = asyncHandler(async (req, res) => {
   const conv = await Conversation.findById(conversationId);
   if (!conv) return notFound(res);
   const participants = await Conversation.getParticipants(conversationId);
-  return success(res, { ...conv, participants });
+  // Whether I blocked the other side (AYK-084), for the "Block" / "Unblock" button.
+  const peer = participants.find(p => Number(p.id) !== Number(req.user.id));
+  const mine = peer ? await queryOne('SELECT 1 AS hit FROM user_blocks WHERE blocker_id = ? AND blocked_id = ?', [req.user.id, peer.id]) : null;
+  return success(res, { ...conv, participants, blocked_by_me: Boolean(mine) });
 });
 
 module.exports = {

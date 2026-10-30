@@ -35,6 +35,10 @@ router.get('/me/directory', authenticate, directory.list);
 router.get('/me/directory/ids', authenticate, directory.ids);
 router.post('/me/directory/:providerId', authenticate, directory.add);
 router.delete('/me/directory/:providerId', authenticate, directory.remove);
+// Members block each other (AYK-084).
+const blocks = require('../controllers/userBlockController');
+router.post('/me/blocks/:userId', authenticate, blocks.block);
+router.delete('/me/blocks/:userId', authenticate, blocks.unblock);
 router.put('/me/provider', authenticate, providersChanged, userController.updateProvider);
 router.put('/me/role', authenticate, providersChanged, userController.changeRole);
 router.get('/:id', optionalAuth, requireMarketplaceBrowse, userController.getOne);

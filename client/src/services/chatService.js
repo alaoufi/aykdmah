@@ -23,6 +23,12 @@ export async function getChatUnread() {
   return Number(data.data?.count) || 0;
 }
 
+// Block / unblock the other side of a chat (AYK-084).
+export async function setUserBlocked(userId, blocked) {
+  const { data } = blocked ? await api.post(`/users/me/blocks/${userId}`) : await api.delete(`/users/me/blocks/${userId}`);
+  return data.data;
+}
+
 export async function getConversation(id) {
   const { data } = await api.get(`/chat/conversations/${id}`);
   return data.data;

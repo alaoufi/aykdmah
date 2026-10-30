@@ -183,7 +183,9 @@ export default function RequestDetailsPage() {
 
   // "Stop the request" closes it (AYK-041). With "I found a provider" ticked, the
   // request is agreed with that provider, marked done, and the rating page opens.
-  const contactedProviders = offers.filter((o, i) => offers.findIndex(x => x.provider_id === o.provider_id) === i);
+  // Providers who withdrew are hidden from the requester; they may contact again (AYK-084).
+  const shownOffers = isOwner ? offers.filter(o => o.status !== 'withdrawn') : offers;
+  const contactedProviders = shownOffers.filter((o, i) => shownOffers.findIndex(x => x.provider_id === o.provider_id) === i);
   const closeRequest = async () => {
     setSubmitting(true);
     setErr('');
@@ -342,12 +344,12 @@ export default function RequestDetailsPage() {
       )}
 
       {canReadRequestOffers(user, request, canManageRequests) && <div className="card">
-        <h3>{t('request.contacts_title')} ({offers.length})</h3>
-        {offers.length === 0 ? (
+        <h3>{t('request.contacts_title')} ({shownOffers.length})</h3>
+        {shownOffers.length === 0 ? (
           <EmptyState title={t('request.no_offers_yet')} body={t('request.offers_will_appear')} />
         ) : (
           <div className="flex flex-col gap-3">
-            {offers.map(o => {
+            {shownOffers.map(o => {
               const oStatus = OFFER_STATUS[o.status] || {};
               return (
                 <div key={o.id} className="offer-card" data-offer-id={o.id}>

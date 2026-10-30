@@ -558,7 +558,11 @@
     "nudge_sent": "🔔 Yeni bir bildirim aldı.",
     "nudge_failed": "Hatırlatma gönderilemedi. Tekrar deneyin.",
     "translated_show_original": "Çevrildi · aslını göster",
-    "show_translation": "Çeviriyi göster"
+    "show_translation": "Çeviriyi göster",
+    "block": "Engelle",
+    "unblock": "Engeli kaldır",
+    "blocked_note": "Bu kişiyi engellediniz: aranızda mesaj veya arama yok. Sohbetin üstündeki ✅ ile engeli kaldırın.",
+    "block_confirm": "{{name}} engellensin mi? Ondan mesaj veya arama gelmez; geçmiş okunabilir kalır."
   },
   "tracking": {
     "title": "Canlı izleme",

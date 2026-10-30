@@ -4,8 +4,9 @@ import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next';
 import {
   listConversations, getConversation, getMessages, sendMessage, markRead, forwardMessage,
-  deleteMessage, sendLocationMessage, nudgeConversation,
+  deleteMessage, sendLocationMessage, nudgeConversation, setUserBlocked,
 } from '../services/chatService';
+import { apiError } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 import { useNotifications } from '../hooks/useNotifications';
 import { useSocket } from '../hooks/useSocket';
@@ -38,6 +39,7 @@ export default function ChatPage() {
   const archived = c => Boolean(c.request_id) && (!c.can_send || ['completed', 'closed', 'cancelled'].includes(c.request_status));
   const [listOwnerId, setListOwnerId] = useState(null);
   const [active, setActive] = useState(null);
+  const [blockProblem, setBlockProblem] = useState('');
   const [agreeing, setAgreeing] = useState(false);
   const [activeScope, setActiveScope] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -300,6 +302,20 @@ export default function ChatPage() {
     } catch (_) { /* the request page shows the reason */ } finally { setAgreeing(false); }
   };
 
+  // "🚫 Block" / "✅ Unblock" the other side (AYK-084); refused while working together or in warranty.
+  const toggleBlock = async () => {
+    const peerId = otherParticipant?.id;
+    if (!peerId || !active) return;
+    const next = !active.blocked_by_me;
+    if (next && !window.confirm(t('chat.block_confirm', { name: otherParticipant.full_name }))) return;
+    setBlockProblem('');
+    try {
+      await setUserBlocked(peerId, next);
+      const fresh = await getConversation(active.id);
+      setActive(current => (current && current.id === fresh.id ? { ...current, ...fresh } : current));
+    } catch (err) { setBlockProblem(apiError(err)); }
+  };
+
   return (
     <div className="chat-page">
       <aside className={`chat-sidebar ${activeId ? 'hide-on-mobile' : ''}`}>
@@ -381,6 +397,10 @@ export default function ChatPage() {
                     </div>
                   </div>
                   {canSend && <CallButtons conversationId={Number(activeId)} compact />}
+                  <button type="button" className="track-btn" onClick={toggleBlock} data-testid="chat-block"
+                    aria-label={t(active?.blocked_by_me ? 'chat.unblock' : 'chat.block')} title={t(active?.blocked_by_me ? 'chat.unblock' : 'chat.block')}>
+                    {active?.blocked_by_me ? '✅' : '🚫'}
+                  </button>
                   {/* Live tracking works only for the agreed pair, so it shows only then, named. */}
                   {requestId && canShareLocation && (
                     <Link
@@ -441,8 +461,9 @@ export default function ChatPage() {
                 <button onClick={() => setReplyTo(null)} aria-label={t('common.close')}>✕</button>
               </div>
             )}
+            {blockProblem && <p role="alert" className="text-sm text-danger p-3">{blockProblem}</p>}
             {activeReady && active.can_send === false && (
-              <p role="status" className="text-sm text-muted p-3">{t('chat.read_only')}</p>
+              <p role="status" className="text-sm text-muted p-3">{t(active.blocked_by_me ? 'chat.blocked_note' : 'chat.read_only')}</p>
             )}
             {/* "Agreed?": the requester may talk to several providers; agreeing with one
                 assigns the request and closes the other conversations about it. */}

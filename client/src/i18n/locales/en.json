@@ -558,7 +558,11 @@
     "nudge_sent": "🔔 They got a new alert.",
     "nudge_failed": "Could not send the reminder. Try again.",
     "translated_show_original": "Translated · show original",
-    "show_translation": "Show translation"
+    "show_translation": "Show translation",
+    "block": "Block",
+    "unblock": "Unblock",
+    "blocked_note": "You blocked this person: no messages or calls between you. Unblock with ✅ at the top of the chat.",
+    "block_confirm": "Block {{name}}? No messages or calls from them; the history stays readable."
   },
   "tracking": {
     "title": "Live tracking",

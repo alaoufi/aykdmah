@@ -38,7 +38,7 @@ function writableConversationSql(assignedOnly = false) {
     JOIN users writable_user ON writable_user.id = writable_member.user_id
     WHERE writable_member.conversation_id = c.id AND writable_user.deleted_at IS NULL
       AND writable_user.is_active = 1 AND writable_user.is_blocked = 0
-      AND ${requestPairSql('writable_member', true)}
+      AND ${requestPairSql('writable_member', true)} AND ${contactWindow.notBlockedSql('writable_member')}
       ${assignedOnly ? 'AND (c.request_id IS NULL OR r.assigned_provider_id IS NOT NULL)' : ''})`;
 }
 
@@ -136,7 +136,7 @@ async function canSend(conversationId, userId) {
     JOIN conversations c ON c.id = cp.conversation_id JOIN users u ON u.id = cp.user_id
     LEFT JOIN requests r ON r.id = c.request_id
     WHERE cp.conversation_id = ? AND cp.user_id = ? AND u.deleted_at IS NULL
-      AND u.is_active = 1 AND u.is_blocked = 0 AND ${requestPairSql('cp', true)}`, [conversationId, userId]);
+      AND u.is_active = 1 AND u.is_blocked = 0 AND ${requestPairSql('cp', true)} AND ${contactWindow.notBlockedSql('cp')}`, [conversationId, userId]);
   return !!row;
 }
 
@@ -174,7 +174,7 @@ async function assertCanSend(conversationId, userId, conn) {
     JOIN conversations c ON c.id = cp.conversation_id JOIN users u ON u.id = cp.user_id
     LEFT JOIN requests r ON r.id = c.request_id
     WHERE cp.conversation_id = ? AND cp.user_id = ? AND u.deleted_at IS NULL
-      AND u.is_active = 1 AND u.is_blocked = 0 AND ${requestPairSql('cp', true)}
+      AND u.is_active = 1 AND u.is_blocked = 0 AND ${requestPairSql('cp', true)} AND ${contactWindow.notBlockedSql('cp')}
     FOR SHARE OF cp, u`, [conversationId, userId]);
   if (!participant) throw Object.assign(new Error('Forbidden conversation'), { status: 403 });
   return true;

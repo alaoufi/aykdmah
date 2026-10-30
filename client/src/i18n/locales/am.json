@@ -558,7 +558,11 @@
     "nudge_sent": "🔔 አዲስ ማሳወቂያ ደርሶታል።",
     "nudge_failed": "ማስታወስ አልተቻለም። እንደገና ይሞክሩ።",
     "translated_show_original": "የተተረጎመ · ዋናውን አሳይ",
-    "show_translation": "ትርጉሙን አሳይ"
+    "show_translation": "ትርጉሙን አሳይ",
+    "block": "አግድ",
+    "unblock": "እገዳ አንሳ",
+    "blocked_note": "ይህን ሰው አግደዋል፦ በመካከላችሁ መልእክትም ጥሪም የለም። ከውይይቱ በላይ ባለው ✅ እገዳውን ያንሱ።",
+    "block_confirm": "{{name}}ን ይታገዱ? ከእሳቸው መልእክትም ጥሪም አይደርስዎትም፤ ታሪኩ ለንባብ ይቆያል።"
   },
   "tracking": {
     "title": "የቀጥታ ስርጭት መከታተያ",

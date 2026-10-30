@@ -558,7 +558,11 @@
     "nudge_sent": "🔔 Nakatanggap sila ng bagong abiso.",
     "nudge_failed": "Hindi naipadala ang paalala. Subukan ulit.",
     "translated_show_original": "Isinalin · ipakita ang orihinal",
-    "show_translation": "Ipakita ang salin"
+    "show_translation": "Ipakita ang salin",
+    "block": "I-block",
+    "unblock": "I-unblock",
+    "blocked_note": "Na-block mo ang taong ito: walang mensahe o tawag sa inyo. I-unblock gamit ang ✅ sa itaas ng chat.",
+    "block_confirm": "I-block si {{name}}? Walang mensahe o tawag mula sa kanya; mababasa pa rin ang kasaysayan."
   },
   "tracking": {
     "title": "Live na pagsubaybay",

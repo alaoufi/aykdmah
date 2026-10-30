@@ -172,6 +172,7 @@ const contact = asyncHandler(async (req, res) => {
   if (!owner && await require('../services/subscriptionRules').blocks(providerId, { categoryId: request.category_id, cityId: request.city_id })) {
     return error(res, req.t('subscription_required'), 402);
   }
+  if (await require('./userBlockController').isBlocked(request.client_id, providerId)) return forbidden(res, req.t('deny_blocked'));
   await Offer.create({ request_id: request.id, provider_id: providerId, contact: true });
   const conversationId = await Conversation.findOrCreateBetween(request.client_id, providerId, request.id);
   await notificationService.notifyUser(owner ? providerId : request.client_id, {
@@ -218,6 +219,7 @@ const direct = asyncHandler(async (req, res) => {
   const provider = await queryOne(`SELECT u.id, pp.category_id FROM users u JOIN provider_profiles pp ON pp.user_id = u.id
     WHERE u.id = ? AND u.role = 'provider' AND u.deleted_at IS NULL AND u.is_active = 1 AND u.is_blocked = 0`, [providerId]);
   if (!provider) return notFound(res);
+  if (await require('./userBlockController').isBlocked(req.user.id, providerId)) return forbidden(res, req.t('deny_blocked'));
   // An open direct contact with the same provider is reopened rather than duplicated.
   const existing = await queryOne(`SELECT id FROM requests WHERE client_id = ? AND direct_provider_id = ? AND deleted_at IS NULL
     AND status IN ('open', 'assigned', 'in_progress') ORDER BY id DESC LIMIT 1`, [req.user.id, providerId]);

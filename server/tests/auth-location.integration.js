@@ -649,6 +649,13 @@ if (!databasePrefix) {
     assert.equal(await Conversation.canSend(direct.conversation_id, provider.user.id), true, 'within the market days');
     const providerChatsSoon = await api('/chat/conversations', { token: provider.token });
     assert.ok(providerChatsSoon.some(chat => Number(chat.id) === Number(direct.conversation_id)), 'still in the provider chats');
+    // Blocking (AYK-084): refused within the warranty days; otherwise it stops new contact until undone.
+    await api(`/users/me/blocks/${provider.user.id}`, { method: 'POST', token: client.token, expected: 409 });
+    await api(`/users/me/blocks/${client.user.id}`, { method: 'POST', token: client.token, expected: 400 });
+    await api(`/users/me/blocks/${other.user.id}`, { method: 'POST', token: client.token });
+    await api(`/requests/${postedId}/contact`, { method: 'POST', token: other.token, expected: 403 });
+    await api(`/users/me/blocks/${other.user.id}`, { method: 'DELETE', token: client.token });
+    assert.ok((await api(`/requests/${postedId}/contact`, { method: 'POST', token: other.token })).conversation_id);
     await db.query("UPDATE requests SET completed_at = CURRENT_TIMESTAMP - INTERVAL '8 days', updated_at = CURRENT_TIMESTAMP - INTERVAL '8 days' WHERE id = ?", [direct.request_id]);
     const offersLater = await api('/offers/my?limit=50', { token: provider.token });
     assert.ok(!offersLater.some(offer => Number(offer.request_id) === Number(direct.request_id)));
