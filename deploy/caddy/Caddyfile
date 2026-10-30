@@ -2,6 +2,22 @@
 # Security headers and cache rules for the single-page app and its API.
 # The built client lives in /srv/current (a symlink to the active release);
 # the API runs in the `app` container.
+
+{
+	# AYK-051: calls over 443. After TLS, a connection that starts with a STUN/TURN
+	# header (first byte 0x00 or 0x01; HTTP starts with a letter) goes to LiveKit's
+	# TURN server. Everything else continues to the website as usual.
+	servers :443 {
+		listener_wrappers {
+			layer4 {
+				@turn regexp `^[\x00\x01]` 1
+				route @turn {
+					proxy livekit:5349
+				}
+			}
+		}
+	}
+}
 aykdmh.com {
 	encode zstd gzip
 

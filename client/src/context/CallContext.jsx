@@ -127,9 +127,10 @@ export function CallProvider({ children }) {
         return false;
       }
     };
-    const mic = await publish(() => lkRoom.localParticipant.setMicrophoneEnabled(true));
-    const cam = active.call_type === 'video'
-      && await publish(() => lkRoom.localParticipant.setCameraEnabled(true, { facingMode: 'user' }));
+    const [mic, cam] = await Promise.all([
+      publish(() => lkRoom.localParticipant.setMicrophoneEnabled(true)),
+      active.call_type === 'video' ? publish(() => lkRoom.localParticipant.setCameraEnabled(true, { facingMode: 'user' })) : false,
+    ]);
     setMicOn(mic);
     setCamOn(cam);
     setFacing('user');
@@ -164,6 +165,8 @@ export function CallProvider({ children }) {
       setCall(c);
       setPhase('incoming');
       navigator.vibrate?.([300, 200, 300]);
+      // Load the call engine while it rings, so answering connects at once.
+      loadLiveKit().catch(() => {});
     };
     const onState = c => { applyState(c); };
     socket?.on('call:incoming', onIncoming);

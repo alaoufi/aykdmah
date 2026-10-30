@@ -532,7 +532,11 @@
     "recording_time_long": "በመቅዳት ላይ {{time}} · እስከ {{limit}}",
     "release_to_send": "ለመላክ ጣትዎን ያንሱ",
     "tap_to_send": "ለመላክ ➤ ን ይጫኑ",
-    "hold_to_record": "ለመቅዳት ተጭነው ይያዙ፣ ለመላክ ይልቀቁ"
+    "hold_to_record": "ለመቅዳት ተጭነው ይያዙ፣ ለመላክ ይልቀቁ",
+    "not_read_yet": "ገና አላነበበም",
+    "nudge": "አስታውስ",
+    "nudge_sent": "🔔 አዲስ ማሳወቂያ ደርሶታል።",
+    "nudge_failed": "ማስታወስ አልተቻለም። እንደገና ይሞክሩ።"
   },
   "tracking": {
     "title": "የቀጥታ ስርጭት መከታተያ",
@@ -2214,5 +2218,9 @@
     "result_enabled": "በርቷል፦ {{names}}",
     "result_failed": "አልበራም፦ {{names}}።",
     "all_enabled": "ሁሉም ፈቃዶች በርተዋል።"
+  },
+  "update": {
+    "available": "አዲስ የጣቢያው ስሪት አለ።",
+    "now": "አሁን አዘምን"
   }
 }

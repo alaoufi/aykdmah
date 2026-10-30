@@ -532,7 +532,11 @@
     "recording_time_long": "التسجيل {{time}} · حتى {{limit}}",
     "release_to_send": "ارفع إصبعك للإرسال",
     "tap_to_send": "اضغط ➤ للإرسال",
-    "hold_to_record": "اضغط مطولًا للتسجيل، وارفع إصبعك للإرسال"
+    "hold_to_record": "اضغط مطولًا للتسجيل، وارفع إصبعك للإرسال",
+    "not_read_yet": "لم يقرأها بعد",
+    "nudge": "نبّهه",
+    "nudge_sent": "🔔 وصله تنبيه جديد.",
+    "nudge_failed": "تعذّر التنبيه. حاول مرة أخرى."
   },
   "tracking": {
     "title": "تتبع مباشر",
@@ -2214,5 +2218,9 @@
     "result_enabled": "تم تفعيل: {{names}}",
     "result_failed": "لم يُفعَّل: {{names}}.",
     "all_enabled": "كل الأذونات مفعّلة."
+  },
+  "update": {
+    "available": "يوجد تحديث جديد للموقع.",
+    "now": "حدّث الآن"
   }
 }

@@ -4,7 +4,7 @@ import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next';
 import {
   listConversations, getConversation, getMessages, sendMessage, markRead, forwardMessage,
-  deleteMessage, sendLocationMessage,
+  deleteMessage, sendLocationMessage, nudgeConversation,
 } from '../services/chatService';
 import { useAuth } from '../hooks/useAuth';
 import { useNotifications } from '../hooks/useNotifications';
@@ -193,6 +193,15 @@ export default function ChatPage() {
   const isRequestOwner = Boolean(active?.request_id) && Number(active.request_client_id) === Number(user.id);
   const [forwarding, setForwarding] = useState(null);
   const [forwardNote, setForwardNote] = useState('');
+  // "🔔 Remind": shown while my last message is unread (AYK-052).
+  const [nudgeNote, setNudgeNote] = useState('');
+  useEffect(() => { setNudgeNote(''); }, [activeId]);
+  const lastMessage = messages[messages.length - 1];
+  const canNudge = lastMessage && lastMessage.sender_id === user.id && !lastMessage.is_read;
+  const sendNudge = async () => {
+    try { await nudgeConversation(activeId); setNudgeNote(t('chat.nudge_sent')); }
+    catch (err) { setNudgeNote(err?.response?.data?.message || t('chat.nudge_failed')); }
+  };
   const forwardTo = async target => {
     const message = forwarding;
     setForwarding(null);
@@ -461,6 +470,12 @@ export default function ChatPage() {
               </div>
             )}
             {forwardNote && <p role="status" className="chat-agree" onClick={() => setForwardNote('')}>✓ {forwardNote}</p>}
+            {activeReady && canSend && (canNudge || nudgeNote) && (
+              <div className="chat-agree" data-testid="chat-nudge">
+                <span className="text-muted">{nudgeNote || t('chat.not_read_yet')}</span>
+                {canNudge && <button type="button" className="btn btn-outline btn-sm" onClick={sendNudge} data-testid="nudge-button">🔔 {t('chat.nudge')}</button>}
+              </div>
+            )}
             <ChatInput
               key={sessionKey}
               sessionKey={sessionKey}

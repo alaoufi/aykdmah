@@ -93,11 +93,17 @@ require('./server/services/installService').setupFromEnv().then(r => {
   process.exit(0);
 }).catch(e => { console.error(e.message); process.exit(1); });"
 "${COMPOSE[@]}" up -d livekit
+# The LiveKit config is a mounted file: restart only when it changed (a restart drops live calls).
+LK_SUM=$(sha256sum "$REPO_DIR/deploy/livekit/livekit.yaml" | cut -d' ' -f1)
+if [ "$(cat "$SITE_ROOT/.livekit.sum" 2>/dev/null)" != "$LK_SUM" ]; then
+  "${COMPOSE[@]}" restart livekit && echo "$LK_SUM" > "$SITE_ROOT/.livekit.sum"
+fi
 "${COMPOSE[@]}" up -d app
 
 echo "== Switching to release $STAMP =="
 # Relative link so it resolves inside the container too.
 ln -sfn "releases/$STAMP" "$SITE_ROOT/current"
+"${COMPOSE[@]}" build web
 "${COMPOSE[@]}" up -d web
 docker exec aykdmh-web caddy reload --config /etc/caddy/Caddyfile >/dev/null 2>&1 || true
 

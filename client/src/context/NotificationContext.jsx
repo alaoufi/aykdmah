@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { localizedNotification } from '../data/notificationLabels';
 
 import { createPollingLoop } from '../utils/polling';
+import { chime } from '../utils/ringtone';
 import { supportUnread } from '../services/supportService';
 
 const NotificationContext = createContext(null);
@@ -53,7 +54,9 @@ export function NotificationProvider({ children }) {
       onResult: (res) => {
         const next = res.data || [];
         if (seenIds && realtimeMode === 'polling') {
-          next.filter(n => !seenIds.has(n.id) && !n.is_read).forEach(n => showToast('', n));
+          const fresh = next.filter(n => !seenIds.has(n.id) && !n.is_read);
+          fresh.forEach(n => showToast('', n));
+          if (fresh.length) chime();
         }
         seenIds = new Set(next.map(n => n.id));
         setItems(next);
@@ -74,6 +77,7 @@ export function NotificationProvider({ children }) {
     const onNotif = (notif) => {
       refresh();
       showToast('', notif);
+      chime();
     };
     socket.on('notification:new', onNotif);
     return () => { socket.off('notification:new', onNotif); };

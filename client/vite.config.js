@@ -25,6 +25,13 @@ export default defineConfig(({ mode }) => {
       },
       react(),
       earlyRecoveryPlugin(),
+      // The deployed version, read by UpdateBar to offer "Update now" (AYK-053).
+      {
+        name: 'ayk-version-file',
+        generateBundle() {
+          this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify({ version: env.VITE_APP_VERSION || '' }) });
+        },
+      },
       VitePWA({
         registerType: 'autoUpdate',
         includeAssets: ['offline.js', 'theme-init.js', 'offline.html', 'favicon.ico', 'icons/favicon-16.png', 'icons/favicon-32.png', 'icons/apple-touch-icon.png', 'icons/android-chrome-192x192.png', 'icons/android-chrome-512x512.png', 'brand/aykdmh-logo-256.webp', 'brand/aykdmh-logo.webp'],
@@ -49,7 +56,7 @@ export default defineConfig(({ mode }) => {
           ],
         },
         workbox: {
-          globIgnores: ['install/refresh.html', 'refresh-site.js', 'assets/*.wasm', 'assets/*.mjs', 'assets/localLanguage.worker-*.js'],
+          globIgnores: ['version.json', 'install/refresh.html', 'refresh-site.js', 'assets/*.wasm', 'assets/*.mjs', 'assets/localLanguage.worker-*.js'],
           // Incoming-call notifications (AYK-008).
           importScripts: ['push-sw.js'],
           // The main bundle passed the 2 MiB default; it must stay in the offline cache.

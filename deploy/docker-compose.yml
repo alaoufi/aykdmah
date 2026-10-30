@@ -3,7 +3,11 @@
 # Start: docker compose -p aykdmh --env-file /opt/aykdmh/.env -f deploy/docker-compose.yml up -d
 services:
   web:
-    image: caddy:2.8.4-alpine
+    # Caddy 2.11.4 + layer4 (deploy/caddy.Dockerfile): calls also travel over 443 (AYK-051).
+    build:
+      context: .
+      dockerfile: caddy.Dockerfile
+    image: aykdmh-web:2.11.4-l4
     container_name: aykdmh-web
     restart: unless-stopped
     ports:
@@ -64,7 +68,8 @@ services:
         condition: service_healthy
     logging: *logging
 
-  # Calls: self-hosted LiveKit. Media ports are published directly; signaling goes through Caddy.
+  # Calls: self-hosted LiveKit. Media ports are published directly; signaling goes through Caddy,
+  # and so does TURN over TLS on 443 (Caddy -> livekit:5349, internal only) for networks that block the rest.
   livekit:
     image: livekit/livekit-server:v1.13.9
     container_name: aykdmh-livekit

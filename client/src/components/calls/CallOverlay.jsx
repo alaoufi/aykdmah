@@ -41,6 +41,15 @@ function useMediaElements(room, { remoteVideo, localVideo, remoteAudio }) {
   }, [room, remoteVideo, localVideo, remoteAudio]);
 }
 
+// A phone handset: green to answer, red (turned down) to hang up or decline.
+function Handset({ down }) {
+  return (
+    <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor" aria-hidden="true" style={down ? { transform: 'rotate(135deg)' } : undefined}>
+      <path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.57 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.57a1 1 0 0 1-.25 1L6.6 10.8z" />
+    </svg>
+  );
+}
+
 function RoundButton({ onClick, label, tone = 'neutral', children, disabled }) {
   const tones = {
     neutral: 'bg-white/15 text-white hover:bg-white/25',
@@ -50,7 +59,7 @@ function RoundButton({ onClick, label, tone = 'neutral', children, disabled }) {
   };
   return (
     <button type="button" onClick={onClick} disabled={disabled} aria-label={label} title={label}
-      className={`w-14 h-14 rounded-full grid place-items-center text-xl shadow-lift disabled:opacity-50 ${tones[tone]}`}>
+      className={`${tone === 'danger' || tone === 'accept' ? 'w-16 h-16' : 'w-14 h-14'} rounded-full grid place-items-center text-xl shadow-lift disabled:opacity-50 ${tones[tone]}`}>
       {children}
     </button>
   );
@@ -118,8 +127,8 @@ export default function CallOverlay() {
       <div className="p-5 pb-8 flex items-center justify-center gap-4 flex-wrap bg-slate-900/80">
         {phase === 'incoming' && (
           <>
-            <RoundButton tone="danger" onClick={hangup} label={t('calls.decline')}>✕</RoundButton>
-            <RoundButton tone="accept" onClick={accept} label={t('calls.accept')}>{video ? '🎥' : '📞'}</RoundButton>
+            <RoundButton tone="danger" onClick={hangup} label={t('calls.decline')}><Handset down /></RoundButton>
+            <RoundButton tone="accept" onClick={accept} label={t('calls.accept')}><Handset /></RoundButton>
           </>
         )}
         {['outgoing', 'connecting', 'in_call', 'reconnecting'].includes(phase) && (
@@ -133,7 +142,7 @@ export default function CallOverlay() {
                 <RoundButton onClick={switchCamera} disabled={!room || !camOn} label={t('calls.switch_camera')}>🔄</RoundButton>
               </>
             )}
-            <RoundButton tone="danger" onClick={hangup} label={t('calls.hangup')}>⏹</RoundButton>
+            <RoundButton tone="danger" onClick={hangup} label={t('calls.hangup')}><Handset down /></RoundButton>
           </>
         )}
         {phase === 'ended' && call.id && call.answered_at && (

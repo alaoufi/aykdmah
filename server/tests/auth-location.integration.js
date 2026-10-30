@@ -746,6 +746,13 @@ if (!databasePrefix) {
     assert.equal((await api(`/chat/conversations/${one.conversation_id}/messages`, { method: 'POST', token: client.token, expected: 201, body: { content: 'خاص' } })).broadcast_count, 1);
     assert.equal((await api(`/chat/conversations/${two.conversation_id}/messages`, { method: 'POST', token: second.token, expected: 201, body: { content: 'رد', broadcast: '1' } })).broadcast_count, 1);
     assert.ok(!(await api(`/chat/conversations/${two.conversation_id}/messages`, { token: second.token })).some(message => message.content === 'خاص'));
+    // "🔔 Remind" (AYK-052): alerts the other side again, once a minute; outsiders cannot.
+    const alerts = async () => Number((await db.queryOne("SELECT COUNT(*) AS n FROM notifications WHERE user_id = ? AND type = 'new_message'", [first.user.id])).n);
+    const before = await alerts();
+    assert.equal((await api(`/chat/conversations/${one.conversation_id}/nudge`, { method: 'POST', token: client.token })).nudged, true);
+    assert.equal(await alerts(), before + 1);
+    await api(`/chat/conversations/${one.conversation_id}/nudge`, { method: 'POST', token: client.token, expected: 429 });
+    await api(`/chat/conversations/${one.conversation_id}/nudge`, { method: 'POST', token: outsider.token, expected: 403 });
   });
 
   test('a requester signs up without a location and their first request keeps its place on the account (AYK-044)', async () => {

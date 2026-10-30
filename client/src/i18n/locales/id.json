@@ -532,7 +532,11 @@
     "recording_time_long": "Merekam {{time}} · hingga {{limit}}",
     "release_to_send": "Lepas untuk mengirim",
     "tap_to_send": "Ketuk ➤ untuk mengirim",
-    "hold_to_record": "Tahan untuk merekam, lepas untuk mengirim"
+    "hold_to_record": "Tahan untuk merekam, lepas untuk mengirim",
+    "not_read_yet": "Belum dibaca",
+    "nudge": "Ingatkan",
+    "nudge_sent": "🔔 Mereka menerima pemberitahuan baru.",
+    "nudge_failed": "Gagal mengingatkan. Coba lagi."
   },
   "tracking": {
     "title": "Pelacakan langsung",
@@ -2214,5 +2218,9 @@
     "result_enabled": "Diaktifkan: {{names}}",
     "result_failed": "Tidak aktif: {{names}}.",
     "all_enabled": "Semua izin sudah aktif."
+  },
+  "update": {
+    "available": "Versi baru situs tersedia.",
+    "now": "Perbarui sekarang"
   }
 }

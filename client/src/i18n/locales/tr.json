@@ -532,7 +532,11 @@
     "recording_time_long": "Kayıt {{time}} · en fazla {{limit}}",
     "release_to_send": "Göndermek için bırakın",
     "tap_to_send": "Göndermek için ➤ simgesine dokunun",
-    "hold_to_record": "Kaydetmek için basılı tutun, göndermek için bırakın"
+    "hold_to_record": "Kaydetmek için basılı tutun, göndermek için bırakın",
+    "not_read_yet": "Henüz okunmadı",
+    "nudge": "Hatırlat",
+    "nudge_sent": "🔔 Yeni bir bildirim aldı.",
+    "nudge_failed": "Hatırlatma gönderilemedi. Tekrar deneyin."
   },
   "tracking": {
     "title": "Canlı izleme",
@@ -2214,5 +2218,9 @@
     "result_enabled": "Açıldı: {{names}}",
     "result_failed": "Açılmadı: {{names}}.",
     "all_enabled": "Tüm izinler açık."
+  },
+  "update": {
+    "available": "Sitenin yeni sürümü hazır.",
+    "now": "Şimdi güncelle"
   }
 }

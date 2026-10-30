@@ -29,6 +29,19 @@ function beep(pattern) {
   }
 }
 
+// One short two-note chime for a new message or notification (AYK-052).
+export function chime() {
+  const AudioContext = typeof window !== 'undefined' && (window.AudioContext || window.webkitAudioContext);
+  if (!AudioContext || timer) return; // a call is ringing: its tone is enough
+  try {
+    ctx ||= new AudioContext();
+    ctx.resume?.().catch(() => {});
+    beep({ freqs: [880], gain: 0.15, bursts: [[0, 0.12]] });
+    beep({ freqs: [1175], gain: 0.15, bursts: [[0.15, 0.18]] });
+    navigator.vibrate?.(150);
+  } catch (_) { /* no audio output */ }
+}
+
 export function startTone(kind) {
   stopTone();
   const pattern = PATTERNS[kind];

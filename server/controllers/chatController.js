@@ -173,6 +173,26 @@ async function notifyParticipants(req, conversationId, { content, isLocation }) 
   }
 }
 
+// "🔔 Remind" (AYK-052): alerts the other side again about my last message while it is
+// unread, like a second ring. At most once a minute per conversation and sender.
+const nudges = new Map();
+const nudge = asyncHandler(async (req, res) => {
+  const conversationId = Number(req.params.id);
+  if (!await Conversation.isParticipant(conversationId, req.user.id)) return forbidden(res, req.t('deny_chat_participant'));
+  if (!await Conversation.canSend(conversationId, req.user.id)) return forbidden(res, req.t('deny_chat_closed'));
+  const key = `${conversationId}:${req.user.id}`;
+  if (Date.now() - (nudges.get(key) || 0) < 60000) return error(res, req.t('chat_nudge_wait'), 429);
+  const last = await queryOne(`SELECT content, message_type FROM messages
+    WHERE conversation_id = ? AND sender_id = ? AND deleted_at IS NULL ORDER BY id DESC LIMIT 1`, [conversationId, req.user.id]);
+  if (!last) return error(res, req.t('chat_nudge_nothing'), 400);
+  nudges.set(key, Date.now());
+  if (nudges.size > 10000) nudges.delete(nudges.keys().next().value);
+  await notifyParticipants(req, conversationId, {
+    content: `🔔 ${last.content ? last.content.slice(0, 70) : ''}`.trim(), isLocation: false,
+  });
+  return success(res, { nudged: true });
+});
+
 const deleteMessage = asyncHandler(async (req, res) => {
   const messageId = req.params.messageId;
   const row = await Message.getSenderId(messageId);
@@ -219,5 +239,4 @@ const getConversation = asyncHandler(async (req, res) => {
 
 module.exports = {
   listConversations, unreadCount, forwardMessage, translateMessage, createConversation, getMessages, sendMessage, markRead,
-  getConversation, deleteMessage, searchMessages,
-};
+  getConversation, deleteMessage, searchMessages, nudge };

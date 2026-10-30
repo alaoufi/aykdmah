@@ -532,7 +532,11 @@
     "recording_time_long": "Recording {{time}} · up to {{limit}}",
     "release_to_send": "Release to send",
     "tap_to_send": "Tap ➤ to send",
-    "hold_to_record": "Hold to record, release to send"
+    "hold_to_record": "Hold to record, release to send",
+    "not_read_yet": "Not read yet",
+    "nudge": "Remind",
+    "nudge_sent": "🔔 They got a new alert.",
+    "nudge_failed": "Could not send the reminder. Try again."
   },
   "tracking": {
     "title": "Live tracking",
@@ -2214,5 +2218,9 @@
     "result_enabled": "Enabled: {{names}}",
     "result_failed": "Not enabled: {{names}}.",
     "all_enabled": "All permissions are enabled."
+  },
+  "update": {
+    "available": "A new version of the site is available.",
+    "now": "Update now"
   }
 }

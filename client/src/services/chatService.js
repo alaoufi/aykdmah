@@ -12,6 +12,12 @@ export async function forwardMessage(conversationId, messageId, targetConversati
   return data.data;
 }
 
+// Alert the other side again about my unread message (AYK-052).
+export async function nudgeConversation(conversationId) {
+  const { data } = await api.post(`/chat/conversations/${conversationId}/nudge`);
+  return data.data;
+}
+
 export async function getChatUnread() {
   const { data } = await api.get('/chat/unread');
   return Number(data.data?.count) || 0;

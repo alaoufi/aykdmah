@@ -1,7 +1,7 @@
 # Self-hosted LiveKit (open source, Apache-2.0) for one-to-one calls on aykdmh.com.
 # Signaling: wss://aykdmh.com/livekit (Caddy strips /livekit and proxies to :7880).
-# Media: one UDP port (7882) plus ICE/TCP (7881) and TURN/UDP (3478) as fallbacks
-# for restrictive networks. The API key secret comes from LIVEKIT_KEYS in the
+# Media: one UDP port (7882) plus ICE/TCP (7881), TURN/UDP (3478) and TURN/TLS on 443
+# (through Caddy) as fallbacks for restrictive networks. The API key secret comes from LIVEKIT_KEYS in the
 # environment, never from this file.
 port: 7880
 rtc:
@@ -16,8 +16,12 @@ room:
 turn:
   enabled: true
   udp_port: 3478
-  # TURN over TLS needs its own hostname and certificate; UDP covers most networks.
-  domain: 84.247.166.216
+  # AYK-051: TURN over TLS on 443 through Caddy, which holds the aykdmh.com certificate
+  # and forwards decrypted TURN to this port (internal only). Works where UDP and
+  # uncommon ports are blocked; LiveKit advertises turns:aykdmh.com:443 to clients.
+  domain: aykdmh.com
+  tls_port: 5349
+  external_tls: true
 webhook:
   api_key: aykdmh
   urls:

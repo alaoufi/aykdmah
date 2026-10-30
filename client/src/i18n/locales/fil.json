@@ -532,7 +532,11 @@
     "recording_time_long": "Nire-record {{time}} · hanggang {{limit}}",
     "release_to_send": "Bitawan para ipadala",
     "tap_to_send": "Pindutin ang ➤ para ipadala",
-    "hold_to_record": "Pindutin nang matagal para mag-record, bitawan para ipadala"
+    "hold_to_record": "Pindutin nang matagal para mag-record, bitawan para ipadala",
+    "not_read_yet": "Hindi pa nababasa",
+    "nudge": "Paalalahanan",
+    "nudge_sent": "🔔 Nakatanggap sila ng bagong abiso.",
+    "nudge_failed": "Hindi naipadala ang paalala. Subukan ulit."
   },
   "tracking": {
     "title": "Live na pagsubaybay",
@@ -2214,5 +2218,9 @@
     "result_enabled": "Na-on: {{names}}",
     "result_failed": "Hindi na-on: {{names}}.",
     "all_enabled": "Naka-on ang lahat ng pahintulot."
+  },
+  "update": {
+    "available": "May bagong bersyon ng site.",
+    "now": "I-update ngayon"
   }
 }
