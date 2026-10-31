@@ -91,7 +91,7 @@ const sendMessage = asyncHandler(async (req, res) => {
     if (index === 0) message = sent;
     pretranslate(sent).catch(err => logger.warn('Pre-translation failed:', err.message));
     await emitConversation(io, target, 'chat:message', sent);
-    await notifyParticipants(req, target, { content, isLocation });
+    await notifyParticipants(req, target, { content, isLocation, remind: true });
     deliverIfOnline(io, target, req.user.id).catch(() => {});
   }
   return created(res, { ...message, broadcast_count: targets.length });
@@ -126,7 +126,7 @@ const forwardMessage = asyncHandler(async (req, res) => {
     const forwarded = await Message.findById(id);
     pretranslate(forwarded).catch(err => logger.warn('Pre-translation failed:', err.message));
     await emitConversation(io, target, 'chat:message', forwarded);
-    await notifyParticipants(req, target, { content: message.content, isLocation: message.message_type === 'location' });
+    await notifyParticipants(req, target, { content: message.content, isLocation: message.message_type === 'location', remind: true });
     deliverIfOnline(io, target, req.user.id).catch(() => {});
   }
   return success(res, { count: targets.length });
@@ -189,7 +189,51 @@ async function deliverIfOnline(io, conversationId, senderId) {
   }
 }
 
-async function notifyParticipants(req, conversationId, { content, isLocation }) {
+// The phone alert for a message: the browser/home-screen app (web push) and the Android app
+// (Firebase), one notification per conversation, a newer one replacing the older.
+function phoneAlert(io, recipientId, conversationId, { title, body, fallbackKey }) {
+  pushService.sendToUser(recipientId, lang => ({
+    kind: 'message', tag: `chat-${conversationId}`, url: `/chat/${conversationId}`,
+    title: title || i18nText(lang, 'notif_new_message_title'),
+    body: body || i18nText(lang, fallbackKey),
+  }), { TTL: 24 * 60 * 60, urgency: 'high' })
+    .then(sent => logger.info(`Push message conversation=${conversationId} user=${recipientId} devices=${sent}`))
+    .catch(err => logger.warn('Message push failed:', err.message));
+  // The Android app (AYK-122): Firebase reaches it even when it is closed. Not while the app
+  // is on their screen (AYK-125): the chat shows the message there with its own tone.
+  onScreen(io, recipientId).then(shown => {
+    if (shown) return;
+    fcmService.sendToUser(recipientId, {
+      kind: 'message', tag: `chat-${conversationId}`, url: `/chat/${conversationId}`,
+      title: title || i18nText('ar', 'notif_new_message_title'),
+      body: body || i18nText('ar', fallbackKey),
+    }, { ttlSeconds: 24 * 60 * 60 })
+      .then(sent => { if (sent) logger.info(`FCM message conversation=${conversationId} user=${recipientId} devices=${sent}`); })
+      .catch(err => logger.warn('FCM message failed:', err.message));
+  });
+}
+
+// Unread, the alert comes again (AYK-127): after 1 minute and after 3 minutes, like a phone
+// that keeps reminding. It stops once they read it or open the app; a newer message starts over.
+const REMIND_AFTER_MS = [60 * 1000, 3 * 60 * 1000];
+const reminders = new Map();
+function remindUnread(io, senderId, recipientId, conversationId, alert) {
+  const key = `${conversationId}:${recipientId}`;
+  (reminders.get(key) || []).forEach(clearTimeout);
+  const timers = REMIND_AFTER_MS.map(delay => setTimeout(async () => {
+    try {
+      const unread = await queryOne(`SELECT id FROM messages WHERE conversation_id = ? AND sender_id = ? AND is_read = 0
+        AND deleted_at IS NULL LIMIT 1`, [conversationId, senderId]);
+      if (!unread || await onScreen(io, recipientId)) return;
+      phoneAlert(io, recipientId, conversationId, { ...alert, body: `🔔 ${alert.body || ''}`.trim() });
+    } catch (err) { logger.warn('Message reminder failed:', err.message); }
+  }, delay));
+  timers.forEach(timer => timer.unref?.());
+  reminders.set(key, timers);
+  if (reminders.size > 10000) reminders.delete(reminders.keys().next().value);
+}
+
+async function notifyParticipants(req, conversationId, { content, isLocation, remind = false }) {
   const participants = await Conversation.getParticipants(conversationId);
   for (const p of participants) {
     if (p.id !== req.user.id) {
@@ -207,22 +251,14 @@ async function notifyParticipants(req, conversationId, { content, isLocation }) 
       });
       // The phone notification, also when the site is closed. One per conversation:
       // a newer message replaces the older one instead of piling up.
-      pushService.sendToUser(p.id, lang => ({
-        kind: 'message', tag: `chat-${conversationId}`, url: `/chat/${conversationId}`,
-        title: req.user.full_name ? `${req.user.full_name}${req.user.referral_code ? ` (${req.user.referral_code})` : ''}` : i18nText(lang, 'notif_new_message_title'),
-        body: isLocation ? '📍' : content ? content.slice(0, 80) : i18nText(lang, 'notif_new_attachment'),
-      }), { TTL: 24 * 60 * 60, urgency: 'high' })
-        .then(sent => logger.info(`Push message conversation=${conversationId} user=${p.id} devices=${sent}`))
-        .catch(err => logger.warn('Message push failed:', err.message));
-      // The Android app (AYK-122): Firebase reaches it even when it is closed. Not while the app
-      // is on their screen (AYK-125): the chat shows the message there with its own tone.
-      if (!await onScreen(req.app.get('io'), p.id)) fcmService.sendToUser(p.id, {
-        kind: 'message', tag: `chat-${conversationId}`, url: `/chat/${conversationId}`,
-        title: req.user.full_name ? `${req.user.full_name}${req.user.referral_code ? ` (${req.user.referral_code})` : ''}` : i18nText('ar', 'notif_new_message_title'),
-        body: isLocation ? '📍' : content ? content.slice(0, 120) : i18nText('ar', 'notif_new_attachment'),
-      }, { ttlSeconds: 24 * 60 * 60 })
-        .then(sent => { if (sent) logger.info(`FCM message conversation=${conversationId} user=${p.id} devices=${sent}`); })
-        .catch(err => logger.warn('FCM message failed:', err.message));
+      const io = req.app.get('io');
+      const alert = {
+        title: req.user.full_name ? `${req.user.full_name}${req.user.referral_code ? ` (${req.user.referral_code})` : ''}` : null,
+        body: isLocation ? '📍' : content ? content.slice(0, 80) : null,
+        fallbackKey: 'notif_new_attachment',
+      };
+      phoneAlert(io, p.id, conversationId, alert);
+      if (remind) remindUnread(io, req.user.id, p.id, conversationId, alert);
     }
   }
 }
