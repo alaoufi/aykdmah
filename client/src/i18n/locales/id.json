@@ -2347,5 +2347,13 @@
     "title": "Kelola",
     "active": "Aktif",
     "archive": "Arsip"
+  },
+  "directory": {
+    "save": "Simpan ke Direktori saya",
+    "saved": "Di Direktori saya",
+    "name_prompt": "Nama untuk menyimpannya:",
+    "saved_note": "«{{name}}» disimpan ke direktori Anda.",
+    "message": "Pesan",
+    "call": "Telepon"
   }
 }

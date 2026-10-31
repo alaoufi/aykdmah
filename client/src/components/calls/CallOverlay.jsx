@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { RoomEvent, Track } from 'livekit-client';
 import { useCall } from '../../context/CallContext';
 import { reportCall } from '../../services/callService';
+import { saveToDirectory } from '../../services/requestService';
 import Avatar from '../common/Avatar';
 
 function useDuration(answeredAt, running) {
@@ -79,6 +80,13 @@ export default function CallOverlay() {
   const remoteAudio = useRef(null);
   const [reporting, setReporting] = useState(false);
   const [reported, setReported] = useState(false);
+  const [savedContact, setSavedContact] = useState(false);
+  // After a call: keep the other side in My directory under a chosen name (AYK-109).
+  const saveContact = async () => {
+    const name = window.prompt(t('directory.name_prompt'), call?.peer?.full_name || '');
+    if (name === null || !call?.peer?.id) return;
+    try { await saveToDirectory(call.peer.id, true, name.trim()); setSavedContact(true); } catch (_) { /* not saved: the button stays */ }
+  };
   const [outputHint, setOutputHint] = useState(false);
   useEffect(() => { if (!outputHint) return undefined; const timer = setTimeout(() => setOutputHint(false), 6000); return () => clearTimeout(timer); }, [outputHint]);
   const live = phase === 'in_call' || phase === 'reconnecting';
@@ -212,6 +220,12 @@ export default function CallOverlay() {
             {video && <RoundButton tone={camOn ? 'neutral' : 'off'} onClick={toggleCam} disabled={!room}
               label={camOn ? t('calls.camera_off') : t('calls.camera_on')}>{camOn ? '📷' : '🚫'}</RoundButton>}
           </>
+        )}
+        {phase === 'ended' && call.peer?.id && (
+          <button type="button" onClick={saveContact} disabled={savedContact} data-testid="call-save-contact"
+            className="px-4 py-2 rounded-pill bg-white/15 text-sm font-bold disabled:opacity-60">
+            {savedContact ? `⭐ ${t('directory.saved')}` : `☆ ${t('directory.save')}`}
+          </button>
         )}
         {phase === 'ended' && call.id && call.answered_at && (
           <button type="button" onClick={submitReport} disabled={reporting || reported}

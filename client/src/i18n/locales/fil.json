@@ -2347,5 +2347,13 @@
     "title": "Pamahalaan",
     "active": "Aktibo",
     "archive": "Archive"
+  },
+  "directory": {
+    "save": "I-save sa Aking direktoryo",
+    "saved": "Nasa Aking direktoryo",
+    "name_prompt": "Pangalang ise-save:",
+    "saved_note": "Na-save ang «{{name}}» sa iyong direktoryo.",
+    "message": "Mensahe",
+    "call": "Tawag"
   }
 }

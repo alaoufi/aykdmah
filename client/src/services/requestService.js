@@ -75,8 +75,8 @@ export async function listDirectoryIds() {
   return data.data || [];
 }
 
-export async function saveToDirectory(providerId, saved = true) {
-  const { data } = await (saved ? api.post : api.delete)(`/users/me/directory/${providerId}`);
+export async function saveToDirectory(providerId, saved = true, nickname = null) {
+  const { data } = saved ? await api.post(`/users/me/directory/${providerId}`, nickname ? { nickname } : {}) : await api.delete(`/users/me/directory/${providerId}`);
   return data.data;
 }
 

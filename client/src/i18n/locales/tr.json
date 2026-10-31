@@ -2347,5 +2347,13 @@
     "title": "Yönet",
     "active": "Aktif",
     "archive": "Arşiv"
+  },
+  "directory": {
+    "save": "Rehberime kaydet",
+    "saved": "Rehberimde",
+    "name_prompt": "Kaydedilecek ad:",
+    "saved_note": "«{{name}}» rehberinize kaydedildi.",
+    "message": "Mesaj",
+    "call": "Ara"
   }
 }

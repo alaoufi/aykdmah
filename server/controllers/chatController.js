@@ -245,7 +245,8 @@ const getConversation = asyncHandler(async (req, res) => {
   // Whether I blocked the other side (AYK-084), for the "Block" / "Unblock" button.
   const peer = participants.find(p => Number(p.id) !== Number(req.user.id));
   const direction = peer ? await require('./userBlockController').blockDirection(req.user.id, peer.id) : null;
-  return success(res, { ...conv, participants, blocked_by_me: direction === 'mine', blocked_me: direction === 'theirs' });
+  const saved = peer ? await queryOne('SELECT nickname FROM saved_providers WHERE user_id = ? AND provider_id = ?', [req.user.id, peer.id]) : null;
+  return success(res, { ...conv, participants, blocked_by_me: direction === 'mine', blocked_me: direction === 'theirs', in_directory: Boolean(saved), directory_name: saved?.nickname || null });
 });
 
 module.exports = {

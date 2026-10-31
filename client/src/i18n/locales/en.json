@@ -2347,5 +2347,13 @@
     "title": "Manage",
     "active": "Active",
     "archive": "Archive"
+  },
+  "directory": {
+    "save": "Save to My directory",
+    "saved": "In My directory",
+    "name_prompt": "Name to save them under:",
+    "saved_note": "\"{{name}}\" saved to your directory.",
+    "message": "Message",
+    "call": "Call"
   }
 }

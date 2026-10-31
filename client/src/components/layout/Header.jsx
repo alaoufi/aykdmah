@@ -255,6 +255,7 @@ export default function Header() {
                     { to: '/opportunities', label: `🔍 ${t('work.requests_nav')}` },
                     { to: '/profile#work', label: `🛠️ ${t('work.professions_areas')}` },
                     { to: '/provider/wallet', label: `💰 ${t('wallet.nav')}` },
+                    { to: '/directory', label: `📒 ${t('requester.directory_title')}` },
                   ] },
                 ].filter(Boolean).map(g => (
                   <div key={g.key} className="mb-1.5 last:mb-0 p-2 rounded-card bg-surface" data-testid={`menu-manage-${g.key}`}>

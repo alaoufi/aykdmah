@@ -171,7 +171,7 @@ export default function AppRoutes() {
           <Route path="/promote" element={<Protected><PromotePage /></Protected>} />
           <Route path="/support" element={<Protected><SupportPage /></Protected>} />
           <Route path="/support/:id" element={<Protected><SupportPage /></Protected>} />
-          <Route path="/directory" element={<Protected><RequesterPage><DirectoryPage /></RequesterPage></Protected>} />
+          <Route path="/directory" element={<Protected><DirectoryPage /></Protected>} />
         </Route>
 
         <Route path="/chat" element={<Protected><ChatPage /></Protected>} />

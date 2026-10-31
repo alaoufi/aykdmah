@@ -588,6 +588,13 @@ if (!databasePrefix) {
     assert.equal(directory.length, 1);
     assert.equal(Number(directory[0].id), Number(provider.user.id));
     assert.ok(directory[0].district_name_ar);
+    // Saved again under a chosen name (AYK-109); the list keeps it with the number.
+    await api(`/users/me/directory/${provider.user.id}`, { method: 'POST', token: client.token, body: { nickname: 'سباك البيت' } });
+    const named = (await api('/users/me/directory', { token: client.token }))[0];
+    assert.equal(named.nickname, 'سباك البيت');
+    assert.ok(named.referral_code);
+    // A requester cannot be saved by someone who never chatted with them.
+    await api(`/users/me/directory/${client.user.id}`, { method: 'POST', token: other.token, expected: 404 });
     assert.ok(directory[0].availability.state);
     assert.deepEqual(await api('/users/me/directory/ids', { token: client.token }), [Number(provider.user.id)]);
     await api(`/users/me/directory/${client.user.id}`, { method: 'POST', token: client.token, expected: 400 });

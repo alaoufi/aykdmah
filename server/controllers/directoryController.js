@@ -15,9 +15,14 @@ const list = asyncHandler(async (req, res) => {
       to_jsonb(pp)->>'availability_status' AS availability_status, to_jsonb(pp)->>'vacation_from' AS vacation_from,
       to_jsonb(pp)->>'vacation_to' AS vacation_to, to_jsonb(pp)->>'work_days' AS work_days,
       to_jsonb(pp)->>'work_from' AS work_from, to_jsonb(pp)->>'work_to' AS work_to
+      , sp.nickname, u.referral_code, u.role,
+      (SELECT c.id FROM conversations c
+        JOIN conversation_participants mine ON mine.conversation_id = c.id AND mine.user_id = sp.user_id
+        JOIN conversation_participants theirs ON theirs.conversation_id = c.id AND theirs.user_id = u.id
+        ORDER BY c.last_message_at DESC NULLS LAST, c.id DESC LIMIT 1) AS conversation_id
     FROM saved_providers sp
-    JOIN users u ON u.id = sp.provider_id AND u.role = 'provider' AND u.deleted_at IS NULL AND u.is_active = 1 AND u.is_blocked = 0
-    JOIN provider_profiles pp ON pp.user_id = u.id
+    JOIN users u ON u.id = sp.provider_id AND u.deleted_at IS NULL AND u.is_active = 1 AND u.is_blocked = 0
+    LEFT JOIN provider_profiles pp ON pp.user_id = u.id
     LEFT JOIN categories cat ON cat.id = pp.category_id
     LEFT JOIN districts dist ON dist.id = u.district_id
     WHERE sp.user_id = ? ORDER BY sp.created_at DESC`, [req.user.id]);
@@ -27,16 +32,24 @@ const list = asyncHandler(async (req, res) => {
     category_name: row.category_name, category_name_en: row.category_name_en, category_name_translations: row.category_name_translations,
     district_name_ar: row.district_name_ar, district_name_en: row.district_name_en,
     rating_avg: Number(row.rating_avg) || 0, rating_count: Number(row.rating_count) || 0,
-    completed_orders: Number(row.completed_orders) || 0, availability: availability(row),
+    completed_orders: Number(row.completed_orders) || 0, availability: row.role === 'provider' ? availability(row) : null,
+    nickname: row.nickname || null, referral_code: row.referral_code || null, is_provider: row.role === 'provider',
+    conversation_id: row.conversation_id ? Number(row.conversation_id) : null,
   })));
 });
 
 const add = asyncHandler(async (req, res) => {
   const id = providerId(req.params.providerId);
   if (!id || id === req.user.id) return error(res, req.t('invalid_data'), 400);
-  const provider = await queryOne("SELECT id FROM users WHERE id = ? AND role = 'provider' AND deleted_at IS NULL AND is_active = 1 AND is_blocked = 0", [id]);
-  if (!provider) return notFound(res);
-  await query('INSERT INTO saved_providers (user_id, provider_id) VALUES (?, ?) ON CONFLICT DO NOTHING', [req.user.id, id]);
+  // A provider, or anyone the user already chats with (AYK-109), under an optional name.
+  const contact = await queryOne(`SELECT u.id, u.role,
+      EXISTS (SELECT 1 FROM conversation_participants a JOIN conversation_participants b ON b.conversation_id = a.conversation_id
+        WHERE a.user_id = ? AND b.user_id = u.id) AS chatted
+    FROM users u WHERE u.id = ? AND u.deleted_at IS NULL AND u.is_active = 1 AND u.is_blocked = 0`, [req.user.id, id]);
+  if (!contact || (contact.role !== 'provider' && !contact.chatted)) return notFound(res);
+  const nickname = typeof req.body?.nickname === 'string' && req.body.nickname.trim() ? req.body.nickname.trim().slice(0, 80) : null;
+  await query(`INSERT INTO saved_providers (user_id, provider_id, nickname) VALUES (?, ?, ?)
+    ON CONFLICT (user_id, provider_id) DO UPDATE SET nickname = COALESCE(EXCLUDED.nickname, saved_providers.nickname)`, [req.user.id, id, nickname]);
   return success(res, { saved: true }, req.t('directory_added'));
 });
 

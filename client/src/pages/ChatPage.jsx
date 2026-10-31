@@ -21,7 +21,7 @@ import { formatRelativeTime, formatTime, truncate, dayLabel, isSameDay } from '.
 import { getCurrentPosition } from '../utils/geo';
 import { sentTone } from '../utils/ringtone';
 import { createPollingLoop } from '../utils/polling';
-import { agreeRequest } from '../services/requestService';
+import { agreeRequest, saveToDirectory } from '../services/requestService';
 
 export default function ChatPage() {
   const { t } = useTranslation();
@@ -309,6 +309,20 @@ export default function ChatPage() {
     } catch (_) { /* the request page shows the reason */ } finally { setAgreeing(false); }
   };
 
+  // "☆ Save to My directory" under a chosen name (AYK-109); tapping again renames it.
+  const saveContact = async () => {
+    const peerId = otherParticipant?.id;
+    if (!peerId || !active) return;
+    const name = window.prompt(t('directory.name_prompt'), active.directory_name || otherParticipant.full_name || '');
+    if (name === null) return;
+    setBlockProblem('');
+    try {
+      await saveToDirectory(peerId, true, name.trim());
+      setActive(current => (current && current.id === active.id ? { ...current, in_directory: true, directory_name: name.trim() || null } : current));
+      setNudgeNote(t('directory.saved_note', { name: name.trim() || otherParticipant.full_name }));
+    } catch (err) { setBlockProblem(apiError(err)); }
+  };
+
   // "🚫 Block" / "✅ Unblock" the other side (AYK-084); refused while working together or in warranty.
   const toggleBlock = async () => {
     const peerId = otherParticipant?.id;
@@ -405,6 +419,10 @@ export default function ChatPage() {
                     </div>
                   </div>
                   {canSend && <CallButtons conversationId={Number(activeId)} compact />}
+                  <button type="button" className="track-btn" onClick={saveContact} data-testid="chat-save-contact"
+                    aria-label={t('directory.save')} title={active?.in_directory ? (active.directory_name || t('directory.saved')) : t('directory.save')}>
+                    {active?.in_directory ? '⭐' : '☆'}
+                  </button>
                   <button type="button" className="track-btn" onClick={toggleBlock} data-testid="chat-block"
                     aria-label={t(active?.blocked_by_me ? 'chat.unblock' : 'chat.block')} title={t(active?.blocked_by_me ? 'chat.unblock' : 'chat.block')}>
                     {active?.blocked_by_me ? '✅' : '🚫'}

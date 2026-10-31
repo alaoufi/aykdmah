@@ -2347,5 +2347,13 @@
     "title": "አስተዳድር",
     "active": "ንቁ",
     "archive": "ማህደር"
+  },
+  "directory": {
+    "save": "በማውጫዬ አስቀምጥ",
+    "saved": "በማውጫዬ ውስጥ",
+    "name_prompt": "የሚቀመጥበት ስም:",
+    "saved_note": "«{{name}}» በማውጫዎ ተቀምጧል።",
+    "message": "መልእክት",
+    "call": "ደውል"
   }
 }
