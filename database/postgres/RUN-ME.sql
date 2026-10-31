@@ -8,7 +8,7 @@ DO $ayk_fresh$ BEGIN
   IF EXISTS (
     SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
     WHERE n.nspname = current_schema() AND c.relkind IN ('r','p','v','m','f')
-      AND c.relname IN ('activity_logs','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_diagnostics','call_reports','calls','categories','cities','conversation_archives','conversation_participants','conversations','countries','device_reports','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','districts','governorates','install_lock','ip_geo_cache','location_shares','message_files','messages','native_push_tokens','notifications','offers','payments','phone_codes','provider_badges','provider_coverage_districts','provider_profiles','push_subscriptions','referral_rewards','regions','request_files','requests','review_reports','review_translations','review_votes','reviews','roles','saved_providers','schema_migrations','services','settings','subscription_plans','subscription_rules','subscriptions','support_messages','support_tickets','uploaded_media','user_blocks','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','wallet_transactions','withdrawal_requests')
+      AND c.relname IN ('activity_logs','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_diagnostics','call_reports','calls','categories','cities','conversation_archives','conversation_participants','conversations','countries','device_reports','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','districts','governorates','install_lock','ip_geo_cache','location_shares','message_files','messages','native_push_tokens','notifications','offers','payments','phone_codes','provider_badges','provider_coverage_districts','provider_profiles','push_subscriptions','referral_rewards','regions','request_files','requests','review_reports','review_translations','review_votes','reviews','roles','saved_providers','schema_migrations','services','settings','subscription_plans','subscription_rules','subscriptions','support_messages','support_tickets','translation_memory','translation_usage','uploaded_media','user_blocks','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','wallet_transactions','withdrawal_requests')
   ) THEN
     RAISE EXCEPTION 'AY KHIDMA bootstrap requires a fresh database schema; use journaled migrations for an existing installation';
   END IF;
@@ -6230,6 +6230,30 @@ INSERT INTO schema_migrations(name) VALUES ('062_native_push_tokens.sql');
 -- migrations/063_directory_contacts.sql
 ALTER TABLE saved_providers ADD COLUMN IF NOT EXISTS nickname VARCHAR(80) NULL DEFAULT NULL;
 INSERT INTO schema_migrations(name) VALUES ('063_directory_contacts.sql');
+
+-- migrations/064_translation_memory.sql
+CREATE TABLE IF NOT EXISTS translation_memory (
+  id SERIAL PRIMARY KEY,
+  source_hash CHAR(64) NOT NULL,
+  target_lang VARCHAR(5) NOT NULL,
+  source_lang VARCHAR(10) NULL,
+  translated_text TEXT NOT NULL,
+  same_language SMALLINT NOT NULL DEFAULT 0,
+  hits INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  last_used_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_translation_memory_text ON translation_memory (source_hash, target_lang);
+CREATE TABLE IF NOT EXISTS translation_usage (
+  id SERIAL PRIMARY KEY,
+  month CHAR(7) NOT NULL,
+  provider VARCHAR(20) NOT NULL,
+  chars INT NOT NULL DEFAULT 0,
+  requests INT NOT NULL DEFAULT 0,
+  alerted SMALLINT NOT NULL DEFAULT 0
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_translation_usage_month ON translation_usage (month, provider);
+INSERT INTO schema_migrations(name) VALUES ('064_translation_memory.sql');
 
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
