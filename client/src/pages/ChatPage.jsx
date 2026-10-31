@@ -5,7 +5,7 @@ import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom'
 import { useTranslation } from 'react-i18next';
 import {
   listConversations, getConversation, getMessages, sendMessage, markRead, forwardMessage,
-  deleteMessage, sendLocationMessage, nudgeConversation, setUserBlocked,
+  deleteMessage, sendLocationMessage, nudgeConversation, setUserBlocked, setConversationFavorite,
 } from '../services/chatService';
 import { apiError } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
@@ -14,6 +14,7 @@ import { useSocket } from '../hooks/useSocket';
 import MessageBubble from '../components/chat/MessageBubble';
 import ChatInput from '../components/chat/ChatInput';
 import ChatSettings from '../components/chat/ChatSettings';
+import ChatHeaderMenu from '../components/chat/ChatHeaderMenu';
 import { useChatPrefs } from '../utils/chatPrefs';
 import RequestBrief from '../components/chat/RequestBrief';
 import Avatar from '../components/common/Avatar';
@@ -322,7 +323,7 @@ export default function ChatPage() {
     } catch (_) { /* the request page shows the reason */ } finally { setAgreeing(false); }
   };
 
-  // "☆ Save to My directory" under a chosen name (AYK-109); tapping again renames it.
+  // "📇 Save to My directory" under a chosen name (AYK-109); tapping again renames it.
   const saveContact = async () => {
     const peerId = otherParticipant?.id;
     if (!peerId || !active) return;
@@ -334,6 +335,19 @@ export default function ChatPage() {
       setActive(current => (current && current.id === active.id ? { ...current, in_directory: true, directory_name: name.trim() || null } : current));
       setNudgeNote(t('directory.saved_note', { name: name.trim() || otherParticipant.full_name }));
     } catch (err) { setBlockProblem(apiError(err)); }
+  };
+
+  // ⭐ Favourite conversation (AYK-130): starred chats stay at the top of the list.
+  const isFavorite = Boolean(Number(conversations.find(c => c.id === Number(activeId))?.is_favorite));
+  const toggleFavorite = async () => {
+    const id = Number(activeId);
+    const next = !isFavorite;
+    setConversations(list => list.map(c => (c.id === id ? { ...c, is_favorite: next ? 1 : 0 } : c)));
+    try { await setConversationFavorite(id, next); }
+    catch (err) {
+      setConversations(list => list.map(c => (c.id === id ? { ...c, is_favorite: next ? 0 : 1 } : c)));
+      setBlockProblem(apiError(err));
+    }
   };
 
   // "🚫 Block" / "✅ Unblock" the other side (AYK-084); refused while working together or in warranty.
@@ -361,7 +375,11 @@ export default function ChatPage() {
           {/* The chats page has no site header, so it carries its own way back (AYK-044). */}
           <div className="flex items-center justify-between gap-2">
             <h3 className="m-0">{t('chat.title')}</h3>
-            <Link to="/" className="chat-home" data-testid="chat-home">🏠 {t('nav.home')}</Link>
+            <div className="flex items-center gap-2">
+              {/* The messages' settings belong to all chats, so they live on the list (AYK-129). */}
+              <ChatSettings />
+              <Link to="/" className="chat-home" data-testid="chat-home">🏠 {t('nav.home')}</Link>
+            </div>
           </div>
           <div className="chat-tabs" role="tablist">
             <button type="button" role="tab" aria-selected={!showArchive} className={!showArchive ? 'active' : ''} onClick={() => setSearchParams({})} data-testid="chat-tab-active">
@@ -375,7 +393,9 @@ export default function ChatPage() {
          conversations.filter(c => archived(c) === showArchive).length === 0 ? <EmptyState title={t(showArchive ? 'requester.chat_archive_empty' : 'chat.no_conversations')} /> :
          (
           <div className="conv-list">
-            {conversations.filter(c => archived(c) === showArchive).map(c => {
+            {conversations.filter(c => archived(c) === showArchive)
+              .sort((a, b) => Number(Boolean(Number(b.is_favorite))) - Number(Boolean(Number(a.is_favorite))))
+              .map(c => {
               const other = typeof c.other_user === 'string' ? JSON.parse(c.other_user) : c.other_user;
               const last = typeof c.last_message === 'string' ? JSON.parse(c.last_message) : c.last_message;
               const isActive = Number(activeId) === c.id;
@@ -391,7 +411,7 @@ export default function ChatPage() {
                   <Avatar src={other?.avatar} name={other?.full_name} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div className="flex justify-between">
-                      <strong>{other?.full_name || '—'}{other?.referral_code && <span className="ms-1.5 text-[12px] font-semibold text-fg-muted" dir="ltr">{other.referral_code}</span>}</strong>
+                      <strong>{Number(c.is_favorite) ? <span className="me-1" aria-label={t('chat.favorite')}>⭐</span> : null}{other?.full_name || '—'}{other?.referral_code && <span className="ms-1.5 text-[12px] font-semibold text-fg-muted" dir="ltr">{other.referral_code}</span>}</strong>
                       <span className="text-xs text-muted">{last ? (isSameDay(last.created_at, new Date()) ? formatTime(last.created_at) : dayLabel(last.created_at, t)) : ''}</span>
                     </div>
                     <div className="text-sm text-muted" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -418,14 +438,17 @@ export default function ChatPage() {
         ) : (
           <>
             <header className="chat-header">
-              <Link to="/chat" className="back-btn">←</Link>
-              <Link to="/" className="chat-home chat-home-compact" aria-label={t('nav.home')} title={t('nav.home')} data-testid="chat-home-inside">🏠</Link>
+              <Link to="/chat" className="back-btn" aria-label={t('chat.title')}>←</Link>
               {otherParticipant && (
                 <>
                   <Avatar src={otherParticipant.avatar} name={otherParticipant.full_name} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <strong>{otherParticipant.full_name}{otherParticipant.referral_code && <span className="ms-1.5 px-1.5 py-0.5 rounded-pill bg-surface-alt text-[12px] font-bold text-fg-muted" dir="ltr" data-testid="chat-peer-code">{otherParticipant.referral_code}</span>}</strong>
-                    <div className="text-xs text-muted">
+                  <div className="chat-peer">
+                    <div className="chat-peer-name">
+                      {isFavorite && <span aria-label={t('chat.favorite')}>⭐</span>}
+                      <strong>{otherParticipant.full_name}</strong>
+                      {otherParticipant.referral_code && <span className="chat-peer-code" dir="ltr" data-testid="chat-peer-code">{otherParticipant.referral_code}</span>}
+                    </div>
+                    <div className="chat-peer-status">
                       {realtimeMode === 'polling'
                         ? t('chat.periodic_updates', { defaultValue: 'تُحدّث الرسائل كل 5 ثوانٍ' })
                         : otherParticipant.is_online
@@ -436,25 +459,24 @@ export default function ChatPage() {
                     </div>
                   </div>
                   {canSend && <CallButtons conversationId={Number(activeId)} compact />}
-                  {active?.in_directory
-                    ? <span className="text-[18px]" title={active.directory_name || t('directory.saved')} aria-label={t('directory.saved')} data-testid="chat-in-directory">⭐</span>
-                    : <button type="button" className="track-btn" onClick={saveContact} data-testid="chat-save-contact" aria-label={t('directory.save')} title={t('directory.save')}>☆</button>}
-                  <ChatSettings />
-                  <button type="button" className="track-btn" onClick={toggleBlock} data-testid="chat-block"
-                    aria-label={t(active?.blocked_by_me ? 'chat.unblock' : 'chat.block')} title={t(active?.blocked_by_me ? 'chat.unblock' : 'chat.block')}>
-                    {active?.blocked_by_me ? '✅' : '🚫'}
-                  </button>
-                  {/* Live tracking works only for the agreed pair, so it shows only then, named. */}
-                  {requestId && canShareLocation && (
-                    <Link
-                      to={`/requests/${requestId}/track`}
-                      className="track-btn track-labelled"
-                      aria-label={t('tracking.title')}
-                      title={t('tracking.title')}
-                    >
-                      📍 <span>{t('tracking.title')}</span>
-                    </Link>
-                  )}
+                  <ChatHeaderMenu>
+                    {/* Live tracking works only for the agreed pair, so it shows only then. */}
+                    {requestId && canShareLocation && (
+                      <Link to={`/requests/${requestId}/track`} role="menuitem">📍 {t('tracking.title')}</Link>
+                    )}
+                    {/* Already in the directory: nothing to show. Removed from it, saving comes back
+                        (in_directory is read from the directory each time the chat opens). */}
+                    {!active?.in_directory && (
+                      <button type="button" role="menuitem" onClick={saveContact} data-testid="chat-save-contact">📇 {t('directory.save')}</button>
+                    )}
+                    <button type="button" role="menuitem" onClick={toggleFavorite} data-testid="chat-favorite" aria-pressed={isFavorite}>
+                      {isFavorite ? '⭐' : '☆'} {t(isFavorite ? 'chat.unfavorite' : 'chat.favorite')}
+                    </button>
+                    <button type="button" role="menuitem" onClick={toggleBlock} data-testid="chat-block">
+                      {active?.blocked_by_me ? '✅' : '🚫'} {t(active?.blocked_by_me ? 'chat.unblock' : 'chat.block')}
+                    </button>
+                    <Link to="/" role="menuitem" data-testid="chat-home-inside">🏠 {t('nav.home')}</Link>
+                  </ChatHeaderMenu>
                 </>
               )}
             </header>
@@ -607,10 +629,29 @@ export default function ChatPage() {
           display: flex; flex-direction: column; height: 100%; overflow: hidden;
         }
         .chat-header {
-          padding: 10px 16px; background: var(--bg-card);
-          border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px;
+          padding: 8px 12px; background: var(--bg-card); min-height: 60px;
+          border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px;
           box-shadow: 0 1px 3px rgba(15,23,42,.04);
         }
+        .chat-peer { flex: 1; min-width: 0; line-height: 1.3; }
+        .chat-peer-name { display: flex; align-items: center; gap: 6px; min-width: 0; }
+        .chat-peer-name strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 16px; }
+        .chat-peer-code { flex-shrink: 0; padding: 1px 7px; border-radius: 999px; background: var(--bg-soft); font-size: 11.5px; font-weight: 700; color: var(--text-secondary); }
+        .chat-peer-status { font-size: 12px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .chat-header .chat-calls { flex-shrink: 0; }
+        .chat-icon-btn {
+          flex-shrink: 0; width: 40px; height: 40px; border-radius: 50%; border: 0;
+          display: grid; place-items: center; background: transparent; color: var(--text);
+          font-size: 22px; font-weight: 700; cursor: pointer;
+        }
+        .chat-icon-btn:hover, .chat-icon-btn[aria-expanded="true"] { background: var(--wa-chip, rgba(0,0,0,.06)); }
+        .chat-menu { display: flex; flex-direction: column; padding: 4px 0; }
+        .chat-menu > * {
+          display: flex; align-items: center; gap: 10px; padding: 11px 16px; font: inherit; font-size: 14.5px;
+          color: var(--text); background: transparent; border: 0; text-align: start; text-decoration: none; cursor: pointer;
+        }
+        .chat-menu > *:hover { background: var(--bg-soft); }
+        .chat-menu > [aria-disabled="true"] { cursor: default; color: var(--text-secondary); }
         .back-btn {
           display: none; background: transparent; border: 0; font-size: 20px;
           color: var(--text); text-decoration: none;

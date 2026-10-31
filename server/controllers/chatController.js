@@ -323,6 +323,15 @@ const markRead = asyncHandler(async (req, res) => {
   return success(res, null, req.t('read_marked'));
 });
 
+// ⭐ / ☆ the conversation as a favourite (AYK-130).
+const setFavorite = asyncHandler(async (req, res) => {
+  const conversationId = req.params.id;
+  if (!await Conversation.isParticipant(conversationId, req.user.id)) return forbidden(res, req.t('deny_chat_participant'));
+  const favorite = req.body?.favorite === true;
+  await Conversation.setFavorite(conversationId, req.user.id, favorite);
+  return success(res, { is_favorite: favorite ? 1 : 0 });
+});
+
 const getConversation = asyncHandler(async (req, res) => {
   const conversationId = req.params.id;
   const isParticipant = await Conversation.isParticipant(conversationId, req.user.id);
@@ -348,5 +357,5 @@ const getConversation = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
-  listConversations, unreadCount, forwardMessage, translateMessage, createConversation, getMessages, sendMessage, markRead,
+  listConversations, unreadCount, forwardMessage, translateMessage, createConversation, getMessages, sendMessage, markRead, setFavorite,
   getConversation, deleteMessage, searchMessages, nudge };

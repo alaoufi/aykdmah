@@ -584,7 +584,9 @@
     "closed_declined": "Pagbasa lang: tinanggihan ng humiling ang alok na ito.",
     "unblock_confirm": "I-unblock si {{name}}? Babalik ang mga mensahe at tawag.",
     "block_done": "🚫 Na-block si {{name}}. Walang mensahe o tawag hanggang i-unblock.",
-    "unblock_done": "✅ Na-unblock si {{name}}, puwede na kayong mag-mensahe at tumawag."
+    "unblock_done": "✅ Na-unblock si {{name}}, puwede na kayong mag-mensahe at tumawag.",
+    "favorite": "Paborito",
+    "unfavorite": "Alisin sa mga paborito"
   },
   "tracking": {
     "title": "Live na pagsubaybay",

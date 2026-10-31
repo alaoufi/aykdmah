@@ -24,6 +24,12 @@ export async function getChatUnread() {
 }
 
 // Block / unblock the other side of a chat (AYK-084).
+// ⭐ A favourite conversation (AYK-130).
+export async function setConversationFavorite(conversationId, favorite) {
+  const { data } = await api.put(`/chat/conversations/${conversationId}/favorite`, { favorite });
+  return data.data;
+}
+
 export async function setUserBlocked(userId, blocked) {
   const { data } = blocked ? await api.post(`/users/me/blocks/${userId}`) : await api.delete(`/users/me/blocks/${userId}`);
   return data.data;

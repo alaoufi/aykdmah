@@ -19,6 +19,7 @@ router.post('/conversations/:id/messages', authenticate, requireMarketplaceWrite
 router.delete('/conversations/:id/messages/:messageId', authenticate, c.deleteMessage);
 router.get('/conversations/:id/search', authenticate, c.searchMessages);
 router.put('/conversations/:id/read', authenticate, c.markRead);
+router.put('/conversations/:id/favorite', authenticate, c.setFavorite);
 
 // Live location share endpoints (scoped to a conversation)
 router.post('/conversations/:id/location', authenticate, requireMarketplaceWrite, loc.shareInConversation);

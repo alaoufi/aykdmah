@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import SmartDropdown from '../common/SmartDropdown';
 import { CHAT_SIZES, saveChatPrefs, useChatPrefs } from '../../utils/chatPrefs';
 
-// ⚙️ in the chat header (AYK-126): the size of the messages' text, from small to very large,
+// ⚙️ on the chats list (AYK-126, AYK-129): the size of the messages' text, from small to very large,
 // and the automatic translation of the other side's messages. Saved on this device.
 export default function ChatSettings() {
   const { t } = useTranslation();

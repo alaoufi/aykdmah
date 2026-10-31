@@ -32,9 +32,12 @@ export default function CallButtons({ conversationId, userId, compact = false })
 
   if (state === 'hidden') return null;
   const disabled = state !== 'ready' || !!call;
-  const button = 'px-3 py-1.5 rounded-pill text-[12.5px] border border-border bg-surface-alt disabled:opacity-50';
+  // Compact (the chat header): two round icons side by side, never wrapping under each other.
+  const button = compact
+    ? 'w-10 h-10 grid place-items-center rounded-full text-[19px] bg-transparent hover:bg-surface-alt disabled:opacity-50'
+    : 'px-3 py-1.5 rounded-pill text-[12.5px] border border-border bg-surface-alt disabled:opacity-50';
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className={compact ? 'chat-calls flex flex-nowrap items-center gap-0.5' : 'flex flex-wrap items-center gap-2'}>
       <button type="button" className={button} disabled={disabled} onClick={() => start(target, 'audio')}
         aria-label={t('calls.voice_call')} title={t('calls.voice_call')}>📞{compact ? '' : ` ${t('calls.voice_call')}`}</button>
       <button type="button" className={button} disabled={disabled} onClick={() => start(target, 'video')}

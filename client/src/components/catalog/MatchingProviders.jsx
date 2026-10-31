@@ -213,10 +213,8 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
             onClick={async () => { setBusy(true); try { await onContact(p); } finally { setBusy(false); } }}>💬 {t('request.contact')}</button>}
           {requester && <button type="button" className="btn btn-primary btn-sm" disabled={busy} data-testid="direct-contact"
             onClick={() => run(async () => { const res = await contactDirect(p.id, categoryId); navigate(`/chat/${res.conversation_id}`); })}>💬 {t('requester.contact_direct')}</button>}
-          {requester && (saved
-            ? <span className="text-[13px] font-semibold text-fg-muted" data-testid="provider-in-directory">⭐ {t('requester.in_directory')}</span>
-            : <button type="button" className="text-[13px] font-semibold text-primary" disabled={busy} data-testid="save-provider"
-              onClick={() => run(() => onToggleSaved(p.id))}>☆ {t('requester.add_directory')}</button>)}
+          {requester && !saved && (<button type="button" className="text-[13px] font-semibold text-primary" disabled={busy} data-testid="save-provider"
+              onClick={() => run(() => onToggleSaved(p.id))}>📇 {t('requester.add_directory')}</button>)}
           <Link to={`/providers/${p.id}`} className="text-[13px] font-semibold text-primary">{t('for_you.view_profile')}</Link>
         </div>
         <BlockedNotice message={problem} otherId={p.id} onUnblocked={() => setProblem('')} />

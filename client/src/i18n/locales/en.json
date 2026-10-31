@@ -584,7 +584,9 @@
     "closed_declined": "Read-only: the requester declined this offer.",
     "unblock_confirm": "Unblock {{name}}? Messages and calls between you will resume.",
     "block_done": "🚫 {{name}} is blocked. No messages or calls until you unblock.",
-    "unblock_done": "✅ Unblocked {{name}}: you can message and call each other now."
+    "unblock_done": "✅ Unblocked {{name}}: you can message and call each other now.",
+    "favorite": "Favourite",
+    "unfavorite": "Remove from favourites"
   },
   "tracking": {
     "title": "Live tracking",

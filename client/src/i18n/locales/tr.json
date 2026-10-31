@@ -584,7 +584,9 @@
     "closed_declined": "Salt okunur: talep sahibi bu teklifi reddetti.",
     "unblock_confirm": "{{name}} engeli kaldırılsın mı? Mesaj ve aramalar geri gelir.",
     "block_done": "🚫 {{name}} engellendi. Engel kalkana kadar mesaj veya arama yok.",
-    "unblock_done": "✅ {{name}} engeli kaldırıldı, artık mesajlaşıp arayabilirsiniz."
+    "unblock_done": "✅ {{name}} engeli kaldırıldı, artık mesajlaşıp arayabilirsiniz.",
+    "favorite": "Favori",
+    "unfavorite": "Favorilerden çıkar"
   },
   "tracking": {
     "title": "Canlı izleme",

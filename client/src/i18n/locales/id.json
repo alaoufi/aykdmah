@@ -584,7 +584,9 @@
     "closed_declined": "Hanya baca: pemohon menolak penawaran ini.",
     "unblock_confirm": "Buka blokir {{name}}? Pesan dan panggilan akan kembali.",
     "block_done": "🚫 {{name}} diblokir. Tidak ada pesan atau panggilan sampai dibuka.",
-    "unblock_done": "✅ Blokir {{name}} dibuka, kalian bisa berkirim pesan dan menelepon."
+    "unblock_done": "✅ Blokir {{name}} dibuka, kalian bisa berkirim pesan dan menelepon.",
+    "favorite": "Favorit",
+    "unfavorite": "Hapus dari favorit"
   },
   "tracking": {
     "title": "Pelacakan langsung",

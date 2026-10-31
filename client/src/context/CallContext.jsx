@@ -69,6 +69,16 @@ export function CallProvider({ children }) {
     const audioEl = document.querySelector('[role="dialog"] audio');
     return { me: pubs(lkRoom?.localParticipant), peer: pubs([...(lkRoom?.remoteParticipants?.values() || [])][0]), el: audioEl ? (audioEl.paused ? 'paused' : 'playing') : 'none' };
   };
+  // While out of the app (AYK-131): is the page still running (snapshots keep coming), is their
+  // voice still playing (el), is my microphone still live (mic: live / muted / ended)?
+  const soundState = lkRoom => {
+    const audioEl = document.querySelector('[role="dialog"] audio');
+    const mic = lkRoom?.localParticipant?.getTrackPublication?.('microphone')?.track?.mediaStreamTrack;
+    const peer = [...(lkRoom?.remoteParticipants?.values() || [])][0];
+    const theirs = peer?.getTrackPublication?.('microphone')?.track?.mediaStreamTrack;
+    const state = t => (!t ? '0' : t.readyState === 'ended' ? 'ended' : t.muted ? 'muted' : 'live');
+    return `${audioEl ? (audioEl.paused ? 'paused' : 'playing') : 'none'}/${state(mic)}/${state(theirs)}/${lkRoom?.state || '-'}`;
+  };
 
   const teardown = useCallback(async () => {
     const current = roomRef.current;
@@ -84,7 +94,8 @@ export function CallProvider({ children }) {
       // Which tracks were really sent and received (AYK-093): source, subscribed (s), muted (m).
       // The tracks as they were during the call (the last 10 s snapshot), not after it closed (AYK-098).
       const now = trackSnapshot(current);
-      const details = JSON.stringify({ ...(now.me || !log.lastTracks ? now : log.lastTracks), errs: log.errors || [], snaps: log.snaps || 0 }).slice(0, 600);
+      const away = log.away ? { n: log.away.n, s: Math.round((log.away.ms + (log.away.since ? Date.now() - log.away.since : 0)) / 1000), snaps: log.away.snaps, out: log.away.out, in: log.away.in, back: log.away.back } : undefined;
+      const details = JSON.stringify({ ...(now.me || !log.lastTracks ? now : log.lastTracks), errs: log.errors || [], snaps: log.snaps || 0, away }).slice(0, 600);
       calls.sendCallDiagnostics(ended.id, {
         ...stats, poor_seconds: Math.round(poorMs / 1000), reconnects: log.reconnects, audio_blocked: log.audioBlocked, details,
       }).catch(() => {});
@@ -185,6 +196,26 @@ export function CallProvider({ children }) {
       .on(RoomEvent.ParticipantDisconnected, () => setRemoteJoined(false))
       .on(RoomEvent.AudioPlaybackStatusChanged, () => {
         setAudioBlocked(!lkRoom.canPlaybackAudio);
+    // Out of the app during the call (AYK-131): recorded for the call log, and on return the
+    // other side's voice and my microphone are brought back if the phone stopped them.
+    const onAway = () => {
+      if (roomRef.current !== lkRoom) { document.removeEventListener('visibilitychange', onAway); return; }
+      const log = qualityLog.current;
+      log.away = log.away || { n: 0, ms: 0, since: 0, snaps: 0, out: '', in: '', back: '' };
+      if (document.hidden) {
+        log.away.n += 1; log.away.since = Date.now(); log.away.out = soundState(lkRoom);
+        return;
+      }
+      if (log.away.since) { log.away.ms += Date.now() - log.away.since; log.away.since = 0; }
+      log.away.back = soundState(lkRoom);
+      const audioEl = document.querySelector('[role="dialog"] audio');
+      if (audioEl?.paused && audioEl.srcObject) Promise.resolve(audioEl.play?.()).catch(() => {});
+      const mic = lkRoom.localParticipant?.getTrackPublication?.('microphone');
+      if (mic?.track?.mediaStreamTrack?.readyState === 'ended' && !mic.isMuted) {
+        Promise.resolve(mic.track.restartTrack?.()).catch(err => { log.errors = [...(log.errors || []), `mic:${err?.name || 'Error'}`].slice(-6); });
+      }
+    };
+    document.addEventListener('visibilitychange', onAway);
     // A quality snapshot every 10 s, kept for the end-of-call log (AYK-066).
     clearInterval(statsTimerRef.current);
     statsTimerRef.current = setInterval(() => {
@@ -192,6 +223,7 @@ export function CallProvider({ children }) {
       const log = qualityLog.current;
       log.lastTracks = trackSnapshot(lkRoom);
       log.snaps = (log.snaps || 0) + 1;
+      if (document.hidden && log.away) { log.away.snaps += 1; log.away.in = soundState(lkRoom); }
       collectCallStats(lkRoom).then(stats => { if (stats.audio_kb_in || stats.audio_kb_out || !log.lastStats) log.lastStats = stats; }).catch(err => { log.errors = [...(log.errors || []), `stats:${err?.name || 'Error'}`].slice(-6); });
     }, 10000);
     navigator.mediaDevices?.enumerateDevices?.().then(list => {

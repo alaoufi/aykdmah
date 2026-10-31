@@ -230,10 +230,9 @@ export default function CallOverlay() {
               label={camOn ? t('calls.camera_off') : t('calls.camera_on')}>{camOn ? '📷' : '🚫'}</RoundButton>}
           </>
         )}
-        {phase === 'ended' && call.peer?.id && (
-          savedContact
-            ? <span className="px-4 py-2 text-sm font-bold" data-testid="call-in-directory">⭐ {t('directory.saved')}</span>
-            : <button type="button" onClick={saveContact} data-testid="call-save-contact" className="px-4 py-2 rounded-pill bg-white/15 text-sm font-bold">☆ {t('directory.save')}</button>
+        {/* Already in the directory: nothing to show; removed from it, saving comes back. */}
+        {phase === 'ended' && call.peer?.id && !savedContact && (
+          <button type="button" onClick={saveContact} data-testid="call-save-contact" className="px-4 py-2 rounded-pill bg-white/15 text-sm font-bold">📇 {t('directory.save')}</button>
         )}
         {phase === 'ended' && call.id && call.answered_at && (
           <button type="button" onClick={submitReport} disabled={reporting || reported}

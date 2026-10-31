@@ -207,6 +207,7 @@ async function listForUser(userId, { page = 1, limit = 20 } = {}) {
   const offset = (page - 1) * limit;
   return query(
     `SELECT c.id, c.request_id, c.last_message_id, c.last_message_at, ${writableConversationSql()} AS can_send,
+            COALESCE(cp.is_favorite, 0) AS is_favorite,
             ${writableConversationSql(true)} AS can_share_location,
             r.title AS request_title, r.status AS request_status,
             (SELECT COUNT(*) FROM messages m
@@ -229,7 +230,7 @@ async function listForUser(userId, { page = 1, limit = 20 } = {}) {
           ((r.assigned_provider_id IS NOT NULL AND r.assigned_provider_id <> ?)
             AND COALESCE(r.completed_at, r.updated_at) < CURRENT_TIMESTAMP - INTERVAL '1 day')
           OR NOT ${contactWindow.OPEN_SQL}))
-     ORDER BY c.last_message_at DESC NULLS LAST, c.created_at DESC, c.id DESC
+     ORDER BY COALESCE(cp.is_favorite, 0) DESC, c.last_message_at DESC NULLS LAST, c.created_at DESC, c.id DESC
      LIMIT ? OFFSET ?`,
     [userId, userId, userId, userId, userId, Number(limit), Number(offset)]
   );
@@ -240,6 +241,12 @@ async function listForUser(userId, { page = 1, limit = 20 } = {}) {
 async function unreadTotal(userId) {
   const rows = await listForUser(userId, { page: 1, limit: 100 });
   return rows.reduce((sum, row) => sum + (Number(row.unread_count) || 0), 0);
+}
+
+// ⭐ A favourite conversation (AYK-130): for this user only, kept at the top of their list.
+async function setFavorite(conversationId, userId, favorite) {
+  await query('UPDATE conversation_participants SET is_favorite = ? WHERE conversation_id = ? AND user_id = ?',
+    [favorite ? 1 : 0, conversationId, userId]);
 }
 
 async function updateLastRead(conversationId, userId) {
@@ -256,5 +263,5 @@ async function updateLastRead(conversationId, userId) {
 module.exports = {
   unreadTotal,
   findOrCreateBetween, findById, getParticipants, isParticipant, canSend, assertCanSend,
-  canShareLocation, assertCanShareLocation, getContacts, listForUser, updateLastRead,
+  canShareLocation, assertCanShareLocation, getContacts, listForUser, updateLastRead, setFavorite,
 };
