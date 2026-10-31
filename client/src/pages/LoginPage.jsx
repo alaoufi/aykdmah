@@ -10,7 +10,7 @@ import { internalAuthReturn, authReturnTarget, isRequestAuthReturn } from '../ut
 
 export default function LoginPage() {
   const { t } = useTranslation();
-  const { login } = useAuth();
+  const { login, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = internalAuthReturn(location.state?.from);
@@ -25,6 +25,12 @@ export default function LoginPage() {
     setLoading(true);
     try {
       const res = await login(form);
+      // The admin signs in at /admin only (AYK-114).
+      if (res.user.role === 'admin') {
+        await logout();
+        setError(t('auth.admin_use_panel'));
+        return;
+      }
       navigate(authReturnTarget(res.user.role, from), { replace: true });
     } catch (err) {
       setError(apiError(err));

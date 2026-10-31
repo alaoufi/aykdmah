@@ -308,7 +308,8 @@
     "account_type_changed": "Nagbago ang uri ng account",
     "provider_venue_point_required": "I-mark ang lugar ng serbisyo sa mapa",
     "location_later": "Ayos lang: kukunin namin ang iyong lokasyon nang awtomatiko sa una mong kahilingan, at mababago mo ito.",
-    "terms_by_signup": "Sa paggawa ng account, sumasang-ayon ka sa"
+    "terms_by_signup": "Sa paggawa ng account, sumasang-ayon ka sa",
+    "admin_use_panel": "Admin account ito: mag-sign in sa aykdmh.com/admin. Para sa site, gumamit ng karaniwang user account."
   },
   "request": {
     "create_title": "Gumawa ng bagong kahilingan",
@@ -568,7 +569,10 @@
     "nudge_unreachable": "Hindi pa naihatid: offline si {{name}} at walang device na nakarehistro para sa abiso. Makikita niya ito pagbukas ng app.",
     "closed_finished": "Pagbasa lang: tapos na ang kahilingan at ang panahon ng pagsusuri.",
     "closed_other_provider": "Pagbasa lang: nakipagkasundo ang humiling sa ibang provider.",
-    "closed_declined": "Pagbasa lang: tinanggihan ng humiling ang alok na ito."
+    "closed_declined": "Pagbasa lang: tinanggihan ng humiling ang alok na ito.",
+    "unblock_confirm": "I-unblock si {{name}}? Babalik ang mga mensahe at tawag.",
+    "block_done": "🚫 Na-block si {{name}}. Walang mensahe o tawag hanggang i-unblock.",
+    "unblock_done": "✅ Na-unblock si {{name}}, puwede na kayong mag-mensahe at tumawag."
   },
   "tracking": {
     "title": "Live na pagsubaybay",

@@ -16,6 +16,7 @@ const notBlockedSql = self => `NOT EXISTS (SELECT 1 FROM conversation_participan
     JOIN user_blocks ub ON (ub.blocker_id = block_peer.user_id AND ub.blocked_id = ${self}.user_id)
       OR (ub.blocker_id = ${self}.user_id AND ub.blocked_id = block_peer.user_id)
     WHERE block_peer.conversation_id = c.id AND block_peer.user_id <> ${self}.user_id
-      AND NOT (r.id IS NOT NULL AND r.assigned_provider_id IN (block_peer.user_id, ${self}.user_id) AND ${OPEN_SQL}))`;
+      -- COALESCE: with no assigned provider the test is NULL, which wrongly ignored the block (AYK-115).
+      AND NOT COALESCE(r.id IS NOT NULL AND r.assigned_provider_id IN (block_peer.user_id, ${self}.user_id) AND ${OPEN_SQL}, FALSE))`;
 
 module.exports = { DONE_DAYS_SQL, FINISHED_SQL, UNTIL_SQL, OPEN_SQL, notBlockedSql };

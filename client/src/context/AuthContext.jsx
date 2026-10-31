@@ -1,9 +1,24 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
-import { getToken, setToken, TOKEN_KEY, TOKEN_CHANGE_EVENT } from '../services/api';
+import { useInRouterContext, useLocation } from 'react-router-dom';
+import { getToken, setToken, tokenKey, isAdminScope, TOKEN_CHANGE_EVENT } from '../services/api';
 import { me, login as loginApi, logout as logoutApi, register as registerApi } from '../services/authService';
 import { detachPush } from '../services/pushService';
 
 const AuthContext = createContext(null);
+
+// Moving between /admin and the site switches to that area's own session (AYK-114).
+// Rendered only inside a router.
+function ScopeWatcher() {
+  const { pathname } = useLocation();
+  const scope = /^\/admin(\/|$)/.test(pathname) ? 'admin' : 'site';
+  const scopeRef = useRef(scope);
+  useEffect(() => {
+    if (scopeRef.current === scope) return;
+    scopeRef.current = scope;
+    window.dispatchEvent(new Event(TOKEN_CHANGE_EVENT));
+  }, [scope]);
+  return null;
+}
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [provider, setProvider] = useState(null);
@@ -27,6 +42,13 @@ export function AuthProvider({ children }) {
       const data = await me();
       if (!current()) return null;
       retriesRef.current = 0;
+      // An admin account belongs to /admin only (AYK-114): an old site session of one is closed.
+      if (data.user?.role === 'admin' && !isAdminScope()) {
+        setToken(null);
+        setUser(null);
+        setProvider(null);
+        return null;
+      }
       setUser(data.user);
       setProvider(data.provider || null);
       return data;
@@ -56,7 +78,7 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     try { localStorage.removeItem('lsm_auth_session'); } catch (_) {}
     const changed = (event) => {
-      if (event.type === 'storage' && event.key !== TOKEN_KEY && event.key !== null) return;
+      if (event.type === 'storage' && event.key !== tokenKey() && event.key !== null) return;
       ++refreshVersion.current;
       setUser(null);
       setProvider(null);
@@ -74,6 +96,7 @@ export function AuthProvider({ children }) {
     };
   }, []);
   useEffect(() => { void refresh(); }, [refresh, sessionEpoch]);
+  const inRouter = useInRouterContext();
 
   const login = async (creds) => {
     const data = await loginApi(creds);
@@ -118,6 +141,7 @@ export function AuthProvider({ children }) {
       user, provider, loading, login, register, logout, refresh, setUser, sessionEpoch,
       isAdmin, isSuperAdmin, permissions: perms, hasPermission, hasAnyPermission,
     }}>
+      {inRouter && <ScopeWatcher />}
       {children}
     </AuthContext.Provider>
   );

@@ -156,6 +156,17 @@ test('a provider who withdrew can still talk while the request is open (AYK-112)
   await send(id, firstProvider, 'Yes');
 });
 
+test('a block stops messages both ways in an open negotiation, and unblocking restores them (AYK-115)', async () => {
+  const { request } = await job();
+  const { id } = await negotiate(request, customer, firstProvider);
+  await db.query('INSERT INTO user_blocks (blocker_id, blocked_id) VALUES (?, ?)', [firstProvider.user.id, customer.user.id]);
+  await send(id, customer, 'Blocked?', 403);
+  await send(id, firstProvider, 'Blocked too', 403);
+  await db.query('DELETE FROM user_blocks WHERE blocker_id = ? AND blocked_id = ?', [firstProvider.user.id, customer.user.id]);
+  await send(id, customer, 'Back again');
+  await send(id, firstProvider, 'Welcome back');
+});
+
 test('acceptance keeps only the selected provider writable and never exposes a rival negotiation', async () => {
   const { request, offers } = await job();
   const losing = await negotiate(request, customer, firstProvider);

@@ -308,7 +308,8 @@
     "account_type_changed": "Account type changed",
     "provider_venue_point_required": "Mark the service venue on the map",
     "location_later": "No problem: we take your location automatically at your first request, and you can change it.",
-    "terms_by_signup": "By creating an account you agree to the"
+    "terms_by_signup": "By creating an account you agree to the",
+    "admin_use_panel": "This is an admin account: sign in at aykdmh.com/admin. To use the site, sign in with a regular user account."
   },
   "request": {
     "create_title": "Create a new request",
@@ -568,7 +569,10 @@
     "nudge_unreachable": "Not delivered now: {{name}} is offline and has no device registered for notifications. They will see it when they open the app.",
     "closed_finished": "Read-only: the request has ended and its review and warranty days are over.",
     "closed_other_provider": "Read-only: the requester agreed with another provider.",
-    "closed_declined": "Read-only: the requester declined this offer."
+    "closed_declined": "Read-only: the requester declined this offer.",
+    "unblock_confirm": "Unblock {{name}}? Messages and calls between you will resume.",
+    "block_done": "🚫 {{name}} is blocked. No messages or calls until you unblock.",
+    "unblock_done": "✅ Unblocked {{name}}: you can message and call each other now."
   },
   "tracking": {
     "title": "Live tracking",

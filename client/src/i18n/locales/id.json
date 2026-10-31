@@ -308,7 +308,8 @@
     "account_type_changed": "Berubah jenis akun",
     "provider_venue_point_required": "Tandai tempat pelayanan di peta",
     "location_later": "Tidak apa-apa: kami mengambil lokasi Anda otomatis saat permintaan pertama, dan Anda bisa mengubahnya.",
-    "terms_by_signup": "Dengan membuat akun, Anda menyetujui"
+    "terms_by_signup": "Dengan membuat akun, Anda menyetujui",
+    "admin_use_panel": "Ini akun admin: masuk di aykdmh.com/admin. Untuk situs, gunakan akun pengguna biasa."
   },
   "request": {
     "create_title": "Buat permintaan baru",
@@ -568,7 +569,10 @@
     "nudge_unreachable": "Belum terkirim: {{name}} sedang offline dan tidak ada perangkat terdaftar untuk notifikasi. Akan terlihat saat membuka aplikasi.",
     "closed_finished": "Hanya baca: permintaan dan masa peninjauan telah berakhir.",
     "closed_other_provider": "Hanya baca: pemohon sepakat dengan penyedia lain.",
-    "closed_declined": "Hanya baca: pemohon menolak penawaran ini."
+    "closed_declined": "Hanya baca: pemohon menolak penawaran ini.",
+    "unblock_confirm": "Buka blokir {{name}}? Pesan dan panggilan akan kembali.",
+    "block_done": "🚫 {{name}} diblokir. Tidak ada pesan atau panggilan sampai dibuka.",
+    "unblock_done": "✅ Blokir {{name}} dibuka, kalian bisa berkirim pesan dan menelepon."
   },
   "tracking": {
     "title": "Pelacakan langsung",

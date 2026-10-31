@@ -10,20 +10,27 @@ const api = axios.create({
 });
 
 export const TOKEN_KEY = 'lsm_token';
+// The admin area keeps its own session, apart from the site's (AYK-114): signing in at /admin
+// never signs the site in, and the site never shows the admin account.
+export const ADMIN_TOKEN_KEY = 'lsm_admin_token';
+export const isAdminScope = () => typeof window !== 'undefined' && /^\/admin(\/|$)/.test(window.location.pathname);
+export const tokenKey = () => (isAdminScope() ? ADMIN_TOKEN_KEY : TOKEN_KEY);
 export const TOKEN_CHANGE_EVENT = 'ayk:session-change';
-let memoryToken = null;
+const memoryTokens = {};
 let memoryOnly = false;
 
 export function getToken() {
-  if (memoryOnly) return memoryToken;
-  try { return localStorage.getItem(TOKEN_KEY); } catch (_) { memoryOnly = true; return memoryToken; }
+  if (memoryOnly) return memoryTokens[tokenKey()] || null;
+  try { return localStorage.getItem(tokenKey()); } catch (_) { memoryOnly = true; return memoryTokens[tokenKey()] || null; }
 }
 export function setToken(token) {
   const previous = getToken();
-  memoryToken = typeof token === 'string' && token ? token : null;
+  const key = tokenKey();
+  const memoryToken = typeof token === 'string' && token ? token : null;
+  memoryTokens[key] = memoryToken;
   try {
-    if (memoryToken) localStorage.setItem(TOKEN_KEY, memoryToken);
-    else localStorage.removeItem(TOKEN_KEY);
+    if (memoryToken) localStorage.setItem(key, memoryToken);
+    else localStorage.removeItem(key);
     localStorage.removeItem('lsm_auth_session');
   } catch (_) { memoryOnly = true; /* Keep the current session usable when storage is unavailable. */ }
   if (globalThis.caches) void caches.delete('api-cache').catch(() => {});

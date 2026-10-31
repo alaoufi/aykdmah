@@ -308,7 +308,8 @@
     "account_type_changed": "Hesap türü değiştirildi",
     "provider_venue_point_required": "Haritada hizmet yeri işaretleyin",
     "location_later": "Sorun değil: ilk talebinizde konumunuzu otomatik alırız, siz de değiştirebilirsiniz.",
-    "terms_by_signup": "Hesap oluşturarak şunları kabul etmiş olursunuz:"
+    "terms_by_signup": "Hesap oluşturarak şunları kabul etmiş olursunuz:",
+    "admin_use_panel": "Bu bir yönetici hesabı: aykdmh.com/admin üzerinden girin. Site için normal kullanıcı hesabı kullanın."
   },
   "request": {
     "create_title": "Yeni bir talebi oluştur",
@@ -568,7 +569,10 @@
     "nudge_unreachable": "Şimdi iletilmedi: {{name}} çevrimdışı ve bildirim için kayıtlı cihazı yok. Uygulamayı açınca görecek.",
     "closed_finished": "Salt okunur: talep ve inceleme süresi sona erdi.",
     "closed_other_provider": "Salt okunur: talep sahibi başka bir hizmet verenle anlaştı.",
-    "closed_declined": "Salt okunur: talep sahibi bu teklifi reddetti."
+    "closed_declined": "Salt okunur: talep sahibi bu teklifi reddetti.",
+    "unblock_confirm": "{{name}} engeli kaldırılsın mı? Mesaj ve aramalar geri gelir.",
+    "block_done": "🚫 {{name}} engellendi. Engel kalkana kadar mesaj veya arama yok.",
+    "unblock_done": "✅ {{name}} engeli kaldırıldı, artık mesajlaşıp arayabilirsiniz."
   },
   "tracking": {
     "title": "Canlı izleme",

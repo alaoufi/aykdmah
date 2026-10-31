@@ -41,6 +41,7 @@ export default function ChatPage() {
   const [listOwnerId, setListOwnerId] = useState(null);
   const [active, setActive] = useState(null);
   const [blockProblem, setBlockProblem] = useState('');
+  const [blockDone, setBlockDone] = useState('');
   const { start: startCall } = useCall();
   const [agreeing, setAgreeing] = useState(false);
   const [activeScope, setActiveScope] = useState(null);
@@ -328,12 +329,16 @@ export default function ChatPage() {
     const peerId = otherParticipant?.id;
     if (!peerId || !active) return;
     const next = !active.blocked_by_me;
-    if (next && !window.confirm(t('chat.block_confirm', { name: otherParticipant.full_name }))) return;
-    setBlockProblem('');
+    const name = otherParticipant.full_name || '';
+    // Asked first, confirmed after, both ways (AYK-115).
+    if (!window.confirm(t(next ? 'chat.block_confirm' : 'chat.unblock_confirm', { name }))) return;
+    setBlockProblem(''); setBlockDone('');
     try {
       await setUserBlocked(peerId, next);
       const fresh = await getConversation(active.id);
       setActive(current => (current && current.id === fresh.id ? { ...current, ...fresh } : current));
+      setBlockDone(t(next ? 'chat.block_done' : 'chat.unblock_done', { name }));
+      setTimeout(() => setBlockDone(''), 6000);
     } catch (err) { setBlockProblem(apiError(err)); }
   };
 
@@ -488,6 +493,7 @@ export default function ChatPage() {
               </div>
             )}
             {blockProblem && <p role="alert" className="text-sm text-danger p-3">{blockProblem}</p>}
+            {blockDone && <p role="status" className="m-2 p-3 rounded-card bg-success-soft text-success text-sm font-bold" data-testid="block-done">{blockDone}</p>}
             {activeReady && active.can_send === false && (
               active.blocked_by_me ? (
                 <div role="status" className="m-2 p-3 rounded-card bg-danger-soft text-danger text-sm flex items-center gap-2 flex-wrap" data-testid="blocked-by-me">

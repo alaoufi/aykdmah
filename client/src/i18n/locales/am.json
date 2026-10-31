@@ -308,7 +308,8 @@
     "account_type_changed": "የመለያ አይነት ተቀይሯል",
     "provider_venue_point_required": "አገልግሎት የሚሰጥበትን ቦታ በካርታው ላይ ምልክት አድርግ",
     "location_later": "ችግር የለም፤ በመጀመሪያ ጥያቄዎ ቦታዎን በራሱ እንወስዳለን፣ መቀየርም ይችላሉ።",
-    "terms_by_signup": "መለያ በመፍጠር በሚከተለው ይስማማሉ፦"
+    "terms_by_signup": "መለያ በመፍጠር በሚከተለው ይስማማሉ፦",
+    "admin_use_panel": "ይህ የአስተዳደር መለያ ነው፦ በ aykdmh.com/admin ይግቡ። ለድረ-ገጹ መደበኛ የተጠቃሚ መለያ ይጠቀሙ።"
   },
   "request": {
     "create_title": "አዲስ ጥያቄ ይፍጠሩ",
@@ -568,7 +569,10 @@
     "nudge_unreachable": "አሁን አልደረሰም፦ {{name}} ከመስመር ውጪ ናቸው፣ ለማሳወቂያ የተመዘገበ መሳሪያ የለም። መተግበሪያውን ሲከፍቱ ያዩታል።",
     "closed_finished": "ለንባብ ብቻ፦ ጥያቄው እና የግምገማ ጊዜው አልቋል።",
     "closed_other_provider": "ለንባብ ብቻ፦ ጠያቂው ከሌላ አገልግሎት ሰጪ ጋር ተስማምቷል።",
-    "closed_declined": "ለንባብ ብቻ፦ ጠያቂው ይህን ቅናሽ አልተቀበሉም።"
+    "closed_declined": "ለንባብ ብቻ፦ ጠያቂው ይህን ቅናሽ አልተቀበሉም።",
+    "unblock_confirm": "{{name}}ን እገዳ ይነሳ? መልእክትና ጥሪ ይመለሳሉ።",
+    "block_done": "🚫 {{name}} ታግደዋል። እገዳው እስኪነሳ መልእክትም ጥሪም የለም።",
+    "unblock_done": "✅ የ{{name}} እገዳ ተነስቷል፣ አሁን መልእክትና ጥሪ ይቻላል።"
   },
   "tracking": {
     "title": "የቀጥታ ስርጭት መከታተያ",
