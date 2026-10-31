@@ -218,7 +218,8 @@ export default function Header() {
             onClick={() => setMobileOpen(false)}
           />
           <div ref={mobilePanel} id="ayk-mobile-menu" role="dialog" aria-modal="true" aria-label={t('common.more')}
-            className="absolute top-3 inset-x-3 bg-surface rounded-[22px] shadow-card p-4 max-h-[calc(100dvh-24px)] overflow-y-auto">
+            className="absolute top-3 inset-x-3 bg-surface rounded-[22px] shadow-card p-4 max-h-[calc(100%-24px)] overflow-y-auto overscroll-contain"
+            style={{ paddingBottom: 'max(1rem, calc(env(safe-area-inset-bottom) + 0.75rem))' }}>
             <div className="flex items-center justify-between mb-3">
               <BrandLogo markSize={30} wordSize={18} />
               <button
