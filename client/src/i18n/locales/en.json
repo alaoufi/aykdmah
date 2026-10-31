@@ -2206,7 +2206,8 @@
     "assigned_to_you": "Assigned to you: open it to finish or withdraw",
     "tasks_title": "My professional tasks",
     "tasks_hint": "Requests you contacted or were assigned. Active ones need you now; the archive keeps what ended or was cancelled.",
-    "task_waiting": "Waiting for the requester"
+    "task_waiting": "Waiting for the requester",
+    "professions_areas": "My trades & areas"
   },
   "requester": {
     "all_professions": "All professions",

@@ -54,7 +54,7 @@ export default function Header() {
     { to: '/providers/map', label: t('map.nav_link') },
     { to: '/requests/new', label: t('nav.order_now'), requester: true },
   ] : [
-    { to: '/provider', label: t('work.title'), end: true },
+    { to: '/provider', label: t('nav.home'), end: true },
     { to: '/opportunities', label: t('work.requests_nav') },
   ];
   LINKS.push(
@@ -252,7 +252,7 @@ export default function Header() {
                   ] },
                   user.role === 'provider' && { key: 'tasks', icon: '🧰', label: t('work.tasks_title'), to: '/provider/tasks', extra: [
                     { to: '/opportunities', label: `🔍 ${t('work.requests_nav')}` },
-                    { to: '/profile#work', label: `🛠️ ${t('work.title')}` },
+                    { to: '/profile#work', label: `🛠️ ${t('work.professions_areas')}` },
                     { to: '/provider/wallet', label: `💰 ${t('wallet.nav')}` },
                   ] },
                 ].filter(Boolean).map(g => (
@@ -273,7 +273,8 @@ export default function Header() {
               </div>
             )}
             <div className="flex flex-col">
-              {visibleLinks.map((l) => (
+              {/* In the ☰ menu these already sit in "Manage" and below (AYK-102). */}
+              {visibleLinks.filter(l => !['/opportunities', '/chat'].includes(l.to)).map((l) => (
                 <NavLink
                   key={l.to}
                   to={l.to}

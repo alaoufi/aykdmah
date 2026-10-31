@@ -2206,7 +2206,8 @@
     "assigned_to_you": "Ditugaskan kepada Anda: buka untuk menyelesaikan atau mundur",
     "tasks_title": "Tugas profesional saya",
     "tasks_hint": "Permintaan yang Anda hubungi atau ditugaskan kepada Anda. Yang aktif membutuhkan Anda sekarang; arsip menyimpan yang selesai atau dibatalkan.",
-    "task_waiting": "Menunggu pemohon"
+    "task_waiting": "Menunggu pemohon",
+    "professions_areas": "Profesi & area saya"
   },
   "requester": {
     "all_professions": "Semua profesi",

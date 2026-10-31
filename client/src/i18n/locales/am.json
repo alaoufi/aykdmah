@@ -2206,7 +2206,8 @@
     "assigned_to_you": "ለእርስዎ የተሰጠ፦ ለመጨረስ ወይም ለመውጣት ይክፈቱ",
     "tasks_title": "የሙያ ስራዎቼ",
     "tasks_hint": "ያገኟቸው ወይም የተሰጡዎት ጥያቄዎች። ንቁዎቹ አሁን ይፈልጉዎታል፤ ማህደሩ ያለቁትን ወይም የተሰረዙትን ይይዛል።",
-    "task_waiting": "ጠያቂውን በመጠበቅ ላይ"
+    "task_waiting": "ጠያቂውን በመጠበቅ ላይ",
+    "professions_areas": "ሙያዎቼ እና አካባቢዎቼ"
   },
   "requester": {
     "all_professions": "ሁሉም ሙያዎች",

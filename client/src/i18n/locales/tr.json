@@ -2206,7 +2206,8 @@
     "assigned_to_you": "Size atandı: bitirmek ya da çekilmek için açın",
     "tasks_title": "Mesleki işlerim",
     "tasks_hint": "İletişime geçtiğiniz veya size atanan talepler. Aktif olanlar şimdi sizi bekliyor; arşivde biten ya da iptal edilenler var.",
-    "task_waiting": "Talep sahibi bekleniyor"
+    "task_waiting": "Talep sahibi bekleniyor",
+    "professions_areas": "Mesleklerim ve bölgelerim"
   },
   "requester": {
     "all_professions": "Tüm meslekler",

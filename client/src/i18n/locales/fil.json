@@ -2206,7 +2206,8 @@
     "assigned_to_you": "Nakatalaga sa iyo: buksan para tapusin o umatras",
     "tasks_title": "Aking mga propesyonal na gawain",
     "tasks_hint": "Mga kahilingang kinontak mo o itinalaga sa iyo. Kailangan ka ngayon ng mga aktibo; nasa archive ang tapos o kinansela.",
-    "task_waiting": "Naghihintay sa humiling"
+    "task_waiting": "Naghihintay sa humiling",
+    "professions_areas": "Aking mga propesyon at lugar"
   },
   "requester": {
     "all_professions": "Lahat ng propesyon",
