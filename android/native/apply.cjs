@@ -8,13 +8,13 @@ const project = process.argv[2] || '/work';
 const src = path.join(project, 'app/src/main');
 const javaDir = path.join(src, 'java/sa/aykdmh/app');
 
-for (const file of ['DelegationService.java', 'CallAlert.java', 'CallActivity.java', 'FcmService.java', 'LauncherActivity.java']) {
+for (const file of ['DelegationService.java', 'CallAlert.java', 'CallActivity.java', 'FcmService.java', 'LauncherActivity.java', 'MessageAlert.java']) {
   fs.copyFileSync(path.join(__dirname, file), path.join(javaDir, file));
 }
 
 const strings = {
-  values: { callChannelName: 'المكالمات الواردة', callAnswer: 'رد', callDecline: 'رفض' },
-  'values-en': { callChannelName: 'Incoming calls', callAnswer: 'Answer', callDecline: 'Decline' },
+  values: { callChannelName: 'المكالمات الواردة', callAnswer: 'رد', callDecline: 'رفض', messageChannelName: 'الرسائل' },
+  'values-en': { callChannelName: 'Incoming calls', callAnswer: 'Answer', callDecline: 'Decline', messageChannelName: 'Messages' },
 };
 for (const [dir, entries] of Object.entries(strings)) {
   const file = path.join(src, 'res', dir, 'strings.xml');

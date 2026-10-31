@@ -10,7 +10,7 @@ import java.util.Map;
 /**
  * Firebase Cloud Messaging (AYK-094): reaches the app even when it is closed. An incoming call
  * rings like a phone call (continuous ringtone, full screen over other apps and the lock screen);
- * "call_end" or "missed_call" stops it. The token is kept here and passed to the site at launch.
+ * "call_end" or "missed_call" stops it. A new message is shown as a notification (AYK-122). The token is kept here and passed to the site at launch.
  */
 public class FcmService extends FirebaseMessagingService {
     static final String PREFS = "aykdmh_push";
@@ -33,6 +33,10 @@ public class FcmService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage message) {
         Map<String, String> data = message.getData();
+        if ("message".equals(data.get("kind"))) {
+            MessageAlert.show(this, data.get("tag"), data.get("title"), data.get("body"), data.get("url"));
+            return;
+        }
         String callId = data.get("call_id");
         if (callId == null || !callId.matches("\\d+")) return;
         if ("call".equals(data.get("kind"))) {

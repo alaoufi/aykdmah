@@ -544,6 +544,7 @@
     "pause": "Durum",
     "read": "Oku",
     "sent": "Gönderiliyor",
+    "delivered": "İletildi",
     "delete_message": "Mesajı Sil",
     "agreed_question": "{{name}} ile aynı fikirde miydin?",
     "agreed_confirm": "Bu talebinizle ilgili diğer sohbetleriniz sona erecek. {{name}}",

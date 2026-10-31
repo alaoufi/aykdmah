@@ -180,8 +180,8 @@ export default function MessageBubble({ message, isMine, onReply, onDelete, onFo
         <div className={`meta ${mediaOnly ? 'on-media' : ''}`}>
           <span>{formatTime(message.created_at)}</span>
           {isMine && (
-            <span className={`read-ticks ${message.is_read ? 'read' : ''}`} aria-label={t(message.is_read ? 'chat.read' : 'chat.sent')}>
-              {message.is_read ? '✓✓' : '✓'}
+            <span className={`read-ticks ${message.is_read ? 'read' : ''}`} aria-label={t(message.is_read ? 'chat.read' : message.delivered_at ? 'chat.delivered' : 'chat.sent')}>
+              {message.is_read || message.delivered_at ? '✓✓' : '✓'}
             </span>
           )}
         </div>

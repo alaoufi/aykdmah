@@ -133,7 +133,26 @@ async function searchInConversation(conversationId, q, { limit = 30 } = {}) {
   );
 }
 
+// Messages to this reader that reached their phone: their app connected (AYK-122). The sender
+// is told which ones, so ✓ becomes a grey ✓✓; read ones turn blue later as before.
+async function markDelivered(io, readerId, conversationId = null) {
+  const rows = await query(`UPDATE messages SET delivered_at = CURRENT_TIMESTAMP
+    WHERE delivered_at IS NULL AND is_read = 0 AND deleted_at IS NULL AND sender_id <> ?
+      AND conversation_id IN (SELECT conversation_id FROM conversation_participants WHERE user_id = ?)
+      ${conversationId ? 'AND conversation_id = ?' : ''}
+    RETURNING id, conversation_id`, conversationId ? [readerId, readerId, conversationId] : [readerId, readerId]);
+  const byConversation = new Map();
+  for (const row of rows || []) {
+    const list = byConversation.get(row.conversation_id) || [];
+    list.push(Number(row.id));
+    byConversation.set(row.conversation_id, list);
+  }
+  const { emitConversation } = require('../utils/conversationEvents');
+  for (const [id, ids] of byConversation) {
+    await emitConversation(io, id, 'chat:delivered', { conversationId: Number(id), ids });
+  }
+}
+
 module.exports = {
   create, findById, listByConversation, markRead, softDelete,
-  getSenderId, searchInConversation,
-};
+  getSenderId, searchInConversation, markDelivered };

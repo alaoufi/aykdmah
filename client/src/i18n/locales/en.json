@@ -544,6 +544,7 @@
     "pause": "Pause",
     "read": "Read",
     "sent": "Sent",
+    "delivered": "Delivered",
     "delete_message": "Delete message",
     "agreed_question": "Did you agree with {{name}}?",
     "agreed_confirm": "Confirm the agreement with {{name}}? Your other chats about this request will close.",

@@ -544,6 +544,7 @@
     "pause": "Pagpawis",
     "read": "Basahin",
     "sent": "Nagpadala",
+    "delivered": "Naihatid",
     "delete_message": "I-delete ang mensahe",
     "agreed_question": "Sumasang-ayon ka ba sa {{name}}?",
     "agreed_confirm": "Kumpirmahin ang kasunduan sa {{name}}? ang iyong iba pang mga pag-uusap tungkol sa hinihiling na ito ay matatapos.",

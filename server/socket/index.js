@@ -61,6 +61,8 @@ function initSocket(httpServer) {
       await User.setOnline(user.id, true);
       await emitPresence(io, user.id, true);
     } catch (_) { /* Presence errors do not interrupt authenticated handlers. */ }
+    // Their app is open: every message waiting for them has now reached their phone (AYK-122).
+    require('../models/Message').markDelivered(io, user.id).catch(err => logger.warn('Delivered mark failed:', err.message));
   });
 
   return io;

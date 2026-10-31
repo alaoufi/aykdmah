@@ -178,7 +178,15 @@ export default function ChatPage() {
     socket.on('chat:typing', onTyping);
     socket.on('chat:deleted', onDeleted);
     socket.on('chat:read', onRead);
+    // Reached the other phone (AYK-122): ✓ becomes a grey ✓✓.
+    const onDelivered = (payload) => {
+      if (scopeRef.current !== scope || Number(payload.conversationId) !== Number(activeId)) return;
+      const ids = new Set((payload.ids || []).map(Number));
+      setMessages(prev => prev.map(m => ids.has(Number(m.id)) && !m.delivered_at ? { ...m, delivered_at: new Date().toISOString() } : m));
+    };
+    socket.on('chat:delivered', onDelivered);
     return () => {
+      socket.off('chat:delivered', onDelivered);
       clearTimeout(typingTimerRef.current);
       socket.emit('chat:leave', Number(activeId));
       socket.off('chat:message', onMessage);

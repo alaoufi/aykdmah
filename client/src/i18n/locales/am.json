@@ -544,6 +544,7 @@
     "pause": "አቁም",
     "read": "አንብብ",
     "sent": "ተልኳል",
+    "delivered": "ደርሷል",
     "delete_message": "መልዕክቱን መሰረዝ",
     "agreed_question": "ከ {{name}} ጋር ተስማምተዋል?",
     "agreed_confirm": "{{name}} ጋር ስምምነት ያረጋግጡ? ይህን ጥያቄ በተመለከተ ሌሎች ውይይቶች ይዘጋል.",

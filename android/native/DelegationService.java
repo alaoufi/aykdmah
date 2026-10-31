@@ -34,6 +34,9 @@ public class DelegationService extends com.google.androidbrowserhelper.trusted.D
             CallAlert.ring(this, platformTag, notification);
             return true;
         }
+        // A message the app already showed from Firebase is not shown again (AYK-122).
+        String chat = MessageAlert.chatTag(platformTag);
+        if (chat != null && MessageAlert.alreadyShown(chat, String.valueOf(notification.extras.getCharSequence(Notification.EXTRA_TEXT)))) return true;
         // The same tag now carries "missed call" (or anything else): stop ringing first.
         if (CallAlert.isCallTag(platformTag)) CallAlert.stop(this, platformTag);
         return super.onNotifyNotificationWithChannel(platformTag, platformId, notification, channelName);

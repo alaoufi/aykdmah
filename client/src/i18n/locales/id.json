@@ -544,6 +544,7 @@
     "pause": "Berhenti",
     "read": "Membaca",
     "sent": "Dikirim",
+    "delivered": "Terkirim",
     "delete_message": "Hapus pesan",
     "agreed_question": "Apakah Anda setuju dengan {{name}}?",
     "agreed_confirm": "Konfirmasi kesepakatan dengan {{name}}? obrolan Anda lainnya tentang permintaan ini akan ditutup.",

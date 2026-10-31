@@ -3,6 +3,7 @@ const Message = require('../models/Message');
 const { query, queryOne } = require('../config/database');
 const notificationService = require('../services/notificationService');
 const pushService = require('../services/pushService');
+const fcmService = require('../services/fcmService');
 const { translate: i18nText } = require('../utils/i18n');
 const logger = require('../utils/logger');
 const { success, created, error, notFound, forbidden } = require('../utils/apiResponse');
@@ -91,6 +92,7 @@ const sendMessage = asyncHandler(async (req, res) => {
     pretranslate(sent).catch(err => logger.warn('Pre-translation failed:', err.message));
     await emitConversation(io, target, 'chat:message', sent);
     await notifyParticipants(req, target, { content, isLocation });
+    deliverIfOnline(io, target, req.user.id).catch(() => {});
   }
   return created(res, { ...message, broadcast_count: targets.length });
 });
@@ -125,6 +127,7 @@ const forwardMessage = asyncHandler(async (req, res) => {
     pretranslate(forwarded).catch(err => logger.warn('Pre-translation failed:', err.message));
     await emitConversation(io, target, 'chat:message', forwarded);
     await notifyParticipants(req, target, { content: message.content, isLocation: message.message_type === 'location' });
+    deliverIfOnline(io, target, req.user.id).catch(() => {});
   }
   return success(res, { count: targets.length });
 });
@@ -172,6 +175,15 @@ const translateMessage = asyncHandler(async (req, res) => {
   return success(res, await translationFor(message, lang));
 });
 
+// The other side's app is open somewhere: the message reached their phone (grey ✓✓, AYK-122).
+async function deliverIfOnline(io, conversationId, senderId) {
+  if (!io) return;
+  for (const p of await Conversation.getParticipants(conversationId)) {
+    if (Number(p.id) === Number(senderId)) continue;
+    if ((await io.in(`user:${p.id}`).fetchSockets()).length) await Message.markDelivered(io, p.id, conversationId);
+  }
+}
+
 async function notifyParticipants(req, conversationId, { content, isLocation }) {
   const participants = await Conversation.getParticipants(conversationId);
   for (const p of participants) {
@@ -197,6 +209,14 @@ async function notifyParticipants(req, conversationId, { content, isLocation }) 
       }), { TTL: 24 * 60 * 60, urgency: 'high' })
         .then(sent => logger.info(`Push message conversation=${conversationId} user=${p.id} devices=${sent}`))
         .catch(err => logger.warn('Message push failed:', err.message));
+      // The Android app (AYK-122): Firebase reaches it even when it is closed.
+      fcmService.sendToUser(p.id, {
+        kind: 'message', tag: `chat-${conversationId}`, url: `/chat/${conversationId}`,
+        title: req.user.full_name ? `${req.user.full_name}${req.user.referral_code ? ` (${req.user.referral_code})` : ''}` : i18nText('ar', 'notif_new_message_title'),
+        body: isLocation ? '📍' : content ? content.slice(0, 120) : i18nText('ar', 'notif_new_attachment'),
+      }, { ttlSeconds: 24 * 60 * 60 })
+        .then(sent => { if (sent) logger.info(`FCM message conversation=${conversationId} user=${p.id} devices=${sent}`); })
+        .catch(err => logger.warn('FCM message failed:', err.message));
     }
   }
 }
