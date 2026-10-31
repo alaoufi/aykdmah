@@ -12,6 +12,9 @@ import { collectCallStats } from '../utils/callStats';
 // The call screen and the LiveKit SDK load only when a call actually starts or rings.
 const CallOverlay = lazy(() => import('../components/calls/CallOverlay'));
 const loadLiveKit = () => import('livekit-client');
+// The microphone starts in the tap itself, alongside the server request and the room connection,
+// so the line opens sooner (AYK-101). A refusal is reported later by the normal path.
+const earlyMic = () => loadLiveKit().then(({ createLocalAudioTrack }) => createLocalAudioTrack()).catch(() => null);
 
 const CallContext = createContext(null);
 const FINAL = ['rejected', 'missed', 'cancelled', 'ended', 'failed'];
@@ -140,7 +143,7 @@ export function CallProvider({ children }) {
   }, [finishLocally]);
   const connectMediaRef = useRef(null);
 
-  const connectMedia = useCallback(async (active) => {
+  const connectMedia = useCallback(async (active, micReady = null) => {
     setPhase(prev => (prev === 'outgoing' ? 'outgoing' : 'connecting'));
     const [{ Room, RoomEvent, Track, DisconnectReason, VideoPresets, ConnectionQuality }, access] = await Promise.all([loadLiveKit(), calls.callToken(active.id)]);
     // Ended on purpose (hang-up, room closed by the server): no rejoin attempts.
@@ -234,7 +237,12 @@ export function CallProvider({ children }) {
         }
       }
     };
-    const mic = await publish('mic', () => lkRoom.localParticipant.setMicrophoneEnabled(true), 2);
+    const early = micReady ? await micReady : null;
+    const mic = await publish('mic', attempt => {
+      if (early && attempt === 0) return lkRoom.localParticipant.publishTrack(early);
+      early?.stop();
+      return lkRoom.localParticipant.setMicrophoneEnabled(true);
+    }, 2);
     const sizes = [undefined, VideoPresets?.h360?.resolution, VideoPresets?.h180?.resolution];
     // A refused camera does not end a video call: it goes on as voice, camera off (AYK-089).
     const cam = active.call_type === 'video'
@@ -415,12 +423,15 @@ export function CallProvider({ children }) {
     setError(null);
     leavingRef.current = false;
     endingRef.current = false;
+    const mic = earlyMic();
     try {
       const created = await calls.startCall(conversationId, callType);
       setCall(created);
       setPhase('outgoing');
-      await connectMedia(created);
+      await connectMedia(created, mic);
     } catch (err) {
+      // Not published (the call did not start): release the early microphone.
+      mic.then(track => { if (track && !roomRef.current?.localParticipant?.getTrackPublication?.(track.source)) track.stop(); }).catch(() => {});
       // The call already ended (declined, cancelled): keep that outcome on screen.
       if (endingRef.current) return;
       // Technical detail for support; never includes tokens or media.
@@ -444,12 +455,15 @@ export function CallProvider({ children }) {
     primeAudio();
     leavingRef.current = false;
     endingRef.current = false;
+    const mic = earlyMic();
     try {
       const accepted = await calls.acceptCall(current.id);
       setCall(accepted);
-      await connectMedia(accepted);
+      await connectMedia(accepted, mic);
       setPhase('in_call');
     } catch (err) {
+      // Not published (the call did not start): release the early microphone.
+      mic.then(track => { if (track && !roomRef.current?.localParticipant?.getTrackPublication?.(track.source)) track.stop(); }).catch(() => {});
       if (endingRef.current) return;
       console.warn('[call] accept failed:', err?.name, err?.message, roomRef.current?.state);
       if (inProgress()) return;

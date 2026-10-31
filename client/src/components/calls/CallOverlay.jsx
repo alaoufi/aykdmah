@@ -91,9 +91,10 @@ export default function CallOverlay() {
   const statusText = {
     incoming: t(video ? 'calls.incoming_video' : 'calls.incoming_audio'),
     outgoing: t('calls.ringing'),
-    connecting: t('calls.connecting'),
+    // Like a phone call (AYK-101): "Calling…" until the line opens, then the timer; no steps in between.
+    connecting: t('calls.ringing'),
     reconnecting: t('calls.reconnecting'),
-    in_call: remoteJoined ? duration : t('calls.waiting_peer'),
+    in_call: remoteJoined ? duration : t('calls.ringing'),
     ended: t(`calls.outcome.${call.status}`, { defaultValue: t('calls.outcome.ended') }),
   }[phase] || '';
 
