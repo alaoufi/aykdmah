@@ -266,7 +266,7 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
         .chat-input { background: var(--wa-panel, var(--bg-card)); padding: 6px 8px 4px; min-width: 0; }
         .input-row { display: flex; align-items: flex-end; gap: 6px; }
         .wa-pill { flex: 1; min-width: 0; display: flex; align-items: center; gap: 0; background: var(--wa-in, var(--bg-card)); border-radius: 24px; padding: 0 4px; box-shadow: 0 1px .5px rgba(11,20,26,.13); }
-        .wa-pill input { flex: 1; min-width: 0; padding: 11px 6px; border: 0; background: transparent; font: inherit; font-size: 15px; color: var(--wa-text, var(--text)); }
+        .wa-pill input { flex: 1; min-width: 0; padding: 11px 6px; border: 0; background: transparent; font: inherit; font-size: max(15px, var(--chat-font, 16px)); color: var(--wa-text, var(--text)); }
         .wa-pill input:focus { outline: none; }
         .wa-pill:focus-within { box-shadow: 0 0 0 2px var(--wa-accent, var(--primary)); }
         .wa-pill > button { min-width: 38px; font-size: 20px; padding: 4px; color: var(--wa-meta, var(--text-secondary)); }

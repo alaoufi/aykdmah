@@ -13,6 +13,8 @@ import { useNotifications } from '../hooks/useNotifications';
 import { useSocket } from '../hooks/useSocket';
 import MessageBubble from '../components/chat/MessageBubble';
 import ChatInput from '../components/chat/ChatInput';
+import ChatSettings from '../components/chat/ChatSettings';
+import { useChatPrefs } from '../utils/chatPrefs';
 import RequestBrief from '../components/chat/RequestBrief';
 import Avatar from '../components/common/Avatar';
 import ConfirmDialog from '../components/common/ConfirmDialog';
@@ -24,6 +26,8 @@ import { createPollingLoop } from '../utils/polling';
 import { agreeRequest, saveToDirectory } from '../services/requestService';
 
 export default function ChatPage() {
+  // The saved message text size applies as soon as the chat opens (AYK-126).
+  useChatPrefs();
   const { t } = useTranslation();
   const { id: activeId } = useParams();
   const { user } = useAuth();
@@ -435,6 +439,7 @@ export default function ChatPage() {
                   {active?.in_directory
                     ? <span className="text-[18px]" title={active.directory_name || t('directory.saved')} aria-label={t('directory.saved')} data-testid="chat-in-directory">⭐</span>
                     : <button type="button" className="track-btn" onClick={saveContact} data-testid="chat-save-contact" aria-label={t('directory.save')} title={t('directory.save')}>☆</button>}
+                  <ChatSettings />
                   <button type="button" className="track-btn" onClick={toggleBlock} data-testid="chat-block"
                     aria-label={t(active?.blocked_by_me ? 'chat.unblock' : 'chat.block')} title={t(active?.blocked_by_me ? 'chat.unblock' : 'chat.block')}>
                     {active?.blocked_by_me ? '✅' : '🚫'}

@@ -240,7 +240,7 @@ export default function MessageBubble({ message, isMine, onReply, onDelete, onFo
         [dir="rtl"] .bubble.tail.mine::before { clip-path: polygon(0 0, 100% 0, 100% 100%); }
         [dir="rtl"] .bubble.tail.theirs::before { clip-path: polygon(0 0, 100% 0, 0 100%); }
         .bubble.has-location, .bubble.media-only { padding: 3px; }
-        .content { white-space: pre-wrap; line-height: 1.45; font-size: 14.2px; padding: 0 2px; }
+        .content { white-space: pre-wrap; line-height: 1.45; font-size: var(--chat-font, 16px); padding: 0 2px; }
         .meta-spacer { display: inline-block; width: 64px; }
         .content-after-location { padding: 6px 6px 0; }
         .files { display: flex; flex-direction: column; gap: 4px; }

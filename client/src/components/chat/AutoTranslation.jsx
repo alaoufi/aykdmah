@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../../services/api';
 import { guessLocalSourceLanguage } from '../../utils/localLanguage.js';
+import { useChatPrefs } from '../../utils/chatPrefs';
 
 // The other person's message in this reader's language (the site language), fetched
 // automatically (AYK-044). The bubble shows it in place of the original (AYK-065), so the
@@ -24,7 +25,9 @@ export function useAutoTranslation(message, isMine) {
   // Nepali) are shared, so those go to the server, which detects the language itself (AYK-119).
   const guessed = guessLocalSourceLanguage(content);
   const sameScript = guessed && guessed === lang && UNIQUE_SCRIPT.has(lang);
-  const needed = !isMine && content && message?.id && message.message_type !== 'location' && message.message_type !== 'system'
+  // Turned off in ⚙️ (AYK-126): the original text only.
+  const { translate } = useChatPrefs();
+  const needed = translate && !isMine && content && message?.id && message.message_type !== 'location' && message.message_type !== 'system'
     && !sameScript && /\p{L}{3,}/u.test(content);
   useEffect(() => {
     let alive = true;
