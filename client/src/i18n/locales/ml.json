@@ -565,7 +565,7 @@
     "block_confirm": "{{name}}-നെ ബ്ലോക്ക് ചെയ്യണോ? അവരിൽ നിന്ന് സന്ദേശങ്ങളോ കോളുകളോ വരില്ല; ചരിത്രം വായിക്കാം.",
     "you_blocked": "🚫 {{name}} · നിങ്ങൾ ഈ വ്യക്തിയെ ബ്ലോക്ക് ചെയ്തു. അൺബ്ലോക്ക് ചെയ്യാൻ ചാറ്റ് തുറന്ന് «✅ അൺബ്ലോക്ക്» അമർത്തുക.",
     "they_blocked": "{{name}} · ഈ വ്യക്തി നിങ്ങളെ ബ്ലോക്ക് ചെയ്തു, സന്ദേശമോ കോളോ സാധ്യമല്ല.",
-    "nudge_unreachable": "Not delivered now: {{name}} is offline and has no device registered for notifications. They will see it when they open the app."
+    "nudge_unreachable": "ഇപ്പോൾ എത്തിയില്ല: {{name}} ഓഫ്‌ലൈനാണ്, അറിയിപ്പുകൾക്ക് ഉപകരണം രജിസ്റ്റർ ചെയ്തിട്ടില്ല. ആപ്പ് തുറക്കുമ്പോൾ കാണും."
   },
   "tracking": {
     "title": "ലൈവ് ട്രാക്കിംഗ്",

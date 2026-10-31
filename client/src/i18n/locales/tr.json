@@ -565,7 +565,7 @@
     "block_confirm": "{{name}} engellensin mi? Ondan mesaj veya arama gelmez; geçmiş okunabilir kalır.",
     "you_blocked": "🚫 {{name}} · Bu kişiyi engellediniz. Engeli kaldırmak için sohbeti açıp «✅ Engeli kaldır»a dokunun.",
     "they_blocked": "{{name}} · Bu kişi sizi engelledi, mesaj gönderemez veya arayamazsınız.",
-    "nudge_unreachable": "Not delivered now: {{name}} is offline and has no device registered for notifications. They will see it when they open the app."
+    "nudge_unreachable": "Şimdi iletilmedi: {{name}} çevrimdışı ve bildirim için kayıtlı cihazı yok. Uygulamayı açınca görecek."
   },
   "tracking": {
     "title": "Canlı izleme",
