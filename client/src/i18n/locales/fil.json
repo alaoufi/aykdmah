@@ -2319,7 +2319,8 @@
   "update": {
     "available": "May bagong bersyon ng site.",
     "now": "I-update ngayon",
-    "in_progress": "Nag-a-update… huwag isara ang pahina"
+    "in_progress": "Ina-update ang app…",
+    "in_progress_hint": "Matatapos sa ilang segundo. Ayos lang kung umalis ka sa app, kusa itong matatapos."
   },
   "tone": {
     "title": "Lakas ng abiso",

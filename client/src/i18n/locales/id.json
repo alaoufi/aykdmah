@@ -2319,7 +2319,8 @@
   "update": {
     "available": "Versi baru situs tersedia.",
     "now": "Perbarui sekarang",
-    "in_progress": "Memperbarui… jangan tutup halaman"
+    "in_progress": "Memperbarui aplikasi…",
+    "in_progress_hint": "Selesai dalam beberapa detik. Tidak apa-apa jika keluar dari aplikasi, akan selesai sendiri."
   },
   "tone": {
     "title": "Volume notifikasi",

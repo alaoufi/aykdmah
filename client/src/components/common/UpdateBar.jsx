@@ -68,13 +68,15 @@ export default function UpdateBar() {
 
   // Only the short "Updating…" line is ever shown.
   if (!busy) return null;
+  // A clear window over everything while it updates (AYK-105), not a line at the top.
   return (
-    <div className="bg-success-soft border-b border-border px-4 py-2 flex flex-wrap items-center justify-center gap-2 text-[13px]" role="status" data-testid="update-bar">
+    <div className="fixed inset-0 z-[4000] grid place-items-center bg-black/45 backdrop-blur-sm px-6" role="status" aria-live="polite" data-testid="update-bar">
       {busy ? (
-        <span className="flex items-center gap-2 font-bold" data-testid="update-progress">
-          <span className="inline-block w-4 h-4 rounded-full border-2 border-primary border-t-transparent animate-spin" aria-hidden="true" />
-          {t('update.in_progress')}
-        </span>
+        <div className="w-full max-w-xs rounded-[22px] bg-surface shadow-card p-6 text-center" data-testid="update-progress">
+          <span className="mx-auto mb-3 block w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" aria-hidden="true" />
+          <div className="text-[17px] font-extrabold text-fg">🔄 {t('update.in_progress')}</div>
+          <p className="text-[13.5px] text-fg-muted mt-2 mb-0 leading-relaxed">{t('update.in_progress_hint')}</p>
+        </div>
       ) : (
         <>
           <span>✨ {t('update.available')}</span>

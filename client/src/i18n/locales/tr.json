@@ -2319,7 +2319,8 @@
   "update": {
     "available": "Sitenin yeni sürümü hazır.",
     "now": "Şimdi güncelle",
-    "in_progress": "Güncelleniyor… sayfayı kapatmayın"
+    "in_progress": "Uygulama güncelleniyor…",
+    "in_progress_hint": "Birkaç saniyede biter. Uygulamadan çıkarsanız sorun değil, kendisi tamamlanır."
   },
   "tone": {
     "title": "Bildirim sesi",

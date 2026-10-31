@@ -2319,7 +2319,8 @@
   "update": {
     "available": "A new version of the site is available.",
     "now": "Update now",
-    "in_progress": "Updating… do not close the page"
+    "in_progress": "Updating the app…",
+    "in_progress_hint": "It finishes in a few seconds. If you leave the app, that is fine: it completes on its own."
   },
   "tone": {
     "title": "Notification volume",
