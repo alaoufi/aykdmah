@@ -14,6 +14,8 @@ import com.google.firebase.messaging.FirebaseMessaging;
  * Bubblewrap's launcher, plus (AYK-094): the app's Firebase token is added to the address it
  * opens (?fcm=), so the site links this device to whoever signs in and calls ring the app itself.
  * Without a token yet (first launch), the site waits up to 3 s for Firebase (AYK-095).
+ * The installed version (?app=) is added on every launch, from the app itself, so the site
+ * always knows which version this phone runs, also when opened from a notification (AYK-123).
  */
 public class LauncherActivity
         extends com.google.androidbrowserhelper.trusted.LauncherActivity {
@@ -59,8 +61,21 @@ public class LauncherActivity
     @Override
     protected Uri getLaunchingUrl() {
         Uri uri = super.getLaunchingUrl();
+        if (uri == null) return null;
+        Uri.Builder builder = uri.buildUpon().clearQuery();
+        for (String name : uri.getQueryParameterNames()) {
+            if (name.equals("app")) continue;
+            for (String value : uri.getQueryParameters(name)) builder.appendQueryParameter(name, value);
+        }
+        String version = installedVersion();
+        if (version != null) builder.appendQueryParameter("app", version);
         String token = FcmService.token(this);
-        if (uri == null || token == null || uri.getQueryParameter("fcm") != null) return uri;
-        return uri.buildUpon().appendQueryParameter("fcm", token).build();
+        if (token != null && uri.getQueryParameter("fcm") == null) builder.appendQueryParameter("fcm", token);
+        return builder.build();
+    }
+
+    private String installedVersion() {
+        try { return getPackageManager().getPackageInfo(getPackageName(), 0).versionName; }
+        catch (PackageManager.NameNotFoundException e) { return null; }
     }
 }
