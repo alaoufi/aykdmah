@@ -25,6 +25,18 @@ export function CallProvider({ children }) {
   const { socketRef, connected } = useSocket();
   const [call, setCall] = useState(null);
   const [phase, setPhase] = useState('idle');
+  // A call in progress is "playing" for the phone (AYK-125), so it keeps the sound going when
+  // the app goes to the background, as for music, and shows it in the notification shade.
+  useEffect(() => {
+    const session = typeof navigator !== 'undefined' ? navigator.mediaSession : null;
+    if (!session) return undefined;
+    const live = phase === 'in_call' || phase === 'reconnecting' || phase === 'connecting';
+    try {
+      if (live && typeof window.MediaMetadata === 'function') session.metadata = new window.MediaMetadata({ title: document.title, artist: '📞' });
+      session.playbackState = live ? 'playing' : 'none';
+    } catch (_) { /* not supported */ }
+    return undefined;
+  }, [phase]);
   const [error, setError] = useState(null);
   const [room, setRoom] = useState(null);
   const [micOn, setMicOn] = useState(true);

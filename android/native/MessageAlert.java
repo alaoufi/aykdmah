@@ -35,7 +35,8 @@ final class MessageAlert {
 
     /** True when this conversation was just shown by the other route; records it otherwise. */
     static synchronized boolean alreadyShown(String chatTag, String body) {
-        String key = chatTag + "|" + (body == null ? "" : body.trim());
+        String text = body == null ? "" : body.trim();
+        String key = chatTag + "|" + (text.length() > 40 ? text.substring(0, 40) : text);
         long now = System.currentTimeMillis();
         shown.entrySet().removeIf(e -> now - e.getValue() > SAME_MESSAGE_MS);
         if (shown.containsKey(key)) return true;

@@ -175,6 +175,11 @@ const translateMessage = asyncHandler(async (req, res) => {
   return success(res, await translationFor(message, lang));
 });
 
+async function onScreen(io, userId) {
+  if (!io) return false;
+  try { return (await io.in(`user:${userId}`).fetchSockets()).some(s => s.data?.visible === true); } catch (_) { return false; }
+}
+
 // The other side's app is open somewhere: the message reached their phone (grey ✓✓, AYK-122).
 async function deliverIfOnline(io, conversationId, senderId) {
   if (!io) return;
@@ -209,8 +214,9 @@ async function notifyParticipants(req, conversationId, { content, isLocation }) 
       }), { TTL: 24 * 60 * 60, urgency: 'high' })
         .then(sent => logger.info(`Push message conversation=${conversationId} user=${p.id} devices=${sent}`))
         .catch(err => logger.warn('Message push failed:', err.message));
-      // The Android app (AYK-122): Firebase reaches it even when it is closed.
-      fcmService.sendToUser(p.id, {
+      // The Android app (AYK-122): Firebase reaches it even when it is closed. Not while the app
+      // is on their screen (AYK-125): the chat shows the message there with its own tone.
+      if (!await onScreen(req.app.get('io'), p.id)) fcmService.sendToUser(p.id, {
         kind: 'message', tag: `chat-${conversationId}`, url: `/chat/${conversationId}`,
         title: req.user.full_name ? `${req.user.full_name}${req.user.referral_code ? ` (${req.user.referral_code})` : ''}` : i18nText('ar', 'notif_new_message_title'),
         body: isLocation ? '📍' : content ? content.slice(0, 120) : i18nText('ar', 'notif_new_attachment'),

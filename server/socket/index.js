@@ -44,6 +44,9 @@ function initSocket(httpServer) {
     refresh.unref();
 
     socket.join(`user:${user.id}`);
+    // On screen or in the background (AYK-125); unknown (an older app) counts as background.
+    socket.data.visible = false;
+    socket.on('app:visible', visible => { socket.data.visible = visible === true; });
     registerChat(io, socket);
     registerNotifications(io, socket);
 

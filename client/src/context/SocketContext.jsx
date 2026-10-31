@@ -36,12 +36,15 @@ export function SocketProvider({ children }) {
       reconnectionDelayMax: 5000,
     });
 
-    sock.on('connect', () => setConnected(true));
+    // Tell the server whether the app is on screen (AYK-125): while it is, a new message is not
+    // also sent as a phone notification, which made it sound twice.
+    const reportVisible = () => { if (sock.connected) sock.emit('app:visible', document.visibilityState === 'visible'); };
+    sock.on('connect', () => { setConnected(true); reportVisible(); });
     sock.on('disconnect', () => setConnected(false));
     sock.on('connect_error', () => setConnected(false));
 
     // Back on screen or back online: reconnect now instead of waiting for the next retry.
-    const wake = () => { if (!document.hidden && !sock.connected) sock.connect(); };
+    const wake = () => { reportVisible(); if (!document.hidden && !sock.connected) sock.connect(); };
     document.addEventListener('visibilitychange', wake);
     window.addEventListener('online', wake);
     window.addEventListener('focus', wake);

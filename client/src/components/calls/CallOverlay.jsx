@@ -44,7 +44,16 @@ function useMediaElements(room, { remoteVideo, localVideo, remoteAudio }, shown,
       RoomEvent.LocalTrackUnpublished, RoomEvent.TrackMuted, RoomEvent.TrackUnmuted, RoomEvent.ParticipantConnected];
     events.forEach(e => room.on(e, sync));
     sync();
-    return () => events.forEach(e => room.off(e, sync));
+    // The other side's voice must keep playing outside the app (AYK-125).
+    const audio = remoteAudio.current;
+    const resume = () => { if (audio && audio.paused && audio.srcObject) Promise.resolve(audio.play?.()).catch(() => {}); };
+    audio?.addEventListener('pause', resume);
+    document.addEventListener('visibilitychange', resume);
+    return () => {
+      events.forEach(e => room.off(e, sync));
+      audio?.removeEventListener('pause', resume);
+      document.removeEventListener('visibilitychange', resume);
+    };
   }, [room, remoteVideo, localVideo, remoteAudio, shown, onAudioBlocked]);
 }
 
