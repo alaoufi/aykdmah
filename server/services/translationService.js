@@ -9,6 +9,10 @@
 // each public translation is only fetched once.
 
 const Setting = require('../models/Setting');
+const memory = require('./translationMemory');
+
+// After Microsoft refuses for the quota (403) or for speed (429), it is left alone for a while.
+let microsoftPausedUntil = 0;
 
 const SUPPORTED = ['ar', 'en', 'ur', 'bn', 'hi', 'ml', 'fil', 'id', 'ne', 'am', 'tr'];
 
@@ -91,7 +95,7 @@ async function translateViaMicrosoft(text, source, target, apiKey, region = 'glo
     headers: { 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': apiKey, 'Ocp-Apim-Subscription-Region': region },
     body: JSON.stringify([{ Text: text.slice(0, 2000) }]),
   });
-  if (!r.ok) throw new Error(`microsoft:${r.status}`);
+  if (!r.ok) { const err = new Error(`microsoft:${r.status}`); err.status = r.status; throw err; }
   const data = await r.json();
   const detected = data?.[0]?.detectedLanguage?.language;
   if (!source && detected === target) return { text, provider: 'noop' };
@@ -111,8 +115,23 @@ async function translate(text, sourceLang, targetLang) {
   const known = sourceLang && SUPPORTED.includes(sourceLang) ? sourceLang : null;
   const tgt = SUPPORTED.includes(targetLang) ? targetLang : 'en';
   const msKey = process.env.AZURE_TRANSLATOR_KEY;
-  if (msKey && text && known !== tgt && worthTranslating(text)) {
-    try { return await translateViaMicrosoft(text, known, tgt, msKey, process.env.AZURE_TRANSLATOR_REGION || 'global'); } catch (_) { /* fall through */ }
+  if (text && known !== tgt && worthTranslating(text)) {
+    // The very same sentence translated before: from our own server, free (AYK-121).
+    const kept = await memory.recall(text, tgt);
+    if (kept) return kept;
+    if (msKey && Date.now() >= microsoftPausedUntil) {
+      try {
+        const result = await translateViaMicrosoft(text, known, tgt, msKey, process.env.AZURE_TRANSLATOR_REGION || 'global');
+        memory.countPaid(Math.min(text.length, 2000));
+        memory.remember(text, tgt, result);
+        return result;
+      } catch (err) {
+        if (err.status === 403 || err.status === 429) {
+          microsoftPausedUntil = Date.now() + (err.status === 403 ? 60 : 1) * 60 * 1000;
+          if (err.status === 403) memory.quotaExhausted();
+        }
+      }
+    }
   }
   const src = known || await detectLanguageFallback(text);
   // Nothing to translate: the same language, or no real words ("oo", "تلللد", numbers, emoji).

@@ -40,6 +40,36 @@ function Skeleton() {
   );
 }
 
+// This month's translation (AYK-121): characters sent to Microsoft against the free 2
+// million, and what our own translation memory answered for free.
+function TranslationMeter({ usage }) {
+  const { t } = useTranslation();
+  const pct = Math.min(100, (usage.used / (usage.limit || 1)) * 100);
+  const color = pct >= 100 ? '#dc2626' : pct >= 80 ? '#f59e0b' : '#10b981';
+  return (
+    <div className="bg-white rounded-card border border-slate-100 p-5 md:p-6 shadow-soft">
+      <div className="flex items-center justify-between gap-3 mb-3">
+        <h3 className="text-ink text-[15px] font-extrabold">🌐 {t('admin.translation_meter_title')}</h3>
+        <span className="text-[13px] font-bold" style={{ color }}>{pct.toFixed(pct < 10 ? 1 : 0)}%</span>
+      </div>
+      <div className="h-2.5 rounded-pill bg-slate-100 overflow-hidden" role="progressbar" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}>
+        <div className="h-full rounded-pill transition-all" style={{ width: `${Math.max(pct, 0.5)}%`, background: color }} />
+      </div>
+      <div className="mt-3 text-[13px] text-slate-700">
+        {t('admin.translation_meter_used', { used: usage.used.toLocaleString(), limit: usage.limit.toLocaleString() })}
+      </div>
+      <div className="mt-1 text-[12px] text-slate-500">
+        {t('admin.translation_meter_memory', { chars: usage.from_memory.toLocaleString(), hits: usage.memory_hits.toLocaleString() })}
+        {' · '}
+        {t('admin.translation_meter_remembered', { count: usage.remembered.toLocaleString() })}
+      </div>
+      {pct >= 80 && <div className="mt-3 rounded-card bg-amber-50 border border-amber-200 p-3 text-[12px] text-amber-800">
+        {t(pct >= 100 ? 'admin.translation_meter_out' : 'admin.translation_meter_warn')}
+      </div>}
+    </div>
+  );
+}
+
 export default function AdminDashboardPage() {
   const { t } = useTranslation();
   const { hasPermission } = useAuth();
@@ -89,7 +119,7 @@ export default function AdminDashboardPage() {
   }
   if (!data) return <Skeleton />;
 
-  const { stats, recent_users, recent_requests, requests_by_status } = data;
+  const { stats, recent_users, recent_requests, requests_by_status, translation } = data;
   const totalByStatus = (requests_by_status || []).reduce((a, x) => a + Number(x.total), 0) || 1;
 
   return (
@@ -140,6 +170,8 @@ export default function AdminDashboardPage() {
           );
         })}
       </div>
+
+      {translation && <TranslationMeter usage={translation} />}
 
       {/* Quick actions */}
       {QUICK_ACTIONS.length > 0 && <div className="bg-white rounded-card border border-slate-100 p-5 md:p-6 shadow-soft">

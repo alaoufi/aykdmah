@@ -57,3 +57,11 @@ test('Microsoft Translator: detects the language, skips a message already in the
     if (realKey === undefined) delete process.env.AZURE_TRANSLATOR_KEY; else process.env.AZURE_TRANSLATOR_KEY = realKey;
   }
 });
+
+test('translation memory reuses only the very same sentence, letter for letter (AYK-121)', () => {
+  const { hashOf } = require('../services/translationMemory');
+  assert.equal(hashOf('Where are you?'), hashOf('  Where are you?  '), 'spaces around it are ignored');
+  assert.notEqual(hashOf('Where are you?'), hashOf('where are you?'), 'case counts');
+  assert.notEqual(hashOf('Where are you?'), hashOf('Where are you'), 'punctuation counts');
+  assert.notEqual(hashOf('Where are you?'), hashOf('Where  are you?'), 'inner spaces count');
+});

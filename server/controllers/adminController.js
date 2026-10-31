@@ -104,6 +104,12 @@ const dashboard = asyncHandler(async (req, res) => {
       disputes, open_disputes: openDisputes,
       test_users: testUsers,
   };
+  // Translation this month: characters sent to Microsoft against the free quota, and what
+  // the translation memory answered for free (AYK-121).
+  let translation = null;
+  if (hasPermission(req.user, 'settings.manage')) {
+    try { translation = await require('../services/translationMemory').summary(); } catch (_) {}
+  }
   if (!hasPermission(req.user, 'conversations.read')) {
     for (const key of ['conversations', 'active_conversations', 'messages', 'voice_messages', 'live_locations', 'total_locations']) delete stats[key];
   }
@@ -115,6 +121,7 @@ const dashboard = asyncHandler(async (req, res) => {
     recent_users: recentUsers,
     recent_requests: recentRequests,
     requests_by_status: requestsByStatus,
+    translation,
   });
 });
 
