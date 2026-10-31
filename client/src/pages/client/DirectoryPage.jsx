@@ -43,7 +43,7 @@ export default function DirectoryPage({ compact = false }) {
         ? <p className="card text-fg-muted text-[14px] m-0">{t('requester.directory_empty')}</p>
         : <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 list-none p-0 m-0">
           {shown.map(p => (
-            <li key={p.id} className="card p-4 flex gap-3 items-start" data-testid="directory-item">
+            <li key={p.id} className="card tone-provider p-3 flex gap-3 items-start" data-testid="directory-item">
               <Avatar src={p.avatar} name={p.business_name || p.full_name} />
               <div className="flex-1 min-w-0">
                 <Link to={`/providers/${p.id}`} className="font-bold text-fg truncate block">{p.business_name || p.full_name}</Link>

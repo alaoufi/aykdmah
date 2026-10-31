@@ -52,7 +52,7 @@ export default function ProviderProfilePage() {
 
   return (
     <div className="container py-4 space-y-3 max-w-3xl">
-      <div className="card p-4 flex gap-3 items-center">
+      <div className="card tone-provider p-4 flex gap-3 items-center">
         <Avatar src={user.avatar} name={user.full_name} size="lg" />
         <div className="min-w-0">
           <h1 className="text-lg font-extrabold text-fg truncate">{provider.business_name || user.full_name}</h1>

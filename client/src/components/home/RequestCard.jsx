@@ -15,34 +15,34 @@ export default function RequestCard({ item, urgent = false }) {
     <article
       role="link" tabIndex={0} data-testid="request-card"
       onClick={() => open(item)} onKeyDown={e => { if (e.key === 'Enter') open(item); }}
-      className={`cursor-pointer ${mine(item) ? 'ring-2 ring-sky-300 ' : forMyService(item) ? 'ring-2 ring-emerald-300 ' : ''}group bg-white rounded-card border ${
-        urgent ? 'border-rose-100' : 'border-slate-200/80'
-      } p-4 md:p-5 flex flex-col gap-3 transition hover:shadow-card hover:-translate-y-0.5 hover:border-brand-200`}
+      className={`cursor-pointer tone-request ${urgent ? 'ring-2 ring-rose-200 ' : ''}group rounded-card p-3 md:p-4 flex flex-col gap-1.5 transition hover:shadow-card hover:-translate-y-0.5`}
     >
-      <div className="flex items-center justify-between gap-2">
+      {/* Compact (AYK-104): profession, whose and age on one line. */}
+      <div className="flex items-center gap-1.5 flex-wrap">
         <span
-          className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-pill text-[11px] font-bold ${
+          className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-pill text-[11px] font-bold ${
             urgent ? 'bg-rose-50 text-rose-600' : 'bg-brand-50 text-brand-700'
           }`}
         >
           {urgent && <span className="w-1.5 h-1.5 rounded-full bg-rose-500 pulse-dot" />}
           {tag}
         </span>
-        <span className="inline-flex items-center gap-1 text-[11px] text-slate-500 font-medium">
+        <OwnerBadge mine={mine(item)} forService={forMyService(item)} />
+        <span className="ms-auto inline-flex items-center gap-1 text-[11px] text-slate-500 font-medium">
           <IconClock size={13} />
           {formatRelativeTime(item.created_at)}
         </span>
       </div>
 
-      <OwnerBadge mine={mine(item)} forService={forMyService(item)} />
-
-      <h3 className="text-[15px] md:text-[16px] font-extrabold text-ink leading-snug">
+      <h3 className="text-[15px] md:text-[16px] font-extrabold text-ink leading-snug m-0">
         {item.title}
       </h3>
 
-      <p className="text-[13px] text-slate-500 leading-relaxed line-clamp-2">
-        {truncate(item.description, 120)}
-      </p>
+      {item.description && item.description.trim() !== String(item.title || '').trim() && (
+        <p className="text-[13px] text-slate-500 leading-relaxed line-clamp-1 m-0">
+          {truncate(item.description, 120)}
+        </p>
+      )}
 
       {cityLine && (
         <div className="flex items-center gap-1.5 text-[12px] text-slate-600 font-medium">
@@ -51,7 +51,7 @@ export default function RequestCard({ item, urgent = false }) {
         </div>
       )}
 
-      <div className="flex items-center justify-between pt-3 mt-auto border-t border-slate-100">
+      <div className="flex items-center justify-between pt-1.5 mt-auto">
         <span />
         <span
           className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-pill text-[12.5px] font-bold text-white transition active:scale-[.97] no-underline ${

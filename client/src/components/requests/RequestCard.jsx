@@ -22,7 +22,7 @@ export default function RequestCard({ request }) {
 
   return (
     <div role="link" tabIndex={0} onClick={() => open(request)} onKeyDown={e => { if (e.key === 'Enter') open(request); }}
-      className={`request-card card card-hover ${mine(request) ? 'own' : forMyService(request) ? 'for-service' : ''}`} data-testid="request-card">
+      className={`request-card card card-hover tone-request ${mine(request) ? 'own' : forMyService(request) ? 'for-service' : ''}`} data-testid="request-card">
       {/* Compact (AYK-099): whose, urgency, status and age on one line. */}
       <div className="flex items-center gap-1.5 flex-wrap">
         <OwnerBadge mine={mine(request)} forService={forMyService(request)} />
@@ -46,8 +46,7 @@ export default function RequestCard({ request }) {
         )}
       </div>
       <style>{`
-        .request-card { display: block; text-decoration: none; color: inherit; padding: 12px 14px; cursor: pointer;
-          background: rgba(249, 115, 22, 0.07); border: 1.5px solid rgba(249, 115, 22, 0.45); }
+        .request-card { display: block; text-decoration: none; color: inherit; padding: 12px 14px; cursor: pointer; }
         .request-card .badge { padding: 2px 8px; font-size: 11px; }
       `}</style>
       {forMyService(request) && <div className="mt-1.5 text-[13px] font-bold text-primary">{opening === request.id ? '…' : `💬 ${t('request.contact_owner')}`}</div>}

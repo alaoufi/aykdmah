@@ -52,7 +52,7 @@ export default function MyTasksPage() {
       {loading ? <LoadingState /> :
        items.length === 0 ? <EmptyState title={t('common.none')} /> :
        <div className="flex flex-col gap-2">{items.map(o => (
-         <Link key={o.id} to={`/requests/${o.request_id}`} className="offer-list-item" data-testid="task-item">
+         <Link key={o.id} to={`/requests/${o.request_id}`} className="offer-list-item tone-request" data-testid="task-item">
            <div style={{ flex: 1 }}>
              <strong>{o.request_title}</strong>
              <div className="text-xs text-muted">{label(o)}</div>

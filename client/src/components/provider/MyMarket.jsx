@@ -27,12 +27,12 @@ export default function MyMarket() {
   const total = key => data.categories.reduce((sum, row) => sum + (row[key] || 0), 0);
   // Every number opens what it counts (AYK-044): the requests board, the providers
   // map, or, for registered requesters (never listed, for their privacy), a short note.
-  const box = 'block rounded-card bg-surface border border-border p-3 text-center no-underline text-inherit hover:border-primary transition';
+  const box = 'block rounded-card p-3 text-center no-underline text-inherit transition tone-request';
   const inner = (icon, value, label) => (<>
     <div className="text-xl md:text-2xl font-extrabold text-fg">{icon} {value}</div>
     <div className="text-[11.5px] md:text-[12.5px] text-fg-muted mt-0.5 leading-snug">{label} ‹</div>
   </>);
-  const tile = (icon, value, label, to) => <Link to={to} className={box} data-testid="market-tile">{inner(icon, value, label)}</Link>;
+  const tile = (icon, value, label, to, tone) => <Link to={to} className={tone ? box.replace('tone-request', tone) : box} data-testid="market-tile">{inner(icon, value, label)}</Link>;
   return (
     <section data-testid="my-market" aria-labelledby="my-market-title">
       <h2 id="my-market-title" className="text-xl md:text-2xl font-extrabold text-fg m-0">📊 {t('market.title')}</h2>
@@ -42,7 +42,7 @@ export default function MyMarket() {
           {inner('🙋', data.requesters_in_area, t('market.requesters_in_area'))}</button>
         {tile('📨', total('open_now'), t('market.open_now'), '/opportunities')}
         {tile('📈', total('requesters_30d'), t('market.requesters_30d'), '/opportunities')}
-        {tile('👷', Math.max(...data.categories.map(row => row.competitors)), t('market.competitors'), '/providers/map')}
+        {tile('👷', Math.max(...data.categories.map(row => row.competitors)), t('market.competitors'), '/providers/map', 'tone-provider')}
       </div>
       {note && <p className="text-[12.5px] text-fg-muted mt-2 mb-0 card" role="status">🙋 {t('market.requesters_note')}</p>}
       {data.categories.length > 1 && (

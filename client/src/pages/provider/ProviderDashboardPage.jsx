@@ -71,7 +71,7 @@ export default function ProviderDashboardPage() {
               {offers.map(o => {
                 const oStatus = OFFER_STATUS[o.status] || {};
                 return (
-                  <Link key={o.id} to={`/requests/${o.request_id}`} className="offer-list-item">
+                  <Link key={o.id} to={`/requests/${o.request_id}`} className="offer-list-item tone-request">
                     <div style={{ flex: 1 }}>
                       <strong>{o.request_title}</strong>
                       <div className="text-xs text-muted">{o.status === 'accepted' ? <b className="text-primary">📌 {t('work.assigned_to_you')}</b> : (oStatus.i18nKey ? t(oStatus.i18nKey) : o.status)}</div>
