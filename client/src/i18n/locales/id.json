@@ -565,7 +565,10 @@
     "block_confirm": "Blokir {{name}}? Tidak ada pesan atau panggilan darinya; riwayat tetap bisa dibaca.",
     "you_blocked": "🚫 {{name}} · Anda memblokir orang ini. Untuk membuka blokir, buka obrolan dan ketuk «✅ Buka blokir».",
     "they_blocked": "{{name}} · Orang ini memblokir Anda, jadi Anda tidak bisa mengirim pesan atau menelepon.",
-    "nudge_unreachable": "Belum terkirim: {{name}} sedang offline dan tidak ada perangkat terdaftar untuk notifikasi. Akan terlihat saat membuka aplikasi."
+    "nudge_unreachable": "Belum terkirim: {{name}} sedang offline dan tidak ada perangkat terdaftar untuk notifikasi. Akan terlihat saat membuka aplikasi.",
+    "closed_finished": "Hanya baca: permintaan dan masa peninjauan telah berakhir.",
+    "closed_other_provider": "Hanya baca: pemohon sepakat dengan penyedia lain.",
+    "closed_declined": "Hanya baca: pemohon menolak penawaran ini."
   },
   "tracking": {
     "title": "Pelacakan langsung",

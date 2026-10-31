@@ -565,7 +565,10 @@
     "block_confirm": "{{name}} engellensin mi? Ondan mesaj veya arama gelmez; geçmiş okunabilir kalır.",
     "you_blocked": "🚫 {{name}} · Bu kişiyi engellediniz. Engeli kaldırmak için sohbeti açıp «✅ Engeli kaldır»a dokunun.",
     "they_blocked": "{{name}} · Bu kişi sizi engelledi, mesaj gönderemez veya arayamazsınız.",
-    "nudge_unreachable": "Şimdi iletilmedi: {{name}} çevrimdışı ve bildirim için kayıtlı cihazı yok. Uygulamayı açınca görecek."
+    "nudge_unreachable": "Şimdi iletilmedi: {{name}} çevrimdışı ve bildirim için kayıtlı cihazı yok. Uygulamayı açınca görecek.",
+    "closed_finished": "Salt okunur: talep ve inceleme süresi sona erdi.",
+    "closed_other_provider": "Salt okunur: talep sahibi başka bir hizmet verenle anlaştı.",
+    "closed_declined": "Salt okunur: talep sahibi bu teklifi reddetti."
   },
   "tracking": {
     "title": "Canlı izleme",

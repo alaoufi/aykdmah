@@ -246,7 +246,17 @@ const getConversation = asyncHandler(async (req, res) => {
   const peer = participants.find(p => Number(p.id) !== Number(req.user.id));
   const direction = peer ? await require('./userBlockController').blockDirection(req.user.id, peer.id) : null;
   const saved = peer ? await queryOne('SELECT nickname FROM saved_providers WHERE user_id = ? AND provider_id = ?', [req.user.id, peer.id]) : null;
-  return success(res, { ...conv, participants, blocked_by_me: direction === 'mine', blocked_me: direction === 'theirs', in_directory: Boolean(saved), directory_name: saved?.nickname || null });
+  // Why it cannot be written to, in words (AYK-112).
+  let closedReason = null;
+  if (!conv.can_send && !direction && conv.request_id) {
+    const reqRow = await queryOne('SELECT client_id, status, assigned_provider_id FROM requests WHERE id = ?', [conv.request_id]);
+    const providerId = reqRow && peer ? (Number(reqRow.client_id) === Number(req.user.id) ? peer.id : req.user.id) : null;
+    const offer = providerId ? await queryOne('SELECT status FROM offers WHERE request_id = ? AND provider_id = ?', [conv.request_id, providerId]) : null;
+    if (reqRow && ['completed', 'closed', 'cancelled'].includes(reqRow.status)) closedReason = 'finished';
+    else if (reqRow?.assigned_provider_id && Number(reqRow.assigned_provider_id) !== Number(providerId)) closedReason = 'other_provider';
+    else if (offer?.status === 'rejected') closedReason = 'declined';
+  }
+  return success(res, { ...conv, participants, blocked_by_me: direction === 'mine', blocked_me: direction === 'theirs', in_directory: Boolean(saved), directory_name: saved?.nickname || null, closed_reason: closedReason });
 });
 
 module.exports = {

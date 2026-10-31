@@ -128,7 +128,8 @@ test('pending offers permit only owner and that bidder to create, read and send 
 });
 
 test('rejected and withdrawn offers keep existing private history but cannot start or continue a negotiation', async () => {
-  for (const status of ['rejected', 'withdrawn']) {
+  // A withdrawn offer keeps the chat open while the request is (AYK-112); only a declined one closes it.
+  for (const status of ['rejected']) {
     const { request, offers } = await job();
     const { id } = await negotiate(request, customer, firstProvider);
     await send(id, firstProvider, `History before ${status}`);
@@ -145,6 +146,14 @@ test('rejected and withdrawn offers keep existing private history but cannot sta
     await negotiate(request, customer, secondProvider, 403);
     assert.equal((await api('/chat/conversations', { user: firstProvider })).find(item => item.id === id).can_send, false);
   }
+});
+
+test('a provider who withdrew can still talk while the request is open (AYK-112)', async () => {
+  const { request, offers } = await job();
+  const { id } = await negotiate(request, customer, firstProvider);
+  await db.query("UPDATE offers SET status = 'withdrawn' WHERE id = ?", [offers[0].id]);
+  await send(id, customer, 'Still there?');
+  await send(id, firstProvider, 'Yes');
 });
 
 test('acceptance keeps only the selected provider writable and never exposes a rival negotiation', async () => {

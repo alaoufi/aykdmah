@@ -6,7 +6,8 @@ const contactWindow = require('../utils/contactWindow');
 // history that was already shared with that author. Corrupt group membership
 // fails closed instead of exposing a negotiation to an additional bidder.
 function requestPairSql(participantAlias = 'cp', writable = false) {
-  const offerStatus = writable ? "AND negotiation_offer.status = 'pending'" : '';
+  // A provider who withdrew can still talk while the request is open (AYK-112); a declined offer cannot.
+  const offerStatus = writable ? "AND negotiation_offer.status IN ('pending', 'withdrawn')" : '';
   const pairState = writable
     ? `((r.assigned_provider_id = provider_member.user_id AND ${contactWindow.OPEN_SQL})
         OR (r.status = 'open' AND r.assigned_provider_id IS NULL AND EXISTS (

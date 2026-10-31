@@ -496,7 +496,7 @@ export default function ChatPage() {
                 </div>
               ) : active.blocked_me ? (
                 <p role="status" className="m-2 p-3 rounded-card bg-surface-alt text-fg-muted text-sm" data-testid="blocked-me">🚫 {t('chat.they_blocked', { name: otherParticipant?.full_name || '' })}</p>
-              ) : <p role="status" className="text-sm text-muted p-3">{t('chat.read_only')}</p>
+              ) : <p role="status" className="text-sm text-muted p-3" data-testid="chat-closed-reason">{t(active.closed_reason ? `chat.closed_${active.closed_reason}` : 'chat.read_only')}</p>
             )}
             {/* "Agreed?": the requester may talk to several providers; agreeing with one
                 assigns the request and closes the other conversations about it. */}

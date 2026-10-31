@@ -565,7 +565,10 @@
     "block_confirm": "I-block si {{name}}? Walang mensahe o tawag mula sa kanya; mababasa pa rin ang kasaysayan.",
     "you_blocked": "🚫 {{name}} · Na-block mo ang taong ito. Para i-unblock, buksan ang chat ninyo at pindutin ang «✅ I-unblock».",
     "they_blocked": "{{name}} · Na-block ka ng taong ito, kaya hindi ka makakapag-mensahe o tumawag.",
-    "nudge_unreachable": "Hindi pa naihatid: offline si {{name}} at walang device na nakarehistro para sa abiso. Makikita niya ito pagbukas ng app."
+    "nudge_unreachable": "Hindi pa naihatid: offline si {{name}} at walang device na nakarehistro para sa abiso. Makikita niya ito pagbukas ng app.",
+    "closed_finished": "Pagbasa lang: tapos na ang kahilingan at ang panahon ng pagsusuri.",
+    "closed_other_provider": "Pagbasa lang: nakipagkasundo ang humiling sa ibang provider.",
+    "closed_declined": "Pagbasa lang: tinanggihan ng humiling ang alok na ito."
   },
   "tracking": {
     "title": "Live na pagsubaybay",
