@@ -1126,7 +1126,10 @@
     "blocked": "Tidak bisa berkomunikasi: salah satu pihak memblokir yang lain. ✅",
     "block_during_work": "Tidak bisa memblokir selama pekerjaan bersama atau masa peninjauan dan garansi.",
     "blocked_by_you": "Anda memblokir orang ini. Untuk membuka blokir, buka obrolan dan ketuk «✅ Buka blokir».",
-    "blocked_you": "Orang ini memblokir Anda, jadi Anda tidak bisa mengirim pesan atau menelepon."
+    "blocked_you": "Orang ini memblokir Anda, jadi Anda tidak bisa mengirim pesan atau menelepon.",
+    "account_delete_admin": "Akun admin tidak bisa dihapus di sini.",
+    "account_delete_wrong_password": "Kata sandi salah.",
+    "account_delete_active_jobs": "Ada pekerjaan berjalan. Selesaikan atau mundur dulu."
   },
   "catalog": {
     "title": "Layanan",
@@ -1390,7 +1393,9 @@
     "controls_title": "Kontrol Anda",
     "controls_body": "Anda dapat memperbaiki rincian akun dan lokasi di profil Anda dan menghapus koordinat yang disimpan. Bagikan hanya informasi yang diperlukan untuk layanan. Jauhkan kata sandi dan informasi sensitif yang tidak perlu dari percakapan dan lampiran.",
     "terms_unavailable": "Ketentuan tidak bisa dimuat.",
-    "default_terms_html": "<h3>Syarat dan ketentuan  Ay Khidma</h3>\n<p><b>1. Penerimaan penggunaan</b><br>Dengan mendaftar dengan Ay Khidma, Anda setuju dengan syarat-syarat ini dan mengkonfirmasi bahwa Anda telah mencapai usia kepenamaan di bawah hukum yang berlaku di negara Anda.</p>\n<p><b>2. Informasi yang akurat</b><br>Anda berjanji bahwa semua informasi yang Anda berikan (nama, nomor telepon, email, lokasi dan dokumen) benar.</p>\n<p><b>3. Layanan dan pembayaran</b><br>Platform menghubungkan pelanggan dengan penyedia layanan. Anda setuju tentang pekerjaan dan harga secara langsung. Platform bertindak sebagai arbiter dalam perselisihan sesuai dengan catatan percakapan dan perjanjian.</p>\n<p><b>4. Pertimbangan percakapan untuk kualitas dan keandalan</b><br><u>Anda mengakui dan menyetujui</u> bahwa administrator platform dapat meninjau teks dan pembicaraan suara dan catatan berbagi lokasi antara Anda dan pihak lain, hanya dalam kasus-kasus berikut:</p>\n<ul><li>Ketika salah satu pihak membuka sengketa atau keluhan</li><li>Untuk memverifikasi perjanjian telah dilakukan dan melindungi hak</li><li>Untuk memeriksa konten yang melanggar hukum atau kehormatan publik</li><li>Untuk memverifikasi keandalan penyedia layanan baru sebelum menyetujui mereka</li></ul>\n<p>Setiap tinjauan tercatat dalam jurnal audit internal dengan waktu dan identitas anggota staf.</p>\n<p><b>5. Perlindungan data pribadi</b><br>Informasi Anda tidak akan dibagikan kepada pihak ketiga tanpa izin Anda kecuali atas perintah pengadilan. Anda dapat meminta penghapusan akun dan semua data Anda kapan saja.</p>\n<p><b>6. Perilaku yang dapat diterima</b><br>Hal berikut ini dilarang secara ketat: penipuan, penghinaan, konten yang menyinggung, meminta atau membayar jumlah di luar platform, dan peniru.</p>\n<p><b>7. Perubahan dalam ketentuan</b><br>Platform dapat memperbarui dokumen ini. Setelah perubahan materi, Anda akan diminta untuk menerima persyaratan lagi saat Anda masuk berikutnya.</p>\n<p><b>8. Hukum yang berlaku</b><br>Syarat-syarat ini tunduk pada hukum Kerajaan Arab Saudi dan negara-negara anggota sesuai dengan lokasi Anda.</p>"
+    "default_terms_html": "<h3>Syarat dan ketentuan  Ay Khidma</h3>\n<p><b>1. Penerimaan penggunaan</b><br>Dengan mendaftar dengan Ay Khidma, Anda setuju dengan syarat-syarat ini dan mengkonfirmasi bahwa Anda telah mencapai usia kepenamaan di bawah hukum yang berlaku di negara Anda.</p>\n<p><b>2. Informasi yang akurat</b><br>Anda berjanji bahwa semua informasi yang Anda berikan (nama, nomor telepon, email, lokasi dan dokumen) benar.</p>\n<p><b>3. Layanan dan pembayaran</b><br>Platform menghubungkan pelanggan dengan penyedia layanan. Anda setuju tentang pekerjaan dan harga secara langsung. Platform bertindak sebagai arbiter dalam perselisihan sesuai dengan catatan percakapan dan perjanjian.</p>\n<p><b>4. Pertimbangan percakapan untuk kualitas dan keandalan</b><br><u>Anda mengakui dan menyetujui</u> bahwa administrator platform dapat meninjau teks dan pembicaraan suara dan catatan berbagi lokasi antara Anda dan pihak lain, hanya dalam kasus-kasus berikut:</p>\n<ul><li>Ketika salah satu pihak membuka sengketa atau keluhan</li><li>Untuk memverifikasi perjanjian telah dilakukan dan melindungi hak</li><li>Untuk memeriksa konten yang melanggar hukum atau kehormatan publik</li><li>Untuk memverifikasi keandalan penyedia layanan baru sebelum menyetujui mereka</li></ul>\n<p>Setiap tinjauan tercatat dalam jurnal audit internal dengan waktu dan identitas anggota staf.</p>\n<p><b>5. Perlindungan data pribadi</b><br>Informasi Anda tidak akan dibagikan kepada pihak ketiga tanpa izin Anda kecuali atas perintah pengadilan. Anda dapat meminta penghapusan akun dan semua data Anda kapan saja.</p>\n<p><b>6. Perilaku yang dapat diterima</b><br>Hal berikut ini dilarang secara ketat: penipuan, penghinaan, konten yang menyinggung, meminta atau membayar jumlah di luar platform, dan peniru.</p>\n<p><b>7. Perubahan dalam ketentuan</b><br>Platform dapat memperbarui dokumen ini. Setelah perubahan materi, Anda akan diminta untuk menerima persyaratan lagi saat Anda masuk berikutnya.</p>\n<p><b>8. Hukum yang berlaku</b><br>Syarat-syarat ini tunduk pada hukum Kerajaan Arab Saudi dan negara-negara anggota sesuai dengan lokasi Anda.</p>",
+    "deletion_title": "Penghapusan akun",
+    "deletion_body": "Anda bisa menghapus akun kapan saja dari «Profil saya» ← «Hapus akun saya» atau aykdmh.com/delete-account. Data identitas langsung dihapus; pesan lama tetap sebagai «Pengguna terhapus» dan catatan pembayaran disimpan sesuai hukum."
   },
   "geo": {
     "country_names": {
@@ -2362,5 +2367,19 @@
     "saved_note": "«{{name}}» disimpan ke direktori Anda.",
     "message": "Pesan",
     "call": "Telepon"
+  },
+  "account_delete": {
+    "title": "Hapus akun saya",
+    "erased_title": "Langsung dihapus",
+    "erased": "Nama, nomor, email, nama pengguna, foto dan kata sandi, pendaftaran notifikasi, direktori dan blokir; permintaan terbuka dibatalkan dan akun ditutup.",
+    "kept_title": "Yang tersisa",
+    "kept": "Pesan lama di obrolan orang lain sebagai «Pengguna terhapus», dan catatan pembayaran yang diwajibkan hukum.",
+    "sign_in_first": "Masuk dulu untuk menghapus akun:",
+    "or_email": "Atau email kami untuk meminta penghapusan:",
+    "signed_as": "Akun:",
+    "password": "Kata sandi untuk konfirmasi",
+    "confirm": "Saya paham penghapusan bersifat permanen.",
+    "submit": "Hapus akun selamanya",
+    "done": "Akun Anda telah dihapus. Terima kasih."
   }
 }

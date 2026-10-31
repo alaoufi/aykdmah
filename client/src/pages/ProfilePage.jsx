@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
@@ -336,6 +337,8 @@ export default function ProfilePage() {
           <Button type="submit" variant="primary">{t('common.save')}</Button>
         </form>
       </div>
+      {/* Google Play: deleting the account from the app (AYK-116). */}
+      {user?.role !== 'admin' && <Link to="/delete-account" className="block text-center text-[13px] font-semibold text-danger mt-6 mb-2" data-testid="profile-delete-account">🗑️ {t('account_delete.title')}</Link>}
     </div>
   );
 }

@@ -1126,7 +1126,10 @@
     "blocked": "İletişim mümkün değil: taraflardan biri diğerini engelledi. ✅",
     "block_during_work": "Birlikte iş sürerken veya inceleme ve garanti günlerinde engelleyemezsiniz.",
     "blocked_by_you": "Bu kişiyi engellediniz. Engeli kaldırmak için sohbeti açıp «✅ Engeli kaldır»a dokunun.",
-    "blocked_you": "Bu kişi sizi engelledi, mesaj gönderemez veya arayamazsınız."
+    "blocked_you": "Bu kişi sizi engelledi, mesaj gönderemez veya arayamazsınız.",
+    "account_delete_admin": "Yönetici hesabı buradan silinemez.",
+    "account_delete_wrong_password": "Yanlış şifre.",
+    "account_delete_active_jobs": "Devam eden işiniz var. Önce bitirin veya çekilin."
   },
   "catalog": {
     "title": "Hizmetler",
@@ -1390,7 +1393,9 @@
     "controls_title": "Kontrolleriniz",
     "controls_body": "Profilinizde hesap detaylarını ve konumunuzu düzeltebilir ve kaydedilen koordinatları temizleyebilirsiniz. Hizmet için gerekli olan bilgileri paylaşın. Anlaşmalar ve eklemlerden şifreleri ve gereksiz hassas bilgileri uzak tutun.",
     "terms_unavailable": "Şartları yükleyemiyorum.",
-    "default_terms_html": "<h3>Şartlar ve koşullar  Ay Khidma</h3>\n<p><b>1. Kullanımı kabul etmek</b><br>Ay Khidma'da kayıt yaparak bu şartlara katılıyorsunuz ve ülkenizdeki yasalara göre yetişkinliğe ulaştığınızı onaylıyorsunuz.</p>\n<p><b>2. Doğru bilgiler</b><br>Verdiğiniz tüm bilgilerin (ad, telefon numarası, e-posta, konum ve belgeler) doğru olduğuna söz veriyorsunuz.</p>\n<p><b>3. Hizmet ve ödeme</b><br>Platform müşterileri hizmet sağlayıcılarıyla bağlar. İş ve fiyat konusunda doğrudan anlaşırsınız. Platform sohbet kayıtlarına ve anlaşmaya göre anlaşmazlıklarda hakem olarak hareket eder.</p>\n<p><b>4. Kalite ve güvenilirlik için görüşme değerlendirme</b><br><u>Kabul ediyorsun ve kabul ediyorsun</u> Platform yöneticileri, yalnızca aşağıdaki durumlarda sizin ve diğer taraf arasındaki metin ve ses konuşmalarını ve yer paylaşım kayıtlarını gözden geçirebilir:</p>\n<ul><li>Taraflardan biri anlaşmazlık veya şikayet açtığında</li><li>Anlaşmanın gerçekleştiğini doğrultmak ve hakları korumak için</li><li>Kanunu veya kamu ahlakını ihlal eden içerikleri kontrol etmek için</li><li>Yeni hizmet sağlayıcılarının güvenilirliğini onaylamadan önce doğrulama</li></ul>\n<p>Her inceleme, zaman ve personelin kimliği ile birlikte bir iç denetim günlüğüne kaydedilmiştir.</p>\n<p><b>5. Kişisel verilerin korunması</b><br>Bilgileriniz, izininiz olmadan, mahkeme emri dışında üçüncü bir kişiyle paylaşılmayacak.</p>\n<p><b>6. Kabul edilebilir davranış</b><br>Aşağıdakilar kesinlikle yasaktır: dolandırıcılık, hakaret, saldırgan içerik, platformu dışındaki para talep etmek veya ödeme ve kimlik değiştirmek.</p>\n<p><b>7. Şartlarda değişiklikler</b><br>Platform bu belgeyi güncelleyebilir. Herhangi bir maddi değişiklikten sonra, bir sonraki girişinizde şartları tekrar kabul etmeniz istenir.</p>\n<p><b>8. Uygulanabilir hukuk</b><br>Bu koşullar, konumuza göre Suudi Arabistan Krallığının ve üye ülkelerin yasalarına tabi.</p>"
+    "default_terms_html": "<h3>Şartlar ve koşullar  Ay Khidma</h3>\n<p><b>1. Kullanımı kabul etmek</b><br>Ay Khidma'da kayıt yaparak bu şartlara katılıyorsunuz ve ülkenizdeki yasalara göre yetişkinliğe ulaştığınızı onaylıyorsunuz.</p>\n<p><b>2. Doğru bilgiler</b><br>Verdiğiniz tüm bilgilerin (ad, telefon numarası, e-posta, konum ve belgeler) doğru olduğuna söz veriyorsunuz.</p>\n<p><b>3. Hizmet ve ödeme</b><br>Platform müşterileri hizmet sağlayıcılarıyla bağlar. İş ve fiyat konusunda doğrudan anlaşırsınız. Platform sohbet kayıtlarına ve anlaşmaya göre anlaşmazlıklarda hakem olarak hareket eder.</p>\n<p><b>4. Kalite ve güvenilirlik için görüşme değerlendirme</b><br><u>Kabul ediyorsun ve kabul ediyorsun</u> Platform yöneticileri, yalnızca aşağıdaki durumlarda sizin ve diğer taraf arasındaki metin ve ses konuşmalarını ve yer paylaşım kayıtlarını gözden geçirebilir:</p>\n<ul><li>Taraflardan biri anlaşmazlık veya şikayet açtığında</li><li>Anlaşmanın gerçekleştiğini doğrultmak ve hakları korumak için</li><li>Kanunu veya kamu ahlakını ihlal eden içerikleri kontrol etmek için</li><li>Yeni hizmet sağlayıcılarının güvenilirliğini onaylamadan önce doğrulama</li></ul>\n<p>Her inceleme, zaman ve personelin kimliği ile birlikte bir iç denetim günlüğüne kaydedilmiştir.</p>\n<p><b>5. Kişisel verilerin korunması</b><br>Bilgileriniz, izininiz olmadan, mahkeme emri dışında üçüncü bir kişiyle paylaşılmayacak.</p>\n<p><b>6. Kabul edilebilir davranış</b><br>Aşağıdakilar kesinlikle yasaktır: dolandırıcılık, hakaret, saldırgan içerik, platformu dışındaki para talep etmek veya ödeme ve kimlik değiştirmek.</p>\n<p><b>7. Şartlarda değişiklikler</b><br>Platform bu belgeyi güncelleyebilir. Herhangi bir maddi değişiklikten sonra, bir sonraki girişinizde şartları tekrar kabul etmeniz istenir.</p>\n<p><b>8. Uygulanabilir hukuk</b><br>Bu koşullar, konumuza göre Suudi Arabistan Krallığının ve üye ülkelerin yasalarına tabi.</p>",
+    "deletion_title": "Hesap silme",
+    "deletion_body": "Hesabınızı istediğiniz zaman «Profilim» ← «Hesabımı sil» veya aykdmh.com/delete-account üzerinden silebilirsiniz. Kimlik verileri hemen silinir; eski mesajlar «Silinmiş kullanıcı» olarak ve yasal ödeme kayıtları kalır."
   },
   "geo": {
     "country_names": {
@@ -2362,5 +2367,19 @@
     "saved_note": "«{{name}}» rehberinize kaydedildi.",
     "message": "Mesaj",
     "call": "Ara"
+  },
+  "account_delete": {
+    "title": "Hesabımı sil",
+    "erased_title": "Hemen silinenler",
+    "erased": "Ad, telefon, e-posta, kullanıcı adı, fotoğraf ve şifre, bildirim kayıtları, rehber ve engeller; açık talepler iptal edilir ve hesap kapanır.",
+    "kept_title": "Kalanlar",
+    "kept": "Başkalarının sohbetlerindeki eski mesajlar «Silinmiş kullanıcı» adıyla ve yasanın gerektirdiği ödeme kayıtları.",
+    "sign_in_first": "Silmek için önce giriş yapın:",
+    "or_email": "Ya da silme talebi için bize e-posta gönderin:",
+    "signed_as": "Hesap:",
+    "password": "Onay için şifre",
+    "confirm": "Silmenin kalıcı olduğunu anlıyorum.",
+    "submit": "Hesabımı kalıcı olarak sil",
+    "done": "Hesabınız silindi. Teşekkürler."
   }
 }

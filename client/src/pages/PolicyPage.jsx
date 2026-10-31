@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import usePublicSettings from '../hooks/usePublicSettings';
 import SafeHtml from '../components/common/SafeHtml';
 
-const PRIVACY_SECTIONS = ['data', 'purpose', 'location', 'sharing', 'records', 'controls'];
+const PRIVACY_SECTIONS = ['data', 'purpose', 'location', 'sharing', 'records', 'controls', 'deletion'];
 
 export default function PolicyPage({ kind }) {
   const { t, i18n } = useTranslation();

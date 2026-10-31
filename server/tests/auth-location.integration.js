@@ -558,6 +558,22 @@ if (!databasePrefix) {
     assert.ok(!matching.some(row => Number(row.id) === requestId));
   });
 
+  test('deleting one\'s own account (AYK-116): password required, identity erased, signing in no longer works', async () => {
+    const area = await simpleArea();
+    const phone = phoneIdentity();
+    const doomed = await simpleRegister({ role: 'client', phone, city_id: area.city_id, district_id: area.district_id, full_name: 'سيُحذف' });
+    await api('/users/me/delete', { method: 'POST', token: doomed.token, expected: 400, body: { password: 'wrong' } });
+    await api('/users/me/delete', { method: 'POST', token: doomed.token, body: { password: '1234' } });
+    const row = await db.queryOne('SELECT phone, email, is_active, deleted_at, full_name FROM users WHERE id = ?', [doomed.user.id]);
+    assert.equal(row.phone, null);
+    assert.equal(Number(row.is_active), 0);
+    assert.ok(row.deleted_at);
+    assert.notEqual(row.full_name, 'سيُحذف');
+    await api('/auth/me', { token: doomed.token, expected: 401 });
+    // The number can sign up again.
+    await simpleRegister({ role: 'client', phone, city_id: area.city_id, district_id: area.district_id });
+  });
+
   test('requester journey (AYK-041): phone sign-in, new requests announced, directory, direct contact and finished tasks leave the provider a day later', async () => {
     const area = await simpleArea();
     // A password is always required, and phone-code sign-in is unavailable without SMS.

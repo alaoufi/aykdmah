@@ -69,6 +69,7 @@ const DisputeOpenPage = lazy(() => import('./pages/DisputeOpenPage'));
 const DisputeDetailsPage = lazy(() => import('./pages/DisputeDetailsPage'));
 const MyDisputesPage = lazy(() => import('./pages/MyDisputesPage'));
 const PromotePage = lazy(() => import('./pages/PromotePage'));
+const DeleteAccountPage = lazy(() => import('./pages/DeleteAccountPage'));
 
 function Protected({ children, roles, loginPath = '/login' }) {
   const { user, loading } = useAuth();
@@ -148,6 +149,7 @@ export default function AppRoutes() {
         <Route element={<MainLayout />}>
           <Route path="/" element={<RequesterPage><HomePage /></RequesterPage>} />
           <Route path="/privacy" element={<PolicyPage kind="privacy" />} />
+          <Route path="/delete-account" element={<DeleteAccountPage />} />
           <Route path="/terms" element={<PolicyPage kind="terms" />} />
           <Route path="/guide" element={<GuidePage />} />
           <Route path="/providers/map" element={<ProvidersMapPage />} />

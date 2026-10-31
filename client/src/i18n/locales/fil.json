@@ -1126,7 +1126,10 @@
     "blocked": "Hindi puwedeng makipag-ugnayan: may nag-block sa isa. ✅",
     "block_during_work": "Hindi puwedeng mag-block habang may trabaho kayo o sa mga araw ng pagsusuri at warranty.",
     "blocked_by_you": "Na-block mo ang taong ito. Para i-unblock, buksan ang chat ninyo at pindutin ang «✅ I-unblock».",
-    "blocked_you": "Na-block ka ng taong ito, kaya hindi ka makakapag-mensahe o tumawag."
+    "blocked_you": "Na-block ka ng taong ito, kaya hindi ka makakapag-mensahe o tumawag.",
+    "account_delete_admin": "Hindi mabubura dito ang admin account.",
+    "account_delete_wrong_password": "Maling password.",
+    "account_delete_active_jobs": "May trabahong nagaganap. Tapusin o umatras muna."
   },
   "catalog": {
     "title": "Mga Serbisyo",
@@ -1390,7 +1393,9 @@
     "controls_title": "Ang iyong mga kontrol",
     "controls_body": "Maaari mong i-correct ang mga detalye ng account at lokasyon sa iyong profile at i-clear ang mga naka-save na coordinate. Ibahagi lamang ang impormasyon na kinakailangan para sa serbisyo. Panatilihin ang mga password at hindi kinakailangang sensitibong impormasyon sa mga pag-uusap at mga attachment.",
     "terms_unavailable": "Hindi na mai-load ang mga tuntunin.",
-    "default_terms_html": "<h3>Mga Termino at Kondisyon  Ay Khidma</h3>\n<p><b>1. Pagkakumpirma sa paggamit</b><br>Sa pamamagitan ng pagpaparehistro sa Ay Khidma, sumasang-ayon ka sa mga tuntunin na ito at kumpirma na nakaabot ka ng edad na maging may-edad ayon sa mga batas na naaangkop sa iyong bansa.</p>\n<p><b>2. Katumpakan na impormasyon</b><br>Nag-aangkop ka na ang lahat ng impormasyon na ibinigay mo ( pangalan, numero ng telepono, email, lokasyon at mga dokumento) ay tama.</p>\n<p><b>3. Serbisyo at pagbabayad</b><br>Ang platform ay nakikipag-ugnayan sa mga customer sa mga provider ng serbisyo. Ikaw ay sumang-ayon sa trabaho at presyo nang direkta. Ang platform ay kumikilos bilang isang arbiter sa mga litigasyon ayon sa mga talaan ng pag-uusap at kasunduan.</p>\n<p><b>4. Pag-uusisa sa pakikipag-usap para sa kalidad at katatagan</b><br><u>Kinikilala at sinasang-ayon mo</u> Ang mga administrador ng platform ay maaaring suriin ang mga text at voice conversations at mga record ng paghahati ng lokasyon sa pagitan mo at ng ibang partido, sa mga sumusunod na kaso lamang:</p>\n<ul><li>Kapag sinimulan ng isa sa mga partido ang isang disbiyo o reklamo</li><li>Upang matiyak ang kasunduan ay isinasagawa at proteksyon ng mga karapatan</li><li>Upang suriin ang nilalaman na sumisira sa batas o sa pampublikong kahina-hinan</li><li>Upang suriin ang pagiging maaasahan ng mga bagong tagapagbigay ng serbisyo bago pa sila papayagan</li></ul>\n<p>Ang bawat pagsusuri ay kinukumpirma sa isang internal audit log na may panahon nito at ang pagkakakilanlan ng mga miyembro ng staff.</p>\n<p><b>5. Proteksyon ng personal na data</b><br>Ang iyong impormasyon ay hindi maibahagi sa isang third party nang walang iyong pahintulot maliban sa utos ng korte. Maaari kang humingi ng pagtanggal ng iyong account at lahat ng iyong data sa anumang oras.</p>\n<p><b>6. Katanggap-tanggap na paggawi</b><br>Ang mga sumusunod ay mahigpit na ipinagbabawal: pag-iimbak, pag-insulto, nakakababatang nilalaman, pag-iimbak o pagbabayad ng mga halaga sa labas ng platform, at pagpapaliwanag.</p>\n<p><b>7. Pagbabago sa mga tuntunin</b><br>Maaaring i-update ng platform ang dokumentong ito. Pagkatapos ng anumang mahalagang pagbabago, bibigyan ka ng pagtuunan ng mga tuntunin nang susunod kang mag-sign-in.</p>\n<p><b>8. Angkop na batas</b><br>Ang mga tuntunin na ito ay sakop ng mga batas ng Kaharian ng Saudi Arabia at ng mga bansang miyembro depende sa iyong lokasyon.</p>"
+    "default_terms_html": "<h3>Mga Termino at Kondisyon  Ay Khidma</h3>\n<p><b>1. Pagkakumpirma sa paggamit</b><br>Sa pamamagitan ng pagpaparehistro sa Ay Khidma, sumasang-ayon ka sa mga tuntunin na ito at kumpirma na nakaabot ka ng edad na maging may-edad ayon sa mga batas na naaangkop sa iyong bansa.</p>\n<p><b>2. Katumpakan na impormasyon</b><br>Nag-aangkop ka na ang lahat ng impormasyon na ibinigay mo ( pangalan, numero ng telepono, email, lokasyon at mga dokumento) ay tama.</p>\n<p><b>3. Serbisyo at pagbabayad</b><br>Ang platform ay nakikipag-ugnayan sa mga customer sa mga provider ng serbisyo. Ikaw ay sumang-ayon sa trabaho at presyo nang direkta. Ang platform ay kumikilos bilang isang arbiter sa mga litigasyon ayon sa mga talaan ng pag-uusap at kasunduan.</p>\n<p><b>4. Pag-uusisa sa pakikipag-usap para sa kalidad at katatagan</b><br><u>Kinikilala at sinasang-ayon mo</u> Ang mga administrador ng platform ay maaaring suriin ang mga text at voice conversations at mga record ng paghahati ng lokasyon sa pagitan mo at ng ibang partido, sa mga sumusunod na kaso lamang:</p>\n<ul><li>Kapag sinimulan ng isa sa mga partido ang isang disbiyo o reklamo</li><li>Upang matiyak ang kasunduan ay isinasagawa at proteksyon ng mga karapatan</li><li>Upang suriin ang nilalaman na sumisira sa batas o sa pampublikong kahina-hinan</li><li>Upang suriin ang pagiging maaasahan ng mga bagong tagapagbigay ng serbisyo bago pa sila papayagan</li></ul>\n<p>Ang bawat pagsusuri ay kinukumpirma sa isang internal audit log na may panahon nito at ang pagkakakilanlan ng mga miyembro ng staff.</p>\n<p><b>5. Proteksyon ng personal na data</b><br>Ang iyong impormasyon ay hindi maibahagi sa isang third party nang walang iyong pahintulot maliban sa utos ng korte. Maaari kang humingi ng pagtanggal ng iyong account at lahat ng iyong data sa anumang oras.</p>\n<p><b>6. Katanggap-tanggap na paggawi</b><br>Ang mga sumusunod ay mahigpit na ipinagbabawal: pag-iimbak, pag-insulto, nakakababatang nilalaman, pag-iimbak o pagbabayad ng mga halaga sa labas ng platform, at pagpapaliwanag.</p>\n<p><b>7. Pagbabago sa mga tuntunin</b><br>Maaaring i-update ng platform ang dokumentong ito. Pagkatapos ng anumang mahalagang pagbabago, bibigyan ka ng pagtuunan ng mga tuntunin nang susunod kang mag-sign-in.</p>\n<p><b>8. Angkop na batas</b><br>Ang mga tuntunin na ito ay sakop ng mga batas ng Kaharian ng Saudi Arabia at ng mga bansang miyembro depende sa iyong lokasyon.</p>",
+    "deletion_title": "Pagbura ng account",
+    "deletion_body": "Puwede mong burahin ang account anumang oras sa «Aking profile» ← «Burahin ang aking account» o sa aykdmh.com/delete-account. Agad nabubura ang iyong pagkakakilanlan; nananatili ang lumang mensahe bilang «Binurang user» at mga rekord ng bayad ayon sa batas."
   },
   "geo": {
     "country_names": {
@@ -2362,5 +2367,19 @@
     "saved_note": "Na-save ang «{{name}}» sa iyong direktoryo.",
     "message": "Mensahe",
     "call": "Tawag"
+  },
+  "account_delete": {
+    "title": "Burahin ang aking account",
+    "erased_title": "Agad na binubura",
+    "erased": "Pangalan, numero, email, username, larawan at password, mga rehistro ng abiso, direktoryo at block; kinakansela ang bukas na kahilingan at isinasara ang account.",
+    "kept_title": "Natitira",
+    "kept": "Mga lumang mensahe sa chat ng iba bilang «Binurang user», at mga rekord ng bayad na hinihingi ng batas.",
+    "sign_in_first": "Mag-sign in muna para burahin:",
+    "or_email": "O i-email kami para humiling ng pagbura:",
+    "signed_as": "Account:",
+    "password": "Password para kumpirmahin",
+    "confirm": "Naiintindihan kong permanente ang pagbura.",
+    "submit": "Burahin nang tuluyan ang account",
+    "done": "Nabura ang iyong account. Salamat."
   }
 }

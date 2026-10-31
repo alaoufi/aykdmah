@@ -35,6 +35,8 @@ router.get('/me/directory', authenticate, directory.list);
 router.get('/me/directory/ids', authenticate, directory.ids);
 router.post('/me/directory/:providerId', authenticate, directory.add);
 router.delete('/me/directory/:providerId', authenticate, directory.remove);
+// Deleting one's own account (AYK-116, Google Play).
+router.post('/me/delete', authenticate, require('../controllers/accountDeletionController').deleteMe);
 // Members block each other (AYK-084).
 const blocks = require('../controllers/userBlockController');
 router.post('/me/blocks/:userId', authenticate, blocks.block);
