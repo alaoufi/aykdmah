@@ -72,6 +72,7 @@ function publicCall(row, viewerId) {
     peer: {
       id: outgoing ? row.callee_id : row.caller_id,
       full_name: outgoing ? row.callee_name : row.caller_name,
+      code: outgoing ? row.callee_code : row.caller_code,
       avatar: outgoing ? row.callee_avatar : row.caller_avatar,
     },
     created_at: row.created_at,
@@ -81,8 +82,8 @@ function publicCall(row, viewerId) {
   };
 }
 
-const CALL_SELECT = `SELECT k.*, caller.full_name AS caller_name, caller.avatar AS caller_avatar,
-  callee.full_name AS callee_name, callee.avatar AS callee_avatar
+const CALL_SELECT = `SELECT k.*, caller.full_name AS caller_name, caller.avatar AS caller_avatar, caller.referral_code AS caller_code,
+  callee.full_name AS callee_name, callee.avatar AS callee_avatar, callee.referral_code AS callee_code
   FROM calls k JOIN users caller ON caller.id = k.caller_id JOIN users callee ON callee.id = k.callee_id`;
 
 const findCall = id => queryOne(`${CALL_SELECT} WHERE k.id = ?`, [id]);
@@ -140,7 +141,7 @@ async function start({ caller, conversationId, callType }) {
     answer_url: `/chat/${conversationId}?answer=${callId}`,
     actions: [{ action: 'answer', title: translate(lang, 'push_call_answer') }, { action: 'decline', title: translate(lang, 'push_call_decline') }],
     title: translate(lang, callType === 'video' ? 'push_call_video' : 'push_call_audio'),
-    body: translate(lang, 'push_call_body', { name: row.caller_name || '' }),
+    body: translate(lang, 'push_call_body', { name: row.caller_code ? `${row.caller_name || ''} (${row.caller_code})` : (row.caller_name || '') }),
   });
   // Each repeat carries its round: the phone shows it as a new notification that rings again (AYK-090).
   const ring = round => pushService.sendToUser(callee.id, lang => ({ ...ringPayload(lang), round }),
@@ -153,7 +154,7 @@ async function start({ caller, conversationId, callType }) {
   fcm.sendToUser(callee.id, {
     kind: 'call', call_id: callId, conversation_id: conversationId, call_type: callType,
     title: translate(calleeLang, callType === 'video' ? 'push_call_video' : 'push_call_audio'),
-    body: translate(calleeLang, 'push_call_body', { name: row.caller_name || '' }),
+    body: translate(calleeLang, 'push_call_body', { name: row.caller_code ? `${row.caller_name || ''} (${row.caller_code})` : (row.caller_name || '') }),
     answer_label: translate(calleeLang, 'push_call_answer'),
     decline_label: translate(calleeLang, 'push_call_decline'),
   }, { ttlSeconds: Math.round(RING_TIMEOUT_MS / 1000) })
@@ -204,7 +205,7 @@ async function finish(row, status, reason) {
     pushService.sendToUser(row.callee_id, missed
       ? lang => ({
         kind: 'missed_call', call_id: row.id, tag: `call-${row.id}`, url: `/chat/${row.conversation_id}`,
-        title: translate(lang, 'push_missed_title'), body: translate(lang, 'push_missed_body', { name: row.caller_name || '' }),
+        title: translate(lang, 'push_missed_title'), body: translate(lang, 'push_missed_body', { name: row.caller_code ? `${row.caller_name || ''} (${row.caller_code})` : (row.caller_name || '') }),
       })
       : { kind: 'call_end', call_id: row.id, tag: `call-${row.id}` },
     { TTL: missed ? 24 * 3600 : 60, urgency: 'high', topic: `call-${row.id}` })

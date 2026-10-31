@@ -360,7 +360,7 @@ export default function ChatPage() {
                   <Avatar src={other?.avatar} name={other?.full_name} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div className="flex justify-between">
-                      <strong>{other?.full_name || '—'}</strong>
+                      <strong>{other?.full_name || '—'}{other?.referral_code && <span className="ms-1.5 text-[12px] font-semibold text-fg-muted" dir="ltr">{other.referral_code}</span>}</strong>
                       <span className="text-xs text-muted">{last ? (isSameDay(last.created_at, new Date()) ? formatTime(last.created_at) : dayLabel(last.created_at, t)) : ''}</span>
                     </div>
                     <div className="text-sm text-muted" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -393,7 +393,7 @@ export default function ChatPage() {
                 <>
                   <Avatar src={otherParticipant.avatar} name={otherParticipant.full_name} />
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <strong>{otherParticipant.full_name}</strong>
+                    <strong>{otherParticipant.full_name}{otherParticipant.referral_code && <span className="ms-1.5 px-1.5 py-0.5 rounded-pill bg-surface-alt text-[12px] font-bold text-fg-muted" dir="ltr" data-testid="chat-peer-code">{otherParticipant.referral_code}</span>}</strong>
                     <div className="text-xs text-muted">
                       {realtimeMode === 'polling'
                         ? t('chat.periodic_updates', { defaultValue: 'تُحدّث الرسائل كل 5 ثوانٍ' })

@@ -88,6 +88,8 @@ export default function CallOverlay() {
   if (!call) return null;
   const video = call.call_type === 'video';
   const peerName = call.peer?.full_name || '';
+  // Name and number together (AYK-108), so two people with the same name are not confused.
+  const peerCode = call.peer?.code || '';
   const statusText = {
     incoming: t(video ? 'calls.incoming_video' : 'calls.incoming_audio'),
     outgoing: t('calls.ringing'),
@@ -121,6 +123,7 @@ export default function CallOverlay() {
             <div className="text-center space-y-3 px-6">
               <div className="mx-auto w-fit"><Avatar src={call.peer?.avatar} name={peerName} size="lg" /></div>
               <div className="text-2xl font-extrabold">{peerName}</div>
+              {peerCode && <div className="text-[15px] font-bold text-white/70" dir="ltr" data-testid="call-peer-code">{peerCode}</div>}
               <div className="text-white/80" aria-live="polite">{statusText}</div>
               {phase === 'outgoing' && call.callee_reachable === false && (
                 <div className="text-amber-300 text-sm max-w-xs mx-auto" data-testid="callee-unreachable">⚠️ {t('calls.callee_unreachable')}</div>
@@ -130,7 +133,7 @@ export default function CallOverlay() {
           </div>
         )}
         {video && live && remoteJoined && (
-          <div className="absolute top-4 inset-x-0 text-center text-sm text-white drop-shadow">{peerName} · {statusText}</div>
+          <div className="absolute top-4 inset-x-0 text-center text-sm text-white drop-shadow">{peerName}{peerCode ? ` (${peerCode})` : ''} · {statusText}</div>
         )}
         {/* Why there is no picture (AYK-066): the other side's camera is off or blocked, or mine failed. */}
         {video && live && remoteJoined && !hasRemoteVideo && (

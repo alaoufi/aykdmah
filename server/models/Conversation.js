@@ -109,7 +109,7 @@ async function findById(id) {
 
 async function getParticipants(conversationId) {
   return query(
-    `SELECT u.id, u.full_name, u.avatar, u.is_online, u.last_seen_at, cp.last_read_at
+    `SELECT u.id, u.full_name, u.referral_code, u.avatar, u.is_online, u.last_seen_at, cp.last_read_at
      FROM conversation_participants cp
      JOIN conversations c ON c.id = cp.conversation_id
      LEFT JOIN requests r ON r.id = c.request_id
