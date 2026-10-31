@@ -41,6 +41,15 @@ aykdmh.com {
 		reverse_proxy app:5000
 	}
 
+	# AYK-124: the Android app for testers before Google Play (/var/www/aykdmh/dl on the host).
+	@dl path /dl/*.apk
+	handle @dl {
+		root * /srv
+		header Content-Type application/vnd.android.package-archive
+		header Cache-Control "no-store"
+		file_server
+	}
+
 	@private path /install /install/* /uploads /uploads/*
 	handle @private {
 		respond 404

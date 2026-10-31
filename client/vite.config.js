@@ -68,7 +68,7 @@ export default defineConfig(({ mode }) => {
           clientsClaim: true,
           cleanupOutdatedCaches: true,
           navigateFallback: '/index.html',
-          navigateFallbackDenylist: [/^\/api/, /^\/install/, /^\/uploads/],
+          navigateFallbackDenylist: [/^\/api/, /^\/install/, /^\/uploads/, /^\/dl\//],
           runtimeCaching: [
             // API responses contain account, chat and request data; always use
             // the network and never retain them across logout or account changes.
