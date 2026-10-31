@@ -559,6 +559,7 @@
     "nudge_sent": "🔔 उहाँलाई नयाँ सूचना पुग्यो।",
     "nudge_failed": "सम्झाउन सकिएन। फेरि प्रयास गर्नुहोस्।",
     "translated_show_original": "अनुवादित · मूल हेर्नुहोस्",
+    "translated_from_show_original": "{{lang}} बाट स्वचालित अनुवाद (मूल हेर्नुहोस्)",
     "show_translation": "अनुवाद हेर्नुहोस्",
     "block": "ब्लक",
     "unblock": "अनब्लक",

@@ -140,7 +140,7 @@ function translationFor(message, lang) {
     const { translate } = require('../services/translationService');
     const pending = translate(String(message.content).slice(0, 2000), null, lang)
       .catch(() => { translations.delete(key); return { text: message.content, provider: 'noop' }; })
-      .then(result => ({ text: result.text, same: result.provider === 'noop' || result.text === message.content }));
+      .then(result => ({ text: result.text, from: result.from || null, same: result.provider === 'noop' || result.text === message.content }));
     if (translations.size > 5000) translations.delete(translations.keys().next().value);
     translations.set(key, pending);
   }

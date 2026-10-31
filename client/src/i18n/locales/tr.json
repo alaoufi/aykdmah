@@ -559,6 +559,7 @@
     "nudge_sent": "🔔 Yeni bir bildirim aldı.",
     "nudge_failed": "Hatırlatma gönderilemedi. Tekrar deneyin.",
     "translated_show_original": "Çevrildi · aslını göster",
+    "translated_from_show_original": "{{lang}} dilinden otomatik çeviri (aslını göster)",
     "show_translation": "Çeviriyi göster",
     "block": "Engelle",
     "unblock": "Engeli kaldır",

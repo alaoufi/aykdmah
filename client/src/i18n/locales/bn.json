@@ -559,6 +559,7 @@
     "nudge_sent": "🔔 তার কাছে নতুন সতর্কতা গেছে।",
     "nudge_failed": "মনে করানো যায়নি। আবার চেষ্টা করুন।",
     "translated_show_original": "অনূদিত · মূল দেখুন",
+    "translated_from_show_original": "{{lang}} থেকে স্বয়ংক্রিয় অনুবাদ (মূল দেখুন)",
     "show_translation": "অনুবাদ দেখুন",
     "block": "ব্লক",
     "unblock": "আনব্লক",

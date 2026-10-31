@@ -68,11 +68,18 @@ function LocationCard({ lat, lng }) {
 
 // WhatsApp-style bubble: tail on the first message of a run, time and ticks inside the
 // bubble, voice notes with a waveform, photos that open full screen, inline video.
+function languageName(code, reader) {
+  if (!code) return '';
+  try { return new Intl.DisplayNames([reader || 'ar'], { type: 'language' }).of(code) || code; } catch (_) { return code; }
+}
+
 export default function MessageBubble({ message, isMine, onReply, onDelete, onForward, renderTranslation, firstInRun = true, onCallBack }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [showMenu, setShowMenu] = useState(false);
   // The other side's words in my language, in place of the original (AYK-065).
-  const translated = useAutoTranslation(message, isMine);
+  const { text: translated, from: translatedFrom } = useAutoTranslation(message, isMine);
+  // Named in the reader's language ("الإنجليزية"), so a slip reads as the translator's, not the sender's (AYK-120).
+  const fromName = languageName(translatedFrom, i18n.resolvedLanguage);
   const [showOriginal, setShowOriginal] = useState(false);
   const [viewer, setViewer] = useState(null);
   const rowRef = useRef(null);
@@ -166,7 +173,7 @@ export default function MessageBubble({ message, isMine, onReply, onDelete, onFo
           {translated && !showOriginal ? translated : message.content}<span className="meta-spacer" aria-hidden="true" /></div>}
         {translated && (
           <button type="button" className="translated-note" onClick={() => setShowOriginal(v => !v)}>
-            🌐 {t(showOriginal ? 'chat.show_translation' : 'chat.translated_show_original')}
+            🌐 {showOriginal ? t('chat.show_translation') : fromName ? t('chat.translated_from_show_original', { lang: fromName }) : t('chat.translated_show_original')}
           </button>
         )}
 
@@ -253,7 +260,7 @@ export default function MessageBubble({ message, isMine, onReply, onDelete, onFo
           position: absolute; bottom: 8px; inset-inline-end: 10px; top: auto; margin: 0; float: none;
           color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.6);
         }
-        .translated-note { display: block; font-size: 11px; opacity: .6; background: none; border: 0; padding: 0; margin-top: 2px; color: inherit; cursor: pointer; }
+        .translated-note { display: block; font-size: 10px; opacity: .55; background: none; border: 0; padding: 0; margin-top: 2px; color: inherit; cursor: pointer; }
         .read-ticks { letter-spacing: -3px; font-weight: 700; padding-inline-end: 3px; }
         .read-ticks.read { color: var(--wa-tick); }
         .reply-preview {

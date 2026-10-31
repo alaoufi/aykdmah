@@ -38,7 +38,7 @@ test('Microsoft Translator: detects the language, skips a message already in the
   let sent;
   try {
     global.fetch = async (url, opts) => { sent = { url, opts }; return { ok: true, json: async () => [{ detectedLanguage: { language: 'en', score: 1 }, translations: [{ text: 'حسنًا، أين أنت؟', to: 'ar' }] }] }; };
-    assert.deepEqual(await translateViaMicrosoft('Okay, where are you?', null, 'ar', 'k'), { text: 'حسنًا، أين أنت؟', provider: 'microsoft' });
+    assert.deepEqual(await translateViaMicrosoft('Okay, where are you?', null, 'ar', 'k'), { text: 'حسنًا، أين أنت؟', provider: 'microsoft', from: 'en' });
     assert.ok(!sent.url.includes('from='), 'no source: Microsoft detects it');
     assert.equal(sent.opts.headers['Ocp-Apim-Subscription-Key'], 'k');
     assert.deepEqual(await translateViaMicrosoft('Okay, where are you?', null, 'en', 'k'), { text: 'Okay, where are you?', provider: 'noop' });
@@ -50,6 +50,7 @@ test('Microsoft Translator: detects the language, skips a message already in the
     global.fetch = async url => { calls += 1; if (String(url).includes('microsofttranslator')) return { ok: false, status: 401 }; return { ok: true, json: async () => ({ responseStatus: 200, responseData: { translatedText: 'مرحبا' } }) }; };
     const r = await translate('hello', 'en', 'ar');
     assert.equal(r.text, 'مرحبا');
+    assert.equal(r.from, 'en', 'the note under the bubble names the source language (AYK-120)');
     assert.ok(calls >= 2);
   } finally {
     global.fetch = realFetch;

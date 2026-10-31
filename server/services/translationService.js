@@ -97,7 +97,7 @@ async function translateViaMicrosoft(text, source, target, apiKey, region = 'glo
   if (!source && detected === target) return { text, provider: 'noop' };
   const translated = data?.[0]?.translations?.[0]?.text;
   if (!translated) throw new Error('microsoft:empty');
-  return { text: translated, provider: 'microsoft' };
+  return { text: translated, provider: 'microsoft', from: source || detected || null };
 }
 
 // At least one word of 3+ letters that is not a single letter repeated.
@@ -121,9 +121,9 @@ async function translate(text, sourceLang, targetLang) {
   }
   const apiKey = await Setting.get('google_translate_api_key').catch(() => null);
   if (apiKey && apiKey.length > 10) {
-    try { return await translateViaGoogle(text, src, tgt, apiKey); } catch (_) { /* fall through */ }
+    try { return { ...await translateViaGoogle(text, src, tgt, apiKey), from: src }; } catch (_) { /* fall through */ }
   }
-  return await translateViaMyMemory(text, src, tgt);
+  return { ...await translateViaMyMemory(text, src, tgt), from: src };
 }
 
 module.exports = { translate, detectLanguageFallback, worthTranslating, translateViaMyMemory, translateViaMicrosoft, SUPPORTED, pickMyMemory };
