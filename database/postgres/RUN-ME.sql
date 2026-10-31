@@ -6255,6 +6255,10 @@ CREATE TABLE IF NOT EXISTS translation_usage (
 CREATE UNIQUE INDEX IF NOT EXISTS uq_translation_usage_month ON translation_usage (month, provider);
 INSERT INTO schema_migrations(name) VALUES ('064_translation_memory.sql');
 
+-- migrations/065_message_delivered.sql
+ALTER TABLE messages ADD COLUMN IF NOT EXISTS delivered_at TIMESTAMP NULL DEFAULT NULL;
+INSERT INTO schema_migrations(name) VALUES ('065_message_delivered.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;
