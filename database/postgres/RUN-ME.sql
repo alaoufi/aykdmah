@@ -6227,6 +6227,10 @@ CREATE UNIQUE INDEX IF NOT EXISTS uq_native_push_tokens_token ON native_push_tok
 CREATE INDEX IF NOT EXISTS idx_native_push_tokens_user ON native_push_tokens (user_id);
 INSERT INTO schema_migrations(name) VALUES ('062_native_push_tokens.sql');
 
+-- migrations/063_directory_contacts.sql
+ALTER TABLE saved_providers ADD COLUMN IF NOT EXISTS nickname VARCHAR(80) NULL DEFAULT NULL;
+INSERT INTO schema_migrations(name) VALUES ('063_directory_contacts.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;
