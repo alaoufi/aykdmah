@@ -10,6 +10,7 @@ import {
 import MatchingProviders from '../components/catalog/MatchingProviders';
 import RequestMedia from '../components/requests/RequestMedia';
 import WarrantyBox from '../components/requests/WarrantyBox';
+import BlockedNotice from '../components/common/BlockedNotice';
 import { requestMapsUrl } from '../utils/directions';
 import { useAuth } from '../hooks/useAuth';
 import { REQUEST_STATUS, OFFER_STATUS } from '../utils/constants';
@@ -100,6 +101,8 @@ export default function RequestDetailsPage() {
     ? offers.find(offer => Number(offer.provider_id) === Number(request.assigned_provider_id))
     : null;
 
+  // Who the last failed contact was with, for "✅ Unblock" in the message (AYK-111).
+  const [errWith, setErrWith] = useState(null);
   const contactOwner = async () => {
     setSubmitting(true);
     setErr('');
@@ -107,6 +110,7 @@ export default function RequestDetailsPage() {
       const { conversation_id } = await contactRequest(request.id);
       navigate(`/chat/${conversation_id}`);
     } catch (e2) {
+      setErrWith(request.client_id);
       setErr(apiError(e2));
     } finally { setSubmitting(false); }
   };
@@ -116,7 +120,7 @@ export default function RequestDetailsPage() {
     try {
       const { conversation_id } = await contactRequest(request.id, provider.id);
       navigate(`/chat/${conversation_id}`);
-    } catch (e2) { setErr(apiError(e2)); }
+    } catch (e2) { setErrWith(provider.id); setErr(apiError(e2)); }
   };
 
   const onAccept = async (offerId) => {
@@ -248,7 +252,7 @@ export default function RequestDetailsPage() {
             </div>}
         </div>
       )}
-      {err && <div className="form-error mb-3" style={{ padding: 10, background: 'rgba(239,68,68,.1)', borderRadius: 8 }}>{err}</div>}
+      {err && <BlockedNotice message={err} otherId={errWith} onUnblocked={() => setErr('')} className="form-error mb-3 p-2.5 rounded-lg bg-danger-soft" />}
 
       <div className="card mb-4">
         <div className="flex items-center justify-between mb-3 flex-wrap gap-2">

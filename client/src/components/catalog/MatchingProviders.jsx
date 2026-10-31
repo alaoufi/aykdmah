@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import useLiveRefresh from '../../hooks/useLiveRefresh';
+import BlockedNotice from '../common/BlockedNotice';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { listCategories, listMatchingProviders, listCities, listDistricts } from '../../services/serviceService';
@@ -153,8 +154,9 @@ function CityBox({ providers, cityName, requester, categoryId }) {
   const navigate = useNavigate();
   const [busy, setBusy] = useState(0);
   const [problem, setProblem] = useState('');
+  const [problemWith, setProblemWith] = useState(null);
   const contact = async id => {
-    setBusy(id); setProblem('');
+    setBusy(id); setProblem(''); setProblemWith(id);
     try { const res = await contactDirect(id, categoryId); navigate(`/chat/${res.conversation_id}`); }
     catch (err) { setProblem(apiError(err)); } finally { setBusy(0); }
   };
@@ -176,7 +178,7 @@ function CityBox({ providers, cityName, requester, categoryId }) {
           </li>
         ))}
       </ul>
-      {problem && <p role="alert" className="form-error mt-1 text-[12px]">{problem}</p>}
+      <BlockedNotice message={problem} otherId={problemWith} onUnblocked={() => setProblem('')} />
     </section>
   );
 }
@@ -217,7 +219,7 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
               onClick={() => run(() => onToggleSaved(p.id))}>☆ {t('requester.add_directory')}</button>)}
           <Link to={`/providers/${p.id}`} className="text-[13px] font-semibold text-primary">{t('for_you.view_profile')}</Link>
         </div>
-        {problem && <p role="alert" className="form-error mt-1 text-[12px]">{problem}</p>}
+        <BlockedNotice message={problem} otherId={p.id} onUnblocked={() => setProblem('')} />
       </div>
     </li>
   );

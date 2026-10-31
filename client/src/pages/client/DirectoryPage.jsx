@@ -8,6 +8,7 @@ import { localizedName } from '../../utils/localize';
 import Avatar from '../../components/common/Avatar';
 import { LoadingState } from '../../components/common/Spinner';
 import { useCall } from '../../context/CallContext';
+import BlockedNotice from '../../components/common/BlockedNotice';
 
 // "My directory" (AYK-041): providers the requester kept, to contact again directly
 // without posting a request. Each contact is still recorded as a request.
@@ -22,8 +23,9 @@ export default function DirectoryPage({ compact = false }) {
   useEffect(() => { listDirectory().then(setItems).catch(() => setItems([])); }, []);
   const { start: startCall } = useCall();
 
+  const [problemWith, setProblemWith] = useState(null);
   const run = async (id, action) => {
-    setBusy(id); setProblem('');
+    setBusy(id); setProblem(''); setProblemWith(id);
     try { await action(); } catch (err) { setProblem(apiError(err)); } finally { setBusy(0); }
   };
   // Message: the existing chat, or (a provider) a direct request; call: through that chat (AYK-109).
@@ -47,7 +49,7 @@ export default function DirectoryPage({ compact = false }) {
         </div>
         {compact && items.length > 0 && <Link to="/directory" className="text-[13px] font-semibold text-primary">{t('for_you.view_all')}</Link>}
       </div>
-      {problem && <p role="alert" className="form-error">{problem}</p>}
+      <BlockedNotice message={problem} otherId={problemWith} onUnblocked={() => setProblem('')} className="form-error" />
       {items.length === 0
         ? <p className="card text-fg-muted text-[14px] m-0">{t('requester.directory_empty')}</p>
         : <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 list-none p-0 m-0">
