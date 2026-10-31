@@ -88,6 +88,7 @@ const sendMessage = asyncHandler(async (req, res) => {
   for (const [index, target] of targets.entries()) {
     const sent = await Message.findById(messageIds[index]);
     if (index === 0) message = sent;
+    pretranslate(sent).catch(err => logger.warn('Pre-translation failed:', err.message));
     await emitConversation(io, target, 'chat:message', sent);
     await notifyParticipants(req, target, { content, isLocation });
   }
@@ -120,7 +121,9 @@ const forwardMessage = asyncHandler(async (req, res) => {
   for (const target of targets) {
     const id = await Message.create({ conversation_id: target, sender_id: req.user.id, content: message.content,
       message_type: message.message_type, files, latitude: message.latitude, longitude: message.longitude, accuracy_m: message.accuracy_m });
-    await emitConversation(io, target, 'chat:message', await Message.findById(id));
+    const forwarded = await Message.findById(id);
+    pretranslate(forwarded).catch(err => logger.warn('Pre-translation failed:', err.message));
+    await emitConversation(io, target, 'chat:message', forwarded);
     await notifyParticipants(req, target, { content: message.content, isLocation: message.message_type === 'location' });
   }
   return success(res, { count: targets.length });
@@ -128,22 +131,45 @@ const forwardMessage = asyncHandler(async (req, res) => {
 
 // GET /chat/conversations/:id/messages/:messageId/translation?lang=xx (AYK-044)
 // Each message is shown in the reader's own language automatically.
+// One translation per message and language, shared by every request for it: a request that
+// arrives while the translation is on its way waits for that one instead of asking again.
 const translations = new Map();
+function translationFor(message, lang) {
+  const key = `${message.id}:${lang}`;
+  if (!translations.has(key)) {
+    const { translate } = require('../services/translationService');
+    const pending = translate(String(message.content).slice(0, 2000), null, lang)
+      .catch(() => { translations.delete(key); return { text: message.content, provider: 'noop' }; })
+      .then(result => ({ text: result.text, same: result.provider === 'noop' || result.text === message.content }));
+    if (translations.size > 5000) translations.delete(translations.keys().next().value);
+    translations.set(key, pending);
+  }
+  return translations.get(key);
+}
+
+// Translated as soon as it is sent, into each reader's language (the language of their
+// devices), so the bubble shows the translation at once (AYK-119).
+async function pretranslate(message) {
+  if (!message?.content || message.message_type === 'location' || message.message_type === 'system') return;
+  const { SUPPORTED, worthTranslating, detectLanguageFallback } = require('../services/translationService');
+  if (!worthTranslating(message.content)) return;
+  // The reader's screen skips a message whose script only their own language uses; so does this.
+  const script = await detectLanguageFallback(message.content);
+  const unique = ['ar', 'ur', 'bn', 'ml', 'am'].includes(script) ? script : null;
+  const rows = await query(`SELECT DISTINCT ps.lang FROM push_subscriptions ps
+    JOIN conversation_participants cp ON cp.user_id = ps.user_id
+    WHERE cp.conversation_id = ? AND cp.user_id <> ?`, [message.conversation_id, message.sender_id]);
+  for (const lang of new Set(rows.map(row => row.lang).filter(lang => SUPPORTED.includes(lang) && lang !== unique))) translationFor(message, lang);
+}
+
 const translateMessage = asyncHandler(async (req, res) => {
   if (!/^[1-9][0-9]{0,9}$/.test(req.params.messageId) || !/^[1-9][0-9]{0,9}$/.test(req.params.id)) return notFound(res);
   if (!await Conversation.isParticipant(req.params.id, req.user.id)) return forbidden(res, req.t('deny_chat_participant'));
   const message = await Message.findById(req.params.messageId);
   if (!message || Number(message.conversation_id) !== Number(req.params.id) || !message.content) return notFound(res);
-  const { translate, SUPPORTED } = require('../services/translationService');
+  const { SUPPORTED } = require('../services/translationService');
   const lang = SUPPORTED.includes(req.query.lang) ? req.query.lang : 'ar';
-  const key = `${message.id}:${lang}`;
-  if (!translations.has(key)) {
-    let result;
-    try { result = await translate(String(message.content).slice(0, 2000), null, lang); } catch (_) { result = { text: message.content, provider: 'noop' }; }
-    if (translations.size > 5000) translations.delete(translations.keys().next().value);
-    translations.set(key, { text: result.text, same: result.provider === 'noop' || result.text === message.content });
-  }
-  return success(res, translations.get(key));
+  return success(res, await translationFor(message, lang));
 });
 
 async function notifyParticipants(req, conversationId, { content, isLocation }) {
