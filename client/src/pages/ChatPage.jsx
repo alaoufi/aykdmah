@@ -204,7 +204,8 @@ export default function ChatPage() {
   const lastMessage = messages[messages.length - 1];
   const canNudge = lastMessage && lastMessage.sender_id === user.id && !lastMessage.is_read;
   const sendNudge = async () => {
-    try { await nudgeConversation(activeId); setNudgeNote(t('chat.nudge_sent')); }
+    // The sender hears the same tone the other side gets (AYK-106), so the tap is confirmed.
+    try { await nudgeConversation(activeId); sentTone(); setNudgeNote(t('chat.nudge_sent')); }
     catch (err) { setNudgeNote(err?.response?.data?.message || t('chat.nudge_failed')); }
   };
   const forwardTo = async target => {
