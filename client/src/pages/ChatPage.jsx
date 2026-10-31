@@ -205,7 +205,11 @@ export default function ChatPage() {
   const canNudge = lastMessage && lastMessage.sender_id === user.id && !lastMessage.is_read;
   const sendNudge = async () => {
     // The sender hears the same tone the other side gets (AYK-106), so the tap is confirmed.
-    try { await nudgeConversation(activeId); sentTone(); setNudgeNote(t('chat.nudge_sent')); }
+    try {
+      const result = await nudgeConversation(activeId);
+      sentTone();
+      setNudgeNote(result?.reached === false ? t('chat.nudge_unreachable', { name: otherParticipant?.full_name || '' }) : t('chat.nudge_sent'));
+    }
     catch (err) { setNudgeNote(err?.response?.data?.message || t('chat.nudge_failed')); }
   };
   const forwardTo = async target => {
@@ -468,7 +472,14 @@ export default function ChatPage() {
             )}
             {blockProblem && <p role="alert" className="text-sm text-danger p-3">{blockProblem}</p>}
             {activeReady && active.can_send === false && (
-              <p role="status" className="text-sm text-muted p-3">{t(active.blocked_by_me ? 'chat.blocked_note' : 'chat.read_only')}</p>
+              active.blocked_by_me ? (
+                <div role="status" className="m-2 p-3 rounded-card bg-danger-soft text-danger text-sm flex items-center gap-2 flex-wrap" data-testid="blocked-by-me">
+                  <span className="flex-1">🚫 {t('chat.you_blocked', { name: otherParticipant?.full_name || '' })}</span>
+                  <button type="button" className="btn btn-primary btn-sm" onClick={toggleBlock} data-testid="unblock">✅ {t('chat.unblock')}</button>
+                </div>
+              ) : active.blocked_me ? (
+                <p role="status" className="m-2 p-3 rounded-card bg-surface-alt text-fg-muted text-sm" data-testid="blocked-me">🚫 {t('chat.they_blocked', { name: otherParticipant?.full_name || '' })}</p>
+              ) : <p role="status" className="text-sm text-muted p-3">{t('chat.read_only')}</p>
             )}
             {/* "Agreed?": the requester may talk to several providers; agreeing with one
                 assigns the request and closes the other conversations about it. */}

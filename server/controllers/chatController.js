@@ -192,7 +192,13 @@ const nudge = asyncHandler(async (req, res) => {
   await notifyParticipants(req, conversationId, {
     content: `🔔 ${last.content ? last.content.slice(0, 70) : ''}`.trim(), isLocation: false,
   });
-  return success(res, { nudged: true });
+  // Say whether it reached them now (AYK-107): the site open somewhere, or a device registered
+  // for notifications (browser or app). Otherwise they see it when they next open the app.
+  const peer = (await Conversation.getParticipants(conversationId)).find(p => Number(p.id) !== Number(req.user.id));
+  const io = req.app.get('io');
+  const online = peer && io ? (await io.in(`user:${peer.id}`).fetchSockets()).length > 0 : false;
+  const devices = peer ? (await require('../models/PushSubscription').listForUser(peer.id)).length + await require('../services/fcmService').countForUser(peer.id) : 0;
+  return success(res, { nudged: true, reached: online || devices > 0 });
 });
 
 const deleteMessage = asyncHandler(async (req, res) => {
@@ -238,8 +244,8 @@ const getConversation = asyncHandler(async (req, res) => {
   const participants = await Conversation.getParticipants(conversationId);
   // Whether I blocked the other side (AYK-084), for the "Block" / "Unblock" button.
   const peer = participants.find(p => Number(p.id) !== Number(req.user.id));
-  const mine = peer ? await queryOne('SELECT 1 AS hit FROM user_blocks WHERE blocker_id = ? AND blocked_id = ?', [req.user.id, peer.id]) : null;
-  return success(res, { ...conv, participants, blocked_by_me: Boolean(mine) });
+  const direction = peer ? await require('./userBlockController').blockDirection(req.user.id, peer.id) : null;
+  return success(res, { ...conv, participants, blocked_by_me: direction === 'mine', blocked_me: direction === 'theirs' });
 });
 
 module.exports = {

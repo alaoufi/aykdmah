@@ -562,7 +562,10 @@
     "block": "Block",
     "unblock": "Unblock",
     "blocked_note": "You blocked this person: no messages or calls between you. Unblock with ✅ at the top of the chat.",
-    "block_confirm": "Block {{name}}? No messages or calls from them; the history stays readable."
+    "block_confirm": "Block {{name}}? No messages or calls from them; the history stays readable.",
+    "you_blocked": "You blocked {{name}}: no messages or calls between you.",
+    "they_blocked": "{{name}} blocked you, so you cannot message or call them.",
+    "nudge_unreachable": "Not delivered now: {{name}} is offline and has no device registered for notifications. They will see it when they open the app."
   },
   "tracking": {
     "title": "Live tracking",
@@ -1114,7 +1117,9 @@
     "reason_ours_body": "It was not your fault, and we were told automatically. Tap \"Retry\"; if it happens again, send us the error code.",
     "reason_code": "Error code: {{code}}",
     "blocked": "Contact is not possible: one side blocked the other. If it was you, open your chat with them and tap ✅ at the top to unblock.",
-    "block_during_work": "You cannot block while you work together on a request or during its review and warranty days."
+    "block_during_work": "You cannot block while you work together on a request or during its review and warranty days.",
+    "blocked_by_you": "You blocked this person. To unblock, open your chat with them and tap \"✅ Unblock\".",
+    "blocked_you": "This person blocked you, so you cannot message or call them."
   },
   "catalog": {
     "title": "Services",

@@ -562,7 +562,10 @@
     "block": "Blokir",
     "unblock": "Buka blokir",
     "blocked_note": "Anda memblokir orang ini: tidak ada pesan atau panggilan di antara kalian. Buka blokir dengan ✅ di atas obrolan.",
-    "block_confirm": "Blokir {{name}}? Tidak ada pesan atau panggilan darinya; riwayat tetap bisa dibaca."
+    "block_confirm": "Blokir {{name}}? Tidak ada pesan atau panggilan darinya; riwayat tetap bisa dibaca.",
+    "you_blocked": "🚫 {{name}} · Anda memblokir orang ini. Untuk membuka blokir, buka obrolan dan ketuk «✅ Buka blokir».",
+    "they_blocked": "{{name}} · Orang ini memblokir Anda, jadi Anda tidak bisa mengirim pesan atau menelepon.",
+    "nudge_unreachable": "Not delivered now: {{name}} is offline and has no device registered for notifications. They will see it when they open the app."
   },
   "tracking": {
     "title": "Pelacakan langsung",
@@ -1114,7 +1117,9 @@
     "reason_ours_body": "Ini bukan kesalahan Anda, dan kami sudah diberi tahu otomatis. Ketuk \"Coba lagi\"; jika terulang, kirimkan kode kesalahannya.",
     "reason_code": "Kode kesalahan: {{code}}",
     "blocked": "Tidak bisa berkomunikasi: salah satu pihak memblokir yang lain. ✅",
-    "block_during_work": "Tidak bisa memblokir selama pekerjaan bersama atau masa peninjauan dan garansi."
+    "block_during_work": "Tidak bisa memblokir selama pekerjaan bersama atau masa peninjauan dan garansi.",
+    "blocked_by_you": "Anda memblokir orang ini. Untuk membuka blokir, buka obrolan dan ketuk «✅ Buka blokir».",
+    "blocked_you": "Orang ini memblokir Anda, jadi Anda tidak bisa mengirim pesan atau menelepon."
   },
   "catalog": {
     "title": "Layanan",

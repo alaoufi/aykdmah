@@ -562,7 +562,10 @@
     "block": "Engelle",
     "unblock": "Engeli kaldır",
     "blocked_note": "Bu kişiyi engellediniz: aranızda mesaj veya arama yok. Sohbetin üstündeki ✅ ile engeli kaldırın.",
-    "block_confirm": "{{name}} engellensin mi? Ondan mesaj veya arama gelmez; geçmiş okunabilir kalır."
+    "block_confirm": "{{name}} engellensin mi? Ondan mesaj veya arama gelmez; geçmiş okunabilir kalır.",
+    "you_blocked": "🚫 {{name}} · Bu kişiyi engellediniz. Engeli kaldırmak için sohbeti açıp «✅ Engeli kaldır»a dokunun.",
+    "they_blocked": "{{name}} · Bu kişi sizi engelledi, mesaj gönderemez veya arayamazsınız.",
+    "nudge_unreachable": "Not delivered now: {{name}} is offline and has no device registered for notifications. They will see it when they open the app."
   },
   "tracking": {
     "title": "Canlı izleme",
@@ -1114,7 +1117,9 @@
     "reason_ours_body": "Hata sizden kaynaklanmadı ve bize otomatik bildirildi. \"Tekrar dene\"ye dokunun; tekrarlarsa hata kodunu bize gönderin.",
     "reason_code": "Hata kodu: {{code}}",
     "blocked": "İletişim mümkün değil: taraflardan biri diğerini engelledi. ✅",
-    "block_during_work": "Birlikte iş sürerken veya inceleme ve garanti günlerinde engelleyemezsiniz."
+    "block_during_work": "Birlikte iş sürerken veya inceleme ve garanti günlerinde engelleyemezsiniz.",
+    "blocked_by_you": "Bu kişiyi engellediniz. Engeli kaldırmak için sohbeti açıp «✅ Engeli kaldır»a dokunun.",
+    "blocked_you": "Bu kişi sizi engelledi, mesaj gönderemez veya arayamazsınız."
   },
   "catalog": {
     "title": "Hizmetler",

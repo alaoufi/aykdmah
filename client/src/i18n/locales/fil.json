@@ -562,7 +562,10 @@
     "block": "I-block",
     "unblock": "I-unblock",
     "blocked_note": "Na-block mo ang taong ito: walang mensahe o tawag sa inyo. I-unblock gamit ang ✅ sa itaas ng chat.",
-    "block_confirm": "I-block si {{name}}? Walang mensahe o tawag mula sa kanya; mababasa pa rin ang kasaysayan."
+    "block_confirm": "I-block si {{name}}? Walang mensahe o tawag mula sa kanya; mababasa pa rin ang kasaysayan.",
+    "you_blocked": "🚫 {{name}} · Na-block mo ang taong ito. Para i-unblock, buksan ang chat ninyo at pindutin ang «✅ I-unblock».",
+    "they_blocked": "{{name}} · Na-block ka ng taong ito, kaya hindi ka makakapag-mensahe o tumawag.",
+    "nudge_unreachable": "Not delivered now: {{name}} is offline and has no device registered for notifications. They will see it when they open the app."
   },
   "tracking": {
     "title": "Live na pagsubaybay",
@@ -1114,7 +1117,9 @@
     "reason_ours_body": "Hindi ikaw ang may mali, at awtomatiko kaming naabisuhan. Pindutin ang \"Subukan muli\"; kung maulit, ipadala sa amin ang error code.",
     "reason_code": "Error code: {{code}}",
     "blocked": "Hindi puwedeng makipag-ugnayan: may nag-block sa isa. ✅",
-    "block_during_work": "Hindi puwedeng mag-block habang may trabaho kayo o sa mga araw ng pagsusuri at warranty."
+    "block_during_work": "Hindi puwedeng mag-block habang may trabaho kayo o sa mga araw ng pagsusuri at warranty.",
+    "blocked_by_you": "Na-block mo ang taong ito. Para i-unblock, buksan ang chat ninyo at pindutin ang «✅ I-unblock».",
+    "blocked_you": "Na-block ka ng taong ito, kaya hindi ka makakapag-mensahe o tumawag."
   },
   "catalog": {
     "title": "Mga Serbisyo",

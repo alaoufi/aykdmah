@@ -39,4 +39,20 @@ const unblock = asyncHandler(async (req, res) => {
   return success(res, { blocked: false });
 });
 
-module.exports = { block, unblock, isBlocked, workingTogether };
+// From `me`'s side (AYK-107): 'mine' (I blocked them), 'theirs' (they blocked me) or null.
+async function blockDirection(me, other) {
+  const rows = await query('SELECT blocker_id FROM user_blocks WHERE (blocker_id = ? AND blocked_id = ?) OR (blocker_id = ? AND blocked_id = ?)', [me, other, other, me]);
+  if (rows.some(row => Number(row.blocker_id) === Number(me))) return 'mine';
+  return rows.length ? 'theirs' : null;
+}
+
+// The refusal says who blocked whom.
+async function blockedRefusal(req, res, other) {
+  const direction = await blockDirection(req.user.id, other);
+  if (!direction) return false;
+  const { forbidden } = require('../utils/apiResponse');
+  forbidden(res, req.t(direction === 'mine' ? 'deny_blocked_by_you' : 'deny_blocked_you'));
+  return true;
+}
+
+module.exports = { block, unblock, isBlocked, workingTogether, blockDirection, blockedRefusal };
