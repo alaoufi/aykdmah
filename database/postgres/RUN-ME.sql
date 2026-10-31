@@ -6259,6 +6259,10 @@ INSERT INTO schema_migrations(name) VALUES ('064_translation_memory.sql');
 ALTER TABLE messages ADD COLUMN IF NOT EXISTS delivered_at TIMESTAMP NULL DEFAULT NULL;
 INSERT INTO schema_migrations(name) VALUES ('065_message_delivered.sql');
 
+-- migrations/066_conversation_favorite.sql
+ALTER TABLE conversation_participants ADD COLUMN IF NOT EXISTS is_favorite SMALLINT DEFAULT 0;
+INSERT INTO schema_migrations(name) VALUES ('066_conversation_favorite.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;
