@@ -32,19 +32,20 @@ const PROVIDER_ERROR = /^(INVALID |MYMEMORY WARNING|QUERY LENGTH LIMIT|PLEASE SE
 // MyMemory often answers from a memory of film subtitles, whose first match can be another line
 // altogether (AYK-118). Keep only a match for this very sentence: same letters, no dialogue dash,
 // a close score and a sane length; machine translation first when it is offered.
-const lettersOf = value => String(value || '').toLowerCase().replace(/[^p{L}p{N}]+/gu, '');
+const lettersOf = value => String(value || '').toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '');
 function pickMyMemory(text, data) {
   const wanted = lettersOf(text);
   const reliable = m => m && typeof m.translation === 'string' && m.translation.trim()
-    && !/^s*[-–—]/.test(m.translation) && Number(m.match) >= 0.85
+    && !/^\s*[-–—]/.test(m.translation) && (m.match == null || Number(m.match) >= 0.85)
     && lettersOf(m.segment) === wanted && m.translation.length <= Math.max(12, text.length * 2.5);
   const matches = Array.isArray(data?.matches) ? data.matches : [];
   const machine = matches.find(m => String(m['created-by'] || '').startsWith('MT') && reliable(m));
   if (machine) return machine.translation;
   const human = matches.filter(reliable).sort((a, b) => Number(b.match) - Number(a.match))[0];
   if (human) return human.translation;
+  // No list of matches (a plain answer): trust it only when it passes the same checks.
   const top = data?.responseData;
-  return top && reliable({ ...top, translation: top.translatedText, segment: text }) && !matches.length ? top.translatedText : null;
+  return top && !matches.length && reliable({ ...top, translation: top.translatedText, segment: text }) ? top.translatedText : null;
 }
 
 async function translateViaMyMemory(text, source, target) {
