@@ -419,10 +419,9 @@ export default function ChatPage() {
                     </div>
                   </div>
                   {canSend && <CallButtons conversationId={Number(activeId)} compact />}
-                  <button type="button" className="track-btn" onClick={saveContact} data-testid="chat-save-contact"
-                    aria-label={t('directory.save')} title={active?.in_directory ? (active.directory_name || t('directory.saved')) : t('directory.save')}>
-                    {active?.in_directory ? '⭐' : '☆'}
-                  </button>
+                  {active?.in_directory
+                    ? <span className="text-[18px]" title={active.directory_name || t('directory.saved')} aria-label={t('directory.saved')} data-testid="chat-in-directory">⭐</span>
+                    : <button type="button" className="track-btn" onClick={saveContact} data-testid="chat-save-contact" aria-label={t('directory.save')} title={t('directory.save')}>☆</button>}
                   <button type="button" className="track-btn" onClick={toggleBlock} data-testid="chat-block"
                     aria-label={t(active?.blocked_by_me ? 'chat.unblock' : 'chat.block')} title={t(active?.blocked_by_me ? 'chat.unblock' : 'chat.block')}>
                     {active?.blocked_by_me ? '✅' : '🚫'}
