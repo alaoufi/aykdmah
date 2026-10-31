@@ -20,3 +20,13 @@ test('MyMemory errors returned as text are rejected, real translations pass', as
     assert.deepEqual(await translateViaMyMemory('hello', 'en', 'ar'), { text: 'مرحبا', provider: 'mymemory' });
   } finally { global.fetch = realFetch; }
 });
+
+test('MyMemory: a subtitle line for another sentence is never shown as the translation (AYK-118)', () => {
+  const { pickMyMemory } = require('../services/translationService');
+  const data = { responseData: { translatedText: '- في السياره اقتربنا من المطار', match: 0.99 }, matches: [
+    { segment: 'Okay, where are you?', translation: '- في السياره اقتربنا من المطار', match: 0.99, 'created-by': 'Public_Corpora' },
+    { segment: 'Okay. Where are you?', translation: 'حسناً أين أنت؟', match: 0.95, 'created-by': 'Public_Corpora' },
+  ] };
+  assert.equal(pickMyMemory('Okay, where are you?', data), 'حسناً أين أنت؟');
+  assert.equal(pickMyMemory('Something else entirely', data), null);
+});

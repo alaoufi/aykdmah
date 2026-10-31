@@ -29,15 +29,33 @@ async function detectLanguageFallback(text) {
 // MyMemory answers errors with HTTP 200 and the error as the "translation" (e.g. "INVALID EMAIL
 // PROVIDED", "MYMEMORY WARNING: …"); those must never reach a chat (AYK-065).
 const PROVIDER_ERROR = /^(INVALID |MYMEMORY WARNING|QUERY LENGTH LIMIT|PLEASE SELECT|NO QUERY SPECIFIED|'?AUTO'? IS AN INVALID)/i;
+// MyMemory often answers from a memory of film subtitles, whose first match can be another line
+// altogether (AYK-118). Keep only a match for this very sentence: same letters, no dialogue dash,
+// a close score and a sane length; machine translation first when it is offered.
+const lettersOf = value => String(value || '').toLowerCase().replace(/[^p{L}p{N}]+/gu, '');
+function pickMyMemory(text, data) {
+  const wanted = lettersOf(text);
+  const reliable = m => m && typeof m.translation === 'string' && m.translation.trim()
+    && !/^s*[-–—]/.test(m.translation) && Number(m.match) >= 0.85
+    && lettersOf(m.segment) === wanted && m.translation.length <= Math.max(12, text.length * 2.5);
+  const matches = Array.isArray(data?.matches) ? data.matches : [];
+  const machine = matches.find(m => String(m['created-by'] || '').startsWith('MT') && reliable(m));
+  if (machine) return machine.translation;
+  const human = matches.filter(reliable).sort((a, b) => Number(b.match) - Number(a.match))[0];
+  if (human) return human.translation;
+  const top = data?.responseData;
+  return top && reliable({ ...top, translation: top.translatedText, segment: text }) && !matches.length ? top.translatedText : null;
+}
+
 async function translateViaMyMemory(text, source, target) {
   // A valid contact address raises the free daily quota; the old one had no domain and was refused.
-  const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.slice(0, 500))}&langpair=${source}|${target}&de=support@aykdmh.com`;
+  const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.slice(0, 500))}&langpair=${source}|${target}&de=support@aykdmh.com&mt=1`;
   const r = await fetch(url, { method: 'GET', signal: AbortSignal.timeout(5000), redirect: 'error' });
   if (!r.ok) throw new Error(`mymemory:${r.status}`);
   const data = await r.json();
   if (Number(data?.responseStatus) !== 200) throw new Error(`mymemory:status:${data?.responseStatus}`);
-  const translated = data?.responseData?.translatedText;
-  if (!translated) throw new Error('mymemory:empty');
+  const translated = pickMyMemory(text, data);
+  if (!translated) throw new Error('mymemory:unreliable');
   if (PROVIDER_ERROR.test(translated.trim())) throw new Error('mymemory:error-text');
   return { text: translated, provider: 'mymemory' };
 }
@@ -79,4 +97,4 @@ async function translate(text, sourceLang, targetLang) {
   return await translateViaMyMemory(text, src, tgt);
 }
 
-module.exports = { translate, detectLanguageFallback, worthTranslating, translateViaMyMemory, SUPPORTED };
+module.exports = { translate, detectLanguageFallback, worthTranslating, translateViaMyMemory, SUPPORTED, pickMyMemory };
