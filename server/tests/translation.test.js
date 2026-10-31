@@ -30,3 +30,29 @@ test('MyMemory: a subtitle line for another sentence is never shown as the trans
   assert.equal(pickMyMemory('Okay, where are you?', data), 'حسناً أين أنت؟');
   assert.equal(pickMyMemory('Something else entirely', data), null);
 });
+
+test('Microsoft Translator: detects the language, skips a message already in the reader language (AYK-119)', async () => {
+  const { translateViaMicrosoft, translate } = require('../services/translationService');
+  const realFetch = global.fetch;
+  const realKey = process.env.AZURE_TRANSLATOR_KEY;
+  let sent;
+  try {
+    global.fetch = async (url, opts) => { sent = { url, opts }; return { ok: true, json: async () => [{ detectedLanguage: { language: 'en', score: 1 }, translations: [{ text: 'حسنًا، أين أنت؟', to: 'ar' }] }] }; };
+    assert.deepEqual(await translateViaMicrosoft('Okay, where are you?', null, 'ar', 'k'), { text: 'حسنًا، أين أنت؟', provider: 'microsoft' });
+    assert.ok(!sent.url.includes('from='), 'no source: Microsoft detects it');
+    assert.equal(sent.opts.headers['Ocp-Apim-Subscription-Key'], 'k');
+    assert.deepEqual(await translateViaMicrosoft('Okay, where are you?', null, 'en', 'k'), { text: 'Okay, where are you?', provider: 'noop' });
+    global.fetch = async () => ({ ok: false, status: 401 });
+    await assert.rejects(translateViaMicrosoft('Hello there', null, 'ar', 'bad'));
+    // A refused key falls back to the next provider instead of failing the chat.
+    process.env.AZURE_TRANSLATOR_KEY = 'bad';
+    let calls = 0;
+    global.fetch = async url => { calls += 1; if (String(url).includes('microsofttranslator')) return { ok: false, status: 401 }; return { ok: true, json: async () => ({ responseStatus: 200, responseData: { translatedText: 'مرحبا' } }) }; };
+    const r = await translate('hello', 'en', 'ar');
+    assert.equal(r.text, 'مرحبا');
+    assert.ok(calls >= 2);
+  } finally {
+    global.fetch = realFetch;
+    if (realKey === undefined) delete process.env.AZURE_TRANSLATOR_KEY; else process.env.AZURE_TRANSLATOR_KEY = realKey;
+  }
+});

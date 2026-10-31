@@ -1,7 +1,9 @@
 // Lightweight translation service.
 // Strategy:
-//   1. Try Google Translate v2 if google_translate_api_key is set.
-//   2. Otherwise fall back to MyMemory (https://mymemory.translated.net),
+//   1. Microsoft Translator when AZURE_TRANSLATOR_KEY is set (free F0 tier, 2M chars/month,
+//      detects the source language itself) (AYK-119).
+//   2. Google Translate v2 if google_translate_api_key is set.
+//   3. Otherwise fall back to MyMemory (https://mymemory.translated.net),
 //      which is free for ~5k chars/day with no key.
 // Results are cached per (review_id, language) in review_translations so
 // each public translation is only fetched once.
@@ -77,6 +79,27 @@ async function translateViaGoogle(text, source, target, apiKey) {
   return { text: translated, provider: 'google' };
 }
 
+// Microsoft Translator v3. Without a source it detects the language, and a message already in
+// the reader's language comes back as is.
+async function translateViaMicrosoft(text, source, target, apiKey, region = 'global') {
+  const params = new URLSearchParams({ 'api-version': '3.0', to: target });
+  if (source) params.set('from', source);
+  const r = await fetch(`https://api.cognitive.microsofttranslator.com/translate?${params}`, {
+    method: 'POST',
+    signal: AbortSignal.timeout(5000),
+    redirect: 'error',
+    headers: { 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': apiKey, 'Ocp-Apim-Subscription-Region': region },
+    body: JSON.stringify([{ Text: text.slice(0, 2000) }]),
+  });
+  if (!r.ok) throw new Error(`microsoft:${r.status}`);
+  const data = await r.json();
+  const detected = data?.[0]?.detectedLanguage?.language;
+  if (!source && detected === target) return { text, provider: 'noop' };
+  const translated = data?.[0]?.translations?.[0]?.text;
+  if (!translated) throw new Error('microsoft:empty');
+  return { text: translated, provider: 'microsoft' };
+}
+
 // At least one word of 3+ letters that is not a single letter repeated.
 function worthTranslating(text) {
   const words = String(text).match(/\p{L}{3,}/gu) || [];
@@ -85,8 +108,13 @@ function worthTranslating(text) {
 
 // Public entry point. Returns { text, provider } or throws.
 async function translate(text, sourceLang, targetLang) {
-  const src = (sourceLang && SUPPORTED.includes(sourceLang)) ? sourceLang : await detectLanguageFallback(text);
+  const known = sourceLang && SUPPORTED.includes(sourceLang) ? sourceLang : null;
   const tgt = SUPPORTED.includes(targetLang) ? targetLang : 'en';
+  const msKey = process.env.AZURE_TRANSLATOR_KEY;
+  if (msKey && text && known !== tgt && worthTranslating(text)) {
+    try { return await translateViaMicrosoft(text, known, tgt, msKey, process.env.AZURE_TRANSLATOR_REGION || 'global'); } catch (_) { /* fall through */ }
+  }
+  const src = known || await detectLanguageFallback(text);
   // Nothing to translate: the same language, or no real words ("oo", "تلللد", numbers, emoji).
   if (src === tgt || !text || !worthTranslating(text)) {
     return { text, provider: 'noop' };
@@ -98,4 +126,4 @@ async function translate(text, sourceLang, targetLang) {
   return await translateViaMyMemory(text, src, tgt);
 }
 
-module.exports = { translate, detectLanguageFallback, worthTranslating, translateViaMyMemory, SUPPORTED, pickMyMemory };
+module.exports = { translate, detectLanguageFallback, worthTranslating, translateViaMyMemory, translateViaMicrosoft, SUPPORTED, pickMyMemory };
