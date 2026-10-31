@@ -444,6 +444,9 @@ function ProviderSection({ onSaved, onError, t, refresh }) {
   return (
     <div className="card mb-4" id="provider">
       <h3 className="mb-3">{t('provider.section_title')}</h3>
+      {/* How a job is agreed, once, where the provider sets up their services (AYK-128), instead
+          of under every chat. */}
+      <p className="mb-3 p-2.5 rounded-card bg-surface-alt text-[13px] text-fg-muted" data-testid="provider-agree-hint">🤝 {t('chat.agreed_hint')}</p>
       <form onSubmit={save} className="space-y-3">
         <ProfessionsPicker serviceIds={provider.service_ids} disabled={saving}
           onChange={ids => setProvider(previous => ({ ...previous, service_ids: ids }))} />

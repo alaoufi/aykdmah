@@ -519,15 +519,14 @@ export default function ChatPage() {
             )}
             {/* "Agreed?": the requester may talk to several providers; agreeing with one
                 assigns the request and closes the other conversations about it. */}
-            {activeReady && requestId && active.request_status === 'open' && canSend && otherParticipant && (
-              Number(active.request_client_id) === Number(user.id) ? (
-                <div className="chat-agree" data-testid="chat-agree">
-                  <span>{t('chat.agreed_question', { name: otherParticipant.full_name })}</span>
-                  <button type="button" className="btn btn-primary btn-sm" disabled={agreeing} onClick={handleAgree}>✅ {t('request.agreed')}</button>
-                </div>
-              ) : (
-                <p className="chat-agree text-muted" data-testid="chat-agree-hint">{t('chat.agreed_hint')}</p>
-              )
+            {/* The provider's side shows nothing here: how agreeing works is told once, where they
+                set up their services (AYK-128). */}
+            {activeReady && requestId && active.request_status === 'open' && canSend && otherParticipant
+              && Number(active.request_client_id) === Number(user.id) && (
+              <div className="chat-agree" data-testid="chat-agree">
+                <span>{t('chat.agreed_question', { name: otherParticipant.full_name })}</span>
+                <button type="button" className="btn btn-primary btn-sm" disabled={agreeing} onClick={handleAgree}>✅ {t('request.agreed')}</button>
+              </div>
             )}
             {forwarding && (
               <div className="chat-audience" role="dialog" aria-label={t('requester.forward_title')} data-testid="chat-forward">
