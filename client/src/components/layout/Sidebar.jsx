@@ -24,11 +24,14 @@ export default function Sidebar({ items = [] }) {
           border-radius: var(--radius); color: var(--text-secondary); font-weight: 600;
           transition: var(--transition);
         }
-        .sidebar a:hover { background: var(--bg-soft); text-decoration: none; }
+        .sidebar a, .sidebar a:hover { text-decoration: none !important; }
+        .sidebar a:hover { background: var(--bg-soft); }
         .sidebar a.active { background: rgba(14, 165, 233, .12); color: var(--primary-dark); }
         @media (max-width: 768px) {
           .sidebar { width: 100%; min-height: auto; border-inline-start: 0; border-bottom: 1px solid var(--border); }
-          .sidebar nav { flex-direction: row; overflow-x: auto; flex-wrap: nowrap; }
+          /* Swiped sideways without a visible scrollbar (it showed as a black line, AYK-144). */
+          .sidebar nav { flex-direction: row; overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; -ms-overflow-style: none; }
+          .sidebar nav::-webkit-scrollbar { display: none; }
           .sidebar a { white-space: nowrap; }
         }
       `}</style>
