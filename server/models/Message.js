@@ -51,8 +51,8 @@ async function create({ conversation_id, sender_id, content, message_type = 'tex
 
 async function findById(id) {
   const msg = await queryOne(
-    `SELECT m.*, u.full_name AS sender_name, u.avatar AS sender_avatar,
-            ru.full_name AS reply_sender_name,
+    `SELECT m.*, u.full_name AS sender_name, u.avatar AS sender_avatar, u.role AS sender_role,
+            ru.full_name AS reply_sender_name, ru.id AS reply_sender_id, ru.role AS reply_sender_role,
             rm.content AS reply_content, rm.message_type AS reply_type
      FROM messages m
      JOIN users u ON m.sender_id = u.id
@@ -86,8 +86,8 @@ async function listByConversation(conversationId, { beforeId = null, limit = 50,
   params.push(Number(limit));
 
   const messages = await query(
-    `SELECT m.*, u.full_name AS sender_name, u.avatar AS sender_avatar,
-            ru.full_name AS reply_sender_name,
+    `SELECT m.*, u.full_name AS sender_name, u.avatar AS sender_avatar, u.role AS sender_role,
+            ru.full_name AS reply_sender_name, ru.id AS reply_sender_id, ru.role AS reply_sender_role,
             rm.content AS reply_content, rm.message_type AS reply_type
      FROM messages m
      JOIN users u ON m.sender_id = u.id

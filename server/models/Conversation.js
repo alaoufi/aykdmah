@@ -110,7 +110,7 @@ async function findById(id) {
 
 async function getParticipants(conversationId) {
   return query(
-    `SELECT u.id, u.full_name, u.referral_code, u.avatar, u.is_online, u.last_seen_at, cp.last_read_at
+    `SELECT u.id, u.full_name, u.role, u.referral_code, u.avatar, u.is_online, u.last_seen_at, cp.last_read_at
      FROM conversation_participants cp
      JOIN conversations c ON c.id = cp.conversation_id
      LEFT JOIN requests r ON r.id = c.request_id
@@ -212,7 +212,7 @@ async function listForUser(userId, { page = 1, limit = 20 } = {}) {
             r.title AS request_title, r.status AS request_status,
             (SELECT COUNT(*) FROM messages m
               WHERE m.conversation_id = c.id AND m.sender_id != ? AND m.is_read = 0 AND m.deleted_at IS NULL) AS unread_count,
-            (SELECT JSON_OBJECT('id', u2.id, 'full_name', u2.full_name, 'avatar', u2.avatar, 'is_online', u2.is_online, 'referral_code', u2.referral_code)
+            (SELECT JSON_OBJECT('id', u2.id, 'full_name', u2.full_name, 'avatar', u2.avatar, 'is_online', u2.is_online, 'referral_code', u2.referral_code, 'role', u2.role)
              FROM conversation_participants cp2
              JOIN users u2 ON cp2.user_id = u2.id
              WHERE cp2.conversation_id = c.id AND cp2.user_id != ? LIMIT 1) AS other_user,

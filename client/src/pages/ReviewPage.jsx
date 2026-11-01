@@ -37,7 +37,7 @@ export default function ReviewPage() {
 
   const targetName = isClient
     ? (request?.assigned_provider_name || request?.provider_name)
-    : (request?.client_name);
+    : (request?.client_name || t('auth.role_client'));
 
   const setCriterion = (key, val) => setCriteria((c) => ({ ...c, [key]: val }));
 

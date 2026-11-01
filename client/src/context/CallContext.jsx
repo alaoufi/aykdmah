@@ -454,7 +454,7 @@ export function CallProvider({ children }) {
       if (toneAudible() || typeof Notification === 'undefined' || Notification.permission !== 'granted' || !navigator.serviceWorker) return;
       try {
         const reg = await navigator.serviceWorker.ready;
-        await reg.showNotification(call.peer?.full_name || t('calls.title'), {
+        await reg.showNotification(call.peer?.full_name || t('auth.role_client'), {
           body: t(call.call_type === 'video' ? 'calls.incoming_video' : 'calls.incoming_audio'), tag, renotify: true, requireInteraction: true,
           vibrate: [800, 400, 800, 400, 800, 400, 800], icon: '/icons/android-chrome-192x192.png',
           data: { url: window.location.pathname },

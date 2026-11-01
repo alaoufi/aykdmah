@@ -39,7 +39,8 @@ function optionalDate(value) {
 function publicView(request) {
   if (!request) return request;
   const view = { ...request };
-  for (const key of ['address', 'latitude', 'longitude', 'files', 'assigned_provider_id', 'accepted_offer_id', 'assigned_provider_name', 'direct_provider_id']) delete view[key];
+  for (const key of ['address', 'latitude', 'longitude', 'files', 'assigned_provider_id', 'accepted_offer_id', 'assigned_provider_name', 'direct_provider_id',
+    'client_name']) delete view[key]; // The requester's name stays private (AYK-142).
   if (view.distance_km != null) view.distance_km = Math.round(Number(view.distance_km));
   return view;
 }

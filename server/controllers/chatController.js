@@ -1,6 +1,7 @@
 const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
 const { query, queryOne } = require('../config/database');
+const { hideRequesterNames, savedNames, shownName } = require('../utils/requesterPrivacy');
 const notificationService = require('../services/notificationService');
 const pushService = require('../services/pushService');
 const fcmService = require('../services/fcmService');
@@ -14,9 +15,23 @@ const { validateChatMessage, recordingDuration } = require('../utils/chatMessage
 
 const unreadCount = asyncHandler(async (req, res) => success(res, { count: await Conversation.unreadTotal(req.user.id) }));
 
+// Sender and quoted-sender names on messages, hidden for a requester (AYK-142).
+async function hideMessageNames(req, messages) {
+  const people = [];
+  for (const msg of messages) {
+    if (msg.sender_role) people.push({ id: msg.sender_id, role: msg.sender_role, full_name: msg.sender_name, msg, key: 'sender_name' });
+    if (msg.reply_sender_role) people.push({ id: msg.reply_sender_id, role: msg.reply_sender_role, full_name: msg.reply_sender_name, msg, key: 'reply_sender_name' });
+  }
+  await hideRequesterNames(req.user.id, people, req.t('requester_label'));
+  for (const p of people) { p.msg[p.key] = p.full_name; delete p.msg.sender_role; delete p.msg.reply_sender_role; }
+}
+
 const listConversations = asyncHandler(async (req, res) => {
   const { page = 1, limit = 20 } = req.query;
   const items = await Conversation.listForUser(req.user.id, { page, limit });
+  // A requester's name stays hidden from the other side (AYK-142).
+  for (const item of items) if (typeof item.other_user === 'string') { try { item.other_user = JSON.parse(item.other_user); } catch (_) { item.other_user = null; } }
+  await hideRequesterNames(req.user.id, items.map(item => item.other_user), req.t('requester_label'));
   return success(res, items);
 });
 
@@ -35,6 +50,7 @@ const getMessages = asyncHandler(async (req, res) => {
 
   const { before, limit = 50 } = req.query;
   const messages = await Message.listByConversation(conversationId, { beforeId: before, limit });
+  await hideMessageNames(req, messages);
   return success(res, messages);
 });
 
@@ -235,16 +251,19 @@ function remindUnread(io, senderId, recipientId, conversationId, alert) {
 
 async function notifyParticipants(req, conversationId, { content, isLocation, remind = false }) {
   const participants = await Conversation.getParticipants(conversationId);
+  const senderIsRequester = req.user.role === 'client';
   for (const p of participants) {
     if (p.id !== req.user.id) {
+      const saved = senderIsRequester ? await savedNames(p.id, [req.user.id]) : new Map();
+      const senderName = shownName({ id: req.user.id, role: req.user.role, full_name: req.user.full_name }, p.id, saved, i18nText('ar', 'requester_label'));
       const bodyPreview = isLocation ? '📍'
         : content ? content.slice(0, 80) : req.t('notif_new_attachment');
       await notificationService.notifyUser(p.id, {
         type: 'new_message',
-        title: req.user.full_name || req.t('notif_new_message_title'),
+        title: senderName || req.t('notif_new_message_title'),
         body: bodyPreview,
         data: {
-          system_title: req.user.full_name ? null : 'new_message',
+          system_title: senderName ? null : 'new_message',
           system_body: !isLocation && !content ? 'new_attachment' : null,
         },
         link: `/chat/${conversationId}`,
@@ -253,7 +272,7 @@ async function notifyParticipants(req, conversationId, { content, isLocation, re
       // a newer message replaces the older one instead of piling up.
       const io = req.app.get('io');
       const alert = {
-        title: req.user.full_name ? `${req.user.full_name}${req.user.referral_code ? ` (${req.user.referral_code})` : ''}` : null,
+        title: senderName ? `${senderName}${req.user.referral_code ? ` (${req.user.referral_code})` : ''}` : null,
         body: isLocation ? '📍' : content ? content.slice(0, 80) : null,
         fallbackKey: 'notif_new_attachment',
       };
@@ -339,6 +358,7 @@ const getConversation = asyncHandler(async (req, res) => {
   const conv = await Conversation.findById(conversationId);
   if (!conv) return notFound(res);
   const participants = await Conversation.getParticipants(conversationId);
+  await hideRequesterNames(req.user.id, participants, req.t('requester_label'));
   // Whether I blocked the other side (AYK-084), for the "Block" / "Unblock" button.
   const peer = participants.find(p => Number(p.id) !== Number(req.user.id));
   const direction = peer ? await require('./userBlockController').blockDirection(req.user.id, peer.id) : null;

@@ -109,7 +109,9 @@ const getOne = asyncHandler(async (req, res) => {
   const contactInfo = await queryOne(`SELECT ${contactWindow.DONE_DAYS_SQL} AS days,
       CASE WHEN ${contactWindow.FINISHED_SQL} THEN ${contactWindow.UNTIL_SQL} END AS until
     FROM requests r WHERE r.id = ?`, [request.id]);
-  return success(res, { ...request, contact_days: Number(contactInfo?.days) || 7, contact_until: contactInfo?.until || null });
+  // The assigned provider does not see the requester's name either (AYK-142).
+  const shown = Number(request.client_id) === Number(req.user?.id) || hasPermission(req.user, 'requests.manage') ? request : { ...request, client_name: null };
+  return success(res, { ...shown, contact_days: Number(contactInfo?.days) || 7, contact_until: contactInfo?.until || null });
 });
 
 const updateStatus = asyncHandler(async (req, res) => {

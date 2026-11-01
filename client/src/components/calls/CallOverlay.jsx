@@ -104,7 +104,8 @@ export default function CallOverlay() {
 
   if (!call) return null;
   const video = call.call_type === 'video';
-  const peerName = call.peer?.full_name || '';
+  // A requester shows as "Requester" with the number (AYK-142).
+  const peerName = call.peer?.full_name || t('auth.role_client');
   // Name and number together (AYK-108), so two people with the same name are not confused.
   const peerCode = call.peer?.code || '';
   const statusText = {
