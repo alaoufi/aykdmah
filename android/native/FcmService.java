@@ -39,10 +39,13 @@ public class FcmService extends FirebaseMessagingService {
         }
         String callId = data.get("call_id");
         if (callId == null || !callId.matches("\\d+")) return;
-        if ("call".equals(data.get("kind"))) {
+        if ("call".equals(data.get("kind")) && data.get("native_key") != null && data.get("user_id") != null) {
+            CallAlert.ringNative(this, data);
+        } else if ("call".equals(data.get("kind"))) {
             CallAlert.ringPush(this, callId, data.get("conversation_id"), data.get("title"), data.get("body"));
         } else {
             CallAlert.stop(this, "call-" + callId);
+            CallTelecom.INSTANCE.ended(Long.parseLong(callId), true);
         }
     }
 }

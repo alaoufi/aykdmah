@@ -32,6 +32,24 @@ router.get('/eligibility/:userId', authenticate, handle(req => calls.eligibility
 router.get('/admin/stats', authenticate, requireAdmin, handle(req => calls.stats({ days: req.query.days })));
 router.patch('/admin/reports/:id', authenticate, requireAdmin, handle(req =>
   calls.reviewReport(req.params.id, req.user.id, req.body?.status)));
+// The phone's own call engine (AYK-145): the site hands it this call's key; the engine then
+// answers, declines, joins and hangs up with the key instead of a session.
+router.get('/:id/native-key', authenticate, handle(async req => {
+  return { key: await calls.nativeKeyFor(req.params.id, req.user.id) };
+}));
+const nativeUser = async req => {
+  const userId = Number(req.body?.user_id);
+  if (!Number.isSafeInteger(userId) || !calls.checkNativeKey(req.params.id, userId, req.body?.key)) {
+    const err = new Error('call_forbidden'); err.code = 'call_forbidden'; err.status = 403; throw err;
+  }
+  const user = await require('../models/User').findById(userId);
+  if (!user) { const err = new Error('call_forbidden'); err.code = 'call_forbidden'; err.status = 403; throw err; }
+  return user;
+};
+const nativeLimiter = rateLimit({ windowMs: 60 * 1000, max: 60, standardHeaders: true, legacyHeaders: false });
+router.post('/:id/native/accept', nativeLimiter, handle(async req => calls.accept(req.params.id, await nativeUser(req))));
+router.post('/:id/native/decline', nativeLimiter, handle(async req => calls.decline(req.params.id, await nativeUser(req), req.body?.reason)));
+router.post('/:id/native/token', nativeLimiter, handle(async req => calls.joinToken(req.params.id, await nativeUser(req))));
 router.post('/:id/accept', authenticate, handle(req => calls.accept(req.params.id, req.user)));
 router.post('/:id/decline', authenticate, handle(req => calls.decline(req.params.id, req.user, req.body?.reason)));
 router.post('/:id/token', authenticate, handle(req => calls.joinToken(req.params.id, req.user)));

@@ -4,7 +4,7 @@ import { useAuth } from './AuthContext';
 import { useSocket } from './SocketContext';
 import * as calls from '../services/callService';
 import { syncPush, syncNativePush } from '../services/pushService';
-import { nativeAppVersion } from '../utils/nativeApp';
+import { nativeAppVersion, nativeCallsSupported, openNativeCall } from '../utils/nativeApp';
 import { sendDeviceReport } from '../utils/deviceReport';
 import { startTone, stopTone, primeAudio, toneAudible } from '../utils/ringtone';
 import { collectCallStats } from '../utils/callStats';
@@ -487,8 +487,24 @@ export function CallProvider({ children }) {
   const inProgress = () => callRef.current?.status === 'accepted'
     && ['connected', 'reconnecting', 'signalReconnecting'].includes(roomRef.current?.state);
 
+  // In the Android app (1.3.0+) the call runs in the app's own engine, like a phone call (AYK-145).
+  const handToApp = useCallback(async (current, incoming) => {
+    const key = await calls.nativeCallKey(current.id);
+    openNativeCall({
+      id: current.id, userId: user.id, key, video: current.call_type === 'video', incoming,
+      name: current.peer?.full_name || t('auth.role_client'), code: current.peer?.code || '',
+    });
+    stopTone();
+    setCall(null);
+    setPhase('idle');
+  }, [user, t]);
+
   const start = useCallback(async (conversationId, callType) => {
     if (callRef.current) return;
+    if (nativeCallsSupported()) {
+      try { await handToApp(await calls.startCall(conversationId, callType), false); return; }
+      catch (err) { setError(err?.response?.data?.message || 'call_failed'); return; }
+    }
     primeAudio();
     setError(null);
     leavingRef.current = false;
@@ -517,11 +533,14 @@ export function CallProvider({ children }) {
       setPhase('ended');
       setCall({ status: 'failed', end_reason: code, call_type: callType, peer: {} });
     }
-  }, [connectMedia, finishLocally]);
+  }, [connectMedia, finishLocally, handToApp]);
 
   const accept = useCallback(async () => {
     const current = callRef.current;
     if (!current) return;
+    if (nativeCallsSupported()) {
+      try { await handToApp(current, true); return; } catch (_) { /* falls back to the call in the page */ }
+    }
     primeAudio();
     leavingRef.current = false;
     endingRef.current = false;
@@ -541,7 +560,7 @@ export function CallProvider({ children }) {
       calls.declineCall(current.id).catch(() => {});
       await finishLocally({ ...current, status: 'failed' });
     }
-  }, [connectMedia, finishLocally]);
+  }, [connectMedia, finishLocally, handToApp]);
 
   acceptRef.current = accept;
 

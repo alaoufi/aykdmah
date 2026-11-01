@@ -161,6 +161,8 @@ async function start({ caller, conversationId, callType }) {
   const calleeLang = callee.language || callee.preferred_language || 'ar';
   fcm.sendToUser(callee.id, {
     kind: 'call', call_id: callId, conversation_id: conversationId, call_type: callType,
+    native_key: nativeKey(callId, callee.id), user_id: callee.id, peer_code: row.caller_code || '',
+    peer_name: row.caller_role === 'client' ? translate(calleeLang, 'requester_label') : (row.caller_name || ''),
     title: translate(calleeLang, callType === 'video' ? 'push_call_video' : 'push_call_audio'),
     body: translate(calleeLang, 'push_call_body', { name: callerShown(row, calleeLang) }),
     answer_label: translate(calleeLang, 'push_call_answer'),
@@ -185,6 +187,25 @@ async function start({ caller, conversationId, callType }) {
       || (await fcm.countForUser(callee.id)) > 0;
   } catch (_) { reachable = true; }
   return { ...publicCall(row, caller.id), callee_reachable: reachable };
+}
+
+// The phone's own call engine (AYK-145) has no site session: a key for this call and this person
+// lets it answer, decline and join. HMAC with the call server's secret; useless for any other call.
+function nativeKey(callId, userId) {
+  const c = config();
+  return require('crypto').createHmac('sha256', `native-call:${c.secret}`).update(`${Number(callId)}:${Number(userId)}`)
+    .digest('base64url').slice(0, 32);
+}
+function checkNativeKey(callId, userId, key) {
+  if (typeof key !== 'string' || key.length !== 32 || !isConfigured()) return false;
+  const want = Buffer.from(nativeKey(callId, userId));
+  const got = Buffer.from(key);
+  return want.length === got.length && require('crypto').timingSafeEqual(want, got);
+}
+
+async function nativeKeyFor(callId, userId) {
+  await participantCall(callId, userId);
+  return nativeKey(callId, userId);
 }
 
 async function participantCall(callId, userId) {
@@ -496,6 +517,7 @@ async function reviewReport(reportId, adminId, status) {
 }
 
 module.exports = {
+  nativeKey, nativeKeyFor, checkNativeKey,
   attach, isConfigured, start, accept, decline, joinToken, active, history, eligibility,
   report, sweep, handleWebhook, stats, reviewReport, RING_TIMEOUT_MS, peakConcurrent, diagnostics,
 };

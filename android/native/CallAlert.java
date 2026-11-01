@@ -54,6 +54,30 @@ final class CallAlert {
     }
 
     /** An incoming call from Firebase (AYK-094): the app rings by itself, even when closed. */
+    /**
+     * The phone's own call engine (AYK-145): answering opens the native call screen, declining
+     * tells the server directly, and the call is reported to Android as a real call.
+     */
+    static void ringNative(Context context, java.util.Map<String, String> data) {
+        String callId = data.get("call_id");
+        Uri uri = new Uri.Builder().scheme("aykdmhcall").authority("call").appendPath(callId)
+                .appendQueryParameter("user", data.get("user_id"))
+                .appendQueryParameter("key", data.get("native_key"))
+                .appendQueryParameter("type", "video".equals(data.get("call_type")) ? "video" : "audio")
+                .appendQueryParameter("name", data.get("peer_name") != null ? data.get("peer_name") : "")
+                .appendQueryParameter("code", data.get("peer_code") != null ? data.get("peer_code") : "")
+                .appendQueryParameter("dir", "in").build();
+        int base = idFor("call-" + callId);
+        int flags = PendingIntent.FLAG_UPDATE_CURRENT | (Build.VERSION.SDK_INT >= 23 ? PendingIntent.FLAG_IMMUTABLE : 0);
+        Intent answerIntent = new Intent(Intent.ACTION_VIEW, uri).setClass(context, CallScreenActivity.class)
+                .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent answer = PendingIntent.getActivity(context, base + 1, answerIntent, flags);
+        Intent declineIntent = new Intent(context, CallActionReceiver.class).setData(uri);
+        PendingIntent decline = PendingIntent.getBroadcast(context, base + 2, declineIntent, flags);
+        CallActionReceiver.watch(context, uri);
+        show(context, "call-" + callId, data.get("title"), data.get("body"), answer, decline);
+    }
+
     static void ringPush(Context context, String callId, String conversationId, String title, String text) {
         String chat = conversationId != null && conversationId.matches("\\d+") ? "/chat/" + conversationId : "/chat";
         int base = idFor("call-" + callId);
