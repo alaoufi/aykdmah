@@ -26,6 +26,16 @@ import { sentTone } from '../utils/ringtone';
 import { createPollingLoop } from '../utils/polling';
 import { agreeRequest, saveToDirectory } from '../services/requestService';
 
+// A bold back arrow toward the start side: right in Arabic, left in English (AYK-137).
+function BackArrow() {
+  return (
+    <svg className="back-arrow" viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor"
+      strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M19 12H5M12 19l-7-7 7-7" />
+    </svg>
+  );
+}
+
 export default function ChatPage() {
   // The saved message text size applies as soon as the chat opens (AYK-126).
   useChatPrefs();
@@ -376,7 +386,11 @@ export default function ChatPage() {
         <div className="sidebar-header">
           {/* The chats page has no site header, so it carries its own way back (AYK-044). */}
           <div className="flex items-center justify-between gap-2">
-            <h3 className="m-0">{showArchive ? `🗄️ ${t('requester.chat_archive')}` : t('chat.title')}</h3>
+            {/* The way home in place of the title (AYK-137); the archive shows beside it when open. */}
+            <div className="flex items-center gap-2 min-w-0">
+              <Link to="/" className="list-home" data-testid="chat-home"><BackArrow /><span>{t('nav.home')}</span></Link>
+              {showArchive && <span className="text-[13px] font-bold text-fg-muted whitespace-nowrap">🗄️ {t('requester.chat_archive')}</span>}
+            </div>
             {/* The list's ⋮ (AYK-133): chats or their archive, the messages' settings (which belong
                 to all chats, AYK-129), and the way back home (AYK-044). */}
             <ChatHeaderMenu buttonRef={listMenuRef}>
@@ -385,7 +399,6 @@ export default function ChatPage() {
               <button type="button" role="menuitem" aria-current={showArchive} className={showArchive ? 'current' : ''} onClick={() => setSearchParams({ archive: '1' })} data-testid="chat-tab-archive">
                 🗄️ {t('requester.chat_archive')} ({conversations.filter(archived).length})</button>
               <button type="button" role="menuitem" onClick={() => setListSettingsOpen(true)} data-testid="chat-settings">⚙️ {t('chat.settings')}</button>
-              <Link to="/" role="menuitem" data-testid="chat-home">🏠 {t('nav.home')}</Link>
             </ChatHeaderMenu>
             <ChatSettings anchorRef={listMenuRef} open={listSettingsOpen} onClose={() => setListSettingsOpen(false)} />
           </div>
@@ -440,7 +453,7 @@ export default function ChatPage() {
         ) : (
           <>
             <header className="chat-header">
-              <Link to="/chat" className="back-btn" aria-label={t('chat.title')}>←</Link>
+              <Link to="/chat" className="back-btn" aria-label={t('chat.title')}><BackArrow /></Link>
               {otherParticipant && (
                 <>
                   <Avatar src={otherParticipant.avatar} name={otherParticipant.full_name} />
@@ -657,8 +670,11 @@ export default function ChatPage() {
         .chat-menu > *:hover { background: var(--bg-soft); }
         .chat-menu > .current { font-weight: 800; color: var(--primary); background: var(--bg-soft); }
         .chat-menu > [aria-disabled="true"] { cursor: default; color: var(--text-secondary); }
+        .back-arrow { display: block; }
+        [dir="rtl"] .back-arrow { transform: scaleX(-1); }
+        .list-home { display: inline-flex; align-items: center; gap: 6px; font-size: 19px; font-weight: 800; color: var(--text); text-decoration: none !important; }
         .back-btn {
-          display: none; background: transparent; border: 0; font-size: 20px;
+          display: none; background: transparent; border: 0; font-size: 20px; padding: 6px; margin-inline-start: -6px;
           color: var(--text); text-decoration: none;
         }
         .track-btn {
