@@ -16,6 +16,9 @@ const loadLiveKit = () => import('livekit-client');
 // so the line opens sooner (AYK-101). A refusal is reported later by the normal path.
 const earlyMic = () => loadLiveKit().then(({ createLocalAudioTrack }) => createLocalAudioTrack()).catch(() => null);
 
+// Android (the app and Chrome): the other side's voice goes through Web Audio (AYK-132).
+const WEB_AUDIO_MIX = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent || '');
+
 const CallContext = createContext(null);
 const FINAL = ['rejected', 'missed', 'cancelled', 'ended', 'failed'];
 
@@ -77,7 +80,7 @@ export function CallProvider({ children }) {
     const peer = [...(lkRoom?.remoteParticipants?.values() || [])][0];
     const theirs = peer?.getTrackPublication?.('microphone')?.track?.mediaStreamTrack;
     const state = t => (!t ? '0' : t.readyState === 'ended' ? 'ended' : t.muted ? 'muted' : 'live');
-    return `${audioEl ? (audioEl.paused ? 'paused' : 'playing') : 'none'}/${state(mic)}/${state(theirs)}/${lkRoom?.state || '-'}`;
+    return `${audioEl ? (audioEl.paused ? 'paused' : 'playing') : 'none'}/${state(mic)}/${state(theirs)}/${lkRoom?.state || '-'}/${lkRoom?.audioContext?.state || '-'}`;
   };
 
   const teardown = useCallback(async () => {
@@ -95,7 +98,8 @@ export function CallProvider({ children }) {
       // The tracks as they were during the call (the last 10 s snapshot), not after it closed (AYK-098).
       const now = trackSnapshot(current);
       const away = log.away ? { n: log.away.n, s: Math.round((log.away.ms + (log.away.since ? Date.now() - log.away.since : 0)) / 1000), snaps: log.away.snaps, out: log.away.out, in: log.away.in, back: log.away.back } : undefined;
-      const details = JSON.stringify({ ...(now.me || !log.lastTracks ? now : log.lastTracks), errs: log.errors || [], snaps: log.snaps || 0, away }).slice(0, 600);
+      // "away" first, so the 600-character cut never drops it (AYK-131).
+      const details = JSON.stringify({ away: away || 0, ...(now.me || !log.lastTracks ? now : log.lastTracks), mix: WEB_AUDIO_MIX ? 1 : 0, errs: log.errors || [], snaps: log.snaps || 0 }).slice(0, 600);
       calls.sendCallDiagnostics(ended.id, {
         ...stats, poor_seconds: Math.round(poorMs / 1000), reconnects: log.reconnects, audio_blocked: log.audioBlocked, details,
       }).catch(() => {});
@@ -179,6 +183,10 @@ export function CallProvider({ children }) {
       // Switching to another app must not hang up (AYK-090): LiveKit would leave on "pagehide".
       // A page really closed is ended by the server once its rejoin time runs out.
       disconnectOnPageLeave: false,
+      // The other side's voice through Web Audio on Android (AYK-132): Chrome there pauses a
+      // call's <audio> element when the app goes to the background and resumes it on return,
+      // so the voice stopped while out of the app. The element stays attached, muted.
+      webAudioMix: WEB_AUDIO_MIX,
       videoCaptureDefaults: VideoPresets?.h540 ? { resolution: VideoPresets.h540.resolution } : undefined,
       publishDefaults: {
         simulcast: true,
@@ -210,6 +218,8 @@ export function CallProvider({ children }) {
       log.away.back = soundState(lkRoom);
       const audioEl = document.querySelector('[role="dialog"] audio');
       if (audioEl?.paused && audioEl.srcObject) Promise.resolve(audioEl.play?.()).catch(() => {});
+      // Web Audio (AYK-132): wake its audio context too, if the phone suspended it.
+      if (WEB_AUDIO_MIX) Promise.resolve(lkRoom.startAudio?.()).catch(() => {});
       const mic = lkRoom.localParticipant?.getTrackPublication?.('microphone');
       if (mic?.track?.mediaStreamTrack?.readyState === 'ended' && !mic.isMuted) {
         Promise.resolve(mic.track.restartTrack?.()).catch(err => { log.errors = [...(log.errors || []), `mic:${err?.name || 'Error'}`].slice(-6); });

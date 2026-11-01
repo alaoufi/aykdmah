@@ -5,19 +5,24 @@ import { CHAT_SIZES, saveChatPrefs, useChatPrefs } from '../../utils/chatPrefs';
 
 // ⚙️ on the chats list (AYK-126, AYK-129): the size of the messages' text, from small to very large,
 // and the automatic translation of the other side's messages. Saved on this device.
-export default function ChatSettings() {
+// With anchorRef/open/onClose it opens from another button (the list's ⋮ menu, AYK-133).
+export default function ChatSettings({ anchorRef, open: shownFromMenu, onClose }) {
   const { t } = useTranslation();
   const prefs = useChatPrefs();
-  const [open, setOpen] = useState(false);
-  const btnRef = useRef(null);
+  const [ownOpen, setOwnOpen] = useState(false);
+  const ownRef = useRef(null);
+  const fromMenu = Boolean(anchorRef);
+  const open = fromMenu ? Boolean(shownFromMenu) : ownOpen;
+  const setOpen = fromMenu ? (v => { if (!(typeof v === 'function' ? v(open) : v)) onClose?.(); }) : setOwnOpen;
+  const btnRef = anchorRef || ownRef;
   // The first letter of the reader's own language, at each size.
   const sample = Array.from(t('chat.text_size_preview'))[0];
   const chip = active => `flex-1 min-w-[44px] px-1 py-2 rounded-pill border ${active ? 'border-primary bg-primary-soft font-bold' : 'border-border'}`;
 
   return (
     <>
-      <button ref={btnRef} type="button" className="track-btn" onClick={() => setOpen(v => !v)} data-testid="chat-settings"
-        aria-label={t('chat.settings')} title={t('chat.settings')} aria-expanded={open}>⚙️</button>
+      {!fromMenu && <button ref={btnRef} type="button" className="track-btn" onClick={() => setOpen(v => !v)} data-testid="chat-settings"
+        aria-label={t('chat.settings')} title={t('chat.settings')} aria-expanded={open}>⚙️</button>}
       <SmartDropdown anchorRef={btnRef} open={open} onClose={() => setOpen(false)} minWidth={280}>
         <div className="px-3 py-2 space-y-4 text-fg">
           <section>

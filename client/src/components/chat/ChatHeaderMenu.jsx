@@ -2,12 +2,13 @@ import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import SmartDropdown from '../common/SmartDropdown';
 
-// ⋮ in the chat header: the less used actions (home, save contact, block, tracking) in one
-// menu, so the header keeps the name readable and only the call buttons beside it.
-export default function ChatHeaderMenu({ children }) {
+// ⋮ in the chat header and on the chats list (AYK-133): the less used actions in one menu, so
+// the header keeps the name readable. buttonRef lets another panel open from the same ⋮.
+export default function ChatHeaderMenu({ children, buttonRef }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const btnRef = useRef(null);
+  const ownRef = useRef(null);
+  const btnRef = buttonRef || ownRef;
   return (
     <>
       <button ref={btnRef} type="button" className="chat-icon-btn" onClick={() => setOpen(v => !v)} data-testid="chat-menu"

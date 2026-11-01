@@ -350,7 +350,7 @@ async function diagnostics(callId, user, body = {}) {
     text(body.network_type, 20), text(body.device, 160), text(body.details, 600),
   ]);
   // In the server log too (AYK-131), to read what happened to the sound when a side left the app.
-  if (/"away"/.test(String(body.details || ''))) logger.info(`Call diag call=${row.id} user=${user.id} device=${text(body.device, 80)} ${text(body.details, 600)}`);
+  if (body.details) logger.info(`Call diag call=${row.id} user=${user.id} device=${text(body.device, 80)} ${text(body.details, 600)}`);
   return { saved: true };
 }
 

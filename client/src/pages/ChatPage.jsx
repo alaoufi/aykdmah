@@ -46,6 +46,8 @@ export default function ChatPage() {
   const [listOwnerId, setListOwnerId] = useState(null);
   const [active, setActive] = useState(null);
   const [blockProblem, setBlockProblem] = useState('');
+  const listMenuRef = useRef(null);
+  const [listSettingsOpen, setListSettingsOpen] = useState(false);
   const [blockDone, setBlockDone] = useState('');
   const { start: startCall } = useCall();
   const [agreeing, setAgreeing] = useState(false);
@@ -375,11 +377,13 @@ export default function ChatPage() {
           {/* The chats page has no site header, so it carries its own way back (AYK-044). */}
           <div className="flex items-center justify-between gap-2">
             <h3 className="m-0">{t('chat.title')}</h3>
-            <div className="flex items-center gap-2">
-              {/* The messages' settings belong to all chats, so they live on the list (AYK-129). */}
-              <ChatSettings />
-              <Link to="/" className="chat-home" data-testid="chat-home">🏠 {t('nav.home')}</Link>
-            </div>
+            {/* The list's ⋮ (AYK-133): the messages' settings, which belong to all chats (AYK-129),
+                and the way back home (AYK-044). */}
+            <ChatHeaderMenu buttonRef={listMenuRef}>
+              <button type="button" role="menuitem" onClick={() => setListSettingsOpen(true)} data-testid="chat-settings">⚙️ {t('chat.settings')}</button>
+              <Link to="/" role="menuitem" data-testid="chat-home">🏠 {t('nav.home')}</Link>
+            </ChatHeaderMenu>
+            <ChatSettings anchorRef={listMenuRef} open={listSettingsOpen} onClose={() => setListSettingsOpen(false)} />
           </div>
           <div className="chat-tabs" role="tablist">
             <button type="button" role="tab" aria-selected={!showArchive} className={!showArchive ? 'active' : ''} onClick={() => setSearchParams({})} data-testid="chat-tab-active">
@@ -612,6 +616,8 @@ export default function ChatPage() {
           display: flex; flex-direction: column; overflow: hidden;
         }
         .sidebar-header { padding: 16px; border-bottom: 1px solid var(--border); }
+        /* Cards and menu entries are buttons, not text links: no underline, also in high contrast. */
+        .conv-item, .conv-item *, .chat-menu > a, .back-btn { text-decoration: none !important; }
         .chat-home { padding: 6px 12px; border-radius: 999px; background: var(--bg-soft); color: var(--text); font-size: 13px; font-weight: 700; text-decoration: none; white-space: nowrap; }
         .chat-home-compact { padding: 6px 9px; font-size: 16px; }
         .chat-tabs { display: flex; gap: 6px; margin-top: 8px; }
