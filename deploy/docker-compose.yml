@@ -61,6 +61,10 @@ services:
       PUSH_SUBJECT: https://aykdmh.com
       # AYK-094: the Android app's ringing calls (Firebase service-account key, base64; .env only).
       FCM_SERVICE_ACCOUNT_B64: ${FCM_SERVICE_ACCOUNT_B64:-}
+      APNS_KEY_ID: ${APNS_KEY_ID:-}
+      APNS_TEAM_ID: ${APNS_TEAM_ID:-}
+      APNS_BUNDLE_ID: ${APNS_BUNDLE_ID:-sa.aykdmh.app}
+      APNS_KEY: ${APNS_KEY:-}
       # AYK-119: Microsoft Translator (free F0) for chat translation; .env only.
       AZURE_TRANSLATOR_KEY: ${AZURE_TRANSLATOR_KEY:-}
       AZURE_TRANSLATOR_REGION: ${AZURE_TRANSLATOR_REGION:-global}

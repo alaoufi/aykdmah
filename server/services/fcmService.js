@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const { query } = require('../config/database');
 const logger = require('../utils/logger');
+const apns = require('./apnsService');
 
 // Firebase Cloud Messaging for the Android app (AYK-094): reaches the app even when it is
 // closed, so an incoming call rings like a phone call. The service-account key lives only in
@@ -15,7 +16,7 @@ function serviceAccount() {
   } catch (_) { account = null; }
   return account;
 }
-const isConfigured = () => Boolean(serviceAccount());
+const isConfigured = () => Boolean(serviceAccount()) || apns.isConfigured();
 
 let cached = null;
 async function accessToken(sa) {
@@ -54,13 +55,17 @@ const countForUser = async userId => Number((await query('SELECT COUNT(*) AS n F
 
 // Data-only, high priority: the app decides how to show it (a ringing call screen).
 async function sendToUser(userId, data, { ttlSeconds = 45 } = {}) {
+  const all = await query('SELECT token FROM native_push_tokens WHERE user_id = ?', [userId]);
+  if (!all.length) return 0;
+  // iPhones go straight to Apple (AYK-138); the rest to Firebase.
+  const forget = token => query('DELETE FROM native_push_tokens WHERE token = ?', [token]);
+  let sent = await apns.send(all.map(r => r.token).filter(apns.isAppleToken), data, { ttlSeconds, onGone: forget })
+    .catch(err => { logger.warn('APNs send failed:', err.message); return 0; });
+  const rows = all.filter(r => !apns.isAppleToken(r.token));
   const sa = serviceAccount();
-  if (!sa) return 0;
-  const rows = await query('SELECT token FROM native_push_tokens WHERE user_id = ?', [userId]);
-  if (!rows.length) return 0;
+  if (!sa || !rows.length) return sent;
   const auth = await accessToken(sa);
   const payload = Object.fromEntries(Object.entries(data).filter(([, v]) => v != null).map(([k, v]) => [k, String(v)]));
-  let sent = 0;
   await Promise.all(rows.map(async ({ token }) => {
     const res = await fetch(`https://fcm.googleapis.com/v1/projects/${sa.project_id}/messages:send`, {
       method: 'POST', headers: { Authorization: `Bearer ${auth}`, 'Content-Type': 'application/json' },
