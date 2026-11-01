@@ -263,7 +263,7 @@
     "role_both_hint": "تقدّم خدماتك، وتطلب أيضًا خدمات أخرى بالحساب نفسه.",
     "account_type": "نوع الحساب",
     "name_optional": "الاسم (اختياري)",
-    "password_min": "كلمة المرور 4 خانات على الأقل",
+    "password_min": "كلمة المرور 4 خانات على الأقل: أرقام أو حروف أو رموز",
     "simple_location_required": "حدّد موقعك: اسمح بتحديد الموقع، أو اختره على الخريطة.",
     "simple_district_required": "اختر الحي.",
     "simple_choose_district": "اختر الحي",

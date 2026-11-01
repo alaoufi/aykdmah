@@ -263,7 +263,7 @@
     "role_both_hint": "Offer your services and request other services with the same account.",
     "account_type": "Account type",
     "name_optional": "Name (optional)",
-    "password_min": "Password must be at least 4 characters",
+    "password_min": "Password: at least 4 characters — digits, letters or symbols",
     "simple_location_required": "Set your location: allow location access or pick it on the map.",
     "simple_district_required": "Choose your neighbourhood.",
     "simple_choose_district": "Choose neighbourhood",

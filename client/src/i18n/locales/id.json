@@ -263,7 +263,7 @@
     "role_both_hint": "Tawarkan layanan Anda dan meminta layanan lain dengan akun yang sama.",
     "account_type": "Jenis rekening",
     "name_optional": "Nama (opsional)",
-    "password_min": "Kata sandi harus setidaknya 4 karakter",
+    "password_min": "Kata sandi minimal 4 karakter: angka, huruf, atau simbol",
     "simple_location_required": "Atur lokasi Anda: izinkan akses lokasi atau pilih di peta.",
     "simple_district_required": "Pilih lingkunganmu.",
     "simple_choose_district": "Pilih lingkungan",

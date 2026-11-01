@@ -30,6 +30,9 @@ export default function AccountTypeSection({ onSaved, onError }) {
   const [venue, setVenue] = useState(null);
   const [mapOpen, setMapOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  // Jobs that stop the change to requester, listed with links (AYK-070). Above the early
+  // return, like every hook (AYK-140).
+  const [blockingJobs, setBlockingJobs] = useState([]);
 
   if (!user || !['client', 'provider'].includes(user.role)) return null;
   const needsWork = current === 'client' && target !== 'client';
@@ -38,9 +41,6 @@ export default function AccountTypeSection({ onSaved, onError }) {
       : coverageCount > 0 && !coverage.length ? t('provider.coverage_required')
         : mode !== 'mobile' && !venue ? t('provider.venue_point_required') : null;
   const canSave = target !== current && !missing && !saving;
-
-  // Jobs that stop the change to requester, listed with links (AYK-070).
-  const [blockingJobs, setBlockingJobs] = useState([]);
 
   const save = async () => {
     onError(''); onSaved(''); setBlockingJobs([]);

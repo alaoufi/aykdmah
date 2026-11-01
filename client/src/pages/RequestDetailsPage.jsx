@@ -49,6 +49,9 @@ export default function RequestDetailsPage() {
   const [err, setErr] = useState('');
   const [reloadVersion, setReloadVersion] = useState(0);
   const [negotiatingOfferId, setNegotiatingOfferId] = useState(null);
+  // Who the last failed contact was with, for "✅ Unblock" in the message (AYK-111). Above the
+  // early returns: a hook below them broke the page once the request loaded (AYK-140).
+  const [errWith, setErrWith] = useState(null);
   // Hooks stay above the early returns below. "Stop" from the requests management
   // page opens the close box directly (#close).
   const { hash } = useLocation();
@@ -101,8 +104,6 @@ export default function RequestDetailsPage() {
     ? offers.find(offer => Number(offer.provider_id) === Number(request.assigned_provider_id))
     : null;
 
-  // Who the last failed contact was with, for "✅ Unblock" in the message (AYK-111).
-  const [errWith, setErrWith] = useState(null);
   const contactOwner = async () => {
     setSubmitting(true);
     setErr('');

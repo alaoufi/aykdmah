@@ -263,7 +263,7 @@
     "role_both_hint": "अपनी सेवाएँ दें और इसी खाते से दूसरी सेवाएँ भी माँगें।",
     "account_type": "खाते का प्रकार",
     "name_optional": "नाम (वैकल्पिक)",
-    "password_min": "पासवर्ड कम से कम 4 अक्षर का हो",
+    "password_min": "पासवर्ड कम से कम 4 अक्षर: अंक, अक्षर या चिह्न",
     "simple_location_required": "अपना स्थान तय करें: स्थान की अनुमति दें या नक्शे पर चुनें।",
     "simple_district_required": "अपना इलाका चुनें।",
     "simple_choose_district": "इलाका चुनें",

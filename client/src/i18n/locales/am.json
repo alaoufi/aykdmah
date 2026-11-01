@@ -263,7 +263,7 @@
     "role_both_hint": "አገልግሎታችሁን አቅርቡ እና በተመሳሳይ መለያ ሌሎች አገልግሎቶችን ይጠይቁ።",
     "account_type": "የሂሳብ አይነት",
     "name_optional": "ስም (አማራጭ)",
-    "password_min": "የይለፍ ቃል ቢያንስ 4 ቁምፊዎች ሊኖረው ይገባል",
+    "password_min": "የይለፍ ቃል ቢያንስ 4 ቁምፊዎች፦ ቁጥሮች፣ ፊደሎች ወይም ምልክቶች",
     "simple_location_required": "አካባቢህን አዘጋጅ: አካባቢ መዳረሻን ይፍቀዱ ወይም በካርታው ላይ ይምረጡ.",
     "simple_district_required": "ጎረቤትህን ምረጥ።",
     "simple_choose_district": "ሰፈር ምረጥ",

@@ -37,7 +37,9 @@ export function changeCatalogParams(params, patch) {
 
 export function normalizeSearch(value) {
   return String(value || '').normalize('NFKC').toLocaleLowerCase()
-    .replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/[أإآ]/g, 'ا')
+    .replace(/[\u064B-\u065F\u0670\u0640]/g, '').replace(/[أإآٱ]/g, 'ا')
+    // One spelling for letters people type differently (AYK-141): taa marbuta, alef maqsura.
+    .replace(/ة/g, 'ه').replace(/ى/g, 'ي')
     .replace(/\s+/g, ' ').trim();
 }
 

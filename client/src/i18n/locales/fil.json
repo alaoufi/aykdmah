@@ -263,7 +263,7 @@
     "role_both_hint": "Mag-alok ng iyong mga serbisyo at humingi ng iba pang mga serbisyo sa parehong account.",
     "account_type": "Ang uri ng account",
     "name_optional": "Pangalan (pag-iisa)",
-    "password_min": "Ang password ay dapat na maging hindi bababa sa 4 character",
+    "password_min": "Password: hindi bababa sa 4 na karakter — numero, titik o simbolo",
     "simple_location_required": "I-set ang iyong lokasyon: pahintulutan ang pag-access sa lokasyon o piliin ito sa mapa.",
     "simple_district_required": "Piliin ang iyong kapitbahayan.",
     "simple_choose_district": "Pumili ng kapitbahayan",

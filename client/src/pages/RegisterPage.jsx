@@ -276,8 +276,9 @@ export default function RegisterPage() {
             <Link to="/forgot-password" state={{ identifier: cleanPhone(form.phone) }} className="text-primary font-semibold">{t('auth.forgot_password')}</Link>
           </div>
         )}
-        {/* A simple password, 4 digits at least, so no one else signs in with the number. */}
-        <PasswordInput label={t('auth.password')} required minLength={4} autoComplete="new-password" inputMode="numeric"
+        {/* A simple password, 4 characters at least: digits, letters or symbols, the full keyboard
+            (AYK-139; it opened the number pad only). */}
+        <PasswordInput label={t('auth.password')} required minLength={4} autoComplete="new-password"
           hint={t('auth.password_min')} value={form.password} error={fieldErrors.password} onChange={e => update('password', e.target.value)} />
         <Input id="register-full_name" name="full_name" label={t('auth.name_optional')} maxLength={150}
           autoComplete="name" value={form.full_name} error={fieldErrors.full_name} onChange={e => update('full_name', e.target.value)} />

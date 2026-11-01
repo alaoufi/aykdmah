@@ -263,7 +263,7 @@
     "role_both_hint": "Hizmetlerinizi sunun ve aynı hesapla diğer hizmetleri isteyin.",
     "account_type": "Hesap türü",
     "name_optional": "Adı (özel)",
-    "password_min": "Şifre en az 4 karakter olmalıdır",
+    "password_min": "Şifre en az 4 karakter: rakam, harf veya sembol",
     "simple_location_required": "Yerinizi ayarlayın: Yer erişimini izin verin veya haritadan seçin.",
     "simple_district_required": "Komşunuzu seçin.",
     "simple_choose_district": "Komşuluk seçin",
