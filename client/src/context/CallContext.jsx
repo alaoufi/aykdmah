@@ -209,6 +209,12 @@ export function CallProvider({ children }) {
       [...p.trackPublications.values()].some(pub => pub.kind === 'video' && pub.isSubscribed && !pub.isMuted)));
     lkRoom
       .on(RoomEvent.TrackSubscribed, syncRemoteVideo).on(RoomEvent.TrackUnsubscribed, syncRemoteVideo)
+      // A slightly deeper buffer for the other side's voice (AYK-136): 150 ms absorbs the uneven
+      // arrival on a long route, so words do not break up or speed up; the delay is not noticed.
+      .on(RoomEvent.TrackSubscribed, track => {
+        const receiver = track?.kind === 'audio' ? track.receiver : null;
+        try { if (receiver && 'jitterBufferTarget' in receiver) receiver.jitterBufferTarget = 150; } catch (_) { /* not supported */ }
+      })
       .on(RoomEvent.TrackMuted, syncRemoteVideo).on(RoomEvent.TrackUnmuted, syncRemoteVideo)
       .on(RoomEvent.ParticipantConnected, () => setRemoteJoined(true))
       .on(RoomEvent.ParticipantDisconnected, () => setRemoteJoined(false))
