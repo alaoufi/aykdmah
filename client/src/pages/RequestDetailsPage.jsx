@@ -362,7 +362,9 @@ export default function RequestDetailsPage() {
                     <Avatar src={o.provider_avatar} name={o.provider_name} />
                     <div style={{ flex: 1 }}>
                       <div className="flex items-center gap-2 flex-wrap">
-                        <strong>{o.provider_name}</strong>
+                        {/* The provider's name, clear and large, with the account number (AYK-142). */}
+                        <strong className="text-[17px] font-extrabold text-ink">{o.provider_name}</strong>
+                        {o.provider_code && <span className="px-1.5 py-0.5 rounded-pill bg-surface-alt text-[12px] font-bold text-fg-muted" dir="ltr">{o.provider_code}</span>}
                         {o.provider_verified ? <span className="badge badge-success">{t('offer.verified')}</span> : null}
                         {o.badge_trusted_active ? <span title={t('badge.trusted_name')} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-pill bg-emerald-50 text-emerald-700 text-[10.5px] font-bold">🛡️ {t('badge.trusted_short')}</span> : null}
                         {o.badge_featured_active ? <span title={t('badge.featured_name')} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-pill bg-amber-50 text-amber-700 text-[10.5px] font-bold">⭐ {t('badge.featured_short')}</span> : null}

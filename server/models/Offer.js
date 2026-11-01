@@ -143,7 +143,7 @@ async function create(data) {
 async function findById(id) {
   id = positiveId(id, 'offer_id');
   return queryOne(
-    `SELECT o.*, u.full_name AS provider_name, u.avatar AS provider_avatar,
+    `SELECT o.*, u.full_name AS provider_name, u.avatar AS provider_avatar, u.referral_code AS provider_code,
             u.is_verified AS provider_verified,
             pp.rating_avg, pp.rating_count, pp.completed_orders, pp.location_mode, CASE WHEN ${featuredPlanSql} THEN 1 ELSE 0 END AS is_featured
      FROM offers o
@@ -159,7 +159,7 @@ async function findByRequest(requestId, { providerId } = {}) {
   const params = [requestId];
   if (providerId !== undefined) params.push(positiveId(providerId, 'provider_id'));
   return query(
-    `SELECT o.*, u.full_name AS provider_name, u.avatar AS provider_avatar,
+    `SELECT o.*, u.full_name AS provider_name, u.avatar AS provider_avatar, u.referral_code AS provider_code,
             u.is_verified AS provider_verified,
             pp.rating_avg, pp.rating_count, pp.completed_orders, pp.location_mode, CASE WHEN ${featuredPlanSql} THEN 1 ELSE 0 END AS is_featured,
             CASE WHEN ${trustedBadgeSql} THEN 1 ELSE 0 END AS badge_trusted_active, pp.badge_trusted_until,
