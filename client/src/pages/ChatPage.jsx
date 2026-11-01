@@ -376,20 +376,18 @@ export default function ChatPage() {
         <div className="sidebar-header">
           {/* The chats page has no site header, so it carries its own way back (AYK-044). */}
           <div className="flex items-center justify-between gap-2">
-            <h3 className="m-0">{t('chat.title')}</h3>
-            {/* The list's ⋮ (AYK-133): the messages' settings, which belong to all chats (AYK-129),
-                and the way back home (AYK-044). */}
+            <h3 className="m-0">{showArchive ? `🗄️ ${t('requester.chat_archive')}` : t('chat.title')}</h3>
+            {/* The list's ⋮ (AYK-133): chats or their archive, the messages' settings (which belong
+                to all chats, AYK-129), and the way back home (AYK-044). */}
             <ChatHeaderMenu buttonRef={listMenuRef}>
+              <button type="button" role="menuitem" aria-current={!showArchive} className={!showArchive ? 'current' : ''} onClick={() => setSearchParams({})} data-testid="chat-tab-active">
+                💬 {t('chat.title')} ({conversations.filter(c => !archived(c)).length})</button>
+              <button type="button" role="menuitem" aria-current={showArchive} className={showArchive ? 'current' : ''} onClick={() => setSearchParams({ archive: '1' })} data-testid="chat-tab-archive">
+                🗄️ {t('requester.chat_archive')} ({conversations.filter(archived).length})</button>
               <button type="button" role="menuitem" onClick={() => setListSettingsOpen(true)} data-testid="chat-settings">⚙️ {t('chat.settings')}</button>
               <Link to="/" role="menuitem" data-testid="chat-home">🏠 {t('nav.home')}</Link>
             </ChatHeaderMenu>
             <ChatSettings anchorRef={listMenuRef} open={listSettingsOpen} onClose={() => setListSettingsOpen(false)} />
-          </div>
-          <div className="chat-tabs" role="tablist">
-            <button type="button" role="tab" aria-selected={!showArchive} className={!showArchive ? 'active' : ''} onClick={() => setSearchParams({})} data-testid="chat-tab-active">
-              💬 {t('chat.title')} ({conversations.filter(c => !archived(c)).length})</button>
-            <button type="button" role="tab" aria-selected={showArchive} className={showArchive ? 'active' : ''} onClick={() => setSearchParams({ archive: '1' })} data-testid="chat-tab-archive">
-              🗄️ {t('requester.chat_archive')} ({conversations.filter(archived).length})</button>
           </div>
           {listReady && listError && <p role="alert" className="text-xs text-danger">{t('errors.generic')}</p>}
         </div>
@@ -657,6 +655,7 @@ export default function ChatPage() {
           color: var(--text); background: transparent; border: 0; text-align: start; text-decoration: none; cursor: pointer;
         }
         .chat-menu > *:hover { background: var(--bg-soft); }
+        .chat-menu > .current { font-weight: 800; color: var(--primary); background: var(--bg-soft); }
         .chat-menu > [aria-disabled="true"] { cursor: default; color: var(--text-secondary); }
         .back-btn {
           display: none; background: transparent; border: 0; font-size: 20px;

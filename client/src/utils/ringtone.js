@@ -8,8 +8,9 @@ const PATTERNS = {
   // Louder and longer so it is a phone ring, not a message tone (AYK-086).
   incoming: { freqs: [660, 880], gain: 0.5, bursts: [[0, 0.5], [0.7, 0.5]], every: 2500 },
   // The caller's ringback, like a phone line: a clear double-tone ring every 3 s (AYK-086; was one
-  // soft 425 Hz beep every 4 s, heard as a message tone).
-  outgoing: { freqs: [425, 480], gain: 0.5, bursts: [[0, 1.2]], every: 3000 },
+  // soft 425 Hz beep every 4 s, heard as a message tone). Quiet as on a phone (AYK-134): at 0.5
+  // its two tones added up to full scale, harsh at the ear.
+  outgoing: { freqs: [425, 480], gain: 0.12, bursts: [[0, 1.2]], every: 3000 },
 };
 
 // The user's tone volume (0–100, default 80), kept on this device (AYK-057).

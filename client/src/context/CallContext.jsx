@@ -14,7 +14,10 @@ const CallOverlay = lazy(() => import('../components/calls/CallOverlay'));
 const loadLiveKit = () => import('livekit-client');
 // The microphone starts in the tap itself, alongside the server request and the room connection,
 // so the line opens sooner (AYK-101). A refusal is reported later by the normal path.
-const earlyMic = () => loadLiveKit().then(({ createLocalAudioTrack }) => createLocalAudioTrack()).catch(() => null);
+// The voice cleaned at the microphone (AYK-135): no echo, no background noise, an even level,
+// and the speaker's voice isolated where the browser can.
+const MIC_OPTIONS = { echoCancellation: true, noiseSuppression: true, autoGainControl: true, voiceIsolation: true, channelCount: 1 };
+const earlyMic = () => loadLiveKit().then(({ createLocalAudioTrack }) => createLocalAudioTrack(MIC_OPTIONS)).catch(() => null);
 
 // Android (the app and Chrome): the other side's voice goes through Web Audio (AYK-132).
 const WEB_AUDIO_MIX = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent || '');
@@ -188,7 +191,14 @@ export function CallProvider({ children }) {
       // so the voice stopped while out of the app. The element stays attached, muted.
       webAudioMix: WEB_AUDIO_MIX,
       videoCaptureDefaults: VideoPresets?.h540 ? { resolution: VideoPresets.h540.resolution } : undefined,
+      audioCaptureDefaults: MIC_OPTIONS,
       publishDefaults: {
+        // Voice (AYK-135): 40 kbps mono Opus, clearer than the default for speech; RED sends each
+        // moment twice so a lost packet does not cut a word; DTX off, it silenced the gaps and
+        // clipped the start of words.
+        audioPreset: { maxBitrate: 40_000 },
+        red: true,
+        dtx: false,
         simulcast: true,
         videoEncoding: { maxBitrate: 1_200_000, maxFramerate: 30 },
         videoSimulcastLayers: VideoPresets ? [VideoPresets.h180, VideoPresets.h360].filter(Boolean) : undefined,
