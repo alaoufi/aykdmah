@@ -19,7 +19,8 @@ const list = asyncHandler(async (req, res) => {
 
 const setEnabled = asyncHandler(async (req, res) => {
   if (typeof req.body?.enabled !== 'boolean') return error(res, req.t('invalid_data'), 400);
-  await Setting.set('subscriptions_enabled', req.body.enabled ? '1' : '0', 'string', 'subscriptions', 0, 'Monthly provider subscriptions by area and profession (AYK-042)');
+  // Public (AYK-147): the site hides every subscription page and link while it is off.
+  await Setting.set('subscriptions_enabled', req.body.enabled ? '1' : '0', 'string', 'subscriptions', 1, 'Monthly provider subscriptions by area and profession (AYK-042)');
   return success(res, { enabled: req.body.enabled }, req.t('updated'));
 });
 

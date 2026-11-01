@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import BrandLogo from '../common/BrandLogo';
-import usePublicSettings from '../../hooks/usePublicSettings';
+import usePublicSettings, { subscriptionsOn } from '../../hooks/usePublicSettings';
 import { nativeAppVersion } from '../../utils/nativeApp';
 
 export default function Footer() {
@@ -26,7 +26,7 @@ export default function Footer() {
       title: t('auth.role_provider'),
       links: [
         { to: '/register?role=provider', label: t('nav.register') },
-        { to: '/provider/subscription', label: t('nav.subscription') },
+        ...(subscriptionsOn(settings) ? [{ to: '/provider/subscription', label: t('nav.subscription') }] : []),
       ],
     },
     {

@@ -108,6 +108,8 @@ if (!root.includes('kotlin-gradle-plugin')) {
 }
 root = root.replace(/buildscript \{\s*repositories \{\s*google\(\)/, m => (m.includes('mavenCentral') ? m : `${m}\n        mavenCentral()`));
 root = root.replace(/allprojects \{\s*repositories \{\s*google\(\)/, m => (m.includes('mavenCentral') ? m : `${m}\n        mavenCentral()`));
+// LiveKit's audio routing library (audioswitch) is published on JitPack (AYK-145).
+if (!root.includes('jitpack.io')) root = root.replace(/(allprojects \{\s*repositories \{)/, "$1\n        maven { url 'https://jitpack.io' }");
 fs.writeFileSync(rootGradle, root);
 const appGradle = path.join(project, 'app/build.gradle');
 let app = fs.readFileSync(appGradle, 'utf8');

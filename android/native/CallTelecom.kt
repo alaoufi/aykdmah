@@ -34,7 +34,7 @@ object CallTelecom {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return false
         return runCatching {
             val telecom = context.getSystemService(TelecomManager::class.java)
-            val account = PhoneAccount.builder(handle(context), context.getString(R.string.app_name))
+            val account = PhoneAccount.builder(handle(context), context.getString(R.string.callTitle))
                 .setCapabilities(PhoneAccount.CAPABILITY_SELF_MANAGED)
                 .build()
             telecom.registerPhoneAccount(account)

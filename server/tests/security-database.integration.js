@@ -47,7 +47,7 @@ test.after(async () => {
 test('fresh installer applies every migration and required workflow tables/constraints', async () => {
   assert.deepEqual((await client.query('SELECT name FROM schema_migrations ORDER BY name')).rows.map(row => row.name), migrations);
   assert.equal((await client.query("SELECT setting_value FROM settings WHERE setting_key='site_name'")).rows[0].setting_value, 'أي خدمة');
-  assert.equal((await client.query('SELECT description FROM subscription_plans WHERE id=2')).rows[0].description, 'اشتراك العامل الشهري في أي خدمة');
+  assert.equal((await client.query('SELECT description FROM subscription_plans WHERE id=2')).rows[0].description, 'اشتراك مقدم الخدمة الشهري في أي خدمة');
   for (const table of ['conversation_archives','ad_media','uploaded_media','auth_rate_limits']) {
     assert.equal((await client.query('SELECT to_regclass($1) AS name', [table])).rows[0].name, table);
   }
@@ -205,7 +205,7 @@ test('generated bootstrap commits all migrations and refuses existing data', asy
   await bootstrap.query(sql);
   assert.deepEqual((await bootstrap.query('SELECT name FROM schema_migrations ORDER BY name')).rows.map(row => row.name), migrations);
   assert.equal((await bootstrap.query("SELECT setting_value FROM settings WHERE setting_key='site_name'")).rows[0].setting_value, 'أي خدمة');
-  assert.equal((await bootstrap.query('SELECT description FROM subscription_plans WHERE id=2')).rows[0].description, 'اشتراك العامل الشهري في أي خدمة');
+  assert.equal((await bootstrap.query('SELECT description FROM subscription_plans WHERE id=2')).rows[0].description, 'اشتراك مقدم الخدمة الشهري في أي خدمة');
   await bootstrap.query("INSERT INTO users(full_name,password_hash,role,is_super_admin,permissions) VALUES ('Protected local administrator','unused','admin',0,'[\"dashboard.view\"]')");
   await bootstrap.query("UPDATE settings SET setting_value='Preserved bootstrap site' WHERE setting_key='site_name'");
   await assert.rejects(bootstrap.query(sql), /requires a fresh database schema/);

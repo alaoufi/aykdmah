@@ -27,6 +27,10 @@ export default function usePublicSettings() {
   return { settings, loading };
 }
 
+// Subscriptions are switched on from the administration; while off, every subscription page and
+// link is hidden (AYK-147).
+export const subscriptionsOn = settings => [true, 1, '1', 'true'].includes(settings?.subscriptions_enabled);
+
 // CSV setting → array of trimmed non-empty strings
 export function csvToList(value, fallback = '') {
   return String(value ?? fallback).split(',').map((s) => s.trim()).filter(Boolean);

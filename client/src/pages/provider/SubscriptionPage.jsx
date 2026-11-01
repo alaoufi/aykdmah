@@ -2,7 +2,8 @@ import { localizedJoinedName } from '../../utils/localizeJoined';
 import { safeUrl } from '../../utils/urlSafety';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
+import usePublicSettings, { subscriptionsOn } from '../../hooks/usePublicSettings';
 import { listPlans, subscribe, getCurrentSubscription, createPaymentSession } from '../../services/adminService';
 import { formatCurrency } from '../../utils/formatters';
 import { LoadingState } from '../../components/common/Spinner';
@@ -11,6 +12,13 @@ import { apiError } from '../../services/api';
 import { localizedName, localizedPlatformText } from '../../utils/localize';
 
 export default function SubscriptionPage() {
+  // Off from the administration: no subscription page at all (AYK-147).
+  const { settings, loading: settingsLoading } = usePublicSettings();
+  if (!settingsLoading && !subscriptionsOn(settings)) return <Navigate to="/provider" replace />;
+  return <SubscriptionContent />;
+}
+
+function SubscriptionContent() {
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
   const [plans, setPlans] = useState([]);

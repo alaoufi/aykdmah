@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import usePublicSettings, { subscriptionsOn } from './hooks/usePublicSettings';
 import MainLayout from './layouts/MainLayout';
 import DashboardLayout from './layouts/DashboardLayout';
 import AuthLayout from './layouts/AuthLayout';
@@ -127,7 +128,10 @@ const BOTH_SIDEBAR = [
 
 function RoleDashboard() {
   const { user } = useAuth();
-  const items = isBothAccount(user) ? BOTH_SIDEBAR : user?.role === 'provider' ? PROVIDER_SIDEBAR : CLIENT_SIDEBAR;
+  const { settings } = usePublicSettings();
+  const all = isBothAccount(user) ? BOTH_SIDEBAR : user?.role === 'provider' ? PROVIDER_SIDEBAR : CLIENT_SIDEBAR;
+  // "Subscription" only while subscriptions are on (AYK-147).
+  const items = subscriptionsOn(settings) ? all : all.filter(item => item.to !== '/provider/subscription');
   return <DashboardLayout sidebarItems={items} />;
 }
 
