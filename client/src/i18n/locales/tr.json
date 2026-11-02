@@ -1382,7 +1382,11 @@
     "limit_max_duration_days": "En uzun süre (gün)",
     "limit_min_views": "En az görüntülenme",
     "limit_max_views": "En çok görüntülenme",
-    "paid_bounds_locked": "Bu bir reklamverenin reklamı: yeri, süresi, görüntülenmesi ve hedeflemesi fiyatına bağlı, bu yüzden burada yalnızca içeriği değişir. Değiştirmek için önce ücretini kaldırın."
+    "paid_bounds_locked": "Bu bir reklamverenin reklamı: yeri, süresi, görüntülenmesi ve hedeflemesi fiyatına bağlı, bu yüzden burada yalnızca içeriği değişir. Değiştirmek için önce ücretini kaldırın.",
+    "reactivate": "Yeniden etkinleştir",
+    "stop_ended": "Bitiş tarihi geçtiği için sona erdi ({{date}}). «Düzenle» ile uzatıp «Yeniden etkinleştir»e basın.",
+    "stop_views_done": "Görüntülenme sınırına ulaştığı için sona erdi. «Düzenle» ile sınırı artırıp «Yeniden etkinleştir»e basın.",
+    "stop_unpaid": "Durduruldu: tam ödemesi olmayan reklamveren reklamı. Ücretini kaldırın veya ödemeyi bekleyin."
   },
   "badge": {
     "page_title": "Benim rozetlerim",

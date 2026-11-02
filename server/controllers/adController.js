@@ -197,6 +197,8 @@ const adminList = financeHandler(async (req, res) => {
   await adRequestService.sweep();
   const { status, placement, page = 1, limit = 30 } = req.query;
   const { items, total } = await Ad.listPaginated({ status, placement, page, limit });
+  // Why each expired ad stopped (AYK-157), shown on its card.
+  for (const ad of items) if (ad.status === 'expired') ad.stop_reason = await Ad.stopReason(ad.id);
   return paginate(res, await Ad.withAdminMessages(items), total, page, limit);
 });
 
@@ -394,6 +396,16 @@ const adminSaveFees = financeHandler(async (req, res) => {
 });
 
 // POST /api/admin/ads/:id/waive — { reason }: the ad runs without fees.
+// POST /api/admin/ads/:id/reactivate — an expired ad runs again when its end date and views allow (AYK-157).
+const adminReactivate = financeHandler(async (req, res) => {
+  const ad = await Ad.findById(Number(req.params.id));
+  if (!ad) return notFound(res);
+  const started = ad.status === 'expired' ? await Ad.reactivate(ad.id) : null;
+  if (started) return success(res, started, req.t('ad_activated'));
+  const reason = ad.status === 'expired' ? await Ad.stopReason(ad.id) : null;
+  return error(res, req.t(reason ? `ad_stop_${reason.code}` : 'ad_wrong_state'), 409, reason ? [{ code: reason.code }] : null);
+});
+
 const adminWaive = financeHandler(async (req, res) => {
   const result = await adRequestService.waive({ adId: Number(req.params.id), adminId: req.user.id, reason: req.body?.reason });
   if (!result.ok) {
@@ -425,7 +437,7 @@ const adminMessage = financeHandler(async (req, res) => {
 });
 
 module.exports = {
-  adminGetFees, adminSaveFees, adminWaive, adminMessage,
+  adminGetFees, adminSaveFees, adminWaive, adminMessage, adminReactivate,
   live, trackView, trackClick,
   myAds, previewQuote, placementPricing, myGeo, submit, pay, cancel,
   stats, pauseMine, resumeMine,

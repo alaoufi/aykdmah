@@ -1382,7 +1382,11 @@
     "limit_max_duration_days": "Durasi terpanjang (hari)",
     "limit_min_views": "Tayangan paling sedikit",
     "limit_max_views": "Tayangan paling banyak",
-    "paid_bounds_locked": "Ini iklan pengiklan: tempat, durasi, tayangan, dan targetnya terkait harga, jadi di sini hanya kontennya yang diubah. Bebaskan biayanya dulu untuk mengubahnya."
+    "paid_bounds_locked": "Ini iklan pengiklan: tempat, durasi, tayangan, dan targetnya terkait harga, jadi di sini hanya kontennya yang diubah. Bebaskan biayanya dulu untuk mengubahnya.",
+    "reactivate": "Aktifkan lagi",
+    "stop_ended": "Berakhir karena tanggal akhirnya lewat ({{date}}). Perpanjang di «Edit», lalu tekan «Aktifkan lagi».",
+    "stop_views_done": "Berakhir karena mencapai batas tayangan. Naikkan di «Edit», lalu tekan «Aktifkan lagi».",
+    "stop_unpaid": "Berhenti: iklan pengiklan tanpa pembayaran lengkap. Bebaskan biayanya atau tunggu pembayaran."
   },
   "badge": {
     "page_title": "Pakarku",

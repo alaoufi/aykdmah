@@ -1382,7 +1382,11 @@
     "limit_max_duration_days": "Longest (days)",
     "limit_min_views": "Fewest views",
     "limit_max_views": "Most views",
-    "paid_bounds_locked": "This is an advertiser's ad: its place, duration, views and targeting are what it was priced on, so only its content (picture, texts, link) changes here. Waive its fees first to change them."
+    "paid_bounds_locked": "This is an advertiser's ad: its place, duration, views and targeting are what it was priced on, so only its content (picture, texts, link) changes here. Waive its fees first to change them.",
+    "reactivate": "Reactivate",
+    "stop_ended": "Ended because its end date passed ({{date}}). Extend it in \"Edit\", then press \"Reactivate\".",
+    "stop_views_done": "Ended because it reached its view limit. Raise it in \"Edit\", then press \"Reactivate\".",
+    "stop_unpaid": "Stopped: an advertiser's ad without a completed payment. Waive its fees or wait for payment."
   },
   "badge": {
     "page_title": "My badges",

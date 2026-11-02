@@ -6,7 +6,7 @@ import {
   approveAdAdmin, rejectAdAdmin, activateAdAdmin,
   pauseAdAdmin, resumeAdAdmin, getAdStatsAdmin,
   getAdsPlacementPricing, saveAdsPlacementPricing, adminPreviewLiveAds, diagnoseAd,
-  waiveAdFee, messageAdvertiser,
+  waiveAdFee, messageAdvertiser, reactivateAdAdmin,
 } from '../../services/adminService';
 import AdFeesExtras from '../../components/admin/AdFeesExtras';
 import AdSparkline from '../../components/ads/AdSparkline';
@@ -319,6 +319,13 @@ export default function AdminAdsPage() {
     finally { setBusy(null); }
   };
 
+  const onReactivate = async (a) => {
+    setBusy(a.id);
+    try { await reactivateAdAdmin(a.id); setMsg({ type: 'success', text: t('promote.admin_activated') }); load(); }
+    catch (e) { setMsg({ type: 'error', text: apiError(e) }); }
+    finally { setBusy(null); }
+  };
+
   const onWaive = async (a) => {
     const reason = await askText({ title: `🎁 ${t('promote.waive_fee')}`, message: t('promote.waive_reason_prompt'), multiline: true, maxLength: 500, confirmText: t('promote.waive_fee') });
     if (reason === null) return;
@@ -558,6 +565,12 @@ export default function AdminAdsPage() {
                 {a.notes && (
                   <div className="mt-1 mb-2 p-2 rounded bg-slate-50 text-[12px] text-slate-700">«{a.notes}»</div>
                 )}
+                {/* Why it stopped (AYK-157): the end date, the view limit, or no payment. */}
+                {a.status === 'expired' && a.stop_reason && (
+                  <div className="mt-1 mb-2 p-2 rounded bg-amber-50 border border-amber-200 text-[12px] text-amber-800 font-semibold">
+                    ⏱️ {t(`promote.stop_${a.stop_reason.code}`, { date: a.stop_reason.ends_at ? new Date(a.stop_reason.ends_at).toLocaleString(i18n.resolvedLanguage, { dateStyle: 'medium', timeStyle: 'short' }) : '' })}
+                  </div>
+                )}
                 {a.rejection_reason && (
                   <div className="mt-1 mb-2 p-2 rounded bg-rose-50 text-[12px] text-rose-700">{t('badge.reason')}: {a.rejection_reason}</div>
                 )}
@@ -573,6 +586,9 @@ export default function AdminAdsPage() {
                   )}
                   {a.status === 'active' && (
                     <button onClick={() => onPause(a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-amber-50 text-amber-700 hover:bg-amber-100 transition disabled:opacity-60">⏸ {t('promote.pause')}</button>
+                  )}
+                  {a.status === 'expired' && (
+                    <button onClick={() => onReactivate(a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition disabled:opacity-60">🔄 {t('promote.reactivate')}</button>
                   )}
                   {a.status === 'paused' && (
                     <button onClick={() => onResume(a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition disabled:opacity-60">▶ {t('promote.resume')}</button>

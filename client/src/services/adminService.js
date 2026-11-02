@@ -437,6 +437,10 @@ export async function createPaymentSession(payload) {
 }
 
 // Ad fees and management (AYK-153).
+export async function reactivateAdAdmin(id) {
+  const { data } = await api.post(`/admin/ads/${id}/reactivate`);
+  return data.data;
+}
 export async function waiveAdFee(id, reason) {
   const { data } = await api.post(`/admin/ads/${id}/waive`, { reason });
   return data.data;

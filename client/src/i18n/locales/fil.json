@@ -1382,7 +1382,11 @@
     "limit_max_duration_days": "Pinakamahabang tagal (araw)",
     "limit_min_views": "Pinakakaunting views",
     "limit_max_views": "Pinakamaraming views",
-    "paid_bounds_locked": "Ad ito ng advertiser: ang lugar, tagal, views at target nito ay nakatali sa presyo, kaya nilalaman lang ang nababago rito. Iwaksi muna ang bayad para baguhin ang mga iyon."
+    "paid_bounds_locked": "Ad ito ng advertiser: ang lugar, tagal, views at target nito ay nakatali sa presyo, kaya nilalaman lang ang nababago rito. Iwaksi muna ang bayad para baguhin ang mga iyon.",
+    "reactivate": "I-activate muli",
+    "stop_ended": "Natapos dahil lumipas na ang petsa ng pagtatapos ({{date}}). Pahabain ito sa «I-edit», saka pindutin ang «I-activate muli».",
+    "stop_views_done": "Natapos dahil naabot ang limitasyon ng views. Taasan ito sa «I-edit», saka pindutin ang «I-activate muli».",
+    "stop_unpaid": "Nakahinto: ad ng advertiser na walang kumpletong bayad. Iwaksi ang bayad o hintayin ang bayad."
   },
   "badge": {
     "page_title": "Ang aking mga badge",

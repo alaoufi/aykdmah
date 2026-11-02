@@ -219,6 +219,17 @@ test('ad fees follow the covered area; a waived ad starts unpaid; the advertiser
     assert.equal(Number(waived.amount), 0);
     const active = await api(`/admin/ads/${ad.id}/activate`, { user: users.adsAdmin, method: 'POST', body: {} });
     assert.equal(active.status, 'active');
+    // AYK-157: the sweep keeps a waived ad running, and it shows where it was placed.
+    await adService.sweep();
+    assert.equal((await Ad.findById(ad.id)).status, 'active');
+    const shown = await Ad.listLive({ placement: 'home_top', applyExclusivity: false });
+    assert.ok(shown.some(row => row.id === ad.id), 'a waived ad is shown');
+    await db.query("UPDATE ads SET status = 'expired', is_active = 0, ends_at = CURRENT_TIMESTAMP - INTERVAL '1 hour' WHERE id = ?", [ad.id]);
+    const ended = (await api('/admin/ads?status=expired', { user: users.adsAdmin })).find?.(row => row.id === ad.id);
+    if (ended) assert.equal(ended.stop_reason.code, 'ended');
+    await api(`/admin/ads/${ad.id}/reactivate`, { user: users.adsAdmin, method: 'POST', body: {}, expected: 409 });
+    await db.query("UPDATE ads SET ends_at = CURRENT_TIMESTAMP + INTERVAL '2 days' WHERE id = ?", [ad.id]);
+    assert.equal((await api(`/admin/ads/${ad.id}/reactivate`, { user: users.adsAdmin, method: 'POST', body: {} })).status, 'active');
     await api(`/admin/ads/${ad.id}/waive`, { user: users.adsAdmin, method: 'POST', body: {}, expected: 409 });
     await api(`/admin/ads/${ad.id}/message`, { user: users.adsAdmin, method: 'POST', body: { category: 'other', message: 'x' }, expected: 400 });
     await api(`/admin/ads/${ad.id}/message`, { user: users.adsAdmin, method: 'POST', body: { category: 'legal', message: 'Add the licence number to the ad text.' } });

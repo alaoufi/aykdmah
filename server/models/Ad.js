@@ -1,8 +1,10 @@
 const { query, queryOne, tableHasColumn, transaction } = require('../config/database');
 const { pagination, invalid } = require('./Payment');
 
+// Shown and kept active only when paid, created by the administration, or with its fees waived
+// (AYK-153; before AYK-157 a waived ad expired at once and never showed).
 function paymentGuard(alias = 'ads') {
-  return `(${alias}.user_id IS NULL OR EXISTS (SELECT 1 FROM payments p WHERE p.id = ${alias}.payment_id
+  return `(${alias}.user_id IS NULL OR COALESCE(${alias}.fee_waived, 0) = 1 OR EXISTS (SELECT 1 FROM payments p WHERE p.id = ${alias}.payment_id
     AND p.user_id = ${alias}.user_id AND p.status = 'completed' AND p.amount = ${alias}.amount
     AND p.currency = 'SAR' AND LOWER(p.provider) NOT IN ('mock', 'stub', '')
     AND p.provider_transaction_id IS NOT NULL AND p.paid_at IS NOT NULL
@@ -346,6 +348,34 @@ async function pause(id) {
   return result.affectedRows ? findById(id) : null;
 }
 
+// An expired ad starts again once its end date or view limit allows it (AYK-157).
+async function reactivate(id) {
+  const result = await query(
+    `UPDATE ads SET status = 'active', is_active = 1
+      WHERE id = ? AND status = 'expired'
+        AND (ends_at IS NULL OR ends_at > CURRENT_TIMESTAMP)
+        AND (max_views IS NULL OR views_count < max_views)
+        AND ${paymentGuard()}`,
+    [id]
+  );
+  return result.affectedRows ? findById(id) : null;
+}
+
+// Why an ad is not running (AYK-157): the end date passed, the view limit was reached, or it is
+// an advertiser's ad without a completed payment (and no fee waiver).
+async function stopReason(id) {
+  const row = await queryOne(
+    `SELECT (ends_at IS NOT NULL AND ends_at <= CURRENT_TIMESTAMP) AS ended,
+            (max_views IS NOT NULL AND views_count >= max_views) AS views_done,
+            NOT ${paymentGuard()} AS unpaid, ends_at
+       FROM ads WHERE id = ?`, [id]);
+  if (!row) return null;
+  if (row.ended) return { code: 'ended', ends_at: row.ends_at };
+  if (row.views_done) return { code: 'views_done' };
+  if (row.unpaid) return { code: 'unpaid' };
+  return null;
+}
+
 async function resume(id) {
   // Resume only flips back to active if the schedule + view-cap still allow it.
   const result = await query(
@@ -375,5 +405,5 @@ module.exports = {
   create, update,
   approve, reject, activate, markAwaitingPayment, cancel, remove,
   waiveFee, activateWaived, MESSAGE_CATEGORIES, addAdminMessage, withAdminMessages,
-  bumpViews, bumpClicks, dailyStats, pause, resume, expireOverdue,
+  bumpViews, bumpClicks, dailyStats, pause, resume, expireOverdue, reactivate, stopReason,
 };
