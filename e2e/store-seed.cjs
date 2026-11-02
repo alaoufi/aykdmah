@@ -1,4 +1,8 @@
 // Executed via stdin inside the disposable screenshot app, never on production.
+const assert = require('node:assert/strict');
+assert.match(process.env.DB_HOST || '', /^ayk-shots-\d+-db$/);
+assert.equal(process.env.DB_NAME, 'postgres');
+assert.ok(!process.env.DATABASE_URL && !process.env.DIRECT_DATABASE_URL);
 const install = require('./server/services/installService');
 const db = require('./server/config/database');
 const jwt = require('./server/utils/jwt');
