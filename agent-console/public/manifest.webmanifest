@@ -1,0 +1,20 @@
+{
+  "name": "وكيل التطوير — جميع المشاريع",
+  "short_name": "وكيل التطوير",
+  "description": "إدارة تطوير المشاريع والمهام من أي جهاز",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "dir": "rtl",
+  "lang": "ar",
+  "background_color": "#f3f6fa",
+  "theme_color": "#14294e",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
