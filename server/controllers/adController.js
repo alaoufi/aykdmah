@@ -78,12 +78,14 @@ const myAds = financeHandler(async (req, res) => {
     adRequestService.getConfig(),
     Ad.listForUser(req.user.id),
   ]);
-  return success(res, { config, ads });
+  // The administration's messages about each ad (AYK-153).
+  return success(res, { config, ads: await Ad.withAdminMessages(ads) });
 });
 
 // POST /api/ads/quote — preview total cost without saving anything
 const previewQuote = financeHandler(async (req, res) => {
   const config = await adRequestService.getConfig();
+  const covered = await adRequestService.coverageFor(config, req.body || {});
   return success(res, {
     config,
     quote: adRequestService.quote({
@@ -92,6 +94,7 @@ const previewQuote = financeHandler(async (req, res) => {
       placements: req.body.placements,
       exclusive: req.body.exclusive,
       config,
+      coverage: covered.multiplier,
     }),
   });
 });
@@ -194,7 +197,7 @@ const adminList = financeHandler(async (req, res) => {
   await adRequestService.sweep();
   const { status, placement, page = 1, limit = 30 } = req.query;
   const { items, total } = await Ad.listPaginated({ status, placement, page, limit });
-  return paginate(res, items, total, page, limit);
+  return paginate(res, await Ad.withAdminMessages(items), total, page, limit);
 });
 
 const adminPause = financeHandler(async (req, res) => {
@@ -347,7 +350,7 @@ const adminReject = financeHandler(async (req, res) => {
 });
 
 const adminActivate = financeHandler(async (req, res) => {
-  const result = await adRequestService.activate({ adId: Number(req.params.id) });
+  const result = await adRequestService.activate({ adId: Number(req.params.id), adminId: req.user.id });
   if (!result.ok) {
     if (result.error === 'not_found')   return notFound(res);
     if (result.error === 'wrong_state') return error(res, req.t('ad_wrong_state'), 409);
@@ -357,7 +360,72 @@ const adminActivate = financeHandler(async (req, res) => {
   return success(res, result.ad, req.t('ad_activated'));
 });
 
+// ---- Ad fees and management (AYK-153) ----
+
+// GET /api/admin/ads-fees — what an ad costs besides its place: its covered area and the limits.
+const adminGetFees = financeHandler(async (req, res) => {
+  const config = await adRequestService.getConfig();
+  return success(res, {
+    coverage: config.coverage,
+    limits: { min_duration_days: config.min_duration_days, max_duration_days: config.max_duration_days, min_views: config.min_views, max_views: config.max_views },
+  });
+});
+
+// PUT /api/admin/ads-fees — { coverage: { all, regions: { id: factor } }, limits: {...} }
+const adminSaveFees = financeHandler(async (req, res) => {
+  const Setting = require('../models/Setting');
+  const { coverage, limits } = req.body || {};
+  const factorOk = v => Number.isFinite(Number(v)) && Number(v) >= 0.1 && Number(v) <= 100;
+  if (coverage) {
+    const regions = coverage.regions && typeof coverage.regions === 'object' ? coverage.regions : {};
+    if (!factorOk(coverage.all ?? 1) || Object.keys(regions).length > 500
+      || Object.entries(regions).some(([id, f]) => !/^\d{1,9}$/.test(id) || !factorOk(f))) return error(res, req.t('invalid_data'), 400);
+    await Setting.set('ads_coverage_pricing', adRequestService.normalizeCoverage({ all: coverage.all ?? 1, regions }), 'json', 'ads');
+  }
+  if (limits) {
+    const n = k => Number(limits[k]);
+    const ok = ['min_duration_days', 'max_duration_days', 'min_views', 'max_views'].every(k => Number.isSafeInteger(n(k)) && n(k) >= 1)
+      && n('max_duration_days') >= n('min_duration_days') && n('max_duration_days') <= 3650
+      && n('max_views') >= n('min_views') && n('max_views') <= 100000000;
+    if (!ok) return error(res, req.t('invalid_data'), 400);
+    for (const k of ['min_duration_days', 'max_duration_days', 'min_views', 'max_views']) await Setting.set(`ads_${k}`, n(k), 'number', 'auth', 1);
+  }
+  return adminGetFees(req, res);
+});
+
+// POST /api/admin/ads/:id/waive — { reason }: the ad runs without fees.
+const adminWaive = financeHandler(async (req, res) => {
+  const result = await adRequestService.waive({ adId: Number(req.params.id), adminId: req.user.id, reason: req.body?.reason });
+  if (!result.ok) {
+    if (result.error === 'not_found') return notFound(res);
+    return error(res, req.t('ad_wrong_state'), 409);
+  }
+  require('../services/notificationService').notifyUser(result.ad.user_id, {
+    type: 'ad_fee_waived', title: 'أُعفي إعلانك من الرسوم', body: result.ad.title, link: '/promote',
+  }).catch(() => {});
+  return success(res, result.ad, req.t('updated'));
+});
+
+// POST /api/admin/ads/:id/message — { category: financial|administrative|legal, message }
+const adminMessage = financeHandler(async (req, res) => {
+  const ad = await Ad.findById(Number(req.params.id));
+  if (!ad) return notFound(res);
+  const category = req.body?.category;
+  const message = typeof req.body?.message === 'string' ? req.body.message.trim() : '';
+  if (!Ad.MESSAGE_CATEGORIES.includes(category) || !message || message.length > 2000) return error(res, req.t('invalid_data'), 400);
+  await Ad.addAdminMessage(ad.id, req.user.id, category, message);
+  const titles = { financial: 'ملاحظة مالية على إعلانك', administrative: 'ملاحظة إدارية على إعلانك', legal: 'ملاحظة قانونية على إعلانك' };
+  if (ad.user_id) {
+    require('../services/notificationService').notifyUser(ad.user_id, {
+      type: 'ad_admin_message', title: titles[category], body: `${ad.title}: ${message}`.slice(0, 500), link: '/promote', data: { ad_id: ad.id },
+    }).catch(() => {});
+  }
+  const [withMessages] = await Ad.withAdminMessages([ad]);
+  return success(res, withMessages, req.t('updated'));
+});
+
 module.exports = {
+  adminGetFees, adminSaveFees, adminWaive, adminMessage,
   live, trackView, trackClick,
   myAds, previewQuote, placementPricing, myGeo, submit, pay, cancel,
   stats, pauseMine, resumeMine,

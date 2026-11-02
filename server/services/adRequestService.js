@@ -11,6 +11,36 @@ const Ad = require('../models/Ad');
 const AdPlacementPricing = require('../models/AdPlacementPricing');
 const { money, invalid, validId } = require('../models/Payment');
 const paymentService = require('./paymentService');
+const City = require('../models/City');
+
+// The price factor of a covered region (AYK-153): 0.1–100, 1 when not set.
+const coverageFactor = (value) => {
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0.1 && n <= 100 ? Math.round(n * 100) / 100 : 1;
+};
+function normalizeCoverage(raw) {
+  let value = raw;
+  if (typeof value === 'string') { try { value = JSON.parse(value); } catch (_) { value = null; } }
+  const regions = {};
+  for (const [id, factor] of Object.entries(value?.regions || {})) if (/^\d{1,9}$/.test(id)) regions[id] = coverageFactor(factor);
+  return { all: coverageFactor(value?.all ?? 1), regions };
+}
+
+// The price factor of the area an ad covers (AYK-153): the whole country, or the sum of the
+// factors of the regions it targets (a targeted city counts as its region).
+async function coverageFor(config, { target_regions, target_cities } = {}) {
+  const ids = new Set((Array.isArray(target_regions) ? target_regions : []).filter(validId).map(Number));
+  const names = (Array.isArray(target_cities) ? target_cities : []).filter(v => typeof v === 'string' && v.trim()).slice(0, 100);
+  if (names.length) {
+    for (const city of await City.findAll()) {
+      if ((names.includes(city.name_ar) || names.includes(city.name_en)) && city.in_region_id) ids.add(Number(city.in_region_id));
+    }
+  }
+  const coverage = config.coverage || { all: 1, regions: {} };
+  if (!ids.size) return { multiplier: coverage.all, regions: [] };
+  const sum = [...ids].reduce((total, id) => total + (coverage.regions[id] ?? 1), 0);
+  return { multiplier: Math.round(sum * 100) / 100, regions: [...ids] };
+}
 
 // Add new spots here as the UI grows — frontend simply reads this list
 // from /settings/public is the eventual move; for now both sides keep
@@ -31,6 +61,7 @@ async function getConfig() {
     'ads_price_per_day',     'ads_price_per_1k_views',
     'ads_min_duration_days', 'ads_max_duration_days',
     'ads_min_views',         'ads_max_views',
+    'ads_coverage_pricing',
   ];
   const [s, pricing] = await Promise.all([
     Setting.getMany(keys),
@@ -64,12 +95,13 @@ async function getConfig() {
     max_views: maxViews,
     placements: ALLOWED_PLACEMENTS,
     pricing: pricingByPlacement,
+    coverage: normalizeCoverage(s.ads_coverage_pricing),
   };
 }
 
 // quote — per-placement breakdown + total. Exclusive ads pay each
 // placement's exclusive_multiplier on top of its base rate.
-function quote({ duration_days, max_views, placements, exclusive, config }) {
+function quote({ duration_days, max_views, placements, exclusive, config, coverage = 1 }) {
   const days = Number(duration_days), views = Number(max_views);
   if (!validId(duration_days) || days < Math.max(1, config.min_duration_days) || days > Math.min(3650, config.max_duration_days)) throw invalid('Invalid advertising duration');
   if (!validId(max_views) || views < Math.max(1, config.min_views) || views > Math.min(100000000, config.max_views)) throw invalid('Invalid advertising views');
@@ -77,13 +109,15 @@ function quote({ duration_days, max_views, placements, exclusive, config }) {
   const raw = placements === undefined ? ['home_top'] : placements;
   if (!Array.isArray(raw) || !raw.length || raw.length > ALLOWED_PLACEMENTS.length || raw.some(p => typeof p !== 'string' || !ALLOWED_PLACEMENTS.includes(p) || !config.pricing?.[p]?.is_active)) throw invalid('Invalid advertising placement');
   const list = [...new Set(raw)];
+  const area = coverageFactor(coverage);
 
   const breakdown = list.map((p) => {
     const row  = config.pricing[p];
     const mult = exclusive ? money(row.exclusive_multiplier) : 1;
     if (mult < 1 || mult > 99.99) throw invalid('Invalid exclusive multiplier');
-    const day  = days  * row.price_per_day        * mult;
-    const view = (views / 1000) * row.price_per_1k_views * mult;
+    // Place × duration × views × covered area (AYK-153).
+    const day  = days  * row.price_per_day        * mult * area;
+    const view = (views / 1000) * row.price_per_1k_views * mult * area;
     return {
       placement: p,
       price_per_day: row.price_per_day, price_per_1k_views: row.price_per_1k_views,
@@ -98,6 +132,7 @@ function quote({ duration_days, max_views, placements, exclusive, config }) {
   const view_cost = breakdown.reduce((s, b) => s + b.view_cost, 0);
   return {
     duration_days: days, max_views: views, exclusive: !!exclusive,
+    coverage: area,
     breakdown,
     day_cost:  Math.round(day_cost  * 100) / 100,
     view_cost: Math.round(view_cost * 100) / 100,
@@ -147,10 +182,11 @@ async function submit({ user, payload }) {
   if (!Array.isArray(rawPlacements) || !rawPlacements.length || rawPlacements.length > ALLOWED_PLACEMENTS.length || rawPlacements.some(p => !ALLOWED_PLACEMENTS.includes(p) || !cfg.pricing[p].is_active)) return fieldError('placements', 'invalid_placement');
   const placementList = [...new Set(rawPlacements)];
 
+  const covered = await coverageFor(cfg, { target_regions, target_cities });
   const q = quote({
     duration_days: days, max_views: views,
     placements: placementList, exclusive,
-    config: cfg,
+    config: cfg, coverage: covered.multiplier,
   });
 
   if (starts_at != null && (typeof starts_at !== 'string' || starts_at.length > 40)) return fieldError('starts_at', 'invalid_start');
@@ -175,6 +211,7 @@ async function submit({ user, payload }) {
     duration_days: days,
     max_views: views,
     amount: q.total,
+    coverage_multiplier: q.coverage,
     is_active: false,
     status: 'requested',
   });
@@ -208,14 +245,26 @@ async function pay({ user, adId }) {
   return { ok: false, error: 'payment_not_configured', ...paymentService.getAvailability() };
 }
 
-async function activate({ adId }) {
+async function activate({ adId, adminId }) {
   const ad = await Ad.findById(adId);
   if (!ad) return { ok: false, error: 'not_found' };
+  // A waived ad starts without payment (AYK-153).
+  if (Number(ad.fee_waived) === 1) {
+    const started = await Ad.activateWaived(adId, adminId);
+    return started ? { ok: true, ad: started } : { ok: false, error: 'wrong_state', state: ad.status };
+  }
   if (ad.status !== 'awaiting_payment') {
     return { ok: false, error: 'wrong_state', state: ad.status };
   }
   const updated = await Ad.activate(adId, { paymentId: ad.payment_id });
   return updated ? { ok: true, ad: updated } : { ok: false, error: 'payment_required' };
+}
+
+async function waive({ adId, adminId, reason }) {
+  const ad = await Ad.findById(adId);
+  if (!ad) return { ok: false, error: 'not_found' };
+  const updated = await Ad.waiveFee(adId, adminId, typeof reason === 'string' ? reason.trim().slice(0, 500) : null);
+  return updated ? { ok: true, ad: updated } : { ok: false, error: 'wrong_state', state: ad.status };
 }
 
 async function cancel({ user, adId }) {
@@ -237,4 +286,5 @@ module.exports = {
   ALLOWED_PLACEMENTS,
   getConfig, quote,
   submit, approve, reject, pay, activate, cancel, sweep,
+  waive, coverageFor, normalizeCoverage,
 };

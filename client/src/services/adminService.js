@@ -435,3 +435,21 @@ export async function createPaymentSession(payload) {
   const { data } = await api.post('/payments/session', payload);
   return data.data;
 }
+
+// Ad fees and management (AYK-153).
+export async function waiveAdFee(id, reason) {
+  const { data } = await api.post(`/admin/ads/${id}/waive`, { reason });
+  return data.data;
+}
+export async function messageAdvertiser(id, category, message) {
+  const { data } = await api.post(`/admin/ads/${id}/message`, { category, message });
+  return data.data;
+}
+export async function getAdsFees() {
+  const { data } = await api.get('/admin/ads-fees');
+  return data.data;
+}
+export async function saveAdsFees(body) {
+  const { data } = await api.put('/admin/ads-fees', body);
+  return data.data;
+}

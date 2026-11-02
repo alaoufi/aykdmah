@@ -6,7 +6,9 @@ import {
   approveAdAdmin, rejectAdAdmin, activateAdAdmin,
   pauseAdAdmin, resumeAdAdmin, getAdStatsAdmin,
   getAdsPlacementPricing, saveAdsPlacementPricing, adminPreviewLiveAds, diagnoseAd,
+  waiveAdFee, messageAdvertiser,
 } from '../../services/adminService';
+import AdFeesExtras from '../../components/admin/AdFeesExtras';
 import AdSparkline from '../../components/ads/AdSparkline';
 import { listCities, listRegions } from '../../services/serviceService';
 import { apiError } from '../../services/api';
@@ -79,6 +81,9 @@ export default function AdminAdsPage() {
   const [msg, setMsg] = useState(null);
   const [search, setSearch] = useState('');
   const [openStats, setOpenStats] = useState({});
+  // Two parts (AYK-153): "Ad fees" and "Ad management".
+  const [section, setSection] = useState('manage');
+  const [reply, setReply] = useState(null); // { ad, category, message, sending, error }
   const editVersion = useRef(0);
   const uploadVersion = useRef(0);
   const loadVersion = useRef(0);
@@ -304,6 +309,26 @@ export default function AdminAdsPage() {
     finally { setBusy(null); }
   };
 
+  const onWaive = async (a) => {
+    const reason = window.prompt(t('promote.waive_reason_prompt'), '');
+    if (reason === null) return;
+    setBusy(a.id);
+    try { await waiveAdFee(a.id, reason); setMsg({ type: 'success', text: t('promote.waived_msg') }); load(); }
+    catch (e) { setMsg({ type: 'error', text: apiError(e) }); }
+    finally { setBusy(null); }
+  };
+
+  const sendReply = async () => {
+    if (!reply?.message?.trim()) { setReply((r) => ({ ...r, error: t('promote.message_required') })); return; }
+    setReply((r) => ({ ...r, sending: true, error: '' }));
+    try {
+      await messageAdvertiser(reply.ad.id, reply.category, reply.message.trim());
+      setReply(null);
+      setMsg({ type: 'success', text: t('promote.message_sent') });
+      load();
+    } catch (e) { setReply((r) => ({ ...r, sending: false, error: apiError(e) })); }
+  };
+
   const onActivate = async (a) => {
     setBusy(a.id);
     try { await activateAdAdmin(a.id); setMsg({ type: 'success', text: t('promote.admin_activated') }); load(); }
@@ -335,8 +360,18 @@ export default function AdminAdsPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader title={t('admin.ads')} count={meta?.pagination?.total ?? items.length}>
-        <AdminButton variant="primary" icon="+" onClick={openCreate}>{t('admin.new')}</AdminButton>
+        {section === 'manage' && <AdminButton variant="primary" icon="+" onClick={openCreate}>{t('admin.new')}</AdminButton>}
       </AdminPageHeader>
+
+      {/* Two parts (AYK-153): what ads cost, and managing each ad. */}
+      <div className="flex gap-2" role="tablist">
+        {[['manage', '🗂️', 'promote.section_manage'], ['fees', '💰', 'promote.section_fees']].map(([key, icon, label]) => (
+          <button key={key} type="button" role="tab" aria-selected={section === key} onClick={() => setSection(key)}
+            className={`flex-1 md:flex-none px-4 py-2.5 rounded-card text-[13.5px] font-extrabold border-2 transition ${
+              section === key ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+            }`}>{icon} {t(label)}</button>
+        ))}
+      </div>
 
       {msg && (
         <div className={`px-4 py-3 rounded-card text-[13.5px] font-semibold ${
@@ -344,6 +379,7 @@ export default function AdminAdsPage() {
         }`}>{msg.text}</div>
       )}
 
+      {section === 'manage' && (<>
       {/* Live placement breakdown — counts ACTIVE ads in each zone so
           the admin can quickly verify that an ad is actually going
           out where they intended. Click a chip to preview exactly
@@ -371,6 +407,9 @@ export default function AdminAdsPage() {
         </div>
       </div>
 
+      </>)}
+
+      {section === 'fees' && (<>
       {/* Per-placement pricing table */}
       <div className="bg-white rounded-card border border-slate-100 shadow-soft overflow-hidden">
         <div className="px-4 md:px-5 py-3 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between gap-2">
@@ -430,6 +469,10 @@ export default function AdminAdsPage() {
         <p className="px-4 py-2 text-[11.5px] text-slate-500 border-t border-slate-100">{t('promote.placement_pricing_hint')}</p>
       </div>
 
+      <AdFeesExtras regions={regions} onMessage={setMsg} />
+      </>)}
+
+      {section === 'manage' && (<>
       <div className="bg-white rounded-card border border-slate-100 p-3 shadow-soft space-y-3">
         <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
           {STATUS_TABS.map((tab) => (
@@ -486,6 +529,7 @@ export default function AdminAdsPage() {
                   <div className="text-[11.5px] text-slate-600 mb-1">
                     👤 <b>{a.user_name}</b>
                     {a.amount > 0 && <span className="text-slate-400"> • {Number(a.amount).toFixed(2)} {t('common.currency')}</span>}
+                    {Number(a.fee_waived) === 1 && <span className="ms-1 px-2 py-0.5 rounded-pill bg-emerald-50 text-emerald-700 text-[10.5px] font-bold">🎁 {t('promote.fee_waived')}</span>}
                   </div>
                 )}
                 <div className="text-[11.5px] text-slate-500 mb-1">
@@ -514,7 +558,7 @@ export default function AdminAdsPage() {
                       <button onClick={() => onReject(a)}  disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition disabled:opacity-60">✗ {t('badge.reject')}</button>
                     </>
                   )}
-                  {a.status === 'awaiting_payment' && (
+                  {(a.status === 'awaiting_payment' || (Number(a.fee_waived) === 1 && ['requested', 'approved'].includes(a.status))) && (
                     <button onClick={() => onActivate(a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition disabled:opacity-60">▶ {t('promote.activate')}</button>
                   )}
                   {a.status === 'active' && (
@@ -526,10 +570,25 @@ export default function AdminAdsPage() {
                   {(a.status === 'active' || a.status === 'paused' || a.status === 'expired') && (
                     <button onClick={() => toggleStats(a)} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">📊 {openStats[a.id] ? t('promote.hide_stats') : t('promote.show_stats')}</button>
                   )}
+                  {['requested', 'approved', 'awaiting_payment'].includes(a.status) && Number(a.fee_waived) !== 1 && !a.payment_id && (
+                    <button onClick={() => onWaive(a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition disabled:opacity-60">🎁 {t('promote.waive_fee')}</button>
+                  )}
+                  {a.user_id && (
+                    <button onClick={() => setReply({ ad: a, category: 'administrative', message: '' })} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-sky-50 text-sky-700 hover:bg-sky-100 transition">✉️ {t('promote.reply_advertiser')}</button>
+                  )}
                   <button onClick={() => openDiag(a)} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-indigo-50 text-indigo-700 hover:bg-indigo-100 transition" title={t('promote.diagnose_hint')}>🩺 {t('promote.diagnose')}</button>
                   <button onClick={() => openEdit(a)} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-brand-50 text-brand-700 hover:bg-brand-100 transition">{t('admin.edit')}</button>
                   <button onClick={() => askDelete(a)} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition">{t('admin.delete')}</button>
                 </div>
+                {Array.isArray(a.admin_messages) && a.admin_messages.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    {a.admin_messages.slice(0, 3).map((m) => (
+                      <div key={m.id} className="p-2 rounded bg-sky-50 text-[11.5px] text-sky-900">
+                        <b>{t(`promote.message_${m.category}`)}</b> · {formatRelativeTime(m.created_at)}: {m.message}
+                      </div>
+                    ))}
+                  </div>
+                )}
                 {openStats[a.id] && (
                   <div className="mt-3 p-3 rounded-card border border-slate-100 bg-white">
                     {openStats[a.id].loading ? (
@@ -545,6 +604,34 @@ export default function AdminAdsPage() {
         </div>
         );
       })()}
+      </>)}
+
+      {/* Reply to the advertiser (AYK-153): a financial, administrative or legal matter. */}
+      <Modal open={Boolean(reply)} onClose={() => setReply(null)} title={`✉️ ${t('promote.reply_title')}`} width={520}
+        footer={
+          <>
+            <button onClick={() => setReply(null)} className="px-4 py-2 rounded-pill bg-white hover:bg-slate-100 text-slate-700 text-[13px] font-semibold border border-slate-200 transition">{t('admin.cancel_btn')}</button>
+            <button onClick={sendReply} disabled={reply?.sending} className="px-4 py-2 rounded-pill text-white text-[13px] font-semibold shadow-soft disabled:opacity-60 transition" style={{ background: 'linear-gradient(135deg, rgb(var(--color-primary-from)), rgb(var(--color-primary-to)))' }}>{reply?.sending ? t('admin.saving') : t('promote.send_message')}</button>
+          </>
+        }>
+        {reply && (
+          <div className="space-y-3">
+            <div className="text-[13px] text-slate-600">📣 <b>{reply.ad.title}</b>{reply.ad.user_name ? <> · 👤 {reply.ad.user_name}</> : null}</div>
+            <div className="flex flex-wrap gap-2">
+              {['financial', 'administrative', 'legal'].map((c) => (
+                <button key={c} type="button" onClick={() => setReply((r) => ({ ...r, category: c }))}
+                  className={`px-3 py-1.5 rounded-pill text-[12.5px] font-bold border-2 transition ${reply.category === c ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 text-slate-600'}`}>
+                  {t(`promote.message_${c}`)}
+                </button>
+              ))}
+            </div>
+            <textarea rows={4} value={reply.message} maxLength={2000} onChange={(e) => setReply((r) => ({ ...r, message: e.target.value, error: '' }))}
+              placeholder={t('promote.message_placeholder')}
+              className={`w-full px-3 py-2 rounded-card border outline-none text-[14px] ${reply.error ? 'border-2 border-rose-500 bg-rose-50' : 'border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500'}`} />
+            {reply.error && <p role="alert" className="m-0 text-[12.5px] font-bold text-rose-600">⚠️ {reply.error}</p>}
+          </div>
+        )}
+      </Modal>
 
       <Modal
         open={editOpen}

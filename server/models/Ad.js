@@ -133,6 +133,8 @@ async function create(data) {
     ['target_cities',    data.target_cities    ? JSON.stringify(data.target_cities)    : null],
     // Migration 021 column
     ['target_regions',   data.target_regions   ? JSON.stringify(data.target_regions)   : null],
+    // Migration 069 column (AYK-153): the covered area's price factor
+    ['coverage_multiplier', data.coverage_multiplier ?? null],
   ];
   const cols = [];
   const values = [];
@@ -217,6 +219,56 @@ async function activate(id, { paymentId } = {}) {
     [paymentId || null, paymentId || null, id, paymentId || null]
   );
   return result.affectedRows ? findById(id) : null;
+}
+
+// Fee waiver (AYK-153): the administration lets an ad run without payment, before it is paid.
+async function waiveFee(id, adminId, reason) {
+  if (reason != null && (typeof reason !== 'string' || reason.length > 500)) throw invalid('Invalid waiver reason');
+  const result = await query(
+    `UPDATE ads SET fee_waived = 1, fee_waived_by = ?, fee_waived_at = CURRENT_TIMESTAMP,
+                    fee_waiver_reason = ?, amount = 0
+     WHERE id = ? AND status IN ('requested', 'approved', 'awaiting_payment') AND payment_id IS NULL`,
+    [adminId, reason || null, id]
+  );
+  return result.affectedRows ? findById(id) : null;
+}
+
+// A waived ad starts without payment.
+async function activateWaived(id, adminId) {
+  const result = await query(
+    `UPDATE ads
+       SET status = 'active', is_active = 1,
+           approved_by = COALESCE(approved_by, ?), approved_at = COALESCE(approved_at, CURRENT_TIMESTAMP),
+           activated_at = CURRENT_TIMESTAMP,
+           starts_at = COALESCE(starts_at, CURRENT_TIMESTAMP),
+           ends_at = COALESCE(ends_at,
+                              CASE WHEN duration_days IS NOT NULL
+                                   THEN COALESCE(starts_at, CURRENT_TIMESTAMP) + duration_days * INTERVAL '1 day'
+                                   ELSE NULL END)
+     WHERE id = ? AND fee_waived = 1 AND status IN ('requested', 'approved', 'awaiting_payment')
+       AND (max_views IS NULL OR views_count < max_views)`,
+    [adminId, id]
+  );
+  return result.affectedRows ? findById(id) : null;
+}
+
+// Messages from the administration to the advertiser (AYK-153).
+const MESSAGE_CATEGORIES = ['financial', 'administrative', 'legal'];
+async function addAdminMessage(adId, adminId, category, message) {
+  await query('INSERT INTO ad_admin_messages (ad_id, admin_id, category, message) VALUES (?, ?, ?, ?)', [adId, adminId, category, message]);
+}
+async function withAdminMessages(ads) {
+  const ids = ads.map(a => a.id).filter(Boolean);
+  if (!ids.length) return ads;
+  let rows = [];
+  try {
+    rows = await query(
+      `SELECT m.id, m.ad_id, m.category, m.message, m.created_at, u.full_name AS admin_name
+       FROM ad_admin_messages m LEFT JOIN users u ON u.id = m.admin_id
+       WHERE m.ad_id IN (${ids.map(() => '?').join(',')}) ORDER BY m.created_at DESC`, ids);
+  } catch (_) { return ads; /* before migration 069 */ }
+  for (const ad of ads) ad.admin_messages = rows.filter(r => r.ad_id === ad.id);
+  return ads;
 }
 
 async function markAwaitingPayment(id) {
@@ -322,5 +374,6 @@ module.exports = {
   findById, listForUser, listPaginated, listLive,
   create, update,
   approve, reject, activate, markAwaitingPayment, cancel, remove,
+  waiveFee, activateWaived, MESSAGE_CATEGORIES, addAdminMessage, withAdminMessages,
   bumpViews, bumpClicks, dailyStats, pause, resume, expireOverdue,
 };

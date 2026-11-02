@@ -53,6 +53,12 @@ router.post('/ads/:id/activate', requirePermission('ads.manage'), adC.adminActiv
 router.post('/ads/:id/pause',    requirePermission('ads.manage'), adC.adminPause);
 router.post('/ads/:id/resume',   requirePermission('ads.manage'), adC.adminResume);
 router.get('/ads/:id/stats',     requirePermission('ads.manage'), adC.adminStats);
+// Fee waiver and messages to the advertiser (AYK-153).
+router.post('/ads/:id/waive',    requirePermission('ads.manage'), adC.adminWaive);
+router.post('/ads/:id/message',  requirePermission('ads.manage'), adC.adminMessage);
+// Fees by covered region, and the duration and views limits (AYK-153).
+router.get('/ads-fees',          requirePermission('ads.manage'), adC.adminGetFees);
+router.put('/ads-fees',          requirePermission('ads.manage'), adC.adminSaveFees);
 
 // Per-placement pricing table + live diagnostic
 router.get('/ads-pricing',      requirePermission('ads.manage'), adC.adminListPricing);

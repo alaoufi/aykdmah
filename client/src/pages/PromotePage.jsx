@@ -117,12 +117,15 @@ export default function PromotePage() {
         max_views: form.max_views,
         placements: form.placements,
         exclusive: form.exclusive,
+        // The covered area changes the price too (AYK-153).
+        target_regions: form.target_regions,
+        target_cities: form.target_cities,
       })
         .then((res) => { if (current) setQuote(res.quote); })
         .catch(() => { if (current) setQuote(null); });
     }, 250);
     return () => { current = false; clearTimeout(handle); };
-  }, [form.duration_days, form.max_views, form.placements, form.exclusive]);
+  }, [form.duration_days, form.max_views, form.placements, form.exclusive, form.target_regions, form.target_cities]);
 
   const config = data?.config;
   // Fall back to the full catalog if /me hasn't reported it (older API)
@@ -459,6 +462,7 @@ export default function PromotePage() {
                 {t('promote.day_cost')}: <b>{formatCurrency(quote.day_cost)}</b>
                 <span className="mx-2">·</span>
                 {t('promote.view_cost')}: <b>{formatCurrency(quote.view_cost)}</b>
+                {quote.coverage && quote.coverage !== 1 && <><span className="mx-2">·</span>{t('promote.coverage_factor')}: <b>×{quote.coverage}</b></>}
               </div>
             </div>
             <div className="flex items-center justify-between">
@@ -555,6 +559,15 @@ export default function PromotePage() {
                       {t('badge.reason')}: {ad.rejection_reason}
                     </div>
                   )}
+                  {Number(ad.fee_waived) === 1 && (
+                    <div className="mt-2 text-[12px] bg-emerald-50 text-emerald-700 rounded p-2 font-bold">🎁 {t('promote.fee_waived_for_you')}</div>
+                  )}
+                  {/* The administration's messages about this ad (AYK-153). */}
+                  {(ad.admin_messages || []).map((m) => (
+                    <div key={m.id} className="mt-2 text-[12px] bg-sky-50 text-sky-900 rounded p-2">
+                      ✉️ <b>{t(`promote.message_${m.category}`)}</b>: {m.message}
+                    </div>
+                  ))}
 
                   <div className="mt-3 flex flex-wrap gap-2">
                     {ad.status === 'approved' && (

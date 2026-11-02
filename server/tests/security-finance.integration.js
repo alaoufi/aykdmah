@@ -200,6 +200,35 @@ test('ad quote and submission reject disabled placements, unsafe URLs, malformed
   await api('/ads/live?placement[bad]=x', { expected: 400 });
 });
 
+// AYK-153: price by covered area, fee waiver without payment, and messages to the advertiser.
+test('ad fees follow the covered area; a waived ad starts unpaid; the advertiser sees admin messages', async () => {
+  const body = { title: 'Local area ad', image: 'https://example.invalid/area.png', duration_days: 2, max_views: 500, placements: ['home_top'], exclusive: false };
+  const base = (await api('/ads/quote', { user: users.provider, method: 'POST', body })).quote.total;
+  await api('/admin/ads-fees', { user: users.provider, method: 'PUT', body: { coverage: { all: 3 } }, expected: 403 });
+  await api('/admin/ads-fees', { user: users.adsAdmin, method: 'PUT', body: { coverage: { all: 0 } }, expected: 400 });
+  const saved = await api('/admin/ads-fees', { user: users.adsAdmin, method: 'PUT', body: { coverage: { all: 3, regions: { 1: 2 } } } });
+  assert.equal(saved.coverage.all, 3);
+  try {
+    assert.equal((await api('/ads/quote', { user: users.provider, method: 'POST', body })).quote.total, Math.round(base * 3 * 100) / 100);
+    assert.equal((await api('/ads/quote', { user: users.provider, method: 'POST', body: { ...body, target_regions: [1] } })).quote.total, Math.round(base * 2 * 100) / 100);
+    const ad = await api('/ads/request', { user: users.provider, method: 'POST', body: { ...body, target_regions: [1] }, expected: 201 });
+    assert.equal(Number(ad.amount), Math.round(base * 2 * 100) / 100);
+    await api(`/admin/ads/${ad.id}/activate`, { user: users.adsAdmin, method: 'POST', body: {}, expected: 409 });
+    const waived = await api(`/admin/ads/${ad.id}/waive`, { user: users.adsAdmin, method: 'POST', body: { reason: 'Local launch partner' } });
+    assert.equal(Number(waived.fee_waived), 1);
+    assert.equal(Number(waived.amount), 0);
+    const active = await api(`/admin/ads/${ad.id}/activate`, { user: users.adsAdmin, method: 'POST', body: {} });
+    assert.equal(active.status, 'active');
+    await api(`/admin/ads/${ad.id}/waive`, { user: users.adsAdmin, method: 'POST', body: {}, expected: 409 });
+    await api(`/admin/ads/${ad.id}/message`, { user: users.adsAdmin, method: 'POST', body: { category: 'other', message: 'x' }, expected: 400 });
+    await api(`/admin/ads/${ad.id}/message`, { user: users.adsAdmin, method: 'POST', body: { category: 'legal', message: 'Add the licence number to the ad text.' } });
+    const mine = (await api('/ads/me', { user: users.provider })).ads.find(a => a.id === ad.id);
+    assert.deepEqual(mine.admin_messages.map(m => [m.category, m.message]), [['legal', 'Add the licence number to the ad text.']]);
+  } finally {
+    await api('/admin/ads-fees', { user: users.adsAdmin, method: 'PUT', body: { coverage: { all: 1, regions: {} } } });
+  }
+});
+
 test('pricing and billing validation reject negative, infinite, oversized and fractional-cent money atomically', async () => {
   for (const value of [-1, Infinity, NaN, 999999999, 1.001, '', null, true, {}]) assert.throws(() => Payment.money(value), /Invalid amount/);
   const before = await Pricing.findByPlacement('home_top');
