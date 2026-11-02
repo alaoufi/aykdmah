@@ -1381,7 +1381,8 @@
     "limit_min_duration_days": "En kısa süre (gün)",
     "limit_max_duration_days": "En uzun süre (gün)",
     "limit_min_views": "En az görüntülenme",
-    "limit_max_views": "En çok görüntülenme"
+    "limit_max_views": "En çok görüntülenme",
+    "paid_bounds_locked": "Bu bir reklamverenin reklamı: yeri, süresi, görüntülenmesi ve hedeflemesi fiyatına bağlı, bu yüzden burada yalnızca içeriği değişir. Değiştirmek için önce ücretini kaldırın."
   },
   "badge": {
     "page_title": "Benim rozetlerim",
@@ -1942,7 +1943,8 @@
     "missed_in_video": "Cevapsız görüntülü arama",
     "missed_out": "Aramanız cevaplanmadı",
     "call_back": "Geri ara",
-    "missed_short": "Cevapsız arama"
+    "missed_short": "Cevapsız arama",
+    "report_title": "Aramayı bildir"
   },
   "wallet": {
     "nav": "Cüzdan & Kupon",
@@ -2431,7 +2433,8 @@
     "name_prompt": "Kaydedilecek ad:",
     "saved_note": "«{{name}}» rehberinize kaydedildi.",
     "message": "Mesaj",
-    "call": "Ara"
+    "call": "Ara",
+    "save_title": "Rehberime kaydet"
   },
   "account_delete": {
     "title": "Hesabımı sil",
@@ -2446,5 +2449,17 @@
     "confirm": "Silmenin kalıcı olduğunu anlıyorum.",
     "submit": "Hesabımı kalıcı olarak sil",
     "done": "Hesabınız silindi. Teşekkürler."
+  },
+  "dialog": {
+    "title_alert": "Bilgi",
+    "title_confirm": "Lütfen onaylayın",
+    "title_prompt": "Bilgileri girin",
+    "ok": "Tamam",
+    "yes": "Evet, devam et",
+    "save": "Kaydet",
+    "cancel": "İptal",
+    "delete": "Sil",
+    "required": "Bu alan zorunlu",
+    "min_length": "En az {{count}} karakter yazın"
   }
 }

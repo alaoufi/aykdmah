@@ -4,6 +4,7 @@ import { getSettings, updateSettings, applyMigrations } from '../../services/adm
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import { apiError } from '../../services/api';
 import { localizedSettingLabel } from '../../data/settingLabels';
+import { askConfirm } from '../../components/common/AppDialog';
 
 const GROUP_ICONS = {
   general: '⚙️',
@@ -52,7 +53,7 @@ export default function AdminSettingsPage() {
 
   const runMigrations = async () => {
     if (mutationInFlight.current) return;
-    if (!confirm(t('admin.migrate_confirm'))) return;
+    if (!(await askConfirm({ message: t('admin.migrate_confirm') }))) return;
     mutationInFlight.current = true;
     setMigrating(true);
     setMigrationResult(null);

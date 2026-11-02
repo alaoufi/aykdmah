@@ -5,6 +5,7 @@ import { CallProvider } from './context/CallContext';
 import { NotificationProvider } from './context/NotificationContext';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import AppRoutes from './routes';
+import AppDialogHost from './components/common/AppDialog';
 
 function SessionApp() {
   const { sessionEpoch } = useAuth();
@@ -18,6 +19,8 @@ export default function App() {
       <BrowserRouter>
         <AuthProvider>
           <SessionApp />
+          {/* The app's own dialogs in place of the browser's (AYK-155). */}
+          <AppDialogHost />
         </AuthProvider>
       </BrowserRouter>
     </ErrorBoundary>

@@ -5,6 +5,7 @@ import { useCall } from '../../context/CallContext';
 import { reportCall } from '../../services/callService';
 import { saveToDirectory } from '../../services/requestService';
 import Avatar from '../common/Avatar';
+import { askText } from '../../components/common/AppDialog';
 
 function useDuration(answeredAt, running) {
   const [seconds, setSeconds] = useState(0);
@@ -92,7 +93,7 @@ export default function CallOverlay() {
   const [savedContact, setSavedContact] = useState(false);
   // After a call: keep the other side in My directory under a chosen name (AYK-109).
   const saveContact = async () => {
-    const name = window.prompt(t('directory.name_prompt'), call?.peer?.full_name || '');
+    const name = await askText({ title: t('directory.save_title'), message: t('directory.name_prompt'), value: call?.peer?.full_name || '', required: true, maxLength: 80 });
     if (name === null || !call?.peer?.id) return;
     try { await saveToDirectory(call.peer.id, true, name.trim()); setSavedContact(true); } catch (_) { /* not saved: the button stays */ }
   };
@@ -119,7 +120,7 @@ export default function CallOverlay() {
   }[phase] || '';
 
   const submitReport = async () => {
-    const reason = window.prompt(t('calls.report_prompt'));
+    const reason = await askText({ title: t('calls.report_title'), message: t('calls.report_prompt'), multiline: true, minLength: 3, maxLength: 1000 });
     if (!reason || reason.trim().length < 3 || !call.id) return;
     setReporting(true);
     try { await reportCall(call.id, reason.trim()); setReported(true); } catch (_) { /* shown as not reported */ }

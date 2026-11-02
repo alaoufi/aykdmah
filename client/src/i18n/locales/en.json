@@ -1381,7 +1381,8 @@
     "limit_min_duration_days": "Shortest (days)",
     "limit_max_duration_days": "Longest (days)",
     "limit_min_views": "Fewest views",
-    "limit_max_views": "Most views"
+    "limit_max_views": "Most views",
+    "paid_bounds_locked": "This is an advertiser's ad: its place, duration, views and targeting are what it was priced on, so only its content (picture, texts, link) changes here. Waive its fees first to change them."
   },
   "badge": {
     "page_title": "My badges",
@@ -1942,7 +1943,8 @@
     "missed_in_video": "Missed video call",
     "missed_out": "Your call was not answered",
     "call_back": "Call back",
-    "missed_short": "Missed call"
+    "missed_short": "Missed call",
+    "report_title": "Report the call"
   },
   "wallet": {
     "nav": "Wallet & coupon",
@@ -2431,7 +2433,8 @@
     "name_prompt": "Name to save them under:",
     "saved_note": "\"{{name}}\" saved to your directory.",
     "message": "Message",
-    "call": "Call"
+    "call": "Call",
+    "save_title": "Save to my directory"
   },
   "account_delete": {
     "title": "Delete my account",
@@ -2446,5 +2449,17 @@
     "confirm": "I understand deletion is final and cannot be undone.",
     "submit": "Delete my account for good",
     "done": "Your account was deleted. Thank you for using Ay Khidmah."
+  },
+  "dialog": {
+    "title_alert": "Notice",
+    "title_confirm": "Please confirm",
+    "title_prompt": "Enter the details",
+    "ok": "OK",
+    "yes": "Yes, continue",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "required": "This field is required",
+    "min_length": "Write at least {{count}} characters"
   }
 }

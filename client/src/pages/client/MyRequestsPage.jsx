@@ -6,6 +6,7 @@ import { listMyRequests, deleteRequest } from '../../services/requestService';
 import { apiError } from '../../services/api';
 import RequestCard from '../../components/requests/RequestCard';
 import { LoadingState, EmptyState } from '../../components/common/Spinner';
+import { askConfirm } from '../../components/common/AppDialog';
 
 export default function MyRequestsPage() {
   const { t } = useTranslation();
@@ -21,7 +22,7 @@ export default function MyRequestsPage() {
   // Clear actions under each request (AYK-044): stop it (with "I found the provider"
   // and a rating) or delete it.
   const remove = async request => {
-    if (!window.confirm(t('requester.delete_confirm', { title: request.title }))) return;
+    if (!(await askConfirm({ message: t('requester.delete_confirm', { title: request.title }), tone: 'danger', confirmText: t('dialog.delete') }))) return;
     setProblem('');
     try { await deleteRequest(request.id); setReload(value => value + 1); } catch (err) { setProblem(apiError(err)); }
   };

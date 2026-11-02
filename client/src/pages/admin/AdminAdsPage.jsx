@@ -20,6 +20,7 @@ import EmptyState from '../../components/admin/EmptyState';
 import AdminFab from '../../components/admin/AdminFab';
 import { formatRelativeTime } from '../../utils/formatters';
 import { safeUrl } from '../../utils/urlSafety';
+import { askText } from '../../components/common/AppDialog';
 
 // All 15 placements supported by the renderer. Keep in sync with
 // server/services/adRequestService.js ALLOWED_PLACEMENTS.
@@ -45,6 +46,9 @@ const COUNTRY_OPTIONS = ['SA', 'AE', 'KW', 'QA', 'BH', 'OM', 'EG', 'JO', 'YE', '
 // Browser-detectable media type from URL extension — used when an admin
 // pastes a URL instead of uploading. Server detects mime from the file
 // on upload, so this is only a fallback for raw URLs.
+// An advertiser's ad keeps what it was priced on (AYK-155), unless its fees were waived.
+const paidBoundsLocked = (ad) => Boolean(ad?.user_id) && Number(ad?.fee_waived) !== 1;
+
 function guessMediaTypeFromUrl(url) {
   const ext = String(url || '').split('?')[0].split('#')[0].split('.').pop().toLowerCase();
   if (['mp4', 'webm', 'ogv', 'ogg', 'mov', 'm4v'].includes(ext)) return 'video';
@@ -254,7 +258,10 @@ export default function AdminAdsPage() {
       // queries — keep it set to the first checked placement. Send
       // the full multi-select as `placements` JSON.
       const primary = form.placements?.[0] || form.placement || 'home_top';
-      const payload = {
+      // An advertiser's ad (AYK-155): its place, dates, views and targeting are what was priced, so
+      // only its content changes here, unless its fees were waived.
+      const contentOnly = paidBoundsLocked(editing);
+      const full = {
         ...form,
         link: safeUrl(form.link),
         image: safeUrl(form.image),
@@ -269,6 +276,9 @@ export default function AdminAdsPage() {
         target_regions:   form.target_regions?.length   ? form.target_regions   : null,
         target_cities:    form.target_cities?.length    ? form.target_cities    : null,
       };
+      const payload = contentOnly
+        ? Object.fromEntries(['title', 'description', 'image', 'media_type', 'link', 'sort_order'].map((k) => [k, full[k]]))
+        : full;
       if (editing) await updateAd(editing.id, payload);
       else await createAd(payload);
       if (version !== editVersion.current) return;
@@ -301,7 +311,7 @@ export default function AdminAdsPage() {
   };
 
   const onReject = async (a) => {
-    const reason = window.prompt(t('badge.reject_reason_prompt'), '');
+    const reason = await askText({ title: t('badge.reject'), message: t('badge.reject_reason_prompt'), multiline: true, maxLength: 1000 });
     if (reason === null) return;
     setBusy(a.id);
     try { await rejectAdAdmin(a.id, reason); setMsg({ type: 'success', text: t('promote.admin_rejected') }); load(); }
@@ -310,7 +320,7 @@ export default function AdminAdsPage() {
   };
 
   const onWaive = async (a) => {
-    const reason = window.prompt(t('promote.waive_reason_prompt'), '');
+    const reason = await askText({ title: `🎁 ${t('promote.waive_fee')}`, message: t('promote.waive_reason_prompt'), multiline: true, maxLength: 500, confirmText: t('promote.waive_fee') });
     if (reason === null) return;
     setBusy(a.id);
     try { await waiveAdFee(a.id, reason); setMsg({ type: 'success', text: t('promote.waived_msg') }); load(); }
@@ -646,7 +656,12 @@ export default function AdminAdsPage() {
         }
       >
         <form id="AdminAdsPage-form" onSubmit={onSave} className="space-y-3">
-          {formError && <div className="px-3 py-2 rounded bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">{formError}</div>}
+          {formError && <div role="alert" className="px-3 py-2 rounded bg-rose-50 border border-rose-200 text-rose-700 text-[13px] font-semibold">⚠️ {formError}</div>}
+          {paidBoundsLocked(editing) && (
+            <div className="px-3 py-2.5 rounded-card bg-amber-50 border border-amber-200 text-amber-800 text-[12.5px] leading-relaxed">
+              🔒 {t('promote.paid_bounds_locked')}
+            </div>
+          )}
           <FieldA label={t('admin.ad_title')} value={form.title} onChange={(v) => setForm({ ...form, title: v })} required />
           <FieldA label={t('admin.ad_description')} value={form.description} onChange={(v) => setForm({ ...form, description: v })} multiline />
           <div>
@@ -708,6 +723,7 @@ export default function AdminAdsPage() {
               className="w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]" />
             <p className="text-[11.5px] text-slate-500 mt-1">{t('admin.ad_link_hint')}</p>
           </div>
+          {!paidBoundsLocked(editing) && (<>
           <div>
             <label className="block text-[12px] font-bold text-ink mb-2">{t('promote.placements')}</label>
             <div className="flex flex-wrap gap-2">
@@ -735,7 +751,9 @@ export default function AdminAdsPage() {
             <FieldA label={t('admin.ad_ends_at')} type="datetime-local" value={form.ends_at} onChange={(v) => setForm({ ...form, ends_at: v })} />
             <FieldA label={t('promote.max_views')} type="number" value={form.max_views} onChange={(v) => setForm({ ...form, max_views: v })} placeholder="—" />
           </div>
+          </>)}
           <FieldA label={t('admin.ad_sort_order')} type="number" value={form.sort_order} onChange={(v) => setForm({ ...form, sort_order: Number(v) || 0 })} />
+          {!paidBoundsLocked(editing) && (<>
           <div className="flex flex-wrap gap-4">
             <label className="inline-flex items-center gap-2 text-[13px] cursor-pointer">
               <input type="checkbox" checked={!!form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />
@@ -798,6 +816,7 @@ export default function AdminAdsPage() {
                 onChange={(next) => setForm({ ...form, target_cities: next })} />
             </div>
           </div>
+          </>)}
         </form>
       </Modal>
 

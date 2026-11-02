@@ -17,6 +17,7 @@ import { IconClose } from '../components/common/Icons';
 import { createPollingLoop } from '../utils/polling';
 import { formatRelativeTime } from '../utils/formatters';
 import { isValidCoordinates } from '../utils/geolocation.mjs';
+import { showAlert } from '../components/common/AppDialog';
 
 const fixIcon = () => {
   delete L.Icon.Default.prototype._getIconUrl;
@@ -197,7 +198,7 @@ export default function TrackingPage() {
       updateWatch();
       setSharing(true);
     } catch (err) {
-      if (scopeRef.current === scope) alert(t('location.geolocation_failed'));
+      if (scopeRef.current === scope) showAlert({ message: t('location.geolocation_failed') });
     } finally {
       if (scopeRef.current === scope) setSharingAction(false);
     }

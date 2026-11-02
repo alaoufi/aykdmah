@@ -1381,7 +1381,8 @@
     "limit_min_duration_days": "አጭሩ ጊዜ (ቀናት)",
     "limit_max_duration_days": "ረጅሙ ጊዜ (ቀናት)",
     "limit_min_views": "ትንሹ እይታ",
-    "limit_max_views": "ብዙው እይታ"
+    "limit_max_views": "ብዙው እይታ",
+    "paid_bounds_locked": "ይህ የአስተዋዋቂ ማስታወቂያ ነው፤ ቦታው፣ ጊዜው፣ እይታው እና ዒላማው ከዋጋው ጋር የተያያዙ ስለሆኑ እዚህ ይዘቱ ብቻ ይቀየራል። ለመቀየር መጀመሪያ ክፍያውን ይቅር ይበሉ።"
   },
   "badge": {
     "page_title": "የምልክት ወረቀቶቼ",
@@ -1942,7 +1943,8 @@
     "missed_in_video": "ያመለጠ የቪዲዮ ጥሪ",
     "missed_out": "ጥሪዎ አልተመለሰም",
     "call_back": "መልሰው ይደውሉ",
-    "missed_short": "ያመለጠ ጥሪ"
+    "missed_short": "ያመለጠ ጥሪ",
+    "report_title": "ጥሪውን ሪፖርት አድርግ"
   },
   "wallet": {
     "nav": "Wallet & ኩፖን",
@@ -2431,7 +2433,8 @@
     "name_prompt": "የሚቀመጥበት ስም:",
     "saved_note": "«{{name}}» በማውጫዎ ተቀምጧል።",
     "message": "መልእክት",
-    "call": "ደውል"
+    "call": "ደውል",
+    "save_title": "በማውጫዬ አስቀምጥ"
   },
   "account_delete": {
     "title": "መለያዬን ሰርዝ",
@@ -2446,5 +2449,17 @@
     "confirm": "መሰረዙ የመጨረሻ መሆኑን ተረድቻለሁ።",
     "submit": "መለያውን በቋሚነት ሰርዝ",
     "done": "መለያዎ ተሰርዟል። እናመሰግናለን።"
+  },
+  "dialog": {
+    "title_alert": "ማሳሰቢያ",
+    "title_confirm": "እባክዎ ያረጋግጡ",
+    "title_prompt": "መረጃውን ያስገቡ",
+    "ok": "እሺ",
+    "yes": "አዎ፣ ቀጥል",
+    "save": "አስቀምጥ",
+    "cancel": "ሰርዝ",
+    "delete": "አጥፋ",
+    "required": "ይህ መስክ ያስፈልጋል",
+    "min_length": "ቢያንስ {{count}} ፊደላት ይጻፉ"
   }
 }

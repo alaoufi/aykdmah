@@ -1381,7 +1381,8 @@
     "limit_min_duration_days": "Durasi terpendek (hari)",
     "limit_max_duration_days": "Durasi terpanjang (hari)",
     "limit_min_views": "Tayangan paling sedikit",
-    "limit_max_views": "Tayangan paling banyak"
+    "limit_max_views": "Tayangan paling banyak",
+    "paid_bounds_locked": "Ini iklan pengiklan: tempat, durasi, tayangan, dan targetnya terkait harga, jadi di sini hanya kontennya yang diubah. Bebaskan biayanya dulu untuk mengubahnya."
   },
   "badge": {
     "page_title": "Pakarku",
@@ -1942,7 +1943,8 @@
     "missed_in_video": "Panggilan video tak terjawab",
     "missed_out": "Panggilan Anda tidak dijawab",
     "call_back": "Telepon balik",
-    "missed_short": "Panggilan tak terjawab"
+    "missed_short": "Panggilan tak terjawab",
+    "report_title": "Laporkan panggilan"
   },
   "wallet": {
     "nav": "Dompet & Kupon",
@@ -2431,7 +2433,8 @@
     "name_prompt": "Nama untuk menyimpannya:",
     "saved_note": "«{{name}}» disimpan ke direktori Anda.",
     "message": "Pesan",
-    "call": "Telepon"
+    "call": "Telepon",
+    "save_title": "Simpan ke direktori saya"
   },
   "account_delete": {
     "title": "Hapus akun saya",
@@ -2446,5 +2449,17 @@
     "confirm": "Saya paham penghapusan bersifat permanen.",
     "submit": "Hapus akun selamanya",
     "done": "Akun Anda telah dihapus. Terima kasih."
+  },
+  "dialog": {
+    "title_alert": "Pemberitahuan",
+    "title_confirm": "Mohon konfirmasi",
+    "title_prompt": "Isi keterangannya",
+    "ok": "Oke",
+    "yes": "Ya, lanjutkan",
+    "save": "Simpan",
+    "cancel": "Batal",
+    "delete": "Hapus",
+    "required": "Kolom ini wajib diisi",
+    "min_length": "Tulis minimal {{count}} karakter"
   }
 }

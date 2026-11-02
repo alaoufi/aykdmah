@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { LoadingState, ErrorState } from '../../components/common/Spinner';
 import * as walletApi from '../../services/walletService';
 import { formatRelativeTime } from '../../utils/formatters';
+import { askText } from '../../components/common/AppDialog';
 
 const money = value => Number(value || 0).toFixed(2);
 
@@ -92,12 +93,12 @@ export default function AdminWalletsPage() {
                   <td className="p-1 whitespace-nowrap">
                     {w.status === 'pending' && (
                       <>
-                        <button type="button" className="btn btn-primary btn-sm me-1" onClick={() => {
-                          const reference = window.prompt(t('wallet.admin.reference_prompt'));
+                        <button type="button" className="btn btn-primary btn-sm me-1" onClick={async () => {
+                          const reference = await askText({ title: t('wallet.admin.mark_paid'), message: t('wallet.admin.reference_prompt'), required: true, maxLength: 120 });
                           if (reference) act(() => walletApi.adminProcessWithdrawal(w.id, { action: 'paid', transfer_reference: reference }), 'wallet.admin.marked_paid');
                         }}>{t('wallet.admin.mark_paid')}</button>
-                        <button type="button" className="btn btn-outline btn-sm" onClick={() => {
-                          const note = window.prompt(t('wallet.admin.reject_prompt'));
+                        <button type="button" className="btn btn-outline btn-sm" onClick={async () => {
+                          const note = await askText({ title: t('wallet.admin.reject'), message: t('wallet.admin.reject_prompt'), multiline: true, maxLength: 500 });
                           if (note !== null) act(() => walletApi.adminProcessWithdrawal(w.id, { action: 'rejected', note }), 'wallet.admin.rejected');
                         }}>{t('wallet.admin.reject')}</button>
                       </>

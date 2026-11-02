@@ -1381,7 +1381,8 @@
     "limit_min_duration_days": "Pinakamaikling tagal (araw)",
     "limit_max_duration_days": "Pinakamahabang tagal (araw)",
     "limit_min_views": "Pinakakaunting views",
-    "limit_max_views": "Pinakamaraming views"
+    "limit_max_views": "Pinakamaraming views",
+    "paid_bounds_locked": "Ad ito ng advertiser: ang lugar, tagal, views at target nito ay nakatali sa presyo, kaya nilalaman lang ang nababago rito. Iwaksi muna ang bayad para baguhin ang mga iyon."
   },
   "badge": {
     "page_title": "Ang aking mga badge",
@@ -1942,7 +1943,8 @@
     "missed_in_video": "Hindi nasagot na video call",
     "missed_out": "Hindi sinagot ang tawag mo",
     "call_back": "Tumawag pabalik",
-    "missed_short": "Hindi nasagot na tawag"
+    "missed_short": "Hindi nasagot na tawag",
+    "report_title": "I-report ang tawag"
   },
   "wallet": {
     "nav": "Wallet & coupon",
@@ -2431,7 +2433,8 @@
     "name_prompt": "Pangalang ise-save:",
     "saved_note": "Na-save ang «{{name}}» sa iyong direktoryo.",
     "message": "Mensahe",
-    "call": "Tawag"
+    "call": "Tawag",
+    "save_title": "I-save sa aking direktoryo"
   },
   "account_delete": {
     "title": "Burahin ang aking account",
@@ -2446,5 +2449,17 @@
     "confirm": "Naiintindihan kong permanente ang pagbura.",
     "submit": "Burahin nang tuluyan ang account",
     "done": "Nabura ang iyong account. Salamat."
+  },
+  "dialog": {
+    "title_alert": "Paalala",
+    "title_confirm": "Pakikumpirma",
+    "title_prompt": "Ilagay ang detalye",
+    "ok": "Sige",
+    "yes": "Oo, ituloy",
+    "save": "I-save",
+    "cancel": "Kanselahin",
+    "delete": "Burahin",
+    "required": "Kailangan ang field na ito",
+    "min_length": "Sumulat ng hindi bababa sa {{count}} na character"
   }
 }

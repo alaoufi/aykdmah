@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { setUserBlocked } from '../../services/chatService';
+import { askConfirm } from './AppDialog';
 
 // An error shown where a contact failed (AYK-111). When the reason is "you blocked this person",
 // the way out is right there: "✅ Unblock", without having to find a chat first.
@@ -12,7 +13,7 @@ export default function BlockedNotice({ message, otherId, onUnblocked, className
   if (!message) return null;
   const mine = otherId && message === t('errors.blocked_by_you');
   const unblock = async () => {
-    if (!window.confirm(t('chat.unblock_confirm', { name: '' }))) return;
+    if (!(await askConfirm({ message: t('chat.unblock_confirm', { name: '' }) }))) return;
     setBusy(true);
     try {
       await setUserBlocked(otherId, false);

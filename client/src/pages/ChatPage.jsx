@@ -25,6 +25,7 @@ import { getCurrentPosition } from '../utils/geo';
 import { sentTone } from '../utils/ringtone';
 import { createPollingLoop } from '../utils/polling';
 import { agreeRequest, saveToDirectory } from '../services/requestService';
+import { askConfirm, askText, showAlert } from '../components/common/AppDialog';
 
 // A bold back arrow toward the start side: right in Arabic, left in English (AYK-137).
 function BackArrow() {
@@ -268,7 +269,7 @@ export default function ChatPage() {
       loadList();
       return true;
     } catch (err) {
-      if (scopeRef.current === scope) alert(t('errors.generic'));
+      if (scopeRef.current === scope) showAlert({ message: t('errors.generic') });
       return false;
     }
   };
@@ -291,7 +292,7 @@ export default function ChatPage() {
       setReplyTo(null);
       loadList();
     } catch (err) {
-      if (scopeRef.current === scope) alert(t('location.geolocation_failed'));
+      if (scopeRef.current === scope) showAlert({ message: t('location.geolocation_failed') });
     } finally {
       if (scopeRef.current === scope) setSharingLocation(false);
     }
@@ -327,7 +328,7 @@ export default function ChatPage() {
   const requestId = activeReady ? active?.request_id : null;
   const handleAgree = async () => {
     if (!requestId || !otherParticipant || agreeing) return;
-    if (!window.confirm(t('chat.agreed_confirm', { name: otherParticipant.full_name }))) return;
+    if (!(await askConfirm({ message: t('chat.agreed_confirm', { name: otherParticipant.full_name }) }))) return;
     setAgreeing(true);
     try {
       await agreeRequest(requestId, otherParticipant.id);
@@ -339,7 +340,7 @@ export default function ChatPage() {
   const saveContact = async () => {
     const peerId = otherParticipant?.id;
     if (!peerId || !active) return;
-    const name = window.prompt(t('directory.name_prompt'), active.directory_name || otherParticipant.full_name || '');
+    const name = await askText({ title: t('directory.save_title'), message: t('directory.name_prompt'), value: active.directory_name || otherParticipant.full_name || '', required: true, maxLength: 80 });
     if (name === null) return;
     setBlockProblem('');
     try {
@@ -369,7 +370,7 @@ export default function ChatPage() {
     const next = !active.blocked_by_me;
     const name = otherParticipant.full_name || '';
     // Asked first, confirmed after, both ways (AYK-115).
-    if (!window.confirm(t(next ? 'chat.block_confirm' : 'chat.unblock_confirm', { name }))) return;
+    if (!(await askConfirm({ message: t(next ? 'chat.block_confirm' : 'chat.unblock_confirm', { name }), tone: next ? 'danger' : undefined }))) return;
     setBlockProblem(''); setBlockDone('');
     try {
       await setUserBlocked(peerId, next);

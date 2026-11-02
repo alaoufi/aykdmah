@@ -232,11 +232,13 @@ const createAd = asyncHandler(async (req, res) => {
 
 const updateAd = asyncHandler(async (req, res) => {
   if (!validAdInput(req.body)) return error(res, req.t('invalid_data'), 400);
-  const ad = await queryOne('SELECT id, user_id FROM ads WHERE id = ?', [req.params.id]);
+  const ad = await queryOne('SELECT * FROM ads WHERE id = ?', [req.params.id]);
   if (!ad) return notFound(res);
   // Purchased campaigns use payment-checked lifecycle actions. Generic CRUD
-  // may edit their content but cannot grant unbilled visibility or duration.
-  if (ad.user_id && ['placement', 'placements', 'is_active', 'status', 'exclusive', 'starts_at', 'ends_at', 'max_views', 'target_countries', 'target_cities', 'target_regions'].some(key => req.body[key] !== undefined)) return error(res, req.t('forbidden'), 403);
+  // may edit their content but cannot grant unbilled visibility or duration,
+  // unless the administration waived the ad's fees (AYK-153). The refusal says why (AYK-155).
+  const waived = Number(ad.fee_waived) === 1;
+  if (ad.user_id && !waived && ['placement', 'placements', 'is_active', 'status', 'exclusive', 'starts_at', 'ends_at', 'max_views', 'target_countries', 'target_cities', 'target_regions'].some(key => req.body[key] !== undefined)) return error(res, req.t('ad_paid_bounds_locked'), 403);
   const allowed = ['title', 'description', 'image', 'media_type', 'link',
                    'placement', 'is_active', 'status', 'exclusive',
                    'starts_at', 'ends_at', 'max_views', 'sort_order'];

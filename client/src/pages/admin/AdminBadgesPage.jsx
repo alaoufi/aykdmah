@@ -7,6 +7,7 @@ import ConfirmDialog from '../../components/common/ConfirmDialog';
 import Avatar from '../../components/common/Avatar';
 import { formatCurrency, formatRelativeTime } from '../../utils/formatters';
 import { apiError } from '../../services/api';
+import { askText } from '../../components/common/AppDialog';
 
 const TYPE_META = {
   trusted:  { icon: '🛡️', color: 'bg-emerald-50 text-emerald-700' },
@@ -69,8 +70,8 @@ export default function AdminBadgesPage() {
     });
   };
 
-  const onReject = (b) => {
-    const reason = window.prompt(t('badge.reject_reason_prompt'), '');
+  const onReject = async (b) => {
+    const reason = await askText({ title: t('badge.reject'), message: t('badge.reject_reason_prompt'), multiline: true, maxLength: 1000 });
     if (reason === null) return;
     setConfirm({
       open: true,
