@@ -35,6 +35,31 @@ const mediaState = page => page.evaluate(() => {
 const inCall = page => page.locator('[role="dialog"]').getByText(/\d\d:\d\d/).first().waitFor({ timeout: 30000 });
 const button = (page, name) => page.locator('[role="dialog"]').getByRole('button', { name, exact: true });
 
+// AYK-167: a live track alone does not prove decoded sound. Sample the received
+// synthetic microphone signal without recording it or altering the call's playback.
+const decodedSound = page => page.evaluate(async () => {
+  const stream = document.querySelector('[role="dialog"] audio')?.srcObject;
+  if (!stream?.getAudioTracks().length) return { activeFrames: 0, peak: 0 };
+  const context = new AudioContext();
+  const source = context.createMediaStreamSource(stream);
+  const analyser = context.createAnalyser();
+  analyser.fftSize = 2048;
+  source.connect(analyser);
+  const samples = new Float32Array(analyser.fftSize);
+  let activeFrames = 0, peak = 0;
+  try {
+    await context.resume();
+    for (let frame = 0; frame < 100; frame += 1) {
+      analyser.getFloatTimeDomainData(samples);
+      let energy = 0;
+      for (const value of samples) { energy += value * value; peak = Math.max(peak, Math.abs(value)); }
+      if (Math.sqrt(energy / samples.length) > 0.0001) activeFrames += 1;
+      await new Promise(resolve => setTimeout(resolve, 20));
+    }
+    return { activeFrames, peak: Number(peak.toFixed(5)) };
+  } finally { source.disconnect(); await context.close(); }
+});
+
 const caller = await party(CLIENT, 'client');
 const callee = await party(PROVIDER, 'provider');
 await callee.page.goto(`${BASE}/`);
@@ -49,8 +74,12 @@ await button(callee.page, 'رد').click();
 await Promise.all([inCall(caller.page), inCall(callee.page)]);
 await caller.page.waitForTimeout(3000);
 const voiceCaller = await mediaState(caller.page), voiceCallee = await mediaState(callee.page);
-check('voice: client hears provider (remote audio track live)', voiceCaller.remoteAudioLive);
-check('voice: provider hears client (remote audio track live)', voiceCallee.remoteAudioLive);
+check('voice: client has a live remote audio track', voiceCaller.remoteAudioLive);
+check('voice: provider has a live remote audio track', voiceCallee.remoteAudioLive);
+for (const [label, party] of [['client', caller], ['provider', callee]]) {
+  const sound = await decodedSound(party.page);
+  check(`voice: ${label} receives non-silent decoded samples`, sound.activeFrames > 0, JSON.stringify(sound));
+}
 await button(caller.page, 'كتم الميكروفون').click();
 check('voice: mute toggles', await button(caller.page, 'تشغيل الميكروفون').isVisible());
 await button(callee.page, 'إنهاء المكالمة').click();
@@ -92,7 +121,13 @@ await callee.context.setOffline(false);
 await inCall(callee.page);
 await callee.page.waitForTimeout(4000);
 const afterDrop = await mediaState(caller.page);
-check('video: call survives a 4 s network drop', afterDrop.remoteAudioLive, `sizes ${afterDrop.videoSizes}`);
+// Playwright offline mode tests browser connectivity events; it does not prove
+// that UDP media packets were dropped. Do not label this a packet-loss test.
+check('video: remote track remains live after a 4 s browser offline toggle', afterDrop.remoteAudioLive, `sizes ${afterDrop.videoSizes}`);
+for (const [label, party] of [['client', caller], ['provider', callee]]) {
+  const sound = await decodedSound(party.page);
+  check(`video: ${label} receives decoded audio after browser returns online`, sound.activeFrames > 0, JSON.stringify(sound));
+}
 await button(caller.page, 'إنهاء المكالمة').click();
 await callee.page.locator('[role="dialog"]').getByText('انتهت المكالمة').waitFor({ timeout: 15000 });
 check('video: hang-up by client ends the call for the provider', true);
