@@ -15,6 +15,9 @@ import useCountry from '../hooks/useCountry';
 const MEDIA_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/apng', 'video/mp4', 'video/webm', 'video/ogg'];
 const MEDIA_MAX_BYTES = 3.75 * 1024 * 1024;
 
+// The form's fields, top to bottom: the first one with a problem is scrolled into view.
+const FIELD_ORDER = ['title', 'description', 'image', 'link', 'placements', 'starts_at', 'duration_days', 'max_views', 'targeting', 'notes'];
+
 const STATUS_COLOR = {
   requested:        'bg-blue-50 text-blue-700',
   approved:         'bg-emerald-50 text-emerald-700',
@@ -77,8 +80,21 @@ export default function PromotePage() {
   const [uploading, setUploading] = useState(false);
   const [busy, setBusy] = useState(null);
   const [msg, setMsg] = useState(null);
-  // Why the ad's picture was refused, shown in red on that field itself (AYK-149).
-  const [mediaError, setMediaError] = useState('');
+  // What is wrong, shown in red on the field itself (AYK-149, AYK-150): { field: reason }.
+  const [errors, setErrors] = useState({});
+  const mediaError = errors.image || '';
+  const setMediaError = (text) => setErrors((all) => ({ ...all, image: text }));
+  const setValue = (field, value) => {
+    setForm((f) => ({ ...f, [field]: value }));
+    setErrors((all) => (all[field] ? { ...all, [field]: '' } : all));
+  };
+  const fieldError = (code, params) => t(`promote.err.${code}`, params);
+  // Marks the fields in red and brings the first one into view.
+  const showErrors = (found) => {
+    setErrors(found);
+    const first = FIELD_ORDER.find((field) => found[field]);
+    if (first) setTimeout(() => document.getElementById(`promote-${first}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 0);
+  };
   const [confirm, setConfirm] = useState({ open: false });
   const [openStats, setOpenStats] = useState({});
 
@@ -152,25 +168,43 @@ export default function PromotePage() {
     e.preventDefault();
     setMsg(null);
     if (uploading || busy) return;
-    if (!safeUrl(form.image)) {
-      setMediaError(t('promote.need_media'));
-      document.getElementById('promote-media')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      return;
+    // Every problem at once, each on its own field (AYK-150).
+    const found = {};
+    if (!form.title.trim()) found.title = fieldError('need_title');
+    else if (form.title.length > 200) found.title = fieldError('title_too_long', { max: 200 });
+    if (!safeUrl(form.image)) found.image = mediaError || fieldError('need_media');
+    if (form.link && !/^https?:\/\/[^\s/]+\.[^\s]+$/i.test(form.link.trim())) found.link = fieldError('invalid_link');
+    if (form.placements.length === 0) found.placements = fieldError('invalid_placement');
+    const startsAt = form.starts_at ? new Date(form.starts_at) : null;
+    if (startsAt && (!Number.isFinite(startsAt.getTime()) || startsAt.getTime() < Date.now() - 60000)) found.starts_at = fieldError('invalid_start');
+    const minDays = config.min_duration_days, maxDays = config.max_duration_days;
+    if (!Number.isInteger(form.duration_days) || form.duration_days < minDays || form.duration_days > maxDays) {
+      found.duration_days = fieldError('invalid_duration', { min: minDays, max: maxDays });
     }
-    if (form.link && !safeUrl(form.link)) { setMsg({ type: 'error', text: t('errors.generic') }); return; }
-    if (form.placements.length === 0) { setMsg({ type: 'error', text: t('promote.need_placement') }); return; }
+    if (!Number.isInteger(form.max_views) || form.max_views < config.min_views || form.max_views > config.max_views) {
+      found.max_views = fieldError('invalid_views', { min: config.min_views, max: config.max_views });
+    }
+    if (Object.values(found).some(Boolean)) { showErrors(found); return; }
+    setErrors({});
     setBusy('submit');
     try {
       const payload = {
         ...form,
-        starts_at: form.starts_at ? form.starts_at.replace('T', ' ') + ':00' : null,
+        link: form.link.trim(),
+        // The time the person picked, in their own time zone.
+        starts_at: startsAt ? startsAt.toISOString() : null,
       };
       await submitAdRequest(payload);
       setForm(EMPTY);
       setMsg({ type: 'success', text: t('promote.submitted') });
       load();
     } catch (e) {
-      setMsg({ type: 'error', text: apiError(e) });
+      const marked = {};
+      for (const item of e?.response?.data?.errors || []) {
+        if (FIELD_ORDER.includes(item?.field)) marked[item.field] = i18n.exists(`promote.err.${item.code}`) ? fieldError(item.code, item.params) : item.message;
+      }
+      if (Object.keys(marked).length) showErrors(marked);
+      else setMsg({ type: 'error', text: apiError(e) });
     } finally { setBusy(null); }
   };
 
@@ -260,11 +294,11 @@ export default function PromotePage() {
       <form onSubmit={onSubmit} className="bg-white rounded-card border border-slate-100 shadow-soft p-5 space-y-4">
         <h2 className="font-extrabold text-ink text-[16px]">{t('promote.new_request')}</h2>
 
-        <Field label={t('promote.title')} required value={form.title} onChange={(v) => setForm({ ...form, title: v })} />
-        <Field label={t('promote.description')} value={form.description} onChange={(v) => setForm({ ...form, description: v })} multiline />
+        <Field id="title" error={errors.title} label={t('promote.title')} required value={form.title} onChange={(v) => setValue('title', v)} />
+        <Field id="description" error={errors.description} label={t('promote.description')} value={form.description} onChange={(v) => setValue('description', v)} multiline />
 
         {/* Media — upload-from-device primary */}
-        <div id="promote-media">
+        <div id="promote-image">
           <label className={`block text-[12px] font-bold mb-1 ${mediaError ? 'text-rose-600' : 'text-ink'}`}>{t('promote.media')}</label>
           <label className="block cursor-pointer">
             <div className={`rounded-card border-2 border-dashed p-5 text-center transition ${
@@ -291,11 +325,11 @@ export default function PromotePage() {
           )}
         </div>
 
-        <Field label={t('admin.ad_link')} value={form.link} onChange={(v) => setForm({ ...form, link: v })} placeholder="https://…" hint={t('admin.ad_link_hint')} />
+        <Field id="link" error={errors.link} label={t('admin.ad_link')} value={form.link} onChange={(v) => setValue('link', v)} placeholder="https://…" hint={t('admin.ad_link_hint')} />
 
         {/* Placements — multi-select */}
-        <div>
-          <label className="block text-[12px] font-bold text-ink mb-2">{t('promote.placements')}</label>
+        <div id="promote-placements" className={errors.placements ? 'rounded-card border-2 border-rose-500 bg-rose-50 p-2' : ''}>
+          <label className={`block text-[12px] font-bold mb-2 ${errors.placements ? 'text-rose-600' : 'text-ink'}`}>{t('promote.placements')}</label>
           <div className="flex flex-wrap gap-2">
             {PLACEMENTS.map((p) => {
               const active = form.placements.includes(p);
@@ -319,18 +353,20 @@ export default function PromotePage() {
               );
             })}
           </div>
+          <FieldError id="placements" text={errors.placements} />
         </div>
 
         {/* Date + duration + max views */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <Field label={t('promote.starts_at')} type="datetime-local" value={form.starts_at} onChange={(v) => setForm({ ...form, starts_at: v })} hint={t('promote.starts_at_hint')} />
-          <Field label={t('promote.duration_days')} type="number" required value={form.duration_days} onChange={(v) => setForm({ ...form, duration_days: Number(v) || 0 })} hint={`${config.min_duration_days}–${config.max_duration_days}`} />
-          <Field label={t('promote.max_views')} type="number" required value={form.max_views} onChange={(v) => setForm({ ...form, max_views: Number(v) || 0 })} hint={`${config.min_views.toLocaleString(i18n.resolvedLanguage)}–${config.max_views.toLocaleString(i18n.resolvedLanguage)}`} />
+          <Field id="starts_at" error={errors.starts_at} label={t('promote.starts_at')} type="datetime-local" value={form.starts_at} onChange={(v) => setValue('starts_at', v)} hint={t('promote.starts_at_hint')} />
+          <Field id="duration_days" error={errors.duration_days} label={t('promote.duration_days')} type="number" required value={form.duration_days} onChange={(v) => setValue('duration_days', Number(v) || 0)} hint={`${config.min_duration_days}–${config.max_duration_days}`} />
+          <Field id="max_views" error={errors.max_views} label={t('promote.max_views')} type="number" required value={form.max_views} onChange={(v) => setValue('max_views', Number(v) || 0)} hint={`${config.min_views.toLocaleString(i18n.resolvedLanguage)}–${config.max_views.toLocaleString(i18n.resolvedLanguage)}`} />
         </div>
         <p className="text-[12px] text-slate-500 -mt-2">⏱ {t('promote.end_condition_hint')}</p>
 
         {/* Geo targeting — optional. Leave both empty to serve everywhere. */}
-        <div className="rounded-card border border-slate-200 p-3 space-y-3">
+        <div id="promote-targeting" className={`rounded-card border p-3 space-y-3 ${errors.targeting ? 'border-2 border-rose-500 bg-rose-50' : 'border-slate-200'}`}>
+          <FieldError id="targeting" text={errors.targeting} />
           <div className="flex items-center justify-between gap-2">
             <div>
               <div className="text-[13px] font-bold text-ink">🌍 {t('promote.geo_targeting')}</div>
@@ -432,8 +468,13 @@ export default function PromotePage() {
           </div>
         )}
 
-        <Field label={t('promote.notes')} value={form.notes} onChange={(v) => setForm({ ...form, notes: v })} multiline placeholder={t('promote.notes_placeholder')} />
+        <Field id="notes" error={errors.notes} label={t('promote.notes')} value={form.notes} onChange={(v) => setValue('notes', v)} multiline placeholder={t('promote.notes_placeholder')} />
 
+        {Object.values(errors).some(Boolean) && (
+          <p role="alert" className="m-0 rounded-card border border-rose-200 bg-rose-50 px-3 py-2 text-[13px] font-bold text-rose-700">
+            ⚠️ {t('promote.err.fix_marked')}
+          </p>
+        )}
         <button type="submit" disabled={Boolean(busy) || uploading}
           className="w-full px-6 py-3 rounded-pill text-white text-[14.5px] font-bold shadow-soft hover:shadow-lift disabled:opacity-60 transition"
           style={{ background: 'linear-gradient(135deg, rgb(var(--color-primary-from)), rgb(var(--color-primary-to)))' }}>
@@ -635,17 +676,27 @@ function CityPicker({ cities, selected, onChange }) {
   );
 }
 
-function Field({ label, value, onChange, type = 'text', required = false, placeholder = '', multiline = false, hint = '' }) {
-  const cls = 'w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]';
+function FieldError({ id, text }) {
+  if (!text) return null;
+  return <p id={`promote-${id}-error`} role="alert" className="mt-1.5 mb-0 text-[12.5px] font-bold text-rose-600">⚠️ {text}</p>;
+}
+
+// A form field; with an error it turns red and says why underneath (AYK-150).
+function Field({ id, error = '', label, value, onChange, type = 'text', required = false, placeholder = '', multiline = false, hint = '' }) {
+  const cls = `w-full px-3 py-2 rounded-card border outline-none text-[14px] ${
+    error ? 'border-2 border-rose-500 bg-rose-50 focus:bg-white' : 'border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500'
+  }`;
+  const inputId = id ? `promote-${id}-input` : undefined;
+  const a11y = { id: inputId, 'aria-invalid': Boolean(error), 'aria-describedby': error && id ? `promote-${id}-error` : undefined };
   return (
-    <div>
-      <label className="block text-[12px] font-bold text-ink mb-1">{label}</label>
+    <div id={id ? `promote-${id}` : undefined}>
+      <label htmlFor={inputId} className={`block text-[12px] font-bold mb-1 ${error ? 'text-rose-600' : 'text-ink'}`}>{label}</label>
       {multiline ? (
-        <textarea rows={2} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={cls} />
+        <textarea rows={2} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={cls} {...a11y} />
       ) : (
-        <input type={type} required={required} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={cls} />
+        <input type={type} required={required} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={cls} {...a11y} />
       )}
-      {hint && <div className="text-[11px] text-slate-400 mt-1">{hint}</div>}
+      {error ? <FieldError id={id} text={error} /> : hint && <div className="text-[11px] text-slate-400 mt-1">{hint}</div>}
     </div>
   );
 }

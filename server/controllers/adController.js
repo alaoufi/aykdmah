@@ -114,10 +114,11 @@ const submit = financeHandler(async (req, res) => {
   const result = await adRequestService.submit({ user: req.user, payload: req.body });
   if (!result.ok) {
     if (result.error === 'disabled')         return error(res, req.t('ads_user_requests_disabled'), 403);
-    if (result.error === 'missing_fields')   return error(res, req.t('invalid_data'), 400);
-    if (result.error === 'invalid_duration') return error(res, req.t('ad_invalid_duration'), 400);
-    if (result.error === 'invalid_views')    return error(res, req.t('ad_invalid_views'), 400);
-    if (result.error === 'invalid_placement')return error(res, req.t('ad_invalid_placement'), 400);
+    // Which field to correct and why (AYK-150); the form marks it in red.
+    if (result.error === 'field') {
+      const message = req.t(`ad_field_${result.code}`, result.params);
+      return error(res, message, 400, [{ field: result.field, code: result.code, params: result.params || {}, message }]);
+    }
     return error(res, result.error);
   }
   return created(res, result.ad, req.t('ad_request_sent'));

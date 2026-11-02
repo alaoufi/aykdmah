@@ -1341,7 +1341,21 @@
     "views_progress": "Gelişimi görün",
     "admin_approved": "Reklam onaylandı",
     "admin_rejected": "Reklam reddedildi",
-    "admin_activated": "Reklam etkinleştirildi"
+    "admin_activated": "Reklam etkinleştirildi",
+    "err": {
+      "need_title": "Reklam başlığını yazın.",
+      "title_too_long": "Başlık çok uzun; sınır {{max}} karakter.",
+      "need_media": "Reklam için bir resim veya video ekleyin.",
+      "invalid_media": "Reklam dosyası geçerli değil; yeniden yükleyin.",
+      "text_too_long": "Metin çok uzun; sınır {{max}} karakter.",
+      "invalid_link": "Bağlantı geçerli değil; https:// ile başlamalı, örneğin https://example.com",
+      "invalid_duration": "Süre {{min}} ile {{max}} gün arasında olmalı.",
+      "invalid_views": "Görüntülenme sayısı {{min}} ile {{max}} arasında olmalı.",
+      "invalid_placement": "Reklamın gösterileceği en az bir yer seçin.",
+      "invalid_start": "Başlangıç tarihi şimdi veya sonrası, bir yıl içinde olmalı. Ya da boş bırakın.",
+      "invalid_targeting": "Hedefleme geçerli değil; sınır {{max}} seçim.",
+      "fix_marked": "Kırmızıyla işaretli alanları düzeltip gönderin."
+    }
   },
   "badge": {
     "page_title": "Benim rozetlerim",

@@ -105,6 +105,9 @@ function quote({ duration_days, max_views, placements, exclusive, config }) {
   };
 }
 
+// A field the advertiser must correct (AYK-150): the form marks it in red with this reason.
+const fieldError = (field, code, params) => ({ ok: false, error: 'field', field, code, params });
+
 async function submit({ user, payload }) {
   const cfg = await getConfig();
   if (!cfg.enabled) return { ok: false, error: 'disabled' };
@@ -113,28 +116,35 @@ async function submit({ user, payload }) {
           placements, starts_at, duration_days, max_views, notes,
           target_countries, target_cities, target_regions } = payload;
 
-  if (typeof title !== 'string' || !title.trim() || title.length > 200 || typeof image !== 'string' || !image || image.length > 255) return { ok: false, error: 'missing_fields' };
-  for (const text of [description, notes]) if (text != null && (typeof text !== 'string' || text.length > 10000)) throw invalid('Invalid advertising text');
-  for (const url of [image, link]) {
+  if (typeof title !== 'string' || !title.trim()) return fieldError('title', 'need_title');
+  if (title.length > 200) return fieldError('title', 'title_too_long', { max: 200 });
+  if (typeof image !== 'string' || !image) return fieldError('image', 'need_media');
+  for (const [field, text] of [['description', description], ['notes', notes]]) {
+    if (text != null && (typeof text !== 'string' || text.length > 10000)) return fieldError(field, 'text_too_long', { max: 10000 });
+  }
+  for (const [field, url] of [['image', image], ['link', link]]) {
     if (url == null || url === '') continue;
-    if (typeof url !== 'string' || url.length > 255 || /[\s\\\u0000-\u001f]/.test(url)) throw invalid('Invalid advertising URL');
+    const bad = fieldError(field, field === 'image' ? 'invalid_media' : 'invalid_link');
+    if (typeof url !== 'string' || url.length > 255 || /[\s\\\u0000-\u001f]/.test(url)) return bad;
     if (url.startsWith('/') && !url.startsWith('//') && !url.includes('..')) continue;
     let parsed;
-    try { parsed = new URL(url); } catch (_) { throw invalid('Invalid advertising URL'); }
-    if (!['https:', 'http:'].includes(parsed.protocol) || parsed.username || parsed.password) throw invalid('Invalid advertising URL');
+    try { parsed = new URL(url); } catch (_) { return bad; }
+    if (!['https:', 'http:'].includes(parsed.protocol) || parsed.username || parsed.password) return bad;
   }
-  if (media_type !== undefined && !['image', 'video'].includes(media_type)) throw invalid('Invalid advertising media');
+  if (media_type !== undefined && !['image', 'video'].includes(media_type)) return fieldError('image', 'invalid_media');
 
   const days  = Number(duration_days);
   const views = Number(max_views);
-  if (!validId(duration_days) || days < Math.max(1, cfg.min_duration_days) || days > Math.min(3650, cfg.max_duration_days)) {
-    return { ok: false, error: 'invalid_duration', config: cfg };
+  const minDays = Math.max(1, cfg.min_duration_days), maxDays = Math.min(3650, cfg.max_duration_days);
+  if (!validId(duration_days) || days < minDays || days > maxDays) {
+    return { ...fieldError('duration_days', 'invalid_duration', { min: minDays, max: maxDays }), config: cfg };
   }
-  if (!validId(max_views) || views < Math.max(1, cfg.min_views) || views > Math.min(100000000, cfg.max_views)) {
-    return { ok: false, error: 'invalid_views', config: cfg };
+  const minViews = Math.max(1, cfg.min_views), maxViews = Math.min(100000000, cfg.max_views);
+  if (!validId(max_views) || views < minViews || views > maxViews) {
+    return { ...fieldError('max_views', 'invalid_views', { min: minViews, max: maxViews }), config: cfg };
   }
   const rawPlacements = placements === undefined ? ['home_top'] : placements;
-  if (!Array.isArray(rawPlacements) || !rawPlacements.length || rawPlacements.length > ALLOWED_PLACEMENTS.length || rawPlacements.some(p => !ALLOWED_PLACEMENTS.includes(p) || !cfg.pricing[p].is_active)) return { ok: false, error: 'invalid_placement' };
+  if (!Array.isArray(rawPlacements) || !rawPlacements.length || rawPlacements.length > ALLOWED_PLACEMENTS.length || rawPlacements.some(p => !ALLOWED_PLACEMENTS.includes(p) || !cfg.pricing[p].is_active)) return fieldError('placements', 'invalid_placement');
   const placementList = [...new Set(rawPlacements)];
 
   const q = quote({
@@ -143,14 +153,14 @@ async function submit({ user, payload }) {
     config: cfg,
   });
 
-  if (starts_at != null && (typeof starts_at !== 'string' || starts_at.length > 40)) throw invalid('Invalid start date');
+  if (starts_at != null && (typeof starts_at !== 'string' || starts_at.length > 40)) return fieldError('starts_at', 'invalid_start');
   const startsAt = starts_at ? new Date(starts_at) : null;
-  if (startsAt && (!Number.isFinite(startsAt.getTime()) || startsAt.getTime() < Date.now() - 300000 || startsAt.getTime() > Date.now() + 365 * 86400000)) throw invalid('Invalid start date');
+  if (startsAt && (!Number.isFinite(startsAt.getTime()) || startsAt.getTime() < Date.now() - 300000 || startsAt.getTime() > Date.now() + 365 * 86400000)) return fieldError('starts_at', 'invalid_start');
   for (const [arr, max, check] of [
     [target_countries, 250, v => typeof v === 'string' && /^[A-Za-z]{2}$/.test(v)],
     [target_cities, 100, v => typeof v === 'string' && v.trim().length > 0 && v.length <= 120],
     [target_regions, 100, validId],
-  ]) if (arr != null && (!Array.isArray(arr) || arr.length > max || arr.some(v => !check(v)))) throw invalid('Invalid geographic targeting');
+  ]) if (arr != null && (!Array.isArray(arr) || arr.length > max || arr.some(v => !check(v)))) return fieldError('targeting', 'invalid_targeting', { max });
   const ad = await Ad.create({
     user_id: user.id,
     title, description, image, media_type, link, notes,

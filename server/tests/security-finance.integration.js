@@ -173,6 +173,20 @@ test('ad quote and submission reject disabled placements, unsafe URLs, malformed
     { placements: [] }, { exclusive: 'false' }, { starts_at: 'not-a-date' }, { link: 'javascript:alert(1)' },
     { image: 'data:image/svg+xml,bad' }, { title: {} }, { target_regions: [1.5] }, { target_countries: ['SA', {}] },
   ]) await api('/ads/request', { user: users.provider, method: 'POST', body: { ...body, ...bad }, expected: 400 });
+  // AYK-150: the refusal names the field to correct and why, so the form can mark it in red.
+  for (const [bad, field, code] of [
+    [{ title: ' ' }, 'title', 'need_title'], [{ image: '' }, 'image', 'need_media'], [{ link: 'javascript:alert(1)' }, 'link', 'invalid_link'],
+    [{ duration_days: 1.5 }, 'duration_days', 'invalid_duration'], [{ max_views: 0 }, 'max_views', 'invalid_views'],
+    [{ placements: [] }, 'placements', 'invalid_placement'], [{ starts_at: '2000-01-01T00:00:00Z' }, 'starts_at', 'invalid_start'],
+  ]) {
+    const response = await fetch(base + '/ads/request', {
+      method: 'POST', headers: { Authorization: `Bearer ${users.provider.token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, ...bad }),
+    });
+    const result = await response.json();
+    assert.equal(response.status, 400);
+    assert.deepEqual([result.errors?.[0]?.field, result.errors?.[0]?.code], [field, code], JSON.stringify(bad));
+    assert.ok(result.message && result.message !== 'ad_field_' + code, 'a translated reason');
+  }
   const config = await adService.getConfig();
   const single = adService.quote({ ...body, config });
   const duplicate = adService.quote({ ...body, placements: ['home_top', 'home_top'], config });

@@ -1341,7 +1341,21 @@
     "views_progress": "እድገቱን ይመልከቱ",
     "admin_approved": "ማስታወቂያ ተቀባይነት አግኝቷል",
     "admin_rejected": "ማስታወቂያ ውድቅ",
-    "admin_activated": "ማስታወቂያ ተንቀሳቃሽ"
+    "admin_activated": "ማስታወቂያ ተንቀሳቃሽ",
+    "err": {
+      "need_title": "የማስታወቂያውን ርዕስ ይጻፉ።",
+      "title_too_long": "ርዕሱ ረጅም ነው፤ ገደቡ {{max}} ፊደላት ነው።",
+      "need_media": "ለማስታወቂያው ምስል ወይም ቪዲዮ ያያይዙ።",
+      "invalid_media": "የማስታወቂያው ፋይል ትክክል አይደለም፤ እንደገና ይስቀሉ።",
+      "text_too_long": "ጽሑፉ ረጅም ነው፤ ገደቡ {{max}} ፊደላት ነው።",
+      "invalid_link": "ሊንኩ ትክክል አይደለም፤ በ https:// መጀመር አለበት፣ ለምሳሌ https://example.com",
+      "invalid_duration": "ጊዜው ከ{{min}} እስከ {{max}} ቀናት መሆን አለበት።",
+      "invalid_views": "የእይታ ብዛት ከ{{min}} እስከ {{max}} መሆን አለበት።",
+      "invalid_placement": "ማስታወቂያው የሚታይበት ቢያንስ አንድ ቦታ ይምረጡ።",
+      "invalid_start": "የመጀመሪያ ቀን አሁን ወይም በኋላ፣ በአንድ ዓመት ውስጥ መሆን አለበት። ወይም ባዶ ይተዉት።",
+      "invalid_targeting": "ዒላማው ትክክል አይደለም፤ ገደቡ {{max}} ምርጫዎች ነው።",
+      "fix_marked": "በቀይ የተመለከቱትን መስኮች አስተካክለው ይላኩ።"
+    }
   },
   "badge": {
     "page_title": "የምልክት ወረቀቶቼ",

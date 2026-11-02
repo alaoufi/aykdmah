@@ -1341,7 +1341,21 @@
     "views_progress": "Tingnan ang pag-unlad",
     "admin_approved": "Aprubahan ang Ad",
     "admin_rejected": "Ang Ad ay tinanggihan",
-    "admin_activated": "Nag-activate ang Ad"
+    "admin_activated": "Nag-activate ang Ad",
+    "err": {
+      "need_title": "Isulat ang pamagat ng ad.",
+      "title_too_long": "Masyadong mahaba ang pamagat; hanggang {{max}} na character lang.",
+      "need_media": "Maglakip ng larawan o video para sa ad.",
+      "invalid_media": "Hindi wasto ang file ng ad; i-upload muli.",
+      "text_too_long": "Masyadong mahaba ang teksto; hanggang {{max}} na character lang.",
+      "invalid_link": "Hindi wasto ang link; dapat magsimula sa https:// tulad ng https://example.com",
+      "invalid_duration": "Ang tagal ay dapat nasa pagitan ng {{min}} at {{max}} araw.",
+      "invalid_views": "Ang bilang ng views ay dapat nasa pagitan ng {{min}} at {{max}}.",
+      "invalid_placement": "Pumili ng kahit isang lugar para ipakita ang ad.",
+      "invalid_start": "Ang petsa ng simula ay dapat ngayon o mamaya, sa loob ng isang taon. O iwanang blangko.",
+      "invalid_targeting": "Hindi wasto ang targeting; hanggang {{max}} na pagpipilian lang.",
+      "fix_marked": "Itama ang mga field na may pulang marka, saka ipadala."
+    }
   },
   "badge": {
     "page_title": "Ang aking mga badge",

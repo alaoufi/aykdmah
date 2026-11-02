@@ -1341,7 +1341,21 @@
     "views_progress": "View progress",
     "admin_approved": "Ad approved",
     "admin_rejected": "Ad rejected",
-    "admin_activated": "Ad activated"
+    "admin_activated": "Ad activated",
+    "err": {
+      "need_title": "Write the ad title.",
+      "title_too_long": "The title is too long; the limit is {{max}} characters.",
+      "need_media": "Attach a picture or video for the ad.",
+      "invalid_media": "The ad file is not valid; upload it again.",
+      "text_too_long": "The text is too long; the limit is {{max}} characters.",
+      "invalid_link": "The link is not valid; it must start with https:// like https://example.com",
+      "invalid_duration": "The duration must be between {{min}} and {{max}} days.",
+      "invalid_views": "The number of views must be between {{min}} and {{max}}.",
+      "invalid_placement": "Choose at least one place to show the ad.",
+      "invalid_start": "The start date must be now or later, within a year. Or leave it empty to start on approval.",
+      "invalid_targeting": "The targeting is not valid; the limit is {{max}} choices.",
+      "fix_marked": "Correct the fields marked in red, then send."
+    }
   },
   "badge": {
     "page_title": "My badges",

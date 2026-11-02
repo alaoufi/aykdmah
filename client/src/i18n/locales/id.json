@@ -1341,7 +1341,21 @@
     "views_progress": "Lihat kemajuan",
     "admin_approved": "Pengumuman yang disetujui",
     "admin_rejected": "Iklan ditolak",
-    "admin_activated": "Iklan diaktifkan"
+    "admin_activated": "Iklan diaktifkan",
+    "err": {
+      "need_title": "Tulis judul iklan.",
+      "title_too_long": "Judul terlalu panjang; batasnya {{max}} karakter.",
+      "need_media": "Lampirkan gambar atau video untuk iklan.",
+      "invalid_media": "File iklan tidak valid; unggah lagi.",
+      "text_too_long": "Teks terlalu panjang; batasnya {{max}} karakter.",
+      "invalid_link": "Tautan tidak valid; harus diawali https:// seperti https://example.com",
+      "invalid_duration": "Durasi harus antara {{min}} dan {{max}} hari.",
+      "invalid_views": "Jumlah tayangan harus antara {{min}} dan {{max}}.",
+      "invalid_placement": "Pilih setidaknya satu tempat untuk menampilkan iklan.",
+      "invalid_start": "Tanggal mulai harus sekarang atau nanti, dalam satu tahun. Atau kosongkan.",
+      "invalid_targeting": "Penargetan tidak valid; batasnya {{max}} pilihan.",
+      "fix_marked": "Perbaiki kolom bertanda merah, lalu kirim."
+    }
   },
   "badge": {
     "page_title": "Pakarku",
