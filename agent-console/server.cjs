@@ -21,6 +21,7 @@ fs.mkdirSync(dir,{recursive:true,mode:0o700});
 const file=path.join(dir,'messages.json');const html=fs.readFileSync(path.join(__dirname,'public/index.html'));
 let messages=[];try{messages=JSON.parse(fs.readFileSync(file,'utf8'));if(!Array.isArray(messages))messages=[]}catch{}
 const save=()=>{const tmp=file+'.tmp';fs.writeFileSync(tmp,JSON.stringify(messages),{mode:0o600});fs.renameSync(tmp,file);};
+const jobDir=path.join(dir,'jobs');fs.mkdirSync(jobDir,{recursive:true,mode:0o700});const queue=(job)=>{const dest=path.join(jobDir,job.id+'.pending.json');fs.writeFileSync(dest,JSON.stringify({...job,status:'pending',createdAt:new Date().toISOString()}),{flag:'wx',mode:0o600});return dest};
 const auditFile=path.join(dir,'audit.jsonl');const audit=(event,details={})=>{fs.appendFileSync(auditFile,JSON.stringify({time:new Date().toISOString(),event,...details})+'\n',{mode:0o600});};
 const attempts=new Map();const blocked=ip=>{const now=Date.now(),a=attempts.get(ip);if(!a)return false;if(now-a.start>15*60*1000){attempts.delete(ip);return false}return a.count>=8};
 const failed=ip=>{const now=Date.now(),a=attempts.get(ip);if(!a||now-a.start>15*60*1000)attempts.set(ip,{start:now,count:1});else a.count++};
@@ -43,6 +44,7 @@ if(req.url==='/api/login'&&req.method==='POST'){const ip=req.socket.remoteAddres
 if(!auth(req))return reply(res,401,{error:'يلزم تسجيل الدخول'});
 if(req.url==='/api/logout'&&req.method==='POST'){res.setHeader('Set-Cookie','agent_session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0');return reply(res,200,{ok:true})}
 if(req.url==='/api/projects'&&req.method==='GET')return reply(res,200,{projects,configuredProviders:configured});
+if(req.url.startsWith('/api/jobs')&&req.method==='GET'){const u=new URL(req.url,'http://localhost'),project=u.searchParams.get('project')||'aykdmah';if(!allowed.has(project))return reply(res,400,{error:'مشروع غير معروف'});const files=fs.readdirSync(jobDir).filter(x=>/\\.(pending|running|result)\\.json$/.test(x));const tasks=files.map(x=>{try{const j=JSON.parse(fs.readFileSync(path.join(jobDir,x),'utf8'));return {id:j.id,project:j.project,agent:j.agent,agentUsed:j.agentUsed,status:j.status,createdAt:j.createdAt,finishedAt:j.finishedAt,message:j.message}}catch{return null}}).filter(x=>x&&x.project===project).sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).slice(0,100);return reply(res,200,{tasks})}
 if(req.url==='/api/stores'&&req.method==='GET')return reply(res,200,{applications:storeRegistry.applications,connected:false,warning:'لا يوجد اتصال فعلي بمتاجر التطبيقات حتى إعداد صلاحياتها'});
 if(req.url.startsWith('/api/messages')&&req.method==='GET'){
 const u=new URL(req.url,'http://localhost');const project=u.searchParams.get('project')||'aykdmah';
@@ -53,8 +55,8 @@ if(req.url==='/api/messages'&&req.method==='POST'){const b=await getbody(req),te
 const project=allowed.get(String(b.project||'aykdmah'));if(!project)return reply(res,400,{error:'المشروع غير معروف'});
 if(/\b(?:publish|deploy|release)\b|نشر|رفع.*متجر|حذف.*بيانات|دفع.*مبلغ|تغيير.*DNS/i.test(text)){messages.push({id:crypto.randomUUID(),role:'system',project:project.id,text:'تنبيه: هذا الطلب قد يتطلب موافقة المالك قبل نشر أو دفع أو تعديل إنتاج. تسجيل المهمة لا يعني السماح بالتنفيذ.',date:new Date().toISOString()});}
 
-const selected=route(text,agent);const id=crypto.randomUUID();messages.push({id,role:'user',text,date:new Date().toISOString(),agent:selected,project:project.id});save();audit('task_saved',{id,project:project.id,agent:selected});
-try{const url=await github(text,selected,project);audit('task_queued',{id,project:project.id,queued:!!url});messages.push({id:crypto.randomUUID(),role:'system',project:project.id,text:url?'وجهت المهمة إلى '+selected+' في '+project.repo+' وسجلتها في GitHub: '+url+'\nالتنفيذ الآلي غير مفعل حتى توصيل المزود.':'حُفظ الطلب في محادثة '+project.name+'. لم تُنشأ مهمة GitHub؛ الربط الخارجي معطّل افتراضيًا لحماية خصوصية المحادثة.',date:new Date().toISOString()})}
+const selected=route(text,agent);const id=crypto.randomUUID();messages.push({id,role:'user',text,date:new Date().toISOString(),agent:selected,project:project.id});save();audit('task_saved',{id,project:project.id,agent:selected});queue({id,project:project.id,agent:selected,text});
+try{const url=await github(text,selected,project);audit('task_queued',{id,project:project.id,queued:!!url});messages.push({id:crypto.randomUUID(),role:'system',project:project.id,text:url?'وجهت المهمة إلى '+selected+' في '+project.repo+' وسجلتها في GitHub: '+url+'\nالتنفيذ الآلي غير مفعل حتى توصيل المزود.':'حُفظ الطلب في محادثة '+project.name+'. المهمة محفوظة في طابور الخادم. تبدأ عند تفعيل العامل الخلفي وصلاحيات الأدوات رسميًا؛ GitHub الخارجي معطّل افتراضيًا لحماية الخصوصية.',date:new Date().toISOString()})}
 catch(e){messages.push({id:crypto.randomUUID(),role:'system',project:project.id,text:'حُفظ الطلب محليًا، لكن تعذر تسجيل مهمة GitHub: '+e.message,date:new Date().toISOString()})}save();return reply(res,200,{ok:true})}
 return reply(res,404,{error:'غير موجود'});
 }catch(e){return reply(res,400,{error:e.message||'خطأ'})}});
