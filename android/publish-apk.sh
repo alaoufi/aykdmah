@@ -6,7 +6,8 @@
 set -euo pipefail
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 DL=/var/www/aykdmh/dl
-VERSION=$(node -p "require('$REPO_DIR/android/twa-manifest.json').appVersionName")
+VERSION=$(grep -o '"appVersionName": *"[0-9.]*"' "$REPO_DIR/android/twa-manifest.json" | grep -o '[0-9][0-9.]*')
+[ -n "$VERSION" ] || { echo "no appVersionName in twa-manifest.json"; exit 1; }
 cp /root/aykdmh-android/project/aykdmh.apk "$DL/aykdmh-$VERSION.apk"
 cp /root/aykdmh-android/project/aykdmh.aab "/root/aykdmh-android/aykdmh-$VERSION.aab"
 printf '{"version":"%s","url":"/dl/aykdmh-%s.apk"}\n' "$VERSION" "$VERSION" > "$DL/latest.json.tmp"
