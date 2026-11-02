@@ -7,6 +7,7 @@ const port=Number(process.env.PORT||4318),password=process.env.AGENT_CONSOLE_PAS
 if(!password||password.length<16||!secret||secret.length<32)throw Error('Configure a strong AGENT_CONSOLE_PASSWORD (16+) and SESSION_SECRET (32+)');
 const registry=JSON.parse(fs.readFileSync(path.join(__dirname,'projects.json'),'utf8'));
 const projects=registry.projects.map(p=>({...p,repo:p.repository}));
+const storeRegistry=JSON.parse(fs.readFileSync(path.join(__dirname,'store-registry.json'),'utf8'));
 const allowed=new Map(projects.map(p=>[p.id,p]));
 const configured=(process.env.AGENT_ENABLED_PROVIDERS||'').split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);
 const route=(text,requested)=>{
@@ -38,6 +39,7 @@ if(req.url==='/api/login'&&req.method==='POST'){const b=await getbody(req);if(!e
 if(!auth(req))return reply(res,401,{error:'يلزم تسجيل الدخول'});
 if(req.url==='/api/logout'&&req.method==='POST'){res.setHeader('Set-Cookie','agent_session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0');return reply(res,200,{ok:true})}
 if(req.url==='/api/projects'&&req.method==='GET')return reply(res,200,{projects,configuredProviders:configured});
+if(req.url==='/api/stores'&&req.method==='GET')return reply(res,200,{applications:storeRegistry.applications,connected:false,warning:'لا يوجد اتصال فعلي بمتاجر التطبيقات حتى إعداد صلاحياتها'});
 if(req.url.startsWith('/api/messages')&&req.method==='GET'){
 const u=new URL(req.url,'http://localhost');const project=u.searchParams.get('project')||'aykdmah';
 if(!allowed.has(project))return reply(res,400,{error:'مشروع غير مصرح به'});
