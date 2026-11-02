@@ -1386,7 +1386,18 @@
     "reactivate": "Reactivate",
     "stop_ended": "Ended because its end date passed ({{date}}). Extend it in \"Edit\", then press \"Reactivate\".",
     "stop_views_done": "Ended because it reached its view limit. Raise it in \"Edit\", then press \"Reactivate\".",
-    "stop_unpaid": "Stopped: an advertiser's ad without a completed payment. Waive its fees or wait for payment."
+    "stop_unpaid": "Stopped: an advertiser's ad without a completed payment. Waive its fees or wait for payment.",
+    "map_title": "Where the ad appears",
+    "map_hint": "The coloured boxes are the chosen places, as they appear on the app and site pages.",
+    "map_hero": "Hero",
+    "page_home": "Home",
+    "page_services": "Services",
+    "page_category": "Category",
+    "page_request": "Request details",
+    "page_search": "Search & requests",
+    "page_profile": "My profile",
+    "page_chat": "Chats",
+    "page_dashboard": "Dashboard"
   },
   "badge": {
     "page_title": "My badges",

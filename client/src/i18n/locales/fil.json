@@ -1386,7 +1386,18 @@
     "reactivate": "I-activate muli",
     "stop_ended": "Natapos dahil lumipas na ang petsa ng pagtatapos ({{date}}). Pahabain ito sa «I-edit», saka pindutin ang «I-activate muli».",
     "stop_views_done": "Natapos dahil naabot ang limitasyon ng views. Taasan ito sa «I-edit», saka pindutin ang «I-activate muli».",
-    "stop_unpaid": "Nakahinto: ad ng advertiser na walang kumpletong bayad. Iwaksi ang bayad o hintayin ang bayad."
+    "stop_unpaid": "Nakahinto: ad ng advertiser na walang kumpletong bayad. Iwaksi ang bayad o hintayin ang bayad.",
+    "map_title": "Saan lalabas ang ad",
+    "map_hint": "Ang mga may kulay na kahon ang mga napiling lugar, gaya ng makikita sa mga pahina ng app at site.",
+    "map_hero": "Pangunahing banner",
+    "page_home": "Home",
+    "page_services": "Mga serbisyo",
+    "page_category": "Kategorya",
+    "page_request": "Detalye ng kahilingan",
+    "page_search": "Paghahanap at kahilingan",
+    "page_profile": "Aking profile",
+    "page_chat": "Mga chat",
+    "page_dashboard": "Dashboard"
   },
   "badge": {
     "page_title": "Ang aking mga badge",

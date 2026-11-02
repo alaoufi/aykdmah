@@ -1386,7 +1386,18 @@
     "reactivate": "Yeniden etkinleştir",
     "stop_ended": "Bitiş tarihi geçtiği için sona erdi ({{date}}). «Düzenle» ile uzatıp «Yeniden etkinleştir»e basın.",
     "stop_views_done": "Görüntülenme sınırına ulaştığı için sona erdi. «Düzenle» ile sınırı artırıp «Yeniden etkinleştir»e basın.",
-    "stop_unpaid": "Durduruldu: tam ödemesi olmayan reklamveren reklamı. Ücretini kaldırın veya ödemeyi bekleyin."
+    "stop_unpaid": "Durduruldu: tam ödemesi olmayan reklamveren reklamı. Ücretini kaldırın veya ödemeyi bekleyin.",
+    "map_title": "Reklam nerede görünür",
+    "map_hint": "Renkli kutular, uygulama ve site sayfalarında göründüğü gibi seçilen yerlerdir.",
+    "map_hero": "Ana afiş",
+    "page_home": "Ana sayfa",
+    "page_services": "Hizmetler",
+    "page_category": "Kategori",
+    "page_request": "Talep ayrıntıları",
+    "page_search": "Arama ve talepler",
+    "page_profile": "Profilim",
+    "page_chat": "Sohbetler",
+    "page_dashboard": "Panel"
   },
   "badge": {
     "page_title": "Benim rozetlerim",

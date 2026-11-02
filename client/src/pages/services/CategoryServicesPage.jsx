@@ -13,6 +13,7 @@ import CatalogLocationNotice from '../../components/catalog/CatalogLocationNotic
 import ServiceRequestForm from '../../components/catalog/ServiceRequestForm';
 import MatchingProviders from '../../components/catalog/MatchingProviders';
 import { EmptyState } from '../../components/common/Spinner';
+import AdSlot from '../../components/ads/AdSlot';
 
 export default function CategoryServicesPage() {
   const { t, i18n } = useTranslation();
@@ -43,6 +44,7 @@ export default function CategoryServicesPage() {
 
   return (
     <div className="bg-cream min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pt-4"><AdSlot placement="category_top" /></div>
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-10">
         <div className="flex items-center gap-2 text-[12.5px] text-slate-500 mb-3">
           <Link to={catalogUrl} className="hover:text-brand-700 no-underline">{t('catalog.title')}</Link>
@@ -75,6 +77,7 @@ export default function CategoryServicesPage() {
           </div>
         )}
       </div>
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pb-8"><AdSlot placement="category_bottom" /></div>
       <ServiceRequestForm service={orderService} open={!!orderService} onClose={() => setOrderService(null)} />
     </div>
   );

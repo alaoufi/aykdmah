@@ -26,6 +26,7 @@ import { sentTone } from '../utils/ringtone';
 import { createPollingLoop } from '../utils/polling';
 import { agreeRequest, saveToDirectory } from '../services/requestService';
 import { askConfirm, askText, showAlert } from '../components/common/AppDialog';
+import AdSlot from '../components/ads/AdSlot';
 
 // A bold back arrow toward the start side: right in Arabic, left in English (AYK-137).
 function BackArrow() {
@@ -409,6 +410,7 @@ export default function ChatPage() {
          conversations.filter(c => archived(c) === showArchive).length === 0 ? <EmptyState title={t(showArchive ? 'requester.chat_archive_empty' : 'chat.no_conversations')} /> :
          (
           <div className="conv-list">
+            {!showArchive && <div className="px-3 pt-2"><AdSlot placement="chat_sidebar" /></div>}
             {conversations.filter(c => archived(c) === showArchive)
               .sort((a, b) => Number(Boolean(Number(b.is_favorite))) - Number(Boolean(Number(a.is_favorite))))
               .map(c => {

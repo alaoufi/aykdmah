@@ -21,6 +21,7 @@ import AdminFab from '../../components/admin/AdminFab';
 import { formatRelativeTime } from '../../utils/formatters';
 import { safeUrl } from '../../utils/urlSafety';
 import { askText } from '../../components/common/AppDialog';
+import AdPlacementMap from '../../components/ads/AdPlacementMap';
 
 // All 15 placements supported by the renderer. Keep in sync with
 // server/services/adRequestService.js ALLOWED_PLACEMENTS.
@@ -484,6 +485,7 @@ export default function AdminAdsPage() {
           </table>
         </div>
         <p className="px-4 py-2 text-[11.5px] text-slate-500 border-t border-slate-100">{t('promote.placement_pricing_hint')}</p>
+        <div className="p-3 border-t border-slate-100"><AdPlacementMap all /></div>
       </div>
 
       <AdFeesExtras regions={regions} onMessage={setMsg} />
@@ -761,6 +763,7 @@ export default function AdminAdsPage() {
               })}
             </div>
             <p className="text-[11.5px] text-slate-500 mt-2">{t('promote.placements_admin_hint')}</p>
+            <div className="mt-2"><AdPlacementMap selected={form.placements} /></div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <FieldA label={t('admin.ad_starts_at')} type="datetime-local" value={form.starts_at} onChange={(v) => setForm({ ...form, starts_at: v })} />

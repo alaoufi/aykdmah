@@ -24,6 +24,7 @@ import ToneVolume from '../components/profile/ToneVolume';
 import WorkPanel from '../components/provider/WorkPanel';
 import MyMarket from '../components/provider/MyMarket';
 import { getCurrentPosition, isValidCoordinates, geoSelection, preserveCoordinatesForAreaChange } from '../utils/geolocation.mjs';
+import AdSlot from '../components/ads/AdSlot';
 
 const LOCATION_LEVELS = ['country_id', 'region_id', 'governorate_id', 'city_id', 'district_id'];
 const formFromUser = (user) => ({
@@ -266,6 +267,7 @@ export default function ProfilePage() {
   return (
     <div className="container page" style={{ maxWidth: 720 }}>
       <h2 className="mb-4">{t('profile.title')}</h2>
+      <AdSlot placement="profile_top" className="mb-4" />
       {msg && <div className="badge badge-success mb-3" role="status">{msg}</div>}
       {err && <div role="alert" className="form-error mb-3" style={{ padding: 10, background: 'rgba(239,68,68,.1)', borderRadius: 8 }}>{err}</div>}
       {/* The same one-tap permissions as at sign-up, first on the page (AYK-047). */}

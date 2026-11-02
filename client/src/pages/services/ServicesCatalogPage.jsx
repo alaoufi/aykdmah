@@ -11,6 +11,7 @@ import ServiceRequestForm from '../../components/catalog/ServiceRequestForm';
 import { EmptyState } from '../../components/common/Spinner';
 import MatchingProviders from '../../components/catalog/MatchingProviders';
 import { useAuth } from '../../hooks/useAuth';
+import AdSlot from '../../components/ads/AdSlot';
 
 export default function ServicesCatalogPage() {
   const { t, i18n } = useTranslation();
@@ -23,6 +24,7 @@ export default function ServicesCatalogPage() {
 
   return (
     <div className="bg-cream min-h-screen">
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pt-4"><AdSlot placement="services_top" /></div>
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-8 md:py-12">
         <div className="text-center max-w-2xl mx-auto mb-8 md:mb-12">
           <div className="text-[12px] font-bold text-sand-600 mb-2">{t('common.brand')}</div>
@@ -46,6 +48,7 @@ export default function ServicesCatalogPage() {
         </>}
         <div className="text-center text-[11px] text-slate-400 mt-10">{t('catalog.demo_notice')}</div>
       </div>
+      <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pb-8"><AdSlot placement="services_bottom" /></div>
       <ServiceRequestForm service={orderService} open={!!orderService} onClose={() => setOrderService(null)} />
     </div>
   );

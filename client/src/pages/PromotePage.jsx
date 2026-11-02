@@ -10,6 +10,7 @@ import { LoadingState } from '../components/common/Spinner';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import { apiError } from '../services/api';
 import useCountry from '../hooks/useCountry';
+import AdPlacementMap from '../components/ads/AdPlacementMap';
 
 // What the ad's file may be (the server checks the same): its type and at most 3.75 MiB.
 const MEDIA_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/apng', 'video/mp4', 'video/webm', 'video/ogg'];
@@ -357,6 +358,8 @@ export default function PromotePage() {
             })}
           </div>
           <FieldError id="placements" text={errors.placements} />
+          {/* Where the chosen places appear (AYK-159); tapping a place chooses it too. */}
+          <div className="mt-3"><AdPlacementMap selected={form.placements} onToggle={togglePlacement} /></div>
         </div>
 
         {/* Date + duration + max views */}

@@ -1386,7 +1386,18 @@
     "reactivate": "Aktifkan lagi",
     "stop_ended": "Berakhir karena tanggal akhirnya lewat ({{date}}). Perpanjang di «Edit», lalu tekan «Aktifkan lagi».",
     "stop_views_done": "Berakhir karena mencapai batas tayangan. Naikkan di «Edit», lalu tekan «Aktifkan lagi».",
-    "stop_unpaid": "Berhenti: iklan pengiklan tanpa pembayaran lengkap. Bebaskan biayanya atau tunggu pembayaran."
+    "stop_unpaid": "Berhenti: iklan pengiklan tanpa pembayaran lengkap. Bebaskan biayanya atau tunggu pembayaran.",
+    "map_title": "Di mana iklan muncul",
+    "map_hint": "Kotak berwarna adalah tempat yang dipilih, seperti terlihat di halaman aplikasi dan situs.",
+    "map_hero": "Banner utama",
+    "page_home": "Beranda",
+    "page_services": "Layanan",
+    "page_category": "Kategori",
+    "page_request": "Detail permintaan",
+    "page_search": "Pencarian & permintaan",
+    "page_profile": "Profil saya",
+    "page_chat": "Obrolan",
+    "page_dashboard": "Dasbor"
   },
   "badge": {
     "page_title": "Pakarku",

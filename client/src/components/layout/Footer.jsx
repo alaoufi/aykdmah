@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import BrandLogo from '../common/BrandLogo';
 import usePublicSettings, { subscriptionsOn } from '../../hooks/usePublicSettings';
 import { nativeAppVersion } from '../../utils/nativeApp';
+import AdSlot from '../ads/AdSlot';
 
 export default function Footer() {
   const { t } = useTranslation();
@@ -42,6 +43,7 @@ export default function Footer() {
   return (
     <footer className="site-footer bg-ink text-white/75 pt-14 md:pb-12">
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
+        <AdSlot placement="footer" className="mb-8" />
         <div className="grid grid-cols-2 md:grid-cols-12 gap-8 md:gap-10">
           <div className="col-span-2 md:col-span-4">
             <div className="mb-4">

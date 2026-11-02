@@ -27,6 +27,7 @@ const CallHistory = lazy(() => import('../components/calls/CallHistory'));
 import { apiError } from '../services/api';
 import JoinInvite from '../components/common/JoinInvite';
 import { createConversation } from '../services/chatService';
+import AdSlot from '../components/ads/AdSlot';
 
 export function canReadRequestOffers(user, request, canManageRequests = false) {
   return Boolean(user && request && (
@@ -210,6 +211,7 @@ export default function RequestDetailsPage() {
 
   return (
     <div className="container page">
+      <AdSlot placement="request_details_top" className="mb-4" />
       {/* What each side can do with this request, at the top and in words (AYK-071). */}
       {(isOwner || (user && user.id === request.assigned_provider_id)) && ['assigned', 'in_progress'].includes(request.status) && (
         <div className="card mb-4" data-testid="request-manage" style={{ borderInlineStart: '4px solid var(--primary)' }}>
@@ -417,6 +419,7 @@ export default function RequestDetailsPage() {
           .offer-card { padding: 14px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--bg-soft); }
         `}</style>
       </div>}
+      <AdSlot placement="request_details_bottom" className="mt-4" />
       <ConfirmDialog {...confirm} onCancel={() => setConfirm({ open: false })} />
     </div>
   );

@@ -42,6 +42,7 @@ export default function ProviderDashboardPage() {
     <div>
       {/* A service provider's home is this page, so the top-of-home ads show here too (AYK-157). */}
       <AdSlot placement="home_top" className="mb-4" />
+      <AdSlot placement="home_hero" className="mb-4" />
       {error && <p role="alert" className="form-error">{t('errors.generic')}</p>}
       {/* Paused: say so first, since requesters cannot see them; the settings live in "ملفي". */}
       {provider?.availability_status === 'paused' && (
@@ -87,6 +88,8 @@ export default function ProviderDashboardPage() {
           )}
       </div>
 
+      <AdSlot placement="home_middle" className="mt-4" />
+      <AdSlot placement="home_bottom" className="mt-4" />
       <style>{`
         .offer-list-item {
           display: flex; align-items: center; gap: 12px; padding: 12px 14px;

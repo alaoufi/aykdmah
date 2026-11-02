@@ -22,6 +22,12 @@ export default function HomePage() {
       <main className="pb-24 md:pb-0">
         <div className="container max-w-5xl mx-auto px-4 pt-4"><AdSlot placement="home_top" /></div>
         <RequesterHome />
+        {/* The other home placements show to signed-in requesters too (AYK-159). */}
+        <div className="container max-w-5xl mx-auto px-4 space-y-4">
+          <AdSlot placement="home_hero" />
+          <AdSlot placement="home_middle" />
+          <AdSlot placement="home_bottom" />
+        </div>
       </main>
     );
   }

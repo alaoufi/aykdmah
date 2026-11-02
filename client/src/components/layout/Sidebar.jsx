@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import AdSlot from '../ads/AdSlot';
 
 export default function Sidebar({ items = [] }) {
   const { t } = useTranslation();
@@ -13,6 +14,8 @@ export default function Sidebar({ items = [] }) {
           </NavLink>
         ))}
       </nav>
+      {/* The dashboards' side column (AYK-159); not on phones, where it is a row of tabs. */}
+      <div className="hidden md:block mt-4"><AdSlot placement="sidebar" /></div>
       <style>{`
         .sidebar {
           width: var(--sidebar-w); background: var(--bg-card); border-inline-start: 1px solid var(--border);
