@@ -71,12 +71,22 @@ const DisputeDetailsPage = lazy(() => import('./pages/DisputeDetailsPage'));
 const MyDisputesPage = lazy(() => import('./pages/MyDisputesPage'));
 const PromotePage = lazy(() => import('./pages/PromotePage'));
 const DeleteAccountPage = lazy(() => import('./pages/DeleteAccountPage'));
+const JoinInvite = lazy(() => import('./components/common/JoinInvite'));
+
+// What a visitor who has not signed up wanted to do there (AYK-158), for the invitation's wording.
+const joinIntent = (path) => (/^\/(requests\/new|client|directory)/.test(path) ? 'request'
+  : /^\/(provider|opportunities)/.test(path) ? 'offer' : 'general');
 
 function Protected({ children, roles, loginPath = '/login' }) {
   const { user, loading } = useAuth();
   const location = useLocation();
   if (loading) return <LoadingState />;
-  if (!user) return <Navigate to={loginPath} replace state={{ from: location.pathname + location.search + location.hash }} />;
+  if (!user) {
+    const from = location.pathname + location.search + location.hash;
+    // Visitors browse freely; a page that needs an account invites them to join (AYK-158).
+    if (loginPath === '/login') return <JoinInvite intent={joinIntent(location.pathname)} from={from} />;
+    return <Navigate to={loginPath} replace state={{ from }} />;
+  }
   // A "both" account is a provider that may also use the requester pages.
   const allowed = !roles || roles.includes(user.role) || (roles.includes('client') && isBothAccount(user));
   if (!allowed) return <Navigate to="/" replace />;

@@ -25,6 +25,7 @@ import ConfirmDialog from '../components/common/ConfirmDialog';
 const CallButtons = lazy(() => import('../components/calls/CallButtons'));
 const CallHistory = lazy(() => import('../components/calls/CallHistory'));
 import { apiError } from '../services/api';
+import JoinInvite from '../components/common/JoinInvite';
 import { createConversation } from '../services/chatService';
 
 export function canReadRequestOffers(user, request, canManageRequests = false) {
@@ -334,6 +335,8 @@ export default function RequestDetailsPage() {
       {turnedDown && request.status === 'open' && (
         <div className="card mb-4 text-sm text-muted" data-testid="provider-turned-down">{t('request.turned_down')}</div>
       )}
+      {/* A visitor who could do this job is invited to join and contact the requester (AYK-158). */}
+      {!user && request.status === 'open' && <JoinInvite intent="offer" compact from={`/requests/${request.id}`} />}
       {canOffer && (
         <div className="card mb-4" data-testid="provider-contact">
           <p className="text-sm text-muted mb-3">{t('request.contact_hint')}</p>

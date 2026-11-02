@@ -61,7 +61,8 @@ export default function BottomNav() {
       { id: 'services', to: '/notifications', label: t('nav.notifications'), Icon: IconBell },
       { id: 'request', to: '/opportunities', label: t('work.requests_nav'), Icon: IconSearch, fab: true },
     ]),
-    { id: 'chat', to: user ? '/chat' : '/login', label: t('nav.chat'), Icon: IconChat, badge: chatUnread },
+    // A visitor opening the chats is invited to join there (AYK-158).
+    { id: 'chat', to: '/chat', label: t('nav.chat'), Icon: IconChat, badge: chatUnread },
     { id: 'account', to: user ? accountLink : '/login', label: user ? t('nav.profile') : t('nav.login'), Icon: IconUser },
   ];
 

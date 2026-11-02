@@ -10,6 +10,7 @@ import Latest from '../components/home/Latest';
 import StatsStrip from '../components/home/StatsStrip';
 import AdSlot from '../components/ads/AdSlot';
 import RequesterHome from '../components/home/RequesterHome';
+import GuestShowcase from '../components/home/GuestShowcase';
 
 export default function HomePage() {
   const { position } = useGeolocation();
@@ -31,6 +32,8 @@ export default function HomePage() {
         <AdSlot placement="home_top" />
       </div>
       <Hero />
+      {/* Visitors see what each side gains and can look around first (AYK-158). */}
+      {!user && <GuestShowcase />}
       {/* Signed in: what matters is what is in your own area and profession (AYK-035). */}
       <ForYou />
       <div className="container max-w-5xl mx-auto px-4">

@@ -10,6 +10,7 @@ import useRequestLocation from '../../hooks/useRequestLocation';
 import { requestLocationFields, appendRequestLocation } from '../../utils/requestLocation';
 import { createRequest } from '../../services/requestService';
 import { apiError } from '../../services/api';
+import JoinInvite from '../common/JoinInvite';
 import { tx } from '../../utils/localize';
 
 const EMPTY = { desc: '', preferredTime: '', notes: '' };
@@ -75,7 +76,7 @@ export default function ServiceRequestForm({ service, open, onClose }) {
   };
   if (!service) return null;
   return <Modal open={open} onClose={close} title={`${t('catalog.order_form_title')} — ${tx(service.title, lang)}`} width={560}>
-    {!user ? <div className="space-y-4 text-center py-5"><p>{t('catalog.login_to_order')}</p><Link className="btn btn-primary" to="/login" state={{ from: `/services/${service.id}${locationQuery ? `?${locationQuery}` : ''}` }}>{t('auth.login_button')}</Link></div>
+    {!user ? <JoinInvite intent="request" compact from={`/services/${service.id}${locationQuery ? `?${locationQuery}` : ''}`} />
     : created ? <div className="text-center py-6"><div className="text-5xl mb-3">✅</div><p className="font-bold">{t('catalog.order_success')}</p><Link to={`/requests/${created.id}`} className="btn btn-primary mt-4">{t('request.details_title')}</Link></div>
     : <form onSubmit={submit}>
       {error && <div role="alert" className="form-error mb-3">{error}</div>}
