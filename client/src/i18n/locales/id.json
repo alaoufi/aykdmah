@@ -2354,10 +2354,7 @@
     "bar_no_ring": "Notifikasi mati di ponsel ini: tidak akan berdering untuk panggilan saat aplikasi tertutup. Ketuk «Izinkan»."
   },
   "update": {
-    "available": "Versi baru situs tersedia.",
-    "now": "Perbarui sekarang",
-    "in_progress": "Memperbarui aplikasi…",
-    "in_progress_hint": "Selesai dalam beberapa detik. Tidak apa-apa jika keluar dari aplikasi, akan selesai sendiri."
+    "done": "Diperbarui ke"
   },
   "tone": {
     "title": "Volume notifikasi",

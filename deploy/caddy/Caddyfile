@@ -49,6 +49,13 @@ aykdmh.com {
 		header Cache-Control "no-store"
 		file_server
 	}
+	# AYK-148: the newest app published there; an older app from there must update first.
+	@dlinfo path /dl/latest.json
+	handle @dlinfo {
+		root * /srv
+		header Cache-Control "no-store"
+		file_server
+	}
 
 	@private path /install /install/* /uploads /uploads/*
 	handle @private {

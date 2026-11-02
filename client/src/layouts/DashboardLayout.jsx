@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import UpdateBar from '../components/common/UpdateBar';
+import AppUpdateGate from '../components/common/AppUpdateGate';
 import DevicePermissions from '../components/common/DevicePermissions';
 import Sidebar from '../components/layout/Sidebar';
 import BottomNav from '../components/layout/BottomNav';
@@ -12,6 +13,7 @@ export default function DashboardLayout({ sidebarItems }) {
     <>
       <Header />
       <UpdateBar />
+      <AppUpdateGate />
       <DevicePermissions variant="bar" />
       <div className="dashboard-wrap">
         <Sidebar items={sidebarItems} />

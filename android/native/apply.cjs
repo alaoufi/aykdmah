@@ -129,6 +129,10 @@ if (!app.includes('livekit-android')) {
   app = app.replace(/(compileOptions \{[^}]*\})/, "$1\n    kotlinOptions {\n        jvmTarget = '17'\n    }\n    packagingOptions {\n        resources.excludes += ['META-INF/*.kotlin_module', 'META-INF/AL2.0', 'META-INF/LGPL2.1']\n    }");
   app = app.replace(/dependencies \{\n/, "dependencies {\n    implementation 'io.livekit:livekit-android:2.29.2'\n    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1'\n");
 }
+// Required updates from Google Play (AYK-148): Play's In-App Updates, in LauncherActivity.
+if (!app.includes('com.google.android.play:app-update')) {
+  app = app.replace(/dependencies \{\n/, "dependencies {\n    implementation 'com.google.android.play:app-update:2.1.0'\n");
+}
 if (!app.includes('firebase-messaging')) {
   app = app.replace(/dependencies \{\n/, "dependencies {\n    implementation 'com.google.firebase:firebase-messaging:24.1.0'\n");
   app += "\napply plugin: 'com.google.gms.google-services'\n";

@@ -2354,10 +2354,7 @@
     "bar_no_ring": "Bu telefonda bildirimler kapalı: uygulama kapalıyken aramalarda çalmaz. «İzin ver»e dokunun."
   },
   "update": {
-    "available": "Sitenin yeni sürümü hazır.",
-    "now": "Şimdi güncelle",
-    "in_progress": "Uygulama güncelleniyor…",
-    "in_progress_hint": "Birkaç saniyede biter. Uygulamadan çıkarsanız sorun değil, kendisi tamamlanır."
+    "done": "Güncellendi:"
   },
   "tone": {
     "title": "Bildirim sesi",

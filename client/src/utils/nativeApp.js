@@ -10,9 +10,20 @@ export function nativeAppVersion() {
   } catch (_) { return ''; }
 }
 
+// Where the app was installed from (AYK-148), sent by app 1.3.1 and later as ?src=: "play" (Google
+// Play updates it, and forces its own updates) or "apk" (downloaded from aykdmh.com/dl).
+const SOURCE_KEY = 'ayk_native_src';
+export function nativeAppSource() {
+  try {
+    const fromUrl = new URLSearchParams(window.location.search).get('src');
+    if (fromUrl === 'play' || fromUrl === 'apk') localStorage.setItem(SOURCE_KEY, fromUrl);
+    return localStorage.getItem(SOURCE_KEY) || '';
+  } catch (_) { return ''; }
+}
+
 // The app's own call engine (AYK-145), from app 1.3.0 on Android: calls run like phone calls
 // (earpiece, proximity sensor, Bluetooth, in the background). The site hands the call over.
-const atLeast = (version, wanted) => {
+export const atLeast = (version, wanted) => {
   const a = String(version).split('.').map(Number);
   const b = wanted.split('.').map(Number);
   for (let i = 0; i < b.length; i += 1) { if ((a[i] || 0) !== b[i]) return (a[i] || 0) > b[i]; }

@@ -2354,10 +2354,7 @@
     "bar_no_ring": "Naka-off ang notifications sa phone na ito: hindi ito magri-ring kapag sarado ang app. Pindutin ang «Payagan»."
   },
   "update": {
-    "available": "May bagong bersyon ng site.",
-    "now": "I-update ngayon",
-    "in_progress": "Ina-update ang app…",
-    "in_progress_hint": "Matatapos sa ilang segundo. Ayos lang kung umalis ka sa app, kusa itong matatapos."
+    "done": "Na-update sa"
   },
   "tone": {
     "title": "Lakas ng abiso",

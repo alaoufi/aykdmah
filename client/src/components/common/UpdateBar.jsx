@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const CURRENT = import.meta.env.VITE_APP_VERSION || '';
+const UPDATED_FROM = 'ayk_updated_from';
 
 // Resolves once a new service worker (if any) has finished installing and taken over, or after 60 s.
 async function newVersionReady() {
@@ -18,23 +19,51 @@ async function newVersionReady() {
   });
 }
 
-// "A new version is available" (AYK-053): compares this build's version with the one on the
-// server (/version.json, written at build time) when the app opens or comes back to the
-// screen, and every 5 minutes. The button fetches the new version and reloads.
+// Something the person would lose on a reload: a call or a dialog on screen, or text being typed.
+function busyOnScreen() {
+  const typing = ['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName) && document.activeElement.value;
+  return Boolean(typing || document.querySelector('[role="dialog"][aria-modal="true"]'));
+}
+
+// Silent site updates (AYK-053, AYK-074, AYK-148): compares this build's version with the one on
+// the server (/version.json, written at build time) when the app opens or comes back to the
+// screen, and every 5 minutes. A new version downloads in the background while the person keeps
+// working, and is switched to only while the app is out of sight (they left it or locked the
+// phone), so they never see a reload; opening the app again shows the new version, with a small
+// note of its number for a few seconds that blocks nothing.
 export default function UpdateBar() {
   const { t } = useTranslation();
-  const [available, setAvailable] = useState(false);
-  const [busy, setBusy] = useState(false);
+  const available = useRef(false);
+  const switching = useRef(false);
+  const [updated, setUpdated] = useState(false);
+
+  useEffect(() => {
+    let from = null;
+    try { from = sessionStorage.getItem(UPDATED_FROM); sessionStorage.removeItem(UPDATED_FROM); } catch (_) { /* private mode */ }
+    if (!CURRENT || !from || from === CURRENT) return undefined;
+    setUpdated(true);
+    const timer = setTimeout(() => setUpdated(false), 4000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     if (!CURRENT) return undefined;
+    const switchWhenHidden = async () => {
+      if (!available.current || switching.current || !document.hidden || busyOnScreen()) return;
+      switching.current = true;
+      try { await newVersionReady(); } catch (_) { /* reload anyway */ }
+      if (document.hidden && !busyOnScreen()) {
+        try { sessionStorage.setItem(UPDATED_FROM, CURRENT); } catch (_) { /* private mode */ }
+        window.location.reload();
+      } else switching.current = false;
+    };
     const check = () => {
-      if (document.hidden) return;
+      if (document.hidden) { switchWhenHidden(); return; }
       fetch('/version.json', { cache: 'no-store' }).then(r => (r.ok ? r.json() : null))
         .then(v => {
           if (!v?.version || v.version === CURRENT) return;
-          setAvailable(true);
-          // Start downloading it now, so "Update now" is quick.
+          available.current = true;
+          // Download it now, so switching takes no time.
           navigator.serviceWorker?.getRegistration().then(r => r?.update()).catch(() => {});
         }).catch(() => {});
     };
@@ -44,45 +73,12 @@ export default function UpdateBar() {
     return () => { clearInterval(timer); document.removeEventListener('visibilitychange', check); };
   }, []);
 
-  const update = async () => {
-    setBusy(true);
-    try { await newVersionReady(); } catch (_) { /* reload anyway */ }
-    window.location.reload();
-  };
-
-  // Updates install on their own everywhere (AYK-074; the app since AYK-073): no call or dialog on
-  // screen and nothing being typed; otherwise try again on the next check (return, or 15 s).
-  useEffect(() => {
-    if (!available || busy) return undefined;
-    const tryNow = () => {
-      if (document.hidden) return;
-      const typing = ['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName) && document.activeElement.value;
-      if (document.querySelector('[role="dialog"][aria-modal="true"]') || typing) return;
-      update();
-    };
-    tryNow();
-    const timer = setInterval(tryNow, 15000);
-    document.addEventListener('visibilitychange', tryNow);
-    return () => { clearInterval(timer); document.removeEventListener('visibilitychange', tryNow); };
-  }, [available, busy]);
-
-  // Only the short "Updating…" line is ever shown.
-  if (!busy) return null;
-  // A clear window over everything while it updates (AYK-105), not a line at the top.
+  if (!updated) return null;
   return (
-    <div className="fixed inset-0 z-[4000] grid place-items-center bg-black/45 backdrop-blur-sm px-6" role="status" aria-live="polite" data-testid="update-bar">
-      {busy ? (
-        <div className="w-full max-w-xs rounded-[22px] bg-surface shadow-card p-6 text-center" data-testid="update-progress">
-          <span className="mx-auto mb-3 block w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin" aria-hidden="true" />
-          <div className="text-[17px] font-extrabold text-fg">🔄 {t('update.in_progress')}</div>
-          <p className="text-[13.5px] text-fg-muted mt-2 mb-0 leading-relaxed">{t('update.in_progress_hint')}</p>
-        </div>
-      ) : (
-        <>
-          <span>✨ {t('update.available')}</span>
-          <button type="button" className="btn btn-primary btn-sm" onClick={update}>🔄 {t('update.now')}</button>
-        </>
-      )}
+    <div className="fixed inset-x-0 bottom-24 z-[4000] flex justify-center px-4 pointer-events-none" role="status" aria-live="polite" data-testid="update-done">
+      <span className="rounded-full bg-fg text-surface shadow-card px-4 py-2 text-[13px] font-bold">
+        ✅ {t('update.done')} <span dir="ltr">{CURRENT}</span>
+      </span>
     </div>
   );
 }

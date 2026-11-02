@@ -2353,11 +2353,14 @@
     "ios_install": "To get calls and messages with the phone locked: tap Share ⬆️ then \"Add to Home Screen\", open the app from its icon and turn on notifications.",
     "bar_no_ring": "Notifications are off on this phone: it will not ring for calls or show messages while the app is closed. Tap \"Allow\"."
   },
+  "app_update": {
+    "title": "App update required",
+    "body": "Download the new version of the app to continue:",
+    "download": "Download the update",
+    "hint": "After it downloads, open the file and tap \"Update\", then open the app again."
+  },
   "update": {
-    "available": "A new version of the site is available.",
-    "now": "Update now",
-    "in_progress": "Updating the app…",
-    "in_progress_hint": "It finishes in a few seconds. If you leave the app, that is fine: it completes on its own."
+    "done": "Updated to"
   },
   "tone": {
     "title": "Notification volume",
