@@ -42,7 +42,7 @@ const u=new URL(req.url,'http://localhost');const project=u.searchParams.get('pr
 if(!allowed.has(project))return reply(res,400,{error:'مشروع غير مصرح به'});
 return reply(res,200,{messages:messages.filter(m=>m.project===project)});
 }
-if(req.url==='/api/messages'&&req.method==='POST'){const b=await getbody(req),text=String(b.text||'').trim(),agent=String(b.agent||'');if(!text||text.length>8000||!['claude','codex','review'].includes(agent))return reply(res,400,{error:'طلب غير صالح'});
+if(req.url==='/api/messages'&&req.method==='POST'){const b=await getbody(req),text=String(b.text||'').trim(),agent=String(b.agent||'');if(!text||text.length>8000||!['auto','claude','codex'].includes(agent))return reply(res,400,{error:'طلب غير صالح'});
 const project=allowed.get(String(b.project||'aykdmah'));if(!project)return reply(res,400,{error:'المشروع غير معروف'});
 const selected=route(text,agent);const id=crypto.randomUUID();messages.push({id,role:'user',text,date:new Date().toISOString(),agent:selected,project:project.id});save();
 try{const url=await github(text,selected,project);messages.push({id:crypto.randomUUID(),role:'system',project:project.id,text:url?'وجهت المهمة إلى '+selected+' في '+project.repo+' وسجلتها في GitHub: '+url+'\nالتنفيذ الآلي غير مفعل حتى توصيل المزود.':'حُفظ الطلب في محادثة '+project.name+'. لم يتم إنشاء مهمة GitHub لغياب GITHUB_TOKEN.',date:new Date().toISOString()})}
