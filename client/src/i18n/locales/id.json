@@ -1260,6 +1260,8 @@
     "description": "Deskripsi singkat",
     "media": "Media iklan (gambar / GIF / WebP / video)",
     "need_media": "Pilih gambar atau video untuk iklan",
+    "media_bad_type": "Jenis file ini ({{type}}) tidak diterima. Gunakan gambar JPG, PNG, WebP atau GIF, atau video MP4 atau WebM.",
+    "media_too_big": "File berukuran {{size}} MB; batasnya 3,7 MB. Perkecil gambar atau pilih file yang lebih kecil.",
     "need_placement": "Pilih setidaknya satu penempatan",
     "placements": "Di mana untuk menunjukkannya (pilih satu atau lebih)",
     "placement": "Penempatan",

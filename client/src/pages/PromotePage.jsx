@@ -2,15 +2,18 @@ import { localizedName } from '../utils/localize';
 import { safeUrl } from '../utils/urlSafety';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getMyAds, previewQuote, submitAdRequest, payAd, cancelAd, getAdStats, pauseAd, resumeAd, getMyGeo } from '../services/adService';
+import { getMyAds, previewQuote, submitAdRequest, payAd, cancelAd, getAdStats, pauseAd, resumeAd, getMyGeo, uploadMyAdMedia } from '../services/adService';
 import { listCities, listRegions } from '../services/serviceService';
-import { uploadAdMedia } from '../services/adminService';
 import AdSparkline from '../components/ads/AdSparkline';
 import { formatCurrency, formatRelativeTime } from '../utils/formatters';
 import { LoadingState } from '../components/common/Spinner';
 import ConfirmDialog from '../components/common/ConfirmDialog';
 import { apiError } from '../services/api';
 import useCountry from '../hooks/useCountry';
+
+// What the ad's file may be (the server checks the same): its type and at most 3.75 MiB.
+const MEDIA_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/apng', 'video/mp4', 'video/webm', 'video/ogg'];
+const MEDIA_MAX_BYTES = 3.75 * 1024 * 1024;
 
 const STATUS_COLOR = {
   requested:        'bg-blue-50 text-blue-700',
@@ -64,10 +67,18 @@ export default function PromotePage() {
   }, [country?.id]);
   const [loading, setLoading] = useState(true);
   const [form, setForm] = useState(EMPTY);
+  // The cities offered for targeting (AYK-149): those of the chosen regions, or of this country.
+  const regionCities = useMemo(() => {
+    if (!form.target_regions.length && !regions.length) return cities;
+    const wanted = new Set(form.target_regions.length ? form.target_regions : regions.map((r) => r.id));
+    return cities.filter((c) => wanted.has(c.in_region_id));
+  }, [cities, regions, form.target_regions]);
   const [quote, setQuote] = useState(null);
   const [uploading, setUploading] = useState(false);
   const [busy, setBusy] = useState(null);
   const [msg, setMsg] = useState(null);
+  // Why the ad's picture was refused, shown in red on that field itself (AYK-149).
+  const [mediaError, setMediaError] = useState('');
   const [confirm, setConfirm] = useState({ open: false });
   const [openStats, setOpenStats] = useState({});
 
@@ -118,13 +129,22 @@ export default function PromotePage() {
 
   const onPickFile = async (file) => {
     if (!file) return;
-    setUploading(true);
     setMsg(null);
+    setMediaError('');
+    if (!MEDIA_TYPES.includes(file.type)) {
+      setMediaError(t('promote.media_bad_type', { type: file.type || file.name.split('.').pop() || '?' }));
+      return;
+    }
+    if (file.size > MEDIA_MAX_BYTES) {
+      setMediaError(t('promote.media_too_big', { size: (file.size / 1048576).toFixed(1) }));
+      return;
+    }
+    setUploading(true);
     try {
-      const res = await uploadAdMedia(file);
+      const res = await uploadMyAdMedia(file);
       setForm((f) => ({ ...f, image: res.url, media_type: res.media_type }));
     } catch (e) {
-      setMsg({ type: 'error', text: apiError(e) });
+      setMediaError(apiError(e));
     } finally { setUploading(false); }
   };
 
@@ -132,7 +152,11 @@ export default function PromotePage() {
     e.preventDefault();
     setMsg(null);
     if (uploading || busy) return;
-    if (!safeUrl(form.image)) { setMsg({ type: 'error', text: t('promote.need_media') }); return; }
+    if (!safeUrl(form.image)) {
+      setMediaError(t('promote.need_media'));
+      document.getElementById('promote-media')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
     if (form.link && !safeUrl(form.link)) { setMsg({ type: 'error', text: t('errors.generic') }); return; }
     if (form.placements.length === 0) { setMsg({ type: 'error', text: t('promote.need_placement') }); return; }
     setBusy('submit');
@@ -240,11 +264,13 @@ export default function PromotePage() {
         <Field label={t('promote.description')} value={form.description} onChange={(v) => setForm({ ...form, description: v })} multiline />
 
         {/* Media — upload-from-device primary */}
-        <div>
-          <label className="block text-[12px] font-bold text-ink mb-1">{t('promote.media')}</label>
+        <div id="promote-media">
+          <label className={`block text-[12px] font-bold mb-1 ${mediaError ? 'text-rose-600' : 'text-ink'}`}>{t('promote.media')}</label>
           <label className="block cursor-pointer">
             <div className={`rounded-card border-2 border-dashed p-5 text-center transition ${
-              uploading ? 'border-brand-400 bg-brand-50' : 'border-slate-300 bg-slate-50 hover:border-brand-400 hover:bg-brand-50'
+              uploading ? 'border-brand-400 bg-brand-50'
+                : mediaError ? 'border-rose-500 bg-rose-50'
+                  : 'border-slate-300 bg-slate-50 hover:border-brand-400 hover:bg-brand-50'
             }`}>
               <div className="text-3xl mb-1">{uploading ? '⏳' : '📁'}</div>
               <div className="font-bold text-[13.5px] text-ink">{uploading ? t('admin.uploading') : t('admin.ad_pick_file_primary')}</div>
@@ -252,8 +278,12 @@ export default function PromotePage() {
             </div>
             <input type="file" hidden
               accept="image/jpeg,image/png,image/webp,image/gif,image/apng,video/mp4,video/webm,video/ogg"
-              onChange={(e) => onPickFile(e.target.files?.[0])} />
+              aria-invalid={Boolean(mediaError)} aria-describedby={mediaError ? 'promote-media-error' : undefined}
+              onChange={(e) => { onPickFile(e.target.files?.[0]); e.target.value = ''; }} />
           </label>
+          {mediaError && (
+            <p id="promote-media-error" role="alert" className="mt-1.5 mb-0 text-[12.5px] font-bold text-rose-600">⚠️ {mediaError}</p>
+          )}
           {form.image && (
             <div className="mt-2 p-2 rounded-card bg-slate-50 border border-slate-200">
               <AdMedia url={form.image} type={form.media_type} className="max-h-40 w-auto mx-auto rounded object-contain" />
@@ -340,12 +370,12 @@ export default function PromotePage() {
                 const on = form.target_regions.includes(r.id);
                 return (
                   <button key={r.id} type="button"
-                    onClick={() => setForm((f) => ({
-                      ...f,
-                      target_regions: on
-                        ? f.target_regions.filter((x) => x !== r.id)
-                        : [...f.target_regions, r.id],
-                    }))}
+                    onClick={() => setForm((f) => {
+                      const target_regions = on ? f.target_regions.filter((x) => x !== r.id) : [...f.target_regions, r.id];
+                      // A city stays chosen only while its region is (or when no region is chosen).
+                      const keep = cityNamesIn(cities, target_regions.length ? target_regions : regions.map((x) => x.id));
+                      return { ...f, target_regions, target_cities: f.target_cities.filter((name) => keep.has(name)) };
+                    })}
                     className={`px-2.5 py-1 rounded-pill border text-[11.5px] font-semibold transition ${
                       on ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
                     }`}>{on ? '✓ ' : ''}{localizedName(r, i18n.resolvedLanguage)}</button>
@@ -355,7 +385,7 @@ export default function PromotePage() {
           </div>
           <div>
             <div className="text-[11.5px] font-semibold text-slate-600 mb-1">{t('promote.target_cities')}</div>
-            <CityPicker cities={cities} selected={form.target_cities}
+            <CityPicker cities={regionCities} selected={form.target_cities}
               onChange={(next) => setForm({ ...form, target_cities: next })} />
           </div>
         </div>
@@ -553,6 +583,11 @@ function StatTile({ icon, label, value, sub = '' }) {
   );
 }
 
+function cityNamesIn(cities, regionIds) {
+  const wanted = new Set(regionIds);
+  return new Set(cities.filter((c) => wanted.has(c.in_region_id)).map((c) => c.name_ar || c.name_en || c.name || ''));
+}
+
 function CityPicker({ cities, selected, onChange }) {
   const { t, i18n } = useTranslation();
   const cityValue = city => city.name_ar || city.name_en || city.name || '';
@@ -564,7 +599,7 @@ function CityPicker({ cities, selected, onChange }) {
   const filtered = (cities || []).filter((c) => {
     const name = [localizedName(c, i18n.resolvedLanguage), c.name_ar, c.name_en, ...Object.values(c.name_translations || {})].filter(Boolean).join(' ').toLowerCase();
     return !query.trim() || name.includes(query.trim().toLowerCase());
-  }).slice(0, 60);
+  }).slice(0, 200);
   const toggle = (name) => {
     if (selected.includes(name)) onChange(selected.filter((x) => x !== name));
     else onChange([...selected, name]);

@@ -1260,6 +1260,8 @@
     "description": "Kısa açıklama",
     "media": "Reklam medyası (resim / GIF / WebP / video)",
     "need_media": "Reklam için bir resim veya video seçin",
+    "media_bad_type": "Bu dosya türü ({{type}}) kabul edilmiyor. JPG, PNG, WebP veya GIF resim ya da MP4 veya WebM video kullanın.",
+    "media_too_big": "Dosya {{size}} MB; sınır 3,7 MB. Resmi küçültün veya daha küçük bir dosya seçin.",
     "need_placement": "En az bir yer seçin",
     "placements": "Nerede gösterilsin (bir veya daha fazla seçin)",
     "placement": "Yerleşim",

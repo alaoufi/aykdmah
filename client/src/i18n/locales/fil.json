@@ -1260,6 +1260,8 @@
     "description": "Maikling paglalarawan",
     "media": "Media ng ad (imagen / GIF / WebP / video)",
     "need_media": "Piliin ang isang imahe o video para sa ad",
+    "media_bad_type": "Hindi tinatanggap ang uri ng file na ito ({{type}}). Gumamit ng JPG, PNG, WebP o GIF na larawan, o MP4 o WebM na video.",
+    "media_too_big": "Ang file ay {{size}} MB; ang limitasyon ay 3.7 MB. Paliitin ang larawan o pumili ng mas maliit na file.",
     "need_placement": "Pumili ng hindi bababa sa isa sa mga lugar",
     "placements": "Saan ito maipakita (pilihin ang isa o higit pa)",
     "placement": "Paglalagay",

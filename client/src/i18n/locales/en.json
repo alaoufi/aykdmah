@@ -1260,6 +1260,8 @@
     "description": "Short description",
     "media": "Ad media (image / GIF / WebP / video)",
     "need_media": "Pick an image or video for the ad",
+    "media_bad_type": "This file type ({{type}}) is not accepted. Use a JPG, PNG, WebP or GIF image, or an MP4 or WebM video.",
+    "media_too_big": "The file is {{size}} MB; the limit is 3.7 MB. Make the picture smaller or choose a smaller file.",
     "need_placement": "Pick at least one placement",
     "placements": "Where to show it (pick one or more)",
     "placement": "Placement",

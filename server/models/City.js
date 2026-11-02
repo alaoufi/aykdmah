@@ -21,13 +21,14 @@ async function findAll({ governorateId, regionId, activeOnly = true } = {}) {
   }
   if (activeOnly) where.push('c.is_active = 1');
   const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
-  const needsJoin = regionId !== undefined && regionId !== null && regionId !== '';
+  // in_region_id: the city's region either way (AYK-149), for pickers that filter by region.
+  const regionSql = hasCityRegion ? 'COALESCE(c.region_id, g.region_id)' : 'g.region_id';
   const selectExtra = hasCityRegion ? ', c.region_id' : '';
   return query(
     `SELECT c.id, c.governorate_id, c.name_ar, c.name_en, c.latitude, c.longitude,
-            c.is_active, c.sort_order${selectExtra}
+            c.is_active, c.sort_order${selectExtra}, ${regionSql} AS in_region_id
      FROM cities c
-     ${needsJoin ? 'LEFT JOIN governorates g ON g.id = c.governorate_id' : ''}
+     LEFT JOIN governorates g ON g.id = c.governorate_id
      ${whereSql}
      ORDER BY c.sort_order ASC, c.name_ar ASC`,
     params

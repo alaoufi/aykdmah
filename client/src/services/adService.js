@@ -66,3 +66,11 @@ export async function trackAdView(id) {
 export async function trackAdClick(id) {
   try { await api.post(`/ads/${id}/click`); } catch (_) { /* best effort */ }
 }
+
+// The ad's image or video, uploaded by the advertiser (AYK-149).
+export async function uploadMyAdMedia(file) {
+  const fd = new FormData();
+  fd.append('file', file);
+  const { data } = await api.post('/ads/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+  return data.data;
+}

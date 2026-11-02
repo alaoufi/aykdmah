@@ -1260,6 +1260,8 @@
     "description": "አጭር መግለጫ",
     "media": "የማስታወቂያ ሚዲያ (ምስሉ / GIF / WebP / ቪዲዮ)",
     "need_media": "ለ ማስታወቂያው ምስል ወይም ቪዲዮ ይምረጡ",
+    "media_bad_type": "ይህ የፋይል አይነት ({{type}}) ተቀባይነት የለውም። JPG፣ PNG፣ WebP ወይም GIF ምስል፣ ወይም MP4 ወይም WebM ቪዲዮ ይጠቀሙ።",
+    "media_too_big": "ፋይሉ {{size}} MB ነው፤ ገደቡ 3.7 MB ነው። ምስሉን ያሳንሱ ወይም ትንሽ ፋይል ይምረጡ።",
     "need_placement": "ቢያንስ አንድ ቦታ ይምረጡ",
     "placements": "የት ማሳየት (አንድ ወይም ከዚያ በላይ ይምረጡ)",
     "placement": "ቦታ",

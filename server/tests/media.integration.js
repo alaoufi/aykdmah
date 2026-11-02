@@ -137,4 +137,14 @@ if (!databaseName) {
     await assert.rejects(UploadedMedia.createBatch([{ originalname: 'first.png', mimetype: 'image/png', buffer: png }, { originalname: 'empty.png', mimetype: 'image/png', buffer: Buffer.alloc(0) }], { ownerId: client.user.id, scope: 'avatars' }));
     assert.equal(await countMedia(), before, 'asset batch rolls back if a later asset is invalid');
   });
+
+  // AYK-149: any signed-in advertiser uploads the ad's picture (it was the administrators' only).
+  test('signed-in users upload ad media; visitors and blocked types are refused', async () => {
+    const media = await call('/ads/upload', { method: 'POST', token: client.token, body: form({}, [['file', png, 'ad.png', 'image/png']]) });
+    assert.match(media.url, /^\/api\/ads\/media\/\d+$/);
+    assert.equal(media.media_type, 'image');
+    assert.deepEqual(Buffer.from(await (await fetch(base + media.url)).arrayBuffer()), png);
+    await call('/ads/upload', { method: 'POST', expected: 401, body: form({}, [['file', png, 'ad.png', 'image/png']]) });
+    await call('/ads/upload', { method: 'POST', expected: 400, token: client.token, body: form({}, [['file', Buffer.from('%PDF-1.4'), 'ad.pdf', 'application/pdf']]) });
+  });
 }

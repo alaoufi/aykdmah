@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const c = require('../controllers/adController');
 const { authenticate, optionalAuth } = require('../middleware/auth');
+const { uploadAd } = require('../middleware/upload');
+const { uploadLimiter } = require('../middleware/rateLimiter');
+const { uploadAdMedia } = require('../controllers/adminController');
 
 // Public — visitors fetch live ads, track views, follow clicks.
 router.get('/live', c.live);
@@ -14,6 +17,9 @@ router.post('/:id/click', c.trackClick);
 router.get('/me',           authenticate, c.myAds);
 router.post('/quote',       authenticate, c.previewQuote);
 router.post('/request',     authenticate, c.submit);
+// The ad's image or video (AYK-149): was the administrators' upload only, so everyone else's
+// picture was refused. The ad itself still waits for the administration's approval.
+router.post('/upload',      authenticate, uploadLimiter, uploadAd.single('file'), uploadAdMedia);
 router.get('/:id/stats',    authenticate, c.stats);
 router.post('/:id/pay',     authenticate, c.pay);
 router.post('/:id/pause',   authenticate, c.pauseMine);
