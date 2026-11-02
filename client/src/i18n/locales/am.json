@@ -309,7 +309,8 @@
     "provider_venue_point_required": "አገልግሎት የሚሰጥበትን ቦታ በካርታው ላይ ምልክት አድርግ",
     "location_later": "ችግር የለም፤ በመጀመሪያ ጥያቄዎ ቦታዎን በራሱ እንወስዳለን፣ መቀየርም ይችላሉ።",
     "terms_by_signup": "መለያ በመፍጠር በሚከተለው ይስማማሉ፦",
-    "admin_use_panel": "ይህ የአስተዳደር መለያ ነው፦ በ aykdmh.com/admin ይግቡ። ለድረ-ገጹ መደበኛ የተጠቃሚ መለያ ይጠቀሙ።"
+    "admin_use_panel": "ይህ የአስተዳደር መለያ ነው፦ በ aykdmh.com/admin ይግቡ። ለድረ-ገጹ መደበኛ የተጠቃሚ መለያ ይጠቀሙ።",
+    "forgot_login_info": "የመግቢያ መረጃ ረሱ?"
   },
   "request": {
     "create_title": "አዲስ ጥያቄ ይፍጠሩ",

@@ -309,7 +309,8 @@
     "provider_venue_point_required": "Mark the service venue on the map",
     "location_later": "No problem: we take your location automatically at your first request, and you can change it.",
     "terms_by_signup": "By creating an account you agree to the",
-    "admin_use_panel": "This is an admin account: sign in at aykdmh.com/admin. To use the site, sign in with a regular user account."
+    "admin_use_panel": "This is an admin account: sign in at aykdmh.com/admin. To use the site, sign in with a regular user account.",
+    "forgot_login_info": "Forgot your sign-in details?"
   },
   "request": {
     "create_title": "Create a new request",

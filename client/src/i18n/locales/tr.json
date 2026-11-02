@@ -309,7 +309,8 @@
     "provider_venue_point_required": "Haritada hizmet yeri işaretleyin",
     "location_later": "Sorun değil: ilk talebinizde konumunuzu otomatik alırız, siz de değiştirebilirsiniz.",
     "terms_by_signup": "Hesap oluşturarak şunları kabul etmiş olursunuz:",
-    "admin_use_panel": "Bu bir yönetici hesabı: aykdmh.com/admin üzerinden girin. Site için normal kullanıcı hesabı kullanın."
+    "admin_use_panel": "Bu bir yönetici hesabı: aykdmh.com/admin üzerinden girin. Site için normal kullanıcı hesabı kullanın.",
+    "forgot_login_info": "Giriş bilgilerinizi mi unuttunuz?"
   },
   "request": {
     "create_title": "Yeni bir talebi oluştur",

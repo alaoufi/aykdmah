@@ -309,7 +309,8 @@
     "provider_venue_point_required": "I-mark ang lugar ng serbisyo sa mapa",
     "location_later": "Ayos lang: kukunin namin ang iyong lokasyon nang awtomatiko sa una mong kahilingan, at mababago mo ito.",
     "terms_by_signup": "Sa paggawa ng account, sumasang-ayon ka sa",
-    "admin_use_panel": "Admin account ito: mag-sign in sa aykdmh.com/admin. Para sa site, gumamit ng karaniwang user account."
+    "admin_use_panel": "Admin account ito: mag-sign in sa aykdmh.com/admin. Para sa site, gumamit ng karaniwang user account.",
+    "forgot_login_info": "Nakalimutan ang detalye sa pag-sign in?"
   },
   "request": {
     "create_title": "Gumawa ng bagong kahilingan",

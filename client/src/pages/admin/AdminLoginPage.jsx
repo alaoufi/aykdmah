@@ -161,7 +161,7 @@ export default function AdminLoginPage() {
           {/* Recovery by a code sent to the account's phone (AYK-152). */}
           <div className="mt-4 text-center">
             <Link to="/forgot-password" className="text-[13px] font-semibold text-brand-600 hover:text-brand-700 no-underline">
-              {t('auth.forgot_password')}
+              {t('auth.forgot_login_info')}
             </Link>
           </div>
 

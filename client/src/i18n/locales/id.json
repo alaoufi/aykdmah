@@ -309,7 +309,8 @@
     "provider_venue_point_required": "Tandai tempat pelayanan di peta",
     "location_later": "Tidak apa-apa: kami mengambil lokasi Anda otomatis saat permintaan pertama, dan Anda bisa mengubahnya.",
     "terms_by_signup": "Dengan membuat akun, Anda menyetujui",
-    "admin_use_panel": "Ini akun admin: masuk di aykdmh.com/admin. Untuk situs, gunakan akun pengguna biasa."
+    "admin_use_panel": "Ini akun admin: masuk di aykdmh.com/admin. Untuk situs, gunakan akun pengguna biasa.",
+    "forgot_login_info": "Lupa detail masuk?"
   },
   "request": {
     "create_title": "Buat permintaan baru",
