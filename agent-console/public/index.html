@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#14294e"><title>وكيل التطوير — أي خدمة</title>
+<style>
+:root{font-family:system-ui,"Segoe UI",sans-serif;color:#18263c;background:#f3f6fa}*{box-sizing:border-box}
+body{margin:0}.shell{max-width:940px;margin:auto;height:100dvh;display:flex;flex-direction:column;background:white;box-shadow:0 0 25px #172c4b14}
+header{background:#14294e;color:white;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;gap:12px}
+header strong{font-size:19px}small{display:block;opacity:.75;font-size:12px;margin-top:5px}
+button,select,textarea,input{font:inherit}button{cursor:pointer;border:0;border-radius:12px;padding:11px 16px;background:#ee7c27;color:#fff;font-weight:600}
+button:disabled{opacity:.5;cursor:wait}button.ghost{background:#ebf1f7;color:#14294e}main{flex:1;overflow-y:auto;padding:20px}
+.message{max-width:86%;background:#f1f5fa;padding:14px 17px;border-radius:17px;margin:13px 0;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7}
+.message.mine{margin-right:auto;background:#dfeaf9}.meta{font-size:11px;color:#62728a;margin-bottom:5px}
+.panel{padding:14px;border-top:1px solid #e2e7ee;background:#fff}.controls{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}select{padding:9px;border:1px solid #cad4e0;border-radius:10px;max-width:100%}
+textarea{width:100%;min-height:80px;resize:vertical;border:1px solid #cbd5e1;border-radius:13px;padding:12px;outline-color:#274b8c}
+.actions{display:flex;justify-content:space-between;align-items:center;margin-top:8px;gap:10px}.note{color:#68798c;font-size:12px}#login{margin:auto;max-width:430px;padding:22px}#login input{padding:12px;width:100%;border:1px solid #cbd5e1;border-radius:10px;margin:13px 0}
+#status{font-size:12px;color:#56708e}a{color:#ee7c27}#chat{display:none}.empty{color:#6c7c91;text-align:center;margin-top:20vh}
+@media(max-width:550px){.message{max-width:95%}header strong{font-size:16px}main{padding:12px}.panel{padding:10px}}
+</style></head><body><div class="shell">
+<header><div><strong>◈ وكيل التطوير</strong><small>أي خدمة · Claude / Codex · GitHub</small></div><button class="ghost" id="logout" hidden>خروج</button></header>
+<section id="login"><h2>الدخول الآمن</h2><p>مركز إدارة طلبات التطوير. لا تضع أسرارًا في الرسائل.</p><form id="loginForm"><input id="password" type="password" autocomplete="current-password" placeholder="كلمة مرور الوكيل" required><button>دخول</button></form><p id="loginError"></p></section>
+<section id="chat" style="flex:1;min-height:0;display:none;flex-direction:column"><main id="messages" aria-live="polite"><div class="empty">اكتب طلب التطوير الأول بالأسفل.</div></main>
+<div class="panel"><div class="controls"><label for="agent">المستلم:</label><select id="agent"><option value="claude">Claude</option><option value="codex">Codex</option><option value="review">مراجعة مشتركة</option></select><span id="status">الرسائل محفوظة على الخادم الخاص</span></div>
+<form id="sendForm"><textarea id="prompt" placeholder="اكتب طلبًا جديدًا أو استكمل الطلب السابق..." required maxlength="8000"></textarea><div class="actions"><span class="note">Enter للإرسال · Shift+Enter لسطر جديد</span><button id="send">إرسال الطلب</button></div></form>
+</div></section></div>
+<script>
+const $=id=>document.getElementById(id);let busy=false;let last='';
+async function api(path,options={}){const r=await fetch(path,{credentials:'same-origin',headers:{'Content-Type':'application/json'},...options});const d=await r.json().catch(()=>({error:'تعذر قراءة الاستجابة'}));if(!r.ok)throw Error(d.error||'فشلت العملية');return d}
+function paint(data){const root=$('messages');root.replaceChildren();if(!data.messages?.length){root.innerHTML='<div class="empty">اكتب طلب التطوير الأول بالأسفل.</div>';return}
+for(const m of data.messages){const el=document.createElement('div');el.className='message'+(m.role==='user'?' mine':'');const meta=document.createElement('div');meta.className='meta';meta.textContent=m.role==='user'?'أنت':m.role==='system'?'حالة الطلب':'الوكيل';const body=document.createElement('div');body.textContent=m.text;el.append(meta,body);root.append(el)}root.scrollTop=root.scrollHeight}
+async function refresh(){try{const d=await api('/api/messages');$('login').style.display='none';$('chat').style.display='flex';$('logout').hidden=false;const sig=JSON.stringify(d.messages);if(sig!==last){paint(d);last=sig}}catch(e){$('login').style.display='block';$('chat').style.display='none';$('logout').hidden=true}}
+$('loginForm').onsubmit=async e=>{e.preventDefault();try{await api('/api/login',{method:'POST',body:JSON.stringify({password:$('password').value})});$('password').value='';$('loginError').textContent='';await refresh()}catch(x){$('loginError').textContent=x.message}};
+$('sendForm').onsubmit=async e=>{e.preventDefault();if(busy)return;busy=true;$('send').disabled=true;try{await api('/api/messages',{method:'POST',body:JSON.stringify({text:$('prompt').value,agent:$('agent').value})});$('prompt').value='';await refresh()}catch(x){$('status').textContent=x.message}finally{busy=false;$('send').disabled=false}};
+$('prompt').onkeydown=e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();$('sendForm').requestSubmit()}};
+$('logout').onclick=async()=>{await api('/api/logout',{method:'POST'});location.reload()};refresh();setInterval(()=>{if($('chat').style.display==='flex')refresh()},12000);
+</script></body></html>
