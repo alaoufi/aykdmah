@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState } from 'react';
 import { io } from 'socket.io-client';
 import { useAuth } from './AuthContext';
-import { getToken } from '../services/api';
+import { getToken, isAdminScope } from '../services/api';
 import { setLiveSocket } from '../utils/socketBus';
 
 const SocketContext = createContext(null);
@@ -27,7 +27,8 @@ export function SocketProvider({ children }) {
     if (!token) return;
 
     const sock = io(url, {
-      auth: { token },
+      // The area (AYK-151): the admin area and the site are separate sessions.
+      auth: { token, scope: isAdminScope() ? 'admin' : 'site' },
       transports: ['websocket', 'polling'],
       // Never give up (a deploy, a network change, a phone asleep); retry at most every 5 s.
       reconnection: true,

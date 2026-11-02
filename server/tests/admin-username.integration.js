@@ -44,7 +44,8 @@ if (process.env.AYK_ADMIN_USERNAME_TEST !== '1') {
   }
   async function api(route, { token, body, expected = 200 } = {}) {
     const response = await fetch(base + route, { method: body ? 'POST' : 'GET',
-      headers: { ...(body ? { 'Content-Type': 'application/json' } : {}), ...(token ? { Authorization: `Bearer ${token}` } : {}) },
+      // Admin accounts sign in to the admin area (AYK-151).
+      headers: { 'X-Ayk-Scope': 'admin', ...(body ? { 'Content-Type': 'application/json' } : {}), ...(token ? { Authorization: `Bearer ${token}` } : {}) },
       body: body ? JSON.stringify(body) : undefined });
     const result = await response.json();
     assert.equal(response.status, expected, result.message);

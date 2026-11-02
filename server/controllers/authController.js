@@ -12,18 +12,31 @@ const phoneCodes = require('../services/phoneCodeService');
 const CODE_ERRORS = { no_active_code: 'phone_code_expired', max_attempts: 'phone_code_expired', invalid_code: 'phone_code_invalid' };
 const env = require('../config/env');
 const cookieOptions = () => ({ httpOnly: true, secure: env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
+// The admin area (/admin) and the site or app are separate sessions (AYK-114, AYK-151): each has
+// its own cookie, so signing in at /admin in the browser never touches the app on the same phone.
+const { sessionCookieName, requestScope, asSiteUser } = require('../middleware/auth');
 
-function issueSession(res, user) {
-  const token = sign({ id: user.id, role: user.role, auth_version: Number(user.auth_version || 0) });
+// A token for the area this request comes from (AYK-151): the same account can be signed in to
+// both, and each signs out on its own.
+async function issueSession(req, res, user) {
+  const scope = requestScope(req);
+  const sv = await User.areaSessionVersion(user.id, scope);
+  const token = sign({ id: user.id, role: user.role, auth_version: Number(user.auth_version || 0), scope, sv });
   const expires = require('../utils/jwt').decode(token)?.exp;
-  res.cookie('token', token, { ...cookieOptions(), ...(expires ? { expires: new Date(expires * 1000) } : {}) });
+  res.cookie(sessionCookieName(req), token, { ...cookieOptions(), ...(expires ? { expires: new Date(expires * 1000) } : {}) });
   return token;
 }
 
-function clearSession(req, res) {
-  res.clearCookie('token', cookieOptions());
+// Ends this area's live connections only; the other area's stay connected.
+function clearSession(req, res, { everywhere = false } = {}) {
+  res.clearCookie(sessionCookieName(req), cookieOptions());
   const io = req.app.get('io');
-  if (io) io.in(`user:${req.user.id}`).disconnectSockets(true);
+  if (!io) return;
+  if (everywhere) { io.in(`user:${req.user.id}`).disconnectSockets(true); return; }
+  const scope = req.user.session_scope || 'site';
+  io.in(`user:${req.user.id}`).fetchSockets()
+    .then(list => list.filter(s => (s.handshake?.auth?.scope === 'admin' ? 'admin' : 'site') === scope).forEach(s => s.disconnect(true)))
+    .catch(() => {});
 }
 
 // At least ONE of these must be present at registration time.
@@ -213,7 +226,7 @@ const register = asyncHandler(async (req, res) => {
 
   const user = await User.findById(userId);
   const raw = await User.findByIdRaw(user.id);
-  const token = issueSession(res, raw);
+  const token = await issueSession(req, res, raw);
   return created(res, { user, token, ...(referralCode ? { referral_code: referralCode } : {}) }, req.t('account_created'));
 });
 
@@ -296,22 +309,25 @@ const login = asyncHandler(async (req, res) => {
   if (user.is_blocked) return error(res, req.t('account_blocked'), 403);
   if (!user.is_active) return error(res, req.t('account_inactive'), 403);
 
-  const token = issueSession(res, user);
-  const safe = await User.findById(user.id);
+  const token = await issueSession(req, res, user);
+  // In the site and the app an admin account is an ordinary user (AYK-151).
+  const found = await User.findById(user.id);
+  const safe = requestScope(req) === 'site' ? asSiteUser(found) : found;
   return success(res, { user: safe, token }, req.t('logged_in'));
 });
 
 const logout = asyncHandler(async (req, res) => {
   if (req.user) {
     await User.setOnline(req.user.id, false);
-    await User.revokeSessions(req.user.id);
+    await User.endAreaSessions(req.user.id, req.user.session_scope);
     clearSession(req, res);
   }
   return success(res, null, req.t('logged_out'));
 });
 
 const me = asyncHandler(async (req, res) => {
-  const user = await User.findById(req.user.id);
+  const found = await User.findById(req.user.id);
+  const user = req.user.admin_account ? asSiteUser(found) : found;
   // Accounts created before every account had a customer number get one here.
   if (user && !user.referral_code) {
     user.referral_code = await require('../services/walletService').ensureReferralCode(user.id).catch(() => null);
@@ -321,7 +337,7 @@ const me = asyncHandler(async (req, res) => {
   const bearer = /^Bearer\s+(\S+)$/i.exec(req.headers.authorization || '');
   if (bearer) {
     const expires = require('../utils/jwt').decode(bearer[1])?.exp;
-    res.cookie('token', bearer[1], { ...cookieOptions(), ...(expires ? { expires: new Date(expires * 1000) } : {}) });
+    res.cookie(sessionCookieName(req), bearer[1], { ...cookieOptions(), ...(expires ? { expires: new Date(expires * 1000) } : {}) });
   }
   let provider = null;
   if (user.role === 'provider') {
@@ -338,7 +354,7 @@ const changePassword = asyncHandler(async (req, res) => {
 
   const hash = await hashPassword(new_password);
   if (!await User.updatePassword(req.user.id, hash, user.password_hash)) return error(res, req.t('current_password_wrong'), 409);
-  clearSession(req, res);
+  clearSession(req, res, { everywhere: true });
   return success(res, null, req.t('password_changed'));
 });
 

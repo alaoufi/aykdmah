@@ -29,7 +29,7 @@ function initSocket(httpServer) {
 
     socket.data.authToken = socket.authToken;
     socket.use(async (packet, next) => {
-      try { socket.user = await socketAuth.validateToken(socket.authToken); next(); }
+      try { socket.user = await socketAuth.validateToken(socket.authToken, socket.handshake.auth?.scope); next(); }
       catch (_) {
         const ack = packet[packet.length - 1];
         if (typeof ack === 'function') ack({ ok: false, error: 'unauthorized' });

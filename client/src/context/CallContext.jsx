@@ -4,6 +4,7 @@ import { useAuth } from './AuthContext';
 import { useSocket } from './SocketContext';
 import * as calls from '../services/callService';
 import { syncPush, syncNativePush } from '../services/pushService';
+import { isAdminScope } from '../services/api';
 import { nativeAppVersion, nativeCallsSupported, openNativeCall } from '../utils/nativeApp';
 import { sendDeviceReport } from '../utils/deviceReport';
 import { startTone, stopTone, primeAudio, toneAudible } from '../utils/ringtone';
@@ -411,8 +412,10 @@ export function CallProvider({ children }) {
 
   // A device that already allowed notifications rings for whoever is signed in on it.
   // Then this device reports its system and capabilities for the devices log (AYK-062).
+  // Never for the admin area (AYK-151): opening /admin in the phone's browser must not take the
+  // app's calls and messages away from the person signed in there.
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user?.id || isAdminScope()) return;
     syncNativePush(nativeAppVersion()).catch(() => {});
     syncPush().catch(() => {}).finally(() => sendDeviceReport().catch(() => {}));
   }, [user?.id]);

@@ -42,6 +42,8 @@ export function setToken(token) {
 api.interceptors.request.use((config) => {
   const token = getToken();
   if (token && !config.headers.Authorization) config.headers.Authorization = `Bearer ${token}`;
+  // The server keeps the admin area's cookie apart from the site's (AYK-151).
+  if (isAdminScope()) config.headers.set('X-Ayk-Scope', 'admin');
   // Resolve this at dispatch time so changing language also changes API
   // validation and account messages without a reload.
   if (!config.headers.has('Accept-Language')) {

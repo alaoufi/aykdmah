@@ -262,7 +262,27 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     assert.equal((await runAuth(optionalAuth, token)).req.user, undefined);
     await assert.rejects(socketAuth.validateToken(token));
     const current = await User.findByIdRaw(user.id);
-    assert.equal(current.auth_version, 1);
+    assert.equal(current.site_session_version, 1);
+  });
+
+  // AYK-151: the same account signed in to the site and to /admin; each signs out on its own.
+  test('site and admin sessions of one account are separate', async () => {
+    const user = await createUser();
+    await db.query("UPDATE users SET role = 'admin' WHERE id = ?", [user.id]);
+    const body = { identifier: user.username, password };
+    const site = (await api('/auth/login', { method: 'POST', body })).data;
+    const admin = (await api('/auth/login', { method: 'POST', body, headers: { 'X-Ayk-Scope': 'admin' } })).data;
+    assert.equal(site.user.role, 'client', 'no admin tools in the site');
+    assert.equal(admin.user.role, 'admin');
+    assert.equal((await api('/auth/me', { token: site.token })).data.user.role, 'client');
+    await api('/admin/dashboard', { token: site.token, expected: 403 });
+    await api('/auth/logout', { token: admin.token, method: 'POST', headers: { 'X-Ayk-Scope': 'admin' } });
+    await api('/auth/me', { token: admin.token, headers: { 'X-Ayk-Scope': 'admin' }, expected: 401 });
+    await api('/auth/me', { token: site.token });
+    const again = (await api('/auth/login', { method: 'POST', body, headers: { 'X-Ayk-Scope': 'admin' } })).data;
+    await api('/auth/logout', { token: site.token, method: 'POST' });
+    await api('/auth/me', { token: site.token, expected: 401 });
+    assert.equal((await api('/auth/me', { token: again.token, headers: { 'X-Ayk-Scope': 'admin' } })).data.user.role, 'admin');
   });
 
   test('password replacement revokes existing sessions and preserves full long passwords', async () => {
@@ -308,6 +328,23 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     assert.equal(media.nextCalled, true);
     await api('/auth/me', { headers: { Cookie: `token=${token}` }, expected: 401 });
     await api('/users/me', { method: 'PUT', body: { full_name: 'Cookie Attack' }, headers: { Cookie: `token=${token}`, Origin: 'https://untrusted.example' }, expected: 401 });
+  });
+
+  // AYK-151: the admin area and the site (or the app on the same phone) never share a session.
+  test('the admin area keeps its own cookie and never links device notifications', async () => {
+    const user = await createUser(), token = tokenFor(user);
+    const site = (await api('/auth/me', { token })).response.headers.get('set-cookie') || '';
+    const admin = (await api('/auth/me', { token, headers: { 'X-Ayk-Scope': 'admin' } })).response.headers.get('set-cookie') || '';
+    assert.match(site, /(^|,\s*)token=/);
+    assert.doesNotMatch(site, /admin_token=/);
+    assert.match(admin, /(^|,\s*)admin_token=/);
+    assert.doesNotMatch(admin, /(^|,\s*)token=/);
+    const adminMedia = await runAuth(authenticate, token, { headers: {}, get: name => (name === 'referer' ? 'https://aykdmh.com/admin/users' : undefined), cookies: { admin_token: token }, originalUrl: '/api/media/00000000-0000-4000-8000-000000000000' });
+    assert.equal(adminMedia.nextCalled, true);
+    const siteMedia = await runAuth(authenticate, token, { headers: {}, cookies: { admin_token: token }, originalUrl: '/api/media/00000000-0000-4000-8000-000000000000' });
+    assert.equal(siteMedia.nextCalled, false, 'a site page never uses the admin cookie');
+    const linked = await api('/push/native', { token, method: 'POST', headers: { 'X-Ayk-Scope': 'admin' }, body: { token: 'f'.repeat(140), app_version: '1.3.1' } });
+    assert.equal(linked.data.subscribed, false);
   });
 
   test('credential encryption authenticates canonical envelopes and rejects weak/malformed keys', () => {

@@ -268,6 +268,21 @@ async function revokeSessions(id) {
   await query('UPDATE users SET auth_version = auth_version + 1 WHERE id = ?', [id]);
 }
 
+// Signing out of one area (AYK-151): ends that area's sessions only ("site" or "admin").
+async function endAreaSessions(id, scope) {
+  if (!(await tableHasColumn('users', 'admin_session_version'))) return revokeSessions(id);
+  const column = scope === 'admin' ? 'admin_session_version' : 'site_session_version';
+  await query(`UPDATE users SET ${column} = ${column} + 1 WHERE id = ?`, [id]);
+}
+
+// The current version of an area's sessions, signed into its new tokens.
+async function areaSessionVersion(id, scope) {
+  if (!(await tableHasColumn('users', 'admin_session_version'))) return 0;
+  const column = scope === 'admin' ? 'admin_session_version' : 'site_session_version';
+  const row = await queryOne(`SELECT ${column} AS version FROM users WHERE id = ?`, [id]);
+  return Number(row?.version || 0);
+}
+
 async function lockedAdminMutation(id, actor, callback) {
   if (!actor) throw new ApiError('Forbidden', 403);
   return transaction(async conn => {
@@ -472,7 +487,7 @@ async function updateProviderProfile(userId, data) {
 
 module.exports = {
   findById, findByIdRaw, findByEmail, findByPhone, findByUsername, findByFacebookId, findByIdentifier,
-  create, update, updatePassword, revokeSessions, updateAdminPermissions, completeLogin,
+  create, update, updatePassword, revokeSessions, endAreaSessions, areaSessionVersion, updateAdminPermissions, completeLogin,
   softDelete, setBlocked, setOnline, listPaginated, adminUpdate,
   getProviderProfile, updateProviderProfile,
   saveAccountLocation,

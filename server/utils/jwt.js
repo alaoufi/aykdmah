@@ -14,7 +14,10 @@ function verify(token) {
   if (!payload || typeof payload !== 'object' || !['number', 'string'].includes(typeof payload.id)
       || (typeof payload.id === 'string' && !/^\d+$/.test(payload.id)) || !Number.isSafeInteger(Number(payload.id))
       || Number(payload.id) <= 0 || !['client', 'provider', 'admin'].includes(payload.role)
-      || (payload.auth_version !== undefined && (!Number.isSafeInteger(payload.auth_version) || payload.auth_version < 0))) {
+      || (payload.auth_version !== undefined && (!Number.isSafeInteger(payload.auth_version) || payload.auth_version < 0))
+      // The session's area (AYK-151): "site" (the site and the app) or "admin", and its version.
+      || (payload.scope !== undefined && !['site', 'admin'].includes(payload.scope))
+      || (payload.sv !== undefined && (!Number.isSafeInteger(payload.sv) || payload.sv < 0))) {
     throw new Error('Invalid session claims');
   }
   return payload;

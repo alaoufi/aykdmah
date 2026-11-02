@@ -117,9 +117,12 @@ export function AuthProvider({ children }) {
   };
 
   const logout = async () => {
-    await detachPush();
-    // A neighbourhood picked for browsing belongs to this account only.
-    try { localStorage.removeItem('ayk_browse_area'); } catch (_) { /* private mode */ }
+    // Signing out of the admin area leaves the site's notifications and choices alone (AYK-151).
+    if (!isAdminScope()) {
+      await detachPush();
+      // A neighbourhood picked for browsing belongs to this account only.
+      try { localStorage.removeItem('ayk_browse_area'); } catch (_) { /* private mode */ }
+    }
     ++refreshVersion.current;
     setUser(null);
     setProvider(null);
