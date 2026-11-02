@@ -20,7 +20,10 @@ const dir=process.env.AGENT_DATA_DIR||path.join(process.cwd(),'.private-agent-da
 fs.mkdirSync(dir,{recursive:true,mode:0o700});
 const file=path.join(dir,'messages.json');const html=fs.readFileSync(path.join(__dirname,'public/index.html'));
 let messages=[];try{messages=JSON.parse(fs.readFileSync(file,'utf8'));if(!Array.isArray(messages))messages=[]}catch{}
-const save=()=>{const tmp=file+'.tmp';fs.writeFileSync(tmp,JSON.stringify(messages),{mode:0o600});fs.renameSync(tmp,file)};
+const save=()=>{const tmp=file+'.tmp';fs.writeFileSync(tmp,JSON.stringify(messages),{mode:0o600});fs.renameSync(tmp,file);};
+const auditFile=path.join(dir,'audit.jsonl');const audit=(event,details={})=>{fs.appendFileSync(auditFile,JSON.stringify({time:new Date().toISOString(),event,...details})+'\n',{mode:0o600});};
+const attempts=new Map();const blocked=ip=>{const now=Date.now(),a=attempts.get(ip);if(!a)return false;if(now-a.start>15*60*1000){attempts.delete(ip);return false}return a.count>=8};
+const failed=ip=>{const now=Date.now(),a=attempts.get(ip);if(!a||now-a.start>15*60*1000)attempts.set(ip,{start:now,count:1});else a.count++};
 const reply=(res,code,data)=>{res.writeHead(code,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(data))};
 const eq=(a,b)=>{const x=crypto.createHash('sha256').update(a).digest(),y=crypto.createHash('sha256').update(b).digest();return crypto.timingSafeEqual(x,y)};
 const sign=v=>crypto.createHmac('sha256',secret).update(v).digest('hex');
@@ -36,7 +39,7 @@ if(req.method==='GET'&&['/manifest.webmanifest','/icon.svg','/sw.js'].includes(r
 if(req.url==='/'&&req.method==='GET'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','Content-Security-Policy':"default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; img-src 'self'; frame-ancestors 'none'",'X-Frame-Options':'DENY','X-Content-Type-Options':'nosniff'});return res.end(html)}
 if(!req.url.startsWith('/api/'))return reply(res,404,{error:'غير موجود'});
 if(!safeOrigin(req))return reply(res,403,{error:'مصدر غير مسموح'});
-if(req.url==='/api/login'&&req.method==='POST'){const b=await getbody(req);if(!eq(String(b.password||''),password))return reply(res,401,{error:'كلمة المرور غير صحيحة'});const ts=String(Date.now());res.setHeader('Set-Cookie',`agent_session=${ts}.${sign(ts)}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=86400`);return reply(res,200,{ok:true})}
+if(req.url==='/api/login'&&req.method==='POST'){const ip=req.socket.remoteAddress||'unknown';if(blocked(ip))return reply(res,429,{error:'محاولات كثيرة، أعد المحاولة لاحقًا'});const b=await getbody(req);if(!eq(String(b.password||''),password)){failed(ip);audit('login_failed');return reply(res,401,{error:'كلمة المرور غير صحيحة'})}attempts.delete(ip);audit('login_success');const ts=String(Date.now());res.setHeader('Set-Cookie',`agent_session=${ts}.${sign(ts)}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=86400`);return reply(res,200,{ok:true})}
 if(!auth(req))return reply(res,401,{error:'يلزم تسجيل الدخول'});
 if(req.url==='/api/logout'&&req.method==='POST'){res.setHeader('Set-Cookie','agent_session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0');return reply(res,200,{ok:true})}
 if(req.url==='/api/projects'&&req.method==='GET')return reply(res,200,{projects,configuredProviders:configured});
@@ -50,8 +53,8 @@ if(req.url==='/api/messages'&&req.method==='POST'){const b=await getbody(req),te
 const project=allowed.get(String(b.project||'aykdmah'));if(!project)return reply(res,400,{error:'المشروع غير معروف'});
 if(/\b(?:publish|deploy|release)\b|نشر|رفع.*متجر|حذف.*بيانات|دفع.*مبلغ|تغيير.*DNS/i.test(text)){messages.push({id:crypto.randomUUID(),role:'system',project:project.id,text:'تنبيه: هذا الطلب قد يتطلب موافقة المالك قبل نشر أو دفع أو تعديل إنتاج. تسجيل المهمة لا يعني السماح بالتنفيذ.',date:new Date().toISOString()});}
 
-const selected=route(text,agent);const id=crypto.randomUUID();messages.push({id,role:'user',text,date:new Date().toISOString(),agent:selected,project:project.id});save();
-try{const url=await github(text,selected,project);messages.push({id:crypto.randomUUID(),role:'system',project:project.id,text:url?'وجهت المهمة إلى '+selected+' في '+project.repo+' وسجلتها في GitHub: '+url+'\nالتنفيذ الآلي غير مفعل حتى توصيل المزود.':'حُفظ الطلب في محادثة '+project.name+'. لم يتم إنشاء مهمة GitHub لغياب GITHUB_TOKEN.',date:new Date().toISOString()})}
+const selected=route(text,agent);const id=crypto.randomUUID();messages.push({id,role:'user',text,date:new Date().toISOString(),agent:selected,project:project.id});save();audit('task_saved',{id,project:project.id,agent:selected});
+try{const url=await github(text,selected,project);audit('task_queued',{id,project:project.id,queued:!!url});messages.push({id:crypto.randomUUID(),role:'system',project:project.id,text:url?'وجهت المهمة إلى '+selected+' في '+project.repo+' وسجلتها في GitHub: '+url+'\nالتنفيذ الآلي غير مفعل حتى توصيل المزود.':'حُفظ الطلب في محادثة '+project.name+'. لم يتم إنشاء مهمة GitHub لغياب GITHUB_TOKEN.',date:new Date().toISOString()})}
 catch(e){messages.push({id:crypto.randomUUID(),role:'system',project:project.id,text:'حُفظ الطلب محليًا، لكن تعذر تسجيل مهمة GitHub: '+e.message,date:new Date().toISOString()})}save();return reply(res,200,{ok:true})}
 return reply(res,404,{error:'غير موجود'});
 }catch(e){return reply(res,400,{error:e.message||'خطأ'})}});
