@@ -6273,6 +6273,11 @@ UPDATE subscription_plans SET description = REPLACE(description, 'اشتراك �
 UPDATE settings SET is_public = 1 WHERE setting_key = 'subscriptions_enabled';
 INSERT INTO schema_migrations(name) VALUES ('067_provider_wording_subscriptions_public.sql');
 
+-- migrations/068_separate_admin_site_sessions.sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS site_session_version INT NOT NULL DEFAULT 0;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS admin_session_version INT NOT NULL DEFAULT 0;
+INSERT INTO schema_migrations(name) VALUES ('068_separate_admin_site_sessions.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;
