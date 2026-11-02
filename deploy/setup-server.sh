@@ -73,10 +73,28 @@ if ufw status | grep -q "Status: active"; then
 fi
 
 echo "== Building client release $STAMP =="
-# Shown in the site footer: the deployed commit and the deployment date.
-APP_VERSION="$(git -C "$REPO_DIR" rev-parse --short HEAD 2>/dev/null || echo dev) · $(date +%Y-%m-%d)"
+# The version people see (AYK-156): <prefix>.<release>, e.g. 1.1.1, 1.1.2 … without limit. The
+# prefix is deploy/VERSION_PREFIX (raised by hand for a big release, e.g. 1.2); the release number
+# rises by one for each newly deployed commit and is kept on the server in /var/lib/aykdmh (not in
+# the repository). The commit and date stay available to developers as the build (footer tooltip,
+# /version.json).
+COMMIT="$(git -C "$REPO_DIR" rev-parse --short HEAD 2>/dev/null || echo dev)"
+PREFIX="$(tr -dc '0-9.' < "$REPO_DIR/deploy/VERSION_PREFIX" 2>/dev/null || true)"
+PREFIX="${PREFIX:-1.1}"
+RELEASE_DIR=/var/lib/aykdmh
+mkdir -p "$RELEASE_DIR"
+RELEASE="$(tr -dc '0-9' < "$RELEASE_DIR/release-counter" 2>/dev/null || true)"
+RELEASE="${RELEASE:-0}"
+if [ "$COMMIT" != "$(cat "$RELEASE_DIR/release-commit" 2>/dev/null || true)" ]; then
+    RELEASE=$((10#$RELEASE + 1))
+    echo "$RELEASE" > "$RELEASE_DIR/release-counter"
+    echo "$COMMIT" > "$RELEASE_DIR/release-commit"
+fi
+APP_VERSION="$PREFIX.$((10#$RELEASE))"
+APP_BUILD="$COMMIT · $(date +%Y-%m-%d)"
+echo "Version $APP_VERSION (build $APP_BUILD)"
 docker run --rm -v "$REPO_DIR":/src -w /src \
-    -e ONNXRUNTIME_NODE_INSTALL_CUDA=skip -e VITE_REALTIME_MODE=socket -e HOME=/tmp -e VITE_APP_VERSION="$APP_VERSION" \
+    -e ONNXRUNTIME_NODE_INSTALL_CUDA=skip -e VITE_REALTIME_MODE=socket -e HOME=/tmp -e VITE_APP_VERSION="$APP_VERSION" -e VITE_APP_BUILD="$APP_BUILD" \
     node:22-bookworm sh -c "npm --prefix client ci --include=dev --no-audit --no-fund && npm --prefix client run build"
 mkdir -p "$SITE_ROOT/releases/$STAMP"
 cp -r "$REPO_DIR/client/dist/." "$SITE_ROOT/releases/$STAMP/"

@@ -84,7 +84,7 @@ export default function Footer() {
             {/* The deployed release (commit and date), set by deploy/setup-server.sh. */}
             {import.meta.env.VITE_APP_VERSION && (
               <span className="ms-2 text-white/40 text-[11px]" data-testid="app-version">
-                · {t('footer.version')} <span dir="ltr">{import.meta.env.VITE_APP_VERSION}</span>
+                · {t('footer.version')} <span dir="ltr" title={import.meta.env.VITE_APP_BUILD || undefined}>{import.meta.env.VITE_APP_VERSION}</span>
                 {nativeAppVersion() && <> · {t('footer.app_version')} <span dir="ltr">{nativeAppVersion()}</span></>}
               </span>
             )}

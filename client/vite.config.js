@@ -29,7 +29,7 @@ export default defineConfig(({ mode }) => {
       {
         name: 'ayk-version-file',
         generateBundle() {
-          this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify({ version: env.VITE_APP_VERSION || '' }) });
+          this.emitFile({ type: 'asset', fileName: 'version.json', source: JSON.stringify({ version: env.VITE_APP_VERSION || '', build: env.VITE_APP_BUILD || '' }) });
         },
       },
       VitePWA({
