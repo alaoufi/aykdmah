@@ -1703,6 +1703,10 @@
     "calls_title": "Pag-chat at pagtawag",
     "calls_intro": "Ang mga kliyente at tagapagbigay ng serbisyo ay tumawag sa isa't isa sa pamamagitan ng boses o video mula sa loob ng chat, nang hindi naghahati ng mga numero ng telepono.",
     "calls_points": {
+      "audio": {
+        "title": "Earpiece at speaker",
+        "body": "Sa Android app, gamitin ang pindutan ng audio upang lumipat sa speaker o earpiece. Para gumamit ng wired o Bluetooth na headset, ikonekta ito at patayin ang speaker."
+      },
       "ring": {
         "title": "Nag-ring habang bukas ang site",
         "body": "Ipinapakita ng inbound call screen ang pangalan ng nag-iimbita sa pamamagitan ng isang ringtone, paulit-ulit na pag-iimbita at mga pindutan ng Sagutin / Tanggihan."

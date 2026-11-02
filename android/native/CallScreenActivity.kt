@@ -24,11 +24,13 @@ import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.twilio.audioswitch.AudioDevice
+import com.twilio.audioswitch.AudioDeviceChangeListener
 import io.livekit.android.AudioOptions
 import io.livekit.android.LiveKit
 import io.livekit.android.LiveKitOverrides
 import io.livekit.android.RoomOptions
 import io.livekit.android.audio.AudioSwitchHandler
+import io.livekit.android.audio.NoAudioHandler
 import io.livekit.android.events.RoomEvent
 import io.livekit.android.events.collect
 import io.livekit.android.renderer.TextureViewRenderer
@@ -63,6 +65,11 @@ class CallScreenActivity : Activity() {
     private var micOn = true
     private var camOn = true
     private var speakerOn = false
+    private var selectedRoute: CallAudioRoute? = null
+    private var deviceListener: AudioDeviceChangeListener? = null
+    private val telecomRouteListener: (Long, CallAudioRoute?) -> Unit = { id, route ->
+        ui.post { if (!ended && call?.callId == id) showAudioRoute(route) }
+    }
     private var ended = false
 
     private lateinit var status: TextView
@@ -221,17 +228,27 @@ class CallScreenActivity : Activity() {
         CallOngoingService.start(this, c.peerName.ifEmpty { getString(R.string.callTitle) }, c.video)
         if (c.outgoing) CallTelecom.reportOutgoing(this, c.callId, c.peerName)
         CallTelecom.onHangUp = { id -> if (id == c.callId) ui.post { end(local = true) } }
-        speakerOn = c.video
+        CallTelecom.defaultRoute(c.callId, c.video)
         scope.launch {
             try {
                 if (!c.outgoing) CallApi.accept(c)
                 val join = CallApi.join(c)
+                val systemOwnsAudio = CallTelecom.awaitConnection(c.callId)
+                if (ended) return@launch
                 val handler = AudioSwitchHandler(applicationContext)
+                // A headset wins by default; otherwise voice starts at the ear and
+                // video on the speaker. Explicit speaker taps go to the audio owner.
+                handler.preferredDeviceList = listOf(AudioDevice.BluetoothHeadset::class.java,
+                    AudioDevice.WiredHeadset::class.java) + if (c.video)
+                    listOf(AudioDevice.Speakerphone::class.java, AudioDevice.Earpiece::class.java)
+                    else listOf(AudioDevice.Earpiece::class.java, AudioDevice.Speakerphone::class.java)
                 audio = handler
+                bindAudioRouting(handler)
                 val r = LiveKit.create(
                     appContext = applicationContext,
                     options = RoomOptions(adaptiveStream = true, dynacast = true),
-                    overrides = LiveKitOverrides(audioOptions = AudioOptions(audioHandler = handler)),
+                    overrides = LiveKitOverrides(audioOptions = AudioOptions(
+                        audioHandler = if (systemOwnsAudio) NoAudioHandler() else handler)),
                 )
                 room = r
                 r.initVideoRenderer(remoteView)
@@ -247,7 +264,6 @@ class CallScreenActivity : Activity() {
                         localView.visibility = View.VISIBLE
                     }
                 }
-                applySpeaker()
                 if (r.remoteParticipants.isEmpty()) {
                     if (c.outgoing) startRingback() else setStatus(R.string.callConnecting)
                 } else onConnected()
@@ -309,21 +325,64 @@ class CallScreenActivity : Activity() {
     }
 
     private fun toggleSpeaker() {
-        speakerOn = !speakerOn
-        applySpeaker()
+        applySpeaker(!speakerOn)
     }
 
-    private fun applySpeaker() {
+    private fun bindAudioRouting(handler: AudioSwitchHandler) {
+        CallTelecom.onAudioRouteChanged = telecomRouteListener
+        val listener = object : AudioDeviceChangeListener {
+            override fun invoke(devices: List<AudioDevice>, selected: AudioDevice?) {
+                ui.post {
+                    if (!ended && call?.let { CallTelecom.hasConnection(it.callId) } != true) {
+                        showAudioRoute(sdkRoute(selected))
+                    }
+                }
+            }
+        }
+        deviceListener = listener
+        handler.registerAudioDeviceChangeListener(listener)
+        val c = call
+        showAudioRoute(if (c != null && CallTelecom.hasConnection(c.callId)) CallTelecom.route(c.callId)
+            else sdkRoute(handler.selectedAudioDevice))
+    }
+
+    private fun sdkRoute(device: AudioDevice?): CallAudioRoute? = when (device) {
+        is AudioDevice.Speakerphone -> CallAudioRoute.SPEAKER
+        is AudioDevice.Earpiece -> CallAudioRoute.EARPIECE
+        is AudioDevice.WiredHeadset -> CallAudioRoute.WIRED
+        is AudioDevice.BluetoothHeadset -> CallAudioRoute.BLUETOOTH
+        else -> null
+    }
+
+    private fun showAudioRoute(route: CallAudioRoute?) {
+        selectedRoute = route
+        speakerOn = route == CallAudioRoute.SPEAKER
+        speakerBtn.text = if (speakerOn) "🔊" else "🔈"
+        speakerBtn.isEnabled = route != null && !ended
+        speakerBtn.alpha = if (speakerOn) 1f else 0.7f
+        updateProximity()
+    }
+
+    private fun applySpeaker(wanted: Boolean) {
+        val id = call?.callId
+        if (id != null && CallTelecom.requestSpeaker(id, wanted)) return
         val handler = audio ?: return
         val devices = handler.availableAudioDevices
-        val target = if (speakerOn) devices.firstOrNull { it is AudioDevice.Speakerphone }
+        val target = if (wanted) devices.firstOrNull { it is AudioDevice.Speakerphone }
         else devices.firstOrNull { it is AudioDevice.BluetoothHeadset }
             ?: devices.firstOrNull { it is AudioDevice.WiredHeadset }
             ?: devices.firstOrNull { it is AudioDevice.Earpiece }
-        handler.selectDevice(target)
-        speakerBtn.text = if (speakerOn) "🔊" else "🔈"
-        speakerBtn.alpha = if (speakerOn) 1f else 0.7f
-        updateProximity()
+        // selectDevice(null) clears the selection and may choose the loudspeaker.
+        // Never send it when the requested device is unavailable, or claim success
+        // before the device-change callback confirms the real selected route.
+        if (target != null) {
+            if (wanted) handler.selectDevice(target)
+            else {
+                handler.preferredDeviceList = listOf(AudioDevice.BluetoothHeadset::class.java,
+                    AudioDevice.WiredHeadset::class.java, AudioDevice.Earpiece::class.java, AudioDevice.Speakerphone::class.java)
+                handler.selectDevice(null) // clear the explicit speaker selection; let headsets connect automatically
+            }
+        }
     }
 
     private fun toggleCamera() {
@@ -340,7 +399,7 @@ class CallScreenActivity : Activity() {
     // At the ear, the screen goes dark so a cheek does not press buttons (voice calls on the earpiece).
     @Suppress("DEPRECATION")
     private fun updateProximity() {
-        val wantOn = call?.video == false && !speakerOn && !ended
+        val wantOn = call?.video == false && selectedRoute == CallAudioRoute.EARPIECE && connectedAt > 0 && !ended
         if (wantOn && proximity == null) {
             val power = getSystemService(PowerManager::class.java)
             if (power.isWakeLockLevelSupported(PowerManager.PROXIMITY_SCREEN_OFF_WAKE_LOCK)) {
@@ -357,6 +416,9 @@ class CallScreenActivity : Activity() {
     private fun end(local: Boolean, reason: String? = null) {
         if (ended) return
         ended = true
+        deviceListener?.let { audio?.unregisterAudioDeviceChangeListener(it) }
+        deviceListener = null
+        if (CallTelecom.onAudioRouteChanged === telecomRouteListener) CallTelecom.onAudioRouteChanged = null
         ui.removeCallbacks(ticker)
         stopRingback()
         val c = call

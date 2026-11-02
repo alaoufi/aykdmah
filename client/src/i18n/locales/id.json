@@ -1703,6 +1703,10 @@
     "calls_title": "Chat dan panggilan",
     "calls_intro": "Pelanggan dan penyedia telepon saling melalui suara atau video dari dalam obrolan, tanpa berbagi nomor telepon.",
     "calls_points": {
+      "audio": {
+        "title": "Earpiece dan pengeras suara",
+        "body": "Di aplikasi Android, gunakan tombol audio untuk beralih antara pengeras suara dan earpiece. Untuk memakai headset berkabel atau Bluetooth, hubungkan headset dan matikan pengeras suara."
+      },
       "ring": {
         "title": "Berdering saat situs terbuka",
         "body": "Screen panggilan masuk menunjukkan nama pemanggil dengan nada dering, getaran berulang dan tombol Jawaban / Menolak."

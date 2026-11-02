@@ -1703,6 +1703,10 @@
     "calls_title": "Çat ve aramalar",
     "calls_intro": "Müşteriler ve sağlayıcılar, telefon numaralarını paylaşmadan sohbet içinden ses veya video yoluyla birbirlerini ararlar.",
     "calls_points": {
+      "audio": {
+        "title": "Ahize ve hoparlör",
+        "body": "Android uygulamasında hoparlör ile ahize arasında geçiş yapmak için ses düğmesini kullanın. Kablolu veya Bluetooth kulaklık kullanmak için kulaklığı bağlayıp hoparlörü kapatın."
+      },
       "ring": {
         "title": "Site açıkken çalıyor",
         "body": "Giren arama ekranı, bir çan sesi, tekrarlanan titreşim ve Cevap / İptal düğmeleri ile arayan kişinin adını gösterir."

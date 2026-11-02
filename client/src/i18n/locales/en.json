@@ -1703,6 +1703,10 @@
     "calls_title": "Chat and calls",
     "calls_intro": "Clients and providers call each other by voice or video from inside the chat, without sharing phone numbers.",
     "calls_points": {
+      "audio": {
+        "title": "Earpiece and speaker",
+        "body": "In the Android app, use the audio button to switch between the speaker and earpiece. To use a wired or Bluetooth headset, connect it and turn the speaker off."
+      },
       "ring": {
         "title": "Ringing while the site is open",
         "body": "The incoming call screen shows the caller's name with a ringtone, repeated vibration and Answer / Decline buttons."
