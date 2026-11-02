@@ -18,6 +18,7 @@ STAMP="$(date +%Y%m%d-%H%M%S)"
 DEST="$BASE/daily/$STAMP"
 CONF=/root/aykdmh-backup.conf
 BACKUP_REMOTE=""
+BACKUP_SSH_KEY=""
 [[ -f "$CONF" ]] && . "$CONF"
 
 umask 077
@@ -36,8 +37,12 @@ log "saved $DEST ($(du -sh "$DEST" | cut -f1))"
 
 if [[ -n "$BACKUP_REMOTE" ]]; then
     log "copying off-server"
-    rsync -a -e "ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new" "$DEST" "$BACKUP_REMOTE/"
+    # A key used only for backups (AYK-165): BACKUP_SSH_KEY=/root/.ssh/aykdmh_backup in the conf.
+    rsync -a -e "ssh -o BatchMode=yes -o StrictHostKeyChecking=accept-new ${BACKUP_SSH_KEY:+-i $BACKUP_SSH_KEY}" "$DEST" "$BACKUP_REMOTE/"
     log "copied to remote"
+    # The off-server copy keeps the same number of days (AYK-165).
+    ssh -o BatchMode=yes ${BACKUP_SSH_KEY:+-i $BACKUP_SSH_KEY} "${BACKUP_REMOTE%%:*}" \
+        "find '${BACKUP_REMOTE#*:}' -mindepth 1 -maxdepth 1 -type d -mtime +$KEEP_DAYS -exec rm -rf {} +" || log "remote rotation skipped"
 fi
 
 # Rotation: newest KEEP_DAYS daily sets stay.
