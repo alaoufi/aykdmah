@@ -1,38 +1,75 @@
-# PROJECT HANDOFF
+# دليل التسليم — «أي خدمة» (aykdmh.com)
 
-```
-PROJECT: AYKDMAH
+> آخر تحديث: 2026-11-02 — Claude. هذا الملف **المرجع الوحيد** لحالة المشروع والخطة. أي مطور (Codex أو غيره)
+> يبدأ منه، ويحدّثه في نهاية عمله بنفس الشكل. التفاصيل الكاملة لكل مهمة في `docs/TASKS.md`، وكل نشر في
+> `docs/CHANGELOG.md`، وقواعد العمل في `AGENTS.md` و`CLAUDE.md`. الأسرار وعناوين الخوادم ليست هنا (المستودع عام):
+> في المستودع الخاص `alaoufi/apple-apps` ملف `OPERATIONS.md`، وعلى الخادم `/opt/aykdmh/.env`.
 
-Developer: Claude
-Date: 2026-10-28
+## 1) الحالة الآن
 
-Repository: alaoufi/aykdmah
-Branch: claude/deploy-setup (غير مدمج في main؛ main = 695eb0d)
-Latest Commit: حفظة التوثيق التي تلي 7896af5 (انظر git log -1)
-Push Status: مرفوع ومُتحقق منه بـ git ls-remote
+| البند | القيمة |
+|---|---|
+| المستودع والفرع | `alaoufi/aykdmah` — الفرع `claude/deploy-setup` (كل العمل عليه، غير مدموج في `main`) |
+| الإصدار المنشور | انظر https://aykdmh.com/version.json — صيغة الإصدار `1.1.N` (AYK-156) |
+| تطبيق أندرويد | `sa.aykdmh.app` — **1.3.2** (رمز 12) مبني: APK على https://aykdmh.com/dl/aykdmh-1.3.2.apk و AAB على https://aykdmh.com/dl/aykdmh-1.3.2.aab |
+| قوقل بلاي | المنشور 1.2.x. **المطلوب:** المالك يرفع `aykdmh-1.3.2.aab` (القسم 4) |
+| آبل ستور | «أي خدمة» 1.0 أُرسل للمراجعة 2026-11-01 ولم يظهر في المتجر بعد. «تربح» 8.1.0 منشور |
+| الاختبارات | كل نشر يمر بـ `testdeploy` (خادم + واجهة + ترجمات 11 لغة + تكامل + بناء + audit) ولا ينشر إن فشل شيء |
 
-Completed Tasks: AYK-001، 002، 003، 004، 005، 006، 010 (جزئي)، 012، 013، 017، 018، 021، 023، 016، 026، 027، 028، 029
-Tasks In Progress: لا شيء
-Pending Tasks: AYK-030 (إحصائيات تسويقية في الإدارة، التالية)، AYK-007، 008، 009، 011، 014، 015، 016، 019، 020، 022، 024، 025 (التفاصيل في docs/TASKS.md)
+## 2) طريقة العمل (لا تغيّرها حتى لا يحصل تضارب)
 
-Tests Passed: خادم 16/16، واجهة 116/116، تكامل 206/206، ترجمات 1626×5، بناء، audit 0، فحوص النشر، معاينة جوال 375px
-Tests Failed: e2e «استمرار المكالمة بعد انقطاع 4 ثوانٍ» (AYK-007)
-Tests Not Run: إرسال SMS حقيقي عبر Taqnyat (ينتظر تعبئة المالك للحقول في الإدارة)، تسجيل من جوال حقيقي، دفع حقيقي، حمل عالٍ
+1. اعمل على `claude/deploy-setup` فقط. لا `git reset`، ولا `push --force`، ولا حذف فروع.
+2. كل تعديل: commit برسالة تبدأ برقم المهمة `AYK-NNN`، ثم `git push origin HEAD:claude/deploy-setup` **قبل** النشر
+   (سكربت النشر يسحب من GitHub).
+3. النشر على الخادم (الاسم المختصر في `OPERATIONS.md`):
+   `git bundle create ../tNNN.bundle HEAD` ← نسخه إلى `/tmp/tNNN.bundle` ← `nohup bash /tmp/testdeploy.sh tNNN` ←
+   انتظر `DONE` في `/tmp/tNNN.log` (فيه `DEPLOYED` أو `TESTS FAILED`) ← اقرأ الإصدار من `version.json` وأبلغ المالك به.
+4. ترحيل قاعدة بيانات: اكتب `database/migrations/NNN_name.sql` (صيغة MySQL)، ثم على الخادم `bash /tmp/genpg.sh tNNN`
+   يولّد نسخة PostgreSQL في `/tmp/gen/database/postgres/...`؛ انسخها إلى `database/postgres/` واحفظها. آخر ترحيل: **069**.
+5. أي نص للمستخدم بكل اللغات الإحدى عشرة (`client/src/i18n/locales/*.json`)؛ اختبار `platformLanguages` يرفض بقاء الإنجليزية.
+   تحقق محليًا: `node scripts/check-translations.js`.
+6. لا نوافذ متصفح (`alert/confirm/prompt`): استخدم `askConfirm/askText/showAlert` من `components/common/AppDialog.jsx`.
+7. الأخطاء تُعرض على الحقل نفسه بالأحمر مع السبب (نمط `PromotePage.jsx` و`errors[].field/code` من الخادم).
+8. أي رسالة للمالك بالعربية دائمًا. حدّث `docs/TASKS.md` و`docs/CHANGELOG.md` وهذا الملف بعد كل نشر.
 
-Production Commit: 7896af5
-Deployment Status: منشور ويعمل على https://aykdmh.com — الواجهة releases/20261028-081821، الدفع PAYMENT_PROVIDER=test
+## 3) ما أُنجز في 2026-11-02 (منشور ومختبر)
 
-Known Issues: AYK-007، والنسخ الاحتياطية على الخادم فقط (AYK-015)، ونسبة عمولة الكوبون 0% حتى يحددها المالك، و21 مدينة بلا أحياء، وبيانات التجارب يجب حذفها قبل البوابة الحقيقية (AYK-024)
-Required Environment Variables: على الخادم في /opt/aykdmh/.env: DB_PASSWORD و JWT_SECRET و ENCRYPTION_KEY و LIVEKIT_API_SECRET. والبقية في deploy/docker-compose.yml (منها PAYMENT_PROVIDER=test) و.env.example
-Next Exact Step: مزود SMS المحفوظ نوعه «تقنيات» لكن رابطه لفور جوالي، وفور جوالي يرفض Bearer ويطلب Basic من app_key:app_secret (ردّه على طلب فارغ: «التوكن مطلوب»). المالك يضيف مزود «فور جوالي 4jawaly» بـapp_key وapp_secret واسم المرسل ثم يختبر. بعدها AYK-030 الإحصائيات.
-```
+| المهمة | ماذا |
+|---|---|
+| AYK-147 | الاشتراكات لا تظهر إلا بتفعيلها من الإدارة؛ «اشتراك مقدم الخدمة» بدل «العامل» (ترحيل 067) |
+| AYK-148 | تحديث الموقع صامت بالخلفية مع رقم الإصدار بعده؛ تحديث تطبيق أندرويد إجباري (Play In-App Updates، و`/dl/latest.json` لمن نزّل APK) |
+| AYK-149/150 | صفحة «أعلن عن خدمتك»: رفع الصورة لكل مستخدم، المدن تتبع المناطق، والحقل الخاطئ بالأحمر مع السبب |
+| AYK-151/152 | جلستا «الإدارة» و«الموقع/التطبيق» منفصلتان تمامًا حتى لنفس الحساب (ترحيل 068)؛ «نسيت معلومات الدخول؟» في `/admin/login`، وأداة `server/scripts/reset-admin-password.js` |
+| AYK-153/157 | الإعلانات في الإدارة قسمان: «رسوم الإعلانات» (المكان والمدة والمشاهدات والمنطقة المغطاة) و«إدارة الإعلانات» (موافقة، تعديل، تنشيط، إعفاء من الرسوم، إيقاف، حذف، رسائل للمعلن مالية/إدارية/قانونية) (ترحيل 069)؛ الإعلان المنتهي يذكر سببه مع «إعادة التنشيط» |
+| AYK-154/160 | قائمة المحادثات بشكل الجوال؛ الأشرطة وترويسة المحادثات بتدرّج اللون المختار (`--primary-tint`) |
+| AYK-155 | نوافذ احترافية بدل نوافذ المتصفح في كل المواضع؛ تعديل إعلان معلن في الإدارة يغيّر المحتوى فقط مع السبب |
+| AYK-156 | رقم الإصدار `1.1.N` يزيد واحدًا مع كل نشر (`deploy/VERSION_PREFIX` + عدّاد على الخادم) |
+| AYK-158 | الزائر يتصفح بحرية مع عرض تسويقي، ودعوة تسجيل جذابة (`JoinInvite.jsx`) بدل صفحة الدخول عند الطلب أو التقديم |
+| AYK-159 | أماكن الإعلان الخمسة عشر تظهر في صفحاتها لكل الحسابات، ورسم توضيحي للأماكن (`AdPlacementMap.jsx`) |
+| AYK-161 | إضافة/تغيير/إزالة الصورة الشخصية في «ملفي» (`POST /api/users/me/avatar`) |
+| AYK-162/163 | «الجوال مغلق أو غير متاح»: لا جهاز يرن ← تنتهي فورًا؛ تطبيق 1.3.2 يؤكد وصول الرنين وإلا تنتهي بعد 12 ث. الكاميرا تظهر فورًا في مكالمة الفيديو، وخلفية المكالمة باللون المختار |
+| AYK-164 | ملف AAB قابل للتنزيل من `aykdmh.com/dl/*.aab` لرفعه في Play Console |
+| تربح | كلمة المرور 4 خانات من أي نوع (فرع الموقع المنشور `codex/admin-navigation-complete-20261014`، نشره المالك من طرفية Hostinger) |
 
-## للمطور التالي
+## 4) الباقي بالترتيب (الخطة الواحدة)
 
-- **الدخول للخادم:** `ssh root@84.247.166.216` بمفتاح SSH يضيفه المالك. لا تطلب كلمة المرور.
-- **الاختبارات:** `bash deploy/run-tests.sh <نسخة git>` على الخادم. الاختبار الحقيقي للمكالمات: `bash deploy/e2e-calls.sh`.
-- **النشر والتراجع:** `docs/DEPLOYMENT.md`. **اللغات:** `docs/LANGUAGES.md`.
-- **التطبيقات والمتاجر (أندرويد وآيفون، أي خدمة وتربح، حالة المراجعات):** `docs/APPS_AND_STORES.md`. **سجل كل تعديل:** `docs/CHANGELOG.md`، و**المهام:** `docs/TASKS.md`.
-- **إعادة توليد الأحياء:** `database/geography/SOURCE.md`.
-- **حساب الإدارة:** `alaoufi@gmail.com`، وأول كلمة مرور في `/root/aykdmh-admin-credentials.txt` (تُحذف بعد تغييرها).
-- **تجربة الدفع:** اشترك كمقدم خدمة في باقة مدفوعة، ثم صفحة «دفع تجريبي»، ثم «إتمام». الاشتراك يتفعّل، وعمولة الكوبون تُحسب إن حدد المالك نسبة.
+1. **المالك — قوقل بلاي:** رفع `aykdmh-1.3.2.aab`: Play Console ← «أي خدمة» ← الإنتاج ← إنشاء إصدار جديد ← رفع الملف ←
+   ملاحظة الإصدار ← تصريح «الخدمات التي تعمل في المقدمة» (مكالمات هاتفية، ميكروفون، كاميرا) ← مراجعة ← بدء النشر.
+2. **المالك — آبل ستور:** فتح App Store Connect ← «أي خدمة» ← الإصدار 1.0، وقراءة الحالة. إن كانت Rejected تُصلح الملاحظة؛
+   إن كانت Pending Developer Release يضغط Release.
+3. **تجربة على جوالين** (المالك): مكالمة صوت وفيديو بتطبيق 1.3.2، والجوال مغلق، والخلفية، والسماعة والحساس.
+   أي خلل يُصلح في `android/native/*` ثم بناء جديد (`android/build.sh` ثم `android/publish-apk.sh`) برفع `appVersionCode`.
+4. **مكالمات آيفون الأصلية** (CallKit + PushKit + LiveKit Swift) في `alaoufi/apple-apps`؛ تحتاج من المالك مفتاح APNs
+   ثم وضع `APNS_KEY_ID` و`APNS_TEAM_ID` و`APNS_KEY` في `/opt/aykdmh/.env`.
+5. **تطبيق تربح على قوقل بلاي:** رفع `trbhh-8.1.0.aab` بعد 2026-11-03 الساعة 1:52 صباحًا ثم «نشر» (النشر المُدار مفعّل).
+6. **ترجمة بطاقات المتجرين** إلى بقية اللغات بعد اعتماد آبل.
+7. **لقطات قوقل بلاي** معتّمة الخصوصيات (إعلانات وأسماء وأرقام).
+8. **تربح:** توحيد فرع النشر الآلي `claude/hostinger-vps-project-amw8vb` مع الفرع المنشور (متأخر بأكثر من 1500 تعديل) بقرار المالك.
+9. **قرارات معلّقة عند المالك:** خادم الرياض لتحسين المكالمات (تجربة شهر)، وحذف مفتاح App Store Connect القديم `W47LY8M537`.
+
+## 5) أين أجد
+
+- الخادم والأسرار والمفاتيح: `alaoufi/apple-apps/OPERATIONS.md` (خاص) — مفاتيح أندرويد على الخادم في `/root/aykdmh-android/keys`.
+- بناء أندرويد: `android/README.md` و`android/build.sh` و`android/native/apply.cjs` (يرقّع مشروع Bubblewrap)، والنشر `android/publish-apk.sh`.
+- المتاجر: `docs/APPS_AND_STORES.md` و`docs/GOOGLE_PLAY.md`.
+- المكالمات: `server/services/callService.js`، `client/src/context/CallContext.jsx`، `client/src/components/calls/CallOverlay.jsx`، والتطبيق `android/native/CallScreenActivity.kt`.
