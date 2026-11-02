@@ -10,6 +10,8 @@ VERSION=$(grep -o '"appVersionName": *"[0-9.]*"' "$REPO_DIR/android/twa-manifest
 [ -n "$VERSION" ] || { echo "no appVersionName in twa-manifest.json"; exit 1; }
 cp /root/aykdmh-android/project/aykdmh.apk "$DL/aykdmh-$VERSION.apk"
 cp /root/aykdmh-android/project/aykdmh.aab "/root/aykdmh-android/aykdmh-$VERSION.aab"
+# The bundle for Google Play, downloadable at aykdmh.com/dl to upload in Play Console (AYK-164).
+cp /root/aykdmh-android/project/aykdmh.aab "$DL/aykdmh-$VERSION.aab"
 printf '{"version":"%s","url":"/dl/aykdmh-%s.apk"}\n' "$VERSION" "$VERSION" > "$DL/latest.json.tmp"
 mv "$DL/latest.json.tmp" "$DL/latest.json"
 echo "published https://aykdmh.com/dl/aykdmh-$VERSION.apk (latest.json → $VERSION)"

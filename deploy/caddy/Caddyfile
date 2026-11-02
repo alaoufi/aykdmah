@@ -50,6 +50,16 @@ aykdmh.com {
 		file_server
 	}
 	# AYK-148: the newest app published there; an older app from there must update first.
+	# AYK-164: the Google Play bundle, downloadable for the owner to upload in Play Console.
+	@dlaab path /dl/*.aab
+	handle @dlaab {
+		root * /srv
+		header Content-Type application/octet-stream
+		header Content-Disposition attachment
+		header Cache-Control "no-store"
+		file_server
+	}
+
 	@dlinfo path /dl/latest.json
 	handle @dlinfo {
 		root * /srv
