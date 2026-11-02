@@ -87,6 +87,18 @@ export default function CallOverlay() {
   const { call, phase, error, room, micOn, camOn, remoteJoined, remoteVideo: hasRemoteVideo, audioBlocked, enableAudio, reportAudioBlocked, network, speaking, outputs, nextOutput, accept, hangup, toggleMic, toggleCam, switchCamera } = useCall();
   const remoteVideo = useRef(null);
   const localVideo = useRef(null);
+  // One's own camera while a video call rings (AYK-163): shown at once, before the line opens.
+  const previewVideo = useRef(null);
+  useEffect(() => {
+    const ringing = ['outgoing', 'incoming', 'connecting'].includes(phase);
+    if (call?.call_type !== 'video' || !ringing || !navigator.mediaDevices?.getUserMedia) return undefined;
+    let stream = null;
+    let alive = true;
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
+      .then(s => { if (!alive) { s.getTracks().forEach(tr => tr.stop()); return; } stream = s; if (previewVideo.current) previewVideo.current.srcObject = s; })
+      .catch(() => {});
+    return () => { alive = false; stream?.getTracks().forEach(tr => tr.stop()); };
+  }, [call?.call_type, phase]);
   const remoteAudio = useRef(null);
   const [reporting, setReporting] = useState(false);
   const [reported, setReported] = useState(false);
@@ -116,7 +128,8 @@ export default function CallOverlay() {
     connecting: t('calls.ringing'),
     reconnecting: t('calls.reconnecting'),
     in_call: remoteJoined ? duration : t('calls.ringing'),
-    ended: t(`calls.outcome.${call.status}`, { defaultValue: t('calls.outcome.ended') }),
+    // The callee's phone is off or unreachable (AYK-162).
+    ended: call.end_reason === 'unreachable' ? t('calls.outcome.unreachable') : t(`calls.outcome.${call.status}`, { defaultValue: t('calls.outcome.ended') }),
   }[phase] || '';
 
   const submitReport = async () => {
@@ -131,7 +144,8 @@ export default function CallOverlay() {
   // with a large font; the buttons never shrink away (AYK-082).
   return (
     <div role="dialog" aria-modal="true" aria-label={t('calls.title')}
-      className="fixed inset-0 z-[3000] bg-slate-950 text-white flex flex-col overflow-hidden">
+      className="fixed inset-0 z-[3000] text-white flex flex-col overflow-hidden"
+      style={{ background: 'linear-gradient(160deg, rgb(var(--color-primary-from)), rgb(var(--color-primary-to)) 55%, #0b1220)' }}>
       <audio ref={remoteAudio} autoPlay playsInline />
       <div className="relative flex-1 min-h-0 overflow-hidden">
         {video && live && (
@@ -165,9 +179,13 @@ export default function CallOverlay() {
             📷 {t('calls.my_camera_off')}
           </div>
         )}
+        {video && !live && phase !== 'ended' && <video ref={previewVideo} autoPlay playsInline muted
+          className="absolute inset-0 w-full h-full object-cover" style={{ transform: 'scaleX(-1)' }} data-testid="camera-preview" />}
         {video && live && camOn && (
           <video ref={localVideo} autoPlay playsInline muted
-            className="absolute bottom-4 end-4 w-28 h-40 sm:w-40 sm:h-56 object-cover rounded-card border border-white/30 bg-black" style={{ transform: 'scaleX(-1)' }} />
+            className={remoteJoined
+              ? 'absolute bottom-4 end-4 w-28 h-40 sm:w-40 sm:h-56 object-cover rounded-card border border-white/30 bg-black'
+              : 'absolute inset-0 w-full h-full object-cover'} style={{ transform: 'scaleX(-1)' }} />
         )}
         {/* Indicators live inside the picture area so they never cover the buttons (AYK-066). */}
         {/* Internet quality during the call (AYK-059): a warning when either side's connection is weak. */}

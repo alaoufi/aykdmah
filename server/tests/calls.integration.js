@@ -332,4 +332,17 @@ if (!databasePrefix) {
     });
     assert.equal(res.status, 401);
   });
+  // AYK-162: a phone that nothing can ring is "off": the call ends at once, saying so.
+  test('a call to a phone that nothing can ring ends as unreachable', async () => {
+    process.env.AYK_CALLS_UNREACHABLE = '1';
+    try {
+      const started = await api('/calls', { user: users.client, method: 'POST', body: { conversation_id: conversation, call_type: 'audio' } });
+      assert.equal(started.status, 200, started.body?.message);
+      assert.equal(started.body.data.callee_reachable, false);
+      await new Promise(resolve => setTimeout(resolve, 2500));
+      const after = await db.queryOne('SELECT status, end_reason FROM calls WHERE id = ?', [started.body.data.id]);
+      assert.equal(after.status, 'missed');
+      assert.equal(after.end_reason, 'unreachable');
+    } finally { delete process.env.AYK_CALLS_UNREACHABLE; }
+  });
 }

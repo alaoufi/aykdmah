@@ -21,3 +21,8 @@ export async function sendCallDiagnostics(callId, summary) {
 }
 // This call's key for the app's own call engine (AYK-145).
 export async function nativeCallKey(id) { return (await api.get(`/calls/${id}/native-key`)).data.data.key; }
+
+// The ring arrived on this phone (AYK-162): a phone that never confirms counts as off.
+export async function ringingAck(id) {
+  await api.post(`/calls/${id}/ringing`);
+}

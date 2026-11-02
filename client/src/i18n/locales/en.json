@@ -1853,7 +1853,8 @@
       "missed": "No answer",
       "cancelled": "Cancelled",
       "ended": "Call ended",
-      "failed": "Call failed"
+      "failed": "Call failed",
+      "unreachable": "The phone is off or unreachable"
     },
     "errors": {
       "call_failed": "The call could not be made. Please try again.",

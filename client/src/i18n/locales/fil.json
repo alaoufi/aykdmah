@@ -1853,7 +1853,8 @@
       "missed": "Walang sagot",
       "cancelled": "Tinatayang",
       "ended": "Nagtatapos ang tawag",
-      "failed": "Nag-iwan ang tawag"
+      "failed": "Nag-iwan ang tawag",
+      "unreachable": "Nakapatay o hindi maabot ang telepono"
     },
     "errors": {
       "call_failed": "Hindi na maaaring gawin ang tawag.",

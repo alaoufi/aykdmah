@@ -1853,7 +1853,8 @@
       "missed": "Cevap yok",
       "cancelled": "İptal edildi",
       "ended": "Arama sona erdi",
-      "failed": "Çağrı başarısız oldu"
+      "failed": "Çağrı başarısız oldu",
+      "unreachable": "Telefon kapalı ya da ulaşılamıyor"
     },
     "errors": {
       "call_failed": "Arama yapılamadı. Lütfen tekrar deneyin.",

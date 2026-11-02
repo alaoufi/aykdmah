@@ -35,6 +35,7 @@ class CallActionReceiver : BroadcastReceiver() {
             }
             CallTelecom.onReject = { id -> if (id == call.callId) decline(app, call) }
             CallTelecom.reportIncoming(app, call.callId, call.peerName.ifEmpty { call.peerCode })
+            CoroutineScope(Dispatchers.IO).launch { CallApi.ringing(call) }
         }
     }
 }

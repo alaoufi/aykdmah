@@ -1853,7 +1853,8 @@
       "missed": "Tidak ada jawaban",
       "cancelled": "Batalkan",
       "ended": "Telepon selesai",
-      "failed": "Telepon gagal"
+      "failed": "Telepon gagal",
+      "unreachable": "Telepon mati atau tidak dapat dihubungi"
     },
     "errors": {
       "call_failed": "Telepon tidak bisa dilakukan, silakan coba lagi.",

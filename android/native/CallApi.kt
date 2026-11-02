@@ -48,6 +48,9 @@ object CallApi {
 
     suspend fun accept(call: NativeCall) { post(call, "accept") }
 
+    /** The ring arrived on this phone (AYK-162): without it the caller hears "the phone is off". */
+    suspend fun ringing(call: NativeCall) { runCatching { post(call, "ringing") } }
+
     suspend fun hangUp(call: NativeCall, reason: String? = null) {
         runCatching { post(call, "decline", if (reason != null) mapOf("reason" to reason) else emptyMap()) }
     }

@@ -47,9 +47,12 @@ const nativeUser = async req => {
   return user;
 };
 const nativeLimiter = rateLimit({ windowMs: 60 * 1000, max: 60, standardHeaders: true, legacyHeaders: false });
+// The callee's phone confirms the ring arrived (AYK-162): the site, or the app (no site session).
+router.post('/:id/native/ringing', nativeLimiter, handle(async req => calls.ringingAck(req.params.id, await nativeUser(req))));
 router.post('/:id/native/accept', nativeLimiter, handle(async req => calls.accept(req.params.id, await nativeUser(req))));
 router.post('/:id/native/decline', nativeLimiter, handle(async req => calls.decline(req.params.id, await nativeUser(req), req.body?.reason)));
 router.post('/:id/native/token', nativeLimiter, handle(async req => calls.joinToken(req.params.id, await nativeUser(req))));
+router.post('/:id/ringing', authenticate, handle(req => calls.ringingAck(req.params.id, req.user)));
 router.post('/:id/accept', authenticate, handle(req => calls.accept(req.params.id, req.user)));
 router.post('/:id/decline', authenticate, handle(req => calls.decline(req.params.id, req.user, req.body?.reason)));
 router.post('/:id/token', authenticate, handle(req => calls.joinToken(req.params.id, req.user)));

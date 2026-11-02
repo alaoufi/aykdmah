@@ -353,6 +353,8 @@ export function CallProvider({ children }) {
       setError(null);
       setCall(c);
       setPhase('incoming');
+      // This phone is on: tell the caller's side the ring arrived (AYK-162).
+      calls.ringingAck?.(c.id).catch(() => {});
       navigator.vibrate?.([300, 200, 300]);
       // Load the call engine while it rings, so answering connects at once.
       loadLiveKit().catch(() => {});

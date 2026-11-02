@@ -180,12 +180,26 @@ async function start({ caller, conversationId, callType }) {
   repeat.unref?.();
   // Can it ring anywhere? The site open on a device, or notifications enabled on one.
   let reachable = true;
+  let confirms = false;
   try {
     // Online only when a live connection proves it; otherwise notifications must reach a device.
     const online = io ? (await io.in(`user:${callee.id}`).fetchSockets()).length > 0 : false;
-    reachable = online || (await require('../models/PushSubscription').listForUser(callee.id)).length > 0
-      || (await fcm.countForUser(callee.id)) > 0;
+    const webDevices = (await require('../models/PushSubscription').listForUser(callee.id)).length;
+    const apps = await query('SELECT app_version FROM native_push_tokens WHERE user_id = ?', [callee.id]);
+    reachable = online || webDevices > 0 || apps.length > 0;
+    // Only apps that confirm the ring can tell "off" from "not answering" (AYK-162).
+    confirms = !online && webDevices === 0 && apps.length > 0 && apps.every(a => atLeastVersion(a.app_version, '1.3.2'));
   } catch (_) { reachable = true; }
+  const endUnreachable = async () => {
+    if (delivered.has(Number(callId))) return;
+    const current = await findCall(callId).catch(() => null);
+    if (current?.status === 'ringing') await finish(current, 'missed', 'unreachable').catch(() => {});
+  };
+  // The other tests answer calls nobody can ring; only the test of this rule turns it on there.
+  const enforce = process.env.NODE_ENV !== 'test' || process.env.AYK_CALLS_UNREACHABLE === '1';
+  if (!enforce) { /* tests answer unreachable calls on purpose */ }
+  else if (!reachable) setTimeout(endUnreachable, 1500).unref?.();
+  else if (confirms) setTimeout(endUnreachable, UNREACHABLE_MS).unref?.();
   return { ...publicCall(row, caller.id), callee_reachable: reachable };
 }
 
@@ -212,6 +226,26 @@ async function participantCall(callId, userId) {
   const row = await findCall(Number(callId));
   if (!row || ![Number(row.caller_id), Number(row.callee_id)].includes(Number(userId))) throw fail(404, 'call_not_found');
   return row;
+}
+
+// "The phone is off" (AYK-162). A ringing call that can reach no device ends at once; one whose
+// only devices are apps that confirm the ring (1.3.2 and later) ends after UNREACHABLE_MS with
+// no confirmation. The caller sees "the phone is off or unreachable" (end_reason unreachable).
+const UNREACHABLE_MS = 12000;
+const delivered = new Set();
+const atLeastVersion = (version, wanted) => {
+  const a = String(version || '').split('.').map(Number);
+  const b = wanted.split('.').map(Number);
+  for (let i = 0; i < b.length; i += 1) { if ((a[i] || 0) !== b[i]) return (a[i] || 0) > b[i]; }
+  return true;
+};
+// The callee's phone confirms the ring arrived (the site open on it, or the app 1.3.2+).
+async function ringingAck(callId, user) {
+  const row = await findCall(callId);
+  if (!row || Number(row.callee_id) !== Number(user.id)) return { ok: false };
+  delivered.add(Number(row.id));
+  setTimeout(() => delivered.delete(Number(row.id)), RING_TIMEOUT_MS + 60000).unref?.();
+  return { ok: true };
 }
 
 // Moves an active call to a final state once, even under concurrent requests.
@@ -517,7 +551,7 @@ async function reviewReport(reportId, adminId, status) {
 }
 
 module.exports = {
-  nativeKey, nativeKeyFor, checkNativeKey,
+  nativeKey, nativeKeyFor, checkNativeKey, ringingAck,
   attach, isConfigured, start, accept, decline, joinToken, active, history, eligibility,
   report, sweep, handleWebhook, stats, reviewReport, RING_TIMEOUT_MS, peakConcurrent, diagnostics,
 };
