@@ -422,18 +422,26 @@ export default function ChatPage() {
                   : last.content || '📎'
                 : t('chat.no_messages');
               return (
-                <Link key={c.id} to={`/chat/${c.id}`} className={`conv-item ${isActive ? 'active' : ''}`}>
-                  <Avatar src={other?.avatar} name={other?.full_name} />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="flex justify-between">
-                      <strong>{Number(c.is_favorite) ? <span className="me-1" aria-label={t('chat.favorite')}>⭐</span> : null}{other?.full_name || '—'}{other?.referral_code && <span className="ms-1.5 text-[12px] font-semibold text-fg-muted" dir="ltr">{other.referral_code}</span>}</strong>
-                      <span className="text-xs text-muted">{last ? (isSameDay(last.created_at, new Date()) ? formatTime(last.created_at) : dayLabel(last.created_at, t)) : ''}</span>
+                // A tidy row like the phone's own chat lists (AYK-154): picture, name with its number,
+                // the time, the last message, and the unread count under the time.
+                <Link key={c.id} to={`/chat/${c.id}`} className={`conv-item ${isActive ? 'active' : ''} ${c.unread_count > 0 ? 'unread' : ''}`}>
+                  {other?.role === 'client' && !other?.avatar
+                    ? <span className="conv-avatar-person" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm0 2c-4.2 0-8 2.1-8 5v1.2c0 .4.4.8.8.8h14.4c.4 0 .8-.4.8-.8V19c0-2.9-3.8-5-8-5Z" /></svg></span>
+                    : <Avatar src={other?.avatar} name={other?.full_name} />}
+                  <div className="conv-text">
+                    <div className="conv-top">
+                      <span className="conv-name">
+                        {Number(c.is_favorite) ? <span aria-label={t('chat.favorite')}>⭐</span> : null}
+                        <span className="conv-name-text">{other?.full_name || '—'}</span>
+                        {other?.referral_code && <span className="conv-code" dir="ltr">{other.referral_code}</span>}
+                      </span>
+                      <span className="conv-time">{last ? (isSameDay(last.created_at, new Date()) ? formatTime(last.created_at) : dayLabel(last.created_at, t)) : ''}</span>
                     </div>
-                    <div className="text-sm text-muted" style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                      {truncate(lastPreview, 50)}
+                    <div className="conv-bottom">
+                      <span className="conv-preview">{truncate(lastPreview, 60)}</span>
+                      {c.unread_count > 0 && <span className="conv-unread">{c.unread_count}</span>}
                     </div>
                   </div>
-                  {c.unread_count > 0 && <span className="badge badge-primary">{c.unread_count}</span>}
                 </Link>
               );
             })}
@@ -626,7 +634,7 @@ export default function ChatPage() {
           border-inline-end: 1px solid var(--border); background: var(--bg-card);
           display: flex; flex-direction: column; overflow: hidden;
         }
-        .sidebar-header { padding: 16px; border-bottom: 1px solid var(--border); }
+        .sidebar-header { padding: 14px 16px; border-bottom: 1px solid rgba(127,127,127,.16); }
         /* Cards and menu entries are buttons, not text links: no underline, also in high contrast. */
         .conv-item, .conv-item *, .chat-menu > a, .back-btn { text-decoration: none !important; }
         .chat-home { padding: 6px 12px; border-radius: 999px; background: var(--bg-soft); color: var(--text); font-size: 13px; font-weight: 700; text-decoration: none; white-space: nowrap; }
@@ -635,13 +643,28 @@ export default function ChatPage() {
         .chat-tabs button { flex: 1; padding: 6px 8px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg-card); font: inherit; font-size: 12.5px; font-weight: 600; color: var(--text-secondary); cursor: pointer; }
         .chat-tabs button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
         .conv-list { overflow-y: auto; flex: 1; }
+        /* The chats list (AYK-154): airy rows, a light line under the text only, as on phones. */
+        .conv-list { padding: 4px 0; }
         .conv-item {
-          display: flex; align-items: center; gap: 12px; padding: 14px 16px;
-          border-bottom: 1px solid var(--border); cursor: pointer;
-          color: inherit; text-decoration: none;
+          display: flex; align-items: center; gap: 14px; padding: 0 16px;
+          cursor: pointer; color: inherit; text-decoration: none; transition: background .15s;
         }
         .conv-item:hover { background: var(--bg-soft); text-decoration: none; }
         .conv-item.active { background: rgba(135,98,57,.08); }
+        .conv-item .avatar, .conv-avatar-person { width: 52px; height: 52px; flex-shrink: 0; font-size: 18px; }
+        .conv-avatar-person { display: grid; place-items: center; border-radius: 50%; background: var(--bg-soft); color: var(--text-secondary); }
+        .conv-text { flex: 1; min-width: 0; padding: 14px 0; border-bottom: 1px solid rgba(127,127,127,.16); }
+        .conv-item:last-child .conv-text { border-bottom: 0; }
+        .conv-top, .conv-bottom { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+        .conv-bottom { margin-top: 3px; }
+        .conv-name { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 16px; font-weight: 700; color: var(--text); }
+        .conv-name-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .conv-code { flex-shrink: 0; padding: 1px 7px; border-radius: 999px; background: var(--bg-soft); font-size: 11px; font-weight: 700; color: var(--text-secondary); letter-spacing: .3px; }
+        .conv-time { flex-shrink: 0; font-size: 12px; color: var(--text-secondary); }
+        .conv-preview { flex: 1; min-width: 0; font-size: 14px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .conv-unread { flex-shrink: 0; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; display: grid; place-items: center; background: #25a244; color: #fff; font-size: 12px; font-weight: 800; }
+        .conv-item.unread .conv-time { color: #25a244; font-weight: 700; }
+        .conv-item.unread .conv-preview { color: var(--text); font-weight: 600; }
         .chat-main {
           display: flex; flex-direction: column; height: 100%; overflow: hidden;
         }
