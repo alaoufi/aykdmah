@@ -29,6 +29,9 @@ router.param('id', (req, res, next, value) => {
 router.get('/',                ...gate, userController.list);
 router.post('/',               ...gate, ...accountValidation, userController.createByAdmin);
 router.put('/me', authenticate, userController.updateMe);
+// The person's own photo (AYK-161): stored like other uploads, shown publicly once it is their avatar.
+router.post('/me/avatar', authenticate, require('../middleware/rateLimiter').uploadLimiter,
+  require('../middleware/upload').uploadAvatar.single('file'), userController.uploadAvatar);
 // The requester's own directory of providers (AYK-041).
 const directory = require('../controllers/directoryController');
 router.get('/me/directory', authenticate, directory.list);

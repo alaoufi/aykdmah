@@ -480,7 +480,13 @@
     "account_type_save": "የሂሳብ አይነት ይቀይሩ",
     "change_account_type": "የመለያ አይነት መቀየር (አመልካች / አቅራቢ / ሁለቱም)",
     "blocking_jobs_title": "እነዚህ ሥራዎች ለእርስዎ ተሰጥተዋል እና አልተጠናቀቁም፦",
-    "blocking_jobs_hint": "እያንዳንዱን ከፍተው ሥራው ካለቀ «✅ ተጠናቋል» ይጫኑ፣ ወይም ባለቤቱ እንዲሰርዘው ይጠይቁ፣ ከዚያ የመለያውን አይነት ይቀይሩ።"
+    "blocking_jobs_hint": "እያንዳንዱን ከፍተው ሥራው ካለቀ «✅ ተጠናቋል» ይጫኑ፣ ወይም ባለቤቱ እንዲሰርዘው ይጠይቁ፣ ከዚያ የመለያውን አይነት ይቀይሩ።",
+    "photo_add": "ፎቶዎን ያክሉ",
+    "photo_change": "ፎቶ ይቀይሩ",
+    "photo_remove": "አስወግድ",
+    "photo_remove_confirm": "ፎቶዎን ያስወግዱ?",
+    "photo_bad_type": "ፎቶው JPG፣ PNG ወይም WebP መሆን አለበት።",
+    "photo_too_big": "ፎቶው {{size}} MB ነው፤ ገደቡ 3.5 MB ነው።"
   },
   "chat": {
     "title": "መልዕክቶች",

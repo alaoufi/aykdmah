@@ -68,7 +68,8 @@ export default function BottomNav() {
 
   return createPortal(
     <nav ref={navRef} data-testid="mobile-bottom-nav" aria-label={t('footer.links')} className="mobile-bottom-nav md:hidden z-40 safe-bottom">
-      <div className="mx-2 mb-2 bg-surface/95 backdrop-blur-md border border-border rounded-[22px] shadow-card">
+      {/* A light tint of the chosen colour (AYK-160). */}
+      <div className="mx-2 mb-2 backdrop-blur-md border border-border rounded-[22px] shadow-card" style={{ background: 'var(--primary-tint)' }}>
         <ul className="grid grid-cols-5 items-end h-[68px] px-1.5">
           {items.map((it) => {
             const I = it.Icon;
@@ -92,7 +93,7 @@ export default function BottomNav() {
                   end={it.end}
                   className={({ isActive }) =>
                     `relative flex-1 flex flex-col items-center justify-center gap-1 py-2 rounded-card transition no-underline ${
-                      isActive ? 'text-primary' : 'text-fg-subtle hover:text-fg'
+                      isActive ? 'text-primary bg-surface/80 font-extrabold' : 'text-fg-muted hover:text-fg'
                     }`
                   }
                 >

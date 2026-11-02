@@ -18,7 +18,7 @@ export default function Sidebar({ items = [] }) {
       <div className="hidden md:block mt-4"><AdSlot placement="sidebar" /></div>
       <style>{`
         .sidebar {
-          width: var(--sidebar-w); background: var(--bg-card); border-inline-start: 1px solid var(--border);
+          width: var(--sidebar-w); background: var(--primary-tint); border-inline-start: 1px solid var(--border);
           padding: 16px; flex-shrink: 0; min-height: calc(100vh - var(--header-h));
         }
         .sidebar nav { display: flex; flex-direction: column; gap: 4px; }
@@ -28,8 +28,9 @@ export default function Sidebar({ items = [] }) {
           transition: var(--transition);
         }
         .sidebar a, .sidebar a:hover { text-decoration: none !important; }
-        .sidebar a:hover { background: var(--bg-soft); }
-        .sidebar a.active { background: rgba(14, 165, 233, .12); color: var(--primary-dark); }
+        .sidebar a:hover { background: var(--bg-card); }
+        /* The open tab in the chosen colour (AYK-160). */
+        .sidebar a.active { background: var(--primary); color: var(--primary-fg); box-shadow: var(--shadow-sm); }
         @media (max-width: 768px) {
           .sidebar { width: 100%; min-height: auto; border-inline-start: 0; border-bottom: 1px solid var(--border); }
           /* Swiped sideways without a visible scrollbar (it showed as a black line, AYK-144). */

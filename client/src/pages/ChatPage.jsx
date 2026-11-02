@@ -717,7 +717,8 @@ export default function ChatPage() {
           background-image: radial-gradient(var(--wa-doodle) 1.2px, transparent 1.3px), radial-gradient(var(--wa-doodle) 1.2px, transparent 1.3px);
           background-size: 22px 22px; background-position: 0 0, 11px 11px;
         }
-        .chat-header { background: var(--wa-panel) !important; }
+        /* The chats' headers in a light tint of the chosen colour (AYK-160). */
+        .chat-header, .sidebar-header { background: var(--primary-tint) !important; }
 .chat-audience { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;
           margin: 0 10px 6px; padding: 10px 12px; border-radius: 12px; background: var(--bg-soft); border: 1px solid var(--primary); font-size: 13px; font-weight: 600; }
         .chat-agree { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap;

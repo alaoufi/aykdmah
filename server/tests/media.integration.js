@@ -147,4 +147,13 @@ if (!databaseName) {
     await call('/ads/upload', { method: 'POST', expected: 401, body: form({}, [['file', png, 'ad.png', 'image/png']]) });
     await call('/ads/upload', { method: 'POST', expected: 400, token: client.token, body: form({}, [['file', Buffer.from('%PDF-1.4'), 'ad.pdf', 'application/pdf']]) });
   });
+  // AYK-161: the person's own photo from "My profile"; public once it is their avatar.
+  test('users upload their own photo, shown publicly; other files are refused', async () => {
+    const saved = await call('/users/me/avatar', { method: 'POST', token: provider.token, body: form({}, [['file', png, 'me.png', 'image/png']]) });
+    assert.match(saved.avatar, /^\/api\/media\/[a-f0-9-]{36}$/);
+    assert.equal((await db.queryOne('SELECT avatar FROM users WHERE id = ?', [provider.user.id])).avatar, saved.avatar);
+    assert.deepEqual(Buffer.from(await (await fetch(base + saved.avatar)).arrayBuffer()), png);
+    await call('/users/me/avatar', { method: 'POST', expected: 401, body: form({}, [['file', png, 'me.png', 'image/png']]) });
+    await call('/users/me/avatar', { method: 'POST', expected: 400, token: provider.token, body: form({}, [['file', Buffer.from('%PDF-1.4'), 'me.pdf', 'application/pdf']]) });
+  });
 }

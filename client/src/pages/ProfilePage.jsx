@@ -25,6 +25,7 @@ import WorkPanel from '../components/provider/WorkPanel';
 import MyMarket from '../components/provider/MyMarket';
 import { getCurrentPosition, isValidCoordinates, geoSelection, preserveCoordinatesForAreaChange } from '../utils/geolocation.mjs';
 import AdSlot from '../components/ads/AdSlot';
+import AvatarPicker from '../components/profile/AvatarPicker';
 
 const LOCATION_LEVELS = ['country_id', 'region_id', 'governorate_id', 'city_id', 'district_id'];
 const formFromUser = (user) => ({
@@ -277,10 +278,8 @@ export default function ProfilePage() {
       {user?.role === 'provider' && <div id="work"><WorkPanel /></div>}
       {user?.role === 'provider' && <div className="mb-4"><MyMarket /></div>}
       <div className="card mb-4" id="my-area">
-        <div className="flex items-center gap-3 mb-3">
-          <Avatar src={user?.avatar} name={user?.full_name} size="lg" />
-          <div><h3 style={{ margin: 0 }}>{user?.full_name}</h3><div className="text-sm text-muted">{user?.email}</div></div>
-        </div>
+        {/* Add, change or remove the photo (AYK-161). */}
+        <div className="mb-3"><AvatarPicker user={user} onChanged={refresh} /></div>
         <form onSubmit={saveProfile} data-testid="profile-form">
           <fieldset disabled={saving} className="min-w-0 border-0 p-0 m-0">
           {(countriesError || regionsError || governoratesError || citiesError || districtsError) && <div role="alert" className="form-error mb-3">{t('location.options_unavailable')}</div>}

@@ -480,7 +480,13 @@
     "account_type_save": "Change account type",
     "change_account_type": "Change account type (requester / provider / both)",
     "blocking_jobs_title": "These jobs are assigned to you and not finished:",
-    "blocking_jobs_hint": "Open each one and tap \"✅ Done\" if the work is finished, or ask its owner to cancel it, then change the account type."
+    "blocking_jobs_hint": "Open each one and tap \"✅ Done\" if the work is finished, or ask its owner to cancel it, then change the account type.",
+    "photo_add": "Add your photo",
+    "photo_change": "Change photo",
+    "photo_remove": "Remove",
+    "photo_remove_confirm": "Remove your photo?",
+    "photo_bad_type": "The photo must be JPG, PNG or WebP.",
+    "photo_too_big": "The photo is {{size}} MB; the limit is 3.5 MB."
   },
   "chat": {
     "title": "Messages",

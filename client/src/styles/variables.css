@@ -3,6 +3,8 @@
      Any legacy code reading var(--primary), var(--bg-card), etc.
      auto-recolours when the theme switches. */
   --primary:        rgb(var(--color-primary));
+  /* A light tint of the chosen colour for bars and headers (AYK-160); follows the theme and dark mode. */
+  --primary-tint:   rgb(var(--color-primary-soft));
   --primary-dark:   rgb(var(--color-primary-from));
   --primary-light:  rgb(var(--color-primary-to));
   --primary-text:   rgb(var(--color-primary-text));
@@ -66,3 +68,8 @@
 /* Legacy prefers-color-scheme override removed — the theme engine
    (applyTheme) is the single source of truth now. Users pick their
    theme explicitly from the switcher. */
+
+/* Browsers that mix colours get an exact light tint of the chosen colour (AYK-160). */
+@supports (color: color-mix(in srgb, red 50%, blue)) {
+  :root { --primary-tint: color-mix(in srgb, rgb(var(--color-primary)) 11%, rgb(var(--color-surface))); }
+}

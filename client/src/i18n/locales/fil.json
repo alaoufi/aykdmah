@@ -480,7 +480,13 @@
     "account_type_save": "Baguhin ang uri ng account",
     "change_account_type": "Baguhin ang uri ng account (requester / provider / pareho)",
     "blocking_jobs_title": "Ang mga gawaing ito ay nakatalaga sa iyo at hindi pa tapos:",
-    "blocking_jobs_hint": "Buksan ang bawat isa at pindutin ang «✅ Tapos na» kung tapos na, o hilingin sa may-ari na kanselahin, saka baguhin ang uri ng account."
+    "blocking_jobs_hint": "Buksan ang bawat isa at pindutin ang «✅ Tapos na» kung tapos na, o hilingin sa may-ari na kanselahin, saka baguhin ang uri ng account.",
+    "photo_add": "Idagdag ang iyong larawan",
+    "photo_change": "Palitan ang larawan",
+    "photo_remove": "Alisin",
+    "photo_remove_confirm": "Alisin ang iyong larawan?",
+    "photo_bad_type": "Dapat JPG, PNG o WebP ang larawan.",
+    "photo_too_big": "Ang larawan ay {{size}} MB; ang limitasyon ay 3.5 MB."
   },
   "chat": {
     "title": "Mga Mensahe",

@@ -480,7 +480,13 @@
     "account_type_save": "Mengubah jenis akun",
     "change_account_type": "Mengubah jenis akun (pemohon / penyedia / keduanya)",
     "blocking_jobs_title": "Pekerjaan ini ditugaskan kepada Anda dan belum selesai:",
-    "blocking_jobs_hint": "Buka masing-masing dan ketuk «✅ Selesai» jika sudah, atau minta pemiliknya membatalkan, lalu ubah jenis akun."
+    "blocking_jobs_hint": "Buka masing-masing dan ketuk «✅ Selesai» jika sudah, atau minta pemiliknya membatalkan, lalu ubah jenis akun.",
+    "photo_add": "Tambah fotomu",
+    "photo_change": "Ganti foto",
+    "photo_remove": "Hapus",
+    "photo_remove_confirm": "Hapus fotomu?",
+    "photo_bad_type": "Foto harus JPG, PNG, atau WebP.",
+    "photo_too_big": "Foto berukuran {{size}} MB; batasnya 3,5 MB."
   },
   "chat": {
     "title": "Pesan",

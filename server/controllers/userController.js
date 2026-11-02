@@ -9,6 +9,7 @@ const { validateCoverage, saveCoverage } = require('../utils/providerCoverage');
 const { validateAvailability } = require('../utils/providerAvailability');
 const { hasPermission } = require('../middleware/roleCheck');
 const { queryOne, query } = require('../config/database');
+const { withUploadedFiles } = require('../utils/uploadPersistence');
 const pick = (object, fields) => Object.fromEntries(fields.filter(key => object[key] !== undefined).map(key => [key, object[key]]));
 const PUBLIC_USER_FIELDS = ['id', 'full_name', 'role', 'avatar', 'is_verified', 'is_online', 'city_id', 'district_id', 'country_id', 'region_id', 'governorate_id', 'city_name', 'city_name_ar', 'city_name_en', 'district_name', 'district_name_ar', 'district_name_en', 'governorate_name', 'governorate_name_ar', 'governorate_name_en', 'region_name', 'region_name_ar', 'region_name_en', 'country_name', 'country_name_ar', 'country_name_en'];
 const PUBLIC_PROVIDER_FIELDS = ['id', 'user_id', 'business_name', 'bio', 'experience_years', 'category_id', 'service_ids', 'service_radius_km', 'hourly_rate', 'cover_image', 'gallery', 'rating_avg', 'rating_count', 'completed_orders', 'is_trusted', 'is_featured_badge', 'location_mode', 'fixed_address', 'show_location_on_map', 'coverage_city_id', 'coverage_districts', 'availability'];
@@ -291,7 +292,18 @@ const changeRole = asyncHandler(async (req, res) => {
   return success(res, await User.findById(user.id), req.t('account_type_changed'));
 });
 
+// POST /api/users/me/avatar — one image (JPEG, PNG or WebP) becomes the account's photo (AYK-161).
+const uploadAvatar = asyncHandler(async (req, res) => {
+  if (!req.file) return error(res, req.t('invalid_data'), 400);
+  const avatar = await withUploadedFiles([req.file], { ownerId: req.user.id, scope: 'avatars', scopeId: req.user.id }, async ([file]) => {
+    await query('UPDATE users SET avatar = ? WHERE id = ?', [file.file_url, req.user.id]);
+    return file.file_url;
+  });
+  return success(res, { avatar }, req.t('updated'));
+});
+
 module.exports = {
+  uploadAvatar,
   changeRole,
   list, getOne, updateMe, updateProvider, getProviderReviews,
   block, unblock, remove, createByAdmin, updateByAdmin,
