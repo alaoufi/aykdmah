@@ -20,13 +20,13 @@ class CallActionReceiver : BroadcastReceiver() {
     }
 
     companion object {
-        fun decline(context: Context, call: NativeCall) {
+        @JvmStatic fun decline(context: Context, call: NativeCall) {
             CallAlert.stop(context, "call-${call.callId}")
             CallTelecom.ended(call.callId)
             CoroutineScope(Dispatchers.IO).launch { CallApi.hangUp(call) }
         }
 
-        fun watch(context: Context, uri: Uri) {
+        @JvmStatic fun watch(context: Context, uri: Uri) {
             val app = context.applicationContext
             val call = CallScreenActivity.parse(Intent(Intent.ACTION_VIEW, uri)) ?: return
             CallTelecom.onAnswer = { id ->

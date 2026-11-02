@@ -117,10 +117,12 @@ let app = fs.readFileSync(appGradle, 'utf8');
 if (!app.includes('livekit-android')) {
   app = app.replace(/(id 'com\.android\.application')/, "$1\n    id 'kotlin-android'");
   // R8 keeps the call engine's WebRTC classes (reached through JNI).
-  app = app.replace(/(release \{\s*minifyEnabled true)/, "$1\n            proguardFiles 'proguard-livekit.pro'");
+  // No R8 shrinking: WebRTC is reached through JNI and R8 broke its classes; the app stays small anyway.
+  app = app.replace(/(release \{\s*)minifyEnabled true/, '$1minifyEnabled false');
   fs.writeFileSync(path.join(project, 'app/proguard-livekit.pro'), [
     '-keep class org.webrtc.** { *; }', '-keep class livekit.** { *; }', '-keep class io.livekit.** { *; }',
-    '-keep class com.twilio.audioswitch.** { *; }', '-dontwarn org.webrtc.**', '-dontwarn io.livekit.**', '',
+    '-keep class com.twilio.audioswitch.** { *; }', '-dontwarn org.webrtc.**', '-dontwarn io.livekit.**',
+    '-dontwarn livekit.**', '-dontwarn livekit.org.jni_zero.**', '',
   ].join('\n'));
   app = app.replace(/sourceCompatibility JavaVersion\.VERSION_1_8/, 'sourceCompatibility JavaVersion.VERSION_17')
     .replace(/targetCompatibility JavaVersion\.VERSION_1_8/, 'targetCompatibility JavaVersion.VERSION_17');
