@@ -2353,6 +2353,12 @@
     "ios_install": "Telefon kilitliyken arama ve mesaj almak için: Paylaş ⬆️ ardından «Ana Ekrana Ekle», uygulamayı simgesinden açıp bildirimleri açın.",
     "bar_no_ring": "Bu telefonda bildirimler kapalı: uygulama kapalıyken aramalarda çalmaz. «İzin ver»e dokunun."
   },
+  "app_update": {
+    "title": "Uygulama güncellemesi gerekli",
+    "body": "Devam etmek için uygulamanın yeni sürümünü indirin:",
+    "download": "Güncellemeyi indir",
+    "hint": "İndirdikten sonra dosyayı açıp \"Güncelle\"ye dokunun, ardından uygulamayı yeniden açın."
+  },
   "update": {
     "done": "Güncellendi:"
   },
