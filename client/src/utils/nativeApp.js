@@ -21,6 +21,11 @@ export function nativeAppSource() {
   } catch (_) { return ''; }
 }
 
+// Capture launch metadata before React/router redirects can drop the query. Otherwise the
+// footer, update gate and device report may keep the previous installation's version.
+nativeAppVersion();
+nativeAppSource();
+
 // The app's own call engine (AYK-145), from app 1.3.0 on Android: calls run like phone calls
 // (earpiece, proximity sensor, Bluetooth, in the background). The site hands the call over.
 export const atLeast = (version, wanted) => {
