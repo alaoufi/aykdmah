@@ -52,6 +52,7 @@ export default function GuidePage() {
       <div className="max-w-3xl mb-7 md:mb-9">
         <p className="text-primary text-sm font-bold mb-2">{t('common.brand')}</p>
         <h1 className="text-3xl md:text-4xl font-extrabold text-fg leading-tight">{t('help.title')}</h1>
+        <p className="text-sm text-fg-muted mt-2">{t('help.role_colors_hint')}</p>
         <p className="text-fg-muted leading-loose text-base mt-4">{t('help.subtitle')}</p>
         <p className="text-fg-subtle text-sm mt-2">{t('help.account_note')}</p>
       </div>

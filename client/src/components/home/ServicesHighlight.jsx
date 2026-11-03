@@ -24,7 +24,7 @@ export default function ServicesHighlight() {
             <Link
               key={c.id}
               to={`/services/category/${c.slug}`}
-              className="group bg-white border border-slate-200/80 rounded-card p-4 flex flex-col items-center text-center hover:border-brand-200 hover:shadow-card transition no-underline"
+              className="tone-provider group rounded-card p-3 flex flex-col items-center text-center hover:shadow-card transition no-underline"
             >
               <span className="w-14 h-14 rounded-full grid place-items-center text-2xl mb-2.5 transition group-hover:scale-110" style={{ background: c.bg, color: c.tint }}>
                 {c.icon}
@@ -45,7 +45,7 @@ export default function ServicesHighlight() {
             <Link
               key={s.id}
               to={`/services/${s.id}`}
-              className="bg-white border border-slate-200/80 rounded-card overflow-hidden hover:border-brand-200 hover:shadow-card transition no-underline flex flex-col"
+              className="tone-provider rounded-card overflow-hidden hover:shadow-card transition no-underline flex flex-col"
             >
               <div className="h-14 md:h-24 grid place-items-center text-2xl md:text-4xl" style={{ background: s.cover }}>{s.icon}</div>
               <div className="p-2.5 md:p-3.5 flex flex-col flex-1">
@@ -64,11 +64,12 @@ export default function ServicesHighlight() {
         <div className="text-center">
           <Link
             to="/services"
-            className="inline-flex items-center gap-2 px-6 py-3 rounded-pill text-white font-bold shadow-soft hover:shadow-lift transition no-underline"
+            data-testid="browse-all-services"
+            className="inline-flex max-w-full items-center justify-center gap-2 px-4 py-3 rounded-pill text-white font-bold shadow-soft hover:shadow-lift transition no-underline"
             style={{ background: 'linear-gradient(135deg, rgb(var(--color-primary-from)), rgb(var(--color-primary-to)))' }}
           >
-            {t('catalog.browse_all')}
-            <span className="rtl:rotate-180">→</span>
+            <span className="min-w-0">{t('catalog.browse_all')}</span>
+            <svg aria-hidden="true" className="shrink-0 rtl:rotate-180" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 12h16m-6-6 6 6-6 6" /></svg>
           </Link>
         </div>
       </div>

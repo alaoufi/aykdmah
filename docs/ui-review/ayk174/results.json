@@ -1,0 +1,476 @@
+{
+  "checks": [
+    {
+      "name": "chromium 360 ar m light brand no overflow",
+      "ok": true
+    },
+    {
+      "name": "chromium 360 ar m light brand 12 compact requests",
+      "ok": true
+    },
+    {
+      "name": "chromium 360 ar m light brand browse and icon unobstructed",
+      "ok": true,
+      "details": {
+        "separate": true,
+        "iconInside": true
+      }
+    },
+    {
+      "name": "chromium 360 ar m light brand distinct gradients or contrast override",
+      "ok": true,
+      "details": {
+        "a": "linear-gradient(135deg, color(srgb 0.885294 0.932706 0.984196), color(srgb 0.964706 0.979294 0.995137))",
+        "b": "linear-gradient(135deg, color(srgb 0.993373 0.941373 0.890392), color(srgb 0.997961 0.981961 0.966274))",
+        "body": "linear-gradient(145deg, color(srgb 0.960157 0.929569 0.903373), rgb(250, 247, 242) 48%, color(srgb 0.92 0.934588 0.944078))",
+        "role": "30 123 224"
+      }
+    },
+    {
+      "name": "chromium 360 ar m light brand server filter beyond initial page",
+      "ok": true
+    },
+    {
+      "name": "chromium 360 ar m light brand stale query ignored",
+      "ok": true
+    },
+    {
+      "name": "chromium 360 ar m light brand field error explains failure",
+      "ok": true
+    },
+    {
+      "name": "chromium 360 ar m light brand recovers and clears error",
+      "ok": true
+    },
+    {
+      "name": "chromium 360 ar m light brand no runtime errors",
+      "ok": true,
+      "details": []
+    },
+    {
+      "name": "chromium 390 ar xl light saudi no overflow",
+      "ok": true
+    },
+    {
+      "name": "chromium 390 ar xl light saudi 12 compact requests",
+      "ok": true
+    },
+    {
+      "name": "chromium 390 ar xl light saudi browse and icon unobstructed",
+      "ok": true,
+      "details": {
+        "separate": true,
+        "iconInside": true
+      }
+    },
+    {
+      "name": "chromium 390 ar xl light saudi distinct gradients or contrast override",
+      "ok": true,
+      "details": {
+        "a": "linear-gradient(135deg, color(srgb 0.875059 0.929294 0.973961), color(srgb 0.953412 0.975529 0.983843))",
+        "b": "linear-gradient(135deg, color(srgb 0.983137 0.937961 0.880157), color(srgb 0.986667 0.978196 0.95498))",
+        "body": "linear-gradient(145deg, color(srgb 0.888392 0.935922 0.908235), rgb(241, 247, 243) 48%, color(srgb 0.887451 0.934314 0.906549))",
+        "role": "30 123 224"
+      }
+    },
+    {
+      "name": "chromium 390 ar xl light saudi server filter beyond initial page",
+      "ok": true
+    },
+    {
+      "name": "chromium 390 ar xl light saudi stale query ignored",
+      "ok": true
+    },
+    {
+      "name": "chromium 390 ar xl light saudi field error explains failure",
+      "ok": true
+    },
+    {
+      "name": "chromium 390 ar xl light saudi recovers and clears error",
+      "ok": true
+    },
+    {
+      "name": "chromium 390 ar xl light saudi no runtime errors",
+      "ok": true,
+      "details": []
+    },
+    {
+      "name": "chromium 768 en m dark sea no overflow",
+      "ok": true
+    },
+    {
+      "name": "chromium 768 en m dark sea 12 compact requests",
+      "ok": true
+    },
+    {
+      "name": "chromium 768 en m dark sea browse and icon unobstructed",
+      "ok": true,
+      "details": {
+        "separate": true,
+        "iconInside": true
+      }
+    },
+    {
+      "name": "chromium 768 en m dark sea distinct gradients or contrast override",
+      "ok": true,
+      "details": {
+        "a": "linear-gradient(135deg, color(srgb 0.0494118 0.178706 0.277961), color(srgb 0.0423529 0.147294 0.215843))",
+        "b": "linear-gradient(135deg, color(srgb 0.15749 0.187373 0.184157), color(srgb 0.0756079 0.149961 0.18698))",
+        "body": "linear-gradient(145deg, color(srgb 0.0256471 0.10698 0.150902), rgb(6, 22, 32) 48%, color(srgb 0.0471373 0.134588 0.175451))",
+        "role": "30 123 224"
+      }
+    },
+    {
+      "name": "chromium 768 en m dark sea server filter beyond initial page",
+      "ok": true
+    },
+    {
+      "name": "chromium 768 en m dark sea stale query ignored",
+      "ok": true
+    },
+    {
+      "name": "chromium 768 en m dark sea field error explains failure",
+      "ok": true
+    },
+    {
+      "name": "chromium 768 en m dark sea recovers and clears error",
+      "ok": true
+    },
+    {
+      "name": "chromium 768 en m dark sea no runtime errors",
+      "ok": true,
+      "details": []
+    },
+    {
+      "name": "chromium 1280 en m light desert no overflow",
+      "ok": true
+    },
+    {
+      "name": "chromium 1280 en m light desert 12 compact requests",
+      "ok": true
+    },
+    {
+      "name": "chromium 1280 en m light desert browse and icon unobstructed",
+      "ok": true,
+      "details": {
+        "separate": true,
+        "iconInside": true
+      }
+    },
+    {
+      "name": "chromium 1280 en m light desert distinct gradients or contrast override",
+      "ok": true,
+      "details": {
+        "a": "linear-gradient(135deg, color(srgb 0.885294 0.925882 0.960314), color(srgb 0.964706 0.971765 0.968784))",
+        "b": "linear-gradient(135deg, color(srgb 0.993373 0.934549 0.86651), color(srgb 0.997961 0.974431 0.939922))",
+        "body": "linear-gradient(145deg, color(srgb 0.96149 0.930118 0.878431), rgb(251, 246, 236) 48%, color(srgb 0.961529 0.920784 0.868392))",
+        "role": "30 123 224"
+      }
+    },
+    {
+      "name": "chromium 1280 en m light desert server filter beyond initial page",
+      "ok": true
+    },
+    {
+      "name": "chromium 1280 en m light desert stale query ignored",
+      "ok": true
+    },
+    {
+      "name": "chromium 1280 en m light desert field error explains failure",
+      "ok": true
+    },
+    {
+      "name": "chromium 1280 en m light desert recovers and clears error",
+      "ok": true
+    },
+    {
+      "name": "chromium 1280 en m light desert no runtime errors",
+      "ok": true,
+      "details": []
+    },
+    {
+      "name": "chromium 390 ar m light brand contrast no overflow",
+      "ok": true
+    },
+    {
+      "name": "chromium 390 ar m light brand contrast 12 compact requests",
+      "ok": true
+    },
+    {
+      "name": "chromium 390 ar m light brand contrast browse and icon unobstructed",
+      "ok": true,
+      "details": {
+        "separate": true,
+        "iconInside": true
+      }
+    },
+    {
+      "name": "chromium 390 ar m light brand contrast distinct gradients or contrast override",
+      "ok": true,
+      "details": {
+        "a": "none",
+        "b": "none",
+        "body": "none",
+        "role": "30 123 224"
+      }
+    },
+    {
+      "name": "chromium 390 ar m light brand contrast server filter beyond initial page",
+      "ok": true
+    },
+    {
+      "name": "chromium 390 ar m light brand contrast stale query ignored",
+      "ok": true
+    },
+    {
+      "name": "chromium 390 ar m light brand contrast field error explains failure",
+      "ok": true
+    },
+    {
+      "name": "chromium 390 ar m light brand contrast recovers and clears error",
+      "ok": true
+    },
+    {
+      "name": "chromium 390 ar m light brand contrast no runtime errors",
+      "ok": true,
+      "details": []
+    },
+    {
+      "name": "webkit 360 ar m light brand no overflow",
+      "ok": true
+    },
+    {
+      "name": "webkit 360 ar m light brand 12 compact requests",
+      "ok": true
+    },
+    {
+      "name": "webkit 360 ar m light brand browse and icon unobstructed",
+      "ok": true,
+      "details": {
+        "separate": true,
+        "iconInside": true
+      }
+    },
+    {
+      "name": "webkit 360 ar m light brand distinct gradients or contrast override",
+      "ok": true,
+      "details": {
+        "a": "linear-gradient(135deg, color(srgb 0.885294 0.932706 0.984196), color(srgb 0.964706 0.979294 0.995137))",
+        "b": "linear-gradient(135deg, color(srgb 0.993373 0.941373 0.890392), color(srgb 0.997961 0.981961 0.966274))",
+        "body": "linear-gradient(145deg, color(srgb 0.960157 0.929569 0.903373), rgb(250, 247, 242) 48%, color(srgb 0.92 0.934588 0.944078))",
+        "role": "30 123 224"
+      }
+    },
+    {
+      "name": "webkit 360 ar m light brand server filter beyond initial page",
+      "ok": true
+    },
+    {
+      "name": "webkit 360 ar m light brand stale query ignored",
+      "ok": true
+    },
+    {
+      "name": "webkit 360 ar m light brand field error explains failure",
+      "ok": true
+    },
+    {
+      "name": "webkit 360 ar m light brand recovers and clears error",
+      "ok": true
+    },
+    {
+      "name": "webkit 360 ar m light brand no runtime errors",
+      "ok": true,
+      "details": []
+    },
+    {
+      "name": "webkit 390 ar xl light saudi no overflow",
+      "ok": true
+    },
+    {
+      "name": "webkit 390 ar xl light saudi 12 compact requests",
+      "ok": true
+    },
+    {
+      "name": "webkit 390 ar xl light saudi browse and icon unobstructed",
+      "ok": true,
+      "details": {
+        "separate": true,
+        "iconInside": true
+      }
+    },
+    {
+      "name": "webkit 390 ar xl light saudi distinct gradients or contrast override",
+      "ok": true,
+      "details": {
+        "a": "linear-gradient(135deg, color(srgb 0.875059 0.929294 0.973961), color(srgb 0.953412 0.975529 0.983843))",
+        "b": "linear-gradient(135deg, color(srgb 0.983137 0.937961 0.880157), color(srgb 0.986667 0.978196 0.95498))",
+        "body": "linear-gradient(145deg, color(srgb 0.888392 0.935922 0.908235), rgb(241, 247, 243) 48%, color(srgb 0.887451 0.934314 0.906549))",
+        "role": "30 123 224"
+      }
+    },
+    {
+      "name": "webkit 390 ar xl light saudi server filter beyond initial page",
+      "ok": true
+    },
+    {
+      "name": "webkit 390 ar xl light saudi stale query ignored",
+      "ok": true
+    },
+    {
+      "name": "webkit 390 ar xl light saudi field error explains failure",
+      "ok": true
+    },
+    {
+      "name": "webkit 390 ar xl light saudi recovers and clears error",
+      "ok": true
+    },
+    {
+      "name": "webkit 390 ar xl light saudi no runtime errors",
+      "ok": true,
+      "details": []
+    },
+    {
+      "name": "webkit 768 en m dark sea no overflow",
+      "ok": true
+    },
+    {
+      "name": "webkit 768 en m dark sea 12 compact requests",
+      "ok": true
+    },
+    {
+      "name": "webkit 768 en m dark sea browse and icon unobstructed",
+      "ok": true,
+      "details": {
+        "separate": true,
+        "iconInside": true
+      }
+    },
+    {
+      "name": "webkit 768 en m dark sea distinct gradients or contrast override",
+      "ok": true,
+      "details": {
+        "a": "linear-gradient(135deg, color(srgb 0.049412 0.178706 0.277961), color(srgb 0.042353 0.147294 0.215843))",
+        "b": "linear-gradient(135deg, color(srgb 0.15749 0.187373 0.184157), color(srgb 0.075608 0.149961 0.18698))",
+        "body": "linear-gradient(145deg, color(srgb 0.025647 0.10698 0.150902), rgb(6, 22, 32) 48%, color(srgb 0.047137 0.134588 0.175451))",
+        "role": "30 123 224"
+      }
+    },
+    {
+      "name": "webkit 768 en m dark sea server filter beyond initial page",
+      "ok": true
+    },
+    {
+      "name": "webkit 768 en m dark sea stale query ignored",
+      "ok": true
+    },
+    {
+      "name": "webkit 768 en m dark sea field error explains failure",
+      "ok": true
+    },
+    {
+      "name": "webkit 768 en m dark sea recovers and clears error",
+      "ok": true
+    },
+    {
+      "name": "webkit 768 en m dark sea no runtime errors",
+      "ok": true,
+      "details": []
+    },
+    {
+      "name": "webkit 1280 en m light desert no overflow",
+      "ok": true
+    },
+    {
+      "name": "webkit 1280 en m light desert 12 compact requests",
+      "ok": true
+    },
+    {
+      "name": "webkit 1280 en m light desert browse and icon unobstructed",
+      "ok": true,
+      "details": {
+        "separate": true,
+        "iconInside": true
+      }
+    },
+    {
+      "name": "webkit 1280 en m light desert distinct gradients or contrast override",
+      "ok": true,
+      "details": {
+        "a": "linear-gradient(135deg, color(srgb 0.885294 0.925882 0.960314), color(srgb 0.964706 0.971765 0.968784))",
+        "b": "linear-gradient(135deg, color(srgb 0.993373 0.934549 0.86651), color(srgb 0.997961 0.974431 0.939922))",
+        "body": "linear-gradient(145deg, color(srgb 0.96149 0.930118 0.878431), rgb(251, 246, 236) 48%, color(srgb 0.961529 0.920784 0.868392))",
+        "role": "30 123 224"
+      }
+    },
+    {
+      "name": "webkit 1280 en m light desert server filter beyond initial page",
+      "ok": true
+    },
+    {
+      "name": "webkit 1280 en m light desert stale query ignored",
+      "ok": true
+    },
+    {
+      "name": "webkit 1280 en m light desert field error explains failure",
+      "ok": true
+    },
+    {
+      "name": "webkit 1280 en m light desert recovers and clears error",
+      "ok": true
+    },
+    {
+      "name": "webkit 1280 en m light desert no runtime errors",
+      "ok": true,
+      "details": []
+    },
+    {
+      "name": "webkit 390 ar m light brand contrast no overflow",
+      "ok": true
+    },
+    {
+      "name": "webkit 390 ar m light brand contrast 12 compact requests",
+      "ok": true
+    },
+    {
+      "name": "webkit 390 ar m light brand contrast browse and icon unobstructed",
+      "ok": true,
+      "details": {
+        "separate": true,
+        "iconInside": true
+      }
+    },
+    {
+      "name": "webkit 390 ar m light brand contrast distinct gradients or contrast override",
+      "ok": true,
+      "details": {
+        "a": "none",
+        "b": "none",
+        "body": "none",
+        "role": "30 123 224"
+      }
+    },
+    {
+      "name": "webkit 390 ar m light brand contrast server filter beyond initial page",
+      "ok": true
+    },
+    {
+      "name": "webkit 390 ar m light brand contrast stale query ignored",
+      "ok": true
+    },
+    {
+      "name": "webkit 390 ar m light brand contrast field error explains failure",
+      "ok": true
+    },
+    {
+      "name": "webkit 390 ar m light brand contrast recovers and clears error",
+      "ok": true
+    },
+    {
+      "name": "webkit 390 ar m light brand contrast no runtime errors",
+      "ok": true,
+      "details": []
+    }
+  ],
+  "passed": 90,
+  "total": 90
+}

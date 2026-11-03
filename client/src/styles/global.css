@@ -390,11 +390,32 @@ button, input, select, textarea { font: inherit; color: inherit; }
 /* Templates (Saudi, desert, mountain, sea, burgundy): the page itself carries a
    soft gradient of the template's tinted greys, from its background to its
    alternate surface. High contrast keeps flat colours. */
-html[data-palette]:not([data-palette="brand"]):not([data-contrast="high"]) body {
+html:not([data-contrast="high"]) body {
   background: linear-gradient(180deg, rgb(var(--color-bg)) 0%, rgb(var(--color-surface-alt)) 100%) fixed;
 }
 
 /* Roles by colour, as in the logo (AYK-104): requests and requesters orange, providers blue.
    One pair of classes for every similar card, tile and box on the site. */
-.tone-request { background: rgba(249, 115, 22, 0.07) !important; border: 1.5px solid rgba(249, 115, 22, 0.45) !important; }
-.tone-provider { background: rgba(37, 99, 235, 0.06) !important; border: 1.5px solid rgba(37, 99, 235, 0.4) !important; }
+.tone-request, .tone-provider {
+  background: rgb(var(--color-surface)) !important;
+  border: 1px solid rgb(var(--role-color) / .35) !important;
+}
+.tone-request { --role-color: var(--role-request-color); }
+.tone-provider { --role-color: var(--role-provider-color); }
+html[data-contrast="high"] .tone-request, html[data-contrast="high"] .tone-provider {
+  border-color: rgb(var(--color-fg)) !important;
+}
+@supports (color: color-mix(in srgb, red, white)) {
+  html:not([data-contrast="high"]) body {
+    background: linear-gradient(145deg,
+      color-mix(in srgb, rgb(var(--color-primary)) 6%, rgb(var(--color-bg))),
+      rgb(var(--color-bg)) 48%,
+      color-mix(in srgb, rgb(var(--color-accent)) 7%, rgb(var(--color-bg)))) fixed;
+  }
+  html:not([data-contrast="high"]) .tone-request,
+  html:not([data-contrast="high"]) .tone-provider {
+    background: linear-gradient(135deg,
+      color-mix(in srgb, rgb(var(--role-color)) 13%, rgb(var(--color-surface))),
+      color-mix(in srgb, rgb(var(--role-color)) 4%, rgb(var(--color-surface)))) !important;
+  }
+}

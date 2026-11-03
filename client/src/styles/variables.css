@@ -1,4 +1,7 @@
 :root {
+  /* Fixed logo roles; palette selection changes surrounding surfaces, not role identity. */
+  --role-provider-color: 30 123 224;
+  --role-request-color: 242 140 40;
   /* Brand — bound to the active theme's CSS vars (set by applyTheme).
      Any legacy code reading var(--primary), var(--bg-card), etc.
      auto-recolours when the theme switches. */

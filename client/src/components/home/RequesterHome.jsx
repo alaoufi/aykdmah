@@ -10,7 +10,7 @@ export default function RequesterHome() {
   const { t } = useTranslation();
   return (
     <section className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-8 space-y-8" data-testid="requester-home">
-      <div className="card p-5 flex flex-wrap items-center justify-between gap-3">
+      <div className="card tone-request p-4 flex flex-wrap items-center justify-between gap-2">
         <div className="min-w-0">
           <h1 className="text-xl md:text-2xl font-extrabold text-fg m-0">{t('requester.home_title')}</h1>
           <p className="text-[13.5px] text-fg-muted mt-1 mb-0">{t('requester.home_hint')}</p>

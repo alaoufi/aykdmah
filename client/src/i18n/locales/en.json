@@ -1731,7 +1731,8 @@
         "title": "Deleting messages and admin access",
         "body": "Only the author can delete a message, after confirming; it then disappears for both people. Administrators keep every message, including deleted ones, and can review them to protect everyone's rights in a dispute."
       }
-    }
+    },
+    "role_colors_hint": "Blue cards show service providers and orange cards show requests. Use the service selector in Latest requests to filter results."
   },
   "request_location": {
     "title": "Service location",

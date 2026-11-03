@@ -8,8 +8,8 @@ import useOpenRequest from '../../hooks/useOpenRequest';
 // service" (as a provider), in different colours.
 export function OwnerBadge({ mine, forService }) {
   const { t } = useTranslation();
-  if (mine) return <span className="inline-flex w-fit px-2 py-0.5 rounded-pill bg-sky-100 text-sky-800 text-[11px] font-bold" data-testid="badge-mine">📋 {t('requester.badge_mine')}</span>;
-  if (forService) return <span className="inline-flex w-fit px-2 py-0.5 rounded-pill bg-emerald-100 text-emerald-800 text-[11px] font-bold" data-testid="badge-service">🛠️ {t('requester.badge_service')}</span>;
+  if (mine) return <span className="tone-request inline-flex w-fit px-2 py-0.5 rounded-pill text-fg text-[11px] font-bold" data-testid="badge-mine">📋 {t('requester.badge_mine')}</span>;
+  if (forService) return <span className="tone-provider inline-flex w-fit px-2 py-0.5 rounded-pill text-fg text-[11px] font-bold" data-testid="badge-service">🛠️ {t('requester.badge_service')}</span>;
   return null;
 }
 

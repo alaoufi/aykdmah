@@ -1731,7 +1731,8 @@
         "title": "Paglipat ng mga mensahe at pag-access ng admin",
         "body": "Ang mga administrador ay mag-iimbak ng bawat mensahe, kabilang ang mga tinanggal, at maaaring suriin ang mga ito upang maprotektahan ang mga karapatan ng lahat sa isang disputa."
       }
-    }
+    },
+    "role_colors_hint": "Asul ang mga card ng tagapagbigay ng serbisyo at kahel ang mga kahilingan. Piliin ang serbisyo sa mga pinakabagong kahilingan upang salain ang resulta."
   },
   "request_location": {
     "title": "Lokasyon ng serbisyo",

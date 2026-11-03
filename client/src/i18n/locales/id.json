@@ -1731,7 +1731,8 @@
         "title": "Menghapus pesan dan akses administrator",
         "body": "Hanya penulis yang dapat menghapus pesan, setelah mengkonfirmasi; kemudian hilang untuk kedua orang."
       }
-    }
+    },
+    "role_colors_hint": "Kartu biru menampilkan penyedia jasa dan kartu oranye menampilkan permintaan. Gunakan pilihan jasa pada permintaan terbaru untuk menyaring hasil."
   },
   "request_location": {
     "title": "Lokasi layanan",

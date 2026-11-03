@@ -15,7 +15,7 @@ export default function RequestCard({ item, urgent = false }) {
     <article
       role="link" tabIndex={0} data-testid="request-card"
       onClick={() => open(item)} onKeyDown={e => { if (e.key === 'Enter') open(item); }}
-      className={`cursor-pointer tone-request ${urgent ? 'ring-2 ring-rose-200 ' : ''}group rounded-card p-3 md:p-4 flex flex-col gap-1.5 transition hover:shadow-card hover:-translate-y-0.5`}
+      className={`cursor-pointer tone-request ${urgent ? 'ring-2 ring-rose-200 ' : ''}group rounded-card p-2.5 md:p-3 flex flex-col gap-1 transition hover:shadow-card hover:-translate-y-0.5`}
     >
       {/* Compact (AYK-104): profession, whose and age on one line. */}
       <div className="flex items-center gap-1.5 flex-wrap">
@@ -34,29 +34,22 @@ export default function RequestCard({ item, urgent = false }) {
         </span>
       </div>
 
-      <h3 className="text-[15px] md:text-[16px] font-extrabold text-ink leading-snug m-0">
+      <h3 className="text-[14px] md:text-[15px] font-extrabold text-fg leading-snug line-clamp-2 m-0">
         {item.title}
       </h3>
 
       {item.description && item.description.trim() !== String(item.title || '').trim() && (
-        <p className="text-[13px] text-slate-500 leading-relaxed line-clamp-1 m-0">
+        <p className="text-[12px] text-fg-muted leading-snug line-clamp-1 m-0">
           {truncate(item.description, 120)}
         </p>
       )}
 
-      {cityLine && (
-        <div className="flex items-center gap-1.5 text-[12px] text-slate-600 font-medium">
-          <IconPin size={14} className="text-brand-500" />
-          {cityLine}
-        </div>
-      )}
-
-      <div className="flex items-center justify-between pt-1.5 mt-auto">
-        <span />
+      <div className="flex items-center justify-between gap-2 mt-auto">
+        <span className="min-w-0 flex items-center gap-1 text-[11px] text-fg-muted">
+          {cityLine && <><IconPin size={13} className="shrink-0" /><span className="line-clamp-1">{cityLine}</span></>}
+        </span>
         <span
-          className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-pill text-[12.5px] font-bold text-white transition active:scale-[.97] no-underline ${
-            urgent ? 'bg-rose-500 hover:bg-rose-600' : 'bg-ink hover:bg-slate-800'
-          }`}
+          className="shrink-0 inline-flex items-center gap-1 text-[12px] font-bold text-primary"
         >
           {opening === item.id ? '…' : forMyService(item) ? `💬 ${t('request.contact_owner')}` : t('common.details')}
           <IconArrow size={14} className="rotate-180" />

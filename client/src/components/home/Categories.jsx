@@ -19,7 +19,7 @@ export default function Categories() {
   ];
 
   return (
-    <section className="relative -mt-10 md:-mt-14 z-10">
+    <section className="relative py-4 md:py-6" data-testid="home-categories">
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
         <div className="bg-white rounded-[22px] shadow-card border border-slate-100 p-5 md:p-8">
           <div className="flex items-end justify-between mb-3 md:mb-7">
@@ -55,7 +55,7 @@ export default function Categories() {
                   <Link
                     key={cat.id}
                     to={`/services?category=${cat.id}`}
-                    className="cat-tile group bg-white border border-slate-200/80 rounded-card p-4 md:p-5 flex flex-col items-center text-center hover:border-brand-200 no-underline"
+                    className="cat-tile tone-provider group rounded-card p-3 md:p-4 flex flex-col items-center text-center hover:border-brand-200 no-underline"
                   >
                     <span
                       className="w-14 h-14 md:w-16 md:h-16 rounded-full grid place-items-center mb-3 transition group-hover:scale-110"

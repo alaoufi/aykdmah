@@ -16,7 +16,7 @@ export default function GuestShowcase() {
       <p className="text-center text-[14px] text-fg-muted mb-4">{t('join.showcase_subtitle')}</p>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {cards.map(({ key, icon, to, browse, browseLabel }) => (
-          <div key={key} className="card p-5 flex flex-col">
+          <div key={key} className={`card ${key === 'provider' ? 'tone-provider' : 'tone-request'} p-4 flex flex-col`}>
             <div className="flex items-center gap-3 mb-2">
               <span className="grid place-items-center w-12 h-12 rounded-full bg-brand-50 text-[24px]" aria-hidden="true">{icon}</span>
               <h3 className="m-0 text-[17px] font-extrabold text-fg">{t(`join.showcase_${key}_title`)}</h3>

@@ -7,7 +7,7 @@ export default function ServiceCard({ service, onOrder, query = '', locationLabe
   const lang = i18n.resolvedLanguage || 'ar';
 
   return (
-    <article className="group bg-white rounded-card border border-slate-200/80 overflow-hidden flex flex-col hover:border-brand-200 hover:shadow-card transition">
+    <article className="tone-provider group rounded-card overflow-hidden flex flex-col hover:shadow-card transition">
       {/* Cover */}
       <div className="relative h-28 grid place-items-center text-4xl" style={{ background: service.cover }}>
         <span>{service.icon}</span>

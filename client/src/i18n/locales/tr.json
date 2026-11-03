@@ -1731,7 +1731,8 @@
         "title": "İleti silmek ve yöneticinin erişimi",
         "body": "Sadece yazar bir mesajı onayladıktan sonra silebilir; sonra her iki kişi için kaybolur. Yöneticiler silinmiş olanları da dahil olmak üzere her mesajı saklar ve anlaşmazlıkta herkesin haklarını korumak için bunları gözden geçirebilir."
       }
-    }
+    },
+    "role_colors_hint": "Mavi kartlar hizmet sağlayıcıları, turuncu kartlar talepleri gösterir. Son taleplerdeki hizmet listesini kullanarak sonuçları filtreleyin."
   },
   "request_location": {
     "title": "Hizmet yeri",
