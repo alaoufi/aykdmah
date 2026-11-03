@@ -36,3 +36,7 @@
 هذه الدفعة توثيق لمراجعة المصدر؛ لا تغيير لكود المنتج أو نصوص المستخدم، ولا بناء جديد ولا اختبارات صوت جديدة ولا نشر. نتائج 17/17 و18/18 أدلة سابقة موثقة وليست اختبارات شاملة لكل الأجهزة. لم تُعدّل مواقع الإنتاج أو إعدادات Apple أو مفاتيح APNs. يلزم تحديد آيفون متاح وطريقة تثبيت نسخة اختبار عليه لاختبار العتاد.
 
 مراجع رسمية: [توجيه مكبر آيفون](https://developer.apple.com/documentation/avfaudio/avaudiosession/overrideoutputaudioport(_:))، [مكالمات VoIP الواردة عبر PushKit وCallKit](https://developer.apple.com/documentation/pushkit/responding-to-voip-notifications-from-pushkit)، [اختيار مخرج الصوت في الويب](https://developer.mozilla.org/en-US/docs/Web/API/HTMLMediaElement/setSinkId).
+
+### متابعة الإتاحة — 2026-11-03
+
+طلب المالك إرسال APK وتحديث الموقع: نُشر الموقع 1.1.8 (a1f6ebf) بعد testdeploy، وأُتيح APK التجريبي 1.3.3 عبر /dl/aykdmh-1.3.3-test.apk مع تطابق بصمته بعد التنزيل العام. latest.json بقي 1.3.2، ولا رفع للمتاجر. عبارات عدم النشر أعلاه تصف مرحلة البناء والمراجعة السابقة. لم تُضف اختبارات أجهزة فعلية؛ تجربة آيفون القادمة عبر الموقع فقط عند توفر الجهاز.
