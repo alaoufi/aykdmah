@@ -3,7 +3,7 @@ android {
         unitTests.includeAndroidResources = true
         unitTests.all {
             maxHeapSize = '2g'
-            systemProperty 'robolectric.dependency.repo.url', 'https://repo.maven.apache.org/maven2'
+            systemProperty 'robolectric.dependency.repo.url', System.getenv('AYK_ROBOLECTRIC_REPO') ?: 'https://repo.maven.apache.org/maven2'
             testLogging { events 'passed', 'failed'; exceptionFormat 'full' }
         }
     }
