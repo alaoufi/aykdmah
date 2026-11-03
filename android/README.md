@@ -48,3 +48,7 @@ bash android/build-test-apk.sh "$PROJECT" "$PRIVATE_KEYS_DIRECTORY"
 ## بناء AAB للاختبار الداخلي (AYK-167)
 
 شغّل android/build-test-aab.sh مع مسار نسخة المشروع المعزولة ثم مسار المفاتيح، مثل نظيره الخاص بـ APK. يعيد 17 اختبارًا قبل bundleRelease، ثم يوقّع AAB بمفتاح الرفع ووسائط كلمة المرور من البيئة بعد انتهاء Gradle. المفاتيح للقراءة فقط. يحتفظ بكاش SDK اختبار Robolectric، ويستخدم مرآة Maven Central المستضافة على Google بعد تعثر المستودع الأصلي بـ 429. لا يرفع إلى Play أو الموقع تلقائيًا. AAB 1.3.3 (13) متاح بطلب المالك للاختبار الداخلي، ولم يُرفع إلى Play Console بعد.
+
+## AYK-169 — بيان خدمات المقدمة
+
+الحزمة 1.3.4 (14) تزيل إذن مشاركة الشاشة الموروث وغير المستخدم عبر native/manifest-permissions.cjs، ويستعمله البناء العادي والمعزول. شغّل node --test android/tests/manifest-permissions.test.cjs للتحقق من تطبيق السياسة والإبقاء على أذونات المكالمات. اختبار Manifest يدخل أيضًا في بناء AAB وAPK الخاص قبل Gradle. لا تغيير في شيفرة توجيه الصوت. متطلبات Console والفيديو في docs/FOREGROUND_SERVICE_DECLARATION.md؛ لا يُعد نجاح بناء الحزمة إكمالًا للبيان أو نشرًا.
