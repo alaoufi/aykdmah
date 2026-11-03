@@ -33,6 +33,7 @@ for (const [dir, entries] of Object.entries(strings)) {
 
 const manifestFile = path.join(src, 'AndroidManifest.xml');
 let manifest = fs.readFileSync(manifestFile, 'utf8');
+manifest = require('./manifest-permissions.cjs')(manifest);
 for (const permission of ['USE_FULL_SCREEN_INTENT', 'VIBRATE', 'WAKE_LOCK', 'RECORD_AUDIO', 'CAMERA', 'MODIFY_AUDIO_SETTINGS',
   'BLUETOOTH_CONNECT', 'FOREGROUND_SERVICE', 'FOREGROUND_SERVICE_PHONE_CALL', 'FOREGROUND_SERVICE_MICROPHONE',
   'FOREGROUND_SERVICE_CAMERA', 'MANAGE_OWN_CALLS']) {

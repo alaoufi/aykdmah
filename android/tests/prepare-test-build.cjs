@@ -13,3 +13,6 @@ text = text.replace(/versionCode\s+\d+/, `versionCode ${manifest.appVersionCode}
   .replace(/versionName\s+["'][^"']+["']/, `versionName "${manifest.appVersionName}"`);
 fs.writeFileSync(file, text);
 fs.copyFileSync('/source/twa-manifest.json', '/work/twa-manifest.json');
+const androidManifest = '/work/app/src/main/AndroidManifest.xml';
+fs.writeFileSync(androidManifest, require('/source/native/manifest-permissions.cjs')(
+  fs.readFileSync(androidManifest, 'utf8')));

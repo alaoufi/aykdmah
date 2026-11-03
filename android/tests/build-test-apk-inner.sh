@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 test -f /work/.ayk-native-test-copy
+node --test /source/tests/manifest-permissions.test.cjs
 cp /source/native/*.kt /source/native/*.java /work/app/src/main/java/sa/aykdmh/app/
 node /source/tests/prepare-test-build.cjs
 mkdir -p /work/app/src/test/java/sa/aykdmh/app
