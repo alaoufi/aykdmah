@@ -27,6 +27,8 @@ import { createPollingLoop } from '../utils/polling';
 import { agreeRequest, saveToDirectory } from '../services/requestService';
 import { askConfirm, askText, showAlert } from '../components/common/AppDialog';
 import AdSlot from '../components/ads/AdSlot';
+import BottomNav from '../components/layout/BottomNav';
+import useChatViewport from '../hooks/useChatViewport';
 
 // A bold back arrow toward the start side: right in Arabic, left in English (AYK-137).
 function BackArrow() {
@@ -39,6 +41,7 @@ function BackArrow() {
 }
 
 export default function ChatPage() {
+  const viewportRef = useChatViewport();
   // The saved message text size applies as soon as the chat opens (AYK-126).
   useChatPrefs();
   const { t } = useTranslation();
@@ -383,14 +386,16 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="chat-page">
+    <div ref={viewportRef} className="chat-page" data-view={activeId ? 'conversation' : 'list'}>
+      {!activeId && <BottomNav />}
       <aside className={`chat-sidebar ${activeId ? 'hide-on-mobile' : ''}`}>
         <div className="sidebar-header">
           {/* The chats page has no site header, so it carries its own way back (AYK-044). */}
           <div className="flex items-center justify-between gap-2">
             {/* The way home in place of the title (AYK-137); the archive shows beside it when open. */}
             <div className="flex items-center gap-2 min-w-0">
-              <Link to="/" className="list-home" data-testid="chat-home"><BackArrow /><span>{t('nav.home')}</span></Link>
+              <Link to="/" className="list-home" data-testid="chat-home" aria-label={t('nav.home')}><BackArrow /></Link>
+              <h1 className="chat-list-title">{t('chat.title')}</h1>
               {showArchive && <span className="text-[13px] font-bold text-fg-muted whitespace-nowrap">🗄️ {t('requester.chat_archive')}</span>}
             </div>
             {/* The list's ⋮ (AYK-133): chats or their archive, the messages' settings (which belong
@@ -622,8 +627,10 @@ export default function ChatPage() {
 
       <style>{`
         .chat-page {
-          display: grid; grid-template-columns: 340px 1fr;
-          height: calc(100vh - var(--header-h)); background: var(--wa-panel);
+          position: fixed; top: var(--chat-viewport-top, 0px); left: var(--chat-viewport-left, 0px);
+          width: var(--chat-viewport-width, 100%); height: var(--chat-viewport-height, 100dvh);
+          display: grid; grid-template-columns: 340px minmax(0, 1fr); grid-template-rows: minmax(0, 1fr);
+          overflow: hidden; padding-top: env(safe-area-inset-top); background: var(--wa-panel);
           --wa-bg: #efeae2; --wa-out: #d9fdd3; --wa-in: #ffffff; --wa-text: #111b21; --wa-meta: #667781;
           --wa-tick: #53bdeb; --wa-accent: #00a884; --wa-chip: rgba(11,20,26,.05); --wa-wave: #b4bcc0;
           --wa-system: #ffeecd; --wa-panel: #f0f2f5; --wa-action-bg: rgba(255,255,255,.85); --wa-doodle: rgba(11,20,26,.045);
@@ -635,9 +642,10 @@ export default function ChatPage() {
         }
         .chat-sidebar {
           border-inline-end: 1px solid var(--border); background: var(--bg-card);
-          display: flex; flex-direction: column; overflow: hidden;
+          display: flex; flex-direction: column; min-height: 0; min-width: 0; overflow: hidden;
         }
-        .sidebar-header { padding: 14px 16px; border-bottom: 1px solid rgba(127,127,127,.16); }
+        .sidebar-header { flex: 0 0 auto; padding: 10px 14px; border-bottom: 1px solid rgba(127,127,127,.16); }
+        .chat-list-title { margin: 0; font-size: 19px; font-weight: 800; }
         /* Cards and menu entries are buttons, not text links: no underline, also in high contrast. */
         .conv-item, .conv-item *, .chat-menu > a, .back-btn { text-decoration: none !important; }
         .chat-home { padding: 6px 12px; border-radius: 999px; background: var(--bg-soft); color: var(--text); font-size: 13px; font-weight: 700; text-decoration: none; white-space: nowrap; }
@@ -645,7 +653,7 @@ export default function ChatPage() {
         .chat-tabs { display: flex; gap: 6px; margin-top: 8px; }
         .chat-tabs button { flex: 1; padding: 6px 8px; border-radius: 999px; border: 1px solid var(--border); background: var(--bg-card); font: inherit; font-size: 12.5px; font-weight: 600; color: var(--text-secondary); cursor: pointer; }
         .chat-tabs button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-        .conv-list { overflow-y: auto; flex: 1; }
+        .conv-list { overflow-y: auto; overscroll-behavior: contain; flex: 1; min-height: 0; }
         /* The chats list (AYK-154): airy rows, a light line under the text only, as on phones. */
         .conv-list { padding: 4px 0; }
         .conv-item {
@@ -663,16 +671,16 @@ export default function ChatPage() {
         .conv-name { display: flex; align-items: center; gap: 6px; min-width: 0; font-size: 16px; font-weight: 700; color: var(--text); }
         .conv-name-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .conv-code { flex-shrink: 0; padding: 1px 7px; border-radius: 999px; background: var(--bg-soft); font-size: 11px; font-weight: 700; color: var(--text-secondary); letter-spacing: .3px; }
-        .conv-time { flex-shrink: 0; font-size: 12px; color: var(--text-secondary); }
+        .conv-time { flex-shrink: 0; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; color: var(--text-secondary); }
         .conv-preview { flex: 1; min-width: 0; font-size: 14px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .conv-unread { flex-shrink: 0; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; display: grid; place-items: center; background: #25a244; color: #fff; font-size: 12px; font-weight: 800; }
         .conv-item.unread .conv-time { color: #25a244; font-weight: 700; }
         .conv-item.unread .conv-preview { color: var(--text); font-weight: 600; }
         .chat-main {
-          display: flex; flex-direction: column; height: 100%; overflow: hidden;
+          display: flex; flex-direction: column; height: 100%; min-height: 0; min-width: 0; overflow: hidden;
         }
         .chat-header {
-          padding: 8px 12px; background: var(--bg-card); min-height: 60px;
+          flex: 0 0 auto; padding: 8px 12px; background: var(--bg-card); min-height: 60px;
           border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px;
           box-shadow: 0 1px 3px rgba(15,23,42,.04);
         }
@@ -712,7 +720,7 @@ export default function ChatPage() {
         .track-btn:hover { transform: scale(1.08); }
         .track-btn.track-labelled { width: auto; display: flex; align-items: center; border-radius: 999px; padding: 0 10px; gap: 4px; font-size: 12px; font-weight: 700; white-space: nowrap; }
         .chat-body {
-          flex: 1; overflow-y: auto; padding: 10px 4% 12px;
+          flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 10px 4% 12px;
           background-color: var(--wa-bg);
           background-image: radial-gradient(var(--wa-doodle) 1.2px, transparent 1.3px), radial-gradient(var(--wa-doodle) 1.2px, transparent 1.3px);
           background-size: 22px 22px; background-position: 0 0, 11px 11px;
@@ -765,8 +773,15 @@ export default function ChatPage() {
         .reply-bar-content .reply-name { font-size: 12px; font-weight: 700; color: #876239; }
         .reply-bar-content .reply-text { font-size: 12.5px; color: #475569; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .reply-bar button { background: transparent; border: 0; font-size: 16px; cursor: pointer; color: #64748b; }
-        @media (max-width: 768px) {
+        .chat-viewport-open, .chat-viewport-open body { overflow: hidden; overscroll-behavior: none; }
+        .chat-viewport-open { height: calc(100dvh / var(--ayk-scale, 1)); }
+        @media (max-width: 767.98px) {
           .chat-page { grid-template-columns: 1fr; }
+          .chat-page[data-view="list"] { padding-bottom: var(--mobile-nav-clearance); }
+          .conv-item { gap: 12px; padding-inline: 12px; }
+          .conv-text { padding-block: 12px; }
+          .conv-name { font-size: 15px; }
+          .conv-preview { font-size: 13px; }
           .chat-sidebar.hide-on-mobile, .chat-main.hide-on-mobile { display: none; }
           .back-btn { display: inline-block; }
         }

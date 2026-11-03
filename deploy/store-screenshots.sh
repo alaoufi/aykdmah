@@ -33,4 +33,5 @@ CONV=$(printf '%s' "$SEED" | python3 -c 'import json,sys; print(json.load(sys.st
 docker run --rm --network "$NET" --ipc=host -v "$ROOT:/src:ro" -v "$OUT:/out" -w /src \
   -e BASE="http://$APP:5000" -e CLIENT="$TOKEN" -e CONV="$CONV" \
   -e SOURCE_COMMIT="$(git -C "$ROOT" rev-parse HEAD)" \
-  mcr.microsoft.com/playwright:v1.63.0-noble node e2e/store-screenshots.mjs
+  -e BROWSER="${BROWSER:-chromium}" \
+  mcr.microsoft.com/playwright:v1.63.0-noble node "${E2E_SCRIPT:-e2e/store-screenshots.mjs}"
