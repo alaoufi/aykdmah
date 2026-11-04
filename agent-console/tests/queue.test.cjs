@@ -229,3 +229,16 @@ test('hourly task limit persists across connections and only counts new jobs per
   assert.equal(another.enqueue(j), false);
   assert.equal(another.enqueue(task({project:'trbhh'})), true);
 });
+
+test('manual handoff selects only the requested project, final acceptance, outcome and checkpoint', t => {
+  const q = fixture(t).open(), j = task({ acceptance: '' });
+  q.enqueue(j);
+  q.clarify(j.project,j.id,'final test criterion');
+  q.finish(q.claim(j.project), { status:'needs-verification', message:'verified fixture', checkpoint:'local branch', output:'private CLI log' });
+  assert.deepEqual({ ...q.handoff(j.project,j.id) }, {
+    id:j.id, project:j.project, text:j.text, acceptance:'final test criterion',
+    status:'needs-verification', message:'verified fixture', checkpoint:'local branch',
+  });
+  assert.equal(q.handoff('trbhh',j.id),null);
+  assert.equal(q.handoff(j.project,randomUUID()),null);
+});

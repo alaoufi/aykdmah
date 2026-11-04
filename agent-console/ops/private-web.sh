@@ -79,8 +79,13 @@ case "${1:-}" in
     status=$(docker exec "$sidecar" tailscale status --json)
     [[ "$(jq -r .BackendState <<<"$status")" == Running ]] || { echo 'Awaiting private network login'; exit 4; }
     name=$(jq -er '.Self.DNSName | rtrimstr(".")' <<<"$status")
-    activate "$2" "https://$name"
     timeout 20 docker exec "$sidecar" tailscale serve --bg --https=443 http://127.0.0.1:4318
+    activate "$2" "https://$name"
     ;;
-  *) echo "Usage: $0 prepare | stage FULL_COMMIT | serve FULL_COMMIT" >&2; exit 2 ;;
+  serve-current)
+    revision=$(docker inspect -f '{{.Config.Image}}' "$web")
+    [[ "$revision" =~ ^private-agent-console-web:([0-9a-f]{40})$ ]]
+    exec bash "$0" serve "${BASH_REMATCH[1]}"
+    ;;
+  *) echo "Usage: $0 prepare | stage FULL_COMMIT | serve FULL_COMMIT | serve-current" >&2; exit 2 ;;
 esac

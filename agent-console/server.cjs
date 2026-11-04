@@ -23,6 +23,7 @@ function start(env = process.env) {
   const files = new Map(Object.entries({
     '/':['index.html','text/html'], '/app.js':['app.js','text/javascript'], '/app.css':['app.css','text/css'],
     '/sw.js':['sw.js','text/javascript'], '/icon.svg':['icon.svg','image/svg+xml'],
+    '/icon-180.png':['icon-180.png','image/png'], '/icon-192.png':['icon-192.png','image/png'], '/icon-512.png':['icon-512.png','image/png'],
     '/manifest.webmanifest':['manifest.webmanifest','application/manifest+json']
   }).map(([url,[name,type]]) => [url,{type, data:fs.readFileSync(path.join(__dirname,'public',name))}]));
   const digest = s => crypto.createHash('sha256').update(s).digest();
@@ -91,6 +92,10 @@ function start(env = process.env) {
         const project=u.searchParams.get('project');
         if (!known(project)) return json(400,{error:'مشروع غير معروف'});
         if (u.pathname==='/api/messages') return json(200,{messages:q.messages(project)});
+        if (u.pathname==='/api/handoff') {
+          const task=q.handoff(project,u.searchParams.get('id') || '');
+          return task ? json(200,{task}) : json(404,{error:'الطلب غير موجود لهذا المشروع'});
+        }
         if (u.pathname==='/api/jobs') return json(200,{tasks:q.jobs(project)});
       }
       if (post && u.pathname==='/api/notifications') {
@@ -127,7 +132,7 @@ function start(env = process.env) {
   });
   server.requestTimeout=15000;
   server.headersTimeout=10000;
-  server.on('close',()=>{q.close();auth.close();});
+  server.on('close',()=>{push.close();q.close();auth.close();});
   server.listen(Number(env.PORT ?? 4318),'127.0.0.1');
   return server;
 }

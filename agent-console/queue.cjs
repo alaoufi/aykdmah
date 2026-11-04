@@ -197,6 +197,9 @@ function openQueue(dir) {
   }
   return {
     enqueue, clarify, claim, renew, finish, reconcile, resume,
+    handoff: (project,id) => db.prepare(`SELECT id,project,text,coalesce(
+      (SELECT acceptance FROM clarifications WHERE task=tasks.id),acceptance
+    ) AS acceptance,status,message,checkpoint FROM tasks WHERE project=? AND id=?`).get(project,id) || null,
     messages: project => db.prepare(`SELECT id,project,role,text,date,agent FROM (
       SELECT *,rowid AS sequence FROM chat WHERE project=? ORDER BY date DESC,rowid DESC LIMIT 500
     ) ORDER BY date,sequence`).all(project),

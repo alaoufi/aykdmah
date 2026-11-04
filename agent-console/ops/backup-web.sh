@@ -3,6 +3,13 @@
 set -eu -o pipefail
 umask 077
 cd /opt/private-agent-console
+free_kib=$(df -Pk "$PWD/backups" | awk 'NR==2 {print $4}')
+used_kib=$(du -sk "$PWD/backups" | cut -f1)
+input_kib=$(du -sck "$PWD/data" "$PWD/auth" | tail -1 | cut -f1)
+if (( free_kib - input_kib < 10485760 || used_kib + input_kib > 1048576 )); then
+  echo 'Private backup capacity threshold reached; archive verified snapshots offline.' >&2
+  exit 1
+fi
 image=$(docker inspect -f '{{.Config.Image}}' agent-console-web)
 [[ "$image" =~ ^private-agent-console-web:[0-9a-f]{40}$ ]]
 dest=$(mktemp -d "$PWD/backups/.web-XXXXXXXX")

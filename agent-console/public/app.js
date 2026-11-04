@@ -57,6 +57,18 @@ async function refresh() {
           };
           row.append(add);
         }
+        const handoff=element('button','نسخ ملخص لـ Claude Code');
+        handoff.className='ghost';
+        handoff.onclick=async()=>{
+          try{
+            const {task}=await api('/api/handoff?project='+encodeURIComponent(project)+'&id='+encodeURIComponent(t.id));
+            const note=['تسليم يدوي للمراجعة في Claude Code الرسمي',task.project,task.id,task.status,
+              task.text,task.acceptance,task.message,task.checkpoint,'افحص نقطة التوقف قبل التعديل، واختبر النتيجة. النشر يتطلب موافقة مستقلة.'];
+            await navigator.clipboard.writeText(note.filter(Boolean).join('\n'));
+            status('نُسخ ملخص المهمة. راجعه قبل إرساله بنفسك إلى Claude Code.');
+          }catch(e){status(e.message);}
+        };
+        row.append(handoff);
         return row;
       }));
       if(!jobs.tasks.length) $('tasks').append(element('p','لا توجد مهام لهذا المشروع.'));

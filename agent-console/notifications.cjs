@@ -13,7 +13,7 @@ function validSubscription(subscription) {
   } catch { return false; }
 }
 
-function openNotifications(auth, queue, projects, origin) {
+function openNotifications(auth, queue, projects, origin, send=webpush.sendNotification.bind(webpush)) {
   const db = auth.db;
   db.exec(`CREATE TABLE IF NOT EXISTS vapid (id INTEGER PRIMARY KEY, keys TEXT NOT NULL);
     CREATE TABLE IF NOT EXISTS devices (endpoint TEXT PRIMARY KEY, sub TEXT NOT NULL, session TEXT NOT NULL, since TEXT NOT NULL);
@@ -33,15 +33,17 @@ function openNotifications(auth, queue, projects, origin) {
       const devices = db.prepare('SELECT * FROM devices').all();
       if (!devices.length) return;
       const tasks = projects.flatMap(p => queue.jobs(p.id)).filter(task =>
-        ['completed','needs-verification','needs-clarification','failed','paused-limit','needs-review','blocked','interrupted'].includes(task.status) && task.finishedAt);
+        ['completed','needs-verification','needs-clarification','failed','paused','paused-limit','needs-review','blocked','interrupted'].includes(task.status) && task.finishedAt);
       for (const d of devices) {
         for (const t of tasks.filter(t => t.finishedAt >= d.since)) {
-          if (db.prepare('SELECT 1 FROM notices WHERE endpoint=? AND job=?').get(d.endpoint,t.id)) continue;
+          if (!db.prepare('SELECT 1 FROM devices WHERE endpoint=?').get(d.endpoint)) break;
+          const eventKey=t.id+'@'+t.finishedAt;
+          if (db.prepare('SELECT 1 FROM notices WHERE endpoint=? AND job=?').get(d.endpoint,eventKey)) continue;
           try {
-            await webpush.sendNotification(JSON.parse(d.sub), JSON.stringify({tag:t.id}), {
+            await send(JSON.parse(d.sub), JSON.stringify({tag:t.id}), {
               TTL:3600, timeout:7000, vapidDetails:{subject:origin, ...vapid}
             });
-            db.prepare('INSERT OR IGNORE INTO notices VALUES (?,?)').run(d.endpoint,t.id);
+            db.prepare('INSERT OR IGNORE INTO notices VALUES (?,?)').run(d.endpoint,eventKey);
           } catch (e) {
             if ([404,410].includes(e.statusCode)) forget(d.endpoint);
             break;
@@ -53,7 +55,7 @@ function openNotifications(auth, queue, projects, origin) {
   const timer=setInterval(() => deliver().catch(() => console.error('Push delivery unavailable')),30000);
   timer.unref();
   return {
-    publicKey:vapid.publicKey,
+    deliver, close:()=>clearInterval(timer), publicKey:vapid.publicKey,
     subscribe(sub,session) {
       if (!validSubscription(sub)) return false;
       if (db.prepare('SELECT count(*) AS n FROM devices').get().n >= 20 &&

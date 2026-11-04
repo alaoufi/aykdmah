@@ -1,0 +1,26 @@
+name: Private agent console checks
+on:
+  push:
+    paths: ['agent-console/**', '.github/workflows/agent-console.yml']
+  pull_request:
+    paths: ['agent-console/**', '.github/workflows/agent-console.yml']
+permissions:
+  contents: read
+jobs:
+  console:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    defaults:
+      run:
+        working-directory: agent-console
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci --ignore-scripts --no-fund
+      - run: git ls-files -z -- '*.js' '*.cjs' | xargs -0 -n1 node --check
+      - run: npm test
+      - run: python3 -m compileall -q ops && for s in ops/*.sh ops/subscription ops/export-task ops/install-worker-disk; do bash -n "$s"; done
