@@ -1,63 +1,130 @@
-// Standalone private console. Node.js 22+, no external runtime dependencies.
-// Only starts when AGENT_CONSOLE_PASSWORD and SESSION_SECRET are explicitly set.
-// A GitHub issue is created only if GITHUB_TOKEN is supplied; it is not an AI invocation.
 'use strict';
-const http=require('node:http'),fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
-const port=Number(process.env.PORT||4318),password=process.env.AGENT_CONSOLE_PASSWORD,secret=process.env.SESSION_SECRET;
-if(!password||password.length<16||!secret||secret.length<32)throw Error('Configure a strong AGENT_CONSOLE_PASSWORD (16+) and SESSION_SECRET (32+)');
-const registry=JSON.parse(fs.readFileSync(path.join(__dirname,'projects.json'),'utf8'));
-const projects=registry.projects.map(p=>({...p,repo:p.repository}));
-const storeRegistry=JSON.parse(fs.readFileSync(path.join(__dirname,'store-registry.json'),'utf8'));
-const allowed=new Map(projects.map(p=>[p.id,p]));
-const configured=(process.env.AGENT_ENABLED_PROVIDERS||'').split(',').map(x=>x.trim().toLowerCase()).filter(Boolean);
-const route=(text,requested)=>{
- if(requested==='claude'||requested==='codex')return requested;
- const codes=/(اختبار|راجع|تدقيق|أمان|debug|review|security|test|تحليل)/i;
- const preferred=codes.test(text)?'codex':'claude';
- return configured.includes(preferred)?preferred:(configured.find(x=>x==='claude'||x==='codex')||'unassigned');
-};
-const dir=process.env.AGENT_DATA_DIR||path.join(process.cwd(),'.private-agent-data');
-fs.mkdirSync(dir,{recursive:true,mode:0o700});
-const file=path.join(dir,'messages.json');const html=fs.readFileSync(path.join(__dirname,'public/index.html'));
-let messages=[];try{messages=JSON.parse(fs.readFileSync(file,'utf8'));if(!Array.isArray(messages))messages=[]}catch{}
-const save=()=>{const tmp=file+'.tmp';fs.writeFileSync(tmp,JSON.stringify(messages),{mode:0o600});fs.renameSync(tmp,file);};
-const jobDir=path.join(dir,'jobs');fs.mkdirSync(jobDir,{recursive:true,mode:0o700});const queue=(job)=>{const dest=path.join(jobDir,job.id+'.pending.json');fs.writeFileSync(dest,JSON.stringify({...job,status:'pending',createdAt:new Date().toISOString()}),{flag:'wx',mode:0o600});return dest};
-const auditFile=path.join(dir,'audit.jsonl');const audit=(event,details={})=>{fs.appendFileSync(auditFile,JSON.stringify({time:new Date().toISOString(),event,...details})+'\n',{mode:0o600});};
-const attempts=new Map();const blocked=ip=>{const now=Date.now(),a=attempts.get(ip);if(!a)return false;if(now-a.start>15*60*1000){attempts.delete(ip);return false}return a.count>=8};
-const failed=ip=>{const now=Date.now(),a=attempts.get(ip);if(!a||now-a.start>15*60*1000)attempts.set(ip,{start:now,count:1});else a.count++};
-const reply=(res,code,data)=>{res.writeHead(code,{'Content-Type':'application/json; charset=utf-8','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'});res.end(JSON.stringify(data))};
-const eq=(a,b)=>{const x=crypto.createHash('sha256').update(a).digest(),y=crypto.createHash('sha256').update(b).digest();return crypto.timingSafeEqual(x,y)};
-const sign=v=>crypto.createHmac('sha256',secret).update(v).digest('hex');
-const auth=req=>{const match=(req.headers.cookie||'').match(/(?:^|; )agent_session=([^;]+)/);if(!match)return false;const [stamp,hash]=decodeURIComponent(match[1]).split('.');return /^\d+$/.test(stamp)&&Date.now()-Number(stamp)<86400000&&Number(stamp)<=Date.now()&&eq(hash||'',sign(stamp))};
-const safeOrigin=req=>{const o=req.headers.origin;if(!o)return true;try{return new URL(o).host===req.headers.host}catch{return false}};
-const getbody=async req=>{let parts='',size=0;for await(const c of req){size+=c.length;if(size>10000)throw Error('الطلب طويل جدًا');parts+=c}return JSON.parse(parts)};
-const github=async(text,agent,project)=>{const token=process.env.GITHUB_TOKEN;if(!token||process.env.AGENT_GITHUB_ISSUES_ENABLED!=='1')return null;
-const [owner,repo]=project.repo.split('/');
-const response=await fetch(`https://api.github.com/repos/${owner}/${repo}/issues`,{method:'POST',headers:{Accept:'application/vnd.github+json',Authorization:'Bearer '+token,'X-GitHub-Api-Version':'2022-11-28','User-Agent':'ayk-agent-console','Content-Type':'application/json'},body:JSON.stringify({title:'[Agent request → '+agent+'] '+project.id+' '+crypto.randomUUID().slice(0,8),body:'Task saved privately in agent console.\nProject: '+project.repo+'\nDeliverables: '+project.deliverables.join(', ')+'\nDeployment authorization required.\nDo not paste private chat text here.\nThis is a task queue, not proof an AI agent executed it.'})});
-if(!response.ok)throw Error('GitHub rejected task ('+response.status+')');const data=await response.json();return data.html_url};
-const server=http.createServer(async(req,res)=>{try{
-if(req.method==='GET'&&['/manifest.webmanifest','/icon.svg','/sw.js'].includes(req.url)){const types={'/manifest.webmanifest':'application/manifest+json','/icon.svg':'image/svg+xml','/sw.js':'text/javascript'};res.writeHead(200,{'Content-Type':types[req.url],'Cache-Control':'no-cache','X-Content-Type-Options':'nosniff'});return res.end(fs.readFileSync(path.join(__dirname,'public',req.url.slice(1))))}
-if(req.url==='/'&&req.method==='GET'){res.writeHead(200,{'Content-Type':'text/html; charset=utf-8','Cache-Control':'no-store','Content-Security-Policy':"default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; img-src 'self'; frame-ancestors 'none'",'X-Frame-Options':'DENY','X-Content-Type-Options':'nosniff'});return res.end(html)}
-if(!req.url.startsWith('/api/'))return reply(res,404,{error:'غير موجود'});
-if(!safeOrigin(req))return reply(res,403,{error:'مصدر غير مسموح'});
-if(req.url==='/api/login'&&req.method==='POST'){const ip=req.socket.remoteAddress||'unknown';if(blocked(ip))return reply(res,429,{error:'محاولات كثيرة، أعد المحاولة لاحقًا'});const b=await getbody(req);if(!eq(String(b.password||''),password)){failed(ip);audit('login_failed');return reply(res,401,{error:'كلمة المرور غير صحيحة'})}attempts.delete(ip);audit('login_success');const ts=String(Date.now());res.setHeader('Set-Cookie',`agent_session=${ts}.${sign(ts)}; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=86400`);return reply(res,200,{ok:true})}
-if(!auth(req))return reply(res,401,{error:'يلزم تسجيل الدخول'});
-if(req.url==='/api/logout'&&req.method==='POST'){res.setHeader('Set-Cookie','agent_session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0');return reply(res,200,{ok:true})}
-if(req.url==='/api/projects'&&req.method==='GET')return reply(res,200,{projects,configuredProviders:configured});
-if(req.url.startsWith('/api/jobs')&&req.method==='GET'){const u=new URL(req.url,'http://localhost'),project=u.searchParams.get('project')||'aykdmah';if(!allowed.has(project))return reply(res,400,{error:'مشروع غير معروف'});const files=fs.readdirSync(jobDir).filter(x=>/\\.(pending|running|result)\\.json$/.test(x));const tasks=files.map(x=>{try{const j=JSON.parse(fs.readFileSync(path.join(jobDir,x),'utf8'));return {id:j.id,project:j.project,agent:j.agent,agentUsed:j.agentUsed,status:j.status,createdAt:j.createdAt,finishedAt:j.finishedAt,message:j.message}}catch{return null}}).filter(x=>x&&x.project===project).sort((a,b)=>b.createdAt.localeCompare(a.createdAt)).slice(0,100);return reply(res,200,{tasks})}
-if(req.url==='/api/stores'&&req.method==='GET')return reply(res,200,{applications:storeRegistry.applications,connected:false,warning:'لا يوجد اتصال فعلي بمتاجر التطبيقات حتى إعداد صلاحياتها'});
-if(req.url.startsWith('/api/messages')&&req.method==='GET'){
-const u=new URL(req.url,'http://localhost');const project=u.searchParams.get('project')||'aykdmah';
-if(!allowed.has(project))return reply(res,400,{error:'مشروع غير مصرح به'});
-return reply(res,200,{messages:messages.filter(m=>m.project===project)});
-}
-if(req.url==='/api/messages'&&req.method==='POST'){const b=await getbody(req),text=String(b.text||'').trim(),agent=String(b.agent||'');if(!text||text.length>8000||!['auto','claude','codex'].includes(agent))return reply(res,400,{error:'طلب غير صالح'});
-const project=allowed.get(String(b.project||'aykdmah'));if(!project)return reply(res,400,{error:'المشروع غير معروف'});
-if(/\b(?:publish|deploy|release)\b|نشر|رفع.*متجر|حذف.*بيانات|دفع.*مبلغ|تغيير.*DNS/i.test(text)){messages.push({id:crypto.randomUUID(),role:'system',project:project.id,text:'تنبيه: هذا الطلب قد يتطلب موافقة المالك قبل نشر أو دفع أو تعديل إنتاج. تسجيل المهمة لا يعني السماح بالتنفيذ.',date:new Date().toISOString()});}
+const http = require('node:http');
+const path = require('node:path');
+const fs = require('node:fs');
+const crypto = require('node:crypto');
+const { openQueue, requiresApproval } = require('./queue.cjs');
+const { openAuth } = require('./auth.cjs');
+const { openNotifications } = require('./notifications.cjs');
+const { projects } = require('./projects.json');
+const { applications } = require('./store-registry.json');
 
-const selected=route(text,agent);const id=crypto.randomUUID();messages.push({id,role:'user',text,date:new Date().toISOString(),agent:selected,project:project.id});save();audit('task_saved',{id,project:project.id,agent:selected});queue({id,project:project.id,agent:selected,text});
-try{const url=await github(text,selected,project);audit('task_queued',{id,project:project.id,queued:!!url});messages.push({id:crypto.randomUUID(),role:'system',project:project.id,text:url?'وجهت المهمة إلى '+selected+' في '+project.repo+' وسجلتها في GitHub: '+url+'\nالتنفيذ الآلي غير مفعل حتى توصيل المزود.':'حُفظ الطلب في محادثة '+project.name+'. المهمة محفوظة في طابور الخادم. تبدأ عند تفعيل العامل الخلفي وصلاحيات الأدوات رسميًا؛ GitHub الخارجي معطّل افتراضيًا لحماية الخصوصية.',date:new Date().toISOString()})}
-catch(e){messages.push({id:crypto.randomUUID(),role:'system',project:project.id,text:'حُفظ الطلب محليًا، لكن تعذر تسجيل مهمة GitHub: '+e.message,date:new Date().toISOString()})}save();return reply(res,200,{ok:true})}
-return reply(res,404,{error:'غير موجود'});
-}catch(e){return reply(res,400,{error:e.message||'خطأ'})}});
-server.listen(port,'127.0.0.1',()=>console.log('Private agent console listening on localhost:'+port));
+function start(env = process.env) {
+  const origin = new URL(env.AGENT_ORIGIN);
+  if (origin.protocol !== 'https:' || origin.origin !== env.AGENT_ORIGIN)
+    throw Error('AGENT_ORIGIN must be the exact private HTTPS origin');
+  if (!(env.AGENT_CONSOLE_PASSWORD?.length >= 16 && env.SESSION_SECRET?.length >= 32))
+    throw Error('Configure a private password and session secret');
+  process.umask(0o077);
+  const dir = env.AGENT_DATA_DIR || path.join(__dirname, '.private-agent-data');
+  const auth = openAuth(env.AGENT_AUTH_DIR || path.join(dir,'web'),env.SESSION_SECRET);
+  const q = openQueue(dir);
+  const push = openNotifications(auth,q,projects,origin.origin);
+  const files = new Map(Object.entries({
+    '/':['index.html','text/html'], '/app.js':['app.js','text/javascript'], '/app.css':['app.css','text/css'],
+    '/sw.js':['sw.js','text/javascript'], '/icon.svg':['icon.svg','image/svg+xml'],
+    '/manifest.webmanifest':['manifest.webmanifest','application/manifest+json']
+  }).map(([url,[name,type]]) => [url,{type, data:fs.readFileSync(path.join(__dirname,'public',name))}]));
+  const digest = s => crypto.createHash('sha256').update(s).digest();
+  const fail = (status,message) => Object.assign(new Error(message),{httpStatus:status});
+  const known = id => projects.some(p => p.id === id);
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  async function body(req) {
+    let size=0;
+    const parts=[];
+    for await (const part of req) {
+      size+=part.length;
+      if (size>48000) throw fail(413,'الطلب طويل جدًا');
+      parts.push(part);
+    }
+    try {
+      const obj=JSON.parse(Buffer.concat(parts).toString('utf8') || '{}');
+      if (!obj || typeof obj !== 'object' || Array.isArray(obj)) throw Error();
+      return obj;
+    } catch { throw fail(400,'صيغة الطلب غير صالحة'); }
+  }
+  const server=http.createServer(async(req,res) => {
+    const json = (code,data) => {
+      res.writeHead(code,{'Content-Type':'application/json; charset=utf-8'});
+      res.end(JSON.stringify(data));
+    };
+    try {
+      for (const [k,v] of Object.entries({
+        'Content-Security-Policy':"default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'self'; worker-src 'self'; manifest-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'",
+        'Strict-Transport-Security':'max-age=31536000','X-Frame-Options':'DENY',
+        'X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer','Cache-Control':'no-store',
+        'Permissions-Policy':'camera=(), microphone=(), geolocation=()'
+      })) res.setHeader(k,v);
+      if (req.headers.host !== origin.host) return json(403,{error:'عنوان غير معتمد'});
+      const file = files.get(req.url);
+      if (req.method==='GET' && file) {
+        res.writeHead(200,{'Content-Type':file.type+'; charset=utf-8'});
+        return res.end(file.data);
+      }
+      const u = new URL(req.url,origin);
+      const post = req.method==='POST';
+      if (post && (req.headers.origin !== origin.origin || req.headers['x-agent-request'] !== '1'))
+        return json(403,{error:'أعد فتح الواجهة من عنوانها الخاص'});
+      if (post && req.headers['content-type']?.split(';')[0] !== 'application/json')
+        return json(415,{error:'نوع بيانات غير مقبول'});
+      if (post && u.pathname==='/api/login') {
+        const ip=req.socket.remoteAddress; // Shared limit behind the trusted private proxy. Ignore forwarded headers.
+        const b=await body(req);
+        if (auth.blocked(ip)) return json(429,{error:'محاولات كثيرة. أعد المحاولة بعد 15 دقيقة.'});
+        if (typeof b.password!=='string' || !crypto.timingSafeEqual(digest(b.password),digest(env.AGENT_CONSOLE_PASSWORD))) {
+          auth.fail(ip); return json(401,{error:'كلمة المرور غير صحيحة'});
+        }
+        auth.clear(ip);
+        res.setHeader('Set-Cookie','__Host-agent_session='+auth.issue()+'; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=86400');
+        return json(200,{ok:true});
+      }
+      const session=auth.verify(req.headers.cookie);
+      if (!session) return json(401,{error:'يلزم تسجيل الدخول'});
+      if (post && u.pathname==='/api/logout') {
+        push.logout(session); auth.revoke(session);
+        res.setHeader('Set-Cookie','__Host-agent_session=; HttpOnly; Secure; SameSite=Strict; Path=/; Max-Age=0');
+        return json(200,{ok:true});
+      }
+      if (req.method==='GET') {
+        if (u.pathname==='/api/projects') return json(200,{projects, defaultAgent:'codex',pushKey:push.publicKey});
+        if (u.pathname==='/api/stores') return json(200,{applications,connected:false});
+        const project=u.searchParams.get('project');
+        if (!known(project)) return json(400,{error:'مشروع غير معروف'});
+        if (u.pathname==='/api/messages') return json(200,{messages:q.messages(project)});
+        if (u.pathname==='/api/jobs') return json(200,{tasks:q.jobs(project)});
+      }
+      if (post && u.pathname==='/api/notifications') {
+        if (!push.subscribe(await body(req),session)) return json(400,{error:'اشتراك الإشعارات غير صالح'});
+        return json(200,{ok:true});
+      }
+      if (post && ['/api/messages','/api/clarify'].includes(u.pathname)) {
+        const b=await body(req);
+        if (!known(b.project) || !uuid.test(b.id)) return json(400,{error:'اختر مشروعًا وطلبًا صالحين'});
+        const acceptance=typeof b.acceptance==='string' ? b.acceptance.trim() : '';
+        if (acceptance.length>2000) return json(400,{error:'معيار القبول طويل جدًا'});
+        if (u.pathname==='/api/clarify') {
+          if (!acceptance || !q.clarify(b.project,b.id,acceptance)) return json(409,{error:'تعذر استكمال هذه المهمة'});
+          return json(200,{ok:true});
+        }
+        const text=typeof b.text==='string' ? b.text.trim() : '';
+        if (!text || text.length>8000) return json(400,{error:'اكتب طلبًا لا يتجاوز 8000 حرف'});
+        if (!['codex','auto'].includes(b.agent)) return json(409,{error:'Claude احتياطي يدوي حاليًا'});
+        const status=requiresApproval(text+'\n'+acceptance) ? 'needs-approval' : acceptance ? 'pending' : 'needs-clarification';
+        const created=q.enqueue({id:b.id,project:b.project,agent:'codex',text,acceptance,status});
+        return json(created?201:200,{id:b.id,created});
+      }
+      return json(404,{error:'غير موجود'});
+    } catch(e) {
+      if (e.code === 'ID_CONFLICT') return json(409,{error:'تغير محتوى طلب محفوظ'});
+      if (!e.httpStatus) console.error('Request failed with an internal error');
+      return json(e.httpStatus || 500,{error:e.httpStatus?e.message:'تعذر إتمام الطلب'});
+    }
+  });
+  server.requestTimeout=15000;
+  server.headersTimeout=10000;
+  server.on('close',()=>{q.close();auth.close();});
+  server.listen(Number(env.PORT ?? 4318),'127.0.0.1');
+  return server;
+}
+if (require.main===module) start();
+module.exports={start};

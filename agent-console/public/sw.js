@@ -1,1 +1,21 @@
-const CACHE='ayk-agent-shell-v1';self.addEventListener('install',event=>{event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(['/','/icon.svg','/manifest.webmanifest'])));self.skipWaiting()});self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))));self.clients.claim()});self.addEventListener('fetch',event=>{const u=new URL(event.request.url);if(event.request.method!=='GET'||u.origin!==self.location.origin||u.pathname.startsWith('/api/'))return;if(u.pathname==='/'){event.respondWith(fetch(event.request).catch(()=>caches.match(event.request)));}});
+'use strict';
+// Older shells used CacheStorage. Never cache authenticated chat or task responses.
+self.addEventListener('install',e=>e.waitUntil(self.skipWaiting()));
+self.addEventListener('activate',e=>e.waitUntil((async()=>{
+  await caches.delete('ayk-agent-shell-v1'); await self.clients.claim();
+})()));
+self.addEventListener('push',e=>{
+  let tag='agent-task';
+  try {const id=e.data.json().tag;if(typeof id==='string')tag=id;} catch {}
+  e.waitUntil(self.registration.showNotification('وكيل التطوير',{
+    body:'تغيّرت حالة إحدى مهامك. افتح الواجهة للاطلاع عليها.',tag,icon:'/icon.svg'
+  }));
+});
+self.addEventListener('notificationclick',e=>{
+  e.notification.close();
+  e.waitUntil((async()=>{
+    const pages=await self.clients.matchAll({type:'window'});
+    for(const page of pages) if(new URL(page.url).origin===self.location.origin)return page.focus();
+    return self.clients.openWindow('/');
+  })());
+});
