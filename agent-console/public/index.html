@@ -11,4 +11,7 @@
 <form id="sendForm"><label for="prompt">طلب التطوير</label><textarea id="prompt" placeholder="ما الذي تريد إنجازه؟" required maxlength="8000"></textarea>
 <label for="acceptance">كيف نختبر النتيجة؟</label><textarea id="acceptance" placeholder="إذا تركت هذا الحقل فارغًا تنتظر المهمة استكمال التفاصيل." maxlength="2000"></textarea>
 <div class="actions"><span class="note">Codex أولًا · Claude احتياطي يدوي</span><button id="send">إرسال الطلب</button></div></form>
-</div></section></div></body></html>
+</div></section></div><dialog id="handoffDialog" aria-labelledby="handoffHeading"><h2 id="handoffHeading">مراجعة التسليم إلى Claude Code</h2>
+<p>راجع النص قبل نسخه إلى التطبيق الرسمي.</p><textarea id="handoffText" aria-label="ملخص التسليم" rows="9"></textarea>
+<p id="copyStatus" role="status"></p><button type="button" id="copyHandoff">نسخ الملخص</button> <button type="button" class="ghost" id="closeHandoff">إغلاق</button></dialog>
+</body></html>

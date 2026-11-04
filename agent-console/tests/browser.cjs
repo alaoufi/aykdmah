@@ -29,10 +29,15 @@ const {start}=require('../server.cjs');
  assert.equal(await mobile.getByText('مهمة التجربة الأولى',{exact:true}).count(),0);
  await desktop.selectOption('#project','trbhh');await desktop.getByText('مهمة التجربة الثانية',{exact:true}).waitFor();
  assert.equal(await mobile.evaluate(()=>document.documentElement.scrollWidth>window.innerWidth),false);
- await mobile.getByRole('button',{name:'نسخ ملخص لـ Claude Code'}).first().click();
+ await mobile.bringToFront();
+ await mobile.getByRole('button',{name:'تسليم إلى Claude Code'}).first().click();
+ await mobile.locator('#handoffDialog').waitFor();
+ assert.match(await mobile.locator('#handoffText').inputValue(),/مهمة التجربة الثانية/);
+ await mobile.getByRole('button',{name:'نسخ الملخص'}).click();
+ await mobile.getByText('نُسخ الملخص.',{exact:true}).waitFor();
  assert.match(await mobile.evaluate(()=>navigator.clipboard.readText()),/مهمة التجربة الثانية/);
  for(const size of [192,512])assert.equal(await mobile.evaluate(async size=>{const i=new Image();i.src='/icon-'+size+'.png';await i.decode();return i.naturalWidth;},size),size);
- await mobile.click('#logout');await mobile.locator('#password').waitFor();
+ await mobile.click('#closeHandoff'); await mobile.click('#logout');await mobile.locator('#password').waitFor();
  assert.deepEqual(failures,[]);console.log('PASS real Chromium: two authenticated profiles (1280x810 and 390x844), cross-device sync, project isolation, task clarification, layout, logout, zero CSP/JS errors.');
  }finally{await browser.close();await new Promise(r=>proxy.close(r));await new Promise(r=>app.close(r));fs.rmSync(temp,{recursive:true,force:true});}
 })().catch(e=>{console.error(e);process.exit(1);});

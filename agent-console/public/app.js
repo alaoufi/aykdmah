@@ -11,6 +11,7 @@ async function api(url,data) {
   return json;
 }
 function hideChat() {
+  if ($('handoffDialog').open) $('handoffDialog').close();
   generation++; $('chat').hidden=true; $('logout').hidden=true; $('login').hidden=false;
   $('messages').replaceChildren(); $('tasks').replaceChildren(); $('prompt').value=''; $('acceptance').value='';
   signature=''; taskSignature=''; status('');
@@ -57,15 +58,16 @@ async function refresh() {
           };
           row.append(add);
         }
-        const handoff=element('button','نسخ ملخص لـ Claude Code');
+        const handoff=element('button','تسليم إلى Claude Code');
         handoff.className='ghost';
         handoff.onclick=async()=>{
           try{
             const {task}=await api('/api/handoff?project='+encodeURIComponent(project)+'&id='+encodeURIComponent(t.id));
             const note=['تسليم يدوي للمراجعة في Claude Code الرسمي',task.project,task.id,task.status,
               task.text,task.acceptance,task.message,task.checkpoint,'افحص نقطة التوقف قبل التعديل، واختبر النتيجة. النشر يتطلب موافقة مستقلة.'];
-            await navigator.clipboard.writeText(note.filter(Boolean).join('\n'));
-            status('نُسخ ملخص المهمة. راجعه قبل إرساله بنفسك إلى Claude Code.');
+            if(project!==$('project').value || $('chat').hidden) return;
+            $('handoffText').value=note.filter(Boolean).join('\n');
+            $('copyStatus').textContent=''; $('handoffDialog').showModal();
           }catch(e){status(e.message);}
         };
         row.append(handoff);
@@ -129,6 +131,17 @@ $('notify').onclick=async()=>{
     await api('/api/notifications',sub.toJSON()); status('سُجِّل هذا الجهاز لتحديثات المهام.');
   }catch(e){status(e.message);}
 };
+$('copyHandoff').onclick=async()=>{
+  try{
+    await navigator.clipboard.writeText($('handoffText').value);
+    $('copyStatus').textContent='نُسخ الملخص.';
+  }catch{
+    $('handoffText').focus(); $('handoffText').select();
+    $('copyStatus').textContent='انسخ النص المحدد يدويًا.';
+  }
+};
+$('closeHandoff').onclick=()=>$('handoffDialog').close();
+$('handoffDialog').onclose=()=>{$('handoffText').value='';};
 $('logout').onclick=async()=>{
   try{await api('/api/logout',{});hideChat();}catch(e){status(e.message);}
 };
