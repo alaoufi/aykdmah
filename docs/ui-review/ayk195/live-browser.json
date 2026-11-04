@@ -1,0 +1,79 @@
+{
+  "checks": [
+    {
+      "name": "existing browser profile receives new guide book",
+      "ok": true
+    },
+    {
+      "name": "existing local storage retained",
+      "ok": true
+    },
+    {
+      "name": "app launch version retained",
+      "ok": true
+    },
+    {
+      "name": "updated footer matches deployed version",
+      "ok": true
+    },
+    {
+      "name": "390: all eleven chapters deployed",
+      "ok": true
+    },
+    {
+      "name": "390: new features chapter deployed",
+      "ok": true
+    },
+    {
+      "name": "390: no horizontal overflow",
+      "ok": true
+    },
+    {
+      "name": "390: admin guide still protected",
+      "ok": true
+    },
+    {
+      "name": "1440: all eleven chapters deployed",
+      "ok": true
+    },
+    {
+      "name": "1440: new features chapter deployed",
+      "ok": true
+    },
+    {
+      "name": "1440: no horizontal overflow",
+      "ok": true
+    },
+    {
+      "name": "1440: admin guide still protected",
+      "ok": true
+    },
+    {
+      "name": "no runtime page errors",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "errors": [],
+  "beforeVersion": {
+    "version": "1.1.9",
+    "build": "ee1d68a · 2026-11-03"
+  },
+  "oldBookCount": 0,
+  "target": {
+    "task": "AYK-195",
+    "source": "967957ac7ef273b403d795f4f80a421fc6ec34b1",
+    "version": "1.1.10",
+    "deployment": "DEPLOYED/DONE",
+    "backupRestoreVerified": true,
+    "criticalRowCountsRetained": true,
+    "criticalCountsExactMatch": true,
+    "latestJsonUnchanged": true,
+    "apkVersion": "1.3.5",
+    "apkCode": 15,
+    "apkSha256": "c0240276cb3f673d4baf614fb95be55ed816e708a748484daeacb24985e7fe60",
+    "apkUrl": "https://aykdmh.com/dl/aykdmh-1.3.5-test.apk",
+    "storesChanged": false,
+    "physicalPhoneVerified": false
+  }
+}
