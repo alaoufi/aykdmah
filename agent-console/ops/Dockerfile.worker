@@ -1,0 +1,4 @@
+FROM node:22-bookworm@sha256:18a6d90fd60542269850c80ca03b29b1d9b14d6b221ac7ee8e35b0d33ef904bd
+RUN npm install --global --ignore-scripts @openai/codex@0.147.0 && codex --version | grep -Fx 'codex-cli 0.147.0' && npm cache clean --force
+WORKDIR /workspace
+ENV HOME=/tmp/home

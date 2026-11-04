@@ -1,0 +1,11 @@
+#!/bin/sh
+set -eu
+action=${1:-}
+case "$action" in
+  login) set -- login --device-auth ;;
+  status) set -- login status ;;
+  *) echo "Use login or status" >&2; exit 2 ;;
+esac
+dir=/opt/private-agent-console/worker/auth
+docker run --rm -i --read-only --tmpfs /tmp:rw,nosuid,nodev,size=64m --security-opt=no-new-privileges --cap-drop=ALL --user 31072:31072 --pids-limit=64 --memory=256m --cpus=0.5 --log-driver=none -e CODEX_HOME=/auth -v "$dir:/auth" private-agent-cli:0.147.0 codex "$@"
+if [ "$action" = login ]; then exec /usr/bin/python3 /opt/private-agent-console/worker/verify-isolation.py; fi

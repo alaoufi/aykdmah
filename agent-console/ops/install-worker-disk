@@ -1,0 +1,29 @@
+#!/bin/sh
+set -eu
+base=/opt/private-agent-console/worker
+cd "$base"
+# Reserve a fixed-size filesystem so a task cannot fill the production disk.
+if ! [ -e tasks.ext4 ]; then
+    (set -C; : > tasks.ext4)
+    chmod 0600 tasks.ext4
+    fallocate -l 1G tasks.ext4
+    mkfs.ext4 -q tasks.ext4
+fi
+mkdir -p tasks
+mountunit=$(systemd-escape --path --suffix=mount "$base/tasks")
+cat >"/etc/systemd/system/$mountunit" <<UNIT
+[Unit]
+Description=Bounded private development agent task disk
+[Mount]
+What=$base/tasks.ext4
+Where=$base/tasks
+Type=ext4
+Options=loop,nodev,nosuid
+[Install]
+WantedBy=local-fs.target
+UNIT
+install -m 0644 private-agent-bridge.socket private-agent-bridge@.service /etc/systemd/system/
+systemctl daemon-reload
+systemctl enable --now "$mountunit" private-agent-bridge.socket
+mountpoint -q tasks
+systemctl is-active --quiet private-agent-bridge.socket

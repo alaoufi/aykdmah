@@ -1,0 +1,11 @@
+[Unit]
+Description=Private development agent broker socket
+[Socket]
+ListenStream=/run/agent-bridge/worker.sock
+ExecStartPost=/bin/chown 31071:31071 /run/agent-bridge/worker.sock
+SocketMode=0600
+DirectoryMode=0711
+Accept=yes
+MaxConnections=2
+[Install]
+WantedBy=sockets.target

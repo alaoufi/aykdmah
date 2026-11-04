@@ -1,0 +1,29 @@
+#!/bin/sh
+# Run as the operator from the deployed, reviewed agent-console directory.
+set -eu
+base=/opt/private-agent-console/worker
+install -d -m 0700 "$base/queue-build"
+for file in worker.cjs runner.cjs queue.cjs projects.json; do
+    install -m 0444 "$file" "$base/queue-build/$file"
+done
+mountpoint -q "$base/tasks"
+install -m 0444 ops/Dockerfile.queue "$base/queue-build/Dockerfile"
+docker build -q -t private-agent-queue:current "$base/queue-build" >/dev/null
+image=$(docker image inspect --format '{{.Id}}' private-agent-queue:current)
+systemctl is-active --quiet private-agent-bridge.socket
+for project in aykdmah trbhh; do
+    name="private-agent-worker-$project"
+    # Avoid interrupting a running job when upgrading files.
+    if docker container inspect "$name" >/dev/null 2>&1; then
+        owner=$(docker inspect --format '{{ index .Config.Labels "agent-console.owner" }}' "$name")
+        [ "$owner" = private-agent-console ] || { echo "Existing container ownership mismatch" >&2; exit 1; }
+        docker stop --time 950 "$name" >/dev/null
+        docker rm "$name" >/dev/null
+    fi
+    docker run -d --name "$name" --label agent-console.owner=private-agent-console --restart unless-stopped --init --read-only --network none \
+      --cap-drop ALL --security-opt no-new-privileges --user 31071:31071 --pids-limit 48 --memory=160m --cpus=.3 \
+      --log-driver local --log-opt max-size=2m --log-opt max-file=2 \
+      -v /run/agent-bridge:/run/agent-bridge:ro -v /opt/private-agent-console/data:/data \
+      -e AGENT_DATA_DIR=/data -e AGENT_WORKER_PROJECT="$project" -e AGENT_WORKER_ENABLED=1 -e AGENT_CLI_ENABLED=1 \
+      "$image" >/dev/null
+done

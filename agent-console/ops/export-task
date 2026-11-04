@@ -1,0 +1,54 @@
+#!/bin/bash
+# Run only after task review. Exports committed changes as a private patch.
+set -eu -o pipefail
+umask 077
+project=${1:-}
+id=${2:-}
+[[ "$project" == aykdmah || "$project" == trbhh ]]
+[[ "$id" =~ ^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$ ]]
+base=/opt/private-agent-console/worker
+task=$base/tasks/$id
+record=$base/checkpoints/$id.json
+mountpoint -q "$base/tasks"
+[[ -d "$task" && ! -L "$task" && -f "$record" && ! -L "$record" ]]
+[[ "$(stat -c %u "$record")" == 0 ]]
+[[ "$(jq -er '.project' "$record")" == "$project" ]]
+snapshot=$(jq -er '.snapshot' "$record")
+upstream=$(jq -er '.upstream' "$record")
+[[ "$snapshot" =~ ^[0-9a-f]{40}$ && "$upstream" =~ ^[0-9a-f]{40}$ ]]
+docker exec agent-console-web node -e '
+  const db=new (require("node:sqlite").DatabaseSync)("/data/queue.sqlite",{readOnly:true});
+  const row=db.prepare("SELECT status,checkpoint FROM tasks WHERE project=? AND id=?").get(process.argv[1],process.argv[2]);
+  if (row?.status!=="needs-verification" || row.checkpoint!==process.argv[2]) process.exit(1);
+' "$project" "$id"
+options=(--rm --network none --read-only --cap-drop ALL --security-opt no-new-privileges
+  --user 31072:31072 --pids-limit 32 --memory 192m --cpus .5 --log-driver none
+  --tmpfs /tmp:rw,nosuid,nodev,size=16m -e GIT_CONFIG_NOSYSTEM=1 -e GIT_CONFIG_GLOBAL=/dev/null -e GIT_NO_REPLACE_OBJECTS=1)
+image=private-agent-cli:0.147.0
+install -d -m 700 "$base/exports"
+out=$(mktemp -d "$base/exports/$project-$id-XXXXXXXX")
+# Use an offline, read-only container to parse agent-controlled Git data.
+# Never expose a credential, agent socket, or host process to its Git operations.
+(
+  ulimit -f 16384 # cap the private patch to 16 MiB
+  timeout -k 5 90 docker run "${options[@]}" -v "$task:/workspace:ro" -w /workspace "$image" sh -ec '
+    g() { git -c safe.directory=/workspace -c core.fsmonitor=false -c core.hooksPath=/dev/null "$@"; }
+    test "$(g symbolic-ref --quiet HEAD)" = "refs/heads/task/$1"
+    changes=$(g --no-optional-locks status --porcelain --untracked-files=all)
+    test -z "$changes"
+    after=$(g rev-parse --verify "HEAD^{commit}")
+    test "${#after}" -eq 40
+    case "$after" in *[!0-9a-f]*) exit 1;; esac
+    # Use only content-addressed objects to generate the patch. The temporary
+    # repository has no task config, replace refs, info/attributes or hooks.
+    git init --bare --quiet /tmp/review.git
+    export GIT_ALTERNATE_OBJECT_DIRECTORIES=/workspace/.git/objects GIT_DIR=/tmp/review.git
+    git merge-base --is-ancestor "$2" "$after"
+    if git diff --quiet "$2" "$after"; then exit 2; fi
+    git diff --no-ext-diff --no-textconv --binary --full-index "$2" "$after" --
+  ' export "$id" "$snapshot" > "$out/changes.tmp"
+)
+mv -- "$out/changes.tmp" "$out/changes.patch"
+printf '%s\n' "$upstream" > "$out/base"
+(cd "$out" && sha256sum base changes.patch > SHA256SUMS)
+printf 'Private review directory: %s\n' "$out"

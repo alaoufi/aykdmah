@@ -1,0 +1,8 @@
+[Unit]
+Description=Verified private agent console snapshot
+After=docker.service
+
+[Service]
+Type=oneshot
+UMask=0077
+ExecStart=/bin/bash /opt/private-agent-console/tools/backup-web.sh

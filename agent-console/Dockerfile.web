@@ -1,0 +1,8 @@
+FROM node:22-bookworm@sha256:18a6d90fd60542269850c80ca03b29b1d9b14d6b221ac7ee8e35b0d33ef904bd
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev --ignore-scripts --no-audit --no-fund
+COPY server.cjs auth.cjs queue.cjs notifications.cjs backup.cjs projects.json store-registry.json ./
+COPY public/ ./public/
+USER 31071:31071
+CMD ["node", "server.cjs"]
