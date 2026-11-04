@@ -242,3 +242,17 @@ test('manual handoff selects only the requested project, final acceptance, outco
   assert.equal(q.handoff('trbhh',j.id),null);
   assert.equal(q.handoff(j.project,randomUUID()),null);
 });
+
+test('only a confirmed read-only planning outcome can receive a follow-up without losing task identity or prior criteria', t => {
+  const q = fixture(t).open(), j = task({acceptance:''});
+  q.enqueue(j);
+  assert.equal(q.clarify(j.project,j.id,'baseline test'),true);
+  q.finish(q.claim(j.project), {status:'needs-clarification', message:'choose fixture', retrySafe:true});
+  assert.equal(q.jobs(j.project)[0].canClarify,true);
+  assert.equal(q.clarify(j.project,j.id,'fixture B'),true);
+  const next = q.claim(j.project);
+  assert.equal(next.id,j.id);
+  assert.equal(next.acceptance,'baseline test\nfixture B');
+  q.finish(next,{status:'needs-clarification'});
+  assert.equal(q.jobs(j.project)[0].canClarify,false);
+});

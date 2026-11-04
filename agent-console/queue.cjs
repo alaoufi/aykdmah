@@ -124,13 +124,16 @@ function openQueue(dir) {
     if (typeof acceptance !== 'string' || !acceptance.trim() || acceptance.length > 8000) return false;
     return transaction(() => {
       const j = db.prepare(`
-        SELECT text FROM tasks WHERE project=? AND id=? AND status='needs-clarification'
+        SELECT text,coalesce((SELECT acceptance FROM clarifications WHERE task=tasks.id),acceptance) AS prior
+        FROM tasks WHERE project=? AND id=? AND status='needs-clarification'
         AND (SELECT status FROM events WHERE task=? ORDER BY seq DESC LIMIT 1)='awaiting-owner-criteria'
       `).get(project,id,id);
       if (!j) return false;
-      const status = requiresApproval(j.text+'\n'+acceptance) ? 'needs-approval' : 'pending';
-      db.prepare('INSERT INTO clarifications VALUES (?,?)').run(id, acceptance);
-      db.prepare('UPDATE tasks SET status=? WHERE id=?').run(status,id);
+      const effective = [j.prior,acceptance].filter(Boolean).join('\n');
+      if (effective.length > 8000) return false;
+      const status = requiresApproval(j.text+'\n'+effective) ? 'needs-approval' : 'pending';
+      db.prepare('INSERT INTO clarifications VALUES (?,?) ON CONFLICT(task) DO UPDATE SET acceptance=excluded.acceptance').run(id,effective);
+      db.prepare("UPDATE tasks SET status=?,finishedAt=NULL,message='' WHERE id=?").run(status,id);
       appendMessage(randomUUID(), project, 'user', id+'\n'+acceptance, iso(), null);
       event(id, status);
       return true;
@@ -174,6 +177,7 @@ function openQueue(dir) {
       if (!updated.changes) return false;
       event(j.id, status);
       if (['blocked','paused'].includes(status) && result.retrySafe === true) event(j.id, 'blocked-before-execution');
+      if (status === 'needs-clarification' && result.retrySafe === true) event(j.id, 'awaiting-owner-criteria');
       appendMessage(randomUUID(), j.project, 'system', [j.id, status, message, output].filter(Boolean).join('\n'), done, j.provider);
       return true;
     });

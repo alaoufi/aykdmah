@@ -1,0 +1,16 @@
+[Unit]
+Description=Private agent isolated task
+RequiresMountsFor=/opt/private-agent-console/worker/tasks
+[Service]
+ExecStart=/usr/bin/python3 /opt/private-agent-console/worker/bridge.py
+StandardInput=socket
+StandardOutput=socket
+StandardError=journal
+UMask=0077
+NoNewPrivileges=yes
+ProtectSystem=strict
+ReadWritePaths=/opt/private-agent-console/worker
+ProtectHome=yes
+PrivateTmp=yes
+RestrictAddressFamilies=AF_UNIX
+RuntimeMaxSec=950
