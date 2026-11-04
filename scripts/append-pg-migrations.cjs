@@ -27,7 +27,9 @@ for (const name of missing) {
   for (const match of body.matchAll(/CREATE TABLE IF NOT EXISTS\s+([a-z_]+)/gi)) newTables.push(match[1]);
   fs.writeFileSync(path.join(root, 'database/postgres/migrations', name),
     `-- Auto-generated from database/migrations/${name}\n-- DO NOT EDIT — regenerate via 'NODE_ENV=test node scripts/append-pg-migrations.cjs'\n\n${body}\n`);
-  runMe = runMe.replace(marker, `\n-- migrations/${name}\n${body}\nINSERT INTO schema_migrations(name) VALUES ('${name}');\n${marker}`);
+  // SQL regex anchors can contain $' / $&. A replacement string interprets
+  // those as JavaScript substitutions and corrupts the generated bootstrap.
+  runMe = runMe.replace(marker, () => `\n-- migrations/${name}\n${body}\nINSERT INTO schema_migrations(name) VALUES ('${name}');\n${marker}`);
   console.log('added', name);
 }
 

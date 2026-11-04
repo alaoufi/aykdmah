@@ -593,7 +593,26 @@
     "block_done": "🚫 Na-block si {{name}}. Walang mensahe o tawag hanggang i-unblock.",
     "unblock_done": "✅ Na-unblock si {{name}}, puwede na kayong mag-mensahe at tumawag.",
     "favorite": "Paborito",
-    "unfavorite": "Alisin sa mga paborito"
+    "unfavorite": "Alisin sa mga paborito",
+    "bold_text": "Makapal na teksto",
+    "attach_photo": "Mga larawan mula sa galeriya",
+    "attach_audio": "Talaksang audio",
+    "search_messages": "Maghanap sa pag-uusap na ito",
+    "search_chats": "Maghanap ng mga pag-uusap",
+    "forward_partial": "Ilang mensahe lang ang naipadala. Tingnan ang mga pag-uusap ng mga tatanggap bago subukang muli.",
+    "forward_selected": "Ipasa ang {{count}} mensahe",
+    "select_message": "Pumili ng mga mensahe",
+    "older_results": "Mas lumang mga resulta",
+    "latest_messages": "Mga pinakabagong mensahe",
+    "previous_title": "May nakitang naunang pag-uusap",
+    "previous_hint": "Buksan ang naunang pag-uusap o magsimula ng hiwalay na bagong pag-uusap. Mananatiling naka-save ang naunang pag-uusap.",
+    "open_previous": "Buksan ang nauna",
+    "new_conversation": "Bagong pag-uusap",
+    "requester_opinions": "Mga opinyon ng mga tagapagbigay ng serbisyo",
+    "provider_opinions": "Mga opinyon ng mga humihiling ng serbisyo",
+    "opinions": "Mga marka at opinyon",
+    "requested_professions": "Mga propesyong hiniling mo",
+    "requested_professions_empty": "Wala ka pang hinihiling na propesyon; ipinapakita ang lahat ng propesyon."
   },
   "tracking": {
     "title": "Live na pagsubaybay",
@@ -1126,7 +1145,8 @@
     "districts": "Mga distrito",
     "search_districts": "Maghanap ng distrito",
     "no_districts_hint": "Wala pang distrito ang lungsod na ito. Idagdag dito para mapili ng mga user.",
-    "districts_hint": "I-tap ang pangalan ng lungsod para makita ang mga distrito nito, magdagdag o itama ang pangalan."
+    "districts_hint": "I-tap ang pangalan ng lungsod para makita ang mga distrito nito, magdagdag o itama ang pangalan.",
+    "confirm_change_body": "Gusto mo bang gawin ang pagbabagong ito?"
   },
   "errors": {
     "generic": "May nagkamali",
@@ -1732,7 +1752,27 @@
         "body": "Ang mga administrador ay mag-iimbak ng bawat mensahe, kabilang ang mga tinanggal, at maaaring suriin ang mga ito upang maprotektahan ang mga karapatan ng lahat sa isang disputa."
       }
     },
-    "role_colors_hint": "Asul ang mga card ng tagapagbigay ng serbisyo at kahel ang mga kahilingan. Piliin ang serbisyo sa mga pinakabagong kahilingan upang salain ang resulta."
+    "role_colors_hint": "Asul ang mga card ng tagapagbigay ng serbisyo at kahel ang mga kahilingan. Piliin ang serbisyo sa mga pinakabagong kahilingan upang salain ang resulta.",
+    "book_contents": "Mga nilalaman ng aklat",
+    "book_illustration": "Paliwanag na may larawan",
+    "book_illustration_note": "Datos sa pagsubok ang nasa mga larawan; maaaring mag-iba ang ayos ayon sa pahintulot at laki ng aparato.",
+    "book_navigation": "Mga pahina ng gabay",
+    "features_title": "Mga usapan, pagsusuri at tawag",
+    "features_contact": "Sa pakikipag-ugnayan, buksan ang naunang usapan o magsimula ng bago. Mananatiling naka-save ang mga lumang usapan.",
+    "features_reviews": "Pagkatapos ng serbisyo, maaaring magbigay ng marka at opinyon ang dalawang panig. Makikita sa kard ang karaniwan, bilang at opinyon.",
+    "features_messages": "Maghanap sa listahan o sa usapan. Paganahin ang makapal na teksto sa mga setting. Piliin ang sariling mensahe at tatanggap na usapan upang ipasa, o maglakip ng larawan, tunog o bidyo.",
+    "features_calls": "Nagsisimula ang Android sa speaker maliban kung may panlabas na headset. Nakasara ang kamera hanggang buksan mo; nakadepende sa aparato ang pagpili ng tunog sa browser.",
+    "features_matching": "Magsimula sa tugmang propesyon at lugar, o tingnan ang lahat. Hindi nito binabago ang profile o pahintulot sa pakikipag-ugnayan.",
+    "admin_book_title": "Gabay sa pamamahala na may larawan",
+    "admin_book_intro": "Ayon sa iyong pahintulot ang mga kabanata. Suriin ang bagay at epekto bago kumpirmahin.",
+    "admin_book_users": "Hanapin ang gumagamit at buksan ang detalye. Suriin ang pagbabago bago kumpirmahing i-save; hindi nai-save kapag kinansela.",
+    "admin_book_locations": "Piliin ang bansa, rehiyon at lungsod, saka magdagdag o mag-edit ng distrito. Mananatili ang lungsod matapos mag-save.",
+    "admin_book_categories": "Buksan ang kategorya upang pamahalaan ang mga serbisyo. Kailangan ang pahintulot sa serbisyo para magdagdag, mag-edit at magtanggal.",
+    "admin_book_conversations": "Buksan lamang ang usapan para sa awtorisadong pagsusuri. Itinatala ang pagbasa; hindi ka nagiging kasali o nagpapadala para sa gumagamit.",
+    "admin_book_requests": "Suriin ang kahilingan, kalagayan at mga panig bago kumilos. Huwag subukan ang pagtanggal sa tunay na kahilingan.",
+    "admin_book_ads": "Suriin ang nilalaman, puwesto, tagal at bayad bago aprubahan o baguhin. Tingnan ang epekto bago kumpirmahin.",
+    "admin_book_wallets": "Suriin ang talaan, halaga at tatanggap bago gumawa ng transaksiyon. Kailangan ng hiwalay na pahintulot ang tunay na bayad.",
+    "admin_book_settings": "Baguhin ang kailangang setting at suriin ang kumpirmasyon. Huwag magbahagi ng lihim o larawan ng datos ng gumagamit sa gabay."
   },
   "request_location": {
     "title": "Lokasyon ng serbisyo",
@@ -1965,7 +2005,7 @@
     "audio_output": "Speaker",
     "audio_output_hint": "Nasa speaker ang tunog. Magkabit ng earphones o Bluetooth at doon ito lilipat; hindi pinapayagan ng teleponong ito ang website na pumili ng earpiece.",
     "remote_camera_off": "Hindi dumarating ang larawan ni {{name}}: naka-off o naharang ang camera sa telepono niya.",
-    "my_camera_off": "Hindi gumagana ang camera mo. Pindutin ang 🔒 sa tabi ng aykdmh.com → Pahintulot → Camera → Payagan.",
+    "my_camera_off": "Naka-off ang iyong kamera. Pindutin ang I-on ang kamera kapag nais mong ibahagi ang iyong bidyo.",
     "missed_in_audio": "Hindi nasagot na voice call",
     "missed_in_video": "Hindi nasagot na video call",
     "missed_out": "Hindi sinagot ang tawag mo",

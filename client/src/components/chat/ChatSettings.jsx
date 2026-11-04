@@ -36,10 +36,14 @@ export default function ChatSettings({ anchorRef, open: shownFromMenu, onClose }
                 </button>
               ))}
             </div>
-            <p className="mt-2 mb-0 rounded-card bg-surface-alt p-2" style={{ fontSize: 'var(--chat-font, 16px)' }}>
+            <p className="mt-2 mb-0 rounded-card bg-surface-alt p-2" style={{ fontSize: 'var(--chat-font, 16px)', fontWeight: 'var(--chat-font-weight, 400)' }}>
               {t('chat.text_size_preview')}
             </p>
           </section>
+          <label className="flex items-center justify-between gap-3 text-[13px] cursor-pointer">
+            <strong>{t('chat.bold_text')}</strong>
+            <input type="checkbox" checked={prefs.bold} onChange={e => saveChatPrefs({ bold: e.target.checked })} data-testid="chat-bold" />
+          </label>
           <label className="flex items-center justify-between gap-3 text-[13px] cursor-pointer">
             <span>
               <span className="font-bold">🌐 {t('chat.auto_translate')}</span>

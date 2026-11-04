@@ -102,8 +102,9 @@ export async function listNearbyProviders({ lat, lon, radiusKm, categoryId, serv
 
 // Providers serving the signed-in user's area (or the given one) in a profession,
 // featured first, then by rating (AYK-035).
-export async function listMatchingProviders({ categoryId, serviceId, cityId, districtId } = {}) {
+export async function listMatchingProviders({ categoryId, serviceId, cityId, districtId, matching = false } = {}) {
   const params = {};
+  if (matching) params.matching = '1';
   if (categoryId) params.category_id = categoryId;
   if (serviceId) params.service_id = serviceId;
   if (cityId) params.city_id = cityId;

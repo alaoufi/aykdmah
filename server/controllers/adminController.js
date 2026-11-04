@@ -511,10 +511,10 @@ const listConversationsAdmin = asyncHandler(async (req, res) => {
        (SELECT COUNT(*) FROM messages m WHERE m.conversation_id = c.id AND m.deleted_at IS NULL) AS messages_count,
        (SELECT COUNT(*) FROM location_shares ls WHERE ls.conversation_id = c.id) AS locations_count,
        (SELECT content FROM messages m WHERE m.conversation_id = c.id AND m.deleted_at IS NULL ORDER BY m.id DESC LIMIT 1) AS last_message,
-       (SELECT GROUP_CONCAT(u.full_name SEPARATOR ' • ')
+       (SELECT string_agg(u.full_name, ' • ' ORDER BY cp.user_id)
           FROM conversation_participants cp JOIN users u ON u.id = cp.user_id
           WHERE cp.conversation_id = c.id) AS participants_names,
-       (SELECT GROUP_CONCAT(CONCAT(u.id, ':', u.role) SEPARATOR ',')
+       (SELECT string_agg(CONCAT(u.id, ':', u.role), ',' ORDER BY cp.user_id)
           FROM conversation_participants cp JOIN users u ON u.id = cp.user_id
           WHERE cp.conversation_id = c.id) AS participants_meta
      FROM conversations c

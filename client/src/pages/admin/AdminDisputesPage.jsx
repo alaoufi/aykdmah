@@ -1,3 +1,4 @@
+import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -7,7 +8,7 @@ import {
 } from '../../services/disputeService';
 import { apiError } from '../../services/api';
 import Modal from '../../components/common/Modal';
-import ConfirmDialog from '../../components/common/ConfirmDialog';
+import ConfirmDialog from '../../components/admin/AdminConfirmDialog';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import EmptyState from '../../components/admin/EmptyState';
 import Avatar from '../../components/common/Avatar';
@@ -23,6 +24,7 @@ const STATUS_BADGE = {
 
 export default function AdminDisputesPage() {
   const { t } = useTranslation();
+  const confirmAdminChange = useAdminConfirmation();
   const TABS = [
     { value: '',             label: t('common.all') },
     { value: 'open',         label: t('dispute.status_open') },
@@ -120,6 +122,7 @@ export default function AdminDisputesPage() {
   };
 
   const handleResolve = async (text) => {
+    if (!(await confirmAdminChange(t))) return;
     if (!openId || !dispute || dispute.id !== openId || actionInFlight.current) return;
     const id = openId;
     const version = caseVersion.current;

@@ -593,7 +593,26 @@
     "block_done": "🚫 {{name}} diblokir. Tidak ada pesan atau panggilan sampai dibuka.",
     "unblock_done": "✅ Blokir {{name}} dibuka, kalian bisa berkirim pesan dan menelepon.",
     "favorite": "Favorit",
-    "unfavorite": "Hapus dari favorit"
+    "unfavorite": "Hapus dari favorit",
+    "bold_text": "Teks tebal",
+    "attach_photo": "Foto dari galeri",
+    "attach_audio": "Berkas audio",
+    "search_messages": "Cari dalam percakapan ini",
+    "search_chats": "Cari percakapan",
+    "forward_partial": "Hanya sebagian pesan yang terkirim. Periksa percakapan penerima sebelum mencoba lagi.",
+    "forward_selected": "Teruskan {{count}} pesan",
+    "select_message": "Pilih pesan",
+    "older_results": "Hasil lebih lama",
+    "latest_messages": "Pesan terbaru",
+    "previous_title": "Percakapan sebelumnya ditemukan",
+    "previous_hint": "Buka percakapan sebelumnya atau mulai percakapan baru yang terpisah. Percakapan sebelumnya tetap tersimpan.",
+    "open_previous": "Buka sebelumnya",
+    "new_conversation": "Percakapan baru",
+    "requester_opinions": "Pendapat penyedia layanan",
+    "provider_opinions": "Pendapat peminta layanan",
+    "opinions": "Penilaian dan pendapat",
+    "requested_professions": "Profesi yang Anda minta",
+    "requested_professions_empty": "Anda belum pernah meminta layanan dari suatu profesi; semua profesi ditampilkan."
   },
   "tracking": {
     "title": "Pelacakan langsung",
@@ -1126,7 +1145,8 @@
     "districts": "Lingkungan",
     "search_districts": "Cari lingkungan",
     "no_districts_hint": "Kota ini belum memiliki lingkungan. Tambahkan di sini agar pengguna dapat memilihnya.",
-    "districts_hint": "Ketuk nama kota untuk melihat lingkungannya, menambah atau memperbaiki nama."
+    "districts_hint": "Ketuk nama kota untuk melihat lingkungannya, menambah atau memperbaiki nama.",
+    "confirm_change_body": "Apakah Anda ingin melakukan perubahan ini?"
   },
   "errors": {
     "generic": "Sesuatu yang salah",
@@ -1732,7 +1752,27 @@
         "body": "Hanya penulis yang dapat menghapus pesan, setelah mengkonfirmasi; kemudian hilang untuk kedua orang."
       }
     },
-    "role_colors_hint": "Kartu biru menampilkan penyedia jasa dan kartu oranye menampilkan permintaan. Gunakan pilihan jasa pada permintaan terbaru untuk menyaring hasil."
+    "role_colors_hint": "Kartu biru menampilkan penyedia jasa dan kartu oranye menampilkan permintaan. Gunakan pilihan jasa pada permintaan terbaru untuk menyaring hasil.",
+    "book_contents": "Daftar isi buku",
+    "book_illustration": "Penjelasan bergambar",
+    "book_illustration_note": "Gambar memakai data uji; tata layar dapat berbeda sesuai izin dan ukuran perangkat.",
+    "book_navigation": "Navigasi halaman panduan",
+    "features_title": "Percakapan, ulasan dan panggilan",
+    "features_contact": "Saat menghubungi, buka percakapan sebelumnya atau mulai yang baru. Percakapan lama tetap tersimpan.",
+    "features_reviews": "Setelah layanan selesai, kedua pihak dapat memberi penilaian dan pendapat. Kartu menampilkan rata-rata, jumlah dan pendapat.",
+    "features_messages": "Cari dalam daftar atau percakapan. Aktifkan huruf tebal di pengaturan. Pilih pesan Anda dan percakapan penerima untuk meneruskan, atau lampirkan foto, audio atau video.",
+    "features_calls": "Android mulai dengan pengeras suara kecuali ada headset eksternal. Kamera mati sampai Anda menyalakannya; pemilihan keluaran peramban bergantung pada dukungan perangkat.",
+    "features_matching": "Mulai dengan profesi dan wilayah yang cocok, atau jelajahi semua. Ini tidak mengubah profil atau izin menghubungi.",
+    "admin_book_title": "Panduan administrasi bergambar",
+    "admin_book_intro": "Bab mengikuti izin Anda. Periksa item dan dampak tindakan sebelum mengonfirmasi.",
+    "admin_book_users": "Cari pengguna dan buka rinciannya. Tinjau perubahan sebelum mengonfirmasi simpan; pembatalan tidak menyimpan.",
+    "admin_book_locations": "Pilih negara, wilayah dan kota, lalu tambah atau edit lingkungan. Kota tetap terpilih setelah menyimpan.",
+    "admin_book_categories": "Buka kategori untuk mengelola layanannya. Menambah, mengedit dan menghapus memerlukan izin pengelolaan layanan.",
+    "admin_book_conversations": "Buka percakapan hanya untuk tinjauan berizin. Pembacaan dicatat; Anda tidak menjadi peserta atau mengirim atas nama pengguna.",
+    "admin_book_requests": "Tinjau permintaan, status dan pihak sebelum bertindak. Jangan menguji penghapusan pada permintaan nyata.",
+    "admin_book_ads": "Tinjau isi, penempatan, durasi dan biaya sebelum persetujuan atau perubahan. Periksa dampaknya sebelum konfirmasi.",
+    "admin_book_wallets": "Tinjau buku besar, jumlah dan penerima sebelum tindakan keuangan. Pembayaran nyata memerlukan izin terpisah.",
+    "admin_book_settings": "Ubah pengaturan yang diperlukan lalu tinjau konfirmasi. Jangan bagikan rahasia atau gambar data pengguna dalam panduan."
   },
   "request_location": {
     "title": "Lokasi layanan",
@@ -1965,7 +2005,7 @@
     "audio_output": "Speaker",
     "audio_output_hint": "Suara di speaker. Pasang earphone atau Bluetooth dan suara pindah otomatis; ponsel ini tidak mengizinkan situs memilih earpiece panggilan.",
     "remote_camera_off": "Gambar {{name}} tidak sampai: kameranya mati atau diblokir di ponselnya.",
-    "my_camera_off": "Kamera Anda tidak berfungsi. Ketuk 🔒 di samping aykdmh.com → Izin → Kamera → Izinkan.",
+    "my_camera_off": "Kamera Anda nonaktif. Ketuk Aktifkan kamera saat Anda ingin membagikan video Anda.",
     "missed_in_audio": "Panggilan suara tak terjawab",
     "missed_in_video": "Panggilan video tak terjawab",
     "missed_out": "Panggilan Anda tidak dijawab",

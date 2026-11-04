@@ -43,7 +43,7 @@ function writableConversationSql(assignedOnly = false) {
       ${assignedOnly ? 'AND (c.request_id IS NULL OR r.assigned_provider_id IS NOT NULL)' : ''})`;
 }
 
-async function findOrCreateBetween(userA, userB, requestId = null) {
+async function findOrCreateBetween(userA, userB, requestId = null, { fresh = false } = {}) {
   userA = Number(userA); userB = Number(userB);
   if (!Number.isSafeInteger(userA) || !Number.isSafeInteger(userB) || userA < 1 || userB < 1 || userA === userB
       || (requestId != null && (!Number.isSafeInteger(Number(requestId)) || Number(requestId) < 1))) {
@@ -76,15 +76,16 @@ async function findOrCreateBetween(userA, userB, requestId = null) {
        JOIN conversation_participants cp2 ON cp2.conversation_id = c.id AND cp2.user_id = ?
        WHERE ${requestId ? 'c.request_id = ?' : 'c.request_id IS NULL'}
        AND (SELECT COUNT(*) FROM conversation_participants cp WHERE cp.conversation_id = c.id) = 2
-       LIMIT 1`,
+       ORDER BY c.id DESC LIMIT 1`,
       requestId ? [userA, userB, requestId] : [userA, userB]
     );
-    if (existing.length) return existing[0].id;
+    if (existing.length && !fresh) return existing[0].id;
+    if (fresh && existing.length) await assertCanSend(existing[0].id, userA, conn);
 
     if (request) {
       const provider = users.find(user => Number(user.id) !== Number(request.client_id));
       if (provider.role !== 'provider' || !(Number(request.assigned_provider_id) === Number(provider.id)
-          || (request.status === 'open' && request.assigned_provider_id == null && offer?.status === 'pending'))) {
+          || (request.status === 'open' && request.assigned_provider_id == null && ['pending','withdrawn'].includes(offer?.status)))) {
         throw Object.assign(new Error('Forbidden request conversation'), { status: 403 });
       }
     }
@@ -181,6 +182,24 @@ async function assertCanSend(conversationId, userId, conn) {
   return true;
 }
 
+// Freeze readable source membership and request state for a forwarding copy.
+// This intentionally uses the historical read policy, not the send window.
+async function assertCanRead(conversationId,userId,conn) {
+  const [[reference]]=await conn.query('SELECT request_id FROM conversations WHERE id = ?',[conversationId]);
+  if(!reference)throw Object.assign(new Error('Forbidden conversation'),{status:403});
+  if(reference.request_id)await conn.query('SELECT id FROM requests WHERE id = ? FOR SHARE',[reference.request_id]);
+  // Share-lock participants/users rather than the conversation row: opposing
+  // forwards may update each other's target rows without lock-upgrade cycles.
+  await conn.query(`SELECT cp.id FROM conversation_participants cp JOIN users u ON u.id = cp.user_id WHERE cp.conversation_id = ? ORDER BY u.id,cp.id FOR SHARE OF cp,u`,[conversationId]);
+  const [[reader]]=await conn.query(`SELECT reader.id FROM conversation_participants reader
+    JOIN conversations c ON c.id = reader.conversation_id JOIN users u ON u.id = reader.user_id
+    LEFT JOIN requests r ON r.id = c.request_id
+    WHERE reader.conversation_id = ? AND reader.user_id = ? AND u.deleted_at IS NULL AND u.is_active = 1 AND u.is_blocked = 0
+      AND ${requestPairSql('reader')} FOR SHARE OF reader,u`,[conversationId,userId]);
+  if(!reader)throw Object.assign(new Error('Forbidden conversation'),{status:403});
+  return true;
+}
+
 // Live GPS requires the selected order pair. A pending offer permits messages,
 // but does not authorize sharing the owner's point with its bidder.
 async function assertCanShareLocation(conversationId, userId, conn) {
@@ -201,10 +220,20 @@ async function getContacts(userId) {
       AND ${requestPairSql('self')} AND ${requestPairSql('other')}`, [userId]);
 }
 
-async function listForUser(userId, { page = 1, limit = 20 } = {}) {
+async function listForUser(userId, { page = 1, limit = 20, q = '', requestId = null, peerId = null } = {}) {
   page = Math.max(1, Math.min(100000, Number.parseInt(page, 10) || 1));
   limit = Math.max(1, Math.min(100, Number.parseInt(limit, 10) || 20));
   const offset = (page - 1) * limit;
+  const extra = [], extraParams = [];
+  if (requestId) { extra.push('c.request_id = ?'); extraParams.push(Number(requestId)); }
+  if (peerId) { extra.push('EXISTS (SELECT 1 FROM conversation_participants peer WHERE peer.conversation_id = c.id AND peer.user_id = ?)'); extraParams.push(Number(peerId)); }
+  if (q) {
+    extra.push(`(r.title ILIKE ? OR EXISTS (SELECT 1 FROM conversation_participants peer JOIN users person ON person.id = peer.user_id
+      LEFT JOIN saved_providers saved ON saved.user_id = cp.user_id AND saved.provider_id = person.id
+      WHERE peer.conversation_id = c.id AND peer.user_id <> cp.user_id AND
+      (person.referral_code ILIKE ? OR saved.nickname ILIKE ? OR (person.role <> 'client' AND person.full_name ILIKE ?))))`);
+    extraParams.push(...Array(4).fill(`%${q}%`));
+  }
   return query(
     `SELECT c.id, c.request_id, c.last_message_id, c.last_message_at, ${writableConversationSql()} AS can_send,
             COALESCE(cp.is_favorite, 0) AS is_favorite,
@@ -230,9 +259,10 @@ async function listForUser(userId, { page = 1, limit = 20 } = {}) {
           ((r.assigned_provider_id IS NOT NULL AND r.assigned_provider_id <> ?)
             AND COALESCE(r.completed_at, r.updated_at) < CURRENT_TIMESTAMP - INTERVAL '1 day')
           OR NOT ${contactWindow.OPEN_SQL}))
+     ${extra.length ? 'AND ' + extra.join(' AND ') : ''}
      ORDER BY COALESCE(cp.is_favorite, 0) DESC, c.last_message_at DESC NULLS LAST, c.created_at DESC, c.id DESC
      LIMIT ? OFFSET ?`,
-    [userId, userId, userId, userId, userId, Number(limit), Number(offset)]
+    [userId, userId, userId, userId, userId, ...extraParams, Number(limit), Number(offset)]
   );
 }
 
@@ -262,6 +292,6 @@ async function updateLastRead(conversationId, userId) {
 
 module.exports = {
   unreadTotal,
-  findOrCreateBetween, findById, getParticipants, isParticipant, canSend, assertCanSend,
+  findOrCreateBetween, findById, getParticipants, isParticipant, canSend, assertCanSend, assertCanRead,
   canShareLocation, assertCanShareLocation, getContacts, listForUser, updateLastRead, setFavorite,
 };

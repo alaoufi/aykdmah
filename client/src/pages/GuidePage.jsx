@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import GuideBook from '../components/common/GuideBook';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
@@ -71,11 +72,11 @@ export default function GuidePage() {
         ))}
       </nav>
 
-      <div className="space-y-10 md:space-y-12">
+      <GuideBook title={t('help.title')} ids={['guide-client','guide-provider','guide-venue','guide-signup','guide-availability','guide-calls','guide-appearance','guide-wallet','guide-faq','guide-start','guide-features']} titles={['client_title','provider_title','venue_title','signup_title','availability_title','calls_title','appearance_title','wallet_title','faq_title','start_title','features_title'].map(k=>t('help.'+k))} images={['/guide/home.png','/guide/requests.png','/guide/services.png','/guide/home.png','/guide/services.png','/guide/chat.png','/guide/home.png','/guide/services.png','/guide/chat.png','/guide/home.png','/guide/chat.png']}>
         <GuideSteps role="client" steps={CLIENT_STEPS} title={t('help.client_title')} intro={t('help.client_intro')} icon="🏠" />
         <GuideSteps role="provider" steps={PROVIDER_STEPS} title={t('help.provider_title')} intro={t('help.provider_intro')} icon="🛠️" />
 
-        <section aria-labelledby="guide-venue-title" className="rounded-card border border-border bg-surface-alt p-5 md:p-7">
+        <section id="guide-venue" aria-labelledby="guide-venue-title" className="rounded-card border border-border bg-surface-alt p-5 md:p-7">
           <h2 id="guide-venue-title" className="text-xl md:text-2xl font-extrabold text-fg">{t('help.venue_title')}</h2>
           <p className="text-fg-muted text-sm md:text-base leading-loose mt-3 mb-5">{t('help.venue_intro')}</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -150,7 +151,7 @@ export default function GuidePage() {
           </ol>
         </section>
 
-        <section aria-labelledby="guide-faq-title">
+        <section id="guide-faq" aria-labelledby="guide-faq-title">
           <h2 id="guide-faq-title" className="text-xl md:text-2xl font-extrabold text-fg mb-5">{t('help.faq_title')}</h2>
           <div className="space-y-3">
             {QUESTIONS.map((question, index) => (
@@ -166,7 +167,7 @@ export default function GuidePage() {
           </div>
         </section>
 
-        <section aria-labelledby="guide-start-title" className="rounded-card bg-primary-soft border border-primary/20 p-5 md:p-7">
+        <section id="guide-start" aria-labelledby="guide-start-title" className="rounded-card bg-primary-soft border border-primary/20 p-5 md:p-7">
           <h2 id="guide-start-title" className="text-xl md:text-2xl font-extrabold text-fg">{t('help.start_title')}</h2>
           <p className="text-fg-muted leading-loose text-sm md:text-base mt-2 mb-5">{t('help.start_subtitle')}</p>
           <div className="flex flex-col sm:flex-row gap-3">
@@ -178,7 +179,8 @@ export default function GuidePage() {
             </Link>
           </div>
         </section>
-      </div>
+        <section id="guide-features" className="space-y-4">{['contact','reviews','messages','calls','matching'].map(k=><p key={k} className="leading-loose">{t('help.features_'+k)}</p>)}</section>
+      </GuideBook>
     </article>
   );
 }

@@ -1,0 +1,23 @@
+[
+  {
+    "name": "public-book-top-390-ar.png",
+    "width": 390,
+    "admin": false,
+    "chapter": "0",
+    "errors": []
+  },
+  {
+    "name": "public-book-top-1440-ar.png",
+    "width": 1440,
+    "admin": false,
+    "chapter": "0",
+    "errors": []
+  },
+  {
+    "name": "admin-book-top-390-ar.png",
+    "width": 390,
+    "admin": true,
+    "chapter": "0",
+    "errors": []
+  }
+]

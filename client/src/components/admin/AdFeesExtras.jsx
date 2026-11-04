@@ -1,3 +1,4 @@
+import { useAdminConfirmation } from './confirmAdminChange';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getAdsFees, saveAdsFees } from '../../services/adminService';
@@ -10,6 +11,7 @@ const input = 'w-24 px-2 py-1.5 rounded border border-slate-200 bg-slate-50 focu
 // or each region it targets, added together), and the duration and views limits.
 export default function AdFeesExtras({ regions, onMessage }) {
   const { t, i18n } = useTranslation();
+  const confirmAdminChange = useAdminConfirmation();
   const [fees, setFees] = useState(null);
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -22,6 +24,7 @@ export default function AdFeesExtras({ regions, onMessage }) {
   const setLimit = (key, value) => { setFees((f) => ({ ...f, limits: { ...f.limits, [key]: value } })); setDirty(true); };
 
   const save = async () => {
+    if (!(await confirmAdminChange(t))) return;
     setSaving(true);
     try {
       const regionsBody = {};

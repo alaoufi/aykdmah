@@ -43,7 +43,8 @@ const nearby = asyncHandler(async (req, res) => {
   const rows = await query(`
     SELECT u.id, u.full_name, u.avatar, u.is_verified, u.is_online,
            pp.business_name, pp.category_id, pp.service_ids, pp.service_radius_km,
-           pp.rating_avg, pp.rating_count, pp.completed_orders, pp.location_mode,
+           pp.rating_avg, pp.rating_count, pp.completed_orders,
+           (SELECT rv.comment FROM reviews rv WHERE rv.target_user_id = u.id AND rv.review_type = 'on_provider' AND rv.is_visible = 1 AND rv.comment IS NOT NULL AND rv.comment <> '' ORDER BY rv.id DESC LIMIT 1) AS opinion, pp.location_mode,
            pp.show_location_on_map, pp.fixed_latitude, pp.fixed_longitude,
            to_jsonb(pp)->>'availability_status' AS availability_status, to_jsonb(pp)->>'vacation_from' AS vacation_from,
            to_jsonb(pp)->>'vacation_to' AS vacation_to, to_jsonb(pp)->>'work_days' AS work_days,
@@ -77,6 +78,7 @@ const nearby = asyncHandler(async (req, res) => {
       is_verified: Number(row.is_verified) === 1,
       is_online: Number(row.is_online) === 1,
       category_id: row.category_id,
+      opinion: row.opinion || null,
       rating_avg: Number(row.rating_avg) || 0,
       rating_count: Number(row.rating_count) || 0,
       completed_orders: Number(row.completed_orders) || 0,
@@ -142,6 +144,7 @@ function coveringProviders({ districtId, cityId, excludeId = 0 }) {
     SELECT u.id, u.full_name, u.avatar, u.is_verified, u.is_online,
            pp.business_name, pp.category_id, pp.service_ids,
            pp.rating_avg, pp.rating_count, pp.completed_orders,
+           (SELECT rv.comment FROM reviews rv WHERE rv.target_user_id = u.id AND rv.review_type = 'on_provider' AND rv.is_visible = 1 AND rv.comment IS NOT NULL AND rv.comment <> '' ORDER BY rv.id DESC LIMIT 1) AS opinion,
            cat.name_ar AS category_name_ar, cat.name_en AS category_name_en, cat.name_translations AS category_name_translations,
            dist.name_ar AS district_name_ar, dist.name_en AS district_name_en,
            to_jsonb(pp)->>'availability_status' AS availability_status, to_jsonb(pp)->>'vacation_from' AS vacation_from,
@@ -167,12 +170,18 @@ const matching = asyncHandler(async (req, res) => {
     ? new Set((await query('SELECT id FROM services WHERE category_id = ?', [categoryId])).map(row => Number(row.id))) : null;
   const list = async scope => listProviders(await coveringProviders({ ...scope, excludeId: req.user?.id || 0 }),
     { categoryId, serviceId, categoryServices, cityId: where.cityId });
-  const providers = await list(where);
+  let requestedCategories = [];
+  if (req.query.matching === '1' && req.user && categoryId === null && serviceId === null) {
+    requestedCategories = (await query('SELECT DISTINCT category_id FROM requests WHERE client_id = ? AND deleted_at IS NULL AND category_id IS NOT NULL', [req.user.id])).map(row => Number(row.category_id));
+  }
+  const byService = requestedCategories.length ? await serviceCategories() : null;
+  const inRequested = row => !requestedCategories.length || [...providerCategories(row, byService)].some(id => requestedCategories.includes(id));
+  const providers = (await list(where)).filter(inRequested);
   // With a district: also everyone serving the whole city (AYK-055), for the "widen" step and
   // the small "everyone in your city" box.
-  const cityProviders = where.districtId ? await list({ districtId: null, cityId: where.cityId }) : null;
+  const cityProviders = where.districtId ? (await list({ districtId: null, cityId: where.cityId })).filter(inRequested) : null;
   return success(res, {
-    area: where.area,
+    area: where.area, requested_category_ids: requestedCategories,
     providers: providers.slice(0, MAX_RESULTS),
     ...(cityProviders ? { city_providers: cityProviders.slice(0, MAX_RESULTS) } : {}),
   });
@@ -191,6 +200,7 @@ async function listProviders(rows, { categoryId, serviceId, categoryServices, ci
       is_verified: Number(row.is_verified) === 1, is_online: Number(row.is_online) === 1,
       is_featured: row.is_featured === true || Number(row.is_featured) === 1,
       category_id: row.category_id, service_ids: services,
+      opinion: row.opinion || null,
       rating_avg: Number(row.rating_avg) || 0, rating_count: Number(row.rating_count) || 0,
       completed_orders: Number(row.completed_orders) || 0,
       availability: availability(row),

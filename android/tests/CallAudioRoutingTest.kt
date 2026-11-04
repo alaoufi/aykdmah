@@ -66,6 +66,33 @@ class CallAudioRoutingTest {
         assertEquals(Connection.STATE_ACTIVE, connection.state)
     }
 
+    @Test fun voiceStartsOnSpeakerUnlessAnExternalHeadsetIsAvailable() {
+        val connection = CallConnection(callId)
+        CallTelecom.created(callId, connection)
+        CallTelecom.defaultRoute(callId, false)
+        connection.onCallAudioStateChanged(CallAudioState(false, CallAudioState.ROUTE_EARPIECE,
+            CallAudioState.ROUTE_EARPIECE or CallAudioState.ROUTE_SPEAKER))
+        assertEquals(listOf(CallAudioState.ROUTE_SPEAKER), RouteRequestShadow.requests)
+    }
+
+    @Test fun videoKeepsBluetoothAndDoesNotReapplyDefaultOverUserChoice() {
+        val connection = CallConnection(callId)
+        CallTelecom.created(callId, connection)
+        CallTelecom.defaultRoute(callId, true)
+        val routes = CallAudioState.ROUTE_BLUETOOTH or CallAudioState.ROUTE_SPEAKER or CallAudioState.ROUTE_EARPIECE
+        connection.onCallAudioStateChanged(CallAudioState(false, CallAudioState.ROUTE_BLUETOOTH, routes))
+        assertTrue(RouteRequestShadow.requests.isEmpty())
+        CallTelecom.requestSpeaker(callId, true)
+        connection.onCallAudioStateChanged(CallAudioState(false, CallAudioState.ROUTE_SPEAKER, routes))
+        assertEquals(listOf(CallAudioState.ROUTE_SPEAKER), RouteRequestShadow.requests)
+    }
+
+    @Test fun cameraStartsOffBeforePermissionsOrMediaConnection() {
+        val activity = Robolectric.buildActivity(CallScreenActivity::class.java).get()
+        val field = activity.javaClass.getDeclaredField("camOn").apply { isAccessible = true }
+        assertEquals(false, field.get(activity))
+    }
+
     @Test fun lateConnectionCannotTakeAudioAfterCallHasEnded() {
         CallTelecom.ended(callId)
         val connection = CallConnection(callId)

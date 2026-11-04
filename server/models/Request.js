@@ -98,6 +98,9 @@ const BASE_SELECT = `
   r.warranty_days, r.warranty_proposed_days, r.warranty_proposed_by,
   ap.full_name AS assigned_provider_name,
   u.full_name AS client_name, u.avatar AS client_avatar,
+  (SELECT COALESCE(AVG(rv.rating),0) FROM reviews rv WHERE rv.target_user_id = r.client_id AND rv.review_type = 'on_requester' AND rv.is_visible = 1 AND u.deleted_at IS NULL) AS client_rating_avg,
+  (SELECT COUNT(*) FROM reviews rv WHERE rv.target_user_id = r.client_id AND rv.review_type = 'on_requester' AND rv.is_visible = 1 AND u.deleted_at IS NULL) AS client_rating_count,
+  (SELECT rv.comment FROM reviews rv WHERE rv.target_user_id = r.client_id AND rv.review_type = 'on_requester' AND rv.is_visible = 1 AND u.deleted_at IS NULL AND rv.comment IS NOT NULL AND rv.comment <> '' ORDER BY rv.id DESC LIMIT 1) AS client_opinion,
   cat.name_ar AS category_name, cat.name_en AS category_name_en,
   cat.name_translations AS category_name_translations,
   svc.name_ar AS service_name, svc.name_en AS service_name_en,
@@ -210,7 +213,7 @@ async function findByClient(clientId, { status, scope, page = 1, limit = 20 } = 
   return { items, total };
 }
 
-async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serviceId, status = 'open', page = 1, limit = 20, providerId = null } = {}) {
+async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serviceId, cityId, status = 'open', page = 1, limit = 20, providerId = null } = {}) {
   ({ page, limit } = pagination(page, limit));
   const offset = (page - 1) * limit;
   if (status !== 'open') throw new ApiError('invalid_status', 422);
@@ -222,6 +225,8 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
   // A direct contact from the requester's directory is not on the board (AYK-041).
   const where = ['r.deleted_at IS NULL', 'r.status = ?', 'r.direct_provider_id IS NULL'];
   const whereParams = [status];
+  cityId = optionalNumber(cityId,1,2147483647,true);
+  if (cityId) {where.push('r.city_id = ?');whereParams.push(cityId);}
   if (categoryId) { where.push('r.category_id = ?'); whereParams.push(categoryId); }
   if (serviceId) { where.push('r.service_id = ?'); whereParams.push(serviceId); }
   if (providerId) {

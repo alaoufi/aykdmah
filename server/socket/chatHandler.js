@@ -2,6 +2,8 @@ const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
 const LocationShare = require('../models/LocationShare');
 const Request = require('../models/Request');
+const { messageForViewer } = require('../utils/requesterPrivacy');
+const { translate } = require('../utils/i18n');
 const { emitConversation } = require('../utils/conversationEvents');
 const { assertMarketplaceWriteAccess } = require('../middleware/verificationPolicy');
 const { consumeSocketWrite } = require('../utils/socketWriteLimiter');
@@ -121,7 +123,7 @@ function registerChatHandlers(io, socket) {
       const message = await Message.findById(messageId);
 
       await emitConversation(io, conversationId, 'chat:message', message);
-      return ack && ack({ ok: true, message });
+      return ack && ack({ ok: true, message: await messageForViewer(message,socket.user.id,translate('ar','requester_label')) });
     } catch (err) {
       return typeof ack === 'function' && ack({ ok: false, error: 'invalid_request' });
     }

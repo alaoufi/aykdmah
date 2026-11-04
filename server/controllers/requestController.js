@@ -78,12 +78,13 @@ const getMy = asyncHandler(async (req, res) => {
 });
 
 const getNearby = asyncHandler(async (req, res) => {
-  const { latitude, longitude, radius, category_id, service_id, status } = req.query;
+  const { latitude, longitude, radius, category_id, service_id, city_id, status } = req.query;
   const { page, limit } = Request.pagination(req.query.page, req.query.limit);
   const { items, total } = await Request.findNearby({
     latitude,
     longitude,
     radiusKm: radius === undefined ? 25 : radius,
+    cityId: city_id,
     categoryId: category_id,
     serviceId: service_id,
     status: status || 'open',
@@ -176,7 +177,7 @@ const contact = asyncHandler(async (req, res) => {
   }
   if (await require('./userBlockController').blockedRefusal(req, res, owner ? providerId : request.client_id)) return undefined;
   await Offer.create({ request_id: request.id, provider_id: providerId, contact: true });
-  const conversationId = await Conversation.findOrCreateBetween(request.client_id, providerId, request.id);
+  const conversationId = await Conversation.findOrCreateBetween(request.client_id, providerId, request.id, {fresh:req.body?.fresh === true});
   await notificationService.notifyUser(owner ? providerId : request.client_id, {
     type: 'request_contact',
     title: req.t('request_contact_title'),
@@ -238,7 +239,7 @@ const direct = asyncHandler(async (req, res) => {
     await Offer.create({ request_id: requestId, provider_id: providerId, contact: true });
   }
   const request = await Request.findById(requestId);
-  const conversationId = await Conversation.findOrCreateBetween(req.user.id, providerId, requestId);
+  const conversationId = await Conversation.findOrCreateBetween(req.user.id, providerId, requestId, {fresh:req.body?.fresh === true});
   if (!existing) {
     await notificationService.notifyUser(providerId, {
       type: 'request_contact',

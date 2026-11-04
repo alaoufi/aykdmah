@@ -3,10 +3,9 @@ const { assertMarketplaceWriteAccess } = require('../middleware/verificationPoli
 const { validateChatMessage } = require('../utils/chatMessageValidation');
 const Conversation = require('./Conversation');
 
-async function create({ conversation_id, sender_id, content, message_type = 'text',
+async function createOnConnection({ conversation_id, sender_id, content, message_type = 'text',
                         reply_to_id = null, files = [],
-                        latitude = null, longitude = null, accuracy_m = null }) {
-  return transaction(async (conn) => {
+                        latitude = null, longitude = null, accuracy_m = null }, conn) {
     await Conversation.assertCanSend(conversation_id, sender_id, conn);
     const [participants] = await conn.query(`SELECT cp.id FROM conversation_participants cp JOIN users u ON u.id = cp.user_id
       WHERE cp.conversation_id = ? AND cp.user_id = ? AND u.deleted_at IS NULL AND u.is_active = 1 AND u.is_blocked = 0
@@ -46,6 +45,36 @@ async function create({ conversation_id, sender_id, content, message_type = 'tex
       [messageId, conversation_id]
     );
     return messageId;
+}
+
+async function create(data, { connection } = {}) {
+  return connection ? createOnConnection(data,connection) : transaction(conn => createOnConnection(data,conn));
+}
+
+async function getForwardReceipt(senderId, operationId, targetId) {
+  return queryOne('SELECT fingerprint, message_ids FROM chat_forward_receipts WHERE sender_id = ? AND operation_id = ? AND target_conversation_id = ?', [senderId,operationId,targetId]);
+}
+
+// A receipt and every copy for one target commit together. An interrupted HTTP
+// response can safely replay the same operation after a process restart.
+async function forwardToTarget({sourceId,targetId,senderId,operationId,fingerprint,messages}) {
+  return transaction(async conn => {
+    await conn.query('SELECT pg_advisory_xact_lock(hashtext(?))', [`chat-forward:${senderId}:${operationId}`]);
+    const [[previous]] = await conn.query('SELECT fingerprint FROM chat_forward_receipts WHERE sender_id = ? AND operation_id = ? LIMIT 1', [senderId,operationId]);
+    if (previous && previous.fingerprint !== fingerprint) throw Object.assign(new Error('Forward operation changed'),{status:409});
+    const [[receipt]] = await conn.query('SELECT message_ids FROM chat_forward_receipts WHERE sender_id = ? AND operation_id = ? AND target_conversation_id = ?', [senderId,operationId,targetId]);
+    if (receipt) return {messageIds:typeof receipt.message_ids === 'string' ? JSON.parse(receipt.message_ids) : receipt.message_ids,replayed:true};
+    await Conversation.assertCanRead(sourceId,senderId,conn);
+    const ids = messages.map(message => Number(message.id));
+    const [sources] = await conn.query(`SELECT id FROM messages WHERE id IN (${ids.map(()=>'?').join(',')}) AND sender_id = ? AND conversation_id = ? AND deleted_at IS NULL ORDER BY id FOR SHARE`, [...ids,senderId,sourceId]);
+    if (sources.length !== ids.length) throw Object.assign(new Error('Forward source unavailable'),{status:404});
+    const messageIds=[];
+    for (const message of messages) {
+      const files=(message.files||[]).map(({file_url,file_name,file_type,file_size,duration_seconds})=>({file_url,file_name,file_type,file_size,duration_seconds}));
+      messageIds.push(await create({conversation_id:targetId,sender_id:senderId,content:message.content,message_type:message.message_type,files},{connection:conn}));
+    }
+    await conn.execute('INSERT INTO chat_forward_receipts (sender_id,operation_id,target_conversation_id,fingerprint,message_ids) VALUES (?,?,?,?,?)',[senderId,operationId,targetId,fingerprint,JSON.stringify(messageIds)]);
+    return {messageIds,replayed:false};
   });
 }
 
@@ -121,15 +150,15 @@ async function softDelete(id) {
   await query('UPDATE messages SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
 }
 
-async function searchInConversation(conversationId, q, { limit = 30 } = {}) {
+async function searchInConversation(conversationId, q, { limit = 30, beforeId = null } = {}) {
   return query(
     `SELECT m.id, m.content, m.message_type, m.created_at, m.sender_id,
-            u.full_name AS sender_name
+            u.full_name AS sender_name, u.role AS sender_role
      FROM messages m JOIN users u ON m.sender_id = u.id
      WHERE m.conversation_id = ? AND m.deleted_at IS NULL
-       AND m.content LIKE ?
+       AND m.content LIKE ? AND (?::bigint IS NULL OR m.id < ?)
      ORDER BY m.id DESC LIMIT ?`,
-    [conversationId, `%${q}%`, Number(limit)]
+    [conversationId, `%${q}%`, beforeId, beforeId, Number(limit)]
   );
 }
 
@@ -154,5 +183,5 @@ async function markDelivered(io, readerId, conversationId = null) {
 }
 
 module.exports = {
-  create, findById, listByConversation, markRead, softDelete,
+  create, forwardToTarget, getForwardReceipt, findById, listByConversation, markRead, softDelete,
   getSenderId, searchInConversation, markDelivered };

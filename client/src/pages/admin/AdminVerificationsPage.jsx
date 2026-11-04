@@ -1,8 +1,9 @@
+import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { listVerifications, reviewVerification } from '../../services/adminService';
 import Modal from '../../components/common/Modal';
-import ConfirmDialog from '../../components/common/ConfirmDialog';
+import ConfirmDialog from '../../components/admin/AdminConfirmDialog';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import EmptyState from '../../components/admin/EmptyState';
 import { formatRelativeTime } from '../../utils/formatters';
@@ -10,6 +11,7 @@ import { apiError } from '../../services/api';
 
 export default function AdminVerificationsPage() {
   const { t } = useTranslation();
+  const confirmAdminChange = useAdminConfirmation();
   const TABS = [
     { value: 'pending',  label: t('admin.verification_pending'),  badge: 'bg-amber-50 text-amber-700' },
     { value: 'approved', label: t('admin.verification_approved'), badge: 'bg-emerald-50 text-emerald-700' },
@@ -41,6 +43,7 @@ export default function AdminVerificationsPage() {
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [statusTab, page]);
 
   const approve = async (v) => {
+    if (!(await confirmAdminChange(t))) return;
     if (actionInFlight.current) return;
     actionInFlight.current = true;
     setBusy(true);
@@ -50,6 +53,7 @@ export default function AdminVerificationsPage() {
   };
 
   const reject = async () => {
+    if (!(await confirmAdminChange(t))) return;
     if (!rejectFor || actionInFlight.current) return;
     actionInFlight.current = true;
     setBusy(true);

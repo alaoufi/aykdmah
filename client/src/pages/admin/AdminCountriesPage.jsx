@@ -1,3 +1,4 @@
+import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
 import { localizedName } from '../../utils/localize';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +9,7 @@ import { apiError } from '../../services/api';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import AdminButton from '../../components/admin/AdminButton';
 import EmptyState from '../../components/admin/EmptyState';
-import ConfirmDialog from '../../components/common/ConfirmDialog';
+import ConfirmDialog from '../../components/admin/AdminConfirmDialog';
 import Modal from '../../components/common/Modal';
 import AdminFab from '../../components/admin/AdminFab';
 
@@ -35,6 +36,7 @@ const EMPTY = {
 
 export default function AdminCountriesPage() {
   const { t, i18n } = useTranslation();
+  const confirmAdminChange = useAdminConfirmation();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editOpen, setEditOpen] = useState(false);
@@ -77,6 +79,7 @@ export default function AdminCountriesPage() {
   };
 
   const toggleActive = async (c) => {
+    if (!(await confirmAdminChange(t))) return;
     try {
       await adminUpdateCountry(c.id, { is_active: !c.is_active });
       load();
@@ -85,6 +88,7 @@ export default function AdminCountriesPage() {
 
   const onSave = async (e) => {
     e.preventDefault();
+    if (editing && !(await confirmAdminChange(t, editing.name_ar || editing.full_name || editing.title || editing.provider || ''))) return;
     setSaving(true);
     setFormError('');
     try {
@@ -138,7 +142,7 @@ export default function AdminCountriesPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {items.map((c) => (
-            <div key={c.id} className={`bg-surface rounded-card border-2 p-4 shadow-soft ${
+            <div key={c.id} className={`bg-surface rounded-card border-2 p-3 shadow-soft ${
               c.is_active ? 'border-border' : 'border-rose-200 opacity-70'
             }`}>
               <div className="flex items-start gap-3">

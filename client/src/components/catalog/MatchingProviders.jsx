@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { listCategories, listMatchingProviders, listCities, listDistricts } from '../../services/serviceService';
 import { localizedName } from '../../utils/localize';
 import Avatar from '../common/Avatar';
+import TrustSummary from '../reviews/TrustSummary';
 import { useAuth } from '../../hooks/useAuth';
 import { canRequestService } from '../../utils/canRequest';
 import { listDirectoryIds, saveToDirectory, contactDirect } from '../../services/requestService';
@@ -62,6 +63,7 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
   const [categories, setCategories] = useState([]);
+  const [matching, setMatching] = useState(true);
   const [categoryId, setCategoryId] = useState(fixedCategory ? String(fixedCategory) : '');
   const [result, setResult] = useState(null);
   const [browse, setBrowse] = useState(readBrowse);
@@ -75,11 +77,11 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
     let alive = true;
     if (!quiet) setResult(null);
     const area = fixedArea || browse;
-    listMatchingProviders({ categoryId, serviceId, cityId: area?.city_id, districtId: area?.district_id })
+    listMatchingProviders({ categoryId, serviceId, matching: !onContact && matching, cityId: area?.city_id, districtId: area?.district_id })
       .then(data => { if (alive) setResult(onContact ? { ...data, providers: data.providers.filter(p => p.availability?.state === 'available') } : data); })
       .catch(() => { if (alive) setResult({ area: null, providers: [] }); });
     return () => { alive = false; };
-  }, [categoryId, serviceId, browse, fixedArea?.city_id, fixedArea?.district_id, Boolean(onContact), tick]);
+  }, [categoryId, serviceId, browse, fixedArea?.city_id, fixedArea?.district_id, Boolean(onContact), tick, matching]);
 
   // A requester can keep a provider in "My directory" and contact them directly (AYK-041).
   const { user } = useAuth();
@@ -98,7 +100,7 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
   const cityList = result?.city_providers || null;
   const nowInDistrict = (result?.providers || []).filter(isAvailable);
   const widened = !onContact && cityList !== null && nowInDistrict.length === 0;
-  const shown = onContact || cityList === null ? (result?.providers || []) : widened ? cityList.filter(isAvailable) : nowInDistrict;
+  const shown = !matching && !onContact ? (result?.providers || []) : onContact || cityList === null ? (result?.providers || []) : widened ? cityList.filter(isAvailable) : nowInDistrict;
   const districtName = result?.area ? localizedName({ name_ar: result.area.district_name_ar, name_en: result.area.district_name_en }, lang) : '';
   const cityName = result?.area ? localizedName({ name_ar: result.area.city_name_ar, name_en: result.area.city_name_en }, lang) : '';
   return (
@@ -107,6 +109,8 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
         <h2 className="text-xl md:text-2xl font-extrabold text-fg m-0">👷 {title || t('for_you.providers_title')}</h2>
         {!fixedArea && <div className="mt-1"><AreaLine area={result?.area} browsing={Boolean(browse)} onPick={pick} /></div>}
       </div>
+      {!onContact && showChips && <div className="flex gap-2 my-2" role="tablist">{[[true,'chat.requested_professions'],[false,'requester.all_professions']].map(([value,key]) => <button key={key} data-testid={value ? 'requested-professions' : 'all-professions'} type="button" role="tab" aria-selected={matching === value} className="btn btn-outline btn-sm" onClick={() => {setMatching(value);setCategoryId('');}}>{t(key)}</button>)}</div>}
+      {!onContact && matching && result?.requested_category_ids?.length === 0 && <p className="text-[12px] text-fg-muted">{t('chat.requested_professions_empty')}</p>}
       {/* The professions as a drop-down list (AYK-041). */}
       {showChips && <select className="select mb-3 max-w-md" aria-label={t('for_you.profession')} data-testid="profession-select"
         value={categoryId} onChange={e => setCategoryId(e.target.value)}>
@@ -158,7 +162,7 @@ function CityBox({ providers, cityName, requester, categoryId }) {
   const contact = async id => {
     setBusy(id); setProblem(''); setProblemWith(id);
     try { const res = await contactDirect(id, categoryId); navigate(`/chat/${res.conversation_id}`); }
-    catch (err) { setProblem(apiError(err)); } finally { setBusy(0); }
+    catch (err) { !err?.cancelled && setProblem(apiError(err)); } finally { setBusy(0); }
   };
   return (
     <section className="card tone-provider p-3 mt-4" data-testid="city-providers">
@@ -166,13 +170,14 @@ function CityBox({ providers, cityName, requester, categoryId }) {
       <p className="text-[12.5px] text-fg-muted mt-1 mb-2">{t('for_you.city_box_hint')}</p>
       <ul className="list-none p-0 m-0 max-h-64 overflow-y-auto divide-y divide-border">
         {providers.map(p => (
-          <li key={p.id} className="flex items-center gap-2 py-2 text-[13px]" data-testid="city-provider">
+          <li key={p.id} className="flex items-center gap-2 py-2 text-[13px] flex-wrap" data-testid="city-provider">
             <span className={p.availability?.state === 'available' ? 'text-success' : 'text-fg-subtle'} aria-label={t(p.availability?.state === 'available' ? 'for_you.available' : 'for_you.unavailable')}>●</span>
             <Link to={`/providers/${p.id}`} className="font-semibold text-fg truncate">{p.business_name || p.full_name}</Link>
             <span className="text-fg-muted truncate flex-1">
               {p.category_name_ar ? localizedName({ name_ar: p.category_name_ar, name_en: p.category_name_en, name_translations: p.category_name_translations }, lang) : ''}
               {p.district_name_ar ? ` · ${localizedName({ name_ar: p.district_name_ar, name_en: p.district_name_en }, lang)}` : ''}
             </span>
+            <TrustSummary userId={p.id} average={p.rating_avg} count={p.rating_count} />
             {requester && <button type="button" className="btn btn-outline btn-sm shrink-0" disabled={busy !== 0} onClick={() => contact(p.id)}>
               {busy === p.id ? '⏳' : `💬 ${t('request.contact')}`}</button>}
           </li>
@@ -189,7 +194,7 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
   const navigate = useNavigate();
-  const run = async action => { setBusy(true); setProblem(''); try { await action(); } catch (err) { setProblem(apiError(err)); } finally { setBusy(false); } };
+  const run = async action => { setBusy(true); setProblem(''); try { await action(); } catch (err) { !err?.cancelled && setProblem(apiError(err)); } finally { setBusy(false); } };
   const state = p.availability?.state;
   return (
     // Providers are blue, requests orange, as in the logo (AYK-099).
@@ -204,7 +209,7 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
         <div className="text-[13px] text-fg-muted mt-1 flex flex-wrap gap-x-3 gap-y-1">
           {p.category_name_ar && <span>🛠️ {localizedName({ name_ar: p.category_name_ar, name_en: p.category_name_en, name_translations: p.category_name_translations }, lang)}</span>}
           {p.district_name_ar && <span>📍 {localizedName({ name_ar: p.district_name_ar, name_en: p.district_name_en }, lang)}</span>}
-          <span>⭐ {p.rating_count ? `${p.rating_avg.toFixed(1)} (${p.rating_count})` : t('for_you.no_ratings')}</span>
+          <TrustSummary userId={p.id} average={p.rating_avg} count={p.rating_count} opinion={p.opinion} />
           {p.completed_orders > 0 && <span>✅ {t('for_you.completed', { count: p.completed_orders })}</span>}
           <span className={state === 'available' ? 'text-success' : ''}>● {t(state === 'available' ? 'for_you.available' : 'for_you.unavailable')}</span>
         </div>

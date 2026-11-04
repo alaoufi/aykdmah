@@ -31,4 +31,23 @@ function recordingDuration(value, files) {
   return duration;
 }
 
-module.exports = { validateChatMessage, recordingDuration };
+function searchQuery(value = '') {
+  if (typeof value !== 'string' || value.length > 200) throw Object.assign(new Error('Invalid search'), { status: 400 });
+  return value.trim();
+}
+function forwardSelection(body = {}) {
+  const ids = (values, max) => {
+    if (!Array.isArray(values) || !values.length || values.length > max || values.some(id => !Number.isSafeInteger(id) || id < 1 || id > 2147483647)) throw Object.assign(new Error('Invalid forward selection'), { status: 400 });
+    return [...new Set(values)];
+  };
+  return { messageIds: ids(body.message_ids, 20), targetIds: ids(body.conversation_ids, 20) };
+}
+function forwardOperationId(value) {
+  if (typeof value !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value)) throw Object.assign(new Error('Invalid forward operation'),{status:400});
+  return value.toLowerCase();
+}
+function canForward(message, senderId) {
+  return Boolean(message && !message.deleted_at && Number(message.sender_id) === Number(senderId)
+    && ['text', 'voice', 'image', 'file'].includes(message.message_type));
+}
+module.exports = { validateChatMessage, recordingDuration, searchQuery, forwardSelection, forwardOperationId, canForward };

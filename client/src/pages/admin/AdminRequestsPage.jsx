@@ -1,3 +1,4 @@
+import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +9,7 @@ import { REQUEST_STATUS } from '../../utils/constants';
 import { formatCurrency, formatRelativeTime } from '../../utils/formatters';
 import { IconSearch } from '../../components/common/Icons';
 import Modal from '../../components/common/Modal';
-import ConfirmDialog from '../../components/common/ConfirmDialog';
+import ConfirmDialog from '../../components/admin/AdminConfirmDialog';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import EmptyState from '../../components/admin/EmptyState';
 import { apiError } from '../../services/api';
@@ -23,6 +24,7 @@ const STATUS_BADGE = {
 
 export default function AdminRequestsPage() {
   const { t } = useTranslation();
+  const confirmAdminChange = useAdminConfirmation();
 
   const STATUS_TABS = useMemo(() => [
     { value: '',            label: t('common.all') },
@@ -84,6 +86,7 @@ export default function AdminRequestsPage() {
   const closeAssign = () => { ++assignVersion.current; setAssignFor(null); setSelectedProvider(''); setProviders([]); };
 
   const submitAssign = async () => {
+    if (!(await confirmAdminChange(t))) return;
     if (!assignFor || !selectedProvider || providersLoading || assignInFlight.current) return;
     const version = assignVersion.current;
     const requestId = assignFor.id;

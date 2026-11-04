@@ -26,6 +26,7 @@ const ProvidersMapPage = lazy(() => import('./pages/ProvidersMapPage'));
 const TestCheckoutPage = lazy(() => import('./pages/TestCheckoutPage'));
 const ProviderProfilePage = lazy(() => import('./pages/ProviderProfilePage'));
 const GuidePage = lazy(() => import('./pages/GuidePage'));
+const AdminGuidePage = lazy(() => import('./pages/admin/AdminGuidePage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 // AYK services catalog
@@ -210,6 +211,7 @@ export default function AppRoutes() {
         {/* Admin area — uses dedicated AdminLayout and redirects to /admin/login when not authenticated */}
         <Route element={<Protected roles={['admin']} loginPath="/admin/login"><AdminLayout /></Protected>}>
           <Route path="/admin" element={<AdminDashboardPage />} />
+          <Route path="/admin/guide" element={<AdminGuidePage />} />
           <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/admin/requests" element={<AdminRequestsPage />} />
           <Route path="/admin/categories" element={<AdminCategoriesPage />} />

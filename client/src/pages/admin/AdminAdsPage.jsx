@@ -1,3 +1,4 @@
+import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
 import { localizedName } from '../../utils/localize';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -13,7 +14,7 @@ import AdSparkline from '../../components/ads/AdSparkline';
 import { listCities, listRegions } from '../../services/serviceService';
 import { apiError } from '../../services/api';
 import Modal from '../../components/common/Modal';
-import ConfirmDialog from '../../components/common/ConfirmDialog';
+import ConfirmDialog from '../../components/admin/AdminConfirmDialog';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import AdminButton from '../../components/admin/AdminButton';
 import EmptyState from '../../components/admin/EmptyState';
@@ -71,6 +72,7 @@ function AdMedia({ url, type, className = '' }) {
 
 export default function AdminAdsPage() {
   const { t, i18n } = useTranslation();
+  const confirmAdminChange = useAdminConfirmation();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editOpen, setEditOpen] = useState(false);
@@ -110,6 +112,7 @@ export default function AdminAdsPage() {
   };
 
   const onPause = async (a) => {
+    if (!(await confirmAdminChange(t))) return;
     setBusy(a.id);
     try { await pauseAdAdmin(a.id); load(); }
     catch (e) { setMsg({ type: 'error', text: apiError(e) }); }
@@ -117,6 +120,7 @@ export default function AdminAdsPage() {
   };
 
   const onResume = async (a) => {
+    if (!(await confirmAdminChange(t))) return;
     setBusy(a.id);
     try { await resumeAdAdmin(a.id); load(); }
     catch (e) { setMsg({ type: 'error', text: apiError(e) }); }
@@ -141,6 +145,7 @@ export default function AdminAdsPage() {
     setPricingDirty(true);
   };
   const savePricing = async () => {
+    if (!(await confirmAdminChange(t))) return;
     setPricingSaving(true);
     try {
       const rows = await saveAdsPlacementPricing(pricing.map((r) => ({
@@ -246,6 +251,7 @@ export default function AdminAdsPage() {
 
   const onSave = async (e) => {
     e.preventDefault();
+    if (editing && !(await confirmAdminChange(t, editing.name_ar || editing.full_name || editing.title || editing.provider || ''))) return;
     if (uploading || saveInFlight.current) return;
     if ((form.link && !safeUrl(form.link)) || (form.image && !safeUrl(form.image))) {
       setFormError(t('errors.generic')); return;
@@ -305,6 +311,7 @@ export default function AdminAdsPage() {
   };
 
   const onApprove = async (a) => {
+    if (!(await confirmAdminChange(t))) return;
     setBusy(a.id);
     try { await approveAdAdmin(a.id); setMsg({ type: 'success', text: t('promote.admin_approved') }); load(); }
     catch (e) { setMsg({ type: 'error', text: apiError(e) }); }
@@ -312,6 +319,7 @@ export default function AdminAdsPage() {
   };
 
   const onReject = async (a) => {
+    if (!(await confirmAdminChange(t))) return;
     const reason = await askText({ title: t('badge.reject'), message: t('badge.reject_reason_prompt'), multiline: true, maxLength: 1000 });
     if (reason === null) return;
     setBusy(a.id);
@@ -321,6 +329,7 @@ export default function AdminAdsPage() {
   };
 
   const onReactivate = async (a) => {
+    if (!(await confirmAdminChange(t))) return;
     setBusy(a.id);
     try { await reactivateAdAdmin(a.id); setMsg({ type: 'success', text: t('promote.admin_activated') }); load(); }
     catch (e) { setMsg({ type: 'error', text: apiError(e) }); }
@@ -328,6 +337,7 @@ export default function AdminAdsPage() {
   };
 
   const onWaive = async (a) => {
+    if (!(await confirmAdminChange(t))) return;
     const reason = await askText({ title: `🎁 ${t('promote.waive_fee')}`, message: t('promote.waive_reason_prompt'), multiline: true, maxLength: 500, confirmText: t('promote.waive_fee') });
     if (reason === null) return;
     setBusy(a.id);
@@ -348,6 +358,7 @@ export default function AdminAdsPage() {
   };
 
   const onActivate = async (a) => {
+    if (!(await confirmAdminChange(t))) return;
     setBusy(a.id);
     try { await activateAdAdmin(a.id); setMsg({ type: 'success', text: t('promote.admin_activated') }); load(); }
     catch (e) { setMsg({ type: 'error', text: apiError(e) }); }
@@ -376,7 +387,7 @@ export default function AdminAdsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <AdminPageHeader title={t('admin.ads')} count={meta?.pagination?.total ?? items.length}>
         {section === 'manage' && <AdminButton variant="primary" icon="+" onClick={openCreate}>{t('admin.new')}</AdminButton>}
       </AdminPageHeader>
@@ -430,7 +441,7 @@ export default function AdminAdsPage() {
       {section === 'fees' && (<>
       {/* Per-placement pricing table */}
       <div className="bg-white rounded-card border border-slate-100 shadow-soft overflow-hidden">
-        <div className="px-4 md:px-5 py-3 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between gap-2">
+        <div className="px-4 md:px-3 py-2 border-b border-slate-100 bg-slate-50/50 flex items-center justify-between gap-2">
           <h3 className="text-ink font-extrabold text-[14px]">💰 {t('promote.placement_pricing_title')}</h3>
           <button onClick={savePricing} disabled={!pricingDirty || pricingSaving}
             className={`px-4 py-1.5 rounded-pill text-[12.5px] font-bold transition shrink-0 ${

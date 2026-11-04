@@ -18,6 +18,8 @@ export default function ServicesPage() {
   const [services, setServices] = useState([]);
   const [cities, setCities] = useState([]);
   const [requests, setRequests] = useState([]);
+  const [hasNext,setHasNext] = useState(false);
+  const page = Math.max(1,Number(params.get('page')) || 1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
   const { user } = useAuth();
@@ -26,7 +28,7 @@ export default function ServicesPage() {
   const isProvider = user?.role === 'provider';
   const canRequest = !isProvider || Number(user?.also_client) === 1;
   // A provider-only account sees its own professions and districts only (AYK-040).
-  const matching = isProvider && (!canRequest || params.get('all') !== '1');
+  const matching = isProvider && params.get('all') !== '1';
 
   const categoryId = params.get('category') || '';
   const cityId = params.get('city') || '';
@@ -49,22 +51,23 @@ export default function ServicesPage() {
     let current = true;
     if (!quiet) setLoading(true);
     setError(false);
-    const q = {};
+    const q = {page,limit:20};
     if (categoryId) q.category_id = categoryId;
     if (serviceId) q.service_id = serviceId;
     if (cityId) q.city_id = cityId;
     if (matching) q.matching = '1';
     listNearbyRequests(q)
-      .then(res => { if (current) setRequests(res.data || []); })
+      .then(res => { if (current) {setRequests(res.data || []);setHasNext(Boolean(res.meta?.pagination?.hasNext));} })
       .catch(() => { if (current) { setRequests([]); setError(true); } })
       .finally(() => { if (current) setLoading(false); });
     return () => { current = false; };
-  }, [categoryId, serviceId, cityId, matching, tick]);
+  }, [categoryId, serviceId, cityId, matching, tick, page]);
 
   const setParam = (key, value) => {
     const next = new URLSearchParams(params);
     if (value) next.set(key, value); else next.delete(key);
     if (key === 'category') next.delete('service');
+    if (key !== 'page') next.delete('page');
     setParams(next);
   };
 
@@ -74,10 +77,10 @@ export default function ServicesPage() {
       <AdSlot placement="search" className="mb-4" />
       {error && <p role="alert" className="form-error">{t('errors.generic')}</p>}
 
-      {isProvider && canRequest && <div className="flex gap-1.5 mb-3" role="tablist">
+      {isProvider && <div className="flex gap-1.5 mb-3" role="tablist">
         {[['1', 'opportunities.matching'], ['', 'opportunities.all']].map(([value, label]) => {
           const active = (value === '1') === matching;
-          return <button key={label} type="button" role="tab" aria-selected={active} onClick={() => setParam('all', value === '1' ? '' : '1')}
+          return <button key={label} data-testid={value === '1' ? 'browse-matching' : 'browse-all'} type="button" role="tab" aria-selected={active} onClick={() => setParam('all', value === '1' ? '' : '1')}
             className={`px-3 py-1.5 rounded-pill text-[13px] font-semibold border ${active ? 'border-primary bg-primary-soft' : 'border-border bg-surface-alt'}`}>{t(label)}</button>;
         })}
       </div>}
@@ -101,6 +104,7 @@ export default function ServicesPage() {
         {canRequest && <Link to="/requests/new" className="btn btn-primary btn-sm">➕ {t('home.new_request')}</Link>}
       </div>
 
+      <div className="flex items-center gap-3 mb-3"><button type="button" disabled={loading || page === 1} onClick={() => setParam('page',String(page-1))}>‹</button><span>{page}</span><button type="button" disabled={loading || !hasNext} onClick={() => setParam('page',String(page+1))}>›</button></div>
       {loading ? <LoadingState /> :
        requests.length === 0 ? <EmptyState title={isProvider ? t('work.no_requests') : t('common.none')} /> :
        <div className="grid grid-2">{requests.map(r => <RequestCard key={r.id} request={r} />)}</div>}

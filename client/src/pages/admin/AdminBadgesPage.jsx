@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { adminListBadges, adminApproveBadge, adminRejectBadge } from '../../services/badgeService';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import EmptyState from '../../components/admin/EmptyState';
-import ConfirmDialog from '../../components/common/ConfirmDialog';
+import ConfirmDialog from '../../components/admin/AdminConfirmDialog';
 import Avatar from '../../components/common/Avatar';
 import { formatCurrency, formatRelativeTime } from '../../utils/formatters';
 import { apiError } from '../../services/api';

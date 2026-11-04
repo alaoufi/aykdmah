@@ -1,3 +1,4 @@
+import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
 import { localizedJoinedName } from '../../utils/localizeJoined';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -7,7 +8,7 @@ import {
 import { apiError } from '../../services/api';
 import Avatar from '../../components/common/Avatar';
 import Modal from '../../components/common/Modal';
-import ConfirmDialog from '../../components/common/ConfirmDialog';
+import ConfirmDialog from '../../components/admin/AdminConfirmDialog';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import AdminButton from '../../components/admin/AdminButton';
 import EmptyState from '../../components/admin/EmptyState';
@@ -27,6 +28,7 @@ const EMPTY_FORM = { full_name: '', username: '', email: '', phone: '', facebook
 
 export default function AdminUsersPage() {
   const { t, i18n } = useTranslation();
+  const confirmAdminChange = useAdminConfirmation();
   const ROLE_TABS = [
     { value: '', label: t('common.all') },
     { value: 'client', label: t('auth.role_client') },
@@ -114,6 +116,7 @@ export default function AdminUsersPage() {
 
   const onSave = async (e) => {
     e.preventDefault();
+    if (editing && !(await confirmAdminChange(t, editing.name_ar || editing.full_name || editing.title || editing.provider || ''))) return;
     if (saveInFlight.current) return;
     if (form.role === 'admin' && !canEditPerms) { setFormError(t('errors.forbidden')); return; }
     const version = editVersion.current;
@@ -139,9 +142,10 @@ export default function AdminUsersPage() {
     }
   };
 
-  const askBlock = (u) => {
+  const askBlock = async (u) => {
     if (u.role === 'admin' && !canEditPerms) { setError(t('errors.forbidden')); return; }
     if (u.is_blocked) {
+      if (!(await confirmAdminChange(t, u.full_name))) return;
       unblockUser(u.id).then(load).catch((e) => setError(apiError(e)));
       return;
     }
@@ -174,14 +178,14 @@ export default function AdminUsersPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <AdminPageHeader title={t('admin.users')} count={meta?.pagination?.total}>
         <AdminButton variant="primary" icon="+" onClick={openCreate}>
           {t('admin.create_user')}
         </AdminButton>
       </AdminPageHeader>
 
-      {error && <div role="alert" className="px-4 py-3 rounded-card bg-rose-50 text-rose-700 text-[13px]">{error}</div>}
+      {error && <div role="alert" className="px-4 py-2 rounded-card bg-rose-50 text-rose-700 text-[13px]">{error}</div>}
 
       <div className="bg-white rounded-card border border-slate-100 p-4 md:p-5 flex flex-wrap items-center gap-3 shadow-soft">
         <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1">
@@ -216,7 +220,7 @@ export default function AdminUsersPage() {
       {/* Mobile: card layout (each user is one card with the full name on
           top, badges below, action row at the bottom — same pattern as
           categories/services). The table below is hidden on mobile. */}
-      <div className="md:hidden space-y-3">
+      <div className="md:hidden space-y-2">
         {loading ? (
           Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="h-[110px] rounded-card bg-white border border-slate-100 animate-pulse" />
@@ -225,7 +229,7 @@ export default function AdminUsersPage() {
           <div className="bg-white rounded-card border border-slate-100"><EmptyState icon="👥" title={t('admin.no_results')} /></div>
         ) : (
           items.map((u) => (
-            <div key={u.id} className="bg-white rounded-card border border-slate-100 p-4 shadow-soft">
+            <div key={u.id} className="bg-white rounded-card border border-slate-100 p-3 shadow-soft">
               <div className="flex items-start gap-3">
                 <Avatar src={u.avatar} name={u.full_name} size="sm" />
                 <div className="min-w-0 flex-1">
@@ -267,12 +271,12 @@ export default function AdminUsersPage() {
           <table className="w-full min-w-[760px]">
             <thead>
               <tr className="text-right text-[11.5px] font-bold text-slate-500 uppercase border-b border-slate-100 bg-slate-50/50">
-                <th className="px-5 py-3">{t('admin.users')}</th>
-                <th className="py-3">{t('admin.field_role')}</th>
-                <th className="py-3">{t('location.city')}</th>
-                <th className="py-3">{t('admin.status')}</th>
-                <th className="py-3">{t('admin.created_at')}</th>
-                <th className="py-3 px-5 text-end">{t('admin.actions')}</th>
+                <th className="px-3 py-2">{t('admin.users')}</th>
+                <th className="py-2">{t('admin.field_role')}</th>
+                <th className="py-2">{t('location.city')}</th>
+                <th className="py-2">{t('admin.status')}</th>
+                <th className="py-2">{t('admin.created_at')}</th>
+                <th className="py-2 px-5 text-end">{t('admin.actions')}</th>
               </tr>
             </thead>
             <tbody>
@@ -289,7 +293,7 @@ export default function AdminUsersPage() {
               ) : (
                 items.map((u) => (
                   <tr key={u.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition">
-                    <td className="px-5 py-3">
+                    <td className="px-3 py-2">
                       <div className="flex items-center gap-3">
                         <Avatar src={u.avatar} name={u.full_name} size="sm" />
                         <div className="min-w-0">
@@ -298,13 +302,13 @@ export default function AdminUsersPage() {
                         </div>
                       </div>
                     </td>
-                    <td className="py-3">
+                    <td className="py-2">
                       <span className={`inline-flex px-2.5 py-0.5 rounded-pill text-[11px] font-bold ${ROLE_BADGE[u.role] || 'bg-slate-100 text-slate-600'}`}>
                         {ROLE_LABEL[u.role] || u.role}
                       </span>
                     </td>
-                    <td className="py-3 text-[12.5px] text-slate-600">{localizedJoinedName(u, 'city', i18n.resolvedLanguage) || '—'}</td>
-                    <td className="py-3">
+                    <td className="py-2 text-[12.5px] text-slate-600">{localizedJoinedName(u, 'city', i18n.resolvedLanguage) || '—'}</td>
+                    <td className="py-2">
                       {u.is_blocked ? (
                         <span className="inline-flex px-2.5 py-0.5 rounded-pill bg-rose-50 text-rose-600 text-[11px] font-bold">{t('admin.is_blocked')}</span>
                       ) : u.is_active ? (
@@ -313,8 +317,8 @@ export default function AdminUsersPage() {
                         <span className="inline-flex px-2.5 py-0.5 rounded-pill bg-slate-100 text-slate-500 text-[11px] font-bold">{t('admin.is_inactive')}</span>
                       )}
                     </td>
-                    <td className="py-3 text-[11.5px] text-slate-400">{formatRelativeTime(u.created_at)}</td>
-                    <td className="py-3 px-5 text-end">
+                    <td className="py-2 text-[11.5px] text-slate-400">{formatRelativeTime(u.created_at)}</td>
+                    <td className="py-2 px-5 text-end">
                       <div className="flex justify-end gap-1.5">
                         <button onClick={() => openEdit(u)} className="px-3 py-1.5 rounded-pill text-[11.5px] font-semibold bg-brand-50 text-brand-700 hover:bg-brand-100 transition">
                           {t('admin.edit')}

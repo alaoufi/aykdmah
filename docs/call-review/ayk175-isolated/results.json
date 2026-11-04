@@ -1,0 +1,157 @@
+[
+  {
+    "name": "both browser sessions are authenticated over Socket.IO",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "incoming voice call screen shown to the provider",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "voice: client has a live remote audio track",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "voice: provider has a live remote audio track",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "voice: client receives non-silent decoded samples",
+    "ok": true,
+    "detail": "{\"activeFrames\":60,\"peak\":1.0257}"
+  },
+  {
+    "name": "voice: provider receives non-silent decoded samples",
+    "ok": true,
+    "detail": "{\"activeFrames\":59,\"peak\":1.03194}"
+  },
+  {
+    "name": "voice: mute toggles",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "voice: hang-up by provider ends the call for the client",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "declined call is reported to the caller",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "video: client does not capture a camera while ringing",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "video: provider does not capture a camera while ringing",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "video: client joins with camera off and no camera capture",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "video: provider joins with camera off and no camera capture",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "video: client receives provider video",
+    "ok": true,
+    "detail": "sizes 960,960"
+  },
+  {
+    "name": "video: provider receives client video",
+    "ok": true,
+    "detail": "sizes 960,960"
+  },
+  {
+    "name": "video: camera off toggles",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "outsider token refused",
+    "ok": true,
+    "detail": "HTTP 404"
+  },
+  {
+    "name": "outsider accept refused",
+    "ok": true,
+    "detail": "HTTP 404"
+  },
+  {
+    "name": "outsider decline refused",
+    "ok": true,
+    "detail": "HTTP 404"
+  },
+  {
+    "name": "video: camera remains off during the browser offline interval",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "video: camera is still off after the browser actually returns online",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "video: remote track remains live after a 4 s browser offline toggle",
+    "ok": true,
+    "detail": "sizes 2,960"
+  },
+  {
+    "name": "video: client receives decoded audio after browser returns online",
+    "ok": true,
+    "detail": "{\"activeFrames\":59,\"peak\":1.02941}"
+  },
+  {
+    "name": "video: provider receives decoded audio after browser returns online",
+    "ok": true,
+    "detail": "{\"activeFrames\":63,\"peak\":1.02748}"
+  },
+  {
+    "name": "isolated SFU network was interrupted and restored",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "network recovery: client receives non-silent decoded audio",
+    "ok": true,
+    "detail": "{\"activeFrames\":27,\"peak\":1.00105}"
+  },
+  {
+    "name": "network recovery: client established a fresh LiveKit signaling connection",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "network recovery: provider receives non-silent decoded audio",
+    "ok": true,
+    "detail": "{\"activeFrames\":57,\"peak\":1.00334}"
+  },
+  {
+    "name": "network recovery: provider established a fresh LiveKit signaling connection",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "network recovery: provider camera stays off without a new capture",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "video: hang-up by client ends the call for the provider",
+    "ok": true,
+    "detail": ""
+  }
+]

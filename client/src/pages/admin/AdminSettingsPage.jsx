@@ -1,3 +1,4 @@
+import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getSettings, updateSettings, applyMigrations } from '../../services/adminService';
@@ -30,6 +31,7 @@ const HANDLED_BY_CUSTOM_UI = new Set([
 
 export default function AdminSettingsPage() {
   const { t } = useTranslation();
+  const confirmAdminChange = useAdminConfirmation();
   const TABS = [
     { key: 'auth',          label: t('admin.settings_auth') },
     { key: 'general',       label: t('admin.settings_general') },
@@ -79,6 +81,7 @@ export default function AdminSettingsPage() {
   };
 
   const onSave = async () => {
+    if (!(await confirmAdminChange(t))) return;
     if (!loaded || mutationInFlight.current) return;
     mutationInFlight.current = true;
     setSaving(true);
@@ -276,6 +279,7 @@ export default function AdminSettingsPage() {
               !get('verify_required_for_provider') &&
               !get('verify_required_for_client');
             const toggle = async () => {
+    if (!(await confirmAdminChange(t))) return;
               if (!loaded || mutationInFlight.current) return;
               mutationInFlight.current = true;
               setSaving(true);

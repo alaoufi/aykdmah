@@ -1,7 +1,10 @@
 import api from './api';
+import i18n from '../i18n';
+import { withContactIntent } from '../utils/contactIntent';
+import { askChoice } from '../components/common/AppDialog';
 
-export async function listConversations() {
-  const { data } = await api.get('/chat/conversations');
+export async function listConversations(params = {}) {
+  const { data } = await api.get('/chat/conversations', { params });
   return data.data;
 }
 
@@ -57,16 +60,28 @@ export async function markRead(id) {
 }
 
 export async function createConversation(payload) {
-  const { data } = await api.post('/chat/conversations', payload);
+  return withContactIntent(async intent => {
+  const lookup = await api.get('/chat/conversations',{...intent.config(),params:{user_id:payload.user_id,request_id:payload.request_id,limit:1}});
+  intent.assertCurrent();
+  const previous = lookup.data.data?.[0];
+  if (previous) {
+    const choice = await askChoice({isCurrent:intent.isCurrent,title:i18n.t('chat.previous_title'),message:i18n.t('chat.previous_hint'),choices:[{value:'open',label:i18n.t('chat.open_previous')},{value:'new',label:i18n.t('chat.new_conversation')}]});
+    intent.assertCurrent();
+    if (choice === null) throw Object.assign(new Error('Cancelled'),{cancelled:true});
+    if (choice === 'open') return {id:previous.id};
+    payload = {...payload,fresh:true};
+  }
+  const { data } = await api.post('/chat/conversations', payload,intent.config());
   return data.data;
+  });
 }
 
 export async function deleteMessage(conversationId, messageId) {
   await api.delete(`/chat/conversations/${conversationId}/messages/${messageId}`);
 }
 
-export async function searchMessages(conversationId, q) {
-  const { data } = await api.get(`/chat/conversations/${conversationId}/search`, { params: { q } });
+export async function searchMessages(conversationId, q, before) {
+  const { data } = await api.get(`/chat/conversations/${conversationId}/search`, { params: { q, before } });
   return data.data;
 }
 
@@ -114,4 +129,9 @@ export async function markNotificationRead(id) {
 
 export async function markAllNotificationsRead() {
   await api.put('/notifications/read-all');
+}
+
+export async function forwardMessages(conversationId, messageIds, conversationIds, operationId) {
+  const { data } = await api.post(`/chat/conversations/${conversationId}/forward`, { operation_id: operationId, message_ids: messageIds, conversation_ids: conversationIds });
+  return data.data;
 }

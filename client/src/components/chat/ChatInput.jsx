@@ -20,6 +20,9 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
   const [error, setError] = useState(null);
   const inputRef = useRef(null);
   const fileRef = useRef(null);
+  const photoRef = useRef(null);
+  const audioRef = useRef(null);
+  const [attachmentMenu, setAttachmentMenu] = useState(false);
   const videoRef = useRef(null);
   const captureRef = useRef(null);
   const filesRef = useRef(files);
@@ -70,6 +73,7 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
     setSending(false);
     setShowEmoji(false);
     setShowVideo(false);
+    setAttachmentMenu(false);
   }, [sessionKey]);
 
   useEffect(() => {
@@ -168,6 +172,7 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
     // Choosing the same file after cancelling or deleting it must work again.
     event.target.value = '';
     setShowVideo(false);
+    setAttachmentMenu(false);
   };
   const startRecording = () => {
     if (busy) return;
@@ -228,6 +233,12 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
         </div>
       )}
 
+      {attachmentMenu && <div className="chat-video-actions">
+        <button type="button" disabled={busy} onClick={() => photoRef.current?.click()}>🖼️ {t('chat.attach_photo')}</button>
+        <button type="button" disabled={busy} onClick={() => audioRef.current?.click()}>🎵 {t('chat.attach_audio')}</button>
+        <button type="button" disabled={busy} onClick={() => videoRef.current?.click()}>🎞️ {t('chat.choose_video')}</button>
+        <button type="button" disabled={busy} onClick={() => fileRef.current?.click()}>📁 {t('request.attachments')}</button>
+      </div>}
       {showVideo && (
         <div className="chat-video-actions" id="chat-video-actions">
           <button type="button" onClick={startVideoRecording} disabled={busy}>🔴 {t('chat.record_video')}</button>
@@ -240,7 +251,7 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
         <div className="wa-pill">
           <button type="button" onClick={() => { setShowEmoji(value => !value); setShowVideo(false); }} aria-label={t('chat.emoji')} aria-expanded={showEmoji} disabled={busy}>😀</button>
           <input ref={inputRef} type="text" value={text} onChange={event => setText(event.target.value)} onKeyDown={handleKey} placeholder={t('chat.placeholder')} aria-label={t('chat.placeholder')} disabled={busy} />
-          <button type="button" onClick={() => fileRef.current?.click()} aria-label={t('request.attachments')} title={t('request.attachments')} disabled={busy}>📎</button>
+          <button type="button" onClick={() => setAttachmentMenu(v => !v)} aria-expanded={attachmentMenu} aria-label={t('request.attachments')} title={t('request.attachments')} disabled={busy}>📎</button>
           <button type="button" onClick={() => { setShowVideo(value => !value); setShowEmoji(false); }} aria-label={t('chat.video_message')} title={t('chat.video_message')} aria-expanded={showVideo} aria-controls="chat-video-actions" disabled={busy}>📷</button>
           {onShareLocation && (
             <button type="button" onClick={onShareLocation} disabled={busy || sharingLocation} aria-label={t('chat.share_location')} title={t('chat.share_location')}>📍</button>
@@ -255,10 +266,12 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
             {voice.status !== 'idle' ? '➤' : '🎙️'}
           </button>
         ) : (
-          <button type="button" className="send-btn" onClick={handleSend} disabled={busy || (!text.trim() && files.length === 0)} aria-label={t('common.send')}>➤</button>
+          <button type="button" data-testid="chat-send" className="send-btn" onClick={handleSend} disabled={busy || (!text.trim() && files.length === 0)} aria-label={t('common.send')}>➤</button>
         )}
+        <input data-testid="attach-photo-input" ref={photoRef} type="file" multiple hidden accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp" onChange={selectFiles} />
+        <input data-testid="attach-audio-input" ref={audioRef} type="file" multiple hidden accept="audio/mpeg,audio/mp4,audio/ogg,audio/wav,audio/webm,.mp3,.m4a,.ogg,.wav,.webm" onChange={selectFiles} />
         <input ref={fileRef} type="file" multiple hidden accept={CHAT_ATTACHMENT_ACCEPT} onChange={selectFiles} />
-        <input ref={videoRef} type="file" hidden accept="video/mp4,video/webm,video/ogg,video/quicktime,.mp4,.webm,.mov,.ogv" onChange={selectFiles} />
+        <input data-testid="attach-video-input" ref={videoRef} type="file" hidden accept="video/mp4,video/webm,video/ogg,video/quicktime,.mp4,.webm,.mov,.ogv" onChange={selectFiles} />
         <input ref={captureRef} type="file" hidden accept="video/*" capture="environment" onChange={selectFiles} />
       </div>
 

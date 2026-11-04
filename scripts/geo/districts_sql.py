@@ -6,6 +6,7 @@ with is_verified=0 and skipped when the city is missing or the same Arabic name
 already exists in that city.
 """
 import json
+import re
 import sys
 
 
@@ -19,8 +20,15 @@ def number(value):
     return 'NULL' if value is None else repr(float(value))
 
 
+def english_name(value):
+    if not isinstance(value, str):
+        return value
+    cleaned = re.sub(r'\s+Dist\.?$', '', value.strip(), flags=re.IGNORECASE).strip()
+    return cleaned or value.strip()
+
+
 def statements(source, rows):
-    values = [f"({r['city_id']}, {quote(r['name_ar'])}, {quote(r.get('name_en'))}, {number(r.get('lat'))}, "
+    values = [f"({r['city_id']}, {quote(r['name_ar'])}, {quote(english_name(r.get('name_en')))}, {number(r.get('lat'))}, "
               f"{number(r.get('lon'))}, {quote(r.get('source_ref'))})" for r in rows]
     for start in range(0, len(values), 500):
         chunk = ',\n  '.join(values[start:start + 500])

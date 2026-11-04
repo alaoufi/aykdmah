@@ -1,0 +1,19 @@
+.guide-book{max-width:100%;min-width:0;perspective:1800px;margin-block:1rem 2rem;color:var(--text)}
+.guide-book-cover{display:flex;gap:1rem;align-items:center;padding:1.2rem 1.4rem;border-radius:1rem 1rem .3rem .3rem;background:linear-gradient(120deg,var(--primary),#123d5b);color:white;box-shadow:0 6px 0 #0b263b,0 12px 22px #0002;transform:rotateX(2deg);font-size:1.2rem}
+.guide-book-cover>span{font-size:2rem}.guide-book-controls{display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;padding:1rem .25rem}
+.guide-book-index{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap;min-width:0}.guide-book-index select{max-width:100%;min-width:0;padding:.6rem;border:1px solid var(--border);border-radius:.6rem;background:var(--bg-card);color:var(--text)}
+.guide-book-controls button{min-height:44px;padding:.6rem 1.2rem;border:1px solid var(--border);border-radius:.7rem;background:var(--bg-card);color:var(--text);font-weight:700}.guide-book-controls button:disabled{opacity:.45}
+.guide-book-spread{display:grid;grid-template-columns:minmax(0,.7fr) minmax(0,1fr);border:1px solid var(--border);border-radius:.3rem .8rem .8rem .3rem;box-shadow:4px 5px 0 var(--bg-soft),8px 9px 0 var(--border),0 14px 30px #0002;background:var(--bg-card);animation:guide-turn .26s ease-out;transform-origin:center}
+.guide-book-page{padding:1.25rem;min-width:0;background:linear-gradient(90deg,#00000008,transparent 5%),var(--bg-card);overflow-wrap:anywhere}.guide-book-chapter{font-size:1.2rem;font-weight:800;margin-block-end:1rem}.guide-book-chapter:focus{outline:2px solid var(--primary);outline-offset:4px}
+.guide-book-picture{padding:1rem;border-inline-end:1px solid var(--border);background:var(--bg-soft);min-width:0;display:flex;flex-direction:column;align-items:center;gap:1rem}.guide-book-picture img{width:100%;max-width:300px;height:auto;max-height:520px;object-fit:contain;border-radius:.7rem;box-shadow:0 5px 15px #0002}.guide-book-picture-title{display:flex;gap:.8rem;align-items:center}.guide-book-picture-title>span{font-size:2.5rem;color:var(--primary);font-weight:900}.guide-book-picture p{font-size:.85rem;color:var(--text-secondary);line-height:1.7}
+@keyframes guide-turn{from{opacity:.5;transform:rotateY(5deg)}to{opacity:1;transform:rotateY(0)}}
+@media(max-width:640px){.guide-book-spread{grid-template-columns:minmax(0,1fr)}.guide-book-picture{border-inline-end:0;border-block-end:1px solid var(--border)}.guide-book-picture img{max-height:240px;width:auto;max-width:100%}.guide-book-page{padding:1rem}.guide-book-index{width:100%}.guide-book-index select{width:100%}}
+@media(prefers-reduced-motion:reduce){.guide-book-spread{animation:none}.guide-book-cover{transform:none}}
+
+.guide-book-page .md\:grid-cols-2,.guide-book-page .md\:grid-cols-3{grid-template-columns:minmax(0,1fr)}
+.guide-book-cover{flex-wrap:wrap}.guide-book-cover strong{min-width:0;overflow-wrap:anywhere}.guide-book-picture-title{min-width:0;max-width:100%;flex-wrap:wrap;justify-content:center}.guide-book-picture-title strong{min-width:0;overflow-wrap:anywhere}.guide-book-index{max-width:100%}
+.guide-book-index{display:grid;grid-template-columns:minmax(0,1fr)}
+/* WebKit's native select can paint its selected text past an explicitly sized
+   control. Keep the option menu native, but size and clip the closed control. */
+.guide-book-index select{appearance:none;-webkit-appearance:none;box-sizing:border-box;width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-inline-end:2.2rem;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position:calc(100% - 1rem) 50%,calc(100% - .7rem) 50%;background-size:.3rem .3rem;background-repeat:no-repeat}
+[dir="rtl"] .guide-book-index select{background-position:1rem 50%,.7rem 50%}

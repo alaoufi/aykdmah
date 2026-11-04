@@ -11,6 +11,7 @@ router.get('/conversations', authenticate, c.listConversations);
 router.get('/unread', authenticate, c.unreadCount);
 router.get('/conversations/:id/messages/:messageId/translation', authenticate, c.translateMessage);
 router.post('/conversations/:id/nudge', authenticate, requireMarketplaceWrite, c.nudge);
+router.post('/conversations/:id/forward', authenticate, requireMarketplaceWrite, c.forwardMessages);
 router.post('/conversations/:id/messages/:messageId/forward', authenticate, requireMarketplaceWrite, c.forwardMessage);
 router.post('/conversations', authenticate, requireMarketplaceWrite, c.createConversation);
 router.get('/conversations/:id', authenticate, c.getConversation);

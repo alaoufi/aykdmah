@@ -1,4 +1,17 @@
 import api from './api';
+import i18n from '../i18n';
+import { withContactIntent } from '../utils/contactIntent';
+import { askChoice } from '../components/common/AppDialog';
+async function contactChoice(params,intent) {
+  const { data } = await api.get('/chat/conversations', { ...intent.config(), params: { ...params, limit: 1 } });
+  intent.assertCurrent();
+  const previous = data.data?.[0];
+  if (!previous) return {fresh:false};
+  const choice = await askChoice({isCurrent:intent.isCurrent,title:i18n.t('chat.previous_title'),message:i18n.t('chat.previous_hint'),choices:[{value:'open',label:i18n.t('chat.open_previous')},{value:'new',label:i18n.t('chat.new_conversation')}]});
+  intent.assertCurrent();
+  if (choice === null) throw Object.assign(new Error('Cancelled'), {cancelled:true});
+  return choice === 'open' ? {previous} : {fresh:true};
+}
 
 export async function createRequest(formData) {
   const { data } = await api.post('/requests', formData, {
@@ -40,8 +53,12 @@ export async function updateRequestStatus(id, payload) {
 
 // Direct contact without a price (provider → requester, or requester → a matching provider).
 export async function contactRequest(id, providerId) {
-  const { data } = await api.post(`/requests/${id}/contact`, providerId ? { provider_id: providerId } : {});
+  return withContactIntent(async intent => {
+  const choice = await contactChoice({request_id:id,...(providerId ? {user_id:providerId} : {})},intent);
+  if (choice.previous) return {conversation_id:choice.previous.id};
+  const { data } = await api.post(`/requests/${id}/contact`, {...(providerId ? {provider_id:providerId} : {}), fresh:choice.fresh},intent.config());
   return data.data;
+  });
 }
 
 // The requester agreed with this provider: the request is assigned and other chats close.
@@ -81,8 +98,12 @@ export async function saveToDirectory(providerId, saved = true, nickname = null)
 }
 
 export async function contactDirect(providerId, categoryId) {
-  const { data } = await api.post('/requests/direct', { provider_id: providerId, ...(categoryId ? { category_id: categoryId } : {}) });
+  return withContactIntent(async intent => {
+  const choice = await contactChoice({user_id:providerId},intent);
+  if (choice.previous) return {conversation_id:choice.previous.id,request_id:choice.previous.request_id};
+  const { data } = await api.post('/requests/direct', { fresh:choice.fresh, provider_id: providerId, ...(categoryId ? { category_id: categoryId } : {}) },intent.config());
   return data.data;
+  });
 }
 
 // Offers

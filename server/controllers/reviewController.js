@@ -1,3 +1,4 @@
+const { reviewsForViewer } = require('../utils/requesterPrivacy');
 const Review = require('../models/Review');
 const Request = require('../models/Request');
 const Dispute = require('../models/Dispute');
@@ -77,7 +78,7 @@ const create = asyncHandler(async (req, res) => {
     link: review_type === 'on_provider' ? `/provider/reviews` : `/profile`,
   });
   const review = await Review.findById(id);
-  return created(res, review, req.t('review_sent'));
+  return created(res, (await reviewsForViewer([review],req.user.id,req.t('requester_label')))[0], req.t('review_sent'));
 });
 
 // GET /users/:id/reviews?type=on_provider&sort=recent&page=...
@@ -94,7 +95,7 @@ const getForUser = asyncHandler(async (req, res) => {
       item.user_voted = await Review.userHasVoted(item.id, req.user.id);
     }
   }
-  return paginate(res, items, total, page, limit);
+  return paginate(res, await reviewsForViewer(items,req.user?.id,req.t('requester_label')), total, page, limit);
 });
 
 // GET /users/:id/rating-stats?type=on_provider
@@ -108,7 +109,7 @@ const getStats = asyncHandler(async (req, res) => {
 const getForProvider = asyncHandler(async (req, res) => {
   const { page, limit } = Request.pagination(req.query.page, req.query.limit);
   const { items, total } = await Review.listByProvider(req.params.providerId, { page, limit });
-  return paginate(res, items, total, page, limit);
+  return paginate(res, await reviewsForViewer(items,req.user?.id,req.t('requester_label')), total, page, limit);
 });
 
 const reply = asyncHandler(async (req, res) => {

@@ -1,13 +1,17 @@
+import { validateAdminCatalogForm, catalogResponseErrors } from '../../utils/adminCatalogValidation';
+import { useAuth } from '../../hooks/useAuth';
+import ServiceEditorModal from '../../components/admin/ServiceEditorModal';
+import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
 import { localizedName } from '../../utils/localize';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   listCategoriesAdmin, createCategory, updateCategory, deleteCategory,
-  listServicesAdmin,
+  listServicesAdmin, deleteService,
 } from '../../services/adminService';
 import { apiError } from '../../services/api';
-import Modal from '../../components/common/Modal';
-import ConfirmDialog from '../../components/common/ConfirmDialog';
+import Modal from '../../components/admin/AdminModal';
+import ConfirmDialog from '../../components/admin/AdminConfirmDialog';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import AdminButton from '../../components/admin/AdminButton';
 import EmptyState from '../../components/admin/EmptyState';
@@ -20,6 +24,10 @@ const EMPTY = { name_ar: '', icon: '', color: '', description: '', sort_order: 0
 
 export default function AdminCategoriesPage() {
   const { t, i18n } = useTranslation();
+  const confirmAdminChange = useAdminConfirmation();
+  const { hasPermission } = useAuth();
+  const canManageServices = hasPermission('services.manage');
+  const [serviceEditor, setServiceEditor] = useState(null);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState(null);
@@ -30,6 +38,8 @@ export default function AdminCategoriesPage() {
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState('');
+  const [fieldErrors, setFieldErrors] = useState({});
+  const updateForm = next => { setForm(next); setFieldErrors(prev => Object.fromEntries(Object.entries(prev).filter(([field]) => next[field] === form[field]))); };
   const [confirm, setConfirm] = useState({ open: false });
   const [error, setError] = useState('');
   const loadVersion = useRef(0);
@@ -63,7 +73,25 @@ export default function AdminCategoriesPage() {
 
   useEffect(() => { load(); }, []);
 
-  const openCreate = () => { setEditing(null); setForm(EMPTY); setFormError(''); setEditOpen(true); };
+  const refreshServices = async categoryId => {
+    try {
+      const [services, categories] = await Promise.all([listServicesAdmin({ category_id: categoryId }), listCategoriesAdmin()]);
+      setServicesByCat(prev => ({ ...prev, [categoryId]: services || [] }));
+      setItems(categories || []);
+    } catch (error) {
+      // The write already succeeded. A failed refresh must not leave an add
+      // dialog inviting a duplicate retry of the successful operation.
+      setError(apiError(error));
+      setServicesByCat(prev => { const next = { ...prev }; delete next[categoryId]; return next; });
+    }
+  };
+  const askDeleteService = (service, category) => setConfirm({
+    open: true, title: t('admin.confirm_delete_title'),
+    body: `${t('admin.confirm_delete_body')} (${localizedName(service, i18n.resolvedLanguage)})`, tone: 'danger',
+    onConfirm: async () => { await deleteService(service.id); setConfirm({ open: false }); await refreshServices(category.id); },
+  });
+
+  const openCreate = () => { setEditing(null); setForm(EMPTY); setFormError(''); setFieldErrors({}); setEditOpen(true); };
   const openEdit = (c) => {
     setEditing(c);
     setForm({
@@ -72,11 +100,14 @@ export default function AdminCategoriesPage() {
       sort_order: c.sort_order || 0, is_active: !!c.is_active,
     });
     setFormError('');
-    setEditOpen(true);
+    setFieldErrors({}); setEditOpen(true);
   };
 
   const onSave = async (e) => {
     e.preventDefault();
+    const found = validateAdminCatalogForm('category', form, t);
+    if (Object.keys(found).length) { setFieldErrors(found); return; }
+    if (editing && !(await confirmAdminChange(t, editing.name_ar || editing.full_name || editing.title || editing.provider || ''))) return;
     setSaving(true);
     setFormError('');
     try {
@@ -85,7 +116,9 @@ export default function AdminCategoriesPage() {
       setEditOpen(false);
       load();
     } catch (err) {
-      setFormError(apiError(err) || t('errors.generic'));
+      const found = catalogResponseErrors('category', err, t);
+      if (Object.keys(found).length) setFieldErrors(found);
+      else setFormError(apiError(err) || t('errors.generic'));
     } finally { setSaving(false); }
   };
 
@@ -104,7 +137,7 @@ export default function AdminCategoriesPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <AdminPageHeader title={t('admin.categories')} count={items.length}>
         <AdminButton variant="primary" icon="+" onClick={openCreate}>
           {t('admin.new')}
@@ -131,7 +164,7 @@ export default function AdminCategoriesPage() {
             const color = /^#[0-9a-f]{6}$/i.test(c.color || '') ? c.color : '';
             return (
             <div key={c.id} className={`bg-white rounded-card border shadow-soft transition ${expanded ? 'border-brand-300 shadow-card' : 'border-slate-100 hover:shadow-card hover:border-brand-200'}`}>
-              <div className="p-4">
+              <div className="p-3">
                 {/* Tap the top area to expand the category */}
                 <button
                   type="button"
@@ -173,6 +206,8 @@ export default function AdminCategoriesPage() {
                 {/* Inline services list — slides open when category is tapped */}
                 {expanded && (
                   <div className="mt-3 pt-3 border-t border-slate-100 animate-[slideDown_.18s_ease]">
+                    {canManageServices && <button type="button" onClick={() => setServiceEditor({ category: c, service: null })}
+                      className="btn btn-primary btn-sm mb-2">+ {t('admin.services')}</button>}
                     {loadingCat === c.id ? (
                       <div className="space-y-2">
                         {Array.from({ length: 3 }).map((_, i) => (
@@ -199,6 +234,10 @@ export default function AdminCategoriesPage() {
                             ) : (
                               <span className="px-1.5 py-0.5 rounded-pill bg-slate-200 text-slate-500 text-[10px] font-bold shrink-0">⏸</span>
                             )}
+                            {canManageServices && <span className="flex gap-1 shrink-0">
+                              <button type="button" className="btn btn-ghost btn-sm" aria-label={t('admin.edit') + ' ' + localizedName(s, i18n.resolvedLanguage)} onClick={() => setServiceEditor({ category: c, service: s })}>{t('admin.edit')}</button>
+                              <button type="button" className="btn btn-ghost btn-sm text-rose-700" aria-label={t('admin.delete') + ' ' + localizedName(s, i18n.resolvedLanguage)} onClick={() => askDeleteService(s, c)}>{t('admin.delete')}</button>
+                            </span>}
                           </div>
                         ))}
                       </div>
@@ -206,7 +245,7 @@ export default function AdminCategoriesPage() {
                   </div>
                 )}
               </div>
-              <div className="flex gap-1.5 px-4 pb-4 pt-3 border-t border-slate-100">
+              <div className="flex gap-1.5 px-3 pb-3 pt-2 border-t border-slate-100">
                 <button onClick={() => openEdit(c)} className="flex-1 px-3 py-1.5 rounded-pill text-[11.5px] font-semibold bg-brand-50 text-brand-700 hover:bg-brand-100 transition">{t('admin.edit')}</button>
                 <button onClick={() => askDelete(c)} className="flex-1 px-3 py-1.5 rounded-pill text-[11.5px] font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition">{t('admin.delete')}</button>
               </div>
@@ -227,18 +266,18 @@ export default function AdminCategoriesPage() {
           </>
         }
       >
-        <form id="AdminCategoriesPage-form" onSubmit={onSave} className="space-y-3">
+        <form noValidate id="AdminCategoriesPage-form" onSubmit={onSave} className="space-y-3">
           {formError && <div className="px-3 py-2 rounded bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">{formError}</div>}
-          <Field label={t('admin.category_name_ar')} value={form.name_ar} onChange={(v) => setForm({ ...form, name_ar: v })} required />
+          <Field label={t('admin.category_name_ar')} error={fieldErrors.name_ar} value={form.name_ar} onChange={(v) => updateForm({ ...form, name_ar: v })} required />
           <div className="px-3 py-2 rounded-card bg-info-soft text-info text-[12px]">
             🌐 {t('admin.auto_translate_hint')}
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <Field label={t('admin.category_icon')} value={form.icon} onChange={(v) => setForm({ ...form, icon: v })} placeholder="🏠" />
-            <Field label={t('admin.category_color')} value={form.color} onChange={(v) => setForm({ ...form, color: v })} placeholder="#0ea5e9" />
-            <Field label={t('admin.category_sort_order')} type="number" value={form.sort_order} onChange={(v) => setForm({ ...form, sort_order: Number(v) || 0 })} />
+            <Field label={t('admin.category_icon')} error={fieldErrors.icon} value={form.icon} onChange={(v) => updateForm({ ...form, icon: v })} placeholder="🏠" />
+            <Field label={t('admin.category_color')} error={fieldErrors.color} value={form.color} onChange={(v) => updateForm({ ...form, color: v })} placeholder="#0ea5e9" />
+            <Field label={t('admin.category_sort_order')} type="number" error={fieldErrors.sort_order} value={form.sort_order} onChange={(v) => updateForm({ ...form, sort_order: Number(v) || 0 })} />
           </div>
-          <Field label={t('admin.category_description')} value={form.description} onChange={(v) => setForm({ ...form, description: v })} multiline />
+          <Field label={t('admin.category_description')} error={fieldErrors.description} value={form.description} onChange={(v) => updateForm({ ...form, description: v })} multiline />
           {editing && (
             <label className="inline-flex items-center gap-2 text-[13px] cursor-pointer">
               <input type="checkbox" checked={!!form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked ? 1 : 0 })} />
@@ -248,22 +287,26 @@ export default function AdminCategoriesPage() {
         </form>
       </Modal>
 
+      {serviceEditor && canManageServices && <ServiceEditorModal key={`${serviceEditor.category.id}:${serviceEditor.service?.id || 'new'}`} {...serviceEditor} categories={items} onClose={() => setServiceEditor(null)} onSaved={refreshServices} />}
       <ConfirmDialog {...confirm} onCancel={() => setConfirm({ open: false })} />
       <AdminFab onClick={openCreate} ariaLabel={t('admin.new')} />
     </div>
   );
 }
 
-function Field({ label, value, onChange, type = 'text', required = false, placeholder = '', multiline = false }) {
-  const cls = 'w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]';
+function Field({ label, value, onChange, type = 'text', required = false, placeholder = '', multiline = false, error }) {
+  const id = useId();
+  const cls = `w-full px-3 py-2 rounded-card border outline-none text-[14px] ${error ? 'border-2 border-rose-500 bg-rose-50' : 'border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500'}`;
+  const a11y = { id, 'aria-invalid': Boolean(error), 'aria-describedby': error ? `${id}-error` : undefined };
   return (
     <div>
-      <label className="block text-[12px] font-bold text-ink mb-1">{label}</label>
+      <label htmlFor={id} className={`block text-[12px] font-bold mb-1 ${error ? 'text-rose-600' : 'text-ink'}`}>{label}</label>
       {multiline ? (
-        <textarea rows={3} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={cls} />
+        <textarea {...a11y} rows={3} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={cls} />
       ) : (
-        <input type={type} required={required} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={cls} />
+        <input {...a11y} type={type} required={required} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={cls} />
       )}
+      {error && <span id={`${id}-error`} role="alert" className="block mt-1 text-[12px] font-bold text-rose-600">{error}</span>}
     </div>
   );
 }

@@ -1,3 +1,4 @@
+import { useAdminConfirmation } from './confirmAdminChange';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -14,6 +15,7 @@ const EMPTY = { region_id: '', city_id: '', category_id: '', is_free: false, not
 // rule keeps a rare profession free there and always wins. Only providers pay.
 export default function SubscriptionRules() {
   const { t, i18n } = useTranslation();
+  const confirmAdminChange = useAdminConfirmation();
   const lang = i18n.resolvedLanguage || 'ar';
   const [data, setData] = useState(null);
   const [regions, setRegions] = useState([]);
@@ -35,6 +37,7 @@ export default function SubscriptionRules() {
   }, [form.region_id]);
 
   const run = async action => {
+    if (!(await confirmAdminChange(t))) return;
     setBusy(true); setError('');
     try { await action(); await load(); } catch (e) { setError(apiError(e)); } finally { setBusy(false); }
   };

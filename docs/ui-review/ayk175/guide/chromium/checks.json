@@ -1,0 +1,4407 @@
+[
+  {
+    "name": "chromium/320/ar/normal/public: document direction",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: initial call deep link selects chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: all public chapters available",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 1 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 1 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 1 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":288,\"width\":288,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 2 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 2 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 2 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":288,\"width\":288,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 3 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 3 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 3 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":288,\"width\":288,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 4 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 4 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 4 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":288,\"width\":288,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 5 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 5 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 5 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":288,\"width\":288,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 6 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 6 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 6 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":288,\"width\":288,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 7 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 7 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 7 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":288,\"width\":288,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 8 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 8 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 8 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":288,\"width\":288,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 9 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 9 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 9 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":288,\"width\":288,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 10 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 10 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 10 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":288,\"width\":288,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 11 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 11 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: chapter 11 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":288,\"width\":288,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/ar/normal/public: previous disabled on first page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: next selects and focuses chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: previous returns to first chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: next disabled on last page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: existing role anchor still navigates book",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: nested FAQ deep link mounts its target",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/public: no runtime errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: document direction",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: initial call deep link selects chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: all public chapters available",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 1 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 1 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 1 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":256,\"width\":256,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 1 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 2 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 2 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 2 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":256,\"width\":256,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 2 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 3 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 3 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 3 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":256,\"width\":256,\"overflowing\":[{\"tag\":\"SPAN\",\"class\":\"text-2xl block mb-2\",\"scroll\":60,\"width\":42},{\"tag\":\"SPAN\",\"class\":\"text-2xl block mb-2\",\"scroll\":60,\"width\":42},{\"tag\":\"SPAN\",\"class\":\"text-2xl block mb-2\",\"scroll\":60,\"width\":42}]}"
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 3 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 4 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 4 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 4 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":256,\"width\":256,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 4 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 5 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 5 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 5 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":256,\"width\":256,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 5 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 6 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 6 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 6 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":256,\"width\":256,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 6 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 7 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 7 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 7 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":256,\"width\":256,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 7 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 8 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 8 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 8 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":256,\"width\":256,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 8 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 9 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 9 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 9 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":256,\"width\":256,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 9 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 10 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 10 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 10 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":256,\"width\":256,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 10 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 11 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 11 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 11 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":256,\"width\":256,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: chapter 11 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: previous disabled on first page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: next selects and focuses chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: previous returns to first chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: next disabled on last page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: existing role anchor still navigates book",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: nested FAQ deep link mounts its target",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/200%-reduced/public: no runtime errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: document direction",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: initial call deep link selects chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: all public chapters available",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 1 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 1 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 1 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":288,\"width\":288,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 2 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 2 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 2 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":288,\"width\":288,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 3 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 3 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 3 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":288,\"width\":288,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 4 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 4 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 4 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":288,\"width\":288,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 5 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 5 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 5 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":288,\"width\":288,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 6 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 6 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 6 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":288,\"width\":288,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 7 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 7 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 7 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":288,\"width\":288,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 8 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 8 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 8 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":288,\"width\":288,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 9 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 9 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 9 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":288,\"width\":288,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 10 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 10 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 10 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":288,\"width\":288,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 11 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 11 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: chapter 11 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":288,\"width\":288,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/en/normal/public: previous disabled on first page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: next selects and focuses chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: previous returns to first chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: next disabled on last page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: existing role anchor still navigates book",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: nested FAQ deep link mounts its target",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/public: no runtime errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: document direction",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: initial call deep link selects chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: all public chapters available",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 1 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 1 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 1 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":256,\"width\":256,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 1 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 2 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 2 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 2 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":256,\"width\":256,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 2 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 3 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 3 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 3 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":256,\"width\":256,\"overflowing\":[{\"tag\":\"SPAN\",\"class\":\"text-2xl block mb-2\",\"scroll\":60,\"width\":42},{\"tag\":\"SPAN\",\"class\":\"text-2xl block mb-2\",\"scroll\":60,\"width\":42},{\"tag\":\"SPAN\",\"class\":\"text-2xl block mb-2\",\"scroll\":60,\"width\":42}]}"
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 3 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 4 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 4 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 4 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":256,\"width\":256,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 4 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 5 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 5 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 5 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":256,\"width\":256,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 5 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 6 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 6 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 6 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":256,\"width\":256,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 6 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 7 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 7 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 7 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":256,\"width\":256,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 7 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 8 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 8 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 8 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":256,\"width\":256,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 8 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 9 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 9 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 9 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":256,\"width\":256,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 9 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 10 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 10 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 10 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":256,\"width\":256,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 10 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 11 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 11 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 11 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":256,\"width\":256,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: chapter 11 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: previous disabled on first page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: next selects and focuses chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: previous returns to first chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: next disabled on last page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: existing role anchor still navigates book",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: nested FAQ deep link mounts its target",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/200%-reduced/public: no runtime errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: document direction",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: initial call deep link selects chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: all public chapters available",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 1 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 1 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 1 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":358,\"width\":358,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 2 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 2 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 2 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":358,\"width\":358,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 3 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 3 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 3 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":358,\"width\":358,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 4 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 4 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 4 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":358,\"width\":358,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 5 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 5 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 5 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":358,\"width\":358,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 6 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 6 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 6 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":358,\"width\":358,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 7 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 7 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 7 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":358,\"width\":358,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 8 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 8 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 8 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":358,\"width\":358,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 9 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 9 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 9 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":358,\"width\":358,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 10 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 10 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 10 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":358,\"width\":358,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 11 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 11 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: chapter 11 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":358,\"width\":358,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/normal/public: previous disabled on first page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: next selects and focuses chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: previous returns to first chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: next disabled on last page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: existing role anchor still navigates book",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: nested FAQ deep link mounts its target",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/normal/public: no runtime errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: document direction",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: initial call deep link selects chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: all public chapters available",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 1 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 1 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 1 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":326,\"width\":326,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 1 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 2 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 2 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 2 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":326,\"width\":326,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 2 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 3 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 3 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 3 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":326,\"width\":326,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 3 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 4 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 4 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 4 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":326,\"width\":326,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 4 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 5 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 5 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 5 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":326,\"width\":326,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 5 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 6 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 6 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 6 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":326,\"width\":326,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 6 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 7 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 7 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 7 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":326,\"width\":326,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 7 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 8 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 8 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 8 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":326,\"width\":326,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 8 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 9 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 9 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 9 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":326,\"width\":326,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 9 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 10 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 10 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 10 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":326,\"width\":326,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 10 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 11 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 11 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 11 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":326,\"width\":326,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: chapter 11 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: previous disabled on first page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: next selects and focuses chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: previous returns to first chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: next disabled on last page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: existing role anchor still navigates book",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: nested FAQ deep link mounts its target",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/public: no runtime errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: document direction",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: initial call deep link selects chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: all public chapters available",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 1 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 1 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 1 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":358,\"width\":358,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 2 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 2 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 2 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":358,\"width\":358,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 3 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 3 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 3 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":358,\"width\":358,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 4 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 4 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 4 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":358,\"width\":358,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 5 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 5 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 5 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":358,\"width\":358,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 6 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 6 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 6 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":358,\"width\":358,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 7 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 7 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 7 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":358,\"width\":358,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 8 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 8 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 8 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":358,\"width\":358,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 9 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 9 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 9 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":358,\"width\":358,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 10 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 10 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 10 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":358,\"width\":358,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 11 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 11 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: chapter 11 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":358,\"width\":358,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/normal/public: previous disabled on first page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: next selects and focuses chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: previous returns to first chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: next disabled on last page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: existing role anchor still navigates book",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: nested FAQ deep link mounts its target",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/normal/public: no runtime errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: document direction",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: initial call deep link selects chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: all public chapters available",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 1 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 1 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 1 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":326,\"width\":326,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 1 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 2 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 2 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 2 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":326,\"width\":326,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 2 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 3 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 3 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 3 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":326,\"width\":326,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 3 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 4 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 4 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 4 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":326,\"width\":326,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 4 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 5 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 5 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 5 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":326,\"width\":326,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 5 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 6 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 6 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 6 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":326,\"width\":326,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 6 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 7 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 7 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 7 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":326,\"width\":326,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 7 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 8 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 8 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 8 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":326,\"width\":326,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 8 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 9 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 9 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 9 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":326,\"width\":326,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 9 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 10 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 10 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 10 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":326,\"width\":326,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 10 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 11 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 11 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 11 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":326,\"width\":326,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: chapter 11 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: previous disabled on first page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: next selects and focuses chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: previous returns to first chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: next disabled on last page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: existing role anchor still navigates book",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: nested FAQ deep link mounts its target",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/public: no runtime errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: document direction",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: initial call deep link selects chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: all public chapters available",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 1 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 1 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 1 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":720,\"width\":720,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 2 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 2 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 2 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":720,\"width\":720,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 3 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 3 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 3 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":720,\"width\":720,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 4 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 4 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 4 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":720,\"width\":720,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 5 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 5 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 5 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":720,\"width\":720,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 6 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 6 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 6 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":720,\"width\":720,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 7 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 7 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 7 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":720,\"width\":720,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 8 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 8 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 8 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":720,\"width\":720,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 9 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 9 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 9 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":720,\"width\":720,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 10 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 10 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 10 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":720,\"width\":720,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 11 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 11 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: chapter 11 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":720,\"width\":720,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/ar/normal/public: previous disabled on first page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: next selects and focuses chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: previous returns to first chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: next disabled on last page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: existing role anchor still navigates book",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: nested FAQ deep link mounts its target",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/normal/public: no runtime errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: document direction",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: initial call deep link selects chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: all public chapters available",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 1 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 1 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 1 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":672,\"width\":672,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 1 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 2 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 2 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 2 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":672,\"width\":672,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 2 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 3 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 3 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 3 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":672,\"width\":672,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 3 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 4 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 4 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 4 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":672,\"width\":672,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 4 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 5 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 5 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 5 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":672,\"width\":672,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 5 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 6 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 6 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 6 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":672,\"width\":672,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 6 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 7 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 7 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 7 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":672,\"width\":672,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 7 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 8 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 8 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 8 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":672,\"width\":672,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 8 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 9 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 9 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 9 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":672,\"width\":672,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 9 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 10 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 10 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 10 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":672,\"width\":672,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 10 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 11 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 11 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 11 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":672,\"width\":672,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: chapter 11 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: previous disabled on first page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: next selects and focuses chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: previous returns to first chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: next disabled on last page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: existing role anchor still navigates book",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: nested FAQ deep link mounts its target",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/ar/200%-reduced/public: no runtime errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: document direction",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: initial call deep link selects chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: all public chapters available",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 1 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 1 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 1 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":720,\"width\":720,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 2 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 2 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 2 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":720,\"width\":720,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 3 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 3 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 3 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":720,\"width\":720,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 4 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 4 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 4 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":720,\"width\":720,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 5 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 5 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 5 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":720,\"width\":720,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 6 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 6 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 6 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":720,\"width\":720,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 7 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 7 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 7 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":720,\"width\":720,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 8 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 8 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 8 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":720,\"width\":720,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 9 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 9 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 9 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":720,\"width\":720,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 10 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 10 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 10 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":720,\"width\":720,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 11 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 11 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: chapter 11 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":720,\"width\":720,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/en/normal/public: previous disabled on first page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: next selects and focuses chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: previous returns to first chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: next disabled on last page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: existing role anchor still navigates book",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: nested FAQ deep link mounts its target",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/normal/public: no runtime errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: document direction",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: initial call deep link selects chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: all public chapters available",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 1 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 1 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 1 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":672,\"width\":672,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 1 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 2 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 2 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 2 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":672,\"width\":672,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 2 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 3 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 3 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 3 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":672,\"width\":672,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 3 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 4 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 4 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 4 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":672,\"width\":672,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 4 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 5 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 5 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 5 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":672,\"width\":672,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 5 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 6 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 6 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 6 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":672,\"width\":672,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 6 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 7 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 7 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 7 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":672,\"width\":672,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 7 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 8 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 8 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 8 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":672,\"width\":672,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 8 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 9 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 9 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 9 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":672,\"width\":672,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 9 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 10 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 10 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 10 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":672,\"width\":672,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 10 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 11 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 11 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 11 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":768,\"viewport\":768,\"book\":672,\"width\":672,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: chapter 11 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: previous disabled on first page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: next selects and focuses chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: previous returns to first chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: next disabled on last page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: existing role anchor still navigates book",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: nested FAQ deep link mounts its target",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/768/en/200%-reduced/public: no runtime errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: document direction",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: initial call deep link selects chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: all public chapters available",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 1 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 1 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 1 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":976,\"width\":976,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 2 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 2 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 2 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":976,\"width\":976,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 3 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 3 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 3 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":976,\"width\":976,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 4 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 4 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 4 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":976,\"width\":976,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 5 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 5 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 5 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":976,\"width\":976,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 6 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 6 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 6 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":976,\"width\":976,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 7 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 7 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 7 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":976,\"width\":976,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 8 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 8 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 8 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":976,\"width\":976,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 9 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 9 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 9 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":976,\"width\":976,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 10 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 10 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 10 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":976,\"width\":976,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 11 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 11 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: chapter 11 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":976,\"width\":976,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: previous disabled on first page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: next selects and focuses chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: previous returns to first chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: next disabled on last page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: existing role anchor still navigates book",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: nested FAQ deep link mounts its target",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/normal/public: no runtime errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: document direction",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: initial call deep link selects chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: all public chapters available",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 1 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 1 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 1 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":1344,\"width\":1344,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 1 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 2 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 2 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 2 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":1344,\"width\":1344,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 2 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 3 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 3 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 3 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":1344,\"width\":1344,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 3 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 4 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 4 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 4 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":1344,\"width\":1344,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 4 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 5 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 5 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 5 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":1344,\"width\":1344,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 5 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 6 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 6 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 6 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":1344,\"width\":1344,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 6 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 7 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 7 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 7 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":1344,\"width\":1344,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 7 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 8 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 8 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 8 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":1344,\"width\":1344,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 8 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 9 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 9 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 9 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":1344,\"width\":1344,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 9 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 10 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 10 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 10 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":1344,\"width\":1344,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 10 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 11 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 11 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 11 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":1344,\"width\":1344,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: chapter 11 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: previous disabled on first page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: next selects and focuses chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: previous returns to first chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: next disabled on last page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: existing role anchor still navigates book",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: nested FAQ deep link mounts its target",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/ar/200%-reduced/public: no runtime errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: document direction",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: initial call deep link selects chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: all public chapters available",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 1 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 1 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 1 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":976,\"width\":976,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 2 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 2 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 2 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":976,\"width\":976,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 3 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 3 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 3 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":976,\"width\":976,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 4 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 4 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 4 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":976,\"width\":976,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 5 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 5 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 5 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":976,\"width\":976,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 6 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 6 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 6 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":976,\"width\":976,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 7 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 7 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 7 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":976,\"width\":976,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 8 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 8 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 8 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":976,\"width\":976,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 9 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 9 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 9 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":976,\"width\":976,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 10 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 10 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 10 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":976,\"width\":976,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 11 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 11 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: chapter 11 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":976,\"width\":976,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/en/normal/public: previous disabled on first page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: next selects and focuses chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: previous returns to first chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: next disabled on last page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: existing role anchor still navigates book",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: nested FAQ deep link mounts its target",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/normal/public: no runtime errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: document direction",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: initial call deep link selects chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: all public chapters available",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 1 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 1 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 1 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":1344,\"width\":1344,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 1 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 2 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 2 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 2 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":1344,\"width\":1344,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 2 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 3 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 3 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 3 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":1344,\"width\":1344,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 3 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 4 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 4 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 4 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":1344,\"width\":1344,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 4 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 5 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 5 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 5 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":1344,\"width\":1344,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 5 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 6 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 6 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 6 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":1344,\"width\":1344,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 6 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 7 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 7 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 7 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":1344,\"width\":1344,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 7 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 8 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 8 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 8 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":1344,\"width\":1344,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 8 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 9 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 9 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 9 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":1344,\"width\":1344,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 9 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 10 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 10 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 10 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":1344,\"width\":1344,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 10 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 11 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 11 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 11 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":1440,\"viewport\":1440,\"book\":1344,\"width\":1344,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: chapter 11 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: previous disabled on first page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: next selects and focuses chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: previous returns to first chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: next disabled on last page",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: existing role anchor still navigates book",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: nested FAQ deep link mounts its target",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/1440/en/200%-reduced/public: no runtime errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: document direction",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: admin route and sidebar guide link present",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: all authorized admin chapters available",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: initial admin deep link selects chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 1 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 1 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 1 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":342,\"width\":342,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 1 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 1 links to real admin surface",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 2 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 2 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 2 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":342,\"width\":342,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 2 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 2 links to real admin surface",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 3 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 3 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 3 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":342,\"width\":342,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 3 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 3 links to real admin surface",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 4 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 4 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 4 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":342,\"width\":342,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 4 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 4 links to real admin surface",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 5 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 5 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 5 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":342,\"width\":342,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 5 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 5 links to real admin surface",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 6 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 6 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 6 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":342,\"width\":342,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 6 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 6 links to real admin surface",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 7 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 7 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 7 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":342,\"width\":342,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 7 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 7 links to real admin surface",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 8 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 8 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 8 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":342,\"width\":342,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 8 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: chapter 8 links to real admin surface",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/ar/200%-reduced/admin: no runtime errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/admin: document direction",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/admin: unauthorized chapters excluded",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/admin: only authorized chapter links rendered",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/admin: chapter 1 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/admin: chapter 1 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/ar/normal/admin: chapter 1 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":296,\"width\":296,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/ar/normal/admin: no runtime errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: document direction",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: admin route and sidebar guide link present",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: all authorized admin chapters available",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: initial admin deep link selects chapter",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 1 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 1 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 1 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":342,\"width\":342,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 1 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 1 links to real admin surface",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 2 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 2 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 2 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":342,\"width\":342,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 2 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 2 links to real admin surface",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 3 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 3 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 3 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":342,\"width\":342,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 3 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 3 links to real admin surface",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 4 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 4 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 4 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":342,\"width\":342,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 4 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 4 links to real admin surface",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 5 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 5 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 5 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":342,\"width\":342,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 5 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 5 links to real admin surface",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 6 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 6 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 6 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":342,\"width\":342,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 6 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 6 links to real admin surface",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 7 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 7 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 7 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":342,\"width\":342,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 7 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 7 links to real admin surface",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 8 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 8 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 8 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":390,\"viewport\":390,\"book\":342,\"width\":342,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 8 honors reduced motion",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: chapter 8 links to real admin surface",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/390/en/200%-reduced/admin: no runtime errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/admin: document direction",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/admin: unauthorized chapters excluded",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/admin: only authorized chapter links rendered",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/admin: chapter 1 has readable content",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/admin: chapter 1 image responds 200",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium/320/en/normal/admin: chapter 1 fits horizontally",
+    "ok": true,
+    "detail": "{\"document\":320,\"viewport\":320,\"book\":296,\"width\":296,\"overflowing\":[]}"
+  },
+  {
+    "name": "chromium/320/en/normal/admin: no runtime errors",
+    "ok": true,
+    "detail": ""
+  },
+  {
+    "name": "chromium: unauthenticated visitors cannot open admin guide",
+    "ok": true,
+    "detail": ""
+  }
+]

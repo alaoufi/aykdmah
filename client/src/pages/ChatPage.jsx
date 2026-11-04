@@ -4,7 +4,7 @@ import { useCall } from '../context/CallContext';
 import { useParams, useNavigate, Link, useSearchParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
-  listConversations, getConversation, getMessages, sendMessage, markRead, forwardMessage,
+  listConversations, getConversation, getMessages, sendMessage, markRead,
   deleteMessage, sendLocationMessage, nudgeConversation, setUserBlocked, setConversationFavorite,
 } from '../services/chatService';
 import { apiError } from '../services/api';
@@ -13,6 +13,9 @@ import { useNotifications } from '../hooks/useNotifications';
 import { useSocket } from '../hooks/useSocket';
 import MessageBubble from '../components/chat/MessageBubble';
 import ChatInput from '../components/chat/ChatInput';
+import { createForwardBatchOwner } from '../utils/forwardBatch';
+import ForwardPicker from '../components/chat/ForwardPicker';
+import MessageSearch from '../components/chat/MessageSearch';
 import ChatSettings from '../components/chat/ChatSettings';
 import ChatHeaderMenu from '../components/chat/ChatHeaderMenu';
 import { useChatPrefs } from '../utils/chatPrefs';
@@ -53,6 +56,15 @@ export default function ChatPage() {
   const navigate = useNavigate();
 
   const [conversations, setConversations] = useState([]);
+  const [listQuery, setListQuery] = useState('');
+  const [listPage, setListPage] = useState(1);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [focusedMessage, setFocusedMessage] = useState(null);
+  const [selectedMessages, setSelectedMessages] = useState([]);
+  const forwardOwner=useRef(null);
+  if(!forwardOwner.current)forwardOwner.current=createForwardBatchOwner();
+  const openForward=ids=>setForwarding(forwardOwner.current.open(sessionKey,ids));
+  const [selectMode,setSelectMode] = useState(false);
   // Chats and their archive (AYK-044): a chat about a finished or closed request, or
   // one closed when the requester agreed with someone else, moves to the archive.
   const [searchParams, setSearchParams] = useSearchParams();
@@ -62,6 +74,8 @@ export default function ChatPage() {
   const [active, setActive] = useState(null);
   const [blockProblem, setBlockProblem] = useState('');
   const listMenuRef = useRef(null);
+  const threadMenuRef = useRef(null);
+  const [threadSettingsOpen,setThreadSettingsOpen] = useState(false);
   const [listSettingsOpen, setListSettingsOpen] = useState(false);
   const [blockDone, setBlockDone] = useState('');
   const { start: startCall } = useCall();
@@ -80,6 +94,7 @@ export default function ChatPage() {
   const typingTimerRef = useRef(null);
   const scopeRef = useRef(null);
   const sessionKey = `${user?.id}:${activeId || ''}`;
+  useEffect(() => {setFocusedMessage(null);setSelectedMessages([]);forwardOwner.current.close();setForwarding(null);setSearchOpen(false);setSelectMode(false);}, [activeId,user?.id]);
   scopeRef.current = sessionKey;
   const activeReady = activeScope === sessionKey && Number(active?.id) === Number(activeId);
   const canSend = activeReady && active.can_send !== false;
@@ -98,7 +113,7 @@ export default function ChatPage() {
     setLoadingList(true);
     setListError(false);
     if (!user?.id) { setLoadingList(false); return; }
-    const poll = createPollingLoop(listConversations, {
+    const poll = createPollingLoop(() => listConversations({q:listQuery,page:listPage,limit:20}), {
       intervalMs: realtimeMode === 'polling' ? 10000 : null,
       onResult: (items) => {
         setConversations(items || []);
@@ -110,13 +125,15 @@ export default function ChatPage() {
     });
     listPollRef.current = poll;
     return () => { poll.stop(); listPollRef.current = null; };
-  }, [user?.id, realtimeMode]);
+  }, [user?.id, realtimeMode, listQuery, listPage]);
 
   useEffect(() => {
     setActive(null);
     setActiveScope(null);
     setMessages([]);
     setReplyTo(null);
+    setSelectedMessages([]);
+    forwardOwner.current.close();setForwarding(null);
     setDeleteCandidate(null);
     setSharingLocation(false);
     setTypingUserId(null);
@@ -127,7 +144,7 @@ export default function ChatPage() {
     const scope = `${user.id}:${activeId}`;
     let markingRead = false;
     const poll = createPollingLoop(
-      () => Promise.all([getConversation(activeId), getMessages(activeId, { limit: 80 })]),
+      () => Promise.all([getConversation(activeId), getMessages(activeId, { limit: 80, ...(focusedMessage ? { before: Number(focusedMessage) + 1 } : {}) })]),
       {
         // With the socket too, every 15 s: read ticks (✓✓) and missed messages after a dropped connection.
         intervalMs: realtimeMode === 'polling' ? 5000 : 15000,
@@ -153,7 +170,7 @@ export default function ChatPage() {
     );
     messagePollRef.current = poll;
     return () => { poll.stop(); messagePollRef.current = null; };
-  }, [activeId, user?.id, realtimeMode, navigate, loadList]);
+  }, [activeId, user?.id, realtimeMode, navigate, loadList, focusedMessage]);
 
   useEffect(() => () => {
     scopeRef.current = null;
@@ -219,14 +236,11 @@ export default function ChatPage() {
   }, [socket, activeId, user, loadList]);
 
   useEffect(() => {
-    endRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages.length, messages.at(-1)?.id, typingUserId]);
+    if (focusedMessage) document.getElementById(`chat-message-${focusedMessage}`)?.scrollIntoView({block:'center'});
+    else endRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages.length, messages.at(-1)?.id, typingUserId, focusedMessage]);
 
-  // "Forward" (AYK-043): after sending, the requester forwards their own message (a
-  // voice note, a video, text) to every provider on this request, or to one of them.
-  const siblings = active?.request_id && Number(active.request_client_id) === Number(user.id)
-    ? conversations.filter(c => Number(c.request_id) === Number(active.request_id) && Number(c.id) !== Number(activeId) && c.can_send) : [];
-  const isRequestOwner = Boolean(active?.request_id) && Number(active.request_client_id) === Number(user.id);
+  // Own text and media may be forwarded to explicitly selected writable chats.
   const [forwarding, setForwarding] = useState(null);
   const [forwardNote, setForwardNote] = useState('');
   // "🔔 Remind": shown while my last message is unread (AYK-052).
@@ -243,16 +257,6 @@ export default function ChatPage() {
     }
     catch (err) { setNudgeNote(err?.response?.data?.message || t('chat.nudge_failed')); }
   };
-  const forwardTo = async target => {
-    const message = forwarding;
-    setForwarding(null);
-    try {
-      const result = await forwardMessage(activeId, message.id, target);
-      setForwardNote(t('requester.forward_done', { count: result.count }));
-      loadList();
-    } catch (_) { setForwardNote(t('errors.generic')); }
-  };
-
   const handleSend = async ({ content, files }) => {
     if (!activeId || !canSend) return false;
     const scope = scopeRef.current;
@@ -409,7 +413,9 @@ export default function ChatPage() {
             </ChatHeaderMenu>
             <ChatSettings anchorRef={listMenuRef} open={listSettingsOpen} onClose={() => setListSettingsOpen(false)} />
           </div>
-          {listReady && listError && <p role="alert" className="text-xs text-danger">{t('errors.generic')}</p>}
+          <input data-testid="chat-list-search" type="search" className={`input mt-2 ${listError ? 'border-danger text-danger' : ''}`} aria-invalid={listError} aria-describedby={listError ? 'chat-list-search-error' : undefined} maxLength={200} aria-label={t('chat.search_chats')} placeholder={t('chat.search_chats')} value={listQuery} onChange={e => {setListQuery(e.target.value);setListPage(1);}} />
+          {listReady && listError && <p id="chat-list-search-error" role="alert" className="text-xs text-danger">{t('errors.generic')}</p>}
+          <div className="flex gap-3 items-center mt-1"><button type="button" disabled={listPage === 1 || loadingList} onClick={() => setListPage(p => p - 1)}>‹</button><span>{listPage}</span><button data-testid="chat-list-next" type="button" disabled={conversations.length < 20 || loadingList} onClick={() => setListPage(p => p + 1)}>›</button></div>
         </div>
         {loadingList || !listReady ? <LoadingState /> :
          conversations.filter(c => archived(c) === showArchive).length === 0 ? <EmptyState title={t(showArchive ? 'requester.chat_archive_empty' : 'chat.no_conversations')} /> :
@@ -490,7 +496,11 @@ export default function ChatPage() {
                     </div>
                   </div>
                   {canSend && <CallButtons conversationId={Number(activeId)} compact />}
-                  <ChatHeaderMenu>
+                  <ChatSettings anchorRef={threadMenuRef} open={threadSettingsOpen} onClose={() => setThreadSettingsOpen(false)} />
+                  <ChatHeaderMenu buttonRef={threadMenuRef}>
+                    <button type="button" role="menuitem" data-testid="chat-settings-inside" onClick={() => setThreadSettingsOpen(true)}>⚙️ {t('chat.settings')}</button>
+                    <button type="button" role="menuitem" data-testid="chat-select-toggle" onClick={() => {setSelectMode(v => !v);setSelectedMessages([]);}}>{t('chat.select_message')}</button>
+                    <button type="button" role="menuitem" data-testid="chat-search-toggle" onClick={() => setSearchOpen(v => !v)}>{t('chat.search_messages')}</button>
                     {/* Live tracking works only for the agreed pair, so it shows only then. */}
                     {requestId && canShareLocation && (
                       <Link to={`/requests/${requestId}/track`} role="menuitem">📍 {t('tracking.title')}</Link>
@@ -512,6 +522,9 @@ export default function ChatPage() {
               )}
             </header>
             {currentMessageError && <p role="alert" className="text-xs text-danger p-2">{t('errors.generic')}</p>}
+            {activeReady && searchOpen && <MessageSearch key={`search:${sessionKey}`} conversationId={activeId} onSelect={setFocusedMessage} />}
+            {focusedMessage && <button type="button" onClick={() => setFocusedMessage(null)}>{t('chat.latest_messages')}</button>}
+            {selectedMessages.length > 0 && <div className="p-2 flex gap-2"><button type="button" data-testid="forward-selection" className="btn btn-primary btn-sm" onClick={() => openForward(selectedMessages)}>{t('chat.forward_selected', {count:selectedMessages.length})}</button><button type="button" onClick={() => {setSelectedMessages([]);setSelectMode(false);}}>{t('common.close')}</button></div>}
             {activeReady && requestId && <RequestBrief requestId={requestId} />}
             <div className="chat-body">
               {messages.length === 0 ? (
@@ -526,16 +539,18 @@ export default function ChatPage() {
                     );
                   }
                   return (
+                    <div key={item.id} id={`chat-message-${item.id}`} className={Number(focusedMessage) === Number(item.id) ? 'ring-2 ring-primary rounded-card' : ''}>
+                    {selectMode && item.sender_id === user.id && !['system','location'].includes(item.message_type) && <label className="block px-3 text-[11px]"><input data-testid={`message-select-${item.id}`} type="checkbox" aria-label={t('chat.select_message')} checked={selectedMessages.includes(item.id)} disabled={!selectedMessages.includes(item.id) && selectedMessages.length >= 20} onChange={e => setSelectedMessages(ids => e.target.checked ? [...ids,item.id] : ids.filter(id => id !== item.id))} /></label>}
                     <MessageBubble
-                      key={item.id}
                       message={item}
                       isMine={item.sender_id === user.id}
                       firstInRun={index === 0 || renderedMessages[index - 1].__type === 'separator' || renderedMessages[index - 1].sender_id !== item.sender_id}
                       onReply={canSend ? setReplyTo : undefined}
-                      onForward={item.sender_id === user.id && isRequestOwner && item.message_type !== 'location' ? message => { setForwardNote(''); setForwarding(message); } : undefined}
+                      onForward={item.sender_id === user.id && !['system','location'].includes(item.message_type) ? message => { setForwardNote(''); openForward([message.id]); } : undefined}
                       onDelete={setDeleteCandidate}
                       onCallBack={canSend ? kind => startCall(Number(activeId), kind) : undefined}
                     />
+                    </div>
                   );
                 })
               )}
@@ -581,20 +596,7 @@ export default function ChatPage() {
                 <button type="button" className="btn btn-primary btn-sm" disabled={agreeing} onClick={handleAgree}>✅ {t('request.agreed')}</button>
               </div>
             )}
-            {forwarding && (
-              <div className="chat-audience" role="dialog" aria-label={t('requester.forward_title')} data-testid="chat-forward">
-                <span>↪ {t(siblings.length ? 'requester.forward_title' : 'requester.forward_none')}</span>
-                <div className="flex gap-2 flex-wrap">
-                  {siblings.length > 0 && <button type="button" className="btn btn-primary btn-sm" onClick={() => forwardTo(null)} data-testid="forward-all">
-                    📣 {t('requester.forward_all', { count: siblings.length })}</button>}
-                  {siblings.map(c => (
-                    <button key={c.id} type="button" className="btn btn-outline btn-sm" onClick={() => forwardTo(c.id)} data-testid="forward-one">
-                      👤 {c.other_user?.full_name}{c.other_user?.referral_code ? ` · ${t('requester.number')} ${c.other_user.referral_code}` : ''}</button>
-                  ))}
-                  <button type="button" className="btn btn-sm" onClick={() => setForwarding(null)}>{t('admin.cancel_btn')}</button>
-                </div>
-              </div>
-            )}
+            {forwarding && <ForwardPicker key={forwarding.key} sourceId={activeId} messageIds={forwarding.ids} onClose={() => {if(forwardOwner.current.close(forwarding))setForwarding(null);}} onDone={count => {if(!forwardOwner.current.isCurrent(forwarding)||scopeRef.current!==sessionKey)return;forwardOwner.current.close(forwarding);setForwarding(null);setSelectedMessages([]);setSelectMode(false);setForwardNote(t('requester.forward_done',{count}));loadList();}} />}
             {forwardNote && <p role="status" className="chat-agree" onClick={() => setForwardNote('')}>✓ {forwardNote}</p>}
             {activeReady && canSend && (canNudge || nudgeNote) && (
               <div className="chat-agree" data-testid="chat-nudge">
@@ -603,7 +605,7 @@ export default function ChatPage() {
               </div>
             )}
             <ChatInput
-              key={sessionKey}
+              key={`composer:${sessionKey}`}
               sessionKey={sessionKey}
               onSend={handleSend}
               onShareLocation={canShareLocation ? handleShareLocation : undefined}
@@ -672,10 +674,10 @@ export default function ChatPage() {
         .conv-name-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .conv-code { flex-shrink: 0; padding: 1px 7px; border-radius: 999px; background: var(--bg-soft); font-size: 11px; font-weight: 700; color: var(--text-secondary); letter-spacing: .3px; }
         .conv-time { flex-shrink: 0; max-width: 100px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; color: var(--text-secondary); }
-        .conv-preview { flex: 1; min-width: 0; font-size: 14px; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .conv-preview { font-size: var(--chat-font,16px); font-weight: var(--chat-font-weight,400); flex: 1; min-width: 0; color: var(--text-secondary); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .conv-unread { flex-shrink: 0; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 999px; display: grid; place-items: center; background: #25a244; color: #fff; font-size: 12px; font-weight: 800; }
         .conv-item.unread .conv-time { color: #25a244; font-weight: 700; }
-        .conv-item.unread .conv-preview { color: var(--text); font-weight: 600; }
+        .conv-item.unread .conv-preview { color: var(--text); font-weight: var(--chat-unread-font-weight,600); }
         .chat-main {
           display: flex; flex-direction: column; height: 100%; min-height: 0; min-width: 0; overflow: hidden;
         }
@@ -781,7 +783,7 @@ export default function ChatPage() {
           .conv-item { gap: 12px; padding-inline: 12px; }
           .conv-text { padding-block: 12px; }
           .conv-name { font-size: 15px; }
-          .conv-preview { font-size: 13px; }
+          .conv-preview { font-size: var(--chat-font,16px); }
           .chat-sidebar.hide-on-mobile, .chat-main.hide-on-mobile { display: none; }
           .back-btn { display: inline-block; }
         }

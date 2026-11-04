@@ -84,21 +84,10 @@ function RoundButton({ onClick, label, tone = 'neutral', children, disabled }) {
 
 export default function CallOverlay() {
   const { t } = useTranslation();
-  const { call, phase, error, room, micOn, camOn, remoteJoined, remoteVideo: hasRemoteVideo, audioBlocked, enableAudio, reportAudioBlocked, network, speaking, outputs, nextOutput, accept, hangup, toggleMic, toggleCam, switchCamera } = useCall();
+  const { call, phase, error, room, micOn, camOn, remoteJoined, remoteVideo: hasRemoteVideo, audioBlocked, enableAudio, reportAudioBlocked, network, speaking, nextOutput, accept, hangup, toggleMic, toggleCam, switchCamera } = useCall();
   const remoteVideo = useRef(null);
   const localVideo = useRef(null);
-  // One's own camera while a video call rings (AYK-163): shown at once, before the line opens.
-  const previewVideo = useRef(null);
-  useEffect(() => {
-    const ringing = ['outgoing', 'incoming', 'connecting'].includes(phase);
-    if (call?.call_type !== 'video' || !ringing || !navigator.mediaDevices?.getUserMedia) return undefined;
-    let stream = null;
-    let alive = true;
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
-      .then(s => { if (!alive) { s.getTracks().forEach(tr => tr.stop()); return; } stream = s; if (previewVideo.current) previewVideo.current.srcObject = s; })
-      .catch(() => {});
-    return () => { alive = false; stream?.getTracks().forEach(tr => tr.stop()); };
-  }, [call?.call_type, phase]);
+  // No separate preview capture: only the explicit camera button may enable a track.
   const remoteAudio = useRef(null);
   const [reporting, setReporting] = useState(false);
   const [reported, setReported] = useState(false);
@@ -161,7 +150,6 @@ export default function CallOverlay() {
               {phase === 'outgoing' && call.callee_reachable === false && (
                 <div className="text-amber-300 text-sm max-w-xs mx-auto" data-testid="callee-unreachable">⚠️ {t('calls.callee_unreachable')}</div>
               )}
-              {error && <div className="text-amber-300 text-sm">{t(`calls.errors.${error}`, { defaultValue: t('calls.errors.call_failed') })}</div>}
             </div>
           </div>
         )}
@@ -179,8 +167,9 @@ export default function CallOverlay() {
             📷 {t('calls.my_camera_off')}
           </div>
         )}
-        {video && !live && phase !== 'ended' && <video ref={previewVideo} autoPlay playsInline muted
-          className="absolute inset-0 w-full h-full object-cover" style={{ transform: 'scaleX(-1)' }} data-testid="camera-preview" />}
+        {error && <div className="absolute z-10 top-12 inset-x-4 text-center text-amber-300 bg-black/70 rounded-card p-2 text-sm" role="status">
+          {t(`calls.errors.${error}`, { defaultValue: t('calls.errors.call_failed') })}
+        </div>}
         {video && live && camOn && (
           <video ref={localVideo} autoPlay playsInline muted
             className={remoteJoined
@@ -245,7 +234,7 @@ export default function CallOverlay() {
             {/* Speaker / earpiece or headset (AYK-060). Phones switch to a plugged-in or Bluetooth
                 headset on their own; where the browser lists several outputs, this button cycles them. */}
             <RoundButton onClick={async () => { if (!(await nextOutput())) setOutputHint(true); }} disabled={!room}
-              label={t('calls.audio_output')}>{outputs.length > 1 ? '🔈' : '🔊'}</RoundButton>
+              label={t('calls.audio_output')}>🎧</RoundButton>
             {video && <RoundButton tone={camOn ? 'neutral' : 'off'} onClick={toggleCam} disabled={!room}
               label={camOn ? t('calls.camera_off') : t('calls.camera_on')}>{camOn ? '📷' : '🚫'}</RoundButton>}
           </>

@@ -1,3 +1,4 @@
+import TrustSummary from '../reviews/TrustSummary';
 import { localizedJoinedName } from '../../utils/localizeJoined';
 import { useTranslation } from 'react-i18next';
 import { REQUEST_STATUS } from '../../utils/constants';
@@ -23,6 +24,7 @@ export default function RequestCard({ request }) {
   return (
     <div role="link" tabIndex={0} onClick={() => open(request)} onKeyDown={e => { if (e.key === 'Enter') open(request); }}
       className={`request-card card card-hover tone-request ${mine(request) ? 'own' : forMyService(request) ? 'for-service' : ''}`} data-testid="request-card">
+      <TrustSummary userId={request.client_id} type="on_requester" average={request.client_rating_avg} count={request.client_rating_count} opinion={request.client_opinion} />
       {/* Compact (AYK-099): whose, urgency, status and age on one line. */}
       <div className="flex items-center gap-1.5 flex-wrap">
         <OwnerBadge mine={mine(request)} forService={forMyService(request)} />

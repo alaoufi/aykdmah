@@ -117,6 +117,17 @@ async function testDbConnection(config) {
 function mysqlToPg(sql) {
   let s = sql;
 
+  // AYK-190 / migration070 only. Do not broaden the legacy translator's
+  // UPDATE JOIN or REGEXP behavior for unrelated, already-applied migrations.
+  if (/\bdistrict_name_cleanup_070\b/.test(s)) {
+    s = s.replace(/\bTRIM\s*\(/gi, 'btrim(');
+    s = s.replace(/\bname_en\s+REGEXP\s+('[^']*')/gi, (_, pattern) => `name_en ~ ${pattern}`);
+    s = s.replace(/\bINSERT\s+IGNORE\s+INTO\s+district_name_cleanup_070\b([\s\S]*?)(;|$)/gi,
+      (_, statement, ending) => `INSERT INTO district_name_cleanup_070${statement.trimEnd()} ON CONFLICT (district_id) DO NOTHING${ending}`);
+    s = s.replace(/\bUPDATE\s+districts\s+d\s+JOIN\s+district_name_cleanup_070\s+b\s+ON\s+d\.id\s*=\s*b\.district_id\s+SET\s+d\.name_en\s*=\s*b\.new_name_en\s+WHERE\s+BINARY\s+d\.name_en\s*=\s*BINARY\s+b\.old_name_en/gi,
+      'UPDATE districts AS d SET name_en = b.new_name_en FROM district_name_cleanup_070 b WHERE d.id = b.district_id AND d.name_en = b.old_name_en');
+  }
+
   // Shared function-level translations (DATE_SUB, GROUP_CONCAT, RAND, …)
   s = translateMysqlFunctions(s);
 

@@ -1,4 +1,6 @@
 const Conversation = require('../models/Conversation');
+const { messageForViewer } = require('./requesterPrivacy');
+const { translate } = require('./i18n');
 const socketAuth = require('../socket/auth');
 
 async function emitUser(io, userId, event, payload, { excludeSocketId } = {}) {
@@ -20,7 +22,8 @@ async function emitConversation(io, conversationId, event, payload, { excludeSoc
   if (!io) return;
   const participants = await Conversation.getParticipants(conversationId);
   for (const participant of participants) {
-    await emitUser(io, participant.id, event, payload, { excludeSocketId });
+    const visible = event === 'chat:message' ? await messageForViewer(payload, participant.id, translate('ar','requester_label')) : payload;
+    await emitUser(io, participant.id, event, visible, { excludeSocketId });
   }
 }
 

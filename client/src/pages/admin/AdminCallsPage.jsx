@@ -1,3 +1,4 @@
+import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { adminCallStats, reviewCallReport } from '../../services/callService';
@@ -7,6 +8,7 @@ import { formatRelativeTime } from '../../utils/formatters';
 // Call metadata only. There is deliberately no way to listen to or watch calls.
 export default function AdminCallsPage() {
   const { t } = useTranslation();
+  const confirmAdminChange = useAdminConfirmation();
   const [days, setDays] = useState(30);
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
@@ -32,7 +34,11 @@ export default function AdminCallsPage() {
     ['total_minutes', minutes(totals.total_seconds)], ['avg_minutes', (Number(totals.avg_seconds) / 60).toFixed(1)],
   ];
 
-  const review = async (id, status) => { await reviewCallReport(id, status).catch(() => {}); load(); };
+  const review = async (id, status) => {
+    if (!(await confirmAdminChange(t))) return;
+    try { await reviewCallReport(id, status); load(); }
+    catch { setError('errors.generic'); }
+  };
 
   return (
     <div className="space-y-4">

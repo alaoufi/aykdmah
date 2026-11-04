@@ -158,6 +158,36 @@ test.after(async () => {
   }
 });
 
+
+test('AYK-181/182 socket sends and batch forwards enforce identity privacy per recipient', async () => {
+  const people=[];
+  for (const [name,role] of [['Private live requester','client'],['Live named provider','provider'],['Live other provider','provider']]) {
+    const suffix=crypto.randomBytes(5).toString('hex');
+    const result=await db.query('INSERT INTO users (full_name,email,password_hash,role) VALUES (?,?,?,?)',[name,suffix+'@test.invalid','unused',role]);
+    people.push({id:result.insertId,full_name:name,role,token:jwt.sign({id:result.insertId,role,auth_version:0})});
+  }
+  const [owner,provider,other]=people;
+  const source=await Conversation.findOrCreateBetween(owner.id,provider.id);
+  const target=await Conversation.findOrCreateBetween(owner.id,other.id);
+  await db.query('INSERT INTO saved_providers (user_id,provider_id,nickname) VALUES (?,?,?)',[provider.id,owner.id,'Live nickname']);
+  const selfSocket=await socketFor(owner), providerSocket=await socketFor(provider), otherSocket=await socketFor(other);
+  const next=socket=>new Promise((resolve,reject)=>{const timer=setTimeout(()=>reject(new Error('Missing private message event')),5000);socket.once('chat:message',data=>{clearTimeout(timer);resolve(data);});});
+  const ownEvent=next(selfSocket), peerEvent=next(providerSocket);
+  const sent=await request('/api/chat/conversations/'+source+'/messages',{user:owner,method:'POST',body:{content:'Live private identity'}});
+  assert.equal(sent.status,201);
+  const message=(await sent.json()).data;
+  assert.equal((await ownEvent).sender_name,'Private live requester');
+  const named=await peerEvent;assert.equal(named.sender_name,'Live nickname');assert.equal(named.sender_role,undefined);
+  const quoted=await acknowledge(providerSocket,'chat:send',{conversationId:source,content:'Quoted reply',reply_to_id:message.id});
+  assert.equal(quoted.ok,true);assert.equal(quoted.message.reply_sender_name,'Live nickname');
+  const targetEvent=next(otherSocket);
+  const forwarded=await request('/api/chat/conversations/'+source+'/forward',{user:owner,method:'POST',body:{operation_id:'12345678-1234-4234-8234-123456789012',message_ids:[message.id],conversation_ids:[target]}});
+  assert.equal(forwarded.status,200);
+  const visible=await targetEvent;
+  assert.notEqual(visible.sender_name,'Private live requester');assert.equal(visible.sender_role,undefined);
+  for(const socket of [selfSocket,providerSocket,otherSocket]) socket.disconnect();
+});
+
 test('baseline proves anonymous private-media disclosure; fixed route enforces current participants and revocation', async () => {
   const id = await withUploadedFiles([{ originalname: 'private.png', mimetype: 'image/png', buffer: Buffer.from(png) }], { ownerId: users.client.id, scope: 'chat', scopeId: conversation }, files => Message.create({ conversation_id: conversation, sender_id: users.client.id, message_type: 'image', files }));
   const message = await Message.findById(id), url = message.files[0].file_url;

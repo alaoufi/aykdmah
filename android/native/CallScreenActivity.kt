@@ -63,7 +63,8 @@ class CallScreenActivity : Activity() {
     private var ringback: ToneGenerator? = null
     private var connectedAt = 0L
     private var micOn = true
-    private var camOn = true
+    private var camOn = false
+    private var cameraBusy = false
     private var speakerOn = false
     private var selectedRoute: CallAudioRoute? = null
     private var deviceListener: AudioDeviceChangeListener? = null
@@ -104,7 +105,6 @@ class CallScreenActivity : Activity() {
         CallAlert.stop(this, "call-${parsed.callId}")
         buildScreen(parsed)
         val needed = mutableListOf(Manifest.permission.RECORD_AUDIO)
-        if (parsed.video) needed += Manifest.permission.CAMERA
         if (Build.VERSION.SDK_INT >= 33) needed += Manifest.permission.POST_NOTIFICATIONS
         val missing = needed.filter { checkSelfPermission(it) != PackageManager.PERMISSION_GRANTED }
         if (Build.VERSION.SDK_INT >= 23 && missing.isNotEmpty()) requestPermissions(missing.toTypedArray(), PERMISSIONS) else begin()
@@ -112,6 +112,10 @@ class CallScreenActivity : Activity() {
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, results: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, results)
+        if (requestCode == 8) {
+            if (!ended && checkSelfPermission(Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) changeCamera(true)
+            return
+        }
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
             status.text = getString(R.string.callNeedsMic)
             end(local = true, reason = "failed")
@@ -195,6 +199,7 @@ class CallScreenActivity : Activity() {
         micBtn = roundButton("🎙", Color.parseColor("#33FFFFFF")) { toggleMic() }
         speakerBtn = roundButton("🔈", Color.parseColor("#33FFFFFF")) { toggleSpeaker() }
         camBtn = roundButton("📷", Color.parseColor("#33FFFFFF")) { toggleCamera() }
+        camBtn.alpha = 0.45f
         controls.addView(micBtn)
         controls.addView(speakerBtn)
         if (c.video) {
@@ -225,7 +230,7 @@ class CallScreenActivity : Activity() {
 
     private fun begin() {
         val c = call ?: return
-        CallOngoingService.start(this, c.peerName.ifEmpty { getString(R.string.callTitle) }, c.video)
+        CallOngoingService.start(this, c.peerName.ifEmpty { getString(R.string.callTitle) }, false)
         if (c.outgoing) CallTelecom.reportOutgoing(this, c.callId, c.peerName)
         CallTelecom.onHangUp = { id -> if (id == c.callId) ui.post { end(local = true) } }
         CallTelecom.defaultRoute(c.callId, c.video)
@@ -236,12 +241,9 @@ class CallScreenActivity : Activity() {
                 val systemOwnsAudio = CallTelecom.awaitConnection(c.callId)
                 if (ended) return@launch
                 val handler = AudioSwitchHandler(applicationContext)
-                // A headset wins by default; otherwise voice starts at the ear and
-                // video on the speaker. Explicit speaker taps go to the audio owner.
+                // External headsets win; both call types otherwise start on speaker.
                 handler.preferredDeviceList = listOf(AudioDevice.BluetoothHeadset::class.java,
-                    AudioDevice.WiredHeadset::class.java) + if (c.video)
-                    listOf(AudioDevice.Speakerphone::class.java, AudioDevice.Earpiece::class.java)
-                    else listOf(AudioDevice.Earpiece::class.java, AudioDevice.Speakerphone::class.java)
+                    AudioDevice.WiredHeadset::class.java, AudioDevice.Speakerphone::class.java, AudioDevice.Earpiece::class.java)
                 audio = handler
                 bindAudioRouting(handler)
                 val r = LiveKit.create(
@@ -256,14 +258,7 @@ class CallScreenActivity : Activity() {
                 localView.setMirror(true)
                 launch { r.events.collect { onRoomEvent(it) } }
                 r.connect(join.url, join.token)
-                r.localParticipant.setMicrophoneEnabled(true)
-                if (c.video) {
-                    r.localParticipant.setCameraEnabled(true)
-                    (r.localParticipant.getTrackPublication(Track.Source.CAMERA)?.track as? LocalVideoTrack)?.let {
-                        it.addRenderer(localView)
-                        localView.visibility = View.VISIBLE
-                    }
-                }
+                r.localParticipant.setMicrophoneEnabled(micOn)
                 if (r.remoteParticipants.isEmpty()) {
                     if (c.outgoing) startRingback() else setStatus(R.string.callConnecting)
                 } else onConnected()
@@ -386,10 +381,44 @@ class CallScreenActivity : Activity() {
     }
 
     private fun toggleCamera() {
-        camOn = !camOn
-        camBtn.alpha = if (camOn) 1f else 0.45f
-        localView.visibility = if (camOn) View.VISIBLE else View.GONE
-        scope.launch { runCatching { room?.localParticipant?.setCameraEnabled(camOn) } }
+        if (ended || cameraBusy || room == null) return
+        if (!camOn && checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(arrayOf(Manifest.permission.CAMERA), 8)
+            return
+        }
+        changeCamera(!camOn)
+    }
+
+    private fun changeCamera(wanted: Boolean) {
+        val r = room ?: return
+        val c = call ?: return
+        if (ended || cameraBusy) return
+        cameraBusy = true
+        camBtn.isEnabled = false
+        scope.launch {
+            try {
+                // Upgrade the service only after an explicit tap and camera permission.
+                if (wanted) CallOngoingService.start(this@CallScreenActivity, c.peerName, true)
+                val confirmed = r.localParticipant.setCameraEnabled(wanted)
+                if (ended || room !== r) {
+                    (r.localParticipant.getTrackPublication(Track.Source.CAMERA)?.track as? LocalVideoTrack)?.stop()
+                    return@launch
+                }
+                if (confirmed) camOn = wanted
+                if (camOn) (r.localParticipant.getTrackPublication(Track.Source.CAMERA)?.track as? LocalVideoTrack)?.addRenderer(localView)
+            } catch (_: Exception) {
+                // A denied/busy camera must never end the voice call or claim success.
+                if (wanted) camOn = false
+            } finally {
+                cameraBusy = false
+                if (!ended) {
+                    camBtn.isEnabled = true
+                    camBtn.alpha = if (camOn) 1f else 0.45f
+                    localView.visibility = if (camOn) View.VISIBLE else View.GONE
+                    CallOngoingService.start(this@CallScreenActivity, c.peerName, camOn)
+                }
+            }
+        }
     }
 
     private fun switchCamera() {

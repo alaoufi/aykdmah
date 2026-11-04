@@ -1,5 +1,6 @@
 const { ApiError } = require('../middleware/errorHandler');
 const { queryOne } = require('../config/database');
+const { normalizeDistrictEnglishName } = require('./districtName');
 
 const LANGUAGES = ['ar', 'en', 'ur', 'bn', 'hi', 'ml', 'fil', 'id', 'ne', 'am', 'tr'];
 const own = (value, key) => Object.prototype.hasOwnProperty.call(value, key);
@@ -66,7 +67,7 @@ const schemas = {
     code: value => text(value, 20), capital_ar: value => text(value, 120), capital_en: value => text(value, 120) }, required: ['name_ar'] },
   governorate: { fields: { ...locationFields, sort_order: sort, region_id: catalogId, is_capital: flag }, required: ['name_ar', 'region_id'] },
   city: { fields: { ...locationFields, sort_order: sort, region_id: value => catalogId(value, true), governorate_id: value => catalogId(value, true) }, required: ['name_ar'] },
-  district: { fields: { ...locationFields, city_id: catalogId }, required: ['name_ar', 'city_id'] },
+  district: { fields: { ...locationFields, name_en: value => text(normalizeDistrictEnglishName(value), 120), city_id: catalogId }, required: ['name_ar', 'city_id'] },
   country: { fields: {
     name_ar: value => text(value, 80, true), name_en: value => text(value, 80, true),
     code: value => { const result = text(value, 2, true).toUpperCase(); if (!/^[A-Z]{2}$/.test(result)) invalid(); return result; },

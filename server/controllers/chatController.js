@@ -1,7 +1,8 @@
+const { createHash } = require('node:crypto');
 const Conversation = require('../models/Conversation');
 const Message = require('../models/Message');
 const { query, queryOne } = require('../config/database');
-const { hideRequesterNames, savedNames, shownName } = require('../utils/requesterPrivacy');
+const { hideRequesterNames, savedNames, shownName, messageForViewer } = require('../utils/requesterPrivacy');
 const notificationService = require('../services/notificationService');
 const pushService = require('../services/pushService');
 const fcmService = require('../services/fcmService');
@@ -11,7 +12,7 @@ const { success, created, error, notFound, forbidden } = require('../utils/apiRe
 const asyncHandler = require('../utils/asyncHandler');
 const { withUploadedFiles } = require('../utils/uploadPersistence');
 const { emitConversation } = require('../utils/conversationEvents');
-const { validateChatMessage, recordingDuration } = require('../utils/chatMessageValidation');
+const { validateChatMessage, recordingDuration, searchQuery, forwardSelection, forwardOperationId, canForward } = require('../utils/chatMessageValidation');
 
 const unreadCount = asyncHandler(async (req, res) => success(res, { count: await Conversation.unreadTotal(req.user.id) }));
 
@@ -23,12 +24,14 @@ async function hideMessageNames(req, messages) {
     if (msg.reply_sender_role) people.push({ id: msg.reply_sender_id, role: msg.reply_sender_role, full_name: msg.reply_sender_name, msg, key: 'reply_sender_name' });
   }
   await hideRequesterNames(req.user.id, people, req.t('requester_label'));
-  for (const p of people) { p.msg[p.key] = p.full_name; delete p.msg.sender_role; delete p.msg.reply_sender_role; }
+  for (const p of people) { if (p.role === 'client' && Number(p.id) !== Number(req.user.id)) p.msg[p.key.replace('_name','_avatar')] = null; p.msg[p.key] = p.full_name; delete p.msg.sender_role; delete p.msg.reply_sender_role; }
 }
 
 const listConversations = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 20 } = req.query;
-  const items = await Conversation.listForUser(req.user.id, { page, limit });
+  const { page = 1, limit = 20, request_id, user_id } = req.query;
+  const q = searchQuery(req.query.q);
+  for (const id of [request_id, user_id]) if (id != null && !/^[1-9][0-9]{0,9}$/.test(String(id))) return error(res, req.t('invalid_data'), 400);
+  const items = await Conversation.listForUser(req.user.id, { page, limit, q, requestId: request_id, peerId: user_id });
   // A requester's name stays hidden from the other side (AYK-142).
   for (const item of items) if (typeof item.other_user === 'string') { try { item.other_user = JSON.parse(item.other_user); } catch (_) { item.other_user = null; } }
   await hideRequesterNames(req.user.id, items.map(item => item.other_user), req.t('requester_label'));
@@ -39,7 +42,7 @@ const createConversation = asyncHandler(async (req, res) => {
   const { user_id, request_id } = req.body;
   if (!user_id) return error(res, req.t('user_id_required'));
   if (Number(user_id) === Number(req.user.id)) return error(res, req.t('cannot_chat_self'));
-  const convId = await Conversation.findOrCreateBetween(req.user.id, user_id, request_id || null);
+  const convId = await Conversation.findOrCreateBetween(req.user.id, user_id, request_id || null, {fresh:req.body.fresh === true});
   return created(res, { id: convId });
 });
 
@@ -110,7 +113,7 @@ const sendMessage = asyncHandler(async (req, res) => {
     await notifyParticipants(req, target, { content, isLocation, remind: true });
     deliverIfOnline(io, target, req.user.id).catch(() => {});
   }
-  return created(res, { ...message, broadcast_count: targets.length });
+  return created(res, { ...await messageForViewer(message,req.user.id,req.t('requester_label')), broadcast_count: targets.length });
 });
 
 // POST /chat/conversations/:id/messages/:messageId/forward { conversation_id? } (AYK-043)
@@ -119,7 +122,7 @@ const sendMessage = asyncHandler(async (req, res) => {
 const forwardMessage = asyncHandler(async (req, res) => {
   if (!/^[1-9][0-9]{0,9}$/.test(req.params.messageId) || !/^[1-9][0-9]{0,9}$/.test(req.params.id)) return notFound(res);
   const message = await Message.findById(req.params.messageId);
-  if (!message || message.deleted_at || Number(message.conversation_id) !== Number(req.params.id)
+  if (!canForward(message, req.user.id) || Number(message.conversation_id) !== Number(req.params.id)
       || Number(message.sender_id) !== Number(req.user.id)) return notFound(res);
   const conversation = await Conversation.findById(req.params.id);
   const request = conversation?.request_id ? await queryOne('SELECT client_id FROM requests WHERE id = ? AND deleted_at IS NULL', [conversation.request_id]) : null;
@@ -146,6 +149,49 @@ const forwardMessage = asyncHandler(async (req, res) => {
     deliverIfOnline(io, target, req.user.id).catch(() => {});
   }
   return success(res, { count: targets.length });
+});
+
+// Explicit recipients only; validate every source and target before writing.
+const forwardMessages = asyncHandler(async (req, res) => {
+  const { messageIds, targetIds } = forwardSelection(req.body);
+  const operationId = forwardOperationId(req.body.operation_id);
+  const sourceId = Number(req.params.id);
+  const fingerprint = createHash('sha256').update(JSON.stringify({sourceId,messageIds:[...messageIds].sort((a,b)=>a-b)})).digest('hex');
+  if (!await Conversation.isParticipant(sourceId, req.user.id)) return forbidden(res);
+  const messages = [];
+  for (const id of messageIds) {
+    const message = await Message.findById(id);
+    if (!canForward(message, req.user.id) || Number(message.conversation_id) !== sourceId) return notFound(res);
+    messages.push(message);
+  }
+  // Replayed successful targets need no new permission to send: nothing is sent
+  // again. Every target without a receipt is authorized before the first write.
+  for (const id of targetIds) {
+    if (id === sourceId) return forbidden(res,req.t('deny_chat_closed'));
+    const receipt = await Message.getForwardReceipt(req.user.id,operationId,id);
+    if (receipt && receipt.fingerprint !== fingerprint) return error(res,req.t('invalid_data'),409);
+    if (!receipt && !await Conversation.canSend(id,req.user.id)) return forbidden(res,req.t('deny_chat_closed'));
+  }
+  messages.sort((a,b)=>Number(a.id)-Number(b.id));
+  const results=[];
+  for (const target of targetIds) {
+    let persisted;
+    try {
+      persisted = await Message.forwardToTarget({sourceId,targetId:target,senderId:req.user.id,operationId,fingerprint,messages});
+    } catch (_) { results.push({conversation_id:target,count:0,success:false});continue; }
+    let deliveryError=false;
+    if (!persisted.replayed) {
+      try {
+        for (const id of persisted.messageIds) {
+          const copy=await Message.findById(id);
+          if (copy) await emitConversation(req.app.get('io'),target,'chat:message',copy);
+        }
+        await notifyParticipants(req,target,{content:messages[0]?.content,remind:true});
+      } catch (_) { deliveryError=true; }
+    }
+    results.push({conversation_id:target,count:persisted.messageIds.length,success:true,replayed:persisted.replayed,delivery_error:deliveryError});
+  }
+  return success(res,{operation_id:operationId,results,count:results.reduce((sum,row)=>sum+row.count,0)});
 });
 
 // GET /chat/conversations/:id/messages/:messageId/translation?lang=xx (AYK-044)
@@ -326,9 +372,10 @@ const searchMessages = asyncHandler(async (req, res) => {
   const conversationId = req.params.id;
   const isParticipant = await Conversation.isParticipant(conversationId, req.user.id);
   if (!isParticipant) return forbidden(res, req.t('deny_chat_participant'));
-  const q = (req.query.q || '').trim();
+  const q = searchQuery(req.query.q);
   if (!q) return success(res, []);
-  const items = await Message.searchInConversation(conversationId, q, { limit: 30 });
+  const items = await Message.searchInConversation(conversationId, q, { limit: 30, beforeId: /^[1-9][0-9]{0,9}$/.test(String(req.query.before)) ? Number(req.query.before) : null });
+  await hideMessageNames(req, items);
   return success(res, items);
 });
 
@@ -377,5 +424,5 @@ const getConversation = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
-  listConversations, unreadCount, forwardMessage, translateMessage, createConversation, getMessages, sendMessage, markRead, setFavorite,
+  listConversations, unreadCount, forwardMessage, forwardMessages, translateMessage, createConversation, getMessages, sendMessage, markRead, setFavorite,
   getConversation, deleteMessage, searchMessages, nudge };

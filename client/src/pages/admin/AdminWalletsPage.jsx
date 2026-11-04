@@ -1,3 +1,4 @@
+import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LoadingState, ErrorState } from '../../components/common/Spinner';
@@ -9,6 +10,7 @@ const money = value => Number(value || 0).toFixed(2);
 
 export default function AdminWalletsPage() {
   const { t } = useTranslation();
+  const confirmAdminChange = useAdminConfirmation();
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
@@ -25,6 +27,7 @@ export default function AdminWalletsPage() {
   useEffect(() => { load(); }, [load]);
 
   const act = async (action, successKey) => {
+    if (!(await confirmAdminChange(t))) return;
     setNotice(null);
     try { await action(); setNotice({ ok: true, text: t(successKey) }); load(); if (ledger) openLedger(ledger.user); return true; }
     catch (err) { setNotice({ ok: false, text: walletApi.walletError(err, t) }); return false; }

@@ -5,8 +5,10 @@ import { listDirectory, saveToDirectory, contactDirect } from '../../services/re
 import { apiError } from '../../services/api';
 import { localizedJoinedName } from '../../utils/localizeJoined';
 import { localizedName } from '../../utils/localize';
+import TrustSummary from '../../components/reviews/TrustSummary';
 import Avatar from '../../components/common/Avatar';
 import { LoadingState } from '../../components/common/Spinner';
+import { getConversation, createConversation } from '../../services/chatService';
 import { useCall } from '../../context/CallContext';
 import BlockedNotice from '../../components/common/BlockedNotice';
 
@@ -26,11 +28,15 @@ export default function DirectoryPage({ compact = false }) {
   const [problemWith, setProblemWith] = useState(null);
   const run = async (id, action) => {
     setBusy(id); setProblem(''); setProblemWith(id);
-    try { await action(); } catch (err) { setProblem(apiError(err)); } finally { setBusy(0); }
+    try { await action(); } catch (err) { !err?.cancelled && setProblem(apiError(err)); } finally { setBusy(0); }
   };
   // Message: the existing chat, or (a provider) a direct request; call: through that chat (AYK-109).
   const chatWith = async p => {
-    if (p.conversation_id) return p.conversation_id;
+    if (p.conversation_id) {
+      const previous = await getConversation(p.conversation_id);
+      const next = await createConversation({user_id:p.id,request_id:previous.request_id});
+      return next.id;
+    }
     const res = await contactDirect(p.id, p.category_id);
     return res.conversation_id;
   };
@@ -64,7 +70,7 @@ export default function DirectoryPage({ compact = false }) {
                 <div className="text-[13px] text-fg-muted mt-1 flex flex-wrap gap-x-3 gap-y-1">
                   {p.category_name && <span>🛠️ {localizedJoinedName(p, 'category', lang)}</span>}
                   {p.district_name_ar && <span>📍 {localizedName({ name_ar: p.district_name_ar, name_en: p.district_name_en }, lang)}</span>}
-                  {p.is_provider !== false && <span>⭐ {p.rating_count ? `${p.rating_avg.toFixed(1)} (${p.rating_count})` : t('for_you.no_ratings')}</span>}
+                  <TrustSummary userId={p.id} type={p.is_provider === false ? 'on_requester' : 'on_provider'} average={p.rating_avg} count={p.rating_count} opinion={p.opinion} />
                   {p.availability && <span className={p.availability?.state === 'available' ? 'text-success' : ''}>● {t(p.availability?.state === 'available' ? 'for_you.available' : 'for_you.unavailable')}</span>}
                 </div>
                 <div className="flex items-center gap-3 mt-2">

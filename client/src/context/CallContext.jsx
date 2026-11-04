@@ -9,6 +9,7 @@ import { nativeAppVersion, nativeCallsSupported, openNativeCall } from '../utils
 import { sendDeviceReport } from '../utils/deviceReport';
 import { startTone, stopTone, primeAudio, toneAudible } from '../utils/ringtone';
 import { collectCallStats } from '../utils/callStats';
+import { createCallMediaIntent, preferredCallOutput } from '../utils/callMediaIntent';
 
 // The call screen and the LiveKit SDK load only when a call actually starts or rings.
 const CallOverlay = lazy(() => import('../components/calls/CallOverlay'));
@@ -47,7 +48,8 @@ export function CallProvider({ children }) {
   const [error, setError] = useState(null);
   const [room, setRoom] = useState(null);
   const [micOn, setMicOn] = useState(true);
-  const [camOn, setCamOn] = useState(true);
+  const [camOn, setCamOn] = useState(false);
+  const mediaIntent = useRef(createCallMediaIntent());
   const [facing, setFacing] = useState('user');
   const [remoteJoined, setRemoteJoined] = useState(false);
   // The other side's camera picture is arriving (AYK-066).
@@ -89,6 +91,11 @@ export function CallProvider({ children }) {
 
   const teardown = useCallback(async () => {
     const current = roomRef.current;
+    mediaIntent.current.end();
+    setCamOn(false);
+    setOutputs([]);
+    setOutputId('');
+    for (const pub of current?.localParticipant?.trackPublications?.values() || []) pub.track?.stop();
     // Report how the connection behaved before closing it (answered calls only).
     const ended = callRef.current;
     if (current && ended?.id && ended.answered_at) {
@@ -175,8 +182,16 @@ export function CallProvider({ children }) {
   const connectMediaRef = useRef(null);
 
   const connectMedia = useCallback(async (active, micReady = null) => {
+    const intent = mediaIntent.current;
+    const freshCall = intent.state.id !== active.id;
+    intent.begin(active.id);
+    if (freshCall) { setCamOn(false); setMicOn(true); setFacing('user'); setOutputId(''); setOutputs([]); }
     setPhase(prev => (prev === 'outgoing' ? 'outgoing' : 'connecting'));
     const [{ Room, RoomEvent, Track, DisconnectReason, VideoPresets, ConnectionQuality }, access] = await Promise.all([loadLiveKit(), calls.callToken(active.id)]);
+    if (endingRef.current || leavingRef.current || intent.state.id !== active.id) {
+      (await micReady)?.stop();
+      return;
+    }
     // Ended on purpose (hang-up, room closed by the server): no rejoin attempts.
     const finalReasons = [DisconnectReason.CLIENT_INITIATED, DisconnectReason.ROOM_DELETED, DisconnectReason.PARTICIPANT_REMOVED,
       DisconnectReason.DUPLICATE_IDENTITY, DisconnectReason.ROOM_CLOSED].filter(r => r !== undefined);
@@ -253,11 +268,6 @@ export function CallProvider({ children }) {
       if (document.hidden && log.away) { log.away.snaps += 1; log.away.in = soundState(lkRoom); }
       collectCallStats(lkRoom).then(stats => { if (stats.audio_kb_in || stats.audio_kb_out || !log.lastStats) log.lastStats = stats; }).catch(err => { log.errors = [...(log.errors || []), `stats:${err?.name || 'Error'}`].slice(-6); });
     }, 10000);
-    navigator.mediaDevices?.enumerateDevices?.().then(list => {
-      const outs = list.filter(d => d.kind === 'audiooutput' && d.deviceId);
-      setOutputs(outs.map(d => ({ id: d.deviceId, label: d.label })));
-      setOutputId(lkRoom.getActiveDevice?.('audiooutput') || 'default');
-    }).catch(() => {});
         if (!lkRoom.canPlaybackAudio) qualityLog.current.audioBlocked = true;
       })
       .on(RoomEvent.ActiveSpeakersChanged, speakers => setSpeaking({
@@ -285,9 +295,35 @@ export function CallProvider({ children }) {
         }
         rejoin(active);
       });
+    const previousRoom = roomRef.current;
     roomRef.current = lkRoom;
+    if (previousRoom && previousRoom !== lkRoom) await previousRoom.disconnect(true).catch(() => {});
     setRoom(lkRoom);
     await lkRoom.connect(access.url, access.token, { autoSubscribe: true });
+    const valid = () => roomRef.current === lkRoom && !endingRef.current && !leavingRef.current && intent.state.id === active.id;
+    if (!valid()) { (await micReady)?.stop(); await lkRoom.disconnect(true); return; }
+    // Devices are initialized independently of an audio playback status event.
+    const syncOutputs = async () => {
+      if (!valid()) return;
+      const canChoose = typeof HTMLMediaElement !== 'undefined' && typeof HTMLMediaElement.prototype.setSinkId === 'function';
+      const list = canChoose ? await navigator.mediaDevices?.enumerateDevices?.() : [];
+      if (!valid()) return;
+      const outs = (list || []).filter(d => d.kind === 'audiooutput' && d.deviceId);
+      const current = lkRoom.getActiveDevice?.('audiooutput') || 'default';
+      const preferred = preferredCallOutput(outs, intent.state.output, current);
+      if (preferred && preferred !== current) {
+        try { await lkRoom.switchActiveDevice('audiooutput', preferred); }
+        catch (_) { /* Keep the confirmed route; an unsupported switch is not success. */ }
+      }
+      if (valid()) {
+        setOutputs(outs.map(d => ({ id: d.deviceId, label: d.label })));
+        setOutputId(lkRoom.getActiveDevice?.('audiooutput') || current);
+      }
+    };
+    await syncOutputs().catch(() => {});
+    const onDeviceChange = () => { syncOutputs().catch(() => {}); };
+    navigator.mediaDevices?.addEventListener?.('devicechange', onDeviceChange);
+    lkRoom.once(RoomEvent.Disconnected, () => navigator.mediaDevices?.removeEventListener?.('devicechange', onDeviceChange));
     // Still inside the tap that started or answered the call: unlock audio playback now.
     await lkRoom.startAudio().catch(() => {});
     setAudioBlocked(!lkRoom.canPlaybackAudio);
@@ -299,6 +335,7 @@ export function CallProvider({ children }) {
     // one of them failed silently (AYK-093). Retried; the camera at a lower size each time.
     const publish = async (label, enable, retries) => {
       for (let attempt = 0; ; attempt += 1) {
+        if (!valid()) return false;
         try { await enable(attempt); return true; } catch (err) {
           if (err?.name === 'NotAllowedError') throw err;
           console.warn('[call] publish failed:', label, err?.name, err?.message);
@@ -309,20 +346,22 @@ export function CallProvider({ children }) {
       }
     };
     const early = micReady ? await micReady : null;
-    const mic = await publish('mic', attempt => {
-      if (early && attempt === 0) return lkRoom.localParticipant.publishTrack(early);
-      early?.stop();
-      return lkRoom.localParticipant.setMicrophoneEnabled(true);
-    }, 2);
     const sizes = [undefined, VideoPresets?.h360?.resolution, VideoPresets?.h180?.resolution];
-    // A refused camera does not end a video call: it goes on as voice, camera off (AYK-089).
-    const cam = active.call_type === 'video'
-      ? await publish('cam', attempt => lkRoom.localParticipant.setCameraEnabled(true, sizes[attempt] ? { facingMode: 'user', resolution: sizes[attempt] } : { facingMode: 'user' }), 2)
-        .catch(err => { qualityLog.current.errors = [...(qualityLog.current.errors || []), `cam:${err?.name}`].slice(-6); if (err?.name === 'NotAllowedError') return false; throw err; })
-      : false;
-    setMicOn(mic);
-    setCamOn(cam);
-    setFacing('user');
+    const restored = await intent.restore(lkRoom, {
+      valid,
+      microphone: wanted => publish('mic', attempt => {
+        if (early && wanted && attempt === 0) return lkRoom.localParticipant.publishTrack(early);
+        early?.stop();
+        return lkRoom.localParticipant.setMicrophoneEnabled(wanted);
+      }, 2),
+      camera: direction => active.call_type === 'video' && publish('cam', attempt => lkRoom.localParticipant.setCameraEnabled(true,
+        { facingMode: direction, ...(sizes[attempt] ? { resolution: sizes[attempt] } : {}) }), 2)
+        .catch(err => { if (valid()) setError(err?.name === 'NotAllowedError' ? 'media_denied' : 'camera_switch_failed'); return false; }),
+    });
+    if (!valid()) { early?.stop(); return; }
+    setMicOn(restored.mic);
+    setCamOn(restored.camera && intent.state.camera);
+    setFacing(intent.state.facing);
     if (active.status === 'accepted') setPhase('in_call');
     return Track;
   }, [finishLocally, rejoin]);
@@ -582,7 +621,14 @@ export function CallProvider({ children }) {
     const lk = roomRef.current; if (!lk || outputs.length < 2) return false;
     const index = outputs.findIndex(o => o.id === outputId);
     const next = outputs[(index + 1) % outputs.length];
-    try { await lk.switchActiveDevice('audiooutput', next.id); setOutputId(next.id); return true; } catch (_) { return false; }
+    try {
+      const switched = await lk.switchActiveDevice('audiooutput', next.id);
+      if (switched === false) return false;
+      if (roomRef.current !== lk) return false;
+      mediaIntent.current.state.output = next.id;
+      setOutputId(lk.getActiveDevice?.('audiooutput') || next.id);
+      return true;
+    } catch (_) { return false; }
   }, [outputs, outputId]);
 
   const enableAudio = useCallback(async () => {
@@ -601,22 +647,29 @@ export function CallProvider({ children }) {
 
   const toggleMic = useCallback(async () => {
     const lk = roomRef.current; if (!lk) return;
-    await lk.localParticipant.setMicrophoneEnabled(!micOn);
-    setMicOn(!micOn);
-  }, [micOn]);
+    const wanted = !mediaIntent.current.state.mic;
+    mediaIntent.current.state.mic = wanted;
+    try { await lk.localParticipant.setMicrophoneEnabled(wanted); if (roomRef.current === lk && !endingRef.current) setMicOn(mediaIntent.current.state.mic); }
+    catch (_) { if (roomRef.current === lk) { if (mediaIntent.current.state.mic === wanted) mediaIntent.current.state.mic = !wanted; setError('media_denied'); } }
+  }, []);
 
   const toggleCam = useCallback(async () => {
     const lk = roomRef.current; if (!lk || callRef.current?.call_type !== 'video') return;
-    await lk.localParticipant.setCameraEnabled(!camOn, { facingMode: facing });
-    setCamOn(!camOn);
-  }, [camOn, facing]);
+    const intent = mediaIntent.current;
+    const wanted = !intent.state.camera;
+    if (!wanted) setCamOn(false);
+    try {
+      const confirmed = await intent.setCamera(lk, wanted, () => roomRef.current === lk && !endingRef.current && !leavingRef.current);
+      if (roomRef.current === lk && !endingRef.current) { setCamOn(confirmed && intent.state.camera); setError(null); }
+    } catch (err) { if (roomRef.current === lk && !endingRef.current) { setCamOn(false); setError(err?.name === 'NotAllowedError' ? 'media_denied' : 'camera_switch_failed'); } }
+  }, []);
 
   const switchCamera = useCallback(async () => {
     const lk = roomRef.current; if (!lk || !camOn) return;
     const { Track } = await loadLiveKit();
     const next = facing === 'user' ? 'environment' : 'user';
     const track = lk.localParticipant.getTrackPublication(Track.Source.Camera)?.videoTrack;
-    try { await track?.restartTrack({ facingMode: next }); setFacing(next); }
+    try { await track?.restartTrack({ facingMode: next }); if (roomRef.current === lk && !endingRef.current) { mediaIntent.current.state.facing = next; setFacing(next); } }
     catch (_) { setError('camera_switch_failed'); }
   }, [camOn, facing]);
 

@@ -8,7 +8,7 @@ DO $ayk_fresh$ BEGIN
   IF EXISTS (
     SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
     WHERE n.nspname = current_schema() AND c.relkind IN ('r','p','v','m','f')
-      AND c.relname IN ('activity_logs','ad_admin_messages','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_diagnostics','call_reports','calls','categories','cities','conversation_archives','conversation_participants','conversations','countries','device_reports','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','districts','governorates','install_lock','ip_geo_cache','location_shares','message_files','messages','native_push_tokens','notifications','offers','payments','phone_codes','provider_badges','provider_coverage_districts','provider_profiles','push_subscriptions','referral_rewards','regions','request_files','requests','review_reports','review_translations','review_votes','reviews','roles','saved_providers','schema_migrations','services','settings','subscription_plans','subscription_rules','subscriptions','support_messages','support_tickets','translation_memory','translation_usage','uploaded_media','user_blocks','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','wallet_transactions','withdrawal_requests')
+      AND c.relname IN ('activity_logs','ad_admin_messages','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_diagnostics','call_reports','calls','categories','chat_forward_receipts','cities','conversation_archives','conversation_participants','conversations','countries','device_reports','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','district_name_cleanup_','districts','governorates','install_lock','ip_geo_cache','location_shares','message_files','messages','native_push_tokens','notifications','offers','payments','phone_codes','provider_badges','provider_coverage_districts','provider_profiles','push_subscriptions','referral_rewards','regions','request_files','requests','review_reports','review_translations','review_votes','reviews','roles','saved_providers','schema_migrations','services','settings','subscription_plans','subscription_rules','subscriptions','support_messages','support_tickets','translation_memory','translation_usage','uploaded_media','user_blocks','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','wallet_transactions','withdrawal_requests')
   ) THEN
     RAISE EXCEPTION 'AY KHIDMA bootstrap requires a fresh database schema; use journaled migrations for an existing installation';
   END IF;
@@ -6295,6 +6295,37 @@ CREATE TABLE IF NOT EXISTS ad_admin_messages (
 );
 CREATE INDEX IF NOT EXISTS idx_ad_admin_messages_ad ON ad_admin_messages (ad_id);
 INSERT INTO schema_migrations(name) VALUES ('069_ad_fees_and_admin_messages.sql');
+
+
+
+-- migrations/070_district_english_suffix.sql
+CREATE TABLE IF NOT EXISTS district_name_cleanup_070 (
+  district_id BIGINT PRIMARY KEY,
+  old_name_en VARCHAR(120) NOT NULL,
+  new_name_en VARCHAR(120) NOT NULL,
+  recorded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+INSERT INTO district_name_cleanup_070 (district_id, old_name_en, new_name_en)
+SELECT id, name_en, btrim(REGEXP_REPLACE(name_en, '[[:space:]]+[Dd][Ii][Ss][Tt][.]?[[:space:]]*$', ''))
+FROM districts
+WHERE name_en ~ '[[:space:]]+[Dd][Ii][Ss][Tt][.]?[[:space:]]*$'
+  AND btrim(REGEXP_REPLACE(name_en, '[[:space:]]+[Dd][Ii][Ss][Tt][.]?[[:space:]]*$', '')) <> '' ON CONFLICT (district_id) DO NOTHING;
+UPDATE districts AS d SET name_en = b.new_name_en FROM district_name_cleanup_070 b WHERE d.id = b.district_id AND d.name_en = b.old_name_en;
+INSERT INTO schema_migrations(name) VALUES ('070_district_english_suffix.sql');
+
+-- migrations/071_chat_forward_receipts.sql
+CREATE TABLE IF NOT EXISTS chat_forward_receipts (
+  sender_id INT NOT NULL,
+  operation_id VARCHAR(36) NOT NULL,
+  target_conversation_id INT NOT NULL,
+  fingerprint CHAR(64) NOT NULL,
+  message_ids JSONB NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (sender_id, operation_id, target_conversation_id),
+  FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (target_conversation_id) REFERENCES conversations(id) ON DELETE CASCADE
+);
+INSERT INTO schema_migrations(name) VALUES ('071_chat_forward_receipts.sql');
 
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$

@@ -28,4 +28,39 @@ async function hideRequesterNames(viewerId, people, label) {
   return people;
 }
 
-module.exports = { isRequester, savedNames, shownName, hideRequesterNames };
+// Copy a socket message for one recipient; never mutate the shared broadcast object.
+async function messageForViewer(message, viewerId, label) {
+  const copy = {...message};
+  const people = [];
+  for (const [idKey, roleKey, nameKey, avatarKey] of [['sender_id','sender_role','sender_name','sender_avatar'],['reply_sender_id','reply_sender_role','reply_sender_name','reply_sender_avatar']]) {
+    if (copy[idKey] != null) people.push({id:copy[idKey],role:copy[roleKey] || 'client',full_name:copy[nameKey],nameKey,avatarKey});
+    else {delete copy[nameKey];delete copy[avatarKey];}
+    delete copy[roleKey];
+  }
+  await hideRequesterNames(viewerId,people,label);
+  for (const person of people) {
+    copy[person.nameKey] = person.full_name;
+    if (person.role === 'client' && Number(person.id) !== Number(viewerId)) copy[person.avatarKey] = null;
+  }
+  return copy;
+}
+
+// Public reviews deliberately omit request links, internal reports and user IDs.
+// The review ID remains available for voting, reporting, replying and translation.
+async function reviewsForViewer(rows, viewerId, label) {
+  const copies = rows.map(row => ({...row}));
+  const people = [];
+  for (const row of copies) {
+    people.push({id:row.reviewer_id,role:row.reviewer_role || (row.review_type === 'on_requester' ? 'provider' : 'client'),full_name:row.reviewer_name,row,key:'reviewer'});
+    people.push({id:row.target_user_id,role:row.target_role || (row.review_type === 'on_requester' ? 'client' : 'provider'),full_name:row.target_name,row,key:'target'});
+  }
+  await hideRequesterNames(viewerId,people,label);
+  for (const person of people) {
+    person.row[person.key + '_name'] = person.full_name;
+    if (person.role === 'client' && Number(person.id) !== Number(viewerId)) person.row[person.key + '_avatar'] = null;
+  }
+  const fields = ['id','review_type','rating','criteria_ratings','comment','images','original_language','helpful_count','provider_reply','provider_reply_at','created_at','user_voted','reviewer_name','reviewer_avatar','target_name','target_avatar'];
+  return copies.map(row => Object.fromEntries(fields.filter(key => row[key] !== undefined).map(key => [key,row[key]])));
+}
+
+module.exports = { messageForViewer, reviewsForViewer, isRequester, savedNames, shownName, hideRequesterNames };

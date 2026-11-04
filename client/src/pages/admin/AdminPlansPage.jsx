@@ -1,3 +1,4 @@
+import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
 import { localizedName, localizedPlatformText } from '../../utils/localize';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -6,7 +7,7 @@ import {
 } from '../../services/adminService';
 import { apiError } from '../../services/api';
 import Modal from '../../components/common/Modal';
-import ConfirmDialog from '../../components/common/ConfirmDialog';
+import ConfirmDialog from '../../components/admin/AdminConfirmDialog';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import AdminButton from '../../components/admin/AdminButton';
 import EmptyState from '../../components/admin/EmptyState';
@@ -38,6 +39,7 @@ function textToFeatures(text) {
 
 export default function AdminPlansPage() {
   const { t, i18n } = useTranslation();
+  const confirmAdminChange = useAdminConfirmation();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [editOpen, setEditOpen] = useState(false);
@@ -77,6 +79,7 @@ export default function AdminPlansPage() {
 
   const onSave = async (e) => {
     e.preventDefault();
+    if (editing && !(await confirmAdminChange(t, editing.name_ar || editing.full_name || editing.title || editing.provider || ''))) return;
     setSaving(true);
     setFormError('');
     try {
@@ -115,7 +118,7 @@ export default function AdminPlansPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <AdminPageHeader title={t('admin.plans')} count={items.length}>
         <AdminButton variant="primary" icon="+" onClick={openCreate}>{t('admin.new')}</AdminButton>
       </AdminPageHeader>

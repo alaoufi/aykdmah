@@ -1,3 +1,4 @@
+import { useAdminBack } from '../../components/admin/AdminBackNavigation';
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MapContainer, Marker, Polyline, CircleMarker, Popup } from 'react-leaflet';
@@ -67,6 +68,7 @@ function ConversationsTab({ locale }) {
   const [open, setOpen] = useState(null); // selected conversation id
   const [error, setError] = useState('');
   const loadVersion = useRef(0);
+  useAdminBack(open ? () => setOpen(null) : null);
 
   const load = (p = page, q = search) => {
     const version = ++loadVersion.current;
@@ -179,9 +181,6 @@ function ConversationDetail({ id, onBack, locale }) {
 
   return (
     <div className="space-y-3">
-      <button onClick={onBack} className="text-[13px] text-primary font-semibold inline-flex items-center gap-1">
-        ← {t('common.back')}
-      </button>
 
       {loading && <Skeleton />}
       {error && <div className="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-card text-[13px]">{error}</div>}

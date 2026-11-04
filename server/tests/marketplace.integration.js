@@ -246,4 +246,137 @@ if (!databaseName) {
       assert.deepEqual(row.permissions, ['requests']);
     } finally { await db.query('DELETE FROM users WHERE id = ?', [admin.insertId]); }
   });
+  test('AYK-176/181/182 fresh scoped chats, private search pagination and explicit media forwarding', async () => {
+    const suffix = crypto.randomBytes(5).toString('hex');
+    const make = async (role, name) => (await api('/auth/register', {method:'POST',expected:201,body:{full_name:name,username:role+'_'+name.replace(/[^a-z]/g,'')+'_'+suffix,password:'AykTestOnly-2026',role}})).data;
+    const customer = await make('client','Private requester');
+    const provider = await make('provider','Workflow provider');
+    const recipient = await make('provider','Forward recipient');
+    const source = await Conversation.findOrCreateBetween(customer.user.id,provider.user.id);
+    assert.equal(await Conversation.findOrCreateBetween(customer.user.id,provider.user.id),source);
+    const fresh = await Conversation.findOrCreateBetween(customer.user.id,provider.user.id,null,{fresh:true});
+    assert.notEqual(fresh,source);
+    for (let i=0;i<21;i++) await Conversation.findOrCreateBetween(customer.user.id,provider.user.id,null,{fresh:true});
+    const page2 = (await api('/chat/conversations?page=2&limit=20&q=Workflow', {token:customer.token})).data;
+    assert.equal(page2.length,3,'server search finds conversations past the first page');
+    assert.equal((await api('/chat/conversations?q=Private', {token:provider.token})).data.length,0,'hidden requester name is not a search oracle');
+    await api('/chat/conversations?q[]=bad',{token:customer.token,expected:400});
+    const text = await Message.create({conversation_id:source,sender_id:customer.user.id,content:'needle-private-search'});
+    const result = (await api('/chat/conversations/'+source+'/search?q=needle',{token:provider.token})).data;
+    assert.notEqual(result[0].sender_name,'Private requester');
+    assert.equal(result[0].sender_role,undefined);
+    await api('/chat/conversations/'+source+'/search?q[]=bad',{token:provider.token,expected:400});
+    const target = await Conversation.findOrCreateBetween(customer.user.id,recipient.user.id);
+    const forbiddenTarget = await Conversation.findOrCreateBetween(provider.user.id,recipient.user.id);
+    await api('/chat/conversations/'+source+'/forward',{method:'POST',token:customer.token,expected:403,body:{operation_id:'12345678-1234-4234-8234-123456789012',message_ids:[text],conversation_ids:[target,forbiddenTarget]}});
+    assert.equal((await Message.listByConversation(target)).length,0,'all recipients are authorized before the first write');
+    await api('/chat/conversations/'+source+'/forward',{method:'POST',token:recipient.token,expected:403,body:{operation_id:'12345678-1234-4234-8234-123456789012',message_ids:[text],conversation_ids:[target]}});
+    const UploadedMedia = require('../models/UploadedMedia');
+    const bytes = Buffer.from(require('./fixtures/chat-media.json')['voice.m4a'],'base64');
+    const files = await UploadedMedia.createBatch([{originalname:'voice.m4a',mimetype:'audio/mp4',buffer:bytes}],{ownerId:customer.user.id,scope:'chat',scopeId:source});
+    const voice = await Message.create({conversation_id:source,sender_id:customer.user.id,message_type:'voice',files});
+    const file = await UploadedMedia.findById(files[0].media_id);
+    assert.equal(await UploadedMedia.canRead(file),false);
+    assert.equal(await UploadedMedia.canRead(file,recipient.user),false);
+    const operationId=crypto.randomUUID();
+    const selection={operation_id:operationId,message_ids:[voice,text],conversation_ids:[target,fresh]};
+    await db.query(`CREATE FUNCTION ayk_test_forward_failure() RETURNS trigger LANGUAGE plpgsql AS $forward$ BEGIN IF NEW.conversation_id = ${Number(fresh)} AND NEW.message_type = 'voice' THEN RAISE EXCEPTION 'test second-message failure'; END IF; RETURN NEW; END; $forward$`);
+    await db.query('CREATE TRIGGER ayk_test_forward_failure BEFORE INSERT ON messages FOR EACH ROW EXECUTE FUNCTION ayk_test_forward_failure()');
+    let partial;
+    try {partial=(await api('/chat/conversations/'+source+'/forward',{method:'POST',token:customer.token,body:selection})).data;}
+    finally {await db.query('DROP TRIGGER ayk_test_forward_failure ON messages');await db.query('DROP FUNCTION ayk_test_forward_failure()');}
+    assert.equal(partial.count,2);assert.equal(partial.results[0].success,true);assert.equal(partial.results[1].count,0);assert.equal(partial.results[1].success,false);
+    assert.equal((await Message.listByConversation(fresh)).length,0,'second-message failure rolls back the entire target');
+    const retry=(await api('/chat/conversations/'+source+'/forward',{method:'POST',token:customer.token,body:{...selection,conversation_ids:[fresh]}})).data;
+    assert.equal(retry.count,2);
+    const forwarded = (await api('/chat/conversations/'+source+'/forward',{method:'POST',token:customer.token,body:selection})).data;
+    assert.ok(forwarded.results.every(row=>row.replayed));
+    assert.equal((await Message.listByConversation(fresh)).length,2,'acknowledgement retry never duplicates copies');
+    assert.equal(forwarded.count,4);
+    const copies = await Message.listByConversation(target);
+    assert.equal(copies[0].content,'needle-private-search');
+    assert.equal(copies[1].files[0].file_url,files[0].file_url);
+    assert.equal(await UploadedMedia.canRead(file,recipient.user),true);
+    assert.equal(await UploadedMedia.canRead(file),false);
+    const notification=require('../services/notificationService'), originalNotify=notification.notifyUser;
+    const beforeCount=(await Message.listByConversation(target)).length;
+    const notifySelection={operation_id:crypto.randomUUID(),message_ids:[text],conversation_ids:[target]};
+    try {
+      notification.notifyUser=async()=>{throw Error('test notify failure');};
+      const delivered=(await api('/chat/conversations/'+source+'/forward',{method:'POST',token:customer.token,body:notifySelection})).data;
+      assert.equal(delivered.count,1);assert.equal(delivered.results[0].success,true);assert.equal(delivered.results[0].delivery_error,true);
+    } finally {notification.notifyUser=originalNotify;}
+    const notifyReplay=(await api('/chat/conversations/'+source+'/forward',{method:'POST',token:customer.token,body:notifySelection})).data;
+    assert.equal(notifyReplay.results[0].replayed,true);assert.equal((await Message.listByConversation(target)).length,beforeCount+1);
+    const raceTarget=await Conversation.findOrCreateBetween(customer.user.id,recipient.user.id,null,{fresh:true});
+    const originalForward=Message.forwardToTarget;
+    try {
+      Message.forwardToTarget=async input=>{
+        await db.query('DELETE FROM conversation_participants WHERE conversation_id = ? AND user_id = ?',[source,customer.user.id]);
+        return originalForward(input);
+      };
+      const raced=(await api('/chat/conversations/'+source+'/forward',{method:'POST',token:customer.token,body:{operation_id:crypto.randomUUID(),message_ids:[text],conversation_ids:[raceTarget]}})).data;
+      assert.equal(raced.count,0);assert.equal(raced.results[0].success,false);
+      assert.equal((await Message.listByConversation(raceTarget)).length,0,'membership revoked after controller preflight is rechecked in persistence transaction');
+    } finally {
+      Message.forwardToTarget=originalForward;
+      if(!await Conversation.isParticipant(source,customer.user.id))await db.query('INSERT INTO conversation_participants (conversation_id,user_id) VALUES (?,?)',[source,customer.user.id]);
+    }
+    const ownRequest = await Request.create({client_id:customer.user.id,title:'Scoped request',description:'test'});
+    const offer = await Offer.create({request_id:ownRequest,provider_id:provider.user.id,price:1});
+    await Offer.acceptOffer(offer,customer.user.id);
+    const firstScoped = await Conversation.findOrCreateBetween(customer.user.id,provider.user.id,ownRequest);
+    const newScoped = await Conversation.findOrCreateBetween(customer.user.id,provider.user.id,ownRequest,{fresh:true});
+    assert.notEqual(firstScoped,newScoped);
+    assert.equal(Number((await Conversation.findById(newScoped)).request_id),Number(ownRequest));
+    assert.equal(await Conversation.canSend(newScoped,provider.user.id),true);
+    await api('/requests/'+ownRequest+'/status',{method:'PUT',token:provider.token,body:{status:'in_progress'}});
+    await api('/requests/'+ownRequest+'/status',{method:'PUT',token:customer.token,body:{status:'completed'}});
+    const Review = require('../models/Review');
+    await Review.create({request_id:ownRequest,reviewer_id:customer.user.id,rating:4,comment:'Good provider'});
+    const reviewId = await Review.create({request_id:ownRequest,reviewer_id:provider.user.id,rating:3,comment:'Good requester'});
+    for (const token of [undefined,customer.token,provider.token]) {
+      const publicRequester = (await api('/users/'+customer.user.id,{token})).data.user;
+      assert.equal(publicRequester.full_name === 'Private requester',token === customer.token);
+      const onProvider = (await api('/reviews/user/'+provider.user.id,{token})).data[0];
+      assert.equal(onProvider.target_name,'Workflow provider');
+      assert.equal(onProvider.reviewer_name === 'Private requester',token === customer.token,'only requester self sees original name');
+      assert.equal(onProvider.request_id,undefined);assert.equal(onProvider.request_title,undefined);assert.equal(onProvider.reviewer_id,undefined);
+      const onRequester = (await api('/reviews/user/'+customer.user.id+'?type=on_requester',{token})).data[0];
+      assert.equal(onRequester.reviewer_name,'Workflow provider');
+      assert.equal(onRequester.target_name === 'Private requester',token === customer.token);
+      assert.equal(onRequester.target_user_id,undefined);
+    }
+    await db.query('INSERT INTO saved_providers (user_id,provider_id,nickname) VALUES (?,?,?)',[provider.user.id,customer.user.id,'Saved requester']);
+    const nicknamed = (await api('/reviews/user/'+provider.user.id,{token:provider.token})).data[0];
+    assert.equal(nicknamed.reviewer_name,'Saved requester');
+    const alternateLegacy = (await api('/reviews/provider/'+provider.user.id,{token:provider.token})).data[0];
+    assert.equal(alternateLegacy.reviewer_name,'Saved requester');
+    const legacyReviews = (await api('/users/'+provider.user.id+'/reviews',{token:provider.token})).data[0];
+    assert.equal(legacyReviews.reviewer_name,'Saved requester');
+    const ratedRequest = await Request.findById(ownRequest);
+    assert.equal(Number(ratedRequest.client_rating_count),1);
+    assert.equal(Number(ratedRequest.client_rating_avg),3);
+    assert.equal(ratedRequest.client_opinion,'Good requester');
+    await db.query('UPDATE reviews SET is_visible = 0 WHERE id = ?',[reviewId]);
+    const moderated = await Request.findById(ownRequest);
+    assert.equal(Number(moderated.client_rating_count),0);
+    assert.equal(moderated.client_opinion,null);
+    const historicMessage=await Message.create({conversation_id:newScoped,sender_id:customer.user.id,content:'Readable archived message'});
+    await db.query("UPDATE requests SET completed_at = CURRENT_TIMESTAMP - INTERVAL '40 days',updated_at = CURRENT_TIMESTAMP - INTERVAL '40 days' WHERE id = ?",[ownRequest]);
+    assert.equal(await Conversation.canSend(newScoped,customer.user.id),false);
+    assert.equal(await Conversation.isParticipant(newScoped,customer.user.id),true);
+    const fromHistory=(await api('/chat/conversations/'+newScoped+'/forward',{method:'POST',token:customer.token,body:{operation_id:crypto.randomUUID(),message_ids:[historicMessage],conversation_ids:[raceTarget]}})).data;
+    assert.equal(fromHistory.count,1,'readable history can be forwarded after its send window closes');
+    try {
+      Message.forwardToTarget=async input=>{
+        await db.query('UPDATE requests SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?',[ownRequest]);
+        return originalForward(input);
+      };
+      const revokedRequest=(await api('/chat/conversations/'+newScoped+'/forward',{method:'POST',token:customer.token,body:{operation_id:crypto.randomUUID(),message_ids:[historicMessage],conversation_ids:[raceTarget]}})).data;
+      assert.equal(revokedRequest.count,0);assert.equal(revokedRequest.results[0].success,false,'request revoked after preflight cannot leak a source copy');
+    } finally {Message.forwardToTarget=originalForward;await db.query('UPDATE requests SET deleted_at = NULL WHERE id = ?',[ownRequest]);}
+
+  });
+
 }

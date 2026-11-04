@@ -7,7 +7,7 @@ import BrandLogo from '../components/common/BrandLogo';
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
 import { IconMenu, IconClose, IconBell } from '../components/common/Icons';
 import { useNotifications } from '../hooks/useNotifications';
-import BackButton from '../components/common/BackButton';
+import { AdminBackProvider, AdminBackButton } from '../components/admin/AdminBackNavigation';
 
 // Each item declares the permission its admin section needs. The sidebar
 // hides items the current admin can't reach (super admin sees them all).
@@ -17,6 +17,7 @@ const NAV_GROUPS = [
     items: [
       { to: '/admin', icon: '📊', labelKey: 'admin.dashboard', end: true, perm: 'dashboard.view' },
       { to: '/admin/marketing', icon: '📈', labelKey: 'marketing.title', perm: 'dashboard.view' },
+      { to: '/admin/guide', icon: '📖', labelKey: 'help.admin_book_title', perm: null },
     ],
   },
   {
@@ -78,7 +79,7 @@ function findCurrentLabel(pathname) {
   return best.labelKey;
 }
 
-export default function AdminLayout() {
+function AdminLayoutFrame() {
   const { t } = useTranslation();
   const { user, logout, hasPermission, isSuperAdmin } = useAuth();
   const { unread } = useNotifications();
@@ -224,11 +225,22 @@ export default function AdminLayout() {
           </button>
         </header>
 
-        <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-x-hidden">
-          <div className="mb-3"><BackButton fallback="/admin" /></div>
+        <main className="admin-workspace flex-1 p-3 md:p-4 lg:p-5 overflow-x-hidden">
+          <div className="mb-3"><AdminBackButton /></div>
           <Outlet />
+          <style>{`
+            .admin-workspace button, .admin-workspace select { min-height: 32px; }
+            .admin-workspace .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: .75rem; }
+            @media (max-width: 640px) {
+              .admin-workspace button, .admin-workspace select { min-height: 44px; }
+            }
+          `}</style>
         </main>
       </div>
     </div>
   );
+}
+
+export default function AdminLayout() {
+  return <AdminBackProvider><AdminLayoutFrame /></AdminBackProvider>;
 }

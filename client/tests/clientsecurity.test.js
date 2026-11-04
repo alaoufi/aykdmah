@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { build } from 'esbuild';
+import { fileURLToPath } from 'node:url';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import i18n from 'i18next';
@@ -19,7 +20,7 @@ const deletedCaches = [];
 globalThis.caches = { delete: async name => { deletedCaches.push(name); return true; } };
 const output = await build({
   stdin: {
-    resolveDir: new URL('../src/', import.meta.url).pathname,
+    resolveDir: fileURLToPath(new URL('../src/', import.meta.url)),
     contents: `
       export * from './utils/urlSafety.js';
       export * from './utils/localize.js';
@@ -37,7 +38,9 @@ const output = await build({
   bundle: true, write: false, format: 'esm', platform: 'node', jsx: 'automatic',
   define: { 'import.meta.env': '{}' },
   plugins: [{ name: 'shared-dependencies', setup(builder) {
-    builder.onResolve({ filter: /^(react|react\/jsx-runtime|react-i18next|react-router-dom|axios)$/ }, args => ({ path: import.meta.resolve(args.path), external: true }));
+    // Keep React DOM shared too: its CommonJS entry requires React, which cannot
+    // be dynamically required by the generated data: ES module.
+    builder.onResolve({ filter: /^(react|react-dom|react\/jsx-runtime|react-i18next|react-router-dom|axios)$/ }, args => ({ path: import.meta.resolve(args.path), external: true }));
   } }],
 });
 const client = await import(`data:text/javascript;base64,${Buffer.from(output.outputFiles[0].text).toString('base64')}`);

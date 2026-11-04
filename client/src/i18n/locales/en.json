@@ -593,7 +593,26 @@
     "block_done": "🚫 {{name}} is blocked. No messages or calls until you unblock.",
     "unblock_done": "✅ Unblocked {{name}}: you can message and call each other now.",
     "favorite": "Favourite",
-    "unfavorite": "Remove from favourites"
+    "unfavorite": "Remove from favourites",
+    "bold_text": "Bold text",
+    "attach_photo": "Photos from gallery",
+    "attach_audio": "Audio file",
+    "search_messages": "Search this conversation",
+    "search_chats": "Search conversations",
+    "forward_partial": "Some messages were sent. Check recipient conversations before trying again.",
+    "forward_selected": "Forward {{count}} messages",
+    "select_message": "Select messages",
+    "older_results": "Older results",
+    "latest_messages": "Latest messages",
+    "previous_title": "Previous conversation found",
+    "previous_hint": "Open the previous conversation or start a separate new one. The previous conversation stays saved.",
+    "open_previous": "Open previous",
+    "new_conversation": "New conversation",
+    "requester_opinions": "Provider opinions",
+    "provider_opinions": "Requester opinions",
+    "opinions": "Ratings and opinions",
+    "requested_professions": "Professions you requested",
+    "requested_professions_empty": "You have not requested a profession yet; showing all professions."
   },
   "tracking": {
     "title": "Live tracking",
@@ -1126,7 +1145,8 @@
     "districts": "Districts",
     "search_districts": "Search districts",
     "no_districts_hint": "No districts for this city yet. Add them here so users can choose them.",
-    "districts_hint": "Tap a city name to see its districts, add one or fix a name."
+    "districts_hint": "Tap a city name to see its districts, add one or fix a name.",
+    "confirm_change_body": "Do you want to make this change?"
   },
   "errors": {
     "generic": "Something went wrong",
@@ -1732,7 +1752,27 @@
         "body": "Only the author can delete a message, after confirming; it then disappears for both people. Administrators keep every message, including deleted ones, and can review them to protect everyone's rights in a dispute."
       }
     },
-    "role_colors_hint": "Blue cards show service providers and orange cards show requests. Use the service selector in Latest requests to filter results."
+    "role_colors_hint": "Blue cards show service providers and orange cards show requests. Use the service selector in Latest requests to filter results.",
+    "book_contents": "Book contents",
+    "book_illustration": "Illustrated explanation",
+    "book_illustration_note": "Illustrations use test data; screen layout varies with permissions and device size.",
+    "book_navigation": "Guide page navigation",
+    "features_title": "Conversations, reviews and calls",
+    "features_contact": "When contacting someone, open the previous conversation or start a new one. Existing conversations remain saved.",
+    "features_reviews": "After completing a service, both parties can rate each other and leave an opinion. Cards show the average, count and opinions.",
+    "features_messages": "Search the list or a conversation. Enable bold text in settings. Select your messages and recipient conversations to forward, or attach photos, audio or video from your device.",
+    "features_calls": "Android starts on speaker unless an external headset is connected. Your camera stays off until enabled; browser output selection depends on device support.",
+    "features_matching": "Start with matching professions and area, or browse all. Browsing does not change your profile or contact permissions.",
+    "admin_book_title": "Illustrated administration guide",
+    "admin_book_intro": "Chapters follow your permissions. Check the item and action impact before confirming.",
+    "admin_book_users": "Search for a user and open their details. Review changes before confirming save; cancel leaves them unsaved.",
+    "admin_book_locations": "Choose country, region and city, then add or edit districts. The selected city remains after saving.",
+    "admin_book_categories": "Open a category to manage its services. Adding, editing and deleting require service-management permission.",
+    "admin_book_conversations": "Open conversations only for authorized review. Reading is logged; you do not become a participant or send for a user.",
+    "admin_book_requests": "Review the request, status and parties before acting. Do not test deletion on a real request.",
+    "admin_book_ads": "Review content, placement, duration and fees before approval or editing. Check the impact before confirmation.",
+    "admin_book_wallets": "Review the ledger, amount and recipient before a financial action. Real payments need separate authorization.",
+    "admin_book_settings": "Change the required setting and review confirmation. Do not share secrets or user-data screenshots in the guide."
   },
   "request_location": {
     "title": "Service location",
@@ -1965,7 +2005,7 @@
     "audio_output": "Speaker",
     "audio_output_hint": "Sound is on the speaker. Plug in earphones or Bluetooth and it switches to them; this phone does not let websites pick the call earpiece.",
     "remote_camera_off": "{{name}}'s picture is not arriving: their camera is off or blocked on their phone.",
-    "my_camera_off": "Your camera is not working. Tap 🔒 next to aykdmh.com → Permissions → Camera → Allow.",
+    "my_camera_off": "Your camera is off. Tap Turn camera on when you want to share your video.",
     "missed_in_audio": "Missed voice call",
     "missed_in_video": "Missed video call",
     "missed_out": "Your call was not answered",

@@ -1,0 +1,35 @@
+{
+  "verified_at_utc": "2026-11-04T05:03:16.973536+00:00",
+  "checks": 31,
+  "passed": 31,
+  "browser_exit": 0,
+  "engine": "Chromium 153; two independent browser contexts with fake camera/microphone",
+  "realtime_mode": "socket (same as deploy/setup-server.sh)",
+  "topology": "new private internal Docker network; synthetic PG/app/LiveKit; no published host ports or production network",
+  "livekit_image": "livekit/livekit-server:v1.13.9",
+  "sfu_network_outage_seconds": 18,
+  "fresh_signaling_and_decoded_audio_after_outage": true,
+  "camera_capture_before_opt_in": 0,
+  "provider_camera_capture_unchanged_after_reconnect": true,
+  "own_containers_and_network_removed": true,
+  "physical_phone_quality_verified": false,
+  "source_sha256": {
+    "client/src/context/CallContext.jsx": "084c07947d429efbb593129396b07f675ca7397faaf94a94f2ad6393926e1701",
+    "client/src/components/calls/CallOverlay.jsx": "6ed8153e688aa8f54698fa199b9699270258f9755ada8e19a8dc5dd59c8ea90c",
+    "server/services/callService.js": "801d5362da66c454b95c5e42c6084c81833f6ed325ebd8ac5538e8ad0c94c55b",
+    "e2e/calls.e2e.mjs": "96458b5573c1d72d51b9725c4192c8a787c4f5ffa3e01d5bdba55b167ca526a7"
+  },
+  "limitations": [
+    "Synthetic browser media; not a physical phone test.",
+    "No production/TURN/public-network path or Saudi-region latency comparison.",
+    "LiveKit webhook delivery was not configured in this isolated topology."
+  ],
+  "recorded_harness_sha256": {
+    "harness-used.sh": "df2346c7a3579fb8e23104adf9f16e106b4bc55a87b5cd37a499b28e403da05b",
+    "seed-used.cjs": "73a5fd66d7fe84bab3ca4fac162a8cc7e26c8f876c1f41d2ce5bb22e0facc02a",
+    "adapt-used.cjs": "e418dd01a7f30144d2bd825b74d0885cd2872af6324ee31cba949a1ca4246c95"
+  },
+  "executed_runtime_test_sha256": "3268d2662fc85e5dfc8600c3a076c30de4c1ea9b9a4df12f0407a49093125777",
+  "preserved_runtime_test_sha256": "55ea71ffb493c1f76403e82a3e67ed45d5201e42af304bbb73d72768491433a0",
+  "runtime_test_changes_after_execution": "Leading descriptive comments only; runtime body after first import is byte-identical."
+}

@@ -117,7 +117,7 @@ object CallTelecom {
     fun route(callId: Long) = connections[callId]?.confirmedRoute
 
     fun defaultRoute(callId: Long, video: Boolean) {
-        val preference = CallRoutePreference(video, preferHeadset = true)
+        val preference = CallRoutePreference(true, preferHeadset = true)
         preferences[callId] = preference
         connections[callId]?.requestRoute(preference)
     }

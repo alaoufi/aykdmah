@@ -1,3 +1,4 @@
+import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -6,7 +7,7 @@ import {
 } from '../../services/integrationService';
 import { apiError } from '../../services/api';
 import Modal from '../../components/common/Modal';
-import ConfirmDialog from '../../components/common/ConfirmDialog';
+import ConfirmDialog from '../../components/admin/AdminConfirmDialog';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import AdminButton from '../../components/admin/AdminButton';
 import EmptyState from '../../components/admin/EmptyState';
@@ -33,6 +34,7 @@ const EMPTY_FORM = {
 
 export default function AdminIntegrationsPage() {
   const { t, i18n } = useTranslation();
+  const confirmAdminChange = useAdminConfirmation();
   const lang = i18n.resolvedLanguage || 'ar';
   const typeLabel = type => TYPE_META[type]?.labelKey
     ? t(TYPE_META[type].labelKey)
@@ -97,6 +99,7 @@ export default function AdminIntegrationsPage() {
   };
 
   const onSave = async () => {
+    if (!(await confirmAdminChange(t))) return;
     if (saveInFlight.current) return;
     const version = editVersion.current;
     saveInFlight.current = true;

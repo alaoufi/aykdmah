@@ -223,7 +223,7 @@ export default function MessageBubble({ message, isMine, onReply, onDelete, onFo
         .bubble-row.mine { justify-content: flex-end; }
         .bubble-row.theirs { justify-content: flex-start; }
         .bubble {
-          position: relative; max-width: min(80%, 480px); padding: 6px 8px 6px 9px; border-radius: 8px;
+          position: relative; min-width: 0; max-width: min(88%, 480px); padding: 6px 8px 6px 9px; border-radius: 8px;
           word-wrap: break-word; overflow-wrap: anywhere; color: var(--wa-text);
           box-shadow: 0 1px .5px rgba(11,20,26,.13);
         }
@@ -240,7 +240,7 @@ export default function MessageBubble({ message, isMine, onReply, onDelete, onFo
         [dir="rtl"] .bubble.tail.mine::before { clip-path: polygon(0 0, 100% 0, 100% 100%); }
         [dir="rtl"] .bubble.tail.theirs::before { clip-path: polygon(0 0, 100% 0, 0 100%); }
         .bubble.has-location, .bubble.media-only { padding: 3px; }
-        .content { white-space: pre-wrap; line-height: 1.45; font-size: var(--chat-font, 16px); padding: 0 2px; }
+        .content { font-weight: var(--chat-font-weight, 400); white-space: pre-wrap; line-height: 1.45; font-size: var(--chat-font, 16px); padding: 0 2px; }
         .meta-spacer { display: inline-block; width: 64px; }
         .content-after-location { padding: 6px 6px 0; }
         .files { display: flex; flex-direction: column; gap: 4px; }
@@ -268,21 +268,21 @@ export default function MessageBubble({ message, isMine, onReply, onDelete, onFo
           padding: 5px 8px; border-radius: 6px; margin-bottom: 4px; font-size: 12.5px;
         }
         .reply-name { font-weight: 700; color: var(--wa-accent); margin-bottom: 1px; }
-        .reply-body { color: var(--wa-meta); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .reply-body { font-weight: var(--chat-font-weight, 400); color: var(--wa-meta); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
         .location-card { display: block; color: inherit; border-radius: 6px; overflow: hidden; background: var(--wa-chip); margin-bottom: 2px; }
         .map-thumb { max-width: none !important; }
         .location-meta { padding: 6px 8px 14px; }
         .location-title { font-weight: 700; font-size: 13px; }
         .location-coords { font-size: 11px; color: var(--wa-meta); margin-top: 1px; font-family: ui-monospace, monospace; }
         .location-open { font-size: 12px; margin-top: 3px; font-weight: 600; color: var(--wa-accent); }
-        .voice-note { display: flex; align-items: center; gap: 8px; width: min(280px, 72vw); padding: 4px 2px 10px; }
+        .voice-note { display: flex; align-items: center; gap: 8px; width: 280px; max-width: 100%; min-width: 0; box-sizing: border-box; padding: 4px 2px 10px; }
         .voice-note-play {
           flex: 0 0 34px; height: 34px; border: 0; border-radius: 50%; cursor: pointer;
           background: transparent; color: var(--wa-meta); font-size: 18px; line-height: 1;
         }
         .voice-note-body { flex: 1; min-width: 0; }
         .voice-note-wave { display: flex; align-items: center; gap: 2px; height: 26px; cursor: pointer; }
-        .voice-note-wave span { flex: 1; min-width: 2px; border-radius: 2px; background: var(--wa-wave); }
+        .voice-note-wave span { flex: 1; min-width: 0; border-radius: 2px; background: var(--wa-wave); }
         .voice-note-wave span.played { background: var(--wa-tick); }
         .voice-note-meta { display: flex; justify-content: space-between; font-size: 11px; color: var(--wa-meta); margin-top: 2px; }
         .voice-note-speed { border: 0; border-radius: 10px; padding: 0 6px; background: var(--wa-chip); color: var(--wa-meta); font-size: 11px; cursor: pointer; }

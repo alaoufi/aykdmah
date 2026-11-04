@@ -84,7 +84,7 @@ export default function RequestDetailsPage() {
           if (!ignore) setOffers(o);
         }
       } catch (e) {
-        if (!ignore) setErr(apiError(e));
+        if (!ignore) !e?.cancelled && setErr(apiError(e));
       } finally {
         if (!ignore) { setDetailsScope(scope); setLoading(false); }
       }
@@ -114,7 +114,7 @@ export default function RequestDetailsPage() {
       navigate(`/chat/${conversation_id}`);
     } catch (e2) {
       setErrWith(request.client_id);
-      setErr(apiError(e2));
+      !e2?.cancelled && setErr(apiError(e2));
     } finally { setSubmitting(false); }
   };
 
@@ -123,22 +123,22 @@ export default function RequestDetailsPage() {
     try {
       const { conversation_id } = await contactRequest(request.id, provider.id);
       navigate(`/chat/${conversation_id}`);
-    } catch (e2) { setErrWith(provider.id); setErr(apiError(e2)); }
+    } catch (e2) { setErrWith(provider.id); !e2?.cancelled && setErr(apiError(e2)); }
   };
 
   const onAccept = async (offerId) => {
-    try { await acceptOffer(offerId); await load(); } catch (e) { setErr(apiError(e)); }
+    try { await acceptOffer(offerId); await load(); } catch (e) { !e?.cancelled && setErr(apiError(e)); }
   };
 
   const onReject = async (offerId) => {
-    try { await rejectOffer(offerId); await load(); } catch (e) { setErr(apiError(e)); }
+    try { await rejectOffer(offerId); await load(); } catch (e) { !e?.cancelled && setErr(apiError(e)); }
   };
 
   const openChat = async () => {
     try {
       const { conversation_id } = await startRequestChat(request.id);
       navigate(`/chat/${conversation_id}`);
-    } catch (e) { setErr(apiError(e)); }
+    } catch (e) { !e?.cancelled && setErr(apiError(e)); }
   };
 
   const negotiateOffer = async (offer) => {
@@ -158,7 +158,7 @@ export default function RequestDetailsPage() {
       if (scopeRef.current !== scope || negotiationRef.current !== pending) return;
       navigate(`/chat/${conversation.id}`);
     } catch (error) {
-      if (scopeRef.current === scope && negotiationRef.current === pending) setErr(apiError(error));
+      if (!error?.cancelled && scopeRef.current === scope && negotiationRef.current === pending) setErr(apiError(error));
     } finally {
       if (scopeRef.current === scope && negotiationRef.current === pending) {
         negotiationRef.current = null;
@@ -169,7 +169,7 @@ export default function RequestDetailsPage() {
 
   const performStatusChange = async (newStatus) => {
     try { await updateRequestStatus(request.id, { status: newStatus }); await load(); }
-    catch (e) { setErr(apiError(e)); }
+    catch (e) { !e?.cancelled && setErr(apiError(e)); }
   };
 
   // Ask for confirmation before any destructive status change.
@@ -206,7 +206,7 @@ export default function RequestDetailsPage() {
       await updateRequestStatus(request.id, { status: 'cancelled' });
       setClosing({ open: false, found: false, providerId: '' });
       await load();
-    } catch (e) { setErr(apiError(e)); } finally { setSubmitting(false); }
+    } catch (e) { !e?.cancelled && setErr(apiError(e)); } finally { setSubmitting(false); }
   };
 
   return (

@@ -17,7 +17,8 @@ export default function useOpenRequest() {
     try {
       const { conversation_id } = await contactRequest(request.id);
       navigate(`/chat/${conversation_id}`);
-    } catch (_) {
+    } catch (err) {
+      if (err?.cancelled) return;
       navigate(`/requests/${request.id}`);
     } finally { setOpening(0); }
   };

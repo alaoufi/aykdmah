@@ -17,6 +17,16 @@ async function party(token, label) {
   // bypassCSP: the staging app runs over plain HTTP; production CSP is verified separately.
   const context = await browser.newContext({ permissions: ['microphone', 'camera'], locale: 'ar-SA', bypassCSP: true, viewport: { width: 390, height: 844 } });
   await context.addInitScript(value => localStorage.setItem('lsm_token', value), token);
+  await context.addInitScript(() => {
+    window.cameraCaptureRequests = 0;
+    const media = navigator.mediaDevices;
+    if (!media?.getUserMedia) return;
+    const capture = media.getUserMedia.bind(media);
+    media.getUserMedia = constraints => {
+      if (constraints?.video) window.cameraCaptureRequests += 1;
+      return capture(constraints);
+    };
+  });
   const page = await context.newPage();
   page.on('pageerror', err => console.log(`[${label} pageerror]`, err.message));
   page.on('console', msg => { if (msg.type() === 'error' && !/favicon|manifest/.test(msg.text())) console.log(`[${label} console]`, msg.text().slice(0, 200)); });
@@ -98,14 +108,23 @@ await caller.page.waitForTimeout(3500);
 // 3) Video call: both see each other, camera off, network drop and recovery, hang up.
 await caller.page.getByRole('button', { name: 'اتصال فيديو' }).first().click();
 await button(callee.page, 'رد').waitFor({ timeout: 20000 });
+for (const [label, party] of [['client', caller], ['provider', callee]]) {
+  check(`video: ${label} does not capture a camera while ringing`, await party.page.evaluate(() => window.cameraCaptureRequests) === 0);
+}
 await button(callee.page, 'رد').click();
 await Promise.all([inCall(caller.page), inCall(callee.page)]);
+for (const [label, party] of [['client', caller], ['provider', callee]]) {
+  check(`video: ${label} joins with camera off and no camera capture`, await button(party.page, 'تشغيل الكاميرا').isVisible()
+    && await party.page.evaluate(() => window.cameraCaptureRequests) === 0);
+  await button(party.page, 'تشغيل الكاميرا').click();
+}
 await caller.page.waitForTimeout(4000);
 const videoCaller = await mediaState(caller.page), videoCallee = await mediaState(callee.page);
 check('video: client receives provider video', videoCaller.videoSizes[0] > 0, `sizes ${videoCaller.videoSizes}`);
 check('video: provider receives client video', videoCallee.videoSizes[0] > 0, `sizes ${videoCallee.videoSizes}`);
 await button(callee.page, 'إيقاف الكاميرا').click();
 check('video: camera off toggles', await button(callee.page, 'تشغيل الكاميرا').isVisible());
+const capturesBeforeReconnect = await callee.page.evaluate(() => window.cameraCaptureRequests);
 
 // Outsider: knows the call id and asks for a token / tries to end it.
 const active = await caller.page.evaluate(async () => (await (await fetch('/api/calls/active', { headers: { Authorization: `Bearer ${localStorage.getItem('lsm_token')}` } })).json()).data);
@@ -117,6 +136,8 @@ for (const action of ['token', 'accept', 'decline']) {
 
 await callee.context.setOffline(true);
 await callee.page.waitForTimeout(4000);
+check('video: camera remains off after browser returns online', await button(callee.page, 'تشغيل الكاميرا').isVisible()
+  && await callee.page.evaluate(() => window.cameraCaptureRequests) === capturesBeforeReconnect);
 await callee.context.setOffline(false);
 await inCall(callee.page);
 await callee.page.waitForTimeout(4000);

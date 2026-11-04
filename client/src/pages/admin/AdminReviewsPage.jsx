@@ -1,9 +1,10 @@
+import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   listReviewsAdmin, hideReview, showReview, deleteReview,
 } from '../../services/adminService';
-import ConfirmDialog from '../../components/common/ConfirmDialog';
+import ConfirmDialog from '../../components/admin/AdminConfirmDialog';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import EmptyState from '../../components/admin/EmptyState';
 import { formatRelativeTime } from '../../utils/formatters';
@@ -11,6 +12,7 @@ import { apiError } from '../../services/api';
 
 export default function AdminReviewsPage() {
   const { t } = useTranslation();
+  const confirmAdminChange = useAdminConfirmation();
   const TABS = [
     { value: '',        label: t('common.all') },
     { value: 'visible', label: t('admin.is_active') },
@@ -39,6 +41,7 @@ export default function AdminReviewsPage() {
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [visibility, page]);
 
   const toggleVisibility = async (r) => {
+    if (!(await confirmAdminChange(t))) return;
     if (visibilityInFlight.current.has(r.id)) return;
     visibilityInFlight.current.add(r.id);
     try {

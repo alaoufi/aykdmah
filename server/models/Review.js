@@ -24,6 +24,7 @@ const REVIEW_SELECT = `
   r.id, r.request_id, r.reviewer_id, r.provider_id, r.target_user_id,
   r.review_type, r.rating, r.criteria_ratings, r.comment, r.images,
   r.original_language, r.is_visible, r.helpful_count, r.report_count,
+  ru.role AS reviewer_role, tu.role AS target_role,
   r.provider_reply, r.provider_reply_at, r.created_at,
   CASE WHEN ru.deleted_at IS NULL THEN ru.full_name ELSE NULL END AS reviewer_name, CASE WHEN ru.deleted_at IS NULL THEN ru.avatar ELSE NULL END AS reviewer_avatar,
   CASE WHEN tu.deleted_at IS NULL THEN tu.full_name ELSE NULL END AS target_name, CASE WHEN tu.deleted_at IS NULL THEN tu.avatar ELSE NULL END AS target_avatar,

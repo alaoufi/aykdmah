@@ -1,3 +1,4 @@
+import TrustSummary from '../reviews/TrustSummary';
 import { localizedJoinedName } from '../../utils/localizeJoined';
 import { useTranslation } from 'react-i18next';
 import { IconClock, IconPin, IconArrow } from '../common/Icons';
@@ -27,6 +28,7 @@ export default function RequestCard({ item, urgent = false }) {
           {urgent && <span className="w-1.5 h-1.5 rounded-full bg-rose-500 pulse-dot" />}
           {tag}
         </span>
+        <TrustSummary userId={item.client_id} type="on_requester" average={item.client_rating_avg} count={item.client_rating_count} opinion={item.client_opinion} />
         <OwnerBadge mine={mine(item)} forService={forMyService(item)} />
         <span className="ms-auto inline-flex items-center gap-1 text-[11px] text-slate-500 font-medium">
           <IconClock size={13} />

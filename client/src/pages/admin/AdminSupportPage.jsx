@@ -1,3 +1,6 @@
+import { useAdminBack } from '../../components/admin/AdminBackNavigation';
+import { useNavigate } from 'react-router-dom';
+import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
 import { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -14,7 +17,10 @@ const ICONS = { support: '🛠️', suggestion: '💡', admin: '🏛️' };
 // The administration's inbox (AYK-046): unread threads first, reply, close or reopen.
 export default function AdminSupportPage() {
   const { t } = useTranslation();
+  const confirmAdminChange = useAdminConfirmation();
   const { id } = useParams();
+  const navigate = useNavigate();
+  useAdminBack(id ? () => navigate('/admin/support') : null);
   const [items, setItems] = useState(null);
   const [filter, setFilter] = useState({ status: '', topic: '' });
   const [ticket, setTicket] = useState(null);
@@ -27,6 +33,7 @@ export default function AdminSupportPage() {
   }, [id, filter.status, filter.topic]);
 
   const setStatus = async status => {
+    if (!(await confirmAdminChange(t))) return;
     try { await adminSupportStatus(ticket.id, status); setTicket({ ...ticket, status }); } catch (err) { setProblem(apiError(err)); }
   };
   const sel = 'px-3 py-2 rounded-xl border border-slate-200 bg-white text-[13px]';
@@ -35,7 +42,6 @@ export default function AdminSupportPage() {
     return (
       <div className="space-y-4">
         <AdminPageHeader title={t('support.admin_title')} />
-        <Link to="/admin/support" className="text-[13px] font-semibold text-brand-700">← {t('support.admin_title')}</Link>
         {problem && <div role="alert" className="text-rose-700 text-[13px]">{problem}</div>}
         {ticket && (
           <div className="bg-white rounded-card border border-slate-100 p-5 space-y-3">

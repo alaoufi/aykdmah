@@ -34,7 +34,7 @@ export default function AdminButton({
       style={style}
       className={`${base} ${sizes[size]} ${variants[variant]} ${className}`}
     >
-      {icon && <span>{icon}</span>}
+      {icon && <span aria-hidden="true">{icon}</span>}
       {children}
     </button>
   );

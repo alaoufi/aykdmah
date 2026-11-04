@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { reviewsForViewer, hideRequesterNames } = require('../utils/requesterPrivacy');
 const Review = require('../models/Review');
 const { success, created, error, notFound, paginate, forbidden } = require('../utils/apiResponse');
 const asyncHandler = require('../utils/asyncHandler');
@@ -38,7 +39,9 @@ const getOne = asyncHandler(async (req, res) => {
     provider = await User.getProviderProfile(user.id);
   }
   if (!privateAccess) {
-    user = pick(user, PUBLIC_USER_FIELDS);
+    user = pick(user, user.role === 'client' ? ['id','role','full_name','avatar','is_verified'] : PUBLIC_USER_FIELDS);
+    await hideRequesterNames(req.user?.id,[user],req.t('requester_label'));
+    if (user.role === 'client') user.avatar = null;
     const fullProvider = provider;
     if (provider) provider = pick(provider, PUBLIC_PROVIDER_FIELDS);
     // The exact work location is public only when the provider opted in to the map.
@@ -138,7 +141,7 @@ const updateProvider = asyncHandler(async (req, res) => {
 const getProviderReviews = asyncHandler(async (req, res) => {
   const { page = 1, limit = 20 } = req.query;
   const { items, total } = await Review.findByProvider(req.params.id, { page, limit });
-  return paginate(res, items, total, page, limit);
+  return paginate(res, await reviewsForViewer(items,req.user?.id,req.t('requester_label')), total, page, limit);
 });
 
 const block = asyncHandler(async (req, res) => {

@@ -593,7 +593,26 @@
     "block_done": "🚫 {{name}} engellendi. Engel kalkana kadar mesaj veya arama yok.",
     "unblock_done": "✅ {{name}} engeli kaldırıldı, artık mesajlaşıp arayabilirsiniz.",
     "favorite": "Favori",
-    "unfavorite": "Favorilerden çıkar"
+    "unfavorite": "Favorilerden çıkar",
+    "bold_text": "Kalın yazı",
+    "attach_photo": "Galeriden fotoğraflar",
+    "attach_audio": "Ses dosyası",
+    "search_messages": "Bu sohbette ara",
+    "search_chats": "Sohbetlerde ara",
+    "forward_partial": "Yalnızca bazı mesajlar gönderildi. Tekrar denemeden önce alıcıların sohbetlerini kontrol edin.",
+    "forward_selected": "{{count}} mesajı ilet",
+    "select_message": "Mesajları seç",
+    "older_results": "Daha eski sonuçlar",
+    "latest_messages": "Son mesajlar",
+    "previous_title": "Önceki sohbet bulundu",
+    "previous_hint": "Önceki sohbeti açın veya ayrı bir yeni sohbet başlatın. Önceki sohbet kayıtlı kalır.",
+    "open_previous": "Öncekini aç",
+    "new_conversation": "Yeni sohbet",
+    "requester_opinions": "Hizmet sağlayıcılarının görüşleri",
+    "provider_opinions": "Hizmet isteyenlerin görüşleri",
+    "opinions": "Puanlar ve görüşler",
+    "requested_professions": "Talep ettiğiniz meslekler",
+    "requested_professions_empty": "Henüz bir meslekten hizmet talep etmediniz; tüm meslekler gösteriliyor."
   },
   "tracking": {
     "title": "Canlı izleme",
@@ -1126,7 +1145,8 @@
     "districts": "Mahalleler",
     "search_districts": "Mahalle ara",
     "no_districts_hint": "Bu şehrin henüz mahallesi yok. Kullanıcılar seçebilsin diye buraya ekleyin.",
-    "districts_hint": "Mahallelerini görmek, eklemek veya adını düzeltmek için şehir adına dokunun."
+    "districts_hint": "Mahallelerini görmek, eklemek veya adını düzeltmek için şehir adına dokunun.",
+    "confirm_change_body": "Bu değişikliği yapmak istiyor musunuz?"
   },
   "errors": {
     "generic": "Bir şey ters gitti",
@@ -1732,7 +1752,27 @@
         "body": "Sadece yazar bir mesajı onayladıktan sonra silebilir; sonra her iki kişi için kaybolur. Yöneticiler silinmiş olanları da dahil olmak üzere her mesajı saklar ve anlaşmazlıkta herkesin haklarını korumak için bunları gözden geçirebilir."
       }
     },
-    "role_colors_hint": "Mavi kartlar hizmet sağlayıcıları, turuncu kartlar talepleri gösterir. Son taleplerdeki hizmet listesini kullanarak sonuçları filtreleyin."
+    "role_colors_hint": "Mavi kartlar hizmet sağlayıcıları, turuncu kartlar talepleri gösterir. Son taleplerdeki hizmet listesini kullanarak sonuçları filtreleyin.",
+    "book_contents": "Kitabın içindekiler",
+    "book_illustration": "Resimli açıklama",
+    "book_illustration_note": "Resimler test verisi kullanır; ekran düzeni izinlere ve cihaz boyutuna göre değişebilir.",
+    "book_navigation": "Kılavuz sayfaları",
+    "features_title": "Sohbetler, değerlendirmeler ve aramalar",
+    "features_contact": "İletişim kurarken önceki sohbeti açın veya yenisini başlatın. Eski sohbetler saklanır.",
+    "features_reviews": "Hizmet tamamlandıktan sonra iki taraf birbirine puan ve görüş verebilir. Kartlarda ortalama, sayı ve görüşler görünür.",
+    "features_messages": "Listede veya sohbet içinde arayın. Ayarlardan kalın yazıyı açın. Kendi mesajlarınızı ve alıcı sohbetleri seçerek iletin ya da fotoğraf, ses veya video ekleyin.",
+    "features_calls": "Harici kulaklık yoksa Android hoparlörle başlar. Siz açana kadar kamera kapalıdır; tarayıcı ses çıkışı seçimi cihaz desteğine bağlıdır.",
+    "features_matching": "Mesleğinize ve bölgenize uygun sonuçlarla başlayın veya tümüne göz atın. Bu, profilinizi ya da iletişim izinlerini değiştirmez.",
+    "admin_book_title": "Resimli yönetim kılavuzu",
+    "admin_book_intro": "Bölümler izinlerinize göre görünür. Onaylamadan önce öğeyi ve işlemin etkisini kontrol edin.",
+    "admin_book_users": "Kullanıcıyı arayıp ayrıntılarını açın. Kaydetmeyi onaylamadan önce değişiklikleri inceleyin; iptal edilirse kaydedilmez.",
+    "admin_book_locations": "Ülke, bölge ve şehir seçip mahalle ekleyin veya düzenleyin. Kaydettikten sonra seçili şehir korunur.",
+    "admin_book_categories": "Hizmetleri yönetmek için kategoriyi açın. Ekleme, düzenleme ve silme hizmet yönetimi izni gerektirir.",
+    "admin_book_conversations": "Sohbeti yalnızca yetkili inceleme için açın. Okuma kaydedilir; katılımcı olmaz veya kullanıcı adına mesaj göndermezsiniz.",
+    "admin_book_requests": "İşlemden önce talebi, durumu ve tarafları inceleyin. Gerçek bir talepte silme denemesi yapmayın.",
+    "admin_book_ads": "Onay veya düzenleme öncesinde içerik, konum, süre ve ücreti inceleyin. Onaylamadan önce etkisini kontrol edin.",
+    "admin_book_wallets": "Mali işlemden önce kayıtları, tutarı ve alıcıyı inceleyin. Gerçek ödemeler ayrı yetkilendirme gerektirir.",
+    "admin_book_settings": "Gerekli ayarı değiştirip onayı inceleyin. Kılavuzda sırları veya kullanıcı verilerinin görüntülerini paylaşmayın."
   },
   "request_location": {
     "title": "Hizmet yeri",
@@ -1965,7 +2005,7 @@
     "audio_output": "Hoparlör",
     "audio_output_hint": "Ses hoparlörde. Kulaklık ya da Bluetooth takarsanız oraya kendiliğinden geçer; bu telefon sitelerin arama kulaklığını seçmesine izin vermiyor.",
     "remote_camera_off": "{{name}} görüntüsü gelmiyor: kamerası kapalı ya da telefonunda engelli.",
-    "my_camera_off": "Kameranız çalışmıyor. aykdmh.com yanındaki 🔒 → İzinler → Kamera → İzin ver.",
+    "my_camera_off": "Kameranız kapalı. Görüntünüzü paylaşmak istediğinizde Kamerayı aç düğmesine dokunun.",
     "missed_in_audio": "Cevapsız sesli arama",
     "missed_in_video": "Cevapsız görüntülü arama",
     "missed_out": "Aramanız cevaplanmadı",

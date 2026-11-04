@@ -1,3 +1,4 @@
+import { useAdminConfirmation } from './confirmAdminChange';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -16,6 +17,7 @@ import Modal from '../common/Modal';
 
 export default function AdminPermissionsEditor({ open, userId, userName, onClose, onSaved }) {
   const { t } = useTranslation();
+  const confirmAdminChange = useAdminConfirmation();
   const { isSuperAdmin: viewerIsSuper } = useAuth();
   const [registry, setRegistry] = useState([]);
   const [isSuper, setIsSuper] = useState(false);
@@ -61,6 +63,7 @@ export default function AdminPermissionsEditor({ open, userId, userName, onClose
   };
 
   const save = async () => {
+    if (!(await confirmAdminChange(t))) return;
     if (!open || !userId || loadedUserId !== userId || loading || saveInFlight.current) return;
     const savedUserId = userId;
     const version = sessionVersion.current;

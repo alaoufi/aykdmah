@@ -1,0 +1,46 @@
+{
+  "client": [
+    {
+      "path": "/rtc/v1",
+      "openedAt": 1793768312606,
+      "closedAt": 1793768321060
+    },
+    {
+      "path": "/rtc/v1",
+      "openedAt": 1793768324938,
+      "closedAt": 1793768325031
+    },
+    {
+      "path": "/rtc/v1",
+      "openedAt": 1793768328814,
+      "closedAt": null
+    },
+    {
+      "path": "/rtc/v1",
+      "openedAt": 1793768366272,
+      "closedAt": null
+    }
+  ],
+  "provider": [
+    {
+      "path": "/rtc/v1",
+      "openedAt": 1793768312965,
+      "closedAt": 1793768321057
+    },
+    {
+      "path": "/rtc/v1",
+      "openedAt": 1793768328965,
+      "closedAt": 1793768338194
+    },
+    {
+      "path": "/rtc/v1",
+      "openedAt": 1793768338198,
+      "closedAt": null
+    },
+    {
+      "path": "/rtc/v1",
+      "openedAt": 1793768365622,
+      "closedAt": null
+    }
+  ]
+}

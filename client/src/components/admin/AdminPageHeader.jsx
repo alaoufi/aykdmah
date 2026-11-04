@@ -1,15 +1,13 @@
 import { useTranslation } from 'react-i18next';
-import BackButton from '../common/BackButton';
 
 export default function AdminPageHeader({ title, subtitle, children, count }) {
   const { t } = useTranslation();
   return (
-    <div className="mb-6">
-      <div className="mb-3"><BackButton /></div>
+    <div className="mb-3">
       <div className="flex items-end justify-between flex-wrap gap-3">
         <div>
           <div className="text-[12px] font-bold text-brand-600 mb-1">{t('admin.panel')}</div>
-          <h1 className="text-ink text-2xl md:text-3xl font-extrabold tracking-tight">
+          <h1 className="text-ink text-xl md:text-2xl font-extrabold tracking-tight">
             {title}
           </h1>
           {(subtitle || count != null) && (

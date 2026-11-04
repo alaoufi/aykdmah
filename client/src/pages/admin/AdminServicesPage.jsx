@@ -1,3 +1,5 @@
+import { ServiceFormFields } from '../../components/admin/ServiceEditorModal';
+import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
 import { localizedJoinedName } from '../../utils/localizeJoined';
 import { localizedName } from '../../utils/localize';
 import { useEffect, useRef, useState } from 'react';
@@ -8,7 +10,7 @@ import {
 } from '../../services/adminService';
 import { apiError } from '../../services/api';
 import Modal from '../../components/common/Modal';
-import ConfirmDialog from '../../components/common/ConfirmDialog';
+import ConfirmDialog from '../../components/admin/AdminConfirmDialog';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import AdminButton from '../../components/admin/AdminButton';
 import EmptyState from '../../components/admin/EmptyState';
@@ -24,6 +26,7 @@ const EMPTY = {
 
 export default function AdminServicesPage() {
   const { t, i18n } = useTranslation();
+  const confirmAdminChange = useAdminConfirmation();
   const [params, setParams] = useSearchParams();
   // ?category_id= in the URL pre-selects the filter so links from the
   // category list land here already scoped to that category.
@@ -61,7 +64,7 @@ export default function AdminServicesPage() {
 
   const openCreate = () => {
     setEditing(null);
-    setForm({ ...EMPTY, category_id: categories[0]?.id || '' });
+    setForm({ ...EMPTY, category_id: categoryFilter || categories[0]?.id || '' });
     setFormError('');
     setEditOpen(true);
   };
@@ -80,6 +83,7 @@ export default function AdminServicesPage() {
 
   const onSave = async (e) => {
     e.preventDefault();
+    if (editing && !(await confirmAdminChange(t, editing.name_ar || editing.full_name || editing.title || editing.provider || ''))) return;
     setSaving(true);
     setFormError('');
     try {
@@ -113,7 +117,7 @@ export default function AdminServicesPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       <AdminPageHeader title={t('admin.services')} count={items.length}>
         <AdminButton variant="primary" icon="+" onClick={openCreate}>{t('admin.new')}</AdminButton>
       </AdminPageHeader>
@@ -157,7 +161,7 @@ export default function AdminServicesPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
           {items.map((s) => (
-            <div key={s.id} className="bg-white rounded-card border border-slate-100 p-4 shadow-soft hover:shadow-card transition">
+            <div key={s.id} className="bg-white rounded-card border border-slate-100 p-3 shadow-soft hover:shadow-card transition">
               <div className="flex items-start gap-3">
                 <span className="w-12 h-12 rounded-card grid place-items-center text-xl shrink-0 bg-slate-100">{s.icon || '🛠️'}</span>
                 <div className="min-w-0 flex-1">
@@ -210,53 +214,12 @@ export default function AdminServicesPage() {
       >
         <form id="AdminServicesPage-form" onSubmit={onSave} className="space-y-3">
           {formError && <div className="px-3 py-2 rounded bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">{formError}</div>}
-          <div>
-            <label className="block text-[12px] font-bold text-ink mb-1">{t('admin.service_category')}</label>
-            <select required value={form.category_id} onChange={(e) => setForm({ ...form, category_id: Number(e.target.value) })}
-              className="w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]">
-              <option value="">—</option>
-              {categories.map((c) => <option key={c.id} value={c.id}>{localizedName(c, i18n.resolvedLanguage)}</option>)}
-            </select>
-          </div>
-          <FieldS label={t('admin.service_name_ar')} value={form.name_ar} onChange={(v) => setForm({ ...form, name_ar: v })} required />
-          <div className="px-3 py-2 rounded-card bg-info-soft text-info text-[12px]">
-            🌐 {t('admin.auto_translate_hint')}
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <FieldS label={t('admin.category_icon')} value={form.icon} onChange={(v) => setForm({ ...form, icon: v })} placeholder="🛠️" />
-            <FieldS label={t('admin.service_base_price')} type="number" value={form.base_price} onChange={(v) => setForm({ ...form, base_price: v })} />
-            <FieldS label={t('admin.category_sort_order')} type="number" value={form.sort_order} onChange={(v) => setForm({ ...form, sort_order: Number(v) || 0 })} />
-          </div>
-          <FieldS label={t('admin.category_description')} value={form.description} onChange={(v) => setForm({ ...form, description: v })} multiline />
-          <div className="flex flex-wrap gap-4">
-            <label className="inline-flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="checkbox" checked={!!form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />
-              <span>{t('admin.is_active')}</span>
-            </label>
-            <label className="inline-flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="checkbox" checked={!!form.is_urgent_supported} onChange={(e) => setForm({ ...form, is_urgent_supported: e.target.checked })} />
-              <span>{t('admin.service_urgent_supported')}</span>
-            </label>
-          </div>
+          <ServiceFormFields form={form} setForm={setForm} categories={categories} />
         </form>
       </Modal>
 
       <ConfirmDialog {...confirm} onCancel={() => setConfirm({ open: false })} />
       <AdminFab onClick={openCreate} ariaLabel={t('admin.new')} />
-    </div>
-  );
-}
-
-function FieldS({ label, value, onChange, type = 'text', required = false, placeholder = '', multiline = false }) {
-  const cls = 'w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]';
-  return (
-    <div>
-      <label className="block text-[12px] font-bold text-ink mb-1">{label}</label>
-      {multiline ? (
-        <textarea rows={3} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={cls} />
-      ) : (
-        <input type={type} required={required} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={cls} />
-      )}
     </div>
   );
 }
