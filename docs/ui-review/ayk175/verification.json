@@ -2,6 +2,8 @@
   "date": "2026-11-04",
   "scope": "AYK-175 umbrella and AYK-176 through AYK-194, all 19 owner notes",
   "branch": "claude/deploy-setup",
+  "implementation_commit": "d9e05f77220a7eed26bf17363eb3fce891cef168",
+  "implementation_pushed_and_remote_verified": true,
   "base_commit": "32784300688ffc630fe03a1de77894dfc5a823f1",
   "isolated_full_suite": { "exit": 0, "server": [50, 50], "client": [145, 145], "integration": [232, 232], "locales": 11, "locale_keys": 2296, "build_seconds": 38.92, "server_runtime_audit": 0, "client_runtime_audit": 0, "deploy_checks": "passed" },
   "final_touch_target_ui_followup": { "client": [145, 145], "build_seconds": 51.27, "reason": "TrustSummary CSS touch targets only; covered in final browser matrix" },
