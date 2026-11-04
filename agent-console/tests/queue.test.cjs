@@ -161,6 +161,7 @@ test('only fresh unclaimed requests can be clarified, with project and approval 
   const j = task({ acceptance: '' });
   q.enqueue(j);
   assert.equal(q.claim(j.project), null);
+  assert.equal(q.jobs(j.project)[0].canClarify, true);
   assert.equal(q.clarify('trbhh', j.id, 'test'), false);
   assert.equal(q.clarify(j.project, j.id, 'a passing test'), true);
   assert.equal(q.clarify(j.project, j.id, 'replacement'), false);
@@ -180,7 +181,9 @@ test('manual resume preserves identity only for a confirmed pre-dispatch block',
   const q = fixture(t).open(), job = task();
   q.enqueue(job);
   q.finish(q.claim(job.project), { status: 'paused', retrySafe: true });
-  assert.equal(q.resume(job.id), true);
+  assert.equal(q.jobs(job.project)[0].canResume, true);
+  assert.equal(q.resume(job.id, 'trbhh'), false);
+  assert.equal(q.resume(job.id, job.project), true);
   assert.equal(q.resume(job.id), false);
   const run = q.claim(job.project);
   assert.equal(run.id, job.id);
@@ -213,4 +216,16 @@ test('private backup and restore retain queue, rotate sessions, block active job
     auth.close();
     fs.rmSync(temp, {recursive:true,force:true});
   }
+});
+
+
+test('hourly task limit persists across connections and only counts new jobs per project', t => {
+  const { open } = fixture(t), q = open();
+  const j = task();
+  q.enqueue(j);
+  for (let i=1; i<60; i++) q.enqueue(task());
+  const another = open();
+  assert.throws(() => another.enqueue(task()), { code:'TASK_LIMIT' });
+  assert.equal(another.enqueue(j), false);
+  assert.equal(another.enqueue(task({project:'trbhh'})), true);
 });

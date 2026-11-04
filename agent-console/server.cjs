@@ -97,11 +97,15 @@ function start(env = process.env) {
         if (!push.subscribe(await body(req),session)) return json(400,{error:'اشتراك الإشعارات غير صالح'});
         return json(200,{ok:true});
       }
-      if (post && ['/api/messages','/api/clarify'].includes(u.pathname)) {
+      if (post && ['/api/messages','/api/clarify','/api/resume'].includes(u.pathname)) {
         const b=await body(req);
         if (!known(b.project) || !uuid.test(b.id)) return json(400,{error:'اختر مشروعًا وطلبًا صالحين'});
         const acceptance=typeof b.acceptance==='string' ? b.acceptance.trim() : '';
         if (acceptance.length>2000) return json(400,{error:'معيار القبول طويل جدًا'});
+        if (u.pathname==='/api/resume') {
+          if (!q.resume(b.id,b.project)) return json(409,{error:'لا يمكن إعادة تنفيذ طلب بدأ تشغيله'});
+          return json(200,{ok:true});
+        }
         if (u.pathname==='/api/clarify') {
           if (!acceptance || !q.clarify(b.project,b.id,acceptance)) return json(409,{error:'تعذر استكمال هذه المهمة'});
           return json(200,{ok:true});
@@ -115,6 +119,7 @@ function start(env = process.env) {
       }
       return json(404,{error:'غير موجود'});
     } catch(e) {
+      if (e.code === 'TASK_LIMIT') return json(429,{error:'بلغ المشروع حد الطلبات لهذه الساعة'});
       if (e.code === 'ID_CONFLICT') return json(409,{error:'تغير محتوى طلب محفوظ'});
       if (!e.httpStatus) console.error('Request failed with an internal error');
       return json(e.httpStatus || 500,{error:e.httpStatus?e.message:'تعذر إتمام الطلب'});

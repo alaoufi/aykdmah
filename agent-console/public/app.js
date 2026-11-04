@@ -1,7 +1,7 @@
 'use strict';
 const $=id=>document.getElementById(id);
 let generation=0, pushKey='', signature='', taskSignature='', sending=false, refreshNumber=0;
-const statusNames={pending:'في الطابور',running:'قيد التنفيذ','needs-verification':'بانتظار التحقق','needs-approval':'يتطلب موافقة مستقلة','needs-clarification':'بانتظار توضيح',interrupted:'توقف ويحتاج مراجعة',failed:'فشلت المهمة',blocked:'متوقفة', 'paused-auth':'بانتظار تسجيل الدخول','paused-limit':'بانتظار توفر الاشتراك'};
+const statusNames={pending:'في الطابور',running:'قيد التنفيذ','needs-verification':'بانتظار التحقق','needs-approval':'يتطلب موافقة مستقلة','needs-clarification':'بانتظار توضيح',interrupted:'توقف ويحتاج مراجعة',failed:'فشلت المهمة',paused:'معلّقة',blocked:'متوقفة', 'paused-auth':'بانتظار تسجيل الدخول','paused-limit':'بانتظار توفر الاشتراك'};
 function status(text){$('status').textContent=text;}
 async function api(url,data) {
   const r=await fetch(url,{method:data?'POST':'GET',credentials:'same-origin',cache:'no-store',
@@ -42,7 +42,14 @@ async function refresh() {
       $('tasks').replaceChildren(...jobs.tasks.map(t=>{
         const row=element('div',t.id.slice(0,8)+' · '+(statusNames[t.status] || t.status),'task');
         if(t.message) row.append(element('small',t.message));
-        if(t.status==='needs-clarification'){
+        if(t.canResume){
+          const retry=element('button','متابعة بعد تفعيل الاشتراك');
+          retry.onclick=async()=>{
+            try{await api('/api/resume',{id:t.id,project});await refresh();}catch(e){status(e.message);}
+          };
+          row.append(retry);
+        }
+        if(t.canClarify){
           const add=element('button','اعتمد معيار الاختبار المكتوب أدناه');
           add.onclick=async()=>{
             try{await api('/api/clarify',{id:t.id,project,acceptance:$('acceptance').value});await refresh();}

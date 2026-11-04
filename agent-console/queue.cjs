@@ -39,6 +39,7 @@ function openQueue(dir) {
         finishedAt TEXT, token TEXT, expires INTEGER, message TEXT NOT NULL DEFAULT '', checkpoint TEXT NOT NULL DEFAULT ''
       );
       CREATE INDEX IF NOT EXISTS tasks_waiting ON tasks(project,status,createdAt);
+      CREATE INDEX IF NOT EXISTS tasks_created ON tasks(project,createdAt);
       CREATE TABLE IF NOT EXISTS chat (
         id TEXT PRIMARY KEY, project TEXT NOT NULL, role TEXT NOT NULL, text TEXT NOT NULL, date TEXT NOT NULL, agent TEXT
       );
@@ -47,6 +48,7 @@ function openQueue(dir) {
         seq INTEGER PRIMARY KEY, task TEXT NOT NULL, status TEXT NOT NULL, at TEXT NOT NULL
       );
       CREATE TABLE IF NOT EXISTS metadata (key TEXT PRIMARY KEY);
+      CREATE INDEX IF NOT EXISTS task_events ON events(task,seq DESC);
       CREATE TABLE IF NOT EXISTS clarifications (task TEXT PRIMARY KEY, acceptance TEXT NOT NULL);
     `);
     transaction(() => {
@@ -103,6 +105,10 @@ function openQueue(dir) {
         return false;
       }
       const createdAt = iso();
+      const cutoff = new Date(Date.now() - 3600000).toISOString();
+      if (db.prepare('SELECT count(*) AS n FROM tasks WHERE project=? AND createdAt>?').get(j.project,cutoff).n >= 60) {
+        throw Object.assign(Error('بلغ المشروع حد المهام الجديدة لهذه الساعة'), { code: 'TASK_LIMIT' });
+      }
       const status = requiresApproval(j.text+'\n'+(j.acceptance || '')) ? 'needs-approval' :
         j.status || (j.acceptance ? 'pending' : 'needs-clarification');
       if (!['pending','needs-clarification','needs-approval'].includes(status)) throw Error('Invalid initial task state');
@@ -172,12 +178,12 @@ function openQueue(dir) {
       return true;
     });
   }
-  function resume(id) {
+  function resume(id, project = null) {
     return transaction(() => {
       const changed = db.prepare(`UPDATE tasks SET status='pending',finishedAt=NULL,message=''
-        WHERE id=? AND status IN ('paused','blocked') AND (
+        WHERE id=? AND (? IS NULL OR project=?) AND status IN ('paused','blocked') AND (
           SELECT status FROM events WHERE task=? ORDER BY seq DESC LIMIT 1
-        )='blocked-before-execution'`).run(id,id);
+        )='blocked-before-execution'`).run(id,project,project,id);
       if (changed.changes) event(id,'pending');
       return changed.changes === 1;
     });
@@ -194,7 +200,11 @@ function openQueue(dir) {
     messages: project => db.prepare(`SELECT id,project,role,text,date,agent FROM (
       SELECT *,rowid AS sequence FROM chat WHERE project=? ORDER BY date DESC,rowid DESC LIMIT 500
     ) ORDER BY date,sequence`).all(project),
-    jobs: project => db.prepare('SELECT id,project,agent,provider AS agentUsed,status,createdAt,finishedAt,message,checkpoint FROM tasks WHERE project=? ORDER BY createdAt DESC,rowid DESC LIMIT 100').all(project),
+    jobs: project => db.prepare(`SELECT id,project,agent,provider AS agentUsed,status,createdAt,finishedAt,message,checkpoint,
+      status='needs-clarification' AND (SELECT status FROM events WHERE task=tasks.id ORDER BY seq DESC LIMIT 1)='awaiting-owner-criteria' AS canClarify,
+      status IN ('paused','blocked') AND (SELECT status FROM events WHERE task=tasks.id ORDER BY seq DESC LIMIT 1)='blocked-before-execution' AS canResume
+      FROM tasks WHERE project=? ORDER BY createdAt DESC,rowid DESC LIMIT 100`).all(project)
+      .map(j => ({ ...j, canClarify:Boolean(j.canClarify), canResume:Boolean(j.canResume) })),
     close: () => db.close(),
   };
 }
