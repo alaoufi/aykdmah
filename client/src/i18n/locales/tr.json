@@ -310,7 +310,9 @@
     "location_later": "Sorun değil: ilk talebinizde konumunuzu otomatik alırız, siz de değiştirebilirsiniz.",
     "terms_by_signup": "Hesap oluşturarak şunları kabul etmiş olursunuz:",
     "admin_use_panel": "Bu bir yönetici hesabı: aykdmh.com/admin üzerinden girin. Site için normal kullanıcı hesabı kullanın.",
-    "forgot_login_info": "Giriş bilgilerinizi mi unuttunuz?"
+    "forgot_login_info": "Giriş bilgilerinizi mi unuttunuz?",
+    "registration_success": "Hesap başarıyla oluşturuldu",
+    "registration_login": "Giriş yapmak için buraya tıklayın"
   },
   "request": {
     "create_title": "Yeni bir talebi oluştur",
@@ -1531,7 +1533,7 @@
     "client_steps": {
       "browse": {
         "title": "Telefon ve basit bir şifreyle kaydolun",
-        "body": "Başkası sizin adınıza giriş yapamasın diye telefon numaranız ve en az 4 rakamlı basit bir şifreyle kaydolun; ad isteğe bağlıdır, bölgeniz otomatik algılanır ve değiştirilebilir. Ana sayfada listeden bir meslek seçerek bölgenizdeki hizmet verenlerin ve şu anda müsait olanların sayısını görün."
+        "body": "Başkası sizin adınıza giriş yapamasın diye telefon numaranız ve en az 4 rakamlı basit bir şifreyle kaydolun; ad isteğe bağlıdır, bölgeniz otomatik algılanır ve değiştirilebilir. Ana sayfada listeden bir meslek seçerek bölgenizdeki hizmet verenlerin ve şu anda müsait olanların sayısını görün. Hesap oluşturma onaylandıktan sonra başarı mesajı ve giriş bağlantısı görünür. Hesabın silinmesi yalnızca sunucu onayından sonra doğrulanır."
       },
       "details": {
         "title": "Mesleği seçin, ihtiyacınızı sesle kaydedin",
@@ -1557,7 +1559,7 @@
     "provider_steps": {
       "signup": {
         "title": "Bir dakikada telefonla kaydolun",
-        "body": "“{{role_provider}}” veya “İkisi de”yi seçin, telefonunuzu ve şifrenizi girin. Konumunuz otomatik alınır; ardından mesleklerinizi, mahallelerinizi, çalışma gün ve saatlerinizi ve hizmet şeklinizi seçin. Kayıttan sonra kişisel kuponunuz görünür."
+        "body": "“{{role_provider}}” veya “İkisi de”yi seçin, telefonunuzu ve şifrenizi girin. Konumunuz otomatik alınır; ardından mesleklerinizi, mahallelerinizi, çalışma gün ve saatlerinizi ve hizmet şeklinizi seçin. Kayıttan sonra kişisel kuponunuz görünür. Hesap oluşturma onaylandıktan sonra başarı mesajı ve giriş bağlantısı görünür. Hesabın silinmesi yalnızca sunucu onayından sonra doğrulanır."
       },
       "profile": {
         "title": "“İşim” paneli",

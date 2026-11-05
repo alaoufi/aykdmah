@@ -310,7 +310,9 @@
     "location_later": "Tidak apa-apa: kami mengambil lokasi Anda otomatis saat permintaan pertama, dan Anda bisa mengubahnya.",
     "terms_by_signup": "Dengan membuat akun, Anda menyetujui",
     "admin_use_panel": "Ini akun admin: masuk di aykdmh.com/admin. Untuk situs, gunakan akun pengguna biasa.",
-    "forgot_login_info": "Lupa detail masuk?"
+    "forgot_login_info": "Lupa detail masuk?",
+    "registration_success": "Akun berhasil dibuat",
+    "registration_login": "Klik di sini untuk masuk"
   },
   "request": {
     "create_title": "Buat permintaan baru",
@@ -1531,7 +1533,7 @@
     "client_steps": {
       "browse": {
         "title": "Daftar dengan ponsel dan kata sandi sederhana",
-        "body": "Daftar dengan nomor ponsel dan kata sandi sederhana minimal 4 angka, agar tidak ada orang lain yang masuk atas nama Anda; nama bersifat opsional, dan area Anda terdeteksi otomatis serta dapat diubah. Di beranda, pilih profesi dari daftar untuk melihat berapa penyedia di area Anda dan berapa yang tersedia sekarang."
+        "body": "Daftar dengan nomor ponsel dan kata sandi sederhana minimal 4 angka, agar tidak ada orang lain yang masuk atas nama Anda; nama bersifat opsional, dan area Anda terdeteksi otomatis serta dapat diubah. Di beranda, pilih profesi dari daftar untuk melihat berapa penyedia di area Anda dan berapa yang tersedia sekarang. Setelah pembuatan akun dikonfirmasi, pesan sukses dan tautan masuk muncul. Penghapusan akun hanya dikonfirmasi setelah server menyetujuinya."
       },
       "details": {
         "title": "Pilih profesi, rekam kebutuhan dengan suara",
@@ -1557,7 +1559,7 @@
     "provider_steps": {
       "signup": {
         "title": "Daftar dengan ponsel dalam semenit",
-        "body": "Pilih “{{role_provider}}” atau “Keduanya” lalu masukkan ponsel dan kata sandi. Lokasi Anda diambil otomatis; lalu pilih profesi, wilayah, hari dan jam kerja, serta cara memberikan layanan. Kupon pribadi Anda muncul setelah mendaftar."
+        "body": "Pilih “{{role_provider}}” atau “Keduanya” lalu masukkan ponsel dan kata sandi. Lokasi Anda diambil otomatis; lalu pilih profesi, wilayah, hari dan jam kerja, serta cara memberikan layanan. Kupon pribadi Anda muncul setelah mendaftar. Setelah pembuatan akun dikonfirmasi, pesan sukses dan tautan masuk muncul. Penghapusan akun hanya dikonfirmasi setelah server menyetujuinya."
       },
       "profile": {
         "title": "Panel “Pekerjaan saya”",

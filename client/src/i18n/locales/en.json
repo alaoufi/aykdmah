@@ -310,7 +310,9 @@
     "location_later": "No problem: we take your location automatically at your first request, and you can change it.",
     "terms_by_signup": "By creating an account you agree to the",
     "admin_use_panel": "This is an admin account: sign in at aykdmh.com/admin. To use the site, sign in with a regular user account.",
-    "forgot_login_info": "Forgot your sign-in details?"
+    "forgot_login_info": "Forgot your sign-in details?",
+    "registration_success": "Account created successfully",
+    "registration_login": "Click here to sign in"
   },
   "request": {
     "create_title": "Create a new request",
@@ -1531,7 +1533,7 @@
     "client_steps": {
       "browse": {
         "title": "Sign up with your phone and a simple password",
-        "body": "Sign up with your phone number and a simple password of at least 4 digits, so no one else signs in as you; the name is optional, and your area is detected automatically and can be changed. On the home page pick a profession from the list to see how many providers serve your area and how many are available now."
+        "body": "Sign up with your phone number and a simple password of at least 4 digits, so no one else signs in as you; the name is optional, and your area is detected automatically and can be changed. On the home page pick a profession from the list to see how many providers serve your area and how many are available now. After account creation is confirmed, a success message and sign-in link appear. Account deletion is confirmed only after the server acknowledges it."
       },
       "details": {
         "title": "Pick the profession, record what you need",
@@ -1557,7 +1559,7 @@
     "provider_steps": {
       "signup": {
         "title": "Sign up with your phone in a minute",
-        "body": "Choose “{{role_provider}}” or “Both” and enter your phone and password. Your location is taken automatically; then choose your professions, covered districts, working days and hours and how you deliver the service. Your personal coupon appears after sign-up."
+        "body": "Choose “{{role_provider}}” or “Both” and enter your phone and password. Your location is taken automatically; then choose your professions, covered districts, working days and hours and how you deliver the service. Your personal coupon appears after sign-up. After account creation is confirmed, a success message and sign-in link appear. Account deletion is confirmed only after the server acknowledges it."
       },
       "profile": {
         "title": "The “My work” panel",

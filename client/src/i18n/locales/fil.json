@@ -310,7 +310,9 @@
     "location_later": "Ayos lang: kukunin namin ang iyong lokasyon nang awtomatiko sa una mong kahilingan, at mababago mo ito.",
     "terms_by_signup": "Sa paggawa ng account, sumasang-ayon ka sa",
     "admin_use_panel": "Admin account ito: mag-sign in sa aykdmh.com/admin. Para sa site, gumamit ng karaniwang user account.",
-    "forgot_login_info": "Nakalimutan ang detalye sa pag-sign in?"
+    "forgot_login_info": "Nakalimutan ang detalye sa pag-sign in?",
+    "registration_success": "Matagumpay na nalikha ang account",
+    "registration_login": "Pindutin dito upang mag-sign in"
   },
   "request": {
     "create_title": "Gumawa ng bagong kahilingan",
@@ -1531,7 +1533,7 @@
     "client_steps": {
       "browse": {
         "title": "Mag-sign up gamit ang telepono at simpleng password",
-        "body": "Mag-sign up gamit ang numero ng telepono at simpleng password na hindi bababa sa 4 na numero, para walang ibang makapasok sa ngalan mo; opsyonal ang pangalan, at awtomatikong natutukoy ang iyong lugar at mababago mo ito. Sa home page, pumili ng propesyon sa listahan para makita kung ilang provider ang nasa iyong lugar at ilan ang available ngayon."
+        "body": "Mag-sign up gamit ang numero ng telepono at simpleng password na hindi bababa sa 4 na numero, para walang ibang makapasok sa ngalan mo; opsyonal ang pangalan, at awtomatikong natutukoy ang iyong lugar at mababago mo ito. Sa home page, pumili ng propesyon sa listahan para makita kung ilang provider ang nasa iyong lugar at ilan ang available ngayon. Pagkatapos kumpirmahin ang paggawa ng account, lalabas ang mensahe ng tagumpay at link sa pag-sign in. Kinukumpirma lamang ang pagtanggal pagkatapos tumugon ang server."
       },
       "details": {
         "title": "Piliin ang propesyon, i-record ang kailangan",
@@ -1557,7 +1559,7 @@
     "provider_steps": {
       "signup": {
         "title": "Magparehistro gamit ang telepono sa isang minuto",
-        "body": "Piliin ang “{{role_provider}}” o “Pareho” at ilagay ang iyong telepono at password. Awtomatikong kinukuha ang iyong lokasyon; pagkatapos ay piliin ang iyong mga propesyon, mga lugar, mga araw at oras ng trabaho at paraan ng paghahatid ng serbisyo. Lalabas ang iyong personal na coupon pagkatapos magparehistro."
+        "body": "Piliin ang “{{role_provider}}” o “Pareho” at ilagay ang iyong telepono at password. Awtomatikong kinukuha ang iyong lokasyon; pagkatapos ay piliin ang iyong mga propesyon, mga lugar, mga araw at oras ng trabaho at paraan ng paghahatid ng serbisyo. Lalabas ang iyong personal na coupon pagkatapos magparehistro. Pagkatapos kumpirmahin ang paggawa ng account, lalabas ang mensahe ng tagumpay at link sa pag-sign in. Kinukumpirma lamang ang pagtanggal pagkatapos tumugon ang server."
       },
       "profile": {
         "title": "Ang panel na “Trabaho ko”",

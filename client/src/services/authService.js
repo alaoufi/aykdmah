@@ -20,6 +20,7 @@ export async function register(payload) {
   if (request !== credentialRequest) throw new DOMException('Session changed', 'AbortError');
   const { data } = await api.post('/auth/register', payload);
   if (request !== credentialRequest || getToken() !== previousToken) throw new DOMException('Session changed', 'AbortError');
+  if (data?.success !== true || !data?.data?.user?.id || !data?.data?.user?.role || !data?.data?.token) throw new Error('Invalid registration response');
   if (data.data && data.data.token) setToken(data.data.token);
   return data.data;
 }

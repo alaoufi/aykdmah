@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useRef, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api, { apiError } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
@@ -9,31 +9,42 @@ import { useAuth } from '../hooks/useAuth';
 export default function DeleteAccountPage() {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
+  const location = useLocation();
+  const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [sure, setSure] = useState(false);
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState('');
   const [jobs, setJobs] = useState([]);
-  const [done, setDone] = useState(false);
+  const done = location.state?.accountDeleted === true && (!user || user.id === location.state?.deletedAccountId);
+  const submission = useRef(false);
 
   const submit = async e => {
     e.preventDefault();
-    if (!sure || !password) return;
+    if (submission.current || done || !sure || !password) return;
+    submission.current = true;
     setBusy(true); setProblem(''); setJobs([]);
     try {
-      await api.post('/users/me/delete', { password });
-      setDone(true);
+      const { data } = await api.post('/users/me/delete', { password });
+      if (data?.success !== true || data?.data?.deleted !== true) throw new Error('Invalid deletion response');
+      // Keep the confirmed receipt when logout remounts the session subtree.
+      navigate('/delete-account', { replace: true, state: { accountDeleted: true, deletedAccountId: user.id } });
+      setPassword('');
       await logout().catch(() => {});
     } catch (err) {
       setProblem(apiError(err));
       setJobs(err?.response?.data?.errors?.jobs || []);
-    } finally { setBusy(false); }
+    } finally { submission.current = false; setBusy(false); }
   };
 
   return (
     <article className="max-w-xl mx-auto px-4 py-10" data-testid="delete-account">
       <h1 className="text-2xl font-extrabold text-fg mb-2">🗑️ {t('account_delete.title')}</h1>
-      {done ? <p role="status" className="card bg-success-soft text-success font-bold">✅ {t('account_delete.done')}</p> : <>
+      {done ? <div role="status" className="card bg-success-soft text-success text-center py-8">
+        <div aria-hidden="true" className="text-4xl mb-3">✓</div>
+        <h2 className="text-xl font-bold m-0">{t('account_delete.done')}</h2>
+        <Link to="/" className="inline-block mt-4 font-bold underline">{t('nav.home')}</Link>
+      </div> : <>
         <div className="card mb-4 text-[14px] leading-relaxed">
           <p className="font-bold text-danger m-0 mb-1">{t('account_delete.erased_title')}</p>
           <p className="m-0 mb-3">{t('account_delete.erased')}</p>

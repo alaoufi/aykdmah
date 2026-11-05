@@ -35,7 +35,7 @@ const ROLES = [
 export default function RegisterPage() {
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
-  const { register } = useAuth();
+  const { register, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const params = new URLSearchParams(location.search);
@@ -64,7 +64,9 @@ export default function RegisterPage() {
   // '' | 'checking' | 'available' | 'taken' — checked when the phone field loses focus.
   const [phoneStatus, setPhoneStatus] = useState('');
   const [loading, setLoading] = useState(false);
-  const [welcome, setWelcome] = useState(null);
+  // Router state survives the session-keyed route remount after registration.
+  const receipt = location.state?.registrationResult;
+  const welcome = receipt?.userId && receipt.userId === user?.id ? receipt : null;
   const [copied, setCopied] = useState(false);
   // Phone code step: shown only when an SMS provider is active (AYK-016).
   const [codeStep, setCodeStep] = useState(null);
@@ -76,6 +78,7 @@ export default function RegisterPage() {
     return () => clearTimeout(timer);
   }, [wait]);
   const locationController = useRef(null);
+  const submission = useRef(false);
   const isProvider = form.role !== 'client';
 
   // Area lists are only needed when the device location did not resolve them.
@@ -171,6 +174,7 @@ export default function RegisterPage() {
 
   const handleSubmit = async event => {
     event.preventDefault();
+    if (submission.current || welcome) return;
     const phone = cleanPhone(form.phone);
     const errors = formErrors();
     if (Object.keys(errors).length) {
@@ -178,6 +182,7 @@ export default function RegisterPage() {
       setError(Object.values(errors)[0]);
       return;
     }
+    submission.current = true;
     setLoading(true);
     setError('');
     if (!codeStep) {
@@ -187,17 +192,20 @@ export default function RegisterPage() {
           setCodeStep({ length: sent.length || 4 });
           setWait(sent.resend_seconds || 60);
           setLoading(false);
+          submission.current = false;
           return;
         }
       } catch (err) {
         setError(apiError(err));
         if ([400, 409].includes(err.response?.status)) setFieldErrors({ phone: apiError(err) });
         setLoading(false);
+        submission.current = false;
         return;
       }
     } else if (phoneCode.length < codeStep.length) {
       setError(t('auth.code_required'));
       setLoading(false);
+      submission.current = false;
       return;
     }
     try {
@@ -218,12 +226,12 @@ export default function RegisterPage() {
         terms_accepted: true, terms_version: settings.terms_version || '1.0',
         ...(form.referral_code.trim() ? { referral_code: form.referral_code.trim() } : {}),
       });
-      if (res.referral_code) setWelcome({ code: res.referral_code, role: res.user.role });
-      else navigate(authReturnTarget(res.user.role, from), { replace: true });
+      if (!res?.user?.role) throw new Error('Invalid registration response');
+      navigate('/register', { replace: true, state: { from, registrationResult: { userId: res.user.id, code: res.referral_code, role: res.user.role } } });
     } catch (err) {
       setError(err.response?.data?.message === 'coupon_not_found' ? t('auth.invite_not_found') : apiError(err));
       if (err.response?.status === 409) setFieldErrors({ phone: apiError(err) });
-    } finally { setLoading(false); }
+    } finally { submission.current = false; setLoading(false); }
   };
 
   if (welcome) {
@@ -232,17 +240,22 @@ export default function RegisterPage() {
     };
     return (
       <div className="text-center space-y-3" data-testid="register-welcome">
-        <div className="text-4xl">🎉</div>
-        <h2>{t('auth.welcome_title')}</h2>
+        <div role="status" className="rounded-card border border-success/30 bg-success-soft p-5 text-success">
+          <div aria-hidden="true" className="text-4xl mb-2">✓</div>
+          <h2 className="m-0">{t('auth.registration_success')}</h2>
+        </div>
+        <Link to="/login" state={{ from, identifier: form.phone }} className="block font-bold underline py-2">{t('auth.registration_login')}</Link>
+        {welcome.code && <>
         <p className="text-sm text-secondary">{t(welcome.role === 'client' ? 'auth.welcome_number_hint_client' : 'auth.welcome_coupon_hint')}</p>
         <div className="rounded-card border-2 border-dashed border-primary bg-primary-soft py-4">
           <div className="text-xs text-secondary mb-1">{t('auth.welcome_coupon_title')}</div>
           <div className="text-3xl font-extrabold tracking-[.2em]" dir="ltr">{welcome.code}</div>
         </div>
+        </>}
         {/* Microphone/camera and notifications are asked for here, once (AYK-047). */}
         <DevicePermissions />
         <div className="flex gap-2">
-          <Button type="button" variant="outline" block onClick={copy}>{copied ? `✓ ${t('auth.copied')}` : `📋 ${t('auth.copy')}`}</Button>
+          {welcome.code && <Button type="button" variant="outline" block onClick={copy}>{copied ? `✓ ${t('auth.copied')}` : `📋 ${t('auth.copy')}`}</Button>}
           <Button type="button" variant="primary" block onClick={() => navigate(authReturnTarget(welcome.role, from), { replace: true })}>{t('auth.continue')}</Button>
         </div>
       </div>
