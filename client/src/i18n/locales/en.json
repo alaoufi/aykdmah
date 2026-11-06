@@ -1654,6 +1654,7 @@
     },
     "signup_title": "Quick sign-up",
     "signup_intro": "Signing up takes a minute, and everything you choose can be changed later from “Profile”.",
+    "account_completion": "After registration completes, a success message links to sign-in. After account deletion is confirmed, a success message links to the home page.",
     "signup_points": {
       "types": {
         "title": "Choose your account type",

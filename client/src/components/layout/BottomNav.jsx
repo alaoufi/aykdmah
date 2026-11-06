@@ -27,9 +27,10 @@ export default function BottomNav() {
       const nav = navRef.current;
       if (!nav) return;
       const zoom = pageZoom();
-      nav.style.setProperty('--mobile-nav-viewport-bottom', `${(viewport.offsetTop + viewport.height) / zoom}px`);
-      nav.style.setProperty('--mobile-nav-viewport-left', `${viewport.offsetLeft / zoom}px`);
-      nav.style.setProperty('--mobile-nav-viewport-width', `${viewport.width / zoom}px`);
+      const visible = window.visualViewport || viewport;
+      nav.style.setProperty('--mobile-nav-viewport-bottom', `${(visible.offsetTop + visible.height) / zoom}px`);
+      nav.style.setProperty('--mobile-nav-viewport-left', `${visible.offsetLeft / zoom}px`);
+      nav.style.setProperty('--mobile-nav-viewport-width', `${visible.width / zoom}px`);
     };
     const scheduleUpdate = () => {
       if (!frame) frame = window.requestAnimationFrame(updatePosition);
@@ -38,8 +39,13 @@ export default function BottomNav() {
     viewport.addEventListener('resize', scheduleUpdate, { passive: true });
     viewport.addEventListener('scroll', scheduleUpdate, { passive: true });
     window.addEventListener('resize', scheduleUpdate, { passive: true });
+    // WebKit can update viewport metrics after the window resize notification.
+    // Re-measure on the resulting root layout too (also covers text zoom).
+    const layoutObserver = typeof ResizeObserver === 'function' ? new ResizeObserver(scheduleUpdate) : null;
+    layoutObserver?.observe(document.documentElement);
     return () => {
       window.cancelAnimationFrame(frame);
+      layoutObserver?.disconnect();
       viewport.removeEventListener('resize', scheduleUpdate);
       viewport.removeEventListener('scroll', scheduleUpdate);
       window.removeEventListener('resize', scheduleUpdate);
@@ -67,9 +73,9 @@ export default function BottomNav() {
   ];
 
   return createPortal(
-    <nav ref={navRef} data-testid="mobile-bottom-nav" aria-label={t('footer.links')} className="mobile-bottom-nav md:hidden z-40 safe-bottom">
+    <nav ref={navRef} data-testid="mobile-bottom-nav" aria-label={t('footer.links')} className="mobile-bottom-nav md:hidden z-40">
       {/* A light tint of the chosen colour (AYK-160). */}
-      <div className="mx-2 mb-2 backdrop-blur-md border border-border rounded-[22px] shadow-card" style={{ background: 'var(--primary-tint)' }}>
+      <div data-testid="mobile-bottom-panel" className="safe-bottom backdrop-blur-md border-t border-border rounded-t-[22px] shadow-card" style={{ background: 'var(--primary-tint)' }}>
         <ul className="grid grid-cols-5 items-end h-[68px] px-1.5">
           {items.map((it) => {
             const I = it.Icon;

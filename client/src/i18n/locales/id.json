@@ -1654,6 +1654,7 @@
     },
     "signup_title": "Pendaftaran cepat",
     "signup_intro": "Untuk mendaftar membutuhkan waktu satu menit, dan semua yang Anda pilih dapat diubah nanti dari Profile.",
+    "account_completion": "Setelah pendaftaran selesai, pesan berhasil menampilkan tautan masuk. Setelah penghapusan akun dikonfirmasi, pesan berhasil menampilkan tautan ke beranda.",
     "signup_points": {
       "types": {
         "title": "Pilih jenis akun Anda",

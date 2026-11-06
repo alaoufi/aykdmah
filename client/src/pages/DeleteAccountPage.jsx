@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import api, { apiError } from '../services/api';
@@ -18,6 +18,12 @@ export default function DeleteAccountPage() {
   const [jobs, setJobs] = useState([]);
   const done = location.state?.accountDeleted === true && (!user || user.id === location.state?.deletedAccountId);
   const submission = useRef(false);
+
+  // The shorter receipt must not inherit the form's scroll position beneath
+  // the sticky header. Router state also restores this after logout remounts.
+  useEffect(() => {
+    if (done) window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [done]);
 
   const submit = async e => {
     e.preventDefault();

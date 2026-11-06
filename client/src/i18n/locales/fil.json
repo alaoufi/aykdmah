@@ -1654,6 +1654,7 @@
     },
     "signup_title": "Mabilis na pag-sign up",
     "signup_intro": "Ang pag-sign up ay tumatagal ng isang minuto, at ang lahat ng iyong pinili ay maaaring baguhin sa susunod mula sa Profile.",
+    "account_completion": "Pagkatapos magrehistro, may mensahe ng tagumpay at link para mag-sign in. Kapag nakumpirma ang pagtanggal ng account, may mensahe ng tagumpay at link sa pangunahing pahina.",
     "signup_points": {
       "types": {
         "title": "Piliin ang uri ng iyong account",

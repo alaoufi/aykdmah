@@ -97,6 +97,7 @@ export default function GuidePage() {
         <section id="guide-signup" aria-labelledby="guide-signup-title" className="mb-10 md:mb-12">
           <h2 id="guide-signup-title" className="text-xl md:text-2xl font-extrabold text-fg">📝 {t('help.signup_title')}</h2>
           <p className="text-fg-muted text-sm md:text-base leading-loose mt-3 mb-5">{t('help.signup_intro')}</p>
+          <p className="card text-sm leading-relaxed">{t('help.account_completion')}</p>
           <ol className="space-y-3">
             {SIGNUP_POINTS.map((point, index) => (
               <li key={point} className="card p-4">

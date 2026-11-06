@@ -1654,6 +1654,7 @@
     },
     "signup_title": "Hızlı kayıt",
     "signup_intro": "Kayıt bir dakika sürer ve seçtiğiniz her şey daha sonra Profile'den değiştirilebilir.",
+    "account_completion": "Kayıt tamamlandığında başarı mesajı ve giriş bağlantısı gösterilir. Hesabın silindiği onaylandığında başarı mesajı ve ana sayfa bağlantısı gösterilir.",
     "signup_points": {
       "types": {
         "title": "Hesap türünü seçin",

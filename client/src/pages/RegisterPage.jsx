@@ -67,6 +67,9 @@ export default function RegisterPage() {
   // Router state survives the session-keyed route remount after registration.
   const receipt = location.state?.registrationResult;
   const welcome = receipt?.userId && receipt.userId === user?.id ? receipt : null;
+  useEffect(() => {
+    if (welcome) window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+  }, [welcome]);
   const [copied, setCopied] = useState(false);
   // Phone code step: shown only when an SMS provider is active (AYK-016).
   const [codeStep, setCodeStep] = useState(null);
