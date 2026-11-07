@@ -6,6 +6,18 @@
 # Does not touch Coolify, SSH settings, or existing firewall rules.
 set -euo pipefail
 
+# AYK-201: the existing frontend is now managed by Coolify; refuse the legacy
+# all-in-one deploy before any secret, firewall, database or container mutation.
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+if [[ ! -r "$SCRIPT_DIR/caddy/Caddyfile" ]]; then
+    echo "Missing readable ingress configuration; refusing deployment." >&2
+    exit 1
+fi
+if grep -q 'reverse_proxy 172.18.0.1:8093' "$SCRIPT_DIR/caddy/Caddyfile"; then
+    echo "Coolify owns the frontend. Read docs/COOLIFY_RUNTIME.md before deploying." >&2
+    exit 1
+fi
+
 SITE_ROOT=/var/www/aykdmh
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 ENV_FILE="$REPO_DIR/.env"
