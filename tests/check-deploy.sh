@@ -6,6 +6,7 @@ fail=0
 check() { if eval "$2"; then echo "ok   - $1"; else echo "FAIL - $1"; fail=1; fi; }
 
 conf=deploy/caddy/Caddyfile
+siteconf=deploy/caddy/aykdmh-site.Caddyfile
 compose=deploy/docker-compose.yml
 script=deploy/setup-server.sh
 dockerfile=deploy/app.Dockerfile
@@ -13,10 +14,10 @@ dockerfile=deploy/app.Dockerfile
 check "caddy serves apex domain"        "grep -q '^aykdmh.com {' $conf"
 check "caddy redirects www"             "grep -q 'redir https://aykdmh.com{uri} permanent' $conf"
 check "caddy braces balanced"           "[ \$(tr -cd '{' < $conf | wc -c) -eq \$(tr -cd '}' < $conf | wc -c) ]"
-check "caddy proxies api to app"        "grep -q 'reverse_proxy app:5000' $conf"
-check "caddy keeps strict CSP"          "grep -q \"script-src 'self' 'wasm-unsafe-eval'\" $conf"
-check "missing static files 404"        "grep -q 'handle @static' $conf"
-check "install and uploads blocked"     "grep -q '@private path /install' $conf"
+check "caddy proxies api to app"        "grep -q 'reverse_proxy app:5000' $siteconf"
+check "caddy keeps strict CSP"          "grep -q \"script-src 'self' 'wasm-unsafe-eval'\" $siteconf"
+check "missing static files 404"        "grep -q 'handle @static' $siteconf"
+check "install and uploads blocked"     "grep -q '@private path /install' $siteconf"
 check "caddy image pins versions"       "grep -Eq '^FROM caddy:[0-9]+\.[0-9]+\.[0-9]+-alpine' deploy/caddy.Dockerfile && grep -q 'caddy-l4@v' deploy/caddy.Dockerfile"
 check "calls fall back to TURN on 443"  "grep -q 'proxy livekit:5349' $conf && grep -q 'external_tls: true' deploy/livekit/livekit.yaml"
 check "only web and livekit publish"    "[ \$(grep -c '^    ports:' $compose) -eq 2 ]"

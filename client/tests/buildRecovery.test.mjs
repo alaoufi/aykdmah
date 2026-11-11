@@ -196,8 +196,8 @@ test('external scripts, classic scripts, ordinary app errors and mounted React c
 });
 
 test('the early bootstrap is served without immutable caching and runs before the module entry', async () => {
-  // Served by Caddy (deploy/caddy/Caddyfile): not a fingerprinted asset, so the no-store rule applies.
-  const caddy = await readFile(new URL('../../deploy/caddy/Caddyfile', import.meta.url), 'utf8');
+  // Served by the Coolify frontend (deploy/caddy/aykdmh-site.Caddyfile): not a fingerprinted asset, so the no-store rule applies.
+  const caddy = await readFile(new URL('../../deploy/caddy/aykdmh-site.Caddyfile', import.meta.url), 'utf8');
   const matcher = name => new RegExp(caddy.match(new RegExp(`@${name} path_regexp (.+)`))[1].trim());
   assert.equal(matcher('hashed').test('/app-recovery.js'), false);
   assert.equal(matcher('static').test('/app-recovery.js'), true);
