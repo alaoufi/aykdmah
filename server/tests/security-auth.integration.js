@@ -285,6 +285,9 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     const seeded = await prepareReviewAccounts(null, { seedOnly: true });
     assert.equal(seeded.conversation, first.conversation);
     await api('/auth/login', { method: 'POST', body: { identifier: ACCOUNTS[0].username, password: 'Review-Local-2026b' } });
+    // A phone keyboard capitalizes the first letter (App Review run 5): usernames ignore case.
+    const capital = ACCOUNTS[0].username[0].toUpperCase() + ACCOUNTS[0].username.slice(1);
+    await api('/auth/login', { method: 'POST', body: { identifier: capital, password: 'Review-Local-2026b' } });
   });
 
   test('site and admin sessions of one account are separate', async () => {

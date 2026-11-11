@@ -115,7 +115,7 @@ async function findByIdentifier(identifier) {
   // The customer number (referral_code) is a sign-in identifier too.
   const code = /^[A-Za-z]{2,4}\d{2,4}$/.test(v) ? v.toUpperCase() : null;
   const rows = await query(`SELECT * FROM users WHERE deleted_at IS NULL AND
-    (username = ? OR LOWER(email) = LOWER(?) OR facebook_id = ? OR REGEXP_REPLACE(phone, '[[:space:]()-]', '', 'g') = ? OR referral_code = ?) LIMIT 2`, [v, v, v, phone, code]);
+    (LOWER(username) = LOWER(?) OR LOWER(email) = LOWER(?) OR facebook_id = ? OR REGEXP_REPLACE(phone, '[[:space:]()-]', '', 'g') = ? OR referral_code = ?) LIMIT 2`, [v, v, v, phone, code]);
   // Dirty legacy records or cross-field collisions must never choose an
   // arbitrary owner. Existing unique formatted phone/email logins still work.
   return rows.length === 1 ? rows[0] : null;
@@ -131,7 +131,7 @@ async function checkIdentifierConflicts(conn, data, existing = null) {
     if (existing && normalized === oldNormalized) continue;
     const phone = /^[\d+\s\-()]+$/.test(value) ? value.replace(/[\s\-()]/g, '') : null;
     const [rows] = await conn.execute(`SELECT id FROM users WHERE id <> ? AND
-      (username = ? OR LOWER(email) = LOWER(?) OR facebook_id = ? OR REGEXP_REPLACE(phone, '[[:space:]()-]', '', 'g') = ?) LIMIT 1`, [existing?.id || 0, value, value, value, phone]);
+      (LOWER(username) = LOWER(?) OR LOWER(email) = LOWER(?) OR facebook_id = ? OR REGEXP_REPLACE(phone, '[[:space:]()-]', '', 'g') = ?) LIMIT 1`, [existing?.id || 0, value, value, value, phone]);
     if (rows.length) {
       const err = new ApiError('Login identifier is already taken', 409);
       err.code = '23505'; err.constraint = `uq_users_${field}`;

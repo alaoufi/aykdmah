@@ -53,6 +53,9 @@ export default function LoginPage() {
         hint={t('auth.identifier_hint')}
         required
         autoComplete="username"
+        autoCapitalize="none"
+        autoCorrect="off"
+        spellCheck={false}
         value={form.identifier}
         onChange={(e) => setForm({ ...form, identifier: e.target.value })}
       />
