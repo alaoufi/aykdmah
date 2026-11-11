@@ -19,6 +19,11 @@ It asks for one password (8+ characters, typed twice, not shown) and creates or 
 
 Sign-in is username + password (no SMS code). Running it again only changes the password.
 
+**Without a server terminal (simpler):** the owner creates both accounts in the admin area (Users → New) with
+exactly these usernames, roles «client» and «provider», and one password of their choice. Then a developer with
+server access runs `docker exec aykdmh-app node server/scripts/review-accounts.js --seed-only`, which adds the
+sample data and pauses the provider without asking for or changing any password.
+
 ## 2) App Store Connect → the version → App Review Information
 
 - **Sign-in required:** on.

@@ -5,6 +5,9 @@
 // a message or the repository; the same one is then entered in App Store Connect.
 // Run again any time: it updates the password and keeps the existing sample data.
 // Usage on the server: docker exec -it aykdmh-app node server/scripts/review-accounts.js
+// Or, when the owner created both accounts in the admin area (Users → New) with these usernames and
+// a password of their choice: add --seed-only to add the sample data without asking for or touching
+// any password.
 const readline = require('node:readline');
 
 const ACCOUNTS = [
@@ -23,13 +26,13 @@ function askHidden(question) {
 
 // Creates or refreshes both accounts and their sample data; returns what it made (tested in
 // server/tests/security-auth.integration.js).
-async function prepareReviewAccounts(password) {
+async function prepareReviewAccounts(password, { seedOnly = false } = {}) {
   const db = require('../config/database');
   const { hashPassword } = require('../utils/hash');
   const Conversation = require('../models/Conversation');
   const Message = require('../models/Message');
-  if (typeof password !== 'string' || Array.from(password).length < 8) throw new Error('Use at least 8 characters.');
-  const hash = await hashPassword(password);
+  if (!seedOnly && (typeof password !== 'string' || Array.from(password).length < 8)) throw new Error('Use at least 8 characters.');
+  const hash = seedOnly ? null : await hashPassword(password);
   {
 
     // A real place and trade, so maps, areas and matching show something meaningful.
@@ -44,7 +47,13 @@ async function prepareReviewAccounts(password) {
     for (const account of ACCOUNTS) {
       const existing = await db.queryOne('SELECT id FROM users WHERE username = ?', [account.username]);
       let id = existing?.id;
-      if (id) {
+      if (seedOnly && !id) throw new Error(`Create ${account.username} in the admin area first (Users → New).`);
+      if (seedOnly) {
+        await db.query('UPDATE users SET role = ?, is_active = 1, is_blocked = 0 WHERE id = ?', [account.role, id]);
+        await db.query(`UPDATE users SET country_id = COALESCE(country_id, ?), region_id = COALESCE(region_id, ?),
+          governorate_id = COALESCE(governorate_id, ?), city_id = COALESCE(city_id, ?), district_id = COALESCE(district_id, ?)
+          WHERE id = ?`, [area.country_id, area.region_id, area.governorate_id, area.city_id, area.district_id, id]);
+      } else if (id) {
         await db.query(`UPDATE users SET password_hash = ?, role = ?, is_active = 1, is_blocked = 0, deleted_at = NULL,
           auth_version = auth_version + 1 WHERE id = ?`, [hash, account.role, id]);
       } else {
@@ -90,9 +99,13 @@ async function prepareReviewAccounts(password) {
 async function main() {
   const db = require('../config/database');
   try {
-    const password = await askHidden('Password for both review accounts (8+ characters): ');
-    if (await askHidden('Type it again: ') !== password) throw new Error('The two entries differ.');
-    const made = await prepareReviewAccounts(password);
+    let made;
+    if (process.argv.includes('--seed-only')) made = await prepareReviewAccounts(null, { seedOnly: true });
+    else {
+      const password = await askHidden('Password for both review accounts (8+ characters): ');
+      if (await askHidden('Type it again: ') !== password) throw new Error('The two entries differ.');
+      made = await prepareReviewAccounts(password);
+    }
     console.log(`Ready: ${ACCOUNTS.map(a => a.username).join(' and ')} (request ${made.request}, conversation ${made.conversation}).`);
     console.log('Enter the same username and password in App Store Connect → App Review Information.');
   } finally {

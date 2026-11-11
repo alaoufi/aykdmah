@@ -281,6 +281,10 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     assert.equal(Number((await db.queryOne('SELECT COUNT(*) AS n FROM messages WHERE conversation_id = ?', [first.conversation])).n), 2);
     assert.equal((await db.queryOne('SELECT availability_status FROM provider_profiles WHERE user_id = ?', [first.provider])).availability_status, 'paused');
     assert.equal((await db.queryOne('SELECT status FROM requests WHERE id = ?', [first.request])).status, 'assigned');
+    // Accounts the owner made in the admin area: sample data added, password untouched.
+    const seeded = await prepareReviewAccounts(null, { seedOnly: true });
+    assert.equal(seeded.conversation, first.conversation);
+    await api('/auth/login', { method: 'POST', body: { identifier: ACCOUNTS[0].username, password: 'Review-Local-2026b' } });
   });
 
   test('site and admin sessions of one account are separate', async () => {
