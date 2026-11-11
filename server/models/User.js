@@ -267,7 +267,8 @@ async function completeLogin(id, expectedHash) {
 // AYK-208: wrong-password counter; an account with a phone locks after 5 and unlocks by an SMS reset.
 const LOGIN_LOCK_AFTER = 5;
 async function recordFailedLogin(user) {
-  const row = await queryOne(`UPDATE users SET failed_logins = failed_logins + 1, login_locked_at = CASE WHEN failed_logins + 1 >= ? AND phone IS NOT NULL AND phone <> '' THEN COALESCE(login_locked_at, CURRENT_TIMESTAMP) ELSE login_locked_at END WHERE id = ? RETURNING login_locked_at`, [LOGIN_LOCK_AFTER, user.id]);
+  await query(`UPDATE users SET failed_logins = failed_logins + 1, login_locked_at = CASE WHEN failed_logins + 1 >= ? AND phone IS NOT NULL AND phone <> '' THEN COALESCE(login_locked_at, CURRENT_TIMESTAMP) ELSE login_locked_at END WHERE id = ?`, [LOGIN_LOCK_AFTER, user.id]);
+  const row = await queryOne('SELECT login_locked_at FROM users WHERE id = ?', [user.id]);
   return Boolean(row?.login_locked_at);
 }
 async function clearFailedLogins(id) {
