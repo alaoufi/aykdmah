@@ -1,69 +1,65 @@
-# App Review — «أي خدمة | aykdmh» (AYK-201)
+# App Review — «أي خدمة | aykdmh» (AYK-205)
 
-Rejection 2026-11-02: **Guideline 2.1 – Information Needed** (2.1.0 App Completeness). The usual cause is that the
-reviewer cannot sign in or cannot try both sides of the app. This file is what to put in App Store Connect.
-No passwords here: the repository is public.
+Rejection 2026-11-02: **Guideline 2.1 – Information Needed** (2.1.0 App Completeness). Apple asks for six items in the
+**Notes** of App Review Information, and a screen recording on a physical iPhone. No passwords here: the repository is public.
 
-## 1) Prepare the two review accounts (server, once)
+## Review accounts (done 2026-11-11)
 
-```bash
-docker exec -it aykdmh-app node server/scripts/review-accounts.js
-```
+The owner created `apple_review_client` (requester) and `apple_review_provider` (provider) in the admin area with one
+password of their choice; `server/scripts/review-accounts.js --seed-only` then gave them a shared request (15) and a
+chat (9), and paused the provider so real customers never see it. To refresh the sample data later:
+`docker exec aykdmh-app node server/scripts/review-accounts.js --seed-only` (no password asked or changed).
 
-It asks for one password (8+ characters, typed twice, not shown) and creates or refreshes:
-
-| Username | Role | Sample data |
-|---|---|---|
-| `apple_review_client` | Service requester | One request «electrical repair», assigned to the provider below, with a chat |
-| `apple_review_provider` | Service provider | The same request and chat; paused, so real customers are never matched with it |
-
-Sign-in is username + password (no SMS code). Running it again only changes the password.
-
-**Without a server terminal (simpler):** the owner creates both accounts in the admin area (Users → New) with
-exactly these usernames, roles «client» and «provider», and one password of their choice. Then a developer with
-server access runs `docker exec aykdmh-app node server/scripts/review-accounts.js --seed-only`, which adds the
-sample data and pauses the provider without asking for or changing any password.
-
-## 2) App Store Connect → the version → App Review Information
-
-- **Sign-in required:** on.
-- **User name:** `apple_review_client` · **Password:** the one typed in step 1.
-- **Notes** (paste as is, then add the provider password line):
+## Notes — paste into App Store Connect → the version → App Review Information → Notes
 
 ```
-Ay Khidmah connects people who need a local service (plumbing, electrical, cleaning, moving…) with nearby
-service providers in Saudi Arabia. One app serves both sides; the role comes from the account.
+1) SCREEN RECORDING
+Attached: recorded on a physical iPhone with the latest iOS. It starts by launching the app and shows browsing as a
+guest, account registration, login, a service request, the chat (including Block and Report), a voice call, and
+account deletion.
 
-TEST ACCOUNTS (password sign-in, no SMS code):
-1) Service requester: apple_review_client (password in the fields above)
-2) Service provider:  apple_review_provider (same password)
+2) PURPOSE AND AUDIENCE
+Ay Khidmah (aykdmh) is a local services marketplace for Saudi Arabia. People who need a home or local service
+(plumbing, electrical, cleaning, moving, maintenance…) post a request; nearby independent service providers
+contact them in the app by chat or call and agree directly. It solves the problem of finding a trusted, nearby
+provider quickly. One app serves both sides; the role comes from the account.
 
-HOW TO TEST
-- Sign in as the requester: Home shows your request "Sample request: electrical repair". Open it, then
-  "Chats" to message the provider. The phone and video buttons in the chat start a call.
-- Sign out (Profile → Sign out) and sign in as the provider to see the same request and chat from the
-  other side; reply or call back. A call between the two accounts needs two devices.
-- You can also browse without an account: the home page, services and providers are public.
+3) HOW TO ACCESS THE MAIN FEATURES
+Two demo accounts (password sign-in, no SMS code):
+- Service requester: apple_review_client — password in the Password field above.
+- Service provider: apple_review_provider — the same password.
+Sign in (Profile → Sign in) as the requester: Home shows the request "Sample request: electrical repair". Open it,
+then open the chat with the provider. The phone and video buttons start a call (a call needs the other account on
+a second device). Sign out and sign in as the provider to see the same request and chat from the other side.
+Without an account you can browse the home page, services and providers.
+User-generated content safety: in a chat, the ⋮ menu has Block user; Help/Support lets users report a person,
+message or request; reviews and calls have a Report button. Reports are reviewed by our team within 24 hours, and
+the admin area can hide content and block accounts.
+Account deletion: Profile → Delete account (also https://aykdmh.com/delete-account).
 
-PERMISSIONS
-- Camera and microphone: only for voice/video calls in a chat, asked when a call starts.
-- Location: to show requests and providers near the user; the app works without it.
-- Notifications: incoming calls and messages.
+4) EXTERNAL SERVICES
+- Self-hosted LiveKit (WebRTC) on our own server: voice and video calls.
+- Apple Push Notification service: notifications.
+- OpenStreetMap map tiles and Nominatim: maps and addresses.
+- ip-api.com: approximate city to show nearby content when location is not shared.
+- Microsoft Translator (fallback MyMemory): optional translation of chat messages.
+- A Saudi SMS gateway: phone verification codes at registration.
+No payment processor and no AI services are used by the app.
 
-PAYMENTS
-The service is performed in person and paid directly between the two people, outside the app. The app sells
-no digital content and has no in-app purchases.
+5) REGIONAL DIFFERENCES
+The app works the same in all regions. Service providers are currently in Saudi Arabia. The interface is
+available in Arabic and 10 other languages.
 
-ACCOUNT DELETION
-Profile → Delete account, or https://aykdmh.com/delete-account
-Privacy policy: https://aykdmh.com/privacy
+6) REGULATED INDUSTRY / THIRD-PARTY MATERIAL
+Not applicable: the app is not in a regulated industry and contains no protected third-party content. Services are
+performed in person and paid directly between the two people, outside the app; there is no paid digital content
+and no in-app purchase.
 ```
 
-- **Contact information:** the owner's name, phone and email (already filled).
-- **Attachment (recommended):** a 1–2 minute screen recording from an iPhone: sign in as the requester,
-  open the request and the chat, start a call; then the provider side.
+## Screen recording (owner, on an iPhone)
 
-## 3) Reply and resubmit
-
-In the rejection message thread, reply that the test accounts and notes are now in App Review Information,
-answer Apple's questions one by one, then press **Resubmit to App Review**.
+Install the latest TestFlight build, turn on Screen Recording in Control Center, then in one recording:
+launch the app → browse as a guest → register a new throwaway account → sign out → sign in as
+`apple_review_client` → open the request and the chat → show ⋮ (Block) and Help/Support (report) → start a call →
+Profile → Delete account on the throwaway account (never on the review accounts).
+Attach it under App Review Information (Attachment), then reply in the message thread and press **Resubmit to App Review**.
