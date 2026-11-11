@@ -33,6 +33,11 @@ export default function LoginPage() {
       }
       navigate(authReturnTarget(res.user.role, from), { replace: true });
     } catch (err) {
+      // AYK-208: locked after 5 wrong passwords: reset with an SMS code (the same password is allowed).
+      if (err?.response?.status === 423) {
+        navigate('/forgot-password', { state: { identifier: form.identifier, notice: apiError(err) } });
+        return;
+      }
       setError(apiError(err));
     } finally {
       setLoading(false);

@@ -322,6 +322,21 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     await api('/auth/admin-session', { token: plainLogin.token, method: 'POST', headers: { 'X-Ayk-Scope': 'admin' }, expected: 403 });
   });
 
+  test('AYK-208: five wrong passwords lock an account with a phone until an SMS reset', async () => {
+    const phone = '05' + String(Date.now()).slice(-8);
+    const user = await createUser('client', { phone });
+    for (let i = 1; i < User.LOGIN_LOCK_AFTER; i += 1) assert.equal(await User.recordFailedLogin(user), false);
+    assert.equal(await User.recordFailedLogin(user), true);
+    assert.ok((await User.findByIdRaw(user.id)).login_locked_at);
+    // Without a phone there is no SMS reset, so the account never locks (rate limits still apply).
+    const noPhone = await createUser();
+    for (let i = 0; i < User.LOGIN_LOCK_AFTER + 1; i += 1) assert.equal(await User.recordFailedLogin(noPhone), false);
+    await User.clearFailedLogins(user.id);
+    const row = await User.findByIdRaw(user.id);
+    assert.equal(Number(row.failed_logins), 0);
+    assert.equal(row.login_locked_at, null);
+  });
+
   test('password replacement revokes existing sessions and preserves full long passwords', async () => {
     const user = await createUser(), token = tokenFor(user), nextPassword = 'a'.repeat(72) + 'first';
     await api('/auth/password', { token, method: 'PUT', body: { current_password: password, new_password: nextPassword } });

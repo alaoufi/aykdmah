@@ -6327,6 +6327,11 @@ CREATE TABLE IF NOT EXISTS chat_forward_receipts (
 );
 INSERT INTO schema_migrations(name) VALUES ('071_chat_forward_receipts.sql');
 
+-- migrations/072_login_lockout.sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS failed_logins INT NOT NULL DEFAULT 0;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS login_locked_at TIMESTAMP NULL;
+INSERT INTO schema_migrations(name) VALUES ('072_login_lockout.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

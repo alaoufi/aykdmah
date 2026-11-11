@@ -264,6 +264,16 @@ async function completeLogin(id, expectedHash) {
   });
 }
 
+// AYK-208: wrong-password counter; an account with a phone locks after 5 and unlocks by an SMS reset.
+const LOGIN_LOCK_AFTER = 5;
+async function recordFailedLogin(user) {
+  const row = await queryOne(`UPDATE users SET failed_logins = failed_logins + 1, login_locked_at = CASE WHEN failed_logins + 1 >= ? AND phone IS NOT NULL AND phone <> '' THEN COALESCE(login_locked_at, CURRENT_TIMESTAMP) ELSE login_locked_at END WHERE id = ? RETURNING login_locked_at`, [LOGIN_LOCK_AFTER, user.id]);
+  return Boolean(row?.login_locked_at);
+}
+async function clearFailedLogins(id) {
+  await query('UPDATE users SET failed_logins = 0, login_locked_at = NULL WHERE id = ? AND (failed_logins <> 0 OR login_locked_at IS NOT NULL)', [id]);
+}
+
 async function revokeSessions(id) {
   await query('UPDATE users SET auth_version = auth_version + 1 WHERE id = ?', [id]);
 }
@@ -486,6 +496,7 @@ async function updateProviderProfile(userId, data) {
 }
 
 module.exports = {
+  recordFailedLogin, clearFailedLogins, LOGIN_LOCK_AFTER,
   findById, findByIdRaw, findByEmail, findByPhone, findByUsername, findByFacebookId, findByIdentifier,
   create, update, updatePassword, revokeSessions, endAreaSessions, areaSessionVersion, updateAdminPermissions, completeLogin,
   softDelete, setBlocked, setOnline, listPaginated, adminUpdate,

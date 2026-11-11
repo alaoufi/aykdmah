@@ -21,7 +21,9 @@ const { sessionCookieName, requestScope, asSiteUser } = require('../middleware/a
 async function issueSession(req, res, user) {
   const scope = requestScope(req);
   const sv = await User.areaSessionVersion(user.id, scope);
-  const token = sign({ id: user.id, role: user.role, auth_version: Number(user.auth_version || 0), scope, sv });
+  // AYK-208: the site and the app stay signed in on the device (a year); the admin area keeps the default.
+  const token = sign({ id: user.id, role: user.role, auth_version: Number(user.auth_version || 0), scope, sv },
+    scope === 'site' ? { expiresIn: process.env.SITE_SESSION_EXPIRES_IN || '365d' } : {});
   const expires = require('../utils/jwt').decode(token)?.exp;
   res.cookie(sessionCookieName(req), token, { ...cookieOptions(), ...(expires ? { expires: new Date(expires * 1000) } : {}) });
   return token;
@@ -284,6 +286,7 @@ const resetPassword = asyncHandler(async (req, res) => {
   if (!user) return error(res, req.t('phone_code_invalid'), 400);
   // A new auth_version signs out every existing session.
   await User.updatePassword(user.id, await hashPassword(password));
+  await User.clearFailedLogins(user.id); // AYK-208: the SMS reset unlocks; the same password is allowed
   await markPhoneVerified(user.id, user.phone);
   return success(res, null, req.t('password_reset_done'));
 });
@@ -296,14 +299,20 @@ const login = asyncHandler(async (req, res) => {
 
   let user = await User.findByIdentifier(id);
   if (!user) return unauthorized(res, req.t('invalid_credentials'));
+  // AYK-208: locked after 5 wrong passwords until an SMS-code password reset.
+  if (user.login_locked_at) return error(res, req.t('account_locked_reset'), 423);
   // Phone sign-in (AYK-041): a code sent by SMS instead of a password.
   if (req.body.phone_code) {
     const check = await phoneCodes.verifyCode({ phone: phoneCodes.normalizePhone(id), purpose: 'login', code: req.body.phone_code });
     if (!check.ok) return unauthorized(res, req.t(CODE_ERRORS[check.reason] || 'phone_code_invalid'));
   } else {
     const valid = await comparePassword(password || '', user.password_hash || '');
-    if (!valid) return unauthorized(res, req.t('invalid_credentials'));
+    if (!valid) {
+      if (await User.recordFailedLogin(user)) return error(res, req.t('account_locked_reset'), 423);
+      return unauthorized(res, req.t('invalid_credentials'));
+    }
   }
+  if (user.failed_logins) await User.clearFailedLogins(user.id);
   user = await User.completeLogin(user.id, user.password_hash);
   if (!user) return unauthorized(res, req.t('invalid_credentials'));
   if (user.is_blocked) return error(res, req.t('account_blocked'), 403);

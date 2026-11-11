@@ -59,6 +59,7 @@ export default function ForgotPasswordPage() {
     <form onSubmit={submit} className="space-y-3" noValidate>
       <h2 className="mb-0">{t('auth.forgot_title')}</h2>
       <p className="text-sm text-secondary">{step === 'phone' ? t('auth.forgot_hint') : t('auth.code_sent_to', { phone })}</p>
+      {location.state?.notice && step === 'phone' && !error && <div role="status" className="px-3 py-2 rounded-card bg-warning-soft text-warning text-[13px] font-semibold">{String(location.state.notice)}</div>}
       {error && <div role="alert" className="form-error" style={{ background: 'rgba(239,68,68,.1)', padding: 8, borderRadius: 8 }}>{error}</div>}
 
       <Input id="forgot-phone" label={t('auth.phone')} type="tel" dir="ltr" inputMode="tel" autoComplete="tel" placeholder="05XXXXXXXX"
