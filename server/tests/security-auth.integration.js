@@ -266,6 +266,23 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
   });
 
   // AYK-151: the same account signed in to the site and to /admin; each signs out on its own.
+  // AYK-201: the App Review accounts sign in with a password, have a shared request and a chat,
+  // and the provider stays paused so real requesters are never matched with it.
+  test('App Review accounts are ready for both roles and safe to run again', async () => {
+    const { prepareReviewAccounts, ACCOUNTS } = require('../scripts/review-accounts');
+    const first = await prepareReviewAccounts('Review-Local-2026');
+    const again = await prepareReviewAccounts('Review-Local-2026b');
+    assert.deepEqual([again.client, again.provider, again.request, again.conversation], [first.client, first.provider, first.request, first.conversation]);
+    for (const account of ACCOUNTS) {
+      const signed = (await api('/auth/login', { method: 'POST', body: { identifier: account.username, password: 'Review-Local-2026b' } })).data;
+      assert.equal(signed.user.role, account.role);
+      await api('/auth/login', { method: 'POST', body: { identifier: account.username, password: 'Review-Local-2026' }, expected: 401 });
+    }
+    assert.equal(Number((await db.queryOne('SELECT COUNT(*) AS n FROM messages WHERE conversation_id = ?', [first.conversation])).n), 2);
+    assert.equal((await db.queryOne('SELECT availability_status FROM provider_profiles WHERE user_id = ?', [first.provider])).availability_status, 'paused');
+    assert.equal((await db.queryOne('SELECT status FROM requests WHERE id = ?', [first.request])).status, 'assigned');
+  });
+
   test('site and admin sessions of one account are separate', async () => {
     const user = await createUser();
     await db.query("UPDATE users SET role = 'admin' WHERE id = ?", [user.id]);
