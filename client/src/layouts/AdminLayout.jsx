@@ -100,10 +100,11 @@ function AdminLayoutFrame() {
   };
 
   return (
-    <div className="min-h-screen bg-bg text-fg flex flex-row-reverse">
+    // The menu sits at the start of the reading direction: on the right in Arabic (AYK-204).
+    <div className="min-h-screen bg-bg text-fg flex">
       <aside
-        className={`fixed lg:static inset-y-0 right-0 z-40 w-72 bg-ink text-white/75 flex flex-col transition-transform ${
-          open ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
+        className={`fixed lg:static inset-y-0 start-0 z-40 w-72 bg-ink text-white/75 flex flex-col transition-transform ${
+          open ? 'translate-x-0' : 'rtl:translate-x-full ltr:-translate-x-full lg:!translate-x-0'
         }`}
       >
         <div className="px-5 py-5 border-b border-white/10 flex items-center justify-between">
