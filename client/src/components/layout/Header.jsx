@@ -10,6 +10,7 @@ import LanguageSwitcher from '../common/LanguageSwitcher';
 import ThemeSwitcher from '../common/ThemeSwitcher';
 import BrandLogo from '../common/BrandLogo';
 import { IconMenu, IconBell, IconClose } from '../common/Icons';
+import AdminPanelLink from './AdminPanelLink';
 
 export default function Header() {
   const { t } = useTranslation();
@@ -177,6 +178,7 @@ export default function Header() {
                         🔁 {t('profile.change_account_type')}
                       </Link>
                     )}
+                    <AdminPanelLink className="w-full text-right px-3 py-2 rounded text-sm font-bold text-primary hover:bg-surface-alt" onDone={() => setMenuOpen(false)} />
                     <Link to="/disputes" className="block px-3 py-2 rounded text-sm font-semibold text-fg hover:bg-surface-alt no-underline" onClick={() => setMenuOpen(false)}>
                       ⚖️ {t('dispute.my_disputes')}
                     </Link>
@@ -323,6 +325,7 @@ export default function Header() {
               <LanguageSwitcher />
               <ThemeSwitcher />
             </div>
+            {user && <AdminPanelLink className="w-full mb-2 px-4 py-2.5 rounded-pill font-bold bg-surface-alt text-primary text-center" onDone={() => setMobileOpen(false)} />}
             {user ? (
               <div className="grid grid-cols-2 gap-2">
                 <Link

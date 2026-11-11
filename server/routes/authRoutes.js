@@ -53,6 +53,8 @@ router.post(
 
 router.post('/logout', authenticate, authController.logout);
 router.get('/me', authenticate, authController.me);
+// One sign-in: the site session of an admin account opens the admin area (AYK-202).
+router.post('/admin-session', authenticate, authController.adminSession);
 router.put(
   '/password',
   authLimiter,

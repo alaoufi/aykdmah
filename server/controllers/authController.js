@@ -358,4 +358,15 @@ const changePassword = asyncHandler(async (req, res) => {
   return success(res, null, req.t('password_changed'));
 });
 
-module.exports = { register, login, logout, me, changePassword, sendPhoneCode, checkPhone, resetPassword };
+// POST /api/auth/admin-session (AYK-202): an account with admin rights, signed in on the site, opens
+// the admin area without signing in again. It gets the admin area's own session (scope admin, its
+// own cookie), so the two stay separate underneath as AYK-151 requires.
+const adminSession = asyncHandler(async (req, res) => {
+  if (!req.user.admin_account || requestScope(req) !== 'admin') return error(res, req.t('forbidden'), 403);
+  const raw = await User.findByIdRaw(req.user.id);
+  if (!raw || raw.role !== 'admin') return error(res, req.t('forbidden'), 403);
+  const token = await issueSession(req, res, raw);
+  return success(res, { token });
+});
+
+module.exports = { register, login, logout, me, changePassword, sendPhoneCode, checkPhone, resetPassword, adminSession };

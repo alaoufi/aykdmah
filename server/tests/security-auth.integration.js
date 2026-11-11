@@ -304,6 +304,16 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     await api('/auth/logout', { token: site.token, method: 'POST' });
     await api('/auth/me', { token: site.token, expected: 401 });
     assert.equal((await api('/auth/me', { token: again.token, headers: { 'X-Ayk-Scope': 'admin' } })).data.user.role, 'admin');
+    // AYK-202: one sign-in; the site session of an admin account opens the admin area.
+    const fresh = (await api('/auth/login', { method: 'POST', body })).data;
+    assert.equal(fresh.user.admin_account, 1);
+    const opened = (await api('/auth/admin-session', { token: fresh.token, method: 'POST', headers: { 'X-Ayk-Scope': 'admin' } })).data;
+    assert.equal((await api('/auth/me', { token: opened.token, headers: { 'X-Ayk-Scope': 'admin' } })).data.user.role, 'admin');
+    await api('/admin/dashboard', { token: opened.token, headers: { 'X-Ayk-Scope': 'admin' } });
+    await api('/auth/me', { token: fresh.token });
+    const plain = await createUser();
+    const plainLogin = (await api('/auth/login', { method: 'POST', body: { identifier: plain.username, password } })).data;
+    await api('/auth/admin-session', { token: plainLogin.token, method: 'POST', headers: { 'X-Ayk-Scope': 'admin' }, expected: 403 });
   });
 
   test('password replacement revokes existing sessions and preserves full long passwords', async () => {
