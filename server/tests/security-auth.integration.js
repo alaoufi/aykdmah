@@ -309,7 +309,10 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     assert.equal(fresh.user.admin_account, 1);
     const opened = (await api('/auth/admin-session', { token: fresh.token, method: 'POST', headers: { 'X-Ayk-Scope': 'admin' } })).data;
     assert.equal((await api('/auth/me', { token: opened.token, headers: { 'X-Ayk-Scope': 'admin' } })).data.user.role, 'admin');
-    await api('/admin/dashboard', { token: opened.token, headers: { 'X-Ayk-Scope': 'admin' } });
+    // The admin session reaches admin routes (this test account has no extra permissions, so a
+    // permission-gated page like the dashboard correctly stays closed).
+    await api('/admin/dashboard', { token: opened.token, headers: { 'X-Ayk-Scope': 'admin' }, expected: 403 });
+    await api('/admin/dashboard', { token: fresh.token, expected: 403 });
     await api('/auth/me', { token: fresh.token });
     const plain = await createUser();
     const plainLogin = (await api('/auth/login', { method: 'POST', body: { identifier: plain.username, password } })).data;
