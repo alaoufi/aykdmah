@@ -26,3 +26,10 @@ and build e91dc41 while checkout was FF-updated to the authoritative newer sourc
 
 Cross-site infrastructure templates/report are also in alaoufi/aser docs/COOLIFY.md.
 Browser/HTTP parity checks do not prove physical-phone call quality or faster response.
+
+## Application releases (AYK-206)
+
+`bash deploy/release-app.sh` (root, from /opt/aykdmh after a fast-forward pull) is the reviewed
+release procedure: database backup, new client release in /var/www/aykdmh/releases, API image,
+migrations, API container, then the /var/www/aykdmh/current switch the Coolify frontend serves.
+It leaves Coolify, the shared ingress (aykdmh-web), LiveKit, secrets and the firewall untouched.
