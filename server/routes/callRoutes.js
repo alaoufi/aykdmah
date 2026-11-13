@@ -2,7 +2,7 @@ const express = require('express');
 const rateLimit = require('express-rate-limit');
 const router = express.Router();
 const { authenticate } = require('../middleware/auth');
-const { requireAdmin } = require('../middleware/roleCheck');
+const { requireAdmin, requirePermission } = require('../middleware/roleCheck');
 const asyncHandler = require('../utils/asyncHandler');
 const { success, error } = require('../utils/apiResponse');
 const calls = require('../services/callService');
@@ -29,8 +29,9 @@ router.get('/active', authenticate, handle(req => calls.active(req.user.id)));
 router.get('/history', authenticate, handle(req =>
   calls.history(req.user.id, { conversationId: req.query.conversation_id, requestId: req.query.request_id })));
 router.get('/eligibility/:userId', authenticate, handle(req => calls.eligibility(req.user.id, Number(req.params.userId))));
-router.get('/admin/stats', authenticate, requireAdmin, handle(req => calls.stats({ days: req.query.days })));
-router.patch('/admin/reports/:id', authenticate, requireAdmin, handle(req =>
+// Call monitoring belongs to the conversations permission, like its admin page (AYK-211).
+router.get('/admin/stats', authenticate, requireAdmin, requirePermission('conversations.read'), handle(req => calls.stats({ days: req.query.days })));
+router.patch('/admin/reports/:id', authenticate, requireAdmin, requirePermission('conversations.read'), handle(req =>
   calls.reviewReport(req.params.id, req.user.id, req.body?.status)));
 // The phone's own call engine (AYK-145): the site hands it this call's key; the engine then
 // answers, declines, joins and hangs up with the key instead of a session.

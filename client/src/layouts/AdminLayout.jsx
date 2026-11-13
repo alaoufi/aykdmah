@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet, NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, NavLink, Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 import Avatar from '../components/common/Avatar';
@@ -67,17 +67,19 @@ const NAV_GROUPS = [
   },
 ];
 
-function findCurrentLabel(pathname) {
-  let best = { labelKey: 'admin.dashboard', score: -1 };
+// The menu item a page belongs to (its longest matching address), or null for pages outside the menu.
+export function findCurrentItem(pathname) {
+  let best = null;
   for (const g of NAV_GROUPS) {
     for (const it of g.items) {
-      if (it.end ? pathname === it.to : pathname.startsWith(it.to)) {
-        const score = it.to.length;
-        if (score > best.score) best = { labelKey: it.labelKey, score };
-      }
+      if ((it.end ? pathname === it.to : pathname === it.to || pathname.startsWith(`${it.to}/`)) && (!best || it.to.length > best.to.length)) best = it;
     }
   }
-  return best.labelKey;
+  return best;
+}
+
+function findCurrentLabel(pathname) {
+  return findCurrentItem(pathname)?.labelKey || 'admin.dashboard';
 }
 
 function AdminLayoutFrame() {
@@ -94,6 +96,13 @@ function AdminLayoutFrame() {
   const visibleGroups = NAV_GROUPS
     .map((g) => ({ ...g, items: g.items.filter((it) => !it.perm || hasPermission(it.perm)) }))
     .filter((g) => g.items.length > 0);
+  // Each admin sees only the sections granted to them (AYK-211), also when a section is opened by its
+  // address: the server refuses the data anyway, and the page itself is not shown either.
+  const current = findCurrentItem(location.pathname);
+  const allowed = !current?.perm || hasPermission(current.perm);
+  const firstItem = visibleGroups.flatMap((g) => g.items).find((it) => it.perm) || { to: '/admin/guide', labelKey: 'help.admin_book_title' };
+  const firstAllowed = firstItem.to;
+  const firstAllowedLabel = firstItem.labelKey;
 
   const handleLogout = async () => {
     await logout();
@@ -229,7 +238,14 @@ function AdminLayoutFrame() {
 
         <main className="admin-workspace flex-1 p-3 md:p-4 lg:p-5 overflow-x-hidden">
           <div className="mb-3"><AdminBackButton /></div>
-          <Outlet />
+          {allowed ? <Outlet /> : location.pathname === '/admin' ? <Navigate to={firstAllowed} replace /> : (
+            // A section opened by its address without the permission (AYK-211): nothing of it is shown.
+            <div className="bg-surface rounded-card border border-border p-8 text-center" data-testid="admin-no-access">
+              <div className="text-5xl mb-3">🔒</div>
+              <p className="font-bold text-fg mb-4">{t('admin.no_access')}</p>
+              <Link to={firstAllowed} className="btn btn-primary no-underline">{t(firstAllowedLabel)}</Link>
+            </div>
+          )}
           <style>{`
             .admin-workspace button, .admin-workspace select { min-height: 32px; }
             .admin-workspace .space-y-6 > :not([hidden]) ~ :not([hidden]) { margin-top: .75rem; }

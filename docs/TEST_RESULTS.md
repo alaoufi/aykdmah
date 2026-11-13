@@ -1,3 +1,9 @@
+## AYK-211 — 2026-11-13 — صلاحيات أقسام الإدارة، لا نشر
+
+نفس بيئة AYK-210 (PostgreSQL 16 محلي، بلا Docker): خادم 55/55، واجهة 155/155، تكامل 242/242، 11 لغة/2319، البناء وفحوص النشر ناجحة.
+- `calls.integration.js`: مشرف بصلاحية `dashboard.view` يُرفض (403) من `/calls/admin/stats`، وبصلاحية `conversations.read` يُقبل (200).
+- متصفح: مشرف له `texts.manage` فقط يرى في القائمة «دليل الإدارة» و«نصوص الموقع» فقط، و`/admin` ينقله إلى `/admin/texts`، و`/admin/users` و`/admin/settings` و`/admin/calls` و`/admin/support/5` تعرض «ليست لديك صلاحية».
+
 ## AYK-210 — 2026-11-13 — نصوص الموقع من الإدارة، لا نشر
 
 على Linux بنسخة Git فعلية، بلا Docker (لا يعمل في الحاوية)، مع PostgreSQL 16 محلي على 55432 بدل الحاوية، والخطوات نفسها في `deploy/run-tests.sh`:

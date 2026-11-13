@@ -1168,7 +1168,8 @@
       "no_results": "Tidak ada teks yang cocok",
       "show_more": "Tampilkan lagi",
       "count": "{{shown}} dari {{total}}"
-    }
+    },
+    "no_access": "Anda tidak memiliki izin untuk bagian ini. Mintalah kepada administrator."
   },
   "errors": {
     "generic": "Sesuatu yang salah",

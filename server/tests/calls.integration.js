@@ -220,6 +220,15 @@ if (!databasePrefix) {
     await api(`/calls/${row.id}/report`, { user: users.provider, method: 'POST', body: { reason: 'Again' } });
     assert.equal(Number((await db.queryOne('SELECT COUNT(*) AS n FROM call_reports')).n), 1);
     assert.equal((await api('/calls/admin/stats', { user: users.client })).status, 403);
+    // An admin sees call monitoring only with the conversations permission (AYK-211).
+    const adminWith = async permissions => {
+      const row = await db.query('INSERT INTO users (full_name, email, password_hash, role, permissions) VALUES (?, ?, ?, ?, ?)',
+        [`calls admin ${permissions.join()}`, `calls_admin_${Date.now()}_${permissions.length}@test.invalid`, 'unused-local-test-hash', 'admin', JSON.stringify(permissions)]);
+      return jwt.sign({ id: Number(row.insertId), role: 'admin', scope: 'admin', sv: 0 });
+    };
+    const adminStats = async token => (await fetch(`${base}/calls/admin/stats`, { headers: { Authorization: `Bearer ${token}`, 'X-Ayk-Scope': 'admin' } })).status;
+    assert.equal(await adminStats(await adminWith(['dashboard.view'])), 403);
+    assert.equal(await adminStats(await adminWith(['conversations.read'])), 200);
     // Call quality log (AYK-060): answered calls only, numbers clamped, one row per participant, outsiders refused.
     const answered = await db.queryOne('SELECT id FROM calls WHERE answered_at IS NOT NULL ORDER BY id LIMIT 1');
     const summary = { connection_type: 'relay-tls', rtt_ms: 120, jitter_ms: 8, packet_loss_pct: 250, audio_kb_in: 300, poor_seconds: 4, reconnects: 1, audio_blocked: true, device: 'test phone', details: '{"me":"microphone","errs":["cam:NotReadableError"]}' };

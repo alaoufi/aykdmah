@@ -1168,7 +1168,8 @@
       "no_results": "Aramayla eşleşen metin yok",
       "show_more": "Daha fazla göster",
       "count": "{{shown}} / {{total}}"
-    }
+    },
+    "no_access": "Bu bölüm için izniniz yok. Yöneticiden isteyin."
   },
   "errors": {
     "generic": "Bir şey ters gitti",

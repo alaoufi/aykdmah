@@ -1168,7 +1168,8 @@
       "no_results": "Walang tekstong tugma sa paghahanap",
       "show_more": "Ipakita pa",
       "count": "{{shown}} sa {{total}}"
-    }
+    },
+    "no_access": "Wala kang pahintulot sa seksyong ito. Hingin ito sa administrator."
   },
   "errors": {
     "generic": "May nagkamali",

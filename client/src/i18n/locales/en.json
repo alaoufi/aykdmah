@@ -1168,7 +1168,8 @@
       "no_results": "No texts match your search",
       "show_more": "Show more",
       "count": "{{shown}} of {{total}}"
-    }
+    },
+    "no_access": "You do not have permission for this section. Ask the administrator for it."
   },
   "errors": {
     "generic": "Something went wrong",
