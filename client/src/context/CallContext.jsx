@@ -1,0 +1,689 @@
+import { useTranslation } from 'react-i18next';
+import { createContext, lazy, Suspense, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useAuth } from './AuthContext';
+import { useSocket } from './SocketContext';
+import * as calls from '../services/callService';
+import { syncPush, syncNativePush } from '../services/pushService';
+import { isAdminScope } from '../services/api';
+import { nativeAppVersion, nativeCallsSupported, openNativeCall } from '../utils/nativeApp';
+import { sendDeviceReport } from '../utils/deviceReport';
+import { startTone, stopTone, primeAudio, toneAudible } from '../utils/ringtone';
+import { collectCallStats } from '../utils/callStats';
+import { createCallMediaIntent, preferredCallOutput } from '../utils/callMediaIntent';
+
+// The call screen and the LiveKit SDK load only when a call actually starts or rings.
+const CallOverlay = lazy(() => import('../components/calls/CallOverlay'));
+const loadLiveKit = () => import('livekit-client');
+// The microphone starts in the tap itself, alongside the server request and the room connection,
+// so the line opens sooner (AYK-101). A refusal is reported later by the normal path.
+// The voice cleaned at the microphone (AYK-135): no echo, no background noise, an even level,
+// and the speaker's voice isolated where the browser can.
+const MIC_OPTIONS = { echoCancellation: true, noiseSuppression: true, autoGainControl: true, voiceIsolation: true, channelCount: 1 };
+const earlyMic = () => loadLiveKit().then(({ createLocalAudioTrack }) => createLocalAudioTrack(MIC_OPTIONS)).catch(() => null);
+
+// Android (the app and Chrome): the other side's voice goes through Web Audio (AYK-132).
+const WEB_AUDIO_MIX = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent || '');
+
+const CallContext = createContext(null);
+const FINAL = ['rejected', 'missed', 'cancelled', 'ended', 'failed'];
+
+// phase: idle | outgoing | incoming | connecting | in_call | reconnecting | ended
+export function CallProvider({ children }) {
+  const { user } = useAuth();
+  const { socketRef, connected } = useSocket();
+  const [call, setCall] = useState(null);
+  const [phase, setPhase] = useState('idle');
+  // A call in progress is "playing" for the phone (AYK-125), so it keeps the sound going when
+  // the app goes to the background, as for music, and shows it in the notification shade.
+  useEffect(() => {
+    const session = typeof navigator !== 'undefined' ? navigator.mediaSession : null;
+    if (!session) return undefined;
+    const live = phase === 'in_call' || phase === 'reconnecting' || phase === 'connecting';
+    try {
+      if (live && typeof window.MediaMetadata === 'function') session.metadata = new window.MediaMetadata({ title: document.title, artist: '📞' });
+      session.playbackState = live ? 'playing' : 'none';
+    } catch (_) { /* not supported */ }
+    return undefined;
+  }, [phase]);
+  const [error, setError] = useState(null);
+  const [room, setRoom] = useState(null);
+  const [micOn, setMicOn] = useState(true);
+  const [camOn, setCamOn] = useState(false);
+  const mediaIntent = useRef(createCallMediaIntent());
+  const [facing, setFacing] = useState('user');
+  const [remoteJoined, setRemoteJoined] = useState(false);
+  // The other side's camera picture is arriving (AYK-066).
+  const [remoteVideo, setRemoteVideo] = useState(false);
+  // The browser refused to play the other side's audio until a tap (Chrome on Android).
+  const [audioBlocked, setAudioBlocked] = useState(false);
+  const { t } = useTranslation();
+  const [network, setNetwork] = useState({ mine: 'unknown', theirs: 'unknown' });
+  // Who is talking right now, from the audio actually flowing through the call server.
+  const [speaking, setSpeaking] = useState({ mine: false, theirs: false });
+  // For the quality log (AYK-060): seconds of weak internet, reconnects, a blocked-audio moment.
+  const qualityLog = useRef({ poorSince: 0, poorMs: 0, reconnects: 0, audioBlocked: false });
+  const statsTimerRef = useRef(null);
+  // Audio output (speaker / earpiece or headset) where the browser lets a page choose it.
+  const [outputs, setOutputs] = useState([]);
+  const [outputId, setOutputId] = useState('');
+  const roomRef = useRef(null);
+  const callRef = useRef(null);
+  const leavingRef = useRef(false);
+  callRef.current = call;
+
+  // What this side sends and receives right now (AYK-093/098): source, unsubscribed (-), muted (m),
+  // and whether the call's audio element is playing.
+  const trackSnapshot = lkRoom => {
+    const pubs = p => [...(p?.trackPublications?.values() || [])].map(pub => `${pub.source}${pub.isSubscribed === false ? '-' : ''}${pub.isMuted ? 'm' : ''}`).join(',');
+    const audioEl = document.querySelector('[role="dialog"] audio');
+    return { me: pubs(lkRoom?.localParticipant), peer: pubs([...(lkRoom?.remoteParticipants?.values() || [])][0]), el: audioEl ? (audioEl.paused ? 'paused' : 'playing') : 'none' };
+  };
+  // While out of the app (AYK-131): is the page still running (snapshots keep coming), is their
+  // voice still playing (el), is my microphone still live (mic: live / muted / ended)?
+  const soundState = lkRoom => {
+    const audioEl = document.querySelector('[role="dialog"] audio');
+    const mic = lkRoom?.localParticipant?.getTrackPublication?.('microphone')?.track?.mediaStreamTrack;
+    const peer = [...(lkRoom?.remoteParticipants?.values() || [])][0];
+    const theirs = peer?.getTrackPublication?.('microphone')?.track?.mediaStreamTrack;
+    const state = t => (!t ? '0' : t.readyState === 'ended' ? 'ended' : t.muted ? 'muted' : 'live');
+    return `${audioEl ? (audioEl.paused ? 'paused' : 'playing') : 'none'}/${state(mic)}/${state(theirs)}/${lkRoom?.state || '-'}/${lkRoom?.audioContext?.state || '-'}`;
+  };
+
+  const teardown = useCallback(async () => {
+    const current = roomRef.current;
+    mediaIntent.current.end();
+    setCamOn(false);
+    setOutputs([]);
+    setOutputId('');
+    for (const pub of current?.localParticipant?.trackPublications?.values() || []) pub.track?.stop();
+    // Report how the connection behaved before closing it (answered calls only).
+    const ended = callRef.current;
+    if (current && ended?.id && ended.answered_at) {
+      const log = qualityLog.current;
+      const poorMs = log.poorMs + (log.poorSince ? Date.now() - log.poorSince : 0);
+      // Read the statistics now (at most 1.5 s); if the connection is already gone, use the last
+      // snapshot taken during the call (every 10 s), so the log is never just zeros (AYK-066).
+      const fresh = await Promise.race([collectCallStats(current).catch(() => ({})), new Promise(resolve => setTimeout(() => resolve({}), 1500))]);
+      const stats = (fresh.audio_kb_in || fresh.audio_kb_out) ? fresh : (log.lastStats || fresh);
+      // Which tracks were really sent and received (AYK-093): source, subscribed (s), muted (m).
+      // The tracks as they were during the call (the last 10 s snapshot), not after it closed (AYK-098).
+      const now = trackSnapshot(current);
+      const away = log.away ? { n: log.away.n, s: Math.round((log.away.ms + (log.away.since ? Date.now() - log.away.since : 0)) / 1000), snaps: log.away.snaps, out: log.away.out, in: log.away.in, back: log.away.back } : undefined;
+      // "away" first, so the 600-character cut never drops it (AYK-131).
+      const details = JSON.stringify({ away: away || 0, ...(now.me || !log.lastTracks ? now : log.lastTracks), mix: WEB_AUDIO_MIX ? 1 : 0, errs: log.errors || [], snaps: log.snaps || 0 }).slice(0, 600);
+      calls.sendCallDiagnostics(ended.id, {
+        ...stats, poor_seconds: Math.round(poorMs / 1000), reconnects: log.reconnects, audio_blocked: log.audioBlocked, details,
+      }).catch(() => {});
+    }
+    qualityLog.current = { poorSince: 0, poorMs: 0, reconnects: 0, audioBlocked: false, errors: [] };
+    roomRef.current = null;
+    setRoom(null);
+    setRemoteJoined(false);
+    setRemoteVideo(false);
+    clearInterval(statsTimerRef.current);
+    setAudioBlocked(false);
+    setNetwork({ mine: 'unknown', theirs: 'unknown' });
+    setSpeaking({ mine: false, theirs: false });
+    // Disconnecting with stopTracks releases the camera and microphone.
+    if (current) { try { await current.disconnect(true); } catch (_) { /* already closed */ } }
+  }, []);
+
+  // Set before tearing down, so a connection that this teardown interrupts
+  // (declined while still connecting) does not report itself as a failure.
+  const endingRef = useRef(false);
+  const finishLocally = useCallback(async (finalCall, reason) => {
+    endingRef.current = true;
+    await teardown();
+    setCall(finalCall ? { ...finalCall, end_reason: finalCall.end_reason || reason } : null);
+    setPhase(finalCall ? 'ended' : 'idle');
+    // Keep the outcome on screen briefly, then close.
+    setTimeout(() => {
+      if (!roomRef.current && FINAL.includes(callRef.current?.status || 'ended')) { setCall(null); setPhase('idle'); }
+    }, 2500);
+  }, [teardown]);
+
+  // The server's record decides the outcome shown (declined, missed, ended…).
+  const finalState = async (active) => {
+    try {
+      const rows = await calls.callHistory({ conversation_id: active.conversation_id });
+      return rows.find(c => c.id === active.id) || { ...active, status: 'ended' };
+    } catch (_) { return { ...active, status: 'ended' }; }
+  };
+
+  // After a network drop LiveKit may give up while offline. Rejoin the same call with a
+  // fresh token for up to 30 s; end it only if that fails or the call is over.
+  const rejoinRef = useRef(null);
+  const rejoin = useCallback(async (active) => {
+    if (rejoinRef.current) return;
+    rejoinRef.current = true;
+    setPhase('reconnecting');
+    try {
+      for (let attempt = 0; attempt < 10 && !leavingRef.current; attempt += 1) {
+        // Out of the app (AYK-089): wait for the user to come back, up to 2 minutes, instead of
+        // using up the attempts and ending the call while the phone keeps it in the background.
+        const away = Date.now();
+        while (document.hidden && !leavingRef.current && Date.now() - away < 120000) await new Promise(resolve => setTimeout(resolve, 1000));
+        if (attempt > 0 || navigator.onLine === false) await new Promise(resolve => setTimeout(resolve, 3000));
+        if (navigator.onLine === false) continue;
+        try {
+          const list = await calls.activeCalls();
+          const current = list.find(c => c.id === active.id && c.status === 'accepted');
+          if (!current) { await finishLocally(await finalState(active), 'network'); return; }
+          await connectMediaRef.current(current);
+          setPhase('in_call');
+          return;
+        } catch (_) { /* still offline or LiveKit unreachable: retry */ }
+      }
+      if (!leavingRef.current) {
+        await calls.declineCall(active.id).then(c => finishLocally(c, 'network')).catch(() => finishLocally(null, 'network'));
+      }
+    } finally { rejoinRef.current = null; }
+  }, [finishLocally]);
+  const connectMediaRef = useRef(null);
+
+  const connectMedia = useCallback(async (active, micReady = null) => {
+    const intent = mediaIntent.current;
+    const freshCall = intent.state.id !== active.id;
+    intent.begin(active.id);
+    if (freshCall) { setCamOn(false); setMicOn(true); setFacing('user'); setOutputId(''); setOutputs([]); }
+    setPhase(prev => (prev === 'outgoing' ? 'outgoing' : 'connecting'));
+    const [{ Room, RoomEvent, Track, DisconnectReason, VideoPresets, ConnectionQuality }, access] = await Promise.all([loadLiveKit(), calls.callToken(active.id)]);
+    if (endingRef.current || leavingRef.current || intent.state.id !== active.id) {
+      (await micReady)?.stop();
+      return;
+    }
+    // Ended on purpose (hang-up, room closed by the server): no rejoin attempts.
+    const finalReasons = [DisconnectReason.CLIENT_INITIATED, DisconnectReason.ROOM_DELETED, DisconnectReason.PARTICIPANT_REMOVED,
+      DisconnectReason.DUPLICATE_IDENTITY, DisconnectReason.ROOM_CLOSED].filter(r => r !== undefined);
+    // Video captured at 540p, up to 1.2 Mbps and 30 fps, sent in layers (simulcast): a strong
+    // network gets the sharp layer, a weak one a lighter layer instead of a frozen picture (AYK-059).
+    const lkRoom = new Room({
+      adaptiveStream: true, dynacast: true, stopLocalTrackOnUnpublish: true,
+      // Switching to another app must not hang up (AYK-090): LiveKit would leave on "pagehide".
+      // A page really closed is ended by the server once its rejoin time runs out.
+      disconnectOnPageLeave: false,
+      // The other side's voice through Web Audio on Android (AYK-132): Chrome there pauses a
+      // call's <audio> element when the app goes to the background and resumes it on return,
+      // so the voice stopped while out of the app. The element stays attached, muted.
+      webAudioMix: WEB_AUDIO_MIX,
+      videoCaptureDefaults: VideoPresets?.h540 ? { resolution: VideoPresets.h540.resolution } : undefined,
+      audioCaptureDefaults: MIC_OPTIONS,
+      publishDefaults: {
+        // Voice (AYK-135): 40 kbps mono Opus, clearer than the default for speech; RED sends each
+        // moment twice so a lost packet does not cut a word; DTX off, it silenced the gaps and
+        // clipped the start of words.
+        audioPreset: { maxBitrate: 40_000 },
+        red: true,
+        dtx: false,
+        simulcast: true,
+        videoEncoding: { maxBitrate: 1_200_000, maxFramerate: 30 },
+        videoSimulcastLayers: VideoPresets ? [VideoPresets.h180, VideoPresets.h360].filter(Boolean) : undefined,
+      },
+    });
+    // Is the other side's camera picture arriving? (AYK-066)
+    const syncRemoteVideo = () => setRemoteVideo([...lkRoom.remoteParticipants.values()].some(p =>
+      [...p.trackPublications.values()].some(pub => pub.kind === 'video' && pub.isSubscribed && !pub.isMuted)));
+    lkRoom
+      .on(RoomEvent.TrackSubscribed, syncRemoteVideo).on(RoomEvent.TrackUnsubscribed, syncRemoteVideo)
+      // A slightly deeper buffer for the other side's voice (AYK-136): 150 ms absorbs the uneven
+      // arrival on a long route, so words do not break up or speed up; the delay is not noticed.
+      .on(RoomEvent.TrackSubscribed, track => {
+        const receiver = track?.kind === 'audio' ? track.receiver : null;
+        try { if (receiver && 'jitterBufferTarget' in receiver) receiver.jitterBufferTarget = 150; } catch (_) { /* not supported */ }
+      })
+      .on(RoomEvent.TrackMuted, syncRemoteVideo).on(RoomEvent.TrackUnmuted, syncRemoteVideo)
+      .on(RoomEvent.ParticipantConnected, () => setRemoteJoined(true))
+      .on(RoomEvent.ParticipantDisconnected, () => setRemoteJoined(false))
+      .on(RoomEvent.AudioPlaybackStatusChanged, () => {
+        setAudioBlocked(!lkRoom.canPlaybackAudio);
+    // Out of the app during the call (AYK-131): recorded for the call log, and on return the
+    // other side's voice and my microphone are brought back if the phone stopped them.
+    const onAway = () => {
+      if (roomRef.current !== lkRoom) { document.removeEventListener('visibilitychange', onAway); return; }
+      const log = qualityLog.current;
+      log.away = log.away || { n: 0, ms: 0, since: 0, snaps: 0, out: '', in: '', back: '' };
+      if (document.hidden) {
+        log.away.n += 1; log.away.since = Date.now(); log.away.out = soundState(lkRoom);
+        return;
+      }
+      if (log.away.since) { log.away.ms += Date.now() - log.away.since; log.away.since = 0; }
+      log.away.back = soundState(lkRoom);
+      const audioEl = document.querySelector('[role="dialog"] audio');
+      if (audioEl?.paused && audioEl.srcObject) Promise.resolve(audioEl.play?.()).catch(() => {});
+      // Web Audio (AYK-132): wake its audio context too, if the phone suspended it.
+      if (WEB_AUDIO_MIX) Promise.resolve(lkRoom.startAudio?.()).catch(() => {});
+      const mic = lkRoom.localParticipant?.getTrackPublication?.('microphone');
+      if (mic?.track?.mediaStreamTrack?.readyState === 'ended' && !mic.isMuted) {
+        Promise.resolve(mic.track.restartTrack?.()).catch(err => { log.errors = [...(log.errors || []), `mic:${err?.name || 'Error'}`].slice(-6); });
+      }
+    };
+    document.addEventListener('visibilitychange', onAway);
+    // A quality snapshot every 10 s, kept for the end-of-call log (AYK-066).
+    clearInterval(statsTimerRef.current);
+    statsTimerRef.current = setInterval(() => {
+      if (roomRef.current !== lkRoom) { clearInterval(statsTimerRef.current); return; }
+      const log = qualityLog.current;
+      log.lastTracks = trackSnapshot(lkRoom);
+      log.snaps = (log.snaps || 0) + 1;
+      if (document.hidden && log.away) { log.away.snaps += 1; log.away.in = soundState(lkRoom); }
+      collectCallStats(lkRoom).then(stats => { if (stats.audio_kb_in || stats.audio_kb_out || !log.lastStats) log.lastStats = stats; }).catch(err => { log.errors = [...(log.errors || []), `stats:${err?.name || 'Error'}`].slice(-6); });
+    }, 10000);
+        if (!lkRoom.canPlaybackAudio) qualityLog.current.audioBlocked = true;
+      })
+      .on(RoomEvent.ActiveSpeakersChanged, speakers => setSpeaking({
+        mine: speakers.some(p => p.isLocal), theirs: speakers.some(p => !p.isLocal),
+      }))
+      // Internet quality for me and for the other side: excellent / good / poor / lost.
+      .on(RoomEvent.ConnectionQualityChanged, (quality, participant) => {
+        const level = quality === ConnectionQuality?.Excellent ? 'excellent' : quality === ConnectionQuality?.Good ? 'good'
+          : quality === ConnectionQuality?.Poor ? 'poor' : quality === ConnectionQuality?.Lost ? 'lost' : 'unknown';
+        setNetwork(previous => ({ ...previous, [participant?.isLocal ? 'mine' : 'theirs']: level }));
+        if (participant?.isLocal) {
+          const log = qualityLog.current; const weak = level === 'poor' || level === 'lost';
+          if (weak && !log.poorSince) log.poorSince = Date.now();
+          if (!weak && log.poorSince) { log.poorMs += Date.now() - log.poorSince; log.poorSince = 0; }
+        }
+      })
+      .on(RoomEvent.Reconnecting, () => { qualityLog.current.reconnects += 1; setPhase('reconnecting'); })
+      .on(RoomEvent.Reconnected, () => setPhase('in_call'))
+      .on(RoomEvent.Disconnected, reason => {
+        if (leavingRef.current || roomRef.current !== lkRoom) return;
+        if (finalReasons.includes(reason)) {
+          calls.activeCalls().then(list => list.find(c => c.id === active.id)).catch(() => null)
+            .then(async stillActive => (stillActive ? rejoin(active) : finishLocally(await finalState(active))));
+          return;
+        }
+        rejoin(active);
+      });
+    const previousRoom = roomRef.current;
+    roomRef.current = lkRoom;
+    if (previousRoom && previousRoom !== lkRoom) await previousRoom.disconnect(true).catch(() => {});
+    setRoom(lkRoom);
+    await lkRoom.connect(access.url, access.token, { autoSubscribe: true });
+    const valid = () => roomRef.current === lkRoom && !endingRef.current && !leavingRef.current && intent.state.id === active.id;
+    if (!valid()) { (await micReady)?.stop(); await lkRoom.disconnect(true); return; }
+    // Devices are initialized independently of an audio playback status event.
+    const syncOutputs = async () => {
+      if (!valid()) return;
+      const canChoose = typeof HTMLMediaElement !== 'undefined' && typeof HTMLMediaElement.prototype.setSinkId === 'function';
+      const list = canChoose ? await navigator.mediaDevices?.enumerateDevices?.() : [];
+      if (!valid()) return;
+      const outs = (list || []).filter(d => d.kind === 'audiooutput' && d.deviceId);
+      const current = lkRoom.getActiveDevice?.('audiooutput') || 'default';
+      const preferred = preferredCallOutput(outs, intent.state.output, current);
+      if (preferred && preferred !== current) {
+        try { await lkRoom.switchActiveDevice('audiooutput', preferred); }
+        catch (_) { /* Keep the confirmed route; an unsupported switch is not success. */ }
+      }
+      if (valid()) {
+        setOutputs(outs.map(d => ({ id: d.deviceId, label: d.label })));
+        setOutputId(lkRoom.getActiveDevice?.('audiooutput') || current);
+      }
+    };
+    await syncOutputs().catch(() => {});
+    const onDeviceChange = () => { syncOutputs().catch(() => {}); };
+    navigator.mediaDevices?.addEventListener?.('devicechange', onDeviceChange);
+    lkRoom.once(RoomEvent.Disconnected, () => navigator.mediaDevices?.removeEventListener?.('devicechange', onDeviceChange));
+    // Still inside the tap that started or answered the call: unlock audio playback now.
+    await lkRoom.startAudio().catch(() => {});
+    setAudioBlocked(!lkRoom.canPlaybackAudio);
+    setRemoteJoined(lkRoom.remoteParticipants.size > 0);
+    // Once joined, a publishing error never ends the call: a transport hiccup (the other
+    // side dropping and rejoining) can reject a pending publish long after it started.
+    // Only a refused microphone or camera permission is reported to the caller.
+    // One after the other, microphone first: some Android phones refuse two requests at once and
+    // one of them failed silently (AYK-093). Retried; the camera at a lower size each time.
+    const publish = async (label, enable, retries) => {
+      for (let attempt = 0; ; attempt += 1) {
+        if (!valid()) return false;
+        try { await enable(attempt); return true; } catch (err) {
+          if (err?.name === 'NotAllowedError') throw err;
+          console.warn('[call] publish failed:', label, err?.name, err?.message);
+          qualityLog.current.errors = [...(qualityLog.current.errors || []), `${label}:${err?.name || 'Error'}`].slice(-6);
+          if (attempt >= retries) return false;
+          await new Promise(resolve => setTimeout(resolve, 700));
+        }
+      }
+    };
+    const early = micReady ? await micReady : null;
+    const sizes = [undefined, VideoPresets?.h360?.resolution, VideoPresets?.h180?.resolution];
+    const restored = await intent.restore(lkRoom, {
+      valid,
+      microphone: wanted => publish('mic', attempt => {
+        if (early && wanted && attempt === 0) return lkRoom.localParticipant.publishTrack(early);
+        early?.stop();
+        return lkRoom.localParticipant.setMicrophoneEnabled(wanted);
+      }, 2),
+      camera: direction => active.call_type === 'video' && publish('cam', attempt => lkRoom.localParticipant.setCameraEnabled(true,
+        { facingMode: direction, ...(sizes[attempt] ? { resolution: sizes[attempt] } : {}) }), 2)
+        .catch(err => { if (valid()) setError(err?.name === 'NotAllowedError' ? 'media_denied' : 'camera_switch_failed'); return false; }),
+    });
+    if (!valid()) { early?.stop(); return; }
+    setMicOn(restored.mic);
+    setCamOn(restored.camera && intent.state.camera);
+    setFacing(intent.state.facing);
+    if (active.status === 'accepted') setPhase('in_call');
+    return Track;
+  }, [finishLocally, rejoin]);
+  connectMediaRef.current = connectMedia;
+
+  const applyState = useCallback(async (next) => {
+    if (!next) return;
+    const current = callRef.current;
+    if (current && current.id !== next.id && !FINAL.includes(next.status)) return; // one call at a time
+    if (FINAL.includes(next.status)) {
+      if (current?.id === next.id) await finishLocally(next);
+      return;
+    }
+    setCall(next);
+    if (next.status === 'accepted') {
+      if (roomRef.current) setPhase('in_call');
+      // Accepted on another of this user's devices: this one stops ringing.
+      else if (next.direction === 'incoming' && current?.id === next.id && phase === 'incoming') { setCall(null); setPhase('idle'); }
+    }
+  }, [finishLocally, phase]);
+
+  // Realtime events, with a slow poll as a fallback when the socket is down.
+  useEffect(() => {
+    if (!user) return undefined;
+    const socket = socketRef?.current;
+    const onIncoming = c => {
+      if (callRef.current) return;
+      setError(null);
+      setCall(c);
+      setPhase('incoming');
+      // This phone is on: tell the caller's side the ring arrived (AYK-162).
+      calls.ringingAck?.(c.id).catch(() => {});
+      navigator.vibrate?.([300, 200, 300]);
+      // Load the call engine while it rings, so answering connects at once.
+      loadLiveKit().catch(() => {});
+    };
+    const onState = c => { applyState(c); };
+    socket?.on('call:incoming', onIncoming);
+    socket?.on('call:state', onState);
+    let timer = null;
+    const poll = async () => {
+      try {
+        const list = await calls.activeCalls();
+        const current = callRef.current;
+        if (current) {
+          const same = list.find(c => c.id === current.id);
+          if (!same && phase !== 'idle' && phase !== 'ended') await finishLocally({ ...current, status: 'ended' });
+          else if (same) await applyState(same);
+        } else {
+          const ringing = list.find(c => c.direction === 'incoming' && c.status === 'ringing');
+          if (ringing) onIncoming(ringing);
+        }
+      } catch (_) { /* offline: try again next tick */ }
+    };
+    poll();
+    // While a call rings, check every 4 s even if the socket looks connected: on a weak network
+    // it can be silently dead and the end of the call would never arrive (AYK-083).
+    timer = setInterval(poll, ['outgoing', 'incoming'].includes(phase) ? 4000 : connected ? 20000 : 5000);
+    return () => {
+      socket?.off('call:incoming', onIncoming);
+      socket?.off('call:state', onState);
+      clearInterval(timer);
+    };
+  }, [user, socketRef, connected, applyState, finishLocally, phase]);
+
+  // "📞 Answer" tapped in the call notification opens /chat/:id?answer=<call id> (AYK-059).
+  const autoAnswerRef = useRef((() => { try { return Number(new URLSearchParams(window.location.search).get('answer')) || 0; } catch (_) { return 0; } })());
+  useEffect(() => {
+    if (!autoAnswerRef.current || phase !== 'incoming' || call?.id !== autoAnswerRef.current) return;
+    autoAnswerRef.current = 0;
+    try { const url = new URL(window.location.href); url.searchParams.delete('answer'); window.history.replaceState(null, '', url); } catch (_) { /* keep the URL */ }
+    acceptRef.current?.();
+  }, [phase, call?.id]);
+  const acceptRef = useRef(null);
+
+  // "Decline" on the app's call screen opens /chat/:id?decline=<call id> (AYK-094).
+  const autoDeclineRef = useRef((() => { try { return Number(new URLSearchParams(window.location.search).get('decline')) || 0; } catch (_) { return 0; } })());
+  useEffect(() => {
+    const id = autoDeclineRef.current;
+    if (!id || !user) return;
+    autoDeclineRef.current = 0;
+    try { const url = new URL(window.location.href); url.searchParams.delete('decline'); window.history.replaceState(null, '', url); } catch (_) { /* keep the URL */ }
+    calls.declineCall(id).catch(() => {});
+    if (callRef.current?.id === id) { setCall(null); setPhase('idle'); }
+  }, [user]);
+
+  // Release devices if the user signs out mid-call.
+  useEffect(() => { if (!user) { teardown(); setCall(null); setPhase('idle'); } }, [user, teardown]);
+
+  // A device that already allowed notifications rings for whoever is signed in on it.
+  // Then this device reports its system and capabilities for the devices log (AYK-062).
+  // Never for the admin area (AYK-151): opening /admin in the phone's browser must not take the
+  // app's calls and messages away from the person signed in there.
+  useEffect(() => {
+    if (!user?.id || isAdminScope()) return;
+    syncNativePush(nativeAppVersion()).catch(() => {});
+    syncPush().catch(() => {}).finally(() => sendDeviceReport().catch(() => {}));
+  }, [user?.id]);
+
+  // Last resort (AYK-083): the server ends an unanswered call after 45 s; if that never arrives,
+  // the caller's "Calling…" screen closes on its own at 50 s instead of hanging.
+  useEffect(() => {
+    if (phase !== 'outgoing') return undefined;
+    const id = callRef.current?.id;
+    const stuck = setTimeout(() => {
+      const current = callRef.current;
+      if (current && current.id === id && current.status === 'ringing') finishLocally({ ...current, status: 'missed', end_reason: 'no_answer' });
+    }, 50000);
+    return () => clearTimeout(stuck);
+  }, [phase, finishLocally]);
+
+  // Keep the screen on during a call so the phone does not sleep and drop it (AYK-090); asked
+  // again on return, since the system releases it when the app goes to the background.
+  useEffect(() => {
+    if (!['in_call', 'reconnecting', 'connecting', 'outgoing'].includes(phase) || !navigator.wakeLock) return undefined;
+    let lock = null;
+    let alive = true;
+    const take = () => {
+      if (document.visibilityState !== 'visible' || (lock && !lock.released)) return;
+      navigator.wakeLock.request('screen').then(l => { if (alive) lock = l; else l.release().catch(() => {}); }).catch(() => {});
+    };
+    take();
+    document.addEventListener('visibilitychange', take);
+    return () => { alive = false; document.removeEventListener('visibilitychange', take); lock?.release().catch(() => {}); };
+  }, [phase]);
+
+  // The page is open but was never tapped, so the browser keeps the ring silent: show the system
+  // notification instead, with its own sound and vibration, until answered or ended (AYK-092).
+  useEffect(() => {
+    if (phase !== 'incoming' || !call?.id) return undefined;
+    let shown = null;
+    const tag = `call-${call.id}-page`;
+    const check = setTimeout(async () => {
+      if (toneAudible() || typeof Notification === 'undefined' || Notification.permission !== 'granted' || !navigator.serviceWorker) return;
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        await reg.showNotification(call.peer?.full_name || t('auth.role_client'), {
+          body: t(call.call_type === 'video' ? 'calls.incoming_video' : 'calls.incoming_audio'), tag, renotify: true, requireInteraction: true,
+          vibrate: [800, 400, 800, 400, 800, 400, 800], icon: '/icons/android-chrome-192x192.png',
+          data: { url: window.location.pathname },
+        });
+        shown = reg;
+      } catch (_) { /* notifications unavailable: the call screen still shows */ }
+    }, 800);
+    return () => {
+      clearTimeout(check);
+      shown?.getNotifications({ tag }).then(list => list.forEach(n => n.close())).catch(() => {});
+    };
+  }, [phase, call?.id, call?.call_type, call?.peer?.full_name, t]);
+
+  // Ringing tone for an incoming call, ringback while the other side has not answered.
+  useEffect(() => {
+    if (phase === 'incoming') startTone('incoming');
+    else if (phase === 'outgoing') startTone('outgoing');
+    else stopTone();
+    return stopTone;
+  }, [phase]);
+
+  // Keep vibrating while it rings (phones), not just once.
+  useEffect(() => {
+    if (phase !== 'incoming' || !navigator.vibrate) return undefined;
+    const buzz = setInterval(() => navigator.vibrate([400, 200, 400]), 3000);
+    return () => { clearInterval(buzz); navigator.vibrate(0); };
+  }, [phase]);
+
+  // The call is answered and its room is connected or recovering.
+  const inProgress = () => callRef.current?.status === 'accepted'
+    && ['connected', 'reconnecting', 'signalReconnecting'].includes(roomRef.current?.state);
+
+  // In the Android app (1.3.0+) the call runs in the app's own engine, like a phone call (AYK-145).
+  const handToApp = useCallback(async (current, incoming) => {
+    const key = await calls.nativeCallKey(current.id);
+    openNativeCall({
+      id: current.id, userId: user.id, key, video: current.call_type === 'video', incoming,
+      name: current.peer?.full_name || t('auth.role_client'), code: current.peer?.code || '',
+    });
+    stopTone();
+    setCall(null);
+    setPhase('idle');
+  }, [user, t]);
+
+  const start = useCallback(async (conversationId, callType) => {
+    if (callRef.current) return;
+    if (nativeCallsSupported()) {
+      try { await handToApp(await calls.startCall(conversationId, callType), false); return; }
+      catch (err) { setError(err?.response?.data?.message || 'call_failed'); return; }
+    }
+    primeAudio();
+    setError(null);
+    leavingRef.current = false;
+    endingRef.current = false;
+    const mic = earlyMic();
+    try {
+      const created = await calls.startCall(conversationId, callType);
+      setCall(created);
+      setPhase('outgoing');
+      await connectMedia(created, mic);
+    } catch (err) {
+      // Not published (the call did not start): release the early microphone.
+      mic.then(track => { if (track && !roomRef.current?.localParticipant?.getTrackPublication?.(track.source)) track.stop(); }).catch(() => {});
+      // The call already ended (declined, cancelled): keep that outcome on screen.
+      if (endingRef.current) return;
+      // Technical detail for support; never includes tokens or media.
+      console.warn('[call] start failed:', err?.name, err?.message, roomRef.current?.state);
+      // A late connection error while the room is still up (the other side dropped and
+      // is rejoining) is not a failed call: LiveKit and rejoin() handle the recovery.
+      if (inProgress()) return;
+      const code = err?.response?.data?.message || (err?.name === 'NotAllowedError' ? 'media_denied' : 'call_failed');
+      setError(code);
+      const current = callRef.current;
+      if (current) calls.declineCall(current.id, 'failed').catch(() => {});
+      await finishLocally(null);
+      setPhase('ended');
+      setCall({ status: 'failed', end_reason: code, call_type: callType, peer: {} });
+    }
+  }, [connectMedia, finishLocally, handToApp]);
+
+  const accept = useCallback(async () => {
+    const current = callRef.current;
+    if (!current) return;
+    if (nativeCallsSupported()) {
+      try { await handToApp(current, true); return; } catch (_) { /* falls back to the call in the page */ }
+    }
+    primeAudio();
+    leavingRef.current = false;
+    endingRef.current = false;
+    const mic = earlyMic();
+    try {
+      const accepted = await calls.acceptCall(current.id);
+      setCall(accepted);
+      await connectMedia(accepted, mic);
+      setPhase('in_call');
+    } catch (err) {
+      // Not published (the call did not start): release the early microphone.
+      mic.then(track => { if (track && !roomRef.current?.localParticipant?.getTrackPublication?.(track.source)) track.stop(); }).catch(() => {});
+      if (endingRef.current) return;
+      console.warn('[call] accept failed:', err?.name, err?.message, roomRef.current?.state);
+      if (inProgress()) return;
+      setError(err?.name === 'NotAllowedError' ? 'media_denied' : err?.response?.data?.message || 'call_failed');
+      calls.declineCall(current.id).catch(() => {});
+      await finishLocally({ ...current, status: 'failed' });
+    }
+  }, [connectMedia, finishLocally, handToApp]);
+
+  acceptRef.current = accept;
+
+  const hangup = useCallback(async () => {
+    const current = callRef.current;
+    leavingRef.current = true;
+    if (!current?.id) { await finishLocally(null); return; }
+    try { await finishLocally(await calls.declineCall(current.id)); }
+    catch (_) { await finishLocally({ ...current, status: 'ended' }); }
+  }, [finishLocally]);
+
+  // Next audio output (speaker → earpiece/headset → …), where the browser offers more than one.
+  const nextOutput = useCallback(async () => {
+    const lk = roomRef.current; if (!lk || outputs.length < 2) return false;
+    const index = outputs.findIndex(o => o.id === outputId);
+    const next = outputs[(index + 1) % outputs.length];
+    try {
+      const switched = await lk.switchActiveDevice('audiooutput', next.id);
+      if (switched === false) return false;
+      if (roomRef.current !== lk) return false;
+      mediaIntent.current.state.output = next.id;
+      setOutputId(lk.getActiveDevice?.('audiooutput') || next.id);
+      return true;
+    } catch (_) { return false; }
+  }, [outputs, outputId]);
+
+  const enableAudio = useCallback(async () => {
+    const lk = roomRef.current; if (!lk) return;
+    try { await lk.startAudio(); } catch (_) { /* still blocked: the button stays */ }
+    // Replay any remote audio element that was refused before the tap, and keep the button
+    // while one still refuses (AYK-091).
+    const played = await Promise.all([...document.querySelectorAll('[role="dialog"] audio')]
+      .map(el => Promise.resolve(el.play?.()).then(() => true, () => false)));
+    setAudioBlocked(!lk.canPlaybackAudio || played.includes(false));
+  }, []);
+
+  // The call's own audio element was refused (answered from a notification, no tap in the page):
+  // show "Tap to hear" (AYK-091).
+  const reportAudioBlocked = useCallback(() => { qualityLog.current.audioBlocked = true; setAudioBlocked(true); }, []);
+
+  const toggleMic = useCallback(async () => {
+    const lk = roomRef.current; if (!lk) return;
+    const wanted = !mediaIntent.current.state.mic;
+    mediaIntent.current.state.mic = wanted;
+    try { await lk.localParticipant.setMicrophoneEnabled(wanted); if (roomRef.current === lk && !endingRef.current) setMicOn(mediaIntent.current.state.mic); }
+    catch (_) { if (roomRef.current === lk) { if (mediaIntent.current.state.mic === wanted) mediaIntent.current.state.mic = !wanted; setError('media_denied'); } }
+  }, []);
+
+  const toggleCam = useCallback(async () => {
+    const lk = roomRef.current; if (!lk || callRef.current?.call_type !== 'video') return;
+    const intent = mediaIntent.current;
+    const wanted = !intent.state.camera;
+    if (!wanted) setCamOn(false);
+    try {
+      const confirmed = await intent.setCamera(lk, wanted, () => roomRef.current === lk && !endingRef.current && !leavingRef.current);
+      if (roomRef.current === lk && !endingRef.current) { setCamOn(confirmed && intent.state.camera); setError(null); }
+    } catch (err) { if (roomRef.current === lk && !endingRef.current) { setCamOn(false); setError(err?.name === 'NotAllowedError' ? 'media_denied' : 'camera_switch_failed'); } }
+  }, []);
+
+  const switchCamera = useCallback(async () => {
+    const lk = roomRef.current; if (!lk || !camOn) return;
+    const { Track } = await loadLiveKit();
+    const next = facing === 'user' ? 'environment' : 'user';
+    const track = lk.localParticipant.getTrackPublication(Track.Source.Camera)?.videoTrack;
+    try { await track?.restartTrack({ facingMode: next }); if (roomRef.current === lk && !endingRef.current) { mediaIntent.current.state.facing = next; setFacing(next); } }
+    catch (_) { setError('camera_switch_failed'); }
+  }, [camOn, facing]);
+
+  const value = { call, phase, error, room, micOn, camOn, facing, remoteJoined, audioBlocked, enableAudio, reportAudioBlocked, network, speaking, remoteVideo, outputs, outputId, nextOutput, start, accept, hangup, toggleMic, toggleCam, switchCamera };
+  return (
+    <CallContext.Provider value={value}>
+      {children}
+      {call && <Suspense fallback={null}><CallOverlay /></Suspense>}
+    </CallContext.Provider>
+  );
+}
+
+export function useCall() {
+  const ctx = useContext(CallContext);
+  if (!ctx) throw new Error('useCall must be used within CallProvider');
+  return ctx;
+}

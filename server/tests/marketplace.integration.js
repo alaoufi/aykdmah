@@ -1,0 +1,382 @@
+// Set AYK_TEST_DB to a disposable localhost database whose name starts ayk_test.
+// This suite never connects to the configured application database.
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
+const databaseName = process.env.AYK_TEST_DB;
+if (!databaseName) {
+  test('PostgreSQL marketplace integration (set AYK_TEST_DB)', { skip: true }, () => {});
+} else {
+  if (!/^ayk_test[a-z0-9_]*$/.test(databaseName)) throw new Error('Use a disposable ayk_test* database.');
+  Object.assign(process.env, { NODE_ENV: 'test', DB_HOST: '127.0.0.1', DB_PORT: process.env.AYK_TEST_PORT || '5432', DB_NAME: databaseName, DB_USER: 'postgres', DB_PASSWORD: '', DATABASE_URL: '', DIRECT_DATABASE_URL: '', DB_SSL: 'false', MAIL_HOST: '', PAYMENT_PROVIDER: '', JWT_SECRET: crypto.randomBytes(48).toString('hex') });
+  const db = require('../config/database');
+  const install = require('../services/installService');
+  const Request = require('../models/Request');
+  const Offer = require('../models/Offer');
+  const Conversation = require('../models/Conversation');
+  const Message = require('../models/Message');
+  const Setting = require('../models/Setting');
+  let server, base;
+  test.before(async () => {
+    const result = await install.setupFromEnv();
+    assert.equal(result.migrations.flatMap(m => m.errors).length, 0);
+    assert.equal(Number((await db.queryOne("SELECT COUNT(*) AS count FROM users WHERE role='admin'")).count), 0, 'No known-password admin is seeded');
+    server = require('../app').listen(0);
+    await new Promise(resolve => server.once('listening', resolve));
+    base = `http://127.0.0.1:${server.address().port}/api`;
+  });
+  test.after(async () => { if (server) await new Promise(resolve => server.close(resolve)); await db.getPool().end(); });
+  async function api(path, { token, body, method = 'GET', expected = 200 } = {}) {
+    const response = await fetch(base + path, { method, headers: { ...(body ? { 'Content-Type': 'application/json' } : {}), ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body: body ? JSON.stringify(body) : undefined });
+    const data = await response.json();
+    assert.equal(response.status, expected, data.message);
+    return data;
+  }
+  test('client and provider share a password and unverified raw badge flags grant no paid badges', async () => {
+    const suffix = crypto.randomBytes(5).toString('hex');
+    const password = `SharedLocalTest-${suffix}`;
+    let providerToken, providerId;
+    for (const role of ['client', 'provider']) {
+      const username = `${role}_shared_${suffix}`;
+      const registered = (await api('/auth/register', {
+        method: 'POST', expected: 201,
+        body: { full_name: `${role} account test`, username, password, role },
+      })).data;
+      const loggedIn = (await api('/auth/login', {
+        method: 'POST', body: { identifier: username, password },
+      })).data;
+      assert.equal(loggedIn.user.role, role);
+      assert.equal(loggedIn.user.id, registered.user.id);
+      const account = (await api('/auth/me', { token: loggedIn.token })).data;
+      assert.equal(account.user.role, role);
+      assert.equal(account.user.id, registered.user.id);
+      if (role === 'client') {
+        assert.equal(account.provider, null);
+      } else {
+        providerToken = loggedIn.token;
+        providerId = loggedIn.user.id;
+        assert.equal(account.provider.is_trusted, false);
+        assert.equal(account.provider.is_featured_badge, false);
+      }
+    }
+    const assertBadges = async (expected) => {
+      const account = (await api('/auth/me', { token: providerToken })).data;
+      assert.equal(account.user.role, 'provider');
+      assert.equal(account.provider.is_trusted, expected);
+      assert.equal(account.provider.is_featured_badge, expected);
+    };
+    await db.query(`UPDATE provider_profiles
+      SET badge_trusted_active = 1, badge_featured_active = 1,
+          badge_trusted_until = CURRENT_TIMESTAMP + INTERVAL '1 day',
+          badge_featured_until = NULL WHERE user_id = ?`, [providerId]);
+    await assertBadges(false);
+    await db.query(`UPDATE provider_profiles
+      SET badge_trusted_until = NULL,
+          badge_featured_until = CURRENT_TIMESTAMP + INTERVAL '1 day'
+      WHERE user_id = ?`, [providerId]);
+    await assertBadges(false);
+    await db.query(`UPDATE provider_profiles
+      SET badge_trusted_until = CURRENT_TIMESTAMP - INTERVAL '1 day',
+          badge_featured_until = CURRENT_TIMESTAMP - INTERVAL '1 day'
+      WHERE user_id = ?`, [providerId]);
+    await assertBadges(false);
+  });
+  test('registration without email, nearby matching, offer acceptance, chat and request completion', async () => {
+    const suffix = crypto.randomBytes(5).toString('hex');
+    const customer = (await api('/auth/register', { method: 'POST', expected: 201, body: { full_name: 'عميل الاختبار', username: `customer_${suffix}`, password: 'AykTestOnly-2026', role: 'client' } })).data;
+    const provider = (await api('/auth/register', { method: 'POST', expected: 201, body: { full_name: 'عامل الاختبار', username: `provider_${suffix}`, password: 'AykTestOnly-2026', role: 'provider' } })).data;
+    // Empty or short texts are accepted; a plain title and description are filled in.
+    const blank = (await api('/requests', { method: 'POST', token: customer.token, body: { title: '', description: '' }, expected: 201 })).data;
+    assert.equal(blank.title, 'طلب خدمة');
+    assert.equal(blank.description, 'طلب خدمة');
+    const short = (await api('/requests', { method: 'POST', token: customer.token, body: { description: 'مكيف' }, expected: 201 })).data;
+    assert.equal(short.title, 'مكيف');
+    await api(`/requests/${blank.id}`, { method: 'DELETE', token: customer.token });
+    await api(`/requests/${short.id}`, { method: 'DELETE', token: customer.token });
+    const request = (await api('/requests', { method: 'POST', token: customer.token, expected: 201, body: { title: 'إصلاح تسريب في بريدة', description: 'تسريب تحت حوض المطبخ يحتاج صيانة', address: 'بريدة، حي الريان', latitude: 26.326, longitude: 43.975 } })).data;
+    const nearby = await api('/requests/nearby?latitude=26.326&longitude=43.975&radius=5');
+    assert.ok(nearby.data.some(item => Number(item.id) === Number(request.id)));
+    const far = await api('/requests/nearby?latitude=24.7136&longitude=46.6753&radius=5');
+    assert.ok(!far.data.some(item => Number(item.id) === Number(request.id)));
+    const offer = (await api('/offers', { method: 'POST', token: provider.token, expected: 201, body: { request_id: request.id, price: '١٠٠', message: 'عرض تجريبي لاختبار التدفق' } })).data;
+    assert.equal(Number(offer.price), 100, 'a price typed in Arabic digits is accepted');
+    const offers = await api(`/offers/request/${request.id}`, { token: customer.token });
+    assert.ok(offers.data.some(item => Number(item.id) === Number(offer.id)));
+    await api(`/offers/${offer.id}/accept`, { method: 'PUT', token: customer.token });
+    await assert.rejects(Offer.acceptOffer(offer.id), /لم يعد/);
+    const assigned = (await api(`/requests/${request.id}`, { token: customer.token })).data;
+    assert.equal(assigned.status, 'assigned');
+    assert.equal(Number(assigned.assigned_provider_id), Number(provider.user.id));
+    const conversationId = await Conversation.findOrCreateBetween(customer.user.id, provider.user.id, request.id);
+    const conversations = (await api('/chat/conversations', { token: customer.token })).data;
+    assert.ok(conversations.some(item => Number(item.id) === Number(conversationId)));
+    await api(`/chat/conversations/${conversationId}/messages`, { method: 'POST', token: provider.token, expected: 201, body: { content: 'موعدنا غدًا بعد العصر' } });
+    const messages = (await api(`/chat/conversations/${conversationId}/messages`, { token: customer.token })).data;
+    assert.equal(messages[0].content, 'موعدنا غدًا بعد العصر');
+    // Only the author deletes a message; it disappears for both, and administrators keep it.
+    const extra = (await api(`/chat/conversations/${conversationId}/messages`, { method: 'POST', token: provider.token, expected: 201, body: { content: 'رسالة ستحذف' } })).data;
+    await api(`/chat/conversations/${conversationId}/messages/${extra.id}`, { method: 'DELETE', token: customer.token, expected: 403 });
+    await api(`/chat/conversations/${conversationId}/messages/${extra.id}`, { method: 'DELETE', token: provider.token });
+    for (const token of [customer.token, provider.token]) {
+      assert.ok(!(await api(`/chat/conversations/${conversationId}/messages`, { token })).data.some(m => m.id === extra.id), 'gone for both participants');
+    }
+    const kept = (await Message.listByConversation(conversationId, { includeDeleted: true })).find(m => m.id === extra.id);
+    assert.ok(kept?.deleted_at && kept.content === 'رسالة ستحذف', 'kept for administrators with its deletion time');
+    await api(`/requests/${request.id}/status`, { method: 'PUT', token: provider.token, body: { status: 'in_progress' } });
+    await api(`/requests/${request.id}/status`, { method: 'PUT', token: customer.token, body: { status: 'completed' } });
+    assert.equal((await api(`/requests/${request.id}`, { token: customer.token })).data.status, 'completed');
+    const file = { file_url: '/uploads/test.pdf', file_name: 'test.pdf', file_type: 'application/pdf', file_size: 10 };
+    const attachedRequestId = await Request.create({ client_id: customer.user.id, title: 'طلب مرفق', description: 'اختبار حفظ الملف مع الطلب', files: [file] });
+    assert.equal((await Request.findById(attachedRequestId)).files.length, 1);
+    const messageId = await Message.create({ conversation_id: conversationId, sender_id: customer.user.id, files: [file], message_type: 'file' });
+    assert.equal((await Message.findById(messageId)).files.length, 1);
+  });
+  test('requesters see providers covering their area in the chosen profession: featured first, then by rating', async () => {
+    const suffix = crypto.randomBytes(4).toString('hex');
+    const city = await db.queryOne('SELECT c.id FROM cities c WHERE EXISTS (SELECT 1 FROM districts d WHERE d.city_id = c.id) ORDER BY c.id LIMIT 1');
+    const [home, other] = await db.query('SELECT id FROM districts WHERE city_id = ? ORDER BY id LIMIT 2', [city.id]);
+    const service = await db.queryOne('SELECT id, category_id FROM services WHERE is_active = 1 ORDER BY id LIMIT 1');
+    const otherService = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND category_id <> ? ORDER BY id LIMIT 1', [service.category_id]);
+    const makeProvider = async (name, { rating, districts = [home.id], services = [service.id] }) => {
+      const id = (await db.query("INSERT INTO users (full_name, email, password_hash, role, city_id) VALUES (?, ?, 'unused', 'provider', ?)",
+        [name, `${name}-${suffix}@ayk-test.local`, city.id])).insertId;
+      await db.query('INSERT INTO provider_profiles (user_id, service_ids, rating_avg, rating_count) VALUES (?, ?, ?, ?)', [id, JSON.stringify(services), rating, rating ? 5 : 0]);
+      for (const d of districts) await db.query('INSERT INTO provider_coverage_districts (user_id, district_id) VALUES (?, ?)', [id, d]);
+      return id;
+    };
+    const good = await makeProvider('rated', { rating: 4.9 });
+    const average = await makeProvider('average', { rating: 3.5 });
+    const featured = await makeProvider('featured', { rating: 3.0 });
+    const elsewhere = await makeProvider('elsewhere', { rating: 5, districts: [other.id] });
+    const otherTrade = await makeProvider('othertrade', { rating: 5, services: [otherService.id] });
+    // A paid, verified "featured" badge.
+    const badge = (await db.query(`INSERT INTO provider_badges (user_id, badge_type, status, monthly_fee, insurance_amount, ends_at)
+      VALUES (?, 'featured', 'active', 50, 0, CURRENT_TIMESTAMP + INTERVAL '30 days')`, [featured])).insertId;
+    const payment = (await db.query(`INSERT INTO payments (user_id, provider, amount, currency, status, provider_transaction_id, paid_at, metadata)
+      VALUES (?, 'moyasar', 50, 'SAR', 'completed', ?, CURRENT_TIMESTAMP, ?)`, [featured, `tx-${suffix}`, JSON.stringify({ badge_id: String(badge) })])).insertId;
+    await db.query('UPDATE provider_badges SET payment_id = ? WHERE id = ?', [payment, badge]);
+
+    const client = (await api('/auth/register', { method: 'POST', expected: 201, body: { full_name: 'requester', username: `req_${suffix}`, password: 'AykTestOnly-2026', role: 'client' } })).data;
+    await db.query('UPDATE users SET city_id = ?, district_id = ? WHERE id = ?', [city.id, home.id, client.user.id]);
+    const result = (await api(`/providers/matching?service_id=${service.id}`, { token: client.token })).data;
+    const ids = result.providers.map(p => p.id);
+    assert.equal(result.area.city_id, city.id);
+    assert.deepEqual(ids.filter(id => [good, average, featured].includes(id)), [featured, good, average], 'featured first, then by rating');
+    assert.ok(!ids.includes(elsewhere), 'a provider who does not cover the district is not shown');
+    assert.ok(!ids.includes(otherTrade), 'a provider of another profession is not shown');
+    assert.equal(result.providers.find(p => p.id === featured).is_featured, true);
+    // Area numbers for the requester: per profession, providers, featured and open requests.
+    await db.query("INSERT INTO requests (client_id, title, description, service_id, category_id, city_id, district_id, status) VALUES (?, 'r', 'r', ?, ?, ?, ?, 'open')",
+      [client.user.id, service.id, service.category_id, city.id, home.id]);
+    const stats = (await api('/providers/area-stats', { token: client.token })).data;
+    const trade = stats.categories.find(row => Number(row.category_id) === Number(service.category_id));
+    assert.ok(trade.providers >= 3 && trade.featured >= 1, 'providers covering the district are counted per profession');
+    assert.ok(trade.open_requests >= 1);
+    // The provider's market: requesters living in the covered district, open requests now, competitors.
+    const providerToken = require('../utils/jwt').sign({ id: good, role: 'provider', auth_version: 0 });
+    const market = (await api('/providers/my-market', { token: providerToken })).data;
+    const mine = market.categories.find(row => Number(row.category_id) === Number(service.category_id));
+    assert.ok(market.requesters_in_area >= 1, 'the requester living there is counted');
+    assert.ok(mine.open_now >= 1 && mine.requesters_30d >= 1);
+    assert.ok(mine.competitors >= 2, 'other providers of the profession covering the same district');
+    await api('/providers/my-market', { token: client.token, expected: 403 });
+    // No area registered: nothing to match yet.
+    await db.query('UPDATE users SET city_id = NULL, district_id = NULL WHERE id = ?', [client.user.id]);
+    assert.equal((await api('/providers/matching', { token: client.token })).data.area, null);
+    await db.query('DELETE FROM users WHERE id IN (?, ?, ?, ?, ?)', [good, average, featured, elsewhere, otherTrade]);
+  });
+  test('search-engine pages carry their own title, canonical, structured data and text; the sitemap lists them', async () => {
+    const shell = require('path').join(require('os').tmpdir(), `ayk-seo-${crypto.randomBytes(4).toString('hex')}.html`);
+    require('fs').writeFileSync(shell, '<!doctype html><html><head><meta name="description" content="x" /><meta property="og:title" content="x" /><meta property="og:description" content="x" /><title>x</title></head><body><div id="root"></div></body></html>');
+    process.env.SEO_INDEX_HTML = shell;
+    const service = await db.queryOne('SELECT id, name_ar FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    const category = await db.queryOne('SELECT slug, name_ar FROM categories WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    const page = async p => { const r = await fetch(`${base}/seo/page${p}`); return { status: r.status, html: await r.text() }; };
+
+    const home = await page('/');
+    assert.equal(home.status, 200);
+    assert.match(home.html, /<title>أي خدمة \| صيانة منزلية/);
+    assert.match(home.html, /<link rel="canonical" href="https:\/\/aykdmh.com\/" \/>/);
+    assert.match(home.html, /"@type":"WebSite"/);
+    assert.ok(home.html.includes(`href="/services/${service.id}"`), 'home links every service');
+
+    const one = await page(`/services/${service.id}`);
+    assert.equal(one.status, 200);
+    assert.ok(one.html.includes(`<title>${service.name_ar}`), 'service title');
+    assert.ok(one.html.includes(`<h1>${service.name_ar}</h1>`), 'readable heading without JavaScript');
+    assert.match(one.html, /"@type":"Service"/);
+    assert.match(one.html, /"@type":"BreadcrumbList"/);
+    assert.equal((await page(`/services/category/${category.slug}`)).status, 200);
+
+    const missing = await page('/services/999999999');
+    assert.equal(missing.status, 404);
+    assert.match(missing.html, /noindex/);
+    const sitemap = await fetch(`${base}/seo/sitemap.xml`);
+    assert.equal(sitemap.status, 200);
+    const xml = await sitemap.text();
+    assert.ok(xml.includes(`<loc>https://aykdmh.com/services/${service.id}</loc>`));
+    assert.ok(xml.includes(`<loc>https://aykdmh.com/services/category/${category.slug}</loc>`));
+    require('fs').unlinkSync(shell);
+  });
+  test('search-engine text is escaped', () => {
+    const seo = require('../services/seoService');
+    const html = seo.render({ title: '<b>t</b>', description: '"d"', path: '/x', ld: [{ name: '</script><script>alert(1)</script>' }], body: '<h1>ok</h1>' });
+    assert.ok(html, 'the app shell is cached from the previous test');
+    assert.ok(html.includes('<title>&lt;b&gt;t&lt;/b&gt;</title>'), 'title is escaped');
+    assert.ok(!html.includes('</script><script>alert(1)'), 'JSON-LD cannot close its script tag');
+  });
+  test('a failed transaction rolls back every write', async () => {
+    await assert.rejects(db.transaction(async conn => {
+      await conn.execute("INSERT INTO settings (setting_key, setting_value) VALUES ('rollback_probe', 'value')");
+      throw new Error('forced rollback');
+    }), /forced rollback/);
+    assert.equal(await Setting.get('rollback_probe'), null);
+  });
+  test('settings upsert works and migrations do not reset administrator permissions or edited settings', async () => {
+    await Setting.set('review_probe', 'first');
+    await Setting.set('review_probe', 'second');
+    const admin = await db.query(`INSERT INTO users (full_name, email, password_hash, role, is_super_admin, permissions)
+      VALUES (?, ?, ?, 'admin', 0, ?)`, ['Restricted test admin', 'restricted@ayk-test.local', 'not-a-login-hash', '["requests"]']);
+    try {
+      const result = await install.runMigrationsFromEnv();
+      assert.equal(result.applied.length, 0);
+      assert.equal(await Setting.get('review_probe'), 'second');
+      const row = await db.queryOne('SELECT is_super_admin, permissions FROM users WHERE id = ?', [admin.insertId]);
+      assert.equal(row.is_super_admin, 0);
+      assert.deepEqual(row.permissions, ['requests']);
+    } finally { await db.query('DELETE FROM users WHERE id = ?', [admin.insertId]); }
+  });
+  test('AYK-176/181/182 fresh scoped chats, private search pagination and explicit media forwarding', async () => {
+    const suffix = crypto.randomBytes(5).toString('hex');
+    const make = async (role, name) => (await api('/auth/register', {method:'POST',expected:201,body:{full_name:name,username:role+'_'+name.replace(/[^a-z]/g,'')+'_'+suffix,password:'AykTestOnly-2026',role}})).data;
+    const customer = await make('client','Private requester');
+    const provider = await make('provider','Workflow provider');
+    const recipient = await make('provider','Forward recipient');
+    const source = await Conversation.findOrCreateBetween(customer.user.id,provider.user.id);
+    assert.equal(await Conversation.findOrCreateBetween(customer.user.id,provider.user.id),source);
+    const fresh = await Conversation.findOrCreateBetween(customer.user.id,provider.user.id,null,{fresh:true});
+    assert.notEqual(fresh,source);
+    for (let i=0;i<21;i++) await Conversation.findOrCreateBetween(customer.user.id,provider.user.id,null,{fresh:true});
+    const page2 = (await api('/chat/conversations?page=2&limit=20&q=Workflow', {token:customer.token})).data;
+    assert.equal(page2.length,3,'server search finds conversations past the first page');
+    assert.equal((await api('/chat/conversations?q=Private', {token:provider.token})).data.length,0,'hidden requester name is not a search oracle');
+    await api('/chat/conversations?q[]=bad',{token:customer.token,expected:400});
+    const text = await Message.create({conversation_id:source,sender_id:customer.user.id,content:'needle-private-search'});
+    const result = (await api('/chat/conversations/'+source+'/search?q=needle',{token:provider.token})).data;
+    assert.notEqual(result[0].sender_name,'Private requester');
+    assert.equal(result[0].sender_role,undefined);
+    await api('/chat/conversations/'+source+'/search?q[]=bad',{token:provider.token,expected:400});
+    const target = await Conversation.findOrCreateBetween(customer.user.id,recipient.user.id);
+    const forbiddenTarget = await Conversation.findOrCreateBetween(provider.user.id,recipient.user.id);
+    await api('/chat/conversations/'+source+'/forward',{method:'POST',token:customer.token,expected:403,body:{operation_id:'12345678-1234-4234-8234-123456789012',message_ids:[text],conversation_ids:[target,forbiddenTarget]}});
+    assert.equal((await Message.listByConversation(target)).length,0,'all recipients are authorized before the first write');
+    await api('/chat/conversations/'+source+'/forward',{method:'POST',token:recipient.token,expected:403,body:{operation_id:'12345678-1234-4234-8234-123456789012',message_ids:[text],conversation_ids:[target]}});
+    const UploadedMedia = require('../models/UploadedMedia');
+    const bytes = Buffer.from(require('./fixtures/chat-media.json')['voice.m4a'],'base64');
+    const files = await UploadedMedia.createBatch([{originalname:'voice.m4a',mimetype:'audio/mp4',buffer:bytes}],{ownerId:customer.user.id,scope:'chat',scopeId:source});
+    const voice = await Message.create({conversation_id:source,sender_id:customer.user.id,message_type:'voice',files});
+    const file = await UploadedMedia.findById(files[0].media_id);
+    assert.equal(await UploadedMedia.canRead(file),false);
+    assert.equal(await UploadedMedia.canRead(file,recipient.user),false);
+    const operationId=crypto.randomUUID();
+    const selection={operation_id:operationId,message_ids:[voice,text],conversation_ids:[target,fresh]};
+    await db.query(`CREATE FUNCTION ayk_test_forward_failure() RETURNS trigger LANGUAGE plpgsql AS $forward$ BEGIN IF NEW.conversation_id = ${Number(fresh)} AND NEW.message_type = 'voice' THEN RAISE EXCEPTION 'test second-message failure'; END IF; RETURN NEW; END; $forward$`);
+    await db.query('CREATE TRIGGER ayk_test_forward_failure BEFORE INSERT ON messages FOR EACH ROW EXECUTE FUNCTION ayk_test_forward_failure()');
+    let partial;
+    try {partial=(await api('/chat/conversations/'+source+'/forward',{method:'POST',token:customer.token,body:selection})).data;}
+    finally {await db.query('DROP TRIGGER ayk_test_forward_failure ON messages');await db.query('DROP FUNCTION ayk_test_forward_failure()');}
+    assert.equal(partial.count,2);assert.equal(partial.results[0].success,true);assert.equal(partial.results[1].count,0);assert.equal(partial.results[1].success,false);
+    assert.equal((await Message.listByConversation(fresh)).length,0,'second-message failure rolls back the entire target');
+    const retry=(await api('/chat/conversations/'+source+'/forward',{method:'POST',token:customer.token,body:{...selection,conversation_ids:[fresh]}})).data;
+    assert.equal(retry.count,2);
+    const forwarded = (await api('/chat/conversations/'+source+'/forward',{method:'POST',token:customer.token,body:selection})).data;
+    assert.ok(forwarded.results.every(row=>row.replayed));
+    assert.equal((await Message.listByConversation(fresh)).length,2,'acknowledgement retry never duplicates copies');
+    assert.equal(forwarded.count,4);
+    const copies = await Message.listByConversation(target);
+    assert.equal(copies[0].content,'needle-private-search');
+    assert.equal(copies[1].files[0].file_url,files[0].file_url);
+    assert.equal(await UploadedMedia.canRead(file,recipient.user),true);
+    assert.equal(await UploadedMedia.canRead(file),false);
+    const notification=require('../services/notificationService'), originalNotify=notification.notifyUser;
+    const beforeCount=(await Message.listByConversation(target)).length;
+    const notifySelection={operation_id:crypto.randomUUID(),message_ids:[text],conversation_ids:[target]};
+    try {
+      notification.notifyUser=async()=>{throw Error('test notify failure');};
+      const delivered=(await api('/chat/conversations/'+source+'/forward',{method:'POST',token:customer.token,body:notifySelection})).data;
+      assert.equal(delivered.count,1);assert.equal(delivered.results[0].success,true);assert.equal(delivered.results[0].delivery_error,true);
+    } finally {notification.notifyUser=originalNotify;}
+    const notifyReplay=(await api('/chat/conversations/'+source+'/forward',{method:'POST',token:customer.token,body:notifySelection})).data;
+    assert.equal(notifyReplay.results[0].replayed,true);assert.equal((await Message.listByConversation(target)).length,beforeCount+1);
+    const raceTarget=await Conversation.findOrCreateBetween(customer.user.id,recipient.user.id,null,{fresh:true});
+    const originalForward=Message.forwardToTarget;
+    try {
+      Message.forwardToTarget=async input=>{
+        await db.query('DELETE FROM conversation_participants WHERE conversation_id = ? AND user_id = ?',[source,customer.user.id]);
+        return originalForward(input);
+      };
+      const raced=(await api('/chat/conversations/'+source+'/forward',{method:'POST',token:customer.token,body:{operation_id:crypto.randomUUID(),message_ids:[text],conversation_ids:[raceTarget]}})).data;
+      assert.equal(raced.count,0);assert.equal(raced.results[0].success,false);
+      assert.equal((await Message.listByConversation(raceTarget)).length,0,'membership revoked after controller preflight is rechecked in persistence transaction');
+    } finally {
+      Message.forwardToTarget=originalForward;
+      if(!await Conversation.isParticipant(source,customer.user.id))await db.query('INSERT INTO conversation_participants (conversation_id,user_id) VALUES (?,?)',[source,customer.user.id]);
+    }
+    const ownRequest = await Request.create({client_id:customer.user.id,title:'Scoped request',description:'test'});
+    const offer = await Offer.create({request_id:ownRequest,provider_id:provider.user.id,price:1});
+    await Offer.acceptOffer(offer,customer.user.id);
+    const firstScoped = await Conversation.findOrCreateBetween(customer.user.id,provider.user.id,ownRequest);
+    const newScoped = await Conversation.findOrCreateBetween(customer.user.id,provider.user.id,ownRequest,{fresh:true});
+    assert.notEqual(firstScoped,newScoped);
+    assert.equal(Number((await Conversation.findById(newScoped)).request_id),Number(ownRequest));
+    assert.equal(await Conversation.canSend(newScoped,provider.user.id),true);
+    await api('/requests/'+ownRequest+'/status',{method:'PUT',token:provider.token,body:{status:'in_progress'}});
+    await api('/requests/'+ownRequest+'/status',{method:'PUT',token:customer.token,body:{status:'completed'}});
+    const Review = require('../models/Review');
+    await Review.create({request_id:ownRequest,reviewer_id:customer.user.id,rating:4,comment:'Good provider'});
+    const reviewId = await Review.create({request_id:ownRequest,reviewer_id:provider.user.id,rating:3,comment:'Good requester'});
+    for (const token of [undefined,customer.token,provider.token]) {
+      const publicRequester = (await api('/users/'+customer.user.id,{token})).data.user;
+      assert.equal(publicRequester.full_name === 'Private requester',token === customer.token);
+      const onProvider = (await api('/reviews/user/'+provider.user.id,{token})).data[0];
+      assert.equal(onProvider.target_name,'Workflow provider');
+      assert.equal(onProvider.reviewer_name === 'Private requester',token === customer.token,'only requester self sees original name');
+      assert.equal(onProvider.request_id,undefined);assert.equal(onProvider.request_title,undefined);assert.equal(onProvider.reviewer_id,undefined);
+      const onRequester = (await api('/reviews/user/'+customer.user.id+'?type=on_requester',{token})).data[0];
+      assert.equal(onRequester.reviewer_name,'Workflow provider');
+      assert.equal(onRequester.target_name === 'Private requester',token === customer.token);
+      assert.equal(onRequester.target_user_id,undefined);
+    }
+    await db.query('INSERT INTO saved_providers (user_id,provider_id,nickname) VALUES (?,?,?)',[provider.user.id,customer.user.id,'Saved requester']);
+    const nicknamed = (await api('/reviews/user/'+provider.user.id,{token:provider.token})).data[0];
+    assert.equal(nicknamed.reviewer_name,'Saved requester');
+    const alternateLegacy = (await api('/reviews/provider/'+provider.user.id,{token:provider.token})).data[0];
+    assert.equal(alternateLegacy.reviewer_name,'Saved requester');
+    const legacyReviews = (await api('/users/'+provider.user.id+'/reviews',{token:provider.token})).data[0];
+    assert.equal(legacyReviews.reviewer_name,'Saved requester');
+    const ratedRequest = await Request.findById(ownRequest);
+    assert.equal(Number(ratedRequest.client_rating_count),1);
+    assert.equal(Number(ratedRequest.client_rating_avg),3);
+    assert.equal(ratedRequest.client_opinion,'Good requester');
+    await db.query('UPDATE reviews SET is_visible = 0 WHERE id = ?',[reviewId]);
+    const moderated = await Request.findById(ownRequest);
+    assert.equal(Number(moderated.client_rating_count),0);
+    assert.equal(moderated.client_opinion,null);
+    const historicMessage=await Message.create({conversation_id:newScoped,sender_id:customer.user.id,content:'Readable archived message'});
+    await db.query("UPDATE requests SET completed_at = CURRENT_TIMESTAMP - INTERVAL '40 days',updated_at = CURRENT_TIMESTAMP - INTERVAL '40 days' WHERE id = ?",[ownRequest]);
+    assert.equal(await Conversation.canSend(newScoped,customer.user.id),false);
+    assert.equal(await Conversation.isParticipant(newScoped,customer.user.id),true);
+    const fromHistory=(await api('/chat/conversations/'+newScoped+'/forward',{method:'POST',token:customer.token,body:{operation_id:crypto.randomUUID(),message_ids:[historicMessage],conversation_ids:[raceTarget]}})).data;
+    assert.equal(fromHistory.count,1,'readable history can be forwarded after its send window closes');
+    try {
+      Message.forwardToTarget=async input=>{
+        await db.query('UPDATE requests SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?',[ownRequest]);
+        return originalForward(input);
+      };
+      const revokedRequest=(await api('/chat/conversations/'+newScoped+'/forward',{method:'POST',token:customer.token,body:{operation_id:crypto.randomUUID(),message_ids:[historicMessage],conversation_ids:[raceTarget]}})).data;
+      assert.equal(revokedRequest.count,0);assert.equal(revokedRequest.results[0].success,false,'request revoked after preflight cannot leak a source copy');
+    } finally {Message.forwardToTarget=originalForward;await db.query('UPDATE requests SET deleted_at = NULL WHERE id = ?',[ownRequest]);}
+
+  });
+
+}

@@ -1,0 +1,15 @@
+android {
+    testOptions {
+        unitTests.includeAndroidResources = true
+        unitTests.all {
+            maxHeapSize = '2g'
+            systemProperty 'robolectric.dependency.repo.url', System.getenv('AYK_ROBOLECTRIC_REPO') ?: 'https://repo.maven.apache.org/maven2'
+            testLogging { events 'passed', 'failed'; exceptionFormat 'full' }
+        }
+    }
+}
+dependencies {
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.robolectric:robolectric:4.17'
+    testImplementation 'org.mockito:mockito-core:5.14.2'
+}

@@ -1,0 +1,44 @@
+{
+  "date": "2026-11-03",
+  "task": "AYK-167",
+  "ownerAuthorizedRelease": true,
+  "deployedSource": "a1f6ebf99ece100dc3b1de1928ceb4f66b3f6cf4",
+  "websiteVersion": "1.1.8",
+  "build": "a1f6ebf · 2026-11-03",
+  "testdeploy": "DEPLOYED/DONE",
+  "tests": {
+    "client": 117,
+    "integration": 226,
+    "server": 28,
+    "locales": 11,
+    "failures": 0,
+    "keys": 2255
+  },
+  "productionBuild": true,
+  "runtimeAuditReportedVulnerabilities": 0,
+  "apiHealth": true,
+  "browserFooterVersion": "1.1.8",
+  "browserGuideAudioInstructions": true,
+  "browserConsoleErrorsObserved": 0,
+  "backup": {
+    "previousSource": "b7dde39063767b24e1619f35a6f88e5d17f6b22f",
+    "previousBuild": "8d39fef · 2026-11-02",
+    "previousVersion": "1.1.7",
+    "checksumsVerified": true,
+    "uploadsArchiveListed": true,
+    "databaseArchiveListed": true
+  },
+  "apk": {
+    "storePublished": false,
+    "version": "1.3.3",
+    "forcedUpdateVersion": "1.3.2",
+    "bytes": 62878395,
+    "publicDownloadSha256": "4a289245b069b6cf3fe093b1068c2bfaf76cd9b4e7241fce022fbb32a8281814",
+    "versionCode": 13,
+    "url": "https://aykdmh.com/dl/aykdmh-1.3.3-test.apk",
+    "httpStatus": 200,
+    "matchesSignedBuild": true
+  },
+  "newPhysicalDeviceTests": false,
+  "newIosBuild": false
+}

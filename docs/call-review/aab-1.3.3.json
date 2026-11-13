@@ -1,0 +1,33 @@
+{
+  "aab": "aykdmh-1.3.3-test.aab",
+  "bytes": 33924658,
+  "sha256": "11c07abcf1196d1381126eddacf7a4fcd857d1258c58d6cb2a48667cfe183a59",
+  "package": "sa.aykdmh.app",
+  "versionName": "1.3.3",
+  "versionCode": 13,
+  "nativeLibrariesMatchTestApk": true,
+  "nativeLibraryFiles": 14,
+  "newRoutingClassPresent": true,
+  "testLibrariesExcluded": true,
+  "routingTests": 17,
+  "failures": 0,
+  "physicalPhoneTests": false,
+  "sourceCommit": "c7f98542671b40c6883606de30072a47fc69cb85",
+  "signerMatchesPreviousAab": true,
+  "signerSha256": "f8a1ab9d6ca36b330b760ecd3f5f5b2c752e7f6ada695a0eb3f357c524da4697",
+  "bundletoolVersion": "1.18.3",
+  "bundletoolValidated": true,
+  "publicDownloadVerified": true,
+  "downloadUrl": "https://aykdmh.com/dl/aykdmh-1.3.3-test.aab",
+  "playConsoleUploaded": false,
+  "fullSuite": {
+    "runtimeAuditReportedVulnerabilities": 0,
+    "integration": 226,
+    "client": 117,
+    "locales": 11,
+    "build": true,
+    "failures": 0,
+    "keys": 2255,
+    "server": 28
+  }
+}

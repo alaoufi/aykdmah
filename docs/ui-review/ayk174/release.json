@@ -1,0 +1,51 @@
+{
+  "task": "AYK-174",
+  "source": "ee1d68aa345d837e3502f80158fd4aa381dc344f",
+  "version": "1.1.9",
+  "deployment": "testdeploy: DEPLOYED and DONE",
+  "validation": {
+    "server": 28,
+    "client": 121,
+    "integration": 226,
+    "locales": 11,
+    "localeKeys": 2256,
+    "browser": 90,
+    "browserTotal": 90,
+    "productionTestBuildSeconds": 44.01,
+    "apiHealth": true,
+    "publicGuestDOM": {
+      "ready": "complete",
+      "filter": true,
+      "browse": true,
+      "noOverlap": true,
+      "noOverflow": true,
+      "providerGradient": true,
+      "requestGradient": true,
+      "bodyGradient": true
+    }
+  },
+  "backup": {
+    "databaseArchiveVerified": true,
+    "uploadsArchiveVerified": true,
+    "envBackupVerified": true,
+    "previousFrontendPreserved": true,
+    "previousApiImageTagged": true
+  },
+  "apk": {
+    "version": "1.3.4",
+    "code": 14,
+    "package": "sa.aykdmh.app",
+    "url": "https://aykdmh.com/dl/aykdmh-1.3.4-test.apk",
+    "sha256": "f8926828e1433eb09b31cece06695656f7d5bcd9891afd654803f04c49b79b6d",
+    "signerSha256": "f8a1ab9d6ca36b330b760ecd3f5f5b2c752e7f6ada695a0eb3f357c524da4697",
+    "signatureVerifiedThisTask": true,
+    "httpDownloadMatched": true,
+    "rebuiltThisTask": false
+  },
+  "limits": [
+    "No physical phone validation this task",
+    "No verified call-quality fix or Saudi server trial",
+    "No store upload",
+    "latest.json remains 1.3.2"
+  ]
+}

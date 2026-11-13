@@ -1,0 +1,156 @@
+{
+  "date": "2026-11-03T20:15:05.189Z",
+  "vantage": "Windows workstation; not either phone; network path not verified as same mobile carrier",
+  "results": [
+    {
+      "kind": "udp",
+      "port": 3478,
+      "status": "timeout",
+      "ms": 2506.1
+    },
+    {
+      "kind": "tls-stun",
+      "port": 443,
+      "status": "stun-response",
+      "ms": 405.6,
+      "messageType": 257
+    },
+    {
+      "kind": "tcp",
+      "port": 7881,
+      "status": "timeout",
+      "ms": 2507.8
+    },
+    {
+      "kind": "tcp",
+      "port": 443,
+      "status": "connected",
+      "ms": 125.9
+    },
+    {
+      "kind": "udp",
+      "port": 3478,
+      "status": "timeout",
+      "ms": 2501.8
+    },
+    {
+      "kind": "tls-stun",
+      "port": 443,
+      "status": "stun-response",
+      "ms": 322.6,
+      "messageType": 257
+    },
+    {
+      "kind": "tcp",
+      "port": 7881,
+      "status": "timeout",
+      "ms": 2500
+    },
+    {
+      "kind": "tcp",
+      "port": 443,
+      "status": "connected",
+      "ms": 102.3
+    },
+    {
+      "kind": "udp",
+      "port": 3478,
+      "status": "timeout",
+      "ms": 2515.4
+    },
+    {
+      "kind": "tls-stun",
+      "port": 443,
+      "status": "stun-response",
+      "ms": 500.2,
+      "messageType": 257
+    },
+    {
+      "kind": "tcp",
+      "port": 7881,
+      "status": "timeout",
+      "ms": 2513.9
+    },
+    {
+      "kind": "tcp",
+      "port": 443,
+      "status": "connected",
+      "ms": 142.2
+    },
+    {
+      "kind": "udp",
+      "port": 3478,
+      "status": "timeout",
+      "ms": 2500.8
+    },
+    {
+      "kind": "tls-stun",
+      "port": 443,
+      "status": "stun-response",
+      "ms": 333,
+      "messageType": 257
+    },
+    {
+      "kind": "tcp",
+      "port": 7881,
+      "status": "timeout",
+      "ms": 2500
+    },
+    {
+      "kind": "tcp",
+      "port": 443,
+      "status": "connected",
+      "ms": 111.6
+    },
+    {
+      "kind": "udp",
+      "port": 3478,
+      "status": "timeout",
+      "ms": 2500.6
+    },
+    {
+      "kind": "tls-stun",
+      "port": 443,
+      "status": "stun-response",
+      "ms": 492.3,
+      "messageType": 257
+    },
+    {
+      "kind": "tcp",
+      "port": 7881,
+      "status": "timeout",
+      "ms": 2500.1
+    },
+    {
+      "kind": "tcp",
+      "port": 443,
+      "status": "connected",
+      "ms": 132.6
+    },
+    {
+      "kind": "udp",
+      "port": 3478,
+      "status": "timeout",
+      "ms": 2502.6
+    },
+    {
+      "kind": "tls-stun",
+      "port": 443,
+      "status": "stun-response",
+      "ms": 2236.4,
+      "messageType": 257
+    },
+    {
+      "kind": "tcp",
+      "port": 7881,
+      "status": "timeout",
+      "ms": 2501.8
+    },
+    {
+      "kind": "tcp",
+      "port": 443,
+      "status": "connected",
+      "ms": 619.3
+    }
+  ]
+}

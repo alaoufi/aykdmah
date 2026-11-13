@@ -1,0 +1,19 @@
+node_modules/
+**/node_modules/
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
+client/dist/
+server/uploads/
+test-results/
+playwright-report/
+*.log
+*.zip
+*.bundle
+__pycache__/
+*.pyc
+# ملفات بناء قديمة يولّدها الخادم عند كل نشر (انظر docs/DECISIONS.md)
+client/compat-assets/

@@ -1,0 +1,40 @@
+# aykdmh.com — Caddy obtains and renews Let's Encrypt certificates automatically.
+# Security headers and cache rules for the single-page app and its API.
+# The built client lives in /srv/current (a symlink to the active release);
+# the API runs in the `app` container.
+
+{
+	# AYK-051: calls over 443. After TLS, a connection that starts with a STUN/TURN
+	# header (first byte 0x00 or 0x01; HTTP starts with a letter) goes to LiveKit's
+	# TURN server. Everything else continues to the website as usual.
+	servers :443 {
+		listener_wrappers {
+			layer4 {
+				@turn regexp `^[\x00\x01]` 1
+				route @turn {
+					proxy livekit:5349
+				}
+			}
+		}
+	}
+}
+aykdmh.com {
+ reverse_proxy 172.18.0.1:8093
+}
+
+www.aykdmh.com {
+	redir https://aykdmh.com{uri} permanent
+}
+
+# Visiting the server by IP sends people to the domain (no certificate exists for a bare IP).
+http://84.247.166.216 {
+	redir https://aykdmh.com{uri} permanent
+}
+
+# Appended to the existing shared ingress; keep all Aykdmh routes intact.
+jdatna.com {
+    reverse_proxy 172.18.0.1:8092
+}
+www.jdatna.com {
+    redir https://jdatna.com{uri} permanent
+}

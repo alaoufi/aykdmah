@@ -1,0 +1,6365 @@
+-- Auto-generated PostgreSQL bootstrap for a FRESH database only.
+-- Refuses existing application tables. Use the journaled migration runner for upgrades.
+-- All required statements and migration journal writes commit together.
+-- DO NOT EDIT — regenerate via NODE_ENV=test node scripts/dump-pg-sql.js.
+BEGIN;
+SELECT pg_advisory_xact_lock(742981);
+DO $ayk_fresh$ BEGIN
+  IF EXISTS (
+    SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
+    WHERE n.nspname = current_schema() AND c.relkind IN ('r','p','v','m','f')
+      AND c.relname IN ('activity_logs','ad_admin_messages','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_diagnostics','call_reports','calls','categories','chat_forward_receipts','cities','conversation_archives','conversation_participants','conversations','countries','device_reports','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','district_name_cleanup_','districts','governorates','install_lock','ip_geo_cache','location_shares','message_files','messages','native_push_tokens','notifications','offers','payments','phone_codes','provider_badges','provider_coverage_districts','provider_profiles','push_subscriptions','referral_rewards','regions','request_files','requests','review_reports','review_translations','review_votes','reviews','roles','saved_providers','schema_migrations','services','settings','subscription_plans','subscription_rules','subscriptions','support_messages','support_tickets','translation_memory','translation_usage','uploaded_media','user_blocks','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','wallet_transactions','withdrawal_requests')
+  ) THEN
+    RAISE EXCEPTION 'AY KHIDMA bootstrap requires a fresh database schema; use journaled migrations for an existing installation';
+  END IF;
+END $ayk_fresh$;
+CREATE TABLE schema_migrations (name TEXT PRIMARY KEY, applied_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP);
+
+-- schema.sql
+CREATE TABLE IF NOT EXISTS roles (
+  id SERIAL PRIMARY KEY,
+  name VARCHAR(50) NOT NULL UNIQUE,
+  display_name VARCHAR(100) NOT NULL,
+  description VARCHAR(255) DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS regions (
+  id SERIAL PRIMARY KEY,
+  code VARCHAR(20) DEFAULT NULL,
+  name_ar VARCHAR(120) NOT NULL,
+  name_en VARCHAR(120) DEFAULT NULL,
+  capital_ar VARCHAR(120) DEFAULT NULL,
+  capital_en VARCHAR(120) DEFAULT NULL,
+  latitude DECIMAL(10,7) DEFAULT NULL,
+  longitude DECIMAL(10,7) DEFAULT NULL,
+  is_active SMALLINT DEFAULT 1,
+  sort_order INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT uq_regions_name UNIQUE (name_ar)
+);
+CREATE TABLE IF NOT EXISTS governorates (
+  id SERIAL PRIMARY KEY,
+  region_id INT NOT NULL,
+  name_ar VARCHAR(120) NOT NULL,
+  name_en VARCHAR(120) DEFAULT NULL,
+  latitude DECIMAL(10,7) DEFAULT NULL,
+  longitude DECIMAL(10,7) DEFAULT NULL,
+  is_capital SMALLINT DEFAULT 0,
+  is_active SMALLINT DEFAULT 1,
+  sort_order INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (region_id) REFERENCES regions(id) ON DELETE CASCADE,
+  CONSTRAINT uq_gov_region_name UNIQUE (region_id, name_ar)
+);
+CREATE TABLE IF NOT EXISTS cities (
+  id SERIAL PRIMARY KEY,
+  governorate_id INT DEFAULT NULL,
+  name_ar VARCHAR(120) NOT NULL,
+  name_en VARCHAR(120) DEFAULT NULL,
+  latitude DECIMAL(10,7) DEFAULT NULL,
+  longitude DECIMAL(10,7) DEFAULT NULL,
+  is_active SMALLINT DEFAULT 1,
+  sort_order INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (governorate_id) REFERENCES governorates(id) ON DELETE SET NULL
+);
+CREATE TABLE IF NOT EXISTS districts (
+  id SERIAL PRIMARY KEY,
+  city_id INT NOT NULL,
+  name_ar VARCHAR(120) NOT NULL,
+  name_en VARCHAR(120) DEFAULT NULL,
+  latitude DECIMAL(10,7) DEFAULT NULL,
+  longitude DECIMAL(10,7) DEFAULT NULL,
+  is_active SMALLINT DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (city_id) REFERENCES cities(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS categories (
+  id SERIAL PRIMARY KEY,
+  name_ar VARCHAR(150) NOT NULL,
+  name_en VARCHAR(150) DEFAULT NULL,
+  slug VARCHAR(160) NOT NULL UNIQUE,
+  icon VARCHAR(255) DEFAULT NULL,
+  color VARCHAR(20) DEFAULT NULL,
+  description TEXT DEFAULT NULL,
+  is_active SMALLINT DEFAULT 1,
+  sort_order INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted_at TIMESTAMP NULL DEFAULT NULL
+);
+CREATE TABLE IF NOT EXISTS services (
+  id SERIAL PRIMARY KEY,
+  category_id INT NOT NULL,
+  name_ar VARCHAR(150) NOT NULL,
+  name_en VARCHAR(150) DEFAULT NULL,
+  slug VARCHAR(160) NOT NULL UNIQUE,
+  description TEXT DEFAULT NULL,
+  icon VARCHAR(255) DEFAULT NULL,
+  base_price DECIMAL(10,2) DEFAULT NULL,
+  is_active SMALLINT DEFAULT 1,
+  is_urgent_supported SMALLINT DEFAULT 1,
+  sort_order INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted_at TIMESTAMP NULL DEFAULT NULL,
+  FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS users (
+  id SERIAL PRIMARY KEY,
+  full_name VARCHAR(150) NOT NULL,
+  email VARCHAR(190) NOT NULL UNIQUE,
+  phone VARCHAR(30) DEFAULT NULL,
+  password_hash VARCHAR(255) NOT NULL,
+  role TEXT CHECK (role IN ('admin','provider','client')) NOT NULL DEFAULT 'client',
+  avatar VARCHAR(255) DEFAULT NULL,
+  is_active SMALLINT DEFAULT 1,
+  is_blocked SMALLINT DEFAULT 0,
+  is_verified SMALLINT DEFAULT 0,
+  email_verified_at TIMESTAMP NULL DEFAULT NULL,
+  phone_verified_at TIMESTAMP NULL DEFAULT NULL,
+  last_login_at TIMESTAMP NULL DEFAULT NULL,
+  last_seen_at TIMESTAMP NULL DEFAULT NULL,
+  is_online SMALLINT DEFAULT 0,
+  city_id INT DEFAULT NULL,
+  district_id INT DEFAULT NULL,
+  latitude DECIMAL(10,7) DEFAULT NULL,
+  longitude DECIMAL(10,7) DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted_at TIMESTAMP NULL DEFAULT NULL,
+  FOREIGN KEY (city_id) REFERENCES cities(id) ON DELETE SET NULL,
+  FOREIGN KEY (district_id) REFERENCES districts(id) ON DELETE SET NULL
+);
+CREATE TABLE IF NOT EXISTS user_profiles (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL UNIQUE,
+  bio TEXT DEFAULT NULL,
+  birth_date DATE DEFAULT NULL,
+  gender TEXT CHECK (gender IN ('male','female','other')) DEFAULT NULL,
+  address TEXT DEFAULT NULL,
+  preferences JSONB DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS provider_profiles (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL UNIQUE,
+  business_name VARCHAR(200) DEFAULT NULL,
+  bio TEXT DEFAULT NULL,
+  experience_years INT DEFAULT 0,
+  category_id INT DEFAULT NULL,
+  service_ids JSONB DEFAULT NULL,
+  service_radius_km INT DEFAULT 25,
+  hourly_rate DECIMAL(10,2) DEFAULT NULL,
+  cover_image VARCHAR(255) DEFAULT NULL,
+  gallery JSONB DEFAULT NULL,
+  verification_status TEXT CHECK (verification_status IN ('pending','verified','rejected','none')) DEFAULT 'none',
+  verified_at TIMESTAMP NULL DEFAULT NULL,
+  rating_avg DECIMAL(3,2) DEFAULT 0.00,
+  rating_count INT DEFAULT 0,
+  completed_orders INT DEFAULT 0,
+  total_earnings DECIMAL(12,2) DEFAULT 0.00,
+  is_featured SMALLINT DEFAULT 0,
+  featured_until TIMESTAMP NULL DEFAULT NULL,
+  current_subscription_id INT DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
+);
+CREATE TABLE IF NOT EXISTS verification_requests (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL,
+  document_type TEXT CHECK (document_type IN ('national_id','commercial_register','license','other')) NOT NULL,
+  document_url VARCHAR(255) NOT NULL,
+  notes TEXT DEFAULT NULL,
+  status TEXT CHECK (status IN ('pending','approved','rejected')) DEFAULT 'pending',
+  reviewed_by INT DEFAULT NULL,
+  reviewed_at TIMESTAMP NULL DEFAULT NULL,
+  rejection_reason TEXT DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (reviewed_by) REFERENCES users(id) ON DELETE SET NULL
+);
+CREATE TABLE IF NOT EXISTS requests (
+  id SERIAL PRIMARY KEY,
+  client_id INT NOT NULL,
+  category_id INT DEFAULT NULL,
+  service_id INT DEFAULT NULL,
+  title VARCHAR(200) NOT NULL,
+  description TEXT NOT NULL,
+  city_id INT DEFAULT NULL,
+  district_id INT DEFAULT NULL,
+  address TEXT DEFAULT NULL,
+  latitude DECIMAL(10,7) DEFAULT NULL,
+  longitude DECIMAL(10,7) DEFAULT NULL,
+  budget_min DECIMAL(10,2) DEFAULT NULL,
+  budget_max DECIMAL(10,2) DEFAULT NULL,
+  preferred_date TIMESTAMP DEFAULT NULL,
+  is_urgent SMALLINT DEFAULT 0,
+  status TEXT CHECK (status IN ('open','assigned','in_progress','completed','cancelled','closed')) NOT NULL DEFAULT 'open',
+  assigned_provider_id INT DEFAULT NULL,
+  accepted_offer_id INT DEFAULT NULL,
+  views_count INT DEFAULT 0,
+  offers_count INT DEFAULT 0,
+  completed_at TIMESTAMP NULL DEFAULT NULL,
+  cancelled_at TIMESTAMP NULL DEFAULT NULL,
+  cancellation_reason TEXT DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted_at TIMESTAMP NULL DEFAULT NULL,
+  FOREIGN KEY (client_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL,
+  FOREIGN KEY (service_id) REFERENCES services(id) ON DELETE SET NULL,
+  FOREIGN KEY (city_id) REFERENCES cities(id) ON DELETE SET NULL,
+  FOREIGN KEY (district_id) REFERENCES districts(id) ON DELETE SET NULL,
+  FOREIGN KEY (assigned_provider_id) REFERENCES users(id) ON DELETE SET NULL
+);
+CREATE TABLE IF NOT EXISTS request_files (
+  id SERIAL PRIMARY KEY,
+  request_id INT NOT NULL,
+  file_url VARCHAR(255) NOT NULL,
+  file_name VARCHAR(200) DEFAULT NULL,
+  file_type VARCHAR(50) DEFAULT NULL,
+  file_size INT DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (request_id) REFERENCES requests(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS offers (
+  id SERIAL PRIMARY KEY,
+  request_id INT NOT NULL,
+  provider_id INT NOT NULL,
+  price DECIMAL(10,2) NOT NULL,
+  message TEXT DEFAULT NULL,
+  estimated_duration VARCHAR(100) DEFAULT NULL,
+  available_from TIMESTAMP DEFAULT NULL,
+  latitude DECIMAL(10,7) DEFAULT NULL,
+  longitude DECIMAL(10,7) DEFAULT NULL,
+  location_accuracy DECIMAL(10,2) DEFAULT NULL,
+  status TEXT CHECK (status IN ('pending','accepted','rejected','withdrawn')) DEFAULT 'pending',
+  accepted_at TIMESTAMP NULL DEFAULT NULL,
+  rejected_at TIMESTAMP NULL DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (request_id) REFERENCES requests(id) ON DELETE CASCADE,
+  FOREIGN KEY (provider_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT uq_offer_provider_request UNIQUE (request_id, provider_id)
+);
+CREATE TABLE IF NOT EXISTS conversations (
+  id SERIAL PRIMARY KEY,
+  request_id INT DEFAULT NULL,
+  title VARCHAR(200) DEFAULT NULL,
+  last_message_id INT DEFAULT NULL,
+  last_message_at TIMESTAMP NULL DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (request_id) REFERENCES requests(id) ON DELETE SET NULL
+);
+CREATE TABLE IF NOT EXISTS conversation_participants (
+  id SERIAL PRIMARY KEY,
+  conversation_id INT NOT NULL,
+  user_id INT NOT NULL,
+  joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  last_read_at TIMESTAMP NULL DEFAULT NULL,
+  is_muted SMALLINT DEFAULT 0,
+  FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT uq_conv_user UNIQUE (conversation_id, user_id)
+);
+CREATE TABLE IF NOT EXISTS messages (
+  id SERIAL PRIMARY KEY,
+  conversation_id INT NOT NULL,
+  sender_id INT NOT NULL,
+  content TEXT DEFAULT NULL,
+  message_type TEXT CHECK (message_type IN ('text','image','file','voice','location','system')) DEFAULT 'text',
+  latitude DECIMAL(10,7) DEFAULT NULL,
+  longitude DECIMAL(10,7) DEFAULT NULL,
+  accuracy_m INT DEFAULT NULL,
+  is_read SMALLINT DEFAULT 0,
+  read_at TIMESTAMP NULL DEFAULT NULL,
+  is_edited SMALLINT DEFAULT 0,
+  edited_at TIMESTAMP NULL DEFAULT NULL,
+  reply_to_id INT DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  deleted_at TIMESTAMP NULL DEFAULT NULL,
+  FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+  FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (reply_to_id) REFERENCES messages(id) ON DELETE SET NULL
+);
+CREATE TABLE IF NOT EXISTS message_files (
+  id SERIAL PRIMARY KEY,
+  message_id INT NOT NULL,
+  file_url VARCHAR(255) NOT NULL,
+  file_name VARCHAR(200) DEFAULT NULL,
+  file_type VARCHAR(50) DEFAULT NULL,
+  file_size INT DEFAULT NULL,
+  duration_seconds INT DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (message_id) REFERENCES messages(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS location_shares (
+  id BIGSERIAL PRIMARY KEY,
+  conversation_id INT NOT NULL,
+  request_id INT DEFAULT NULL,
+  user_id INT NOT NULL,
+  sender_role TEXT CHECK (sender_role IN ('client','provider','admin')) NOT NULL,
+  latitude DECIMAL(10,7) NOT NULL,
+  longitude DECIMAL(10,7) NOT NULL,
+  accuracy_m INT DEFAULT NULL,
+  heading DECIMAL(5,2) DEFAULT NULL,
+  speed_kmh DECIMAL(5,2) DEFAULT NULL,
+  is_live SMALLINT DEFAULT 1,
+  expires_at TIMESTAMP NULL DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+  FOREIGN KEY (request_id) REFERENCES requests(id) ON DELETE SET NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS disputes (
+  id SERIAL PRIMARY KEY,
+  request_id INT DEFAULT NULL,
+  conversation_id INT DEFAULT NULL,
+  opened_by INT NOT NULL,
+  assigned_admin_id INT DEFAULT NULL,
+  subject VARCHAR(200) NOT NULL,
+  description TEXT DEFAULT NULL,
+  status TEXT CHECK (status IN ('open','under_review','resolved','closed')) DEFAULT 'open',
+  resolution TEXT DEFAULT NULL,
+  opened_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  resolved_at TIMESTAMP NULL DEFAULT NULL,
+  closed_at TIMESTAMP NULL DEFAULT NULL,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (request_id) REFERENCES requests(id) ON DELETE SET NULL,
+  FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE SET NULL,
+  FOREIGN KEY (opened_by) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (assigned_admin_id) REFERENCES users(id) ON DELETE SET NULL
+);
+CREATE TABLE IF NOT EXISTS dispute_access_logs (
+  id BIGSERIAL PRIMARY KEY,
+  dispute_id INT NOT NULL,
+  admin_id INT NOT NULL,
+  conversation_id INT DEFAULT NULL,
+  order_id INT DEFAULT NULL,
+  action VARCHAR(50) NOT NULL,
+  reason VARCHAR(255) DEFAULT NULL,
+  ip_address VARCHAR(45) DEFAULT NULL,
+  opened_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (dispute_id) REFERENCES disputes(id) ON DELETE CASCADE,
+  FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS conversation_archives (
+  id BIGSERIAL PRIMARY KEY,
+  conversation_id INT NOT NULL,
+  request_id INT DEFAULT NULL,
+  message_count INT DEFAULT 0,
+  first_message_at TIMESTAMP NULL DEFAULT NULL,
+  last_message_at TIMESTAMP NULL DEFAULT NULL,
+  archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  archived_by INT DEFAULT NULL,
+  expires_at TIMESTAMP NULL DEFAULT NULL,
+  payload TEXT DEFAULT NULL,
+  status TEXT CHECK (status IN ('active','expired','restored','deleted')) DEFAULT 'active',
+  FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+  FOREIGN KEY (archived_by) REFERENCES users(id) ON DELETE SET NULL
+);
+CREATE TABLE IF NOT EXISTS reviews (
+  id SERIAL PRIMARY KEY,
+  request_id INT NOT NULL,
+  reviewer_id INT NOT NULL,
+  provider_id INT NOT NULL,
+  rating SMALLINT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+  comment TEXT DEFAULT NULL,
+  images JSONB DEFAULT NULL,
+  is_visible SMALLINT DEFAULT 1,
+  provider_reply TEXT DEFAULT NULL,
+  provider_reply_at TIMESTAMP NULL DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (request_id) REFERENCES requests(id) ON DELETE CASCADE,
+  FOREIGN KEY (reviewer_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (provider_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT uq_review_request UNIQUE (request_id, reviewer_id)
+);
+CREATE TABLE IF NOT EXISTS notifications (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL,
+  type VARCHAR(50) NOT NULL,
+  title VARCHAR(200) NOT NULL,
+  body TEXT DEFAULT NULL,
+  data JSONB DEFAULT NULL,
+  link VARCHAR(255) DEFAULT NULL,
+  is_read SMALLINT DEFAULT 0,
+  read_at TIMESTAMP NULL DEFAULT NULL,
+  channel TEXT CHECK (channel IN ('in_app','push','email','whatsapp','sms')) DEFAULT 'in_app',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS subscription_plans (
+  id SERIAL PRIMARY KEY,
+  name_ar VARCHAR(120) NOT NULL,
+  name_en VARCHAR(120) DEFAULT NULL,
+  slug VARCHAR(120) NOT NULL UNIQUE,
+  description TEXT DEFAULT NULL,
+  price DECIMAL(10,2) NOT NULL DEFAULT 0,
+  duration_days INT NOT NULL DEFAULT 30,
+  max_offers_per_month INT DEFAULT NULL,
+  is_featured SMALLINT DEFAULT 0,
+  badge VARCHAR(50) DEFAULT NULL,
+  features JSONB DEFAULT NULL,
+  is_active SMALLINT DEFAULT 1,
+  sort_order INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS subscriptions (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL,
+  plan_id INT NOT NULL,
+  status TEXT CHECK (status IN ('pending','active','expired','cancelled')) DEFAULT 'pending',
+  starts_at TIMESTAMP NULL DEFAULT NULL,
+  ends_at TIMESTAMP NULL DEFAULT NULL,
+  auto_renew SMALLINT DEFAULT 0,
+  payment_id INT DEFAULT NULL,
+  amount DECIMAL(10,2) DEFAULT 0,
+  cancelled_at TIMESTAMP NULL DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (plan_id) REFERENCES subscription_plans(id) ON DELETE RESTRICT
+);
+CREATE TABLE IF NOT EXISTS payments (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL,
+  subscription_id INT DEFAULT NULL,
+  request_id INT DEFAULT NULL,
+  provider VARCHAR(50) NOT NULL,
+  provider_transaction_id VARCHAR(190) DEFAULT NULL,
+  amount DECIMAL(10,2) NOT NULL,
+  currency VARCHAR(10) DEFAULT 'SAR',
+  payment_method VARCHAR(50) DEFAULT NULL,
+  status TEXT CHECK (status IN ('pending','processing','completed','failed','refunded','cancelled')) DEFAULT 'pending',
+  metadata JSONB DEFAULT NULL,
+  paid_at TIMESTAMP NULL DEFAULT NULL,
+  refunded_at TIMESTAMP NULL DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (subscription_id) REFERENCES subscriptions(id) ON DELETE SET NULL,
+  FOREIGN KEY (request_id) REFERENCES requests(id) ON DELETE SET NULL
+);
+CREATE TABLE IF NOT EXISTS ads (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(200) NOT NULL,
+  description TEXT DEFAULT NULL,
+  image VARCHAR(255) DEFAULT NULL,
+  link VARCHAR(255) DEFAULT NULL,
+  placement TEXT CHECK (placement IN ('home_top','home_middle','home_bottom','sidebar','search')) DEFAULT 'home_top',
+  is_active SMALLINT DEFAULT 1,
+  starts_at TIMESTAMP NULL DEFAULT NULL,
+  ends_at TIMESTAMP NULL DEFAULT NULL,
+  views_count INT DEFAULT 0,
+  clicks_count INT DEFAULT 0,
+  sort_order INT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS settings (
+  id SERIAL PRIMARY KEY,
+  setting_key VARCHAR(120) NOT NULL UNIQUE,
+  setting_value TEXT DEFAULT NULL,
+  setting_type TEXT CHECK (setting_type IN ('string','number','boolean','json','text')) DEFAULT 'string',
+  setting_group VARCHAR(80) DEFAULT 'general',
+  is_public SMALLINT DEFAULT 0,
+  description VARCHAR(255) DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS activity_logs (
+  id BIGSERIAL PRIMARY KEY,
+  user_id INT DEFAULT NULL,
+  action VARCHAR(100) NOT NULL,
+  entity_type VARCHAR(80) DEFAULT NULL,
+  entity_id INT DEFAULT NULL,
+  description TEXT DEFAULT NULL,
+  ip_address VARCHAR(64) DEFAULT NULL,
+  user_agent VARCHAR(255) DEFAULT NULL,
+  metadata JSONB DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+CREATE TABLE IF NOT EXISTS install_lock (
+  id SERIAL PRIMARY KEY,
+  is_installed SMALLINT DEFAULT 1,
+  installed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  installed_version VARCHAR(20) DEFAULT '1.0.0',
+  installed_by_email VARCHAR(190) DEFAULT NULL,
+  site_name VARCHAR(200) DEFAULT NULL,
+  site_url VARCHAR(255) DEFAULT NULL
+);
+
+-- seed.sql
+INSERT INTO roles (id, name, display_name, description) VALUES
+(1, 'admin', 'مدير النظام', 'صلاحيات كاملة'),
+(2, 'provider', 'مقدم خدمة', 'يقدم خدمات للعملاء'),
+(3, 'client', 'عميل', 'يطلب الخدمات') ON CONFLICT DO NOTHING;
+INSERT INTO regions (id, code, name_ar, name_en, capital_ar, capital_en, latitude, longitude, sort_order) VALUES
+(1,  'RD', 'منطقة الرياض',         'Riyadh Region',          'الرياض',         'Riyadh',  24.7136, 46.6753, 1),
+(2,  'MK', 'منطقة مكة المكرمة',    'Makkah Region',          'مكة المكرمة',    'Makkah',  21.3891, 39.8579, 2),
+(3,  'MD', 'منطقة المدينة المنورة','Madinah Region',         'المدينة المنورة','Madinah', 24.5247, 39.5692, 3),
+(4,  'QS', 'منطقة القصيم',         'Al-Qassim Region',       'بريدة',          'Buraidah',26.3260, 43.9750, 4),
+(5,  'ES', 'المنطقة الشرقية',      'Eastern Region',         'الدمام',         'Dammam',  26.4207, 50.0888, 5),
+(6,  'AS', 'منطقة عسير',           'Asir Region',            'أبها',           'Abha',    18.2164, 42.5053, 6),
+(7,  'TB', 'منطقة تبوك',           'Tabuk Region',           'تبوك',           'Tabuk',   28.3835, 36.5662, 7),
+(8,  'HA', 'منطقة حائل',           'Hail Region',            'حائل',           'Hail',    27.5114, 41.6900, 8),
+(9,  'NB', 'منطقة الحدود الشمالية','Northern Borders Region','عرعر',           'Arar',    30.9753, 41.0381, 9),
+(10, 'JZ', 'منطقة جازان',          'Jazan Region',           'جازان',          'Jazan',   16.8892, 42.5511, 10),
+(11, 'NJ', 'منطقة نجران',          'Najran Region',          'نجران',          'Najran',  17.4924, 44.1277, 11),
+(12, 'BH', 'منطقة الباحة',         'Al-Bahah Region',        'الباحة',         'Bahah',   20.0129, 41.4677, 12),
+(13, 'JF', 'منطقة الجوف',          'Al-Jouf Region',         'سكاكا',          'Sakaka',  29.9697, 40.2064, 13) ON CONFLICT DO NOTHING;
+INSERT INTO governorates (id, region_id, name_ar, name_en, latitude, longitude, is_capital, sort_order) VALUES
+(1,   1, 'الرياض',          'Riyadh',           24.7136, 46.6753, 1, 1),
+(2,   1, 'الدرعية',         'Diriyah',          24.7320, 46.5750, 0, 2),
+(3,   1, 'الخرج',           'Al-Kharj',         24.1556, 47.3120, 0, 3),
+(4,   1, 'الدوادمي',        'Ad-Dawadmi',       24.5061, 44.3923, 0, 4),
+(5,   1, 'المجمعة',         'Al-Majmaah',       25.9020, 45.3450, 0, 5),
+(6,   1, 'القويعية',        'Al-Quwaiiyah',     24.0667, 45.2833, 0, 6),
+(7,   1, 'وادي الدواسر',    'Wadi Ad-Dawasir',  20.4944, 44.8044, 0, 7),
+(8,   1, 'الأفلاج',         'Al-Aflaj',         22.2774, 46.7172, 0, 8),
+(9,   1, 'الزلفي',          'Az-Zulfi',         26.3000, 44.8000, 0, 9),
+(10,  1, 'شقراء',           'Shaqra',           25.2486, 45.2519, 0, 10),
+(11,  1, 'حوطة بني تميم',   'Hawtat Bani Tamim',23.5167, 46.8500, 0, 11),
+(12,  1, 'عفيف',            'Afif',             23.9061, 42.9170, 0, 12),
+(13,  1, 'السليل',          'As-Sulayyil',      20.4607, 45.5763, 0, 13),
+(14,  1, 'ضرما',            'Dhurma',           24.6167, 46.1167, 0, 14),
+(15,  1, 'المزاحمية',       'Al-Muzahmiyah',    24.4742, 46.2569, 0, 15),
+(16,  1, 'رماح',            'Rumah',            25.5808, 47.1422, 0, 16),
+(17,  1, 'ثادق',            'Thadiq',           25.2944, 45.8631, 0, 17),
+(18,  1, 'حريملاء',         'Huraymila',        25.1167, 46.1167, 0, 18),
+(19,  1, 'الحريق',          'Al-Hariq',         23.6128, 46.0978, 0, 19),
+(20,  1, 'مرات',            'Marat',            25.0833, 45.4833, 0, 20) ON CONFLICT DO NOTHING;
+INSERT INTO governorates (id, region_id, name_ar, name_en, latitude, longitude, is_capital, sort_order) VALUES
+(21,  2, 'مكة المكرمة',     'Makkah',           21.3891, 39.8579, 1, 1),
+(22,  2, 'جدة',             'Jeddah',           21.4858, 39.1925, 0, 2),
+(23,  2, 'الطائف',          'Taif',             21.2703, 40.4178, 0, 3),
+(24,  2, 'القنفذة',         'Al-Qunfudhah',     19.1264, 41.0789, 0, 4),
+(25,  2, 'الليث',           'Al-Lith',          20.1500, 40.2667, 0, 5),
+(26,  2, 'رابغ',            'Rabigh',           22.7986, 39.0347, 0, 6),
+(27,  2, 'خليص',            'Khulays',          22.1500, 39.3333, 0, 7),
+(28,  2, 'الجموم',          'Al-Jumum',         21.6217, 39.6981, 0, 8),
+(29,  2, 'الكامل',          'Al-Kamil',         22.2017, 39.7975, 0, 9),
+(30,  2, 'المويه',          'Al-Muwayh',        22.4453, 41.7367, 0, 10),
+(31,  2, 'ميسان',           'Maysan',           21.0167, 40.7167, 0, 11),
+(32,  2, 'أضم',             'Adham',            20.0833, 41.2333, 0, 12),
+(33,  2, 'الخرمة',          'Al-Khurmah',       21.9214, 42.0497, 0, 13),
+(34,  2, 'تربة',            'Turabah',          21.2153, 41.6347, 0, 14),
+(35,  2, 'رنية',            'Raniyah',          21.2667, 42.8500, 0, 15),
+(36,  2, 'العرضيات',        'Al-Ardiyat',       20.0167, 41.4333, 0, 16),
+(37,  2, 'بحرة',            'Bahrah',           21.4067, 39.4583, 0, 17) ON CONFLICT DO NOTHING;
+INSERT INTO governorates (id, region_id, name_ar, name_en, latitude, longitude, is_capital, sort_order) VALUES
+(38,  3, 'المدينة المنورة', 'Madinah',          24.5247, 39.5692, 1, 1),
+(39,  3, 'ينبع',            'Yanbu',            24.0892, 38.0617, 0, 2),
+(40,  3, 'العلا',           'Al-Ula',           26.6086, 37.9233, 0, 3),
+(41,  3, 'مهد الذهب',       'Mahd Ad-Dahab',    23.4839, 40.8617, 0, 4),
+(42,  3, 'الحناكية',        'Al-Henakiyah',     24.8631, 40.5083, 0, 5),
+(43,  3, 'بدر',             'Badr',             23.7833, 38.7833, 0, 6),
+(44,  3, 'خيبر',            'Khaybar',          25.7000, 39.2833, 0, 7),
+(45,  3, 'العيص',           'Al-Ais',           25.8997, 38.5972, 0, 8) ON CONFLICT DO NOTHING;
+INSERT INTO governorates (id, region_id, name_ar, name_en, latitude, longitude, is_capital, sort_order) VALUES
+(46,  4, 'بريدة',           'Buraidah',         26.3260, 43.9750, 1, 1),
+(47,  4, 'عنيزة',           'Unaizah',          26.0843, 43.9936, 0, 2),
+(48,  4, 'الرس',            'Ar-Rass',          25.8667, 43.5000, 0, 3),
+(49,  4, 'المذنب',          'Al-Mithnab',       25.8617, 44.2228, 0, 4),
+(50,  4, 'البكيرية',        'Al-Bukayriyah',    26.1397, 43.6536, 0, 5),
+(51,  4, 'البدائع',         'Al-Badaie',        26.0254, 43.7681, 0, 6),
+(52,  4, 'الأسياح',         'Al-Asyah',         26.5167, 44.0833, 0, 7),
+(53,  4, 'النبهانية',       'An-Nabhaniyah',    26.4500, 43.4500, 0, 8),
+(54,  4, 'الشماسية',        'Ash-Shamasiyah',   26.5000, 44.0500, 0, 9),
+(55,  4, 'عيون الجواء',     'Uyun Al-Jiwa',     26.5333, 43.7167, 0, 10),
+(56,  4, 'رياض الخبراء',    'Riyad Al-Khabra',  26.5083, 43.5722, 0, 11),
+(57,  4, 'ضرية',            'Dariyah',          27.7333, 42.7167, 0, 12),
+(58,  4, 'عقلة الصقور',     'Uqlat As-Suqur',   25.8500, 42.1833, 0, 13) ON CONFLICT DO NOTHING;
+INSERT INTO governorates (id, region_id, name_ar, name_en, latitude, longitude, is_capital, sort_order) VALUES
+(59,  5, 'الدمام',          'Dammam',           26.4207, 50.0888, 1, 1),
+(60,  5, 'الأحساء',         'Al-Ahsa',          25.3833, 49.5833, 0, 2),
+(61,  5, 'حفر الباطن',      'Hafar Al-Batin',   28.4337, 45.9601, 0, 3),
+(62,  5, 'الجبيل',          'Jubail',           27.0174, 49.6225, 0, 4),
+(63,  5, 'القطيف',          'Qatif',            26.5654, 50.0079, 0, 5),
+(64,  5, 'الخبر',           'Khobar',           26.2172, 50.1971, 0, 6),
+(65,  5, 'الخفجي',          'Al-Khafji',        28.4347, 48.4914, 0, 7),
+(66,  5, 'رأس تنورة',       'Ras Tanura',       26.6453, 50.1583, 0, 8),
+(67,  5, 'بقيق',            'Buqayq',           25.9342, 49.6664, 0, 9),
+(68,  5, 'النعيرية',        'An-Nairyah',       27.4811, 48.4894, 0, 10),
+(69,  5, 'قرية العليا',     'Qaryat Al-Ulya',   27.6275, 47.7211, 0, 11),
+(70,  5, 'العديد',          'Al-Udayd',         24.6000, 51.3833, 0, 12) ON CONFLICT DO NOTHING;
+INSERT INTO governorates (id, region_id, name_ar, name_en, latitude, longitude, is_capital, sort_order) VALUES
+(71,  6, 'أبها',             'Abha',            18.2164, 42.5053, 1, 1),
+(72,  6, 'خميس مشيط',        'Khamis Mushait',  18.3000, 42.7333, 0, 2),
+(73,  6, 'بيشة',             'Bisha',           19.9774, 42.5908, 0, 3),
+(74,  6, 'محايل عسير',       'Mahayil Asir',    18.5500, 42.0333, 0, 4),
+(75,  6, 'النماص',           'An-Namas',        19.1500, 42.1167, 0, 5),
+(76,  6, 'ظهران الجنوب',     'Dhahran Al-Janub',17.6692, 43.5161, 0, 6),
+(77,  6, 'تثليث',            'Tathlith',        19.5667, 43.3000, 0, 7),
+(78,  6, 'رجال ألمع',        'Rijal Alma',      18.1922, 42.2569, 0, 8),
+(79,  6, 'سراة عبيدة',       'Sarat Abidah',    18.2167, 42.8000, 0, 9),
+(80,  6, 'أحد رفيدة',        'Ahad Rafidah',    18.2083, 42.8642, 0, 10),
+(81,  6, 'طريب',             'Tarib',           18.7667, 43.3333, 0, 11),
+(82,  6, 'بلقرن',            'Balqarn',         19.7167, 42.1500, 0, 12),
+(83,  6, 'المجاردة',         'Al-Majaridah',    19.1186, 41.9000, 0, 13),
+(84,  6, 'البرك',            'Al-Birk',         18.2333, 41.5333, 0, 14),
+(85,  6, 'بارق',             'Bariq',           18.7500, 41.7500, 0, 15),
+(86,  6, 'تنومة',            'Tanumah',         19.0875, 42.1719, 0, 16),
+(87,  6, 'الحرجة',           'Al-Harajah',      19.3333, 41.9667, 0, 17),
+(88,  6, 'العرين',           'Al-Areen',        18.1833, 42.4500, 0, 18) ON CONFLICT DO NOTHING;
+INSERT INTO governorates (id, region_id, name_ar, name_en, latitude, longitude, is_capital, sort_order) VALUES
+(89,  7, 'تبوك',             'Tabuk',           28.3835, 36.5662, 1, 1),
+(90,  7, 'الوجه',            'Al-Wajh',         26.2419, 36.4642, 0, 2),
+(91,  7, 'تيماء',            'Tayma',           27.6306, 38.5453, 0, 3),
+(92,  7, 'ضباء',             'Duba',            27.3500, 35.7000, 0, 4),
+(93,  7, 'أملج',             'Umluj',           25.0214, 37.2697, 0, 5),
+(94,  7, 'حقل',              'Haql',            29.2972, 34.9381, 0, 6),
+(95,  7, 'البدع',            'Al-Bada',         28.4667, 35.0000, 0, 7) ON CONFLICT DO NOTHING;
+INSERT INTO governorates (id, region_id, name_ar, name_en, latitude, longitude, is_capital, sort_order) VALUES
+(96,  8, 'حائل',             'Hail',            27.5114, 41.6900, 1, 1),
+(97,  8, 'بقعاء',            'Baqaa',           27.8833, 42.6500, 0, 2),
+(98,  8, 'الغزالة',          'Al-Ghazalah',     26.8167, 41.3333, 0, 3),
+(99,  8, 'الشنان',           'Ash-Shinan',      27.4667, 42.6167, 0, 4),
+(100, 8, 'الشملي',           'Ash-Shimli',      27.3333, 40.5000, 0, 5),
+(101, 8, 'الحائط',           'Al-Hait',         26.0567, 41.7244, 0, 6),
+(102, 8, 'السليمي',          'As-Sulaymi',      26.4333, 41.5667, 0, 7),
+(103, 8, 'موقق',             'Mawqaq',          27.6500, 41.1167, 0, 8),
+(104, 8, 'سميراء',           'Sumayra',         27.5667, 42.2667, 0, 9) ON CONFLICT DO NOTHING;
+INSERT INTO governorates (id, region_id, name_ar, name_en, latitude, longitude, is_capital, sort_order) VALUES
+(105, 9, 'عرعر',             'Arar',            30.9753, 41.0381, 1, 1),
+(106, 9, 'رفحاء',            'Rafha',           29.6383, 43.4983, 0, 2),
+(107, 9, 'طريف',             'Turaif',          31.6725, 38.6638, 0, 3),
+(108, 9, 'العويقيلة',        'Al-Uwayqilah',    30.3422, 42.2658, 0, 4) ON CONFLICT DO NOTHING;
+INSERT INTO governorates (id, region_id, name_ar, name_en, latitude, longitude, is_capital, sort_order) VALUES
+(109,10, 'جازان',             'Jazan',          16.8892, 42.5511, 1, 1),
+(110,10, 'صبيا',              'Sabya',          17.1494, 42.6253, 0, 2),
+(111,10, 'أبو عريش',          'Abu Arish',      16.9692, 42.8311, 0, 3),
+(112,10, 'صامطة',             'Samtah',         16.5972, 42.9461, 0, 4),
+(113,10, 'بيش',               'Baish',          17.3811, 42.5836, 0, 5),
+(114,10, 'الدرب',             'Ad-Darb',        17.7228, 42.2528, 0, 6),
+(115,10, 'الريث',             'Ar-Reith',       17.5333, 43.0167, 0, 7),
+(116,10, 'العارضة',           'Al-Aridhah',     16.9667, 43.0500, 0, 8),
+(117,10, 'أحد المسارحة',      'Ahad Al-Masarihah',16.7058,42.9569,0, 9),
+(118,10, 'الحرث',             'Al-Harith',      16.7136, 43.0203, 0, 10),
+(119,10, 'العيدابي',          'Al-Aydabi',      17.2167, 42.8667, 0, 11),
+(120,10, 'الدائر',            'Ad-Dair',        17.4833, 43.2167, 0, 12),
+(121,10, 'فرسان',             'Farasan',        16.7000, 42.1167, 0, 13) ON CONFLICT DO NOTHING;
+INSERT INTO governorates (id, region_id, name_ar, name_en, latitude, longitude, is_capital, sort_order) VALUES
+(122,11, 'نجران',             'Najran',         17.4924, 44.1277, 1, 1),
+(123,11, 'شرورة',             'Sharurah',       17.4664, 47.1147, 0, 2),
+(124,11, 'حبونا',             'Habuna',         17.6833, 44.3500, 0, 3),
+(125,11, 'بدر الجنوب',        'Badr Al-Janub',  17.9833, 45.6167, 0, 4),
+(126,11, 'يدمة',              'Yadamah',        17.5667, 45.0667, 0, 5),
+(127,11, 'ثار',               'Thar',           17.7500, 44.3000, 0, 6),
+(128,11, 'خباش',              'Khubash',        17.6667, 44.0500, 0, 7) ON CONFLICT DO NOTHING;
+INSERT INTO governorates (id, region_id, name_ar, name_en, latitude, longitude, is_capital, sort_order) VALUES
+(129,12, 'الباحة',            'Bahah',          20.0129, 41.4677, 1, 1),
+(130,12, 'بلجرشي',            'Baljurashi',     19.8589, 41.5683, 0, 2),
+(131,12, 'المندق',            'Al-Mandaq',      20.1933, 41.2825, 0, 3),
+(132,12, 'المخواة',           'Al-Mikhwah',     19.7500, 41.4333, 0, 4),
+(133,12, 'العقيق',            'Al-Aqiq',        20.2861, 41.6494, 0, 5),
+(134,12, 'القرى',             'Al-Qura',        20.3000, 41.3000, 0, 6),
+(135,12, 'قلوة',              'Qilwah',         19.6667, 41.4167, 0, 7),
+(136,12, 'الحجرة',            'Al-Hajrah',      19.7833, 41.6000, 0, 8),
+(137,12, 'بني حسن',           'Bani Hassan',    20.1000, 41.3667, 0, 9),
+(138,12, 'غامد الزناد',       'Ghamid Az-Zinad',20.1500, 41.5167, 0, 10) ON CONFLICT DO NOTHING;
+INSERT INTO governorates (id, region_id, name_ar, name_en, latitude, longitude, is_capital, sort_order) VALUES
+(139,13, 'سكاكا',             'Sakaka',         29.9697, 40.2064, 1, 1),
+(140,13, 'القريات',           'Al-Qurayyat',    31.3320, 37.3450, 0, 2),
+(141,13, 'دومة الجندل',       'Dumat Al-Jandal',29.8000, 39.8667, 0, 3),
+(142,13, 'طبرجل',             'Tabarjal',       30.5000, 38.2167, 0, 4) ON CONFLICT DO NOTHING;
+INSERT INTO cities (id, governorate_id, name_ar, name_en, latitude, longitude, is_active, sort_order) VALUES
+(1,   1, 'الرياض',          'Riyadh',   24.7136, 46.6753, 1, 1),
+(2,  22, 'جدة',             'Jeddah',   21.4858, 39.1925, 1, 2),
+(3,  21, 'مكة المكرمة',     'Makkah',   21.3891, 39.8579, 1, 3),
+(4,  38, 'المدينة المنورة', 'Madinah',  24.5247, 39.5692, 1, 4),
+(5,  59, 'الدمام',          'Dammam',   26.4207, 50.0888, 1, 5),
+(6,  64, 'الخبر',           'Khobar',   26.2172, 50.1971, 1, 6),
+(7,  23, 'الطائف',          'Taif',     21.2703, 40.4178, 1, 7),
+(8,  89, 'تبوك',            'Tabuk',    28.3835, 36.5662, 1, 8),
+(9,  46, 'بريدة',           'Buraidah', 26.3260, 43.9750, 1, 9),
+(10, 71, 'أبها',            'Abha',     18.2164, 42.5053, 1, 10),
+
+(11, 60, 'الهفوف',          'Hofuf',    25.3833, 49.5833, 1, 11),
+(12, 60, 'المبرز',          'Al-Mubarraz',25.4081, 49.5910, 1, 12),
+(13, 62, 'الجبيل',          'Jubail',   27.0174, 49.6225, 1, 13),
+(14, 63, 'القطيف',          'Qatif',    26.5654, 50.0079, 1, 14),
+(15, 39, 'ينبع',            'Yanbu',    24.0892, 38.0617, 1, 15),
+(16, 47, 'عنيزة',           'Unaizah',  26.0843, 43.9936, 1, 16),
+(17, 48, 'الرس',            'Ar-Rass',  25.8667, 43.5000, 1, 17),
+(18, 72, 'خميس مشيط',       'Khamis Mushait',18.3000,42.7333,1, 18),
+(19, 73, 'بيشة',            'Bisha',    19.9774, 42.5908, 1, 19),
+(20,109, 'جازان',            'Jazan',   16.8892, 42.5511, 1, 20),
+(21,122, 'نجران',           'Najran',   17.4924, 44.1277, 1, 21),
+(22,129, 'الباحة',          'Bahah',    20.0129, 41.4677, 1, 22),
+(23,139, 'سكاكا',           'Sakaka',   29.9697, 40.2064, 1, 23),
+(24, 96, 'حائل',            'Hail',     27.5114, 41.6900, 1, 24),
+(25,105, 'عرعر',            'Arar',     30.9753, 41.0381, 1, 25),
+(26,  3, 'الخرج',           'Al-Kharj', 24.1556, 47.3120, 1, 26),
+(27,  9, 'الزلفي',          'Az-Zulfi', 26.3000, 44.8000, 1, 27),
+(28, 61, 'حفر الباطن',      'Hafar Al-Batin',28.4337,45.9601,1, 28),
+(29, 65, 'الخفجي',          'Al-Khafji',28.4347, 48.4914, 1, 29),
+(30, 40, 'العلا',           'Al-Ula',   26.6086, 37.9233, 1, 30) ON CONFLICT DO NOTHING;
+INSERT INTO districts (id, city_id, name_ar, latitude, longitude) VALUES
+(1,  1, 'العليا',          24.6915, 46.6859),
+(2,  1, 'الملز',            24.6740, 46.7351),
+(3,  1, 'النخيل',           24.7741, 46.6300),
+(4,  1, 'الياسمين',         24.8412, 46.6442),
+(5,  1, 'الورود',           24.7370, 46.6802),
+(6,  1, 'حطين',             24.7706, 46.6193),
+(7,  1, 'الملقا',           24.8011, 46.6500),
+(8,  1, 'الروضة',           24.7167, 46.7333),
+(9,  1, 'النرجس',           24.9000, 46.6500),
+(10, 1, 'الربيع',           24.8167, 46.6833),
+(11, 1, 'المروج',           24.7833, 46.6833),
+(12, 1, 'العقيق',           24.7833, 46.6167),
+(13, 1, 'السليمانية',       24.6833, 46.7000),
+(14, 1, 'الصحافة',          24.7667, 46.6667),
+(15, 1, 'القيروان',         24.8500, 46.5833),
+(16, 1, 'العارض',           24.9333, 46.6500),
+(17, 1, 'الشفا',            24.5500, 46.7167),
+(18, 1, 'الدرعية الجديدة',  24.7167, 46.5833),
+(19, 1, 'المعذر',           24.6833, 46.6667),
+(20, 1, 'الصحافة الشمالية', 24.7833, 46.6500) ON CONFLICT DO NOTHING;
+INSERT INTO districts (id, city_id, name_ar, latitude, longitude) VALUES
+(21, 2, 'الروضة',           21.5810, 39.1690),
+(22, 2, 'الزهراء',          21.5395, 39.1797),
+(23, 2, 'الصفا',            21.5571, 39.1908),
+(24, 2, 'الحمراء',          21.5169, 39.1857),
+(25, 2, 'النعيم',           21.6167, 39.1500),
+(26, 2, 'البساتين',         21.6000, 39.1500),
+(27, 2, 'الفيصلية',         21.5167, 39.1833),
+(28, 2, 'الشاطئ',           21.6833, 39.1167),
+(29, 2, 'أبحر الشمالية',    21.7333, 39.0833),
+(30, 2, 'أبحر الجنوبية',    21.6833, 39.1000),
+(31, 2, 'البوادي',          21.5500, 39.2000),
+(32, 2, 'النزهة',           21.5667, 39.1833),
+(33, 2, 'السلامة',          21.5833, 39.1500),
+(34, 2, 'المرجان',          21.6500, 39.1333),
+(35, 2, 'الواحة',           21.5333, 39.2000) ON CONFLICT DO NOTHING;
+INSERT INTO districts (id, city_id, name_ar, latitude, longitude) VALUES
+(36, 3, 'العزيزية',         21.3973, 39.8856),
+(37, 3, 'الششة',            21.3786, 39.8474),
+(38, 3, 'العوالي',          21.3500, 39.8500),
+(39, 3, 'النسيم',           21.4000, 39.8167),
+(40, 3, 'الرصيفة',          21.3667, 39.8333),
+(41, 3, 'الزاهر',           21.4333, 39.8167),
+(42, 3, 'الكعكية',          21.4167, 39.8500),
+(43, 3, 'العتيبية',         21.4333, 39.8333),
+(44, 3, 'بطحاء قريش',       21.4167, 39.8333),
+(45, 3, 'المسفلة',          21.4167, 39.8167) ON CONFLICT DO NOTHING;
+INSERT INTO districts (id, city_id, name_ar, latitude, longitude) VALUES
+(46, 4, 'قباء',             24.4639, 39.6181),
+(47, 4, 'العوالي',          24.4500, 39.6167),
+(48, 4, 'الحرة الشرقية',    24.5500, 39.6000),
+(49, 4, 'الحرة الغربية',    24.4833, 39.5500),
+(50, 4, 'السيح',            24.5333, 39.5500),
+(51, 4, 'العزيزية',         24.5167, 39.5833),
+(52, 4, 'الخالدية',         24.5333, 39.5667),
+(53, 4, 'الدفاع',           24.4667, 39.5833),
+(54, 4, 'بني خدرة',         24.4833, 39.6333),
+(55, 4, 'الرانوناء',        24.4500, 39.5833) ON CONFLICT DO NOTHING;
+INSERT INTO districts (id, city_id, name_ar, latitude, longitude) VALUES
+(56, 5, 'الفيصلية',         26.4205, 50.0791),
+(57, 5, 'النهضة',           26.3837, 50.0904),
+(58, 5, 'الشاطئ',           26.4500, 50.1167),
+(59, 5, 'الفردوس',          26.4333, 50.1000),
+(60, 5, 'الجلوية',          26.4167, 50.1000),
+(61, 5, 'الإسكان',          26.4500, 50.0833),
+(62, 5, 'النور',            26.3833, 50.1167),
+(63, 5, 'الأمانة',          26.4000, 50.0833),
+(64, 5, 'الزهور',           26.4167, 50.0667),
+(65, 5, 'البديع',           26.4500, 50.1000) ON CONFLICT DO NOTHING;
+INSERT INTO districts (id, city_id, name_ar, latitude, longitude) VALUES
+(66, 6, 'الراكة',           26.2954, 50.2231),
+(67, 6, 'العقربية',         26.2667, 50.2000),
+(68, 6, 'البحيرة',          26.2833, 50.2167),
+(69, 6, 'الخبر الشمالية',   26.2833, 50.2000),
+(70, 6, 'الخبر الجنوبية',   26.2000, 50.2000),
+(71, 6, 'اليرموك',          26.2500, 50.1833),
+(72, 6, 'الأمواج',          26.3000, 50.2167) ON CONFLICT DO NOTHING;
+INSERT INTO categories (id, name_ar, name_en, slug, icon, color, sort_order) VALUES
+(1,  'صيانة منزلية',                'Home maintenance',          'home-maintenance',  '🔧', '#3b82f6', 1),
+(2,  'نظافة',                       'Cleaning',                  'cleaning',          '✨', '#10b981', 2),
+(3,  'نقل وعفش',                    'Moving',                    'moving',            '🚚', '#f59e0b', 3),
+(4,  'كهرباء',                      'Electrical',                'electrical',        '⚡', '#ef4444', 4),
+(5,  'سباكة',                       'Plumbing',                  'plumbing',          '💧', '#06b6d4', 5),
+(6,  'تكييف وتبريد',                'AC & cooling',              'ac-cooling',        '❄️', '#0ea5e9', 6),
+(7,  'دهانات وديكور',               'Paint & décor',             'paint-decor',       '🎨', '#8b5cf6', 7),
+(8,  'حدائق ومناظر',                'Gardens & landscaping',     'gardens',           '🌿', '#22c55e', 8),
+(9,  'تعليم وتدريس',                'Tutoring',                  'education',         '📚', '#6366f1', 9),
+(10, 'سيارات',                      'Cars',                      'cars',              '🚗', '#64748b', 10),
+(11, 'تقنية وكمبيوتر',              'Tech & computers',          'tech',              '💻', '#0f172a', 11),
+(12, 'مناسبات وضيافة',              'Events & catering',         'events',            '🎉', '#ec4899', 12),
+(13, 'الأسر المنتجة',               'Home businesses',           'home-businesses',   '🍳', '#ec4899', 13),
+(14, 'التصوير والإبداع',            'Photography & creative',    'photography',       '📸', '#6366f1', 14),
+(15, 'التسويق الرقمي',              'Digital marketing',         'digital-marketing', '📱', '#06b6d4', 15),
+(16, 'التوصيل والشحن',              'Delivery & shipping',       'delivery',          '📦', '#f59e0b', 16),
+(17, 'العقار والإيجار',             'Real estate & rentals',     'real-estate',       '🏢', '#9c6a3d', 17),
+(18, 'المقاولات والإنشاءات',        'Construction & contracting','construction',      '🏗️', '#d97706', 18),
+(19, 'العناية الشخصية والتجميل',    'Personal care & beauty',    'personal-care',     '💇', '#f43f5e', 19),
+(20, 'السفر والرحلات',              'Travel & tours',            'travel-tours',      '✈️', '#0ea5e9', 20),
+(21, 'خدمات الأعمال',               'Business services',         'business-services', '💼', '#475569', 21),
+(22, 'الصحة المنزلية والرعاية',     'Home health & care',        'home-health',       '🩺', '#dc2626', 22),
+(23, 'التدريب والدورات',            'Training & courses',        'training',          '🏆', '#8b5cf6', 23),
+(24, 'اللياقة والرياضة',            'Fitness & sports',          'fitness',           '💪', '#16a34a', 24),
+(25, 'خدمات الطلاب',                'Student services',          'student-services',  '🎓', '#10b981', 25),
+(26, 'الخياطة والتفصيل',            'Tailoring & sewing',        'tailoring',         '🧵', '#a855f7', 26),
+(27, 'النقل والمواصلات',            'Transport & mobility',      'transport',         '🚐', '#eab308', 27) ON CONFLICT DO NOTHING;
+INSERT INTO services (id, category_id, name_ar, name_en, slug, sort_order) VALUES
+
+(1,  1,  'صيانة عامة',                  'General maintenance',      'general-maintenance',     1),
+(2,  1,  'تركيب أثاث',                  'Furniture installation',   'furniture-installation',  2),
+(3,  1,  'إصلاح أبواب ونوافذ',          'Door & window repair',     'doors-windows-repair',    3),
+(4,  2,  'تنظيف منازل',                 'Home cleaning',            'home-cleaning',           1),
+(5,  2,  'تنظيف خزانات',                'Water tank cleaning',      'tank-cleaning',           2),
+(6,  2,  'تنظيف مكيفات',                'AC cleaning',              'ac-cleaning',             3),
+(7,  2,  'مكافحة حشرات',                'Pest control',             'pest-control',            4),
+(8,  3,  'نقل عفش داخل المدينة',        'Moving in city',           'moving-in-city',          1),
+(9,  3,  'نقل عفش بين المدن',           'Moving between cities',    'moving-between-cities',   2),
+(10, 3,  'فك وتركيب أثاث',              'Furniture assembly',       'assembly',                3),
+(11, 4,  'إصلاح أعطال كهربائية',        'Electrical repair',        'electrical-repair',       1),
+(12, 4,  'تمديدات كهربائية',            'Electrical wiring',        'electrical-wiring',       2),
+(13, 5,  'إصلاح تسربات',                'Leak repair',              'leak-repair',             1),
+(14, 5,  'تسليك مجاري',                 'Drain cleaning',           'drain-cleaning',          2),
+(15, 6,  'صيانة مكيفات سبليت',          'Split AC service',         'split-ac-service',        1),
+(16, 6,  'صيانة مكيفات مركزية',         'Central AC service',       'central-ac-service',      2),
+(17, 7,  'دهان منازل',                  'Home painting',            'home-painting',           1),
+(18, 7,  'ورق جدران',                   'Wallpaper',                'wallpaper',               2),
+(19, 8,  'تنسيق حدائق',                 'Garden landscaping',       'garden-landscaping',      1),
+(20, 9,  'تدريس خصوصي',                 'Private tutoring',         'private-tutoring',        1),
+(21, 11, 'صيانة كمبيوتر',               'Computer repair',          'computer-repair',         1),
+(22, 11, 'تصميم مواقع',                 'Web design',               'web-design',              2),
+(23, 12, 'تنظيم حفلات',                 'Event planning',           'event-planning',          1),
+
+(24, 1,  'تركيب ستائر',                 'Curtain installation',     'curtain-installation',    4),
+(25, 2,  'غسيل سجاد',                   'Carpet cleaning',          'carpet-cleaning',         5),
+(26, 4,  'تركيب إنارة',                 'Lighting installation',    'lighting-installation',   3),
+(27, 5,  'تركيب سخانات',                'Heater installation',      'heater-installation',     3),
+(28, 6,  'تركيب مكيفات',                'AC installation',          'ac-installation',         3),
+(29, 7,  'ديكور جبس',                   'Gypsum decor',             'gypsum-decor',            3),
+(30, 8,  'العناية بالعشب',              'Lawn care',                'lawn-care',               2),
+(31, 9,  'تحفيظ قرآن',                  'Quran teaching',           'quran-teaching',          2),
+(32, 9,  'تدريس لغات',                  'Language tutoring',        'language-tutoring',       3),
+(33, 10, 'غسيل سيارات',                 'Car wash',                 'car-wash',                1),
+(34, 10, 'تلميع سيارات',                'Car polishing',            'car-polish',              2),
+(35, 10, 'تغيير زيت',                   'Oil change',               'oil-change',              3),
+(36, 10, 'ميكانيكا متنقلة',             'Mobile mechanic',          'mobile-mechanic',         4),
+(37, 11, 'دعم تقني',                    'Tech support',             'tech-support',            3),
+(38, 11, 'تركيب شبكات',                 'Network installation',     'network-installation',    4),
+(39, 11, 'تركيب كاميرات',               'Camera installation',      'camera-installation',     5),
+(40, 11, 'تطوير تطبيقات',               'App development',          'app-development',         6),
+(41, 12, 'كوش وأفراح',                  'Wedding stages',           'wedding-stage',           2),
+(42, 12, 'تصوير مناسبات',               'Event photography',        'event-photography',       3),
+(43, 12, 'تأجير كراسي وطاولات',         'Chair & table rental',     'chairs-tables-rental',    4),
+
+(50, 13, 'طبخ منزلي',                   'Home cooking',             'home-cooking',            1),
+(51, 13, 'قهوة وحلويات',                'Coffee & sweets',          'coffee-sweets',           2),
+(52, 13, 'ذبائح وولائم',                'Catering meat & feasts',   'catering-meat',           3),
+(53, 13, 'مأكولات شعبية',               'Traditional foods',        'traditional-foods',       4),
+(54, 13, 'مخبوزات',                     'Bakery',                   'bakery',                  5),
+
+(60, 14, 'تصوير منتجات',                'Product photography',      'product-photography',     1),
+(61, 14, 'تصوير فيديو',                 'Video shooting',           'video-shooting',          2),
+(62, 14, 'تصميم وطباعة',                'Design & printing',        'design-printing',         3),
+(63, 14, 'مونتاج فيديو',                'Video editing',            'video-editing',           4),
+(64, 14, 'تصوير جوي بدرون',             'Drone aerial shoots',      'drone-aerial',            5),
+
+(70, 15, 'تسويق إلكتروني',              'Digital marketing',        'digital-marketing-svc',   1),
+(71, 15, 'إدارة حسابات تواصل',          'Social media management',  'social-media-management', 2),
+(72, 15, 'إعلانات ممولة',               'Paid ads',                 'paid-ads',                3),
+(73, 15, 'تحسين محركات بحث',            'SEO',                      'seo',                     4),
+(74, 15, 'تسويق مؤثرين',                'Influencer marketing',     'influencer-marketing',    5),
+
+(80, 16, 'توصيل طلبات',                 'Parcel delivery',          'parcel-delivery',         1),
+(81, 16, 'شحن داخلي',                   'Local shipping',           'local-shipping',          2),
+(82, 16, 'شحن بين المدن',               'Intercity shipping',       'intercity-shipping',      3),
+(83, 16, 'مندوب توصيل',                 'Delivery rep',             'delivery-rep',            4),
+
+(90, 17, 'تأجير يومي',                  'Daily rental',             'daily-rental',            1),
+(91, 17, 'شقق مفروشة',                  'Furnished apartments',     'furnished-apartments',    2),
+(92, 17, 'شاليهات واستراحات',           'Chalets & resorts',        'chalets-resorts',         3),
+(93, 17, 'إدارة عقارات',                'Property management',      'property-management',     4),
+
+(100, 18, 'تشطيبات',                    'Finishing',                'finishing',               1),
+(101, 18, 'نجارة',                      'Carpentry',                'carpentry',               2),
+(102, 18, 'حدادة',                      'Welding',                  'welding',                 3),
+(103, 18, 'جبس',                        'Gypsum work',              'gypsum-work',             4),
+(104, 18, 'ترميمات',                    'Renovation',               'renovation',              5),
+
+(110, 19, 'حلاقة',                      'Barbering',                'barbering',               1),
+(111, 19, 'مكياج',                      'Makeup',                   'makeup',                  2),
+(112, 19, 'عناية بالشعر',               'Hair care',                'hair-care',               3),
+(113, 19, 'تجميل أظافر',                'Nail care',                'nail-care',               4),
+(114, 19, 'سبا ومساج',                  'Spa & massage',            'spa-massage',             5),
+
+(120, 20, 'تنظيم رحلات',                'Tour organisation',        'tour-organization',       1),
+(121, 20, 'حجوزات فنادق',               'Hotel booking',            'hotel-booking',           2),
+(122, 20, 'مرشد سياحي',                 'Tour guide',               'tour-guide',              3),
+(123, 20, 'تأجير سيارات',               'Car rental',               'car-rental',              4),
+
+(130, 21, 'استشارات إدارية',            'Management consulting',    'management-consulting',   1),
+(131, 21, 'خدمات قانونية',              'Legal services',           'legal-services',          2),
+(132, 21, 'خدمات محاسبية',              'Accounting',               'accounting',              3),
+(133, 21, 'تأسيس شركات',                'Company formation',        'company-formation',       4),
+(134, 21, 'دراسات جدوى',                'Feasibility studies',      'feasibility-studies',     5),
+
+(140, 22, 'تمريض منزلي',                'Home nursing',             'home-nursing',            1),
+(141, 22, 'رعاية كبار السن',            'Elderly care',             'elderly-care',            2),
+(142, 22, 'جليسة أطفال',                'Babysitting',              'babysitting',             3),
+(143, 22, 'علاج طبيعي',                 'Physical therapy',         'physical-therapy',        4),
+(144, 22, 'تحاليل منزلية',              'Home lab tests',           'home-lab-tests',          5),
+
+(150, 23, 'دورات احترافية',             'Professional courses',     'professional-courses',    1),
+(151, 23, 'دورات لغة',                  'Language courses',         'language-courses',        2),
+(152, 23, 'دورات تقنية',                'Tech courses',             'tech-courses',            3),
+(153, 23, 'تدريب مهني',                 'Vocational training',      'vocational-training',     4),
+
+(160, 24, 'تدريب شخصي',                 'Personal training',        'personal-training',       1),
+(161, 24, 'تمارين جماعية',              'Group fitness',            'group-fitness',           2),
+(162, 24, 'تدريب رياضي',                'Sports coaching',          'sports-coaching',         3),
+(163, 24, 'تغذية وحمية',                'Nutrition & diet',         'nutrition-diet',          4),
+(164, 24, 'يوغا وتأمل',                 'Yoga & meditation',        'yoga-meditation',         5),
+
+(170, 25, 'كتابة بحوث',                 'Research writing',         'research-writing',        1),
+(171, 25, 'ترجمة أكاديمية',             'Academic translation',     'academic-translation',    2),
+(172, 25, 'تصميم عروض',                 'Presentation design',      'presentation-design',     3),
+(173, 25, 'حل واجبات',                  'Homework help',            'homework-help',           4),
+
+(180, 26, 'خياطة رجالية',               'Mens tailoring',           'mens-tailoring',          1),
+(181, 26, 'خياطة نسائية',               'Womens tailoring',         'womens-tailoring',        2),
+(182, 26, 'تعديل ملابس',                'Clothing alteration',      'clothing-alteration',     3),
+(183, 26, 'خياطة ستائر',                'Curtain tailoring',        'curtain-tailoring',       4),
+
+(190, 27, 'نقل ركاب',                   'Passenger transport',      'passenger-transport',     1),
+(191, 27, 'تأجير حافلات',               'Bus rental',               'bus-rental',              2),
+(192, 27, 'نقل مدرسي',                  'School transport',         'school-transport',        3) ON CONFLICT DO NOTHING;
+INSERT INTO subscription_plans (id, name_ar, slug, description, price, duration_days, max_offers_per_month, is_featured, badge, features, sort_order) VALUES
+(1, 'مجاني', 'free', 'الباقة المجانية للمبتدئين', 0.00, 30, 5, 0, NULL,
+   jsonb_build_array('5 عروض شهرياً', 'ظهور عادي', 'دعم عبر البريد'), 1),
+(2, 'مميز', 'premium', 'الباقة المميزة لزيادة الأعمال', 99.00, 30, 50, 1, 'مميز',
+   jsonb_build_array('50 عرض شهرياً', 'إبراز في النتائج', 'شارة موثق', 'دعم سريع'), 2),
+(3, 'احترافي', 'pro', 'الباقة الاحترافية للمحترفين', 199.00, 30, NULL, 1, 'احترافي',
+   jsonb_build_array('عروض غير محدودة', 'ظهور في أعلى النتائج', 'شارة احترافي', 'إعلانات داخلية مجانية', 'دعم متميز 24/7'), 3) ON CONFLICT DO NOTHING;
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description) VALUES
+('site_name', 'أي خدمة', 'string', 'general', 1, 'اسم الموقع'),
+('site_description', 'منصة الخدمات المحلية', 'string', 'general', 1, 'وصف الموقع'),
+('site_logo', '', 'string', 'general', 1, 'شعار الموقع'),
+('site_email', 'info@example.com', 'string', 'general', 1, 'البريد العام'),
+('site_phone', '', 'string', 'general', 1, 'هاتف التواصل'),
+('default_language', 'ar', 'string', 'general', 1, 'اللغة الافتراضية'),
+('default_currency', 'SAR', 'string', 'general', 1, 'العملة الافتراضية'),
+('map_provider', 'osm', 'string', 'map', 1, 'مزود الخرائط osm|google'),
+('default_lat', '24.7136', 'string', 'map', 1, 'خط العرض الافتراضي'),
+('default_lng', '46.6753', 'string', 'map', 1, 'خط الطول الافتراضي'),
+('search_radius_km', '25', 'number', 'general', 1, 'نصف قطر البحث بالكيلومتر'),
+('allow_registration', 'true', 'boolean', 'auth', 1, 'السماح بالتسجيل'),
+('require_email_verification', 'false', 'boolean', 'auth', 0, 'يتطلب توثيق البريد'),
+('require_provider_verification', 'true', 'boolean', 'auth', 1, 'يتطلب توثيق مقدمي الخدمة'),
+('max_offers_per_request', '20', 'number', 'requests', 0, 'حد أقصى للعروض'),
+('commission_percent', '10', 'number', 'payments', 0, 'نسبة العمولة %'),
+('maintenance_mode', 'false', 'boolean', 'general', 1, 'وضع الصيانة') ON CONFLICT DO NOTHING;
+INSERT INTO ads (id, title, description, placement, is_active) VALUES
+(1, 'مرحباً بك في منصة الخدمات', 'اطلب أي خدمة محلية بسهولة وسرعة', 'home_top', 1) ON CONFLICT DO NOTHING;
+DO $ayk_sequences$
+DECLARE r RECORD; sequence_next BIGINT; row_next BIGINT;
+BEGIN
+  FOR r IN
+    SELECT c.table_schema, c.table_name, c.column_name,
+      pg_get_serial_sequence(format('%I.%I', c.table_schema, c.table_name), c.column_name) AS seq
+    FROM information_schema.columns c
+    WHERE c.table_schema = current_schema() AND c.column_default LIKE 'nextval(%'
+  LOOP
+    IF r.seq IS NOT NULL THEN
+      EXECUTE format('LOCK TABLE %I.%I IN SHARE ROW EXCLUSIVE MODE', r.table_schema, r.table_name);
+      EXECUTE format('SELECT last_value + CASE WHEN is_called THEN 1 ELSE 0 END FROM %s', r.seq) INTO sequence_next;
+      EXECUTE format('SELECT COALESCE(MAX(%I),0) + 1 FROM %I.%I', r.column_name, r.table_schema, r.table_name) INTO row_next;
+      PERFORM setval(r.seq, GREATEST(sequence_next, row_next), false);
+    END IF;
+  END LOOP;
+END $ayk_sequences$;
+
+-- migrations/001_add_offer_geolocation.sql
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE offers
+  ADD COLUMN IF NOT EXISTS latitude DECIMAL(10,7) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS longitude DECIMAL(10,7) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS location_accuracy DECIMAL(10,2) DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+INSERT INTO schema_migrations(name) VALUES ('001_add_offer_geolocation.sql');
+
+-- migrations/002_extend_categories_services.sql
+UPDATE categories SET name_en = 'Home maintenance' WHERE slug = 'home-maintenance' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE categories SET icon = '🔧' WHERE slug = 'home-maintenance' AND (icon IS NULL OR trim(icon) = '');
+UPDATE categories SET name_en = 'Cleaning' WHERE slug = 'cleaning' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE categories SET icon = '✨' WHERE slug = 'cleaning' AND (icon IS NULL OR trim(icon) = '');
+UPDATE categories SET name_en = 'Moving' WHERE slug = 'moving' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE categories SET icon = '🚚' WHERE slug = 'moving' AND (icon IS NULL OR trim(icon) = '');
+UPDATE categories SET name_en = 'Electrical' WHERE slug = 'electrical' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE categories SET icon = '⚡' WHERE slug = 'electrical' AND (icon IS NULL OR trim(icon) = '');
+UPDATE categories SET name_en = 'Plumbing' WHERE slug = 'plumbing' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE categories SET icon = '💧' WHERE slug = 'plumbing' AND (icon IS NULL OR trim(icon) = '');
+UPDATE categories SET name_en = 'AC & cooling' WHERE slug = 'ac-cooling' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE categories SET icon = '❄️' WHERE slug = 'ac-cooling' AND (icon IS NULL OR trim(icon) = '');
+UPDATE categories SET name_en = 'Paint & décor' WHERE slug = 'paint-decor' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE categories SET icon = '🎨' WHERE slug = 'paint-decor' AND (icon IS NULL OR trim(icon) = '');
+UPDATE categories SET name_en = 'Gardens & landscaping' WHERE slug = 'gardens' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE categories SET icon = '🌿' WHERE slug = 'gardens' AND (icon IS NULL OR trim(icon) = '');
+UPDATE categories SET name_en = 'Tutoring' WHERE slug = 'education' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE categories SET icon = '📚' WHERE slug = 'education' AND (icon IS NULL OR trim(icon) = '');
+UPDATE categories SET name_en = 'Cars' WHERE slug = 'cars' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE categories SET icon = '🚗' WHERE slug = 'cars' AND (icon IS NULL OR trim(icon) = '');
+UPDATE categories SET name_en = 'Tech & computers' WHERE slug = 'tech' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE categories SET icon = '💻' WHERE slug = 'tech' AND (icon IS NULL OR trim(icon) = '');
+UPDATE categories SET name_en = 'Events & catering' WHERE slug = 'events' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE categories SET icon = '🎉' WHERE slug = 'events' AND (icon IS NULL OR trim(icon) = '');
+INSERT INTO categories (id, name_ar, name_en, slug, icon, color, sort_order) VALUES
+(13, 'الأسر المنتجة',               'Home businesses',           'home-businesses',   '🍳', '#ec4899', 13),
+(14, 'التصوير والإبداع',            'Photography & creative',    'photography',       '📸', '#6366f1', 14),
+(15, 'التسويق الرقمي',              'Digital marketing',         'digital-marketing', '📱', '#06b6d4', 15),
+(16, 'التوصيل والشحن',              'Delivery & shipping',       'delivery',          '📦', '#f59e0b', 16),
+(17, 'العقار والإيجار',             'Real estate & rentals',     'real-estate',       '🏢', '#9c6a3d', 17),
+(18, 'المقاولات والإنشاءات',        'Construction & contracting','construction',      '🏗️', '#d97706', 18),
+(19, 'العناية الشخصية والتجميل',    'Personal care & beauty',    'personal-care',     '💇', '#f43f5e', 19),
+(20, 'السفر والرحلات',              'Travel & tours',            'travel-tours',      '✈️', '#0ea5e9', 20),
+(21, 'خدمات الأعمال',               'Business services',         'business-services', '💼', '#475569', 21),
+(22, 'الصحة المنزلية والرعاية',     'Home health & care',        'home-health',       '🩺', '#dc2626', 22),
+(23, 'التدريب والدورات',            'Training & courses',        'training',          '🏆', '#8b5cf6', 23),
+(24, 'اللياقة والرياضة',            'Fitness & sports',          'fitness',           '💪', '#16a34a', 24),
+(25, 'خدمات الطلاب',                'Student services',          'student-services',  '🎓', '#10b981', 25),
+(26, 'الخياطة والتفصيل',            'Tailoring & sewing',        'tailoring',         '🧵', '#a855f7', 26),
+(27, 'النقل والمواصلات',            'Transport & mobility',      'transport',         '🚐', '#eab308', 27) ON CONFLICT DO NOTHING;
+UPDATE services SET name_en = 'General maintenance' WHERE slug = 'general-maintenance' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE services SET name_en = 'Furniture installation' WHERE slug = 'furniture-installation' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE services SET name_en = 'Door & window repair' WHERE slug = 'doors-windows-repair' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE services SET name_en = 'Home cleaning' WHERE slug = 'home-cleaning' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE services SET name_en = 'Water tank cleaning' WHERE slug = 'tank-cleaning' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE services SET name_en = 'AC cleaning' WHERE slug = 'ac-cleaning' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE services SET name_en = 'Pest control' WHERE slug = 'pest-control' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE services SET name_en = 'Moving in city' WHERE slug = 'moving-in-city' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE services SET name_en = 'Moving between cities' WHERE slug = 'moving-between-cities' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE services SET name_en = 'Furniture assembly' WHERE slug = 'assembly' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE services SET name_en = 'Electrical repair' WHERE slug = 'electrical-repair' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE services SET name_en = 'Electrical wiring' WHERE slug = 'electrical-wiring' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE services SET name_en = 'Leak repair' WHERE slug = 'leak-repair' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE services SET name_en = 'Drain cleaning' WHERE slug = 'drain-cleaning' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE services SET name_en = 'Split AC service' WHERE slug = 'split-ac-service' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE services SET name_en = 'Central AC service' WHERE slug = 'central-ac-service' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE services SET name_en = 'Home painting' WHERE slug = 'home-painting' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE services SET name_en = 'Wallpaper' WHERE slug = 'wallpaper' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE services SET name_en = 'Garden landscaping' WHERE slug = 'garden-landscaping' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE services SET name_en = 'Private tutoring' WHERE slug = 'private-tutoring' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE services SET name_en = 'Computer repair' WHERE slug = 'computer-repair' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE services SET name_en = 'Web design' WHERE slug = 'web-design' AND (name_en IS NULL OR trim(name_en) = '');
+UPDATE services SET name_en = 'Event planning' WHERE slug = 'event-planning' AND (name_en IS NULL OR trim(name_en) = '');
+INSERT INTO services (id, category_id, name_ar, name_en, slug, sort_order) VALUES
+
+(24, 1,  'تركيب ستائر',                 'Curtain installation',     'curtain-installation',    4),
+(25, 2,  'غسيل سجاد',                   'Carpet cleaning',          'carpet-cleaning',         5),
+(26, 4,  'تركيب إنارة',                 'Lighting installation',    'lighting-installation',   3),
+(27, 5,  'تركيب سخانات',                'Heater installation',      'heater-installation',     3),
+(28, 6,  'تركيب مكيفات',                'AC installation',          'ac-installation',         3),
+(29, 7,  'ديكور جبس',                   'Gypsum decor',             'gypsum-decor',            3),
+(30, 8,  'العناية بالعشب',              'Lawn care',                'lawn-care',               2),
+(31, 9,  'تحفيظ قرآن',                  'Quran teaching',           'quran-teaching',          2),
+(32, 9,  'تدريس لغات',                  'Language tutoring',        'language-tutoring',       3),
+(33, 10, 'غسيل سيارات',                 'Car wash',                 'car-wash',                1),
+(34, 10, 'تلميع سيارات',                'Car polishing',            'car-polish',              2),
+(35, 10, 'تغيير زيت',                   'Oil change',               'oil-change',              3),
+(36, 10, 'ميكانيكا متنقلة',             'Mobile mechanic',          'mobile-mechanic',         4),
+(37, 11, 'دعم تقني',                    'Tech support',             'tech-support',            3),
+(38, 11, 'تركيب شبكات',                 'Network installation',     'network-installation',    4),
+(39, 11, 'تركيب كاميرات',               'Camera installation',      'camera-installation',     5),
+(40, 11, 'تطوير تطبيقات',               'App development',          'app-development',         6),
+(41, 12, 'كوش وأفراح',                  'Wedding stages',           'wedding-stage',           2),
+(42, 12, 'تصوير مناسبات',               'Event photography',        'event-photography',       3),
+(43, 12, 'تأجير كراسي وطاولات',         'Chair & table rental',     'chairs-tables-rental',    4),
+
+(50, 13, 'طبخ منزلي',                   'Home cooking',             'home-cooking',            1),
+(51, 13, 'قهوة وحلويات',                'Coffee & sweets',          'coffee-sweets',           2),
+(52, 13, 'ذبائح وولائم',                'Catering meat & feasts',   'catering-meat',           3),
+(53, 13, 'مأكولات شعبية',               'Traditional foods',        'traditional-foods',       4),
+(54, 13, 'مخبوزات',                     'Bakery',                   'bakery',                  5),
+
+(60, 14, 'تصوير منتجات',                'Product photography',      'product-photography',     1),
+(61, 14, 'تصوير فيديو',                 'Video shooting',           'video-shooting',          2),
+(62, 14, 'تصميم وطباعة',                'Design & printing',        'design-printing',         3),
+(63, 14, 'مونتاج فيديو',                'Video editing',            'video-editing',           4),
+(64, 14, 'تصوير جوي بدرون',             'Drone aerial shoots',      'drone-aerial',            5),
+
+(70, 15, 'تسويق إلكتروني',              'Digital marketing',        'digital-marketing-svc',   1),
+(71, 15, 'إدارة حسابات تواصل',          'Social media management',  'social-media-management', 2),
+(72, 15, 'إعلانات ممولة',               'Paid ads',                 'paid-ads',                3),
+(73, 15, 'تحسين محركات بحث',            'SEO',                      'seo',                     4),
+(74, 15, 'تسويق مؤثرين',                'Influencer marketing',     'influencer-marketing',    5),
+
+(80, 16, 'توصيل طلبات',                 'Parcel delivery',          'parcel-delivery',         1),
+(81, 16, 'شحن داخلي',                   'Local shipping',           'local-shipping',          2),
+(82, 16, 'شحن بين المدن',               'Intercity shipping',       'intercity-shipping',      3),
+(83, 16, 'مندوب توصيل',                 'Delivery rep',             'delivery-rep',            4),
+
+(90, 17, 'تأجير يومي',                  'Daily rental',             'daily-rental',            1),
+(91, 17, 'شقق مفروشة',                  'Furnished apartments',     'furnished-apartments',    2),
+(92, 17, 'شاليهات واستراحات',           'Chalets & resorts',        'chalets-resorts',         3),
+(93, 17, 'إدارة عقارات',                'Property management',      'property-management',     4),
+
+(100, 18, 'تشطيبات',                    'Finishing',                'finishing',               1),
+(101, 18, 'نجارة',                      'Carpentry',                'carpentry',               2),
+(102, 18, 'حدادة',                      'Welding',                  'welding',                 3),
+(103, 18, 'جبس',                        'Gypsum work',              'gypsum-work',             4),
+(104, 18, 'ترميمات',                    'Renovation',               'renovation',              5),
+
+(110, 19, 'حلاقة',                      'Barbering',                'barbering',               1),
+(111, 19, 'مكياج',                      'Makeup',                   'makeup',                  2),
+(112, 19, 'عناية بالشعر',               'Hair care',                'hair-care',               3),
+(113, 19, 'تجميل أظافر',                'Nail care',                'nail-care',               4),
+(114, 19, 'سبا ومساج',                  'Spa & massage',            'spa-massage',             5),
+
+(120, 20, 'تنظيم رحلات',                'Tour organisation',        'tour-organization',       1),
+(121, 20, 'حجوزات فنادق',               'Hotel booking',            'hotel-booking',           2),
+(122, 20, 'مرشد سياحي',                 'Tour guide',               'tour-guide',              3),
+(123, 20, 'تأجير سيارات',               'Car rental',               'car-rental',              4),
+
+(130, 21, 'استشارات إدارية',            'Management consulting',    'management-consulting',   1),
+(131, 21, 'خدمات قانونية',              'Legal services',           'legal-services',          2),
+(132, 21, 'خدمات محاسبية',              'Accounting',               'accounting',              3),
+(133, 21, 'تأسيس شركات',                'Company formation',        'company-formation',       4),
+(134, 21, 'دراسات جدوى',                'Feasibility studies',      'feasibility-studies',     5),
+
+(140, 22, 'تمريض منزلي',                'Home nursing',             'home-nursing',            1),
+(141, 22, 'رعاية كبار السن',            'Elderly care',             'elderly-care',            2),
+(142, 22, 'جليسة أطفال',                'Babysitting',              'babysitting',             3),
+(143, 22, 'علاج طبيعي',                 'Physical therapy',         'physical-therapy',        4),
+(144, 22, 'تحاليل منزلية',              'Home lab tests',           'home-lab-tests',          5),
+
+(150, 23, 'دورات احترافية',             'Professional courses',     'professional-courses',    1),
+(151, 23, 'دورات لغة',                  'Language courses',         'language-courses',        2),
+(152, 23, 'دورات تقنية',                'Tech courses',             'tech-courses',            3),
+(153, 23, 'تدريب مهني',                 'Vocational training',      'vocational-training',     4),
+
+(160, 24, 'تدريب شخصي',                 'Personal training',        'personal-training',       1),
+(161, 24, 'تمارين جماعية',              'Group fitness',            'group-fitness',           2),
+(162, 24, 'تدريب رياضي',                'Sports coaching',          'sports-coaching',         3),
+(163, 24, 'تغذية وحمية',                'Nutrition & diet',         'nutrition-diet',          4),
+(164, 24, 'يوغا وتأمل',                 'Yoga & meditation',        'yoga-meditation',         5),
+
+(170, 25, 'كتابة بحوث',                 'Research writing',         'research-writing',        1),
+(171, 25, 'ترجمة أكاديمية',             'Academic translation',     'academic-translation',    2),
+(172, 25, 'تصميم عروض',                 'Presentation design',      'presentation-design',     3),
+(173, 25, 'حل واجبات',                  'Homework help',            'homework-help',           4),
+
+(180, 26, 'خياطة رجالية',               'Mens tailoring',           'mens-tailoring',          1),
+(181, 26, 'خياطة نسائية',               'Womens tailoring',         'womens-tailoring',        2),
+(182, 26, 'تعديل ملابس',                'Clothing alteration',      'clothing-alteration',     3),
+(183, 26, 'خياطة ستائر',                'Curtain tailoring',        'curtain-tailoring',       4),
+
+(190, 27, 'نقل ركاب',                   'Passenger transport',      'passenger-transport',     1),
+(191, 27, 'تأجير حافلات',               'Bus rental',               'bus-rental',              2),
+(192, 27, 'نقل مدرسي',                  'School transport',         'school-transport',        3) ON CONFLICT DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('002_extend_categories_services.sql');
+
+-- migrations/003_communication_system.sql
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE messages
+  ADD COLUMN IF NOT EXISTS latitude DECIMAL(10,7) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS longitude DECIMAL(10,7) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS accuracy_m INT DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+SELECT 1;
+CREATE TABLE IF NOT EXISTS location_shares (
+  id BIGSERIAL PRIMARY KEY,
+  conversation_id INT NOT NULL,
+  request_id INT DEFAULT NULL,
+  user_id INT NOT NULL,
+  sender_role TEXT CHECK (sender_role IN ('client','provider','admin')) NOT NULL,
+  latitude DECIMAL(10,7) NOT NULL,
+  longitude DECIMAL(10,7) NOT NULL,
+  accuracy_m INT DEFAULT NULL,
+  heading DECIMAL(5,2) DEFAULT NULL,
+  speed_kmh DECIMAL(5,2) DEFAULT NULL,
+  is_live SMALLINT DEFAULT 1,
+  expires_at TIMESTAMP NULL DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+  FOREIGN KEY (request_id) REFERENCES requests(id) ON DELETE SET NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS disputes (
+  id SERIAL PRIMARY KEY,
+  request_id INT DEFAULT NULL,
+  conversation_id INT DEFAULT NULL,
+  opened_by INT NOT NULL,
+  assigned_admin_id INT DEFAULT NULL,
+  subject VARCHAR(200) NOT NULL,
+  description TEXT DEFAULT NULL,
+  status TEXT CHECK (status IN ('open','under_review','resolved','closed')) DEFAULT 'open',
+  resolution TEXT DEFAULT NULL,
+  opened_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  resolved_at TIMESTAMP NULL DEFAULT NULL,
+  closed_at TIMESTAMP NULL DEFAULT NULL,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (request_id) REFERENCES requests(id) ON DELETE SET NULL,
+  FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE SET NULL,
+  FOREIGN KEY (opened_by) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (assigned_admin_id) REFERENCES users(id) ON DELETE SET NULL
+);
+CREATE TABLE IF NOT EXISTS dispute_access_logs (
+  id BIGSERIAL PRIMARY KEY,
+  dispute_id INT NOT NULL,
+  admin_id INT NOT NULL,
+  conversation_id INT DEFAULT NULL,
+  order_id INT DEFAULT NULL,
+  action VARCHAR(50) NOT NULL,
+  reason VARCHAR(255) DEFAULT NULL,
+  ip_address VARCHAR(45) DEFAULT NULL,
+  opened_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (dispute_id) REFERENCES disputes(id) ON DELETE CASCADE,
+  FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS conversation_archives (
+  id BIGSERIAL PRIMARY KEY,
+  conversation_id INT NOT NULL,
+  request_id INT DEFAULT NULL,
+  message_count INT DEFAULT 0,
+  first_message_at TIMESTAMP NULL DEFAULT NULL,
+  last_message_at TIMESTAMP NULL DEFAULT NULL,
+  archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  archived_by INT DEFAULT NULL,
+  expires_at TIMESTAMP NULL DEFAULT NULL,
+  payload TEXT DEFAULT NULL,
+  status TEXT CHECK (status IN ('active','expired','restored','deleted')) DEFAULT 'active',
+  FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+  FOREIGN KEY (archived_by) REFERENCES users(id) ON DELETE SET NULL
+);
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description) VALUES
+('chat_archive_retention_days', '90', 'number', 'general', 0, 'مدة الاحتفاظ بأرشيف المحادثات بالأيام'),
+('chat_archive_after_days',     '14', 'number', 'general', 0, 'بعد كم يوم من اكتمال الطلب يتم أرشفة المحادثة تلقائياً'),
+('location_share_ttl_minutes',  '30', 'number', 'general', 0, 'مدة صلاحية مشاركة الموقع المباشرة بالدقائق'),
+('chat_lock_after_completion',  'true', 'boolean', 'general', 0, 'قفل المحادثة بعد اكتمال الطلب') ON CONFLICT DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('003_communication_system.sql');
+
+-- migrations/004_two_way_reviews.sql
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE reviews
+  ADD COLUMN IF NOT EXISTS review_type TEXT CHECK (review_type IN ('on_provider','on_requester')) DEFAULT 'on_provider',
+  ADD COLUMN IF NOT EXISTS target_user_id INT DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS original_language VARCHAR(5) DEFAULT 'ar',
+  ADD COLUMN IF NOT EXISTS criteria_ratings JSONB DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS helpful_count INT DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS report_count INT DEFAULT 0$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+UPDATE reviews SET target_user_id = provider_id WHERE target_user_id IS NULL;
+UPDATE reviews SET review_type = 'on_provider' WHERE review_type IS NULL;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE reviews DROP CONSTRAINT IF EXISTS uq_review_request$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE reviews ADD CONSTRAINT uq_review_request_type UNIQUE (request_id, reviewer_id, review_type)$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+CREATE INDEX IF NOT EXISTS idx_reviews_target ON reviews (target_user_id, review_type, is_visible);
+CREATE TABLE IF NOT EXISTS review_translations (
+  id BIGSERIAL PRIMARY KEY,
+  review_id INT NOT NULL,
+  language VARCHAR(5) NOT NULL,
+  translated_text TEXT NOT NULL,
+  provider VARCHAR(40) DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (review_id) REFERENCES reviews(id) ON DELETE CASCADE,
+  CONSTRAINT uq_review_lang UNIQUE (review_id, language)
+);
+CREATE TABLE IF NOT EXISTS review_votes (
+  id SERIAL PRIMARY KEY,
+  review_id INT NOT NULL,
+  user_id INT NOT NULL,
+  vote TEXT CHECK (vote IN ('helpful')) DEFAULT 'helpful',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (review_id) REFERENCES reviews(id) ON DELETE CASCADE,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT uq_review_user_vote UNIQUE (review_id, user_id)
+);
+CREATE TABLE IF NOT EXISTS review_reports (
+  id SERIAL PRIMARY KEY,
+  review_id INT NOT NULL,
+  reporter_id INT NOT NULL,
+  reason VARCHAR(80) NOT NULL,
+  details TEXT DEFAULT NULL,
+  status TEXT CHECK (status IN ('pending','reviewed','dismissed')) DEFAULT 'pending',
+  reviewed_by INT DEFAULT NULL,
+  reviewed_at TIMESTAMP NULL DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (review_id) REFERENCES reviews(id) ON DELETE CASCADE,
+  FOREIGN KEY (reporter_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (reviewed_by) REFERENCES users(id) ON DELETE SET NULL
+);
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description) VALUES
+('review_auto_hide_reports', '3', 'number', 'general', 0, 'إخفاء تلقائي للتقييم عند بلوغ هذا العدد من البلاغات'),
+('review_translation_provider', 'mymemory', 'string', 'general', 0, 'مزود الترجمة (mymemory | google | none)'),
+('google_translate_api_key', '', 'string', 'general', 0, 'مفتاح Google Translate API (اختياري)') ON CONFLICT DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('004_two_way_reviews.sql');
+
+-- migrations/005_verification_and_integrations.sql
+CREATE TABLE IF NOT EXISTS api_integrations (
+  id SERIAL PRIMARY KEY,
+  
+  
+  type VARCHAR(40) NOT NULL,
+  
+  
+  provider VARCHAR(60) NOT NULL,
+  label VARCHAR(120) DEFAULT NULL,
+  is_enabled SMALLINT DEFAULT 0,
+  is_primary SMALLINT DEFAULT 0,
+  mode TEXT CHECK (mode IN ('sandbox','live')) DEFAULT 'sandbox',
+  
+  config JSONB DEFAULT NULL,
+  
+  
+  credentials_encrypted TEXT DEFAULT NULL,
+  webhook_url VARCHAR(255) DEFAULT NULL,
+  rate_limit_per_min INT DEFAULT NULL,
+  last_test_at TIMESTAMP NULL DEFAULT NULL,
+  last_test_ok SMALLINT DEFAULT NULL,
+  last_test_message VARCHAR(255) DEFAULT NULL,
+  created_by INT DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL
+);
+CREATE TABLE IF NOT EXISTS api_usage_logs (
+  id BIGSERIAL PRIMARY KEY,
+  integration_id INT DEFAULT NULL,
+  type VARCHAR(40) NOT NULL,
+  provider VARCHAR(60) DEFAULT NULL,
+  user_id INT DEFAULT NULL,
+  action VARCHAR(60) NOT NULL,   
+  status TEXT CHECK (status IN ('ok','error')) NOT NULL,
+  http_status INT DEFAULT NULL,
+  request_meta JSONB DEFAULT NULL,
+  error_message VARCHAR(500) DEFAULT NULL,
+  latency_ms INT DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (integration_id) REFERENCES api_integrations(id) ON DELETE SET NULL,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+);
+CREATE TABLE IF NOT EXISTS user_verifications (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL,
+  method TEXT CHECK (method IN ('nafath','sms','whatsapp','email')) NOT NULL,
+  status TEXT CHECK (status IN ('pending','verified','expired','failed')) DEFAULT 'pending',
+  identifier VARCHAR(190) DEFAULT NULL,   
+  verified_at TIMESTAMP NULL DEFAULT NULL,
+  expires_at TIMESTAMP NULL DEFAULT NULL,
+  metadata JSONB DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT uq_user_method UNIQUE (user_id, method)
+);
+CREATE TABLE IF NOT EXISTS verification_otps (
+  id BIGSERIAL PRIMARY KEY,
+  user_id INT NOT NULL,
+  method TEXT CHECK (method IN ('sms','whatsapp','email')) NOT NULL,
+  identifier VARCHAR(190) NOT NULL,         
+  code_hash VARCHAR(128) NOT NULL,          
+  attempts INT DEFAULT 0,
+  max_attempts INT DEFAULT 5,
+  expires_at TIMESTAMP NOT NULL,
+  consumed_at TIMESTAMP NULL DEFAULT NULL,
+  ip VARCHAR(45) DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS verification_audit (
+  id BIGSERIAL PRIMARY KEY,
+  user_id INT NOT NULL,
+  method VARCHAR(20) NOT NULL,
+  action VARCHAR(40) NOT NULL,   
+  result VARCHAR(40) DEFAULT NULL,
+  details VARCHAR(500) DEFAULT NULL,
+  ip VARCHAR(45) DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description) VALUES
+('verify_methods_enabled',          'sms,email',          'string',  'auth', 1, 'طرق التحقق المتاحة (sms,whatsapp,email,nafath)'),
+('verify_required_for_provider',    'sms',                'string',  'auth', 1, 'طرق التحقق المطلوبة لمقدّمي الخدمة (مفصولة بفاصلة)'),
+('verify_required_for_client',      '',                   'string',  'auth', 1, 'طرق التحقق المطلوبة للعملاء (فارغ = اختياري)'),
+('verify_block_until_verified',     'false',              'boolean', 'auth', 1, 'منع استخدام المنصة قبل التحقق'),
+('verify_otp_length',               '6',                  'number',  'auth', 0, 'طول رمز OTP'),
+('verify_otp_ttl_minutes',          '10',                 'number',  'auth', 0, 'مدة صلاحية OTP بالدقائق'),
+('verify_otp_resend_seconds',       '60',                 'number',  'auth', 0, 'فترة الانتظار قبل إعادة الإرسال (ثوانٍ)'),
+('verify_otp_max_attempts',         '5',                  'number',  'auth', 0, 'أقصى عدد محاولات قبل قفل الرمز'),
+('verify_email_link_ttl_hours',     '24',                 'number',  'auth', 0, 'مدة صلاحية رابط تأكيد البريد بالساعات'),
+('verify_allow_guest_browsing',     'true',               'boolean', 'auth', 1, 'السماح بالتصفّح بدون تسجيل دخول') ON CONFLICT DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('005_verification_and_integrations.sql');
+
+-- migrations/006_dynamic_translations.sql
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE categories
+  ADD COLUMN IF NOT EXISTS name_translations JSONB DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS description_translations JSONB DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE services
+  ADD COLUMN IF NOT EXISTS name_translations JSONB DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS description_translations JSONB DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+UPDATE categories
+SET name_translations = jsonb_build_object('ar', name_ar, 'en', name_en)
+WHERE name_translations IS NULL;
+UPDATE services
+SET name_translations = jsonb_build_object('ar', name_ar, 'en', name_en)
+WHERE name_translations IS NULL;
+INSERT INTO schema_migrations(name) VALUES ('006_dynamic_translations.sql');
+
+-- migrations/007_provider_location_mode.sql
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE provider_profiles
+  ADD COLUMN IF NOT EXISTS location_mode TEXT CHECK (location_mode IN ('fixed','mobile')) DEFAULT 'fixed',
+  ADD COLUMN IF NOT EXISTS fixed_latitude  DECIMAL(10,7) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS fixed_longitude DECIMAL(10,7) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS fixed_address   VARCHAR(255)  DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+UPDATE provider_profiles pp
+SET fixed_latitude = u.latitude, fixed_longitude = u.longitude
+FROM users u
+WHERE pp.user_id = u.id AND pp.fixed_latitude IS NULL AND u.latitude IS NOT NULL;
+INSERT INTO schema_migrations(name) VALUES ('007_provider_location_mode.sql');
+
+-- migrations/008_dispute_workflow.sql
+SELECT 1;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE disputes
+  ADD COLUMN IF NOT EXISTS frozen SMALLINT DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS chat_locked SMALLINT DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS ratings_allowed TEXT CHECK (ratings_allowed IN ('both','client_only','provider_only','none','pending'))
+    DEFAULT 'pending',
+  ADD COLUMN IF NOT EXISTS priority TEXT CHECK (priority IN ('low','normal','high','urgent')) DEFAULT 'normal'$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+CREATE TABLE IF NOT EXISTS dispute_evidence (
+  id BIGSERIAL PRIMARY KEY,
+  dispute_id INT NOT NULL,
+  uploaded_by INT NOT NULL,
+  file_url VARCHAR(255) NOT NULL,
+  file_name VARCHAR(200) DEFAULT NULL,
+  file_type VARCHAR(50) DEFAULT NULL,
+  file_size INT DEFAULT NULL,
+  kind TEXT CHECK (kind IN ('image','voice','file','screenshot')) DEFAULT 'file',
+  caption VARCHAR(300) DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (dispute_id) REFERENCES disputes(id) ON DELETE CASCADE,
+  FOREIGN KEY (uploaded_by) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS dispute_messages (
+  id BIGSERIAL PRIMARY KEY,
+  dispute_id INT NOT NULL,
+  author_id INT NOT NULL,
+  author_role TEXT CHECK (author_role IN ('client','provider','admin')) NOT NULL,
+  body TEXT NOT NULL,
+  is_internal SMALLINT DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (dispute_id) REFERENCES disputes(id) ON DELETE CASCADE,
+  FOREIGN KEY (author_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE TABLE IF NOT EXISTS dispute_status_logs (
+  id BIGSERIAL PRIMARY KEY,
+  dispute_id INT NOT NULL,
+  from_status VARCHAR(30) DEFAULT NULL,
+  to_status VARCHAR(30) NOT NULL,
+  changed_by INT NOT NULL,
+  changed_role TEXT CHECK (changed_role IN ('client','provider','admin','system')) DEFAULT 'admin',
+  note VARCHAR(500) DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (dispute_id) REFERENCES disputes(id) ON DELETE CASCADE,
+  FOREIGN KEY (changed_by) REFERENCES users(id) ON DELETE CASCADE
+);
+INSERT INTO schema_migrations(name) VALUES ('008_dispute_workflow.sql');
+
+-- migrations/009_reseed_catalog.sql
+INSERT INTO categories (id, name_ar, name_en, slug, icon, color, sort_order, is_active)
+VALUES
+(1,  'صيانة منزلية',                'Home maintenance',          'home-maintenance',  '🔧', '#3b82f6', 1, 1),
+(2,  'نظافة',                       'Cleaning',                  'cleaning',          '✨', '#10b981', 2, 1),
+(3,  'نقل وعفش',                    'Moving',                    'moving',            '🚚', '#f59e0b', 3, 1),
+(4,  'كهرباء',                      'Electrical',                'electrical',        '⚡', '#ef4444', 4, 1),
+(5,  'سباكة',                       'Plumbing',                  'plumbing',          '💧', '#06b6d4', 5, 1),
+(6,  'تكييف وتبريد',                'AC & cooling',              'ac-cooling',        '❄️', '#0ea5e9', 6, 1),
+(7,  'دهانات وديكور',               'Paint & décor',             'paint-decor',       '🎨', '#8b5cf6', 7, 1),
+(8,  'حدائق ومناظر',                'Gardens & landscaping',     'gardens',           '🌿', '#22c55e', 8, 1),
+(9,  'تعليم وتدريس',                'Tutoring',                  'education',         '📚', '#6366f1', 9, 1),
+(10, 'سيارات',                      'Cars',                      'cars',              '🚗', '#64748b', 10, 1),
+(11, 'تقنية وكمبيوتر',              'Tech & computers',          'tech',              '💻', '#0f172a', 11, 1),
+(12, 'مناسبات وضيافة',              'Events & catering',         'events',            '🎉', '#ec4899', 12, 1),
+(13, 'الأسر المنتجة',               'Home businesses',           'home-businesses',   '🍳', '#ec4899', 13, 1),
+(14, 'التصوير والإبداع',            'Photography & creative',    'photography',       '📸', '#6366f1', 14, 1),
+(15, 'التسويق الرقمي',              'Digital marketing',         'digital-marketing', '📱', '#06b6d4', 15, 1),
+(16, 'التوصيل والشحن',              'Delivery & shipping',       'delivery',          '📦', '#f59e0b', 16, 1),
+(17, 'العقار والإيجار',             'Real estate & rentals',     'real-estate',       '🏢', '#9c6a3d', 17, 1),
+(18, 'المقاولات والإنشاءات',        'Construction & contracting','construction',      '🏗️', '#d97706', 18, 1),
+(19, 'العناية الشخصية والتجميل',    'Personal care & beauty',    'personal-care',     '💇', '#f43f5e', 19, 1),
+(20, 'السفر والرحلات',              'Travel & tours',            'travel-tours',      '✈️', '#0ea5e9', 20, 1),
+(21, 'خدمات الأعمال',               'Business services',         'business-services', '💼', '#475569', 21, 1),
+(22, 'الصحة المنزلية والرعاية',     'Home health & care',        'home-health',       '🩺', '#dc2626', 22, 1),
+(23, 'التدريب والدورات',            'Training & courses',        'training',          '🏆', '#8b5cf6', 23, 1),
+(24, 'اللياقة والرياضة',            'Fitness & sports',          'fitness',           '💪', '#16a34a', 24, 1),
+(25, 'خدمات الطلاب',                'Student services',          'student-services',  '🎓', '#10b981', 25, 1),
+(26, 'الخياطة والتفصيل',            'Tailoring & sewing',        'tailoring',         '🧵', '#a855f7', 26, 1),
+(27, 'النقل والمواصلات',            'Transport & mobility',      'transport',         '🚐', '#eab308', 27, 1)
+ON CONFLICT DO NOTHING;
+INSERT INTO services (id, category_id, name_ar, name_en, slug, sort_order, is_active)
+VALUES
+(1,   1,  'صيانة عامة',                 'General maintenance',      'general-maintenance',     1, 1),
+(2,   1,  'تركيب أثاث',                 'Furniture installation',   'furniture-installation',  2, 1),
+(3,   1,  'إصلاح أبواب ونوافذ',         'Door & window repair',     'doors-windows-repair',    3, 1),
+(4,   2,  'تنظيف منازل',                'Home cleaning',            'home-cleaning',           1, 1),
+(5,   2,  'تنظيف خزانات',               'Water tank cleaning',      'tank-cleaning',           2, 1),
+(6,   2,  'تنظيف مكيفات',               'AC cleaning',              'ac-cleaning',             3, 1),
+(7,   2,  'مكافحة حشرات',               'Pest control',             'pest-control',            4, 1),
+(8,   3,  'نقل عفش داخل المدينة',       'Moving in city',           'moving-in-city',          1, 1),
+(9,   3,  'نقل عفش بين المدن',          'Moving between cities',    'moving-between-cities',   2, 1),
+(10,  3,  'فك وتركيب أثاث',             'Furniture assembly',       'assembly',                3, 1),
+(11,  4,  'إصلاح أعطال كهربائية',       'Electrical repair',        'electrical-repair',       1, 1),
+(12,  4,  'تمديدات كهربائية',           'Electrical wiring',        'electrical-wiring',       2, 1),
+(13,  5,  'إصلاح تسربات',               'Leak repair',              'leak-repair',             1, 1),
+(14,  5,  'تسليك مجاري',                'Drain cleaning',           'drain-cleaning',          2, 1),
+(15,  6,  'صيانة مكيفات سبليت',         'Split AC service',         'split-ac-service',        1, 1),
+(16,  6,  'صيانة مكيفات مركزية',        'Central AC service',       'central-ac-service',      2, 1),
+(17,  7,  'دهان منازل',                 'Home painting',            'home-painting',           1, 1),
+(18,  7,  'ورق جدران',                  'Wallpaper',                'wallpaper',               2, 1),
+(19,  8,  'تنسيق حدائق',                'Garden landscaping',       'garden-landscaping',      1, 1),
+(20,  9,  'تدريس خصوصي',                'Private tutoring',         'private-tutoring',        1, 1),
+(21,  11, 'صيانة كمبيوتر',              'Computer repair',          'computer-repair',         1, 1),
+(22,  11, 'تصميم مواقع',                'Web design',               'web-design',              2, 1),
+(23,  12, 'تنظيم حفلات',                'Event planning',           'event-planning',          1, 1),
+(50,  13, 'طبخ منزلي',                  'Home cooking',             'home-cooking',            1, 1),
+(51,  13, 'قهوة وحلويات',               'Coffee & sweets',          'coffee-sweets',           2, 1),
+(52,  13, 'ذبائح وولائم',               'Catering meat & feasts',   'catering-meat',           3, 1),
+(53,  13, 'مأكولات شعبية',              'Traditional foods',        'traditional-foods',       4, 1),
+(54,  13, 'مخبوزات',                    'Bakery',                   'bakery',                  5, 1),
+(60,  14, 'تصوير منتجات',               'Product photography',      'product-photography',     1, 1),
+(61,  14, 'تصوير فيديو',                'Video shooting',           'video-shooting',          2, 1),
+(62,  14, 'تصميم وطباعة',               'Design & printing',        'design-printing',         3, 1),
+(63,  14, 'مونتاج فيديو',               'Video editing',            'video-editing',           4, 1),
+(70,  15, 'تسويق إلكتروني',             'Digital marketing',        'digital-marketing-svc',   1, 1),
+(71,  15, 'إدارة حسابات تواصل',         'Social media management',  'social-media-management', 2, 1),
+(72,  15, 'إعلانات ممولة',              'Paid ads',                 'paid-ads',                3, 1),
+(80,  16, 'توصيل طلبات',                'Parcel delivery',          'parcel-delivery',         1, 1),
+(81,  16, 'شحن داخلي',                  'Local shipping',           'local-shipping',          2, 1),
+(82,  16, 'شحن بين المدن',              'Intercity shipping',       'intercity-shipping',      3, 1),
+(90,  17, 'تأجير يومي',                 'Daily rental',             'daily-rental',            1, 1),
+(91,  17, 'شقق مفروشة',                 'Furnished apartments',     'furnished-apartments',    2, 1),
+(92,  17, 'شاليهات واستراحات',          'Chalets & resorts',        'chalets-resorts',         3, 1),
+(100, 18, 'تشطيبات',                    'Finishing',                'finishing',               1, 1),
+(101, 18, 'نجارة',                      'Carpentry',                'carpentry',               2, 1),
+(102, 18, 'حدادة',                      'Welding',                  'welding',                 3, 1),
+(110, 19, 'حلاقة',                      'Barbering',                'barbering',               1, 1),
+(111, 19, 'مكياج',                      'Makeup',                   'makeup',                  2, 1),
+(112, 19, 'عناية بالشعر',               'Hair care',                'hair-care',               3, 1),
+(120, 20, 'تنظيم رحلات',                'Tour organisation',        'tour-organization',       1, 1),
+(121, 20, 'حجوزات فنادق',               'Hotel booking',            'hotel-booking',           2, 1),
+(122, 20, 'مرشد سياحي',                'Tour guide',               'tour-guide',              3, 1),
+(123, 20, 'تأجير سيارات',               'Car rental',               'car-rental',              4, 1),
+(130, 21, 'استشارات إدارية',            'Management consulting',    'management-consulting',   1, 1),
+(131, 21, 'خدمات قانونية',              'Legal services',           'legal-services',          2, 1),
+(132, 21, 'خدمات محاسبية',              'Accounting',               'accounting',              3, 1),
+(140, 22, 'تمريض منزلي',                'Home nursing',             'home-nursing',            1, 1),
+(141, 22, 'رعاية كبار السن',            'Elderly care',             'elderly-care',            2, 1),
+(142, 22, 'جليسة أطفال',                'Babysitting',              'babysitting',             3, 1),
+(150, 23, 'دورات احترافية',             'Professional courses',     'professional-courses',    1, 1),
+(151, 23, 'دورات لغة',                  'Language courses',         'language-courses',        2, 1),
+(160, 24, 'تدريب شخصي',                 'Personal training',        'personal-training',       1, 1),
+(161, 24, 'تمارين جماعية',              'Group fitness',            'group-fitness',           2, 1),
+(170, 25, 'كتابة بحوث',                 'Research writing',         'research-writing',        1, 1),
+(171, 25, 'ترجمة أكاديمية',             'Academic translation',     'academic-translation',    2, 1),
+(180, 26, 'خياطة رجالية',               'Mens tailoring',           'mens-tailoring',          1, 1),
+(181, 26, 'خياطة نسائية',               'Womens tailoring',         'womens-tailoring',        2, 1),
+(190, 27, 'نقل ركاب',                   'Passenger transport',      'passenger-transport',     1, 1),
+(191, 27, 'تأجير حافلات',               'Bus rental',               'bus-rental',              2, 1)
+ON CONFLICT DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('009_reseed_catalog.sql');
+
+-- migrations/010_multi_identifier.sql
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE users
+  ADD COLUMN IF NOT EXISTS username    VARCHAR(60)  DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS facebook_id VARCHAR(120) DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE users ADD CONSTRAINT uq_users_username UNIQUE (username)$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE users ADD CONSTRAINT uq_users_facebook UNIQUE (facebook_id)$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+INSERT INTO schema_migrations(name) VALUES ('010_multi_identifier.sql');
+
+-- migrations/011_auth_method_toggles.sql
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description) VALUES
+('auth_methods_enabled', 'username,email,phone,facebook', 'string', 'auth', 1,
+ 'طرق التسجيل/الدخول المسموحة (username,email,phone,facebook)') ON CONFLICT DO NOTHING;
+UPDATE settings
+   SET description = 'طرق التحقق المتاحة (sms,whatsapp,email,nafath,facebook)'
+ WHERE setting_key = 'verify_methods_enabled';
+INSERT INTO schema_migrations(name) VALUES ('011_auth_method_toggles.sql');
+
+-- migrations/012_plan_search_priority.sql
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE subscription_plans
+  ADD COLUMN IF NOT EXISTS search_priority INT NOT NULL DEFAULT 0$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+INSERT INTO schema_migrations(name) VALUES ('012_plan_search_priority.sql');
+
+-- migrations/013_provider_badges.sql
+CREATE TABLE IF NOT EXISTS provider_badges (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL,
+  badge_type TEXT CHECK (badge_type IN ('trusted', 'featured')) NOT NULL,
+  
+  status TEXT CHECK (status IN ('requested', 'approved', 'awaiting_payment', 'active',
+              'rejected', 'expired', 'cancelled')) NOT NULL DEFAULT 'requested',
+
+  monthly_fee DECIMAL(10,2) NOT NULL DEFAULT 0,
+  insurance_required SMALLINT NOT NULL DEFAULT 0,
+  insurance_amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+
+  notes TEXT DEFAULT NULL,             
+  rejection_reason TEXT DEFAULT NULL,  
+
+  approved_by INT DEFAULT NULL,        
+  approved_at TIMESTAMP NULL DEFAULT NULL,
+  rejected_at TIMESTAMP NULL DEFAULT NULL,
+
+  payment_id INT DEFAULT NULL,
+  paid_at TIMESTAMP NULL DEFAULT NULL,
+
+  starts_at TIMESTAMP NULL DEFAULT NULL,
+  ends_at   TIMESTAMP NULL DEFAULT NULL,
+
+  cancelled_at TIMESTAMP NULL DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+  FOREIGN KEY (user_id)     REFERENCES users(id)    ON DELETE CASCADE,
+  FOREIGN KEY (approved_by) REFERENCES users(id)    ON DELETE SET NULL,
+  FOREIGN KEY (payment_id)  REFERENCES payments(id) ON DELETE SET NULL
+);
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE provider_profiles
+  ADD COLUMN IF NOT EXISTS badge_trusted_active   SMALLINT   NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS badge_trusted_until    TIMESTAMP    NULL DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS badge_featured_active  SMALLINT   NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS badge_featured_until   TIMESTAMP    NULL DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description) VALUES
+('badges_enabled',                       'true', 'boolean', 'auth', 1, 'تفعيل خدمة الشارات (موثوق / متميّز)'),
+('badge_trusted_monthly_fee',            '49',   'number',  'auth', 1, 'الرسوم الشهرية لشارة «موثوق» (ر.س)'),
+('badge_trusted_insurance_required',     'false','boolean', 'auth', 1, 'يشترط تأمين قابل للاسترداد لشارة «موثوق»؟'),
+('badge_trusted_insurance_amount',       '0',    'number',  'auth', 1, 'قيمة التأمين لشارة «موثوق» (ر.س)'),
+('badge_featured_monthly_fee',           '99',   'number',  'auth', 1, 'الرسوم الشهرية لشارة «متميّز» (ر.س)'),
+('badge_featured_insurance_required',    'false','boolean', 'auth', 1, 'يشترط تأمين قابل للاسترداد لشارة «متميّز»؟'),
+('badge_featured_insurance_amount',      '0',    'number',  'auth', 1, 'قيمة التأمين لشارة «متميّز» (ر.س)'),
+('badge_duration_days',                  '30',   'number',  'auth', 1, 'مدة صلاحية الشارة بعد الدفع (أيام)') ON CONFLICT DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('013_provider_badges.sql');
+
+-- migrations/014_ads_media_type.sql
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads
+  ADD COLUMN IF NOT EXISTS media_type TEXT CHECK (media_type IN ('image','video')) NOT NULL DEFAULT 'image'$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+INSERT INTO schema_migrations(name) VALUES ('014_ads_media_type.sql');
+
+-- migrations/015_ad_media_storage.sql
+CREATE TABLE IF NOT EXISTS ad_media (
+  id SERIAL PRIMARY KEY,
+  mime VARCHAR(80) NOT NULL,
+  size INT NOT NULL,
+  filename VARCHAR(200) DEFAULT NULL,
+  data BYTEA NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+INSERT INTO schema_migrations(name) VALUES ('015_ad_media_storage.sql');
+
+-- migrations/016_user_ad_requests.sql
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads
+  ADD COLUMN IF NOT EXISTS user_id INT DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS status TEXT CHECK (status IN ('requested','approved','awaiting_payment','active','rejected','expired','cancelled','paused'))
+                    NOT NULL DEFAULT 'active',
+  ADD COLUMN IF NOT EXISTS placements JSONB DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS max_views INT DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS duration_days INT DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS amount DECIMAL(10,2) NOT NULL DEFAULT 0,
+  ADD COLUMN IF NOT EXISTS notes TEXT DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS rejection_reason TEXT DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS approved_by INT DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS approved_at TIMESTAMP NULL DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS rejected_at TIMESTAMP NULL DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS paid_at TIMESTAMP NULL DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS payment_id INT DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS activated_at TIMESTAMP NULL DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS cancelled_at TIMESTAMP NULL DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD CONSTRAINT fk_ads_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD CONSTRAINT fk_ads_approver FOREIGN KEY (approved_by) REFERENCES users(id) ON DELETE SET NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD CONSTRAINT fk_ads_payment FOREIGN KEY (payment_id) REFERENCES payments(id) ON DELETE SET NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+CREATE INDEX IF NOT EXISTS idx_ads_user ON ads(user_id);
+CREATE INDEX IF NOT EXISTS idx_ads_status ON ads(status);
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description) VALUES
+('ads_user_requests_enabled', 'true', 'boolean', 'auth', 1, 'السماح للمستخدمين بطلب نشر إعلانات'),
+('ads_price_per_day',          '5',   'number',  'auth', 1, 'سعر اليوم الواحد للإعلان (ر.س)'),
+('ads_price_per_1k_views',     '10',  'number',  'auth', 1, 'سعر كل 1000 مشاهدة للإعلان (ر.س)'),
+('ads_min_duration_days',      '1',   'number',  'auth', 1, 'الحد الأدنى لمدة الإعلان (أيام)'),
+('ads_max_duration_days',      '90',  'number',  'auth', 1, 'الحد الأعلى لمدة الإعلان (أيام)'),
+('ads_min_views',              '500', 'number',  'auth', 1, 'الحد الأدنى لعدد المشاهدات'),
+('ads_max_views',              '100000','number','auth', 1, 'الحد الأعلى لعدد المشاهدات') ON CONFLICT DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('016_user_ad_requests.sql');
+
+-- migrations/017_more_ad_placements.sql
+SELECT 1;
+INSERT INTO schema_migrations(name) VALUES ('017_more_ad_placements.sql');
+
+-- migrations/018_ad_daily_stats.sql
+CREATE TABLE IF NOT EXISTS ad_stats_daily (
+  id SERIAL PRIMARY KEY,
+  ad_id INT NOT NULL,
+  day DATE NOT NULL,
+  views_count INT NOT NULL DEFAULT 0,
+  clicks_count INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT uq_ad_day UNIQUE (ad_id, day),
+  FOREIGN KEY (ad_id) REFERENCES ads(id) ON DELETE CASCADE
+);
+INSERT INTO schema_migrations(name) VALUES ('018_ad_daily_stats.sql');
+
+-- migrations/019_ad_placement_pricing.sql
+CREATE TABLE IF NOT EXISTS ad_placement_pricing (
+  id SERIAL PRIMARY KEY,
+  placement VARCHAR(40) NOT NULL UNIQUE,
+  price_per_day DECIMAL(10,2) NOT NULL DEFAULT 5.00,
+  price_per_1k_views DECIMAL(10,2) NOT NULL DEFAULT 10.00,
+  exclusive_multiplier DECIMAL(4,2) NOT NULL DEFAULT 2.00,
+  is_active SMALLINT NOT NULL DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+INSERT INTO ad_placement_pricing (placement, price_per_day, price_per_1k_views, exclusive_multiplier) VALUES
+('home_top',                12, 18, 3.00),
+('home_hero',               15, 20, 3.00),
+('home_middle',              8, 12, 2.50),
+('home_bottom',              6, 10, 2.00),
+('services_top',             8, 12, 2.50),
+('services_bottom',          5,  8, 2.00),
+('category_top',             7, 10, 2.50),
+('category_bottom',          4,  7, 2.00),
+('request_details_top',      6,  9, 2.00),
+('request_details_bottom',   4,  6, 2.00),
+('sidebar',                  4,  6, 2.00),
+('search',                   8, 12, 2.50),
+('profile_top',              3,  5, 2.00),
+('chat_sidebar',             3,  5, 2.00),
+('footer',                   2,  3, 2.00) ON CONFLICT DO NOTHING;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS exclusive SMALLINT NOT NULL DEFAULT 0$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+INSERT INTO schema_migrations(name) VALUES ('019_ad_placement_pricing.sql');
+
+-- migrations/020_ad_geo_targeting.sql
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS target_countries JSONB DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS target_cities    JSONB DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+CREATE TABLE IF NOT EXISTS ip_geo_cache (
+  ip          VARCHAR(64)  NOT NULL PRIMARY KEY,
+  country     VARCHAR(8)   DEFAULT NULL,
+  country_name VARCHAR(80) DEFAULT NULL,
+  region      VARCHAR(120) DEFAULT NULL,
+  city        VARCHAR(120) DEFAULT NULL,
+  latitude    DECIMAL(10,6) DEFAULT NULL,
+  longitude   DECIMAL(10,6) DEFAULT NULL,
+  provider    VARCHAR(40)  DEFAULT NULL,
+  resolved_at TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
+);
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description) VALUES
+('ads_geo_provider', 'ip-api', 'string', 'auth', 0, 'مزود الكشف الجغرافي من IP (ip-api / disabled)'),
+('ads_geo_cache_days', '14',  'number', 'auth', 0, 'مدة بقاء نتيجة الكشف الجغرافي في الكاش (أيام)') ON CONFLICT DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('020_ad_geo_targeting.sql');
+
+-- migrations/021_ad_region_targeting.sql
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS target_regions JSONB DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ip_geo_cache ADD COLUMN IF NOT EXISTS region_id INT DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+INSERT INTO schema_migrations(name) VALUES ('021_ad_region_targeting.sql');
+
+-- migrations/022_user_region_governorate.sql
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE users ADD COLUMN IF NOT EXISTS region_id INT DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE users ADD COLUMN IF NOT EXISTS governorate_id INT DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+INSERT INTO schema_migrations(name) VALUES ('022_user_region_governorate.sql');
+
+-- migrations/023_countries_layer.sql
+CREATE TABLE IF NOT EXISTS countries (
+  id SERIAL PRIMARY KEY,
+  code VARCHAR(2) NOT NULL UNIQUE,           
+  name_ar VARCHAR(80) NOT NULL,
+  name_en VARCHAR(80) NOT NULL,
+  flag_emoji VARCHAR(8) DEFAULT NULL,
+  dial_code VARCHAR(8) DEFAULT NULL,         
+  currency_code VARCHAR(6) NOT NULL,         
+  currency_symbol VARCHAR(16) DEFAULT NULL,  
+  
+  
+  
+  languages_enabled JSONB DEFAULT NULL,
+  is_active SMALLINT NOT NULL DEFAULT 1,
+  sort_order INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+INSERT INTO countries
+  (code, name_ar, name_en, flag_emoji, dial_code, currency_code, currency_symbol, languages_enabled, sort_order) VALUES
+('SA', 'السعودية',    'Saudi Arabia',         '🇸🇦', '+966', 'SAR', 'ر.س', jsonb_build_array('ar','en','ur','bn','hi'), 1),
+('AE', 'الإمارات',     'United Arab Emirates', '🇦🇪', '+971', 'AED', 'د.إ', jsonb_build_array('ar','en','ur','bn','hi'), 2),
+('KW', 'الكويت',       'Kuwait',               '🇰🇼', '+965', 'KWD', 'د.ك', jsonb_build_array('ar','en','ur','bn','hi'), 3),
+('QA', 'قطر',          'Qatar',                '🇶🇦', '+974', 'QAR', 'ر.ق', jsonb_build_array('ar','en','ur','bn','hi'), 4),
+('BH', 'البحرين',      'Bahrain',              '🇧🇭', '+973', 'BHD', 'د.ب', jsonb_build_array('ar','en','ur','bn','hi'), 5),
+('OM', 'عُمان',         'Oman',                 '🇴🇲', '+968', 'OMR', 'ر.ع', jsonb_build_array('ar','en','ur','bn','hi'), 6),
+('YE', 'اليمن',        'Yemen',                '🇾🇪', '+967', 'YER', 'ر.ي', jsonb_build_array('ar','en'),                7),
+('EG', 'مصر',          'Egypt',                '🇪🇬', '+20',  'EGP', 'ج.م', jsonb_build_array('ar','en'),                8),
+('JO', 'الأردن',       'Jordan',               '🇯🇴', '+962', 'JOD', 'د.أ', jsonb_build_array('ar','en'),                9),
+('PS', 'فلسطين',       'Palestine',            '🇵🇸', '+970', 'JOD', 'د.أ', jsonb_build_array('ar','en'),               10),
+('LB', 'لبنان',        'Lebanon',              '🇱🇧', '+961', 'LBP', 'ل.ل', jsonb_build_array('ar','en'),               11),
+('SY', 'سوريا',        'Syria',                '🇸🇾', '+963', 'SYP', 'ل.س', jsonb_build_array('ar','en'),               12),
+('IQ', 'العراق',       'Iraq',                 '🇮🇶', '+964', 'IQD', 'د.ع', jsonb_build_array('ar','en'),               13),
+('MA', 'المغرب',       'Morocco',              '🇲🇦', '+212', 'MAD', 'د.م', jsonb_build_array('ar','en'),               14),
+('DZ', 'الجزائر',       'Algeria',              '🇩🇿', '+213', 'DZD', 'د.ج', jsonb_build_array('ar','en'),               15),
+('TN', 'تونس',         'Tunisia',              '🇹🇳', '+216', 'TND', 'د.ت', jsonb_build_array('ar','en'),               16),
+('LY', 'ليبيا',        'Libya',                '🇱🇾', '+218', 'LYD', 'د.ل', jsonb_build_array('ar','en'),               17),
+('SD', 'السودان',      'Sudan',                '🇸🇩', '+249', 'SDG', 'ج.س', jsonb_build_array('ar','en'),               18),
+('MR', 'موريتانيا',    'Mauritania',           '🇲🇷', '+222', 'MRU', 'أ.م', jsonb_build_array('ar','en'),               19),
+('SO', 'الصومال',      'Somalia',              '🇸🇴', '+252', 'SOS', 'ش.ص', jsonb_build_array('ar','en'),               20),
+('DJ', 'جيبوتي',       'Djibouti',             '🇩🇯', '+253', 'DJF', 'ف.ج', jsonb_build_array('ar','en'),               21),
+('KM', 'جزر القمر',    'Comoros',              '🇰🇲', '+269', 'KMF', 'ف.ق', jsonb_build_array('ar','en'),               22) ON CONFLICT DO NOTHING;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE regions ADD COLUMN IF NOT EXISTS country_id INT DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+UPDATE regions SET country_id = (SELECT id FROM countries WHERE code = 'SA') WHERE country_id IS NULL;
+CREATE INDEX IF NOT EXISTS idx_region_country ON regions(country_id);
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE users ADD COLUMN IF NOT EXISTS country_id INT DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+CREATE INDEX IF NOT EXISTS idx_user_country ON users(country_id);
+UPDATE users SET country_id = (SELECT id FROM countries WHERE code = 'SA') WHERE country_id IS NULL AND region_id IS NOT NULL;
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description) VALUES
+('default_country_code',         'SA',  'string',  'general', 1, 'الدولة الافتراضية التي تظهر أولاً في النموذج'),
+('currency_follows_user_country','true','boolean', 'general', 1, 'العملة تتبع دولة المستخدم تلقائياً') ON CONFLICT DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('023_countries_layer.sql');
+
+-- migrations/024_backfill_governorate_cities.sql
+INSERT INTO cities (governorate_id, name_ar, name_en,
+                    latitude, longitude, is_active, sort_order)
+SELECT g.id, g.name_ar, g.name_en,
+       g.latitude, g.longitude, 1, COALESCE(g.sort_order, 0)
+FROM governorates g
+WHERE NOT EXISTS (
+  SELECT 1 FROM cities c WHERE c.governorate_id = g.id
+);
+INSERT INTO schema_migrations(name) VALUES ('024_backfill_governorate_cities.sql');
+
+-- migrations/025_terms_acceptance.sql
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE users ADD COLUMN IF NOT EXISTS terms_accepted_at TIMESTAMP NULL DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE users ADD COLUMN IF NOT EXISTS terms_accepted_version VARCHAR(20) DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description) VALUES
+('terms_version', '1.0', 'string', 'legal', 1, 'إصدار وثيقة الشروط الحالي'),
+('terms_text',
+'<h3>الشروط والأحكام — منصة أي خدمة</h3>
+
+<p><b>١. قبول الاستخدام</b><br>
+بتسجيلك في منصة أي خدمة فإنك توافق على هذه الشروط وتقر بأنك تجاوزت سن الرشد وفقاً للأنظمة المعمول بها في بلدك.</p>
+
+<p><b>٢. صدق المعلومات</b><br>
+تتعهد بأن جميع البيانات التي تقدمها (الاسم، الجوال، البريد، الموقع، الوثائق) صحيحة. أي معلومات مضللة قد تؤدي إلى تعليق حسابك فوراً.</p>
+
+<p><b>٣. الخدمة والدفع</b><br>
+المنصة وسيط بين العملاء ومقدمي الخدمة. تتفقون على تفاصيل العمل والسعر بشكل مباشر. تتحمل المنصة دور التحكيم عند النزاع وفق سجلات المحادثة والاتفاق.</p>
+
+<p><b>٤. مراجعة المحادثات للاطمئنان على الجودة والمصداقية</b><br>
+<u>تقر بعلمك وموافقتك</u> على أن إدارة المنصة قد تطّلع على المحادثات النصية والصوتية وسجلات مشاركة المواقع بينك وبين الطرف الآخر، وذلك حصراً في الحالات التالية:
+</p>
+<ul style="padding-inline-start:20px">
+  <li>عند فتح نزاع أو شكوى من أحد الطرفين</li>
+  <li>للتحقق من تنفيذ الاتفاق وحماية الحقوق</li>
+  <li>للتأكد من عدم وجود محتوى مخالف للنظام أو الآداب العامة</li>
+  <li>لضمان مصداقية مقدمي الخدمة الجدد قبل اعتمادهم</li>
+</ul>
+<p>كل عملية اطلاع تُسجَّل في نظام تدقيق داخلي مع وقتها وهوية الموظف، ولا تُستخدم لأي غرض تسويقي أو خارج هذه الحالات.</p>
+
+<p><b>٥. حماية البيانات الشخصية</b><br>
+لن تُشارك بياناتك مع أي طرف ثالث دون إذنك إلا بأمر قضائي. يحق لك طلب حذف حسابك وكل بياناتك في أي وقت.</p>
+
+<p><b>٦. السلوك المقبول</b><br>
+يُمنع منعاً باتاً: التحايل، الإهانة، نشر محتوى مسيء، طلب أو دفع مبالغ خارج المنصة، انتحال صفة شخص آخر. المخالفة تؤدي إلى إيقاف نهائي.</p>
+
+<p><b>٧. تعديل الشروط</b><br>
+يحق للمنصة تحديث هذه الوثيقة. عند أي تعديل جوهري سيُطلب منك القبول مرة أخرى عند تسجيل الدخول التالي.</p>
+
+<p><b>٨. القانون المعمول به</b><br>
+تخضع هذه الشروط لأنظمة المملكة العربية السعودية والدول الأعضاء حسب موقعك.</p>',
+'text', 'legal', 1, 'نص الشروط والأحكام المعروض عند التسجيل') ON CONFLICT DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('025_terms_acceptance.sql');
+
+-- migrations/026_admin_permissions.sql
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = current_schema() AND table_name = 'users'
+      AND column_name = 'is_super_admin'
+  ) THEN
+    ALTER TABLE users ADD COLUMN is_super_admin SMALLINT NOT NULL DEFAULT 0;
+    UPDATE users SET is_super_admin = 1 WHERE role = 'admin';
+  END IF;
+END $$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE users ADD COLUMN IF NOT EXISTS permissions JSONB DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+INSERT INTO schema_migrations(name) VALUES ('026_admin_permissions.sql');
+
+-- migrations/027_postgres_perf_indexes.sql
+DO $ayk_optional$ BEGIN
+  EXECUTE $ayk_sql_0$CREATE EXTENSION IF NOT EXISTS postgis$ayk_sql_0$;
+EXCEPTION WHEN insufficient_privilege OR feature_not_supported OR undefined_file THEN
+  RAISE NOTICE 'Optional PostGIS extension unavailable';
+END $ayk_optional$;
+DO $ayk_optional$ BEGIN
+  IF to_regtype('geography') IS NOT NULL THEN
+    EXECUTE $ayk_sql_0$ALTER TABLE users             ADD COLUMN IF NOT EXISTS geom geography(Point, 4326)$ayk_sql_0$;
+  END IF;
+END $ayk_optional$;
+DO $ayk_optional$ BEGIN
+  IF to_regtype('geography') IS NOT NULL THEN
+    EXECUTE $ayk_sql_0$CREATE INDEX IF NOT EXISTS idx_users_geom              ON users USING GIST (geom)$ayk_sql_0$;
+  END IF;
+END $ayk_optional$;
+DO $ayk_optional$ BEGIN
+  IF to_regtype('geography') IS NOT NULL THEN
+    EXECUTE $ayk_sql_0$ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS geom geography(Point, 4326)$ayk_sql_0$;
+  END IF;
+END $ayk_optional$;
+DO $ayk_optional$ BEGIN
+  IF to_regtype('geography') IS NOT NULL THEN
+    EXECUTE $ayk_sql_0$CREATE INDEX IF NOT EXISTS idx_provider_profiles_geom  ON provider_profiles USING GIST (geom)$ayk_sql_0$;
+  END IF;
+END $ayk_optional$;
+DO $ayk_optional$ BEGIN
+  IF to_regtype('geography') IS NOT NULL THEN
+    EXECUTE $ayk_sql_0$ALTER TABLE requests          ADD COLUMN IF NOT EXISTS geom geography(Point, 4326)$ayk_sql_0$;
+  END IF;
+END $ayk_optional$;
+DO $ayk_optional$ BEGIN
+  IF to_regtype('geography') IS NOT NULL THEN
+    EXECUTE $ayk_sql_0$CREATE INDEX IF NOT EXISTS idx_requests_geom           ON requests USING GIST (geom)$ayk_sql_0$;
+  END IF;
+END $ayk_optional$;
+CREATE INDEX IF NOT EXISTS idx_users_permissions       ON users USING GIN (permissions);
+CREATE INDEX IF NOT EXISTS idx_countries_langs         ON countries USING GIN (languages_enabled);
+CREATE INDEX IF NOT EXISTS idx_provider_profiles_svc   ON provider_profiles USING GIN (service_ids);
+CREATE INDEX IF NOT EXISTS idx_provider_profiles_gal   ON provider_profiles USING GIN (gallery);
+CREATE INDEX IF NOT EXISTS idx_messages_conv_created   ON messages (conversation_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_offers_request          ON offers (request_id);
+CREATE INDEX IF NOT EXISTS idx_offers_provider         ON offers (provider_id);
+CREATE INDEX IF NOT EXISTS idx_requests_status         ON requests (status, created_at);
+CREATE INDEX IF NOT EXISTS idx_requests_city           ON requests (city_id);
+CREATE INDEX IF NOT EXISTS idx_users_role              ON users (role);
+CREATE INDEX IF NOT EXISTS idx_users_country           ON users (country_id);
+CREATE INDEX IF NOT EXISTS idx_conv_part_user          ON conversation_participants (user_id);
+CREATE INDEX IF NOT EXISTS idx_location_shares_live    ON location_shares (is_live, expires_at);
+CREATE INDEX IF NOT EXISTS idx_disputes_status         ON disputes (status, opened_at);
+INSERT INTO schema_migrations(name) VALUES ('027_postgres_perf_indexes.sql');
+
+-- migrations/028_optional_email.sql
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE users ALTER COLUMN email DROP NOT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+INSERT INTO schema_migrations(name) VALUES ('028_optional_email.sql');
+
+-- migrations/029_durable_uploads.sql
+CREATE TABLE IF NOT EXISTS uploaded_media (
+  id UUID PRIMARY KEY,
+  owner_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  scope VARCHAR(20) NOT NULL CHECK (scope IN ('requests','chat','reviews','avatars','disputes')),
+  scope_id BIGINT DEFAULT NULL,
+  filename VARCHAR(200) NOT NULL,
+  mime VARCHAR(80) NOT NULL,
+  size INT NOT NULL CHECK (size > 0 AND size <= 4194304),
+  data BYTEA NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CHECK (octet_length(data) = size)
+);
+CREATE INDEX IF NOT EXISTS uploaded_media_owner_idx ON uploaded_media(owner_id);
+CREATE INDEX IF NOT EXISTS uploaded_media_scope_idx ON uploaded_media(scope, scope_id);
+INSERT INTO schema_migrations(name) VALUES ('029_durable_uploads.sql');
+
+-- migrations/030_ayk_launch.sql
+UPDATE settings SET setting_value = 'أي خدمة' WHERE setting_key = 'site_name';
+UPDATE settings SET setting_value = 'خدمات المنزل في القصيم والمجمعة' WHERE setting_key = 'site_description';
+UPDATE settings SET setting_value = 'ar' WHERE setting_key = 'default_language';
+UPDATE settings SET setting_value = '0' WHERE setting_key = 'commission_percent';
+UPDATE settings SET setting_value = '26.3260' WHERE setting_key = 'default_lat';
+UPDATE settings SET setting_value = '43.9750' WHERE setting_key = 'default_lng';
+UPDATE settings SET setting_value = 'username,email,phone' WHERE setting_key = 'auth_methods_enabled';
+UPDATE countries SET is_active = CASE WHEN code = 'SA' THEN 1 ELSE 0 END;
+UPDATE regions SET is_active = CASE
+  WHEN country_id = (SELECT id FROM countries WHERE code = 'SA') AND id IN (1,4) THEN 1 ELSE 0 END;
+UPDATE governorates SET is_active = CASE
+  WHEN region_id = 4 OR (region_id = 1 AND name_ar = 'المجمعة') THEN 1 ELSE 0 END;
+UPDATE cities SET is_active = CASE
+  WHEN governorate_id IN (SELECT id FROM governorates WHERE is_active = 1) THEN 1 ELSE 0 END;
+UPDATE districts SET is_active = CASE
+  WHEN city_id IN (SELECT id FROM cities WHERE is_active = 1) THEN 1 ELSE 0 END;
+UPDATE categories SET is_active = CASE WHEN id IN (1,2,3,4,5,6,7,8) THEN 1 ELSE 0 END;
+UPDATE services SET is_active = CASE
+  WHEN category_id IN (SELECT id FROM categories WHERE is_active = 1) THEN 1 ELSE 0 END;
+INSERT INTO services (id, category_id, name_ar, name_en, slug, sort_order, is_active)
+VALUES (3001, 2, 'غسيل الأحواش', 'Yard cleaning', 'ayk-yard-cleaning', 4, 1)
+ON CONFLICT (id) DO NOTHING;
+UPDATE subscription_plans SET name_ar = 'تجربة مجانية', name_en = 'Free trial',
+  description = 'تجربة الخدمة قبل تفعيل تحصيل الاشتراك', is_active = 1
+  WHERE id = 1;
+UPDATE subscription_plans SET name_ar = 'اشتراك العامل', name_en = 'Worker subscription',
+  description = 'اشتراك العامل الشهري في أي خدمة', price = 40, duration_days = 30,
+  max_offers_per_month = NULL, is_featured = 0, badge = NULL, search_priority = 0,
+  features = '["استقبال الطلبات في منطقتك", "ملف مقدم الخدمة", "عروض أسعار للعملاء"]', is_active = 1
+  WHERE id = 2;
+UPDATE subscription_plans SET is_active = 0 WHERE id NOT IN (1,2);
+INSERT INTO schema_migrations(name) VALUES ('030_ayk_launch.sql');
+
+-- migrations/031_qassim_majmaah_districts.sql
+LOCK TABLE cities, districts IN SHARE ROW EXCLUSIVE MODE;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE cities ADD COLUMN IF NOT EXISTS region_id INT REFERENCES regions(id) ON DELETE SET NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+CREATE INDEX IF NOT EXISTS idx_cities_region_id ON cities (region_id);
+UPDATE cities c SET region_id = g.region_id FROM governorates g
+WHERE c.governorate_id = g.id AND c.region_id IS NULL;
+DO $$
+DECLARE table_name TEXT; sequence_name TEXT; next_sequence_id BIGINT; next_row_id BIGINT;
+BEGIN
+  FOREACH table_name IN ARRAY ARRAY['cities','districts'] LOOP
+    sequence_name := pg_get_serial_sequence(table_name, 'id');
+    EXECUTE format('SELECT last_value + CASE WHEN is_called THEN 1 ELSE 0 END FROM %s', sequence_name)
+      INTO next_sequence_id;
+    EXECUTE format('SELECT COALESCE(MAX(id),0) + 1 FROM %I', table_name) INTO next_row_id;
+    PERFORM setval(sequence_name, GREATEST(next_row_id, next_sequence_id), false);
+  END LOOP;
+END $$;
+CREATE TEMP TABLE ayk_district_city_import (
+ source_city_id BIGINT PRIMARY KEY, region_id INT, governorate_id INT,
+ name_ar TEXT, name_en TEXT, latitude DECIMAL(10,7), longitude DECIMAL(10,7)
+) ON COMMIT DROP;
+INSERT INTO ayk_district_city_import
+(source_city_id,region_id,governorate_id,name_ar,name_en,latitude,longitude) VALUES
+(24, 1, 5, 'المجمعة', 'Al Majma''ah', 25.90742996, 45.33901994),
+(11, 4, 46, 'بريدة', 'Buraidah', 26.33033999, 43.97435997),
+(80, 4, 47, 'عنيزة', 'Unayzah', 26.09155002, 43.98767004),
+(955, 4, NULL, 'قبة', 'Qibah', 27.40646005, 44.33120001),
+(1986, 4, 52, 'الأسياح', 'Al Asyah', 26.77779003, 44.21844994),
+(1999, 4, 55, 'عيون الجواء', 'Uyun Al Jawa''', 26.49974004, 43.62932997),
+(2421, 4, 48, 'الرس', 'Ar Rass', 25.87025999, 43.50747996),
+(2448, 4, 49, 'المذنب', 'Al Midhnab', 25.86073, 44.22219004),
+(2467, 4, 56, 'رياض الخبراء', 'Riyad Al Khabra', 26.03877996, 43.53903006),
+(2481, 4, 51, 'البدائع', 'Al Badai''', 25.99835995, 43.72565998),
+(2486, 4, NULL, 'الخبراء', 'Al Khabra''', 26.06003996, 43.63155004),
+(2629, 4, NULL, 'الهلالية', 'Al Hilaliyah', 26.11904995, 43.69033004),
+(2630, 4, 50, 'البكيرية', 'Al Bukayriyah', 26.14888995, 43.65727004),
+(2777, 4, 54, 'الشماسية', 'Ash Shimasiyah', 26.32592999, 44.25512996),
+(2988, 4, 58, 'عقلة الصقور', 'Uqlat As Suqur', 25.83349996, 42.20796997),
+(3030, 4, 53, 'النبهانية', 'An Nabhaniyah', 25.87207999, 43.05837002),
+(3151, 4, 57, 'ضرية', 'Dariyah', 24.71292004, 42.93423003),
+(10872, 4, NULL, 'المرموثة', 'Al Marmuthah', 25.55005, 42.83408333);
+INSERT INTO cities (governorate_id,region_id,name_ar,name_en,latitude,longitude,is_active,sort_order)
+SELECT i.governorate_id,i.region_id,i.name_ar,i.name_en,i.latitude,i.longitude,
+ CASE WHEN r.is_active = 1 AND (i.governorate_id IS NULL OR g.is_active = 1) THEN 1 ELSE 0 END,
+ COALESCE(g.sort_order,100)
+FROM ayk_district_city_import i
+JOIN regions r ON r.id = i.region_id
+LEFT JOIN governorates g ON g.id = i.governorate_id
+WHERE NOT EXISTS (
+ SELECT 1 FROM cities c WHERE c.region_id = i.region_id AND c.name_ar = i.name_ar
+ AND c.governorate_id IS NOT DISTINCT FROM i.governorate_id
+);
+CREATE TEMP TABLE ayk_district_name_import (
+ source_city_id BIGINT, name_ar TEXT, name_en TEXT
+) ON COMMIT DROP;
+INSERT INTO ayk_district_name_import (source_city_id,name_ar,name_en) VALUES
+(24, 'المرقب', 'Al Marqab Dist.'),
+(24, 'اليرموك', 'Al Yarmuk Dist.'),
+(24, 'الفيحاء', 'Al Fayha Dist.'),
+(24, 'الملك فهد', 'King Fahd Dist.'),
+(24, 'الملك سلمان', 'King Salman Dist.'),
+(24, 'الملك عبدالعزيز', 'King Abdulaziz Dist.'),
+(24, 'الاندلس', 'Al Andalus Dist.'),
+(24, 'المطار', 'Al Matar Dist.'),
+(24, 'الملك عبدالله', 'King Abdullah Dist.'),
+(24, 'المنطقة الصناعية', 'Industrial Area'),
+(24, 'الجامعيين', 'Al Jamiyin Dist.'),
+(24, 'المروج', 'Al Muruj Dist.'),
+(24, 'المستقبل', 'Al Mustaqbal Dist.'),
+(11, 'اليرموك', 'Al Yarmouk Dist.'),
+(11, 'الرمال', 'Ar Rimal Dist.'),
+(11, 'المروة', 'Al Marwah Dist.'),
+(11, 'الخضر', 'Al Khudar Dist.'),
+(11, 'اللسيب', 'Al Lusayb Dist.'),
+(11, 'النور', 'Al Nur Dist.'),
+(11, 'رواق', 'Rawaq Dist.'),
+(11, 'القصيعة', 'Al Qusayah Dist.'),
+(11, 'الغدير', 'Al Ghadir Dist.'),
+(11, 'المروج', 'Al Muruj Dist.'),
+(11, 'السالمية', 'As Salmiya Dist.'),
+(11, 'الروابي', 'Al Rawabi Dist.'),
+(11, 'حويلان', 'Huwailan Dist.'),
+(11, 'الصباخ', 'As Sabbakh Dist.'),
+(11, 'واسط', 'Wasit Dist.'),
+(11, 'خضيراء', 'Khudayra Dist.'),
+(11, 'السلام', 'As Salam Dist.'),
+(11, 'الجنوب', 'Al Janub Dist.'),
+(11, 'الخليج', 'Al Khalij Dist.'),
+(11, 'الضاحي', 'Ad Dahi Dist.'),
+(11, 'خب البريدي', 'Khub Al Buraydi Dist.'),
+(11, 'السادة', 'As Sadah Dist.'),
+(11, 'العريمضي', 'Al Uraymdi Dist.'),
+(11, 'الهلال', 'Al Hilal Dist.'),
+(11, 'العجيبة', 'Al Ujaybah Dist.'),
+(11, 'البساتين', 'Al Basatin Dist.'),
+(11, 'النسيم', 'Al Naseem Dist.'),
+(11, 'الموطا', 'Al Mawta Dist.'),
+(11, 'التعليم', 'At Taalim Dist.'),
+(11, 'الجردة', 'Al Jardah Dist.'),
+(11, 'الصالحية', 'As Salhiyah Dist.'),
+(11, 'المريديسية', 'Al Muraydisiyyah Dist.'),
+(11, 'الشروق', 'Al Shorouq Dist.'),
+(11, 'خب الثنيان', 'Khub Ath Thanyan Dist.'),
+(11, 'الشماس', 'Ash Shammas Dist.'),
+(11, 'القادسية', 'Al Qadisiyah Dist.'),
+(11, 'الصفا', 'As Safa Dist.'),
+(11, 'الخبيب', 'Al Khabib Dist.'),
+(11, 'المرقب', 'Al Marqab Dist.'),
+(11, 'الربيع', 'Ar Rabie Dist.'),
+(11, 'الرفيعة', 'Ar Rafiah Dist.'),
+(11, 'الزرقاء', 'Az Zarqa Dist.'),
+(11, 'الحمر', 'Al Humar Dist.'),
+(11, 'الشفق', 'Ash Shafaq Dist.'),
+(11, 'القاع البارد', 'Al Qaa Al Barid Dist.'),
+(11, 'المنار', 'Al Manar Dist.'),
+(11, 'الوسيطا', 'Al Wusayta Dist.'),
+(11, 'الربوة', 'Ar Rabwah Dist.'),
+(11, 'المنتزه', 'Al Muntazah Dist.'),
+(11, 'الصفراء', 'As Safra Dist.'),
+(11, 'النقع', 'An Naqa Dist.'),
+(11, 'الفايزية', 'Al Fayziyah Dist.'),
+(11, 'النخيل', 'Al Nakhil Dist.'),
+(11, 'الروضه', 'Ar Rawdah Dist.'),
+(11, 'النفل', 'An Nafl Dist.'),
+(11, 'الإسكان', 'Al Iskan Dist.'),
+(11, 'الأخضر', 'Al Akhdar Dist.'),
+(11, 'الشقة', 'Ash Shiqah Dist.'),
+(11, 'الرابية', 'Ar Rabiyah Dist.'),
+(11, 'الريان', 'Ar Rayyan Dist.'),
+(11, 'النهضة', 'An Nahdah Dist.'),
+(11, 'الافق', 'Al Ufuq Dist.'),
+(11, 'الورود', 'Al Wurud Dist.'),
+(11, 'الخزامى', 'Al Khuzama Dist.'),
+(11, 'الجزيرة', 'Al Jazirah Dist.'),
+(11, 'الرحاب', 'Al Rehab Dist.'),
+(11, 'الحزم', 'Al Hazm Dist.'),
+(11, 'الفاروق', 'Al Farouq Dist.'),
+(11, 'التشليح', 'At Tashlih Dist.'),
+(80, 'حطين', 'Hiteen Dist.'),
+(80, 'سنام', 'Snam Dist.'),
+(80, 'الروضة', 'Ar Rawdah Dist.'),
+(80, 'الدوحة', 'Ad Dawhah Dist.'),
+(80, 'الحاجب', 'Al Hajeb Dist.'),
+(80, 'الرمال', 'Ar Rimal Dist.'),
+(80, 'الحفيرة', 'Al Hufayrah Dist.'),
+(80, 'الصفا', 'As Safa Dist.'),
+(80, 'الملك خالد', 'King Khalid Dist.'),
+(80, 'الملك فهد', 'King Fahd Dist.'),
+(80, 'الرياضى', 'Ar Riyadi Dist.'),
+(80, 'القيروان', 'Al Qirawan Dist.'),
+(80, 'غرناطة', 'Ghirnatah Dist.'),
+(80, 'قرطبة', 'Qurtubah Dist.'),
+(80, 'العقيق', 'Al Aqiq Dist.'),
+(80, 'الشفاء', 'Ash Shifa Dist.'),
+(80, 'المطار', 'Al Matar Dist.'),
+(80, 'السليمانية', 'As Sulimaniyah Dist.'),
+(80, 'الوسطى', 'Al Wusta Dist.'),
+(80, 'المنطقة الصناعية الثانية', '2nd Industrial Area'),
+(80, 'المنطقة الصناعية الاولى', '1st Industrial Area'),
+(80, 'الخليج', 'Al Khalij Dist.'),
+(80, 'المستودعات', 'Warehouse Dist.'),
+(80, 'الهداء', 'Al Hadaa Dist.'),
+(80, 'الصالحية', 'As Salhiyah Dist.'),
+(80, 'المنتزة', 'Al Muntazah Dist.'),
+(80, 'اليرموك', 'Al Yarmuk Dist.'),
+(80, 'النسيم', 'Al Naseem Dist.'),
+(80, 'الرحمانية', 'Ar Rahmaniyah Dist.'),
+(80, 'دمشية', 'Damshiah Dist.'),
+(80, 'المحمدية', 'Al Muhammadiyah Dist.'),
+(80, 'العبسة', 'Al Absiah Dist.'),
+(80, 'بدر', 'Badr Dist.'),
+(80, 'الوهلان', 'Al Wahlan Dist.'),
+(80, 'مليحة', 'Mlihah Dist.'),
+(80, 'مربيدة', 'Marbidah Dist.'),
+(80, 'العليا', 'Al Olaya Dist.'),
+(80, 'وسط المدينة', 'City Center'),
+(80, 'الريان', 'Ar Rayan Dist.'),
+(80, 'الفاخرية', 'Al Fakhriyah Dist.'),
+(80, 'النقيلية', 'An Nuqailiah Dist.'),
+(80, 'السحيمية', 'As Suhaymiyyah Dist.'),
+(80, 'البديعة', 'Al Badiah Dist.'),
+(80, 'السلام', 'As Salam Dist.'),
+(80, 'اشبيلية', 'Ishbiliyah Dist.'),
+(80, 'العونية', 'Al Awniyah Dist.'),
+(80, 'الحمراء', 'Al Hamra Dist.'),
+(80, 'الفيحاء', 'Al Fayha Dist.'),
+(80, 'الجامعي', 'Al Jamie Dist.'),
+(80, 'المروج', 'Al Muruj Dist.'),
+(80, 'اليمامة', 'Al Yamamah Dist.'),
+(80, 'القادسية', 'Al Qadisiyah Dist.'),
+(80, 'المنار', 'Al Manar Dist.'),
+(80, 'الاشرفية', 'Al Ashrafiyah Dist.'),
+(80, 'الخزامى', 'Al Khuzama Dist.'),
+(80, 'الروغاني', 'Ar Rawghani Dist.'),
+(80, 'الزهراء', 'Az Zahra Dist.'),
+(80, 'الصفراء', 'As Safraa Dist.'),
+(80, 'المباركية', 'Al Mubarkiah Dist.'),
+(80, 'المدوية', 'Al Mudwiah Dist.'),
+(80, 'النظيم', 'An Nadheem Dist.'),
+(80, 'التحلية', 'At Tahliyah Dist.'),
+(80, 'الجزيرة', 'Al Jazirah Dist.'),
+(80, 'البستان', 'Al Bustan Dist.'),
+(80, 'الوفاء', 'Al Wafa Dist.'),
+(80, 'الزاهر', 'Az Zahir Dist.'),
+(80, 'الواحة', 'Al Wahah Dist.'),
+(80, 'سوق الماشية', 'Suq Al Mashiya Dist.'),
+(80, 'الجلده', 'Al Jaldah Dist.'),
+(80, 'الندى', 'An Nada Dist.'),
+(80, 'ربوة الحاجب', 'Rabwat Al Hajeb Dist.'),
+(80, 'الغضا', 'Al Kada Dist.'),
+(80, 'الشعيب', 'Ash Shuaib Dist.'),
+(80, 'البويطن', 'Al Buaiten Dist.'),
+(80, 'النرجس', 'An Narjis Dist.'),
+(80, 'عكاظ', 'Uqaz Dist.'),
+(80, 'النفود', 'An Nofoad Dist.'),
+(80, 'الوادي', 'Al Wadi Dist.'),
+(80, 'القصور', 'Al Qusor Dist.'),
+(80, 'الحديقة', 'Al Hadiqah Dist.'),
+(80, 'المصيف', 'Al Masif Dist.'),
+(80, 'الجوهرة', 'Al Jawharah Dist.'),
+(80, 'الثقافة', 'Athaqafah Dist.'),
+(80, 'المروة', 'Al Marwah Dist.'),
+(80, 'الفخامة', 'Al Fakamah Dist.'),
+(80, 'الفيصلية', 'Al Faisaliyah Dist.'),
+(80, 'الزغيبة', 'Az Zugaibah Dist.'),
+(80, 'الاسكان', 'Al Iskan Dist.'),
+(80, 'الحزم', 'Al Hazm Dist.'),
+(955, 'البساتين', 'Al Basatin Dist.'),
+(955, 'المنتزة', 'Al Montazah Dist.'),
+(955, 'الروضة', 'Al Rawdah Dist.'),
+(955, 'الزهرة', 'Al Zahrah Dist.'),
+(955, 'العليا', 'Al Olaya Dist.'),
+(955, 'العزيزية', 'Al Aziziyah Dist.'),
+(955, 'الازهار', 'Al Azhar Dist.'),
+(955, 'النزهة', 'Al Nuzhah Dist.'),
+(955, 'الجزيرة', 'Al Jazirah Dist.'),
+(955, 'النهضة', 'Al Nahdah Dist.'),
+(955, 'الاستراحات', 'Al Estrahat Dist.'),
+(955, 'الربوة', 'Ar Rabwah Dist.'),
+(1986, 'السلام', 'As Salam Dist.'),
+(1986, 'خصيبة', 'Khusayyibah Dist.'),
+(1986, 'البرود', 'Al Burud Dist.'),
+(1986, 'الفهيد', 'Al Fuhaid Dist.'),
+(1999, 'الخزان', 'Al Khazzan Dist.'),
+(1999, 'المرقب', 'Al Marqab Dist.'),
+(1999, 'التعليم', 'At Talim Dist.'),
+(1999, 'الجردة', 'Al Jardah Dist.'),
+(1999, 'النهضة', 'An Nahdah Dist.'),
+(1999, 'النزهة', 'An Nuzhah Dist.'),
+(1999, 'المنتزة', 'Al Montazah Dist.'),
+(2421, 'اليرموك', 'Al Yarmuk Dist.'),
+(2421, 'الروضة', 'Ar Rawdah Dist.'),
+(2421, 'الملك عبدالعزيز', 'King Abdulaziz Dist.'),
+(2421, 'الاحتفالات', 'Al Ihtifalat Dist.'),
+(2421, 'الصناعية', 'As Sinaiyah Dist.'),
+(2421, 'الملك فهد', 'King Fahd Dist.'),
+(2421, 'الحزم', 'Al Hazm Dist.'),
+(2421, 'التعليم', 'At Talim Dist.'),
+(2421, 'الربوة', 'Ar Rabwah Dist.'),
+(2421, 'القادسية', 'Al Qadisiyah Dist.'),
+(2421, 'الشفاء', 'Ash Shifa Dist.'),
+(2421, 'الجندل', 'Al Jandal Dist.'),
+(2421, 'وادي الرمة', 'Wadi Ar Rimma Dist.'),
+(2421, 'الملك فيصل', 'King Faisal Dist.'),
+(2421, 'المطار', 'Al Matar Dist.'),
+(2421, 'الزهرة', 'Az Zahrah Dist.'),
+(2421, 'الملك خالد', 'King Khalid Dist.'),
+(2421, 'السعادة', 'As Saadah Dist.'),
+(2421, 'قصر بن عقيل', 'Qasr Ibn Aqil Dist.'),
+(2421, 'الحوطة', 'Al Hutah Dist.'),
+(2421, 'المدينة', 'Al Madinah Dist.'),
+(2421, 'النخيل', 'Al Nakhil Dist.'),
+(2421, 'الروابي', 'Ar Rawabi Dist.'),
+(2421, 'الجريف', 'Al Juraif Dist.'),
+(2421, 'الربيع', 'Ar Rabie Dist.'),
+(2421, 'السلام', 'As Salam Dist.'),
+(2421, 'المنار', 'Al Manar Dist.'),
+(2421, 'بهجة', 'Bahjah Dist.'),
+(2421, 'النهضة', 'An Nahdah Dist.'),
+(2421, 'الشنانة الشمالية', 'Al Shinanah Ash Shamaliyyah Dist.'),
+(2421, 'الحمراء', 'Al Hamra Dist.'),
+(2421, 'الالغربي', 'Al Gharbi Dist.'),
+(2421, 'الريان', 'Ar Rayyan  Dist.'),
+(2421, 'الواحة', 'Al Wahah Dist.'),
+(2421, 'سوق الماشيه الجديد', 'Suq Mashiya Al Jadid Dist.'),
+(2421, 'الخليج', 'Al Khalij Dist.'),
+(2421, 'المصيف', 'Al Masif Dist.'),
+(2421, 'الاندلس', 'Al Andalus Dist.'),
+(2421, 'المروج', 'Al Muruj Dist.'),
+(2421, 'الورود', 'Al Wurud Dist.'),
+(2421, 'الفيصلية', 'Al Faisaliyah Dist.'),
+(2421, 'الشنانة الجنوبية', 'Al Shinanah Al Janubiyah Dist.'),
+(2448, 'النخيل', 'Al Nakhil Dist.'),
+(2448, 'الورود', 'Al Wurud Dist.'),
+(2448, 'المنتزه', 'Al Muntazah Dist.'),
+(2448, 'الصفراء', 'As Safra Dist.'),
+(2448, 'البستان', 'Al Bustan Dist.'),
+(2448, 'الجديدة', 'Al Jadidah Dist.'),
+(2448, 'الخزامى', 'Al Khuzama Dist.'),
+(2448, 'الخالدية', 'Al Khalidiyah Dist.'),
+(2448, 'الروضة', 'Ar Rawdah Dist.'),
+(2448, 'الحزم', 'Al Hazm Dist.'),
+(2448, 'الصناعية', 'As Sinaiyah Dist.'),
+(2448, 'قرطبة', 'Qurtubah Dist.'),
+(2448, 'السلام', 'As Salam Dist.'),
+(2448, 'القادسية', 'Al Qadisiyah Dist.'),
+(2448, 'القفيفة', 'Al Qifayfah Dist.'),
+(2448, 'ام عشيرة', 'Umm Ushayrah Dist.'),
+(2448, 'الصالحية', 'As Salhiyah Dist.'),
+(2467, 'الخزان', 'Al Khazzan Dist.'),
+(2467, 'النزهة', 'An Nuzhah Dist.'),
+(2467, 'القادسية', 'Al Qadisiyah Dist.'),
+(2467, 'النهضة', 'An Nahdah Dist.'),
+(2467, 'التعاون', 'At Taawun Dist.'),
+(2467, 'الافراح', 'Al Afrah Dist.'),
+(2467, 'القدس', 'Al Quds Dist.'),
+(2467, 'الحزم', 'Al Hazm Dist.'),
+(2467, 'زبيدة', 'Zubaiydah Dist.'),
+(2467, 'النفل', 'An Nafl Dist.'),
+(2481, 'ام ثلعة', 'Umm Thalaah Dist.'),
+(2481, 'العبيلة', 'Al Ubaylah Dist.'),
+(2481, 'العثمانية', 'Al Uthmaniyah Dist.'),
+(2481, 'الوسطى', 'Al Wusta Dist.'),
+(2481, 'الشيرمي', 'Ash Shayrami Dist.'),
+(2481, 'المستشفى', 'Al Mustashfa Dist.'),
+(2481, 'البساتين', 'Al Basatin Dist.'),
+(2481, 'الاندلس', 'Al Andalus Dist.'),
+(2481, 'النخيل', 'Al Nakhil Dist.'),
+(2481, 'الرمة', 'Ar Rimmah Dist.'),
+(2481, 'الصناعية', 'As Sinaiyah Dist.'),
+(2481, 'الاصفر', 'Al Asfar Dist.'),
+(2481, 'رامات', 'Ramat Dist.'),
+(2481, 'العليا', 'Al Olaya Dist.'),
+(2481, 'التعليم', 'At Taalim Dist.'),
+(2481, 'السلام', 'As Salam Dist.'),
+(2481, 'العبدلية', 'Al Abdaliyah Dist.'),
+(2481, 'الدحلة', 'Ad Dahlah Dist.'),
+(2486, 'السحابين الشمالي', 'As Sahabin Ash Shamali Dist.'),
+(2486, 'الخبراء القديمة', 'Al Khabra Al Qadima Dist.'),
+(2486, 'الياسمين', 'Al Yasmin Dist.'),
+(2486, 'النسيم', 'Al Naseem Dist.'),
+(2486, 'الورود', 'Al Wurud Dist.'),
+(2486, 'الأندلس', 'Al Andalus Dist.'),
+(2486, 'السحابين الجنوبي', 'As Sahabin Al Janubi Dist.'),
+(2486, 'الربوة', 'Ar Rabwah Dist.'),
+(2486, 'القدس', 'Al Quds Dist.'),
+(2486, 'الملاح', 'Al Mallah Dist.'),
+(2486, 'حى الرفيعة', 'Ar Rafiah Dist.'),
+(2486, 'الريان', 'Ar Rayan Dist.'),
+(2486, 'الروضة', 'Ar Rawdah Dist.'),
+(2486, 'الربيع', 'Ar Rabie Dist.'),
+(2486, 'الصناعية', 'As Sinaiyah Dist.'),
+(2629, 'البيضاء', 'Al Baida Dist.'),
+(2629, 'السلاح', 'As Silah Dist.'),
+(2630, 'الزهرة', 'Az Zahrah Dist.'),
+(2630, 'العزيزية', 'Al Aziziyah Dist.'),
+(2630, 'الهلالية', 'Al Halaliyah Dist.'),
+(2630, 'الخليج', 'Al Khalij Dist.'),
+(2630, 'الملك عبدالله', 'King Abdullah Dist.'),
+(2630, 'النهضة', 'An Nahdah Dist.'),
+(2630, 'النخيل', 'Al Nakhil Dist.'),
+(2630, 'الاسكان', 'Al Iskan Dist.'),
+(2630, 'الخالدية', 'Al Khalidiyah Dist.'),
+(2630, 'المحمدية', 'Al Muhammadiyah Dist.'),
+(2630, 'القادسية', 'Al Qadisiyah Dist.'),
+(2630, 'الصناعية', 'As Sinaiyah Dist.'),
+(2630, 'الريان', 'Ar Rayyan Dist.'),
+(2630, 'الامل', 'Al Amal Dist.'),
+(2630, 'الرياض', 'Ar Riyadh Dist.'),
+(2630, 'الديرة', 'Al Dirah Dist.'),
+(2630, 'المجد', 'Al Majd Dist.'),
+(2630, 'الربوة', 'Ar Rabwah Dist.'),
+(2630, 'الحمراء', 'Al Hamra Dist.'),
+(2630, 'الروابي', 'Ar Rawabi Dist.'),
+(2630, 'التقنية', 'Al Taqniyah Dist.'),
+(2630, 'المنتزة', 'Al Montazah Dist.'),
+(2777, 'الخبيب', 'Al Khabib Dist.'),
+(2777, 'المتحف', 'Al Mathaf Dist.'),
+(2777, 'النخيل', 'Al Nakhil Dist.'),
+(2777, 'الشفاء', 'Ash Shifa Dist.'),
+(2777, 'الشماس', 'Al Shamas Dist.'),
+(2777, 'البلاد', 'Al Bilad Dist.'),
+(2777, 'الفاروق', 'Al Farouq Dist.'),
+(2777, 'برزة', 'Barzah Dist.'),
+(2777, 'الواسط', 'Al Wasit Dist.'),
+(2777, 'البدع', 'Al Bada Dist.'),
+(2777, 'الجال', 'Al Jal Dist.'),
+(2777, 'الاندلس', 'Al Andalus Dist.'),
+(2777, 'الميدان', 'Al Midan Dist.'),
+(2777, 'السلام', 'As Salam Dist.'),
+(2777, 'الصفاء', 'Al Safa Dist.'),
+(2777, 'القادسية', 'Al Qadisiyah Dist.'),
+(2777, 'الصناعية', 'As Sinaiyah Dist.'),
+(2777, 'المتوكل', 'Al Mutawakil Dist.'),
+(2988, 'العزيزية', 'Al Aziziyah Dist.'),
+(2988, 'الاندلس', 'Al Andalus Dist.'),
+(2988, 'المصيف', 'Al Masif Dist.'),
+(2988, 'اليرموك', 'Al Yarmuk Dist.'),
+(2988, 'الروضة', 'Ar Rawdah Dist.'),
+(2988, 'الخليج', 'Al Khalij Dist.'),
+(2988, 'الفيحاء', 'Al Fayha Dist.'),
+(2988, 'الوادي', 'Al Wadi Dist.'),
+(2988, 'الربوة', 'Ar Rabwah Dist.'),
+(2988, 'المروج', 'Al Muruj Dist.'),
+(2988, 'الملك فهد', 'King Fahd Dist.'),
+(2988, 'الازدهار', 'Al Izdihar Dist.'),
+(2988, 'القدس', 'Al Quds Dist.'),
+(2988, 'السعادة', 'As Saadah Dist.'),
+(2988, 'الشفاء', 'Ash Shifa Dist.'),
+(2988, 'الياسمين', 'Al Yasmin Dist.'),
+(2988, 'الملك عبدالله', 'King Abdullah Dist.'),
+(2988, 'التعاون', 'At Taawun Dist.'),
+(2988, 'السلام', 'As Salam Dist.'),
+(2988, 'المنار', 'Al Manar Dist.'),
+(2988, 'الريان', 'Ar Rayan Dist.'),
+(2988, 'النهضة', 'An Nahdah Dist.'),
+(3030, 'فيضة ابان الاحمر', 'Faidat Aban Alahmar'),
+(3030, 'النويصفة', 'Al Nuwaisifah'),
+(3030, 'مشرفة عمودان', 'Mishrifat Amudan'),
+(3030, 'كفت', 'Kofat'),
+(3151, 'الرابية', 'Ar Rabiyah Dist.'),
+(3151, 'السلام', 'As Salam Dist.'),
+(3151, 'النخيل', 'Al Nakhil Dist.'),
+(3151, 'الربوة', 'Ar Rabwah Dist.'),
+(3151, 'المنتزه', 'Al Muntazah Dist.'),
+(3151, 'الجزيرة', 'Al Jazirah Dist.'),
+(3151, 'الملك عبدالله', 'King Abdullah Dist.'),
+(3151, 'غرناطة', 'Ghirnatah Dist.'),
+(3151, 'ج1', 'C1 Dist.'),
+(3151, 'المحمدية', 'Al Muhammadiyah Dist.'),
+(3151, 'الريان', 'Ar Rayan Dist.'),
+(3151, 'الرمثية', 'Ar Ramthyah Dist.'),
+(3151, 'الغربية', 'Al Gharbiyyah Dist.'),
+(3151, 'الصفا', 'As Safa Dist.'),
+(3151, 'القادسية', 'Al Qadisiyah Dist.'),
+(3151, 'حطين', 'Hiteen Dist.'),
+(3151, 'الوادي', 'Al Wadi Dist.'),
+(3151, 'اليرموك', 'Al Yarmuk Dist.'),
+(10872, 'فيضة السلمات', 'Faidat Al Salamat'),
+(10872, 'المرموثة الشمالية', 'Al Marmuthah Ash Shamaliyah'),
+(10872, 'الخريشاء', 'Al Kharisha'),
+(10872, 'المديري', 'Al Mudairy');
+INSERT INTO districts (city_id,name_ar,name_en,is_active)
+SELECT c.id,d.name_ar,d.name_en,c.is_active
+FROM ayk_district_name_import d
+JOIN ayk_district_city_import i ON i.source_city_id = d.source_city_id
+JOIN cities c ON c.region_id = i.region_id AND c.name_ar = i.name_ar
+ AND c.governorate_id IS NOT DISTINCT FROM i.governorate_id
+WHERE NOT EXISTS (
+ SELECT 1 FROM districts existing WHERE existing.city_id = c.id
+ AND regexp_replace(trim(existing.name_ar), '^حي[[:space:]]+', '') = d.name_ar
+);
+INSERT INTO schema_migrations(name) VALUES ('031_qassim_majmaah_districts.sql');
+
+-- migrations/032_restore_ad_workflow_columns.sql
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS user_id INT DEFAULT NULL REFERENCES users(id) ON DELETE CASCADE$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS status TEXT CHECK (status IN ('requested','approved','awaiting_payment','active','rejected','expired','cancelled','paused')) NOT NULL DEFAULT 'active'$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS placements JSONB DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS max_views INT DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS duration_days INT DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS amount DECIMAL(10,2) NOT NULL DEFAULT 0$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS notes TEXT DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS rejection_reason TEXT DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS approved_by INT DEFAULT NULL REFERENCES users(id) ON DELETE SET NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS approved_at TIMESTAMP DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS rejected_at TIMESTAMP DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS paid_at TIMESTAMP DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS payment_id INT DEFAULT NULL REFERENCES payments(id) ON DELETE SET NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS activated_at TIMESTAMP DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD COLUMN IF NOT EXISTS cancelled_at TIMESTAMP DEFAULT NULL$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+CREATE INDEX IF NOT EXISTS idx_ads_user ON ads(user_id);
+CREATE INDEX IF NOT EXISTS idx_ads_status ON ads(status);
+INSERT INTO schema_migrations(name) VALUES ('032_restore_ad_workflow_columns.sql');
+
+-- migrations/033_auth_session_version.sql
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE users ADD COLUMN IF NOT EXISTS auth_version INTEGER NOT NULL DEFAULT 0$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+CREATE TABLE IF NOT EXISTS auth_rate_limits (
+  key VARCHAR(64) PRIMARY KEY,
+  total_hits INTEGER NOT NULL,
+  reset_at TIMESTAMPTZ NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_auth_rate_limits_reset ON auth_rate_limits(reset_at);
+INSERT INTO schema_migrations(name) VALUES ('033_auth_session_version.sql');
+
+-- migrations/034_dispute_workflow_status.sql
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE disputes DROP CONSTRAINT IF EXISTS disputes_status_check$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE disputes ADD CONSTRAINT disputes_status_check
+  CHECK (status IN ('open','under_review','waiting_response','escalated','resolved','rejected','closed'))$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+INSERT INTO schema_migrations(name) VALUES ('034_dispute_workflow_status.sql');
+
+-- migrations/035_archive_and_ad_placements.sql
+CREATE TABLE IF NOT EXISTS conversation_archives (
+  id BIGSERIAL PRIMARY KEY,
+  conversation_id INT NOT NULL REFERENCES conversations(id) ON DELETE CASCADE,
+  request_id INT DEFAULT NULL,
+  message_count INT DEFAULT 0,
+  first_message_at TIMESTAMP DEFAULT NULL,
+  last_message_at TIMESTAMP DEFAULT NULL,
+  archived_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  archived_by INT DEFAULT NULL REFERENCES users(id) ON DELETE SET NULL,
+  expires_at TIMESTAMP DEFAULT NULL,
+  payload TEXT DEFAULT NULL,
+  status TEXT DEFAULT 'active' CHECK (status IN ('active','expired','restored','deleted'))
+);
+CREATE INDEX IF NOT EXISTS idx_archives_conv ON conversation_archives(conversation_id);
+CREATE INDEX IF NOT EXISTS idx_archives_expires ON conversation_archives(expires_at, status);
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads DROP CONSTRAINT IF EXISTS ads_placement_check$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+DO $ayk_duplicate$ BEGIN
+  EXECUTE $ayk_sql_0$ALTER TABLE ads ADD CONSTRAINT ads_placement_check CHECK (placement IN (
+  'home_top','home_hero','home_middle','home_bottom','services_top','services_bottom',
+  'category_top','category_bottom','request_details_top','request_details_bottom',
+  'sidebar','search','profile_top','chat_sidebar','footer'
+))$ayk_sql_0$;
+EXCEPTION WHEN duplicate_column OR duplicate_object THEN NULL;
+END $ayk_duplicate$;
+INSERT INTO schema_migrations(name) VALUES ('035_archive_and_ad_placements.sql');
+
+-- migrations/036_security_integrity.sql
+DO $$
+DECLARE rule RECORD;
+BEGIN
+  FOR rule IN SELECT * FROM (VALUES
+    ('users','users_auth_version_nonnegative','CHECK (auth_version >= 0)'),
+    ('users','users_super_admin_boolean','CHECK (is_super_admin IN (0,1))'),
+    ('users','users_permissions_array','CHECK (permissions IS NULL OR jsonb_typeof(permissions) = ''array'')'),
+    ('users','users_country_integrity','FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE SET NULL'),
+    ('users','users_region_integrity','FOREIGN KEY (region_id) REFERENCES regions(id) ON DELETE SET NULL'),
+    ('users','users_governorate_integrity','FOREIGN KEY (governorate_id) REFERENCES governorates(id) ON DELETE SET NULL'),
+    ('regions','regions_country_integrity','FOREIGN KEY (country_id) REFERENCES countries(id) ON DELETE SET NULL'),
+    ('reviews','reviews_target_integrity','FOREIGN KEY (target_user_id) REFERENCES users(id) ON DELETE SET NULL'),
+    ('auth_rate_limits','auth_rate_limits_hits_nonnegative','CHECK (total_hits >= 0)'),
+    ('verification_otps','verification_otps_attempts_nonnegative','CHECK (attempts >= 0 AND max_attempts > 0)')
+  ) AS rules(table_name, constraint_name, definition) LOOP
+    IF NOT EXISTS (
+      SELECT 1 FROM pg_constraint
+      WHERE conrelid = to_regclass(format('%I.%I', current_schema(), rule.table_name))
+        AND conname = rule.constraint_name
+    ) THEN
+      EXECUTE format('ALTER TABLE %I ADD CONSTRAINT %I %s NOT VALID',
+        rule.table_name, rule.constraint_name, rule.definition);
+    END IF;
+  END LOOP;
+END $$;
+CREATE INDEX IF NOT EXISTS idx_users_region ON users(region_id);
+CREATE INDEX IF NOT EXISTS idx_users_governorate ON users(governorate_id);
+CREATE INDEX IF NOT EXISTS idx_reviews_reviewer ON reviews(reviewer_id);
+CREATE INDEX IF NOT EXISTS idx_uploaded_media_created ON uploaded_media(created_at);
+INSERT INTO schema_migrations(name) VALUES ('036_security_integrity.sql');
+
+-- migrations/038_provider_service_mode.sql
+DO $$
+DECLARE
+  mode_column SMALLINT;
+  old_constraint RECORD;
+BEGIN
+  SELECT attnum INTO STRICT mode_column
+  FROM pg_attribute
+  WHERE attrelid = 'provider_profiles'::regclass
+    AND attname = 'location_mode' AND NOT attisdropped;
+
+  -- Legacy installations may have renamed the generated column check.
+  -- Remove only checks for this one column and retain unrelated constraints.
+  FOR old_constraint IN
+    SELECT conname FROM pg_constraint
+    WHERE conrelid = 'provider_profiles'::regclass
+      AND contype = 'c' AND conkey = ARRAY[mode_column]
+  LOOP
+    EXECUTE format('ALTER TABLE provider_profiles DROP CONSTRAINT %I', old_constraint.conname);
+  END LOOP;
+
+  ALTER TABLE provider_profiles ADD CONSTRAINT provider_profiles_location_mode_check
+    CHECK (location_mode IN ('fixed', 'mobile', 'both'));
+  ALTER TABLE provider_profiles ALTER COLUMN location_mode SET DEFAULT 'mobile';
+END $$;
+INSERT INTO schema_migrations(name) VALUES ('038_provider_service_mode.sql');
+
+-- migrations/040_catalog_language_names.sql
+WITH labels(slug, name_ar, name_en, ur, hi, bn) AS (
+  VALUES
+  ('home-maintenance', 'صيانة منزلية', 'Home maintenance', 'گھر کی دیکھ بھال', 'घर की मरम्मत', 'বাড়ির মেরামত'),
+  ('cleaning', 'نظافة', 'Cleaning', 'صفائی', 'सफ़ाई', 'পরিষ্কার'),
+  ('moving', 'نقل وعفش', 'Moving', 'سامان کی منتقلی', 'सामान की ढुलाई', 'মালামাল স্থানান্তর'),
+  ('electrical', 'كهرباء', 'Electrical', 'بجلی کا کام', 'बिजली का काम', 'বিদ্যুতের কাজ'),
+  ('plumbing', 'سباكة', 'Plumbing', 'پلمبنگ', 'प्लंबिंग', 'প্লাম্বিং'),
+  ('ac-cooling', 'تكييف وتبريد', 'AC & cooling', 'ایئر کنڈیشننگ اور کولنگ', 'एसी और कूलिंग', 'এসি ও কুলিং'),
+  ('paint-decor', 'دهانات وديكور', 'Paint & décor', 'رنگ و سجاوٹ', 'पेंट और सजावट', 'রং ও সাজসজ্জা'),
+  ('gardens', 'حدائق ومناظر', 'Gardens & landscaping', 'باغات اور زمین کی آرائش', 'बाग़ और भूदृश्य', 'বাগান ও ল্যান্ডস্কেপ'),
+  ('education', 'تعليم وتدريس', 'Tutoring', 'ٹیوشن', 'ट्यूशन', 'প্রাইভেট পড়ানো'),
+  ('cars', 'سيارات', 'Cars', 'گاڑیوں کی خدمات', 'कार सेवाएँ', 'গাড়ির সেবা'),
+  ('tech', 'تقنية وكمبيوتر', 'Tech & computers', 'ٹیکنالوجی اور کمپیوٹر', 'तकनीक और कंप्यूटर', 'প্রযুক্তি ও কম্পিউটার'),
+  ('events', 'مناسبات وضيافة', 'Events & catering', 'تقریبات اور کھانے کا انتظام', 'कार्यक्रम और खानपान', 'অনুষ্ঠান ও খাবার সরবরাহ'),
+  ('home-businesses', 'الأسر المنتجة', 'Home businesses', 'گھریلو کاروبار', 'घरेलू व्यवसाय', 'ঘরোয়া ব্যবসা'),
+  ('photography', 'التصوير والإبداع', 'Photography & creative', 'فوٹوگرافی اور تخلیقی خدمات', 'फ़ोटोग्राफ़ी और रचनात्मक सेवाएँ', 'ফটোগ্রাফি ও সৃজনশীল সেবা'),
+  ('digital-marketing', 'التسويق الرقمي', 'Digital marketing', 'ڈیجیٹل مارکیٹنگ', 'डिजिटल मार्केटिंग', 'ডিজিটাল মার্কেটিং'),
+  ('delivery', 'التوصيل والشحن', 'Delivery & shipping', 'ڈیلیوری اور شپنگ', 'डिलीवरी और शिपिंग', 'ডেলিভারি ও শিপিং'),
+  ('real-estate', 'العقار والإيجار', 'Real estate & rentals', 'جائیداد اور کرایہ', 'संपत्ति और किराये की सेवाएँ', 'সম্পত্তি ও ভাড়া'),
+  ('construction', 'المقاولات والإنشاءات', 'Construction & contracting', 'تعمیرات اور ٹھیکیداری', 'निर्माण और ठेकेदारी', 'নির্মাণ ও ঠিকাদারি'),
+  ('personal-care', 'العناية الشخصية والتجميل', 'Personal care & beauty', 'ذاتی نگہداشت اور خوبصورتی', 'व्यक्तिगत देखभाल और सौंदर्य', 'ব্যক্তিগত যত্ন ও সৌন্দর্য'),
+  ('travel-tours', 'السفر والرحلات', 'Travel & tours', 'سفر اور سیاحت', 'यात्रा और पर्यटन', 'ভ্রমণ ও পর্যটন'),
+  ('business-services', 'خدمات الأعمال', 'Business services', 'کاروباری خدمات', 'व्यावसायिक सेवाएँ', 'ব্যবসায়িক সেবা'),
+  ('home-health', 'الصحة المنزلية والرعاية', 'Home health & care', 'گھر پر صحت اور نگہداشت', 'घर पर स्वास्थ्य और देखभाल', 'বাড়িতে স্বাস্থ্যসেবা ও যত্ন'),
+  ('training', 'التدريب والدورات', 'Training & courses', 'تربیت اور کورسز', 'प्रशिक्षण और पाठ्यक्रम', 'প্রশিক্ষণ ও কোর্স'),
+  ('fitness', 'اللياقة والرياضة', 'Fitness & sports', 'فٹنس اور کھیل', 'फ़िटनेस और खेल', 'ফিটনেস ও খেলাধুলা'),
+  ('student-services', 'خدمات الطلاب', 'Student services', 'طلبہ کی خدمات', 'छात्र सेवाएँ', 'শিক্ষার্থীদের সেবা'),
+  ('tailoring', 'الخياطة والتفصيل', 'Tailoring & sewing', 'سلائی اور درزی کی خدمات', 'सिलाई और दर्ज़ी सेवाएँ', 'সেলাই ও দর্জির সেবা'),
+  ('transport', 'النقل والمواصلات', 'Transport & mobility', 'آمد و رفت', 'परिवहन', 'যাতায়াত')
+)
+UPDATE categories AS item
+SET name_translations = COALESCE(item.name_translations::jsonb, '{}'::jsonb)
+  || COALESCE((SELECT jsonb_object_agg(translation.lang, translation.label)
+    FROM (VALUES ('ur', labels.ur), ('hi', labels.hi), ('bn', labels.bn))
+      AS translation(lang, label)
+    WHERE NULLIF(btrim(item.name_translations::jsonb ->> translation.lang), '') IS NULL
+  ), '{}'::jsonb)
+FROM labels
+WHERE item.slug = labels.slug
+  AND item.name_ar = labels.name_ar
+  AND item.name_en = labels.name_en
+  AND (item.name_translations IS NULL OR jsonb_typeof(item.name_translations::jsonb) = 'object')
+  AND (item.name_translations::jsonb ->> 'ar' IS NULL OR item.name_translations::jsonb ->> 'ar' = labels.name_ar)
+  AND (item.name_translations::jsonb ->> 'en' IS NULL OR item.name_translations::jsonb ->> 'en' = labels.name_en)
+  AND EXISTS (
+    SELECT 1 FROM (VALUES ('ur'), ('hi'), ('bn')) AS missing(lang)
+    WHERE NULLIF(btrim(item.name_translations::jsonb ->> missing.lang), '') IS NULL
+  );
+WITH labels(slug, name_ar, name_en, ur, hi, bn) AS (
+  VALUES
+  ('general-maintenance', 'صيانة عامة', 'General maintenance', 'عام مرمت', 'सामान्य मरम्मत', 'সাধারণ মেরামত'),
+  ('furniture-installation', 'تركيب أثاث', 'Furniture installation', 'فرنیچر کی تنصیب', 'फ़र्नीचर लगाना', 'আসবাবপত্র স্থাপন'),
+  ('doors-windows-repair', 'إصلاح أبواب ونوافذ', 'Door & window repair', 'دروازوں اور کھڑکیوں کی مرمت', 'दरवाज़े और खिड़की की मरम्मत', 'দরজা ও জানালা মেরামত'),
+  ('home-cleaning', 'تنظيف منازل', 'Home cleaning', 'گھر کی صفائی', 'घर की सफ़ाई', 'বাড়ি পরিষ্কার'),
+  ('tank-cleaning', 'تنظيف خزانات', 'Water tank cleaning', 'پانی کی ٹینکی کی صفائی', 'पानी की टंकी की सफ़ाई', 'পানির ট্যাংক পরিষ্কার'),
+  ('ac-cleaning', 'تنظيف مكيفات', 'AC cleaning', 'ایئر کنڈیشنر کی صفائی', 'एसी की सफ़ाई', 'এসি পরিষ্কার'),
+  ('pest-control', 'مكافحة حشرات', 'Pest control', 'کیڑوں کا خاتمہ', 'कीट नियंत्रण', 'কীটপতঙ্গ নিয়ন্ত্রণ'),
+  ('moving-in-city', 'نقل عفش داخل المدينة', 'Moving in city', 'شہر کے اندر سامان کی منتقلی', 'शहर के अंदर सामान की ढुलाई', 'শহরের মধ্যে মালামাল স্থানান্তর'),
+  ('moving-between-cities', 'نقل عفش بين المدن', 'Moving between cities', 'شہروں کے درمیان سامان کی منتقلی', 'शहरों के बीच सामान की ढुलाई', 'শহরের মধ্যে দূরপাল্লার মালামাল স্থানান্তর'),
+  ('assembly', 'فك وتركيب أثاث', 'Furniture assembly', 'فرنیچر کھولنا اور جوڑنا', 'फ़र्नीचर खोलना और जोड़ना', 'আসবাবপত্র খোলা ও জোড়া লাগানো'),
+  ('electrical-repair', 'إصلاح أعطال كهربائية', 'Electrical repair', 'بجلی کی خرابیوں کی مرمت', 'बिजली की ख़राबी की मरम्मत', 'বৈদ্যুতিক ত্রুটি মেরামত'),
+  ('electrical-wiring', 'تمديدات كهربائية', 'Electrical wiring', 'بجلی کی وائرنگ', 'बिजली की वायरिंग', 'বৈদ্যুতিক তার লাগানো'),
+  ('leak-repair', 'إصلاح تسربات', 'Leak repair', 'پانی کے رساؤ کی مرمت', 'पानी के रिसाव की मरम्मत', 'পানির লিক মেরামত'),
+  ('drain-cleaning', 'تسليك مجاري', 'Drain cleaning', 'نالی کی صفائی', 'नाली की सफ़ाई', 'নালা পরিষ্কার'),
+  ('split-ac-service', 'صيانة مكيفات سبليت', 'Split AC service', 'اسپلٹ اے سی کی مرمت', 'स्प्लिट एसी की सर्विस', 'স্প্লিট এসি সার্ভিস'),
+  ('central-ac-service', 'صيانة مكيفات مركزية', 'Central AC service', 'سنٹرل اے سی کی مرمت', 'सेंट्रल एसी की सर्विस', 'সেন্ট্রাল এসি সার্ভিস'),
+  ('home-painting', 'دهان منازل', 'Home painting', 'گھر کی رنگائی', 'घर की पुताई', 'বাড়ির রং করা'),
+  ('wallpaper', 'ورق جدران', 'Wallpaper', 'وال پیپر', 'वॉलपेपर', 'ওয়ালপেপার'),
+  ('garden-landscaping', 'تنسيق حدائق', 'Garden landscaping', 'باغ کی آرائش', 'बाग़ का भूदृश्य', 'বাগান সাজানো'),
+  ('private-tutoring', 'تدريس خصوصي', 'Private tutoring', 'نجی ٹیوشن', 'निजी ट्यूशन', 'প্রাইভেট পড়ানো'),
+  ('computer-repair', 'صيانة كمبيوتر', 'Computer repair', 'کمپیوٹر کی مرمت', 'कंप्यूटर की मरम्मत', 'কম্পিউটার মেরামত'),
+  ('web-design', 'تصميم مواقع', 'Web design', 'ویب سائٹ ڈیزائن', 'वेबसाइट डिज़ाइन', 'ওয়েবসাইট ডিজাইন'),
+  ('event-planning', 'تنظيم حفلات', 'Event planning', 'تقریبات کی منصوبہ بندی', 'कार्यक्रम की योजना', 'অনুষ্ঠান আয়োজন'),
+  ('curtain-installation', 'تركيب ستائر', 'Curtain installation', 'پردوں کی تنصیب', 'परदे लगाना', 'পর্দা লাগানো'),
+  ('carpet-cleaning', 'غسيل سجاد', 'Carpet cleaning', 'قالین کی صفائی', 'कालीन की सफ़ाई', 'কার্পেট পরিষ্কার'),
+  ('lighting-installation', 'تركيب إنارة', 'Lighting installation', 'روشنیوں کی تنصیب', 'बत्तियाँ लगाना', 'বাতি লাগানো'),
+  ('heater-installation', 'تركيب سخانات', 'Heater installation', 'پانی کے ہیٹر کی تنصیب', 'पानी का हीटर लगाना', 'পানির হিটার লাগানো'),
+  ('ac-installation', 'تركيب مكيفات', 'AC installation', 'ایئر کنڈیشنر کی تنصیب', 'एसी लगाना', 'এসি লাগানো'),
+  ('gypsum-decor', 'ديكور جبس', 'Gypsum decor', 'جپسم کی سجاوٹ', 'जिप्सम की सजावट', 'জিপসামের সাজসজ্জা'),
+  ('lawn-care', 'العناية بالعشب', 'Lawn care', 'لان کی دیکھ بھال', 'लॉन की देखभाल', 'লনের যত্ন'),
+  ('quran-teaching', 'تحفيظ قرآن', 'Quran teaching', 'قرآن کی تعلیم', 'क़ुरआन की शिक्षा', 'কুরআন শিক্ষা'),
+  ('language-tutoring', 'تدريس لغات', 'Language tutoring', 'زبانوں کی تعلیم', 'भाषाओं की शिक्षा', 'ভাষা শিক্ষা'),
+  ('car-wash', 'غسيل سيارات', 'Car wash', 'گاڑی کی دھلائی', 'कार की धुलाई', 'গাড়ি ধোয়া'),
+  ('car-polish', 'تلميع سيارات', 'Car polishing', 'گاڑی کی پالش', 'कार की पॉलिश', 'গাড়ি পালিশ'),
+  ('oil-change', 'تغيير زيت', 'Oil change', 'انجن کا تیل تبدیل کرنا', 'इंजन का तेल बदलना', 'ইঞ্জিনের তেল বদলানো'),
+  ('mobile-mechanic', 'ميكانيكا متنقلة', 'Mobile mechanic', 'موقع پر گاڑی کا مکینک', 'आपके पास आने वाला मैकेनिक', 'আপনার কাছে আসা মেকানিক'),
+  ('tech-support', 'دعم تقني', 'Tech support', 'تکنیکی معاونت', 'तकनीकी सहायता', 'প্রযুক্তিগত সহায়তা'),
+  ('network-installation', 'تركيب شبكات', 'Network installation', 'نیٹ ورک کی تنصیب', 'नेटवर्क लगाना', 'নেটওয়ার্ক স্থাপন'),
+  ('camera-installation', 'تركيب كاميرات', 'Camera installation', 'کیمروں کی تنصیب', 'कैमरे लगाना', 'ক্যামেরা লাগানো'),
+  ('app-development', 'تطوير تطبيقات', 'App development', 'ایپ کی تیاری', 'ऐप बनाना', 'অ্যাপ তৈরি'),
+  ('wedding-stage', 'كوش وأفراح', 'Wedding stages', 'شادی کے اسٹیج کی سجاوٹ', 'शादी का मंच सजाना', 'বিয়ের মঞ্চ সাজানো'),
+  ('event-photography', 'تصوير مناسبات', 'Event photography', 'تقریبات کی فوٹوگرافی', 'कार्यक्रम की फ़ोटोग्राफ़ी', 'অনুষ্ঠানের ফটোগ্রাফি'),
+  ('chairs-tables-rental', 'تأجير كراسي وطاولات', 'Chair & table rental', 'کرسیوں اور میزوں کا کرایہ', 'कुर्सियाँ और मेज़ किराये पर देना', 'চেয়ার ও টেবিল ভাড়া'),
+  ('home-cooking', 'طبخ منزلي', 'Home cooking', 'گھر کا کھانا', 'घर का खाना', 'ঘরোয়া রান্না'),
+  ('coffee-sweets', 'قهوة وحلويات', 'Coffee & sweets', 'کافی اور مٹھائیاں', 'कॉफ़ी और मिठाइयाँ', 'কফি ও মিষ্টি'),
+  ('catering-meat', 'ذبائح وولائم', 'Catering meat & feasts', 'گوشت اور دعوت کا انتظام', 'मांस और दावत का खानपान', 'মাংস ও ভোজের খাবার সরবরাহ'),
+  ('traditional-foods', 'مأكولات شعبية', 'Traditional foods', 'روایتی کھانے', 'पारंपरिक भोजन', 'ঐতিহ্যবাহী খাবার'),
+  ('bakery', 'مخبوزات', 'Bakery', 'بیکری', 'बेकरी', 'বেকারি'),
+  ('product-photography', 'تصوير منتجات', 'Product photography', 'مصنوعات کی فوٹوگرافی', 'उत्पाद फ़ोटोग्राफ़ी', 'পণ্যের ফটোগ্রাফি'),
+  ('video-shooting', 'تصوير فيديو', 'Video shooting', 'ویڈیو شوٹنگ', 'वीडियो शूटिंग', 'ভিডিও ধারণ'),
+  ('design-printing', 'تصميم وطباعة', 'Design & printing', 'ڈیزائن اور طباعت', 'डिज़ाइन और प्रिंटिंग', 'ডিজাইন ও মুদ্রণ'),
+  ('video-editing', 'مونتاج فيديو', 'Video editing', 'ویڈیو ایڈیٹنگ', 'वीडियो संपादन', 'ভিডিও সম্পাদনা'),
+  ('drone-aerial', 'تصوير جوي بدرون', 'Drone aerial shoots', 'ڈرون سے فضائی عکس بندی', 'ड्रोन से हवाई फ़ोटोग्राफ़ी', 'ড্রোন দিয়ে আকাশ থেকে ছবি তোলা'),
+  ('digital-marketing-svc', 'تسويق إلكتروني', 'Digital marketing', 'ڈیجیٹل مارکیٹنگ', 'डिजिटल मार्केटिंग', 'ডিজিটাল মার্কেটিং'),
+  ('social-media-management', 'إدارة حسابات تواصل', 'Social media management', 'سوشل میڈیا اکاؤنٹس کا انتظام', 'सोशल मीडिया खाते प्रबंधन', 'সামাজিক মাধ্যম অ্যাকাউন্ট পরিচালনা'),
+  ('paid-ads', 'إعلانات ممولة', 'Paid ads', 'معاوضے کے اشتہارات', 'सशुल्क विज्ञापन', 'অর্থপ্রদত্ত বিজ্ঞাপন'),
+  ('seo', 'تحسين محركات بحث', 'SEO', 'سرچ انجن کی بہتری', 'खोज इंजन अनुकूलन', 'সার্চ ইঞ্জিন অপ্টিমাইজেশন'),
+  ('influencer-marketing', 'تسويق مؤثرين', 'Influencer marketing', 'انفلوئنسر مارکیٹنگ', 'प्रभावशाली व्यक्तियों से प्रचार', 'ইনফ্লুয়েন্সার মার্কেটিং'),
+  ('parcel-delivery', 'توصيل طلبات', 'Parcel delivery', 'پارسل کی ترسیل', 'पार्सल डिलीवरी', 'পার্সেল পৌঁছে দেওয়া'),
+  ('local-shipping', 'شحن داخلي', 'Local shipping', 'ملک کے اندر شپنگ', 'देश के अंदर शिपिंग', 'দেশের মধ্যে শিপিং'),
+  ('intercity-shipping', 'شحن بين المدن', 'Intercity shipping', 'شہروں کے درمیان شپنگ', 'शहरों के बीच शिपिंग', 'শহরের মধ্যে দূরপাল্লার শিপিং'),
+  ('delivery-rep', 'مندوب توصيل', 'Delivery rep', 'ڈیلیوری کا نمائندہ', 'डिलीवरी प्रतिनिधि', 'ডেলিভারি প্রতিনিধি'),
+  ('daily-rental', 'تأجير يومي', 'Daily rental', 'روزانہ کرایہ', 'दैनिक किराया', 'দৈনিক ভাড়া'),
+  ('furnished-apartments', 'شقق مفروشة', 'Furnished apartments', 'فرنیچر والے اپارٹمنٹس', 'सुसज्जित अपार्टमेंट', 'সজ্জিত অ্যাপার্টমেন্ট'),
+  ('chalets-resorts', 'شاليهات واستراحات', 'Chalets & resorts', 'شالے اور ریزورٹس', 'शैले और रिसॉर्ट', 'শালে ও রিসোর্ট'),
+  ('property-management', 'إدارة عقارات', 'Property management', 'جائیداد کا انتظام', 'संपत्ति प्रबंधन', 'সম্পত্তি পরিচালনা'),
+  ('finishing', 'تشطيبات', 'Finishing', 'تعمیر کے آخری کام', 'निर्माण का अंतिम काम', 'নির্মাণের শেষ পর্যায়ের কাজ'),
+  ('carpentry', 'نجارة', 'Carpentry', 'بڑھئی کا کام', 'बढ़ई का काम', 'কাঠের কাজ'),
+  ('welding', 'حدادة', 'Welding', 'ویلڈنگ', 'वेल्डिंग', 'ওয়েল্ডিং'),
+  ('gypsum-work', 'جبس', 'Gypsum work', 'جپسم کا کام', 'जिप्सम का काम', 'জিপসামের কাজ'),
+  ('renovation', 'ترميمات', 'Renovation', 'عمارت کی مرمت اور تجدید', 'भवन की मरम्मत और नवीनीकरण', 'ভবন মেরামত ও সংস্কার'),
+  ('barbering', 'حلاقة', 'Barbering', 'حجامت', 'बाल काटना', 'চুল কাটা'),
+  ('makeup', 'مكياج', 'Makeup', 'میک اپ', 'मेकअप', 'মেকআপ'),
+  ('hair-care', 'عناية بالشعر', 'Hair care', 'بالوں کی دیکھ بھال', 'बालों की देखभाल', 'চুলের যত্ন'),
+  ('nail-care', 'تجميل أظافر', 'Nail care', 'ناخنوں کی دیکھ بھال', 'नाख़ूनों की देखभाल', 'নখের যত্ন'),
+  ('spa-massage', 'سبا ومساج', 'Spa & massage', 'اسپا اور مالش', 'स्पा और मालिश', 'স্পা ও ম্যাসাজ'),
+  ('tour-organization', 'تنظيم رحلات', 'Tour organisation', 'سیاحتی دوروں کا انتظام', 'यात्रा आयोजन', 'ভ্রমণ আয়োজন'),
+  ('hotel-booking', 'حجوزات فنادق', 'Hotel booking', 'ہوٹل کی بکنگ', 'होटल बुकिंग', 'হোটেল বুকিং'),
+  ('tour-guide', 'مرشد سياحي', 'Tour guide', 'سیاحتی رہنما', 'पर्यटन गाइड', 'পর্যটন গাইড'),
+  ('car-rental', 'تأجير سيارات', 'Car rental', 'گاڑی کرائے پر دینا', 'कार किराये पर लेना', 'গাড়ি ভাড়া'),
+  ('management-consulting', 'استشارات إدارية', 'Management consulting', 'انتظامی مشاورت', 'प्रबंधन परामर्श', 'ব্যবস্থাপনা পরামর্শ'),
+  ('legal-services', 'خدمات قانونية', 'Legal services', 'قانونی خدمات', 'कानूनी सेवाएँ', 'আইনি সেবা'),
+  ('accounting', 'خدمات محاسبية', 'Accounting', 'حساب کتاب', 'लेखांकन', 'হিসাবরক্ষণ'),
+  ('company-formation', 'تأسيس شركات', 'Company formation', 'کمپنی کی تشکیل', 'कंपनी की स्थापना', 'কোম্পানি প্রতিষ্ঠা'),
+  ('feasibility-studies', 'دراسات جدوى', 'Feasibility studies', 'منصوبے کی عملی جانچ', 'परियोजना की व्यवहार्यता का अध्ययन', 'প্রকল্পের সম্ভাব্যতা যাচাই'),
+  ('home-nursing', 'تمريض منزلي', 'Home nursing', 'گھر پر نرسنگ', 'घर पर नर्सिंग', 'বাড়িতে নার্সিং'),
+  ('elderly-care', 'رعاية كبار السن', 'Elderly care', 'بزرگوں کی نگہداشت', 'बुज़ुर्गों की देखभाल', 'বয়স্কদের যত্ন'),
+  ('babysitting', 'جليسة أطفال', 'Babysitting', 'بچوں کی دیکھ بھال', 'बच्चों की देखभाल', 'শিশুদের যত্ন'),
+  ('physical-therapy', 'علاج طبيعي', 'Physical therapy', 'فزیوتھراپی', 'फ़िज़ियोथेरेपी', 'ফিজিওথেরাপি'),
+  ('home-lab-tests', 'تحاليل منزلية', 'Home lab tests', 'گھر پر لیبارٹری ٹیسٹ', 'घर पर लैब जाँच', 'বাড়িতে ল্যাব পরীক্ষা'),
+  ('professional-courses', 'دورات احترافية', 'Professional courses', 'پیشہ ورانہ کورسز', 'पेशेवर पाठ्यक्रम', 'পেশাগত কোর্স'),
+  ('language-courses', 'دورات لغة', 'Language courses', 'زبان کے کورسز', 'भाषा पाठ्यक्रम', 'ভাষা কোর্স'),
+  ('tech-courses', 'دورات تقنية', 'Tech courses', 'تکنیکی کورسز', 'तकनीकी पाठ्यक्रम', 'প্রযুক্তিগত কোর্স'),
+  ('vocational-training', 'تدريب مهني', 'Vocational training', 'پیشہ ورانہ تربیت', 'व्यावसायिक प्रशिक्षण', 'পেশাগত প্রশিক্ষণ'),
+  ('personal-training', 'تدريب شخصي', 'Personal training', 'ذاتی فٹنس تربیت', 'व्यक्तिगत फ़िटनेस प्रशिक्षण', 'ব্যক্তিগত ফিটনেস প্রশিক্ষণ'),
+  ('group-fitness', 'تمارين جماعية', 'Group fitness', 'گروپ ورزش', 'समूह व्यायाम', 'দলগত ব্যায়াম'),
+  ('sports-coaching', 'تدريب رياضي', 'Sports coaching', 'کھیلوں کی تربیت', 'खेल प्रशिक्षण', 'খেলাধুলার প্রশিক্ষণ'),
+  ('nutrition-diet', 'تغذية وحمية', 'Nutrition & diet', 'غذائیت اور خوراک', 'पोषण और आहार', 'পুষ্টি ও খাদ্য'),
+  ('yoga-meditation', 'يوغا وتأمل', 'Yoga & meditation', 'یوگا اور مراقبہ', 'योग और ध्यान', 'যোগ ও ধ্যান'),
+  ('research-writing', 'كتابة بحوث', 'Research writing', 'تحقیقی تحریر', 'शोध लेखन', 'গবেষণা লেখা'),
+  ('academic-translation', 'ترجمة أكاديمية', 'Academic translation', 'تعلیمی ترجمہ', 'शैक्षणिक अनुवाद', 'একাডেমিক অনুবাদ'),
+  ('presentation-design', 'تصميم عروض', 'Presentation design', 'پریزنٹیشن کا ڈیزائن', 'प्रस्तुति डिज़ाइन', 'উপস্থাপনা ডিজাইন'),
+  ('homework-help', 'حل واجبات', 'Homework help', 'ہوم ورک میں مدد', 'गृहकार्य में मदद', 'বাড়ির পড়ায় সাহায্য'),
+  ('mens-tailoring', 'خياطة رجالية', 'Mens tailoring', 'مردانہ سلائی', 'पुरुषों की सिलाई', 'পুরুষদের পোশাক সেলাই'),
+  ('womens-tailoring', 'خياطة نسائية', 'Womens tailoring', 'زنانہ سلائی', 'महिलाओं की सिलाई', 'নারীদের পোশাক সেলাই'),
+  ('clothing-alteration', 'تعديل ملابس', 'Clothing alteration', 'کپڑوں کی ترمیم', 'कपड़ों में बदलाव', 'পোশাকের মাপ ঠিক করা'),
+  ('curtain-tailoring', 'خياطة ستائر', 'Curtain tailoring', 'پردوں کی سلائی', 'परदों की सिलाई', 'পর্দা সেলাই'),
+  ('passenger-transport', 'نقل ركاب', 'Passenger transport', 'مسافروں کی نقل و حمل', 'यात्री परिवहन', 'যাত্রী পরিবহন'),
+  ('bus-rental', 'تأجير حافلات', 'Bus rental', 'بس کرایہ', 'बस किराया', 'বাস ভাড়া'),
+  ('school-transport', 'نقل مدرسي', 'School transport', 'اسکول کی آمد و رفت', 'स्कूल परिवहन', 'স্কুলে যাতায়াত'),
+  ('ayk-yard-cleaning', 'غسيل الأحواش', 'Yard cleaning', 'صحن کی صفائی', 'आँगन की सफ़ाई', 'উঠান পরিষ্কার')
+)
+UPDATE services AS item
+SET name_translations = COALESCE(item.name_translations::jsonb, '{}'::jsonb)
+  || COALESCE((SELECT jsonb_object_agg(translation.lang, translation.label)
+    FROM (VALUES ('ur', labels.ur), ('hi', labels.hi), ('bn', labels.bn))
+      AS translation(lang, label)
+    WHERE NULLIF(btrim(item.name_translations::jsonb ->> translation.lang), '') IS NULL
+  ), '{}'::jsonb)
+FROM labels
+WHERE item.slug = labels.slug
+  AND item.name_ar = labels.name_ar
+  AND item.name_en = labels.name_en
+  AND (item.name_translations IS NULL OR jsonb_typeof(item.name_translations::jsonb) = 'object')
+  AND (item.name_translations::jsonb ->> 'ar' IS NULL OR item.name_translations::jsonb ->> 'ar' = labels.name_ar)
+  AND (item.name_translations::jsonb ->> 'en' IS NULL OR item.name_translations::jsonb ->> 'en' = labels.name_en)
+  AND EXISTS (
+    SELECT 1 FROM (VALUES ('ur'), ('hi'), ('bn')) AS missing(lang)
+    WHERE NULLIF(btrim(item.name_translations::jsonb ->> missing.lang), '') IS NULL
+  );
+INSERT INTO schema_migrations(name) VALUES ('040_catalog_language_names.sql');
+
+-- migrations/041_provider_map_visibility.sql
+ALTER TABLE provider_profiles
+  ADD COLUMN IF NOT EXISTS show_location_on_map SMALLINT NOT NULL DEFAULT 0;
+CREATE INDEX IF NOT EXISTS idx_provider_profiles_fixed_point ON provider_profiles (fixed_latitude, fixed_longitude);
+CREATE INDEX IF NOT EXISTS idx_users_role_city ON users (role, city_id);
+INSERT INTO schema_migrations(name) VALUES ('041_provider_map_visibility.sql');
+
+-- migrations/042_calls.sql
+CREATE TABLE IF NOT EXISTS calls (
+  id SERIAL PRIMARY KEY,
+  room_name VARCHAR(64) NOT NULL UNIQUE,
+  conversation_id INT NOT NULL,
+  request_id INT DEFAULT NULL,
+  caller_id INT NOT NULL,
+  callee_id INT NOT NULL,
+  call_type VARCHAR(10) NOT NULL DEFAULT 'audio',
+  status VARCHAR(20) NOT NULL DEFAULT 'ringing',
+  end_reason VARCHAR(40) DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  answered_at TIMESTAMP NULL DEFAULT NULL,
+  ended_at TIMESTAMP NULL DEFAULT NULL,
+  duration_seconds INT DEFAULT NULL,
+  FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+  FOREIGN KEY (caller_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (callee_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_calls_callee_status ON calls (callee_id, status);
+CREATE INDEX IF NOT EXISTS idx_calls_caller_status ON calls (caller_id, status);
+CREATE INDEX IF NOT EXISTS idx_calls_conversation ON calls (conversation_id);
+CREATE INDEX IF NOT EXISTS idx_calls_request ON calls (request_id);
+CREATE INDEX IF NOT EXISTS idx_calls_created ON calls (created_at);
+CREATE TABLE IF NOT EXISTS call_reports (
+  id SERIAL PRIMARY KEY,
+  call_id INT NOT NULL,
+  reporter_id INT NOT NULL,
+  reason VARCHAR(500) NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'open',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  reviewed_at TIMESTAMP NULL DEFAULT NULL,
+  reviewed_by INT DEFAULT NULL,
+  FOREIGN KEY (call_id) REFERENCES calls(id) ON DELETE CASCADE,
+  FOREIGN KEY (reporter_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_call_reports_unique ON call_reports (call_id, reporter_id);
+CREATE INDEX IF NOT EXISTS idx_call_reports_status ON call_reports (status, created_at);
+INSERT INTO schema_migrations(name) VALUES ('042_calls.sql');
+
+-- migrations/043_must_change_password.sql
+ALTER TABLE users
+  ADD COLUMN IF NOT EXISTS must_change_password SMALLINT NOT NULL DEFAULT 0;
+INSERT INTO schema_migrations(name) VALUES ('043_must_change_password.sql');
+
+-- migrations/044_activate_kingdom.sql
+UPDATE regions SET is_active = 1
+  WHERE country_id = (SELECT id FROM countries WHERE code = 'SA');
+UPDATE governorates SET is_active = 1
+  WHERE region_id IN (SELECT id FROM regions WHERE country_id = (SELECT id FROM countries WHERE code = 'SA'));
+UPDATE cities SET is_active = 1
+  WHERE region_id IN (SELECT id FROM regions WHERE country_id = (SELECT id FROM countries WHERE code = 'SA'))
+     OR governorate_id IN (SELECT id FROM governorates WHERE is_active = 1);
+UPDATE districts SET is_active = 1
+  WHERE city_id IN (SELECT id FROM cities WHERE is_active = 1);
+UPDATE settings SET setting_value = 'خدمات المنزل في جميع مناطق المملكة'
+  WHERE setting_key = 'site_description' AND setting_value = 'خدمات المنزل في القصيم والمجمعة';
+INSERT INTO schema_migrations(name) VALUES ('044_activate_kingdom.sql');
+
+-- migrations/045_referrals_wallets.sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS referral_code VARCHAR(12) DEFAULT NULL;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS referred_by INT DEFAULT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_referral_code ON users (referral_code);
+CREATE INDEX IF NOT EXISTS idx_users_referred_by ON users (referred_by);
+CREATE TABLE IF NOT EXISTS wallet_transactions (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL,
+  amount DECIMAL(12,2) NOT NULL,
+  type VARCHAR(30) NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'completed',
+  related_user_id INT DEFAULT NULL,
+  reference_type VARCHAR(30) DEFAULT NULL,
+  reference_id INT DEFAULT NULL,
+  note VARCHAR(500) DEFAULT NULL,
+  created_by INT DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT
+);
+CREATE INDEX IF NOT EXISTS idx_wallet_tx_user ON wallet_transactions (user_id, status);
+CREATE INDEX IF NOT EXISTS idx_wallet_tx_type ON wallet_transactions (type, created_at);
+CREATE TABLE IF NOT EXISTS referral_rewards (
+  id SERIAL PRIMARY KEY,
+  referred_user_id INT NOT NULL UNIQUE,
+  referrer_id INT NOT NULL,
+  payment_id INT NOT NULL UNIQUE,
+  payment_amount DECIMAL(12,2) NOT NULL,
+  percent DECIMAL(5,2) NOT NULL,
+  amount DECIMAL(12,2) NOT NULL,
+  wallet_transaction_id INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (referred_user_id) REFERENCES users(id) ON DELETE RESTRICT,
+  FOREIGN KEY (referrer_id) REFERENCES users(id) ON DELETE RESTRICT
+);
+CREATE INDEX IF NOT EXISTS idx_referral_rewards_referrer ON referral_rewards (referrer_id);
+CREATE TABLE IF NOT EXISTS withdrawal_requests (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL,
+  amount DECIMAL(12,2) NOT NULL,
+  iban VARCHAR(34) NOT NULL,
+  account_name VARCHAR(150) NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'pending',
+  wallet_transaction_id INT NOT NULL,
+  admin_note VARCHAR(500) DEFAULT NULL,
+  transfer_reference VARCHAR(100) DEFAULT NULL,
+  processed_by INT DEFAULT NULL,
+  processed_at TIMESTAMP NULL DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE RESTRICT
+);
+CREATE INDEX IF NOT EXISTS idx_withdrawals_status ON withdrawal_requests (status, created_at);
+CREATE INDEX IF NOT EXISTS idx_withdrawals_user ON withdrawal_requests (user_id);
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description)
+VALUES ('referral_commission_percent', '0', 'number', 'payments', 0, 'نسبة صاحب الكوبون من أول دفعة للمسجل الجديد %')
+ON CONFLICT (setting_key) DO NOTHING;
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description)
+VALUES ('wallet_min_withdrawal', '50', 'number', 'payments', 0, 'أقل مبلغ لطلب سحب الرصيد (ريال)')
+ON CONFLICT (setting_key) DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('045_referrals_wallets.sql');
+
+-- migrations/046_kingdom_districts.sql
+ALTER TABLE districts ADD COLUMN IF NOT EXISTS source VARCHAR(30) DEFAULT NULL;
+ALTER TABLE districts ADD COLUMN IF NOT EXISTS source_ref VARCHAR(40) DEFAULT NULL;
+ALTER TABLE districts ADD COLUMN IF NOT EXISTS is_verified SMALLINT NOT NULL DEFAULT 0;
+CREATE INDEX IF NOT EXISTS idx_districts_city_name ON districts (city_id, name_ar);
+INSERT INTO districts (city_id, name_ar, name_en, latitude, longitude, is_active, source, source_ref, is_verified)
+SELECT v.city_id, v.name_ar, v.name_en, CAST(v.latitude AS DECIMAL(10,7)), CAST(v.longitude AS DECIMAL(10,7)), 1, 'homaily', v.source_ref, 0
+FROM (VALUES
+  (1, 'العمل', 'Al Amal', NULL, NULL, '10100003001'),
+  (1, 'النموذجية', 'Al Namudhajiyah', NULL, NULL, '10100003002'),
+  (1, 'الجرادية', 'Al Jarradiyah', NULL, NULL, '10100003003'),
+  (1, 'الصناعية', 'Al Sinaiyah', NULL, NULL, '10100003004'),
+  (1, 'منفوحة الجديدة', 'Manfuha Al Jadidah', NULL, NULL, '10100003005'),
+  (1, 'الفاخرية', 'Al Fakhiriyah', NULL, NULL, '10100003006'),
+  (1, 'الديرة', 'Al Dirah', NULL, NULL, '10100003007'),
+  (1, 'ام الحمام الشرقي', 'East Umm Al Hamam', NULL, NULL, '10100003008'),
+  (1, 'الشرفية', 'Al Sharafiyah', NULL, NULL, '10100003009'),
+  (1, 'الهدا', 'Al Hada', NULL, NULL, '10100003010'),
+  (1, 'المعذر الشمالي', 'North Mathar', NULL, NULL, '10100003011'),
+  (1, 'ام الحمام الغربي', 'West Umm Al Hamam', NULL, NULL, '10100003012'),
+  (1, 'الرحمانية', 'Ar Rahmaniyah', NULL, NULL, '10100003013'),
+  (1, 'لبن', 'Laban', NULL, NULL, '10100003014'),
+  (1, 'الرفيعة', 'Ar Rafiah', NULL, NULL, '10100003015'),
+  (1, 'الشهداء', 'Al Shohda', NULL, NULL, '10100003016'),
+  (1, 'الملك فهد', 'King Fahd', NULL, NULL, '10100003017'),
+  (1, 'السويدي', 'Al Suwaidi', NULL, NULL, '10100003018'),
+  (1, 'الحزم', 'Al Hazm', NULL, NULL, '10100003019'),
+  (1, 'عتيقة', 'Utayqah', NULL, NULL, '10100003020'),
+  (1, 'المربع', 'Al Murabba', NULL, NULL, '10100003021'),
+  (1, 'الفلاح', 'Al Falah', NULL, NULL, '10100003022'),
+  (1, 'الندى', 'Al Nada', NULL, NULL, '10100003023'),
+  (1, 'المرسلات', 'Al Mursalat', NULL, NULL, '10100003024'),
+  (1, 'النزهة', 'Al Nuzha', NULL, NULL, '10100003025'),
+  (1, 'الملك فيصل', 'King Faisal', NULL, NULL, '10100003027'),
+  (1, 'المدينة الصناعية الثانية', '2nd Industrial City', NULL, NULL, '10100003028'),
+  (1, 'العزيزية', 'Al Aziziyah', NULL, NULL, '10100003029'),
+  (1, 'المنصورة', 'Al Mansurah', NULL, NULL, '10100003030'),
+  (1, 'غبيرة', 'Ghobairah', NULL, NULL, '10100003031'),
+  (1, 'الفاروق', 'Al Farooq', NULL, NULL, '10100003032'),
+  (1, 'الفيصلية', 'Al Faisaliyah', NULL, NULL, '10100003033'),
+  (1, 'الخالدية', 'Al Khalidiyah', NULL, NULL, '10100003034'),
+  (1, 'الجزيرة', 'Al Jazeerah', NULL, NULL, '10100003035'),
+  (1, 'السعادة', 'Al Saadah', NULL, NULL, '10100003036'),
+  (1, 'الناصرية', 'Al Nasiriyah', NULL, NULL, '10100003037'),
+  (1, 'المناخ', 'Al Manakh', NULL, NULL, '10100003038'),
+  (1, 'الدفاع', 'Al Difaa', NULL, NULL, '10100003039'),
+  (1, 'النور', 'Al Noor', NULL, NULL, '10100003040'),
+  (1, 'الملك عبدالله', 'King Abdullah', NULL, NULL, '10100003041'),
+  (1, 'الواحة', 'Al Wahah', NULL, NULL, '10100003042'),
+  (1, 'صلاح الدين', 'Salahuddin', NULL, NULL, '10100003043'),
+  (1, 'الملك عبدالعزيز', 'King Abdulaziz', NULL, NULL, '10100003044'),
+  (1, 'الوزارات', 'Al Wizarat', NULL, NULL, '10100003045'),
+  (1, 'سكيرينة', 'Skirinah', NULL, NULL, '10100003046'),
+  (1, 'الربوة', 'Ar Rabwah', NULL, NULL, '10100003047'),
+  (1, 'جرير', 'Jareer', NULL, NULL, '10100003048'),
+  (1, 'الصالحية', 'As Salhiyah', NULL, NULL, '10100003050'),
+  (1, 'منفوحة', 'Manfuhah', NULL, NULL, '10100003052'),
+  (1, 'عليشة', 'Olaishah', NULL, NULL, '10100003053'),
+  (1, 'النهضة', 'Al Nahdah', NULL, NULL, '10100003054'),
+  (1, 'الخليج', 'Al Khaleej', NULL, NULL, '10100003055'),
+  (1, 'الضباط', 'Al Dhubbat', NULL, NULL, '10100003056'),
+  (1, 'السويدي الغربي', 'West Suwaidi', NULL, NULL, '10100003057'),
+  (1, 'ديراب', 'Dirab', NULL, NULL, '10100003058'),
+  (1, 'احد', 'Ohod', NULL, NULL, '10100003059'),
+  (1, 'نمار', 'Namar', NULL, NULL, '10100003060'),
+  (1, 'المحمدية', 'Al Muhammadiyah', NULL, NULL, '10100003062'),
+  (1, 'المروة', 'Al Marwah', NULL, NULL, '10100003064'),
+  (1, 'عكاظ', 'Okaz', NULL, NULL, '10100003065'),
+  (1, 'شبرا', 'Shubra', NULL, NULL, '10100003066'),
+  (1, 'الزهرة', 'Al Zahrah', NULL, NULL, '10100003067'),
+  (1, 'صياح', 'Siyah', NULL, NULL, '10100003068'),
+  (1, 'سلطانة', 'Sultanah', NULL, NULL, '10100003069'),
+  (1, 'اليمامة', 'Al Yamamah', NULL, NULL, '10100003070'),
+  (1, 'البديعة', 'Al Badiah', NULL, NULL, '10100003071'),
+  (1, 'المصانع', 'Al Masani', NULL, NULL, '10100003072'),
+  (1, 'القادسية', 'Al Qadisiyah', NULL, NULL, '10100003073'),
+  (1, 'الصفا', 'Al Safa', NULL, NULL, '10100003074'),
+  (1, 'الدريهمية', 'Al Duraihemiyah', NULL, NULL, '10100003076'),
+  (1, 'الاسكان', 'Al Iskan', NULL, NULL, '10100003077'),
+  (1, 'السلام', 'Al Salam', NULL, NULL, '10100003078'),
+  (1, 'المنار', 'Al Manar', NULL, NULL, '10100003079'),
+  (1, 'النسيم الشرقي', 'East Naseem', NULL, NULL, '10100003080'),
+  (1, 'القدس', 'Al Quds', NULL, NULL, '10100003081'),
+  (1, 'الوادي', 'Al Wadi', NULL, NULL, '10100003082'),
+  (1, 'النفل', 'Al Nafel', NULL, NULL, '10100003083'),
+  (1, 'المصيف', 'Al Maseef', NULL, NULL, '10100003084'),
+  (1, 'التعاون', 'Al Taawun', NULL, NULL, '10100003085'),
+  (1, 'الازدهار', 'Al Ezdihar', NULL, NULL, '10100003086'),
+  (1, 'الاندلس', 'Al Andalus', NULL, NULL, '10100003087'),
+  (1, 'الروابي', 'Al Rawabi', NULL, NULL, '10100003089'),
+  (1, 'الريان', 'Al Rayan', NULL, NULL, '10100003090'),
+  (1, 'ظهرة البديعة', 'Dhahrat Al Badeah', NULL, NULL, '10100003091'),
+  (1, 'النظيم', 'Al Nadheem', NULL, NULL, '10100003092'),
+  (1, 'الرماية', 'Al Rimayah', NULL, NULL, '10100003093'),
+  (1, 'البرية', 'Al Bariyah', NULL, NULL, '10100003094'),
+  (1, 'طيبة', 'Taybah', NULL, NULL, '10100003095'),
+  (1, 'المنصورية', 'Mansuriyah', NULL, NULL, '10100003096'),
+  (1, 'ضاحية نمار', 'Dahiyat Namar', NULL, NULL, '10100003097'),
+  (1, 'المصفاة', 'Al Misfat', NULL, NULL, '10100003098'),
+  (1, 'السفارات', 'Assafarat', NULL, NULL, '10100003099'),
+  (1, 'خشم العان', 'Khashm Al An', NULL, NULL, '10100003100'),
+  (1, 'قرطبة', 'Qurtubah', NULL, NULL, '10100003101'),
+  (1, 'طويق', 'Tuwaiq', NULL, NULL, '10100003102'),
+  (1, 'العوالي', 'Al Awaly', NULL, NULL, '10100003103'),
+  (1, 'المغرزات', 'Al Mughrazat', NULL, NULL, '10100003105'),
+  (1, 'السلي', 'Al Sulay', NULL, NULL, '10100003106'),
+  (1, 'الغدير', 'Al Ghadeer', NULL, NULL, '10100003109'),
+  (1, 'العود', 'Al Oud', NULL, NULL, '10100003111'),
+  (1, 'ثليم', 'Thulaim', NULL, NULL, '10100003112'),
+  (1, 'الشميسي', 'Al Shumaisi', NULL, NULL, '10100003113'),
+  (1, 'الوشام', 'Al Wisham', NULL, NULL, '10100003114'),
+  (1, 'منتزه سلام', 'Salam Park', NULL, NULL, '10100003115'),
+  (1, 'الدوبية', 'Al Dubiyah', NULL, NULL, '10100003116'),
+  (1, 'معكال', 'Meakal', NULL, NULL, '10100003117'),
+  (1, 'جبرة', 'Jabrah', NULL, NULL, '10100003118'),
+  (1, 'القرى', 'Al Qura', NULL, NULL, '10100003119'),
+  (1, 'المرقب', 'Al Marqab', NULL, NULL, '10100003120'),
+  (1, 'الفوطة', 'Al Futah', NULL, NULL, '10100003121'),
+  (1, 'ام سليم', 'Umm Saleem', NULL, NULL, '10100003122'),
+  (1, 'الرائد', 'Al Raed', NULL, NULL, '10100003125'),
+  (1, 'العريجاء الغربي', 'West Oraija', NULL, NULL, '10100003126'),
+  (1, 'العريجاء', 'Al Uraija', NULL, NULL, '10100003127'),
+  (1, 'العريجاء الوسطى', 'Middle Oraija', NULL, NULL, '10100003128'),
+  (1, 'الحمراء', 'Al Hamra', NULL, NULL, '10100003129'),
+  (1, 'الدار البيضاء', 'Al Dar Al Baida', NULL, NULL, '10100003130'),
+  (1, 'البطيحا', 'Al Butaiha', NULL, NULL, '10100003131'),
+  (1, 'الزهراء', 'Al Zahra', NULL, NULL, '10100003132'),
+  (1, 'الفيحاء', 'Al Fayha', NULL, NULL, '10100003133'),
+  (1, 'المؤتمرات', 'Al Mutamarat', NULL, NULL, '10100003134'),
+  (1, 'الوسيطاء', 'Al Wusayta', NULL, NULL, '10100003135'),
+  (1, 'الجنادرية', 'Al Janadriyah', NULL, NULL, '10100003136'),
+  (1, 'اشبيلية', 'Ishbiliyah', NULL, NULL, '10100003137'),
+  (1, 'المعيزلة', 'Al Maizalah', NULL, NULL, '10100003138'),
+  (1, 'اليرموك', 'Al Yarmuk', NULL, NULL, '10100003139'),
+  (1, 'المونسية', 'Al Munisiyah', NULL, NULL, '10100003140'),
+  (1, 'الخزامى', 'Al Khuzama', NULL, NULL, '10100003141'),
+  (1, 'عرقة', 'Irqah', NULL, NULL, '10100003142'),
+  (1, 'ظهرة لبن', 'Dhahrat Laban', NULL, NULL, '10100003143'),
+  (1, 'مطار الملك خالد', 'King Khalid International Airport', NULL, NULL, '10100003149'),
+  (1, 'جامعة الامام محمد بن سعود الاسلامية', 'Imam Muhammed Bin Saud Islamic University', NULL, NULL, '10100003151'),
+  (1, 'بنبان', 'Banban', NULL, NULL, '10100003152'),
+  (1, 'الرمال', 'Al Rimal', NULL, NULL, '10100003153'),
+  (1, 'غرناطة', 'Ghirnatah', NULL, NULL, '10100003155'),
+  (1, 'الدحو', 'Al Dahou', NULL, NULL, '10100003156'),
+  (1, 'العماجية', 'Al Ammajiyah', NULL, NULL, '10100003157'),
+  (1, 'هيت', 'Hyt', NULL, NULL, '10100003158'),
+  (1, 'الحائر', 'Al Haer', NULL, NULL, '10100003159'),
+  (1, 'ام الشعال', 'Umm Al Shaal', NULL, NULL, '10100003161'),
+  (1, 'الغنامية', 'Al Ghannamiyah', NULL, NULL, '10100003162'),
+  (1, 'عريض', 'Oraid', NULL, NULL, '10100003163'),
+  (1, 'بدر', 'Badr', NULL, NULL, '10100003164'),
+  (1, 'المهدية', 'Al Mahdiyah', NULL, NULL, '10100003165'),
+  (1, 'جامعة الملك سعود', 'King Saud University', NULL, NULL, '10100003166'),
+  (1, 'النسيم الغربي', 'West Naseem', NULL, NULL, '10100003167'),
+  (1, 'المشاعل', 'Al Mishael', NULL, NULL, '10100003168'),
+  (1, 'الندوة', 'Al Nadwah', NULL, NULL, '10100003169'),
+  (1, 'الرابية', 'Al Rabiyah', NULL, NULL, '10100003171'),
+  (1, 'وادي لبن', 'Wady Laban', NULL, NULL, '10100003172'),
+  (1, 'السدرة', 'Al Sidrah', NULL, NULL, '10100003174'),
+  (1, 'التضامن', 'Al Tadamun', NULL, NULL, '10100003175'),
+  (1, 'مدينة الملك عبدالله للطاقة', 'King Abdullah City For Energy', NULL, NULL, '10100003176'),
+  (1, 'البساتين', 'Al Basatin', NULL, NULL, '10100003177'),
+  (1, 'الرحاب', 'Al Rehab', NULL, NULL, '10100003178'),
+  (1, 'المجد', 'Al Majd', NULL, NULL, '10100003179'),
+  (1, 'الدانة', 'Al Danah', NULL, NULL, '10100003180'),
+  (1, 'الرسالة', 'Al Risalah', NULL, NULL, '10100003182'),
+  (1, 'الخير', 'Al Khair', NULL, NULL, '10100003183'),
+  (1, 'الفرسان', 'Al Fursan', NULL, NULL, '10100003184'),
+  (1, 'الشعلة', 'Al Sholah', NULL, NULL, '10100003185'),
+  (1, 'الراية', 'Al Rayah', NULL, NULL, '10100003186'),
+  (1, 'الزهور', 'Al Zahour', NULL, NULL, '10100003187'),
+  (1, 'الزاهر', 'Al Zaher', NULL, NULL, '10100003188'),
+  (1, 'المرجان', 'Al Marjan', NULL, NULL, '10100003189'),
+  (1, 'البيان', 'Al Bayan', NULL, NULL, '10100003190'),
+  (1, 'العلا', 'Al Ula', NULL, NULL, '10100003191'),
+  (1, 'المشرق', 'Al Mashriq', NULL, NULL, '10100003192'),
+  (1, 'النخبة', 'Al Nakhbah', NULL, NULL, '10100003193'),
+  (1, 'السحاب', 'Al Sahab', NULL, NULL, '10100003194'),
+  (1, 'الوسام', 'Al Wasam', NULL, NULL, '10100003195'),
+  (27, 'حطين', 'Hiteen', NULL, NULL, '10100270001'),
+  (27, 'قرطبة', 'Qurtubah', NULL, NULL, '10100270002'),
+  (27, 'الفيصلية', 'Al Faisaliyah', NULL, NULL, '10100270003'),
+  (27, 'العزيزية', 'Al Aziziyah', NULL, NULL, '10100270004'),
+  (27, 'القدس', 'Al Quds', NULL, NULL, '10100270005'),
+  (27, 'الخالدية', 'Al Khalidiyah', NULL, NULL, '10100270006'),
+  (27, 'الروضة', 'Ar Rawdah', NULL, NULL, '10100270007'),
+  (27, 'الربوة', 'Ar Rabwah', NULL, NULL, '10100270008'),
+  (27, 'الريان', 'Ar Riyan', NULL, NULL, '10100270009'),
+  (27, 'النهضة', 'An Nahdah', NULL, NULL, '10100270010'),
+  (27, 'مرخ', 'Margh', NULL, NULL, '10100270011'),
+  (27, 'الصناعية', 'As Sinaiyah', NULL, NULL, '10100270012'),
+  (27, 'بدر', 'Badr', NULL, NULL, '10100270013'),
+  (27, 'احد', 'Uhd', NULL, NULL, '10100270014'),
+  (27, 'طويق', 'Tuwik', NULL, NULL, '10100270015'),
+  (27, 'الفاروق', 'Al Farouq', NULL, NULL, '10100270016'),
+  (27, 'الصديق', 'As Sediq', NULL, NULL, '10100270017'),
+  (27, 'اليرموك', 'Al Yarmok', NULL, NULL, '10100270018'),
+  (27, 'اليمامة', 'Al Yamamah', NULL, NULL, '10100270020'),
+  (27, 'علقة', 'Alkah', NULL, NULL, '10100270021'),
+  (27, 'الدرعية', 'Al Deriyah', NULL, NULL, '10100270022'),
+  (27, 'المنتزة', 'Al Muntazah', NULL, NULL, '10100270023'),
+  (27, 'الاندلس', 'Al Andalus', NULL, NULL, '10100270024'),
+  (27, 'سمنان', 'Semnan', NULL, NULL, '10100270025'),
+  (27, 'السلام', 'As Salam', NULL, NULL, '10100270026'),
+  (27, 'السيح', 'As Sieh', NULL, NULL, '10100270027'),
+  (27, 'عريعرة', 'Urierah', NULL, NULL, '10100270028'),
+  (27, 'الورود', 'Al Wurud', NULL, NULL, '10100270029'),
+  (27, 'الملك عبدالله', 'King Abdullah', NULL, NULL, '10100270030'),
+  (27, 'الواحة', 'Al Wahah', NULL, NULL, '10100270031'),
+  (27, 'الازدهار', 'Al Izdihar', NULL, NULL, '10100270032'),
+  (27, 'الحمراء', 'Al Hamra', NULL, NULL, '10100270033'),
+  (27, 'اشبيليا', 'Ishbiliya', NULL, NULL, '10100270034'),
+  (27, 'غرناطة', 'Ghirnatah', NULL, NULL, '10100270035'),
+  (27, 'الياسمين', 'Al Yasmin', NULL, NULL, '10100270036'),
+  (27, 'الربيع', 'Ar Rabie', NULL, NULL, '10100270037'),
+  (27, 'السعادة', 'As Saadah', NULL, NULL, '10100270038'),
+  (27, 'النور', 'An Nur', NULL, NULL, '10100270039'),
+  (27, 'الخزامى', 'Al Khuzama', NULL, NULL, '10100270040'),
+  (27, 'النفل', 'An Naql', NULL, NULL, '10100270041'),
+  (27, 'الخليج', 'Al Khalij', NULL, NULL, '10100270042'),
+  (27, 'الفردوس', 'Al Fardus', NULL, NULL, '10100270043'),
+  (27, 'المنار', 'Al Manar', NULL, NULL, '10100270044'),
+  (27, 'القادسية', 'Al Qadisiyah', NULL, NULL, '10100270045'),
+  (27, 'الندى', 'An Nada', NULL, NULL, '10100270046'),
+  (27, 'الفروسية', 'Al Frosyah', NULL, NULL, '10100270047'),
+  (27, 'الجوى', 'Al Jawa', NULL, NULL, '10100270049'),
+  (27, 'الملك سلمان', 'King Salman', NULL, NULL, '10100270050'),
+  (39, 'شمال الاذاعة', 'Al Idhaah North', NULL, NULL, '10100418001'),
+  (39, 'المعارض', 'Al Maarid', NULL, NULL, '10100418002'),
+  (39, 'الاذاعة', 'Al Idhaah', NULL, NULL, '10100418003'),
+  (39, 'الملك فهد', 'King Fahd', NULL, NULL, '10100418004'),
+  (39, 'الملز', 'Al Malaz', NULL, NULL, '10100418005'),
+  (39, 'الاصفر', 'Al Asfar', NULL, NULL, '10100418006'),
+  (39, 'الحجاج', 'Al Hujjaj', NULL, NULL, '10100418007'),
+  (39, 'المهنيين', 'Al Mihaniyin', NULL, NULL, '10100418008'),
+  (39, 'النهضة', 'An Nahdah', NULL, NULL, '10100418009'),
+  (39, 'الملك فيصل', 'King Faisal', NULL, NULL, '10100418010'),
+  (39, 'الصالحية', 'As Salhiyah', NULL, NULL, '10100418011'),
+  (39, 'العود', 'Al Uud', NULL, NULL, '10100418012'),
+  (39, 'المنفوحة', 'Al Manfuhah', NULL, NULL, '10100418013'),
+  (39, 'الصناعية', 'As Sinaiyah', NULL, NULL, '10100418014'),
+  (39, 'الخزان', 'Al Khazzan', NULL, NULL, '10100418015'),
+  (39, 'الملك خالد', 'King Khalid', NULL, NULL, '10100418016'),
+  (39, 'السليمانية', 'As Sulaymaniyah', NULL, NULL, '10100418017'),
+  (39, 'الجامعية', 'Al Jamieyah', NULL, NULL, '10100418018'),
+  (44, 'الديرة القديمة', 'Ad Dirah Al Qadimah', NULL, NULL, '10100443001'),
+  (44, 'الخالدية', 'Al Khalidiyah', NULL, NULL, '10100443002'),
+  (44, 'العزيزية', 'Al Aziziyah', NULL, NULL, '10100443003'),
+  (44, 'الفيصلية', 'Al Faisaliyah', NULL, NULL, '10100443004'),
+  (44, 'الجنادرية', 'Al Janadriyah', NULL, NULL, '10100443005'),
+  (37, 'المنطقة الصناعية', 'Industrial Area', NULL, NULL, '10100500001'),
+  (37, 'غسلة', 'Gaslah', NULL, NULL, '10100500002'),
+  (37, 'الوقف', 'Al Wakf', NULL, NULL, '10100500003'),
+  (37, 'الشفاء', 'Ash Shifa', NULL, NULL, '10100500004'),
+  (37, 'الملك فهد', 'King Fahd', NULL, NULL, '10100500005'),
+  (37, 'الروضة', 'Ar Rawdah', NULL, NULL, '10100500006'),
+  (37, 'النسيم', 'Al Naseem', NULL, NULL, '10100500007'),
+  (37, 'الوشم', 'Al Washm', NULL, NULL, '10100500008'),
+  (37, 'الرحبة', 'Al Rehab', NULL, NULL, '10100500009'),
+  (32, 'مشرفة', 'Mishrifah', NULL, NULL, '10100669001'),
+  (32, 'النزهة', 'An Nuzhah', NULL, NULL, '10100669002'),
+  (32, 'حطين', 'Hiteen', NULL, NULL, '10100669003'),
+  (32, 'الملك فهد', 'King Fahd', NULL, NULL, '10100669004'),
+  (32, 'الحرمين', 'Al Haramain', NULL, NULL, '10100669005'),
+  (32, 'السلام', 'As Salam', NULL, NULL, '10100669006'),
+  (32, 'الخليج', 'Al Khalij', NULL, NULL, '10100669007'),
+  (32, 'الديرة', 'Ad Dirah', NULL, NULL, '10100669008'),
+  (32, 'الروضة', 'Ar Rawdah', NULL, NULL, '10100669009'),
+  (32, 'الفيصلية', 'Al Faisaliyah', NULL, NULL, '10100669010'),
+  (32, 'بدر', 'Badr', NULL, NULL, '10100669011'),
+  (32, 'الربوة', 'Ar Rabwah', NULL, NULL, '10100669012'),
+  (32, 'النهضة', 'An Nahdah', NULL, NULL, '10100669013'),
+  (32, 'القدس', 'Al Quds', NULL, NULL, '10100669014'),
+  (32, 'الصناعية', 'As Sinaiyah', NULL, NULL, '10100669015'),
+  (32, 'الخالدية', 'Al Khalidiyah', NULL, NULL, '10100669016'),
+  (32, 'العزيزية', 'Al Aziziyah', NULL, NULL, '10100669017'),
+  (32, 'الريان', 'Ar Rayan', NULL, NULL, '10100669018'),
+  (32, 'السنبلة', 'As Sunbulah', NULL, NULL, '10100669019'),
+  (32, 'الدرع', 'Ad Dar', NULL, NULL, '10100669020'),
+  (32, 'منطقة الاستراحات', 'Rest House Area', NULL, NULL, '10100669021'),
+  (32, 'مصده', 'Musaddah', NULL, NULL, '10100669022'),
+  (45, 'الديرة', 'Ad Dirah', NULL, NULL, '10100795001'),
+  (45, 'النخيل', 'Al Nakhil', NULL, NULL, '10100795002'),
+  (45, 'السد', 'As Sad', NULL, NULL, '10100795003'),
+  (45, 'الروضة', 'Ar Rawdah', NULL, NULL, '10100795004'),
+  (45, 'النهضة', 'An Nahdah', NULL, NULL, '10100795005'),
+  (45, 'الحزم', 'Al Hazm', NULL, NULL, '10100795006'),
+  (31, 'الملقاه', 'Al Malqah', NULL, NULL, '10100828001'),
+  (31, 'الفيصلية', 'Al Faisaliyah', NULL, NULL, '10100828002'),
+  (31, 'الثليما', 'Al Thilaima', NULL, NULL, '10100828003'),
+  (31, 'السلمانية', 'Al Salmaniyah', NULL, NULL, '10100828004'),
+  (31, 'الملك', 'Al Malik', NULL, NULL, '10100828005'),
+  (31, 'الدرعية', 'Al Diriyah', NULL, NULL, '10100828006'),
+  (31, 'الخالدية', 'Al Khalidiyah', NULL, NULL, '10100828007'),
+  (31, 'العاصمة', 'Al Asemah', NULL, NULL, '10100828008'),
+  (31, 'الطريف', 'Al Turaif', NULL, NULL, '10100828010'),
+  (31, 'الروقية', 'Al Rooqiyah', NULL, NULL, '10100828011'),
+  (31, 'السرحية', 'Al Sarhiyah', NULL, NULL, '10100828012'),
+  (31, 'الشهداء', 'Al Shohda', NULL, NULL, '10100828013'),
+  (31, 'ظهرة العودة غرب', 'West Dhahrat Al Oudah', NULL, NULL, '10100828014'),
+  (31, 'البليدا', 'Al Blaida', NULL, NULL, '10100828015'),
+  (31, 'العلب', 'Al Olab', NULL, NULL, '10100828016'),
+  (31, 'سلطانة', 'Sultanah', NULL, NULL, '10100828017'),
+  (31, 'ظهرة العودة شرق', 'East Dhahrat Al Oudah', NULL, NULL, '10100828018'),
+  (41, 'المنطقة الصناعية', 'Industrial Area', NULL, NULL, '10100839001'),
+  (41, 'اليمامة', 'Al Yamamah', NULL, NULL, '10100839002'),
+  (41, 'الخالدية', 'Al Khalidiyah', NULL, NULL, '10100839003'),
+  (41, 'العزيزية', 'Al Aziziyah', NULL, NULL, '10100839004'),
+  (41, 'الورود 1', 'Al Wurud 1', NULL, NULL, '10100839005'),
+  (41, 'النهضة', 'An Nahdah', NULL, NULL, '10100839006'),
+  (41, 'المنتزة', 'Al Muntazah', NULL, NULL, '10100839007'),
+  (41, 'البديع الغربي', 'Al Badi Al Gharbi', NULL, NULL, '10100839008'),
+  (41, 'العنقري', 'Al Anqari', NULL, NULL, '10100839009'),
+  (41, 'البديع الشرقي', 'Al Badi Ash Sharqi', NULL, NULL, '10100839010'),
+  (34, 'ابو سليم', 'Abu Salim', NULL, NULL, '10100880001'),
+  (34, 'السلام', 'As Salam', NULL, NULL, '10100880002'),
+  (34, 'الجزيرة', 'Al Jazirah', NULL, NULL, '10100880003'),
+  (34, 'المروج', 'Al Muruj', NULL, NULL, '10100880004'),
+  (34, 'الخليج', 'Al Khalij', NULL, NULL, '10100880005'),
+  (34, 'الربوة', 'Ar Rabwah', NULL, NULL, '10100880006'),
+  (34, 'الزهور', 'Az Zuhur', NULL, NULL, '10100880007'),
+  (34, 'البساتين', 'Al Basatin', NULL, NULL, '10100880008'),
+  (34, 'الواحة', 'Al Wahah', NULL, NULL, '10100880009'),
+  (34, 'الديرة', 'Ad Dirah', NULL, NULL, '10100880010'),
+  (34, 'الصناعية', 'As Sinaiyah', NULL, NULL, '10100880011'),
+  (34, 'الورود', 'Al Wurud', NULL, NULL, '10100880012'),
+  (34, 'الحزم', 'Al Hazm', NULL, NULL, '10100880013'),
+  (34, 'الجفونية', 'Al Jaffuniyyah', NULL, NULL, '10100880014'),
+  (34, 'الضريب', 'Ad Darib', NULL, NULL, '10100880015'),
+  (42, 'الصناعية', 'Al Sinaiyah', NULL, NULL, '10100990001'),
+  (42, 'الحزيمية', 'Al Huzaymiyyah', NULL, NULL, '10100990002'),
+  (42, 'الصقورية', 'Al Suquriyyah', NULL, NULL, '10100990003'),
+  (42, 'المروج', 'Al Muruj', NULL, NULL, '10100990004'),
+  (42, 'شخيب', 'Shukhib', NULL, NULL, '10100990005'),
+  (42, 'طويق', 'Tuwik', NULL, NULL, '10100990006'),
+  (42, 'الأندلس', 'Al Andalus', NULL, NULL, '10100990007'),
+  (42, 'غرناطه', 'Ghirnatah', NULL, NULL, '10100990008'),
+  (42, 'الهدا', 'Al Hada', NULL, NULL, '10100990009'),
+  (42, 'العليا', 'Al Olaya', NULL, NULL, '10100990010'),
+  (42, 'نواره', 'Nawarah', NULL, NULL, '10100990011'),
+  (42, 'وسيلة', 'Waselah', NULL, NULL, '10100990012'),
+  (42, 'اللؤلؤة', 'Al Luluah', NULL, NULL, '10100990013'),
+  (42, 'الراشدية', 'Al Rashidiyah', NULL, NULL, '10100990014'),
+  (42, 'الغطغط', 'Al Ghtght', NULL, NULL, '10100990015'),
+  (42, 'الريف', 'Al Rif', NULL, NULL, '10100990016'),
+  (42, 'المحمدية', 'Al Muhammadiyah', NULL, NULL, '10100990018'),
+  (42, 'الواحة', 'Al Wahah', NULL, NULL, '10100990019'),
+  (42, 'الحزم', 'Al Hazm', NULL, NULL, '10100990020'),
+  (42, 'مشيرفة', 'Al Musherfah', NULL, NULL, '10100990021'),
+  (42, 'الجامعة', 'Al Jamiah', NULL, NULL, '10100990022'),
+  (42, 'الورود', 'Al Wurud', NULL, NULL, '10100990023'),
+  (42, 'الياسمين', 'Al Yasmin', NULL, NULL, '10100990024'),
+  (42, 'الشلال', 'Al Shlal', NULL, NULL, '10100990025'),
+  (26, 'المصانع', 'Al Masani', NULL, NULL, '10101061001'),
+  (26, 'البركة', 'Al Barakah', NULL, NULL, '10101061002'),
+  (26, 'المنتزة', 'Al Muntazah', NULL, NULL, '10101061003'),
+  (26, 'الصناعية الجديدة', 'New Industrial', NULL, NULL, '10101061004'),
+  (26, 'السليمانية', 'As Sulaymaniyah', NULL, NULL, '10101061005'),
+  (26, 'الصفاء', 'Al Safa', NULL, NULL, '10101061006'),
+  (26, 'البرج', 'Al Burj', NULL, NULL, '10101061007'),
+  (26, 'الورود', 'Al Wurud', NULL, NULL, '10101061008'),
+  (26, 'السلام', 'As Salam', NULL, NULL, '10101061009'),
+  (26, 'الرفيعة', 'Ar Rafiah', NULL, NULL, '10101061010'),
+  (26, 'اليمامة', 'Al Yamamah', NULL, NULL, '10101061011'),
+  (26, 'الخالدية', 'Al Khalidiyah', NULL, NULL, '10101061012'),
+  (26, 'الخزامى', 'Al Khuzama', NULL, NULL, '10101061013'),
+  (26, 'العزيزية', 'Al Aziziyah', NULL, NULL, '10101061014'),
+  (26, 'مشرف', 'Mishrif', NULL, NULL, '10101061015'),
+  (26, 'الراشدية', 'Ar Rashidiyyah', NULL, NULL, '10101061016'),
+  (26, 'المنيفية', 'Al Munyfiyah', NULL, NULL, '10101061017'),
+  (26, 'الناصفة', 'An Nasifah', NULL, NULL, '10101061018'),
+  (26, 'البديعة', 'Al Badiah', NULL, NULL, '10101061019'),
+  (26, 'المنصورة', 'Al Mansurah', NULL, NULL, '10101061020'),
+  (26, 'النهضة', 'An Nahdah', NULL, NULL, '10101061021'),
+  (26, 'النزهة', 'An Nuzhah', NULL, NULL, '10101061022'),
+  (26, 'الريان', 'Ar Rayyan', NULL, NULL, '10101061023'),
+  (26, 'الاندلس', 'Al Andalus', NULL, NULL, '10101061024'),
+  (26, 'الفيصلية', 'Al Faisaliyah', NULL, NULL, '10101061025'),
+  (26, 'الزاهر', 'Az Zahir', NULL, NULL, '10101061026'),
+  (26, 'منطقة صناعية', 'Industrial Area', NULL, NULL, '10101061027'),
+  (26, 'العالية', 'Al Aliyah', NULL, NULL, '10101061028'),
+  (26, 'الهياثم', 'Al Hayathim', NULL, NULL, '10101061029'),
+  (26, 'العدامة', 'Al Adamah', NULL, NULL, '10101061030'),
+  (26, 'القطار', 'Al Qitar', NULL, NULL, '10101061031'),
+  (26, 'المدينة الصناعية بالخرج', 'Al Kharj Industrial City', NULL, NULL, '10101061032'),
+  (26, 'قاعدة الامير سلطان الجوية', 'Prince Sultan Air Base', NULL, NULL, '10101061033'),
+  (26, 'الجامعة', 'Al Jamiah', NULL, NULL, '10101061034'),
+  (26, 'جوهرة الخرج', 'Jawharat Al Kharj', NULL, NULL, '10101061035'),
+  (26, 'المروج', 'Al Muruj', NULL, NULL, '10101061036'),
+  (26, 'السحاب', 'As Sahab', NULL, NULL, '10101061037'),
+  (26, 'اليرموك', 'Al Yarmuk', NULL, NULL, '10101061038'),
+  (26, 'الاخضر', 'Al Akhdar', NULL, NULL, '10101061039'),
+  (26, 'الروابي', 'Ar Rawabi', NULL, NULL, '10101061040'),
+  (26, 'قرطبة', 'Qurtubah', NULL, NULL, '10101061041'),
+  (26, 'الهدا', 'Al Hada', NULL, NULL, '10101061042'),
+  (26, 'الحمراء', 'Al Hamra', NULL, NULL, '10101061043'),
+  (35, 'الخماسين الشمالي', 'Al Khamasin Al Shamali', NULL, NULL, '10101351001'),
+  (35, 'اللدام الجنوبي', 'Al Ludam Al Janubi', NULL, NULL, '10101351002'),
+  (35, 'الحديدية', 'Al Hadidiyah', NULL, NULL, '10101351003'),
+  (35, 'القيروان', 'Al Qayrawan', NULL, NULL, '10101351004'),
+  (35, 'المنتزه', 'Al Muntazah', NULL, NULL, '10101351005'),
+  (35, 'الروضة', 'Al Rawdah', NULL, NULL, '10101351006'),
+  (35, 'مقابل', 'Muqabil', NULL, NULL, '10101351007'),
+  (35, 'صناعية الحديدية', 'Sinaiyat Al Hadidiyah', NULL, NULL, '10101351008'),
+  (35, 'التقنية', 'Al Taqniyah', NULL, NULL, '10101351009'),
+  (35, 'الرويساء', 'Al Ruwaysa', NULL, NULL, '10101351010'),
+  (35, 'اللدام الشمالي', 'Al Ludam Al Shamali', NULL, NULL, '10101351011'),
+  (35, 'آل عويمر', 'Al Uwaimir', NULL, NULL, '10101351012'),
+  (35, 'الخماسين', 'Al Khamasin', NULL, NULL, '10101351013'),
+  (35, 'الولامين', 'Al Walamin', NULL, NULL, '10101351014'),
+  (35, 'المعتلاء', 'Al Muatala', NULL, NULL, '10101351015'),
+  (35, 'صناعية الشرفا', 'Al Shurafa Industrial', NULL, NULL, '10101351016'),
+  (35, 'الشرفا', 'Al Shurafa', NULL, NULL, '10101351017'),
+  (35, 'ال عريمة', 'Al Uraimah', NULL, NULL, '10101351018'),
+  (35, 'الزويراء', 'Al Zuwayra', NULL, NULL, '10101351019'),
+  (35, 'الخالدية', 'Al Khalidiyah', NULL, NULL, '10101351020'),
+  (35, 'النزهة', 'Al Nuzha', NULL, NULL, '10101351021'),
+  (35, 'العزيزية', 'Al Aziziyah', NULL, NULL, '10101351022'),
+  (35, 'نزوى', 'Nazwa', NULL, NULL, '10101351023'),
+  (35, 'العقيق', 'Al Aqiq', NULL, NULL, '10101351024'),
+  (35, 'الصالحية', 'As Salhiyah', NULL, NULL, '10101351025'),
+  (35, 'ال تميم و الصالحية', 'Al Tamim Wal Salihiyyah', NULL, NULL, '10101351026'),
+  (35, 'المدرسة العسكرية', 'Military School', NULL, NULL, '10101351027'),
+  (35, 'العليا', 'Al Olaya', NULL, NULL, '10101351028'),
+  (35, 'الحنابجة', 'Al Hanabijah', NULL, NULL, '10101351029'),
+  (35, 'الورود', 'Al Wurud', NULL, NULL, '10101351030'),
+  (35, 'المعتلاء الجنوبي', 'Al Muatala Al Janubi', NULL, NULL, '10101351031'),
+  (35, 'النويعمة', 'Al Nuwayemah', NULL, NULL, '10101351032'),
+  (35, 'القويز', 'Al Quwaiz', NULL, NULL, '10101351033'),
+  (35, 'الحي الغربي', 'Al Gharbi', NULL, NULL, '10101351034'),
+  (35, 'المستشفي', 'Al Mustashfa', NULL, NULL, '10101351035'),
+  (40, 'النخيل', 'Al Nakhil', NULL, NULL, '10101361001'),
+  (40, 'الروضة', 'Ar Rawdah', NULL, NULL, '10101361002'),
+  (40, 'الشفاء', 'Ash Shifa', NULL, NULL, '10101361003'),
+  (40, 'الديرة', 'Ad Dirah', NULL, NULL, '10101361004'),
+  (40, 'الملك عبدالعزيز', 'King Abdulaziz', NULL, NULL, '10101361005'),
+  (40, 'الزهرة', 'Az Zahrah', NULL, NULL, '10101361006'),
+  (46, 'المدينة الجديدة', 'Al Madinah Al Jadidah', NULL, NULL, '10103158001'),
+  (46, 'الركية', 'Ar Rukiyah', NULL, NULL, '10103158002'),
+  (46, 'الحزيمية', 'Al Huzaimiyah', NULL, NULL, '10103158003'),
+  (46, 'وسط المدينة', 'City Center', NULL, NULL, '10103158004'),
+  (46, 'العثمانية', 'Al Uthmaniyah', NULL, NULL, '10103158005'),
+  (46, 'الصناعية', 'As Sinaiyah', NULL, NULL, '10103158006'),
+  (38, 'الورود', 'Al Wurud', NULL, NULL, '10103161001'),
+  (38, 'خضار', 'Khudar', NULL, NULL, '10103161002'),
+  (38, 'الباطن', 'Al Batin', NULL, NULL, '10103161003'),
+  (38, 'النهضة', 'An Nahdah', NULL, NULL, '10103161004'),
+  (38, 'الشعيب', 'Ash Shuaib', NULL, NULL, '10103161005'),
+  (38, 'زياد', 'Ziyad', NULL, NULL, '10103161006'),
+  (38, 'الفرعة', 'Al Farah', NULL, NULL, '10103161007'),
+  (38, 'التضامن', 'Al Tadamun', NULL, NULL, '10103161008'),
+  (38, 'المنار', 'Al Manar', NULL, NULL, '10103161009'),
+  (38, 'المجد', 'Al Majd', NULL, NULL, '10103161010'),
+  (38, 'المصيف', 'Al Masiaf', NULL, NULL, '10103161011'),
+  (38, 'الصدر', 'Al Sadr', NULL, NULL, '10103161012'),
+  (38, 'المحمدية', 'Al Muhammadiyah', NULL, NULL, '10103161013'),
+  (38, 'السلام', 'As Salam', NULL, NULL, '10103161014'),
+  (38, 'الحلة', 'Al Hilah', NULL, NULL, '10103161015'),
+  (36, 'الملك فهد', 'King Fahd', NULL, NULL, '10103174001'),
+  (36, 'السحاب', 'As Sahab', NULL, NULL, '10103174002'),
+  (36, 'الصالحية', 'As Salhiyah', NULL, NULL, '10103174003'),
+  (36, 'الدوائر', 'Ad Dawair', NULL, NULL, '10103174004'),
+  (36, 'العزيزية', 'Al Aziziyah', NULL, NULL, '10103174005'),
+  (36, 'الفيصلية', 'Al Faisaliyah', NULL, NULL, '10103174006'),
+  (36, 'الجفيدرية', 'Al Jufaidariyah', NULL, NULL, '10103174007'),
+  (36, 'غصيبة', 'Ghusaiba', NULL, NULL, '10103174008'),
+  (36, 'المبرز', 'Al Mubarraz', NULL, NULL, '10103174009'),
+  (36, 'السعودية', 'As Saudia', NULL, NULL, '10103174010'),
+  (36, 'الخالدية', 'Al Khalidiyah', NULL, NULL, '10103174011'),
+  (36, 'بدائع الهواملة', 'Badai Al Hawamilah', NULL, NULL, '10103174035'),
+  (96, 'المنهل', 'Al Manhal', NULL, NULL, '10600015001'),
+  (96, 'النصب', 'An Nasb', NULL, NULL, '10600015002'),
+  (96, 'وسط المدينة', 'City Center', NULL, NULL, '10600015003'),
+  (96, 'النزهة', 'An Nuzhah', NULL, NULL, '10600015004'),
+  (96, 'ذرة', 'Dhurah', NULL, NULL, '10600015005'),
+  (96, 'شمسان', 'Shamsan', NULL, NULL, '10600015006'),
+  (96, 'القرى', 'Al Qura', NULL, NULL, '10600015007'),
+  (96, 'الوردتين', 'Al Wardatain', NULL, NULL, '10600015008'),
+  (96, 'الربوة', 'Ar Rabwah', NULL, NULL, '10600015009'),
+  (96, 'النسيم', 'Al Naseem', NULL, NULL, '10600015010'),
+  (96, 'الاندلس', 'Al Andalus', NULL, NULL, '10600015011'),
+  (96, 'الضباب', 'Ad Dabab', NULL, NULL, '10600015013'),
+  (96, 'الوصايف', 'Al Wasaif', NULL, NULL, '10600015014'),
+  (96, 'الشرفية', 'Ash Sharafiyah', NULL, NULL, '10600015015'),
+  (96, 'العزيزية', 'Al Aziziyah', NULL, NULL, '10600015016'),
+  (96, 'الشفاء', 'Ash Shifa', NULL, NULL, '10600015017'),
+  (96, 'المفتاحة', 'Al Muftahah', NULL, NULL, '10600015018'),
+  (96, 'السروات', 'As Sarawat', NULL, NULL, '10600015019'),
+  (96, 'المروج', 'Al Muruj', NULL, NULL, '10600015020'),
+  (96, 'السد', 'As Sadd', NULL, NULL, '10600015021'),
+  (96, 'الخشع', 'Al Khasha', NULL, NULL, '10600015022'),
+  (96, 'القابل', 'Al Qabil', NULL, NULL, '10600015023'),
+  (96, 'الفيصلية', 'Al Faisaliyah', NULL, NULL, '10600015024'),
+  (96, 'الخالدية', 'Al Khalidiyah', NULL, NULL, '10600015025'),
+  (96, 'العرين', 'Al Arin', NULL, NULL, '10600015026'),
+  (96, 'البديع', 'Al Badi', NULL, NULL, '10600015027'),
+  (96, 'الصفا', 'Al Safa', NULL, NULL, '10600015028'),
+  (96, 'ج 35', 'C 35', NULL, NULL, '10600015029'),
+  (96, 'المقضى', 'Al Magda', NULL, NULL, '10600015030'),
+  (96, 'التعاون', 'At Taawun', NULL, NULL, '10600015031'),
+  (96, 'الوادي', 'Al Wadi', NULL, NULL, '10600015032'),
+  (96, 'الروضة', 'Al Rawdah', NULL, NULL, '10600015033'),
+  (96, 'الفل', 'Al Fal', NULL, NULL, '10600015034'),
+  (96, 'الروابي', 'Ar Rawabi', NULL, NULL, '10600015035'),
+  (96, 'المطار', 'Airport', NULL, NULL, '10600015036'),
+  (96, 'المصيف', 'Al Masif', NULL, NULL, '10600015037'),
+  (96, 'سلطانة', 'Sultanah', NULL, NULL, '10600015038'),
+  (96, 'الصناعية', 'As Sinaiyah', NULL, NULL, '10600015039')
+) AS v(city_id, name_ar, name_en, latitude, longitude, source_ref)
+WHERE EXISTS (SELECT 1 FROM cities c WHERE c.id = v.city_id)
+  AND NOT EXISTS (SELECT 1 FROM districts e WHERE e.city_id = v.city_id AND e.name_ar = v.name_ar);
+INSERT INTO districts (city_id, name_ar, name_en, latitude, longitude, is_active, source, source_ref, is_verified)
+SELECT v.city_id, v.name_ar, v.name_en, CAST(v.latitude AS DECIMAL(10,7)), CAST(v.longitude AS DECIMAL(10,7)), 1, 'homaily', v.source_ref, 0
+FROM (VALUES
+  (96, 'البحيره', 'Al Bhira', NULL, NULL, '10600015040'),
+  (96, 'العقيق', 'Al Aqiq', NULL, NULL, '10600015041'),
+  (96, 'السلام', 'As Salam', NULL, NULL, '10600015042'),
+  (96, 'الزهور', 'Az Zuhur', NULL, NULL, '10600015043'),
+  (96, 'المسك', 'Al Misk', NULL, NULL, '10600015044'),
+  (18, 'الراقي', 'Al Raqi', NULL, NULL, '10600062001'),
+  (18, 'الأسواق', 'Al Aswaq', NULL, NULL, '10600062002'),
+  (18, 'الواحة', 'Al Wahah', NULL, NULL, '10600062003'),
+  (18, 'السد', 'As Sad', NULL, NULL, '10600062004'),
+  (18, 'الجزيرة', 'Al Jazirah', NULL, NULL, '10600062005'),
+  (18, 'طيب الاسم', 'Tayib Al Ism', NULL, NULL, '10600062006'),
+  (18, 'الزهور', 'Az Zuhur', NULL, NULL, '10600062007'),
+  (18, 'الروضة', 'Ar Rawdah', NULL, NULL, '10600062008'),
+  (18, 'المنتزه', 'Al Muntazah', NULL, NULL, '10600062009'),
+  (18, 'ضمك', 'Damak', NULL, NULL, '10600062010'),
+  (18, 'الخزان', 'Al Khazzan', NULL, NULL, '10600062011'),
+  (18, 'الخالدية', 'Al Khalidiyah', NULL, NULL, '10600062012'),
+  (18, 'الفتح', 'Al Fath', NULL, NULL, '10600062013'),
+  (18, 'النهضة', 'An Nahdah', NULL, NULL, '10600062014'),
+  (18, 'شباعة', 'Shubaah', NULL, NULL, '10600062015'),
+  (18, 'المعزاب', 'Al Mizab', NULL, NULL, '10600062016'),
+  (18, 'المثناة', 'Al Mathnah', NULL, NULL, '10600062017'),
+  (18, 'المعمورة', 'Al Mamurah', NULL, NULL, '10600062018'),
+  (18, 'النسيم', 'Al Naseem', NULL, NULL, '10600062019'),
+  (18, 'شكر', 'Shakar', NULL, NULL, '10600062020'),
+  (18, 'النزهة', 'An Nuzhah', NULL, NULL, '10600062021'),
+  (18, 'عتود', 'Atud', NULL, NULL, '10600062022'),
+  (18, 'ال هميلة', 'Al Humaylah', NULL, NULL, '10600062023'),
+  (18, 'العرق الجنوبي', 'Al Irq Al Janubi', NULL, NULL, '10600062024'),
+  (18, 'الصقور', 'As Suqur', NULL, NULL, '10600062025'),
+  (18, 'البوادي', 'Al Bawadi', NULL, NULL, '10600062026'),
+  (18, 'النخيل', 'Al Nakhil', NULL, NULL, '10600062027'),
+  (18, 'ام سرور', 'Umm Surur', NULL, NULL, '10600062028'),
+  (18, 'الشرفية', 'Ash Sharafiyah', NULL, NULL, '10600062029'),
+  (18, 'الربيع', 'Ar Rabie', NULL, NULL, '10600062030'),
+  (18, 'قمبر', 'Qambar', NULL, NULL, '10600062031'),
+  (18, 'السلام', 'As Salam', NULL, NULL, '10600062032'),
+  (18, 'العرق الشمالي', 'Al Irq Ash Shamali', NULL, NULL, '10600062033'),
+  (18, 'الدوحة', 'Ad Dawhah', NULL, NULL, '10600062034'),
+  (18, 'العزيزية', 'Al Aziziyah', NULL, NULL, '10600062035'),
+  (18, 'القافلة', 'Al Qafilah', NULL, NULL, '10600062036'),
+  (18, 'مخطط الموسى', 'Al Musa Subdivision Plan', NULL, NULL, '10600062037'),
+  (18, 'سكن القاعدة الجوية', 'Airforce Housing', NULL, NULL, '10600062038'),
+  (18, 'الرونه', 'Ar Runah', NULL, NULL, '10600062039'),
+  (18, 'الشفاء', 'Ash Shifa', NULL, NULL, '10600062040'),
+  (18, 'ذلالة', 'Dhalalah', NULL, NULL, '10600062041'),
+  (18, 'الرصراص 2', 'Ar Rasras 2', NULL, NULL, '10600062042'),
+  (18, 'سكن المدينة العسكرية', 'Military City Housing', NULL, NULL, '10600062043'),
+  (18, 'سكن مجموعة اللواء الرابع عشر', '14th Brigade Housing', NULL, NULL, '10600062044'),
+  (18, 'الجامعيين', 'Al Jamiyin', NULL, NULL, '10600062046'),
+  (18, 'الوسام', 'Al Wasam', NULL, NULL, '10600062047'),
+  (18, 'اليرموك', 'Al Yarmuk', NULL, NULL, '10600062048'),
+  (18, 'الحرابى', 'Al Harabi', NULL, NULL, '10600062049'),
+  (18, 'الحمراء', 'Al Hamra', NULL, NULL, '10600062051'),
+  (18, 'الهرير الغربى', 'Al Harir Western', NULL, NULL, '10600062052'),
+  (18, 'المراث', 'Al Marath', NULL, NULL, '10600062053'),
+  (18, 'الظرفة', 'Al Dhurfah', NULL, NULL, '10600062054'),
+  (18, 'تارة', 'Tara', NULL, NULL, '10600062055'),
+  (18, 'النجاح', 'An Najah', NULL, NULL, '10600062056'),
+  (18, 'الجبل', 'Al Jabal', NULL, NULL, '10600062057'),
+  (18, 'شمال التضامن', 'Shamal At Tadamun', NULL, NULL, '10600062058'),
+  (18, 'نشوان', 'Nashwan', NULL, NULL, '10600062059'),
+  (18, 'المصيف', 'Al Masif', NULL, NULL, '10600062060'),
+  (18, 'الصناعية', 'As Sinaiyah', NULL, NULL, '10600062061'),
+  (18, 'الوفاء', 'Al Wafa', NULL, NULL, '10600062062'),
+  (18, 'التعاون', 'At Taawun', NULL, NULL, '10600062063'),
+  (18, 'أحد', 'Uhud', NULL, NULL, '10600062064'),
+  (18, 'شعب ذهبان', 'Shaab Dhahban', NULL, NULL, '10600062065'),
+  (18, 'ذهبان الغربى', 'Western Dhahban', NULL, NULL, '10600062066'),
+  (18, 'ذهبان الشرقى', 'Eastern Dhahban', NULL, NULL, '10600062067'),
+  (18, 'الرصراص 1', 'Ar Rasras 1', NULL, NULL, '10600062068'),
+  (18, 'الوقواق', 'Al Waqwaq', NULL, NULL, '10600062069'),
+  (18, 'الهرير الشرقى', 'Al Harir Al Sharqi', NULL, NULL, '10600062070'),
+  (18, 'الوقبة', 'Al Waqba', NULL, NULL, '10600062071'),
+  (18, 'مصلوم', 'Masloum', NULL, NULL, '10600062072'),
+  (88, 'الخالدية', 'Al Khalidiyah', NULL, NULL, '10600065001'),
+  (88, 'الزيتون', 'Az Zaytun', NULL, NULL, '10600065002'),
+  (88, 'العزيزية', 'Al Aziziyah', NULL, NULL, '10600065003'),
+  (88, 'السلامة', 'As Salamah', NULL, NULL, '10600065004'),
+  (88, 'النهضة', 'An Nahdah', NULL, NULL, '10600065005'),
+  (88, 'وسط البلد', 'Down Town', NULL, NULL, '10600065006'),
+  (88, 'الورود', 'Al Wurud', NULL, NULL, '10600065007'),
+  (88, 'الزهور', 'Az Zuhur', NULL, NULL, '10600065008'),
+  (88, 'صفوان', 'Safwan', NULL, NULL, '10600065009'),
+  (88, 'الصالحية', 'As Salhiyah', NULL, NULL, '10600065010'),
+  (88, 'المصيف', 'Al Masif', NULL, NULL, '10600065011'),
+  (88, 'الخليج', 'Al Khalij', NULL, NULL, '10600065012'),
+  (88, 'الرونه', 'Ar Runah', NULL, NULL, '10600065013'),
+  (88, 'المدينة العسكرية', 'Military City', NULL, NULL, '10600065014'),
+  (88, 'الروضه 1', 'Ar Rawdah 1', NULL, NULL, '10600065015'),
+  (89, 'التعاون', 'Al Taawun', NULL, NULL, '10600256001'),
+  (89, 'النزهة', 'Al Nuzhah', NULL, NULL, '10600256002'),
+  (89, 'النهضة', 'Al Nahdah', NULL, NULL, '10600256003'),
+  (89, 'الخالدية', 'Al Khalidiyah', NULL, NULL, '10600256004'),
+  (89, 'الفاخرية', 'Al Fakhriyah', NULL, NULL, '10600256005'),
+  (89, 'الصفاء', 'Al Safa', NULL, NULL, '10600256006'),
+  (89, 'العليا', 'Al Olaya', NULL, NULL, '10600256007'),
+  (89, 'المنهل', 'Al Manhal', NULL, NULL, '10600256008'),
+  (89, 'العروبة', 'Al Urubah', NULL, NULL, '10600256009'),
+  (89, 'الملك فهد', 'King Fahd', NULL, NULL, '10600256010'),
+  (89, 'الروضة', 'Al Rawdah', NULL, NULL, '10600256011'),
+  (89, 'المروج', 'Al Muruj', NULL, NULL, '10600256012'),
+  (89, 'الصناعية', 'Al Sinaiyah', NULL, NULL, '10600256013'),
+  (89, 'النسيم', 'Al Naseem', NULL, NULL, '10600256014'),
+  (91, 'النهضة', 'An Nahdah', NULL, NULL, '10601294001'),
+  (91, 'الخليج', 'Al Khalij', NULL, NULL, '10601294002'),
+  (91, 'الفيصلية', 'Al Faisaliyah', NULL, NULL, '10601294003'),
+  (91, 'التقدم', 'At Taqadom', NULL, NULL, '10601294004'),
+  (91, 'الشرق', 'Ash Sharq', NULL, NULL, '10601294005'),
+  (91, 'الاندلس', 'Al Andalus', NULL, NULL, '10601294006'),
+  (91, 'النسيم', 'Al Naseem', NULL, NULL, '10601294007'),
+  (91, 'الخالدية', 'Al Khalidiyah', NULL, NULL, '10601294008'),
+  (91, 'الروضة', 'Ar Rawdah', NULL, NULL, '10601294009'),
+  (91, 'العدالة', 'Al Adalah', NULL, NULL, '10601294010'),
+  (91, 'الربيع', 'Ar Rabie', NULL, NULL, '10601294011'),
+  (91, 'الصناعية', 'As Sinaiyah', NULL, NULL, '10601294012'),
+  (85, 'الخزان', 'Al Khazzan', NULL, NULL, '10601443001'),
+  (85, 'الزهور', 'Az Zuhur', NULL, NULL, '10601443002'),
+  (85, 'النخيل', 'Al Nakhil', NULL, NULL, '10601443003'),
+  (85, 'الوجه', 'Al Wajh', NULL, NULL, '10601443004'),
+  (85, 'الغزالة', 'Al Ghazalah', NULL, NULL, '10601443005'),
+  (85, 'الحجاز', 'Al Hijaz', NULL, NULL, '10601443006'),
+  (85, 'الفاخرية', 'Al Fakhriyah', NULL, NULL, '10601443007'),
+  (85, 'الخالدية', 'Al Khalidiyah', NULL, NULL, '10601443008'),
+  (85, 'العزيزية', 'Al Aziziyah', NULL, NULL, '10601443009'),
+  (85, 'المدينة', 'Al Madinah', NULL, NULL, '10601443010'),
+  (85, 'التعاون', 'At Taawun', NULL, NULL, '10601443011'),
+  (85, 'الطويفح', 'Al Tuwaifah', NULL, NULL, '10601443012'),
+  (85, 'الجربوعية', 'Al Jarboeyyah', NULL, NULL, '10601443013'),
+  (85, 'القوزية', 'Al Quoziyah', NULL, NULL, '10601443014'),
+  (85, 'آل قير', 'Al Qeer', NULL, NULL, '10601443015'),
+  (19, 'الصواير', 'As Sawaer', NULL, NULL, '10601514001'),
+  (19, 'الرمال', 'Ar Rimal', NULL, NULL, '10601514002'),
+  (19, 'الاندلس', 'Al Andalus', NULL, NULL, '10601514003'),
+  (19, 'الخزان', 'Al Khazzan', NULL, NULL, '10601514004'),
+  (19, 'الربوة', 'Ar Rabwah', NULL, NULL, '10601514005'),
+  (19, 'الفيحاء', 'Al Fayha', NULL, NULL, '10601514006'),
+  (19, 'الخزامى', 'Al Khuzama', NULL, NULL, '10601514007'),
+  (19, 'الفهد', 'Al Fahd', NULL, NULL, '10601514008'),
+  (19, 'الفيصلية', 'Al Faisaliyah', NULL, NULL, '10601514009'),
+  (19, 'النخيل', 'Al Nakhil', NULL, NULL, '10601514010'),
+  (19, 'الورود', 'Alwurud', NULL, NULL, '10601514011'),
+  (19, 'التضامن', 'Al Tadamun', NULL, NULL, '10601514012'),
+  (19, 'النهضة', 'An Nahdah', NULL, NULL, '10601514013'),
+  (19, 'الريان', 'Ar Rayyan', NULL, NULL, '10601514014'),
+  (19, 'الربيع', 'Ar Rabie', NULL, NULL, '10601514015'),
+  (19, 'الروضة', 'Ar Rawdah', NULL, NULL, '10601514016'),
+  (19, 'الزهور', 'Az Zuhur', NULL, NULL, '10601514017'),
+  (19, 'البوادي', 'Al Bawadi', NULL, NULL, '10601514018'),
+  (19, 'الملك عبدالله', 'King Abdullah', NULL, NULL, '10601514019'),
+  (19, 'المطار', 'Airport', NULL, NULL, '10601514020'),
+  (19, 'الصفا', 'As Safa', NULL, NULL, '10601514021'),
+  (19, 'النسيم', 'Al Naseem', NULL, NULL, '10601514022'),
+  (19, 'النزهة', 'An Nuzhah', NULL, NULL, '10601514023'),
+  (19, 'الصناعية', 'As Sinaiyah', NULL, NULL, '10601514024'),
+  (19, 'الشفاء', 'Ash Shifa', NULL, NULL, '10601514025'),
+  (19, 'الوادي', 'Al Wadi', NULL, NULL, '10601514026'),
+  (19, 'الامير سلطان', 'Prince Sultan', NULL, NULL, '10601514027'),
+  (19, 'المروج', 'Al Muruj', NULL, NULL, '10601514028'),
+  (82, 'النسيم', 'Al Naseem', NULL, NULL, '10601801001'),
+  (82, 'المنتزة', 'Al Montazah', NULL, NULL, '10601801002'),
+  (82, 'الجنادرية', 'Al Janadriyah', NULL, NULL, '10601801003'),
+  (82, 'النزهة', 'An Nuzhah', NULL, NULL, '10601801004'),
+  (82, 'الحيلة الشرقي', 'Al Haylah Ash Sharqi', NULL, NULL, '10601801005'),
+  (82, 'المقاعد', 'Al Maqaiid', NULL, NULL, '10601801006'),
+  (82, 'الظهرة', 'Adh Dhahrah', NULL, NULL, '10601801007'),
+  (82, 'الشهد', 'Ash Shahd', NULL, NULL, '10601801008'),
+  (82, 'الفيصلية', 'Al Faisaliyah', NULL, NULL, '10601801009'),
+  (82, 'الحيلة الغربي', 'Al Haylah Al Gharbi', NULL, NULL, '10601801010'),
+  (82, 'الخالدية', 'Al Khalidiyah', NULL, NULL, '10601801011'),
+  (82, 'الروضة', 'Ar Rawdah', NULL, NULL, '10601801012'),
+  (82, 'البصرة', 'Al Basrah', NULL, NULL, '10601801013'),
+  (82, 'الضرس', 'Ad Dirs', NULL, NULL, '10601801014'),
+  (82, 'البديع', 'Al Badi', NULL, NULL, '10601801015'),
+  (82, 'الزهراء', 'Az Zahra', NULL, NULL, '10601801016'),
+  (82, 'البلد', 'Al Balad', NULL, NULL, '10601801017'),
+  (82, 'السلامة', 'As Salamah', NULL, NULL, '10601801018'),
+  (82, 'الوعد', 'Al Waad', NULL, NULL, '10601801019'),
+  (83, 'المطل', 'Al Matl', NULL, NULL, '10602519001'),
+  (83, 'الضباب', 'Ad Dabab', NULL, NULL, '10602519002'),
+  (83, 'المروج', 'Al Muruj', NULL, NULL, '10602519003'),
+  (83, 'السروات', 'As Sarawat', NULL, NULL, '10602519004'),
+  (83, 'الفيصلية', 'Al Faisaliyah', NULL, NULL, '10602519005'),
+  (83, 'السد', 'As Sad', NULL, NULL, '10602519006'),
+  (83, 'الصديق', 'As Sediq', NULL, NULL, '10602519007'),
+  (83, 'الشروق', 'Ash Shuruq', NULL, NULL, '10602519008'),
+  (83, 'الفاروق', 'Al Farouq', NULL, NULL, '10602519009'),
+  (83, 'السلام', 'As Salam', NULL, NULL, '10602519010'),
+  (83, 'بلال', 'Bilal', NULL, NULL, '10602519011'),
+  (83, 'النسيم', 'Al Naseem', NULL, NULL, '10602519012'),
+  (83, 'النزهة', 'An Nuzhah', NULL, NULL, '10602519013'),
+  (83, 'الاندلس', 'Al Andalus', NULL, NULL, '10602519014'),
+  (83, 'الزهور', 'Az Zuhur', NULL, NULL, '10602519015'),
+  (83, 'اليمامة', 'Al Yamamah', NULL, NULL, '10602519016'),
+  (94, 'الامل', 'Al Amal', NULL, NULL, '10603273001'),
+  (94, 'السلام', 'As Salam', NULL, NULL, '10603273002'),
+  (94, 'الشفاء', 'Ash Shifa', NULL, NULL, '10603273003'),
+  (94, 'الشلال', 'Al Shlal', NULL, NULL, '10603273004'),
+  (94, 'الصناعية', 'As Sinaiyah', NULL, NULL, '10603273005'),
+  (94, 'الضباب', 'Ad Dabab', NULL, NULL, '10603273006'),
+  (94, 'العزيزية', 'Al Aziziyah', NULL, NULL, '10603273007'),
+  (94, 'المستقبل', 'Al Mustaqbal', NULL, NULL, '10603273008'),
+  (94, 'المصايف', 'Al Masyaf', NULL, NULL, '10603273009'),
+  (94, 'النزهة', 'An Nuzhah', NULL, NULL, '10603273010'),
+  (94, 'النسيم', 'Al Naseem', NULL, NULL, '10603273011'),
+  (94, 'النهضة', 'An Nahdah', NULL, NULL, '10603273012'),
+  (87, 'الفهد', 'Al Fahd', NULL, NULL, '10603328001'),
+  (87, 'الشفا', 'Ash Shifa', NULL, NULL, '10603328002'),
+  (87, 'النور', 'An Nur', NULL, NULL, '10603328003'),
+  (87, 'المنطقة الصناعية', 'Industrial Area', NULL, NULL, '10603328004'),
+  (87, 'الربوة', 'Ar Rabwah', NULL, NULL, '10603328005'),
+  (87, 'الروضة', 'Ar Rawdah', NULL, NULL, '10603328006'),
+  (87, 'الخالدية', 'Al Khalidiyah', NULL, NULL, '10603328007'),
+  (84, 'الاطلال', 'Al Atlal', NULL, NULL, '10603381001'),
+  (84, 'الورود', 'Al Woroud', NULL, NULL, '10603381002'),
+  (84, 'البلد', 'Al Balad', NULL, NULL, '10603381003'),
+  (95, 'الربوه', 'Ar Rabwah', NULL, NULL, '10603383001'),
+  (8, 'الإسكان', 'Al Iskan', NULL, NULL, '10700001001'),
+  (8, 'العين', 'Al Ain', NULL, NULL, '10700001002'),
+  (8, 'الشفا', 'Al Shifa', NULL, NULL, '10700001003'),
+  (8, 'الصفا', 'Al Safa', NULL, NULL, '10700001004'),
+  (8, 'الاخضر', 'Al Akhdar', NULL, NULL, '10700001005'),
+  (8, 'البوادي', 'Al Bawadi', NULL, NULL, '10700001006'),
+  (8, 'اليرموك', 'Al Yarmuk', NULL, NULL, '10700001007'),
+  (8, 'الأحياء الجنوبية', 'Southern Districts', NULL, NULL, '10700001008'),
+  (8, 'النظيم', 'Al Nadheem', NULL, NULL, '10700001009'),
+  (8, 'غرب الخالدية', 'Khalidiyah West', NULL, NULL, '10700001010'),
+  (8, 'البساتين', 'Al Basatin', NULL, NULL, '10700001011'),
+  (8, 'الحمراء', 'Al Hamra', NULL, NULL, '10700001012'),
+  (8, 'البلدة القديمة', 'Down Town', NULL, NULL, '10700001013'),
+  (8, 'السعادة', 'Al Saadah', NULL, NULL, '10700001014'),
+  (8, 'سلطانة', 'Sultanah', NULL, NULL, '10700001015'),
+  (8, 'الفيصلية الجنوبية', 'Faisaliyah South', NULL, NULL, '10700001016'),
+  (8, 'الفيصلية الشمالية', 'Faisaliyah North', NULL, NULL, '10700001017'),
+  (8, 'النهضة', 'Al Nahdah', NULL, NULL, '10700001018'),
+  (8, 'الروضة', 'Al Rawdah', NULL, NULL, '10700001019'),
+  (8, 'المصيف الاول', 'Al Masif 1', NULL, NULL, '10700001020'),
+  (8, 'المروج الثاني', 'Al Muruj 2', NULL, NULL, '10700001021'),
+  (8, 'الريان', 'Al Rayan', NULL, NULL, '10700001022'),
+  (8, 'الورود', 'Al Wurud', NULL, NULL, '10700001023'),
+  (8, 'مخطط الراجحي', 'Al Rajhi Subdivision Plan', NULL, NULL, '10700001024'),
+  (8, 'المدينة الجامعية', 'University City', NULL, NULL, '10700001025'),
+  (8, 'الفلاح', 'Al Falah', NULL, NULL, '10700001026'),
+  (8, 'الزهراء', 'Al Zahra', NULL, NULL, '10700001027'),
+  (8, 'رايس', 'Rise', NULL, NULL, '10700001028'),
+  (8, 'الدوائر الحكومية و', 'Government Departments Area F', NULL, NULL, '10700001029'),
+  (8, 'الدوائر الحكومية ب', 'Government Departments Area B', NULL, NULL, '10700001030'),
+  (8, 'الدوائر الحكومية د', 'Government Departments Area D', NULL, NULL, '10700001031'),
+  (8, 'الدوائر الحكومية أ', 'Government Departments Area A', NULL, NULL, '10700001032'),
+  (8, 'الجامعة', 'Al Jamiah', NULL, NULL, '10700001033'),
+  (8, 'الدوائر الحكومية ج', 'Government Departments Area C', NULL, NULL, '10700001034'),
+  (8, 'الدوائر الحكومية هـ', 'Government Departments Area E', NULL, NULL, '10700001035'),
+  (8, 'منطقة خاصة', 'Private Area', NULL, NULL, '10700001036'),
+  (8, 'الدفاع', 'Al Difa', NULL, NULL, '10700001037'),
+  (8, 'الندى', 'Al Nada', NULL, NULL, '10700001041'),
+  (8, 'الهجن', 'Al Hejin', NULL, NULL, '10700001042'),
+  (8, 'مطــار الامير سلطان بن عبدالعزيز الدولي', 'Prince Sultan Bin Abdulaziz International Airport', NULL, NULL, '10700001043'),
+  (8, 'القادسية الثاني', 'Al Qadisiyah 2', NULL, NULL, '10700001044'),
+  (8, 'طيبة', 'Taibah', NULL, NULL, '10700001045'),
+  (8, 'المنطقة الصناعية', 'Industrial Area', NULL, NULL, '10700001046'),
+  (8, 'القدس', 'Al Quds', NULL, NULL, '10700001047'),
+  (8, 'التعاون', 'Al Taawun', NULL, NULL, '10700001048'),
+  (8, 'القادسية الاول', 'Al Qadisiyah 1', NULL, NULL, '10700001049'),
+  (8, 'غرناطة', 'Ghirnatah', NULL, NULL, '10700001050'),
+  (8, 'النخيل', 'Al Nakheel', NULL, NULL, '10700001051'),
+  (8, 'الاستاد الرياضي', 'Sports Stadium', NULL, NULL, '10700001052'),
+  (8, 'الياسمين', 'Al Yasmin', NULL, NULL, '10700001053'),
+  (8, 'السليمانية', 'Al Sulimaniyah', NULL, NULL, '10700001054'),
+  (8, 'الاشرافية', 'Al Ishrafiyah', NULL, NULL, '10700001055'),
+  (8, 'السلام', 'Al Salam', NULL, NULL, '10700001056'),
+  (8, 'قرطبة', 'Qurtubah', NULL, NULL, '10700001057'),
+  (8, 'المروج الثالث', 'Al Muruj 3', NULL, NULL, '10700001058'),
+  (8, 'المروج الاول', 'Al Muruj 1', NULL, NULL, '10700001059'),
+  (8, 'الربوة', 'Ar Rabwah', NULL, NULL, '10700001060'),
+  (8, 'المهرجان أ', 'Al Mahrajan A', NULL, NULL, '10700001061'),
+  (8, 'المهرجان ب', 'Al Mahrajan B', NULL, NULL, '10700001062'),
+  (8, 'الصالحية', 'As Salhiyah', NULL, NULL, '10700001063'),
+  (8, 'العزيزية القديمة', 'Al Aziziyah Al Qadimah', NULL, NULL, '10700001064'),
+  (8, 'العليا', 'Al Olaya', NULL, NULL, '10700001065'),
+  (8, 'العزيزيه الجديده', 'Al Aziziyah Al Jadidah', NULL, NULL, '10700001067'),
+  (8, 'السلمان', 'As Salman', NULL, NULL, '10700001068'),
+  (101, 'الظهرة', 'Adh Dhahrah', NULL, NULL, '10700036001'),
+  (101, 'اليرموك', 'Al Yarmuk', NULL, NULL, '10700036002'),
+  (101, 'السبخة', 'As Sabkhah', NULL, NULL, '10700036003'),
+  (101, 'البلدة القديمة', 'Al Balda Al Qadimah', NULL, NULL, '10700036004'),
+  (101, 'الريان', 'Ar Rayyan', NULL, NULL, '10700036005'),
+  (101, 'المروج1', 'Al Muruj 1', NULL, NULL, '10700036006'),
+  (101, 'القادسية', 'Al Qadisiyah', NULL, NULL, '10700036007'),
+  (101, 'النهضة', 'An Nahdah', NULL, NULL, '10700036008'),
+  (101, 'السلطانيه', 'Al Sultanih', NULL, NULL, '10700036009'),
+  (101, 'الوصل', 'Al Wasl', NULL, NULL, '10700036010'),
+  (101, 'المروج 2', 'Al Muruj 2', NULL, NULL, '10700036011'),
+  (101, 'الفيصلية', 'Al Faisaliyah', NULL, NULL, '10700036012'),
+  (101, 'جنوب الحميضه', 'Al Humaydah South', NULL, NULL, '10700036013'),
+  (101, 'الوادي', 'Al Wadi', NULL, NULL, '10700036014'),
+  (101, 'الورود', 'Al Wurud', NULL, NULL, '10700036015'),
+  (101, 'الحميضه', 'Al Humaydah', NULL, NULL, '10700036016'),
+  (101, 'غرب الظهره', 'Al Dhahra West', NULL, NULL, '10700036017'),
+  (101, 'ج1', 'C1', NULL, NULL, '10700036018'),
+  (101, 'ام عنم', 'Um Anam', NULL, NULL, '10700036019'),
+  (101, 'الجامعه', 'Al Jamiah', NULL, NULL, '10700036020'),
+  (98, 'الصفا', 'As Safa', NULL, NULL, '10700074001'),
+  (98, 'الروضة', 'Ar Rawdah', NULL, NULL, '10700074002'),
+  (98, 'المنتزه', 'Al Muntazah', NULL, NULL, '10700074003'),
+  (98, 'الربوة', 'Ar Rabwah', NULL, NULL, '10700074004'),
+  (98, 'التجاري', 'At Tijari', NULL, NULL, '10700074005'),
+  (98, 'هداج', 'Haddaj', NULL, NULL, '10700074006'),
+  (98, 'القاع', 'Al Qaa', NULL, NULL, '10700074007'),
+  (98, 'الفاو', 'Al Faw', NULL, NULL, '10700074008'),
+  (98, 'عكاظ', 'Uqaz', NULL, NULL, '10700074009'),
+  (98, 'الخبراء', 'Al Khobara', NULL, NULL, '10700074010'),
+  (98, 'الشرق', 'Ash Sharq', NULL, NULL, '10700074011'),
+  (98, 'الرحمانية', 'Ar Rahmaniyah', NULL, NULL, '10700074012'),
+  (98, 'غرناطة', 'Ghirnatah', NULL, NULL, '10700074013'),
+  (98, 'الشفاء', 'Ash Shifa', NULL, NULL, '10700074014'),
+  (98, 'قريان', 'Qaryan', NULL, NULL, '10700074015'),
+  (98, 'النسيم', 'Al Naseem', NULL, NULL, '10700074016'),
+  (98, 'المروج', 'Al Muruj', NULL, NULL, '10700074017'),
+  (98, 'الاندلس', 'Al Andalus', NULL, NULL, '10700074018'),
+  (98, 'الورود', 'Al Wurud', NULL, NULL, '10700074019'),
+  (98, 'الحمراء', 'Al Hamra', NULL, NULL, '10700074020'),
+  (97, 'الصفا', 'As Safa', NULL, NULL, '10700233001'),
+  (97, 'البلد', 'Al Balad', NULL, NULL, '10700233002'),
+  (97, 'العزيزية', 'Al Aziziyah', NULL, NULL, '10700233003'),
+  (97, 'الخالدية', 'Al Khalidiyah', NULL, NULL, '10700233004'),
+  (97, 'النهضة', 'An Nahdah', NULL, NULL, '10700233005'),
+  (97, 'الفريعة', 'Al Fareah', NULL, NULL, '10700233006'),
+  (97, 'الورود', 'Al Wurud', NULL, NULL, '10700233007'),
+  (100, 'قرية الجبنون', 'Qaryat Al Jabnon', NULL, NULL, '10700323001'),
+  (100, 'النسيم', 'Al Naseem', NULL, NULL, '10700323002'),
+  (100, 'التحلية', 'At Tahliyyah', NULL, NULL, '10700323003'),
+  (100, 'المرجان', 'Al Murjan', NULL, NULL, '10700323004'),
+  (100, 'الصيادية', 'As Sayyadih', NULL, NULL, '10700323005'),
+  (100, 'البطحاء', 'Al Batha', NULL, NULL, '10700323006'),
+  (100, 'الروضة', 'Ar Rawdhah', NULL, NULL, '10700323007'),
+  (100, 'ابو شجرة', 'Abu Shajarah', NULL, NULL, '10700323008'),
+  (100, 'البلد', 'Al Balad', NULL, NULL, '10700323009'),
+  (100, 'العليا', 'Al Olaya', NULL, NULL, '10700323010'),
+  (100, 'السلام', 'Al Salam', NULL, NULL, '10700323011'),
+  (100, 'الضويحي', 'Al Dawayhi', NULL, NULL, '10700323012'),
+  (99, 'صمدة', 'Samdah', NULL, NULL, '10701947001'),
+  (99, 'المزارع', 'Al Mazari', NULL, NULL, '10701947002'),
+  (99, 'المطار', 'Al Matar', NULL, NULL, '10701947003'),
+  (99, 'البلد', 'Al Balad', NULL, NULL, '10701947004'),
+  (99, 'المقيطع', 'Al Muqayti', NULL, NULL, '10701947005'),
+  (24, 'اجا', 'Aja', NULL, NULL, '10800010001'),
+  (24, 'العزيزية', 'Al Aziziyah', NULL, NULL, '10800010002'),
+  (24, 'المزعبر', 'Al Muzaabar', NULL, NULL, '10800010003'),
+  (24, 'برزان', 'Barzan', NULL, NULL, '10800010004'),
+  (24, 'المحطة', 'Al Mahattah', NULL, NULL, '10800010005'),
+  (24, 'سماح', 'Samah', NULL, NULL, '10800010006'),
+  (24, 'لبدة', 'Labdah', NULL, NULL, '10800010007'),
+  (24, 'الزبارة', 'Az Zibarah', NULL, NULL, '10800010008'),
+  (24, 'السمراء', 'As Samra', NULL, NULL, '10800010009'),
+  (24, 'المنطقة الصناعية', 'Industrial Area', NULL, NULL, '10800010010'),
+  (24, 'الزهراء', 'Az Zahra', NULL, NULL, '10800010011'),
+  (24, 'الخزامى', 'Al Khuzama', NULL, NULL, '10800010012'),
+  (24, 'مغيضة', 'Mughaydah', NULL, NULL, '10800010013'),
+  (24, 'حدري البلاد', 'Hadri Al Bilad', NULL, NULL, '10800010014'),
+  (24, 'الخريمي', 'Al Khuraymi', NULL, NULL, '10800010015'),
+  (24, 'السويفلة', 'As Suwayfilah', NULL, NULL, '10800010016'),
+  (24, 'ج2', '2 C', NULL, NULL, '10800010017'),
+  (24, 'البدنة', 'Al Badnah', NULL, NULL, '10800010018'),
+  (24, 'الوسيطاء', 'Al Wusayta', NULL, NULL, '10800010019'),
+  (24, 'صبابة', 'Sababah', NULL, NULL, '10800010020'),
+  (24, 'المطار', 'Al Matar', NULL, NULL, '10800010021'),
+  (24, 'البحيرة', 'Al Buhayrah', NULL, NULL, '10800010022'),
+  (24, 'المدائن', 'Al Madaen', NULL, NULL, '10800010023'),
+  (24, 'النقرة قفار', 'An Naqrah Qafar', NULL, NULL, '10800010024'),
+  (24, 'النقرة', 'An Naqrah', NULL, NULL, '10800010025'),
+  (24, 'الخماشية', 'Al Khamashiyah', NULL, NULL, '10800010026'),
+  (24, 'مطار حائل الدولي', 'Hail International Airport', NULL, NULL, '10800010027'),
+  (24, 'المنتزه الغربي', 'Al Muntazah Al Gharbi', NULL, NULL, '10800010031'),
+  (24, 'المصيف', 'Al Masif', NULL, NULL, '10800010032'),
+  (24, 'المنتزه الشرقي', 'Al Muntazah Ash Sharqi', NULL, NULL, '10800010033'),
+  (24, 'اللقيطة', 'Al Laqitah', NULL, NULL, '10800010034'),
+  (24, 'الوادي', 'Al Wadi', NULL, NULL, '10800010035'),
+  (24, 'الرصف', 'Ar Rasf', NULL, NULL, '10800010036'),
+  (24, 'الشفا', 'Al Shifa', NULL, NULL, '10800010037'),
+  (24, 'ضاحية الملك فهد', 'Dahiyat King Fahd', NULL, NULL, '10800010038'),
+  (24, 'البادية', 'Al Badiyah', NULL, NULL, '10800010039'),
+  (24, 'الورود', 'Al Wurud', NULL, NULL, '10800010040'),
+  (24, 'صلاح الدين الشرقي', 'Salahuddin Al Sharqi', NULL, NULL, '10800010041'),
+  (24, 'الطريفي', 'Al Turaifi', NULL, NULL, '10800010042'),
+  (24, 'النيصية', 'An Nasiyah', NULL, NULL, '10800010043'),
+  (24, 'قفار', 'Qfaar', NULL, NULL, '10800010044'),
+  (105, 'السلام', 'As Salam', NULL, NULL, '10801228001'),
+  (105, 'النهضة', 'An Nahdah', NULL, NULL, '10801228002'),
+  (105, 'الصالحية', 'As Salhiyah', NULL, NULL, '10801228003'),
+  (105, 'الخليج', 'Al Khalij', NULL, NULL, '10801228004'),
+  (105, 'العزيزية', 'Al Aziziyah', NULL, NULL, '10801228005'),
+  (105, 'الازدهار', 'Al Izdihar', NULL, NULL, '10801228006'),
+  (105, 'الورود', 'Al Wurud', NULL, NULL, '10801228007'),
+  (105, 'الملك عبدالله', 'King Abdullah', NULL, NULL, '10801228008'),
+  (105, 'الحمراء', 'Al Hamra', NULL, NULL, '10801228009'),
+  (105, 'العليا', 'Al Olaya', NULL, NULL, '10801228010'),
+  (105, 'الصناعية', 'As Sinaiyah', NULL, NULL, '10801228011'),
+  (106, 'النخيل الغربي', 'Al Nakhil Al Gharbi', NULL, NULL, '10802332001'),
+  (106, 'الوادي', 'Al Wadi', NULL, NULL, '10802332002'),
+  (106, 'النهضة', 'An Nahdah', NULL, NULL, '10802332003'),
+  (106, 'الجامعة الغربي', 'Al Jamiah Al Gharbi', NULL, NULL, '10802332004'),
+  (106, 'الحفيرة الغربي', 'Al Hafira Al Gharbi', NULL, NULL, '10802332005'),
+  (106, 'حفيرة السبعة الشمالي', 'Hafira Al Sabaa Al Shamali', NULL, NULL, '10802332006'),
+  (106, 'الاستراحات الأوسط', 'Al Estrahat Al Awsat', NULL, NULL, '10802332007'),
+  (106, 'الريان الغربي', 'Al Rayan Al Gharbi', NULL, NULL, '10802332008'),
+  (106, 'الحفيرة الشرقي', 'Al Hafira Al Sharqi', NULL, NULL, '10802332009'),
+  (106, 'حفيرة السبعة الغربي', 'Hafira Al Sabaa Al Gharbi', NULL, NULL, '10802332010'),
+  (106, 'حفاير العهين الغربي', 'Hafair Al Eahin Al Gharbi', NULL, NULL, '10802332011'),
+  (106, 'حفيرة السبعة الشرقي', 'Hafira Al Sabaa Al Shamali', NULL, NULL, '10802332012'),
+  (106, 'الواحة', 'Al Wahah', NULL, NULL, '10802332013'),
+  (106, 'الرفيعة', 'Al Rafiea', NULL, NULL, '10802332014'),
+  (106, 'الريان الشرقي', 'Al Rayan Al Sharqi', NULL, NULL, '10802332015'),
+  (106, 'الصناعية', 'As Sinaiyah', NULL, NULL, '10802332016'),
+  (106, 'البلدية', 'Al Baladiyah', NULL, NULL, '10802332017'),
+  (106, 'التعاون', 'At Taawun', NULL, NULL, '10802332018'),
+  (106, 'الديرة', 'Ad Dirah', NULL, NULL, '10802332019'),
+  (106, 'الاستراحات الغربي', 'Al Estrahat Al Gharbi', NULL, NULL, '10802332020'),
+  (106, 'الجامعة الشرقي', 'Al Jamiah Al Sharqi', NULL, NULL, '10802332021'),
+  (106, 'الاستراحات الشرقي', 'Al Estrahat  Al Sharqi', NULL, NULL, '10802332022'),
+  (106, 'الجامعة الاوسط', 'Al Jamiah Al Awsat', NULL, NULL, '10802332023'),
+  (106, 'النخيل الشرقي', 'Al Nakhil Al Sharqi', NULL, NULL, '10802332024'),
+  (106, 'حفاير العهين الشرقي', 'Hafair Al Eahin Al Sharqi', NULL, NULL, '10802332025'),
+  (103, 'بقعاء الشرقيه', 'Baqa Al Sharqia', NULL, NULL, '10802370001'),
+  (103, 'صلاح الدين', 'Salahuddin', NULL, NULL, '10802370002'),
+  (103, 'الظهيره', 'Al Dhahira', NULL, NULL, '10802370003'),
+  (103, 'الحفل', 'Al Hafil', NULL, NULL, '10802370004'),
+  (103, 'ج9', 'C9', NULL, NULL, '10802370005'),
+  (103, 'ج8', 'C8', NULL, NULL, '10802370006'),
+  (103, 'ج7', 'C7', NULL, NULL, '10802370007'),
+  (103, 'ج6', 'C6', NULL, NULL, '10802370008'),
+  (103, 'ج5', 'C5', NULL, NULL, '10802370009'),
+  (103, 'ج4', 'C4', NULL, NULL, '10802370010'),
+  (103, 'ج3', 'C3', NULL, NULL, '10802370011'),
+  (103, 'ج2', 'C2', NULL, NULL, '10802370012'),
+  (103, 'ج16', 'C16', NULL, NULL, '10802370013'),
+  (103, 'ج15', 'C15', NULL, NULL, '10802370014'),
+  (103, 'ج13', 'C13', NULL, NULL, '10802370015'),
+  (103, 'ج12', 'C12', NULL, NULL, '10802370016'),
+  (103, 'ج11', 'C11', NULL, NULL, '10802370017'),
+  (103, 'ج10', 'C10', NULL, NULL, '10802370018'),
+  (103, 'بقعاء القديمه', 'Baqa Al Qadima', NULL, NULL, '10802370019'),
+  (103, 'بقعاء الشرقيه القديمه', 'Baqa Al Sharqia Al Qadima', NULL, NULL, '10802370020'),
+  (103, 'الوسطى', 'Al Wusta', NULL, NULL, '10802370021')
+) AS v(city_id, name_ar, name_en, latitude, longitude, source_ref)
+WHERE EXISTS (SELECT 1 FROM cities c WHERE c.id = v.city_id)
+  AND NOT EXISTS (SELECT 1 FROM districts e WHERE e.city_id = v.city_id AND e.name_ar = v.name_ar);
+INSERT INTO districts (city_id, name_ar, name_en, latitude, longitude, is_active, source, source_ref, is_verified)
+SELECT v.city_id, v.name_ar, v.name_en, CAST(v.latitude AS DECIMAL(10,7)), CAST(v.longitude AS DECIMAL(10,7)), 1, 'openstreetmap', v.source_ref, 0
+FROM (VALUES
+  (15, 'مدينة ينبع الصناعية', 'Yanbu Industrial City', 23.9988327, 38.2028069, NULL),
+  (30, 'العلا', 'Al ‘Ala', 26.6082971, 37.922708, NULL),
+  (3, 'الهنداوية', 'Al Hindawiyah', 21.4154351, 39.8000204, NULL),
+  (3, 'الجميزة', 'Al Jummayzah', 21.4371708, 39.8335719, NULL),
+  (3, 'بدر', 'Badr', 21.4875058, 39.8957418, NULL),
+  (3, 'الإسكان', 'Al Iskan', 21.4045866, 39.7746512, NULL),
+  (3, 'السليمانية', 'As Sulaymaniyah', 21.4330164, 39.8297309, NULL),
+  (3, 'جرول', 'Jarwal', 21.4277832, 39.8141527, NULL),
+  (3, 'الزهراء', 'Az Zahra', 21.4281151, 39.8010891, NULL),
+  (3, 'النزهة', 'An Nuzhah', 21.4325665, 39.7845893, NULL),
+  (3, 'الشهداء', 'Ash Shuhada', 21.4581545, 39.8060795, NULL),
+  (3, 'وادي جليل', 'Wadi Jalil', 21.4870293, 39.8544402, NULL),
+  (3, 'الخضراء', 'Al Khadraa', 21.4672389, 39.9154419, NULL),
+  (4, 'عروة', 'Urwah', 24.4436934, 39.5873222, NULL),
+  (5, 'ابن خلدون', 'Ibn Khaldun', 26.4223047, 50.0965875, NULL),
+  (6, 'الثقبة', 'Ath Thuqbah', 26.273029, 50.1927724, NULL),
+  (5, 'الحمراء', 'Al Hamra', 26.4676184, 50.0910414, NULL),
+  (12, 'القارة', 'Al Qarah', 25.4196284, 49.6818446, NULL),
+  (12, 'التويثير', 'Tuwaythir', 25.4196128, 49.6903711, NULL),
+  (12, 'العمران', 'Al ‘Umran', 25.4217659, 49.7161902, NULL),
+  (12, 'الطريبيل', 'At Turbaibil', 25.3999467, 49.6728492, NULL),
+  (12, 'المركز', 'Al Markaz', 25.3952112, 49.7316314, NULL),
+  (12, 'المبرز', 'Al Mubarraz', 25.4100012, 49.580833, NULL),
+  (11, 'حي الحفيرة', 'Al Hufayrah District', 25.3540742, 49.5633354, NULL),
+  (11, 'حي الرقيقة', 'Ar Ruqaiqah District', 25.3592542, 49.5706957, NULL),
+  (12, 'الطرف', 'At Taraf', 25.36232, 49.727572, NULL),
+  (12, 'الخرس', 'Al Khars', 25.4438781, 49.5758891, NULL),
+  (12, 'الجفر', 'Al Jafr', 25.377358, 49.72154, NULL),
+  (12, 'الجرن', 'Al Jarn', 25.513372, 49.620911, NULL),
+  (12, 'الشعبة', 'Ash Shi‘bah', 25.473658, 49.617552, NULL),
+  (12, 'الجبيل', 'Al Jubayl', 25.407952, 49.6616357, NULL),
+  (12, 'جليجلة', 'Julayjilah', 25.5030213, 49.6000858, NULL),
+  (12, 'الوزية', 'Al Waziyah', 25.503214, 49.547811, NULL),
+  (12, 'الجشة', 'Al Jishshah', 25.387592, 49.752528, NULL),
+  (12, 'المطيرفي', 'Al Mutayrifi', 25.4790667, 49.5581553, NULL),
+  (12, 'المدينة المنورة', 'Al Madinah Al Munawwarah', 25.3788289, 49.669424, NULL),
+  (12, 'القرين', 'Al Qurayn', 25.4829828, 49.5974359, NULL),
+  (12, 'الشقيق', 'Ash Shuqayq', 25.4829456, 49.5757957, NULL),
+  (10, 'حي الموظفين', 'Al Mozvin', 18.233333, 42.6, NULL),
+  (13, 'الفصل', 'Al Fasl', 27.0773005, 49.4917754, NULL),
+  (13, 'المنطقة الصناعية', 'Industrial Area', 27.0346644, 49.5648186, NULL),
+  (21, 'الحضن', 'Aba as Suud', 17.466667, 44.1, NULL),
+  (114, 'خواجية', 'Khawajiyah', 17.15334, 42.6561241, NULL),
+  (121, 'مختارة', 'Mukhtara', 16.6641591, 42.9369164, NULL),
+  (121, 'الدغارير', 'Al Dagharir', 16.6770414, 42.9580064, NULL),
+  (121, 'حاكمة الدغارير', 'Hakimat Al-Daghareer', 16.682778, 42.9775, NULL),
+  (116, 'مجعر', 'Majaar', 16.607222, 42.990833, NULL),
+  (116, 'الجاضع', 'Al Jadie', 16.6440829, 42.9910356, NULL),
+  (2, 'الخمرة', 'Al Khomrah', 21.3556662, 39.2448513, NULL),
+  (51, 'الفيضة', 'Al Faydah', 21.9805013, 39.3885055, NULL),
+  (51, 'اليمانية', 'Al Yamaniyah', 21.9627279, 39.3869417, NULL),
+  (51, 'ربوة أم الجرم', 'Ar Rabwah as Sufla', 21.955278, 39.4449068, NULL),
+  (51, 'أم سريحة', NULL, 21.953348, 39.4875118, NULL),
+  (15, 'ينبع البحر', 'Yanbu al Bahr', 24.1060725, 38.0652722, NULL),
+  (15, 'سوادة', 'Suwadah', 24.0316321, 38.2048041, NULL),
+  (49, 'حي الكليبية', NULL, 20.1601438, 40.2817888, NULL),
+  (14, 'الزور', 'Az Zawr', 26.595305, 50.076838, NULL),
+  (12, 'اسكان الحرس الوطني بالاحساء', 'Al Ahsa National Guard Housing Estate', 25.4496069, 49.5193878, NULL),
+  (12, 'الدالوة', NULL, 25.4020795, 49.6833637, NULL),
+  (47, 'قريه قديمه', NULL, 25.1581129, 45.3883563, NULL),
+  (4, 'حي البحر', 'Al Bahr District', 24.4533893, 39.6137872, NULL),
+  (56, 'الرميضة', NULL, 19.9055251, 41.067259, NULL),
+  (3, 'مخيمات حجاج أمريكا وأستراليا', 'America and Australia - , Europe -, Turkey - Sector', 21.4189426, 39.9001151, NULL),
+  (3, 'مخيمات حجاج الدول العربية', 'Arab Countries - Sector', 21.4141802, 39.8873702, NULL),
+  (3, 'مخيمات حجاج جنوب شرق آسيا', 'South East Asia Sector', 21.4203745, 39.8939532, NULL),
+  (3, 'مخيمات حجاج جنوب آسيا', 'South Asia - Sector', 21.4111353, 39.8882564, NULL),
+  (3, 'مزدلفة', 'Al Muzdalifah', 21.3863464, 39.9151466, NULL),
+  (4, 'القبلتين', 'Al Qiblatayn', 24.4780728, 39.5762032, NULL),
+  (4, 'بضاعة', 'Badaah', 24.4727071, 39.6092211, NULL),
+  (4, 'العيون', 'Al Uyun', 24.5171396, 39.5900915, NULL),
+  (4, 'البركة', 'Al Barakah', 24.5120131, 39.5735711, NULL),
+  (4, 'النخيل', 'Al Nakhil', 24.5226059, 39.5494078, NULL),
+  (4, 'ورقان', 'Warqan', 24.3827497, 39.5186804, NULL),
+  (3, 'المعابدة', 'Al Maeabiduh', 21.4356346, 39.8459642, NULL),
+  (3, 'الحجون', 'Al Hujun', 21.4369312, 39.8148822, NULL),
+  (3, 'التيسير', 'At Taysir', 21.4266646, 39.8085737, NULL),
+  (3, 'الضيافة', 'Ad Diyafah', 21.4371709, 39.7999477, NULL),
+  (3, 'الأندلس', 'Al Andalus', 21.4475224, 39.8259227, NULL),
+  (3, 'ريع ذاخر', 'Ray Zakhir', 21.463979, 39.8359999, NULL),
+  (3, 'العدل', 'Al Adel', 21.4475238, 39.8751258, NULL),
+  (3, 'المرسلات', 'Al Mursalat', 21.4055012, 39.8800089, NULL),
+  (3, 'الهجرة', 'Al Hijrah', 21.3738649, 39.8507307, NULL),
+  (3, 'المشاعر', 'Al Mashaer', 21.3656317, 39.9085973, NULL),
+  (3, 'الروابي', 'Ar Rawabi', 21.4083699, 39.8343514, NULL),
+  (3, 'جرهم', 'Jarham', 21.4133044, 39.8154392, NULL),
+  (4, 'القصواء', 'Al Qaswa', 24.4293287, 39.5897107, NULL),
+  (4, 'الروابي', 'Ar Rawabi', 24.415579, 39.6513747, NULL),
+  (4, 'وادي مذينب', 'Wadi Mudhainib', 24.4372261, 39.6729182, NULL),
+  (4, 'المطار', 'Airport', 24.5744459, 39.6789264, NULL),
+  (4, 'شوران', 'Shuran', 24.3953421, 39.6236185, NULL),
+  (4, 'نبلاء', 'Nubala', 24.3821048, 39.6639059, NULL),
+  (3, 'الجامعة', 'Al Jamiah', 21.3969594, 39.8738838, NULL),
+  (3, 'البحيرات', 'Al Buhayrat', 21.4905191, 39.7777415, NULL),
+  (52, 'العمرة الجديدة', 'Al Umrah Al Jadidah', 21.5417383, 39.7964881, NULL),
+  (4, 'الحرم الشريف', 'Al Haram Al Sharif', 24.4685666, 39.6104228, NULL),
+  (3, 'الحرم', 'Al Haram', 21.4240767, 39.8258948, NULL),
+  (124, 'وادي هراين', 'Wadi Hrain', 17.3352566, 43.1411412, NULL),
+  (124, 'الهجر', 'al-hajar', 17.3313655, 43.1315026, NULL),
+  (124, 'الحصيمة', 'AlHusaymah', 17.3478229, 43.1326598, NULL),
+  (124, 'الشارة', 'Alshara', 17.3442698, 43.1404672, NULL),
+  (124, 'عرقين', 'Arakyen', 17.3586498, 43.1346943, NULL),
+  (124, 'الشريحاء', 'Al-Sharhaa', 17.3677626, 43.12266, NULL),
+  (124, 'الناجد', 'alnajeed', 17.3754143, 43.1232678, NULL),
+  (124, 'ال الشريف', 'All Sharif', 17.3855335, 43.1636729, NULL),
+  (124, 'نعامة', NULL, 17.3163442, 43.1751987, NULL),
+  (141, 'حارة بني عطية', NULL, 31.4635177, 37.1533976, NULL),
+  (51, 'مخطط الربوة الجديد', NULL, 21.957883, 39.3855122, NULL),
+  (51, 'حي النزهة', NULL, 22.0075837, 39.3663104, NULL),
+  (124, 'الرديف', 'Al-Rudeif', 17.3749233, 43.1379984, NULL),
+  (124, 'القويعه', 'Al-Qaweehah', 17.3856539, 43.1685311, NULL),
+  (124, 'طيره', 'Tayira', 17.3811284, 43.1781013, NULL),
+  (124, 'البقاع', 'ALBekaa', 17.3898324, 43.1759336, NULL),
+  (12, 'قرية بني معن', NULL, 25.386879, 49.6379744, NULL),
+  (25, 'المساعدية', 'Al Musa''idiyah', 30.972393, 41.010829, NULL),
+  (4, 'النقاء', 'An Naqa', 24.465432, 39.6050262, NULL),
+  (4, 'المناخة', 'Al Manakhah', 24.4696824, 39.6049323, NULL),
+  (120, 'اسكان الملك عبدالله', 'King Abdullah Housing', 17.0090662, 43.0004299, NULL),
+  (3, 'الروضة', 'Ar Rawdah', 21.4274237, 39.8468112, NULL),
+  (3, 'أجياد', 'Ajyad', 21.4179444, 39.8291714, NULL),
+  (124, 'امراحه', 'Um rahiha', 17.3756421, 43.1452862, NULL),
+  (12, 'المنصورة', 'Al Mansourah', 25.3937843, 49.6677321, NULL),
+  (12, 'التهيمية', NULL, 25.4024029, 49.6919815, NULL),
+  (3, 'مخيمات حجاج تركيا', 'Turkey - Sector', 21.409935, 39.909136, NULL),
+  (3, 'مخيمات حجاج روسيا', 'Russia Camps', 21.4232215, 39.9001212, NULL),
+  (3, 'مخيمات الحجاج الأفراقة غير العرب', 'Africa Non Arabs - Sector', 21.4112349, 39.8979672, NULL),
+  (21, 'الحمر', 'Al Humar', 17.4698827, 44.1822051, NULL),
+  (127, 'الخضراء', 'Al Khadraa', 17.5359411, 44.4340324, NULL),
+  (21, 'الموفجة', 'Al Mawfijah', 17.4353295, 44.0457343, NULL),
+  (21, 'الصفا', 'As Safa', 17.4677539, 44.076848, NULL),
+  (21, 'زور وادعة', 'Zawr Wadiah', 17.4495773, 44.0752601, NULL),
+  (21, 'شعب بران', 'Shuab Bran', 17.4892852, 44.0820407, NULL),
+  (21, 'زور ال الحارث', 'Zur Al Al Harith', 17.4643971, 44.061141, NULL),
+  (21, 'الغيضة', 'Al Ghayda', 17.4760638, 44.0765476, NULL),
+  (21, 'رجلا', 'Rajula', 17.5013187, 44.2281245, NULL),
+  (5, 'الشاطئ الشرقي', 'Ash Shati Ash Sharqi', 26.4731414, 50.1287606, NULL),
+  (5, 'الشاطئ الغربي', 'Ash Shati Al Gharbi', 26.4742335, 50.1211324, NULL),
+  (13, 'الدفي', NULL, 27.121261, 49.5403338, NULL),
+  (51, 'حي الغبة', NULL, 22.0045799, 39.3899196, NULL),
+  (13, 'الفردوس', 'Al Firdaws', 27.1126179, 49.5390272, NULL),
+  (13, 'المطرفية', 'Al Matrafiyah', 27.0976429, 49.509544, NULL),
+  (13, 'الفاروق', 'Al Farouq', 27.1278203, 49.5261096, NULL),
+  (13, 'الفيحاء', 'Al Fayha', 27.1191541, 49.5491243, NULL),
+  (118, 'إسكان محطة التحلية', NULL, 17.6960158, 42.0729829, NULL),
+  (114, 'الطمحة', NULL, 17.044028, 42.6211701, NULL),
+  (20, 'إسكان ضاحية الملك عبدالله بجازان', NULL, 16.9893357, 42.5974635, NULL),
+  (114, 'مخطط 15 بضاحية الملك عبدالله بجازان', NULL, 17.0620471, 42.6078489, NULL),
+  (3, 'أم دوحه', NULL, 21.2729769, 39.9611346, NULL),
+  (114, 'القدس 1', 'Al Quds 1', 17.0244093, 42.5863859, NULL),
+  (20, 'حي الروابي', 'Ar Rawabi District', 17.000391, 42.6266135, NULL),
+  (20, 'ضاحية الملك عبد الله بجازان', NULL, 17.0089269, 42.6166925, NULL),
+  (126, 'الأخاشيم', 'Al Akhashim', 17.7256739, 47.2138738, NULL),
+  (23, 'حي الخليوي', 'Alkhelaiwi District', 30.079545, 40.2050733, NULL),
+  (124, 'السفينه', 'alsafiinah', 17.3313044, 43.1377788, NULL),
+  (124, 'الموطف', 'almawtif', 17.3291903, 43.1432511, NULL),
+  (124, 'الجازر', 'Aljazir', 17.3309109, 43.1076831, NULL),
+  (124, 'بدوة', 'Badwa', 17.3436102, 43.1283683, NULL),
+  (124, 'الجرشي', 'Aljrshy', 17.3559813, 43.128147, NULL),
+  (124, 'امقران', 'umqraan', 17.3921378, 43.1091874, NULL),
+  (124, 'كرسان', 'kirsan', 17.3892533, 43.1057296, NULL),
+  (124, 'حبيل الغريب', 'Habil al-Ghurayb', 17.36669, 43.1068467, NULL),
+  (124, 'النصايب', 'alnasayb', 17.4072657, 43.1015109, NULL),
+  (124, 'الغمير', 'alghamyr', 17.41454, 43.1082686, NULL),
+  (124, 'الملزوز', 'almlzuz', 17.428497, 43.1000625, NULL),
+  (124, 'العفار', 'aleafar', 17.3792538, 43.107047, NULL),
+  (3, 'الخالدية', 'Al Khalidiyah', 21.4023138, 39.8014659, NULL),
+  (124, 'رحبان', 'Rahuban', 17.3381179, 43.1233629, NULL),
+  (3, 'جبل النور', 'Jabal An Noor', 21.4593466, 39.8691136, NULL),
+  (3, 'الحمراء', 'Al Hamra', 21.4253927, 39.7599127, NULL),
+  (4, 'بني عبدالاشهل', 'Bani Abdul Ashhal', 24.4802747, 39.6189307, NULL),
+  (20, 'الصفاء', 'As Safa', 16.8841476, 42.5689178, NULL),
+  (13, 'القدس', 'Al Quds', 27.1278203, 49.5399284, NULL),
+  (3, 'المنصور', 'Al Mansur', 21.419345, 39.809222, NULL),
+  (12, 'الحوطة', 'Al Haoutah', 25.4166096, 49.7218895, NULL),
+  (12, 'الرميلة', 'Ar Rumailah', 25.4138187, 49.7283268, NULL),
+  (3, 'مخيمات الحجاج الصينيين', 'China Camps', 21.4244899, 39.8937972, NULL),
+  (3, 'مخيمات حجاج المغرب', 'Morocco Camps', 21.41258, 39.8913237, NULL),
+  (3, 'مخيمات حجاج الهند', 'India Camps', 21.4117746, 39.889743, NULL),
+  (3, 'مخيمات حجاج الجزائر', 'Algeria Camps', 21.4144391, 39.8861453, NULL),
+  (3, 'مخيمات حجاج نيجيريا', 'Nigeria Camps', 21.4084453, 39.9036355, NULL),
+  (3, 'مخيمات الحجاج الماليزيين', 'Malaysia Camps', 21.4224703, 39.8934753, NULL),
+  (3, 'مخيمات حجاج مصر', 'Egypt Camps', 21.41539, 39.8869806, NULL),
+  (3, 'مخيمات حجاج أندونيسيا', 'Indonesia Camps', 21.4169296, 39.8950633, NULL),
+  (3, 'منى', 'Mina', 21.4153556, 39.8925058, NULL),
+  (142, 'حي قراطين', NULL, 29.8163722, 39.8828632, NULL),
+  (142, 'حي الزراعي', NULL, 29.8074546, 39.8847729, NULL),
+  (13, 'سكن الميناء', NULL, 26.9363475, 49.6995486, NULL),
+  (13, 'الروضة', 'Al Rawdah', 26.9634807, 49.6613281, NULL),
+  (13, 'الحمراء', 'Al Hamra', 26.9241248, 49.7323553, NULL),
+  (13, 'البحر', 'Al Bahar', 26.9161541, 49.7293876, NULL),
+  (111, 'حي القادسية', NULL, 29.6339477, 43.5263224, NULL),
+  (124, 'قسميل', 'Qasmil', 17.3359592, 43.1343354, NULL),
+  (11, 'حي السلمانية الأول', 'Al Salmaniyah First District', 25.3709083, 49.5548442, NULL),
+  (11, 'حي عين نجم', 'Ayn Najm District', 25.3839, 49.5507109, NULL),
+  (11, 'حي السلمانية الرابع', 'Al Salmaniyah Forth District', 25.348125, 49.5381126, NULL),
+  (11, 'حي السلمانية الثالث', 'Al Salmaniyah Third District', 25.3511029, 49.5547919, NULL),
+  (11, 'حي السلمانية الثاني', 'Al Salmaniyah Second District', 25.3623457, 49.5432651, NULL),
+  (11, 'حي غرناطة', 'Ghirnatah District', 25.3302178, 49.5469665, NULL),
+  (11, 'حي الربوه', 'Ar Rabwah District', 25.3375512, 49.5290118, NULL),
+  (11, 'حي منيفة', 'Munifah District', 25.3518603, 49.5750976, NULL),
+  (11, 'حي السنيدية', 'As Sunaidah District', 25.3556222, 49.5766626, NULL),
+  (11, 'حي الرفيعة', 'Ar Rafiah District', 25.361175, 49.5765647, NULL),
+  (11, 'حي البندرية', 'Al Bandariyah District', 25.3436188, 49.5751297, NULL),
+  (11, 'حي لذه', 'Ladhah District', 25.3496812, 49.5895936, NULL),
+  (11, 'حي المرقاب', 'Al Mirqab District', 25.3506775, 49.584724, NULL),
+  (11, 'حي جوبا', 'Juba District', 25.3469433, 49.5850472, NULL),
+  (11, 'حي الخالدية', 'Al Khalidiyah District', 25.3382494, 49.587138, NULL),
+  (11, 'حي الزهرة', 'Az Zahrah District', 25.3251012, 49.585589, NULL),
+  (11, 'حي العزيزية الأول', 'Al Aziziyah 1st District', 25.3295778, 49.5716912, NULL),
+  (11, 'حي النايفية', 'An Nayfiyah District', 25.3348337, 49.5591143, NULL),
+  (11, 'حي العزيزية الثاني', 'Al Aziziyah 2nd District', 25.3437206, 49.5650312, NULL),
+  (11, 'حي الثليثية', 'Al Thulaythiyah District', 25.3614125, 49.5863575, NULL),
+  (11, 'حي الوسيطة', 'Al Wasitah District', 25.3615919, 49.5822725, NULL),
+  (11, 'حي المربدية', 'Al Marbidia District', 25.3547762, 49.5827767, NULL),
+  (11, 'حي العويمرية', 'Al Uwaimiriyah District', 25.3555228, 49.5888667, NULL),
+  (11, 'حي الصالحية', 'As Salhiyah District', 25.3687671, 49.592957, NULL),
+  (11, 'حي العليا', 'Al Olaya District', 25.3592191, 49.5961194, NULL),
+  (11, 'حي الشغيبية', 'Al Shagaibiyah District', 25.3702382, 49.5806873, NULL),
+  (11, 'حي المحمدية', 'Al Muhammadiyah District', 25.3697522, 49.5638497, NULL),
+  (11, 'حي المعلمين', 'Al Muallimeen District', 25.3662671, 49.5740837, NULL),
+  (11, 'حي السيفة', 'As Saifa District', 25.3819614, 49.5733032, NULL),
+  (11, 'حي وسط الهفوف التاريخي', 'Historical Center Hafuf District', 25.3748743, 49.5885274, NULL),
+  (11, 'حي الجوهرة', 'Al Jawharah District', 25.3172542, 49.5504963, NULL),
+  (11, 'جامعة الامام محمد بن سعود الاسلامية', 'Imam Muhammed Ibn Saud Islamic University District', 25.3033411, 49.5109874, NULL),
+  (11, 'حي البدرية', 'Al Badriyah District', 25.3146114, 49.5155713, NULL),
+  (11, 'حي القدس', 'Al Quds District', 25.3044808, 49.5309618, NULL),
+  (11, 'حي العاصمة', 'Al Asimah District', 25.3095559, 49.5510422, NULL),
+  (11, 'حي المجيدية', 'Al Majidiyah District', 25.3259218, 49.5239317, NULL),
+  (11, 'حي المهندسين', 'Al Muhandisin District', 25.3194315, 49.5398453, NULL),
+  (11, 'حي المطار', 'Al Matar District', 25.2884345, 49.518806, NULL),
+  (11, 'حي مجمع الدوائر الحكومية الثاني', 'Government Departments Complex 2nd District', 25.3231883, 49.5624845, NULL),
+  (11, 'حي الورود الثالث', 'Al Wurud 3rd District', 25.2789081, 49.5463872, NULL),
+  (11, 'حي الهدا', 'Al Hada District', 25.290069, 49.5575398, NULL),
+  (11, 'حي الصقور', 'As Suqur District', 25.2903358, 49.5423102, NULL),
+  (11, 'حي الروضة', 'Ar Rawdah District', 25.3546078, 49.6052925, NULL),
+  (11, 'حي عين موسى', 'Ayn Musa District', 25.3693633, 49.6000689, NULL),
+  (11, 'حي الناصرية', 'An Nasriyah District', 25.3768445, 49.5940822, NULL),
+  (11, 'حي اللويمي', 'Al Luwaymi District', 25.3834904, 49.6291667, NULL),
+  (11, 'حي الخدود', 'Al Khudud District', 25.3824568, 49.6131059, NULL),
+  (11, 'حي السليمانية', 'As Sulaimaniyah District', 25.3810186, 49.599625, NULL),
+  (11, 'حي منسوبي التعليم الأول', 'Mansubi Al Taleem 1st District', 25.3092957, 49.6005758, NULL),
+  (11, 'حي الإسكان الأول', 'Al Iskan 1st District', 25.3210092, 49.5969767, NULL),
+  (11, 'حي الجامعيين', 'Al Jamiyin District', 25.3170134, 49.5861449, NULL),
+  (11, 'حي الحمراء الأول', 'Al Hamra 1st District', 25.3194038, 49.5731061, NULL),
+  (11, 'حي الحمراء الثاني', 'Al Hamra 2nd District', 25.3127723, 49.5664081, NULL),
+  (11, 'حي الحمراء الثالث', 'Al Hamra 3rd District', 25.3082951, 49.5644795, NULL),
+  (11, 'حي هجر', 'Hajr District', 25.3176655, 49.623394, NULL),
+  (11, 'المدينة الرياضية', 'Sports City', 25.3045522, 49.6098638, NULL),
+  (11, 'حي الإسكان الثاني', 'Al Iskan 2nd District', 25.2875938, 49.5870608, NULL),
+  (11, 'حي الورود الثاني', 'Al Wurud 2nd District', 25.2787821, 49.5821846, NULL),
+  (11, 'حي الورود الأول', 'Al Wurud 1st District', 25.2794394, 49.6137455, NULL),
+  (11, 'حي الدانة', 'Al Danah District', 25.2881885, 49.6062624, NULL),
+  (11, 'حي الأمراء', 'Al Omaraa District', 25.29692, 49.569493, NULL),
+  (11, 'حي الرابية', 'Ar Rabiyah District', 25.2938733, 49.5881782, NULL),
+  (11, 'حي منسوبي التعليم الثاني', 'Mansubi Al Taleem 2nd District', 25.2985721, 49.605104, NULL),
+  (11, 'منطقة الغويبة الزراعية', 'Alghawbia Agricultural Area', 25.3221678, 49.6666753, NULL),
+  (11, 'جامعة الملك فيصل الثالث', 'King Faisal University 3rd', 25.3153666, 49.6125213, NULL),
+  (11, 'حي الحزام الأخضر', 'Al Hizam Al Akhdar District', 25.3169409, 49.638535, NULL),
+  (11, 'حي الدوحة', 'Al Doha District', 25.3051729, 49.6341987, NULL),
+  (114, 'صبيا الجديدة', 'New Sabya neighborhood', 17.1621677, 42.6591245, NULL),
+  (116, 'الدريعية', 'Ad Diriyah', 16.5843491, 42.8443766, NULL),
+  (122, 'قائم الخمسين', 'Qayim Al Khamsin', 16.665822, 42.9956727, NULL),
+  (122, 'قائم العتنة', 'Qayim Al Eatnih', 16.6745075, 42.9978073, NULL),
+  (116, 'البدوي', 'Al Badawi', 16.6304638, 42.8650381, NULL),
+  (116, 'الزاوية', 'Al Zaawia', 16.6371585, 42.893825, NULL),
+  (64, 'حي الرقبة', NULL, 23.8606484, 38.9030377, NULL),
+  (64, 'الذنيبة', NULL, 23.8541698, 38.8964233, NULL),
+  (28, 'الخالدية', 'Al Khalidiyah', 28.4219104, 45.9623169, NULL),
+  (23, 'مخطط النهيان الزراعي', NULL, 30.0961786, 40.1962766, NULL),
+  (23, 'النفل', 'An Nafl', 30.0318953, 40.2302752, NULL),
+  (7, 'سمنان', NULL, 21.2112309, 40.5228354, NULL),
+  (7, 'الرميدة', NULL, 21.3469477, 40.5468487, NULL),
+  (3, 'العسيلة', 'Al Usaylah', 21.5014332, 39.8805335, NULL),
+  (2, 'قويزه', NULL, 21.4013065, 39.3037914, NULL),
+  (116, 'المجنه', 'Al Majanah', 16.5545122, 43.0078697, NULL),
+  (116, 'أبو المض', 'Abu Al Mud', 16.5877477, 43.0136203, NULL),
+  (20, 'المحمدية 1', 'Al Muhammadiyah 1', 16.9476602, 42.5485896, NULL),
+  (20, 'المطار', 'Airport', 16.8925199, 42.573223, NULL),
+  (20, 'الجبل', 'Al Jabal', 16.88057, 42.5524091, NULL),
+  (20, 'الصناعية', 'Industrial', 16.8392118, 42.6235198, NULL),
+  (20, 'البشائر', 'Al Bashaer', 16.8643481, 42.621374, NULL),
+  (20, 'المرجان', 'Al Murjan', 16.8491517, 42.5814199, NULL),
+  (20, 'الزهور', 'Az Zuhur', 16.8901382, 42.614336, NULL),
+  (20, 'النور', 'An Noor', 16.9389982, 42.6351069, NULL),
+  (20, 'الروضة', 'Ar Rawdah', 16.9151035, 42.5663566, NULL),
+  (20, 'النسيم', 'Al Naseem', 16.9098479, 42.5957107, NULL),
+  (20, 'المروج 2', 'Al Muruj 2', 16.8632804, 42.639656, NULL),
+  (20, 'الرحاب 2', 'Ar Rehab 2', 16.8564215, 42.6061392, NULL),
+  (20, 'الرحاب 1', 'Ar Rehab 1', 16.8741635, 42.5944232, NULL),
+  (20, 'السويس 1', 'As Suways 1', 16.8684961, 42.5812053, NULL),
+  (20, 'السويس 2', 'As Suways 2', 16.8490202, 42.5981532, NULL),
+  (123, 'ضمد القديمة', 'Damad Al Qadimah', 17.1028121, 42.7802466, NULL),
+  (123, 'ج 5', 'C 5', 17.1281592, 42.7779292, NULL),
+  (114, 'ج 4', 'C 4', 17.1191364, 42.7634238, NULL),
+  (114, 'ج 1', 'C 1', 17.0967413, 42.7570724, NULL),
+  (114, 'الخالدية', 'Al Khalidiyah', 17.1056422, 42.7659988, NULL),
+  (114, 'ج 3', 'C 3', 17.1092927, 42.7538108, NULL),
+  (114, 'ج 2', 'C 2', 17.1037144, 42.742095, NULL),
+  (115, 'الورود', 'Al Wurud', 16.9650744, 42.8551703, NULL),
+  (115, 'النزهة', 'An Nuzhah', 16.9767204, 42.8496364, NULL),
+  (115, 'الزهور', 'Az Zuhur', 16.9861054, 42.8411042, NULL),
+  (115, 'الربيع', 'Ar Rabie', 16.9785562, 42.8280816, NULL),
+  (115, 'الأندلس', 'Al Andalus', 16.9807038, 42.82063, NULL),
+  (115, 'الروضة', 'Al Rawdah', 16.9659684, 42.8139782, NULL),
+  (115, 'الخالدية', 'Al Khalidiyah', 16.963957, 42.8248357, NULL),
+  (115, 'النهضة', 'Al Nahdah', 16.9662967, 42.8349638, NULL),
+  (115, 'القدس', 'Al Quds', 16.9552546, 42.8422594, NULL),
+  (115, 'الملك فهد', 'King Fahad', 16.9525453, 42.826724, NULL),
+  (115, 'السلام', 'As Salam', 16.9715713, 42.8329254, NULL),
+  (115, 'الصفاء', 'As Safa', 16.9756142, 42.8161669, NULL),
+  (116, 'الخضراء', 'Al Khadraa', 16.5855267, 42.9619502, NULL),
+  (116, 'خبت محمد علي', 'Kept Muhammad Ali', 16.564138, 43.0329322, NULL),
+  (116, 'الجيانية السفلى', 'Al Jayanih Al Suflaa', 16.5932589, 43.0312585, NULL),
+  (116, 'الجيانية العليا', 'Al Jayanih Al Ulya', 16.5939992, 43.0476951, NULL),
+  (20, 'المحمدية 2', 'Al Muhammadiyah 2', 16.9482172, 42.560154, NULL),
+  (20, 'الفيصلية', 'Al Faisaliyah', 16.8883724, 42.6677227, NULL),
+  (20, 'حي الخالدية 3', 'Al Khalidiyah 3 District', 16.9747114, 42.5757979, NULL),
+  (20, 'حي الخالدية 2', 'Al Khalidiyah 2 District', 16.9769046, 42.5906735, NULL),
+  (20, 'حي الخالدية 1', 'Al Khalidiyah 1 District', 16.9793494, 42.6072549, NULL),
+  (20, 'المودة', 'Al Mawada', 16.9392446, 42.5970839, NULL),
+  (20, 'الخالدية 4', 'Al Khalidiyah 4', 16.9611657, 42.6034354, NULL),
+  (20, 'الخالدية 5', 'Al Khalidiyah 5', 16.9540231, 42.5885867, NULL),
+  (20, 'المحمدية 3', 'Al Muhammadiyah 3', 16.9488507, 42.5733089, NULL),
+  (20, 'الشاطئ', 'Ash Shati', 16.9194557, 42.5536536, NULL),
+  (20, 'الساحل', 'As Sahil', 16.8915754, 42.5449419, NULL),
+  (20, 'اليرموك', 'Al Yarmuk', 16.8978581, 42.6859187, NULL),
+  (20, 'النعيم', 'An Naim', 16.8830751, 42.6963041, NULL),
+  (20, 'النهضة', 'An Nahdah', 16.8740404, 42.6751898, NULL),
+  (20, 'المروج 4', 'Al Muruj 4', 16.8688657, 42.6560497, NULL),
+  (20, 'المروج 3', 'Al Muruj 3', 16.8801183, 42.6507281, NULL),
+  (20, 'المروج 1', 'Al Muruj 1', 16.8800772, 42.6348924, NULL),
+  (20, 'الثريا 2', 'Ath Thuraiya 2', 16.8282033, 42.6442908, NULL),
+  (20, 'الثريا 1', 'Ath Thuraiya 1', 16.8167013, 42.6602553, NULL),
+  (20, 'النورس 2', 'An Nawras 2', 16.7986252, 42.6701259, NULL),
+  (20, 'الأراك 2', 'Al Arak 2', 16.8092245, 42.6899528, NULL),
+  (20, 'الأراك 1', 'Al Arak 1', 16.7918051, 42.7028274, NULL),
+  (20, 'النورس 1', 'An Nawras 1', 16.7801365, 42.6824855, NULL),
+  (115, 'النسيم', 'An Naseem', 16.9693547, 42.823956, NULL),
+  (121, 'المنطقة الصناعية', 'Industrial Area', 16.7263858, 42.9346561, NULL),
+  (121, 'القسوم', 'Al Qasum', 16.7214151, 42.9448699, NULL),
+  (121, 'العمارية', 'Al Amariyah', 16.7188957, 42.9529494, NULL),
+  (121, 'الصفا', 'As Safa', 16.7195494, 42.9614553, NULL),
+  (121, 'البياطرية', 'Al Bayatirah', 16.7197275, 42.9751681, NULL),
+  (122, 'المنجارة', 'Alminjara', 16.7174258, 43.0084704, NULL),
+  (122, 'الروابي', 'Ar Rawabi', 16.7174258, 42.9916048, NULL),
+  (121, 'خلب', 'Khalab', 16.7141788, 42.9743099, NULL),
+  (121, 'المطلع', 'Al Mutalla', 16.7084038, 42.9522944, NULL),
+  (121, 'المنزم', 'Almunzam', 16.7096564, 42.9559314, NULL),
+  (121, 'الواسط', 'Al Wasit', 16.7096639, 42.9626443, NULL),
+  (121, 'الميزاب', 'Al Mizab', 16.7043756, 42.9573797, NULL),
+  (121, 'الغصينية', 'Al Ghusainiah', 16.7032193, 42.9633358, NULL),
+  (121, 'البلدية', 'Al Baladiah', 16.7030185, 42.9497172, NULL),
+  (121, 'العز', 'Al Izz', 16.706733, 42.9440262, NULL),
+  (121, 'الروضة', 'Ar Rawdah', 16.7152332, 42.938176, NULL),
+  (114, 'الأندلس 6', 'Al Andalus 6', 17.0686004, 42.5500487, NULL),
+  (114, 'الأندلس 5', 'Al Andalus 5', 17.0439837, 42.538204, NULL),
+  (114, 'الأندلس 4', 'Al Andalus 4', 17.0562924, 42.5441263, NULL),
+  (114, 'الأندلس 3', 'Al Andalus 3', 17.0383213, 42.5617217, NULL),
+  (114, 'الأندلس 2', 'Al Andalus 2', 17.0488123, 42.5667326, NULL),
+  (114, 'الأندلس 1', 'Al Andalus 1', 17.0593027, 42.5717435, NULL),
+  (20, 'الحمراء', 'Al Hamra', 17.017394, 42.5627516, NULL),
+  (114, 'الحزم 1', 'Al Hazm 1', 17.0351208, 42.5783729, NULL),
+  (114, 'الحزم 2', 'Al Hazm 2', 17.0447788, 42.5856203, NULL),
+  (114, 'الحزم 3', 'Al Hazm 3', 17.0544363, 42.5928678, NULL),
+  (114, 'الحزم 4', 'Al Hazm 4', 17.0640933, 42.6001152, NULL),
+  (114, 'القدس 6', 'Al Quds 6', 17.0567026, 42.6198291, NULL),
+  (114, 'القدس 5', 'Al Quds 5', 17.0471019, 42.6258372, NULL),
+  (114, 'القدس 4', 'Al Quds 4', 17.0338898, 42.6236915, NULL),
+  (114, 'القدس 3', 'Al Quds 3', 17.039538, 42.6126868, NULL),
+  (114, 'القدس 2', 'Al Quds 2', 17.0319738, 42.5995364, NULL),
+  (20, 'الناصرية 4', 'An Nasriyah 4', 17.0116463, 42.5885971, NULL),
+  (20, 'الناصرية 5', 'An Nasriyah 5', 17.013745, 42.6017832, NULL),
+  (114, 'الناصرية 6', 'An Nasriyah 6', 17.0158436, 42.6149692, NULL),
+  (114, 'الباحر', NULL, 17.1249179, 42.6001567, NULL),
+  (3, 'المعيصم', NULL, 21.4559064, 39.908224, NULL),
+  (15, 'العيون', 'Al Oyoun', 24.0110109, 38.1754571, NULL),
+  (15, 'السميري', 'Al Semari', 24.0193606, 38.2144189, NULL),
+  (15, 'العزيزيه', 'Al Aziziah', 24.0307172, 38.1868195, NULL),
+  (15, 'المشيريف', 'Al-Meshaireef', 24.0380377, 38.1761598, NULL),
+  (15, 'النخيل', 'Al Nakheel', 24.0164403, 38.1893348, NULL),
+  (15, 'الجابرية', 'Al Jabriah', 24.0175378, 38.2032823, NULL),
+  (15, 'رضوى', 'Radwa', 24.0046405, 38.2044732, NULL),
+  (15, 'الفهد', 'Al Fahd', 24.0012836, 38.1935888, NULL),
+  (15, 'المصيف', 'Al Masif', 24.1217375, 38.025409, NULL),
+  (15, 'البندر', 'Al Bandar', 24.0957861, 38.027823, NULL),
+  (15, 'المروج', 'Al Moruj', 24.1114747, 38.0129149, NULL),
+  (77, 'الزهور', 'Az Zuhur', 26.7083025, 50.0483157, NULL),
+  (3, 'الحسينيّة', 'Al Husayniyah', 21.3186901, 39.8789907, NULL),
+  (2, 'القوزين', 'Al Qawzayn', 21.2643201, 39.1791772, NULL),
+  (130, 'الصناعية الجديدة', 'AsSina‘iyahalJadidah', 17.8462862, 44.4080318, NULL),
+  (58, 'السوق', 'AsSuq', 21.2262181, 41.6335731, NULL),
+  (12, 'الفضول', 'Al Fudul', 25.3739043, 49.6837815, NULL),
+  (21, 'مخطط رجلا الشمالية الزراعي', 'Mukhattat Rajla ash Shamaliyah az Zira‘i', 17.506254, 44.230513, NULL),
+  (21, 'نهوقة', 'Nahuqah', 17.4348383, 44.1138838, NULL),
+  (3, 'العكيشية', 'Al Ukayshiyah', 21.356436, 39.8003817, NULL),
+  (21, 'الحريزي', 'Al Harizi', 17.5090857, 44.2447816, NULL),
+  (127, 'الرويكبة', 'Al Ruwaikibah', 17.5537, 44.4414996, NULL),
+  (21, 'شعب رير', 'Shiab Reer', 17.4658709, 44.1630649, NULL),
+  (21, 'مخطط آل منجم السكني', 'Mukhattat Al Manjam as Sakani', 17.5438352, 44.2540666, NULL),
+  (25, 'الفيصلية', 'Al Faysaliyah', 30.9822396, 41.0366973, NULL),
+  (3, 'الملك فهد', 'King Fahd', 21.3949116, 39.772435, NULL),
+  (77, 'المنتزة', 'Al Montazah', 26.7003615, 50.0480253, NULL),
+  (3, 'السلامة', 'As Salamah', 21.457622, 39.7796916, NULL),
+  (127, 'العريسة', 'Al Uraysah', 17.5535364, 44.3092344, NULL),
+  (3, 'التقوى', 'At Taqwa', 21.3942386, 39.8185712, NULL),
+  (58, 'البلد', 'AlBalad', 21.2272919, 41.6532421, NULL),
+  (127, 'ريمان', 'Rayman', 17.5435524, 44.3897436, NULL),
+  (21, 'آل منجم', 'Al Manjam', 17.5427339, 44.2488097, NULL),
+  (7, 'القيم الأعلى', 'Al Qaim Al Aala', 21.3397451, 40.4271037, NULL),
+  (127, 'مخططات الغويلا الزراعية', 'Mukhattatat al Ghuwayla az Zira‘iyah', 17.5776155, 44.4387294, NULL),
+  (21, 'فواز', 'Fawaz', 17.4770463, 44.240055, NULL),
+  (10, 'العرين', 'Al ‘Arin', 18.2375663, 42.5330548, NULL),
+  (21, 'القعصوم', 'Al Qasoom', 17.4879754, 44.1907882, NULL),
+  (21, 'الضباط', 'Al Dhubbat', 17.532008, 44.2055027, NULL),
+  (21, 'المخيم', 'The Camp', 17.5567278, 44.2209577, NULL),
+  (127, 'أبا الرشاش', 'Aba Al Rashash', 17.5979667, 44.2402267, NULL),
+  (127, 'الغويلا', 'Al Ghiwila', 17.5736666, 44.3964383, NULL),
+  (5, 'البادية', 'Al Badiyah', 26.4277813, 50.0908784, NULL),
+  (21, 'مخطط رجلاء الجنوبية الزراعي', 'Mukhattat Rajla al Janubiyah az Zira‘i', 17.492744, 44.232436, NULL),
+  (21, 'مخطط الاثايبة السكني', 'Mukhattat al Athayibah as Sakani', 17.5592303, 44.2588381, NULL),
+  (77, 'الصناعية الثانية', 'second industrial', 26.7021015, 50.0252999, NULL),
+  (21, 'الجربة', 'Al Jurbah', 17.4723388, 44.1397189, NULL),
+  (21, 'الشبهان', 'Al Shabhan', 17.480894, 44.1095066, NULL),
+  (21, 'الفهد', 'Al Fahd', 17.576612, 44.2277812, NULL),
+  (2, 'الأجواد', 'Al Ajwad', 21.603293, 39.2576694, NULL),
+  (58, 'الخالدية', 'AlKhalidiyah', 21.1992822, 41.6189812, NULL),
+  (2, 'مدينة السلطان', 'Madinat as Sultan', 21.6907707, 39.2454155, NULL),
+  (13, 'الفناتير', 'Al Fanatir', 27.1457298, 49.5516708, NULL),
+  (21, 'الشرفة', 'Al Shurfa', 17.5121238, 44.308891, NULL),
+  (77, 'الاندلس', 'Al Andalus', 26.702589, 50.0695017, NULL),
+  (48, 'رحمان', 'Rahman', 19.2108367, 41.0929218, NULL),
+  (21, 'أبو غبار', 'Abu Ghbar', 17.5109776, 44.1754674, NULL),
+  (21, 'دحضة', 'Dahdah', 17.5121236, 44.1587733, NULL),
+  (2, 'أم حبلين الغربية', 'Um Hableen Al Gharbiyyah', 21.7040115, 39.230757, NULL),
+  (77, 'الصناعية الأولى', 'First Industrial', 26.6974664, 50.0579778, NULL),
+  (21, 'ال دويس', 'Al Duways', 17.472729, 44.153368, NULL),
+  (127, 'الدارة', 'Al Daara', 17.691783, 44.4963453, NULL),
+  (3, 'الخنساء', 'Al Khansa', 21.4480846, 39.8456027, NULL),
+  (3, 'كدي', 'Kudy', 21.3961217, 39.842312, NULL),
+  (21, 'الفيصلية', 'Al Faisaliyah', 17.5238895, 44.1926711, NULL),
+  (21, 'سلوة', 'Sulwi', 17.475489, 44.0917188, NULL),
+  (21, 'الأملاح', 'Al Amalah', 17.5323401, 44.1915607, NULL),
+  (21, 'صاغر', 'Saaghir', 17.5229278, 44.2143916, NULL),
+  (58, 'السلام', 'AsSalam', 21.2140299, 41.6298895, NULL),
+  (21, 'القابل', 'Al Qabil', 17.4892034, 44.1715621, NULL),
+  (77, 'رضوى', 'Radwa', 26.7193579, 50.0778224, NULL),
+  (127, 'برك', 'Bark', 17.5314971, 44.3553642, NULL),
+  (77, 'الروضة', 'Ar Rawdah', 26.709414, 50.0704045, NULL),
+  (3, 'البيبان', 'Al Bayban', 21.4371709, 39.8078441, NULL),
+  (21, 'ابو ثامر', 'Abu Thamir', 17.4778, 44.167798, NULL),
+  (21, 'الأمير مشعل', 'Prince Mishal', 17.5532908, 44.2332315, NULL),
+  (21, 'بني سلمان', 'Bani Salman', 17.497062, 44.1287326, NULL),
+  (3, 'ريع اذاخر', 'Rie Adhakhir', 21.4504959, 39.8357216, NULL),
+  (21, 'المراطة', 'Al Maratah', 17.4885075, 44.1047644, NULL),
+  (77, 'الفيحاء', 'Al Fayha', 26.7125067, 50.0584213, NULL),
+  (21, 'مخطط الاثايبة الشمالية الزراعي', 'Mukhattat al Athayibah ash Shamaliyah az Zira‘i', 17.5654945, 44.2421017, NULL),
+  (77, 'قرطبة', 'Qurtubah', 26.7137235, 50.0435912, NULL),
+  (21, 'الخالدية', 'Al Khalidiyah', 17.5353683, 44.2287253, NULL),
+  (7, 'الحلقة', 'Al Halaqah', 21.3481563, 40.4548412, NULL),
+  (21, 'الضيافة', 'Ad Diyafah', 17.5434295, 44.2161083, NULL),
+  (2, 'الشروق', 'AshShuruq', 21.5672982, 39.2989838, NULL),
+  (57, 'السوق القديم', 'As Suq Al Qadim', 21.9067375, 42.0377254, NULL),
+  (127, 'الصناعية', 'As Sinaiyah', 17.5906852, 44.3409061, NULL),
+  (3, 'أم الجود', 'Umm Al Jud', 21.415838, 39.7176359, NULL),
+  (21, 'نهيقة', 'Nahiqah', 17.4531801, 44.1337108, NULL),
+  (5, 'العدامة', 'Al Adamah', 26.4327896, 50.1017045, NULL),
+  (77, 'نجمة', 'Najmah', 26.7083195, 50.0933562, NULL),
+  (21, 'الحصين', 'Al Husayn', 17.5008275, 44.1984272, NULL),
+  (77, 'الدانة', 'Ad Danah', 26.7053026, 50.0602402, NULL),
+  (64, 'شعيب الذهب', 'SHEIB ALDAHB', 23.927867, 38.6963714, NULL),
+  (52, 'منطقه سكنيه', NULL, 21.6837255, 39.8072091, NULL),
+  (48, 'عمرات', 'Umrat', 19.2298274, 41.2108469, NULL),
+  (123, 'الصفا', 'Al Safa', 17.281932, 43.0455405, NULL),
+  (7, 'تحرة', 'Tahrah', 21.6085058, 40.4259296, NULL),
+  (7, 'الثوابية', 'Athwabiyah', 21.6104608, 40.4132588, NULL),
+  (7, 'الصفراء', 'Assafra', 21.6113473, 40.4419142, NULL),
+  (7, 'الخنفري', 'Alkhanferi', 21.6158969, 40.419267, NULL),
+  (125, 'الجامع', 'Al Jama', 16.7088414, 42.1165527, NULL),
+  (125, 'الجنوبي', 'Al Janubi', 16.6969263, 42.1185095, NULL),
+  (125, 'الياسمين', 'Al Yasmin', 16.7049591, 42.0933499, NULL),
+  (125, 'الجامعة', 'Al Jamiah', 16.6962568, 42.0909738, NULL),
+  (117, 'الخالدية', 'Al Khalidiyah', 17.3804473, 42.4881412, NULL),
+  (117, 'الحزم 2', 'Al Hazm 2', 17.405006, 42.5244455, NULL),
+  (117, 'الخضراء 2', 'Al Khadraa 2', 17.4161582, 42.4833598, NULL),
+  (117, 'الخضراء 3', 'Al Khadraa 3', 17.4097922, 42.4311408, NULL),
+  (117, 'الصفا', 'As Safa', 17.3735155, 42.4359978, NULL),
+  (117, 'السلام 3', 'As Salam 3', 17.3480059, 42.4394126, NULL),
+  (117, 'السلام 2', 'As Salam 2', 17.3543741, 42.4916316, NULL),
+  (117, 'النهضة', 'An Nahdah', 17.3721322, 42.5421761, NULL),
+  (117, 'السلام 1', 'As Salam 1', 17.355247, 42.5277697, NULL),
+  (117, 'الوادي', 'Al Wadi', 17.3972662, 42.5686778, NULL),
+  (117, 'الحزم 1', 'Al Hazm 1', 17.4235805, 42.5476824, NULL),
+  (117, 'الخضراء 1', 'Al Khadraa 1', 17.4590365, 42.5372033, NULL),
+  (48, 'الدعدي', 'Al daadi', 19.1333796, 41.1405634, NULL),
+  (48, 'الشمالي الشرقي', 'Al Shamali Alsharqia', 19.1379199, 41.0852987, NULL),
+  (48, 'آل زياد 2', 'Al Ziyad 2', 19.1075084, 41.1700814, NULL),
+  (48, 'وادي هارون', 'Wadi Haroun', 19.1226943, 41.1208062, NULL),
+  (48, 'آل زياد 1', 'Al Ziyad 1', 19.1058255, 41.1885057, NULL),
+  (48, 'القاع 1', 'Al Qaa 1', 19.1635925, 41.1740461, NULL),
+  (48, 'المرجان', 'Al Murjan', 19.2121174, 41.0564647, NULL),
+  (48, 'البرج', 'Al Burj', 19.1172734, 41.1007425, NULL)
+) AS v(city_id, name_ar, name_en, latitude, longitude, source_ref)
+WHERE EXISTS (SELECT 1 FROM cities c WHERE c.id = v.city_id)
+  AND NOT EXISTS (SELECT 1 FROM districts e WHERE e.city_id = v.city_id AND e.name_ar = v.name_ar);
+INSERT INTO districts (city_id, name_ar, name_en, latitude, longitude, is_active, source, source_ref, is_verified)
+SELECT v.city_id, v.name_ar, v.name_en, CAST(v.latitude AS DECIMAL(10,7)), CAST(v.longitude AS DECIMAL(10,7)), 1, 'openstreetmap', v.source_ref, 0
+FROM (VALUES
+  (48, 'الشرقية', 'Sharqia', 19.1247096, 41.0868905, NULL),
+  (48, 'دارين جدة', 'Darbin Jeddah', 19.2205563, 41.1797007, NULL),
+  (48, 'الغربية', 'Al Gharbia', 19.127537, 41.0767321, NULL),
+  (48, 'منطقة الخدمات المركزية', 'Central Services', 19.1596764, 41.0886871, NULL),
+  (48, 'الخالدية ب', 'Al Khalidiyah B', 19.1489399, 41.070044, NULL),
+  (48, 'المنطقة الصناعية', 'Industrial City', 19.1303163, 41.2629726, NULL),
+  (48, 'المستقبل', 'Al Mustaqbal', 19.1775528, 41.0846797, NULL),
+  (48, 'الصالحي', 'Al Salhi', 19.2279443, 41.1422566, NULL),
+  (48, 'المروج', 'Al Muruj', 19.1636569, 41.0802871, NULL),
+  (48, 'الخالدية أ', 'Al Khalidiyah A', 19.1378293, 41.0783722, NULL),
+  (48, 'القاع 2', 'Al Qaa 2', 19.1516209, 41.1808328, NULL),
+  (48, 'الشاطئ 3', 'Ash Shati 3', 19.1932848, 41.0628305, NULL),
+  (48, 'النهضة', 'An Nahdah', 19.0996708, 41.1587346, NULL),
+  (48, 'الشاطئ 1', 'Ash Shati 1', 19.1615258, 41.0656954, NULL),
+  (48, 'أحد بني زيد', 'Ohod Bani Zayd', 19.1860932, 41.1992303, NULL),
+  (48, 'الشاطئ 2', 'Ash Shati 2', 19.1741652, 41.0609124, NULL),
+  (10, 'العقيق', 'Al Aqiq', 18.1932966, 42.6039769, NULL),
+  (10, 'وسط المدينة', 'City Center', 18.2175138, 42.5000552, NULL),
+  (10, 'السد', 'As Sad', 18.2171288, 42.4917784, NULL),
+  (10, 'الخشع', 'Al Khasha', 18.213179, 42.5052615, NULL),
+  (10, 'المفتاحة', 'Al Muftahah', 18.2119719, 42.4937885, NULL),
+  (10, 'الوردتين', 'Al Wardatain', 18.228362, 42.4947563, NULL),
+  (10, 'النزهة', 'An Nuzhah', 18.2109568, 42.5134761, NULL),
+  (10, 'السروات', 'As Sarawat', 18.1896839, 42.5329893, NULL),
+  (10, 'العزيزية', 'Al Aziziyah', 18.2112591, 42.5011912, NULL),
+  (10, 'شعار', 'Shiear', 18.4339766, 42.4992268, NULL),
+  (10, 'اليمامة', 'Al Yamamah', 18.3522771, 42.4486006, NULL),
+  (10, 'القمر', 'Al Qamar', 18.3576636, 42.486544, NULL),
+  (10, 'الرونق', 'Al Ruwnaq', 18.3245212, 42.5724507, NULL),
+  (10, 'المنتزة', 'Al Muntazah', 18.2782415, 42.4836032, NULL),
+  (10, 'النصب', 'An Nasb', 18.2210777, 42.5063076, NULL),
+  (10, 'التعاون', 'At Taawun', 18.2627958, 42.4600221, NULL),
+  (10, 'السلام', 'As Salam', 18.2432163, 42.4701416, NULL),
+  (10, 'الوصايف', 'Al Wasaif', 18.2390363, 42.4842427, NULL),
+  (10, 'القري', 'Al Qura', 18.2427463, 42.4920762, NULL),
+  (10, 'شمسان', 'Shamsan', 18.2280853, 42.5071622, NULL),
+  (10, 'المنهل', 'Al Manhal', 18.2230981, 42.5161395, NULL),
+  (10, 'الفيصلية', 'Al Faisaliyah', 18.22199, 42.4930072, NULL),
+  (10, 'القابل', 'Al Qabil', 18.2238896, 42.4975601, NULL),
+  (10, 'الأندلس', 'Al Andalus', 18.2142834, 42.5186046, NULL),
+  (10, 'المروج', 'Al Muruj', 18.2090778, 42.5509015, NULL),
+  (10, 'النسيم', 'Al Naseem', 18.2026204, 42.5414958, NULL),
+  (10, 'الضباب', 'Al Dabab', 18.1993624, 42.5084486, NULL),
+  (10, 'السلامة', 'As Salamah', 18.1941935, 42.5760561, NULL),
+  (10, 'السوسن', 'Al Sawsan', 18.360763, 42.528566, NULL),
+  (10, 'الزين', 'Al Zayn', 18.3264844, 42.535599, NULL),
+  (10, 'الشفاء', 'Ash Shifa', 18.205653, 42.4979104, NULL),
+  (10, 'ذرة', 'Dharah', 18.2068654, 42.5065391, NULL),
+  (10, 'البحيرة', 'Al Buhayrah', 18.2156876, 42.4773051, NULL),
+  (10, 'المصيف', 'Al Masif', 18.2821039, 42.519577, NULL),
+  (10, 'الغدير', 'Al Ghadir', 18.2922705, 42.5813042, NULL),
+  (10, 'الشرفية', 'Ash Sharafiyah', 18.2411682, 42.5119652, NULL),
+  (10, 'الورود', 'Al Wurud', 18.2320505, 42.4595858, NULL),
+  (10, 'الخالدية', 'Al Khalidiyah', 18.2252844, 42.479435, NULL),
+  (10, 'الربوة', 'Ar Rabwah', 18.2048451, 42.5276419, NULL),
+  (10, 'الصناعية', 'Industrial', 18.2702106, 42.5586176, NULL),
+  (10, 'الروابي', 'Ar Rawabi', 18.2599281, 42.6017944, NULL),
+  (10, 'النعمان', 'Al Nueman', 18.2491379, 42.5722789, NULL),
+  (10, 'الروضة', 'Ar Rawdah', 18.2244929, 42.6299427, NULL),
+  (10, 'البديع', 'Al Badi', 18.2216742, 42.6007501, NULL),
+  (10, 'الصفاء', 'As Safa', 18.2229765, 42.5740608, NULL),
+  (10, 'الوادي', 'Al Wadi', 18.2956879, 42.4326263, NULL),
+  (10, 'عشران', 'Eashran', 18.3412031, 42.4122511, NULL),
+  (10, 'تاتة', 'Tata', 18.3938111, 42.5367694, NULL),
+  (10, 'الرياحين', 'Al Riyahayn', 18.394789, 42.492354, NULL),
+  (86, 'الباحة', 'AL Baha', 18.3762625, 42.3479762, NULL),
+  (10, 'السدر', 'Al Sudr', 18.3922093, 42.3931776, NULL),
+  (10, 'السمر', 'As Samar', 18.3946913, 42.4450293, NULL),
+  (10, 'الكوثر', 'Al Kawthar', 18.3277077, 42.4943248, NULL),
+  (10, 'المروة', 'Al Marwah', 18.3149438, 42.4651192, NULL),
+  (10, 'المسك', 'Al Misk', 18.1798785, 42.6160048, NULL),
+  (116, 'الصناعية', 'Industrial', 16.6340455, 42.9310241, NULL),
+  (116, 'الفيصلية', 'Al Faisaliyah', 16.6520359, 42.9415699, NULL),
+  (121, 'الخالدية', 'Al Khalidiyah', 16.6573182, 42.9511643, NULL),
+  (121, 'مختارة 2', 'Mukhtara 2', 16.6707316, 42.9527011, NULL),
+  (116, 'الفهد', 'Al Fahd', 16.6135988, 42.9574349, NULL),
+  (116, 'المروج', 'Al Muruj', 16.6206828, 42.9515533, NULL),
+  (116, 'السلام', 'As Salam', 16.6214512, 42.9678107, NULL),
+  (116, 'البلد', 'Al Balad', 16.6008788, 42.9385704, NULL),
+  (116, 'الربوة', 'Ar Rabwah', 16.5975851, 42.9469294, NULL),
+  (116, 'المكرمية', 'Al Mukramia', 16.5906505, 42.9333159, NULL),
+  (116, 'النعيم', 'An Naim', 16.5857559, 42.9245774, NULL),
+  (116, 'حطين', 'Hittin', 16.6062314, 42.9470386, NULL),
+  (116, 'السوق', 'As Suq', 16.6258953, 42.9290039, NULL),
+  (116, 'الجامعة', 'Al Jamiah', 16.6391067, 42.9190589, NULL),
+  (116, 'صاحب البار', 'Sahib Al Bar', 16.6288997, 43.0081641, NULL),
+  (116, 'المحمدية', 'Al Muhammadiyah', 16.6513136, 42.9252261, NULL),
+  (116, 'الشهداء', 'Ashuhada', 16.615512, 42.9235528, NULL),
+  (116, 'الزهور', 'Al Zuhur', 16.6402065, 42.9091086, NULL),
+  (116, 'العزيزية', 'Al Aziziyah', 16.6180136, 42.9350442, NULL),
+  (116, 'النور والصفاء', 'An Noor and Al Safa', 16.6319365, 42.9573814, NULL),
+  (116, 'العليا', 'Al Olaya', 16.6044788, 42.9264074, NULL),
+  (116, 'البشائر', 'Al Bashaer', 16.5925007, 42.9239161, NULL),
+  (116, 'النزهة', 'An Nuzhah', 16.627979, 42.9141048, NULL),
+  (116, 'الورود', 'Al Wurud', 16.6361024, 42.902241, NULL),
+  (116, 'الإسكان', 'Al Iskan', 16.6260567, 42.9057622, NULL),
+  (116, 'التحلية', 'At Tahliyah', 16.6385997, 42.9418172, NULL),
+  (116, 'دواليب', 'Dawalib', 16.6168728, 43.0049098, NULL),
+  (116, 'الطرايشة', 'Al Turshiah', 16.5771823, 42.9478824, NULL),
+  (116, 'مساوى كريرى', 'Masawi Kariri', 16.6507023, 42.9141526, NULL),
+  (116, 'الشعوب', 'Al Shueub', 16.6523107, 42.9164707, NULL),
+  (116, 'الهليه العليا والسفلى', 'Al Halyh Al Ulya and Al Suflaa', 16.621036, 42.840726, NULL),
+  (116, 'شعب الخرابة', 'Shaeb Al Kharabih', 16.6169476, 43.0180561, NULL),
+  (116, 'ريف وعلان', 'Rif Waealan', 16.578542, 43.0505025, NULL),
+  (116, 'العامرية', 'Al Amriyah', 16.5835869, 42.8585182, NULL),
+  (116, 'أبو مسود', 'Abu Masoud', 16.600795, 43.0095023, NULL),
+  (122, 'الخرشة', 'Al Kharsha', 16.6346426, 43.0217055, NULL),
+  (122, 'أبو حجر الاسفل', 'Abu Hajar Al Asfal', 16.6761048, 43.0105317, NULL),
+  (121, 'جاضع الحسين', 'Jade Al Hussein', 16.6576572, 42.99319, NULL),
+  (116, 'الروضة', 'Ar Rawdah', 16.6083613, 42.9356449, NULL),
+  (6, 'غرب العزيزية', 'West Al Aziziyah', 26.1850529, 50.0888738, NULL),
+  (5, 'البحر', 'Al Bahar', 26.3543438, 50.2210807, NULL),
+  (6, 'الجسر', 'Al Jisr', 26.2101633, 50.2053308, NULL),
+  (6, 'مدينة العمال', 'Madinat Al Ummal', 26.2931046, 50.2034856, NULL),
+  (6, 'الدرة', 'Al Durra', 26.0672691, 50.1349066, NULL),
+  (6, 'الحمراء', 'Al Hamra', 26.2264523, 50.2051484, NULL),
+  (6, 'السفن', 'As Sufun', 26.1383336, 50.1642607, NULL),
+  (6, 'البستان', 'Al Bustan', 26.3222679, 50.2118968, NULL),
+  (6, 'الأندلس', 'Al Andalus', 26.3240373, 50.1848601, NULL),
+  (6, 'الكوثر', 'Al Kawthar', 26.1486583, 50.1180838, NULL),
+  (6, 'الساحل', 'As Sahil', 26.2587822, 50.2167892, NULL),
+  (5, 'الراكة الشمالية', 'Ar Rakah Ash Shamaliyah', 26.3693403, 50.1916408, NULL),
+  (6, 'الخزامى', 'Al Khuzama', 26.2086617, 50.1863193, NULL),
+  (5, 'الصدفة', 'As Sadafah', 26.3740304, 50.2181526, NULL),
+  (6, 'الشفاء', 'Ash Shifa', 26.2071986, 50.1438331, NULL),
+  (6, 'شاطئ نصف القمر', 'Half Moon Beach', 26.1088185, 50.10993, NULL),
+  (6, 'الحزام الأخضر', 'Al Hizam Al Akhdar', 26.3081886, 50.2007388, NULL),
+  (6, 'التعاون', 'At Taawun', 26.224909, 50.1870059, NULL),
+  (6, 'العقيق', 'Al Aqiq', 26.0965635, 50.1426312, NULL),
+  (5, 'قرطبة', 'Qurtubah', 26.3432682, 50.1866626, NULL),
+  (5, 'المدينة الرياضية', 'Sports City', 26.3578047, 50.1831435, NULL),
+  (6, 'صناعية الفوازية', 'Sinaiyah Al Fawaziyah', 26.2443103, 50.2135706, NULL),
+  (6, 'المها', 'Al Maha', 26.1899477, 50.1304434, NULL),
+  (6, 'الكورنيش', 'Al Kurnaish', 26.3162671, 50.2255439, NULL),
+  (6, 'ابن سيناء', 'Ibn Sina', 26.2427707, 50.2042578, NULL),
+  (6, 'المرجان', 'Al Murjan', 26.1179898, 50.1167105, NULL),
+  (6, 'الإسكان', 'Al Iskan', 26.2576047, 50.2094584, NULL),
+  (6, 'الروابي', 'Ar Rawabi', 26.3321147, 50.2078628, NULL),
+  (6, 'التحلية', 'At Tahliyah', 26.1822457, 50.1972195, NULL),
+  (6, 'الشراع', 'Ash Sheraa', 26.164336, 50.1471376, NULL),
+  (6, 'الهدا', 'Al Hada', 26.3108815, 50.1845168, NULL),
+  (6, 'اشبيليا', 'Ishbiliya', 26.2015769, 50.2171325, NULL),
+  (6, 'البندرية', 'Al Bandariyah', 26.3094966, 50.2143001, NULL),
+  (6, 'الخور', 'Al Khawr', 26.2274498, 50.216875, NULL),
+  (6, 'اللؤلؤ', 'Al Loaloa', 26.1201477, 50.142288, NULL),
+  (6, 'صناعية الثقبة', 'Sinaiyah Ath Thuqbah', 26.2560111, 50.1995372, NULL),
+  (5, 'الراكة الجنوبية', 'Ar Rakah Al Janubiyah', 26.3508828, 50.2014255, NULL),
+  (6, 'الصواري', 'As Sawari', 26.1868669, 50.1491545, NULL),
+  (6, 'العليا', 'Al Olaya', 26.2977243, 50.1774786, NULL),
+  (6, 'الحزام الذهبي', 'Al Hizam Adh Dhahabi', 26.3178827, 50.200138, NULL),
+  (6, 'الجوهرة', 'Al Jawharah', 26.3294992, 50.1959323, NULL),
+  (6, 'الرجاء', 'Ar Raja', 26.1680723, 50.1264952, NULL),
+  (4, 'الصناعية', 'Industrial', 24.3698319, 39.4974018, NULL),
+  (4, 'المندسة', 'Al Mundasa', 24.6065228, 39.2003371, NULL),
+  (4, 'البلقاء', 'Al Balqa', 24.5110483, 39.4371412, NULL),
+  (4, 'خاخ', 'Khakh', 24.3197248, 39.5887182, NULL),
+  (4, 'الهدراء', 'Al Hadra', 24.4452745, 39.7006415, NULL),
+  (4, 'الحديقة', 'Al Hadiqah', 24.4157182, 39.609881, NULL),
+  (4, 'الشهباء', 'Ash Shahba', 24.390098, 39.5471762, NULL),
+  (4, 'الجماوات', 'Al Jamawat', 24.460276, 39.5634838, NULL),
+  (4, 'بني حارثة', 'Bani Harithah', 24.4919915, 39.6268271, NULL),
+  (4, 'المبعوث', 'Al Mabuth', 24.483048, 39.6756967, NULL),
+  (4, 'الجصة', 'Al Jassah', 24.3610541, 39.612751, NULL),
+  (4, 'الخاتم', 'Al Khatim', 24.4307402, 39.6251105, NULL),
+  (4, 'وادي الحمض', 'Wadi Al Hamdh', 24.5814714, 39.4951623, NULL),
+  (4, 'الخضراء', 'Al Khadhra', 24.5664845, 39.7306817, NULL),
+  (4, 'عين الخيف', 'Ayn Al Khif', 24.4324594, 39.6883678, NULL),
+  (4, 'الراية', 'Ar Rayah', 24.4843367, 39.5998762, NULL),
+  (4, 'حضوضاء', 'Hadawda''', 24.3696167, 39.8735033, NULL),
+  (4, 'السد', 'As Sad', 24.4057311, 39.6335219, NULL),
+  (4, 'العهن', 'Al Ihn', 24.4323031, 39.6374701, NULL),
+  (4, 'كتانة', 'Kittanah', 24.5565505, 39.5540639, NULL),
+  (4, 'الحساء', 'Al Hussa', 24.3613279, 39.5428847, NULL),
+  (4, 'التلعة', 'Al Talaah', 24.5073386, 39.6539926, NULL),
+  (4, 'القبيبة', 'Al Qabiba', 24.7256287, 39.6482835, NULL),
+  (4, 'ابو بريقاء', 'Abu Burayqa', 24.4165169, 39.5638273, NULL),
+  (4, 'المصانع', 'Al Masani', 24.4797279, 39.6090602, NULL),
+  (4, 'الشهداء', 'Ashuhada', 24.5042733, 39.6025584, NULL),
+  (4, 'الاصيفرين', 'Al Usayfirin', 24.4607446, 39.5900915, NULL),
+  (4, 'جبل احد', 'Jabal Uhud', 24.5222936, 39.6170424, NULL),
+  (4, 'رهط', 'Raht', 24.3708665, 39.6393583, NULL),
+  (4, 'وادي البطان', 'Wadi Al Battan', 24.5212005, 39.8038098, NULL),
+  (4, 'شظاة', 'Shizat', 24.4938661, 39.6558378, NULL),
+  (4, 'السلام', 'As Salam', 24.479025, 39.5015143, NULL),
+  (4, 'بني ظفر', 'Bani Zafar', 24.4611351, 39.6297454, NULL),
+  (4, 'الغابة', 'Al Ghabah', 24.5607074, 39.6067427, NULL),
+  (4, 'المفرحات', 'Al Mafrahat', 24.3314568, 39.4134515, NULL),
+  (4, 'بني بياضة', 'Bani Bayadah', 24.3832187, 39.5921516, NULL),
+  (4, 'ام السيوف', 'Um Al Seouf', 24.3001699, 39.7523114, NULL),
+  (4, 'الشريبات', 'Ash Shuraybat', 24.449103, 39.6379851, NULL),
+  (4, 'السكب', 'As Sakb', 24.3556982, 39.575672, NULL),
+  (4, 'بئر عثمان', 'Bir Uthman', 24.4923039, 39.5797919, NULL),
+  (4, 'العريض', 'Al Ariyd', 24.4787126, 39.6427914, NULL),
+  (4, 'الظاهرة', 'Al Dhahirah', 24.4463684, 39.5997046, NULL),
+  (4, 'الإسكان', 'Al Iskan', 24.4592601, 39.6474265, NULL),
+  (4, 'قربان', 'Qurban', 24.4535566, 39.6230506, NULL),
+  (4, 'وعيرة', 'Wairah', 24.5486848, 39.6706007, NULL),
+  (4, 'الدويخلة', 'Ad Duwaikhilah', 24.5041757, 39.6754072, NULL),
+  (4, 'الـنقـمى', 'An Ngma', 24.5694503, 39.6354101, NULL),
+  (4, 'المغيسلة', 'Al Mughaisilah', 24.4565256, 39.6039961, NULL),
+  (4, 'سد الغابة', 'Sad Al Ghaba', 24.6769704, 39.548034, NULL),
+  (4, 'الزهرة', 'Az Zahrah', 24.5330694, 39.5684622, NULL),
+  (4, 'ابومرخة', 'Abu Markha', 24.3902545, 39.383926, NULL),
+  (4, 'بني معاوية', 'Bani Muawiyah', 24.4737129, 39.6246814, NULL),
+  (4, 'الدويمة', 'Ad Duwaimah', 24.4462121, 39.6108626, NULL),
+  (4, 'ذو الحليفة', 'Dhu Al Hulayfah', 24.429021, 39.5603941, NULL),
+  (4, 'الصهلوج', 'Al Sahluj', 24.4743381, 39.3372342, NULL),
+  (4, 'جبل عير', 'Jabal Eir', 24.3886909, 39.5713804, NULL),
+  (4, 'الصادقية', 'As Sadiqiyah', 24.5583655, 39.5830532, NULL),
+  (4, 'حرة الوبرة', 'Hura Al Wabra', 24.4590257, 39.582281, NULL),
+  (4, 'العصبة', 'Al Usbah', 24.4313654, 39.6120642, NULL),
+  (4, 'الأناهي', 'Al Anahi', 24.4340322, 39.7183814, NULL),
+  (4, 'المدينة الصناعية', 'Industrial City', 24.3014218, 39.472503, NULL),
+  (4, 'الشافية', 'Ash Shafiyah', 24.546811, 39.6463965, NULL),
+  (4, 'المزيين', 'Al Muzayayn', 24.3380257, 39.6386715, NULL),
+  (4, 'الحفيا', 'Al Hafya', 24.5315079, 39.513702, NULL),
+  (4, 'العاقول', 'Al Aqoul', 24.5169834, 39.7148894, NULL),
+  (4, 'السقيا', 'As Suqya', 24.463474, 39.5976313, NULL),
+  (4, 'بني النجار', 'Bani Al Najjar', 24.470754, 39.6165705, NULL),
+  (4, 'الجامعة', 'Al Jamiah', 24.4826181, 39.5610808, NULL),
+  (4, 'الرمانة', 'Ar Rumanah', 24.3972309, 39.6844624, NULL),
+  (4, 'الجابرة', 'Al Jabirah', 24.4077438, 39.5853065, NULL),
+  (4, 'الدار', 'Ad Dar', 24.5305707, 39.6378134, NULL),
+  (4, 'العنابس', 'Al Anabis', 24.4725411, 39.5868301, NULL),
+  (4, 'الشرائع', 'Asharai', 24.3736812, 39.6932598, NULL),
+  (4, 'جماء أم خالد', 'Jama Umm Khaled', 24.4324596, 39.5446011, NULL),
+  (4, 'أبو سدر', 'Abu Sidr', 24.6220518, 39.7602074, NULL),
+  (4, 'مسجد الدرع', 'Masjid Ad Dara', 24.4910542, 39.6093176, NULL),
+  (4, 'سكة الحديد', 'As Sikkah Al Hadid', 24.4537129, 39.4834898, NULL),
+  (4, 'ابو كبير', 'Abu Kabir', 24.3897853, 39.5356749, NULL),
+  (4, 'الفتح', 'Al Fath', 24.4796195, 39.5950138, NULL),
+  (4, 'طيبة', 'Taibah', 24.5046447, 39.5040887, NULL),
+  (4, 'الغراء', 'Al Gharra', 24.402761, 39.662876, NULL),
+  (4, 'الملك فهد', 'King Fahd', 24.4999582, 39.6989248, NULL),
+  (4, 'وادي مهزور', 'Wadi Mahzur', 24.4387156, 39.6509778, NULL),
+  (4, 'الصهوة', 'Al Sahwa', 24.7642918, 39.7705064, NULL),
+  (4, 'الجمعة', 'Al Jummah', 24.4509002, 39.6165274, NULL),
+  (3, 'الشرائع', 'Asharai', 21.4769521, 39.9477481, NULL),
+  (3, 'السلام', 'As Salam', 21.4632935, 39.9558162, NULL),
+  (3, 'الكوثر', 'Al Kawthar', 21.4545865, 39.9666308, NULL),
+  (3, 'البساتين', 'Al Basatin', 21.4000163, 39.7265622, NULL),
+  (3, 'رؤى الحرم', 'Haram visions', 21.4300203, 39.8248815, NULL),
+  (3, 'النقا الجديد', 'An Naqa Al Jadid', 21.3825737, 39.7531614, NULL),
+  (3, 'طوى', 'Tawa', 21.3670936, 39.7143734, NULL),
+  (3, 'الشامية الجديد', 'Ash Shamiya Al Jadid', 21.3141351, 39.6852221, NULL),
+  (3, 'حارة الباب الجديد', 'Harat Al Bab Al Jadid', 21.3304061, 39.7230466, NULL),
+  (3, 'الغزة الجديد', 'Al Ghaza Al Jadid', 21.3540801, 39.7440066, NULL),
+  (3, 'المحمدية', 'Al Muhammadiyah', 21.3646256, 39.7836378, NULL),
+  (3, 'الشوقية', 'Ash Shawqiyah', 21.3871724, 39.796527, NULL),
+  (3, 'السوق الجديد', 'As Suq Al Jadid', 21.3335169, 39.8244145, NULL),
+  (3, 'دار السلام', 'Dar Al Salaam', 21.3274176, 39.7787979, NULL),
+  (3, 'المدعى الجديد', 'Al Mudae Al Jadid', 21.3024078, 39.7840362, NULL),
+  (3, 'القرارة الجديد', 'Al Qararat Al Jadid', 21.2824783, 39.7825083, NULL),
+  (3, 'الفلق الجديد', 'Al Falaq Al Jadid', 21.2897999, 39.7244506, NULL),
+  (3, 'شعب علي الجديد', 'Shaeb Ali Al Jadid', 21.2552235, 39.7309984, NULL),
+  (3, 'شعب عامر الجديد', 'Shaeb Amir Al Jadid', 21.2556303, 39.7838177, NULL),
+  (3, 'المسيال الجديد', 'Al misyal Al Jadid', 21.2820717, 39.8519152, NULL),
+  (3, 'الهجلة الجديد', 'Al Hajla Al Jadid', 21.3023061, 39.8538799, NULL),
+  (3, 'العابدية', 'Al Abidiyah', 21.3184398, 39.9334696, NULL),
+  (3, 'السنابل', 'As Sanabel', 21.3913682, 39.8604084, NULL),
+  (3, 'المشاعر المقدسة', 'Al Mashaeir Al Muqadasa', 21.3908915, 39.9388562, NULL),
+  (3, 'الصفا', 'As Safa', 21.4265234, 39.9713774, NULL),
+  (3, 'المغمس', 'Al Mughamas', 21.4554552, 39.9892972, NULL),
+  (3, 'البيعة', 'Al Bayea', 21.4562788, 40.020712, NULL),
+  (3, 'حنين', 'Hanin', 21.5141691, 40.0752207, NULL),
+  (3, 'البركة', 'Al Barakah', 21.5165015, 40.0370235, NULL),
+  (3, 'الحطيم', 'Al Hatim', 21.494822, 40.0160814, NULL),
+  (3, 'أحد', 'Ohod', 21.504153, 39.9764092, NULL),
+  (3, 'الثنية', 'Al Thania', 21.5044274, 40.0023656, NULL),
+  (3, 'زمزم', 'Zamzam', 21.5219897, 39.9885026, NULL),
+  (3, 'جعرانة', 'Jaranah', 21.5450369, 39.9616613, NULL),
+  (3, 'اليمامة', 'Al Yamamah', 21.5129344, 39.9463234, NULL),
+  (3, 'المقام', 'Al Maqam', 21.5053638, 39.9159724, NULL),
+  (3, 'العقبة', 'Al Aqaba', 21.4667865, 39.7430489, NULL),
+  (52, 'العمرة', 'Al Umrah', 21.5688304, 39.7880114, NULL),
+  (52, 'الفرقان', 'Al Furqan', 21.5603552, 39.8126167, NULL),
+  (52, 'النوارية', 'An Nawwariyah', 21.5461582, 39.7622671, NULL),
+  (52, 'طيبة', 'Taibah', 21.5864148, 39.7342445, NULL),
+  (52, 'الفتح', 'Al Fath', 21.6031496, 39.7817463, NULL),
+  (61, 'الحديبية', 'Al Hudaybiyah', 21.3968109, 39.6530385, NULL),
+  (3, 'المروة', 'Al Marwah', 21.431753, 39.7091342, NULL),
+  (3, 'التنعيم', 'At Tanim', 21.4935355, 39.812293, NULL),
+  (3, 'قرطبة', 'Qurtubah', 21.4671835, 39.8336543, NULL),
+  (3, 'القشاشية الجديد', 'Al Qashashia Al Jadid', 21.2290375, 39.8668944, NULL),
+  (3, 'الصفوة', 'As safwa', 21.3418019, 39.7784349, NULL),
+  (3, 'الشميسي', 'Al Shumaisi', 21.3465924, 39.6619493, NULL),
+  (3, 'الراشدية', 'Ar Rashidiyyah', 21.4814962, 39.9819993, NULL),
+  (3, 'التروية', 'Al Tarwia', 21.4757496, 39.9666247, NULL),
+  (3, 'معاد', 'Muead', 21.4613764, 39.9400233, NULL),
+  (3, 'الجودرية الجديد', 'Al Judriah Al Jadid', 21.3277568, 39.8530768, NULL),
+  (51, 'الندى', 'An Nada', 21.9815634, 39.1830595, NULL),
+  (51, 'المودة', 'Al Mawada', 21.9856983, 39.2045133, NULL),
+  (51, 'التوفيق', 'Al Tawfiq', 21.9915346, 39.2347958, NULL),
+  (51, 'الزهور', 'Al Zahur', 21.8954285, 39.1055729, NULL),
+  (51, 'الراية', 'Ar Rayah', 21.8695348, 39.1007229, NULL),
+  (51, 'الجزيرة', 'Al Jazirah', 21.9779131, 39.0289887, NULL),
+  (51, 'الدرة', 'Ad Durrah', 21.9543373, 39.0300294, NULL),
+  (51, 'العبير', 'Al Abeer', 21.9510018, 39.0616894, NULL),
+  (51, 'اليسر', 'Al Yusr', 21.9794012, 39.0681868, NULL),
+  (51, 'الفرقان', 'Al Furqan', 21.9804518, 39.0958622, NULL),
+  (51, 'الغدير', 'Al Ghadir', 21.9268074, 39.0487727, NULL),
+  (51, 'العقيق', 'Al Aqiq', 21.9410217, 39.0849335, NULL),
+  (51, 'المجامع', 'Al Majami', 21.9571771, 39.1048221, NULL),
+  (51, 'المزيرعة', 'Al Muzairah', 21.9820956, 39.139164, NULL),
+  (51, 'طابة', 'Tabah', 21.9585205, 39.1402047, NULL),
+  (51, 'الهزاعية', 'Al Hazaiyah', 21.8728891, 39.1405076, NULL),
+  (51, 'العشيرية', 'Al Ushayriyyah', 21.901453, 39.1402593, NULL),
+  (51, 'النجمة', 'An Najmah', 21.894786, 39.0646904, NULL),
+  (51, 'الشويضي', 'Al Shuwaidhi', 21.9187454, 39.0811661, NULL),
+  (51, 'الغربية', 'Al Gharbiyyah', 21.9132709, 39.1103627, NULL),
+  (51, 'بلدة ذهبان', 'Dhahban Town', 21.9344866, 39.1128664, NULL),
+  (51, 'الشرقية', 'Al Sharqiyyah', 21.9286622, 39.1522797, NULL),
+  (51, 'الصفوة', 'Al Safwah', 21.8918545, 39.2170664, NULL),
+  (51, 'الرياض', 'Ar Riyadh', 21.8597919, 39.1800996, NULL),
+  (51, 'الوسام', 'Al Wasam', 21.8468925, 39.141459, NULL),
+  (2, 'قباء', 'Quba', 21.8257033, 39.1260994, NULL),
+  (2, 'المنارات', 'Al Manarat', 21.8336859, 39.0986165, NULL),
+  (2, 'الزمرد', 'Az Zomorod', 21.8019584, 39.05907, NULL),
+  (2, 'الصواري', 'As Swaryee', 21.7975945, 39.1017701, NULL),
+  (2, 'طيبة', 'Taibah', 21.8062096, 39.1401311, NULL),
+  (2, 'الياقوت', 'Al Yaqoot', 21.7833091, 39.0792621, NULL),
+  (2, 'الفردوس', 'Al Ferdous', 21.7848991, 39.114982, NULL),
+  (2, 'الشراع', 'Ash Sheraa', 21.7667494, 39.093566, NULL),
+  (2, 'اللؤلؤ', 'Al Loaloa', 21.7667493, 39.0593527, NULL),
+  (2, 'الأمواج', 'Al Amwaj', 21.7498959, 39.073682, NULL),
+  (51, 'الشرائع', 'Asharai', 22.1967166, 39.1391693, NULL),
+  (51, 'العويجاء', 'Al Uwayjaa', 22.1747495, 39.1396964, NULL),
+  (51, 'الهجرة', 'Al Hijrah', 22.1597638, 39.1400559, NULL),
+  (51, 'أم سدرة', 'Umm Sidra', 22.1305459, 39.1407568, NULL),
+  (51, 'البوادر', 'Al Bawadir', 22.1101103, 39.1412469, NULL),
+  (51, 'رضوى', 'Radwa', 22.0921723, 39.1416771, NULL),
+  (51, 'الوئام', 'Al Wiam', 22.0548521, 39.1619634, NULL),
+  (51, 'المجد', 'Al Majd', 22.0622751, 39.1778316, NULL),
+  (127, 'الشروق', 'Ash Shrouk', 17.5132695, 44.5359134, NULL),
+  (127, 'المروج', 'Al Muruj', 17.4953321, 44.5126525, NULL),
+  (127, 'السليمانية', 'As Sulaymaniyah', 17.4951793, 44.532051, NULL),
+  (127, 'الجامعة', 'Al Jamiah', 17.6414738, 44.5316566, NULL),
+  (21, 'منطقة الأخدود الأثرية', 'Al Okhdood Archaeological Area', 17.4792977, 44.181261, NULL),
+  (21, 'بئر أبين', 'Bir Abayn', 17.5287389, 44.245119, NULL),
+  (21, 'النصلة', 'An Naslah', 17.4834728, 44.2139625, NULL),
+  (127, 'صهبان', 'Sahban', 17.6025483, 44.3603038, NULL),
+  (21, 'زور العماري', 'Zawr Al Ammari', 17.4362302, 44.0632438, NULL),
+  (127, 'المسماة', 'Al Musmaah', 17.5461711, 44.2787647, NULL),
+  (127, 'الواحة', 'Al Wahah', 17.5135811, 44.5117982, NULL),
+  (21, 'عويره', 'Awira', 17.4819174, 44.1292476, NULL),
+  (21, 'المخباة', 'Al Makhaba', 17.4885893, 44.1423368, NULL),
+  (127, 'تصلال', 'Taslal', 17.6067207, 44.4865606, NULL),
+  (127, 'صحيفات', 'Sahifat', 17.5370869, 44.3705176, NULL),
+  (127, 'الزهور', 'Al Zuhur', 17.5032833, 44.3954085, NULL),
+  (127, 'المركب', 'Al Markab', 17.5369232, 44.3423652, NULL),
+  (127, 'المطار', 'Airport', 17.6076206, 44.4214152, NULL),
+  (21, 'ماقان', 'Maqan', 17.4930918, 44.1528081, NULL),
+  (127, 'النخيل', 'Al Nakhil', 17.5144311, 44.4460221, NULL),
+  (127, 'أبا الخريـت', 'Aba Al Khareet', 17.5491991, 44.3270873, NULL),
+  (127, 'العروبة', 'Al Urubah', 17.49641, 44.3758403, NULL),
+  (127, 'الأندلس', 'Al Andalus', 17.4958676, 44.4446881, NULL),
+  (127, 'الرحاب', 'Ar Rehab', 17.5138775, 44.4888588, NULL),
+  (127, 'المرجان', 'Al Murjan', 17.4955206, 44.4887263, NULL),
+  (127, 'النهضة', 'An Nahdah', 17.6559635, 44.4586658, NULL),
+  (127, 'السلام', 'As Salam', 17.5148064, 44.4169806, NULL),
+  (127, 'الياسمين', 'Al Yasmin', 17.4960872, 44.4168102, NULL),
+  (127, 'الفردوس', 'Al Ferdous', 17.5090132, 44.4705961, NULL),
+  (127, 'الغدير', 'Al Ghadir', 17.5029559, 44.5562552, NULL),
+  (127, 'الروضة', 'Ar Rawdah', 17.6399325, 44.4836424, NULL),
+  (21, 'ال منيف', 'Al Munif', 17.4915774, 44.2531871, NULL),
+  (21, 'الفاجي', 'Al Faji', 17.5075398, 44.2441749, NULL),
+  (21, 'منتزه الملك فهد', 'King Fahd Park', 17.4832272, 44.1965818, NULL),
+  (127, 'الخليف', 'Al Khalif', 17.5260381, 44.4015883, NULL),
+  (127, 'بني كلب', 'Bani Kalb', 17.5996848, 44.5339393, NULL),
+  (21, 'أبا السعود', 'Aba Al Saud', 17.4890396, 44.1330241, NULL),
+  (21, 'سقام', 'Suqam', 17.473485, 44.2158507, NULL),
+  (127, 'الخرعاء', 'Al Khuraa', 17.5532091, 44.519348, NULL),
+  (21, 'العان', 'Al Aan', 17.4819787, 44.0972972, NULL),
+  (21, 'البطحاء', 'Al Batha', 17.4986173, 44.1506195, NULL),
+  (21, 'العواكل', 'Al Awakel', 17.5179759, 44.2033195, NULL),
+  (21, 'عكام', 'Ukaam', 17.5156841, 44.1962385, NULL),
+  (127, 'الحايرة', 'Al Hayirah', 17.5792305, 44.4862173, NULL),
+  (127, 'المعامر', 'Al Maamir', 17.5320946, 44.2930983, NULL),
+  (126, 'الفهد', 'Al Fahd', 17.490045, 47.1042655, NULL),
+  (126, 'العزيزية', 'Al Aziziyah', 17.4959364, 47.1111989, NULL),
+  (126, 'الصناعية', 'Industrial', 17.4939922, 47.0635843, NULL),
+  (126, 'جنوب المستشفى العسكري', 'Janub Al Mustashfa Al Askari', 17.4760638, 47.1022296, NULL),
+  (126, 'المستشفى العسكري', 'Military Hospital', 17.4787829, 47.1026255, NULL),
+  (126, 'الروضة الجنوبية', 'Ar Rawdah Al Janubi', 17.5025874, 47.106092, NULL),
+  (126, 'سلطانة', 'Sultanah', 17.4796195, 47.1119935, NULL),
+  (126, 'الأمير مشعل ب', 'Prince Mishal B', 17.4997224, 47.0789909, NULL),
+  (126, 'السوق', 'As Suq', 17.4868702, 47.110877, NULL),
+  (126, 'الروضة الشمالية', 'Ar Rawdah Ash Shamaliyyah', 17.5080308, 47.1036887, NULL),
+  (126, 'الخالدية', 'Al Khalidiyah', 17.4835547, 47.1249103, NULL),
+  (126, 'الملك عبدالله', 'King Abdullah', 17.4957318, 47.1198678, NULL),
+  (126, 'الفيصلية', 'Al Faisaliyah', 17.4887121, 47.1183443, NULL),
+  (126, 'الامارة', 'Al Amarah', 17.4841482, 47.1173143, NULL),
+  (126, 'النزهة', 'An Nuzhah', 17.4828588, 47.0701503, NULL),
+  (126, 'الأمير مشعل أ', 'Prince Mishal A', 17.4943607, 47.0932387, NULL),
+  (126, 'الدوائر الحكومية', 'Goverment Departments', 17.4802391, 47.1181726, NULL),
+  (123, 'الورود', 'Al Wurud', 17.1738893, 42.7532361, NULL),
+  (123, 'الصناعية', 'Industrial', 17.1884648, 42.7478363, NULL),
+  (114, 'العروبة', 'Al Urubah', 17.1675157, 42.7281459, NULL),
+  (114, 'المودة', 'Al Mawada', 17.1779443, 42.7257119, NULL),
+  (114, 'اليمامة', 'Al Yamamah', 17.1557992, 42.6938151, NULL),
+  (114, 'الحسيني', 'Al Husaini', 17.1673144, 42.696802, NULL),
+  (114, 'البساتين', 'Al Basatin', 17.178754, 42.6629847, NULL),
+  (114, 'النهضة', 'An Nahdah', 17.1692487, 42.6589679, NULL),
+  (114, 'المجد', 'Al Majd', 17.1564553, 42.6581096, NULL),
+  (114, 'المروج', 'Al Muruj', 17.1421848, 42.6337337, NULL),
+  (114, 'الناصرية', 'An Nasriyah', 17.1528468, 42.6365661, NULL),
+  (114, 'الفيصلية', 'Al Faisaliyah', 17.1686746, 42.6357936, NULL),
+  (114, 'الربيع', 'Ar Rabie', 17.1652304, 42.6176832, NULL),
+  (54, 'الخالدية', 'Al Khalidiyah', 22.4462903, 41.7819325, NULL),
+  (54, 'المنتزه', 'Al Muntazah', 22.4221041, 41.7356154, NULL),
+  (54, 'السلامة', 'As Salamah', 22.4249816, 41.7591764, NULL),
+  (54, 'الفيصلية', 'Al Faisaliyah', 22.4361403, 41.7339404, NULL),
+  (54, 'الريان', 'Ar Rayaan', 22.4356354, 41.7152812, NULL),
+  (54, 'النزهة', 'An Nuzhah', 22.4407088, 41.7675661, NULL),
+  (54, 'العزيزية', 'Al Aziziyah', 22.4372557, 41.7539219, NULL),
+  (54, 'الغدير', 'Al Ghadir', 22.4280081, 41.7329406, NULL),
+  (54, 'النسيم', 'Al Naseem', 22.4301105, 41.7574453, NULL),
+  (57, 'الدغمية 2', 'Al Dughmih 2', 21.967206, 42.0381546, NULL),
+  (57, 'الدغمية 1', 'Al Dughmih 1', 21.9645394, 42.0580672, NULL),
+  (57, 'الملك عبدالله', 'King Abdullah', 21.9476631, 42.0371245, NULL),
+  (57, 'المحمدية', 'Al Muhammadiyah', 21.9301477, 42.0275545, NULL),
+  (57, 'الهجرة', 'Al Hijrah', 21.8964645, 42.0299148, NULL),
+  (57, 'النزهة', 'An Nuzhah', 21.9123117, 42.0285844, NULL),
+  (57, 'الصمله', 'As Samluh', 21.9549074, 42.0557499, NULL),
+  (57, 'جبار', 'Jabaar', 21.8887394, 42.0139503, NULL),
+  (57, 'الحزم', 'Al Hazm', 21.9119534, 42.0197439, NULL),
+  (57, 'الخالدية', 'Al Khalidiyah', 21.9045476, 42.0169115, NULL),
+  (57, 'الناصرية', 'An Nasriyah', 21.9023178, 42.0234346, NULL),
+  (57, 'الخليج', 'Al Khalij', 21.9568976, 42.0178126, NULL),
+  (57, 'التنمية', 'Tanmiyah', 21.9284359, 42.0100879, NULL),
+  (57, 'الروضة', 'Ar Rawdah', 21.9195379, 42.0233917, NULL),
+  (142, 'الوادي والبحيرات', 'Valley and Lakes', 29.8353522, 39.8739077, NULL),
+  (142, 'النزهة', 'An Nuzhah', 29.794027, 39.8513602, NULL),
+  (142, 'المصيف', 'Al Masif', 29.7820714, 39.8842334, NULL),
+  (142, 'الجوهرة', 'Al Jawharah', 29.8561285, 39.8363399, NULL),
+  (142, 'الغدير', 'Al Ghadir', 29.8389316, 39.8409747, NULL),
+  (142, 'الشفاء', 'Ash Shifa', 29.8158488, 39.8289584, NULL),
+  (142, 'الصناعي', 'Industrial', 29.7903027, 39.8184871, NULL),
+  (142, 'البوداي', 'Al Bawadi', 29.7681773, 39.8289584, NULL),
+  (142, 'الدانة', 'Ad Danah', 29.8193667, 39.7585664, NULL),
+  (142, 'أصفان', 'Asfan', 29.6676388, 39.6687555, NULL),
+  (142, 'المروج', 'Al Muruj', 29.7663891, 39.9039745, NULL),
+  (142, 'الخالدية', 'Al Khalidiyah', 29.7816989, 39.8362112, NULL),
+  (142, 'الملك عبدالعزيز', 'King Abdulaziz', 29.7519339, 39.9033737, NULL),
+  (142, 'العزيزية', 'Al Aziziyah', 29.8066725, 39.8601556, NULL),
+  (142, 'خذماء', 'Khazma', 29.7982726, 39.8792552, NULL),
+  (142, 'الملك فهد', 'King Fahd', 29.8069502, 39.849029, NULL),
+  (142, 'الصفاة', 'Al Safat', 29.8357302, 39.8573683, NULL),
+  (142, 'الغربي', 'Al Gharbi', 29.8208009, 39.8559093, NULL),
+  (142, 'غرب دومة الجندل', 'West Dawmat Al Jandal', 29.8102838, 39.8371237, NULL),
+  (142, 'التحكيم', 'At Tahkim', 29.8147318, 39.8730754, NULL),
+  (141, 'الصناعية', 'Industrial', 31.3439613, 37.3486232, NULL),
+  (141, 'الملك فهد', 'King Fahd', 31.3236538, 37.3166942, NULL),
+  (141, 'العزيزية', 'Al Aziziyah', 31.3352377, 37.3384952, NULL),
+  (141, 'الواحة', 'Al Wahah', 31.3350177, 37.3724841, NULL),
+  (141, 'العقيلة الجنوبية', 'South Al Uqaila', 31.2848594, 37.4184035, NULL),
+  (141, 'الرسالة', 'Ar Risalah', 31.4170909, 37.3869894, NULL),
+  (141, 'الياسمين', 'Al Yasmin', 31.3964327, 37.2687148, NULL),
+  (141, 'الندى', 'An Nada', 31.3991491, 37.3973147, NULL),
+  (141, 'الأمل', 'Al Amal', 31.3924764, 37.3160076, NULL),
+  (141, 'الصفا', 'As Safa', 31.3999574, 37.3487409, NULL),
+  (141, 'الورود', 'Al Wurud', 31.3778952, 37.2768687, NULL),
+  (141, 'الامير عبدالاله بن عبدالعزيز', 'Prince Abdulellah Bin Abdulaziz', 31.3801668, 37.2942065, NULL),
+  (141, 'المنار', 'Al Manar', 31.3713733, 37.323818, NULL),
+  (141, 'البادية', 'Al Badiyah', 31.3773823, 37.3504255, NULL),
+  (141, 'Al Talal', 'Al Talal', 31.3483225, 37.2888665, NULL),
+  (141, 'غرناطة', 'Ghirnatah', 31.356862, 37.3494815, NULL),
+  (141, 'الفرسان', 'Al Fursan', 31.3457939, 37.3798656, NULL),
+  (141, 'الخزامى', 'Al Khuzama', 31.3540769, 37.3097418, NULL),
+  (141, 'حصيدة', 'Husaydah', 31.3218941, 37.3660468, NULL),
+  (141, 'الشفا', 'Ash Shifa', 31.3177512, 37.3368644, NULL),
+  (141, 'المروج', 'Al Muruj', 31.3052485, 37.34416, NULL),
+  (141, 'الربيع', 'Ar Rabie', 31.3177879, 37.3871612, NULL),
+  (141, 'الزمرد', 'Az Zomorod', 31.3023666, 37.3242204, NULL),
+  (141, 'الزيتون', 'Az Zaytun', 31.3031952, 37.3815822, NULL),
+  (141, 'الدعبوسية', 'Al Daebusia', 31.3218207, 37.4022674, NULL),
+  (141, 'النخيل', 'Al Nakhil', 31.2830989, 37.3733424, NULL),
+  (141, 'الرفاع', 'Ar Rifaa', 31.2993082, 37.3568629, NULL),
+  (141, 'الهدا', 'Al Hada', 31.3163948, 37.3004722, NULL),
+  (141, 'الريحان', 'Ar Raihan', 31.2872431, 37.3394393, NULL),
+  (141, 'النفل', 'An Nafl', 31.2690876, 37.393856, NULL),
+  (141, 'الإزدهار', 'Al Izdihar', 31.2625582, 37.4659537, NULL),
+  (141, 'النرجس', 'An Narjis', 31.2726239, 37.4820261, NULL),
+  (141, 'النزهة', 'An Nuzhah', 31.2596967, 37.4405479, NULL),
+  (141, 'النهضة', 'An Nahdah', 31.2423064, 37.4267291, NULL),
+  (141, 'الشروق', 'Ash Shuruq', 31.2395911, 37.4626063, NULL),
+  (141, 'الأندلس', 'Al Andalus', 31.2130218, 37.4580573, NULL),
+  (143, 'الصفا', 'Al Safa', 30.5103646, 38.2482146, NULL),
+  (143, 'النسيم', 'Al Naseem', 30.4920981, 38.2374, NULL),
+  (143, 'الربيع', 'Ar Rabie', 30.4790063, 38.2255552, NULL),
+  (143, 'الخزامى', 'Al Khuzama', 30.5254484, 38.1764602, NULL),
+  (143, 'الروابي', 'Al Rawabi', 30.5106604, 38.1534575, NULL),
+  (143, 'الزيتون', 'Az Zaytun', 30.4833984, 38.211029, NULL),
+  (143, 'الخالدية', 'Al Khalidiyah', 30.499198, 38.2082175, NULL),
+  (143, 'النزهة', 'An Nuzhah', 30.4851456, 38.1627273, NULL),
+  (143, 'المروة', 'Al Marwah', 30.5187098, 38.2239257, NULL),
+  (143, 'الورود', 'Al Wurud', 30.4964986, 38.1895923, NULL),
+  (143, 'الشفاء', 'Ash Shifa', 30.4930266, 38.26004, NULL),
+  (143, 'المنتزة', 'Al Montazah', 30.4793022, 38.2471846, NULL),
+  (143, 'السلام', 'As Salam', 30.5348007, 38.2289028, NULL)
+) AS v(city_id, name_ar, name_en, latitude, longitude, source_ref)
+WHERE EXISTS (SELECT 1 FROM cities c WHERE c.id = v.city_id)
+  AND NOT EXISTS (SELECT 1 FROM districts e WHERE e.city_id = v.city_id AND e.name_ar = v.name_ar);
+INSERT INTO districts (city_id, name_ar, name_en, latitude, longitude, is_active, source, source_ref, is_verified)
+SELECT v.city_id, v.name_ar, v.name_en, CAST(v.latitude AS DECIMAL(10,7)), CAST(v.longitude AS DECIMAL(10,7)), 1, 'openstreetmap', v.source_ref, 0
+FROM (VALUES
+  (143, 'الواحة', 'Al Wahah', 30.5200283, 38.2540445, NULL),
+  (143, 'الجوهرة', 'Al Jawharah', 30.4677319, 38.2894058, NULL),
+  (143, 'العزيزية', 'Al Aziziyah', 30.4965719, 38.2208125, NULL),
+  (143, 'حدرج', 'Hadraj', 30.5143179, 38.2069143, NULL),
+  (143, 'الربوة', 'Ar Rabwah', 30.5287757, 38.2013558, NULL),
+  (143, 'النظيم', 'An Nadheem', 30.4654028, 38.295212, NULL),
+  (143, 'الحزم', 'Al Hazm', 30.4386494, 38.2507393, NULL),
+  (143, 'الزهور', 'Al Zuhur', 30.4502708, 38.1983501, NULL),
+  (143, 'النخيل', 'Al Sholah', 30.4454795, 38.1932979, NULL),
+  (143, 'النفل', 'An Nafl', 30.4682177, 38.1579637, NULL),
+  (23, 'الشفاء', 'Ash Shifa', 30.1311353, 40.37467, NULL),
+  (23, 'الفرسان', 'Al Fursan', 30.1354778, 40.4102897, NULL),
+  (23, 'الهدا', 'Al Hada', 30.1409708, 40.4332922, NULL),
+  (23, 'العزيزية', 'Al Aziziyah', 30.1103107, 40.3927373, NULL),
+  (23, 'الفيصلية', 'Al Faisaliyah', 30.119183, 40.3908062, NULL),
+  (23, 'الربوة', 'Ar Rabwah', 30.1568538, 40.4296873, NULL),
+  (23, 'التلال', 'At Talal', 30.1547758, 40.4046248, NULL),
+  (23, 'النزهة', 'An Nuzhah', 30.0894074, 40.3899478, NULL),
+  (23, 'الريان', 'Ar Rayaan', 30.1177354, 40.4199885, NULL),
+  (142, 'الخليج', 'Al Khalij', 29.7676979, 40.0475869, NULL),
+  (23, 'الفاروق', 'Al Farouk', 29.9867215, 40.1883104, NULL),
+  (23, 'الشروق', 'Ash Shrouk', 29.9985665, 40.2901899, NULL),
+  (23, 'العروبة', 'Al Urubah', 30.012567, 40.2019624, NULL),
+  (23, 'النهضة', 'An Nahdah', 29.847337, 40.2072577, NULL),
+  (23, 'الصناعية', 'Industrial', 29.9731236, 40.2192802, NULL),
+  (142, 'الغروب', 'Al Ghurub', 29.775076, 39.9566031, NULL),
+  (23, 'الجوهرة', 'Al Jawharah', 29.8390911, 40.1670395, NULL),
+  (23, 'المروج', 'Al Muruj', 29.9772322, 40.2394663, NULL),
+  (142, 'الجامعة', 'Al Jamiah', 29.7900746, 40.0446078, NULL),
+  (23, 'الحزم', 'Al Hazm', 30.0646666, 40.2380618, NULL),
+  (23, 'السليمانية', 'As Sulaymaniyah', 29.9774919, 40.1752354, NULL),
+  (23, 'الزهراء', 'Az Zahra', 30.0051424, 40.235185, NULL),
+  (23, 'الناصرية', 'An Nasriyah', 29.935899, 40.1975096, NULL),
+  (23, 'الزيتون', 'Az Zaytun', 29.9620294, 40.2679371, NULL),
+  (23, 'الندى', 'An Nada', 29.8298904, 40.1287202, NULL),
+  (23, 'الريحان', 'Ar Raihan', 29.8865556, 40.2499594, NULL),
+  (23, 'الصديق', 'As Sediq', 29.9237514, 40.2365426, NULL),
+  (23, 'الربيع', 'Ar Rabie', 30.0332991, 40.2136744, NULL),
+  (23, 'الفتح', 'Al Fath', 30.0157763, 40.2550708, NULL),
+  (23, 'الواحة', 'Al Wahah', 29.9888128, 40.2618505, NULL),
+  (23, 'الروضة', 'Ar Rawdah', 29.9885506, 40.2350384, NULL),
+  (23, 'الضلع', 'Al Dil', 29.9987461, 40.1983158, NULL),
+  (23, 'الرابية', 'Ar Rabiyah', 29.7639704, 40.1935727, NULL),
+  (23, 'أجياد', 'Ajyad', 29.8934083, 40.1464898, NULL),
+  (23, 'اليمام', 'Al Yamam', 29.9727769, 40.1147824, NULL),
+  (23, 'الظلال', 'Adh Dhilal', 29.9905515, 40.1361844, NULL),
+  (23, 'المرجان', 'Al Murjan', 29.9849515, 40.1232757, NULL),
+  (23, 'السنبلة', 'As Sunbulah', 30.0498069, 40.1456997, NULL),
+  (23, 'الياقوت', 'Al Yaqoot', 30.0538614, 40.1383452, NULL),
+  (23, 'بدر', 'Badr', 29.9422917, 40.2192306, NULL),
+  (23, 'الكوثر', 'Al Kawthar', 30.0649416, 40.2168917, NULL),
+  (23, 'الصفاء', 'As Safa', 29.960743, 40.2161975, NULL),
+  (23, 'الرحمانية', 'Ar Rahmanyah', 29.9507264, 40.2031407, NULL),
+  (23, 'الشلهوب', 'Ash Shalhub', 29.9683008, 40.2081156, NULL),
+  (23, 'السوق', 'As Suq', 29.9864605, 40.2121496, NULL),
+  (23, 'السلام', 'As Salam', 29.8808393, 40.2108191, NULL),
+  (23, 'الورود', 'Al Wurud', 29.8564207, 40.194439, NULL),
+  (23, 'أحد', 'Ohod', 29.8845603, 40.1929663, NULL),
+  (23, 'الرواد', 'Ruwad', 29.91927, 40.2244234, NULL),
+  (23, 'المطر', 'Al Matr', 29.9771859, 40.2091026, NULL),
+  (23, 'المعاقلة', 'Al Muaqilah', 29.9802527, 40.1985454, NULL),
+  (23, 'الروابي', 'Ar Rawabi', 30.0021454, 40.2668666, NULL),
+  (23, 'الشعيب', 'Ash Shuaib', 29.9961988, 40.216484, NULL),
+  (23, 'الضاحية', 'Ad Dahiah', 29.8085506, 40.0895404, NULL),
+  (23, 'سلطانة', 'Sultanah', 29.9789517, 40.2697848, NULL),
+  (23, 'الياسمين', 'Al Yasmin', 29.8285078, 40.1834392, NULL),
+  (23, 'النخيل', 'Al Nakhil', 29.8652841, 40.2260112, NULL),
+  (23, 'النور', 'An Noor', 29.9057793, 40.2266481, NULL),
+  (23, 'الزهور', 'Az Zuhur', 29.9230115, 40.2104194, NULL),
+  (23, 'الصالحية', 'As Salhiyah', 29.8876113, 40.2285003, NULL),
+  (23, 'البديعة', 'Al Badiah', 29.9893783, 40.2043819, NULL),
+  (23, 'الشعلة', 'Ash Shulah', 29.8072845, 40.145502, NULL),
+  (143, 'البستان', 'Al Bustan', 30.7169623, 37.9905688, NULL),
+  (143, 'المنار', 'Al Manar', 30.7388145, 37.9434811, NULL),
+  (143, 'الأندلس', 'Al Andalus', 30.7215838, 37.9937267, NULL),
+  (143, 'السليمانية', 'As Sulimaniyah', 30.7113456, 37.9787707, NULL),
+  (143, 'الفيصلية', 'Al Faisaliyah', 30.7218052, 37.9657888, NULL),
+  (108, 'السمرة', 'As Samra', 26.2962457, 41.3636302, NULL),
+  (108, 'الصناعية', 'Industrial', 26.2754116, 41.394393, NULL),
+  (108, 'الإزدهار', 'Al Izdihar', 26.2560357, 41.4049839, NULL),
+  (108, 'السليمانية', 'As Sulaymaniyah', 26.2561085, 41.3900893, NULL),
+  (108, 'الديرة', 'Ad Dirah', 26.2738182, 41.3685969, NULL),
+  (108, 'العدل', 'Al Adel', 26.2931073, 41.3418101, NULL),
+  (121, 'حاكمة العز', 'Hakimiat Al Iz', 16.7017244, 42.9342699, NULL),
+  (138, 'المرجان', 'Al Marjan', 19.7922283, 41.7687319, NULL),
+  (132, 'الوادي', 'Al Wadi', 19.9212829, 41.5446804, NULL),
+  (132, 'النجاح', 'Al Najah', 19.9147571, 41.5784399, NULL),
+  (132, 'النور', 'An Noor', 19.8961281, 41.5546425, NULL),
+  (132, 'الخليج', 'Al Khalij', 19.8892318, 41.5829748, NULL),
+  (132, 'الأندلس', 'Al Andalus', 19.8753253, 41.6111198, NULL),
+  (132, 'الفيصلية', 'Al Faisaliyah', 19.8446124, 41.5538497, NULL),
+  (132, 'الرائد', 'Al Raed', 19.8699777, 41.5586945, NULL),
+  (132, 'السلام', 'As Salam', 19.8563954, 41.593488, NULL),
+  (132, 'الأمل', 'Al Amal', 19.8436095, 41.6265096, NULL),
+  (132, 'المروة', 'Al Marwah', 19.837767, 41.5838397, NULL),
+  (138, 'الزمرد', 'Az Zomorod', 19.850558, 41.6744945, NULL),
+  (138, 'الأرجوان', 'Al Arjiwan', 19.8245745, 41.7261731, NULL),
+  (138, 'الرهوة', 'Ar Rawh', 19.8314807, 41.6953481, NULL),
+  (138, 'الأزهار', 'Al Azhar', 19.8339155, 41.6584466, NULL),
+  (138, 'التعاون', 'At Taawun', 19.8229738, 41.6206224, NULL),
+  (138, 'الرحابة', 'Ar Rehabah', 19.8031831, 41.7339042, NULL),
+  (138, 'العبير', 'Al Abeer', 19.7890552, 41.7314386, NULL),
+  (22, 'المنار', 'Al Manar', 20.0093127, 41.5143103, NULL),
+  (60, 'السحاب', 'Al Sahab', 20.0727295, 41.4341997, NULL),
+  (22, 'الشفاء', 'Ash Shifa', 19.9880223, 41.4654058, NULL),
+  (140, 'السروات', 'As Sarawat', 20.1317684, 41.4666585, NULL),
+  (22, 'السوق', 'Al souq', 20.0258609, 41.4641166, NULL),
+  (140, 'الشروق', 'Al Shorouk', 20.0950803, 41.5678334, NULL),
+  (140, 'الروابي', 'Ar Rawabi', 20.0995004, 41.5209852, NULL),
+  (139, 'الروضة', 'Ar Rawdah', 20.1218582, 41.4048077, NULL),
+  (22, 'الحسام', 'Al Husam', 19.9997362, 41.4838883, NULL),
+  (60, 'الحجاز', 'Al Hijaz', 20.0161599, 41.4476808, NULL),
+  (60, 'الضباب', 'Ad Dabab', 20.048279, 41.439766, NULL),
+  (139, 'الرحاب', 'Ar Rehab', 20.1353463, 41.4363598, NULL),
+  (60, 'الربيع', 'Ar Rabie', 20.0899571, 41.4573275, NULL),
+  (22, 'المنتزهات', 'Al Muntazahat', 19.9615232, 41.4867668, NULL),
+  (140, 'التلال', 'Al Talal', 20.0819112, 41.5339559, NULL),
+  (22, 'النسيم', 'Al Naseem', 20.0512154, 41.5116018, NULL),
+  (140, 'الواحة', 'Al Wahah', 20.0939343, 41.490558, NULL),
+  (139, 'الندى', 'An Nada', 20.0981088, 41.4262435, NULL),
+  (22, 'النزهة', 'An Nuzhah', 20.027279, 41.4903318, NULL),
+  (22, 'المروج', 'Al Muruj', 19.9786012, 41.510726, NULL),
+  (22, 'البساتين', 'Al Basatin', 20.0459775, 41.4673332, NULL),
+  (22, 'الورود', 'Al Wurud', 20.0620168, 41.53929, NULL),
+  (22, 'الخزامى', 'Al Khuzama', 19.9880976, 41.540175, NULL),
+  (22, 'المصيف', 'Al Masif', 20.0651896, 41.4883566, NULL),
+  (139, 'الريف', 'Ar Rif', 20.1504194, 41.3396288, NULL),
+  (139, 'الزاهر', 'Az Zahir', 20.0728676, 41.328277, NULL),
+  (139, 'العين', 'Al Ain', 20.0721677, 41.3625647, NULL),
+  (139, 'الجواهر', 'Al Jawahir', 20.0574032, 41.3446568, NULL),
+  (60, 'الفهد', 'Al Fahd', 20.0375767, 41.3790255, NULL),
+  (139, 'الغدير', 'Al Ghadir', 20.1247261, 41.3537575, NULL),
+  (139, 'الوادي الأخضر', 'Al Wadi Al Akhdar', 20.1038219, 41.3612656, NULL),
+  (139, 'غرناطة', 'Ghirnatah', 20.09361, 41.387297, NULL),
+  (139, 'الشلال', 'Ash Shallal', 20.0650407, 41.4026634, NULL),
+  (60, 'الجوهرة', 'Al Jawharah', 20.0401163, 41.3982074, NULL),
+  (60, 'الفيصل', 'Al Faisal', 20.0284448, 41.4202606, NULL),
+  (133, 'العدل', 'Al Adel', 20.1935536, 41.2775231, NULL),
+  (133, 'القيروان', 'Al Qirawan', 20.1835586, 41.305995, NULL),
+  (133, 'الغروب', 'Al Ghurub', 20.1788381, 41.2683538, NULL),
+  (133, 'السراة', 'As Sarat', 20.1410034, 41.2830554, NULL),
+  (133, 'البدر', 'Al Badr', 20.157503, 41.3024421, NULL),
+  (133, 'الرضوان', 'Al Radwan', 20.1319667, 41.3024203, NULL),
+  (139, 'الأريج', 'Al Areej', 20.1081597, 41.3186728, NULL),
+  (139, 'المصائف', 'Al Masayif', 20.1073872, 41.2990704, NULL),
+  (56, 'الغيم', 'Al Ghe''m', 20.0895248, 41.2996002, NULL),
+  (14, 'الرويحة', 'Ar Ruwaihah', 26.6464615, 49.8193931, NULL),
+  (14, 'المصيف', 'Al Masif', 26.660346, 49.831066, NULL),
+  (14, 'الشورى', 'Ash Shura', 26.6489931, 49.981098, NULL),
+  (14, 'الحزم', 'Al Hazm', 26.6389432, 49.9114894, NULL),
+  (14, 'الرحاب', 'Al Rehab', 26.6643346, 49.9168967, NULL),
+  (14, 'البدور', 'Al Budur', 26.6509109, 49.9324321, NULL),
+  (14, 'الربوة', 'Ar Rabwah', 26.6575846, 49.9574946, NULL),
+  (14, 'المنار', 'Al Manar', 26.6614966, 49.9497699, NULL),
+  (14, 'العروبة', 'Al Urubah', 26.6466916, 49.947195, NULL),
+  (14, 'حزم', 'Hazm', 26.6507574, 49.9528598, NULL),
+  (14, 'المروة', 'Al Marwah', 26.6496068, 49.960842, NULL),
+  (14, 'الصفاء', 'Al Safa', 26.642012, 49.9599837, NULL),
+  (14, 'العمل', 'Al Amal', 26.6370252, 49.9596404, NULL),
+  (14, 'الاوجام', 'Al Aujam', 26.561736, 49.9414656, NULL),
+  (14, 'النهضة', 'An Nahdah', 26.5445828, 49.9000292, NULL),
+  (14, 'الروابي', 'Ar Rawabi', 26.556905, 49.8854563, NULL),
+  (14, 'الفيحاء', 'Al Fayha', 26.5740536, 49.9074695, NULL),
+  (14, 'التلال', 'At Talal', 26.5457888, 49.9198963, NULL),
+  (14, 'المها', 'Al Maha', 26.4850274, 49.9332998, NULL),
+  (14, 'الريحان', 'Ar Raihan', 26.5085811, 49.9394244, NULL),
+  (14, 'دارين', 'Darin', 26.5451244, 50.0766599, NULL),
+  (14, 'الصواري', 'As Sawari', 26.5704119, 50.0859832, NULL),
+  (14, 'الربيعية', 'Ar Rabeiyah', 26.5704119, 50.0801467, NULL),
+  (14, 'الديرة', 'Ad Dirah', 26.5720048, 50.0657916, NULL),
+  (14, 'الزمرد', 'Az Zomorod', 26.5691237, 50.0675028, NULL),
+  (14, 'الصدفة', 'As Sadafah', 26.564117, 50.0713061, NULL),
+  (14, 'الاندلس', 'Al Andalus', 26.5553648, 50.0786447, NULL),
+  (14, 'الرضا', 'Ar Rida', 26.5647311, 50.0302791, NULL),
+  (14, 'المرجان', 'Al Murjan', 26.5520635, 50.0625514, NULL),
+  (14, 'الساحل', 'As Sahil', 26.5521403, 50.0461578, NULL),
+  (14, 'الشاطئ', 'Ash Shati', 26.562927, 50.0449562, NULL),
+  (14, 'المناخ', 'Al Manakh', 26.5653453, 50.0578307, NULL),
+  (14, 'الفتح', 'Al Fath', 26.5711028, 50.0434112, NULL),
+  (14, 'الورود', 'Al Wurud', 26.5830392, 50.027318, NULL),
+  (14, 'الواحة', 'Al Wahah', 26.5755935, 50.0270176, NULL),
+  (14, 'الروضة', 'Ar Rawdah', 26.5767065, 50.0406646, NULL),
+  (14, 'الصناعية', 'As Sinaiyah', 26.5855338, 50.0367164, NULL),
+  (14, 'المروج', 'Al Muruj', 26.5867235, 50.0478315, NULL),
+  (14, 'الجامعيين', 'Al Jamiyin', 26.5867618, 50.0543546, NULL),
+  (14, 'الجبل', 'Al Jabal', 26.5728108, 50.0609422, NULL),
+  (14, 'النخيل', 'Al Nakhil', 26.5767065, 50.0636243, NULL),
+  (14, 'اليمامة', 'Al Yamamah', 26.574442, 50.0702977, NULL),
+  (14, 'سنابس', 'Sanabis', 26.5824635, 50.0833654, NULL),
+  (14, 'الجوهرة', 'Al Jawharah', 26.5804486, 50.0783658, NULL),
+  (14, 'النرجس 1', 'An Narjis 1', 26.5880283, 50.0749111, NULL),
+  (14, 'الناصرة', 'An Nasirah', 26.5756627, 50.0108975, NULL),
+  (14, 'البوادي', 'Al Bawadi', 26.5853703, 49.9681274, NULL),
+  (5, 'السلام', 'As Salam', 26.475794, 50.0389759, NULL),
+  (14, 'البديع', 'Al Badi', 26.5472821, 49.9572202, NULL),
+  (5, 'غرناطة', 'Ghirnatah', 26.4754838, 50.0514602, NULL),
+  (14, 'غرب النابية', 'Gharb An Nabiyah', 26.4783939, 49.9978629, NULL),
+  (14, 'الشماسية', 'Ash Shamasiyyah', 26.5622397, 50.004909, NULL),
+  (14, 'الجراري', 'Al Jarrari', 26.5587705, 50.0025958, NULL),
+  (14, 'الزهراء', 'Az Zahra', 26.6032947, 50.0131517, NULL),
+  (14, 'المسعودية', 'Al Masudiyah', 26.5476958, 50.0034284, NULL),
+  (14, 'الرمال', 'Ar Rimal', 26.4995835, 49.9876217, NULL),
+  (14, 'البديعة', 'Al Badiah', 26.5332478, 49.9688975, NULL),
+  (14, 'الخصاب', 'Al Khisab', 26.4924106, 50.0346565, NULL),
+  (14, 'الرابعة', 'Ar Rabiah', 26.5598974, 50.0110202, NULL),
+  (14, 'باب الشمال', 'Bab Madinah Ash Shamal', 26.5605306, 50.0029999, NULL),
+  (14, 'الدبابية', 'Ad Dababiyyah', 26.551982, 50.0020218, NULL),
+  (14, 'المشتل', 'Al Mashtal', 26.5689435, 49.9735748, NULL),
+  (5, 'الديرة 2', 'Ad Dirah 2', 26.4824826, 50.0365255, NULL),
+  (14, 'ام الجزم', 'Umm Al Jazm', 26.5527278, 49.9999297, NULL),
+  (14, 'الجواهر', 'Al Jawahir', 26.5857108, 50.0072169, NULL),
+  (14, 'الشويكة', 'Ash Shweikah', 26.548742, 50.0078182, NULL),
+  (14, 'الطف', 'At Tif', 26.4940641, 50.0301611, NULL),
+  (14, 'الوسادة', 'Al Wasadah', 26.5634349, 49.9987701, NULL),
+  (14, 'القلعة', 'Al Qalah', 26.5605827, 50.0062353, NULL),
+  (14, 'البحر', 'Al Bahr', 26.565617, 50.0077445, NULL),
+  (14, 'قرطبة', 'Qurtubah', 26.5015552, 50.0349999, NULL),
+  (14, 'النسيم', 'Al Naseem', 26.5028609, 50.0416261, NULL),
+  (14, 'الثريا', 'Ath Thuraiya', 26.6006328, 49.9830861, NULL),
+  (14, 'الخزامى', 'Al Khuzama', 26.5652004, 50.0175687, NULL),
+  (5, 'الكوثر', 'Al Kawthar', 26.4815599, 50.0589575, NULL),
+  (14, 'الجزيرة', 'Al Jazirah', 26.5529688, 50.0129786, NULL),
+  (14, 'البحاري', 'Al Bahari', 26.5683747, 49.9927054, NULL),
+  (14, 'المدارس', 'Al Madaris', 26.5569286, 49.9997458, NULL),
+  (14, 'الياقوت', 'Al Yaqoot', 26.5370798, 49.9782648, NULL),
+  (14, 'الشهباء', 'Ash Shahba', 26.5600327, 49.983689, NULL),
+  (14, 'الأنوار', 'Al Anwar', 26.5255124, 50.0071332, NULL),
+  (5, 'المنتزة', 'Al Muntazah', 26.4888843, 50.0443116, NULL),
+  (14, 'الزمرد 2', 'Az Zomorod 2', 26.5477181, 49.9985629, NULL),
+  (14, 'العقيق', 'Al Aqiq', 26.5307171, 50.0202911, NULL),
+  (14, 'الخامسة', 'Al Khamisah', 26.5559207, 50.0177411, NULL),
+  (14, 'مياس', 'Mayyas', 26.556413, 50.002905, NULL),
+  (14, 'المحار', 'Al Mahar', 26.5257971, 50.0297627, NULL),
+  (5, 'النقى', 'An Naqa', 26.4835325, 50.0309737, NULL),
+  (5, 'الخليج', 'Al Khalij', 26.4703465, 50.0288751, NULL),
+  (14, 'الجميمة', 'Al Jumaimah', 26.5838569, 49.9768356, NULL),
+  (5, 'الغدير', 'Al Ghadir', 26.4933043, 50.0493885, NULL),
+  (14, 'الجش', 'Al Jish', 26.5159262, 49.9903832, NULL),
+  (14, 'النرجس', 'An Narjis', 26.5905692, 49.9888333, NULL),
+  (14, 'الوديعة', 'Al Wadiah', 26.553068, 50.009773, NULL),
+  (14, 'البدر', 'Al Badr', 26.5111288, 50.0309707, NULL),
+  (14, 'الاسكان', 'Al Iskan', 26.5195387, 49.9761084, NULL),
+  (14, 'حلة محيش', 'Halat Mahish', 26.5389116, 49.9988178, NULL),
+  (14, 'التوبي', 'At Tawbi', 26.5544284, 49.9956546, NULL),
+  (14, 'المدني', 'Al Madani', 26.559779, 49.9998906, NULL),
+  (14, 'الزارة', 'Az Zarah', 26.584412, 49.9933955, NULL),
+  (14, 'الشريعة', 'Ash Shariah', 26.5566333, 50.0055817, NULL),
+  (14, 'المجيدية', 'Al Majidiyah', 26.5421583, 50.0253553, NULL),
+  (14, 'الجارودية', 'Al Jarudiyah', 26.5419649, 49.9874889, NULL),
+  (14, 'الراية', 'Ar Rayah', 26.5140014, 49.9857946, NULL),
+  (14, 'الريف', 'Ar Rif', 26.5981304, 49.9755593, NULL),
+  (14, 'منطقة المستودعات', 'Warehouse Area', 26.541736, 50.0189583, NULL),
+  (14, 'البستان 2', 'Al Bustan 2', 26.5622956, 50.0027375, NULL),
+  (14, 'الحسين', 'Al Husain', 26.5754746, 49.9981814, NULL),
+  (14, 'الكويكب', 'Kuwaikib', 26.5527515, 50.0067251, NULL),
+  (14, 'باب الساب', 'Bab As Sab', 26.564991, 50.0010461, NULL),
+  (14, 'الدويج', 'Ad Doij', 26.5545969, 50.0000681, NULL),
+  (14, 'القديح', 'Al Qadih', 26.5697909, 49.9852375, NULL),
+  (14, 'بديعة البصري', 'Badiah Al Basri', 26.5580336, 50.0080379, NULL),
+  (14, 'البستان 1', 'Al Bustan 1', 26.5165157, 50.0325389, NULL),
+  (5, 'المحمدية', 'Al Muhammadiyah', 26.4566591, 50.0566689, NULL),
+  (5, 'الخضرية', 'Al Kuthriah', 26.4527492, 50.0452753, NULL),
+  (5, 'الفيحاء', 'Al Fayha', 26.440525, 50.0392638, NULL),
+  (5, 'الجوهرة', 'Al Jawharah', 26.4643997, 50.0748742, NULL),
+  (5, 'الناصرية', 'An Nasriyah', 26.4237418, 50.1238451, NULL),
+  (5, 'المنار', 'Al Manar', 26.3774919, 50.0397721, NULL),
+  (5, 'طيبة', 'Taibah', 26.3582678, 50.0501408, NULL),
+  (5, 'الربيع', 'Ar Rabie', 26.4403769, 50.1128486, NULL),
+  (5, 'الدانة', 'Ad Danah', 26.4659549, 50.0429587, NULL),
+  (5, 'العزيزية', 'Al Aziziyah', 26.4576249, 50.0703943, NULL),
+  (5, 'السوق', 'As Suq', 26.4404682, 50.1022176, NULL),
+  (5, 'العروبة', 'Al Urubah', 26.3424652, 49.9998322, NULL),
+  (5, 'بدر', 'Badr', 26.4033049, 50.0260672, NULL),
+  (5, 'العمامرة', 'Al Amamrah', 26.444072, 50.1123029, NULL),
+  (5, 'النزهة', 'An Nuzhah', 26.3921756, 50.1098967, NULL),
+  (5, 'الأمل', 'Al Amal', 26.3434599, 50.0228852, NULL),
+  (5, 'هجر', 'Hajr', 26.3596781, 50.1125055, NULL),
+  (5, 'قصر الخليج', 'Qasr Al Khalij', 26.3645165, 50.1336941, NULL),
+  (5, 'الجامعيين', 'Al Jamiyin', 26.3939805, 50.0984508, NULL),
+  (5, 'عبدالله فؤاد', 'Abdullah Fuad', 26.410804, 50.1185798, NULL),
+  (5, 'النورس', 'An Nawras', 26.4222856, 50.1941396, NULL),
+  (5, 'الدواسر', 'Ad Dawasir', 26.4451657, 50.1018776, NULL),
+  (5, 'البساتين', 'Al Basatin', 26.3970794, 50.126156, NULL),
+  (5, 'الضباب', 'Ad Dabab', 26.4475581, 50.1574269, NULL),
+  (5, 'الاتصالات', 'Ettisalat', 26.4138669, 50.0862498, NULL),
+  (5, 'البحيرة', 'Al Buhayrah', 26.4678009, 50.0652188, NULL),
+  (5, 'احد', 'Ohod', 26.4132053, 50.0427786, NULL),
+  (5, 'المريكبات', 'Al Muraikabat', 26.4140964, 50.1019357, NULL),
+  (5, 'الجود', 'Al Jud', 26.3014885, 50.0150522, NULL),
+  (5, 'مدينة الملك فيصل الجامعية', 'King Faisal University', 26.4013486, 50.2042628, NULL),
+  (5, 'الواحة', 'Al Wahah', 26.3812386, 50.094326, NULL),
+  (5, 'النخيل', 'Al Nakhil', 26.4397736, 50.0891102, NULL),
+  (5, 'العنود', 'Al Anud', 26.4469128, 50.071436, NULL),
+  (5, 'تهامة', 'Tihamah', 26.3544485, 50.1307359, NULL),
+  (5, 'الفنار', 'Al Fanar', 26.408082, 50.2011105, NULL),
+  (5, 'الخالدية الشمالية', 'Al Khalidiyah Ash Shamaliyah', 26.4148635, 50.1446121, NULL),
+  (5, 'الحزم', 'Al Hazm', 26.3234298, 49.9730244, NULL),
+  (5, 'القادسية', 'Al Qadisiyah', 26.4185631, 50.0698063, NULL),
+  (5, 'الخالدية الجنوبية', 'Al Khalidiyah Al Janubiyah', 26.402732, 50.1629336, NULL),
+  (5, 'الامير محمد بن سعود', 'Prince Muhammed Ibn Saud', 26.4327083, 50.1129857, NULL),
+  (5, 'الإسكان الجنوبي', 'Al Iskan Al Janubi', 26.3299376, 49.9906415, NULL),
+  (5, 'الريان', 'Ar Rayyan', 26.4049175, 50.0928478, NULL),
+  (5, 'الصناعية', 'As Sinaiyah', 26.4509863, 50.0214656, NULL),
+  (5, 'ميناء الملك عبدالعزيز', 'King Abdul Aziz Seaport', 26.4506135, 50.1888179, NULL),
+  (5, 'مدينة العمال', 'Madinat Al Ummal', 26.4238474, 50.1078973, NULL),
+  (5, 'الصناعية الاولى', '1st Industrial', 26.3963391, 50.1381154, NULL),
+  (5, 'الحسام', 'Al Hussam', 26.3938923, 50.1726568, NULL),
+  (5, 'الروضة', 'Ar Rawdah', 26.4003079, 50.0803205, NULL),
+  (5, 'الصناعية الثانية', 'second industrial', 26.2606709, 49.969296, NULL),
+  (5, 'الأثير', 'Al Athir', 26.432403, 50.0607084, NULL),
+  (5, 'الطبيشي', 'At Tubayshi', 26.432051, 50.1249614, NULL),
+  (5, 'الندى', 'An Nada', 26.3745587, 50.0776041, NULL),
+  (5, 'الرابية', 'Ar Rabiyah', 26.4626485, 50.0335651, NULL),
+  (5, 'الصفا', 'As Safa', 26.3864515, 50.1836628, NULL),
+  (5, 'الشعلة', 'Ash Shulah', 26.3406599, 50.0699582, NULL),
+  (5, 'القزاز', 'Al Qazaz', 26.4347906, 50.0920047, NULL),
+  (5, 'السيف', 'As Saif', 26.390287, 50.2133914, NULL),
+  (5, 'المزروعية', 'Al Mazruiyah', 26.4442301, 50.1240618, NULL),
+  (13, 'جلمودة', 'Jalmudah', 27.1650311, 49.5353309, NULL),
+  (13, 'دارين', 'Darin', 27.1705897, 49.5747756, NULL),
+  (13, 'الحجاز', 'Al Hijaz', 27.157226, 49.5641326, NULL),
+  (13, 'مكة', 'Makkah', 27.1498299, 49.5545682, NULL),
+  (13, 'نجد', 'Najd', 27.1434391, 49.5463043, NULL),
+  (13, 'الاندلس', 'Al Andalus', 27.1360593, 49.536762, NULL),
+  (13, 'الأحساء', 'Alahsaa', 27.1257578, 49.5593261, NULL),
+  (13, 'سدير', 'Sudayr', 27.1363755, 49.5637893, NULL),
+  (13, 'الخليج', 'Al Khalij', 27.1140312, 49.5667934, NULL),
+  (13, 'الحويلات', 'Al Huwaylat', 27.097146, 49.5731878, NULL),
+  (13, 'اللؤلؤ', 'Al Lualu', 27.0887024, 49.5773077, NULL),
+  (13, 'الشاطئ', 'Ash Shati', 27.0799525, 49.5851612, NULL),
+  (13, 'ينبع', 'Yanbu', 27.0741253, 49.5929074, NULL),
+  (13, 'المنطقة الصناعية الثالثة', '3rd Industrial Area', 27.0416973, 49.5104025, NULL),
+  (13, 'المنطقة الصناعية الثانية', '2nd Industrial Area', 27.061431, 49.5349214, NULL),
+  (13, 'المنطقة الصناعية الاولى', '1st Industrial Area', 27.0789974, 49.5567511, NULL),
+  (13, 'البستان', 'Al Bustan', 26.9963543, 49.6387476, NULL),
+  (13, 'الدانة', 'Al Dana', 27.01078, 49.6488168, NULL),
+  (13, 'المرقاب', 'Al Merqab', 26.9980448, 49.653027, NULL),
+  (13, 'التعاون', 'Al Taawun', 26.9814683, 49.6405573, NULL),
+  (13, 'اليرموك', 'Al Yarmuk', 26.9920004, 49.6223826, NULL),
+  (13, 'السلام', 'Al Salam', 26.9396389, 49.6951915, NULL),
+  (13, 'صناعية العريفي', 'Industrial Arifi', 27.0032224, 49.6207352, NULL),
+  (13, 'المرجان', 'Al Murjan', 26.9833315, 49.6286163, NULL),
+  (13, 'طيبة', 'Tebah', 26.9828405, 49.6555101, NULL),
+  (13, 'العزيزية', 'Al Aziziyah', 26.8457, 49.8027603, NULL),
+  (13, 'اشبلية', 'Ishbiliyah', 26.85478, 49.7918721, NULL),
+  (13, 'قرطبة', 'Qurtubah', 26.8645144, 49.7811455, NULL),
+  (13, 'الربوة', 'Ar Rabwah', 26.9497556, 49.6769401, NULL),
+  (13, 'الضباب', 'Al Dabab', 27.0189301, 49.6278289, NULL),
+  (13, 'الواحة', 'Al Wahah', 27.0190729, 49.6381537, NULL),
+  (13, 'الصفاة', 'Al Safat', 27.0101861, 49.6606118, NULL),
+  (13, 'غرناطة', 'Ghirnatah', 26.8784346, 49.7596842, NULL),
+  (13, 'الخزامى', 'Al Khuzama', 26.9153111, 49.6551296, NULL),
+  (13, 'الطوية', 'Al Tawyah', 27.0079268, 49.6349621, NULL),
+  (28, 'اليرموك', 'Al Yarmuk', 28.2761898, 45.9528922, NULL),
+  (28, 'المحمدية', 'Al Muhammadiyah', 28.3839231, 45.9767034, NULL),
+  (28, 'قرطبة', 'Qurtubah', 28.2979453, 45.9552367, NULL),
+  (28, 'السليمانية', 'As Sulimaniyah', 28.3980562, 45.9361398, NULL),
+  (28, 'التلال', 'At Talal', 28.4399791, 45.9374153, NULL),
+  (28, 'النهضة', 'An Nahdah', 28.4360551, 45.9198899, NULL),
+  (28, 'غرناطة', 'Ghirnatah', 28.277795, 45.9417888, NULL),
+  (28, 'الباطن', 'Al Batin', 28.4536883, 45.9986482, NULL),
+  (28, 'ابو موسى الاشعري', 'Abu Musa Al Ashari', 28.4491501, 45.9783773, NULL),
+  (28, 'العزيزية', 'Al Aziziyah', 28.4448319, 45.9590895, NULL),
+  (28, 'الواحة', 'Al Wahah', 28.4025094, 45.9738793, NULL),
+  (28, 'الجامعة', 'Al Jamiah', 28.2434714, 45.941677, NULL),
+  (28, 'المروج', 'Al Muruj', 28.3925036, 45.9928994, NULL),
+  (28, 'الصفاء', 'Al Safa', 28.3740628, 45.9983679, NULL),
+  (28, 'الربيع', 'Ar Rabie', 28.4040349, 46.0460615, NULL),
+  (28, 'الصناعية', 'Industrial', 28.4315333, 46.0398422, NULL),
+  (28, 'فليج', 'Fulaij', 28.4314857, 46.0050777, NULL),
+  (28, 'الفيصلية', 'Al Faisaliyah', 28.3950165, 45.9590664, NULL),
+  (28, 'الاسكان', 'Al Iskan', 28.3250536, 45.968707, NULL),
+  (28, 'البلدية', 'Al Baladiyah', 28.4267008, 45.9837093, NULL),
+  (28, 'المصيف', 'Al Masif', 28.4067823, 45.9885917, NULL),
+  (28, 'الشفاء', 'Ash Shifa', 28.2492242, 45.926821, NULL),
+  (28, 'الورود', 'Al Wurud', 28.3164309, 45.947051, NULL),
+  (28, 'الريان', 'Ar Rayan', 28.3465335, 45.9588164, NULL),
+  (28, 'النايفية', 'An Nayfiyah', 28.3655277, 45.9536798, NULL),
+  (28, 'الوادي', 'Al Wadi', 28.3585916, 45.971678, NULL),
+  (28, 'الفيحاء', 'Al Fayha', 28.4503343, 46.0204897, NULL),
+  (28, 'الروضة', 'Ar Rawdah', 28.4474014, 46.0449386, NULL),
+  (28, 'النزهة', 'An Nuzhah', 28.4138488, 45.9263194, NULL),
+  (28, 'الربوة', 'Ar Rabwah', 28.4177463, 45.9437224, NULL),
+  (28, 'النخيل', 'Al Nakhil', 28.3562839, 45.9884261, NULL),
+  (77, 'النعيم', 'An Naim', 26.7196223, 50.0407568, NULL),
+  (78, 'الفردوس', 'Al Fardus', 25.9356238, 49.6454529, NULL),
+  (78, 'الزهور', 'Al Zuhur', 25.9285103, 49.6366497, NULL),
+  (78, 'الجويه', 'Al Jawiyah', 25.8305817, 49.5760911, NULL),
+  (78, 'قرطبة', 'Qurtubah', 25.9339629, 49.6154368, NULL),
+  (78, 'الصناعية', 'As Sinaiyah', 25.9219193, 49.6538646, NULL),
+  (78, 'أبو كولة', 'Abu Koola', 26.1046299, 49.4994976, NULL),
+  (78, 'المطار', 'Airport', 25.9292563, 49.651698, NULL),
+  (78, 'غرناطة', 'Ghirnatah', 25.9240066, 49.6177878, NULL),
+  (78, 'الروضة', 'Ar Rawdah', 25.9221927, 49.6415138, NULL),
+  (78, 'الاندلس', 'Al Andalus', 25.939277, 49.6520374, NULL),
+  (78, 'الكداديه الشرقية', 'Al Kadadiya Al Sharqiya', 25.9122469, 49.5756374, NULL),
+  (78, 'البساتين', 'Al Basatin', 25.9144803, 49.6189712, NULL),
+  (78, 'المدينة', 'Al Madinah', 25.9246265, 49.6617346, NULL),
+  (78, 'الربوة', 'Ar Rabwah', 25.9224705, 49.600879, NULL),
+  (78, 'النخيل', 'Al Nakhil', 25.9309085, 49.6325278, NULL),
+  (78, 'النزهة', 'An Nuzhah', 25.9200376, 49.6489118, NULL),
+  (78, 'أشبيلية', 'Ishbiliyah', 25.9121958, 49.602499, NULL),
+  (29, 'السلام', 'As Salam', 28.3907964, 48.4539126, NULL),
+  (29, 'الخليج العربي الشرقي', 'Eastern Arabian Gulf', 28.4937068, 48.4829786, NULL),
+  (29, 'الفيصلية', 'Al Faisaliyah', 28.4845674, 48.4896114, NULL),
+  (29, 'غرناطة', 'Ghirnatah', 28.4481245, 48.4626957, NULL),
+  (29, 'الخليج العربي الغربي', 'Western Arabian Gulf', 28.494457, 48.4715275, NULL),
+  (29, 'الحمراء', 'Al Hamra', 28.4180909, 48.4812396, NULL),
+  (29, 'الورود', 'Al Wurud', 28.4455278, 48.486232, NULL),
+  (29, 'المحمدية', 'Al Muhammadiyah', 28.423942, 48.4994738, NULL),
+  (29, 'الجوهرة', 'Al Jawharah', 28.4252637, 48.4893626, NULL),
+  (29, 'الدوائر الحكومية', 'Goverment Departments', 28.4500612, 48.4988767, NULL),
+  (29, 'النهضة', 'An Nahdah', 28.4084636, 48.4861421, NULL),
+  (29, 'الروضة', 'Ar Rawdah', 28.3986589, 48.4616942, NULL),
+  (29, 'الملك فهد', 'King Fahd', 28.4100223, 48.4748301, NULL),
+  (29, 'الامير نايف', 'Prince Naif', 28.4022664, 48.4679727, NULL),
+  (29, 'الخزامى', 'Al Khuzama', 28.4567572, 48.4832525, NULL),
+  (29, 'الخالدية', 'Al Khalidiyah', 28.4183665, 48.4677077, NULL),
+  (29, 'الدرة', 'Al Durra', 28.4363461, 48.4962908, NULL),
+  (29, 'الامل', 'Al Amal', 28.4056203, 48.4633207, NULL),
+  (29, 'النزهة', 'An Nuzhah', 28.4733176, 48.4805463, NULL),
+  (29, 'المروج', 'Al Muruj', 28.4852967, 48.4785333, NULL),
+  (29, 'الياسمين', 'Al Yasmin', 28.4509947, 48.4855979, NULL),
+  (29, 'العزيزية', 'Al Aziziyah', 28.4504053, 48.4931153, NULL),
+  (29, 'اليرموك', 'Al Yarmuk', 28.4121393, 48.4596778, NULL),
+  (29, 'الريان', 'Ar Rayyan', 28.4396535, 48.4901717, NULL),
+  (29, 'الفيحاء', 'Al Fayha', 28.4628446, 48.4818731, NULL),
+  (29, 'اللؤلؤة', 'Al Luluah', 28.4186088, 48.4913184, NULL),
+  (29, 'الصناعية', 'Industrial', 28.4083652, 48.5027142, NULL),
+  (29, 'التعاون', 'At Taawun', 28.411205, 48.4938498, NULL),
+  (29, 'الشاطئ', 'Ash Shati', 28.4717705, 48.4909829, NULL),
+  (29, 'الامير فهد بن سلمان', 'Prince Fahd Ibn Salman', 28.4262789, 48.4777307, NULL),
+  (79, 'المحمدية', 'Al Muhammadiyah', 27.4777017, 48.4828996, NULL),
+  (79, 'الروضة', 'Ar Rawdah', 27.4569304, 48.5130757, NULL),
+  (79, 'الخليج', 'Al Khalij', 27.4689692, 48.5219013, NULL),
+  (79, 'الشهداء', 'Ashuhada', 27.4867879, 48.531192, NULL),
+  (79, 'الروابي', 'Ar Rawabi', 27.4683615, 48.541036, NULL),
+  (79, 'الربيع', 'Ar Rabie', 27.4794518, 48.5102334, NULL),
+  (79, 'الفيصلية', 'Al Faisaliyah', 27.4833453, 48.4723965, NULL),
+  (79, 'سوق الماشية', 'Suq Al Mashiya', 27.5139243, 48.5351975, NULL),
+  (79, 'المروج', 'Al Muruj', 27.4900187, 48.4944361, NULL),
+  (79, 'العزيزية', 'Al Aziziyah', 27.4667979, 48.4946298, NULL),
+  (58, 'قلعة شنقل', 'Qaleat Shanqal', 21.1934973, 41.6616609, NULL),
+  (58, 'عثواء', 'Euthawa''', 21.2437502, 41.6283454, NULL),
+  (58, 'ريحان', 'Rayhan', 21.2336182, 41.6435805, NULL),
+  (58, 'الروابي', 'Ar Rawabi', 21.2074568, 41.581582, NULL),
+  (58, 'الجامعة', 'Al Jamiah', 21.22379, 41.5449268, NULL),
+  (58, 'الورود', 'Al Wurud', 21.1717843, 41.5714135, NULL),
+  (58, 'العدل', 'Al Adel', 21.1632267, 41.5581325, NULL),
+  (58, 'العلاوة الشرقية', 'Eastern Al Eilawah', 21.1709041, 41.6560554, NULL),
+  (58, 'العزيزية', 'Al Aziziyah', 21.2296027, 41.616197, NULL),
+  (58, 'النزهة', 'An Nuzhah', 21.2193463, 41.5911052, NULL),
+  (58, 'الصناعية', 'Industrial', 21.1862525, 41.5799474, NULL),
+  (58, 'النهضة', 'An Nahdah', 21.213357, 41.6057618, NULL),
+  (58, 'السليمانية', 'As Sulaymaniyah', 21.2350048, 41.5966561, NULL),
+  (58, 'العلاوة الغربية', 'Western Al Eilawah', 21.1811137, 41.6444302, NULL),
+  (58, 'النسيم', 'Al Naseem', 21.1920208, 41.5967943, NULL),
+  (58, 'اللبط', 'Al Labt', 21.1993042, 41.6526271, NULL),
+  (58, 'ضاحية الحائرة', 'Dahiyat Ha''iriyah', 21.1560086, 41.5669418, NULL),
+  (58, 'ضاحية القويعية', 'Dahiyat Al-Quway''iyah', 21.2562551, 41.6665437, NULL),
+  (58, 'الإسكان', 'Al Iskan', 21.2245973, 41.5759226, NULL),
+  (138, 'نمره', 'Namaruh', 19.5833026, 41.6661819, NULL),
+  (138, 'المبنى الشمالي', 'Al Mabna Al Shamali', 19.5848241, 41.6826262, NULL),
+  (138, 'البارك', 'Al Bark', 19.5977349, 41.6862414, NULL),
+  (138, 'ربوة المعقص', 'Rabwat Al Maeaqas', 19.5011099, 41.6698138, NULL),
+  (138, 'المبنى الجنوبي', 'Al Mabna Al Janubi', 19.5714791, 41.674883, NULL),
+  (138, 'الذنبه', 'Al Dhanbh', 19.554005, 41.6707182, NULL),
+  (138, 'الصبغان', 'Al Sabghan', 19.564911, 41.6555953, NULL),
+  (138, 'خميس ناخس', 'Khamis Nakhis', 19.5586779, 41.7459842, NULL),
+  (138, 'مخطط المدارات', 'Al Madarat Subdivision', 19.5935652, 41.6511123, NULL),
+  (138, 'غليل', 'Ghalil', 19.5559363, 41.664901, NULL),
+  (138, 'بني سهيم', 'Bani Suhaym', 19.6109809, 41.632935, NULL),
+  (138, 'قرية المنتشري', 'Qaryat Al Montashari', 19.5336857, 41.7114184, NULL),
+  (138, 'ناخسة', 'Nakhisa', 19.5301352, 41.701347, NULL),
+  (138, 'المستشفي', 'The Hospital', 19.5888425, 41.6777794, NULL),
+  (138, 'مخطط المعقص', 'Al Maeaqas Subdivision', 19.5104217, 41.6734265, NULL),
+  (138, 'البخرة', 'Al Bakhra', 19.5377346, 41.690159, NULL),
+  (61, 'العذوبة', 'AlOthoba', 21.4199792, 39.5099809, NULL),
+  (61, 'الصناعية', 'Industrial', 21.4031968, 39.5127007, NULL),
+  (61, 'الشرفة', 'Al Shurfa', 21.3896638, 39.4819981, NULL),
+  (61, 'الفنار', 'Al Fanar', 21.4236301, 39.4941638, NULL),
+  (61, 'العزيزية', 'Al Aziziyah', 21.4103532, 39.4462234, NULL),
+  (61, 'المستقبل', 'Al Mustaqbal', 21.4330612, 39.4740855, NULL),
+  (61, 'الأصالة', 'Al Asala', 21.4138243, 39.4746026, NULL),
+  (61, 'السلام', 'As Salam', 21.3929923, 39.4441106, NULL),
+  (61, 'البساتين', 'Al Basatin', 21.4379055, 39.5375393, NULL),
+  (61, 'الربوة', 'Ar Rabwah', 21.4567047, 39.5371941, NULL),
+  (61, 'العين', 'Al Ain', 21.4473447, 39.5182913, NULL),
+  (61, 'النسيم', 'Al Naseem', 21.4628464, 39.5546049, NULL),
+  (61, 'حداء', 'Hada''', 21.4553204, 39.5651795, NULL),
+  (52, 'النخيل', 'Al Nakhil', 21.6080012, 39.6925735, NULL),
+  (52, 'الصفاء', 'Al Safa', 21.6248078, 39.6903885, NULL),
+  (52, 'النقابة', 'An Naqabah', 21.6303978, 39.6731563, NULL),
+  (52, 'السلامة', 'As Salamah', 21.6022955, 39.7010707, NULL),
+  (52, 'سدر', 'Sedr', 21.6208404, 39.6722424, NULL),
+  (52, 'النسيم', 'Al Naseem', 21.6205002, 39.7036672, NULL),
+  (52, 'الشهداء', 'Ash Shuhada', 21.639562, 39.7176766, NULL),
+  (52, 'السلام', 'As Salam', 21.6440429, 39.6758787, NULL),
+  (65, 'الصناعية', 'Industrial', 25.619023, 39.3257778, NULL),
+  (65, 'النخيل', 'Al Nakhil', 25.6778126, 39.2900088, NULL)
+) AS v(city_id, name_ar, name_en, latitude, longitude, source_ref)
+WHERE EXISTS (SELECT 1 FROM cities c WHERE c.id = v.city_id)
+  AND NOT EXISTS (SELECT 1 FROM districts e WHERE e.city_id = v.city_id AND e.name_ar = v.name_ar);
+INSERT INTO districts (city_id, name_ar, name_en, latitude, longitude, is_active, source, source_ref, is_verified)
+SELECT v.city_id, v.name_ar, v.name_en, CAST(v.latitude AS DECIMAL(10,7)), CAST(v.longitude AS DECIMAL(10,7)), 1, 'openstreetmap', v.source_ref, 0
+FROM (VALUES
+  (65, 'العيون', 'Al Uyun', 25.6632142, 39.2976178, NULL),
+  (65, 'الروضة', 'Ar Rawdah', 25.6899269, 39.2923919, NULL),
+  (65, 'النهضة', 'An Nahdah', 25.6596108, 39.290032, NULL),
+  (65, 'الفيصلية', 'Al Faisaliyah', 25.7066448, 39.2924682, NULL),
+  (65, 'الصهباء', 'Al Sahbaa', 25.7110496, 39.2745919, NULL),
+  (65, 'الغزوة', 'Al Ghazwah', 25.6865836, 39.3002209, NULL),
+  (65, 'العزيزية', 'Al Aziziyah', 25.7058875, 39.2847061, NULL),
+  (62, 'الرياض', 'Ar Riyadh', 23.4633176, 40.8162041, NULL),
+  (62, 'السامر', 'As Samir', 23.4877036, 40.8889374, NULL),
+  (62, 'الوادي', 'Al Wadi', 23.4709773, 40.8813461, NULL),
+  (62, 'العلم', 'Al Alam', 23.493531, 40.8889853, NULL),
+  (62, 'الروابى', 'Ar Rawabi', 23.4974557, 40.9048787, NULL),
+  (62, 'النسيم', 'Al Naseem', 23.4811712, 40.8589791, NULL),
+  (62, 'الخالدية', 'Al Khalidiyah', 23.4774788, 40.8891559, NULL),
+  (62, 'ج1', 'C1', 23.4860974, 40.8727954, NULL),
+  (62, 'الفيصلية', 'Al Faisaliyah', 23.477636, 40.9011293, NULL),
+  (62, 'اللجين', 'Al Lujain', 23.4632565, 40.8494664, NULL),
+  (62, 'الشروق', 'Ash Shuruq', 23.5030085, 40.9016955, NULL),
+  (62, 'النهضة', 'An Nahdah', 23.4523672, 40.8141067, NULL),
+  (62, 'الذهب', 'Al Dhahab', 23.4950458, 40.8774288, NULL),
+  (62, 'الورود', 'Al Wurud', 23.5000438, 40.8892648, NULL),
+  (62, 'الشفا', 'Ash Shifa', 23.5079292, 40.8808295, NULL),
+  (62, 'المنتزهات', 'Al Muntazahat', 23.4774995, 40.8629851, NULL),
+  (62, 'الروضة', 'Ar Rawdah', 23.4440294, 40.8260398, NULL),
+  (62, 'الصفا', 'As Safa', 23.506228, 40.8931303, NULL),
+  (80, 'المروج', 'Al Muruj', 27.5535679, 47.6977813, NULL),
+  (80, 'غرناطة', 'Ghirnatah', 27.5556296, 47.680764, NULL),
+  (80, 'السلام', 'As Salam', 27.5469492, 47.6883273, NULL),
+  (80, 'الروضة', 'Ar Rawdah', 27.5629129, 47.6961825, NULL),
+  (80, 'قرطبة', 'Qurtubah', 27.544864, 47.7160817, NULL),
+  (80, 'الزهور', 'Az Zuhur', 27.5582793, 47.7045112, NULL),
+  (80, 'الواحة', 'Al Wahah', 27.5518731, 47.7251623, NULL),
+  (80, 'الربوة', 'Ar Rabwah', 27.5638814, 47.7125139, NULL),
+  (80, 'الربيع', 'Ar Rabie', 27.5749005, 47.706027, NULL),
+  (47, 'الفيصلية', 'Al Faisaliyah', 25.2991163, 45.5389491, NULL),
+  (47, 'الصناعية', 'Industrial', 25.2958388, 45.4894807, NULL),
+  (47, 'الشفا', 'Ash Shifa', 25.2874494, 45.52524, NULL),
+  (47, 'الخالدية', 'Al Khalidiyah', 25.3014591, 45.5179476, NULL),
+  (47, 'العزيزية', 'Al Aziziyah', 25.2948555, 45.5277857, NULL),
+  (47, 'النهضة', 'An Nahdah', 25.2971491, 45.521652, NULL),
+  (47, 'الياسمين', 'Al Yasmin', 25.2919637, 45.5387474, NULL),
+  (47, 'الشرفية', 'Ash Sharafiyah', 25.2944542, 45.5145007, NULL),
+  (47, 'الديرة', 'Ad Dirah', 25.297719, 45.5059226, NULL),
+  (47, 'النزهة', 'An Nuzhah', 25.2913436, 45.5280751, NULL),
+  (43, 'السلام', 'As Salam', 25.5207976, 47.1767816, NULL),
+  (43, 'التعاون', 'At Taawun', 25.5672039, 47.1471404, NULL),
+  (43, 'الجمالين', 'Jamalin', 25.5746179, 47.1461615, NULL),
+  (43, 'النزهة', 'An Nuzhah', 25.5668952, 47.1571739, NULL),
+  (43, 'الواحة', 'Al Wahah', 25.5540931, 47.1686311, NULL),
+  (43, 'الزهور', 'Al Zuhur', 25.5530124, 47.1591532, NULL),
+  (43, 'المنار', 'Al Manar', 25.5679466, 47.1597502, NULL),
+  (43, 'مخطط 144', 'Subdivision 144', 25.5614404, 47.1579076, NULL),
+  (43, 'الخزامى', 'Al Khuzama', 25.5640196, 47.1778976, NULL),
+  (43, 'رماح', 'Rumah', 25.5728781, 47.1382408, NULL),
+  (43, 'الصناعية', 'Industrial', 25.5383208, 47.1564387, NULL),
+  (43, 'النخيل', 'Al Nakhil', 25.5431964, 47.1774128, NULL),
+  (43, 'الفيحانية', 'Al Fayhaniyah', 25.5732715, 47.1252142, NULL),
+  (43, 'الورود', 'Al Wurud', 25.5387836, 47.16694, NULL),
+  (43, 'النرجس', 'An Narjis', 25.572472, 47.1526455, NULL),
+  (43, 'الإزدهار', 'Al Izdihar', 25.5267036, 47.1855548, NULL),
+  (43, 'المروج', 'Al Muruj', 25.5692625, 47.1643085, NULL),
+  (43, 'الياسمين', 'Al Yasmin', 25.5523337, 47.1532009, NULL),
+  (43, 'الريان', 'Ar Rayaan', 25.5618005, 47.1728896, NULL),
+  (47, 'الندى', 'An Nada', 25.0800905, 45.4375478, NULL),
+  (47, 'مانح', 'Manih', 25.0728225, 45.4470733, NULL),
+  (47, 'العلاوة', 'Al Allawah', 25.111567, 45.4956159, NULL),
+  (47, 'الحزم', 'Al Hazm', 25.0658551, 45.4605245, NULL),
+  (47, 'الديرة القديمة', 'Ad Dirah Al Qadimah', 25.0694128, 45.4755395, NULL),
+  (47, 'المروج', 'Al Muruj', 25.0842659, 45.4712048, NULL),
+  (47, 'الملك سلمان', 'King Salman', 25.0589953, 45.4544043, NULL),
+  (47, 'الملك عبدالله', 'King Abdullah', 25.0661958, 45.4393471, NULL),
+  (47, 'السبخة', 'Al Sabakhah', 25.0741127, 45.4861099, NULL),
+  (47, 'الغدير', 'Al Ghadir', 25.0604098, 45.4496668, NULL),
+  (47, 'المنطقة الصناعية', 'Industrial Area', 25.0736014, 45.5098844, NULL),
+  (47, 'النخيل 1', 'Al Nakhil1', 25.0599099, 45.4611634, NULL),
+  (47, 'الملك عبدالله 1', 'King Abdullah1', 25.1676599, 45.3992413, NULL),
+  (47, 'بهدى', 'Bihady', 25.1202655, 45.4914397, NULL),
+  (47, 'الدار البيضاء', 'Al Dar Al Baida', 25.1663881, 45.3935271, NULL),
+  (47, 'الاسكان الخيري', 'Al Iskan Al Khairi', 25.0634304, 45.4447792, NULL),
+  (47, 'الربوة', 'Ar Rabwah', 25.0668812, 45.4461743, NULL),
+  (47, 'اليمامة', 'Al Yamamah', 25.0806981, 45.457023, NULL),
+  (47, 'الربيع', 'Ar Rabie', 25.1090008, 45.4783455, NULL),
+  (47, 'الملك فهد', 'King Fahd', 25.0669891, 45.4551601, NULL),
+  (47, 'المنطقة المركزية', 'Central District', 25.0727092, 45.4527222, NULL),
+  (47, 'الصحن', 'As Sahn', 25.1248707, 45.4884402, NULL),
+  (47, 'قرطبة', 'Ash Shifa', 25.1152245, 45.4945614, NULL),
+  (47, 'المدرجية', 'Al Midrajia', 25.0682411, 45.4652129, NULL),
+  (47, 'الدوائر الحكومية', 'Goverment Departments', 25.075719, 45.4376739, NULL),
+  (47, 'الملك سلمان 1', 'King Salman1', 25.1710244, 45.4041299, NULL),
+  (47, 'الروابي', 'Ar Rawabi', 25.086104, 45.4674849, NULL),
+  (47, 'النخيل', 'Al Nakhil', 25.1182349, 45.4830792, NULL),
+  (47, 'العزيزية 1', 'Al Aziziyah1', 25.1097923, 45.4844216, NULL),
+  (93, 'سيالة', NULL, 18.9017798, 41.5943026, NULL),
+  (7, 'السيل الكبير', 'As Sail Al Kabeer', 21.6245587, 40.4147528, NULL),
+  (7, 'الجال', 'Al Jal', 21.2916736, 40.4333567, NULL),
+  (7, 'النرجس', 'Al Narjis', 21.2461964, 40.4580408, NULL),
+  (7, 'الحدائق', 'Al Hadaek', 21.2353626, 40.4309788, NULL),
+  (7, 'أم السباع', 'Umm Al Sabaa', 21.2343925, 40.4533438, NULL),
+  (7, 'الردف', 'Ar Ruddaf', 21.2234282, 40.4242149, NULL),
+  (7, 'القيم الأسفل', 'Al Qayam Al Asfal', 21.3685175, 40.4433343, NULL),
+  (7, 'الصيانة', 'Al Siana', 21.3293369, 40.443854, NULL),
+  (7, 'بن سويلم', 'Bin Swailem', 21.3033603, 40.4098302, NULL),
+  (7, 'المعارض', 'Al Maarid', 21.2563692, 40.4489278, NULL),
+  (7, 'الكدى', 'Al Kada', 21.240685, 40.3851812, NULL),
+  (7, 'عودة', 'Awdah', 21.2496421, 40.396173, NULL),
+  (7, 'نخب', 'Nakhab', 21.2666392, 40.4402524, NULL),
+  (7, 'الوشحاء', 'Al Washha', 21.2514193, 40.4327478, NULL),
+  (7, 'القراحين', 'Alqrahin', 21.2283485, 40.3969658, NULL),
+  (7, 'السداد', 'As Sadad', 21.2288981, 40.4146077, NULL),
+  (7, 'مسره', 'Masarah', 21.2947744, 40.39313, NULL),
+  (7, 'أم العراد', 'Umm Alarad', 21.2367423, 40.4085182, NULL),
+  (7, 'حوايا الشمالية', 'Huwaya Ash Shamaliyyah', 21.2664622, 40.4132832, NULL),
+  (7, 'المنطقة التاريخية', 'Historic District', 21.2732257, 40.4087411, NULL),
+  (7, 'النزهة', 'Al Nuzha', 21.2511819, 40.4221158, NULL),
+  (7, 'الشهداء الجنوبية', 'Ashuhada Aljanubiyyah', 21.260064, 40.4213846, NULL),
+  (7, 'الشهداء الشمالية', 'Ashuhada Alshamaliyyah', 21.2692954, 40.4237311, NULL),
+  (7, 'شهار', 'Shihar', 21.2522306, 40.4125814, NULL),
+  (7, 'معشي', 'Maashi', 21.2854156, 40.400101, NULL),
+  (7, 'العزيزية', 'Al Aziziyah', 21.2792091, 40.4073752, NULL),
+  (7, 'العقيق', 'Al Aqiq', 21.2868464, 40.4087981, NULL),
+  (7, 'القمرية', 'Al Qumariyyah', 21.2802837, 40.4281305, NULL),
+  (7, 'الشرقية', 'Sharqia', 21.2746806, 40.4173218, NULL),
+  (7, 'المثناة', 'Al Mathnah', 21.2609351, 40.3832104, NULL),
+  (7, 'السلامة', 'As Salamah', 21.2682676, 40.401766, NULL),
+  (7, 'قروى', 'Qurwa', 21.2722613, 40.3828011, NULL),
+  (7, 'الخالدية', 'Al Khalidiyah', 21.2831712, 40.3879234, NULL),
+  (7, 'القطبية الشرقية', 'Al Qutbiah Al Sharqia', 21.2830755, 40.4518877, NULL),
+  (7, 'الجفيجف', 'Al Jafijif', 21.2956091, 40.4419559, NULL),
+  (7, 'جبرة', 'Jabrah', 21.3011745, 40.4323019, NULL),
+  (7, 'شبرا', 'Shubra', 21.2820838, 40.4153123, NULL),
+  (7, 'الريان', 'Al Ryan', 21.2841639, 40.4219787, NULL),
+  (7, 'الحلقة الشرقية', 'Al Halqah Asharqiyyah', 21.3507281, 40.4541062, NULL),
+  (7, 'الفيصلية', 'Al Faisaliyah', 21.2972182, 40.4224709, NULL),
+  (7, 'المليساء', 'Al Malissa', 21.3120153, 40.4250273, NULL),
+  (7, 'الحلقة الغربية', 'Al Halqah Al Gharbia', 21.3539861, 40.4363736, NULL),
+  (7, 'النعيم', 'An Naim', 21.3786776, 40.5101966, NULL),
+  (7, 'جبال القنة', 'Jibal Al Qina', 21.4976373, 40.4489134, NULL),
+  (7, 'العرج الأسفل', 'Al Urj Al Asfal', 21.3513629, 40.4754592, NULL),
+  (7, 'الخزامى', 'Al Khuzama', 21.3422005, 40.4885276, NULL),
+  (7, 'النسيم', 'Al Naseem', 21.2722598, 40.4629808, NULL),
+  (7, 'الملعب', 'Al Maleab', 21.2206949, 40.6381754, NULL),
+  (7, 'اكتان', 'Aktan', 21.252931, 40.3560302, NULL),
+  (7, 'الرحاب', 'Al Rehab', 21.4454911, 40.4174364, NULL),
+  (7, 'بدر', 'Badr', 21.5897304, 40.5497549, NULL),
+  (7, 'أم ثمام', 'Umm Thamam', 21.2701552, 40.3603845, NULL),
+  (7, 'العرفاء الغربية', 'Al Arfaa Al Gharbia', 21.52781, 40.5891303, NULL),
+  (7, 'منتزة الطائف الوطني بسيسد', 'Al Taif National Park Bsesed', 21.2919466, 40.5018044, NULL),
+  (7, 'جامعة الطائف الجديدة', 'New Taif University', 21.3293857, 40.5032229, NULL),
+  (7, 'الحجيرة', 'Al Hujairah', 21.3662561, 40.5347982, NULL),
+  (7, 'قنة وقدان', 'Qanna Wa Qadan', 21.2648205, 40.5132865, NULL),
+  (7, 'الأخباب', 'Akhbab', 21.219381, 40.3690909, NULL),
+  (7, 'الحرس الوطني', 'Al Haras Al Watani', 21.4260721, 40.4634555, NULL),
+  (7, 'أم الرصف', 'Umm Al Rasf', 21.2132615, 40.3822159, NULL),
+  (7, 'غرناطة', 'Ghirnatah', 21.5127938, 40.6855257, NULL),
+  (7, 'القلت', 'Al Qult', 21.3005485, 40.4605985, NULL),
+  (7, 'خد الحاج', 'Khad Al Haj', 21.2984828, 40.5684808, NULL),
+  (7, 'وادي جليل', 'Wadi Jalil', 21.3894368, 40.5687307, NULL),
+  (7, 'وادي محرم الأعلي', 'Wadi Muharam Al Aaela', 21.3320259, 40.3161859, NULL),
+  (55, 'الشقرة', 'Al Shaqra', 21.1732505, 40.6203766, NULL),
+  (7, 'التحلية', 'At Tahliyah', 21.285444, 40.3584456, NULL),
+  (7, 'الروضة', 'Al Rawdah', 21.4109442, 40.6307782, NULL),
+  (7, 'واحة التقنية', 'Technology Oasis', 21.4674713, 40.6882926, NULL),
+  (7, 'الثابتية', 'Al Thabitia', 21.4426815, 40.6119635, NULL),
+  (7, 'حطين', 'Hiteen', 21.3540774, 40.3723881, NULL),
+  (7, 'الصخيرة', 'Al Sakhira', 21.1808104, 40.5210971, NULL),
+  (7, 'المعترض', 'Al Mutarid', 21.4511675, 40.5088435, NULL),
+  (7, 'ضاحية العرفاء', 'Dahiyah Al Arfa', 21.5429271, 40.561059, NULL),
+  (7, 'لية السفلي', 'Liat Al Sufli', 21.245239, 40.5382967, NULL),
+  (7, 'الفريدة', 'Al Farida', 21.4206221, 40.5723872, NULL),
+  (7, 'مثملة', 'Masmla', 21.4719202, 40.4859923, NULL),
+  (7, 'مطار الطائف الدولي', 'Al Taif International Airport', 21.4884037, 40.541136, NULL),
+  (7, 'القاعدة الجوية', 'The Air Base', 21.4586499, 40.5303216, NULL),
+  (7, 'جباجب', 'Jabajib', 21.3272872, 40.3480968, NULL),
+  (7, 'العارمية', 'Al Aarmiah', 21.3941064, 40.4663205, NULL),
+  (7, 'وادي الشرب', 'Wadi Al Shurb', 21.4378927, 40.5451384, NULL),
+  (7, 'الاخاضر', 'Al Akhadir', 21.4850567, 40.632307, NULL),
+  (7, 'غدير البنات', 'Ghadeer Al Banat', 21.2059279, 40.4320114, NULL),
+  (7, 'عكرمة', 'Eikrima', 21.2395068, 40.3410435, NULL),
+  (7, 'أم الدروب', 'Umm Al Droub', 21.2205611, 40.5482113, NULL),
+  (7, 'وادي محرم الأسفل', 'Wadi Mahram Al Asfal', 21.366794, 40.3353025, NULL),
+  (7, 'العرفاء الشرقية', 'Al Arfaa Al Sharqia', 21.5234775, 40.6295107, NULL),
+  (7, 'الجودية', 'Al Jwdia', 21.5805796, 40.5814197, NULL),
+  (7, 'سوق عكاظ', 'Suq Ukadh', 21.4789233, 40.6593237, NULL),
+  (7, 'واحة الإسكان', 'Al Iskan oasis', 21.3908178, 40.6466833, NULL),
+  (7, 'العبلاء', 'Al Ablaa', 21.2722592, 40.5651282, NULL),
+  (7, 'لية العليا', 'Layah Al Olaya', 21.215228, 40.4930282, NULL),
+  (7, 'السناح', 'Al Sanah', 21.4725407, 40.4347626, NULL),
+  (7, 'المضباع', 'Al Mudhbah', 21.4503358, 40.477158, NULL),
+  (7, 'الوكرة', 'Al Wakra', 21.4312616, 40.5102199, NULL),
+  (7, 'القطبية الغربية', 'Al Qutbiah Algharbia', 21.2803967, 40.4395351, NULL),
+  (7, 'عدوان', 'Adwan', 21.4479792, 40.6516191, NULL),
+  (7, 'الحوية', 'Al Huwaya', 21.4253019, 40.4837635, NULL),
+  (7, 'ريحه', 'Riha', 21.4622365, 40.4517687, NULL),
+  (7, 'القميع', 'Qami', 21.4479735, 40.4582486, NULL),
+  (7, 'القويسم', 'Al Qusaisem', 21.3428065, 40.5833792, NULL),
+  (7, 'الدهماء', 'Al Dahmaa', 21.3934231, 40.6023168, NULL),
+  (7, 'الواسط', 'Al Wasit', 21.4760736, 40.4664229, NULL),
+  (7, 'المحمدية', 'Muhammadiyah', 21.5721201, 40.5032989, NULL),
+  (55, 'كلاخ', 'Kalakh', 21.3055863, 40.7999624, NULL),
+  (7, 'الجوهرة', 'Al Jawharah', 21.4186308, 40.5101559, NULL),
+  (7, 'إسكان الحرس', 'Iskan Al Haras', 21.4249159, 40.4386367, NULL),
+  (7, 'الرويدف', 'Al Ruwaidaf', 21.4052871, 40.4941064, NULL),
+  (7, 'الروابي', 'Al Rawabi', 21.4074308, 40.4139288, NULL),
+  (7, 'السر', 'As Sirr', 21.1902637, 40.5784712, NULL),
+  (7, 'أوالة', 'Awalah', 21.4044052, 40.5326236, NULL),
+  (7, 'الياسمين', 'Al Yasmeen', 21.3220534, 40.4030131, NULL),
+  (7, 'اليسرا', 'Al Yusra', 21.2441943, 40.5088097, NULL),
+  (7, 'الرحبة', 'Alrahbuh', 21.496157, 40.5055506, NULL),
+  (7, 'الواصلية', 'Al Wasela', 21.5563489, 40.5330888, NULL),
+  (7, 'القهيب', 'Al Quhaib', 21.5472079, 40.4927746, NULL),
+  (7, 'السليمانية', 'As Sulaymaniyah', 21.5219403, 40.5028573, NULL),
+  (7, 'ضاحية الاسكان', 'Dhahiyat Al Iskan', 21.3674078, 40.6186866, NULL),
+  (7, 'أم العطف', 'Umm Al Atef', 21.5252661, 40.5407523, NULL),
+  (7, 'الهدا', 'Al Hada', 21.3548081, 40.292235, NULL),
+  (7, 'المطار الدولي الجديد', 'New International Airport', 21.4215129, 40.6945928, NULL),
+  (7, 'الربوة', 'Ar Rabwah', 21.2572425, 40.6662161, NULL),
+  (7, 'الشرفية', 'Ash Sharafiyah', 21.3528438, 40.4081583, NULL),
+  (7, 'الحلاه', 'Al Halah', 21.3524636, 40.6494192, NULL),
+  (7, 'الدفاع الجوي', 'Air Defense', 21.5647619, 40.6188507, NULL),
+  (7, 'الشفاء', 'Ash Shifa', 21.0681621, 40.3093527, NULL),
+  (7, 'القديرة', 'Al Qadirah', 21.397949, 40.4537571, NULL),
+  (7, 'النهضة', 'Al Nahdah', 21.3777257, 40.4812529, NULL),
+  (7, 'الورود', 'Al Woroud', 21.3811921, 40.4097611, NULL),
+  (7, 'الغمير', 'Al Ghumayr', 21.3048085, 40.362482, NULL),
+  (7, 'الحزم', 'Al Hazm', 21.3115803, 40.3776892, NULL),
+  (7, 'العواجية', 'Al Awajia', 21.4725754, 40.5870281, NULL),
+  (61, 'الرابية', 'Al Rabiyah', 21.1370263, 39.2666815, NULL),
+  (2, 'مطار الملك عبد العزيز', 'King Abdulaziz International Airport', 21.6893336, 39.1669461, NULL),
+  (2, 'مدائن الفهد', 'Madain Al Fahd', 21.4598187, 39.2377138, NULL),
+  (2, 'بريمان', 'Bryman', 21.6440261, 39.2426489, NULL),
+  (2, 'النزلة اليمانية', 'An Nazlah Al Yamaniyah', 21.4690447, 39.2095183, NULL),
+  (2, 'النزلة الشرقية', 'An Nazlah Ash Sharqiyah', 21.4739169, 39.2195606, NULL),
+  (2, 'المنار', 'Al Manar', 21.6023753, 39.2374563, NULL),
+  (2, 'المروة', 'Al Marwah', 21.6170582, 39.2024802, NULL),
+  (2, 'الكندرة', 'Al Kandarah', 21.4929254, 39.2018795, NULL),
+  (2, 'الفاروق', 'Al Farouk', 21.4513112, 39.2681407, NULL),
+  (2, 'العمارية', 'Al Ammariyah', 21.4898906, 39.1906571, NULL),
+  (2, 'الشرفية', 'Ash Sharafiyah', 21.5165627, 39.1867732, NULL),
+  (2, 'السليمانية', 'As Sulimaniyah', 21.5061819, 39.2487001, NULL),
+  (2, 'السبيل', 'As Sabil', 21.4803266, 39.2012357, NULL),
+  (2, 'الرويس', 'Ar Ruwais', 21.5172015, 39.1714096, NULL),
+  (2, 'الروابي', 'Al Rawabi', 21.4682059, 39.2688703, NULL),
+  (2, 'الحمدانية', 'Al Hamdaniyah', 21.7553546, 39.1944121, NULL),
+  (2, 'الجامعة', 'Al Jamiah', 21.475115, 39.2510175, NULL),
+  (2, 'البغدادية الغربية', 'Al Baghdadiyah Al Gharbiyah', 21.500552, 39.1784048, NULL),
+  (2, 'البغدادية الشرقية', 'Al Baghdadiyah Ash Sharqiyah', 21.4985356, 39.1928458, NULL),
+  (2, 'قاعدة الملك فيصل البحرية', 'King Faisal Naval Base', 21.3568566, 39.1750143, NULL),
+  (2, 'جامعة الملك عبدالعزيز', 'King Abdulaziz University', 21.4930851, 39.2464256, NULL),
+  (61, 'كتانة', 'Katanah', 21.4204723, 39.4168424, NULL),
+  (2, 'المنطقة الصناعية', 'Industrial Area', 21.4015344, 39.2423915, NULL),
+  (2, 'التعاون', 'At Taawun', 21.3508612, 39.2696857, NULL),
+  (2, 'الثعالبة', 'Ath Thaalibah', 21.4649709, 39.1866874, NULL),
+  (2, 'السرورية', 'As Sororyah', 21.3927437, 39.2110633, NULL),
+  (2, 'السروات', 'As Sarawat', 21.3521402, 39.2116641, NULL),
+  (2, 'السنابل', 'As Sanabel', 21.3890675, 39.2729472, NULL),
+  (2, 'الصالحية', 'As Salhiyah', 21.7651595, 39.2229938, NULL),
+  (2, 'الساحل', 'As Sahil', 21.2978515, 39.1298674, NULL),
+  (61, 'الشفاء', 'Ash Shefaa', 21.3822743, 39.3351744, NULL),
+  (61, 'الرحمة', 'Ar Rahmah', 21.2653004, 39.308052, NULL),
+  (2, 'الوادي', 'Al Wadi', 21.3078471, 39.1715812, NULL),
+  (61, 'التضامن', 'Al Tadamun', 21.3391095, 39.3026446, NULL),
+  (61, 'السهل', 'Al Sahl', 21.3742417, 39.4432354, NULL),
+  (2, 'القرينية', 'Al Qryniah', 21.3050484, 39.2465972, NULL),
+  (2, 'النسيم', 'Al Naseem', 21.5193574, 39.2300748, NULL),
+  (2, 'المنتزهات', 'Al Mutanazahat', 21.4696038, 39.2890834, NULL),
+  (2, 'المليساء', 'Al Moulysaa', 21.2645806, 39.2118358, NULL),
+  (2, 'المحمدية', 'Al Mohammadiyah', 21.6494509, 39.1253184, NULL),
+  (2, 'المسرة', 'Al Masarah', 21.2654604, 39.2471122, NULL),
+  (61, 'المحاميد', 'Al Mahamid', 21.4525894, 39.4013499, NULL),
+  (61, 'الكرامة', 'Al Karamah', 21.3040089, 39.311571, NULL),
+  (2, 'الهنداوية', 'Al Hindawiyah', 21.4730982, 39.1844559, NULL),
+  (61, 'الهدا', 'Al Hada', 21.3730029, 39.3020438, NULL),
+  (2, 'الفيحاء', 'Al Faiha''a', 21.5003125, 39.2150116, NULL),
+  (61, 'الفضيلة', 'Al Fadeylah', 21.3068077, 39.2790411, NULL),
+  (61, 'البركة', 'Al Barakah', 21.2662603, 39.2787837, NULL),
+  (61, 'العسيلة', 'Al Asilah', 21.3682871, 39.4148254, NULL),
+  (2, 'الأندلس', 'Al Andalus', 21.541713, 39.1332364, NULL),
+  (2, 'الأمير فواز الشمالى', 'Al Amir Fawaz Ash Shamaly', 21.4362521, 39.3002843, NULL),
+  (2, 'الامير فواز الجنوبى', 'Al Amir Fawaz Al Janouby', 21.4338553, 39.2922163, NULL),
+  (2, 'الأجاويد', 'Al Ajaweed', 21.4032924, 39.3095969, NULL),
+  (2, 'الرحاب', 'Al-Rehab', 21.5514926, 39.2247104, NULL),
+  (2, 'الربوة', 'Al-Rabwah', 21.6010985, 39.1819667, NULL),
+  (2, 'مشرفة', 'Al-Musharifah', 21.5385595, 39.1952705, NULL),
+  (2, 'البلد', 'Al-Balad', 21.4860371, 39.187696, NULL),
+  (2, 'الضاحية', 'Ad Dahiah', 21.3065677, 39.2108916, NULL),
+  (2, 'الرغامة', 'Ar Rughamah', 21.5021892, 39.2915725, NULL),
+  (2, 'الخالدية', 'Al Khalidiyyah', 21.5601938, 39.1334724, NULL),
+  (2, 'السامر', 'As Samir', 21.582184, 39.2444514, NULL),
+  (2, 'الجوهرة', 'Al-Jawhara', 21.4370111, 39.2535495, NULL),
+  (2, 'بني مالك', 'Bani Malik', 21.5314538, 39.2190027, NULL),
+  (2, 'المنتزة', 'Al Montazah', 21.5940757, 39.2792129, NULL),
+  (2, 'الأمير عبدالمجيد', 'Prince Abdulmajeed', 21.4212714, 39.273548, NULL),
+  (2, 'الحفنة', 'Al Hafnah', 21.5607925, 39.3267631, NULL),
+  (2, 'الورود', 'Al Wurud', 21.5189182, 39.204626, NULL),
+  (2, 'القريات', 'Al Quraiyat', 21.4645715, 39.1978883, NULL),
+  (2, 'النخيل', 'Al Nakhil', 21.5305357, 39.2629909, NULL),
+  (2, 'غليل', 'Ghalil', 21.4527493, 39.20557, NULL),
+  (2, 'مريخ', 'Mraykh', 21.5394777, 39.2969798, NULL),
+  (2, 'الثغر', 'Ath Thaghr', 21.4770719, 39.2344093, NULL),
+  (2, 'أم حبلين الشرقية', 'Um Hableen Al Sharqiyyah', 21.7389319, 39.2654799, NULL),
+  (2, 'الرواسي', 'Al Rawasee', 21.6877383, 39.2795562, NULL),
+  (2, 'الوزيرية', 'Al Waziriyah', 21.4448404, 39.2303752, NULL),
+  (2, 'الكوثر', 'Al Kawthar', 21.7301617, 39.2073726, NULL),
+  (2, 'العزيزية', 'Al Aziziyah', 21.5533286, 39.1943693, NULL),
+  (2, 'الصفاء', 'Al-Safa', 21.5839399, 39.2123508, NULL),
+  (2, 'العسلاء', 'Al Asla', 21.6079614, 39.3101119, NULL),
+  (2, 'التلال', 'Al Talal', 21.6476958, 39.2907142, NULL),
+  (2, 'النهضة', 'Al-Nahdah', 21.6184944, 39.1283655, NULL),
+  (2, 'ميناء جدة الاسلامي', 'Jeddah Eslamic Seaport', 21.4691245, 39.1702937, NULL),
+  (2, 'بترومين', 'Petromin', 21.4464382, 39.1827392, NULL),
+  (61, 'الفضل', 'Al Fadel', 21.4364119, 39.3237161, NULL),
+  (2, 'المحجر', 'Al Mahjar', 21.4271041, 39.2074584, NULL),
+  (2, 'العدل', 'Al Adel', 21.4460786, 39.2906713, NULL),
+  (51, 'البدور', 'Al Budur', 21.8422999, 39.2568969, NULL),
+  (2, 'الحجاز', 'Al Hijaz', 21.7923389, 39.2483136, NULL),
+  (2, 'الرحمانية', 'Ar Rahmaniyah', 21.7932153, 39.2145824, NULL),
+  (2, 'الفلاح', 'Al Falah', 21.7828544, 39.1895628, NULL),
+  (61, 'الأثير', 'Al Athir', 21.3874691, 39.3913936, NULL),
+  (61, 'المرسلات', 'Al Mursalat', 21.4151188, 39.3986892, NULL),
+  (61, 'أبو جعالة', 'Abu Jaalah', 21.380436, 39.3598937, NULL),
+  (2, 'القوس', 'Al Qus', 21.5267831, 39.3480491, NULL),
+  (61, 'الحرازات', 'Al Harazat', 21.4923665, 39.3664168, NULL),
+  (61, 'العليا', 'Al ''Ulayya', 21.425586, 39.3571471, NULL),
+  (61, 'أم السلم', 'Um Asalam', 21.4522699, 39.356203, NULL),
+  (5, 'القشلة', 'Al Qashlah', 26.3677618, 50.1756063, NULL),
+  (5, 'الحرس الوطني', 'Al Haras Al Watani', 26.3642417, 50.1646741, NULL),
+  (5, 'القصور', 'Al Qusur', 26.3493185, 50.150411, NULL),
+  (5, 'الجامعة', 'Al Jamiah', 26.3441784, 50.1317355, NULL),
+  (5, 'الدوحة الشمالية', 'Ad Dawhah Ash Shamaliyah', 26.336118, 50.1670297, NULL),
+  (6, 'الدوحة الجنوبية', 'Ad Dawhah Al Janubiyah', 26.3179543, 50.1661189, NULL),
+  (5, 'غرب الظهران', 'Gharb Adh Dhahran', 26.3120351, 50.1201225, NULL),
+  (6, 'جامعة الملك فهد للبترول والمعادن', 'King Fahd University of Petroleum and Minerals', 26.3063198, 50.1520012, NULL),
+  (5, 'الدانة الجنوبية', 'Ad Danah Al Janubiyah', 26.3266282, 50.149952, NULL),
+  (5, 'الدانة الشمالية', 'Ad Danah Ash Shamaliyah', 26.336628, 50.1439747, NULL),
+  (5, 'الإسكان الشمالي', 'Al Iskan Al Shimali', 26.3526054, 49.9787011, NULL),
+  (5, 'الفرسان', 'Al Fursan', 26.3548199, 49.9615036, NULL),
+  (5, 'الهضبة', 'Al Hadabah', 26.3461575, 49.9371065, NULL),
+  (5, 'المطار', 'Al Matar', 26.3805968, 49.9445868, NULL),
+  (5, 'ضاحية الملك فهد', 'Dahiyat Al Malik Fahd', 26.4214556, 49.9949987, NULL),
+  (5, 'الشروق', 'Ash Shrouk', 26.3678023, 49.9737166, NULL),
+  (5, 'الأنوار', 'Al Anwar', 26.3657931, 50.012598, NULL),
+  (64, 'الخشبي', 'Al Khushbi', 23.8096902, 38.7815665, NULL),
+  (64, 'الروضة', 'Ar Rawdah', 23.7920207, 38.7840556, NULL),
+  (64, 'العدوة', 'Al Adwah', 23.7842454, 38.7779616, NULL),
+  (64, 'الغزوة', 'Al Ghazwah', 23.7839312, 38.7951277, NULL),
+  (64, 'الشهداء', 'Ash Shuhada', 23.7730921, 38.7870596, NULL),
+  (64, 'إدمان الغربي', 'Idman Al Garbi', 23.7523539, 38.7995907, NULL),
+  (64, 'إدمان الشرقي', 'Idman Ash-Sharqi', 23.7554963, 38.8167569, NULL),
+  (15, 'المنطقة الصناعية', 'Industrial Area', 23.9660099, 38.2558005, NULL),
+  (15, 'منطقة الصناعات الخفيفة', 'Light industrial park', 24.0084353, 38.2578233, NULL),
+  (15, 'الفيصل', 'Al Faisal', 24.0271149, 38.2045363, NULL),
+  (15, 'النواة', 'Al Nawah', 24.0093085, 38.2202994, NULL),
+  (15, 'الصبح', 'Al Subh', 23.989291, 38.1962717, NULL),
+  (15, 'عين النوى', 'Ayn Al Nawa', 23.993601, 38.2069419, NULL),
+  (15, 'الخالد', 'Al Khalid', 24.006048, 38.1876244, NULL),
+  (15, 'الفلاح', 'Al Falah', 24.1378622, 38.006168, NULL),
+  (15, 'الدانة', 'Al Dana', 24.1319212, 37.9977303, NULL),
+  (15, 'الدوحة', 'Al Doha', 24.1235199, 37.9832786, NULL),
+  (15, 'العقيق', 'Al Aqiq', 24.1297525, 38.0742164, NULL),
+  (15, 'الرابية', 'Al Rabiyah', 24.1313745, 38.0517645, NULL),
+  (15, 'الواحة', 'Al Wahah', 24.1316478, 38.0363834, NULL),
+  (15, 'الفردوس', 'Al Ferdous', 24.1103075, 38.0540607, NULL),
+  (15, 'الامارة', 'Al Amarah', 24.0881927, 38.037085, NULL),
+  (15, 'الحوراء', 'Al Hawra', 24.0943068, 38.0468804, NULL),
+  (15, 'النهضة', 'Al Nahdah', 24.1053141, 38.0380236, NULL),
+  (15, 'البثنة', 'Al Bathnah', 24.0040433, 38.1672682, NULL),
+  (15, 'الجار', 'Al Jar', 24.0247822, 38.1691909, NULL),
+  (15, 'المرجان', 'Al Murjan', 24.0477081, 38.1328977, NULL),
+  (15, 'الياقوت', 'Al Yaqoot', 24.0585149, 38.1166966, NULL),
+  (15, 'المطار', 'Yanbu Airport', 24.1477579, 38.0677651, NULL),
+  (15, 'الروابي', 'Al Rawabi', 24.1735631, 38.0209658, NULL),
+  (15, 'الياسمين', 'Al Yasmin', 24.2117606, 37.9997531, NULL),
+  (15, 'الرمال', 'Al Rimal', 24.2768619, 37.9801602, NULL),
+  (15, 'اللؤلؤة', 'Al Luluah', 24.2052, 37.9784674, NULL),
+  (15, 'الجامعة', 'Al Jamiah', 24.1737089, 37.9483614, NULL),
+  (15, 'المنار', 'Al Manar', 24.1943385, 37.9684807, NULL),
+  (15, 'الضباب', 'Al Dabab', 24.1866844, 37.9818936, NULL),
+  (15, 'الرحاب', 'Al Rehab', 24.1979833, 38.034889, NULL),
+  (15, 'النعيم', 'An Naim', 24.189746, 38.009594, NULL),
+  (15, 'المرسى', 'Al Marsaa', 24.1777182, 37.9930466, NULL),
+  (15, 'اليرموك', 'Al Yarmuk', 24.1647427, 38.0012839, NULL),
+  (15, 'السلام', 'Al Salam', 24.1462999, 38.0142959, NULL),
+  (15, 'الخليج', 'Al Khaleej', 24.1570156, 37.9891832, NULL),
+  (15, 'العروبة', 'Al Urubah', 24.1431654, 37.973146, NULL),
+  (15, 'الشاطئ', 'Al Shati', 24.0855957, 38.0236813, NULL),
+  (15, 'الصريف', 'Al Suraif', 24.0810215, 38.045222, NULL),
+  (15, 'ينبع البلد', 'Yanbu Al Balad', 24.0809122, 38.0582796, NULL),
+  (15, 'الزهور', 'Al Zuhur', 24.0869489, 38.052621, NULL),
+  (15, 'الحدائق', 'Al Hadaek', 24.0884296, 38.0637012, NULL),
+  (15, 'الربوة', 'Al Rabwah', 24.092694, 38.0609858, NULL),
+  (15, 'العصيلي', 'Al Osaili', 24.0997194, 38.071009, NULL),
+  (15, 'الشعلة', 'Al Sholah', 24.091719, 38.0786266, NULL),
+  (15, 'قرطبة', 'Qurtubah', 24.0902656, 38.0866042, NULL),
+  (15, 'البحيرة', 'Al Buhayrah', 24.0742969, 38.0896522, NULL),
+  (15, 'النسيم', 'Al Naseem', 24.0923751, 38.0953198, NULL),
+  (15, 'الربيع', 'Ar Rabie', 24.0763926, 38.1149288, NULL),
+  (15, 'التلال', 'Al Talal', 24.0788711, 38.1315127, NULL),
+  (15, 'غرناطة', 'Girnatah', 24.1092323, 38.1099719, NULL),
+  (15, 'الروضة', 'Ar Rawdah', 24.1000838, 38.1154391, NULL),
+  (15, 'الصفا', 'Al Safa', 24.1145902, 38.1294351, NULL),
+  (15, 'السويق', 'Al Sawaiq', 24.1320123, 38.1150017, NULL),
+  (15, 'الازدهار', 'Al Izdihar', 24.142236, 38.1004226, NULL),
+  (15, 'الريان', 'Al Rayyan', 24.1212966, 38.103557, NULL),
+  (15, 'الغدير', 'Al Ghadir', 24.1277843, 38.0925498, NULL),
+  (15, 'الورود', 'Al Wurud', 24.1062618, 38.075966, NULL),
+  (15, 'مشرفة', 'Mishrifah', 24.116449, 38.0707174, NULL),
+  (15, 'النجيل', 'An Nujayl', 24.1075922, 38.1640607, NULL),
+  (15, 'البقاع', 'Al Biqa', 24.1220985, 38.1970097, NULL),
+  (15, 'العشيرة', 'Al Asheyrah', 24.1573073, 38.1092429, NULL),
+  (15, 'القادسية', 'Al Qadisiyah', 24.1772808, 38.0426888, NULL),
+  (15, 'منطقة جمركية ومنطقة إعادة تصدير', 'Bonded and Reexport Zone', 24.1717407, 38.0727949, NULL),
+  (15, 'المروة', 'Al Marwah', 24.0986806, 38.1411532, NULL),
+  (15, 'المجد', 'Al Majd', 24.0666337, 38.1032473, NULL),
+  (15, 'الصواري', 'Al Sawari', 24.0247822, 38.2373031, NULL),
+  (15, 'المهن', 'Al Mihan', 24.0331106, 38.2262593, NULL),
+  (15, 'البساتين', 'Al Basatin', 24.0390699, 38.2083816, NULL),
+  (15, 'السلمانية', 'Al Salmaniyah', 24.0263131, 38.1564067, NULL),
+  (15, 'الشفاء', 'Al Shifa', 24.153954, 38.0270162, NULL),
+  (15, 'الفيحاء', 'Al Fahya', 24.2010449, 37.9978578, NULL),
+  (120, 'النخيل', 'Al Nakhil', 17.0426296, 43.0783796, NULL),
+  (120, 'الربيع', 'Ar Rabie', 17.0362491, 43.0845809, NULL),
+  (120, 'الروابى', 'Ar Rawabi', 17.0317971, 43.0797958, NULL),
+  (64, 'حي الغزلاني', NULL, 23.7570096, 38.7492103, NULL),
+  (64, 'حي ابوضباع', NULL, 23.7490502, 38.7631415, NULL),
+  (64, 'حي الحصن', NULL, 23.77406, 38.8005416, NULL),
+  (64, 'حي بئر ابن نامي', NULL, 23.75387, 38.7445716, NULL),
+  (5, 'حي المنيرة', 'Al-Munirah Camp', 26.3161655, 50.1298183, NULL),
+  (51, 'سنتر غران الحضارية', NULL, 21.9710389, 39.3647629, NULL),
+  (51, 'حي المقر بمدينة غران', NULL, 21.9984855, 39.3756743, NULL),
+  (51, 'حي النزهة بمدينة غران', NULL, 22.0086894, 39.3652284, NULL),
+  (14, 'الهلالية', 'Al-Hilaliyah', 26.6394889, 49.9508087, NULL),
+  (14, 'المدينة البيضاء', 'Al-Madinah Al-Baydaa', 26.6513773, 49.9474585, NULL),
+  (3, 'مخيمات الايرانيين', 'Iran Sector', 21.409418, 39.8941024, NULL),
+  (51, 'حي الربوة بمدينة غران', NULL, 21.9817245, 39.4131904, NULL),
+  (12, 'المنيزلة', 'Al Munayzala', 25.3824438, 49.6748311, NULL),
+  (12, 'الجبيل القديمة', NULL, 25.4079463, 49.6609253, NULL),
+  (90, 'العزيزية', 'Alaziziyah', 19.6069017, 41.9627216, NULL),
+  (3, 'مخيمات مالي', 'Mali Camps', 21.4097725, 39.898698, NULL),
+  (142, 'النزوليات', NULL, 29.7876732, 39.9207268, NULL),
+  (142, 'حي الجرعاوي', NULL, 29.7906693, 39.8955641, NULL),
+  (29, 'جوهرة الخفجي', 'Jawhara Al Khafji', 28.4358647, 48.4340097, NULL),
+  (90, 'الشاطئ', 'Al Shati', 19.5647322, 41.9668651, NULL),
+  (90, 'الواحة', 'Alwahah', 19.6326628, 41.9966713, NULL),
+  (90, 'الأندلس', 'Alandalus', 19.6394329, 41.9770793, NULL),
+  (90, 'الربوة', 'Alrabwah', 19.625794, 41.9748574, NULL),
+  (90, 'الربيع', 'Alrabia', 19.6185065, 41.980232, NULL),
+  (90, 'الأمل', 'Alamal', 19.6159512, 41.9645089, NULL),
+  (12, 'المقدام', 'Al Mugdam', 25.4373931, 49.6706137, NULL),
+  (12, 'الحليلة', 'Al Hulaylah', 25.4319699, 49.6665142, NULL),
+  (12, 'الكلابية', 'Al Kilabiyah', 25.4577685, 49.6653892, NULL),
+  (12, 'البطالية', 'Al Battaliyah', 25.4280356, 49.6365436, NULL),
+  (12, 'الاسكان المبسط', NULL, 25.4520267, 49.6415431, NULL),
+  (12, 'الرفاع', NULL, 25.4549484, 49.6453274, NULL),
+  (12, 'جوهرة الرفاع', NULL, 25.4610121, 49.6477565, NULL),
+  (12, 'بستان الحليلة', NULL, 25.435864, 49.6478647, NULL),
+  (12, 'جواثا', 'Jawatha', 25.4659488, 49.6624678, NULL),
+  (117, 'مدينة جازان للصناعات الأساسية والتحويلية', 'Jazan City for Primary and Downstream Industries', 17.3058021, 42.3430414, NULL),
+  (29, 'الحدود السعودية الكويتية', 'Kuwait - Saudi Arabia Border', 28.531292, 48.1741698, NULL),
+  (124, 'الشخيث', 'alshakhith', 17.4100778, 43.1522925, NULL),
+  (11, 'المروج الشمالي', 'Almuruj Al Shimali', 25.3686199, 49.6671723, NULL),
+  (11, 'المروج الجنوبي', 'Almuruj Al Junubi', 25.3633443, 49.6666679, NULL),
+  (2, 'مدينة جدة الاقتصادية', 'Jeddah Economic City', 21.7234751, 39.0855276, NULL),
+  (13, 'حي الدانة - قاعدة الملك عبدالعزيز البحرية', 'Al Dana Neighborhood (KANB)', 26.9788559, 49.6698545, NULL),
+  (13, 'حي الجوهرة', 'Aljawhara Dist.', 26.9652229, 49.6445293, NULL),
+  (14, 'قمرة', 'Qamra', 26.647512, 49.9957012, NULL),
+  (124, 'الحبيل', 'Al-Habil', 17.3326462, 43.1432481, NULL),
+  (124, 'ال السنسن', 'Al alsinin', 17.4244821, 43.1447569, NULL),
+  (119, 'المحرص', 'almahris', 17.5559629, 42.8775283, NULL),
+  (119, 'الشوق', 'Alshawq', 17.5353388, 42.8477998, NULL),
+  (119, 'العتبة', 'Aleataba', 17.5375897, 42.8457523, NULL),
+  (119, 'مقرن', 'Miqrn', 17.5412366, 42.8509086, NULL),
+  (119, 'زلق', 'Zalaq', 17.5372475, 42.8509704, NULL),
+  (119, 'الضمه', 'Aldamuh', 17.5326774, 42.8531289, NULL),
+  (119, 'المروي', 'Almarwi', 17.5426548, 42.8584734, NULL),
+  (119, 'العسل', 'Aleasal', 17.5335677, 42.8499834, NULL),
+  (119, 'الشباب', 'Alshabab', 17.5279941, 42.8484601, NULL),
+  (119, 'الثاهر', 'Althaahir', 17.5404459, 42.85424, NULL),
+  (119, 'المليساء', 'Almalaysa', 17.5360288, 42.8549722, NULL),
+  (119, 'الثرابين', 'Altharabin', 17.5351813, 42.8611913, NULL),
+  (119, 'الحماطه', 'AlHamata', 17.5394861, 42.861407, NULL),
+  (119, 'الصنه', 'Alsanah', 17.5624712, 42.8613232, NULL),
+  (119, 'القديم', 'Alqadim', 17.5557616, 42.8673834, NULL),
+  (119, 'القرح', 'Alqarh', 17.5584754, 42.8702166, NULL),
+  (119, 'القاع', 'Alqae', 17.5576402, 42.8738829, NULL),
+  (119, 'المقرث', 'Almiqrath', 17.5610756, 42.8754895, NULL),
+  (119, 'مروس', 'Marous', 17.529218, 42.8293376, NULL),
+  (119, 'العقل', 'Aleaql', 17.506419, 42.86956, NULL),
+  (124, 'الوبيدة', 'Alwubayda', 17.3804498, 43.1296692, NULL)
+) AS v(city_id, name_ar, name_en, latitude, longitude, source_ref)
+WHERE EXISTS (SELECT 1 FROM cities c WHERE c.id = v.city_id)
+  AND NOT EXISTS (SELECT 1 FROM districts e WHERE e.city_id = v.city_id AND e.name_ar = v.name_ar);
+INSERT INTO schema_migrations(name) VALUES ('046_kingdom_districts.sql');
+
+-- migrations/047_simple_onboarding.sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS also_client SMALLINT NOT NULL DEFAULT 0;
+ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS coverage_city_id INT DEFAULT NULL;
+CREATE TABLE IF NOT EXISTS provider_coverage_districts (
+  user_id INT NOT NULL,
+  district_id INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (user_id, district_id),
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (district_id) REFERENCES districts(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_provider_coverage_district ON provider_coverage_districts (district_id);
+INSERT INTO schema_migrations(name) VALUES ('047_simple_onboarding.sql');
+
+-- migrations/048_provider_availability.sql
+ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS availability_status VARCHAR(10) NOT NULL DEFAULT 'active';
+ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS vacation_from VARCHAR(10) DEFAULT NULL;
+ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS vacation_to VARCHAR(10) DEFAULT NULL;
+ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS work_days VARCHAR(20) DEFAULT NULL;
+ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS work_from VARCHAR(5) DEFAULT NULL;
+ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS work_to VARCHAR(5) DEFAULT NULL;
+INSERT INTO schema_migrations(name) VALUES ('048_provider_availability.sql');
+
+-- migrations/049_otp_four_digits.sql
+UPDATE settings SET setting_value = '4' WHERE setting_key = 'verify_otp_length' AND setting_value = '6';
+INSERT INTO schema_migrations(name) VALUES ('049_otp_four_digits.sql');
+
+-- migrations/050_phone_codes.sql
+CREATE TABLE IF NOT EXISTS phone_codes (
+  id SERIAL PRIMARY KEY,
+  phone VARCHAR(20) NOT NULL,
+  purpose VARCHAR(10) NOT NULL,
+  code_hash VARCHAR(64) NOT NULL,
+  attempts INT NOT NULL DEFAULT 0,
+  max_attempts INT NOT NULL DEFAULT 5,
+  expires_at TIMESTAMP NOT NULL,
+  consumed_at TIMESTAMP NULL DEFAULT NULL,
+  ip VARCHAR(45) DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_phone_codes_lookup ON phone_codes (phone, purpose, created_at);
+INSERT INTO schema_migrations(name) VALUES ('050_phone_codes.sql');
+
+-- migrations/051_push_subscriptions.sql
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL,
+  endpoint VARCHAR(700) NOT NULL,
+  p256dh VARCHAR(200) NOT NULL,
+  auth VARCHAR(100) NOT NULL,
+  lang VARCHAR(5) NOT NULL DEFAULT 'ar',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_push_subscriptions_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_push_subscriptions_endpoint ON push_subscriptions (endpoint);
+CREATE INDEX IF NOT EXISTS idx_push_subscriptions_user ON push_subscriptions (user_id);
+INSERT INTO schema_migrations(name) VALUES ('051_push_subscriptions.sql');
+
+-- migrations/052_request_reminders.sql
+ALTER TABLE requests ADD COLUMN IF NOT EXISTS remind_at TIMESTAMP NULL DEFAULT NULL;
+ALTER TABLE requests ADD COLUMN IF NOT EXISTS reminders_off SMALLINT NOT NULL DEFAULT 0;
+CREATE INDEX IF NOT EXISTS idx_requests_remind_at ON requests (remind_at);
+INSERT INTO schema_migrations(name) VALUES ('052_request_reminders.sql');
+
+-- migrations/053_gulf_new_languages.sql
+UPDATE countries SET languages_enabled = '["ar","ur","hi","bn","ml","fil","id","ne","am","tr","en"]'
+ WHERE languages_enabled = '["ar","en","ur","bn","hi"]';
+INSERT INTO schema_migrations(name) VALUES ('053_gulf_new_languages.sql');
+
+-- migrations/054_requester_directory.sql
+CREATE TABLE IF NOT EXISTS saved_providers (
+  user_id INT NOT NULL,
+  provider_id INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (user_id, provider_id),
+  CONSTRAINT fk_saved_providers_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_saved_providers_provider FOREIGN KEY (provider_id) REFERENCES users(id) ON DELETE CASCADE
+);
+ALTER TABLE requests ADD COLUMN IF NOT EXISTS direct_provider_id INT NULL DEFAULT NULL;
+INSERT INTO schema_migrations(name) VALUES ('054_requester_directory.sql');
+
+-- migrations/055_subscription_rules.sql
+CREATE TABLE IF NOT EXISTS subscription_rules (
+  id SERIAL PRIMARY KEY,
+  region_id INT NULL,
+  city_id INT NULL,
+  category_id INT NULL,
+  is_free SMALLINT NOT NULL DEFAULT 0,
+  is_active SMALLINT NOT NULL DEFAULT 1,
+  note VARCHAR(255) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_subscription_rules_region FOREIGN KEY (region_id) REFERENCES regions(id) ON DELETE CASCADE,
+  CONSTRAINT fk_subscription_rules_city FOREIGN KEY (city_id) REFERENCES cities(id) ON DELETE CASCADE,
+  CONSTRAINT fk_subscription_rules_category FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+);
+INSERT INTO schema_migrations(name) VALUES ('055_subscription_rules.sql');
+
+-- migrations/056_support_messages.sql
+CREATE TABLE IF NOT EXISTS support_tickets (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL,
+  topic VARCHAR(20) NOT NULL DEFAULT 'support',
+  status VARCHAR(20) NOT NULL DEFAULT 'open',
+  user_unread INT NOT NULL DEFAULT 0,
+  admin_unread INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_support_tickets_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_support_tickets_user ON support_tickets (user_id, updated_at);
+CREATE INDEX IF NOT EXISTS idx_support_tickets_status ON support_tickets (status, updated_at);
+CREATE TABLE IF NOT EXISTS support_messages (
+  id SERIAL PRIMARY KEY,
+  ticket_id INT NOT NULL,
+  sender_id INT NULL,
+  from_admin SMALLINT NOT NULL DEFAULT 0,
+  body TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_support_messages_ticket FOREIGN KEY (ticket_id) REFERENCES support_tickets(id) ON DELETE CASCADE,
+  CONSTRAINT fk_support_messages_sender FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE SET NULL
+);
+CREATE INDEX IF NOT EXISTS idx_support_messages_ticket ON support_messages (ticket_id, id);
+INSERT INTO schema_migrations(name) VALUES ('056_support_messages.sql');
+
+-- migrations/057_call_diagnostics.sql
+CREATE TABLE IF NOT EXISTS call_diagnostics (
+  id SERIAL PRIMARY KEY,
+  call_id INT NOT NULL,
+  user_id INT NOT NULL,
+  connection_type VARCHAR(20) NULL,
+  rtt_ms INT NULL,
+  jitter_ms INT NULL,
+  packet_loss_pct DECIMAL(5,2) NULL,
+  audio_kb_in INT NULL,
+  audio_kb_out INT NULL,
+  video_kb_in INT NULL,
+  poor_seconds INT NOT NULL DEFAULT 0,
+  reconnects INT NOT NULL DEFAULT 0,
+  audio_blocked SMALLINT NOT NULL DEFAULT 0,
+  network_type VARCHAR(20) NULL,
+  device VARCHAR(160) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_call_diagnostics_call FOREIGN KEY (call_id) REFERENCES calls(id) ON DELETE CASCADE,
+  CONSTRAINT fk_call_diagnostics_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_call_diagnostics_call_user ON call_diagnostics (call_id, user_id);
+CREATE INDEX IF NOT EXISTS idx_call_diagnostics_created ON call_diagnostics (created_at);
+INSERT INTO schema_migrations(name) VALUES ('057_call_diagnostics.sql');
+
+-- migrations/058_device_reports.sql
+CREATE TABLE IF NOT EXISTS device_reports (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL,
+  device_key VARCHAR(64) NOT NULL,
+  os VARCHAR(30) NULL,
+  os_version VARCHAR(20) NULL,
+  browser VARCHAR(30) NULL,
+  browser_version VARCHAR(20) NULL,
+  standalone SMALLINT NOT NULL DEFAULT 0,
+  push_permission VARCHAR(20) NULL,
+  push_subscribed SMALLINT NOT NULL DEFAULT 0,
+  push_host VARCHAR(80) NULL,
+  mic_permission VARCHAR(20) NULL,
+  camera_permission VARCHAR(20) NULL,
+  webrtc SMALLINT NOT NULL DEFAULT 0,
+  network_type VARCHAR(20) NULL,
+  app_version VARCHAR(40) NULL,
+  user_agent VARCHAR(255) NULL,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_device_reports_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_device_reports_user_device ON device_reports (user_id, device_key);
+CREATE INDEX IF NOT EXISTS idx_device_reports_updated ON device_reports (updated_at);
+INSERT INTO schema_migrations(name) VALUES ('058_device_reports.sql');
+
+-- migrations/059_contact_window_warranty.sql
+ALTER TABLE requests ADD COLUMN IF NOT EXISTS warranty_days INT NULL DEFAULT NULL;
+ALTER TABLE requests ADD COLUMN IF NOT EXISTS warranty_proposed_days INT NULL DEFAULT NULL;
+ALTER TABLE requests ADD COLUMN IF NOT EXISTS warranty_proposed_by INT NULL DEFAULT NULL;
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description)
+VALUES ('contact_after_done_days', '7', 'number', 'requests', 1, 'أيام بقاء المحادثة مفتوحة بعد انتهاء الطلب')
+ON CONFLICT (setting_key) DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('059_contact_window_warranty.sql');
+
+-- migrations/060_user_blocks.sql
+CREATE TABLE IF NOT EXISTS user_blocks (
+  id SERIAL PRIMARY KEY,
+  blocker_id INT NOT NULL,
+  blocked_id INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_user_blocks_blocker FOREIGN KEY (blocker_id) REFERENCES users(id) ON DELETE CASCADE,
+  CONSTRAINT fk_user_blocks_blocked FOREIGN KEY (blocked_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_user_blocks_pair ON user_blocks (blocker_id, blocked_id);
+CREATE INDEX IF NOT EXISTS idx_user_blocks_blocked ON user_blocks (blocked_id);
+INSERT INTO schema_migrations(name) VALUES ('060_user_blocks.sql');
+
+-- migrations/061_call_diagnostics_details.sql
+ALTER TABLE call_diagnostics ADD COLUMN IF NOT EXISTS details VARCHAR(600) NULL DEFAULT NULL;
+INSERT INTO schema_migrations(name) VALUES ('061_call_diagnostics_details.sql');
+
+-- migrations/062_native_push_tokens.sql
+CREATE TABLE IF NOT EXISTS native_push_tokens (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL,
+  token VARCHAR(512) NOT NULL,
+  app_version VARCHAR(20) NULL,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_native_push_tokens_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_native_push_tokens_token ON native_push_tokens (token);
+CREATE INDEX IF NOT EXISTS idx_native_push_tokens_user ON native_push_tokens (user_id);
+INSERT INTO schema_migrations(name) VALUES ('062_native_push_tokens.sql');
+
+-- migrations/063_directory_contacts.sql
+ALTER TABLE saved_providers ADD COLUMN IF NOT EXISTS nickname VARCHAR(80) NULL DEFAULT NULL;
+INSERT INTO schema_migrations(name) VALUES ('063_directory_contacts.sql');
+
+-- migrations/064_translation_memory.sql
+CREATE TABLE IF NOT EXISTS translation_memory (
+  id SERIAL PRIMARY KEY,
+  source_hash CHAR(64) NOT NULL,
+  target_lang VARCHAR(5) NOT NULL,
+  source_lang VARCHAR(10) NULL,
+  translated_text TEXT NOT NULL,
+  same_language SMALLINT NOT NULL DEFAULT 0,
+  hits INT NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  last_used_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_translation_memory_text ON translation_memory (source_hash, target_lang);
+CREATE TABLE IF NOT EXISTS translation_usage (
+  id SERIAL PRIMARY KEY,
+  month CHAR(7) NOT NULL,
+  provider VARCHAR(20) NOT NULL,
+  chars INT NOT NULL DEFAULT 0,
+  requests INT NOT NULL DEFAULT 0,
+  alerted SMALLINT NOT NULL DEFAULT 0
+);
+CREATE UNIQUE INDEX IF NOT EXISTS uq_translation_usage_month ON translation_usage (month, provider);
+INSERT INTO schema_migrations(name) VALUES ('064_translation_memory.sql');
+
+-- migrations/065_message_delivered.sql
+ALTER TABLE messages ADD COLUMN IF NOT EXISTS delivered_at TIMESTAMP NULL DEFAULT NULL;
+INSERT INTO schema_migrations(name) VALUES ('065_message_delivered.sql');
+
+-- migrations/066_conversation_favorite.sql
+ALTER TABLE conversation_participants ADD COLUMN IF NOT EXISTS is_favorite SMALLINT DEFAULT 0;
+INSERT INTO schema_migrations(name) VALUES ('066_conversation_favorite.sql');
+
+-- migrations/067_provider_wording_subscriptions_public.sql
+UPDATE subscription_plans SET name_ar = REPLACE(name_ar, 'اشتراك العامل', 'اشتراك مقدم الخدمة')
+  WHERE name_ar LIKE '%العامل%';
+UPDATE subscription_plans SET name_en = REPLACE(name_en, 'Worker subscription', 'Service provider subscription')
+  WHERE name_en LIKE '%Worker%';
+UPDATE subscription_plans SET description = REPLACE(description, 'اشتراك العامل', 'اشتراك مقدم الخدمة')
+  WHERE description LIKE '%العامل%';
+UPDATE settings SET is_public = 1 WHERE setting_key = 'subscriptions_enabled';
+INSERT INTO schema_migrations(name) VALUES ('067_provider_wording_subscriptions_public.sql');
+
+-- migrations/068_separate_admin_site_sessions.sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS site_session_version INT NOT NULL DEFAULT 0;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS admin_session_version INT NOT NULL DEFAULT 0;
+INSERT INTO schema_migrations(name) VALUES ('068_separate_admin_site_sessions.sql');
+
+-- migrations/069_ad_fees_and_admin_messages.sql
+ALTER TABLE ads ADD COLUMN IF NOT EXISTS fee_waived SMALLINT NOT NULL DEFAULT 0;
+ALTER TABLE ads ADD COLUMN IF NOT EXISTS fee_waived_by INT NULL;
+ALTER TABLE ads ADD COLUMN IF NOT EXISTS fee_waived_at TIMESTAMP NULL;
+ALTER TABLE ads ADD COLUMN IF NOT EXISTS fee_waiver_reason VARCHAR(500) NULL;
+ALTER TABLE ads ADD COLUMN IF NOT EXISTS coverage_multiplier DECIMAL(6,2) NULL;
+CREATE TABLE IF NOT EXISTS ad_admin_messages (
+  id SERIAL PRIMARY KEY,
+  ad_id INT NOT NULL,
+  admin_id INT NULL,
+  category VARCHAR(20) NOT NULL,
+  message TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_ad_admin_messages_ad FOREIGN KEY (ad_id) REFERENCES ads(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_ad_admin_messages_ad ON ad_admin_messages (ad_id);
+INSERT INTO schema_migrations(name) VALUES ('069_ad_fees_and_admin_messages.sql');
+
+
+
+-- migrations/070_district_english_suffix.sql
+CREATE TABLE IF NOT EXISTS district_name_cleanup_070 (
+  district_id BIGINT PRIMARY KEY,
+  old_name_en VARCHAR(120) NOT NULL,
+  new_name_en VARCHAR(120) NOT NULL,
+  recorded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+INSERT INTO district_name_cleanup_070 (district_id, old_name_en, new_name_en)
+SELECT id, name_en, btrim(REGEXP_REPLACE(name_en, '[[:space:]]+[Dd][Ii][Ss][Tt][.]?[[:space:]]*$', ''))
+FROM districts
+WHERE name_en ~ '[[:space:]]+[Dd][Ii][Ss][Tt][.]?[[:space:]]*$'
+  AND btrim(REGEXP_REPLACE(name_en, '[[:space:]]+[Dd][Ii][Ss][Tt][.]?[[:space:]]*$', '')) <> '' ON CONFLICT (district_id) DO NOTHING;
+UPDATE districts AS d SET name_en = b.new_name_en FROM district_name_cleanup_070 b WHERE d.id = b.district_id AND d.name_en = b.old_name_en;
+INSERT INTO schema_migrations(name) VALUES ('070_district_english_suffix.sql');
+
+-- migrations/071_chat_forward_receipts.sql
+CREATE TABLE IF NOT EXISTS chat_forward_receipts (
+  sender_id INT NOT NULL,
+  operation_id VARCHAR(36) NOT NULL,
+  target_conversation_id INT NOT NULL,
+  fingerprint CHAR(64) NOT NULL,
+  message_ids JSONB NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (sender_id, operation_id, target_conversation_id),
+  FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE,
+  FOREIGN KEY (target_conversation_id) REFERENCES conversations(id) ON DELETE CASCADE
+);
+INSERT INTO schema_migrations(name) VALUES ('071_chat_forward_receipts.sql');
+
+-- migrations/072_login_lockout.sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS failed_logins INT NOT NULL DEFAULT 0;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS login_locked_at TIMESTAMP NULL;
+INSERT INTO schema_migrations(name) VALUES ('072_login_lockout.sql');
+
+-- updated_at triggers and monotonic sequence synchronization.
+CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
+BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;
+$$ LANGUAGE plpgsql;
+DO $$
+DECLARE r RECORD; sequence_next BIGINT; row_next BIGINT;
+BEGIN
+  FOR r IN
+    SELECT c.table_schema, c.table_name FROM information_schema.columns c
+    JOIN information_schema.tables t USING (table_schema, table_name)
+    WHERE c.table_schema = current_schema() AND c.column_name = 'updated_at'
+      AND t.table_type = 'BASE TABLE'
+  LOOP
+    EXECUTE format('CREATE TRIGGER %I BEFORE UPDATE ON %I.%I FOR EACH ROW EXECUTE FUNCTION set_updated_at()',
+      'trg_' || r.table_name || '_updated_at', r.table_schema, r.table_name);
+  END LOOP;
+  FOR r IN
+    SELECT c.table_schema, c.table_name, c.column_name,
+      pg_get_serial_sequence(format('%I.%I', c.table_schema, c.table_name), c.column_name) AS seq
+    FROM information_schema.columns c
+    WHERE c.table_schema = current_schema() AND c.column_default LIKE 'nextval(%'
+  LOOP
+    IF r.seq IS NOT NULL THEN
+      EXECUTE format('LOCK TABLE %I.%I IN SHARE ROW EXCLUSIVE MODE', r.table_schema, r.table_name);
+      EXECUTE format('SELECT last_value + CASE WHEN is_called THEN 1 ELSE 0 END FROM %s', r.seq) INTO sequence_next;
+      EXECUTE format('SELECT COALESCE(MAX(%I),0) + 1 FROM %I.%I', r.column_name, r.table_schema, r.table_name) INTO row_next;
+      PERFORM setval(r.seq, GREATEST(sequence_next, row_next), false);
+    END IF;
+  END LOOP;
+END $$;
+COMMIT;

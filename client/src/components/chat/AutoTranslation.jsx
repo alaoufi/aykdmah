@@ -1,0 +1,51 @@
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import api from '../../services/api';
+import { guessLocalSourceLanguage } from '../../utils/localLanguage.js';
+import { useChatPrefs } from '../../utils/chatPrefs';
+
+// The other person's message in this reader's language (the site language), fetched
+// automatically (AYK-044). The bubble shows it in place of the original (AYK-065), so the
+// conversation reads as if both wrote the same language. A message already in that language,
+// or without real words, is left alone.
+// Returns { text, from }: the translation and the language it was translated from (AYK-120).
+// Translations already fetched in this session: reopening a chat shows them at once.
+const fetched = new Map();
+const NONE = { text: '', from: null };
+const UNIQUE_SCRIPT = new Set(['ar', 'ur', 'bn', 'ml', 'am']);
+
+export function useAutoTranslation(message, isMine) {
+  const { i18n } = useTranslation();
+  const lang = (i18n.resolvedLanguage || 'ar').split('-')[0];
+  const cacheKey = `${message?.id}:${lang}`;
+  const [text, setText] = useState(() => fetched.get(cacheKey) || NONE);
+  const content = typeof message?.content === 'string' ? message.content.trim() : '';
+  // Only a script that one language alone uses proves the message is already in the reader's
+  // language. Latin letters (English, Filipino, Indonesian, Turkish) and Devanagari (Hindi,
+  // Nepali) are shared, so those go to the server, which detects the language itself (AYK-119).
+  const guessed = guessLocalSourceLanguage(content);
+  const sameScript = guessed && guessed === lang && UNIQUE_SCRIPT.has(lang);
+  // Turned off in ⚙️ (AYK-126): the original text only.
+  const { translate } = useChatPrefs();
+  const needed = translate && !isMine && content && message?.id && message.message_type !== 'location' && message.message_type !== 'system'
+    && !sameScript && /\p{L}{3,}/u.test(content);
+  useEffect(() => {
+    let alive = true;
+    if (!needed) { setText(NONE); return undefined; }
+    if (fetched.has(cacheKey)) { setText(fetched.get(cacheKey)); return undefined; }
+    setText(NONE);
+    api.get(`/chat/conversations/${message.conversation_id}/messages/${message.id}/translation`, { params: { lang } })
+      .then(res => {
+        if (!res.data?.data) return;
+        const translated = res.data.data.same ? NONE : { text: res.data.data.text, from: res.data.data.from || null };
+        if (fetched.size > 2000) fetched.delete(fetched.keys().next().value);
+        fetched.set(cacheKey, translated);
+        if (alive) setText(translated);
+      })
+      .catch(() => {});
+    return () => { alive = false; };
+  }, [message?.id, lang, needed]);
+  return text;
+}
+
+export default function AutoTranslation() { return null; }

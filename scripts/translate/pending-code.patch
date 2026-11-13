@@ -1,0 +1,459 @@
+diff --git a/client/public/offline.js b/client/public/offline.js
+index c1c167a..0e186df 100644
+--- a/client/public/offline.js
++++ b/client/public/offline.js
+@@ -5,6 +5,12 @@
+     ur: ['AY KHIDMA', 'آپ انٹرنیٹ سے منسلک نہیں ہیں', 'اپنا انٹرنیٹ کنکشن چیک کریں اور دوبارہ کوشش کریں۔', 'دوبارہ کوشش کریں'],
+     hi: ['AY KHIDMA', 'आप इंटरनेट से कनेक्ट नहीं हैं', 'अपना इंटरनेट कनेक्शन जाँचें, फिर दोबारा कोशिश करें।', 'दोबारा कोशिश करें'],
+     bn: ['AY KHIDMA', 'আপনি ইন্টারনেটে সংযুক্ত নন', 'আপনার ইন্টারনেট সংযোগ পরীক্ষা করে আবার চেষ্টা করুন।', 'আবার চেষ্টা করুন'],
++    ml: ['AY KHIDMA', 'നിങ്ങൾ ഓഫ്‌ലൈനാണ്', 'ഇന്റർനെറ്റ് കണക്ഷൻ പരിശോധിച്ച് വീണ്ടും ശ്രമിക്കുക.', 'വീണ്ടും ശ്രമിക്കുക'],
++    fil: ['AY KHIDMA', 'Offline ka', 'Suriin ang iyong koneksyon sa internet, pagkatapos ay subukang muli.', 'Subukang muli'],
++    id: ['AY KHIDMA', 'Anda sedang offline', 'Periksa koneksi internet Anda, lalu coba lagi.', 'Coba lagi'],
++    ne: ['AY KHIDMA', 'तपाईं इन्टरनेटमा जोडिनुभएको छैन', 'इन्टरनेट जडान जाँच गरी फेरि प्रयास गर्नुहोस्।', 'फेरि प्रयास गर्नुहोस्'],
++    am: ['AY KHIDMA', 'ከኢንተርኔት ጋር አልተገናኙም', 'የኢንተርኔት ግንኙነትዎን አረጋግጠው እንደገና ይሞክሩ።', 'እንደገና ይሞክሩ'],
++    tr: ['AY KHIDMA', 'Çevrimdışısınız', 'İnternet bağlantınızı kontrol edip tekrar deneyin.', 'Tekrar dene'],
+   };
+   var language = 'ar';
+   try { language = (localStorage.getItem('lsm_lang') || 'ar').split('-')[0]; } catch (_) {}
+diff --git a/client/public/refresh-site.js b/client/public/refresh-site.js
+index d470ff9..da9cf73 100644
+--- a/client/public/refresh-site.js
++++ b/client/public/refresh-site.js
+@@ -1,12 +1,18 @@
+ (function () {
+   var language = 'ar';
+-  try { language = (localStorage.getItem('lsm_lang') || 'ar').slice(0, 2); } catch (_) {}
++  try { language = (localStorage.getItem('lsm_lang') || 'ar').split(/[-_]/)[0]; } catch (_) {}
+   var copy = {
+     ar: ['جارٍ فتح أحدث نسخة…', 'إعادة المحاولة'],
+     en: ['Opening the latest version…', 'Try again'],
+     ur: ['تازہ ترین ورژن کھولا جا رہا ہے…', 'دوبارہ کوشش کریں'],
+     hi: ['नवीनतम संस्करण खोला जा रहा है…', 'फिर से कोशिश करें'],
+-    bn: ['সর্বশেষ সংস্করণ খোলা হচ্ছে…', 'আবার চেষ্টা করুন']
++    bn: ['সর্বশেষ সংস্করণ খোলা হচ্ছে…', 'আবার চেষ্টা করুন'],
++    ml: ['ഏറ്റവും പുതിയ പതിപ്പ് തുറക്കുന്നു…', 'വീണ്ടും ശ്രമിക്കുക'],
++    fil: ['Binubuksan ang pinakabagong bersyon…', 'Subukang muli'],
++    id: ['Membuka versi terbaru…', 'Coba lagi'],
++    ne: ['नयाँ संस्करण खोल्दै…', 'फेरि प्रयास गर्नुहोस्'],
++    am: ['የቅርብ ጊዜውን ስሪት በመክፈት ላይ…', 'እንደገና ይሞክሩ'],
++    tr: ['En son sürüm açılıyor…', 'Tekrar dene']
+   };
+   copy = copy[language] || copy.ar;
+   document.documentElement.lang = language;
+diff --git a/client/src/components/chat/LocalMessageTranslation.jsx b/client/src/components/chat/LocalMessageTranslation.jsx
+index 26d3fc7..6022050 100644
+--- a/client/src/components/chat/LocalMessageTranslation.jsx
++++ b/client/src/components/chat/LocalMessageTranslation.jsx
+@@ -8,7 +8,7 @@ import {
+   normalizeLocalLanguage, abortLocalLanguage,
+ } from '../../utils/localLanguage.js';
+ 
+-const languageKeys = { ar: 'arabic', en: 'english', ur: 'urdu', hi: 'hindi', bn: 'bengali' };
++const languageKeys = { ar: 'arabic', en: 'english', ur: 'urdu', hi: 'hindi', bn: 'bengali', ml: 'malayalam', fil: 'filipino', id: 'indonesian', ne: 'nepali', am: 'amharic', tr: 'turkish' };
+ const idle = { stage: null, percent: null };
+ 
+ export default function LocalMessageTranslation({ message, sessionKey, targetLanguage }) {
+diff --git a/client/src/components/home/Hero.jsx b/client/src/components/home/Hero.jsx
+index 7b4316d..effc204 100644
+--- a/client/src/components/home/Hero.jsx
++++ b/client/src/components/home/Hero.jsx
+@@ -12,6 +12,12 @@ const POPULAR_BY_LANG = {
+   ur: ['پلمبنگ', 'بجلی', 'صحن کی صفائی'],
+   bn: ['প্লাম্বিং', 'বৈদ্যুতিক কাজ', 'উঠান পরিষ্কার'],
+   hi: ['प्लंबिंग', 'बिजली का काम', 'आंगन की सफाई'],
++  ml: ['പ്ലംബിംഗ്', 'ഇലക്ട്രിക്കൽ', 'മുറ്റം വൃത്തിയാക്കൽ'],
++  fil: ['Tubero', 'Elektrisyan', 'Paglilinis ng bakuran'],
++  id: ['Ledeng', 'Listrik', 'Bersih halaman'],
++  ne: ['प्लम्बिङ', 'बिजुली काम', 'आँगन सफाइ'],
++  am: ['የቧንቧ ሥራ', 'የኤሌክትሪክ ሥራ', 'የግቢ ጽዳት'],
++  tr: ['Tesisat', 'Elektrik', 'Bahçe temizliği'],
+ };
+ 
+ export default function Hero() {
+diff --git a/client/src/components/reviews/ReviewCard.jsx b/client/src/components/reviews/ReviewCard.jsx
+index 99e4380..6d1394a 100644
+--- a/client/src/components/reviews/ReviewCard.jsx
++++ b/client/src/components/reviews/ReviewCard.jsx
+@@ -17,7 +17,7 @@ function langLabel(code) {
+ export default function ReviewCard({ review, canReply = false, onChange }) {
+   const { t, i18n } = useTranslation();
+   const { user } = useAuth();
+-  const viewerLang = (i18n.resolvedLanguage || 'ar').toLowerCase().slice(0, 2);
++  const viewerLang = (i18n.resolvedLanguage || 'ar').toLowerCase().split(/[-_]/)[0];
+ 
+   const needsTranslation = review.comment
+     && review.original_language
+diff --git a/client/src/data/servicesCatalog.js b/client/src/data/servicesCatalog.js
+index 1dba564..347a5ae 100644
+--- a/client/src/data/servicesCatalog.js
++++ b/client/src/data/servicesCatalog.js
+@@ -1,5 +1,8 @@
+ // Service types available at launch. Customers receive provider offers after creating a request.
+-const L = (ar, en, ur, hi, bn) => ({ ar, en, ur, hi, bn });
++import extraLanguages from './catalogExtraLanguages.json' with { type: 'json' };
++
++// The newer languages (AYK-037) are looked up by the English text.
++const L = (ar, en, ur, hi, bn) => ({ ar, en, ur, hi, bn, ...(extraLanguages[en] || {}) });
+ export const ORDER_STATUSES = ['new','reviewing','accepted','in_progress','completed','cancelled'];
+ export const CATEGORIES = [
+   { id:5, slug:'plumbing', icon:'🔧', tint:'#0ea5e9', bg:'#e0f2fe', name:L('سباكة','Plumbing','پلمبنگ','प्लंबिंग','প্লাম্বিং'), desc:L('إصلاح التسريبات وصيانة الأدوات الصحية','Leak repairs and plumbing maintenance','پانی کے رساؤ کی مرمت اور پلمبنگ کی دیکھ بھال','पानी के रिसाव की मरम्मत और प्लंबिंग का रखरखाव','পানির লিক মেরামত ও প্লাম্বিং রক্ষণাবেক্ষণ'), subs:[] },
+diff --git a/client/src/i18n/index.js b/client/src/i18n/index.js
+index 9f8b790..dc6ff42 100644
+--- a/client/src/i18n/index.js
++++ b/client/src/i18n/index.js
+@@ -7,16 +7,30 @@ import en from './locales/en.json';
+ import ur from './locales/ur.json';
+ import bn from './locales/bn.json';
+ import hi from './locales/hi.json';
++import ml from './locales/ml.json';
++import fil from './locales/fil.json';
++import id from './locales/id.json';
++import ne from './locales/ne.json';
++import am from './locales/am.json';
++import tr from './locales/tr.json';
+ 
+ // Single source of truth for languages enabled on the platform.
+ // Adding a new language here + a matching locale JSON file is the only
+ // step required to enable it across the entire UI.
++// Ordered by how many service providers in the Kingdom speak each language
++// (AYK-037); English, the shared fallback, closes the list.
+ export const SUPPORTED_LANGUAGES = [
+   { code: 'ar', label: 'العربية', dir: 'rtl', flag: '🇸🇦' },
+-  { code: 'en', label: 'English', dir: 'ltr', flag: '🇬🇧' },
+   { code: 'ur', label: 'اردو',    dir: 'rtl', flag: '🇵🇰' },
+-  { code: 'bn', label: 'বাংলা',   dir: 'ltr', flag: '🇧🇩' },
+   { code: 'hi', label: 'हिन्दी',   dir: 'ltr', flag: '🇮🇳' },
++  { code: 'bn', label: 'বাংলা',   dir: 'ltr', flag: '🇧🇩' },
++  { code: 'ml', label: 'മലയാളം', dir: 'ltr', flag: '🇮🇳' },
++  { code: 'fil', label: 'Filipino', dir: 'ltr', flag: '🇵🇭' },
++  { code: 'id', label: 'Bahasa Indonesia', dir: 'ltr', flag: '🇮🇩' },
++  { code: 'ne', label: 'नेपाली', dir: 'ltr', flag: '🇳🇵' },
++  { code: 'am', label: 'አማርኛ', dir: 'ltr', flag: '🇪🇹' },
++  { code: 'tr', label: 'Türkçe', dir: 'ltr', flag: '🇹🇷' },
++  { code: 'en', label: 'English', dir: 'ltr', flag: '🇬🇧' },
+ ];
+ 
+ // Ordered fallbacks: if a key is missing we try these in order.
+@@ -34,7 +48,8 @@ export function getLanguageDir(code) {
+ 
+ export function applyLanguageToDocument(code) {
+   if (typeof document === 'undefined') return;
+-  const normalized = SUPPORTED_LANG_CODES.includes(code?.slice(0, 2)) ? code.slice(0, 2) : 'ar';
++  const base = String(code || '').toLowerCase().split(/[-_]/)[0];
++  const normalized = SUPPORTED_LANG_CODES.includes(base) ? base : 'ar';
+   document.documentElement.lang = normalized;
+   document.documentElement.dir = getLanguageDir(normalized);
+   const title = `${i18n.t('common.brand', { lng: normalized })} — ${i18n.t('common.tagline', { lng: normalized })}`;
+@@ -50,7 +65,7 @@ export function applyLanguageToDocument(code) {
+     node.setAttribute('content', value);
+   };
+   setMeta('name', 'description', description);
+-  setMeta('property', 'og:locale', { ar: 'ar_SA', en: 'en_US', ur: 'ur_PK', hi: 'hi_IN', bn: 'bn_BD' }[normalized]);
++  setMeta('property', 'og:locale', { ar: 'ar_SA', en: 'en_US', ur: 'ur_PK', hi: 'hi_IN', bn: 'bn_BD', ml: 'ml_IN', fil: 'fil_PH', id: 'id_ID', ne: 'ne_NP', am: 'am_ET', tr: 'tr_TR' }[normalized]);
+   setMeta('property', 'og:site_name', i18n.t('common.brand', { lng: normalized }));
+   setMeta('property', 'og:title', title);
+   setMeta('property', 'og:description', description);
+@@ -68,6 +83,12 @@ i18n
+       ur: { translation: ur },
+       bn: { translation: bn },
+       hi: { translation: hi },
++      ml: { translation: ml },
++      fil: { translation: fil },
++      id: { translation: id },
++      ne: { translation: ne },
++      am: { translation: am },
++      tr: { translation: tr },
+     },
+     fallbackLng: FALLBACK_CHAIN,
+     supportedLngs: SUPPORTED_LANG_CODES,
+diff --git a/client/src/pages/ReviewPage.jsx b/client/src/pages/ReviewPage.jsx
+index bfd7d8a..4b2985f 100644
+--- a/client/src/pages/ReviewPage.jsx
++++ b/client/src/pages/ReviewPage.jsx
+@@ -50,7 +50,7 @@ export default function ReviewPage() {
+       fd.append('request_id', id);
+       fd.append('rating', rating);
+       fd.append('comment', comment);
+-      fd.append('original_language', (i18n.resolvedLanguage || 'ar').toLowerCase().slice(0, 2));
++      fd.append('original_language', (i18n.resolvedLanguage || 'ar').toLowerCase().split(/[-_]/)[0]);
+       if (Object.keys(criteria).length) {
+         fd.append('criteria_ratings', JSON.stringify(criteria));
+       }
+diff --git a/client/src/pages/admin/AdminCountriesPage.jsx b/client/src/pages/admin/AdminCountriesPage.jsx
+index 9d3f58e..d4c75f4 100644
+--- a/client/src/pages/admin/AdminCountriesPage.jsx
++++ b/client/src/pages/admin/AdminCountriesPage.jsx
+@@ -18,6 +18,12 @@ const SUPPORTED_LANGS = [
+   { code: 'ur', label: 'اردو' },
+   { code: 'bn', label: 'বাংলা' },
+   { code: 'hi', label: 'हिन्दी' },
++  { code: 'ml', label: 'മലയാളം' },
++  { code: 'fil', label: 'Filipino' },
++  { code: 'id', label: 'Bahasa Indonesia' },
++  { code: 'ne', label: 'नेपाली' },
++  { code: 'am', label: 'አማርኛ' },
++  { code: 'tr', label: 'Türkçe' },
+ ];
+ 
+ const EMPTY = {
+diff --git a/client/src/services/api.js b/client/src/services/api.js
+index e436163..f8b2e17 100644
+--- a/client/src/services/api.js
++++ b/client/src/services/api.js
+@@ -38,7 +38,7 @@ api.interceptors.request.use((config) => {
+   // Resolve this at dispatch time so changing language also changes API
+   // validation and account messages without a reload.
+   if (!config.headers.has('Accept-Language')) {
+-    const language = String(i18n.resolvedLanguage || i18n.language || 'en').slice(0, 2).toLowerCase();
++    const language = String(i18n.resolvedLanguage || i18n.language || 'en').toLowerCase().split(/[-_]/)[0];
+     config.headers.set('Accept-Language', SUPPORTED_LANG_CODES.includes(language) ? language : 'en');
+   }
+   return config;
+diff --git a/client/src/utils/earlyRecoveryBootstrap.js b/client/src/utils/earlyRecoveryBootstrap.js
+index a91cad2..6716e1c 100644
+--- a/client/src/utils/earlyRecoveryBootstrap.js
++++ b/client/src/utils/earlyRecoveryBootstrap.js
+@@ -27,13 +27,19 @@
+     const root = document.getElementById('root');
+     if (!root || root.childNodes.length) return;
+     let lang = 'ar';
+-    try { lang = (localStorage.getItem('lsm_lang') || 'ar').slice(0, 2); } catch (_) {}
++    try { lang = (localStorage.getItem('lsm_lang') || 'ar').split(/[-_]/)[0]; } catch (_) {}
+     const copies = {
+       ar: ['تعذّر تحميل الموقع', 'أعد تحميل الصفحة للحصول على أحدث نسخة.', 'إعادة التحميل'],
+       en: ['Unable to load the site', 'Reload this page to get the latest version.', 'Reload'],
+       ur: ['سائٹ لوڈ نہیں ہو سکی', 'تازہ ترین ورژن کے لیے صفحہ دوبارہ لوڈ کریں۔', 'دوبارہ لوڈ کریں'],
+       hi: ['साइट लोड नहीं हो सकी', 'नवीनतम संस्करण के लिए पेज फिर से लोड करें।', 'फिर से लोड करें'],
+       bn: ['সাইট লোড করা যায়নি', 'সর্বশেষ সংস্করণের জন্য পৃষ্ঠাটি আবার লোড করুন।', 'আবার লোড করুন'],
++      ml: ['സൈറ്റ് ലോഡ് ചെയ്യാനായില്ല', 'ഏറ്റവും പുതിയ പതിപ്പിനായി ഈ പേജ് വീണ്ടും ലോഡ് ചെയ്യുക.', 'വീണ്ടും ലോഡ് ചെയ്യുക'],
++      fil: ['Hindi ma-load ang site', 'I-reload ang pahinang ito para makuha ang pinakabagong bersyon.', 'I-reload'],
++      id: ['Situs tidak dapat dimuat', 'Muat ulang halaman ini untuk mendapatkan versi terbaru.', 'Muat ulang'],
++      ne: ['साइट लोड गर्न सकिएन', 'नयाँ संस्करणका लागि यो पृष्ठ फेरि लोड गर्नुहोस्।', 'फेरि लोड गर्नुहोस्'],
++      am: ['ድረ-ገጹን መጫን አልተቻለም', 'የቅርብ ጊዜውን ስሪት ለማግኘት ይህን ገጽ እንደገና ይጫኑ።', 'እንደገና ጫን'],
++      tr: ['Site yüklenemedi', 'En son sürümü almak için bu sayfayı yeniden yükleyin.', 'Yeniden yükle'],
+     };
+     const copy = copies[lang] || copies.ar;
+     const box = document.createElement('div');
+diff --git a/client/src/utils/formatters.js b/client/src/utils/formatters.js
+index 5d280c5..78dd9c6 100644
+--- a/client/src/utils/formatters.js
++++ b/client/src/utils/formatters.js
+@@ -1,7 +1,7 @@
+ import i18n from '../i18n';
+ 
+ export function activeLocale() {
+-  return (i18n.resolvedLanguage || i18n.language || 'ar').slice(0, 2);
++  return (i18n.resolvedLanguage || i18n.language || 'ar').split(/[-_]/)[0];
+ }
+ 
+ export function formatDate(date, withTime = false) {
+diff --git a/client/src/utils/localLanguage.js b/client/src/utils/localLanguage.js
+index a8b584b..712b762 100644
+--- a/client/src/utils/localLanguage.js
++++ b/client/src/utils/localLanguage.js
+@@ -1,6 +1,6 @@
+ // Only these public, pinned model files may be downloaded by the language worker.
+ // Conversation text, decoded audio and inference results never form a URL.
+-export const LOCAL_LANGUAGES = ['ar', 'en', 'ur', 'hi', 'bn'];
++export const LOCAL_LANGUAGES = ['ar', 'ur', 'hi', 'bn', 'ml', 'fil', 'id', 'ne', 'am', 'tr', 'en'];
+ export const LOCAL_TEXT_MAX_CHARACTERS = 1500;
+ export const LOCAL_AUDIO_MAX_SECONDS = 60;
+ export const LOCAL_AUDIO_MAX_BYTES = 3.5 * 1024 * 1024;
+@@ -44,6 +44,8 @@ export function normalizeLocalLanguage(value, fallback = 'ar') {
+ export function guessLocalSourceLanguage(text) {
+   if (typeof text !== 'string' || !text.trim()) return null;
+   if (/[\u0980-\u09FF]/u.test(text)) return 'bn';
++  if (/[\u0D00-\u0D7F]/u.test(text)) return 'ml';
++  if (/[\u1200-\u137F]/u.test(text)) return 'am';
+   if (/[\u0900-\u097F]/u.test(text)) return 'hi';
+   if (/[پچژگٹڈڑںھے]/u.test(text)) return 'ur';
+   if (/[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF]/u.test(text)) return 'ar';
+diff --git a/client/src/utils/localizeDefaultAd.js b/client/src/utils/localizeDefaultAd.js
+index bac0a29..bc90a56 100644
+--- a/client/src/utils/localizeDefaultAd.js
++++ b/client/src/utils/localizeDefaultAd.js
+@@ -7,6 +7,12 @@ const DEFAULT_COPY = {
+   ur: { title: 'خدمات کے پلیٹ فارم پر خوش آمدید', description: 'کوئی بھی مقامی خدمت آسانی اور تیزی سے طلب کریں' },
+   hi: { title: 'सेवा प्लेटफ़ॉर्म में आपका स्वागत है', description: 'कोई भी स्थानीय सेवा आसानी और तेज़ी से माँगें' },
+   bn: { title: 'সেবা প্ল্যাটফর্মে আপনাকে স্বাগতম', description: 'যেকোনো স্থানীয় সেবা সহজে ও দ্রুত অনুরোধ করুন' },
++  ml: { title: 'സേവന പ്ലാറ്റ്‌ഫോമിലേക്ക് സ്വാഗതം', description: 'ഏത് പ്രാദേശിക സേവനവും എളുപ്പത്തിലും വേഗത്തിലും ആവശ്യപ്പെടുക' },
++  fil: { title: 'Maligayang pagdating sa platform ng mga serbisyo', description: 'Humiling ng anumang lokal na serbisyo nang mabilis at madali' },
++  id: { title: 'Selamat datang di platform layanan', description: 'Minta layanan lokal apa pun dengan cepat dan mudah' },
++  ne: { title: 'सेवा प्लेटफर्ममा स्वागत छ', description: 'कुनै पनि स्थानीय सेवा छिटो र सजिलै माग्नुहोस्' },
++  am: { title: 'ወደ አገልግሎቶች መድረክ እንኳን በደህና መጡ', description: 'ማንኛውንም የአካባቢ አገልግሎት በቀላሉና በፍጥነት ይጠይቁ' },
++  tr: { title: 'Hizmet platformuna hoş geldiniz', description: 'Her türlü yerel hizmeti hızlı ve kolayca isteyin' },
+ };
+ 
+ // Only the unchanged, text-only platform welcome banner uses translated copy.
+@@ -16,6 +22,6 @@ export function localizedDefaultAdCopy(ad, lang) {
+   if (!ad || Number(ad.id) !== 1 || ad.placement !== 'home_top'
+       || ad.title !== DEFAULT_TITLE || ad.description !== DEFAULT_DESCRIPTION
+       || ad.image || ad.link) return copy;
+-  const code = (lang || 'ar').toLowerCase().slice(0, 2);
++  const code = (lang || 'ar').toLowerCase().split(/[-_]/)[0];
+   return { ...(DEFAULT_COPY[code] || DEFAULT_COPY.ar) };
+ }
+diff --git a/client/src/utils/localizeEntity.js b/client/src/utils/localizeEntity.js
+index 9fd9be8..fc27820 100644
+--- a/client/src/utils/localizeEntity.js
++++ b/client/src/utils/localizeEntity.js
+@@ -17,7 +17,7 @@ import { FALLBACK_CHAIN } from '../i18n';
+ 
+ export function pickTranslation(translations, lang, legacy = {}) {
+   if (translations && typeof translations === 'object') {
+-    const code = (lang || 'ar').toLowerCase().slice(0, 2);
++    const code = (lang || 'ar').toLowerCase().split(/[-_]/)[0];
+     if (translations[code]) return translations[code];
+     for (const fb of FALLBACK_CHAIN) {
+       if (translations[fb]) return translations[fb];
+@@ -26,7 +26,7 @@ export function pickTranslation(translations, lang, legacy = {}) {
+     if (first) return first;
+   }
+   // Legacy back-compat
+-  const code = (lang || 'ar').toLowerCase().slice(0, 2);
++  const code = (lang || 'ar').toLowerCase().split(/[-_]/)[0];
+   if (code === 'en' && legacy.name_en) return legacy.name_en;
+   return legacy.name_ar || legacy.name_en || '';
+ }
+diff --git a/client/src/utils/localizeTerms.js b/client/src/utils/localizeTerms.js
+index adc7545..dd3caaa 100644
+--- a/client/src/utils/localizeTerms.js
++++ b/client/src/utils/localizeTerms.js
+@@ -4,7 +4,7 @@ const normalize = value => String(value || '').replace(/منصة (?:«أي خد
+ const DEFAULT_SIGNATURE = normalize(ORIGINAL_TERMS);
+ 
+ export function localizedTerms(settings, lang, translate) {
+-  const code = (lang || 'ar').toLowerCase().slice(0, 2);
++  const code = (lang || 'ar').toLowerCase().split(/[-_]/)[0];
+   const explicit = settings?.[`terms_text_${code}`];
+   if (typeof explicit === 'string' && explicit.trim()) return explicit;
+   const source = settings?.terms_text;
+diff --git a/client/src/workers/localLanguage.worker.js b/client/src/workers/localLanguage.worker.js
+index c83931b..64f9b1f 100644
+--- a/client/src/workers/localLanguage.worker.js
++++ b/client/src/workers/localLanguage.worker.js
+@@ -53,7 +53,9 @@ if (self.caches) {
+ let translator = null;
+ let speech = null;
+ let running = false;
+-const languageNames = { ar: 'arabic', en: 'english', ur: 'urdu', hi: 'hindi', bn: 'bengali' };
++const languageNames = { ar: 'arabic', en: 'english', ur: 'urdu', hi: 'hindi', bn: 'bengali', ml: 'malayalam', fil: 'tagalog', id: 'indonesian', ne: 'nepali', am: 'amharic', tr: 'turkish' };
++// The translation model names Filipino by its ISO 639-1 code.
++const modelCode = code => (code === 'fil' ? 'tl' : code);
+ 
+ function report(id, stage, percent = null) { self.postMessage({ type: 'progress', id, stage, percent }); }
+ 
+@@ -122,7 +124,7 @@ async function translateText(id, text, sourceLanguage, targetLanguage) {
+     // The standard TranslationPipeline silently enables input truncation.
+     // Use its tokenizer/model with explicit bounds and reject incomplete
+     // generation instead of presenting only part of a long message.
+-    const options = { src_lang: sourceLanguage, tgt_lang: targetLanguage, max_new_tokens: 256, num_beams: 1 };
++    const options = { src_lang: modelCode(sourceLanguage), tgt_lang: modelCode(targetLanguage), max_new_tokens: 256, num_beams: 1 };
+     const inputs = model.tokenizer._build_translation_inputs(piece, { padding: true, truncation: false }, options);
+     if (inputs.input_ids.dims.at(-1) > 480) throw localLanguageError('too_long');
+     const tokens = await model.model.generate({ ...inputs, ...options });
+diff --git a/client/tests/platformLanguages.test.js b/client/tests/platformLanguages.test.js
+index 1918723..3ea328e 100644
+--- a/client/tests/platformLanguages.test.js
++++ b/client/tests/platformLanguages.test.js
+@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
+ import { build } from 'esbuild';
+ import { localizedTerms } from '../src/utils/localizeTerms.js';
+ 
+-const languages = ['ar', 'en', 'ur', 'hi', 'bn'];
++const languages = ['ar', 'en', 'ur', 'hi', 'bn', 'ml', 'fil', 'id', 'ne', 'am', 'tr'];
+ const locales = Object.fromEntries(languages.map(code => [code, JSON.parse(readFileSync(new URL(`../src/i18n/locales/${code}.json`, import.meta.url), 'utf8'))]));
+ const sourceMigration = readFileSync(new URL('../../database/migrations/025_terms_acceptance.sql', import.meta.url), 'utf8');
+ const defaultTerms = sourceMigration.split("('terms_text',\n'")[1].split("',\n'text'")[0];
+diff --git a/scripts/check-translations.js b/scripts/check-translations.js
+index 1b3a26f..b21a262 100644
+--- a/scripts/check-translations.js
++++ b/scripts/check-translations.js
+@@ -4,7 +4,7 @@
+ const fs = require('node:fs');
+ const path = require('node:path');
+ const root = path.resolve(__dirname, '..');
+-const languages = ['ar', 'en', 'ur', 'hi', 'bn'];
++const languages = ['ar', 'en', 'ur', 'hi', 'bn', 'ml', 'fil', 'id', 'ne', 'am', 'tr'];
+ const directory = path.join(root, 'client/src/i18n/locales');
+ function flatten(value, prefix = '', result = {}) {
+   for (const [key, item] of Object.entries(value)) {
+diff --git a/server/services/entityTranslator.js b/server/services/entityTranslator.js
+index a0ca3c1..a3b6ab8 100644
+--- a/server/services/entityTranslator.js
++++ b/server/services/entityTranslator.js
+@@ -13,10 +13,10 @@ const translationService = require('./translationService');
+ // Source-of-truth language list. Keep in sync with client/i18n/index.js.
+ // (Adding 'fr' here later auto-translates every new/updated category
+ //  into French — zero schema or controller changes needed.)
+-const TARGET_LANGS = ['ar', 'en', 'ur', 'bn', 'hi'];
++const TARGET_LANGS = ['ar', 'en', 'ur', 'bn', 'hi', 'ml', 'fil', 'id', 'ne', 'am', 'tr'];
+ 
+ async function translateAllLanguages(text, sourceLang = 'ar') {
+-  const src = (sourceLang || 'ar').toLowerCase().slice(0, 2);
++  const src = (sourceLang || 'ar').toLowerCase().split(/[-_]/)[0];
+   const map = { [src]: text };
+   if (!text || !String(text).trim()) {
+     for (const l of TARGET_LANGS) map[l] = text || '';
+diff --git a/server/services/translationService.js b/server/services/translationService.js
+index 61581da..b720034 100644
+--- a/server/services/translationService.js
++++ b/server/services/translationService.js
+@@ -8,7 +8,7 @@
+ 
+ const Setting = require('../models/Setting');
+ 
+-const SUPPORTED = ['ar', 'en', 'ur', 'bn', 'hi'];
++const SUPPORTED = ['ar', 'en', 'ur', 'bn', 'hi', 'ml', 'fil', 'id', 'ne', 'am', 'tr'];
+ 
+ async function detectLanguageFallback(text) {
+   // Very cheap heuristic — covers our 5 active scripts. A real detector
+diff --git a/server/tests/i18n.test.js b/server/tests/i18n.test.js
+index 94c3814..16e5dd5 100644
+--- a/server/tests/i18n.test.js
++++ b/server/tests/i18n.test.js
+@@ -31,7 +31,8 @@ test('interpolation retains established missing-key and language fallbacks', ()
+ });
+ 
+ test('account completion and saved-location guidance has native text in all five languages', () => {
+-  const scripts = { ar: /[\u0600-\u06ff]/u, en: /[a-z]/iu, ur: /[\u0600-\u06ff]/u, hi: /[\u0900-\u097f]/u, bn: /[\u0980-\u09ff]/u };
++  const scripts = { ar: /[\u0600-\u06ff]/u, en: /[a-z]/iu, ur: /[\u0600-\u06ff]/u, hi: /[\u0900-\u097f]/u, bn: /[\u0980-\u09ff]/u,
++    ml: /[\u0d00-\u0d7f]/u, fil: /[a-z]/iu, id: /[a-z]/iu, ne: /[\u0900-\u097f]/u, am: /[\u1200-\u137f]/u, tr: /[a-z\u00e7\u011f\u0131\u00f6\u015f\u00fc]/iu };
+   for (const key of ['account_phone_unavailable', 'account_profile_required', 'account_location_required']) {
+     for (const language of SUPPORTED) {
+       const message = translate(language, key);
+diff --git a/server/utils/catalogValidation.js b/server/utils/catalogValidation.js
+index c4b97f1..75462d6 100644
+--- a/server/utils/catalogValidation.js
++++ b/server/utils/catalogValidation.js
+@@ -1,7 +1,7 @@
+ const { ApiError } = require('../middleware/errorHandler');
+ const { queryOne } = require('../config/database');
+ 
+-const LANGUAGES = ['ar', 'en', 'ur', 'bn', 'hi'];
++const LANGUAGES = ['ar', 'en', 'ur', 'bn', 'hi', 'ml', 'fil', 'id', 'ne', 'am', 'tr'];
+ const own = (value, key) => Object.prototype.hasOwnProperty.call(value, key);
+ const empty = value => value == null || (typeof value === 'string' && !value.trim());
+ const plain = value => value && typeof value === 'object' && !Array.isArray(value)
+diff --git a/server/utils/i18n.js b/server/utils/i18n.js
+index abff7fc..dfd2d36 100644
+--- a/server/utils/i18n.js
++++ b/server/utils/i18n.js
+@@ -6,7 +6,7 @@
+ // every entry in MESSAGES. Missing values fall back through FALLBACK_CHAIN
+ // before finally returning the message key itself.
+ 
+-const SUPPORTED = ['ar', 'en', 'ur', 'bn', 'hi'];
++const SUPPORTED = ['ar', 'en', 'ur', 'bn', 'hi', 'ml', 'fil', 'id', 'ne', 'am', 'tr'];
+ const DEFAULT_LANG = 'ar';
+ const FALLBACK_CHAIN = ['en', 'ar'];
+ 
+@@ -178,7 +178,7 @@ const MESSAGES = {
+ function pickLang(acceptLanguage) {
+   if (!acceptLanguage) return DEFAULT_LANG;
+   // Take the first language tag, e.g. "en-US,en;q=0.9" -> "en"
+-  const first = String(acceptLanguage).split(',')[0].trim().slice(0, 2).toLowerCase();
++  const first = String(acceptLanguage).split(',')[0].trim().toLowerCase().split(/[-_]/)[0];
+   return SUPPORTED.includes(first) ? first : DEFAULT_LANG;
+ }
+ 

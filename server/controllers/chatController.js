@@ -1,0 +1,428 @@
+const { createHash } = require('node:crypto');
+const Conversation = require('../models/Conversation');
+const Message = require('../models/Message');
+const { query, queryOne } = require('../config/database');
+const { hideRequesterNames, savedNames, shownName, messageForViewer } = require('../utils/requesterPrivacy');
+const notificationService = require('../services/notificationService');
+const pushService = require('../services/pushService');
+const fcmService = require('../services/fcmService');
+const { translate: i18nText } = require('../utils/i18n');
+const logger = require('../utils/logger');
+const { success, created, error, notFound, forbidden } = require('../utils/apiResponse');
+const asyncHandler = require('../utils/asyncHandler');
+const { withUploadedFiles } = require('../utils/uploadPersistence');
+const { emitConversation } = require('../utils/conversationEvents');
+const { validateChatMessage, recordingDuration, searchQuery, forwardSelection, forwardOperationId, canForward } = require('../utils/chatMessageValidation');
+
+const unreadCount = asyncHandler(async (req, res) => success(res, { count: await Conversation.unreadTotal(req.user.id) }));
+
+// Sender and quoted-sender names on messages, hidden for a requester (AYK-142).
+async function hideMessageNames(req, messages) {
+  const people = [];
+  for (const msg of messages) {
+    if (msg.sender_role) people.push({ id: msg.sender_id, role: msg.sender_role, full_name: msg.sender_name, msg, key: 'sender_name' });
+    if (msg.reply_sender_role) people.push({ id: msg.reply_sender_id, role: msg.reply_sender_role, full_name: msg.reply_sender_name, msg, key: 'reply_sender_name' });
+  }
+  await hideRequesterNames(req.user.id, people, req.t('requester_label'));
+  for (const p of people) { if (p.role === 'client' && Number(p.id) !== Number(req.user.id)) p.msg[p.key.replace('_name','_avatar')] = null; p.msg[p.key] = p.full_name; delete p.msg.sender_role; delete p.msg.reply_sender_role; }
+}
+
+const listConversations = asyncHandler(async (req, res) => {
+  const { page = 1, limit = 20, request_id, user_id } = req.query;
+  const q = searchQuery(req.query.q);
+  for (const id of [request_id, user_id]) if (id != null && !/^[1-9][0-9]{0,9}$/.test(String(id))) return error(res, req.t('invalid_data'), 400);
+  const items = await Conversation.listForUser(req.user.id, { page, limit, q, requestId: request_id, peerId: user_id });
+  // A requester's name stays hidden from the other side (AYK-142).
+  for (const item of items) if (typeof item.other_user === 'string') { try { item.other_user = JSON.parse(item.other_user); } catch (_) { item.other_user = null; } }
+  await hideRequesterNames(req.user.id, items.map(item => item.other_user), req.t('requester_label'));
+  return success(res, items);
+});
+
+const createConversation = asyncHandler(async (req, res) => {
+  const { user_id, request_id } = req.body;
+  if (!user_id) return error(res, req.t('user_id_required'));
+  if (Number(user_id) === Number(req.user.id)) return error(res, req.t('cannot_chat_self'));
+  const convId = await Conversation.findOrCreateBetween(req.user.id, user_id, request_id || null, {fresh:req.body.fresh === true});
+  return created(res, { id: convId });
+});
+
+const getMessages = asyncHandler(async (req, res) => {
+  const conversationId = req.params.id;
+  const isParticipant = await Conversation.isParticipant(conversationId, req.user.id);
+  if (!isParticipant) return forbidden(res, req.t('deny_chat_participant'));
+
+  const { before, limit = 50 } = req.query;
+  const messages = await Message.listByConversation(conversationId, { beforeId: before, limit });
+  await hideMessageNames(req, messages);
+  return success(res, messages);
+});
+
+const sendMessage = asyncHandler(async (req, res) => {
+  const conversationId = req.params.id;
+  const isParticipant = await Conversation.isParticipant(conversationId, req.user.id);
+  if (!isParticipant) return forbidden(res, req.t('deny_chat_participant'));
+
+  const { content, message_type = 'text', reply_to_id, latitude, longitude, accuracy_m } = req.body;
+  if (!await Conversation.canSend(conversationId, req.user.id)) return forbidden(res, req.t('deny_chat_closed'));
+  const isLocation = message_type === 'location' && latitude != null && longitude != null;
+  if (!content && !(req.files || []).length && !isLocation) return error(res, req.t('message_empty'));
+
+  let duration;
+  try {
+    validateChatMessage({ content, message_type, files: req.files || [] });
+    duration = recordingDuration(req.body.duration_seconds, req.files || []);
+  } catch (_) { return error(res, req.t('invalid_data')); }
+
+  // "To everyone" (AYK-043): the requester sends one message to every provider they
+  // are talking with about this request, instead of repeating it in each chat.
+  const targets = [Number(conversationId)];
+  if (String(req.body.broadcast) === '1') {
+    const conversation = await Conversation.findById(conversationId);
+    const request = conversation?.request_id ? await queryOne('SELECT client_id FROM requests WHERE id = ? AND deleted_at IS NULL', [conversation.request_id]) : null;
+    if (request && Number(request.client_id) === Number(req.user.id)) {
+      const others = await query(`SELECT c.id FROM conversations c JOIN conversation_participants cp ON cp.conversation_id = c.id AND cp.user_id = ?
+        WHERE c.request_id = ? AND c.id <> ? ORDER BY c.id`, [req.user.id, conversation.request_id, conversationId]);
+      for (const other of others) if (await Conversation.canSend(other.id, req.user.id)) targets.push(Number(other.id));
+    }
+  }
+
+  const messageIds = await withUploadedFiles(req.files, { ownerId: req.user.id, scope: 'chat', scopeId: conversationId }, async files => {
+    const ids = [];
+    for (const target of targets) {
+      ids.push(await Message.create({
+        conversation_id: target,
+        sender_id: req.user.id,
+        content,
+        message_type,
+        reply_to_id: target === Number(conversationId) ? reply_to_id || null : null,
+        files: duration == null ? files : files.map(file => ({ ...file, duration_seconds: duration })),
+        latitude: isLocation ? Number(latitude) : null,
+        longitude: isLocation ? Number(longitude) : null,
+        accuracy_m: isLocation && accuracy_m ? Number(accuracy_m) : null,
+      }));
+    }
+    return ids;
+  });
+  const io = req.app.get('io');
+  let message = null;
+  for (const [index, target] of targets.entries()) {
+    const sent = await Message.findById(messageIds[index]);
+    if (index === 0) message = sent;
+    pretranslate(sent).catch(err => logger.warn('Pre-translation failed:', err.message));
+    await emitConversation(io, target, 'chat:message', sent);
+    await notifyParticipants(req, target, { content, isLocation, remind: true });
+    deliverIfOnline(io, target, req.user.id).catch(() => {});
+  }
+  return created(res, { ...await messageForViewer(message,req.user.id,req.t('requester_label')), broadcast_count: targets.length });
+});
+
+// POST /chat/conversations/:id/messages/:messageId/forward { conversation_id? } (AYK-043)
+// After sending, the requester forwards their own message (a voice note, a video,
+// text) to every provider they are talking with about this request, or to one.
+const forwardMessage = asyncHandler(async (req, res) => {
+  if (!/^[1-9][0-9]{0,9}$/.test(req.params.messageId) || !/^[1-9][0-9]{0,9}$/.test(req.params.id)) return notFound(res);
+  const message = await Message.findById(req.params.messageId);
+  if (!canForward(message, req.user.id) || Number(message.conversation_id) !== Number(req.params.id)
+      || Number(message.sender_id) !== Number(req.user.id)) return notFound(res);
+  const conversation = await Conversation.findById(req.params.id);
+  const request = conversation?.request_id ? await queryOne('SELECT client_id FROM requests WHERE id = ? AND deleted_at IS NULL', [conversation.request_id]) : null;
+  if (!request || Number(request.client_id) !== Number(req.user.id)) return forbidden(res, req.t('deny_request_owner'));
+  const others = await query(`SELECT c.id FROM conversations c JOIN conversation_participants cp ON cp.conversation_id = c.id AND cp.user_id = ?
+    WHERE c.request_id = ? AND c.id <> ? ORDER BY c.id`, [req.user.id, conversation.request_id, conversation.id]);
+  const wanted = req.body?.conversation_id == null ? null : Number(req.body.conversation_id);
+  const targets = [];
+  for (const other of others) {
+    if (wanted !== null && Number(other.id) !== wanted) continue;
+    if (await Conversation.canSend(other.id, req.user.id)) targets.push(Number(other.id));
+  }
+  if (wanted !== null && !targets.length) return forbidden(res, req.t('deny_chat_closed'));
+  const files = (message.files || []).map(file => ({ file_url: file.file_url, file_name: file.file_name,
+    file_type: file.file_type, file_size: file.file_size, duration_seconds: file.duration_seconds }));
+  const io = req.app.get('io');
+  for (const target of targets) {
+    const id = await Message.create({ conversation_id: target, sender_id: req.user.id, content: message.content,
+      message_type: message.message_type, files, latitude: message.latitude, longitude: message.longitude, accuracy_m: message.accuracy_m });
+    const forwarded = await Message.findById(id);
+    pretranslate(forwarded).catch(err => logger.warn('Pre-translation failed:', err.message));
+    await emitConversation(io, target, 'chat:message', forwarded);
+    await notifyParticipants(req, target, { content: message.content, isLocation: message.message_type === 'location', remind: true });
+    deliverIfOnline(io, target, req.user.id).catch(() => {});
+  }
+  return success(res, { count: targets.length });
+});
+
+// Explicit recipients only; validate every source and target before writing.
+const forwardMessages = asyncHandler(async (req, res) => {
+  const { messageIds, targetIds } = forwardSelection(req.body);
+  const operationId = forwardOperationId(req.body.operation_id);
+  const sourceId = Number(req.params.id);
+  const fingerprint = createHash('sha256').update(JSON.stringify({sourceId,messageIds:[...messageIds].sort((a,b)=>a-b)})).digest('hex');
+  if (!await Conversation.isParticipant(sourceId, req.user.id)) return forbidden(res);
+  const messages = [];
+  for (const id of messageIds) {
+    const message = await Message.findById(id);
+    if (!canForward(message, req.user.id) || Number(message.conversation_id) !== sourceId) return notFound(res);
+    messages.push(message);
+  }
+  // Replayed successful targets need no new permission to send: nothing is sent
+  // again. Every target without a receipt is authorized before the first write.
+  for (const id of targetIds) {
+    if (id === sourceId) return forbidden(res,req.t('deny_chat_closed'));
+    const receipt = await Message.getForwardReceipt(req.user.id,operationId,id);
+    if (receipt && receipt.fingerprint !== fingerprint) return error(res,req.t('invalid_data'),409);
+    if (!receipt && !await Conversation.canSend(id,req.user.id)) return forbidden(res,req.t('deny_chat_closed'));
+  }
+  messages.sort((a,b)=>Number(a.id)-Number(b.id));
+  const results=[];
+  for (const target of targetIds) {
+    let persisted;
+    try {
+      persisted = await Message.forwardToTarget({sourceId,targetId:target,senderId:req.user.id,operationId,fingerprint,messages});
+    } catch (_) { results.push({conversation_id:target,count:0,success:false});continue; }
+    let deliveryError=false;
+    if (!persisted.replayed) {
+      try {
+        for (const id of persisted.messageIds) {
+          const copy=await Message.findById(id);
+          if (copy) await emitConversation(req.app.get('io'),target,'chat:message',copy);
+        }
+        await notifyParticipants(req,target,{content:messages[0]?.content,remind:true});
+      } catch (_) { deliveryError=true; }
+    }
+    results.push({conversation_id:target,count:persisted.messageIds.length,success:true,replayed:persisted.replayed,delivery_error:deliveryError});
+  }
+  return success(res,{operation_id:operationId,results,count:results.reduce((sum,row)=>sum+row.count,0)});
+});
+
+// GET /chat/conversations/:id/messages/:messageId/translation?lang=xx (AYK-044)
+// Each message is shown in the reader's own language automatically.
+// One translation per message and language, shared by every request for it: a request that
+// arrives while the translation is on its way waits for that one instead of asking again.
+const translations = new Map();
+function translationFor(message, lang) {
+  const key = `${message.id}:${lang}`;
+  if (!translations.has(key)) {
+    const { translate } = require('../services/translationService');
+    const pending = translate(String(message.content).slice(0, 2000), null, lang)
+      .catch(() => { translations.delete(key); return { text: message.content, provider: 'noop' }; })
+      .then(result => ({ text: result.text, from: result.from || null, same: result.provider === 'noop' || result.text === message.content }));
+    if (translations.size > 5000) translations.delete(translations.keys().next().value);
+    translations.set(key, pending);
+  }
+  return translations.get(key);
+}
+
+// Translated as soon as it is sent, into each reader's language (the language of their
+// devices), so the bubble shows the translation at once (AYK-119).
+async function pretranslate(message) {
+  if (!message?.content || message.message_type === 'location' || message.message_type === 'system') return;
+  const { SUPPORTED, worthTranslating, detectLanguageFallback } = require('../services/translationService');
+  if (!worthTranslating(message.content)) return;
+  // The reader's screen skips a message whose script only their own language uses; so does this.
+  const script = await detectLanguageFallback(message.content);
+  const unique = ['ar', 'ur', 'bn', 'ml', 'am'].includes(script) ? script : null;
+  const rows = await query(`SELECT DISTINCT ps.lang FROM push_subscriptions ps
+    JOIN conversation_participants cp ON cp.user_id = ps.user_id
+    WHERE cp.conversation_id = ? AND cp.user_id <> ?`, [message.conversation_id, message.sender_id]);
+  for (const lang of new Set(rows.map(row => row.lang).filter(lang => SUPPORTED.includes(lang) && lang !== unique))) translationFor(message, lang);
+}
+
+const translateMessage = asyncHandler(async (req, res) => {
+  if (!/^[1-9][0-9]{0,9}$/.test(req.params.messageId) || !/^[1-9][0-9]{0,9}$/.test(req.params.id)) return notFound(res);
+  if (!await Conversation.isParticipant(req.params.id, req.user.id)) return forbidden(res, req.t('deny_chat_participant'));
+  const message = await Message.findById(req.params.messageId);
+  if (!message || Number(message.conversation_id) !== Number(req.params.id) || !message.content) return notFound(res);
+  const { SUPPORTED } = require('../services/translationService');
+  const lang = SUPPORTED.includes(req.query.lang) ? req.query.lang : 'ar';
+  return success(res, await translationFor(message, lang));
+});
+
+async function onScreen(io, userId) {
+  if (!io) return false;
+  try { return (await io.in(`user:${userId}`).fetchSockets()).some(s => s.data?.visible === true); } catch (_) { return false; }
+}
+
+// The other side's app is open somewhere: the message reached their phone (grey ✓✓, AYK-122).
+async function deliverIfOnline(io, conversationId, senderId) {
+  if (!io) return;
+  for (const p of await Conversation.getParticipants(conversationId)) {
+    if (Number(p.id) === Number(senderId)) continue;
+    if ((await io.in(`user:${p.id}`).fetchSockets()).length) await Message.markDelivered(io, p.id, conversationId);
+  }
+}
+
+// The phone alert for a message: the browser/home-screen app (web push) and the Android app
+// (Firebase), one notification per conversation, a newer one replacing the older.
+function phoneAlert(io, recipientId, conversationId, { title, body, fallbackKey }) {
+  pushService.sendToUser(recipientId, lang => ({
+    kind: 'message', tag: `chat-${conversationId}`, url: `/chat/${conversationId}`,
+    title: title || i18nText(lang, 'notif_new_message_title'),
+    body: body || i18nText(lang, fallbackKey),
+  }), { TTL: 24 * 60 * 60, urgency: 'high' })
+    .then(sent => logger.info(`Push message conversation=${conversationId} user=${recipientId} devices=${sent}`))
+    .catch(err => logger.warn('Message push failed:', err.message));
+  // The Android app (AYK-122): Firebase reaches it even when it is closed. Not while the app
+  // is on their screen (AYK-125): the chat shows the message there with its own tone.
+  onScreen(io, recipientId).then(shown => {
+    if (shown) return;
+    fcmService.sendToUser(recipientId, {
+      kind: 'message', tag: `chat-${conversationId}`, url: `/chat/${conversationId}`,
+      title: title || i18nText('ar', 'notif_new_message_title'),
+      body: body || i18nText('ar', fallbackKey),
+    }, { ttlSeconds: 24 * 60 * 60 })
+      .then(sent => { if (sent) logger.info(`FCM message conversation=${conversationId} user=${recipientId} devices=${sent}`); })
+      .catch(err => logger.warn('FCM message failed:', err.message));
+  });
+}
+
+// Unread, the alert comes again (AYK-127): after 1 minute and after 3 minutes, like a phone
+// that keeps reminding. It stops once they read it or open the app; a newer message starts over.
+const REMIND_AFTER_MS = [60 * 1000, 3 * 60 * 1000];
+const reminders = new Map();
+function remindUnread(io, senderId, recipientId, conversationId, alert) {
+  const key = `${conversationId}:${recipientId}`;
+  (reminders.get(key) || []).forEach(clearTimeout);
+  const timers = REMIND_AFTER_MS.map(delay => setTimeout(async () => {
+    try {
+      const unread = await queryOne(`SELECT id FROM messages WHERE conversation_id = ? AND sender_id = ? AND is_read = 0
+        AND deleted_at IS NULL LIMIT 1`, [conversationId, senderId]);
+      if (!unread || await onScreen(io, recipientId)) return;
+      phoneAlert(io, recipientId, conversationId, { ...alert, body: `🔔 ${alert.body || ''}`.trim() });
+    } catch (err) { logger.warn('Message reminder failed:', err.message); }
+  }, delay));
+  timers.forEach(timer => timer.unref?.());
+  reminders.set(key, timers);
+  if (reminders.size > 10000) reminders.delete(reminders.keys().next().value);
+}
+
+async function notifyParticipants(req, conversationId, { content, isLocation, remind = false }) {
+  const participants = await Conversation.getParticipants(conversationId);
+  const senderIsRequester = req.user.role === 'client';
+  for (const p of participants) {
+    if (p.id !== req.user.id) {
+      const saved = senderIsRequester ? await savedNames(p.id, [req.user.id]) : new Map();
+      const senderName = shownName({ id: req.user.id, role: req.user.role, full_name: req.user.full_name }, p.id, saved, i18nText('ar', 'requester_label'));
+      const bodyPreview = isLocation ? '📍'
+        : content ? content.slice(0, 80) : req.t('notif_new_attachment');
+      await notificationService.notifyUser(p.id, {
+        type: 'new_message',
+        title: senderName || req.t('notif_new_message_title'),
+        body: bodyPreview,
+        data: {
+          system_title: senderName ? null : 'new_message',
+          system_body: !isLocation && !content ? 'new_attachment' : null,
+        },
+        link: `/chat/${conversationId}`,
+      });
+      // The phone notification, also when the site is closed. One per conversation:
+      // a newer message replaces the older one instead of piling up.
+      const io = req.app.get('io');
+      const alert = {
+        title: senderName ? `${senderName}${req.user.referral_code ? ` (${req.user.referral_code})` : ''}` : null,
+        body: isLocation ? '📍' : content ? content.slice(0, 80) : null,
+        fallbackKey: 'notif_new_attachment',
+      };
+      phoneAlert(io, p.id, conversationId, alert);
+      if (remind) remindUnread(io, req.user.id, p.id, conversationId, alert);
+    }
+  }
+}
+
+// "🔔 Remind" (AYK-052): alerts the other side again about my last message while it is
+// unread, like a second ring. At most once a minute per conversation and sender.
+const nudges = new Map();
+const nudge = asyncHandler(async (req, res) => {
+  const conversationId = Number(req.params.id);
+  if (!await Conversation.isParticipant(conversationId, req.user.id)) return forbidden(res, req.t('deny_chat_participant'));
+  if (!await Conversation.canSend(conversationId, req.user.id)) return forbidden(res, req.t('deny_chat_closed'));
+  const key = `${conversationId}:${req.user.id}`;
+  if (Date.now() - (nudges.get(key) || 0) < 60000) return error(res, req.t('chat_nudge_wait'), 429);
+  const last = await queryOne(`SELECT content, message_type FROM messages
+    WHERE conversation_id = ? AND sender_id = ? AND deleted_at IS NULL ORDER BY id DESC LIMIT 1`, [conversationId, req.user.id]);
+  if (!last) return error(res, req.t('chat_nudge_nothing'), 400);
+  nudges.set(key, Date.now());
+  if (nudges.size > 10000) nudges.delete(nudges.keys().next().value);
+  await notifyParticipants(req, conversationId, {
+    content: `🔔 ${last.content ? last.content.slice(0, 70) : ''}`.trim(), isLocation: false,
+  });
+  // Say whether it reached them now (AYK-107): the site open somewhere, or a device registered
+  // for notifications (browser or app). Otherwise they see it when they next open the app.
+  const peer = (await Conversation.getParticipants(conversationId)).find(p => Number(p.id) !== Number(req.user.id));
+  const io = req.app.get('io');
+  const online = peer && io ? (await io.in(`user:${peer.id}`).fetchSockets()).length > 0 : false;
+  const devices = peer ? (await require('../models/PushSubscription').listForUser(peer.id)).length + await require('../services/fcmService').countForUser(peer.id) : 0;
+  return success(res, { nudged: true, reached: online || devices > 0 });
+});
+
+const deleteMessage = asyncHandler(async (req, res) => {
+  const messageId = req.params.messageId;
+  const row = await Message.getSenderId(messageId);
+  if (!row) return notFound(res);
+  if (Number(row.sender_id) !== Number(req.user.id) || Number(row.conversation_id) !== Number(req.params.id)
+      || !await Conversation.isParticipant(row.conversation_id, req.user.id)) return forbidden(res, req.t('deny_own_message'));
+  await Message.softDelete(messageId);
+  const io = req.app.get('io');
+  await emitConversation(io, row.conversation_id, 'chat:deleted', {
+    conversationId: row.conversation_id, messageId: Number(messageId),
+  });
+  return success(res, null, req.t('deleted'));
+});
+
+const searchMessages = asyncHandler(async (req, res) => {
+  const conversationId = req.params.id;
+  const isParticipant = await Conversation.isParticipant(conversationId, req.user.id);
+  if (!isParticipant) return forbidden(res, req.t('deny_chat_participant'));
+  const q = searchQuery(req.query.q);
+  if (!q) return success(res, []);
+  const items = await Message.searchInConversation(conversationId, q, { limit: 30, beforeId: /^[1-9][0-9]{0,9}$/.test(String(req.query.before)) ? Number(req.query.before) : null });
+  await hideMessageNames(req, items);
+  return success(res, items);
+});
+
+const markRead = asyncHandler(async (req, res) => {
+  const conversationId = req.params.id;
+  const isParticipant = await Conversation.isParticipant(conversationId, req.user.id);
+  if (!isParticipant) return forbidden(res, req.t('deny_chat_participant'));
+  await Conversation.updateLastRead(conversationId, req.user.id);
+  const io = req.app.get('io');
+  await emitConversation(io, conversationId, 'chat:read', { conversationId, userId: req.user.id });
+  return success(res, null, req.t('read_marked'));
+});
+
+// ⭐ / ☆ the conversation as a favourite (AYK-130).
+const setFavorite = asyncHandler(async (req, res) => {
+  const conversationId = req.params.id;
+  if (!await Conversation.isParticipant(conversationId, req.user.id)) return forbidden(res, req.t('deny_chat_participant'));
+  const favorite = req.body?.favorite === true;
+  await Conversation.setFavorite(conversationId, req.user.id, favorite);
+  return success(res, { is_favorite: favorite ? 1 : 0 });
+});
+
+const getConversation = asyncHandler(async (req, res) => {
+  const conversationId = req.params.id;
+  const isParticipant = await Conversation.isParticipant(conversationId, req.user.id);
+  if (!isParticipant) return forbidden(res, req.t('deny_chat_participant'));
+  const conv = await Conversation.findById(conversationId);
+  if (!conv) return notFound(res);
+  const participants = await Conversation.getParticipants(conversationId);
+  await hideRequesterNames(req.user.id, participants, req.t('requester_label'));
+  // Whether I blocked the other side (AYK-084), for the "Block" / "Unblock" button.
+  const peer = participants.find(p => Number(p.id) !== Number(req.user.id));
+  const direction = peer ? await require('./userBlockController').blockDirection(req.user.id, peer.id) : null;
+  const saved = peer ? await queryOne('SELECT nickname FROM saved_providers WHERE user_id = ? AND provider_id = ?', [req.user.id, peer.id]) : null;
+  // Why it cannot be written to, in words (AYK-112).
+  let closedReason = null;
+  if (!conv.can_send && !direction && conv.request_id) {
+    const reqRow = await queryOne('SELECT client_id, status, assigned_provider_id FROM requests WHERE id = ?', [conv.request_id]);
+    const providerId = reqRow && peer ? (Number(reqRow.client_id) === Number(req.user.id) ? peer.id : req.user.id) : null;
+    const offer = providerId ? await queryOne('SELECT status FROM offers WHERE request_id = ? AND provider_id = ?', [conv.request_id, providerId]) : null;
+    if (reqRow && ['completed', 'closed', 'cancelled'].includes(reqRow.status)) closedReason = 'finished';
+    else if (reqRow?.assigned_provider_id && Number(reqRow.assigned_provider_id) !== Number(providerId)) closedReason = 'other_provider';
+    else if (offer?.status === 'rejected') closedReason = 'declined';
+  }
+  return success(res, { ...conv, participants, blocked_by_me: direction === 'mine', blocked_me: direction === 'theirs', in_directory: Boolean(saved), directory_name: saved?.nickname || null, closed_reason: closedReason });
+});
+
+module.exports = {
+  listConversations, unreadCount, forwardMessage, forwardMessages, translateMessage, createConversation, getMessages, sendMessage, markRead, setFavorite,
+  getConversation, deleteMessage, searchMessages, nudge };

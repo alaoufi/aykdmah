@@ -1,0 +1,21 @@
+CallAudioRoutingTest > lateConnectionCannotTakeAudioAfterCallHasEnded[28] FAILED
+    java.lang.AssertionError: expected:<6> but was:<1>
+CallAudioRoutingTest > selfManagedCallRequestsSystemSpeakerRouteInsteadOfCompetingSdkRoute[28] FAILED
+    java.lang.AssertionError: expected:<[8]> but was:<[]>
+CallAudioRoutingTest > speakerIconDoesNotClaimSuccessBeforeDeviceConfirmation[28] FAILED
+CallAudioRoutingTest > unavailableSpeakerDoesNotClearSelectionOrPretendToSwitch[28] FAILED
+CallAudioRoutingTest > activationBeforeAsyncConnectionCreationIsNotLost[28] FAILED
+    java.lang.AssertionError: expected:<4> but was:<1>
+CallAudioRoutingTest > confirmedSdkRouteAndHeadsetChangeUpdateTheVisibleButton[28] FAILED
+    java.lang.AssertionError: The activity must observe confirmed route changes
+CallAudioRoutingTest > lateConnectionCannotTakeAudioAfterCallHasEnded FAILED
+    java.lang.AssertionError: expected:<6> but was:<1>
+CallAudioRoutingTest > selfManagedCallRequestsSystemSpeakerRouteInsteadOfCompetingSdkRoute FAILED
+    java.lang.AssertionError: expected:<[8]> but was:<[]>
+CallAudioRoutingTest > speakerIconDoesNotClaimSuccessBeforeDeviceConfirmation FAILED
+CallAudioRoutingTest > unavailableSpeakerDoesNotClearSelectionOrPretendToSwitch FAILED
+CallAudioRoutingTest > activationBeforeAsyncConnectionCreationIsNotLost FAILED
+    java.lang.AssertionError: expected:<4> but was:<1>
+CallAudioRoutingTest > confirmedSdkRouteAndHeadsetChangeUpdateTheVisibleButton FAILED
+    java.lang.AssertionError: The activity must observe confirmed route changes
+12 tests completed, 12 failed

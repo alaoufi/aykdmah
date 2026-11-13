@@ -1,0 +1,20 @@
+CallAudioRoutingTest > lateConnectionCannotTakeAudioAfterCallHasEnded[28] PASSED
+CallAudioRoutingTest > readySystemConnectionOwnsAudioBeforeMediaStarts[28] PASSED
+CallAudioRoutingTest > selfManagedCallRequestsSystemSpeakerRouteInsteadOfCompetingSdkRoute[28] PASSED
+CallAudioRoutingTest > speakerIconDoesNotClaimSuccessBeforeDeviceConfirmation[28] PASSED
+CallAudioRoutingTest > unavailableSpeakerDoesNotClearSelectionOrPretendToSwitch[28] PASSED
+CallAudioRoutingTest > activationBeforeAsyncConnectionCreationIsNotLost[28] PASSED
+CallAudioRoutingTest > sdkFallbackRejectsALateSecondAudioOwner[28] PASSED
+CallAudioRoutingTest > confirmedSdkRouteAndHeadsetChangeUpdateTheVisibleButton[28] PASSED
+CallAudioRoutingTest > lateConnectionCannotTakeAudioAfterCallHasEnded PASSED
+CallAudioRoutingTest > readySystemConnectionOwnsAudioBeforeMediaStarts PASSED
+CallAudioRoutingTest > selfManagedCallRequestsSystemSpeakerRouteInsteadOfCompetingSdkRoute PASSED
+CallAudioRoutingTest > speakerIconDoesNotClaimSuccessBeforeDeviceConfirmation PASSED
+CallAudioRoutingTest > unavailableSpeakerDoesNotClearSelectionOrPretendToSwitch PASSED
+CallAudioRoutingTest > activationBeforeAsyncConnectionCreationIsNotLost PASSED
+CallAudioRoutingTest > sdkFallbackRejectsALateSecondAudioOwner PASSED
+CallAudioRoutingTest > confirmedSdkRouteAndHeadsetChangeUpdateTheVisibleButton PASSED
+CallAudioRoutingTest > android7FallbackStillUsesConfirmedDeviceChanges PASSED
+BUILD SUCCESSFUL in 3m 40s
+package: name='sa.aykdmh.app' versionCode='13' versionName='1.3.3' platformBuildVersionName='16' platformBuildVersionCode='36' compileSdkVersion='36' compileSdkVersionCodename='16'
+4a289245b069b6cf3fe093b1068c2bfaf76cd9b4e7241fce022fbb32a8281814  /work/private-artifacts/aykdmh-1.3.3-test.apk

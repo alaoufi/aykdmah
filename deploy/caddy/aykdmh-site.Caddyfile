@@ -1,0 +1,125 @@
+{
+ admin off
+ auto_https off
+ servers {
+  trusted_proxies static 172.18.0.0/16
+  trusted_proxies_strict
+ }
+}
+:8080 {
+	encode zstd gzip
+
+	header {
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; worker-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; font-src 'self' https://fonts.gstatic.com; connect-src 'self' wss://aykdmh.com https://tiles.openfreemap.org https://nominatim.openstreetmap.org https://huggingface.co https://*.hf.co; media-src 'self' blob: https:; object-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; upgrade-insecure-requests"
+		X-Content-Type-Options nosniff
+		X-Frame-Options DENY
+		Referrer-Policy strict-origin-when-cross-origin
+		Permissions-Policy "camera=(self), geolocation=(self), microphone=(self)"
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		-Server
+	}
+
+	# LiveKit signaling for calls (the client appends /rtc to this path).
+	handle_path /livekit/* {
+		reverse_proxy livekit:7880 {
+ header_up X-Forwarded-For {http.request.client_ip}
+ header_up X-Forwarded-Proto https
+}
+	}
+
+	@backend path /api /api/* /socket.io/*
+	handle @backend {
+		reverse_proxy app:5000 {
+ header_up X-Forwarded-For {http.request.client_ip}
+ header_up X-Forwarded-Proto https
+}
+	}
+
+	# AYK-124: the Android app for testers before Google Play (/var/www/aykdmh/dl on the host).
+	@dl path /dl/*.apk
+	handle @dl {
+		root * /srv
+		header Content-Type application/vnd.android.package-archive
+		header Cache-Control "no-store"
+		file_server
+	}
+	# AYK-148: the newest app published there; an older app from there must update first.
+	# AYK-164: the Google Play bundle, downloadable for the owner to upload in Play Console.
+	@dlaab path /dl/*.aab
+	handle @dlaab {
+		root * /srv
+		header Content-Type application/octet-stream
+		header Content-Disposition attachment
+		header Cache-Control "no-store"
+		file_server
+	}
+
+	@dlinfo path /dl/latest.json
+	handle @dlinfo {
+		root * /srv
+		header Cache-Control "no-store"
+		file_server
+	}
+
+	@private path /install /install/* /uploads /uploads/*
+	handle @private {
+		respond 404
+	}
+
+	# Generated from the catalog (AYK-032); must come before the static-file rule for .xml.
+	@sitemap path /sitemap.xml
+	handle @sitemap {
+		rewrite * /api/seo/sitemap.xml
+		reverse_proxy app:5000 {
+ header_up X-Forwarded-For {http.request.client_ip}
+ header_up X-Forwarded-Proto https
+}
+	}
+
+	root * /srv/current
+
+	# Fingerprinted build output never changes.
+	@hashed path_regexp ^/assets/.*-[A-Za-z0-9_-]{8}\.(js|mjs|css|wasm|woff2?|png|jpe?g|webp|avif|svg)$
+	handle @hashed {
+		header Cache-Control "public, max-age=31536000, immutable"
+		file_server
+	}
+
+	# Real files: a missing one must 404, never fall back to index.html (Safari MIME issue in the handover).
+	@static path_regexp (^/(assets|brand|icons|meta)(/|$))|\.(js|mjs|cjs|wasm|css|html|json|map|webmanifest|png|jpe?g|gif|webp|avif|svg|ico|woff2?|ttf|otf|txt|xml|pdf|zip|mp3|wav|ogg|mp4|webm)$
+	handle @static {
+		header Cache-Control "no-cache, no-store, must-revalidate"
+		file_server
+	}
+
+	# AYK-032: public pages get their own title, description, structured data and text
+	# from the API so search engines index each service and category.
+	@seo {
+		method GET HEAD
+		path / /services /services/* /guide /providers/map /privacy /terms
+	}
+	handle @seo {
+		header Cache-Control "no-cache, no-store, must-revalidate"
+		rewrite * /api/seo/page{path}
+		reverse_proxy app:5000 {
+ header_up X-Forwarded-For {http.request.client_ip}
+ header_up X-Forwarded-Proto https
+}
+	}
+	# Client-side routes.
+	handle {
+		header Cache-Control "no-cache, no-store, must-revalidate"
+		rewrite * /index.html
+		file_server
+	}
+
+	# While the API restarts, public pages fall back to the plain app shell.
+	handle_errors 502 503 504 {
+		@page expression `!{http.request.orig_uri.path}.startsWith("/api") && !{http.request.orig_uri.path}.startsWith("/socket.io") && !{http.request.orig_uri.path}.startsWith("/livekit")`
+		handle @page {
+			header Cache-Control "no-cache, no-store, must-revalidate"
+			rewrite * /index.html
+			file_server
+		}
+	}
+}

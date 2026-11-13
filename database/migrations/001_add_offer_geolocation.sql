@@ -1,0 +1,5 @@
+-- PostgreSQL: idempotent offer location columns.
+ALTER TABLE offers
+  ADD COLUMN IF NOT EXISTS latitude DECIMAL(10,7) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS longitude DECIMAL(10,7) DEFAULT NULL,
+  ADD COLUMN IF NOT EXISTS location_accuracy DECIMAL(10,2) DEFAULT NULL;
