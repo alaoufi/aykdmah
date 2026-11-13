@@ -2655,6 +2655,8 @@
     "action_retry": "Tekrar dene",
     "action_new_provider": "Hizmet veren hesabı aç",
     "action_my_requests": "Taleplerim",
-    "action_choose_both": "«İkisi de»yi seç"
+    "action_choose_both": "«İkisi de»yi seç",
+    "title_chat_closed": "Sohbet kapalı",
+    "fix_chat_closed": "Bu sohbetin iletişim süresi doldu. Mesaj atmak veya aramak için aynı kişiyle yeni bir sohbet başlatın."
   }
 }

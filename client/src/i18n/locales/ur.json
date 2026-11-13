@@ -2655,6 +2655,8 @@
     "action_retry": "دوبارہ کوشش",
     "action_new_provider": "فراہم کنندہ اکاؤنٹ بنائیں",
     "action_my_requests": "میری درخواستیں",
-    "action_choose_both": "«دونوں» چنیں"
+    "action_choose_both": "«دونوں» چنیں",
+    "title_chat_closed": "گفتگو بند ہے",
+    "fix_chat_closed": "اس گفتگو میں رابطے کا وقت ختم ہو گیا۔ پیغام یا کال کے لیے اسی شخص سے نئی گفتگو شروع کریں۔"
   }
 }

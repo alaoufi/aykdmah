@@ -30,3 +30,9 @@ test('a plain message still gets a reason and a way out; nothing gives nothing',
   assert.equal(explainProblem('', t), null);
   assert.equal(explainProblem(null, t), null);
 });
+
+test('a closed conversation (call or message refused) offers a new conversation', () => {
+  const closed = explainProblem(apiErr(403, { message: 'call_forbidden' }), t);
+  assert.equal(closed.title, 'problem.title_chat_closed');
+  assert.deepEqual(closed.actions.map(a => a.handler || a.to), ['start_new', '/chat']);
+});

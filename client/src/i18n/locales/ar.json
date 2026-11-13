@@ -2655,6 +2655,8 @@
     "action_retry": "إعادة المحاولة",
     "action_new_provider": "أنشئ حساب مقدم خدمة",
     "action_my_requests": "طلباتي",
-    "action_choose_both": "اختر «كلاهما»"
+    "action_choose_both": "اختر «كلاهما»",
+    "title_chat_closed": "المحادثة مقفلة",
+    "fix_chat_closed": "انتهت مدة التواصل في هذه المحادثة. ابدأ محادثة جديدة مع الشخص نفسه لتراسله أو تتصل به."
   }
 }

@@ -2655,6 +2655,8 @@
     "action_retry": "Try again",
     "action_new_provider": "Create a provider account",
     "action_my_requests": "My requests",
-    "action_choose_both": "Choose «Both»"
+    "action_choose_both": "Choose «Both»",
+    "title_chat_closed": "The conversation is closed",
+    "fix_chat_closed": "The contact time of this conversation has ended. Start a new conversation with the same person to message or call them."
   }
 }

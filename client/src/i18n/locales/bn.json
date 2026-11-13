@@ -2655,6 +2655,8 @@
     "action_retry": "আবার চেষ্টা",
     "action_new_provider": "সেবাদাতা অ্যাকাউন্ট খুলুন",
     "action_my_requests": "আমার অনুরোধ",
-    "action_choose_both": "«দুটোই» বাছুন"
+    "action_choose_both": "«দুটোই» বাছুন",
+    "title_chat_closed": "কথোপকথন বন্ধ",
+    "fix_chat_closed": "এই কথোপকথনে যোগাযোগের সময় শেষ। বার্তা বা কল করতে একই ব্যক্তির সাথে নতুন কথোপকথন শুরু করুন।"
   }
 }

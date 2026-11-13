@@ -2655,6 +2655,8 @@
     "action_retry": "እንደገና ሞክር",
     "action_new_provider": "የአገልግሎት ሰጪ መለያ ክፈት",
     "action_my_requests": "የእኔ ጥያቄዎች",
-    "action_choose_both": "«ሁለቱም»ን ምረጥ"
+    "action_choose_both": "«ሁለቱም»ን ምረጥ",
+    "title_chat_closed": "ውይይቱ ተዘግቷል",
+    "fix_chat_closed": "የዚህ ውይይት የመገናኛ ጊዜ አልቋል። መልእክት ለመላክ ወይም ለመደወል ከዚሁ ሰው ጋር አዲስ ውይይት ይጀምሩ።"
   }
 }

@@ -2655,6 +2655,8 @@
     "action_retry": "Coba lagi",
     "action_new_provider": "Buat akun penyedia",
     "action_my_requests": "Permintaan saya",
-    "action_choose_both": "Pilih «Keduanya»"
+    "action_choose_both": "Pilih «Keduanya»",
+    "title_chat_closed": "Percakapan ditutup",
+    "fix_chat_closed": "Waktu kontak percakapan ini telah berakhir. Mulai percakapan baru dengan orang yang sama untuk mengirim pesan atau menelepon."
   }
 }

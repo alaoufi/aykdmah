@@ -26,6 +26,10 @@ export function explainProblem(input, t) {
     return { tone: 'warning', icon: '📋', title: t('problem.title_account_type'), reason: message, fix: t('problem.fix_open_requests'), jobs,
       actions: [{ handler: 'choose_both', label: t('problem.action_choose_both') }, { to: '/client', label: t('problem.action_my_requests') }] };
   }
+  if (message === 'call_forbidden' || message === 'deny_chat_closed') {
+    return { tone: 'warning', icon: '🔒', title: t('problem.title_chat_closed'), reason: null, fix: t('problem.fix_chat_closed'),
+      actions: [{ handler: 'start_new', label: t('chat.start_new') }, { to: '/chat', label: t('nav.chat') }] };
+  }
   if (!response) {
     return { tone: 'warning', icon: '📡', title: t('problem.title_network'), reason: t('problem.reason_network'), fix: t('problem.fix_network'),
       actions: [{ handler: 'retry', label: t('problem.action_retry') }] };

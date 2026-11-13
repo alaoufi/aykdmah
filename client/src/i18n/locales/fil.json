@@ -2655,6 +2655,8 @@
     "action_retry": "Subukang muli",
     "action_new_provider": "Gumawa ng provider account",
     "action_my_requests": "Aking mga kahilingan",
-    "action_choose_both": "Piliin ang «Pareho»"
+    "action_choose_both": "Piliin ang «Pareho»",
+    "title_chat_closed": "Sarado ang usapan",
+    "fix_chat_closed": "Tapos na ang oras ng pakikipag-ugnayan sa usapang ito. Magsimula ng bagong usapan sa parehong tao para mag-message o tumawag."
   }
 }

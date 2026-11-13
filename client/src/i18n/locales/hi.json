@@ -2655,6 +2655,8 @@
     "action_retry": "फिर कोशिश करें",
     "action_new_provider": "प्रदाता खाता बनाएँ",
     "action_my_requests": "मेरे अनुरोध",
-    "action_choose_both": "«दोनों» चुनें"
+    "action_choose_both": "«दोनों» चुनें",
+    "title_chat_closed": "बातचीत बंद है",
+    "fix_chat_closed": "इस बातचीत में संपर्क का समय खत्म हो गया। संदेश या कॉल के लिए उसी व्यक्ति से नई बातचीत शुरू करें।"
   }
 }

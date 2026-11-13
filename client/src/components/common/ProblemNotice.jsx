@@ -13,7 +13,8 @@ export default function ProblemNotice({ error, handlers = {}, className = '', on
   const { logout } = useAuth();
   const problem = explainProblem(error, t);
   if (!problem) return null;
-  const reason = problem.reason || (typeof error === 'object' ? apiError(error) : '');
+  // apiError turns server codes (call_forbidden, verification_required…) into words (AYK-221).
+  const reason = typeof error === 'object' ? (apiError(error) || problem.reason) : problem.reason;
   const actions = problem.actions.filter(action => action.to || handlers[action.handler]);
 
   const run = async action => {

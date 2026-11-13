@@ -62,7 +62,8 @@ export default function DirectoryPage({ compact = false }) {
       </div>
       {problem === t('errors.blocked_by_you')
         ? <BlockedNotice message={problem} otherId={problemWith} onUnblocked={() => setProblem('')} className="form-error" />
-        : problemError && <ProblemNotice error={problemError} onClose={() => { setProblem(''); setProblemError(null); }} />}
+        : problemError && <ProblemNotice error={problemError} onClose={() => { setProblem(''); setProblemError(null); }}
+          handlers={{ start_new: () => run(problemWith, async () => navigate(`/chat/${(await contactDirectFresh(problemWith)).conversation_id}`)) }} />}
       {items.length === 0
         ? <p className="card text-fg-muted text-[14px] m-0">{t('requester.directory_empty')}</p>
         : <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 list-none p-0 m-0">
