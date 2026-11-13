@@ -2371,7 +2371,7 @@
     "directory_title": "Aking direktoryo",
     "directory_nav": "Direktoryo",
     "directory_hint": "Mga provider na idinagdag mo. Kontakin ang sinuman sa kanila nang direkta nang hindi gumagawa ng kahilingan.",
-    "directory_empty": "Walang laman ang iyong direktoryo. Pindutin ang \"Idagdag sa aking direktoryo\" sa card ng kahit sinong provider.",
+    "directory_empty": "Walang service provider sa iyong direktoryo",
     "home_title": "Ano ang kailangan mo ngayon?",
     "home_hint": "Gumawa ng kahilingan at makakarating ito sa mga provider ng propesyong iyon sa iyong lugar, o pumili ng propesyon at kontakin ang available ngayon.",
     "request_title": "Pamagat ng kahilingan",

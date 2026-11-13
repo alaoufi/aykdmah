@@ -2371,7 +2371,7 @@
     "directory_title": "My directory",
     "directory_nav": "Directory",
     "directory_hint": "Providers you added. Contact any of them directly without posting a request.",
-    "directory_empty": "Your directory is empty. Tap \"Add to my directory\" on any provider's card to find them here.",
+    "directory_empty": "There are no service providers in your directory",
     "home_title": "What do you need today?",
     "home_hint": "Post a request and it reaches providers of that profession in your area, or pick a profession and contact whoever is available now.",
     "request_title": "Request title",
