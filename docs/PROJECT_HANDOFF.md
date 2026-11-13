@@ -1,3 +1,9 @@
+## AYK-215 — 2026-11-13 (Claude) — محفوظ، غير منشور
+
+- `client/src/data/formFields.js` يعرّف حقول النماذج (الأساسي لا يُخفى). `AdminFormFieldsPage` يحفظ عبر `PUT /admin/settings` المفتاح `form_fields_hidden` (الهجرة 075، مخفي من صفحة الإعدادات العامة). `CreateRequestPage` لا يعرض المخفي ولا يرسله.
+- الإخفاء في الواجهة فقط؛ الخادم يقبل الحقول الاختيارية كما كان.
+- «عرض خدمة»: لا نموذج له في الواجهة حاليًا (`createOffer` غير مستخدم)؛ ينتظر تحديد المالك.
+
 ## AYK-213 — 2026-11-13 (Claude) — محفوظ، غير منشور
 
 - `PUT /admin/texts` يقبل `translate_all`: يترجم عبر `translationService` (Microsoft إن وُجد المفتاح، وإلا MyMemory) ويحفظ في كل لغة تنجح ترجمتها، ويعيد `translations` و`skipped`. `POST /admin/texts/reset` يقبل `all_languages`.

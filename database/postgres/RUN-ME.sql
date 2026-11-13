@@ -6349,6 +6349,12 @@ VALUES ('support_whatsapp', '0500785596', 'string', 'general', 1, 'رقم وات
 ON CONFLICT (setting_key) DO NOTHING;
 INSERT INTO schema_migrations(name) VALUES ('074_support_whatsapp.sql');
 
+-- migrations/075_form_fields_hidden.sql
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description)
+VALUES ('form_fields_hidden', '{}', 'json', 'requests', 1, 'حقول النماذج المخفية')
+ON CONFLICT (setting_key) DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('075_form_fields_hidden.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

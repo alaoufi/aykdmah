@@ -1173,7 +1173,17 @@
       "translate_skipped": "Gagal menerjemahkan: {{langs}}; teksnya tetap seperti semula.",
       "reset_all_done": "Teks asli dipulihkan di semua bahasa"
     },
-    "no_access": "Anda tidak memiliki izin untuk bagian ini. Mintalah kepada administrator."
+    "no_access": "Anda tidak memiliki izin untuk bagian ini. Mintalah kepada administrator.",
+    "form_fields": {
+      "title": "Kolom formulir",
+      "subtitle": "Tampilkan atau sembunyikan kolom opsional di formulir «Minta layanan». Kolom tersembunyi tampak pudar di sini dan tidak ditampilkan kepada pengguna saat menambah.",
+      "show": "Tampilkan",
+      "hide": "Sembunyikan",
+      "core": "Inti, tidak bisa disembunyikan",
+      "location": "Lokasi (wilayah, kota, dan distrik)",
+      "hidden_done": "Kolom «{{field}}» kini disembunyikan dari formulir.",
+      "shown_done": "Kolom «{{field}}» kini ditampilkan di formulir."
+    }
   },
   "errors": {
     "generic": "Sesuatu yang salah",
@@ -1802,7 +1812,8 @@
     "admin_book_ads": "Tinjau isi, penempatan, durasi dan biaya sebelum persetujuan atau perubahan. Periksa dampaknya sebelum konfirmasi.",
     "admin_book_wallets": "Tinjau buku besar, jumlah dan penerima sebelum tindakan keuangan. Pembayaran nyata memerlukan izin terpisah.",
     "admin_book_settings": "Ubah pengaturan yang diperlukan lalu tinjau konfirmasi. Jangan bagikan rahasia atau gambar data pengguna dalam panduan.",
-    "admin_book_texts": "Cari teks berdasarkan kata atau kuncinya dan pilih bahasa, lalu ubah dan simpan. Pengguna melihatnya dalam satu menit. «Pulihkan asli» mengembalikan teks; jika halaman memperingatkan bagian yang harus dipertahankan, jangan ubah. Menyimpan dalam bahasa Arab menerjemahkan teks ke semua bahasa secara otomatis; lalu Anda bisa mengubah tiap bahasa sendiri."
+    "admin_book_texts": "Cari teks berdasarkan kata atau kuncinya dan pilih bahasa, lalu ubah dan simpan. Pengguna melihatnya dalam satu menit. «Pulihkan asli» mengembalikan teks; jika halaman memperingatkan bagian yang harus dipertahankan, jangan ubah. Menyimpan dalam bahasa Arab menerjemahkan teks ke semua bahasa secara otomatis; lalu Anda bisa mengubah tiap bahasa sendiri.",
+    "admin_book_form_fields": "Setiap kolom punya tombol «Sembunyikan» atau «Tampilkan». Kolom tersembunyi tampak pudar dan tidak ada di formulir permintaan. Profesi dan lokasi adalah inti dan tidak bisa disembunyikan."
   },
   "request_location": {
     "title": "Lokasi layanan",

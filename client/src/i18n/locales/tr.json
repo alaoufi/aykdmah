@@ -1173,7 +1173,17 @@
       "translate_skipped": "Çevrilemedi: {{langs}}; metinleri olduğu gibi kaldı.",
       "reset_all_done": "Orijinal metin tüm dillerde geri yüklendi"
     },
-    "no_access": "Bu bölüm için izniniz yok. Yöneticiden isteyin."
+    "no_access": "Bu bölüm için izniniz yok. Yöneticiden isteyin.",
+    "form_fields": {
+      "title": "Form alanları",
+      "subtitle": "«Hizmet iste» formundaki isteğe bağlı alanları gösterin veya gizleyin. Gizli alan burada soluk görünür ve ekleme sırasında kullanıcılara gösterilmez.",
+      "show": "Göster",
+      "hide": "Gizle",
+      "core": "Temel, gizlenemez",
+      "location": "Konum (bölge, şehir ve mahalle)",
+      "hidden_done": "«{{field}}» alanı artık formda gizli.",
+      "shown_done": "«{{field}}» alanı artık formda görünüyor."
+    }
   },
   "errors": {
     "generic": "Bir şey ters gitti",
@@ -1802,7 +1812,8 @@
     "admin_book_ads": "Onay veya düzenleme öncesinde içerik, konum, süre ve ücreti inceleyin. Onaylamadan önce etkisini kontrol edin.",
     "admin_book_wallets": "Mali işlemden önce kayıtları, tutarı ve alıcıyı inceleyin. Gerçek ödemeler ayrı yetkilendirme gerektirir.",
     "admin_book_settings": "Gerekli ayarı değiştirip onayı inceleyin. Kılavuzda sırları veya kullanıcı verilerinin görüntülerini paylaşmayın.",
-    "admin_book_texts": "Metni kelimeleri veya anahtarıyla arayın ve dili seçin, sonra düzenleyip kaydedin. Kullanıcılar bir dakika içinde görür. «Orijinali geri yükle» metni geri getirir; sayfa korunması gereken bölümler konusunda uyarırsa onları değiştirmeyin. Arapça kaydetmek metni otomatik olarak tüm dillere çevirir; sonra her dili ayrı ayrı düzenleyebilirsiniz."
+    "admin_book_texts": "Metni kelimeleri veya anahtarıyla arayın ve dili seçin, sonra düzenleyip kaydedin. Kullanıcılar bir dakika içinde görür. «Orijinali geri yükle» metni geri getirir; sayfa korunması gereken bölümler konusunda uyarırsa onları değiştirmeyin. Arapça kaydetmek metni otomatik olarak tüm dillere çevirir; sonra her dili ayrı ayrı düzenleyebilirsiniz.",
+    "admin_book_form_fields": "Her alanın yanında «Gizle» veya «Göster» düğmesi vardır. Gizli alan soluk görünür ve talep formunda yer almaz. Meslek ve konum temeldir ve gizlenemez."
   },
   "request_location": {
     "title": "Hizmet yeri",

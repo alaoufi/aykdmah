@@ -1173,7 +1173,17 @@
       "translate_skipped": "Hindi naisalin: {{langs}}; nanatili ang dati nilang teksto.",
       "reset_all_done": "Naibalik ang orihinal na teksto sa lahat ng wika"
     },
-    "no_access": "Wala kang pahintulot sa seksyong ito. Hingin ito sa administrator."
+    "no_access": "Wala kang pahintulot sa seksyong ito. Hingin ito sa administrator.",
+    "form_fields": {
+      "title": "Mga field ng form",
+      "subtitle": "Ipakita o itago ang mga opsyonal na field ng form na «Humiling ng serbisyo». Malabo rito ang nakatagong field at hindi ito makikita ng mga user kapag nagdaragdag.",
+      "show": "Ipakita",
+      "hide": "Itago",
+      "core": "Pangunahin, hindi maitatago",
+      "location": "Lokasyon (rehiyon, lungsod at distrito)",
+      "hidden_done": "Nakatago na sa form ang field na «{{field}}».",
+      "shown_done": "Makikita na sa form ang field na «{{field}}»."
+    }
   },
   "errors": {
     "generic": "May nagkamali",
@@ -1802,7 +1812,8 @@
     "admin_book_ads": "Suriin ang nilalaman, puwesto, tagal at bayad bago aprubahan o baguhin. Tingnan ang epekto bago kumpirmahin.",
     "admin_book_wallets": "Suriin ang talaan, halaga at tatanggap bago gumawa ng transaksiyon. Kailangan ng hiwalay na pahintulot ang tunay na bayad.",
     "admin_book_settings": "Baguhin ang kailangang setting at suriin ang kumpirmasyon. Huwag magbahagi ng lihim o larawan ng datos ng gumagamit sa gabay.",
-    "admin_book_texts": "Hanapin ang teksto ayon sa mga salita o key nito at piliin ang wika, saka baguhin at i-save. Makikita ito ng mga user sa loob ng isang minuto. Ibinabalik ng «Ibalik ang orihinal» ang teksto; kung may babala ang page tungkol sa mga bahaging dapat panatilihin, huwag itong baguhin. Kapag nag-save sa Arabic, awtomatikong naisasalin ang teksto sa lahat ng wika; puwede mo pang baguhin ang bawat wika."
+    "admin_book_texts": "Hanapin ang teksto ayon sa mga salita o key nito at piliin ang wika, saka baguhin at i-save. Makikita ito ng mga user sa loob ng isang minuto. Ibinabalik ng «Ibalik ang orihinal» ang teksto; kung may babala ang page tungkol sa mga bahaging dapat panatilihin, huwag itong baguhin. Kapag nag-save sa Arabic, awtomatikong naisasalin ang teksto sa lahat ng wika; puwede mo pang baguhin ang bawat wika.",
+    "admin_book_form_fields": "May button na «Itago» o «Ipakita» ang bawat field. Malabo ang nakatagong field at wala ito sa form ng kahilingan. Pangunahin ang propesyon at lokasyon at hindi maitatago."
   },
   "request_location": {
     "title": "Lokasyon ng serbisyo",

@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { canRequestService } from '../utils/canRequest';
 import { useTranslation } from 'react-i18next';
+import usePublicSettings from '../hooks/usePublicSettings';
+import { hiddenFields } from '../data/formFields';
 import { listCategories, listServices } from '../services/serviceService';
 import { createRequest } from '../services/requestService';
 import { useAuth } from '../hooks/useAuth';
@@ -67,6 +69,9 @@ export default function CreateRequestPage() {
     if (form.category_id) listServices(form.category_id).then(rows => setServices(rows || [])).catch(() => {});
   }, [form.category_id]);
   const optional = label => `${label} (${t('common.optional')})`;
+  // Optional fields the owner hid in «حقول النماذج» are left out of the form (AYK-215).
+  const { settings } = usePublicSettings();
+  const hidden = hiddenFields(settings.form_fields_hidden, 'request');
 
   // The only thing a request truly needs is where the service is.
   // The location is taken from the device automatically when the account has none,
@@ -95,10 +100,11 @@ export default function CreateRequestPage() {
     try {
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => {
+        if ((k === 'title' && hidden.has('title')) || (k === 'service_id' && hidden.has('service'))) return;
         if (v !== '' && v !== null && v !== undefined) fd.append(k, v);
       });
-      if (voiceFile) fd.append('files', voiceFile);
-      media.forEach(file => fd.append('files', file));
+      if (voiceFile && !hidden.has('voice')) fd.append('files', voiceFile);
+      if (!hidden.has('attachments')) media.forEach(file => fd.append('files', file));
       appendRequestLocation(fd, locationSnapshot);
       const created = await createRequest(fd);
       if (locationSnapshot.remember_location && current === operation.current) await refresh();
@@ -135,7 +141,7 @@ export default function CreateRequestPage() {
           </select>
         </div>
 
-        {services.length > 0 && <div className="form-group">
+        {services.length > 0 && !hidden.has('service') && <div className="form-group">
           <label className="form-label">{optional(t('requester.sub_service'))}</label>
           <select className="select" value={form.service_id} onChange={(e) => update('service_id', e.target.value)} data-testid="request-service">
             <option value="">{t('common.select')}</option>
@@ -143,16 +149,16 @@ export default function CreateRequestPage() {
           </select>
         </div>}
 
-        <Input
+        {!hidden.has('title') && <Input
           label={optional(t('requester.request_title'))}
           value={form.title}
           maxLength={200}
           onChange={(e) => update('title', e.target.value)}
           placeholder={t('requester.request_title_ph')}
           data-testid="request-title"
-        />
+        />}
 
-        <div className="form-group" data-testid="request-voice">
+        {!hidden.has('voice') && <div className="form-group" data-testid="request-voice">
           <label className="form-label">🎤 {t('requester.voice_label')}</label>
           {voiceFile ? (
             <div className="flex items-center gap-2 flex-wrap">
@@ -171,9 +177,9 @@ export default function CreateRequestPage() {
           )}
           {voice.error && <p role="alert" className="form-error mt-1">{t(voice.error)}</p>}
           <p className="text-[12px] text-fg-muted mt-1 mb-0">{t('requester.voice_hint')}</p>
-        </div>
+        </div>}
 
-        <div className="form-group" data-testid="request-attachments">
+        {!hidden.has('attachments') && <div className="form-group" data-testid="request-attachments">
           <label className="form-label" htmlFor="request-files">📷 {optional(t('requester.attach_label'))}</label>
           <input id="request-files" type="file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime"
             onChange={(e) => { addMedia(e.target.files); e.target.value = ''; }} />
@@ -184,7 +190,7 @@ export default function CreateRequestPage() {
             </span>)}
           </div>}
           {mediaError && <p role="alert" className="form-error mt-1">{mediaError}</p>}
-        </div>
+        </div>}
 
         <RequestLocationFields control={requestLocation} disabled={loading} />
 

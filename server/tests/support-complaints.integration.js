@@ -54,6 +54,16 @@ if (process.env.AYK_SUPPORT_TEST !== '1') {
     assert.equal((await api('/settings/public', null)).data.support_whatsapp, '0500785596');
   });
 
+  test('hidden form fields (AYK-215) are a public setting that only settings admins change', async () => {
+    assert.deepEqual((await api('/settings/public', null)).data.form_fields_hidden, {});
+    const settingsAdmin = await fixture('admin', ['settings.manage']);
+    const other = await fixture('admin', ['texts.manage']);
+    const value = { request: ['title', 'voice'] };
+    await api('/admin/settings', other, 403, 'PUT', { items: [{ key: 'form_fields_hidden', value }] });
+    await api('/admin/settings', settingsAdmin, 200, 'PUT', { items: [{ key: 'form_fields_hidden', value }] });
+    assert.deepEqual((await api('/settings/public', null)).data.form_fields_hidden, value);
+  });
+
   test('a complaint reaches only the admins who handle user messages', async () => {
     const full = await fixture('admin', [], 1);
     const handler = await fixture('admin', ['users.manage']);

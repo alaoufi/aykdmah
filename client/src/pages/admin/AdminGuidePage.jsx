@@ -13,6 +13,7 @@ const CHAPTERS = [
   ['wallets', 'wallet.admin.title', '/admin/wallets', 'wallets.manage'],
   ['settings', 'admin.settings', '/admin/settings', 'settings.manage'],
   ['texts', 'admin.texts.title', '/admin/texts', 'texts.manage'],
+  ['form_fields', 'admin.form_fields.title', '/admin/form-fields', 'settings.manage'],
 ];
 
 export default function AdminGuidePage() {

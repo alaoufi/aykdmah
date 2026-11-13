@@ -63,6 +63,7 @@ const NAV_GROUPS = [
       { to: '/admin/integrations', icon: '🔌', labelKey: 'admin.integrations', perm: 'integrations.manage' },
       { to: '/admin/settings',     icon: '⚙️', labelKey: 'admin.settings',     perm: 'settings.manage' },
       { to: '/admin/texts',        icon: '🔤', labelKey: 'admin.texts.title',  perm: 'texts.manage' },
+      { to: '/admin/form-fields',  icon: '🧩', labelKey: 'admin.form_fields.title', perm: 'settings.manage' },
     ],
   },
 ];
