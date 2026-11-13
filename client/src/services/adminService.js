@@ -457,3 +457,19 @@ export async function saveAdsFees(body) {
   const { data } = await api.put('/admin/ads-fees', body);
   return data.data;
 }
+
+// --- Interface texts (AYK-210) ---
+export async function adminListTexts() {
+  const { data } = await api.get('/admin/texts');
+  return data.data;
+}
+
+export async function adminSaveText(lang, key, value) {
+  const { data } = await api.put('/admin/texts', { lang, key, value });
+  return data.data;
+}
+
+export async function adminResetText(lang, key) {
+  const { data } = await api.post('/admin/texts/reset', { lang, key });
+  return data.data;
+}

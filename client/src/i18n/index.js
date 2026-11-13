@@ -33,6 +33,9 @@ export const SUPPORTED_LANGUAGES = [
   { code: 'en', label: 'English', dir: 'ltr', flag: '🇬🇧' },
 ];
 
+// The built-in texts of every language (the locale files), before any edit from the admin area.
+export const DEFAULT_TEXTS = { ar, en, ur, bn, hi, ml, fil, id, ne, am, tr };
+
 // Ordered fallbacks: if a key is missing we try these in order.
 // Keep `ar` last as the project's original language.
 export const FALLBACK_CHAIN = ['en', 'ar'];
@@ -77,19 +80,10 @@ i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    resources: {
-      ar: { translation: ar },
-      en: { translation: en },
-      ur: { translation: ur },
-      bn: { translation: bn },
-      hi: { translation: hi },
-      ml: { translation: ml },
-      fil: { translation: fil },
-      id: { translation: id },
-      ne: { translation: ne },
-      am: { translation: am },
-      tr: { translation: tr },
-    },
+    // i18next writes into the objects it is given; edited texts must not overwrite the
+    // built-in ones the admin page compares against, so it gets copies.
+    resources: Object.fromEntries(Object.entries(DEFAULT_TEXTS)
+      .map(([code, texts]) => [code, { translation: JSON.parse(JSON.stringify(texts)) }])),
     fallbackLng: FALLBACK_CHAIN,
     supportedLngs: SUPPORTED_LANG_CODES,
     interpolation: { escapeValue: false },
@@ -99,11 +93,59 @@ i18n
       caches: ['localStorage'],
     },
     returnEmptyString: false,
+    // Texts edited in the admin area arrive after start-up (AYK-210): re-render when they do.
+    react: { bindI18nStore: 'added' },
     // never expose raw keys to users
     parseMissingKeyHandler: (key) => key.split('.').pop(),
   });
 
+// Interface texts edited in the admin area (AYK-210): { "group.key": "text" } per language, kept
+// on the device so the next visit shows them at once, then refreshed from /api/texts/<lang>.
+const TEXTS_CACHE_PREFIX = 'ayk_ui_texts_';
+const applied = {};
+
+export function getDefaultText(code, key) {
+  return key.split('.').reduce((node, part) => (node && typeof node === 'object' ? node[part] : undefined), DEFAULT_TEXTS[code]);
+}
+
+export function applyTextOverrides(code, overrides) {
+  if (!DEFAULT_TEXTS[code] || !overrides || typeof overrides !== 'object') return;
+  const next = {};
+  for (const [key, value] of Object.entries(overrides)) {
+    if (typeof value === 'string' && value.trim() && typeof getDefaultText(code, key) === 'string') next[key] = value;
+  }
+  // A text reset in the admin area goes back to its built-in wording.
+  const restore = {};
+  for (const key of Object.keys(applied[code] || {})) if (!(key in next)) restore[key] = getDefaultText(code, key);
+  applied[code] = next;
+  const changes = { ...restore, ...next };
+  if (Object.keys(changes).length) i18n.addResources(code, 'translation', changes);
+  if (code === baseLanguage(i18n.language)) applyLanguageToDocument(code);
+}
+
+function baseLanguage(code) {
+  const base = String(code || '').toLowerCase().split(/[-_]/)[0];
+  return SUPPORTED_LANG_CODES.includes(base) ? base : 'ar';
+}
+
+export function loadTextOverrides(code = i18n.language) {
+  const lang = baseLanguage(code);
+  try { applyTextOverrides(lang, JSON.parse(localStorage.getItem(TEXTS_CACHE_PREFIX + lang) || 'null')); } catch (_) { /* no cache */ }
+  if (typeof fetch !== 'function') return Promise.resolve();
+  const apiBase = (import.meta.env && import.meta.env.VITE_API_URL) || '';
+  return fetch(`${apiBase}/api/texts/${lang}`, { cache: 'no-store' })
+    .then(response => (response.ok ? response.json() : null))
+    .then(body => {
+      if (!body?.success || !body.data || typeof body.data !== 'object') return;
+      applyTextOverrides(lang, body.data);
+      try { localStorage.setItem(TEXTS_CACHE_PREFIX + lang, JSON.stringify(applied[lang] || {})); } catch (_) { /* private mode */ }
+    })
+    .catch(() => {});
+}
+
 i18n.on('languageChanged', applyLanguageToDocument);
+i18n.on('languageChanged', code => { loadTextOverrides(code); });
 applyLanguageToDocument(i18n.language);
+if (typeof window !== 'undefined') loadTextOverrides(i18n.language);
 
 export default i18n;

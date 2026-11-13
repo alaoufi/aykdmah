@@ -984,7 +984,8 @@
       "settings": "Pengaturan situs",
       "activity_logs": "Catatan aktivitas",
       "test_data": "Data pengujian",
-      "wallets": "Mengelola dompet, kupon dan penarikan"
+      "wallets": "Mengelola dompet, kupon dan penarikan",
+      "texts": "Teks situs"
     },
     "is_blocked": "Diblokir",
     "is_active": "Aktif",
@@ -1148,7 +1149,26 @@
     "search_districts": "Cari lingkungan",
     "no_districts_hint": "Kota ini belum memiliki lingkungan. Tambahkan di sini agar pengguna dapat memilihnya.",
     "districts_hint": "Ketuk nama kota untuk melihat lingkungannya, menambah atau memperbaiki nama.",
-    "confirm_change_body": "Apakah Anda ingin melakukan perubahan ini?"
+    "confirm_change_body": "Apakah Anda ingin melakukan perubahan ini?",
+    "texts": {
+      "title": "Teks situs",
+      "subtitle": "Ubah teks apa pun yang tampil di situs dan aplikasi, untuk setiap bahasa. Pengguna melihat perubahan dalam satu menit, dan teks asli tetap tersimpan untuk dipulihkan.",
+      "language": "Bahasa",
+      "search": "Cari berdasarkan teks atau kunci",
+      "edited_only": "Hanya yang diubah",
+      "edited": "Diubah",
+      "original": "Teks asli",
+      "save": "Simpan",
+      "reset": "Pulihkan asli",
+      "undo": "Urungkan",
+      "saved": "Teks disimpan",
+      "reset_done": "Teks asli dipulihkan",
+      "placeholders": "Biarkan bagian ini tetap sama: {{parts}}",
+      "empty_value": "Teks tidak boleh kosong",
+      "no_results": "Tidak ada teks yang cocok",
+      "show_more": "Tampilkan lagi",
+      "count": "{{shown}} dari {{total}}"
+    }
   },
   "errors": {
     "generic": "Sesuatu yang salah",
@@ -1775,7 +1795,8 @@
     "admin_book_requests": "Tinjau permintaan, status dan pihak sebelum bertindak. Jangan menguji penghapusan pada permintaan nyata.",
     "admin_book_ads": "Tinjau isi, penempatan, durasi dan biaya sebelum persetujuan atau perubahan. Periksa dampaknya sebelum konfirmasi.",
     "admin_book_wallets": "Tinjau buku besar, jumlah dan penerima sebelum tindakan keuangan. Pembayaran nyata memerlukan izin terpisah.",
-    "admin_book_settings": "Ubah pengaturan yang diperlukan lalu tinjau konfirmasi. Jangan bagikan rahasia atau gambar data pengguna dalam panduan."
+    "admin_book_settings": "Ubah pengaturan yang diperlukan lalu tinjau konfirmasi. Jangan bagikan rahasia atau gambar data pengguna dalam panduan.",
+    "admin_book_texts": "Cari teks berdasarkan kata atau kuncinya dan pilih bahasa, lalu ubah dan simpan. Pengguna melihatnya dalam satu menit. «Pulihkan asli» mengembalikan teks; jika halaman memperingatkan bagian yang harus dipertahankan, jangan ubah."
   },
   "request_location": {
     "title": "Lokasi layanan",
@@ -2371,7 +2392,7 @@
     "directory_title": "Direktori saya",
     "directory_nav": "Direktori",
     "directory_hint": "Penyedia yang Anda tambahkan. Hubungi siapa pun secara langsung tanpa membuat permintaan.",
-    "directory_empty": "Tidak ada penyedia layanan di direktori Anda",
+    "directory_empty": "Tidak ada catatan di direktori Anda",
     "home_title": "Apa yang Anda butuhkan hari ini?",
     "home_hint": "Buat permintaan dan permintaan itu sampai ke penyedia profesi tersebut di area Anda, atau pilih profesi dan hubungi yang tersedia sekarang.",
     "request_title": "Judul permintaan",

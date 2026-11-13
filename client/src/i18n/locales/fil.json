@@ -984,7 +984,8 @@
       "settings": "Mga setting ng site",
       "activity_logs": "Mga log ng aktibidad",
       "test_data": "Data ng pagsubok",
-      "wallets": "Uturin ang mga wallet, kupon at pag-withdraw"
+      "wallets": "Uturin ang mga wallet, kupon at pag-withdraw",
+      "texts": "Mga teksto ng site"
     },
     "is_blocked": "Blokado",
     "is_active": "Aktibo",
@@ -1148,7 +1149,26 @@
     "search_districts": "Maghanap ng distrito",
     "no_districts_hint": "Wala pang distrito ang lungsod na ito. Idagdag dito para mapili ng mga user.",
     "districts_hint": "I-tap ang pangalan ng lungsod para makita ang mga distrito nito, magdagdag o itama ang pangalan.",
-    "confirm_change_body": "Gusto mo bang gawin ang pagbabagong ito?"
+    "confirm_change_body": "Gusto mo bang gawin ang pagbabagong ito?",
+    "texts": {
+      "title": "Mga teksto ng site",
+      "subtitle": "Baguhin ang anumang tekstong lumalabas sa site at sa app, sa bawat wika. Makikita ng mga user ang pagbabago sa loob ng isang minuto, at nakatabi ang orihinal na teksto para maibalik.",
+      "language": "Wika",
+      "search": "Maghanap ayon sa teksto o key",
+      "edited_only": "Binago lang",
+      "edited": "Binago",
+      "original": "Orihinal na teksto",
+      "save": "I-save",
+      "reset": "Ibalik ang orihinal",
+      "undo": "I-undo",
+      "saved": "Na-save ang teksto",
+      "reset_done": "Naibalik ang orihinal na teksto",
+      "placeholders": "Huwag baguhin ang mga bahaging ito: {{parts}}",
+      "empty_value": "Hindi puwedeng walang laman ang teksto",
+      "no_results": "Walang tekstong tugma sa paghahanap",
+      "show_more": "Ipakita pa",
+      "count": "{{shown}} sa {{total}}"
+    }
   },
   "errors": {
     "generic": "May nagkamali",
@@ -1775,7 +1795,8 @@
     "admin_book_requests": "Suriin ang kahilingan, kalagayan at mga panig bago kumilos. Huwag subukan ang pagtanggal sa tunay na kahilingan.",
     "admin_book_ads": "Suriin ang nilalaman, puwesto, tagal at bayad bago aprubahan o baguhin. Tingnan ang epekto bago kumpirmahin.",
     "admin_book_wallets": "Suriin ang talaan, halaga at tatanggap bago gumawa ng transaksiyon. Kailangan ng hiwalay na pahintulot ang tunay na bayad.",
-    "admin_book_settings": "Baguhin ang kailangang setting at suriin ang kumpirmasyon. Huwag magbahagi ng lihim o larawan ng datos ng gumagamit sa gabay."
+    "admin_book_settings": "Baguhin ang kailangang setting at suriin ang kumpirmasyon. Huwag magbahagi ng lihim o larawan ng datos ng gumagamit sa gabay.",
+    "admin_book_texts": "Hanapin ang teksto ayon sa mga salita o key nito at piliin ang wika, saka baguhin at i-save. Makikita ito ng mga user sa loob ng isang minuto. Ibinabalik ng «Ibalik ang orihinal» ang teksto; kung may babala ang page tungkol sa mga bahaging dapat panatilihin, huwag itong baguhin."
   },
   "request_location": {
     "title": "Lokasyon ng serbisyo",
@@ -2371,7 +2392,7 @@
     "directory_title": "Aking direktoryo",
     "directory_nav": "Direktoryo",
     "directory_hint": "Mga provider na idinagdag mo. Kontakin ang sinuman sa kanila nang direkta nang hindi gumagawa ng kahilingan.",
-    "directory_empty": "Walang service provider sa iyong direktoryo",
+    "directory_empty": "Walang mga record sa iyong direktoryo",
     "home_title": "Ano ang kailangan mo ngayon?",
     "home_hint": "Gumawa ng kahilingan at makakarating ito sa mga provider ng propesyong iyon sa iyong lugar, o pumili ng propesyon at kontakin ang available ngayon.",
     "request_title": "Pamagat ng kahilingan",

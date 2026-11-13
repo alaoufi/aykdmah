@@ -12,6 +12,7 @@ const CHAPTERS = [
   ['ads', 'admin.ads', '/admin/ads', 'ads.manage'],
   ['wallets', 'wallet.admin.title', '/admin/wallets', 'wallets.manage'],
   ['settings', 'admin.settings', '/admin/settings', 'settings.manage'],
+  ['texts', 'admin.texts.title', '/admin/texts', 'texts.manage'],
 ];
 
 export default function AdminGuidePage() {

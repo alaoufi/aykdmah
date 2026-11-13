@@ -984,7 +984,8 @@
       "settings": "Sitesi Ayarları",
       "activity_logs": "İşlev kayıtları",
       "test_data": "Test verileri",
-      "wallets": "Cüzdanları, kuponları ve çekimleri yönetmek"
+      "wallets": "Cüzdanları, kuponları ve çekimleri yönetmek",
+      "texts": "Site metinleri"
     },
     "is_blocked": "Engellenmiş",
     "is_active": "Etkin",
@@ -1148,7 +1149,26 @@
     "search_districts": "Mahalle ara",
     "no_districts_hint": "Bu şehrin henüz mahallesi yok. Kullanıcılar seçebilsin diye buraya ekleyin.",
     "districts_hint": "Mahallelerini görmek, eklemek veya adını düzeltmek için şehir adına dokunun.",
-    "confirm_change_body": "Bu değişikliği yapmak istiyor musunuz?"
+    "confirm_change_body": "Bu değişikliği yapmak istiyor musunuz?",
+    "texts": {
+      "title": "Site metinleri",
+      "subtitle": "Sitede ve uygulamada görünen herhangi bir metni her dil için düzenleyin. Kullanıcılar değişikliği bir dakika içinde görür; orijinal metin geri yüklemek için saklanır.",
+      "language": "Dil",
+      "search": "Metin veya anahtarla ara",
+      "edited_only": "Yalnızca düzenlenenler",
+      "edited": "Düzenlendi",
+      "original": "Orijinal metin",
+      "save": "Kaydet",
+      "reset": "Orijinali geri yükle",
+      "undo": "Geri al",
+      "saved": "Metin kaydedildi",
+      "reset_done": "Orijinal metin geri yüklendi",
+      "placeholders": "Bu bölümleri değiştirmeyin: {{parts}}",
+      "empty_value": "Metin boş olamaz",
+      "no_results": "Aramayla eşleşen metin yok",
+      "show_more": "Daha fazla göster",
+      "count": "{{shown}} / {{total}}"
+    }
   },
   "errors": {
     "generic": "Bir şey ters gitti",
@@ -1775,7 +1795,8 @@
     "admin_book_requests": "İşlemden önce talebi, durumu ve tarafları inceleyin. Gerçek bir talepte silme denemesi yapmayın.",
     "admin_book_ads": "Onay veya düzenleme öncesinde içerik, konum, süre ve ücreti inceleyin. Onaylamadan önce etkisini kontrol edin.",
     "admin_book_wallets": "Mali işlemden önce kayıtları, tutarı ve alıcıyı inceleyin. Gerçek ödemeler ayrı yetkilendirme gerektirir.",
-    "admin_book_settings": "Gerekli ayarı değiştirip onayı inceleyin. Kılavuzda sırları veya kullanıcı verilerinin görüntülerini paylaşmayın."
+    "admin_book_settings": "Gerekli ayarı değiştirip onayı inceleyin. Kılavuzda sırları veya kullanıcı verilerinin görüntülerini paylaşmayın.",
+    "admin_book_texts": "Metni kelimeleri veya anahtarıyla arayın ve dili seçin, sonra düzenleyip kaydedin. Kullanıcılar bir dakika içinde görür. «Orijinali geri yükle» metni geri getirir; sayfa korunması gereken bölümler konusunda uyarırsa onları değiştirmeyin."
   },
   "request_location": {
     "title": "Hizmet yeri",
@@ -2371,7 +2392,7 @@
     "directory_title": "Rehberim",
     "directory_nav": "Rehber",
     "directory_hint": "Eklediğiniz hizmet verenler. Talep oluşturmadan herhangi biriyle doğrudan iletişime geçin.",
-    "directory_empty": "Rehberinizde hizmet veren yok",
+    "directory_empty": "Rehberinizde kayıt yok",
     "home_title": "Bugün neye ihtiyacınız var?",
     "home_hint": "Bir talep oluşturun, bölgenizdeki o mesleğin hizmet verenlerine ulaşsın; ya da bir meslek seçip şu anda müsait olanla iletişime geçin.",
     "request_title": "Talep başlığı",

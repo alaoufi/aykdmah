@@ -40,6 +40,7 @@ const PERMISSIONS = [
   // system
   { key: 'integrations.manage',  group: 'system',       label: 'admin.perm.integrations' },
   { key: 'settings.manage',      group: 'system',       label: 'admin.perm.settings',        sensitive: true },
+  { key: 'texts.manage',         group: 'system',       label: 'admin.perm.texts' },
   { key: 'activity_logs.view',   group: 'system',       label: 'admin.perm.activity_logs' },
   { key: 'test_data.manage',     group: 'system',       label: 'admin.perm.test_data',       sensitive: true },
 ];

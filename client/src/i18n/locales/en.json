@@ -984,7 +984,8 @@
       "settings": "Site settings",
       "activity_logs": "Activity logs",
       "test_data": "Test data",
-      "wallets": "Manage wallets, coupons and withdrawals"
+      "wallets": "Manage wallets, coupons and withdrawals",
+      "texts": "Site texts"
     },
     "is_blocked": "Blocked",
     "is_active": "Active",
@@ -1148,7 +1149,26 @@
     "search_districts": "Search districts",
     "no_districts_hint": "No districts for this city yet. Add them here so users can choose them.",
     "districts_hint": "Tap a city name to see its districts, add one or fix a name.",
-    "confirm_change_body": "Do you want to make this change?"
+    "confirm_change_body": "Do you want to make this change?",
+    "texts": {
+      "title": "Site texts",
+      "subtitle": "Edit any text shown on the site and in the app, for each language. Users see the change within a minute, and the original text is kept so you can restore it.",
+      "language": "Language",
+      "search": "Search by text or key",
+      "edited_only": "Edited only",
+      "edited": "Edited",
+      "original": "Original text",
+      "save": "Save",
+      "reset": "Restore original",
+      "undo": "Undo",
+      "saved": "Text saved",
+      "reset_done": "Original text restored",
+      "placeholders": "Keep these parts unchanged: {{parts}}",
+      "empty_value": "A text cannot be empty",
+      "no_results": "No texts match your search",
+      "show_more": "Show more",
+      "count": "{{shown}} of {{total}}"
+    }
   },
   "errors": {
     "generic": "Something went wrong",
@@ -1775,7 +1795,8 @@
     "admin_book_requests": "Review the request, status and parties before acting. Do not test deletion on a real request.",
     "admin_book_ads": "Review content, placement, duration and fees before approval or editing. Check the impact before confirmation.",
     "admin_book_wallets": "Review the ledger, amount and recipient before a financial action. Real payments need separate authorization.",
-    "admin_book_settings": "Change the required setting and review confirmation. Do not share secrets or user-data screenshots in the guide."
+    "admin_book_settings": "Change the required setting and review confirmation. Do not share secrets or user-data screenshots in the guide.",
+    "admin_book_texts": "Search for the text by its words or key and pick the language, then edit and save it. Users see it within a minute. «Restore original» brings the text back, and if the page warns about parts to keep, leave them unchanged."
   },
   "request_location": {
     "title": "Service location",
@@ -2371,7 +2392,7 @@
     "directory_title": "My directory",
     "directory_nav": "Directory",
     "directory_hint": "Providers you added. Contact any of them directly without posting a request.",
-    "directory_empty": "There are no service providers in your directory",
+    "directory_empty": "There are no records in your directory",
     "home_title": "What do you need today?",
     "home_hint": "Post a request and it reaches providers of that profession in your area, or pick a profession and contact whoever is available now.",
     "request_title": "Request title",

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const c = require('../controllers/adminController');
+const uiText = require('../controllers/uiTextController');
 const adC = require('../controllers/adController');
 const { authenticate } = require('../middleware/auth');
 const { requireAdmin, requirePermission } = require('../middleware/roleCheck');
@@ -36,6 +37,11 @@ router.delete('/requests/:id',          requirePermission('requests.manage'), c.
 // Settings
 router.get('/settings', requirePermission('settings.manage'), c.getSettings);
 router.put('/settings', requirePermission('settings.manage'), c.updateSettings);
+
+// Interface texts (AYK-210)
+router.get('/texts', requirePermission('texts.manage'), uiText.listTexts);
+router.put('/texts', requirePermission('texts.manage'), uiText.saveText);
+router.post('/texts/reset', requirePermission('texts.manage'), uiText.resetText);
 
 // Verifications
 router.get('/verifications',                  requirePermission('verifications.review'), c.listVerifications);
