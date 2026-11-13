@@ -488,7 +488,11 @@
     "photo_remove": "നീക്കുക",
     "photo_remove_confirm": "നിങ്ങളുടെ ഫോട്ടോ നീക്കണോ?",
     "photo_bad_type": "ഫോട്ടോ JPG, PNG അല്ലെങ്കിൽ WebP ആയിരിക്കണം.",
-    "photo_too_big": "ഫോട്ടോ {{size}} MB ആണ്; പരിധി 3.5 MB."
+    "photo_too_big": "ഫോട്ടോ {{size}} MB ആണ്; പരിധി 3.5 MB.",
+    "change_password_open": "പാസ്‌വേഡ് മാറ്റുക",
+    "forgot_current_password": "നിലവിലെ പാസ്‌വേഡ് മറന്നോ? ഫോണിലെ കോഡ് ഉപയോഗിച്ച് വീണ്ടെടുക്കുക",
+    "change_password_save": "പുതിയ പാസ്‌വേഡ് സേവ് ചെയ്യുക",
+    "password_changed_here": "പാസ്‌വേഡ് മാറ്റി. ഈ ഉപകരണത്തിൽ നിങ്ങൾ സൈൻ ഇൻ ആയി തുടരും; മറ്റ് ഉപകരണങ്ങളിൽ നിന്ന് സൈൻ ഔട്ട് ആയി."
   },
   "chat": {
     "title": "സന്ദേശങ്ങൾ",

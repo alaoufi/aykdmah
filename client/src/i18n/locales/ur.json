@@ -488,7 +488,11 @@
     "photo_remove": "ہٹائیں",
     "photo_remove_confirm": "اپنی تصویر ہٹائیں؟",
     "photo_bad_type": "تصویر JPG، PNG یا WebP ہونی چاہیے۔",
-    "photo_too_big": "تصویر {{size}} MB ہے؛ حد 3.5 MB ہے۔"
+    "photo_too_big": "تصویر {{size}} MB ہے؛ حد 3.5 MB ہے۔",
+    "change_password_open": "پاس ورڈ بدلیں",
+    "forgot_current_password": "موجودہ پاس ورڈ بھول گئے؟ اپنے فون پر کوڈ سے بحال کریں",
+    "change_password_save": "نیا پاس ورڈ محفوظ کریں",
+    "password_changed_here": "پاس ورڈ بدل گیا۔ آپ اس آلے پر سائن اِن رہے، دوسرے آلات سے سائن آؤٹ ہو گیا۔"
   },
   "chat": {
     "title": "پیغامات",

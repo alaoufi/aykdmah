@@ -40,10 +40,11 @@ export async function me() {
   return data.data;
 }
 
+// Other devices are signed out; this one keeps going with the new session (AYK-216).
 export async function changePassword(payload) {
   const token = getToken();
   const { data } = await api.put('/auth/password', payload);
-  if (getToken() === token) setToken(null);
+  if (getToken() === token) setToken(data?.data?.token || null);
   return data;
 }
 

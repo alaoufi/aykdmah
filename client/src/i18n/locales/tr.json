@@ -488,7 +488,11 @@
     "photo_remove": "Kaldır",
     "photo_remove_confirm": "Fotoğrafın kaldırılsın mı?",
     "photo_bad_type": "Fotoğraf JPG, PNG veya WebP olmalı.",
-    "photo_too_big": "Fotoğraf {{size}} MB; sınır 3,5 MB."
+    "photo_too_big": "Fotoğraf {{size}} MB; sınır 3,5 MB.",
+    "change_password_open": "Şifreyi değiştir",
+    "forgot_current_password": "Mevcut şifreyi mi unuttunuz? Telefonunuza gelen kodla kurtarın",
+    "change_password_save": "Yeni şifreyi kaydet",
+    "password_changed_here": "Şifre değiştirildi. Bu cihazda oturumunuz açık kaldı; diğer cihazlarda oturum kapandı."
   },
   "chat": {
     "title": "Mesajlar",

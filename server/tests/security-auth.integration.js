@@ -339,8 +339,10 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
 
   test('password replacement revokes existing sessions and preserves full long passwords', async () => {
     const user = await createUser(), token = tokenFor(user), nextPassword = 'a'.repeat(72) + 'first';
-    await api('/auth/password', { token, method: 'PUT', body: { current_password: password, new_password: nextPassword } });
+    const changed = (await api('/auth/password', { token, method: 'PUT', body: { current_password: password, new_password: nextPassword } })).data;
     await api('/auth/me', { token, expected: 401 });
+    // This device stays signed in with the new session it was given (AYK-216).
+    await api('/auth/me', { token: changed.token });
     await assert.rejects(socketAuth.validateToken(token));
     const row = await User.findByIdRaw(user.id);
     assert.equal(await comparePassword(nextPassword, row.password_hash), true);

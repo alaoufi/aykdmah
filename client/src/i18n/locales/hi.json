@@ -488,7 +488,11 @@
     "photo_remove": "हटाएँ",
     "photo_remove_confirm": "अपनी फ़ोटो हटाएँ?",
     "photo_bad_type": "फ़ोटो JPG, PNG या WebP होनी चाहिए।",
-    "photo_too_big": "फ़ोटो {{size}} MB है; सीमा 3.5 MB है।"
+    "photo_too_big": "फ़ोटो {{size}} MB है; सीमा 3.5 MB है।",
+    "change_password_open": "पासवर्ड बदलें",
+    "forgot_current_password": "मौजूदा पासवर्ड भूल गए? अपने फ़ोन पर कोड से वापस पाएँ",
+    "change_password_save": "नया पासवर्ड सहेजें",
+    "password_changed_here": "पासवर्ड बदल गया। आप इस डिवाइस पर साइन इन रहे; दूसरे डिवाइस से साइन आउट हो गया।"
   },
   "chat": {
     "title": "संदेश",

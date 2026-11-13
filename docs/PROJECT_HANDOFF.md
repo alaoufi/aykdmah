@@ -1,3 +1,9 @@
+## AYK-216 — 2026-11-13 (Claude) — محفوظ، غير منشور
+
+- `PUT /auth/password` يعيد `{ token }` لجلسة جديدة على هذا الجهاز (وما زال يُبطل كل الجلسات القديمة)، و`changePassword` في الواجهة يحفظه.
+- `ProfilePage`: قسم كلمة المرور مطوي حتى «تغيير كلمة المرور» (مفتوح تلقائيًا عند `must_change_password`) مع رابط `/forgot-password`.
+- `AccountTypeSection` يعرض «تم تغيير نوع الحساب» بجانب الزر.
+
 ## AYK-215 — 2026-11-13 (Claude) — محفوظ، غير منشور
 
 - `client/src/data/formFields.js` يعرّف حقول النماذج (الأساسي لا يُخفى). `AdminFormFieldsPage` يحفظ عبر `PUT /admin/settings` المفتاح `form_fields_hidden` (الهجرة 075، مخفي من صفحة الإعدادات العامة). `CreateRequestPage` لا يعرض المخفي ولا يرسله.

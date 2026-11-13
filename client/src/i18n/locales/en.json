@@ -488,7 +488,11 @@
     "photo_remove": "Remove",
     "photo_remove_confirm": "Remove your photo?",
     "photo_bad_type": "The photo must be JPG, PNG or WebP.",
-    "photo_too_big": "The photo is {{size}} MB; the limit is 3.5 MB."
+    "photo_too_big": "The photo is {{size}} MB; the limit is 3.5 MB.",
+    "change_password_open": "Change password",
+    "forgot_current_password": "Forgot the current password? Recover it with a code to your phone",
+    "change_password_save": "Save the new password",
+    "password_changed_here": "Password changed. You stay signed in on this device; other devices were signed out."
   },
   "chat": {
     "title": "Messages",

@@ -30,6 +30,8 @@ export default function AccountTypeSection({ onSaved, onError }) {
   const [venue, setVenue] = useState(null);
   const [mapOpen, setMapOpen] = useState(false);
   const [saving, setSaving] = useState(false);
+  // The result is also shown here, next to the button, not only at the top of the page (AYK-216).
+  const [done, setDone] = useState('');
   // Jobs that stop the change to requester, listed with links (AYK-070). Above the early
   // return, like every hook (AYK-140).
   const [blockingJobs, setBlockingJobs] = useState([]);
@@ -43,7 +45,7 @@ export default function AccountTypeSection({ onSaved, onError }) {
   const canSave = target !== current && !missing && !saving;
 
   const save = async () => {
-    onError(''); onSaved(''); setBlockingJobs([]);
+    onError(''); onSaved(''); setBlockingJobs([]); setDone('');
     setSaving(true);
     try {
       await changeAccountType({
@@ -55,6 +57,7 @@ export default function AccountTypeSection({ onSaved, onError }) {
       });
       await refresh();
       onSaved(t('auth.account_type_changed'));
+      setDone(t('auth.account_type_changed'));
     } catch (err) {
       onError(apiError(err));
       setBlockingJobs(err?.response?.data?.errors?.jobs || []);
@@ -74,6 +77,7 @@ export default function AccountTypeSection({ onSaved, onError }) {
           <p className="m-0 mt-2 text-fg-muted">{t('profile.blocking_jobs_hint')}</p>
         </div>
       )}
+      {done && <div role="status" className="mb-3 px-3 py-2.5 rounded-card bg-emerald-50 border border-emerald-200 text-emerald-700 text-[13.5px] font-semibold" data-testid="account-type-done">✓ {done}</div>}
       <h3 className="mb-1">{t('profile.account_type')}</h3>
       <p className="text-[12.5px] text-fg-muted mb-3">{t('profile.account_type_hint')}</p>
       <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label={t('profile.account_type')}>

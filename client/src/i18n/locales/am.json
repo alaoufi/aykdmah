@@ -488,7 +488,11 @@
     "photo_remove": "አስወግድ",
     "photo_remove_confirm": "ፎቶዎን ያስወግዱ?",
     "photo_bad_type": "ፎቶው JPG፣ PNG ወይም WebP መሆን አለበት።",
-    "photo_too_big": "ፎቶው {{size}} MB ነው፤ ገደቡ 3.5 MB ነው።"
+    "photo_too_big": "ፎቶው {{size}} MB ነው፤ ገደቡ 3.5 MB ነው።",
+    "change_password_open": "የይለፍ ቃል ቀይር",
+    "forgot_current_password": "የአሁኑን የይለፍ ቃል ረሱት? በስልክዎ በሚላክ ኮድ ያስመልሱ",
+    "change_password_save": "አዲሱን የይለፍ ቃል አስቀምጥ",
+    "password_changed_here": "የይለፍ ቃሉ ተቀይሯል። በዚህ መሣሪያ ላይ እንደገቡ ቆይተዋል፤ ሌሎች መሣሪያዎች ወጥተዋል።"
   },
   "chat": {
     "title": "መልዕክቶች",

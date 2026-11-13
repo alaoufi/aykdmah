@@ -488,7 +488,11 @@
     "photo_remove": "Hapus",
     "photo_remove_confirm": "Hapus fotomu?",
     "photo_bad_type": "Foto harus JPG, PNG, atau WebP.",
-    "photo_too_big": "Foto berukuran {{size}} MB; batasnya 3,5 MB."
+    "photo_too_big": "Foto berukuran {{size}} MB; batasnya 3,5 MB.",
+    "change_password_open": "Ubah kata sandi",
+    "forgot_current_password": "Lupa kata sandi saat ini? Pulihkan dengan kode ke ponsel Anda",
+    "change_password_save": "Simpan kata sandi baru",
+    "password_changed_here": "Kata sandi diubah. Anda tetap masuk di perangkat ini; perangkat lain telah keluar."
   },
   "chat": {
     "title": "Pesan",

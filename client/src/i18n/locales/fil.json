@@ -488,7 +488,11 @@
     "photo_remove": "Alisin",
     "photo_remove_confirm": "Alisin ang iyong larawan?",
     "photo_bad_type": "Dapat JPG, PNG o WebP ang larawan.",
-    "photo_too_big": "Ang larawan ay {{size}} MB; ang limitasyon ay 3.5 MB."
+    "photo_too_big": "Ang larawan ay {{size}} MB; ang limitasyon ay 3.5 MB.",
+    "change_password_open": "Palitan ang password",
+    "forgot_current_password": "Nakalimutan ang kasalukuyang password? Bawiin ito gamit ang code sa iyong telepono",
+    "change_password_save": "I-save ang bagong password",
+    "password_changed_here": "Napalitan ang password. Naka-sign in ka pa rin sa device na ito; na-sign out ang ibang device."
   },
   "chat": {
     "title": "Mga Mensahe",

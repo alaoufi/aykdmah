@@ -488,7 +488,11 @@
     "photo_remove": "সরান",
     "photo_remove_confirm": "আপনার ছবি সরাবেন?",
     "photo_bad_type": "ছবি JPG, PNG বা WebP হতে হবে।",
-    "photo_too_big": "ছবিটি {{size}} MB; সীমা 3.5 MB।"
+    "photo_too_big": "ছবিটি {{size}} MB; সীমা 3.5 MB।",
+    "change_password_open": "পাসওয়ার্ড বদলান",
+    "forgot_current_password": "বর্তমান পাসওয়ার্ড ভুলে গেছেন? ফোনে কোড দিয়ে ফিরিয়ে আনুন",
+    "change_password_save": "নতুন পাসওয়ার্ড সংরক্ষণ করুন",
+    "password_changed_here": "পাসওয়ার্ড বদলেছে। আপনি এই ডিভাইসে সাইন ইন আছেন; অন্য ডিভাইস থেকে সাইন আউট হয়েছে।"
   },
   "chat": {
     "title": "বার্তা",

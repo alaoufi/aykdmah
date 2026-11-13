@@ -488,7 +488,11 @@
     "photo_remove": "إزالة",
     "photo_remove_confirm": "إزالة صورتك الشخصية؟",
     "photo_bad_type": "الصورة يجب أن تكون JPG أو PNG أو WebP.",
-    "photo_too_big": "حجم الصورة {{size}} ميجابايت، والحد 3.5 ميجابايت."
+    "photo_too_big": "حجم الصورة {{size}} ميجابايت، والحد 3.5 ميجابايت.",
+    "change_password_open": "تغيير كلمة المرور",
+    "forgot_current_password": "نسيت كلمة المرور الحالية؟ استعدها برمز على جوالك",
+    "change_password_save": "حفظ كلمة المرور الجديدة",
+    "password_changed_here": "تم تغيير كلمة المرور. بقيت مسجّلًا على هذا الجهاز، وخرجت الأجهزة الأخرى."
   },
   "chat": {
     "title": "المحادثات",

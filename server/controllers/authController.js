@@ -363,8 +363,10 @@ const changePassword = asyncHandler(async (req, res) => {
 
   const hash = await hashPassword(new_password);
   if (!await User.updatePassword(req.user.id, hash, user.password_hash)) return error(res, req.t('current_password_wrong'), 409);
+  // Every other session ends; this device gets a new one and stays signed in (AYK-216).
   clearSession(req, res, { everywhere: true });
-  return success(res, null, req.t('password_changed'));
+  const token = await issueSession(req, res, await User.findByIdRaw(req.user.id));
+  return success(res, { token }, req.t('password_changed'));
 });
 
 // POST /api/auth/admin-session (AYK-202): an account with admin rights, signed in on the site, opens

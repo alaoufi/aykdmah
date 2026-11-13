@@ -36,6 +36,8 @@ const formFromUser = (user) => ({
   longitude: user?.longitude == null ? null : Number(user.longitude),
 });
 
+const PASSWORD_CHANGED_KEY = 'ayk_password_changed';
+
 export default function ProfilePage() {
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
@@ -60,6 +62,13 @@ export default function ProfilePage() {
   const formRevision = useRef(0);
   const userId = useRef(user?.id);
   const [pw, setPw] = useState({ current_password: '', new_password: '' });
+  const [passwordOpen, setPasswordOpen] = useState(() => Number(user?.must_change_password) === 1);
+  useEffect(() => {
+    try {
+      if (sessionStorage.getItem(PASSWORD_CHANGED_KEY)) { sessionStorage.removeItem(PASSWORD_CHANGED_KEY); setMsg(t('profile.password_changed_here')); }
+    } catch (_) { /* private mode */ }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
   const [countries, setCountries] = useState([]);
@@ -251,7 +260,11 @@ export default function ProfilePage() {
     try {
       await changePassword(pw);
       setPw({ current_password: '', new_password: '' });
-      setMsg(t('profile.change_password'));
+      setPasswordOpen(false);
+      // The new session reloads the account and this page; the notice waits for it (AYK-216).
+      try { sessionStorage.setItem(PASSWORD_CHANGED_KEY, '1'); } catch (_) { /* private mode */ }
+      setMsg(t('profile.password_changed_here'));
+      await refresh();
     } catch (e2) { setErr(apiError(e2)); }
   };
   const selectLevel = (key, rows, loading, disabled, error = false) => (
@@ -326,20 +339,37 @@ export default function ProfilePage() {
       <AccountTypeSection onSaved={setMsg} onError={setErr} />
       {user?.role === 'provider' && <AvailabilityEditor onSaved={setMsg} onError={setErr} />}
       {user?.role === 'provider' && <ProviderSection onSaved={setMsg} onError={setErr} t={t} refresh={refresh} />}
-      <div className="card" id="change-password">
-        <h3>{t('profile.change_password')}</h3>
+      {/* The password has its own place, closed until asked for (AYK-216): its fields never stand
+          between the other sections and their own save buttons. */}
+      <div className="card" id="change-password" data-testid="change-password">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <h3 className="m-0">🔑 {t('profile.change_password')}</h3>
+          {!passwordOpen && (
+            <Button type="button" variant="outline" size="sm" onClick={() => setPasswordOpen(true)} data-testid="open-change-password">
+              {t('profile.change_password_open')}
+            </Button>
+          )}
+        </div>
         {Number(user?.must_change_password) === 1 && (
-          <div role="alert" className="mb-3 px-3 py-2.5 rounded-card bg-amber-50 text-amber-800 border border-amber-200 text-[13px]">
+          <div role="alert" className="mt-3 px-3 py-2.5 rounded-card bg-amber-50 text-amber-800 border border-amber-200 text-[13px]">
             {t('profile.must_change_password')}
           </div>
         )}
-        <form onSubmit={savePassword}>
-          <PasswordInput label={t('profile.current_password')} required autoComplete="current-password"
-            value={pw.current_password} onChange={e => setPw({ ...pw, current_password: e.target.value })} />
-          <PasswordInput label={t('profile.new_password')} required minLength={4} autoComplete="new-password"
-            value={pw.new_password} onChange={e => setPw({ ...pw, new_password: e.target.value })} />
-          <Button type="submit" variant="primary">{t('common.save')}</Button>
-        </form>
+        {passwordOpen && (
+          <form onSubmit={savePassword} className="mt-3" data-testid="change-password-form">
+            <PasswordInput label={t('profile.current_password')} required autoComplete="current-password"
+              value={pw.current_password} onChange={e => setPw({ ...pw, current_password: e.target.value })} />
+            <Link to="/forgot-password" className="inline-block text-[13px] font-semibold text-primary mb-3">{t('profile.forgot_current_password')}</Link>
+            <PasswordInput label={t('profile.new_password')} required minLength={4} autoComplete="new-password"
+              value={pw.new_password} onChange={e => setPw({ ...pw, new_password: e.target.value })} />
+            <div className="flex gap-2">
+              <Button type="submit" variant="primary">{t('profile.change_password_save')}</Button>
+              {Number(user?.must_change_password) !== 1 && (
+                <Button type="button" variant="ghost" onClick={() => { setPasswordOpen(false); setPw({ current_password: '', new_password: '' }); }}>{t('admin.cancel_btn')}</Button>
+              )}
+            </div>
+          </form>
+        )}
       </div>
       {/* Google Play: deleting the account from the app (AYK-116). */}
       {user?.role !== 'admin' && <Link to="/delete-account" className="block text-center text-[13px] font-semibold text-danger mt-6 mb-2" data-testid="profile-delete-account">🗑️ {t('account_delete.title')}</Link>}
