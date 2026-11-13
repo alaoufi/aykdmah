@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { listDisputes } from '../services/disputeService';
 import { LoadingState } from '../components/common/Spinner';
 import { formatRelativeTime } from '../utils/formatters';
+import ProblemNotice from '../components/common/ProblemNotice';
 
 const STATUS_TONE = {
   open: 'bg-warning-soft text-warning',
@@ -35,7 +36,7 @@ export default function MyDisputesPage() {
   return (
     <div className="container page max-w-3xl mx-auto">
       <h1 className="text-fg text-2xl md:text-3xl font-extrabold mb-1">{t('dispute.my_disputes')}</h1>
-      {error && <p role="alert" className="form-error">{t('errors.generic')}</p>}
+      {error && <ProblemNotice error={t('errors.generic')} />}
       <p className="text-fg-muted text-sm mb-5">{t('dispute.my_disputes_hint')}</p>
 
       {items.length === 0 ? (

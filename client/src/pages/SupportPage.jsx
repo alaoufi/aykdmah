@@ -10,6 +10,7 @@ import { LoadingState } from '../components/common/Spinner';
 import { useAuth } from '../hooks/useAuth';
 import usePublicSettings from '../hooks/usePublicSettings';
 import { whatsappLink } from '../utils/whatsapp';
+import ProblemNotice from '../components/common/ProblemNotice';
 
 const TOPICS = ['support', 'complaint', 'suggestion', 'admin'];
 const ICONS = { support: '🛠️', complaint: '⚠️', suggestion: '💡', admin: '🏛️' };
@@ -62,7 +63,7 @@ export default function SupportPage() {
     return (
       <div className="container page max-w-3xl">
         <Link to="/support" className="text-[13px] font-semibold text-primary">← {t('support.title')}</Link>
-        {problem && <p role="alert" className="form-error">{problem}</p>}
+        {problem && <ProblemNotice error={problem} />}
         {!ticket ? <LoadingState /> : (
           <div className="card mt-3">
             <h2 className="mt-0 text-lg">{ICONS[ticket.topic]} {t(`support.topic_${ticket.topic}`)} · <span className="text-fg-muted text-[13px]">{t(`support.status_${ticket.status}`)}</span></h2>
@@ -110,7 +111,7 @@ export default function SupportPage() {
         <textarea className="input" rows={4} maxLength={4000} value={body} onChange={e => setBody(e.target.value)}
           placeholder={t('support.body_ph')} data-testid="support-body" />
         <button type="submit" className="btn btn-primary" disabled={busy || !body.trim()}>{t('support.send')}</button>
-        {problem && <p role="alert" className="form-error">{problem}</p>}
+        {problem && <ProblemNotice error={problem} />}
       </form>
       <div>
         <h3 className="text-base mb-2">{t('support.my_messages')}</h3>

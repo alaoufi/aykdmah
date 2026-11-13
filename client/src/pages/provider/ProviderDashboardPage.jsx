@@ -9,6 +9,7 @@ import { formatCurrency } from '../../utils/formatters';
 import { OFFER_STATUS } from '../../utils/constants';
 import useLiveRefresh from '../../hooks/useLiveRefresh';
 import AdSlot from '../../components/ads/AdSlot';
+import ProblemNotice from '../../components/common/ProblemNotice';
 
 export default function ProviderDashboardPage() {
   const { t } = useTranslation();
@@ -43,7 +44,7 @@ export default function ProviderDashboardPage() {
       {/* A service provider's home is this page, so the top-of-home ads show here too (AYK-157). */}
       <AdSlot placement="home_top" className="mb-4" />
       <AdSlot placement="home_hero" className="mb-4" />
-      {error && <p role="alert" className="form-error">{t('errors.generic')}</p>}
+      {error && <ProblemNotice error={t('errors.generic')} />}
       {/* Paused: say so first, since requesters cannot see them; the settings live in "ملفي". */}
       {provider?.availability_status === 'paused' && (
         <div className="card mb-4 flex items-center justify-between gap-2 flex-wrap" role="status" data-testid="paused-notice">

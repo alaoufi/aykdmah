@@ -27,6 +27,7 @@ import { getCurrentPosition, isValidCoordinates, geoSelection, preserveCoordinat
 import AdSlot from '../components/ads/AdSlot';
 import AvatarPicker from '../components/profile/AvatarPicker';
 import AdminPanelLink from '../components/layout/AdminPanelLink';
+import ProblemNotice from '../components/common/ProblemNotice';
 
 const LOCATION_LEVELS = ['country_id', 'region_id', 'governorate_id', 'city_id', 'district_id'];
 const formFromUser = (user) => ({
@@ -286,7 +287,7 @@ export default function ProfilePage() {
       {/* An account with admin rights opens the admin area from here too (AYK-202). */}
       <AdminPanelLink className="btn btn-outline w-full mb-4" />
       {msg && <div className="badge badge-success mb-3" role="status">{msg}</div>}
-      {err && <div role="alert" className="form-error mb-3" style={{ padding: 10, background: 'rgba(239,68,68,.1)', borderRadius: 8 }}>{err}</div>}
+      {err && <ProblemNotice error={err} onClose={() => setErr('')} />}
       {/* The same one-tap permissions as at sign-up, first on the page (AYK-047). */}
       <div className="mb-4"><DevicePermissions /></div>
       <ToneVolume />

@@ -11,6 +11,7 @@ import ConfirmDialog from '../components/common/ConfirmDialog';
 import { apiError } from '../services/api';
 import useCountry from '../hooks/useCountry';
 import AdPlacementMap from '../components/ads/AdPlacementMap';
+import ProblemNotice from '../components/common/ProblemNotice';
 
 // What the ad's file may be (the server checks the same): its type and at most 3.75 MiB.
 const MEDIA_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/apng', 'video/mp4', 'video/webm', 'video/ogg'];
@@ -268,7 +269,7 @@ export default function PromotePage() {
   };
 
   if (loading) return <LoadingState />;
-  if (!data) return <p role="alert" className="form-error">{t('errors.generic')}</p>;
+  if (!data) return <div className="container page"><ProblemNotice error={t('errors.generic')} /></div>;
 
   if (!config.enabled) {
     return (

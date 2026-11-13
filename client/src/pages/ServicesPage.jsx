@@ -9,6 +9,7 @@ import { localizedName } from '../utils/localize';
 import { useAuth } from '../hooks/useAuth';
 import useLiveRefresh from '../hooks/useLiveRefresh';
 import AdSlot from '../components/ads/AdSlot';
+import ProblemNotice from '../components/common/ProblemNotice';
 
 export default function ServicesPage() {
   const { t, i18n } = useTranslation();
@@ -75,7 +76,7 @@ export default function ServicesPage() {
     <div className="container page">
       <h2 className="mb-4">{isProvider ? t('work.requests_title') : t('nav.services')}</h2>
       <AdSlot placement="search" className="mb-4" />
-      {error && <p role="alert" className="form-error">{t('errors.generic')}</p>}
+      {error && <ProblemNotice error={t('errors.generic')} />}
 
       {isProvider && <div className="flex gap-1.5 mb-3" role="tablist">
         {[['1', 'opportunities.matching'], ['', 'opportunities.all']].map(([value, label]) => {

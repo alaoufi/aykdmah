@@ -5,6 +5,7 @@ import { formatCurrency } from '../../utils/formatters';
 import { LoadingState } from '../../components/common/Spinner';
 import ConfirmDialog from '../../components/common/ConfirmDialog';
 import { apiError } from '../../services/api';
+import ProblemNotice from '../../components/common/ProblemNotice';
 
 const BADGE_META = {
   trusted:  { icon: '🛡️', tone: 'bg-emerald-50 border-emerald-300 text-emerald-700' },
@@ -36,7 +37,7 @@ export default function ProviderBadgesPage() {
   useEffect(() => { load(); }, []);
 
   if (loading) return <LoadingState />;
-  if (!data) return <p role="alert" className="form-error">{t('errors.generic')}</p>;
+  if (!data) return <div className="container page"><ProblemNotice error={t('errors.generic')} /></div>;
   const { config, badges } = data;
 
   const openFor = (type) => badges.find((b) =>

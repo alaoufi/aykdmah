@@ -1,3 +1,9 @@
+## AYK-219 — 2026-11-13 (Claude) — محفوظ، غير منشور
+
+- `client/src/utils/problems.js` يحوّل خطأ الخادم (الحالة و`errors.code`) أو نصًا إلى عنوان وسبب وحل وأزرار؛ `ProblemNotice` يعرضها كبطاقة 3D (`.problem-3d` في `global.css`)، و`showProblem(err)` في `AppDialog` يعرضها كنافذة.
+- `changeRole` يرسل `code`: `admin_account` (403)، `active_jobs` و`open_requests` (409) مع `jobs`.
+- الصفحات التي ما زالت تمرر نصًا (`apiError`) تأخذ عنوانًا عامًا وحلًا عامًا مع زر الدعم؛ تمرير الخطأ الخام يعطي حلًا أدق.
+
 ## AYK-218 — 2026-11-13 (Claude) — محفوظ، غير منشور
 
 - `form_fields_required` (الهجرة 076، افتراضيًا `{"account_type":["coverage"]}`)، و`server/utils/formFields.js` يفرضه في `requestController.create` (العنوان، الصوت audio/*، المرفقات image/video، الخدمة الفرعية إن وُجدت للمهنة)، وفي `changeRole` تصبح التغطية الفارغة الاختيارية حي الحساب.

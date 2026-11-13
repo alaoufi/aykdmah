@@ -87,6 +87,25 @@ if (process.env.AYK_SUPPORT_TEST !== '1') {
       { key: 'form_fields_hidden', value: {} }, { key: 'form_fields_required', value: { account_type: ['coverage'] } }] });
   });
 
+  test('a refused account type change says why, with a code the page turns into a way out (AYK-219)', async () => {
+    const admin = await fixture('admin', [], 1);
+    const siteToken = jwt.sign({ id: Number(admin.id), role: 'admin', scope: 'site', sv: 0 });
+    const response = await fetch(`${base}/users/me/role`, { method: 'PUT', body: JSON.stringify({ role: 'client' }),
+      headers: { Authorization: `Bearer ${siteToken}`, 'Content-Type': 'application/json', 'Accept-Language': 'ar' } });
+    const body = await response.json();
+    assert.equal(response.status, 403);
+    assert.equal(body.errors.code, 'admin_account');
+    assert.match(body.message, /حساب إدارة/);
+    const client = await fixture('client');
+    await db.query("INSERT INTO requests (client_id, title, description, status) VALUES (?, 'طلب مفتوح', 'x', 'open')", [client.id]);
+    const refused = await fetch(`${base}/users/me/role`, { method: 'PUT', body: JSON.stringify({ role: 'provider' }),
+      headers: { Authorization: `Bearer ${token(client)}`, 'Content-Type': 'application/json' } });
+    const refusedBody = await refused.json();
+    assert.equal(refused.status, 409);
+    assert.equal(refusedBody.errors.code, 'open_requests');
+    assert.equal(refusedBody.errors.jobs[0].title, 'طلب مفتوح');
+  });
+
   test('a complaint reaches only the admins who handle user messages', async () => {
     const full = await fixture('admin', [], 1);
     const handler = await fixture('admin', ['users.manage']);

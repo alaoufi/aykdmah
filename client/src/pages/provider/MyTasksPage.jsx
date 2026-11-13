@@ -6,6 +6,7 @@ import { listMyOffers } from '../../services/requestService';
 import { LoadingState, EmptyState } from '../../components/common/Spinner';
 import { formatCurrency } from '../../utils/formatters';
 import { OFFER_STATUS } from '../../utils/constants';
+import ProblemNotice from '../../components/common/ProblemNotice';
 
 // "My professional tasks" (AYK-075): requests the provider contacted or was assigned,
 // active ones apart from the archive of finished, cancelled or lost ones.
@@ -48,7 +49,7 @@ export default function MyTasksPage() {
           </button>
         ))}
       </div>
-      {error && <p role="alert" className="form-error">{t('errors.generic')}</p>}
+      {error && <ProblemNotice error={t('errors.generic')} />}
       {loading ? <LoadingState /> :
        items.length === 0 ? <EmptyState title={t('common.none')} /> :
        <div className="flex flex-col gap-2">{items.map(o => (

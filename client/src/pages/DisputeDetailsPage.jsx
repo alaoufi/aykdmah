@@ -10,6 +10,7 @@ import { useAuth } from '../hooks/useAuth';
 import { LoadingState } from '../components/common/Spinner';
 import Avatar from '../components/common/Avatar';
 import { formatTime } from '../utils/formatters';
+import ProblemNotice from '../components/common/ProblemNotice';
 
 const STATUS_LABEL = {
   open: 'status_open', under_review: 'status_under_review',
@@ -74,7 +75,7 @@ export default function DisputeDetailsPage() {
 
   return (
     <div className="container page max-w-3xl mx-auto">
-      {err && <p role="alert" className="form-error mb-3">{err}</p>}
+      {err && <ProblemNotice error={err} />}
       <div className="bg-surface border border-border rounded-card p-5 shadow-soft mb-4">
         <div className="flex items-start justify-between gap-3 mb-3">
           <div>

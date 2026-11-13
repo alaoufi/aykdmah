@@ -233,7 +233,10 @@ const changeRole = asyncHandler(async (req, res) => {
   const target = req.body.role;
   if (!['client', 'provider', 'both'].includes(target)) return error(res, req.t('type_invalid'), 400);
   const user = await queryOne(`SELECT id, role, to_jsonb(users)->>'also_client' AS also_client, city_id, district_id FROM users WHERE id = ? AND deleted_at IS NULL`, [req.user.id]);
-  if (!user || !['client', 'provider'].includes(user.role)) return forbidden(res);
+  if (!user) return forbidden(res);
+  // Each refusal says why and carries what the page needs to offer the way out (AYK-219).
+  if (user.role === 'admin') return error(res, req.t('role_change_admin'), 403, { code: 'admin_account' });
+  if (!['client', 'provider'].includes(user.role)) return forbidden(res);
   const current = user.role === 'client' ? 'client' : Number(user.also_client) === 1 ? 'both' : 'provider';
   if (current === target) return success(res, await User.findById(user.id), req.t('updated'));
 
@@ -241,11 +244,11 @@ const changeRole = asyncHandler(async (req, res) => {
   if (target === 'client') {
     // Name the jobs that block the change, so the user can open and finish them (AYK-070).
     const jobs = await query(`SELECT id, title, status FROM requests WHERE assigned_provider_id = ? AND status IN ('assigned', 'in_progress') AND deleted_at IS NULL ORDER BY id LIMIT 20`, [user.id]);
-    if (jobs.length) return error(res, req.t('role_change_active_jobs'), 409, { jobs: jobs.map(j => ({ id: j.id, title: j.title, status: j.status })) });
+    if (jobs.length) return error(res, req.t('role_change_active_jobs'), 409, { code: 'active_jobs', jobs: jobs.map(j => ({ id: j.id, title: j.title, status: j.status })) });
   }
   if (target === 'provider' && current !== 'provider') {
-    const own = await queryOne(`SELECT id FROM requests WHERE client_id = ? AND status IN (${placeholders}) AND deleted_at IS NULL LIMIT 1`, [user.id, ...ACTIVE_REQUEST]);
-    if (own) return error(res, req.t('role_change_open_requests'), 409);
+    const own = await query(`SELECT id, title, status FROM requests WHERE client_id = ? AND status IN (${placeholders}) AND deleted_at IS NULL ORDER BY id LIMIT 20`, [user.id, ...ACTIVE_REQUEST]);
+    if (own.length) return error(res, req.t('role_change_open_requests'), 409, { code: 'open_requests', jobs: own.map(j => ({ id: j.id, title: j.title, status: j.status })) });
   }
 
   // Becoming a provider needs the same work details as a provider sign-up,

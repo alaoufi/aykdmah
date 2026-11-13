@@ -3,6 +3,7 @@ import { useLocation } from 'react-router-dom';
 import { invalidateContactIntents } from '../../utils/contactIntent';
 import { TOKEN_CHANGE_EVENT, TOKEN_KEY, ADMIN_TOKEN_KEY } from '../../services/api';
 import { useTranslation } from 'react-i18next';
+import ProblemNotice from './ProblemNotice';
 
 // The app's own dialogs (AYK-155), in place of the browser's bare alert / confirm / prompt boxes
 // (which show the site's address and look out of place). Call them from anywhere:
@@ -24,6 +25,8 @@ export const showAlert = (options) => show({ kind: 'alert', ...options });
 export const askConfirm = (options) => show({ kind: 'confirm', ...options });
 export const askChoice = (options) => show({ kind: 'choice', ...options });
 export const askText = (options) => show({ kind: 'prompt', ...options });
+// A refusal or failure with its reason and way out, as the site's 3D message card (AYK-219).
+export const showProblem = (error) => show({ kind: 'problem', error });
 
 const ICON = { alert: 'ℹ️', confirm: '❓', prompt: '✍️', choice: '💬', danger: '⚠️', success: '✅' };
 
@@ -101,6 +104,16 @@ export default function AppDialogHost() {
   };
 
   const Field = multiline ? 'textarea' : 'input';
+  if (kind === 'problem') {
+    return (
+      <div className="fixed inset-0 z-[6000] grid place-items-center bg-black/45 backdrop-blur-[2px] px-5" onKeyDown={onKey}
+        onMouseDown={(e) => { if (e.target === e.currentTarget) cancel(); }}>
+        <div className="w-full max-w-md" data-testid="app-dialog" role="alertdialog" aria-modal="true">
+          <ProblemNotice error={current.error} onClose={cancel} />
+        </div>
+      </div>
+    );
+  }
   return (
     <div className="fixed inset-0 z-[6000] grid place-items-center bg-black/45 backdrop-blur-[2px] px-5" onKeyDown={onKey}
       onMouseDown={(e) => { if (e.target === e.currentTarget) cancel(); }}>

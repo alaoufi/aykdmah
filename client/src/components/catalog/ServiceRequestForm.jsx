@@ -12,6 +12,7 @@ import { createRequest } from '../../services/requestService';
 import { apiError } from '../../services/api';
 import JoinInvite from '../common/JoinInvite';
 import { tx } from '../../utils/localize';
+import ProblemNotice from '../common/ProblemNotice';
 
 const EMPTY = { desc: '', preferredTime: '', notes: '' };
 export default function ServiceRequestForm({ service, open, onClose }) {
@@ -79,7 +80,7 @@ export default function ServiceRequestForm({ service, open, onClose }) {
     {!user ? <JoinInvite intent="request" compact from={`/services/${service.id}${locationQuery ? `?${locationQuery}` : ''}`} />
     : created ? <div className="text-center py-6"><div className="text-5xl mb-3">✅</div><p className="font-bold">{t('catalog.order_success')}</p><Link to={`/requests/${created.id}`} className="btn btn-primary mt-4">{t('request.details_title')}</Link></div>
     : <form onSubmit={submit}>
-      {error && <div role="alert" className="form-error mb-3">{error}</div>}
+      {error && <ProblemNotice error={error} />}
       <RequestLocationFields control={requestLocation} prefix="catalog" disabled={loading} />
       <Input as="textarea" label={t('catalog.request_desc')} maxLength={8000} value={form.desc} onChange={event => set('desc', event.target.value)} />
       <div className="form-group"><label className="form-label" htmlFor="catalog-files">{t('catalog.upload_images')}</label><input id="catalog-files" type="file" multiple accept="image/jpeg,image/png,image/webp" onChange={event => setFiles(Array.from(event.target.files || []).slice(0, 5))} />{files.length > 0 && <div className="text-xs text-muted mt-1">{t('request.files_count', { count: files.length })}</div>}</div>

@@ -7,6 +7,7 @@ import PasswordInput from '../components/common/PasswordInput';
 import Button from '../components/common/Button';
 import { apiError } from '../services/api';
 import { internalAuthReturn, authReturnTarget, isRequestAuthReturn } from '../utils/authReturn';
+import ProblemNotice from '../components/common/ProblemNotice';
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -51,7 +52,7 @@ export default function LoginPage() {
       {isRequestAuthReturn(from) && <p role="status" className="text-sm text-secondary mb-3">{t('auth.request_signin_hint')}</p>}
 
       {location.state?.notice && !error && <div role="status" className="mb-3 px-3 py-2 rounded-card bg-success-soft text-success text-[13px] font-semibold">✓ {location.state.notice}</div>}
-      {error && <div className="form-error mb-3" style={{ background: 'rgba(239,68,68,.1)', padding: 10, borderRadius: 8 }}>{error}</div>}
+      {error && <ProblemNotice error={error} />}
 
       <Input
         label={t('auth.identifier')}

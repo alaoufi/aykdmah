@@ -13,11 +13,11 @@ import useCountry from '../hooks/useCountry';
 import Input from '../components/common/Input';
 import Button from '../components/common/Button';
 import RequestLocationFields from '../components/common/RequestLocationFields';
-import { apiError } from '../services/api';
 import { localizedName } from '../utils/localize';
 import useVoiceRecording from '../hooks/useVoiceRecording';
 import { addChatAttachments, CHAT_MEDIA_MAX_BYTES, recordingTime } from '../utils/chatMedia';
 import VoiceNote from '../components/chat/VoiceNote';
+import ProblemNotice from '../components/common/ProblemNotice';
 
 const EMPTY_FORM = { category_id: '', service_id: '', title: '' };
 
@@ -118,7 +118,8 @@ export default function CreateRequestPage() {
       if (locationSnapshot.remember_location && current === operation.current) await refresh();
       if (current === operation.current) navigate(`/requests/${created.id}`);
     } catch (err) {
-      if (current === operation.current) setError(apiError(err));
+      // The raw error keeps the server's reason and code for the message card (AYK-219).
+      if (current === operation.current) setError(err);
     } finally {
       if (current === operation.current) setLoading(false);
     }
@@ -131,11 +132,7 @@ export default function CreateRequestPage() {
     <div className="container page">
       <h2 className="mb-4">{t('request.create_title')}</h2>
 
-      {error && (
-        <div className="form-error mb-3" style={{ background: 'rgba(239,68,68,.1)', padding: 10, borderRadius: 8 }}>
-          {error}
-        </div>
-      )}
+      {error && <ProblemNotice error={error} onClose={() => setError('')} />}
 
       <form onSubmit={submit} className="card" style={{ padding: 24 }}>
         {/* Only the profession is required; the sub-service, title and description are

@@ -23,6 +23,7 @@ import { apiError } from '../services/api';
 import { localizedName } from '../utils/localize';
 import { getCurrentPosition, isValidCoordinates, geoSelection } from '../utils/geolocation.mjs';
 import { internalAuthReturn, authReturnTarget } from '../utils/authReturn';
+import ProblemNotice from '../components/common/ProblemNotice';
 
 const ROLES = [
   { key: 'client', icon: '🙋', label: 'auth.role_client' },
@@ -270,7 +271,7 @@ export default function RegisterPage() {
       <fieldset disabled={loading} className="min-w-0 border-0 p-0 m-0 space-y-3">
         <h2 className="mb-0">{t('auth.register_title')}</h2>
 
-        {error && <div role="alert" className="form-error" style={{ background: 'rgba(239,68,68,.1)', padding: 8, borderRadius: 8 }}>{error}</div>}
+        {error && <ProblemNotice error={error} />}
 
         <div className="role-tabs" role="radiogroup" aria-label={t('auth.account_type')}>
           {ROLES.map(role => (

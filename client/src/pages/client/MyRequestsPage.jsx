@@ -7,6 +7,7 @@ import { apiError } from '../../services/api';
 import RequestCard from '../../components/requests/RequestCard';
 import { LoadingState, EmptyState } from '../../components/common/Spinner';
 import { askConfirm } from '../../components/common/AppDialog';
+import ProblemNotice from '../../components/common/ProblemNotice';
 
 export default function MyRequestsPage() {
   const { t } = useTranslation();
@@ -61,8 +62,8 @@ export default function MyRequestsPage() {
           </button>
         ))}
       </div>
-      {error && <p role="alert" className="form-error">{t('errors.generic')}</p>}
-      {problem && <p role="alert" className="form-error">{problem}</p>}
+      {error && <ProblemNotice error={t('errors.generic')} />}
+      {problem && <ProblemNotice error={problem} />}
 
       {loading ? <LoadingState /> :
        items.length === 0 ? <EmptyState title={t('common.none')} /> :

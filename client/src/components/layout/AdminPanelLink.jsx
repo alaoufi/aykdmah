@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
-import api, { ADMIN_TOKEN_KEY, getToken, apiError } from '../../services/api';
-import { showAlert } from '../common/AppDialog';
+import api, { ADMIN_TOKEN_KEY, getToken } from '../../services/api';
+import { showProblem } from '../common/AppDialog';
 
 // One sign-in, like Trbhh and Jadati (AYK-202): an account with admin rights sees «لوحة الإدارة» in
 // its menu and opens it without signing in again. The admin area still keeps its own session
@@ -25,7 +25,7 @@ export default function AdminPanelLink({ className = '', onDone }) {
       window.location.assign('/admin');
     } catch (err) {
       setBusy(false);
-      showAlert({ message: apiError(err) });
+      showProblem(err);
     }
   };
 

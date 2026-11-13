@@ -2,9 +2,8 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
 import { changeAccountType } from '../../services/authService';
-import { apiError } from '../../services/api';
-import { Link } from 'react-router-dom';
 import Button from '../common/Button';
+import ProblemNotice from '../common/ProblemNotice';
 import ProfessionsPicker from '../common/ProfessionsPicker';
 import CoverageDistrictsPicker from '../common/CoverageDistrictsPicker';
 import ServiceVenuePicker from '../common/ServiceVenuePicker';
@@ -34,10 +33,7 @@ export default function AccountTypeSection({ onSaved, onError }) {
   const [saving, setSaving] = useState(false);
   // The result is also shown here, next to the button, not only at the top of the page (AYK-216).
   const [done, setDone] = useState('');
-  const [failed, setFailed] = useState('');
-  // Jobs that stop the change to requester, listed with links (AYK-070). Above the early
-  // return, like every hook (AYK-140).
-  const [blockingJobs, setBlockingJobs] = useState([]);
+  const [failed, setFailed] = useState(null);
   // Work details the owner hid in «حقول النماذج» are not asked (AYK-217).
   const { settings } = usePublicSettings();
   const hidden = hiddenFields(settings.form_fields_hidden, 'account_type');
@@ -63,7 +59,7 @@ export default function AccountTypeSection({ onSaved, onError }) {
   const canSave = target !== current && !missing && !saving;
 
   const save = async () => {
-    onError(''); onSaved(''); setBlockingJobs([]); setDone(''); setFailed('');
+    onError(''); onSaved(''); setDone(''); setFailed(null);
     setSaving(true);
     try {
       await changeAccountType({
@@ -79,26 +75,13 @@ export default function AccountTypeSection({ onSaved, onError }) {
       onSaved(t('auth.account_type_changed'));
       setDone(t('auth.account_type_changed'));
     } catch (err) {
-      onError(apiError(err));
-      setFailed(apiError(err));
-      setBlockingJobs(err?.response?.data?.errors?.jobs || []);
+      // Why it was refused and the way out, next to the button (AYK-219).
+      setFailed(err);
     } finally { setSaving(false); }
   };
 
   return (
     <div className="card mb-4" id="account-type" data-testid="account-type">
-      {blockingJobs.length > 0 && (
-        <div className="mb-3 p-3 rounded-card bg-danger-soft text-[13.5px]" role="alert" data-testid="blocking-jobs">
-          <p className="m-0 mb-2 font-semibold">{t('profile.blocking_jobs_title')}</p>
-          <ul className="m-0 ps-5 space-y-1">
-            {blockingJobs.map(job => (
-              <li key={job.id}><Link to={`/requests/${job.id}`} className="font-semibold text-primary underline">{job.title || `#${job.id}`}</Link></li>
-            ))}
-          </ul>
-          <p className="m-0 mt-2 text-fg-muted">{t('profile.blocking_jobs_hint')}</p>
-        </div>
-      )}
-      {done && <div role="status" className="mb-3 px-3 py-2.5 rounded-card bg-emerald-50 border border-emerald-200 text-emerald-700 text-[13.5px] font-semibold" data-testid="account-type-done">✓ {done}</div>}
       <h3 className="mb-1">{t('profile.account_type')}</h3>
       <p className="text-[12.5px] text-fg-muted mb-3">{t('profile.account_type_hint')}</p>
       <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label={t('profile.account_type')}>
@@ -141,7 +124,8 @@ export default function AccountTypeSection({ onSaved, onError }) {
             {t('profile.account_type_save')}
           </Button>
           {missing && <p className="text-center text-[12px] text-fg-muted mt-1">{t('auth.complete_to_enable', { item: missing })}</p>}
-          {failed && <p role="alert" className="mt-2 px-3 py-2 rounded-card bg-rose-50 border border-rose-200 text-rose-700 text-[13px] font-semibold" data-testid="account-type-failed">{failed}</p>}
+          {failed && <ProblemNotice className="mt-3" error={failed} onClose={() => setFailed(null)}
+            handlers={{ choose_both: () => { setTarget('both'); setFailed(null); } }} />}
         </div>
       )}
 
