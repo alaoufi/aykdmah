@@ -619,7 +619,8 @@
     "provider_opinions": "सेवा माँगने वालों की राय",
     "opinions": "रेटिंग और राय",
     "requested_professions": "आपके अनुरोध वाले पेशे",
-    "requested_professions_empty": "आपने अभी तक किसी पेशे की सेवा नहीं माँगी है; सभी पेशे दिखाए जा रहे हैं।"
+    "requested_professions_empty": "आपने अभी तक किसी पेशे की सेवा नहीं माँगी है; सभी पेशे दिखाए जा रहे हैं।",
+    "start_new": "नई बातचीत शुरू करें"
   },
   "tracking": {
     "title": "लाइव ट्रैकिंग",

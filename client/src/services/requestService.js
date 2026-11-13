@@ -7,6 +7,9 @@ async function contactChoice(params,intent) {
   intent.assertCurrent();
   const previous = data.data?.[0];
   if (!previous) return {fresh:false};
+  // A conversation that can no longer be written in (its contact time ended) is never offered:
+  // a new one starts straight away (AYK-221).
+  if (previous.can_send === false) return {fresh:true};
   const choice = await askChoice({isCurrent:intent.isCurrent,title:i18n.t('chat.previous_title'),message:i18n.t('chat.previous_hint'),choices:[{value:'open',label:i18n.t('chat.open_previous')},{value:'new',label:i18n.t('chat.new_conversation')}]});
   intent.assertCurrent();
   if (choice === null) throw Object.assign(new Error('Cancelled'), {cancelled:true});
@@ -129,5 +132,11 @@ export async function acceptOffer(offerId) {
 
 export async function rejectOffer(offerId) {
   const { data } = await api.put(`/offers/${offerId}/reject`);
+  return data.data;
+}
+
+// A new direct contact with a provider, never reusing a closed conversation (AYK-221).
+export async function contactDirectFresh(providerId, categoryId) {
+  const { data } = await api.post('/requests/direct', { fresh: true, provider_id: providerId, ...(categoryId ? { category_id: categoryId } : {}) });
   return data.data;
 }

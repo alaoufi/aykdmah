@@ -619,7 +619,8 @@
     "provider_opinions": "Pendapat peminta layanan",
     "opinions": "Penilaian dan pendapat",
     "requested_professions": "Profesi yang Anda minta",
-    "requested_professions_empty": "Anda belum pernah meminta layanan dari suatu profesi; semua profesi ditampilkan."
+    "requested_professions_empty": "Anda belum pernah meminta layanan dari suatu profesi; semua profesi ditampilkan.",
+    "start_new": "Mulai percakapan baru"
   },
   "tracking": {
     "title": "Pelacakan langsung",

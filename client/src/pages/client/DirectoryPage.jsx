@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { listDirectory, saveToDirectory, contactDirect } from '../../services/requestService';
+import { listDirectory, saveToDirectory, contactDirect, contactDirectFresh } from '../../services/requestService';
 import { apiError } from '../../services/api';
 import { localizedJoinedName } from '../../utils/localizeJoined';
 import { localizedName } from '../../utils/localize';
@@ -11,6 +11,7 @@ import { LoadingState } from '../../components/common/Spinner';
 import { getConversation, createConversation } from '../../services/chatService';
 import { useCall } from '../../context/CallContext';
 import BlockedNotice from '../../components/common/BlockedNotice';
+import ProblemNotice from '../../components/common/ProblemNotice';
 
 // "My directory" (AYK-041): providers the requester kept, to contact again directly
 // without posting a request. Each contact is still recorded as a request.
@@ -26,14 +27,18 @@ export default function DirectoryPage({ compact = false }) {
   const { start: startCall } = useCall();
 
   const [problemWith, setProblemWith] = useState(null);
+  // The raw error, for the message card with its reason and way out (AYK-219/221).
+  const [problemError, setProblemError] = useState(null);
   const run = async (id, action) => {
-    setBusy(id); setProblem(''); setProblemWith(id);
-    try { await action(); } catch (err) { !err?.cancelled && setProblem(apiError(err)); } finally { setBusy(0); }
+    setBusy(id); setProblem(''); setProblemError(null); setProblemWith(id);
+    try { await action(); } catch (err) { if (!err?.cancelled) { setProblem(apiError(err)); setProblemError(err); } } finally { setBusy(0); }
   };
   // Message: the existing chat, or (a provider) a direct request; call: through that chat (AYK-109).
   const chatWith = async p => {
     if (p.conversation_id) {
       const previous = await getConversation(p.conversation_id);
+      // A conversation whose contact time ended is read-only: start a new one instead (AYK-221).
+      if (previous.can_send === false) return (await contactDirectFresh(p.id, p.category_id)).conversation_id;
       const next = await createConversation({user_id:p.id,request_id:previous.request_id});
       return next.id;
     }
@@ -55,7 +60,9 @@ export default function DirectoryPage({ compact = false }) {
         </div>
         {compact && items.length > 0 && <Link to="/directory" className="text-[13px] font-semibold text-primary">{t('for_you.view_all')}</Link>}
       </div>
-      <BlockedNotice message={problem} otherId={problemWith} onUnblocked={() => setProblem('')} className="form-error" />
+      {problem === t('errors.blocked_by_you')
+        ? <BlockedNotice message={problem} otherId={problemWith} onUnblocked={() => setProblem('')} className="form-error" />
+        : problemError && <ProblemNotice error={problemError} onClose={() => { setProblem(''); setProblemError(null); }} />}
       {items.length === 0
         ? <p className="card text-fg-muted text-[14px] m-0">{t('requester.directory_empty')}</p>
         : <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 list-none p-0 m-0">

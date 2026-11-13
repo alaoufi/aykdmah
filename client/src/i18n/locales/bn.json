@@ -619,7 +619,8 @@
     "provider_opinions": "সেবাপ্রার্থীদের মতামত",
     "opinions": "মূল্যায়ন ও মতামত",
     "requested_professions": "আপনার অনুরোধ করা পেশা",
-    "requested_professions_empty": "আপনি এখনো কোনো পেশার সেবা চাননি; সব পেশা দেখানো হচ্ছে।"
+    "requested_professions_empty": "আপনি এখনো কোনো পেশার সেবা চাননি; সব পেশা দেখানো হচ্ছে।",
+    "start_new": "নতুন কথোপকথন শুরু করুন"
   },
   "tracking": {
     "title": "লাইভ ট্র্যাকিং",

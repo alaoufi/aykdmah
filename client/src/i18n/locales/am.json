@@ -619,7 +619,8 @@
     "provider_opinions": "የአገልግሎት ጠያቂዎች አስተያየቶች",
     "opinions": "ደረጃዎች እና አስተያየቶች",
     "requested_professions": "እርስዎ የጠየቋቸው ሙያዎች",
-    "requested_professions_empty": "እስካሁን የሙያ አገልግሎት አልጠየቁም፤ ሁሉም ሙያዎች እየታዩ ነው።"
+    "requested_professions_empty": "እስካሁን የሙያ አገልግሎት አልጠየቁም፤ ሁሉም ሙያዎች እየታዩ ነው።",
+    "start_new": "አዲስ ውይይት ጀምር"
   },
   "tracking": {
     "title": "የቀጥታ ስርጭት መከታተያ",

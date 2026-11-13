@@ -27,8 +27,8 @@ import { formatRelativeTime, formatTime, truncate, dayLabel, isSameDay } from '.
 import { getCurrentPosition } from '../utils/geo';
 import { sentTone } from '../utils/ringtone';
 import { createPollingLoop } from '../utils/polling';
-import { agreeRequest, saveToDirectory } from '../services/requestService';
-import { askConfirm, askText, showAlert } from '../components/common/AppDialog';
+import { agreeRequest, saveToDirectory, contactDirectFresh } from '../services/requestService';
+import { askConfirm, askText, showAlert, showProblem } from '../components/common/AppDialog';
 import AdSlot from '../components/ads/AdSlot';
 import BottomNav from '../components/layout/BottomNav';
 import useChatViewport from '../hooks/useChatViewport';
@@ -98,6 +98,12 @@ export default function ChatPage() {
   scopeRef.current = sessionKey;
   const activeReady = activeScope === sessionKey && Number(active?.id) === Number(activeId);
   const canSend = activeReady && active.can_send !== false;
+  const startFreshChat = async () => {
+    try {
+      const fresh = await contactDirectFresh(otherParticipant.id, active.request_category_id || null);
+      navigate(`/chat/${fresh.conversation_id}`);
+    } catch (err) { showProblem(err); }
+  };
   const canShareLocation = canSend && active.can_share_location !== false;
   const [listError, setListError] = useState(false);
   const [messageError, setMessageError] = useState(false);
@@ -583,7 +589,16 @@ export default function ChatPage() {
                 </div>
               ) : active.blocked_me ? (
                 <p role="status" className="m-2 p-3 rounded-card bg-surface-alt text-fg-muted text-sm" data-testid="blocked-me">🚫 {t('chat.they_blocked', { name: otherParticipant?.full_name || '' })}</p>
-              ) : <p role="status" className="text-sm text-muted p-3" data-testid="chat-closed-reason">{t(active.closed_reason ? `chat.closed_${active.closed_reason}` : 'chat.read_only')}</p>
+              ) : (
+                // A closed conversation stays to read; the requester starts a new one with the same
+                // provider from here (AYK-221), instead of a dead end.
+                <div className="m-2 p-3 rounded-card bg-surface-alt text-sm flex items-center gap-2 flex-wrap" data-testid="chat-closed">
+                  <p role="status" className="flex-1 m-0 text-muted" data-testid="chat-closed-reason">{t(active.closed_reason ? `chat.closed_${active.closed_reason}` : 'chat.read_only')}</p>
+                  {otherParticipant && Number(active.request_client_id) === Number(user.id) && (
+                    <button type="button" className="btn btn-primary btn-sm" onClick={startFreshChat} data-testid="chat-start-new">💬 {t('chat.start_new')}</button>
+                  )}
+                </div>
+              )
             )}
             {/* "Agreed?": the requester may talk to several providers; agreeing with one
                 assigns the request and closes the other conversations about it. */}

@@ -619,7 +619,8 @@
     "provider_opinions": "Hizmet isteyenlerin görüşleri",
     "opinions": "Puanlar ve görüşler",
     "requested_professions": "Talep ettiğiniz meslekler",
-    "requested_professions_empty": "Henüz bir meslekten hizmet talep etmediniz; tüm meslekler gösteriliyor."
+    "requested_professions_empty": "Henüz bir meslekten hizmet talep etmediniz; tüm meslekler gösteriliyor.",
+    "start_new": "Yeni sohbet başlat"
   },
   "tracking": {
     "title": "Canlı izleme",

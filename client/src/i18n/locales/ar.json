@@ -619,7 +619,8 @@
     "provider_opinions": "آراء طالبي الخدمة",
     "opinions": "التقييمات والآراء",
     "requested_professions": "المهن التي طلبتها",
-    "requested_professions_empty": "لا توجد مهن طلبتها سابقًا؛ نعرض كل المهن."
+    "requested_professions_empty": "لا توجد مهن طلبتها سابقًا؛ نعرض كل المهن.",
+    "start_new": "ابدأ محادثة جديدة"
   },
   "tracking": {
     "title": "تتبع مباشر",

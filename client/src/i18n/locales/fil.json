@@ -619,7 +619,8 @@
     "provider_opinions": "Mga opinyon ng mga humihiling ng serbisyo",
     "opinions": "Mga marka at opinyon",
     "requested_professions": "Mga propesyong hiniling mo",
-    "requested_professions_empty": "Wala ka pang hinihiling na propesyon; ipinapakita ang lahat ng propesyon."
+    "requested_professions_empty": "Wala ka pang hinihiling na propesyon; ipinapakita ang lahat ng propesyon.",
+    "start_new": "Magsimula ng bagong usapan"
   },
   "tracking": {
     "title": "Live na pagsubaybay",
