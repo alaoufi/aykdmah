@@ -10,9 +10,17 @@ export const FORM_FIELDS = Object.freeze({
     { key: 'attachments', labelKey: 'requester.attach_label' },
     { key: 'location', labelKey: 'admin.form_fields.location', core: true },
   ],
+  // «نوع الحساب» in «ملفي» (AYK-217): the work details asked when a requester becomes a provider
+  // (or both). A requester needs no field. Hidden coverage falls back to the account's own
+  // district, a hidden service mode to «at the customer».
+  account_type: [
+    { key: 'professions', labelKey: 'provider.professions', core: true },
+    { key: 'coverage', labelKey: 'provider.coverage' },
+    { key: 'location_mode', labelKey: 'provider.location_mode' },
+  ],
 });
 
-export const FORM_NAMES = Object.freeze({ request: 'request.create_title' });
+export const FORM_NAMES = Object.freeze({ request: 'request.create_title', account_type: 'admin.form_fields.account_type' });
 
 function parse(value) {
   if (value && typeof value === 'object') return value;

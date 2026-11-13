@@ -1180,13 +1180,14 @@
     "no_access": "Wala kang pahintulot sa seksyong ito. Hingin ito sa administrator.",
     "form_fields": {
       "title": "Mga field ng form",
-      "subtitle": "Ipakita o itago ang mga opsyonal na field ng form na «Humiling ng serbisyo». Malabo rito ang nakatagong field at hindi ito makikita ng mga user kapag nagdaragdag.",
+      "subtitle": "Ipakita o itago ang mga opsyonal na field ng form na «Humiling ng serbisyo» at ng pagpapalit ng uri ng account sa «Aking profile». Malabo rito ang nakatagong field at hindi ito makikita ng mga user.",
       "show": "Ipakita",
       "hide": "Itago",
       "core": "Pangunahin, hindi maitatago",
       "location": "Lokasyon (rehiyon, lungsod at distrito)",
       "hidden_done": "Nakatago na sa form ang field na «{{field}}».",
-      "shown_done": "Makikita na sa form ang field na «{{field}}»."
+      "shown_done": "Makikita na sa form ang field na «{{field}}».",
+      "account_type": "Pagpapalit ng uri ng account sa service provider (sa «Aking profile»)"
     }
   },
   "errors": {

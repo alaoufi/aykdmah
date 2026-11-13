@@ -9,6 +9,8 @@ import ProfessionsPicker from '../common/ProfessionsPicker';
 import CoverageDistrictsPicker from '../common/CoverageDistrictsPicker';
 import ServiceVenuePicker from '../common/ServiceVenuePicker';
 import LocationPickerMap from '../common/LocationPickerMap';
+import usePublicSettings from '../../hooks/usePublicSettings';
+import { hiddenFields } from '../../data/formFields';
 
 const TYPES = [
   { key: 'client', icon: '🙋', label: 'auth.role_client' },
@@ -35,13 +37,16 @@ export default function AccountTypeSection({ onSaved, onError }) {
   // Jobs that stop the change to requester, listed with links (AYK-070). Above the early
   // return, like every hook (AYK-140).
   const [blockingJobs, setBlockingJobs] = useState([]);
+  // Work details the owner hid in «حقول النماذج» are not asked (AYK-217).
+  const { settings } = usePublicSettings();
+  const hidden = hiddenFields(settings.form_fields_hidden, 'account_type');
 
   if (!user || !['client', 'provider'].includes(user.role)) return null;
   const needsWork = current === 'client' && target !== 'client';
   const missing = !needsWork ? null
     : !serviceIds.length ? t('provider.professions_required')
-      : coverageCount > 0 && !coverage.length ? t('provider.coverage_required')
-        : mode !== 'mobile' && !venue ? t('provider.venue_point_required') : null;
+      : !hidden.has('coverage') && coverageCount > 0 && !coverage.length ? t('provider.coverage_required')
+        : !hidden.has('location_mode') && mode !== 'mobile' && !venue ? t('provider.venue_point_required') : null;
   const canSave = target !== current && !missing && !saving;
 
   const save = async () => {
@@ -51,8 +56,10 @@ export default function AccountTypeSection({ onSaved, onError }) {
       await changeAccountType({
         role: target,
         ...(needsWork ? {
-          service_ids: serviceIds, coverage_district_ids: coverage, location_mode: mode,
-          ...(mode !== 'mobile' && venue ? { fixed_latitude: venue.lat, fixed_longitude: venue.lon } : {}),
+          service_ids: serviceIds,
+          coverage_district_ids: hidden.has('coverage') ? (user.district_id ? [Number(user.district_id)] : []) : coverage,
+          location_mode: hidden.has('location_mode') ? 'mobile' : mode,
+          ...(!hidden.has('location_mode') && mode !== 'mobile' && venue ? { fixed_latitude: venue.lat, fixed_longitude: venue.lon } : {}),
         } : {}),
       });
       await refresh();
@@ -96,10 +103,10 @@ export default function AccountTypeSection({ onSaved, onError }) {
         <div className="space-y-3 mt-3">
           <p className="text-[12.5px] text-fg-muted m-0">{t('profile.account_type_work_hint')}</p>
           <ProfessionsPicker serviceIds={serviceIds} onChange={setServiceIds} disabled={saving} />
-          <CoverageDistrictsPicker cityId={user.city_id} value={coverage} onChange={setCoverage} disabled={saving}
-            onDistrictsLoaded={setCoverageCount} />
-          <ServiceVenuePicker value={mode} onChange={setMode} disabled={saving} />
-          {mode !== 'mobile' && (
+          {!hidden.has('coverage') && <CoverageDistrictsPicker cityId={user.city_id} value={coverage} onChange={setCoverage} disabled={saving}
+            onDistrictsLoaded={setCoverageCount} />}
+          {!hidden.has('location_mode') && <ServiceVenuePicker value={mode} onChange={setMode} disabled={saving} />}
+          {!hidden.has('location_mode') && mode !== 'mobile' && (
             <div>
               <Button type="button" variant={venue ? 'outline' : 'primary'} onClick={() => setMapOpen(true)}>
                 📍 {venue ? t('provider.venue_point_change') : t('provider.venue_point_pick')}

@@ -21,3 +21,8 @@ test('a field toggles between hidden and shown, and core fields never hide', () 
   assert.deepEqual(toggleField(setting, 'request', 'location').request, ['voice']);
   assert.ok(FORM_FIELDS.request.filter(field => field.core).every(field => ['category', 'location'].includes(field.key)));
 });
+
+test('the account type change hides coverage and service mode but never the professions', () => {
+  assert.deepEqual([...hiddenFields({ account_type: ['coverage', 'location_mode', 'professions'] }, 'account_type')], ['coverage', 'location_mode']);
+  assert.deepEqual(toggleField({}, 'account_type', 'professions'), { account_type: [] });
+});

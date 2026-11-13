@@ -1180,13 +1180,14 @@
     "no_access": "Bu bölüm için izniniz yok. Yöneticiden isteyin.",
     "form_fields": {
       "title": "Form alanları",
-      "subtitle": "«Hizmet iste» formundaki isteğe bağlı alanları gösterin veya gizleyin. Gizli alan burada soluk görünür ve ekleme sırasında kullanıcılara gösterilmez.",
+      "subtitle": "«Hizmet iste» formundaki ve «Profilim»deki hesap türü değişikliğindeki isteğe bağlı alanları gösterin veya gizleyin. Gizli alan burada soluk görünür ve kullanıcılara gösterilmez.",
       "show": "Göster",
       "hide": "Gizle",
       "core": "Temel, gizlenemez",
       "location": "Konum (bölge, şehir ve mahalle)",
       "hidden_done": "«{{field}}» alanı artık formda gizli.",
-      "shown_done": "«{{field}}» alanı artık formda görünüyor."
+      "shown_done": "«{{field}}» alanı artık formda görünüyor.",
+      "account_type": "Hesap türünü hizmet verene çevirmek («Profilim» içinde)"
     }
   },
   "errors": {

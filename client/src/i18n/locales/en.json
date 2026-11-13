@@ -1180,13 +1180,14 @@
     "no_access": "You do not have permission for this section. Ask the administrator for it.",
     "form_fields": {
       "title": "Form fields",
-      "subtitle": "Show or hide the optional fields of the «Request a service» form. A hidden field appears faded here and is not shown to users when adding.",
+      "subtitle": "Show or hide the optional fields of the «Request a service» form and of the account type change in «My profile». A hidden field appears faded here and is not shown to users.",
       "show": "Show",
       "hide": "Hide",
       "core": "Core, cannot be hidden",
       "location": "Location (region, city and district)",
       "hidden_done": "The «{{field}}» field is now hidden from the form.",
-      "shown_done": "The «{{field}}» field is now shown in the form."
+      "shown_done": "The «{{field}}» field is now shown in the form.",
+      "account_type": "Changing the account type to service provider (in «My profile»)"
     }
   },
   "errors": {

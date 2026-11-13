@@ -1180,13 +1180,14 @@
     "no_access": "Anda tidak memiliki izin untuk bagian ini. Mintalah kepada administrator.",
     "form_fields": {
       "title": "Kolom formulir",
-      "subtitle": "Tampilkan atau sembunyikan kolom opsional di formulir «Minta layanan». Kolom tersembunyi tampak pudar di sini dan tidak ditampilkan kepada pengguna saat menambah.",
+      "subtitle": "Tampilkan atau sembunyikan kolom opsional di formulir «Minta layanan» dan saat mengubah jenis akun di «Profil saya». Kolom tersembunyi tampak pudar di sini dan tidak ditampilkan kepada pengguna.",
       "show": "Tampilkan",
       "hide": "Sembunyikan",
       "core": "Inti, tidak bisa disembunyikan",
       "location": "Lokasi (wilayah, kota, dan distrik)",
       "hidden_done": "Kolom «{{field}}» kini disembunyikan dari formulir.",
-      "shown_done": "Kolom «{{field}}» kini ditampilkan di formulir."
+      "shown_done": "Kolom «{{field}}» kini ditampilkan di formulir.",
+      "account_type": "Mengubah jenis akun menjadi penyedia layanan (di «Profil saya»)"
     }
   },
   "errors": {
