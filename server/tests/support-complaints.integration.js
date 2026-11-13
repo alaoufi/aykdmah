@@ -64,6 +64,29 @@ if (process.env.AYK_SUPPORT_TEST !== '1') {
     assert.deepEqual((await api('/settings/public', null)).data.form_fields_hidden, value);
   });
 
+  test('a field made required (AYK-218) is enforced by the server, unless it is hidden', async () => {
+    const settingsAdmin = await fixture('admin', ['settings.manage']);
+    const client = await fixture('client');
+    const category = await db.queryOne('SELECT id FROM categories WHERE is_active = 1 ORDER BY id LIMIT 1');
+    const post = async (body, expected) => {
+      const response = await fetch(`${base}/requests`, { method: 'POST', body: JSON.stringify(body),
+        headers: { Authorization: `Bearer ${token(client)}`, 'Content-Type': 'application/json', 'Accept-Language': 'ar' } });
+      const result = await response.json();
+      if (expected) assert.equal(response.status, expected, JSON.stringify(result));
+      return result;
+    };
+    assert.deepEqual((await api('/settings/public', null)).data.form_fields_required, { account_type: ['coverage'] });
+    await api('/admin/settings', settingsAdmin, 200, 'PUT', { items: [{ key: 'form_fields_hidden', value: {} }] });
+    await api('/admin/settings', settingsAdmin, 200, 'PUT', { items: [{ key: 'form_fields_required', value: { request: ['title'] } }] });
+    assert.equal((await post({ category_id: category.id }, 400)).message, 'أكمل الحقول الإجبارية في النموذج');
+    assert.notEqual((await post({ category_id: category.id, title: 'عنوان' })).message, 'أكمل الحقول الإجبارية في النموذج');
+    // Hidden makes it optional again.
+    await api('/admin/settings', settingsAdmin, 200, 'PUT', { items: [{ key: 'form_fields_hidden', value: { request: ['title'] } }] });
+    assert.notEqual((await post({ category_id: category.id })).message, 'أكمل الحقول الإجبارية في النموذج');
+    await api('/admin/settings', settingsAdmin, 200, 'PUT', { items: [
+      { key: 'form_fields_hidden', value: {} }, { key: 'form_fields_required', value: { account_type: ['coverage'] } }] });
+  });
+
   test('a complaint reaches only the admins who handle user messages', async () => {
     const full = await fixture('admin', [], 1);
     const handler = await fixture('admin', ['users.manage']);

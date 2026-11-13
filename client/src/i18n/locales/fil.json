@@ -492,7 +492,8 @@
     "change_password_open": "Palitan ang password",
     "forgot_current_password": "Nakalimutan ang kasalukuyang password? Bawiin ito gamit ang code sa iyong telepono",
     "change_password_save": "I-save ang bagong password",
-    "password_changed_here": "Napalitan ang password. Naka-sign in ka pa rin sa device na ito; na-sign out ang ibang device."
+    "password_changed_here": "Napalitan ang password. Naka-sign in ka pa rin sa device na ito; na-sign out ang ibang device.",
+    "account_type_admin": "Admin account ito: humihiling ito ng serbisyo at namamahala sa platform, at hindi nagbabago ang uri nito. Para subukan bilang service provider, magrehistro ng ibang account na may ibang numero."
   },
   "chat": {
     "title": "Mga Mensahe",
@@ -1187,7 +1188,13 @@
       "location": "Lokasyon (rehiyon, lungsod at distrito)",
       "hidden_done": "Nakatago na sa form ang field na «{{field}}».",
       "shown_done": "Makikita na sa form ang field na «{{field}}».",
-      "account_type": "Pagpapalit ng uri ng account sa service provider (sa «Aking profile»)"
+      "account_type": "Pagpapalit ng uri ng account sa service provider (sa «Aking profile»)",
+      "required": "Kailangan",
+      "optional": "Opsyonal",
+      "make_required": "Gawing kailangan",
+      "make_optional": "Gawing opsyonal",
+      "required_done": "Kailangan na ang field na «{{field}}».",
+      "optional_done": "Opsyonal na ang field na «{{field}}»."
     }
   },
   "errors": {
@@ -1818,7 +1825,7 @@
     "admin_book_wallets": "Suriin ang talaan, halaga at tatanggap bago gumawa ng transaksiyon. Kailangan ng hiwalay na pahintulot ang tunay na bayad.",
     "admin_book_settings": "Baguhin ang kailangang setting at suriin ang kumpirmasyon. Huwag magbahagi ng lihim o larawan ng datos ng gumagamit sa gabay.",
     "admin_book_texts": "Hanapin ang teksto ayon sa mga salita o key nito at piliin ang wika, saka baguhin at i-save. Makikita ito ng mga user sa loob ng isang minuto. Ibinabalik ng «Ibalik ang orihinal» ang teksto; kung may babala ang page tungkol sa mga bahaging dapat panatilihin, huwag itong baguhin. Kapag nag-save sa Arabic, awtomatikong naisasalin ang teksto sa lahat ng wika; puwede mo pang baguhin ang bawat wika.",
-    "admin_book_form_fields": "May button na «Itago» o «Ipakita» ang bawat field. Malabo ang nakatagong field at wala ito sa form ng kahilingan. Pangunahin ang propesyon at lokasyon at hindi maitatago."
+    "admin_book_form_fields": "May button na «Itago» o «Ipakita» ang bawat field. Malabo ang nakatagong field at wala ito sa form ng kahilingan. Pangunahin ang propesyon at lokasyon at hindi maitatago. Katabi nito ang «Gawing kailangan» o «Gawing opsyonal»; laging opsyonal ang nakatagong field."
   },
   "request_location": {
     "title": "Lokasyon ng serbisyo",

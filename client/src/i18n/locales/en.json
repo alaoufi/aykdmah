@@ -492,7 +492,8 @@
     "change_password_open": "Change password",
     "forgot_current_password": "Forgot the current password? Recover it with a code to your phone",
     "change_password_save": "Save the new password",
-    "password_changed_here": "Password changed. You stay signed in on this device; other devices were signed out."
+    "password_changed_here": "Password changed. You stay signed in on this device; other devices were signed out.",
+    "account_type_admin": "This is an admin account: it requests services and manages the platform, and its type does not change. To try a service provider, register another account with a different phone number."
   },
   "chat": {
     "title": "Messages",
@@ -1187,7 +1188,13 @@
       "location": "Location (region, city and district)",
       "hidden_done": "The «{{field}}» field is now hidden from the form.",
       "shown_done": "The «{{field}}» field is now shown in the form.",
-      "account_type": "Changing the account type to service provider (in «My profile»)"
+      "account_type": "Changing the account type to service provider (in «My profile»)",
+      "required": "Required",
+      "optional": "Optional",
+      "make_required": "Make required",
+      "make_optional": "Make optional",
+      "required_done": "The «{{field}}» field is now required.",
+      "optional_done": "The «{{field}}» field is now optional."
     }
   },
   "errors": {
@@ -1818,7 +1825,7 @@
     "admin_book_wallets": "Review the ledger, amount and recipient before a financial action. Real payments need separate authorization.",
     "admin_book_settings": "Change the required setting and review confirmation. Do not share secrets or user-data screenshots in the guide.",
     "admin_book_texts": "Search for the text by its words or key and pick the language, then edit and save it. Users see it within a minute. «Restore original» brings the text back, and if the page warns about parts to keep, leave them unchanged. Saving in Arabic translates the text into every language automatically; you can then edit any language on its own.",
-    "admin_book_form_fields": "Each field has a «Hide» or «Show» button. A hidden field appears faded and is left out of the service request form. Profession and location are core and cannot be hidden."
+    "admin_book_form_fields": "Each field has a «Hide» or «Show» button. A hidden field appears faded and is left out of the service request form. Profession and location are core and cannot be hidden. Next to it, «Make required» or «Make optional»; a hidden field is always optional."
   },
   "request_location": {
     "title": "Service location",

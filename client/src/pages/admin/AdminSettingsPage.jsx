@@ -28,6 +28,7 @@ const HANDLED_BY_CUSTOM_UI = new Set([
   'verify_required_for_provider',
   'verify_required_for_client',
   'form_fields_hidden', // its own page, «حقول النماذج» (AYK-215)
+  'form_fields_required', // the same page (AYK-218)
 ]);
 
 export default function AdminSettingsPage() {

@@ -4,7 +4,7 @@ import useLocationOptions from '../../hooks/useLocationOptions';
 import { localizedName } from '../../utils/localize';
 
 // The neighbourhoods of ONE city that a provider serves.
-export default function CoverageDistrictsPicker({ cityId, value = [], onChange, disabled = false, error, onDistrictsLoaded }) {
+export default function CoverageDistrictsPicker({ cityId, value = [], onChange, disabled = false, error, onDistrictsLoaded, required = true }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
   const { rows, loading } = useLocationOptions('districts', cityId);
@@ -20,7 +20,7 @@ export default function CoverageDistrictsPicker({ cityId, value = [], onChange, 
   if (!cityId) return <p className="text-sm text-secondary">{t('provider.coverage_city_first')}</p>;
   return (
     <fieldset className="min-w-0 border-0 p-0" disabled={disabled} data-coverage-picker>
-      <legend className="form-label">{t('provider.coverage')} *</legend>
+      <legend className="form-label">{t('provider.coverage')}{required ? ' *' : ` (${t('common.optional')})`}</legend>
       {loading ? <p role="status" className="text-sm text-secondary">{t('common.loading')}</p> : rows.length === 0 ?
         <p className="text-sm text-secondary">{t('provider.coverage_whole_city')}</p> : <>
           <div className="flex items-center gap-1.5 mb-2">

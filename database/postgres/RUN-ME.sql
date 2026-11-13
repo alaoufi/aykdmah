@@ -6355,6 +6355,12 @@ VALUES ('form_fields_hidden', '{}', 'json', 'requests', 1, 'حقول النما�
 ON CONFLICT (setting_key) DO NOTHING;
 INSERT INTO schema_migrations(name) VALUES ('075_form_fields_hidden.sql');
 
+-- migrations/076_form_fields_required.sql
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description)
+VALUES ('form_fields_required', '{"account_type":["coverage"]}', 'json', 'requests', 1, 'حقول النماذج الإجبارية')
+ON CONFLICT (setting_key) DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('076_form_fields_required.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

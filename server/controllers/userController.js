@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { requiredFields } = require('../utils/formFields');
 const { reviewsForViewer, hideRequesterNames } = require('../utils/requesterPrivacy');
 const Review = require('../models/Review');
 const { success, created, error, notFound, paginate, forbidden } = require('../utils/apiResponse');
@@ -231,7 +232,7 @@ const ACTIVE_REQUEST = ['open', 'assigned', 'in_progress'];
 const changeRole = asyncHandler(async (req, res) => {
   const target = req.body.role;
   if (!['client', 'provider', 'both'].includes(target)) return error(res, req.t('type_invalid'), 400);
-  const user = await queryOne(`SELECT id, role, to_jsonb(users)->>'also_client' AS also_client, city_id FROM users WHERE id = ? AND deleted_at IS NULL`, [req.user.id]);
+  const user = await queryOne(`SELECT id, role, to_jsonb(users)->>'also_client' AS also_client, city_id, district_id FROM users WHERE id = ? AND deleted_at IS NULL`, [req.user.id]);
   if (!user || !['client', 'provider'].includes(user.role)) return forbidden(res);
   const current = user.role === 'client' ? 'client' : Number(user.also_client) === 1 ? 'both' : 'provider';
   if (current === target) return success(res, await User.findById(user.id), req.t('updated'));
@@ -268,7 +269,11 @@ const changeRole = asyncHandler(async (req, res) => {
       Object.assign(profile, await validateProviderServices({ service_ids: req.body.service_ids, any_category: true }, {}, {
         required: true, message: req.t('provider_services_required'),
       }));
-      profile.coverage = await validateCoverage(req.body, { cityId: user.city_id, required: true, message: req.t('provider_area_required') });
+      // Coverage made optional in «حقول النماذج» (AYK-218): left empty, it is the account's own district.
+      const chosen = Array.isArray(req.body.coverage_district_ids) && req.body.coverage_district_ids.length > 0;
+      const coverageInput = !chosen && user.district_id && !(await requiredFields('account_type')).has('coverage')
+        ? { ...req.body, coverage_district_ids: [Number(user.district_id)] } : req.body;
+      profile.coverage = await validateCoverage(coverageInput, { cityId: user.city_id, required: true, message: req.t('provider_area_required') });
     }
   }
 

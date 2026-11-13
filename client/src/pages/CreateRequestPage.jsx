@@ -3,7 +3,7 @@ import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { canRequestService } from '../utils/canRequest';
 import { useTranslation } from 'react-i18next';
 import usePublicSettings from '../hooks/usePublicSettings';
-import { hiddenFields } from '../data/formFields';
+import { hiddenFields, requiredFields } from '../data/formFields';
 import { listCategories, listServices } from '../services/serviceService';
 import { createRequest } from '../services/requestService';
 import { useAuth } from '../hooks/useAuth';
@@ -72,6 +72,9 @@ export default function CreateRequestPage() {
   // Optional fields the owner hid in «حقول النماذج» are left out of the form (AYK-215).
   const { settings } = usePublicSettings();
   const hidden = hiddenFields(settings.form_fields_hidden, 'request');
+  // And the ones made required there (AYK-218): marked with *, and the button waits for them.
+  const required = requiredFields(settings.form_fields_required, settings.form_fields_hidden, 'request');
+  const fieldLabel = (key, label) => (required.has(key) ? `${label} *` : optional(label));
 
   // The only thing a request truly needs is where the service is.
   // The location is taken from the device automatically when the account has none,
@@ -89,9 +92,14 @@ export default function CreateRequestPage() {
       : !requestLocation.city ? t('auth.simple_location_required')
         : requestLocation.districts.length > 0 && !requestLocation.district ? t('auth.simple_district_required') : null;
 
+  const requiredMissing = required.has('service') && services.length > 0 && !form.service_id ? t('requester.sub_service')
+    : required.has('title') && !String(form.title || '').trim() ? t('requester.request_title')
+      : required.has('voice') && !voiceFile ? t('requester.voice_label')
+        : required.has('attachments') && media.length === 0 ? t('requester.attach_label') : null;
+
   const submit = async (e) => {
     e.preventDefault();
-    if (loading || !form.category_id || !requestLocation.ready || !requestLocation.city
+    if (loading || requiredMissing || !form.category_id || !requestLocation.ready || !requestLocation.city
         || (requestLocation.districts.length > 0 && !requestLocation.district)) return;
     const current = ++operation.current;
     const locationSnapshot = requestLocationFields(requestLocation.location, requestLocation.remember);
@@ -142,7 +150,7 @@ export default function CreateRequestPage() {
         </div>
 
         {services.length > 0 && !hidden.has('service') && <div className="form-group">
-          <label className="form-label">{optional(t('requester.sub_service'))}</label>
+          <label className="form-label">{fieldLabel('service', t('requester.sub_service'))}</label>
           <select className="select" value={form.service_id} onChange={(e) => update('service_id', e.target.value)} data-testid="request-service">
             <option value="">{t('common.select')}</option>
             {services.map(s => <option key={s.id} value={s.id}>{localizedName(s, lang)}</option>)}
@@ -150,7 +158,7 @@ export default function CreateRequestPage() {
         </div>}
 
         {!hidden.has('title') && <Input
-          label={optional(t('requester.request_title'))}
+          label={fieldLabel('title', t('requester.request_title'))}
           value={form.title}
           maxLength={200}
           onChange={(e) => update('title', e.target.value)}
@@ -159,7 +167,7 @@ export default function CreateRequestPage() {
         />}
 
         {!hidden.has('voice') && <div className="form-group" data-testid="request-voice">
-          <label className="form-label">🎤 {t('requester.voice_label')}</label>
+          <label className="form-label">🎤 {t('requester.voice_label')}{required.has('voice') ? ' *' : ''}</label>
           {voiceFile ? (
             <div className="flex items-center gap-2 flex-wrap">
               <VoiceNote src={voiceUrl.current} seed="request-draft" />
@@ -180,7 +188,7 @@ export default function CreateRequestPage() {
         </div>}
 
         {!hidden.has('attachments') && <div className="form-group" data-testid="request-attachments">
-          <label className="form-label" htmlFor="request-files">📷 {optional(t('requester.attach_label'))}</label>
+          <label className="form-label" htmlFor="request-files">📷 {fieldLabel('attachments', t('requester.attach_label'))}</label>
           <input id="request-files" type="file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime"
             onChange={(e) => { addMedia(e.target.files); e.target.value = ''; }} />
           {media.length > 0 && <div className="flex flex-wrap gap-2 mt-2">
@@ -195,11 +203,11 @@ export default function CreateRequestPage() {
         <RequestLocationFields control={requestLocation} disabled={loading} />
 
 
-        <Button type="submit" block size="lg" loading={loading} variant="primary" disabled={!requestLocation.ready || !!locationMissing}>
+        <Button type="submit" block size="lg" loading={loading} variant="primary" disabled={!requestLocation.ready || !!locationMissing || !!requiredMissing}>
           {t('requester.publish')}
         </Button>
         <p className="text-center text-[12.5px] text-fg-muted mt-2 mb-0" data-testid="publish-hint">{t('requester.publish_hint')}</p>
-        {locationMissing && <p className="text-center text-[12px] text-fg-muted mt-1">{t('auth.complete_to_enable', { item: locationMissing })}</p>}
+        {(locationMissing || requiredMissing) && <p className="text-center text-[12px] text-fg-muted mt-1" data-testid="request-missing">{t('auth.complete_to_enable', { item: locationMissing || requiredMissing })}</p>}
       </form>
     </div>
   );

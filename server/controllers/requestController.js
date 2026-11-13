@@ -8,6 +8,8 @@ const { success, created, error, notFound, forbidden, paginate } = require('../u
 const asyncHandler = require('../utils/asyncHandler');
 const { withUploadedFiles } = require('../utils/uploadPersistence');
 const { hasPermission } = require('../middleware/roleCheck');
+const { requiredFields } = require('../utils/formFields');
+const { ApiError } = require('../middleware/errorHandler');
 
 const privateAccess = (user, request) => user && (user.id === request.client_id
   || user.id === request.assigned_provider_id || user.id === request.direct_provider_id || hasPermission(user, 'requests.manage'));
@@ -37,9 +39,20 @@ const create = asyncHandler(async (req, res) => {
     preferred_date: req.body.preferred_date,
     is_urgent: req.body.is_urgent === true || req.body.is_urgent === 'true',
   };
+  // Fields the owner made required in «حقول النماذج» (AYK-218); the uploads are removed on refusal.
+  const required = await requiredFields('request');
+  const uploads = Array.isArray(req.files) ? req.files : [];
+  const missing = (required.has('title') && !String(data.title || '').trim())
+    || (required.has('voice') && !uploads.some(file => String(file.mimetype).startsWith('audio/')))
+    || (required.has('attachments') && !uploads.some(file => /^(image|video)\//.test(String(file.mimetype))))
+    || (required.has('service') && !data.service_id && /^[1-9][0-9]{0,9}$/.test(String(data.category_id || ''))
+      && await queryOne('SELECT id FROM services WHERE category_id = ? AND is_active = 1 LIMIT 1', [Number(data.category_id)]));
   let id;
   try {
-    id = await withUploadedFiles(req.files, { ownerId: req.user.id, scope: 'requests' }, files => Request.create({ ...data, files }));
+    id = await withUploadedFiles(req.files, { ownerId: req.user.id, scope: 'requests' }, files => {
+      if (missing) throw new ApiError(req.t('required_fields_missing'), 400);
+      return Request.create({ ...data, files });
+    });
   } catch (err) {
     if (err.message === 'account_location_required') err.message = req.t('account_location_required');
     throw err;

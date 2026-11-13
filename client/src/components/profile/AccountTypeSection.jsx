@@ -10,7 +10,7 @@ import CoverageDistrictsPicker from '../common/CoverageDistrictsPicker';
 import ServiceVenuePicker from '../common/ServiceVenuePicker';
 import LocationPickerMap from '../common/LocationPickerMap';
 import usePublicSettings from '../../hooks/usePublicSettings';
-import { hiddenFields } from '../../data/formFields';
+import { hiddenFields, requiredFields } from '../../data/formFields';
 
 const TYPES = [
   { key: 'client', icon: '🙋', label: 'auth.role_client' },
@@ -34,30 +34,43 @@ export default function AccountTypeSection({ onSaved, onError }) {
   const [saving, setSaving] = useState(false);
   // The result is also shown here, next to the button, not only at the top of the page (AYK-216).
   const [done, setDone] = useState('');
+  const [failed, setFailed] = useState('');
   // Jobs that stop the change to requester, listed with links (AYK-070). Above the early
   // return, like every hook (AYK-140).
   const [blockingJobs, setBlockingJobs] = useState([]);
   // Work details the owner hid in «حقول النماذج» are not asked (AYK-217).
   const { settings } = usePublicSettings();
   const hidden = hiddenFields(settings.form_fields_hidden, 'account_type');
+  // Coverage made optional there (AYK-218): left empty, the account's own district is used.
+  const coverageRequired = requiredFields(settings.form_fields_required, settings.form_fields_hidden, 'account_type').has('coverage');
 
   if (!user || !['client', 'provider'].includes(user.role)) return null;
+  // An account with admin rights is the administration's own account: its type does not change
+  // (the server refuses it), so it is said here instead of offering buttons that fail (AYK-218).
+  if (Number(user.admin_account)) {
+    return (
+      <div className="card mb-4" id="account-type" data-testid="account-type-admin">
+        <h3 className="mb-1">{t('profile.account_type')}</h3>
+        <p className="text-[13px] text-fg-muted m-0">{t('profile.account_type_admin')}</p>
+      </div>
+    );
+  }
   const needsWork = current === 'client' && target !== 'client';
   const missing = !needsWork ? null
     : !serviceIds.length ? t('provider.professions_required')
-      : !hidden.has('coverage') && coverageCount > 0 && !coverage.length ? t('provider.coverage_required')
+      : coverageRequired && coverageCount > 0 && !coverage.length ? t('provider.coverage_required')
         : !hidden.has('location_mode') && mode !== 'mobile' && !venue ? t('provider.venue_point_required') : null;
   const canSave = target !== current && !missing && !saving;
 
   const save = async () => {
-    onError(''); onSaved(''); setBlockingJobs([]); setDone('');
+    onError(''); onSaved(''); setBlockingJobs([]); setDone(''); setFailed('');
     setSaving(true);
     try {
       await changeAccountType({
         role: target,
         ...(needsWork ? {
           service_ids: serviceIds,
-          coverage_district_ids: hidden.has('coverage') ? (user.district_id ? [Number(user.district_id)] : []) : coverage,
+          coverage_district_ids: hidden.has('coverage') || !coverage.length ? (user.district_id ? [Number(user.district_id)] : []) : coverage,
           location_mode: hidden.has('location_mode') ? 'mobile' : mode,
           ...(!hidden.has('location_mode') && mode !== 'mobile' && venue ? { fixed_latitude: venue.lat, fixed_longitude: venue.lon } : {}),
         } : {}),
@@ -67,6 +80,7 @@ export default function AccountTypeSection({ onSaved, onError }) {
       setDone(t('auth.account_type_changed'));
     } catch (err) {
       onError(apiError(err));
+      setFailed(apiError(err));
       setBlockingJobs(err?.response?.data?.errors?.jobs || []);
     } finally { setSaving(false); }
   };
@@ -103,7 +117,7 @@ export default function AccountTypeSection({ onSaved, onError }) {
         <div className="space-y-3 mt-3">
           <p className="text-[12.5px] text-fg-muted m-0">{t('profile.account_type_work_hint')}</p>
           <ProfessionsPicker serviceIds={serviceIds} onChange={setServiceIds} disabled={saving} />
-          {!hidden.has('coverage') && <CoverageDistrictsPicker cityId={user.city_id} value={coverage} onChange={setCoverage} disabled={saving}
+          {!hidden.has('coverage') && <CoverageDistrictsPicker cityId={user.city_id} value={coverage} onChange={setCoverage} disabled={saving} required={coverageRequired}
             onDistrictsLoaded={setCoverageCount} />}
           {!hidden.has('location_mode') && <ServiceVenuePicker value={mode} onChange={setMode} disabled={saving} />}
           {!hidden.has('location_mode') && mode !== 'mobile' && (
@@ -127,6 +141,7 @@ export default function AccountTypeSection({ onSaved, onError }) {
             {t('profile.account_type_save')}
           </Button>
           {missing && <p className="text-center text-[12px] text-fg-muted mt-1">{t('auth.complete_to_enable', { item: missing })}</p>}
+          {failed && <p role="alert" className="mt-2 px-3 py-2 rounded-card bg-rose-50 border border-rose-200 text-rose-700 text-[13px] font-semibold" data-testid="account-type-failed">{failed}</p>}
         </div>
       )}
 
