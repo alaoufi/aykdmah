@@ -1157,7 +1157,7 @@
     "confirm_change_body": "Bu değişikliği yapmak istiyor musunuz?",
     "texts": {
       "title": "Site metinleri",
-      "subtitle": "Sitede ve uygulamada görünen herhangi bir metni her dil için düzenleyin. Kullanıcılar değişikliği bir dakika içinde görür; orijinal metin geri yüklemek için saklanır.",
+      "subtitle": "Sitede ve uygulamada görünen herhangi bir metni Arapça düzenleyin; otomatik olarak tüm dillere çevrilir. Değişiklik bir dakika içinde görünür ve orijinal metin geri yüklemek için saklanır.",
       "language": "Dil",
       "search": "Metin veya anahtarla ara",
       "edited_only": "Yalnızca düzenlenenler",
@@ -1176,7 +1176,8 @@
       "translate_all": "Arapça metin kaydedilirken tüm dillere otomatik çevir (sonra herhangi bir dili yine düzenleyebilirsiniz)",
       "saved_translated": "Metin kaydedildi ve {{count}} dile çevrildi.",
       "translate_skipped": "Çevrilemedi: {{langs}}; metinleri olduğu gibi kaldı.",
-      "reset_all_done": "Orijinal metin tüm dillerde geri yüklendi"
+      "reset_all_done": "Orijinal metin tüm dillerde geri yüklendi",
+      "arabic_only_hint": "Yalnızca Arapça metni düzenlersiniz; kaydedince otomatik olarak tüm dillere çevrilir."
     },
     "no_access": "Bu bölüm için izniniz yok. Yöneticiden isteyin.",
     "form_fields": {
@@ -1824,7 +1825,7 @@
     "admin_book_ads": "Onay veya düzenleme öncesinde içerik, konum, süre ve ücreti inceleyin. Onaylamadan önce etkisini kontrol edin.",
     "admin_book_wallets": "Mali işlemden önce kayıtları, tutarı ve alıcıyı inceleyin. Gerçek ödemeler ayrı yetkilendirme gerektirir.",
     "admin_book_settings": "Gerekli ayarı değiştirip onayı inceleyin. Kılavuzda sırları veya kullanıcı verilerinin görüntülerini paylaşmayın.",
-    "admin_book_texts": "Metni kelimeleri veya anahtarıyla arayın ve dili seçin, sonra düzenleyip kaydedin. Kullanıcılar bir dakika içinde görür. «Orijinali geri yükle» metni geri getirir; sayfa korunması gereken bölümler konusunda uyarırsa onları değiştirmeyin. Arapça kaydetmek metni otomatik olarak tüm dillere çevirir; sonra her dili ayrı ayrı düzenleyebilirsiniz.",
+    "admin_book_texts": "Metni kelimeleri veya anahtarıyla arayın, sonra Arapça metni düzenleyip kaydedin: otomatik olarak tüm dillere çevrilir ve bir dakika içinde görünür. «Orijinali geri yükle» metni tüm dillerde geri getirir; sayfa korunması gereken bölümler konusunda uyarırsa onları değiştirmeyin.",
     "admin_book_form_fields": "Her alanın yanında «Gizle» veya «Göster» düğmesi vardır. Gizli alan soluk görünür ve talep formunda yer almaz. Meslek ve konum temeldir ve gizlenemez. Yanında «Zorunlu yap» veya «İsteğe bağlı yap»; gizli alan her zaman isteğe bağlıdır."
   },
   "request_location": {

@@ -14,15 +14,13 @@ const PAGE = 30;
 // Every interface text of the site and the app, editable per language (AYK-210). The built-in
 // text stays in the locale files; an edit is stored on the server and «استرجاع» deletes it.
 export default function AdminTextsPage() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const confirmAdminChange = useAdminConfirmation();
-  const startLang = SUPPORTED_LANGUAGES.some(l => l.code === i18n.resolvedLanguage) ? i18n.resolvedLanguage : 'ar';
-  const [lang, setLang] = useState(startLang);
+  // The owner edits the Arabic text only; saving translates it into every other language (AYK-220).
+  const lang = 'ar';
+  const cascade = true;
   const [search, setSearch] = useState('');
   const [editedOnly, setEditedOnly] = useState(false);
-  // Editing the Arabic text updates every language (AYK-213), unless the admin turns it off.
-  const [translateAll, setTranslateAll] = useState(true);
-  const cascade = lang === 'ar' && translateAll;
   const [limit, setLimit] = useState(PAGE);
   const [overrides, setOverrides] = useState({});
   const [loading, setLoading] = useState(true);
@@ -110,36 +108,25 @@ export default function AdminTextsPage() {
       )}
 
       <div className="bg-surface rounded-card border border-border p-3 flex flex-wrap items-center gap-2">
-        <label className="flex items-center gap-2 text-[13px] font-bold text-fg">
-          {t('admin.texts.language')}
-          <select value={lang} onChange={e => setLang(e.target.value)} className="input py-1.5 text-[13px] w-auto" data-testid="texts-language">
-            {SUPPORTED_LANGUAGES.map(l => <option key={l.code} value={l.code}>{l.label}</option>)}
-          </select>
-        </label>
         <input type="search" value={search} onChange={e => setSearch(e.target.value)}
           placeholder={t('admin.texts.search')} className="input py-1.5 text-[13px] flex-1 min-w-[200px]" data-testid="texts-search" />
         <label className="flex items-center gap-1.5 text-[13px] text-fg">
           <input type="checkbox" checked={editedOnly} onChange={e => setEditedOnly(e.target.checked)} />
           {t('admin.texts.edited_only')} ({editedCount})
         </label>
-        {lang === 'ar' && (
-          <label className="flex items-center gap-1.5 text-[13px] text-fg basis-full" data-testid="texts-translate-all">
-            <input type="checkbox" checked={translateAll} onChange={e => setTranslateAll(e.target.checked)} />
-            {t('admin.texts.translate_all')}
-          </label>
-        )}
+        <p className="basis-full m-0 text-[12px] text-fg-muted" data-testid="texts-translate-all">🌐 {t('admin.texts.arabic_only_hint')}</p>
       </div>
 
       {loading ? (
-        <div className="space-y-2">
-          {Array.from({ length: 4 }).map((_, i) => <div key={i} className="h-[110px] rounded-card bg-surface border border-border animate-pulse" />)}
+        <div className="space-y-1">
+          {Array.from({ length: 6 }).map((_, i) => <div key={i} className="h-[52px] rounded-card bg-surface border border-border animate-pulse" />)}
         </div>
       ) : matches.length === 0 ? (
         <div className="bg-surface rounded-card border border-border"><EmptyState icon="🔤" title={t('admin.texts.no_results')} /></div>
       ) : (
         <>
           <div className="text-[12.5px] text-fg-muted">{t('admin.texts.count', { shown: Math.min(limit, matches.length), total: matches.length })}</div>
-          <div className="space-y-2">
+          <div className="bg-surface rounded-card border border-border divide-y divide-border overflow-hidden">
             {matches.slice(0, limit).map(([key, original]) => (
               <TextRow key={`${lang}:${key}`} lang={lang} textKey={key} original={original}
                 edited={langOverrides[key]} onSave={save} onReset={reset} />
@@ -173,31 +160,29 @@ function TextRow({ lang, textKey, original, edited, onSave, onReset }) {
     try { await action(); } finally { setBusy(false); }
   };
 
+  // Compact rows (AYK-220): the key and state on one small line, the text and its buttons together.
   return (
-    <div className={`bg-surface rounded-card border-2 p-3 ${edited !== undefined ? 'border-amber-300' : 'border-border'}`} data-testid="text-row">
-      <div className="flex items-center justify-between gap-2 mb-1.5">
-        <code dir="ltr" className="text-[11px] text-fg-subtle break-all">{textKey}</code>
-        {edited !== undefined && <span className="shrink-0 px-2 py-0.5 rounded-pill bg-amber-50 text-amber-700 text-[11px] font-bold">{t('admin.texts.edited')}</span>}
+    <div className={`px-3 py-2 ${edited !== undefined ? 'bg-amber-50/60' : ''}`} data-testid="text-row">
+      <div className="flex items-center gap-2 text-[10.5px] leading-tight mb-1">
+        <code dir="ltr" className="text-fg-subtle break-all">{textKey}</code>
+        {edited !== undefined && <span className="shrink-0 px-1.5 rounded-pill bg-amber-100 text-amber-800 font-bold">{t('admin.texts.edited')}</span>}
+        {edited !== undefined && <span dir={dir} className="text-fg-muted truncate" title={original}>· {t('admin.texts.original')}: {original}</span>}
       </div>
-      {edited !== undefined && (
-        <p dir={dir} className="text-[12.5px] text-fg-muted mb-1.5"><b>{t('admin.texts.original')}:</b> {original}</p>
-      )}
-      <textarea dir={dir} value={value} onChange={e => setValue(e.target.value)} maxLength={5000}
-        rows={Math.min(6, Math.max(1, Math.ceil(value.length / 70)))} className="input w-full text-[14px]" />
-      {!partsOk && (
-        <p className="text-[12px] text-rose-700 mt-1">{t('admin.texts.placeholders', { parts: textPlaceholders(original).join(' ') })}</p>
-      )}
-      {empty && <p className="text-[12px] text-rose-700 mt-1">{t('admin.texts.empty_value')}</p>}
-      <div className="flex gap-1.5 mt-2">
-        <AdminButton size="sm" loading={busy} disabled={!changed || empty || !partsOk || busy}
-          onClick={() => run(() => onSave(textKey, value))}>{t('admin.texts.save')}</AdminButton>
-        {edited !== undefined && (
-          <AdminButton size="sm" variant="warning" disabled={busy} onClick={() => run(() => onReset(textKey))}>{t('admin.texts.reset')}</AdminButton>
-        )}
-        {changed && (
-          <AdminButton size="sm" variant="ghost" disabled={busy} onClick={() => setValue(current)}>{t('admin.texts.undo')}</AdminButton>
-        )}
+      <div className="flex items-start gap-1.5 flex-wrap sm:flex-nowrap">
+        <textarea dir={dir} value={value} onChange={e => setValue(e.target.value)} maxLength={5000}
+          rows={Math.min(4, Math.max(1, Math.ceil(value.length / 45)))} className="input flex-1 min-w-0 text-[13.5px] leading-snug"
+          style={{ minHeight: 0, height: 'auto', padding: '6px 10px', resize: 'vertical' }} />
+        <div className="flex gap-1 shrink-0">
+          <AdminButton size="sm" loading={busy} disabled={!changed || empty || !partsOk || busy}
+            onClick={() => run(() => onSave(textKey, value))}>{t('admin.texts.save')}</AdminButton>
+          {changed && <AdminButton size="sm" variant="ghost" disabled={busy} onClick={() => setValue(current)}>{t('admin.texts.undo')}</AdminButton>}
+          {edited !== undefined && !changed && (
+            <AdminButton size="sm" variant="warning" disabled={busy} onClick={() => run(() => onReset(textKey))}>{t('admin.texts.reset')}</AdminButton>
+          )}
+        </div>
       </div>
+      {!partsOk && <p className="text-[11.5px] text-rose-700 mt-1 mb-0">{t('admin.texts.placeholders', { parts: textPlaceholders(original).join(' ') })}</p>}
+      {empty && <p className="text-[11.5px] text-rose-700 mt-1 mb-0">{t('admin.texts.empty_value')}</p>}
     </div>
   );
 }

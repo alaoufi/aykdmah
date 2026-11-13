@@ -1157,7 +1157,7 @@
     "confirm_change_body": "Gusto mo bang gawin ang pagbabagong ito?",
     "texts": {
       "title": "Mga teksto ng site",
-      "subtitle": "Baguhin ang anumang tekstong lumalabas sa site at sa app, sa bawat wika. Makikita ng mga user ang pagbabago sa loob ng isang minuto, at nakatabi ang orihinal na teksto para maibalik.",
+      "subtitle": "Baguhin sa Arabic ang anumang tekstong lumalabas sa site at app; awtomatiko itong naisasalin sa lahat ng wika. Makikita ang pagbabago sa loob ng isang minuto, at nakatabi ang orihinal na teksto para maibalik.",
       "language": "Wika",
       "search": "Maghanap ayon sa teksto o key",
       "edited_only": "Binago lang",
@@ -1176,7 +1176,8 @@
       "translate_all": "Awtomatikong isalin sa lahat ng wika kapag sine-save ang tekstong Arabic (puwede mo pa ring baguhin ang anumang wika)",
       "saved_translated": "Na-save ang teksto at naisalin sa {{count}} wika.",
       "translate_skipped": "Hindi naisalin: {{langs}}; nanatili ang dati nilang teksto.",
-      "reset_all_done": "Naibalik ang orihinal na teksto sa lahat ng wika"
+      "reset_all_done": "Naibalik ang orihinal na teksto sa lahat ng wika",
+      "arabic_only_hint": "Arabic na teksto lang ang binabago mo; kapag sine-save, awtomatiko itong naisasalin sa lahat ng wika."
     },
     "no_access": "Wala kang pahintulot sa seksyong ito. Hingin ito sa administrator.",
     "form_fields": {
@@ -1824,7 +1825,7 @@
     "admin_book_ads": "Suriin ang nilalaman, puwesto, tagal at bayad bago aprubahan o baguhin. Tingnan ang epekto bago kumpirmahin.",
     "admin_book_wallets": "Suriin ang talaan, halaga at tatanggap bago gumawa ng transaksiyon. Kailangan ng hiwalay na pahintulot ang tunay na bayad.",
     "admin_book_settings": "Baguhin ang kailangang setting at suriin ang kumpirmasyon. Huwag magbahagi ng lihim o larawan ng datos ng gumagamit sa gabay.",
-    "admin_book_texts": "Hanapin ang teksto ayon sa mga salita o key nito at piliin ang wika, saka baguhin at i-save. Makikita ito ng mga user sa loob ng isang minuto. Ibinabalik ng «Ibalik ang orihinal» ang teksto; kung may babala ang page tungkol sa mga bahaging dapat panatilihin, huwag itong baguhin. Kapag nag-save sa Arabic, awtomatikong naisasalin ang teksto sa lahat ng wika; puwede mo pang baguhin ang bawat wika.",
+    "admin_book_texts": "Hanapin ang teksto ayon sa mga salita o key nito, saka baguhin ang tekstong Arabic at i-save: awtomatiko itong naisasalin sa lahat ng wika at makikita sa loob ng isang minuto. Ibinabalik ng «Ibalik ang orihinal» ang teksto sa lahat ng wika; kung may babala ang page tungkol sa mga bahaging dapat panatilihin, huwag itong baguhin.",
     "admin_book_form_fields": "May button na «Itago» o «Ipakita» ang bawat field. Malabo ang nakatagong field at wala ito sa form ng kahilingan. Pangunahin ang propesyon at lokasyon at hindi maitatago. Katabi nito ang «Gawing kailangan» o «Gawing opsyonal»; laging opsyonal ang nakatagong field."
   },
   "request_location": {

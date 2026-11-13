@@ -1157,7 +1157,7 @@
     "confirm_change_body": "Apakah Anda ingin melakukan perubahan ini?",
     "texts": {
       "title": "Teks situs",
-      "subtitle": "Ubah teks apa pun yang tampil di situs dan aplikasi, untuk setiap bahasa. Pengguna melihat perubahan dalam satu menit, dan teks asli tetap tersimpan untuk dipulihkan.",
+      "subtitle": "Ubah teks apa pun di situs dan aplikasi dalam bahasa Arab; teks otomatis diterjemahkan ke semua bahasa. Perubahan terlihat dalam satu menit, dan teks asli tetap tersimpan untuk dipulihkan.",
       "language": "Bahasa",
       "search": "Cari berdasarkan teks atau kunci",
       "edited_only": "Hanya yang diubah",
@@ -1176,7 +1176,8 @@
       "translate_all": "Terjemahkan otomatis ke semua bahasa saat menyimpan teks Arab (Anda tetap bisa mengubah bahasa apa pun)",
       "saved_translated": "Teks disimpan dan diterjemahkan ke {{count}} bahasa.",
       "translate_skipped": "Gagal menerjemahkan: {{langs}}; teksnya tetap seperti semula.",
-      "reset_all_done": "Teks asli dipulihkan di semua bahasa"
+      "reset_all_done": "Teks asli dipulihkan di semua bahasa",
+      "arabic_only_hint": "Anda hanya mengubah teks Arab; saat disimpan, teks diterjemahkan otomatis ke semua bahasa."
     },
     "no_access": "Anda tidak memiliki izin untuk bagian ini. Mintalah kepada administrator.",
     "form_fields": {
@@ -1824,7 +1825,7 @@
     "admin_book_ads": "Tinjau isi, penempatan, durasi dan biaya sebelum persetujuan atau perubahan. Periksa dampaknya sebelum konfirmasi.",
     "admin_book_wallets": "Tinjau buku besar, jumlah dan penerima sebelum tindakan keuangan. Pembayaran nyata memerlukan izin terpisah.",
     "admin_book_settings": "Ubah pengaturan yang diperlukan lalu tinjau konfirmasi. Jangan bagikan rahasia atau gambar data pengguna dalam panduan.",
-    "admin_book_texts": "Cari teks berdasarkan kata atau kuncinya dan pilih bahasa, lalu ubah dan simpan. Pengguna melihatnya dalam satu menit. «Pulihkan asli» mengembalikan teks; jika halaman memperingatkan bagian yang harus dipertahankan, jangan ubah. Menyimpan dalam bahasa Arab menerjemahkan teks ke semua bahasa secara otomatis; lalu Anda bisa mengubah tiap bahasa sendiri.",
+    "admin_book_texts": "Cari teks berdasarkan kata atau kuncinya, lalu ubah teks Arab dan simpan: teks otomatis diterjemahkan ke semua bahasa dan terlihat dalam satu menit. «Pulihkan asli» mengembalikan teks di semua bahasa; jika halaman memperingatkan bagian yang harus dipertahankan, jangan ubah.",
     "admin_book_form_fields": "Setiap kolom punya tombol «Sembunyikan» atau «Tampilkan». Kolom tersembunyi tampak pudar dan tidak ada di formulir permintaan. Profesi dan lokasi adalah inti dan tidak bisa disembunyikan. Di sebelahnya «Jadikan wajib» atau «Jadikan opsional»; kolom tersembunyi selalu opsional."
   },
   "request_location": {
