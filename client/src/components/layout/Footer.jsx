@@ -5,12 +5,16 @@ import usePublicSettings, { subscriptionsOn } from '../../hooks/usePublicSetting
 import { nativeAppVersion } from '../../utils/nativeApp';
 import AdSlot from '../ads/AdSlot';
 import AdminPanelLink from './AdminPanelLink';
+import { whatsappLink } from '../../utils/whatsapp';
 
 export default function Footer() {
   const { t } = useTranslation();
   const { settings } = usePublicSettings();
   const year = new Date().getFullYear();
   const contacts = [settings.support_phone, settings.support_email].filter(Boolean);
+  // «للاستفسار» with the support WhatsApp number from the admin settings (AYK-214).
+  const inquiry = String(settings.support_whatsapp || '').trim();
+  const inquiryLink = whatsappLink(inquiry, t('support.whatsapp_text'));
 
   const cols = [
     {
@@ -71,9 +75,17 @@ export default function Footer() {
             </div>
           ))}
 
-          {contacts.length > 0 && <div className="col-span-2 md:col-span-2">
+          {(contacts.length > 0 || inquiry) && <div className="col-span-2 md:col-span-2">
             <div className="text-white font-bold text-[14px] mb-3">{t('footer.contact')}</div>
             <ul className="flex flex-col gap-2 text-[13px] text-white/70">
+              {inquiry && (
+                <li data-testid="footer-inquiry">
+                  {t('footer.inquiry')}{' '}
+                  {inquiryLink
+                    ? <a href={inquiryLink} target="_blank" rel="noopener noreferrer" dir="ltr" className="text-white font-bold hover:underline no-underline">( {inquiry} )</a>
+                    : <span dir="ltr" className="text-white font-bold">( {inquiry} )</span>}
+                </li>
+              )}
               {contacts.map((contact) => <li key={contact}>{contact}</li>)}
             </ul>
           </div>}
