@@ -69,6 +69,31 @@ if (process.env.AYK_UI_TEXTS_TEST !== '1') {
     assert.equal((await api('/admin/texts', editor)).data.length, 0);
   });
 
+  test('saving the Arabic text with translate_all updates every language, keeping {{values}} intact', async () => {
+    const translationService = require('../services/translationService');
+    const original = translationService.translate;
+    // Offline stand-in for the translation provider: tags the text with its language, and fails
+    // for Amharic and loses the marker for Turkish, which must both be skipped.
+    translationService.translate = async (text, from, to) => {
+      if (to === 'am') throw new Error('provider down');
+      if (to === 'tr') return { text: 'çeviri', provider: 'test' };
+      return { text: `[${to}] ${text}`, provider: 'test' };
+    };
+    try {
+      const key = 'admin.texts.count';
+      const saved = (await api('/admin/texts', editor, 200, 'PUT', { lang: 'ar', key, value: 'عرض {{shown}} من {{total}}', translate_all: true })).data;
+      assert.deepEqual(saved.skipped.sort(), ['am', 'tr']);
+      assert.equal(Object.keys(saved.translations).length, 8);
+      assert.equal((await api('/texts/en', null)).data[key], '[en] عرض {{shown}} من {{total}}');
+      assert.equal((await api('/texts/ur', null)).data[key], '[ur] عرض {{shown}} من {{total}}');
+      assert.equal((await api('/texts/am', null)).data[key], undefined);
+      assert.equal((await api('/texts/tr', null)).data[key], undefined);
+      await api('/admin/texts', editor, 400, 'PUT', { lang: 'ar', key, value: 'x', translate_all: 'yes' });
+      await api('/admin/texts/reset', editor, 200, 'POST', { lang: 'ar', key, all_languages: true });
+      for (const code of ['ar', 'en', 'ur']) assert.equal((await api(`/texts/${code}`, null)).data[key], undefined);
+    } finally { translationService.translate = original; }
+  });
+
   test('only admins with the texts permission can change texts, and invalid input is refused', async () => {
     const body = { lang: 'ar', key: 'common.brand', value: 'اسم' };
     await api('/admin/texts', null, 401, 'PUT', body);

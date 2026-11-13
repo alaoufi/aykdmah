@@ -1167,7 +1167,11 @@
       "empty_value": "Teks tidak boleh kosong",
       "no_results": "Tidak ada teks yang cocok",
       "show_more": "Tampilkan lagi",
-      "count": "{{shown}} dari {{total}}"
+      "count": "{{shown}} dari {{total}}",
+      "translate_all": "Terjemahkan otomatis ke semua bahasa saat menyimpan teks Arab (Anda tetap bisa mengubah bahasa apa pun)",
+      "saved_translated": "Teks disimpan dan diterjemahkan ke {{count}} bahasa.",
+      "translate_skipped": "Gagal menerjemahkan: {{langs}}; teksnya tetap seperti semula.",
+      "reset_all_done": "Teks asli dipulihkan di semua bahasa"
     },
     "no_access": "Anda tidak memiliki izin untuk bagian ini. Mintalah kepada administrator."
   },
@@ -1797,7 +1801,7 @@
     "admin_book_ads": "Tinjau isi, penempatan, durasi dan biaya sebelum persetujuan atau perubahan. Periksa dampaknya sebelum konfirmasi.",
     "admin_book_wallets": "Tinjau buku besar, jumlah dan penerima sebelum tindakan keuangan. Pembayaran nyata memerlukan izin terpisah.",
     "admin_book_settings": "Ubah pengaturan yang diperlukan lalu tinjau konfirmasi. Jangan bagikan rahasia atau gambar data pengguna dalam panduan.",
-    "admin_book_texts": "Cari teks berdasarkan kata atau kuncinya dan pilih bahasa, lalu ubah dan simpan. Pengguna melihatnya dalam satu menit. «Pulihkan asli» mengembalikan teks; jika halaman memperingatkan bagian yang harus dipertahankan, jangan ubah."
+    "admin_book_texts": "Cari teks berdasarkan kata atau kuncinya dan pilih bahasa, lalu ubah dan simpan. Pengguna melihatnya dalam satu menit. «Pulihkan asli» mengembalikan teks; jika halaman memperingatkan bagian yang harus dipertahankan, jangan ubah. Menyimpan dalam bahasa Arab menerjemahkan teks ke semua bahasa secara otomatis; lalu Anda bisa mengubah tiap bahasa sendiri."
   },
   "request_location": {
     "title": "Lokasi layanan",

@@ -1167,7 +1167,11 @@
       "empty_value": "Hindi puwedeng walang laman ang teksto",
       "no_results": "Walang tekstong tugma sa paghahanap",
       "show_more": "Ipakita pa",
-      "count": "{{shown}} sa {{total}}"
+      "count": "{{shown}} sa {{total}}",
+      "translate_all": "Awtomatikong isalin sa lahat ng wika kapag sine-save ang tekstong Arabic (puwede mo pa ring baguhin ang anumang wika)",
+      "saved_translated": "Na-save ang teksto at naisalin sa {{count}} wika.",
+      "translate_skipped": "Hindi naisalin: {{langs}}; nanatili ang dati nilang teksto.",
+      "reset_all_done": "Naibalik ang orihinal na teksto sa lahat ng wika"
     },
     "no_access": "Wala kang pahintulot sa seksyong ito. Hingin ito sa administrator."
   },
@@ -1797,7 +1801,7 @@
     "admin_book_ads": "Suriin ang nilalaman, puwesto, tagal at bayad bago aprubahan o baguhin. Tingnan ang epekto bago kumpirmahin.",
     "admin_book_wallets": "Suriin ang talaan, halaga at tatanggap bago gumawa ng transaksiyon. Kailangan ng hiwalay na pahintulot ang tunay na bayad.",
     "admin_book_settings": "Baguhin ang kailangang setting at suriin ang kumpirmasyon. Huwag magbahagi ng lihim o larawan ng datos ng gumagamit sa gabay.",
-    "admin_book_texts": "Hanapin ang teksto ayon sa mga salita o key nito at piliin ang wika, saka baguhin at i-save. Makikita ito ng mga user sa loob ng isang minuto. Ibinabalik ng «Ibalik ang orihinal» ang teksto; kung may babala ang page tungkol sa mga bahaging dapat panatilihin, huwag itong baguhin."
+    "admin_book_texts": "Hanapin ang teksto ayon sa mga salita o key nito at piliin ang wika, saka baguhin at i-save. Makikita ito ng mga user sa loob ng isang minuto. Ibinabalik ng «Ibalik ang orihinal» ang teksto; kung may babala ang page tungkol sa mga bahaging dapat panatilihin, huwag itong baguhin. Kapag nag-save sa Arabic, awtomatikong naisasalin ang teksto sa lahat ng wika; puwede mo pang baguhin ang bawat wika."
   },
   "request_location": {
     "title": "Lokasyon ng serbisyo",

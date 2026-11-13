@@ -20,6 +20,9 @@ export default function AdminTextsPage() {
   const [lang, setLang] = useState(startLang);
   const [search, setSearch] = useState('');
   const [editedOnly, setEditedOnly] = useState(false);
+  // Editing the Arabic text updates every language (AYK-213), unless the admin turns it off.
+  const [translateAll, setTranslateAll] = useState(true);
+  const cascade = lang === 'ar' && translateAll;
   const [limit, setLimit] = useState(PAGE);
   const [overrides, setOverrides] = useState({});
   const [loading, setLoading] = useState(true);
@@ -47,17 +50,37 @@ export default function AdminTextsPage() {
     (!editedOnly || key in langOverrides) && matchesText(search, key, original, langOverrides[key])),
   [all, search, editedOnly, langOverrides]);
 
-  const setLangOverrides = (code, next) => {
-    setOverrides(prev => ({ ...prev, [code]: next }));
-    applyTextOverrides(code, next); // this admin sees the change at once
+  // Applies { lang: { key: text | null } } to the page and to this admin's own screen at once.
+  const applyChanges = changes => {
+    setOverrides(prev => {
+      const next = { ...prev };
+      for (const [code, entries] of Object.entries(changes)) {
+        const map = { ...(next[code] || {}) };
+        for (const [key, text] of Object.entries(entries)) { if (text == null) delete map[key]; else map[key] = text; }
+        next[code] = map;
+        applyTextOverrides(code, map);
+      }
+      return next;
+    });
   };
+
+  const languageName = code => SUPPORTED_LANGUAGES.find(l => l.code === code)?.label || code;
 
   const save = async (key, value) => {
     if (!(await confirmAdminChange(t, key))) return false;
     try {
-      await adminSaveText(lang, key, value);
-      setLangOverrides(lang, { ...langOverrides, [key]: value });
-      setMsg({ type: 'success', text: t('admin.texts.saved') });
+      const saved = await adminSaveText(lang, key, value, cascade);
+      const translations = saved?.translations || {};
+      const changes = { [lang]: { [key]: value } };
+      for (const [code, text] of Object.entries(translations)) changes[code] = { [key]: text };
+      applyChanges(changes);
+      const done = Object.keys(translations).length;
+      const skipped = saved?.skipped || [];
+      setMsg({
+        type: skipped.length ? 'warning' : 'success',
+        text: [cascade ? t('admin.texts.saved_translated', { count: done }) : t('admin.texts.saved'),
+          skipped.length ? t('admin.texts.translate_skipped', { langs: skipped.map(languageName).join('، ') }) : ''].filter(Boolean).join(' '),
+      });
       return true;
     } catch (e) { setMsg({ type: 'error', text: apiError(e) }); return false; }
   };
@@ -65,11 +88,10 @@ export default function AdminTextsPage() {
   const reset = async key => {
     if (!(await confirmAdminChange(t, key, true))) return false;
     try {
-      await adminResetText(lang, key);
-      const next = { ...langOverrides };
-      delete next[key];
-      setLangOverrides(lang, next);
-      setMsg({ type: 'success', text: t('admin.texts.reset_done') });
+      await adminResetText(lang, key, cascade);
+      const codes = cascade ? SUPPORTED_LANGUAGES.map(l => l.code) : [lang];
+      applyChanges(Object.fromEntries(codes.map(code => [code, { [key]: null }])));
+      setMsg({ type: 'success', text: cascade ? t('admin.texts.reset_all_done') : t('admin.texts.reset_done') });
       return true;
     } catch (e) { setMsg({ type: 'error', text: apiError(e) }); return false; }
   };
@@ -82,7 +104,8 @@ export default function AdminTextsPage() {
 
       {msg && (
         <div role="status" className={`px-4 py-3 rounded-card text-[13.5px] font-semibold ${
-          msg.type === 'success' ? 'bg-emerald-50 border border-emerald-200 text-emerald-700' : 'bg-rose-50 border border-rose-200 text-rose-700'
+          msg.type === 'success' ? 'bg-emerald-50 border border-emerald-200 text-emerald-700'
+            : msg.type === 'warning' ? 'bg-amber-50 border border-amber-200 text-amber-800' : 'bg-rose-50 border border-rose-200 text-rose-700'
         }`}>{msg.text}</div>
       )}
 
@@ -99,6 +122,12 @@ export default function AdminTextsPage() {
           <input type="checkbox" checked={editedOnly} onChange={e => setEditedOnly(e.target.checked)} />
           {t('admin.texts.edited_only')} ({editedCount})
         </label>
+        {lang === 'ar' && (
+          <label className="flex items-center gap-1.5 text-[13px] text-fg basis-full" data-testid="texts-translate-all">
+            <input type="checkbox" checked={translateAll} onChange={e => setTranslateAll(e.target.checked)} />
+            {t('admin.texts.translate_all')}
+          </label>
+        )}
       </div>
 
       {loading ? (

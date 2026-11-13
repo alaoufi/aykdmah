@@ -1167,7 +1167,11 @@
       "empty_value": "Metin boş olamaz",
       "no_results": "Aramayla eşleşen metin yok",
       "show_more": "Daha fazla göster",
-      "count": "{{shown}} / {{total}}"
+      "count": "{{shown}} / {{total}}",
+      "translate_all": "Arapça metin kaydedilirken tüm dillere otomatik çevir (sonra herhangi bir dili yine düzenleyebilirsiniz)",
+      "saved_translated": "Metin kaydedildi ve {{count}} dile çevrildi.",
+      "translate_skipped": "Çevrilemedi: {{langs}}; metinleri olduğu gibi kaldı.",
+      "reset_all_done": "Orijinal metin tüm dillerde geri yüklendi"
     },
     "no_access": "Bu bölüm için izniniz yok. Yöneticiden isteyin."
   },
@@ -1797,7 +1801,7 @@
     "admin_book_ads": "Onay veya düzenleme öncesinde içerik, konum, süre ve ücreti inceleyin. Onaylamadan önce etkisini kontrol edin.",
     "admin_book_wallets": "Mali işlemden önce kayıtları, tutarı ve alıcıyı inceleyin. Gerçek ödemeler ayrı yetkilendirme gerektirir.",
     "admin_book_settings": "Gerekli ayarı değiştirip onayı inceleyin. Kılavuzda sırları veya kullanıcı verilerinin görüntülerini paylaşmayın.",
-    "admin_book_texts": "Metni kelimeleri veya anahtarıyla arayın ve dili seçin, sonra düzenleyip kaydedin. Kullanıcılar bir dakika içinde görür. «Orijinali geri yükle» metni geri getirir; sayfa korunması gereken bölümler konusunda uyarırsa onları değiştirmeyin."
+    "admin_book_texts": "Metni kelimeleri veya anahtarıyla arayın ve dili seçin, sonra düzenleyip kaydedin. Kullanıcılar bir dakika içinde görür. «Orijinali geri yükle» metni geri getirir; sayfa korunması gereken bölümler konusunda uyarırsa onları değiştirmeyin. Arapça kaydetmek metni otomatik olarak tüm dillere çevirir; sonra her dili ayrı ayrı düzenleyebilirsiniz."
   },
   "request_location": {
     "title": "Hizmet yeri",

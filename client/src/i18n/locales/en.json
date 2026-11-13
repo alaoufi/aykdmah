@@ -1167,7 +1167,11 @@
       "empty_value": "A text cannot be empty",
       "no_results": "No texts match your search",
       "show_more": "Show more",
-      "count": "{{shown}} of {{total}}"
+      "count": "{{shown}} of {{total}}",
+      "translate_all": "Translate automatically into every language when saving the Arabic text (you can still edit any language after)",
+      "saved_translated": "Text saved and translated into {{count}} languages.",
+      "translate_skipped": "Could not translate: {{langs}}; their text stays as it was.",
+      "reset_all_done": "Original text restored in every language"
     },
     "no_access": "You do not have permission for this section. Ask the administrator for it."
   },
@@ -1797,7 +1801,7 @@
     "admin_book_ads": "Review content, placement, duration and fees before approval or editing. Check the impact before confirmation.",
     "admin_book_wallets": "Review the ledger, amount and recipient before a financial action. Real payments need separate authorization.",
     "admin_book_settings": "Change the required setting and review confirmation. Do not share secrets or user-data screenshots in the guide.",
-    "admin_book_texts": "Search for the text by its words or key and pick the language, then edit and save it. Users see it within a minute. «Restore original» brings the text back, and if the page warns about parts to keep, leave them unchanged."
+    "admin_book_texts": "Search for the text by its words or key and pick the language, then edit and save it. Users see it within a minute. «Restore original» brings the text back, and if the page warns about parts to keep, leave them unchanged. Saving in Arabic translates the text into every language automatically; you can then edit any language on its own."
   },
   "request_location": {
     "title": "Service location",

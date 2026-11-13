@@ -464,12 +464,13 @@ export async function adminListTexts() {
   return data.data;
 }
 
-export async function adminSaveText(lang, key, value) {
-  const { data } = await api.put('/admin/texts', { lang, key, value });
+// translateAll: also machine-translate and save the text in every other language (AYK-213).
+export async function adminSaveText(lang, key, value, translateAll = false) {
+  const { data } = await api.put('/admin/texts', { lang, key, value, translate_all: translateAll }, { timeout: 60000 });
   return data.data;
 }
 
-export async function adminResetText(lang, key) {
-  const { data } = await api.post('/admin/texts/reset', { lang, key });
+export async function adminResetText(lang, key, allLanguages = false) {
+  const { data } = await api.post('/admin/texts/reset', { lang, key, all_languages: allLanguages });
   return data.data;
 }

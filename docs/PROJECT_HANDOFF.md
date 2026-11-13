@@ -1,3 +1,8 @@
+## AYK-213 — 2026-11-13 (Claude) — محفوظ، غير منشور
+
+- `PUT /admin/texts` يقبل `translate_all`: يترجم عبر `translationService` (Microsoft إن وُجد المفتاح، وإلا MyMemory) ويحفظ في كل لغة تنجح ترجمتها، ويعيد `translations` و`skipped`. `POST /admin/texts/reset` يقبل `all_languages`.
+- الصفحة: خيار «ترجمة تلقائية لكل اللغات» يظهر عند العربية ومفعّل افتراضيًا. الترجمة الآلية قد تحتاج تصحيحًا يدويًا للغة بعينها.
+
 ## AYK-212 — 2026-11-13 (Claude) — محفوظ، غير منشور
 
 - `/support` صار عامًا: زر واتساب من `support_whatsapp` (الهجرة 074، `client/src/utils/whatsapp.js` يحوّل 05… إلى 9665…)، والنموذج للمسجلين فقط. موضوع جديد `complaint`.
