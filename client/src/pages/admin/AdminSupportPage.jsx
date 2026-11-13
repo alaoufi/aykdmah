@@ -10,9 +10,9 @@ import { formatDate, truncate } from '../../utils/formatters';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import SupportThread from '../../components/support/SupportThread';
 
-const TOPICS = ['support', 'suggestion', 'admin'];
+const TOPICS = ['support', 'complaint', 'suggestion', 'admin'];
 const STATUSES = ['open', 'answered', 'closed'];
-const ICONS = { support: '🛠️', suggestion: '💡', admin: '🏛️' };
+const ICONS = { support: '🛠️', complaint: '⚠️', suggestion: '💡', admin: '🏛️' };
 
 // The administration's inbox (AYK-046): unread threads first, reply, close or reopen.
 export default function AdminSupportPage() {

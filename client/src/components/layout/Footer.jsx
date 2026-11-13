@@ -35,6 +35,7 @@ export default function Footer() {
       title: t('footer.support'),
       links: [
         { to: '/guide', label: t('help.title') },
+        { to: '/support', label: t('support.title') },
         { to: '/terms', label: t('footer.terms') },
         { to: '/privacy', label: t('footer.privacy') },
       ],

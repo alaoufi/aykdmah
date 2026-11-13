@@ -1628,8 +1628,8 @@
         "answer": "Gunakan tombol bahasa di bagian atas halaman untuk memilih bahasa Arab, Inggris, Urdu, Hindi atau Bengali. Teks dan nama yang ditulis pengguna tetap seperti yang dimasukkan. Dalam obrolan, pilih Translate on my device untuk teks atau audio lampiran, dan pilih bahasa rekaman untuk audio. Fitur ini membutuhkan persetujuan Anda untuk mengunduh model besar pertama kali, kemudian memproses pesan di perangkat Anda; beberapa perangkat mungkin tidak mendukungnya. Asli tetap tersedia. Konfirmasi harga dan waktu dengan orang lain."
       },
       "contact": {
-        "question": "Bagaimana menghubungi administrasi atau mengirim saran?",
-        "answer": "Dari menu ☰ pilih \"Hubungi administrasi\", pilih topik (dukungan teknis, saran atau administrasi) lalu tulis pesan. Balasan datang di halaman yang sama dengan notifikasi, dan angka di menu menunjukkan balasan baru."
+        "question": "Bagaimana cara menghubungi dukungan atau mengajukan pengaduan?",
+        "answer": "Dari menu ☰ atau bagian bawah halaman, pilih «Dukungan dan pengaduan». Anda bisa langsung mengirim pesan di WhatsApp, atau mengirim pesan ke administrasi setelah memilih topik: dukungan teknis, pengaduan, saran, atau administrasi. Balasan muncul di halaman yang sama dengan notifikasi, dan angka di menu menunjukkan balasan baru."
       }
     },
     "start_title": "Siap untuk memulai?",
@@ -2452,8 +2452,8 @@
     "subscribe_now": "Berlangganan sekarang"
   },
   "support": {
-    "title": "Hubungi administrasi",
-    "hint": "Tulis ke administrasi: masalah teknis, saran, atau hal lain. Balasan datang di sini dan kami akan mengingatkan Anda.",
+    "title": "Dukungan dan pengaduan",
+    "hint": "Untuk dukungan teknis, pengaduan, atau saran: kirim pesan ke kami di WhatsApp, atau kirim pesan ke administrasi. Balasan muncul di sini dan kami akan mengingatkan Anda.",
     "topic": "Topik",
     "topic_support": "Dukungan teknis",
     "topic_suggestion": "Saran",
@@ -2469,7 +2469,15 @@
     "none": "Belum ada pesan.",
     "from_admin": "Administrasi",
     "closed_hint": "Pesan ini sudah ditutup. Tulis pesan baru jika perlu.",
-    "admin_title": "Pesan pengguna"
+    "admin_title": "Pesan pengguna",
+    "topic_complaint": "Pengaduan",
+    "whatsapp_title": "Hubungi kami di WhatsApp",
+    "whatsapp_hint": "Cara tercepat untuk dukungan dan pengaduan. WhatsApp terbuka dengan pesan siap kirim.",
+    "whatsapp_button": "Kirim pesan di WhatsApp",
+    "whatsapp_text": "Halo, saya menulis dari platform Ay Khidma tentang:",
+    "form_title": "Atau kirim pesan ke administrasi",
+    "login_to_write": "Masuk untuk mengirim pesan ke administrasi dan mengikuti balasannya.",
+    "login": "Masuk"
   },
   "permissions": {
     "microphone": "Mikrofon",

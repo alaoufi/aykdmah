@@ -1628,8 +1628,8 @@
         "answer": "Gamitin ang pindutan ng wika sa tuktok ng pahina upang piliin ang Arabic, Ingles, Urdu, Hindi o Bengali. Ang nakasulat ng gumagamit na teksto at mga pangalan ay nananatiling gaya ng isinumite. Sa chat, piliin ang Translate sa aking aparato para sa teksto o audio ng attachment, at piliin ang wika ng pagrekord para sa audio. Kailangan ng iyong pahintulot ang tampok upang mai-download ang malalaking modelo sa unang pagkakataon, pagkatapos ay ipinaproseso ang mensahe sa iyong aparato; maaaring hindi suportahan ito ng ilang mga aparato. Ang orihinal ay nananatiling magagamit. Kunin ang presyo at oras sa ibang tao."
       },
       "contact": {
-        "question": "Paano makipag-ugnayan sa pamamahala o magpadala ng mungkahi?",
-        "answer": "Sa menu ☰ piliin ang \"Makipag-ugnayan sa pamamahala\", piliin ang paksa (teknikal na suporta, mungkahi o pamamahala) at isulat ang mensahe. Darating ang sagot sa parehong pahina na may notification, at may numero sa menu para sa mga bagong sagot."
+        "question": "Paano ako makikipag-ugnayan sa suporta o magrereklamo?",
+        "answer": "Mula sa menu na ☰ o sa ibaba ng page, piliin ang «Suporta at reklamo». Puwede kang mag-message sa WhatsApp nang direkta, o magpadala ng mensahe sa administrasyon matapos pumili ng paksa: teknikal na suporta, reklamo, mungkahi o administrasyon. Dumarating ang sagot sa parehong page na may abiso, at may numero sa menu para sa mga bagong sagot."
       }
     },
     "start_title": "Handa na magsimula?",
@@ -2452,8 +2452,8 @@
     "subscribe_now": "Mag-subscribe na"
   },
   "support": {
-    "title": "Makipag-ugnayan sa pamamahala",
-    "hint": "Sumulat sa pamamahala: teknikal na problema, mungkahi, o iba pa. Dito darating ang mga sagot at ipapaalala namin ang mga ito.",
+    "title": "Suporta at reklamo",
+    "hint": "Para sa teknikal na suporta, reklamo o mungkahi: mag-message sa amin sa WhatsApp, o magpadala ng mensahe sa administrasyon. Dito darating ang mga sagot at ipapaalala namin ang mga ito.",
     "topic": "Paksa",
     "topic_support": "Teknikal na suporta",
     "topic_suggestion": "Mungkahi",
@@ -2469,7 +2469,15 @@
     "none": "Wala pang mensahe.",
     "from_admin": "Pamamahala",
     "closed_hint": "Sarado na ang mensaheng ito. Sumulat ng bago kung kailangan.",
-    "admin_title": "Mga mensahe ng user"
+    "admin_title": "Mga mensahe ng user",
+    "topic_complaint": "Reklamo",
+    "whatsapp_title": "Makipag-ugnayan sa WhatsApp",
+    "whatsapp_hint": "Ang pinakamabilis na paraan para sa suporta at reklamo. Bubukas ang WhatsApp na may handang mensahe.",
+    "whatsapp_button": "Mag-message sa WhatsApp",
+    "whatsapp_text": "Kumusta, sumusulat ako mula sa platform na Ay Khidma tungkol sa:",
+    "form_title": "O magpadala ng mensahe sa administrasyon",
+    "login_to_write": "Mag-sign in para magpadala ng mensahe sa administrasyon at sundan ang mga sagot.",
+    "login": "Mag-sign in"
   },
   "permissions": {
     "microphone": "Mikropono",

@@ -1628,8 +1628,8 @@
         "answer": "Sayfanın üstündeki dil düğmesini kullanarak Arap, İngilizce, Urdu, Hindi veya Bengali seçin. Kullanıcı tarafından yazılmış metin ve isimler girdiği gibi kalır. Çat'ta, metin veya ekleme sesleri için Translate on my device seçin ve ses için kaydetme dilini seçin. Özellik ilk kez büyük modelleri indirmek için onayınıza ihtiyaç duyar, sonra mesajı cihazınızda işlemelidir; bazı cihazlar destekleyemeyebilir. Orijinal mevcut kalır. Fiyatı ve zamanı diğer kişiyle onaylayın."
       },
       "contact": {
-        "question": "Yönetimle nasıl iletişime geçer veya öneri gönderirim?",
-        "answer": "☰ menüsünden \"Yönetimle iletişim\"i seçin, konuyu (teknik destek, öneri veya yönetim) belirleyip mesajınızı yazın. Yanıt aynı sayfaya bildirimle gelir ve menüde yeni yanıtların sayısı görünür."
+        "question": "Teknik destekle nasıl iletişim kurarım veya şikâyette bulunurum?",
+        "answer": "☰ menüsünden veya sayfanın altından «Destek ve şikâyetler»i seçin. Doğrudan WhatsApp'tan yazabilir ya da bir konu seçip yönetime mesaj gönderebilirsiniz: teknik destek, şikâyet, öneri veya yönetim. Yanıt aynı sayfaya bildirimle gelir ve menüdeki sayı yeni yanıtları gösterir."
       }
     },
     "start_title": "Başlamaya hazır mısın?",
@@ -2452,8 +2452,8 @@
     "subscribe_now": "Şimdi abone ol"
   },
   "support": {
-    "title": "Yönetimle iletişim",
-    "hint": "Yönetime yazın: teknik bir sorun, öneri veya başka bir konu. Yanıtlar buraya gelir ve size hatırlatırız.",
+    "title": "Destek ve şikâyetler",
+    "hint": "Teknik destek, şikâyet veya öneri için: bize WhatsApp'tan yazın ya da yönetime mesaj gönderin. Yanıtlar buraya gelir ve size hatırlatırız.",
     "topic": "Konu",
     "topic_support": "Teknik destek",
     "topic_suggestion": "Öneri",
@@ -2469,7 +2469,15 @@
     "none": "Henüz mesaj yok.",
     "from_admin": "Yönetim",
     "closed_hint": "Bu mesaj kapatıldı. Gerekirse yeni bir mesaj yazın.",
-    "admin_title": "Kullanıcı mesajları"
+    "admin_title": "Kullanıcı mesajları",
+    "topic_complaint": "Şikâyet",
+    "whatsapp_title": "WhatsApp'tan ulaşın",
+    "whatsapp_hint": "Destek ve şikâyet için en hızlı yol. WhatsApp hazır bir mesajla açılır.",
+    "whatsapp_button": "WhatsApp'tan yazın",
+    "whatsapp_text": "Merhaba, Ay Khidma platformundan şu konuda yazıyorum:",
+    "form_title": "Ya da yönetime mesaj gönderin",
+    "login_to_write": "Yönetime mesaj göndermek ve yanıtları takip etmek için giriş yapın.",
+    "login": "Giriş yap"
   },
   "permissions": {
     "microphone": "Mikrofon",

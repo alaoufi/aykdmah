@@ -2,10 +2,12 @@ const { query, queryOne, transaction } = require('../config/database');
 const { success, created, error, notFound } = require('../utils/apiResponse');
 const asyncHandler = require('../utils/asyncHandler');
 const notificationService = require('../services/notificationService');
+const { hasPermission } = require('../middleware/roleCheck');
 
 // Messages to the administration (AYK-046): support, suggestions, administration.
 // Each thread keeps both sides' replies; the unread counters are the reminders.
-const TOPICS = ['support', 'suggestion', 'admin'];
+// complaint: a complaint about a person, a service or the platform (AYK-212).
+const TOPICS = ['support', 'complaint', 'suggestion', 'admin'];
 const STATUSES = ['open', 'answered', 'closed'];
 const validId = value => /^[1-9][0-9]{0,9}$/.test(String(value)) && Number(value) <= 2147483647;
 const text = value => (typeof value === 'string' ? value.replace(/\0/g, '').trim() : '');
@@ -19,10 +21,16 @@ async function thread(id) {
   return ticket;
 }
 
-// Every active admin is told about a new message (their reminder).
+// Every active admin who handles these messages is told about a new one (their reminder): the full
+// admin, and admins with the users permission that opens «رسائل المستخدمين» (AYK-212).
 async function tellAdmins(req, ticketId, body) {
-  const admins = await query("SELECT id FROM users WHERE role = 'admin' AND is_active = 1 AND deleted_at IS NULL");
-  await notificationService.broadcast(admins.map(row => row.id), {
+  const admins = await query("SELECT id, role, is_super_admin, permissions FROM users WHERE role = 'admin' AND is_active = 1 AND deleted_at IS NULL");
+  const readers = admins.filter(row => {
+    let permissions = row.permissions;
+    if (typeof permissions === 'string') { try { permissions = JSON.parse(permissions); } catch (_) { permissions = []; } }
+    return hasPermission({ ...row, is_super_admin: Number(row.is_super_admin) ? 1 : 0, permissions: Array.isArray(permissions) ? permissions : [] }, 'users.manage');
+  });
+  await notificationService.broadcast(readers.map(row => row.id), {
     type: 'support_new', title: req.t('support_new_title'), body: body.slice(0, 120), link: `/admin/support/${ticketId}`,
   });
 }

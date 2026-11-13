@@ -7,14 +7,21 @@ import { apiError } from '../services/api';
 import { formatDate, truncate } from '../utils/formatters';
 import SupportThread from '../components/support/SupportThread';
 import { LoadingState } from '../components/common/Spinner';
+import { useAuth } from '../hooks/useAuth';
+import usePublicSettings from '../hooks/usePublicSettings';
+import { whatsappLink } from '../utils/whatsapp';
 
-const TOPICS = ['support', 'suggestion', 'admin'];
-const ICONS = { support: '🛠️', suggestion: '💡', admin: '🏛️' };
+const TOPICS = ['support', 'complaint', 'suggestion', 'admin'];
+const ICONS = { support: '🛠️', complaint: '⚠️', suggestion: '💡', admin: '🏛️' };
 
-// Messages to the administration (AYK-046): technical support, suggestions, or the
-// administration itself. Each message is a thread; replies are counted as unread.
+// Technical support and complaints, two ways (AYK-212): a WhatsApp chat with the number set in the
+// admin settings (open to guests too), or a message to the administration (AYK-046) that reaches the
+// admins' notifications. Each message is a thread; replies are counted as unread.
 export default function SupportPage() {
   const { t } = useTranslation();
+  const { user, loading: authLoading } = useAuth();
+  const { settings } = usePublicSettings();
+  const whatsapp = whatsappLink(settings.support_whatsapp, t('support.whatsapp_text'));
   const { id } = useParams();
   const navigate = useNavigate();
   const { refresh } = useNotifications();
@@ -28,11 +35,12 @@ export default function SupportPage() {
   useEffect(() => {
     let alive = true;
     setTicket(null);
+    if (!user) return () => { alive = false; };
     if (id) getSupport(id).then(row => { if (alive) { setTicket(row); refresh?.(); } }).catch(err => setProblem(apiError(err)));
     else listSupport().then(rows => { if (alive) setItems(rows); }).catch(() => setItems([]));
     return () => { alive = false; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id, user?.id]);
 
   const send = async event => {
     event.preventDefault();
@@ -41,6 +49,14 @@ export default function SupportPage() {
     try { const created = await createSupport(topic, body.trim()); setBody(''); navigate(`/support/${created.id}`); }
     catch (err) { setProblem(apiError(err)); } finally { setBusy(false); }
   };
+
+  if (id && !user && !authLoading) {
+    return (
+      <div className="container page max-w-3xl">
+        <Link to="/login" state={{ from: `/support/${id}` }} className="btn btn-primary no-underline">{t('support.login')}</Link>
+      </div>
+    );
+  }
 
   if (id) {
     return (
@@ -63,6 +79,25 @@ export default function SupportPage() {
         <h2 className="m-0">📨 {t('support.title')}</h2>
         <p className="text-[13px] text-fg-muted mt-1 mb-0">{t('support.hint')}</p>
       </div>
+      {whatsapp && (
+        <div className="card flex flex-wrap items-center gap-3" data-testid="support-whatsapp">
+          <span className="text-3xl" aria-hidden="true">💬</span>
+          <div className="flex-1 min-w-[180px]">
+            <div className="font-bold text-[15px]">{t('support.whatsapp_title')}</div>
+            <div className="text-[13px] text-fg-muted">{t('support.whatsapp_hint')}</div>
+          </div>
+          <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="btn no-underline text-white" style={{ background: '#1f9d55' }}>
+            {t('support.whatsapp_button')}
+          </a>
+        </div>
+      )}
+      <h3 className="text-base m-0">{t('support.form_title')}</h3>
+      {!user ? (
+        <div className="card flex flex-wrap items-center gap-3" data-testid="support-login">
+          <p className="m-0 flex-1 text-[14px]">{t('support.login_to_write')}</p>
+          <Link to="/login" state={{ from: '/support' }} className="btn btn-primary no-underline">{t('support.login')}</Link>
+        </div>
+      ) : <>
       <form onSubmit={send} className="card space-y-3">
         <div className="flex gap-2 flex-wrap" role="radiogroup" aria-label={t('support.topic')}>
           {TOPICS.map(key => (
@@ -95,6 +130,7 @@ export default function SupportPage() {
           </div>
         )}
       </div>
+      </>}
     </div>
   );
 }

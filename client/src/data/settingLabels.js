@@ -10,6 +10,7 @@ export const SETTING_LABELS = Object.freeze({
   site_logo: L('شعار الموقع', 'Site logo', 'ویب سائٹ کا لوگو', 'वेबसाइट का लोगो', 'ওয়েবসাইটের লোগো'),
   site_email: L('البريد العام', 'Public email address', 'عوامی ای میل پتہ', 'सार्वजनिक ईमेल पता', 'সাধারণ ইমেইল ঠিকানা'),
   site_phone: L('هاتف التواصل', 'Contact phone number', 'رابطے کا فون نمبر', 'संपर्क फ़ोन नंबर', 'যোগাযোগের ফোন নম্বর'),
+  support_whatsapp: L('رقم واتساب الدعم الفني والشكاوى', 'WhatsApp number for support and complaints', 'سپورٹ اور شکایات کے لیے واٹس ایپ نمبر', 'सहायता और शिकायतों के लिए व्हाट्सऐप नंबर', 'সহায়তা ও অভিযোগের হোয়াটসঅ্যাপ নম্বর'),
   default_language: L('اللغة الافتراضية', 'Default language', 'پہلے سے منتخب زبان', 'डिफ़ॉल्ट भाषा', 'ডিফল্ট ভাষা'),
   default_currency: L('العملة الافتراضية', 'Default currency', 'پہلے سے منتخب کرنسی', 'डिफ़ॉल्ट मुद्रा', 'ডিফল্ট মুদ্রা'),
   map_provider: L('مزود الخرائط osm|google', 'Map provider (osm | google)', 'نقشے فراہم کرنے والا (osm | google)', 'मानचित्र प्रदाता (osm | google)', 'মানচিত্র প্রদানকারী (osm | google)'),

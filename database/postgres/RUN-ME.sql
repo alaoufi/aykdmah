@@ -6343,6 +6343,12 @@ CREATE TABLE IF NOT EXISTS ui_text_overrides (
 );
 INSERT INTO schema_migrations(name) VALUES ('073_ui_text_overrides.sql');
 
+-- migrations/074_support_whatsapp.sql
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description)
+VALUES ('support_whatsapp', '0500785596', 'string', 'general', 1, 'رقم واتساب الدعم الفني والشكاوى')
+ON CONFLICT (setting_key) DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('074_support_whatsapp.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

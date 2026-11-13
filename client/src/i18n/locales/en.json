@@ -1628,8 +1628,8 @@
         "answer": "Use the language button at the top of the page to choose Arabic, English, Urdu, Hindi or Bengali. User-written text and names stay as entered. In chat, choose “Translate on my device” for text or attachment audio, and select the recording language for audio. The feature needs your consent to download large models the first time, then processes the message on your device; some devices may not support it. The original stays available. Confirm the price and time with the other person."
       },
       "contact": {
-        "question": "How do I contact the administration or send a suggestion?",
-        "answer": "From the ☰ menu choose \"Contact the administration\", pick the topic (technical support, suggestion or administration) and write your message. The reply comes on the same page with a notification, and a number on the menu shows new replies."
+        "question": "How do I contact support or file a complaint?",
+        "answer": "From the ☰ menu or the bottom of the page, choose «Support and complaints». You can message us on WhatsApp directly, or send a message to the administration after choosing a topic: technical support, complaint, suggestion or administration. The reply arrives on the same page with a notification, and a number on the menu shows new replies."
       }
     },
     "start_title": "Ready to begin?",
@@ -2452,8 +2452,8 @@
     "subscribe_now": "Subscribe now"
   },
   "support": {
-    "title": "Contact the administration",
-    "hint": "Write to the administration: a technical problem, a suggestion, or anything else. Replies come here and we remind you of them.",
+    "title": "Support and complaints",
+    "hint": "For technical support, complaints or suggestions: message us on WhatsApp, or send a message to the administration. Replies come here and we remind you of them.",
     "topic": "Topic",
     "topic_support": "Technical support",
     "topic_suggestion": "Suggestion",
@@ -2469,7 +2469,15 @@
     "none": "No messages yet.",
     "from_admin": "Administration",
     "closed_hint": "This message is closed. Write a new one if you need to.",
-    "admin_title": "User messages"
+    "admin_title": "User messages",
+    "topic_complaint": "Complaint",
+    "whatsapp_title": "Contact us on WhatsApp",
+    "whatsapp_hint": "The fastest way to get support or file a complaint. WhatsApp opens with a ready message.",
+    "whatsapp_button": "Message us on WhatsApp",
+    "whatsapp_text": "Hello, I am writing from the Ay Khidma platform about:",
+    "form_title": "Or send a message to the administration",
+    "login_to_write": "Sign in to send a message to the administration and follow its replies.",
+    "login": "Sign in"
   },
   "permissions": {
     "microphone": "Microphone",

@@ -187,7 +187,8 @@ export default function AppRoutes() {
           <Route path="/disputes/new/:requestId" element={<Protected><DisputeOpenPage /></Protected>} />
           <Route path="/disputes/:id" element={<Protected><DisputeDetailsPage /></Protected>} />
           <Route path="/promote" element={<Protected><PromotePage /></Protected>} />
-          <Route path="/support" element={<Protected><SupportPage /></Protected>} />
+          {/* Open to guests too: the WhatsApp button needs no account (AYK-212). */}
+          <Route path="/support" element={<SupportPage />} />
           <Route path="/support/:id" element={<Protected><SupportPage /></Protected>} />
           <Route path="/directory" element={<Protected><DirectoryPage /></Protected>} />
         </Route>
