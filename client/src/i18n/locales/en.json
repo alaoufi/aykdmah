@@ -1845,7 +1845,10 @@
     "address_hint": "House or building number, street and a useful landmark.",
     "complete_to_remember": "To save as your default, complete the city, neighborhood and address, and select the exact service location.",
     "summary": "The request is in: {{area}}",
-    "change": "Change location"
+    "change": "Change location",
+    "place": "Request place",
+    "change_place": "Change request place",
+    "not_set": "Place not set"
   },
   "local_translation": {
     "translate": "Translate on my device",

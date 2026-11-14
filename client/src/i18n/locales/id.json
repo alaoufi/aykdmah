@@ -1845,7 +1845,10 @@
     "address_hint": "Nomor rumah atau bangunan, jalan dan landmark yang berguna.",
     "complete_to_remember": "Untuk menyimpan sebagai default Anda, isi kota, lingkungan dan alamat, dan pilih lokasi layanan yang tepat.",
     "summary": "Lokasi permintaan: {{area}}",
-    "change": "Ubah lokasi"
+    "change": "Ubah lokasi",
+    "place": "Tempat permintaan",
+    "change_place": "Ubah tempat permintaan",
+    "not_set": "Tempat belum ditentukan"
   },
   "local_translation": {
     "translate": "Terjemahan pada perangkat saya",

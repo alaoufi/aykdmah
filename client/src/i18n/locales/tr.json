@@ -1845,7 +1845,10 @@
     "address_hint": "Ev veya bina numarası, sokak ve faydalı bir işaret.",
     "complete_to_remember": "Öntanımlı olarak kaydetmek için şehir, mahalle ve adres tamamlayın ve tam servis yerini seçin.",
     "summary": "Talebin konumu: {{area}}",
-    "change": "Konumu değiştir"
+    "change": "Konumu değiştir",
+    "place": "Talep yeri",
+    "change_place": "Talep yerini değiştir",
+    "not_set": "Yer belirlenmedi"
   },
   "local_translation": {
     "translate": "Cihazımda çevir",

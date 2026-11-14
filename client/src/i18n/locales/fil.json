@@ -1845,7 +1845,10 @@
     "address_hint": "Ang numero ng bahay o gusali, kalye at isang kapaki-pakinabang na landmark.",
     "complete_to_remember": "Upang i-save bilang iyong default, punan ang lungsod, kapitbahayan at address, at piliin ang eksaktong lokasyon ng serbisyo.",
     "summary": "Lokasyon ng kahilingan: {{area}}",
-    "change": "Palitan ang lokasyon"
+    "change": "Palitan ang lokasyon",
+    "place": "Lugar ng kahilingan",
+    "change_place": "Palitan ang lugar ng kahilingan",
+    "not_set": "Wala pang lugar"
   },
   "local_translation": {
     "translate": "I-translate sa aking aparato",

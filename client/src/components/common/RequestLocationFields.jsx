@@ -7,7 +7,62 @@ import LocationPickerMap from './LocationPickerMap';
 import { localizedName } from '../../utils/localize';
 import { locationPoint } from '../../utils/requestLocation';
 
-export default function RequestLocationFields({ control, prefix = 'request', disabled = false }) {
+export default function RequestLocationFields({ control, prefix = 'request', disabled = false, simple = false }) {
+  if (simple) return <SimpleRequestLocation control={control} prefix={prefix} disabled={disabled} />;
+  return <FullRequestLocation control={control} prefix={prefix} disabled={disabled} />;
+}
+
+// The request form's location (AYK-223): one line «المنطقة، المدينة، الحي» with «تغيير مكان الطلب».
+// Only region, city and district open on change; «حفظ» closes them again. A request needs no more.
+function SimpleRequestLocation({ control, prefix, disabled }) {
+  const { t, i18n } = useTranslation();
+  const lang = i18n.resolvedLanguage || 'ar';
+  const [open, setOpen] = useState(false);
+  const area = [...new Set([localizedName(control.region, lang), localizedName(control.city, lang),
+    localizedName(control.district, lang) || localizedName(control.governorate, lang)].filter(Boolean))].join('، ');
+  const needsDistrict = control.ready && control.districts.length > 0 && !control.location.district_id;
+  const missing = !control.location.city_id ? t('auth.simple_location_required') : needsDistrict ? t('auth.simple_district_required') : '';
+  const select = (key, label, rows, unavailable = false) => (
+    <div key={key}>
+      <label className="form-label text-[13px]" htmlFor={`${prefix}-${key}`}>{label}</label>
+      <select id={`${prefix}-${key}`} name={`${key}_id`} className="select" value={control.location[`${key}_id`]}
+        onChange={event => control.change(`${key}_id`, event.target.value)} disabled={disabled || unavailable || rows.length === 0}>
+        <option value="">{control.loading && rows.length === 0 ? t('common.loading') : t('common.select')}</option>
+        {rows.map(row => <option key={row.id} value={row.id}>{localizedName(row, lang)}</option>)}
+      </select>
+    </div>
+  );
+  return (
+    <section className="form-group" data-testid="request-location" aria-labelledby={`${prefix}-location-title`}>
+      <span id={`${prefix}-location-title`} className="form-label">{t('request_location.place')} *</span>
+      <div className="flex items-center gap-2 flex-wrap rounded-card border border-border bg-surface-alt px-3 py-2">
+        <span className="flex-1 min-w-[150px] text-[14px] font-semibold" data-testid="request-location-summary">
+          📍 {area || t('request_location.not_set')}
+          {missing && !open && <span className="block text-[12px] font-normal text-danger" data-testid="request-location-missing">{missing}</span>}
+        </span>
+        <Button type="button" size="sm" variant={open ? 'primary' : 'outline'} disabled={disabled || control.loading || (open && Boolean(missing))}
+          onClick={() => setOpen(!open)} data-testid="request-location-change">
+          {open ? `✓ ${t('common.save')}` : `🔄 ${t('request_location.change_place')}`}
+        </Button>
+      </div>
+      {open && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2" data-testid="request-location-fields">
+          {control.countries.length > 1 && select('country', t('location.country'), control.countries)}
+          {select('region', t('location.region'), control.regions, !control.location.country_id)}
+          {select('city', t('location.city'), control.cities, !control.location.region_id)}
+          {select('district', t('location.district'), control.districts, !control.location.city_id || control.loading)}
+        </div>
+      )}
+      {open && missing && <p className="text-[12px] text-danger mt-1 mb-0">{missing}</p>}
+      {control.error && <div role="alert" className="form-error mt-2 flex flex-wrap gap-2 items-center">
+        <span>{t('location.options_unavailable')}</span>
+        <Button type="button" size="sm" variant="outline" onClick={control.retry} disabled={disabled}>{t('provider.retry_catalog')}</Button>
+      </div>}
+    </section>
+  );
+}
+
+function FullRequestLocation({ control, prefix = 'request', disabled = false }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
   const [mapOpen, setMapOpen] = useState(false);

@@ -211,7 +211,7 @@ export default function CreateRequestPage() {
           </select>
         </div>
         {requiredKeys.map(renderField)}
-        <RequestLocationFields control={requestLocation} disabled={loading} />
+        <RequestLocationFields control={requestLocation} disabled={loading} simple />
         {publishButton('request-publish-required')}
         {optionalKeys.length > 0 && <>
           <div className="flex items-center gap-2 mt-6 mb-3" data-testid="request-optional">
