@@ -202,6 +202,8 @@ export default function useRequestLocation({ user, params, enabled = true, fallb
     ready, complete, hasPoint, manualDistrict, locating, locationMessage,
     countries, regions, governorates, cities, districts,
     city: findLocation(catalog.cities, location.city_id), district: findLocation(districts, location.district_id),
+    // For the one-line summary of the saved area (AYK-222): region, city, district or centre.
+    region: findLocation(catalog.regions, location.region_id), governorate: findLocation(catalog.governorates, location.governorate_id),
     accountAvailable: Boolean(accountLocation), cancelPending,
     change, useAccount, clearPoint, useDeviceLocation, confirmMapPoint,
   };

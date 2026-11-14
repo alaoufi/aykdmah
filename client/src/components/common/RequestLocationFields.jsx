@@ -13,6 +13,9 @@ export default function RequestLocationFields({ control, prefix = 'request', dis
   const [mapOpen, setMapOpen] = useState(false);
   const point = locationPoint(control.location);
   const selectedArea = [localizedName(control.city, lang), localizedName(control.district, lang)].filter(Boolean).join(' · ');
+  // The saved area in one sentence (AYK-222): region, city, then the district or the centre.
+  const fullArea = [localizedName(control.region, lang), localizedName(control.city, lang),
+    localizedName(control.district, lang) || localizedName(control.governorate, lang)].filter(Boolean).join('، ');
   const openMap = () => { control.cancelPending(); setMapOpen(true); };
   // The saved account area is filled in already; details open only on "Edit".
   const compact = control.complete && !control.editing && !control.error;
@@ -33,12 +36,13 @@ export default function RequestLocationFields({ control, prefix = 'request', dis
       <div className={`flex items-start justify-between gap-3 ${compact ? '' : 'mb-2'}`}>
         <div className="min-w-0">
           <h3 id={`${prefix}-location-title`} className="text-base font-bold text-fg">{t('request_location.title')}</h3>
-          {selectedArea && <p className="text-sm text-fg font-semibold leading-relaxed mt-1">{selectedArea}</p>}
+          {compact ? (fullArea || selectedArea) && <p className="text-sm text-fg leading-relaxed mt-1 mb-0" data-testid="request-location-summary">📍 {t('request_location.summary', { area: fullArea || selectedArea })}</p>
+            : selectedArea && <p className="text-sm text-fg font-semibold leading-relaxed mt-1">{selectedArea}</p>}
           {!compact && control.location.address && <p className="text-sm text-fg-muted leading-relaxed mt-1 break-words">{control.location.address}</p>}
           {!compact && control.hasPoint && <span className="inline-flex mt-2 text-xs font-semibold text-primary">📍 {t(control.source === 'saved' ? 'request_location.saved_point' : 'location.location_captured')}</span>}
         </div>
-        <Button type="button" variant="outline" size="sm" disabled={disabled || control.loading} onClick={() => control.setEditing(!control.editing)}>
-          {t('request_location.edit')}
+        <Button type="button" variant="outline" size="sm" disabled={disabled || control.loading} onClick={() => control.setEditing(!control.editing)} data-testid="request-location-change">
+          {compact ? `🔄 ${t('request_location.change')}` : t('request_location.edit')}
         </Button>
       </div>
       {!compact && <>

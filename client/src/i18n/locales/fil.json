@@ -1843,7 +1843,9 @@
     "clear_point": "Malinaw na pin na pinili",
     "saved_point": "Ang iyong nai-save na eksaktong lokasyon ay punong.",
     "address_hint": "Ang numero ng bahay o gusali, kalye at isang kapaki-pakinabang na landmark.",
-    "complete_to_remember": "Upang i-save bilang iyong default, punan ang lungsod, kapitbahayan at address, at piliin ang eksaktong lokasyon ng serbisyo."
+    "complete_to_remember": "Upang i-save bilang iyong default, punan ang lungsod, kapitbahayan at address, at piliin ang eksaktong lokasyon ng serbisyo.",
+    "summary": "Lokasyon ng kahilingan: {{area}}",
+    "change": "Palitan ang lokasyon"
   },
   "local_translation": {
     "translate": "I-translate sa aking aparato",
@@ -2462,7 +2464,8 @@
     "delete_confirm": "Burahin ang kahilingang \"{{title}}\"? Hindi na ito makikita ng mga provider.",
     "chat_archive": "Archive ng chat",
     "chat_archive_empty": "Wala pang naka-archive na chat. Dito napupunta ang chat ng mga tapos o saradong kahilingan.",
-    "forward_none": "Wala pang ibang kausap mo sa kahilingang ito. Kapag may kumontak pa, maipapasa mo ito sa kanila."
+    "forward_none": "Wala pang ibang kausap mo sa kahilingang ito. Kapag may kumontak pa, maipapasa mo ito sa kanila.",
+    "optional_section": "Mga opsyonal na field"
   },
   "subrules": {
     "title": "Saan ipinapatupad ang buwanang subscription",

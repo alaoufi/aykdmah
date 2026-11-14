@@ -1843,7 +1843,9 @@
     "clear_point": "Clear selected pin",
     "saved_point": "Your saved exact location is filled in.",
     "address_hint": "House or building number, street and a useful landmark.",
-    "complete_to_remember": "To save as your default, complete the city, neighborhood and address, and select the exact service location."
+    "complete_to_remember": "To save as your default, complete the city, neighborhood and address, and select the exact service location.",
+    "summary": "The request is in: {{area}}",
+    "change": "Change location"
   },
   "local_translation": {
     "translate": "Translate on my device",
@@ -2462,7 +2464,8 @@
     "delete_confirm": "Delete the request \"{{title}}\"? Providers will no longer see it.",
     "chat_archive": "Chat archive",
     "chat_archive_empty": "No archived chats yet. Chats about finished or closed requests move here.",
-    "forward_none": "No one else is talking with you on this request yet. When others contact you, you can forward it to them."
+    "forward_none": "No one else is talking with you on this request yet. When others contact you, you can forward it to them.",
+    "optional_section": "Optional fields"
   },
   "subrules": {
     "title": "Where the monthly subscription applies",

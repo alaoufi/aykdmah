@@ -1843,7 +1843,9 @@
     "clear_point": "Seçili pin açık",
     "saved_point": "Kaydedilen tam konumunuz dolduruldu.",
     "address_hint": "Ev veya bina numarası, sokak ve faydalı bir işaret.",
-    "complete_to_remember": "Öntanımlı olarak kaydetmek için şehir, mahalle ve adres tamamlayın ve tam servis yerini seçin."
+    "complete_to_remember": "Öntanımlı olarak kaydetmek için şehir, mahalle ve adres tamamlayın ve tam servis yerini seçin.",
+    "summary": "Talebin konumu: {{area}}",
+    "change": "Konumu değiştir"
   },
   "local_translation": {
     "translate": "Cihazımda çevir",
@@ -2462,7 +2464,8 @@
     "delete_confirm": "\"{{title}}\" talebi silinsin mi? Hizmet verenler artık görmeyecek.",
     "chat_archive": "Sohbet arşivi",
     "chat_archive_empty": "Henüz arşivlenmiş sohbet yok. Tamamlanan veya kapatılan taleplerin sohbetleri buraya taşınır.",
-    "forward_none": "Bu talepte henüz başka kimse sizinle iletişimde değil. Başkaları iletişime geçince onlara iletebilirsiniz."
+    "forward_none": "Bu talepte henüz başka kimse sizinle iletişimde değil. Başkaları iletişime geçince onlara iletebilirsiniz.",
+    "optional_section": "İsteğe bağlı alanlar"
   },
   "subrules": {
     "title": "Aylık aboneliğin uygulandığı yerler",

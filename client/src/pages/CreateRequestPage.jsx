@@ -125,45 +125,29 @@ export default function CreateRequestPage() {
     }
   };
 
-  // A provider-only account works from its requests board.
-  if (!canRequestService(user)) return <Navigate to="/provider" replace />;
-
-  return (
-    <div className="container page">
-      <h2 className="mb-4">{t('request.create_title')}</h2>
-
-      {error && <ProblemNotice error={error} onClose={() => setError('')} />}
-
-      <form onSubmit={submit} className="card" style={{ padding: 24 }}>
-        {/* Only the profession is required; the sub-service, title and description are
-            optional. The area comes from the account, and price and time are agreed in the
-            chat with the provider (AYK-041). */}
-        <div className="form-group">
-          <label className="form-label">{t('requester.profession')} *</label>
-          <select className="select" required value={form.category_id} onChange={(e) => update('category_id', e.target.value)} data-testid="request-category">
-            <option value="">{t('common.select')}</option>
-            {categories.map(c => <option key={c.id} value={c.id}>{c.icon} {localizedName(c, lang)}</option>)}
-          </select>
-        </div>
-
-        {services.length > 0 && !hidden.has('service') && <div className="form-group">
+  // The fields in their two groups (AYK-222): required ones (made so in «حقول النماذج») with the
+  // profession and the location, optional ones below. Hidden fields are in neither.
+  const FIELD_ORDER = ['service', 'title', 'voice', 'attachments'];
+  const shownField = key => !hidden.has(key) && (key !== 'service' || services.length > 0);
+  const requiredKeys = FIELD_ORDER.filter(key => shownField(key) && required.has(key));
+  const optionalKeys = FIELD_ORDER.filter(key => shownField(key) && !required.has(key));
+  const renderField = key => {
+    if (key === 'service') return <div key="service"><div className="form-group">
           <label className="form-label">{fieldLabel('service', t('requester.sub_service'))}</label>
           <select className="select" value={form.service_id} onChange={(e) => update('service_id', e.target.value)} data-testid="request-service">
             <option value="">{t('common.select')}</option>
             {services.map(s => <option key={s.id} value={s.id}>{localizedName(s, lang)}</option>)}
           </select>
-        </div>}
-
-        {!hidden.has('title') && <Input
+        </div></div>;
+    if (key === 'title') return <div key="title"><Input
           label={fieldLabel('title', t('requester.request_title'))}
           value={form.title}
           maxLength={200}
           onChange={(e) => update('title', e.target.value)}
           placeholder={t('requester.request_title_ph')}
           data-testid="request-title"
-        />}
-
-        {!hidden.has('voice') && <div className="form-group" data-testid="request-voice">
+        /></div>;
+    if (key === 'voice') return <div key="voice"><div className="form-group" data-testid="request-voice">
           <label className="form-label">🎤 {t('requester.voice_label')}{required.has('voice') ? ' *' : ''}</label>
           {voiceFile ? (
             <div className="flex items-center gap-2 flex-wrap">
@@ -182,9 +166,8 @@ export default function CreateRequestPage() {
           )}
           {voice.error && <p role="alert" className="form-error mt-1">{t(voice.error)}</p>}
           <p className="text-[12px] text-fg-muted mt-1 mb-0">{t('requester.voice_hint')}</p>
-        </div>}
-
-        {!hidden.has('attachments') && <div className="form-group" data-testid="request-attachments">
+        </div></div>;
+    return <div key="attachments"><div className="form-group" data-testid="request-attachments">
           <label className="form-label" htmlFor="request-files">📷 {fieldLabel('attachments', t('requester.attach_label'))}</label>
           <input id="request-files" type="file" multiple accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime"
             onChange={(e) => { addMedia(e.target.files); e.target.value = ''; }} />
@@ -195,16 +178,50 @@ export default function CreateRequestPage() {
             </span>)}
           </div>}
           {mediaError && <p role="alert" className="form-error mt-1">{mediaError}</p>}
-        </div>}
+        </div></div>;
+  };
+  const publishButton = testId => (
+    <div className="mt-2">
+      <Button type="submit" block size="lg" loading={loading} variant="primary" data-testid={testId}
+        disabled={!requestLocation.ready || !!locationMissing || !!requiredMissing}>
+        {t('requester.publish')}
+      </Button>
+      <p className="text-center text-[12.5px] text-fg-muted mt-2 mb-0" data-testid="publish-hint">{t('requester.publish_hint')}</p>
+      {(locationMissing || requiredMissing) && <p className="text-center text-[12px] text-fg-muted mt-1" data-testid="request-missing">{t('auth.complete_to_enable', { item: locationMissing || requiredMissing })}</p>}
+    </div>
+  );
 
+  // A provider-only account works from its requests board.
+  if (!canRequestService(user)) return <Navigate to="/provider" replace />;
+
+  return (
+    <div className="container page">
+      <h2 className="mb-4">{t('request.create_title')}</h2>
+
+      {error && <ProblemNotice error={error} onClose={() => setError('')} />}
+
+      <form onSubmit={submit} className="card" style={{ padding: 24 }}>
+        {/* Required first, then «نشر» right under them; optional fields below with «نشر» again
+            (AYK-222). The area comes from the account as one line, with «تغيير الموقع». */}
+        <div className="form-group">
+          <label className="form-label">{t('requester.profession')} *</label>
+          <select className="select" required value={form.category_id} onChange={(e) => update('category_id', e.target.value)} data-testid="request-category">
+            <option value="">{t('common.select')}</option>
+            {categories.map(c => <option key={c.id} value={c.id}>{c.icon} {localizedName(c, lang)}</option>)}
+          </select>
+        </div>
+        {requiredKeys.map(renderField)}
         <RequestLocationFields control={requestLocation} disabled={loading} />
-
-
-        <Button type="submit" block size="lg" loading={loading} variant="primary" disabled={!requestLocation.ready || !!locationMissing || !!requiredMissing}>
-          {t('requester.publish')}
-        </Button>
-        <p className="text-center text-[12.5px] text-fg-muted mt-2 mb-0" data-testid="publish-hint">{t('requester.publish_hint')}</p>
-        {(locationMissing || requiredMissing) && <p className="text-center text-[12px] text-fg-muted mt-1" data-testid="request-missing">{t('auth.complete_to_enable', { item: locationMissing || requiredMissing })}</p>}
+        {publishButton('request-publish-required')}
+        {optionalKeys.length > 0 && <>
+          <div className="flex items-center gap-2 mt-6 mb-3" data-testid="request-optional">
+            <span className="h-px flex-1 bg-border" />
+            <span className="text-[13px] font-bold text-fg-muted">{t('requester.optional_section')}</span>
+            <span className="h-px flex-1 bg-border" />
+          </div>
+          {optionalKeys.map(renderField)}
+          {publishButton('request-publish-optional')}
+        </>}
       </form>
     </div>
   );

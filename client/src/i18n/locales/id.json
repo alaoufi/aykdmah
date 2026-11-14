@@ -1843,7 +1843,9 @@
     "clear_point": "Pin yang dipilih jelas",
     "saved_point": "Lokasi yang kamu simpan sudah diisi.",
     "address_hint": "Nomor rumah atau bangunan, jalan dan landmark yang berguna.",
-    "complete_to_remember": "Untuk menyimpan sebagai default Anda, isi kota, lingkungan dan alamat, dan pilih lokasi layanan yang tepat."
+    "complete_to_remember": "Untuk menyimpan sebagai default Anda, isi kota, lingkungan dan alamat, dan pilih lokasi layanan yang tepat.",
+    "summary": "Lokasi permintaan: {{area}}",
+    "change": "Ubah lokasi"
   },
   "local_translation": {
     "translate": "Terjemahan pada perangkat saya",
@@ -2462,7 +2464,8 @@
     "delete_confirm": "Hapus permintaan \"{{title}}\"? Penyedia tidak akan melihatnya lagi.",
     "chat_archive": "Arsip obrolan",
     "chat_archive_empty": "Belum ada obrolan diarsipkan. Obrolan permintaan yang selesai atau ditutup pindah ke sini.",
-    "forward_none": "Belum ada orang lain yang menghubungi Anda di permintaan ini. Saat ada yang lain, Anda bisa meneruskannya."
+    "forward_none": "Belum ada orang lain yang menghubungi Anda di permintaan ini. Saat ada yang lain, Anda bisa meneruskannya.",
+    "optional_section": "Kolom opsional"
   },
   "subrules": {
     "title": "Di mana langganan bulanan berlaku",
