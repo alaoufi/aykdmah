@@ -42,25 +42,33 @@ function SimpleRequestLocation({ control, prefix, disabled }) {
   return (
     <section className="form-group" data-testid="request-location" aria-labelledby={`${prefix}-location-title`}>
       <span id={`${prefix}-location-title`} className="form-label">{t('request_location.place')} *</span>
-      <div className="flex items-center gap-2 flex-wrap rounded-card border border-border bg-surface-alt px-3 py-2">
-        <span className="flex-1 min-w-[150px] text-[14px] font-semibold" data-testid="request-location-summary">
-          📍 {area || t('request_location.not_set')}
-          {missing && !open && <span className="block text-[12px] font-normal text-danger" data-testid="request-location-missing">{missing}</span>}
-        </span>
-        <Button type="button" size="sm" variant={open ? 'primary' : 'outline'} disabled={disabled || control.loading || (open && Boolean(missing))}
-          onClick={() => setOpen(!open)} data-testid="request-location-change">
-          {open ? `✓ ${t('common.save')}` : `🔄 ${t('request_location.change_place')}`}
-        </Button>
-      </div>
-      {open && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mt-2" data-testid="request-location-fields">
-          {control.countries.length > 1 && select('country', t('location.country'), control.countries)}
-          {select('region', t('location.region'), control.regions, !control.location.country_id)}
-          {select('city', t('location.city'), control.cities, !control.location.region_id)}
-          {select('district', t('location.district'), control.districts, !control.location.city_id || control.loading)}
+      {/* One box that grows on «تغيير مكان الطلب» and shrinks back to the line once the place is
+          chosen (AYK-225); the height animates. */}
+      <div className={`rounded-card border bg-surface-alt px-3 py-2 transition-colors ${open ? 'border-primary' : 'border-border'}`} data-testid="request-location-box">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="flex-1 min-w-[150px] text-[14px] font-semibold" data-testid="request-location-summary">
+            📍 {area || t('request_location.not_set')}
+            {missing && <span className="block text-[12px] font-normal text-danger" data-testid="request-location-missing">{missing}</span>}
+          </span>
+          <Button type="button" size="sm" variant={open ? 'primary' : 'outline'} disabled={disabled || control.loading || (open && Boolean(missing))}
+            onClick={() => setOpen(!open)} data-testid="request-location-change" aria-expanded={open}>
+            {open ? `✓ ${t('common.save')}` : `🔄 ${t('request_location.change_place')}`}
+          </Button>
         </div>
-      )}
-      {open && missing && <p className="text-[12px] text-danger mt-1 mb-0">{missing}</p>}
+        <div className="grid transition-[grid-template-rows] duration-300 ease-out" style={{ gridTemplateRows: open ? '1fr' : '0fr' }}>
+          {/* Kept in the page while closed so the shrink animates; inert keeps it out of reach. */}
+          <div className="overflow-hidden" aria-hidden={!open} {...(open ? {} : { inert: '' })}>
+            {(
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 pt-3" {...(open ? { 'data-testid': 'request-location-fields' } : {})}>
+                {control.countries.length > 1 && select('country', t('location.country'), control.countries)}
+                {select('region', t('location.region'), control.regions, !control.location.country_id)}
+                {select('city', t('location.city'), control.cities, !control.location.region_id)}
+                {select('district', t('location.district'), control.districts, !control.location.city_id || control.loading)}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
       {control.error && <div role="alert" className="form-error mt-2 flex flex-wrap gap-2 items-center">
         <span>{t('location.options_unavailable')}</span>
         <Button type="button" size="sm" variant="outline" onClick={control.retry} disabled={disabled}>{t('provider.retry_catalog')}</Button>
