@@ -389,7 +389,10 @@
     "warranty_days_label": "Days",
     "warranty_waiting": "Waiting for the other side to accept {{days}} days",
     "warranty_offer": "The other side proposes a {{days}}-day warranty",
-    "warranty_accept": "Accept"
+    "warranty_accept": "Accept",
+    "auto_translated": "Translated automatically",
+    "show_original": "Show original",
+    "show_translation": "Show translation"
   },
   "offer": {
     "submit_title": "Send a quote",
@@ -2472,7 +2475,11 @@
     "chat_archive": "Chat archive",
     "chat_archive_empty": "No archived chats yet. Chats about finished or closed requests move here.",
     "forward_none": "No one else is talking with you on this request yet. When others contact you, you can forward it to them.",
-    "optional_section": "Optional fields"
+    "optional_section": "Optional fields",
+    "details_label": "Request details",
+    "details_ph": "Describe what you need: the problem, size, a suitable time…",
+    "details_hint": "Translated automatically into the provider’s language when they open the request.",
+    "publish_note": "You don’t have to write every detail now: explain them when you talk with the provider, record them by voice, or write them in “Request details”."
   },
   "subrules": {
     "title": "Where the monthly subscription applies",

@@ -389,7 +389,10 @@
     "warranty_days_label": "Gün sayısı",
     "warranty_waiting": "Karşı tarafın {{days}} günü kabul etmesi bekleniyor",
     "warranty_offer": "Karşı taraf {{days}} günlük garanti öneriyor",
-    "warranty_accept": "Kabul et"
+    "warranty_accept": "Kabul et",
+    "auto_translated": "Otomatik çevrildi",
+    "show_original": "Orijinali göster",
+    "show_translation": "Çeviriyi göster"
   },
   "offer": {
     "submit_title": "Bir teklif gönder",
@@ -2472,7 +2475,11 @@
     "chat_archive": "Sohbet arşivi",
     "chat_archive_empty": "Henüz arşivlenmiş sohbet yok. Tamamlanan veya kapatılan taleplerin sohbetleri buraya taşınır.",
     "forward_none": "Bu talepte henüz başka kimse sizinle iletişimde değil. Başkaları iletişime geçince onlara iletebilirsiniz.",
-    "optional_section": "İsteğe bağlı alanlar"
+    "optional_section": "İsteğe bağlı alanlar",
+    "details_label": "Talep ayrıntıları",
+    "details_ph": "İhtiyacınızı ayrıntılı yazın: sorun, ölçü, uygun zaman…",
+    "details_hint": "Hizmet veren talebi açtığında otomatik olarak onun diline çevrilir.",
+    "publish_note": "Tüm ayrıntıları şimdi yazmanız gerekmez: hizmet verenle iletişimde anlatın, sesle kaydedin ya da “Talep ayrıntıları”na yazın."
   },
   "subrules": {
     "title": "Aylık aboneliğin uygulandığı yerler",

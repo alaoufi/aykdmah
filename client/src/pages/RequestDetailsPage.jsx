@@ -28,6 +28,8 @@ import { apiError } from '../services/api';
 import JoinInvite from '../components/common/JoinInvite';
 import { createConversation } from '../services/chatService';
 import AdSlot from '../components/ads/AdSlot';
+import useRequestTranslation from '../hooks/useRequestTranslation';
+import TranslatedNote from '../components/requests/TranslatedNote';
 
 export function canReadRequestOffers(user, request, canManageRequests = false) {
   return Boolean(user && request && (
@@ -43,6 +45,8 @@ export default function RequestDetailsPage() {
   const canManageRequests = hasPermission('requests.manage');
   const navigate = useNavigate();
   const [request, setRequest] = useState(null);
+  // In the reader's language when the requester wrote in another one (AYK-229).
+  const translation = useRequestTranslation(request);
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [detailsScope, setDetailsScope] = useState(null);
@@ -267,8 +271,9 @@ export default function RequestDetailsPage() {
           <span className="text-sm text-muted">{formatRelativeTime(request.created_at)}</span>
         </div>
 
-        <h2>{request.title}</h2>
-        <p className="text-secondary" style={{ whiteSpace: 'pre-wrap' }}>{request.description}</p>
+        <h2>{translation.title}</h2>
+        {translation.description.trim() !== translation.title.trim() && <p className="text-secondary" style={{ whiteSpace: 'pre-wrap' }} data-testid="request-description">{translation.description}</p>}
+        <TranslatedNote translation={translation} className="mb-3" />
 
         <div className="grid grid-2 mt-4 text-sm">
           <div>📁 <strong>{t('request.category')}:</strong> {localizedJoinedName(request, 'category', i18n.resolvedLanguage) || '-'}</div>

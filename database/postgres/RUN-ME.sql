@@ -8,7 +8,7 @@ DO $ayk_fresh$ BEGIN
   IF EXISTS (
     SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
     WHERE n.nspname = current_schema() AND c.relkind IN ('r','p','v','m','f')
-      AND c.relname IN ('activity_logs','ad_admin_messages','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_diagnostics','call_reports','calls','categories','chat_forward_receipts','cities','conversation_archives','conversation_participants','conversations','countries','device_reports','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','district_name_cleanup_','districts','governorates','install_lock','ip_geo_cache','location_shares','message_files','messages','native_push_tokens','notifications','offers','payments','phone_codes','provider_badges','provider_coverage_districts','provider_profiles','push_subscriptions','referral_rewards','regions','request_files','requests','review_reports','review_translations','review_votes','reviews','roles','saved_providers','schema_migrations','services','settings','subscription_plans','subscription_rules','subscriptions','support_messages','support_tickets','translation_memory','translation_usage','ui_text_overrides','uploaded_media','user_blocks','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','wallet_transactions','withdrawal_requests')
+      AND c.relname IN ('activity_logs','ad_admin_messages','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_diagnostics','call_reports','calls','categories','chat_forward_receipts','cities','conversation_archives','conversation_participants','conversations','countries','device_reports','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','district_name_cleanup_','districts','governorates','install_lock','ip_geo_cache','location_shares','message_files','messages','native_push_tokens','notifications','offers','payments','phone_codes','provider_badges','provider_coverage_districts','provider_profiles','push_subscriptions','referral_rewards','regions','request_files','request_translations','requests','review_reports','review_translations','review_votes','reviews','roles','saved_providers','schema_migrations','services','settings','subscription_plans','subscription_rules','subscriptions','support_messages','support_tickets','translation_memory','translation_usage','ui_text_overrides','uploaded_media','user_blocks','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','wallet_transactions','withdrawal_requests')
   ) THEN
     RAISE EXCEPTION 'AY KHIDMA bootstrap requires a fresh database schema; use journaled migrations for an existing installation';
   END IF;
@@ -6369,6 +6369,19 @@ INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, i
 VALUES ('app_store_url', '', 'string', 'general', 1, 'رابط التطبيق في App Store')
 ON CONFLICT (setting_key) DO NOTHING;
 INSERT INTO schema_migrations(name) VALUES ('077_store_links.sql');
+
+-- migrations/078_request_translations.sql
+CREATE TABLE IF NOT EXISTS request_translations (
+  request_id INT NOT NULL,
+  lang VARCHAR(10) NOT NULL,
+  source_lang VARCHAR(10) NULL,
+  title TEXT NOT NULL,
+  description TEXT NULL,
+  provider VARCHAR(30) NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (request_id, lang)
+);
+INSERT INTO schema_migrations(name) VALUES ('078_request_translations.sql');
 
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$

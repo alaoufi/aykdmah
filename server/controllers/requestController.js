@@ -10,6 +10,7 @@ const { withUploadedFiles } = require('../utils/uploadPersistence');
 const { hasPermission } = require('../middleware/roleCheck');
 const { requiredFields } = require('../utils/formFields');
 const { ApiError } = require('../middleware/errorHandler');
+const translationService = require('../services/translationService');
 
 const privateAccess = (user, request) => user && (user.id === request.client_id
   || user.id === request.assigned_provider_id || user.id === request.direct_provider_id || hasPermission(user, 'requests.manage'));
@@ -43,6 +44,7 @@ const create = asyncHandler(async (req, res) => {
   const required = await requiredFields('request');
   const uploads = Array.isArray(req.files) ? req.files : [];
   const missing = (required.has('title') && !String(data.title || '').trim())
+    || (required.has('details') && !String(data.description || '').trim())
     || (required.has('voice') && !uploads.some(file => String(file.mimetype).startsWith('audio/')))
     || (required.has('attachments') && !uploads.some(file => /^(image|video)\//.test(String(file.mimetype))))
     || (required.has('service') && !data.service_id && /^[1-9][0-9]{0,9}$/.test(String(data.category_id || ''))
@@ -126,6 +128,41 @@ const getOne = asyncHandler(async (req, res) => {
   // The assigned provider does not see the requester's name either (AYK-142).
   const shown = Number(request.client_id) === Number(req.user?.id) || hasPermission(req.user, 'requests.manage') ? request : { ...request, client_name: null };
   return success(res, { ...shown, contact_days: Number(contactInfo?.days) || 7, contact_until: contactInfo?.until || null });
+});
+
+// The request's title and details in the viewer's language (AYK-229). Same visibility as
+// getOne; a translation is saved once per language and read from there afterwards.
+const getTranslation = asyncHandler(async (req, res) => {
+  if (!validId(req.params.id)) return notFound(res);
+  const request = await Request.findById(req.params.id);
+  if (!request) return notFound(res);
+  if (!privateAccess(req.user, request) && (request.status !== 'open' || request.direct_provider_id)) return notFound(res);
+  const lang = String(req.query.lang || req.lang || 'ar').toLowerCase();
+  if (!translationService.SUPPORTED.includes(lang)) return error(res, req.t('invalid_data'), 422);
+  const title = String(request.title || '');
+  const description = String(request.description || '');
+  const sameText = description.trim() === title.trim();
+  const source = await translationService.detectLanguageFallback(`${title} ${sameText ? '' : description}`);
+  const original = { language: source, source_lang: source, title, description, translated: false };
+  if (source === lang) return success(res, original);
+  const saved = await queryOne('SELECT source_lang, title, description FROM request_translations WHERE request_id = ? AND lang = ?', [request.id, lang]);
+  if (saved) return success(res, { language: lang, source_lang: saved.source_lang, title: saved.title, description: saved.description ?? saved.title, translated: true, cached: true });
+  try {
+    const [t1, t2] = await Promise.all([
+      translationService.translate(title, null, lang),
+      sameText || !description ? null : translationService.translate(description, null, lang),
+    ]);
+    const translatedTitle = t1?.provider !== 'noop' && t1?.text ? t1.text : null;
+    const translatedDescription = sameText ? translatedTitle : (t2?.provider !== 'noop' && t2?.text ? t2.text : null);
+    if (!translatedTitle && !translatedDescription) return success(res, original);
+    const row = { title: translatedTitle || title, description: translatedDescription || description };
+    await query(`INSERT INTO request_translations (request_id, lang, source_lang, title, description, provider)
+      VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (request_id, lang) DO NOTHING`,
+    [request.id, lang, t1?.from || source, row.title, row.description, String(t1?.provider || t2?.provider || '').slice(0, 30)]).catch(() => {});
+    return success(res, { language: lang, source_lang: t1?.from || source, ...row, translated: true });
+  } catch (_) {
+    return success(res, { ...original, error: 'translation_unavailable' });
+  }
 });
 
 const updateStatus = asyncHandler(async (req, res) => {
@@ -326,4 +363,5 @@ const acceptWarranty = asyncHandler(async (req, res) => {
   return success(res, await Request.findById(request.id));
 });
 
-module.exports = { create, getMy, getNearby, getOne, updateStatus, setReminders, contact, agree, direct, remove, startChat, proposeWarranty, acceptWarranty };
+module.exports = {
+  getTranslation, create, getMy, getNearby, getOne, updateStatus, setReminders, contact, agree, direct, remove, startChat, proposeWarranty, acceptWarranty };

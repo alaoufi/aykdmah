@@ -2,7 +2,7 @@
 // client/src/data/formFields.js: a hidden field is never required, core fields are checked elsewhere.
 const Setting = require('../models/Setting');
 
-const REQUIRABLE = { request: ['service', 'title', 'voice', 'attachments'], account_type: ['coverage'] };
+const REQUIRABLE = { request: ['service', 'title', 'details', 'voice', 'attachments'], account_type: ['coverage'] };
 
 const parse = value => {
   if (value && typeof value === 'object') return value;

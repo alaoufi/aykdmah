@@ -80,6 +80,11 @@ if (process.env.AYK_SUPPORT_TEST !== '1') {
     await api('/admin/settings', settingsAdmin, 200, 'PUT', { items: [{ key: 'form_fields_required', value: { request: ['title'] } }] });
     assert.equal((await post({ category_id: category.id }, 400)).message, 'أكمل الحقول الإجبارية في النموذج');
     assert.notEqual((await post({ category_id: category.id, title: 'عنوان' })).message, 'أكمل الحقول الإجبارية في النموذج');
+    // «تفاصيل الطلب» can be required too (AYK-229).
+    await api('/admin/settings', settingsAdmin, 200, 'PUT', { items: [{ key: 'form_fields_required', value: { request: ['details'] } }] });
+    assert.equal((await post({ category_id: category.id, title: 'عنوان' }, 400)).message, 'أكمل الحقول الإجبارية في النموذج');
+    assert.notEqual((await post({ category_id: category.id, title: 'عنوان', description: 'تفاصيل' })).message, 'أكمل الحقول الإجبارية في النموذج');
+    await api('/admin/settings', settingsAdmin, 200, 'PUT', { items: [{ key: 'form_fields_required', value: { request: ['title'] } }] });
     // Hidden makes it optional again.
     await api('/admin/settings', settingsAdmin, 200, 'PUT', { items: [{ key: 'form_fields_hidden', value: { request: ['title'] } }] });
     assert.notEqual((await post({ category_id: category.id })).message, 'أكمل الحقول الإجبارية في النموذج');
@@ -104,6 +109,18 @@ if (process.env.AYK_SUPPORT_TEST !== '1') {
     assert.equal(refused.status, 409);
     assert.equal(refusedBody.errors.code, 'open_requests');
     assert.equal(refusedBody.errors.jobs[0].title, 'طلب مفتوح');
+  });
+
+  test('an open request is shown in the reader\'s language, from a saved translation (AYK-229)', async () => {
+    const client = await fixture('client');
+    const id = (await db.query("INSERT INTO requests (client_id, title, description, status) VALUES (?, 'تسريب مياه', 'في المطبخ', 'open')", [client.id])).insertId;
+    const read = async lang => (await (await fetch(`${base}/requests/${id}/translation?lang=${lang}`, { headers: { Authorization: `Bearer ${token(client)}` } })).json()).data;
+    const same = await read('ar');
+    assert.equal(same.translated, false); assert.equal(same.title, 'تسريب مياه');
+    await db.query("INSERT INTO request_translations (request_id, lang, source_lang, title, description, provider) VALUES (?, 'ur', 'ar', 'پانی کا رساؤ', 'باورچی خانے میں', 'test')", [id]);
+    const ur = await read('ur');
+    assert.equal(ur.translated, true); assert.equal(ur.title, 'پانی کا رساؤ'); assert.equal(ur.description, 'باورچی خانے میں');
+    assert.equal((await fetch(`${base}/requests/${id}/translation?lang=xx`, { headers: { Authorization: `Bearer ${token(client)}` } })).status, 422);
   });
 
   test('a complaint reaches only the admins who handle user messages', async () => {

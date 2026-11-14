@@ -39,6 +39,18 @@ export async function getRequest(id) {
 }
 
 // A warranty agreed between the two sides (AYK-081).
+// The request's title and details in another language (AYK-229); saved on the server.
+const translations = new Map();
+export function getRequestTranslation(id, lang) {
+  const key = `${id}:${lang}`;
+  if (!translations.has(key)) {
+    translations.set(key, api.get(`/requests/${id}/translation`, { params: { lang } })
+      .then(({ data }) => data.data)
+      .catch(error => { translations.delete(key); throw error; }));
+  }
+  return translations.get(key);
+}
+
 export async function proposeWarranty(id, days) {
   const { data } = await api.put(`/requests/${id}/warranty`, { days });
   return data.data;

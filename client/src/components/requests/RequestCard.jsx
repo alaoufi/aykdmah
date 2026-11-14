@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next';
 import { REQUEST_STATUS } from '../../utils/constants';
 import { formatRelativeTime, formatCurrency, truncate, formatDistance } from '../../utils/formatters';
 import useOpenRequest from '../../hooks/useOpenRequest';
+import useRequestTranslation from '../../hooks/useRequestTranslation';
+import TranslatedNote from './TranslatedNote';
 
 // Whose request this is (AYK-044): "Your request" (as a requester) or "For your
 // service" (as a provider), in different colours.
@@ -20,6 +22,7 @@ export default function RequestCard({ request }) {
   const statusLabel = status.i18nKey ? t(status.i18nKey) : request.status;
 
   const { open, opening, mine, forMyService } = useOpenRequest();
+  const translation = useRequestTranslation(request);
 
   return (
     <div role="link" tabIndex={0} onClick={() => open(request)} onKeyDown={e => { if (e.key === 'Enter') open(request); }}
@@ -33,10 +36,11 @@ export default function RequestCard({ request }) {
         <span className="ms-auto text-[11.5px] text-muted">{formatRelativeTime(request.created_at)}</span>
       </div>
 
-      <h3 className="mt-1.5 mb-0 text-[16px] font-bold leading-snug">{request.title}</h3>
-      {request.description && request.description.trim() !== String(request.title || '').trim() && (
-        <p className="text-secondary text-[13px] m-0 mt-0.5 truncate">{truncate(request.description, 110)}</p>
+      <h3 className="mt-1.5 mb-0 text-[16px] font-bold leading-snug">{translation.title}</h3>
+      {translation.description && translation.description.trim() !== translation.title.trim() && (
+        <p className="text-secondary text-[13px] m-0 mt-0.5 truncate">{truncate(translation.description, 110)}</p>
       )}
+      <TranslatedNote translation={translation} />
 
       <div className="meta flex flex-wrap gap-x-3 gap-y-0.5 mt-1.5 text-[12.5px] text-secondary">
         {request.category_name && <span>🛠️ {localizedJoinedName(request, 'category', i18n.resolvedLanguage)}</span>}

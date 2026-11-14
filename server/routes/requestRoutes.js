@@ -25,6 +25,7 @@ router.post('/', authenticate, requireMarketplaceWrite, uploadLimiter, uploadReq
 // Contact a provider from the directory: a direct request, not on the board (AYK-041).
 router.post('/direct', authenticate, requireMarketplaceWrite, c.direct);
 router.get('/:id', optionalAuth, requireMarketplaceBrowse, c.getOne);
+router.get('/:id/translation', optionalAuth, requireMarketplaceBrowse, c.getTranslation);
 router.put('/:id/status', authenticate, c.updateStatus);
 router.put('/:id/reminders', authenticate, c.setReminders);
 router.put('/:id/warranty', authenticate, c.proposeWarranty);

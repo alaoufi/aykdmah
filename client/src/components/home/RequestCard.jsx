@@ -5,12 +5,15 @@ import { IconClock, IconPin, IconArrow } from '../common/Icons';
 import { formatRelativeTime, truncate } from '../../utils/formatters';
 import useOpenRequest from '../../hooks/useOpenRequest';
 import { OwnerBadge } from '../requests/RequestCard';
+import useRequestTranslation from '../../hooks/useRequestTranslation';
+import TranslatedNote from '../requests/TranslatedNote';
 
 export default function RequestCard({ item, urgent = false }) {
   const { t, i18n } = useTranslation();
   const tag = localizedJoinedName(item, 'category', i18n.resolvedLanguage) || localizedJoinedName(item, 'service', i18n.resolvedLanguage) || t('nav.services');
   const cityLine = [localizedJoinedName(item, 'city', i18n.resolvedLanguage), localizedJoinedName(item, 'district', i18n.resolvedLanguage)].filter(Boolean).join(' — ');
   const { open, opening, mine, forMyService } = useOpenRequest();
+  const translation = useRequestTranslation(item);
 
   return (
     <article
@@ -37,14 +40,15 @@ export default function RequestCard({ item, urgent = false }) {
       </div>
 
       <h3 className="text-[14px] md:text-[15px] font-extrabold text-fg leading-snug line-clamp-2 m-0">
-        {item.title}
+        {translation.title}
       </h3>
 
-      {item.description && item.description.trim() !== String(item.title || '').trim() && (
+      {translation.description && translation.description.trim() !== translation.title.trim() && (
         <p className="text-[12px] text-fg-muted leading-snug line-clamp-1 m-0">
-          {truncate(item.description, 120)}
+          {truncate(translation.description, 120)}
         </p>
       )}
+      <TranslatedNote translation={translation} />
 
       <div className="flex items-center justify-between gap-2 mt-auto">
         <span className="min-w-0 flex items-center gap-1 text-[11px] text-fg-muted">

@@ -19,7 +19,7 @@ import { addChatAttachments, CHAT_MEDIA_MAX_BYTES, recordingTime } from '../util
 import VoiceNote from '../components/chat/VoiceNote';
 import ProblemNotice from '../components/common/ProblemNotice';
 
-const EMPTY_FORM = { category_id: '', service_id: '', title: '' };
+const EMPTY_FORM = { category_id: '', service_id: '', title: '', description: '' };
 
 export default function CreateRequestPage() {
   const { t, i18n } = useTranslation();
@@ -94,6 +94,7 @@ export default function CreateRequestPage() {
 
   const requiredMissing = required.has('service') && services.length > 0 && !form.service_id ? t('requester.sub_service')
     : required.has('title') && !String(form.title || '').trim() ? t('requester.request_title')
+      : required.has('details') && !String(form.description || '').trim() ? t('requester.details_label')
       : required.has('voice') && !voiceFile ? t('requester.voice_label')
         : required.has('attachments') && media.length === 0 ? t('requester.attach_label') : null;
 
@@ -108,7 +109,7 @@ export default function CreateRequestPage() {
     try {
       const fd = new FormData();
       Object.entries(form).forEach(([k, v]) => {
-        if ((k === 'title' && hidden.has('title')) || (k === 'service_id' && hidden.has('service'))) return;
+        if ((k === 'title' && hidden.has('title')) || (k === 'service_id' && hidden.has('service')) || (k === 'description' && hidden.has('details'))) return;
         if (v !== '' && v !== null && v !== undefined) fd.append(k, v);
       });
       if (voiceFile && !hidden.has('voice')) fd.append('files', voiceFile);
@@ -127,7 +128,7 @@ export default function CreateRequestPage() {
 
   // The fields in their two groups (AYK-222): required ones (made so in «حقول النماذج») with the
   // profession and the location, optional ones below. Hidden fields are in neither.
-  const FIELD_ORDER = ['service', 'title', 'voice', 'attachments'];
+  const FIELD_ORDER = ['service', 'title', 'details', 'voice', 'attachments'];
   const shownField = key => !hidden.has(key) && (key !== 'service' || services.length > 0);
   const requiredKeys = FIELD_ORDER.filter(key => shownField(key) && required.has(key));
   const optionalKeys = FIELD_ORDER.filter(key => shownField(key) && !required.has(key));
@@ -147,6 +148,13 @@ export default function CreateRequestPage() {
           placeholder={t('requester.request_title_ph')}
           data-testid="request-title"
         /></div>;
+    // Written details (AYK-229): translated for a provider who reads another language.
+    if (key === 'details') return <div key="details" className="form-group">
+          <label className="form-label" htmlFor="request-details">📝 {fieldLabel('details', t('requester.details_label'))}</label>
+          <textarea id="request-details" className="input" rows={3} maxLength={2000} value={form.description}
+            onChange={(e) => update('description', e.target.value)} placeholder={t('requester.details_ph')} data-testid="request-details" />
+          <p className="text-[12px] text-fg-muted mt-1 mb-0">🌐 {t('requester.details_hint')}</p>
+        </div>;
     if (key === 'voice') return <div key="voice"><div className="form-group" data-testid="request-voice">
           <label className="form-label">🎤 {t('requester.voice_label')}{required.has('voice') ? ' *' : ''}</label>
           {voiceFile ? (
@@ -180,8 +188,10 @@ export default function CreateRequestPage() {
           {mediaError && <p role="alert" className="form-error mt-1">{mediaError}</p>}
         </div></div>;
   };
-  const publishButton = testId => (
+  const publishButton = (testId, note = false) => (
     <div className="mt-2">
+      {/* The details need not all be written now (AYK-229). */}
+      {note && <p className="text-[13px] bg-surface-alt border border-border rounded-card px-3 py-2 mb-2" data-testid="publish-note">💡 {t('requester.publish_note')}</p>}
       <Button type="submit" block size="lg" loading={loading} variant="primary" data-testid={testId}
         disabled={!requestLocation.ready || !!locationMissing || !!requiredMissing}>
         {t('requester.publish')}
@@ -212,7 +222,7 @@ export default function CreateRequestPage() {
         </div>
         {requiredKeys.map(renderField)}
         <RequestLocationFields control={requestLocation} disabled={loading} simple />
-        {publishButton('request-publish-required')}
+        {publishButton('request-publish-required', true)}
         {optionalKeys.length > 0 && <>
           <div className="flex items-center gap-2 mt-6 mb-3" data-testid="request-optional">
             <span className="h-px flex-1 bg-border" />

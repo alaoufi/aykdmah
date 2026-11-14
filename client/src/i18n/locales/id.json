@@ -389,7 +389,10 @@
     "warranty_days_label": "Jumlah hari",
     "warranty_waiting": "Menunggu pihak lain menyetujui {{days}} hari",
     "warranty_offer": "Pihak lain mengusulkan garansi {{days}} hari",
-    "warranty_accept": "Setuju"
+    "warranty_accept": "Setuju",
+    "auto_translated": "Diterjemahkan otomatis",
+    "show_original": "Tampilkan asli",
+    "show_translation": "Tampilkan terjemahan"
   },
   "offer": {
     "submit_title": "Kirimkan kutipan",
@@ -2472,7 +2475,11 @@
     "chat_archive": "Arsip obrolan",
     "chat_archive_empty": "Belum ada obrolan diarsipkan. Obrolan permintaan yang selesai atau ditutup pindah ke sini.",
     "forward_none": "Belum ada orang lain yang menghubungi Anda di permintaan ini. Saat ada yang lain, Anda bisa meneruskannya.",
-    "optional_section": "Kolom opsional"
+    "optional_section": "Kolom opsional",
+    "details_label": "Detail permintaan",
+    "details_ph": "Tulis kebutuhan Anda secara rinci: masalahnya, ukuran, waktu yang cocok…",
+    "details_hint": "Diterjemahkan otomatis ke bahasa penyedia saat ia membuka permintaan.",
+    "publish_note": "Tidak perlu menulis semua detail sekarang: jelaskan saat berkomunikasi dengan penyedia, rekam dengan suara, atau tulis di “Detail permintaan”."
   },
   "subrules": {
     "title": "Di mana langganan bulanan berlaku",

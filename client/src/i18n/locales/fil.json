@@ -389,7 +389,10 @@
     "warranty_days_label": "Bilang ng araw",
     "warranty_waiting": "Hinihintay ang pagsang-ayon sa {{days}} araw",
     "warranty_offer": "Nagmumungkahi ang kabila ng {{days}} araw na warranty",
-    "warranty_accept": "Sang-ayon"
+    "warranty_accept": "Sang-ayon",
+    "auto_translated": "Awtomatikong isinalin",
+    "show_original": "Ipakita ang orihinal",
+    "show_translation": "Ipakita ang salin"
   },
   "offer": {
     "submit_title": "Ipadala ang isang quote",
@@ -2472,7 +2475,11 @@
     "chat_archive": "Archive ng chat",
     "chat_archive_empty": "Wala pang naka-archive na chat. Dito napupunta ang chat ng mga tapos o saradong kahilingan.",
     "forward_none": "Wala pang ibang kausap mo sa kahilingang ito. Kapag may kumontak pa, maipapasa mo ito sa kanila.",
-    "optional_section": "Mga opsyonal na field"
+    "optional_section": "Mga opsyonal na field",
+    "details_label": "Mga detalye ng request",
+    "details_ph": "Ilarawan ang kailangan mo: ang problema, sukat, angkop na oras…",
+    "details_hint": "Awtomatikong isinasalin sa wika ng provider kapag binuksan nila ang request.",
+    "publish_note": "Hindi kailangang isulat ang lahat ngayon: ipaliwanag kapag nakausap ang provider, i-record sa boses, o isulat sa “Mga detalye ng request”."
   },
   "subrules": {
     "title": "Saan ipinapatupad ang buwanang subscription",

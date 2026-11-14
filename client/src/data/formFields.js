@@ -6,6 +6,7 @@ export const FORM_FIELDS = Object.freeze({
     { key: 'category', labelKey: 'requester.profession', core: true },
     { key: 'service', labelKey: 'requester.sub_service', requirable: true },
     { key: 'title', labelKey: 'requester.request_title', requirable: true },
+    { key: 'details', labelKey: 'requester.details_label', requirable: true },
     { key: 'voice', labelKey: 'requester.voice_label', requirable: true },
     { key: 'attachments', labelKey: 'requester.attach_label', requirable: true },
     { key: 'location', labelKey: 'admin.form_fields.location', core: true },
