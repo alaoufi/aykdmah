@@ -6383,6 +6383,12 @@ CREATE TABLE IF NOT EXISTS request_translations (
 );
 INSERT INTO schema_migrations(name) VALUES ('078_request_translations.sql');
 
+-- migrations/079_form_fields_top.sql
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description)
+VALUES ('form_fields_top', '{"request":["details"]}', 'json', 'requests', 1, 'حقول النماذج المعروضة مع النشر الأول')
+ON CONFLICT (setting_key) DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('079_form_fields_top.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

@@ -1203,7 +1203,14 @@
       "make_required": "اجعله إجباريًا",
       "make_optional": "اجعله اختياريًا",
       "required_done": "صار حقل «{{field}}» إجباريًا.",
-      "optional_done": "صار حقل «{{field}}» اختياريًا."
+      "optional_done": "صار حقل «{{field}}» اختياريًا.",
+      "place_top": "مع النشر الأول",
+      "place_second": "مع النشر الثاني",
+      "move_top": "انقله للنشر الأول",
+      "move_second": "انقله للنشر الثاني",
+      "required_top": "الحقل الإجباري يظهر دائمًا مع النشر الأول",
+      "top_done": "صار «{{field}}» مع النشر الأول",
+      "second_done": "صار «{{field}}» مع النشر الثاني"
     }
   },
   "errors": {

@@ -1203,7 +1203,14 @@
       "make_required": "Make required",
       "make_optional": "Make optional",
       "required_done": "The «{{field}}» field is now required.",
-      "optional_done": "The «{{field}}» field is now optional."
+      "optional_done": "The «{{field}}» field is now optional.",
+      "place_top": "With the first Publish",
+      "place_second": "With the second Publish",
+      "move_top": "Move to the first Publish",
+      "move_second": "Move to the second Publish",
+      "required_top": "A required field always shows with the first Publish",
+      "top_done": "“{{field}}” now shows with the first Publish",
+      "second_done": "“{{field}}” now shows with the second Publish"
     }
   },
   "errors": {

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { FORM_FIELDS, hiddenFields, requiredFields, toggleField, toggleRequired } from '../src/data/formFields.js';
+import { FORM_FIELDS, hiddenFields, requiredFields, toggleField, toggleRequired, topFields, toggleTop } from '../src/data/formFields.js';
 
 test('hidden fields come from the setting, ignoring unknown and core fields', () => {
   assert.deepEqual([...hiddenFields({ request: ['title', 'voice'] }, 'request')], ['title', 'voice']);
@@ -35,4 +35,14 @@ test('required fields: chosen per form, never hidden ones, and coverage by defau
   assert.deepEqual(toggleRequired(undefined, 'request', 'title'), { account_type: ['coverage'], request: ['title'] });
   assert.deepEqual(toggleRequired({ request: ['title'] }, 'request', 'title'), { request: [] });
   assert.deepEqual(toggleRequired({}, 'account_type', 'location_mode'), { account_type: [] });
+});
+
+test('optional fields are placed with the first or second «انشر» (AYK-230)', () => {
+  assert.deepEqual([...topFields(undefined, 'request')], ['details']);
+  assert.deepEqual([...topFields({ request: ['title', 'category', 'nope'] }, 'request')], ['title']);
+  assert.deepEqual([...topFields('{"request":[]}', 'request')], []);
+  assert.deepEqual(toggleTop(undefined, 'request', 'details'), { request: [] });
+  assert.deepEqual(toggleTop(undefined, 'request', 'voice'), { request: ['details', 'voice'] });
+  assert.deepEqual(toggleTop({ request: [] }, 'request', 'location'), { request: [] });
+  assert.equal(FORM_FIELDS.account_type.some(field => field.placeable), false);
 });

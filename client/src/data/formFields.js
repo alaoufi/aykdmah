@@ -4,11 +4,11 @@
 export const FORM_FIELDS = Object.freeze({
   request: [
     { key: 'category', labelKey: 'requester.profession', core: true },
-    { key: 'service', labelKey: 'requester.sub_service', requirable: true },
-    { key: 'title', labelKey: 'requester.request_title', requirable: true },
-    { key: 'details', labelKey: 'requester.details_label', requirable: true },
-    { key: 'voice', labelKey: 'requester.voice_label', requirable: true },
-    { key: 'attachments', labelKey: 'requester.attach_label', requirable: true },
+    { key: 'service', labelKey: 'requester.sub_service', requirable: true, placeable: true },
+    { key: 'title', labelKey: 'requester.request_title', requirable: true, placeable: true },
+    { key: 'details', labelKey: 'requester.details_label', requirable: true, placeable: true },
+    { key: 'voice', labelKey: 'requester.voice_label', requirable: true, placeable: true },
+    { key: 'attachments', labelKey: 'requester.attach_label', requirable: true, placeable: true },
     { key: 'location', labelKey: 'admin.form_fields.location', core: true },
   ],
   // «نوع الحساب» in «ملفي» (AYK-217): the work details asked when a requester becomes a provider
@@ -61,5 +61,25 @@ export function toggleRequired(setting, form, key) {
   const list = new Set(Array.isArray(current[form]) ? current[form] : []);
   if (list.has(key)) list.delete(key);
   else if ((FORM_FIELDS[form] || []).some(field => field.key === key && field.requirable)) list.add(key);
+  return { ...current, [form]: [...list] };
+}
+
+// Placement (AYK-230): the public setting form_fields_top lists the optional fields shown above
+// the first «انشر» with the required ones; the rest go to the second group. Without the setting,
+// «تفاصيل الطلب» is at the top.
+const DEFAULT_TOP = { request: ['details'] };
+
+export function topFields(setting, form) {
+  const source = setting === undefined || setting === null ? DEFAULT_TOP : parse(setting);
+  const list = source[form];
+  const allowed = new Set((FORM_FIELDS[form] || []).filter(field => field.placeable).map(field => field.key));
+  return new Set((Array.isArray(list) ? list : []).filter(key => allowed.has(key)));
+}
+
+export function toggleTop(setting, form, key) {
+  const current = setting === undefined || setting === null ? { ...DEFAULT_TOP } : parse(setting);
+  const list = new Set(Array.isArray(current[form]) ? current[form] : []);
+  if (list.has(key)) list.delete(key);
+  else if ((FORM_FIELDS[form] || []).some(field => field.key === key && field.placeable)) list.add(key);
   return { ...current, [form]: [...list] };
 }

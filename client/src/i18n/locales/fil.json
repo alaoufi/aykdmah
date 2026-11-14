@@ -1203,7 +1203,14 @@
       "make_required": "Gawing kailangan",
       "make_optional": "Gawing opsyonal",
       "required_done": "Kailangan na ang field na «{{field}}».",
-      "optional_done": "Opsyonal na ang field na «{{field}}»."
+      "optional_done": "Opsyonal na ang field na «{{field}}».",
+      "place_top": "Kasama ng unang I-publish",
+      "place_second": "Kasama ng ikalawang I-publish",
+      "move_top": "Ilipat sa unang I-publish",
+      "move_second": "Ilipat sa ikalawang I-publish",
+      "required_top": "Laging kasama ng unang I-publish ang kailangang field",
+      "top_done": "Kasama na ng unang I-publish ang “{{field}}”",
+      "second_done": "Kasama na ng ikalawang I-publish ang “{{field}}”"
     }
   },
   "errors": {

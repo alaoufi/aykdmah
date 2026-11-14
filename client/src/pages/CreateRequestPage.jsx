@@ -3,7 +3,7 @@ import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { canRequestService } from '../utils/canRequest';
 import { useTranslation } from 'react-i18next';
 import usePublicSettings from '../hooks/usePublicSettings';
-import { hiddenFields, requiredFields } from '../data/formFields';
+import { hiddenFields, requiredFields, topFields } from '../data/formFields';
 import { listCategories, listServices } from '../services/serviceService';
 import { createRequest } from '../services/requestService';
 import { useAuth } from '../hooks/useAuth';
@@ -130,8 +130,10 @@ export default function CreateRequestPage() {
   // profession and the location, optional ones below. Hidden fields are in neither.
   const FIELD_ORDER = ['service', 'title', 'details', 'voice', 'attachments'];
   const shownField = key => !hidden.has(key) && (key !== 'service' || services.length > 0);
-  const requiredKeys = FIELD_ORDER.filter(key => shownField(key) && required.has(key));
-  const optionalKeys = FIELD_ORDER.filter(key => shownField(key) && !required.has(key));
+  // Optional fields the owner placed with the first «انشر» join the required ones (AYK-230).
+  const top = topFields(settings.form_fields_top, 'request');
+  const requiredKeys = FIELD_ORDER.filter(key => shownField(key) && (required.has(key) || top.has(key)));
+  const optionalKeys = FIELD_ORDER.filter(key => shownField(key) && !required.has(key) && !top.has(key));
   const renderField = key => {
     if (key === 'service') return <div key="service"><div className="form-group">
           <label className="form-label">{fieldLabel('service', t('requester.sub_service'))}</label>

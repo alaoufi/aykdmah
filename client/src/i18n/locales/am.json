@@ -1203,7 +1203,14 @@
       "make_required": "አስገዳጅ አድርግ",
       "make_optional": "አማራጭ አድርግ",
       "required_done": "የ«{{field}}» መስክ አሁን አስገዳጅ ነው።",
-      "optional_done": "የ«{{field}}» መስክ አሁን አማራጭ ነው።"
+      "optional_done": "የ«{{field}}» መስክ አሁን አማራጭ ነው።",
+      "place_top": "ከመጀመሪያው ማተም ጋር",
+      "place_second": "ከሁለተኛው ማተም ጋር",
+      "move_top": "ወደ መጀመሪያው ማተም ውሰድ",
+      "move_second": "ወደ ሁለተኛው ማተም ውሰድ",
+      "required_top": "አስገዳጅ መስክ ሁልጊዜ ከመጀመሪያው ማተም ጋር ይታያል",
+      "top_done": "«{{field}}» አሁን ከመጀመሪያው ማተም ጋር ነው",
+      "second_done": "«{{field}}» አሁን ከሁለተኛው ማተም ጋር ነው"
     }
   },
   "errors": {

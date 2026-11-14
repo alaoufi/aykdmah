@@ -1203,7 +1203,14 @@
       "make_required": "Zorunlu yap",
       "make_optional": "İsteğe bağlı yap",
       "required_done": "«{{field}}» alanı artık zorunlu.",
-      "optional_done": "«{{field}}» alanı artık isteğe bağlı."
+      "optional_done": "«{{field}}» alanı artık isteğe bağlı.",
+      "place_top": "İlk Yayınla ile",
+      "place_second": "İkinci Yayınla ile",
+      "move_top": "İlk Yayınla’ya taşı",
+      "move_second": "İkinci Yayınla’ya taşı",
+      "required_top": "Zorunlu alan her zaman ilk Yayınla ile görünür",
+      "top_done": "“{{field}}” artık ilk Yayınla ile",
+      "second_done": "“{{field}}” artık ikinci Yayınla ile"
     }
   },
   "errors": {

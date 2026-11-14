@@ -1203,7 +1203,14 @@
       "make_required": "لازمی بنائیں",
       "make_optional": "اختیاری بنائیں",
       "required_done": "«{{field}}» خانہ اب لازمی ہے۔",
-      "optional_done": "«{{field}}» خانہ اب اختیاری ہے۔"
+      "optional_done": "«{{field}}» خانہ اب اختیاری ہے۔",
+      "place_top": "پہلے شائع کے ساتھ",
+      "place_second": "دوسرے شائع کے ساتھ",
+      "move_top": "پہلے شائع میں لے جائیں",
+      "move_second": "دوسرے شائع میں لے جائیں",
+      "required_top": "لازمی خانہ ہمیشہ پہلے شائع کے ساتھ دکھتا ہے",
+      "top_done": "«{{field}}» اب پہلے شائع کے ساتھ ہے",
+      "second_done": "«{{field}}» اب دوسرے شائع کے ساتھ ہے"
     }
   },
   "errors": {

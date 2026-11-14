@@ -1203,7 +1203,14 @@
       "make_required": "Jadikan wajib",
       "make_optional": "Jadikan opsional",
       "required_done": "Kolom «{{field}}» kini wajib.",
-      "optional_done": "Kolom «{{field}}» kini opsional."
+      "optional_done": "Kolom «{{field}}» kini opsional.",
+      "place_top": "Bersama Terbitkan pertama",
+      "place_second": "Bersama Terbitkan kedua",
+      "move_top": "Pindahkan ke Terbitkan pertama",
+      "move_second": "Pindahkan ke Terbitkan kedua",
+      "required_top": "Kolom wajib selalu tampil bersama Terbitkan pertama",
+      "top_done": "“{{field}}” kini bersama Terbitkan pertama",
+      "second_done": "“{{field}}” kini bersama Terbitkan kedua"
     }
   },
   "errors": {

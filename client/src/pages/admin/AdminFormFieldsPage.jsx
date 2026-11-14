@@ -5,10 +5,11 @@ import AdminButton from '../../components/admin/AdminButton';
 import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
 import { getSettings, updateSettings } from '../../services/adminService';
 import { apiError } from '../../services/api';
-import { FORM_FIELDS, FORM_NAMES, hiddenFields, requiredFields, toggleField, toggleRequired } from '../../data/formFields';
+import { FORM_FIELDS, FORM_NAMES, hiddenFields, requiredFields, toggleField, toggleRequired, topFields, toggleTop } from '../../data/formFields';
 
 const KEY = 'form_fields_hidden';
 const REQUIRED_KEY = 'form_fields_required';
+const TOP_KEY = 'form_fields_top';
 
 // «حقول النماذج» (AYK-215): every field of the «طلب خدمة» form with «إخفاء» or «إظهار». A hidden
 // field is shown faded here and is left out of the form. Core fields cannot be hidden.
@@ -17,6 +18,7 @@ export default function AdminFormFieldsPage() {
   const confirmAdminChange = useAdminConfirmation();
   const [setting, setSetting] = useState(null);
   const [requiredSetting, setRequiredSetting] = useState(undefined);
+  const [topSetting, setTopSetting] = useState(undefined);
   const [busy, setBusy] = useState('');
   const [msg, setMsg] = useState(null);
   const alive = useRef(true);
@@ -28,6 +30,7 @@ export default function AdminFormFieldsPage() {
         if (!alive.current) return;
         setSetting(rows.find(row => row.setting_key === KEY)?.parsed_value || {});
         setRequiredSetting(rows.find(row => row.setting_key === REQUIRED_KEY)?.parsed_value ?? undefined);
+        setTopSetting(rows.find(row => row.setting_key === TOP_KEY)?.parsed_value ?? undefined);
       })
       .catch(e => { if (alive.current) { setSetting({}); setMsg({ type: 'error', text: apiError(e) }); } });
     return () => { alive.current = false; };
@@ -60,6 +63,20 @@ export default function AdminFormFieldsPage() {
     finally { if (alive.current) setBusy(''); }
   };
 
+  // «مع النشر الأول / الثاني» (AYK-230): where an optional field shows; a required one is always at the top.
+  const togglePlace = async (form, field, toTop) => {
+    if (busy || !(await confirmAdminChange(t, t(field.labelKey)))) return;
+    const next = toggleTop(topSetting, form, field.key);
+    setBusy(`${form}.${field.key}.top`);
+    try {
+      await updateSettings([{ key: TOP_KEY, value: next }]);
+      if (!alive.current) return;
+      setTopSetting(next);
+      setMsg({ type: 'success', text: t(toTop ? 'admin.form_fields.top_done' : 'admin.form_fields.second_done', { field: t(field.labelKey) }) });
+    } catch (e) { if (alive.current) setMsg({ type: 'error', text: apiError(e) }); }
+    finally { if (alive.current) setBusy(''); }
+  };
+
   return (
     <div className="space-y-4 max-w-3xl">
       <AdminPageHeader title={t('admin.form_fields.title')} subtitle={t('admin.form_fields.subtitle')} />
@@ -72,6 +89,7 @@ export default function AdminFormFieldsPage() {
         Object.entries(FORM_FIELDS).map(([form, fields]) => {
           const hidden = hiddenFields(setting, form);
           const required = requiredFields(requiredSetting, setting, form);
+          const top = topFields(topSetting, form);
           return (
             <section key={form} className="bg-surface rounded-card border border-border p-3" data-testid={`form-fields-${form}`}>
               <h2 className="text-[16px] font-extrabold mb-2">{t(FORM_NAMES[form])}</h2>
@@ -79,6 +97,7 @@ export default function AdminFormFieldsPage() {
                 {fields.map(field => {
                   const isHidden = hidden.has(field.key);
                   const isRequired = field.core || required.has(field.key);
+                  const isTop = isRequired || top.has(field.key);
                   return (
                     <li key={field.key} className="flex items-center justify-between gap-3 py-2.5 flex-wrap" data-testid="form-field-row"
                       data-field={field.key} data-hidden={isHidden ? '1' : '0'} data-required={isRequired ? '1' : '0'}>
@@ -87,11 +106,24 @@ export default function AdminFormFieldsPage() {
                         <span className={`ms-2 px-2 py-0.5 rounded-pill text-[11px] font-bold no-underline inline-block ${isRequired ? 'bg-rose-50 text-rose-700' : 'bg-slate-100 text-slate-600'}`}>
                           {isRequired ? t('admin.form_fields.required') : t('admin.form_fields.optional')}
                         </span>
+                        {field.placeable && !isHidden && (
+                          <span className={`ms-1 px-2 py-0.5 rounded-pill text-[11px] font-bold no-underline inline-block ${isTop ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-800'}`} data-testid="field-place">
+                            {isTop ? `⬆️ ${t('admin.form_fields.place_top')}` : `⬇️ ${t('admin.form_fields.place_second')}`}
+                          </span>
+                        )}
                       </span>
+                      {field.placeable && isRequired && !isHidden && <span className="basis-full text-[11.5px] text-fg-muted -mt-1">{t('admin.form_fields.required_top')}</span>}
                       {field.core ? (
                         <span className="text-[12px] text-fg-muted">{t('admin.form_fields.core')}</span>
                       ) : (
-                        <span className="flex gap-1.5">
+                        <span className="flex gap-1.5 flex-wrap">
+                          {field.placeable && (
+                            <AdminButton size="sm" variant="secondary" loading={busy === `${form}.${field.key}.top`}
+                              disabled={Boolean(busy) || isHidden || isRequired}
+                              onClick={() => togglePlace(form, field, !isTop)}>
+                              {isTop ? `⬇️ ${t('admin.form_fields.move_second')}` : `⬆️ ${t('admin.form_fields.move_top')}`}
+                            </AdminButton>
+                          )}
                           {field.requirable && (
                             <AdminButton size="sm" variant="secondary" loading={busy === `${form}.${field.key}.required`}
                               disabled={Boolean(busy) || isHidden} onClick={() => toggleRequiredField(form, field, !isRequired)}>
