@@ -59,7 +59,7 @@ export default defineConfig(({ mode }) => {
           ],
         },
         workbox: {
-          globIgnores: ['version.json', 'install/refresh.html', 'refresh-site.js', 'assets/*.wasm', 'assets/*.mjs', 'assets/localLanguage.worker-*.js'],
+          globIgnores: ['version.json', 'install/refresh.html', 'refresh-site.js'],
           // Incoming-call notifications (AYK-008).
           importScripts: ['push-sw.js'],
           // The main bundle passed the 2 MiB default; it must stay in the offline cache.
@@ -96,7 +96,6 @@ export default defineConfig(({ mode }) => {
       }),
       compatibilityAssetsPlugin(),
     ],
-    worker: { format: 'es' },
     server: {
       port: 5173,
       proxy: {

@@ -26,7 +26,7 @@ app.use(helmet({
     imgSrc: ["'self'", 'data:', 'blob:', 'https:'],
     fontSrc: ["'self'", 'https://fonts.gstatic.com'],
     // Same sources as deploy/caddy/Caddyfile: map tiles and the LiveKit signaling origin.
-    connectSrc: ["'self'", 'https://tiles.openfreemap.org', 'https://nominatim.openstreetmap.org', 'https://huggingface.co', 'https://*.hf.co',
+    connectSrc: ["'self'", 'https://tiles.openfreemap.org', 'https://nominatim.openstreetmap.org',
       ...(() => { try { return process.env.LIVEKIT_URL ? [new URL(process.env.LIVEKIT_URL).origin] : []; } catch (_) { return []; } })()],
     mediaSrc: ["'self'", 'blob:', 'https:'], objectSrc: ["'none'"],
     frameAncestors: ["'none'"], baseUri: ["'self'"], formAction: ["'self'"],

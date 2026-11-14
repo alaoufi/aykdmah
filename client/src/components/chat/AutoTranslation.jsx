@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import api from '../../services/api';
-import { guessLocalSourceLanguage } from '../../utils/localLanguage.js';
+import { textLanguage } from '../../utils/textLanguage';
 import { useChatPrefs } from '../../utils/chatPrefs';
 
 // The other person's message in this reader's language (the site language), shown in place of
@@ -72,7 +72,8 @@ export function useAutoTranslation(message, isMine) {
   const content = typeof message?.content === 'string' ? message.content.trim() : '';
   // Only a script that one language alone uses proves the message is already in the reader's
   // language. Latin letters and Devanagari are shared, so those go to the server (AYK-119).
-  const guessed = guessLocalSourceLanguage(content);
+  // The same script check as the server's (AYK-235).
+  const guessed = textLanguage(content);
   const sameScript = guessed && guessed === lang && UNIQUE_SCRIPT.has(lang);
   // Turned off in ⚙️ (AYK-126): the original text only.
   const { translate } = useChatPrefs();

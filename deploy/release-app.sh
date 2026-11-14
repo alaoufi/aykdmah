@@ -44,7 +44,7 @@ APP_VERSION="$PREFIX.$((10#$RELEASE))"
 APP_BUILD="$COMMIT · $(date +%Y-%m-%d)"
 echo "Version $APP_VERSION (build $APP_BUILD)"
 docker run --rm -v "$REPO_DIR":/src -w /src \
-    -e ONNXRUNTIME_NODE_INSTALL_CUDA=skip -e VITE_REALTIME_MODE=socket -e HOME=/tmp -e VITE_APP_VERSION="$APP_VERSION" -e VITE_APP_BUILD="$APP_BUILD" \
+    -e VITE_REALTIME_MODE=socket -e HOME=/tmp -e VITE_APP_VERSION="$APP_VERSION" -e VITE_APP_BUILD="$APP_BUILD" \
     node:22-bookworm sh -c "npm --prefix client ci --include=dev --no-audit --no-fund && npm --prefix client run build"
 mkdir -p "$SITE_ROOT/releases/$STAMP"
 cp -r "$REPO_DIR/client/dist/." "$SITE_ROOT/releases/$STAMP/"

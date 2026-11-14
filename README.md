@@ -19,7 +19,7 @@
 المتطلبات: Node.js 22 وPostgreSQL 16 (أو Docker).
 
 ```
-npm ci && npm --prefix server ci && ONNXRUNTIME_NODE_INSTALL_CUDA=skip npm --prefix client ci
+npm ci && npm --prefix server ci && npm --prefix client ci
 cp .env.example .env      # املأ DB_HOST/DB_PORT/DB_NAME/DB_USER/DB_PASSWORD لقاعدة تطوير محلية، وJWT_SECRET وENCRYPTION_KEY
 npm run seed              # ينشئ الجداول بكل الترحيلات وبيانات البداية
 npm run dev               # الخادم على 5000 والواجهة على 5173
