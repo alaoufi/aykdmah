@@ -159,7 +159,11 @@
     "launch_offers": "عروض",
     "launch_offers_label": "قارن أسعار الخدمة",
     "launch_contact": "تواصل",
-    "launch_contact_label": "محادثة داخل التطبيق"
+    "launch_contact_label": "محادثة داخل التطبيق",
+    "get_app": "حمّل تطبيق «أي خدمة»",
+    "get_it_on": "احصل عليه من",
+    "download_on": "حمّله من",
+    "coming_soon": "قريبًا على"
   },
   "location": {
     "country": "الدولة",

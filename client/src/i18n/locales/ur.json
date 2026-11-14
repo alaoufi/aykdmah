@@ -159,7 +159,11 @@
     "launch_offers": "پیشکشیں",
     "launch_offers_label": "خدمت کی قیمتوں کا موازنہ",
     "launch_contact": "رابطہ",
-    "launch_contact_label": "ایپ میں گفتگو"
+    "launch_contact_label": "ایپ میں گفتگو",
+    "get_app": "«ای خدمہ» ایپ حاصل کریں",
+    "get_it_on": "حاصل کریں",
+    "download_on": "ڈاؤن لوڈ کریں",
+    "coming_soon": "جلد آ رہا ہے"
   },
   "location": {
     "country": "ملک",

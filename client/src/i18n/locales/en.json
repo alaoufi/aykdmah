@@ -159,7 +159,11 @@
     "launch_offers": "Quotes",
     "launch_offers_label": "Compare service prices",
     "launch_contact": "Chat",
-    "launch_contact_label": "Contact within the app"
+    "launch_contact_label": "Contact within the app",
+    "get_app": "Get the Ay Khidma app",
+    "get_it_on": "GET IT ON",
+    "download_on": "Download on the",
+    "coming_soon": "Coming soon to"
   },
   "location": {
     "country": "Country",

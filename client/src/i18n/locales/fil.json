@@ -159,7 +159,11 @@
     "launch_offers": "Mga quote",
     "launch_offers_label": "I-compare ang mga presyo ng serbisyo",
     "launch_contact": "Mag-chat",
-    "launch_contact_label": "Kontak sa loob ng app"
+    "launch_contact_label": "Kontak sa loob ng app",
+    "get_app": "Kunin ang Ay Khidma app",
+    "get_it_on": "KUNIN SA",
+    "download_on": "I-download sa",
+    "coming_soon": "Malapit na sa"
   },
   "location": {
     "country": "Mga bansa",

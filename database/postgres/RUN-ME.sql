@@ -6361,6 +6361,15 @@ VALUES ('form_fields_required', '{"account_type":["coverage"]}', 'json', 'reques
 ON CONFLICT (setting_key) DO NOTHING;
 INSERT INTO schema_migrations(name) VALUES ('076_form_fields_required.sql');
 
+-- migrations/077_store_links.sql
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description)
+VALUES ('google_play_url', 'https://play.google.com/store/apps/details?id=sa.aykdmh.app', 'string', 'general', 1, 'رابط التطبيق في Google Play')
+ON CONFLICT (setting_key) DO NOTHING;
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description)
+VALUES ('app_store_url', '', 'string', 'general', 1, 'رابط التطبيق في App Store')
+ON CONFLICT (setting_key) DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('077_store_links.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

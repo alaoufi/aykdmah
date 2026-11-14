@@ -159,7 +159,11 @@
     "launch_offers": "অফার",
     "launch_offers_label": "পরিষেবার দাম তুলনা করুন",
     "launch_contact": "যোগাযোগ",
-    "launch_contact_label": "অ্যাপে কথোপকথন"
+    "launch_contact_label": "অ্যাপে কথোপকথন",
+    "get_app": "«আই খিদমা» অ্যাপ নিন",
+    "get_it_on": "যেখান থেকে পাবেন",
+    "download_on": "ডাউনলোড করুন",
+    "coming_soon": "শীঘ্রই আসছে"
   },
   "location": {
     "country": "দেশ",

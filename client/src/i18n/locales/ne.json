@@ -159,7 +159,11 @@
     "launch_offers": "उद्धरणहरू",
     "launch_offers_label": "सेवा मूल्यहरूको तुलना गर्नुहोस्",
     "launch_contact": "कुराकानी",
-    "launch_contact_label": "अनुप्रयोग भित्र सम्पर्क"
+    "launch_contact_label": "अनुप्रयोग भित्र सम्पर्क",
+    "get_app": "«अय खिदमा» एप लिनुहोस्",
+    "get_it_on": "यहाँबाट लिनुहोस्",
+    "download_on": "यहाँबाट डाउनलोड",
+    "coming_soon": "चाँडै आउँदैछ"
   },
   "location": {
     "country": "देश",

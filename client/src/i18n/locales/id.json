@@ -159,7 +159,11 @@
     "launch_offers": "Kutipan",
     "launch_offers_label": "Bandingkan harga layanan",
     "launch_contact": "Chat",
-    "launch_contact_label": "Kontak di dalam aplikasi"
+    "launch_contact_label": "Kontak di dalam aplikasi",
+    "get_app": "Dapatkan aplikasi Ay Khidma",
+    "get_it_on": "DAPATKAN DI",
+    "download_on": "Unduh di",
+    "coming_soon": "Segera hadir di"
   },
   "location": {
     "country": "Negara",

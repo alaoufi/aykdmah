@@ -159,7 +159,11 @@
     "launch_offers": "ጥቅሶች",
     "launch_offers_label": "የአገልግሎት ዋጋዎችን ያነፃፅሩ",
     "launch_contact": "ውይይት",
-    "launch_contact_label": "በመተግበሪያው ውስጥ ያለ እውቂያ"
+    "launch_contact_label": "በመተግበሪያው ውስጥ ያለ እውቂያ",
+    "get_app": "የ«አይ ኺድማ» መተግበሪያን ያግኙ",
+    "get_it_on": "ከዚህ ያግኙ",
+    "download_on": "ከዚህ ያውርዱ",
+    "coming_soon": "በቅርቡ ይመጣል"
   },
   "location": {
     "country": "ሀገር",

@@ -159,7 +159,11 @@
     "launch_offers": "ऑफर",
     "launch_offers_label": "सेवा की कीमतों की तुलना",
     "launch_contact": "संपर्क",
-    "launch_contact_label": "ऐप में बातचीत"
+    "launch_contact_label": "ऐप में बातचीत",
+    "get_app": "«अय ख़िदमा» ऐप पाएँ",
+    "get_it_on": "यहाँ से पाएँ",
+    "download_on": "यहाँ से डाउनलोड करें",
+    "coming_soon": "जल्द आ रहा है"
   },
   "location": {
     "country": "देश",

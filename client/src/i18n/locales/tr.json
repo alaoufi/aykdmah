@@ -159,7 +159,11 @@
     "launch_offers": "İfadeler",
     "launch_offers_label": "Hizmet fiyatlarını karşılaştırın",
     "launch_contact": "Çat",
-    "launch_contact_label": "Uygulama içindeki iletişim"
+    "launch_contact_label": "Uygulama içindeki iletişim",
+    "get_app": "Ay Khidma uygulamasını edinin",
+    "get_it_on": "ŞURADAN ALIN",
+    "download_on": "Şuradan indirin",
+    "coming_soon": "Yakında"
   },
   "location": {
     "country": "Ülke",

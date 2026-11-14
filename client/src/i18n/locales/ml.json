@@ -159,7 +159,11 @@
     "launch_offers": "ഉദ്ധരണികൾ",
     "launch_offers_label": "സേവന വില താരതമ്യം ചെയ്യുക",
     "launch_contact": "ചാറ്റ് ചെയ്യുക",
-    "launch_contact_label": "അപ്ലിക്കേഷനിലെ കോൺടാക്റ്റ്"
+    "launch_contact_label": "അപ്ലിക്കേഷനിലെ കോൺടാക്റ്റ്",
+    "get_app": "«അയ് ഖിദ്മ» ആപ്പ് നേടുക",
+    "get_it_on": "ഇവിടെ നിന്ന് നേടുക",
+    "download_on": "ഇവിടെ ഡൗൺലോഡ് ചെയ്യുക",
+    "coming_soon": "ഉടൻ വരുന്നു"
   },
   "location": {
     "country": "രാജ്യം",
