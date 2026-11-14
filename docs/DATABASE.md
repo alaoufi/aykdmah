@@ -21,10 +21,20 @@ PostgreSQL 16 في الحاوية `aykdmh-db` (القاعدة والمستخدم
 | 048 | توفر مقدم الخدمة: `availability_status` و`vacation_from/to` و`work_days` و`work_from/to` في `provider_profiles` | في رأس الملف |
 | 049 | رمز التحقق 4 أرقام (يغيّر القيمة الافتراضية 6 فقط) | في رأس الملف |
 | 050 | جدول `phone_codes` لرموز التسجيل واستعادة كلمة المرور قبل وجود جلسة (تجزئة HMAC فقط) | في رأس الملف |
+| 051–072 | انظر رأس كل ملف في `database/migrations` (الاشتراكات، الدليل، ذاكرة الترجمة، المفضلة، الجلسات، القفل…) | في رأس الملف |
+| 073 | جدول `ui_text_overrides` لنصوص الموقع المعدّلة من الإدارة (AYK-210) | حذف الجدول |
+| 074 | إعداد `support_whatsapp` (AYK-212) | حذف الإعداد |
+| 075 | إعداد `form_fields_hidden` لإخفاء حقول النماذج (AYK-215) | حذف الإعداد |
+| 076 | إعداد `form_fields_required` للحقول الإجبارية (AYK-218) | حذف الإعداد |
+| 077 | إعدادا `google_play_url` و`app_store_url` لشارتي المتجرين (AYK-227) | حذف الإعدادين |
+| 078 | جدول `request_translations` لترجمات عنوان الطلب وتفاصيله لكل لغة (AYK-229) | حذف الجدول |
+| 079 | إعداد `form_fields_top` لمكان الحقول مع النشر الأول أو الثاني (AYK-230) | حذف الإعداد |
+| 080 | فهارس المحادثات: `message_files(message_id)` و`messages(conversation_id, id)` وفهرس الرسائل غير المقروءة (AYK-231) | `DROP INDEX` |
+| 081 | جدول `message_translations` لترجمات الرسائل لكل لغة، وعمود `users.ui_lang` لغة المستخدم (AYK-231) | حذف الجدول والعمود |
 
 ## الجداول الأساسية
 
-`users` و`provider_profiles` و`requests` و`offers` و`conversations` و`conversation_participants` و`messages` و`regions` و`governorates` و`cities` و`districts` و`subscriptions` و`payments` و`calls` و`wallet_transactions` و`referral_rewards` و`withdrawal_requests` و`settings`.
+`users` و`provider_profiles` و`requests` و`offers` و`conversations` و`conversation_participants` و`messages` و`regions` و`governorates` و`cities` و`districts` و`subscriptions` و`payments` و`calls` و`wallet_transactions` و`referral_rewards` و`withdrawal_requests` و`settings`، وجداول الترجمة `translation_memory` و`message_translations` و`request_translations`.
 
 ## النسخ الاحتياطية
 

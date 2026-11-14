@@ -1,3 +1,13 @@
+## AYK-222 إلى AYK-233 — 2026-11-14 (Claude) — محفوظ، غير منشور
+
+- **نموذج الطلب** (`CreateRequestPage.jsx`): الحقول الإجبارية وما وضعه المالك «مع النشر الأول» (`form_fields_top`، افتراضيًا `details`) فوق زر النشر الأول، والباقي تحت «حقول اختيارية» مع زر نشر ثانٍ. حقل `details` يُرسل كـ`description` ويمكن جعله إجباريًا (`server/utils/formFields.js`). ملحوظة `requester.publish_note` فوق النشر الأول.
+- **مكان الطلب** (`RequestLocationFields.jsx` بوضع `simple`): سطر واحد، و«تغيير مكان الطلب» يفتح المنطقة والمدينة والحي في الصندوق نفسه، ويُحفظ تلقائيًا مع كل اختيار في `localStorage` (`ayk_request_place_<userId>`) عبر `useRequestLocation({ rememberLast: true }).rememberPlace`، ويُتحقق منه مقابل المدن الحالية (`rememberedRequestLocation`).
+- **شارتا المتجرين** (`components/home/StoreBadges.jsx`): من الإعدادين `google_play_url` و`app_store_url`، وتختفيان داخل التطبيقين (`nativeAppVersion()`).
+- **المحادثات** (`ChatPage.jsx`، `utils/chatCache.js`): إرسال متفائل بـ`client_id` (يعيده الخادم في الرد والنسخة الحية)، و`mergeMessages`/`appendMessages` بدل الاستبدال، وذاكرة للمحادثات وجلب مسبق لأول 6، و`?after=<id>` للاستدراك بعد إعادة الاتصال (مع `chat:join` من جديد)، و`chat:typing` عبر غرفة `conv:<id>` بلا قاعدة بيانات. الخادم يرد على الإرسال قبل الإشعارات.
+- **الترجمة**: `server/services/chatTranslation.js` (حفظ في `message_translations`، ترجمة لحظة الإرسال للغة القارئ من `users.ui_lang` و`socket.data.lang` و`push_subscriptions.lang`، حدث `chat:translation`، وطلب مجمّع `POST /chat/conversations/:id/translations`). `server/services/requestTranslation.js` (ترجمة الطلب عند نشره للغات المقدمين، وإرفاقها كـ`translation` في `/requests/nearby` و`/requests/:id`). `translationService`: مهلة 3.5 ث، إيقاف Microsoft 30 ث عند البطء، تقطيع النص الطويل (`splitText`).
+- **المكالمات** (`callService.js`، `CallContext.jsx`): 409 عند الرد لا يرفض المكالمة، الاتصال المتزامن لا يلغي مكالمة الطرف الآخر، إلغاء الرنين إذا غادر المتصل (`cancelIfCallerGone`)، إنهاء مكالمة مقبولة غاب عنها المتصل (`endIfCallerMissing`)، و«مكالمة فائتة» بعنوان بلغة المستلم ليظهر على آيفون.
+- **باقٍ**: CallKit لآيفون، وفحص رنين أندرويد المزدوج على جهاز، ومسار TURN على 443 في Caddy، ومفتاح Microsoft Translator على الخادم.
+
 ## AYK-221 — 2026-11-14 (Claude) — محفوظ، غير منشور
 
 - سبب «للقراءة فقط»: `DirectoryPage.chatWith` كان يعيد فتح آخر محادثة مع المقدم ولو صار `can_send` = false بعد انتهاء `contact_after_done_days`. صار يستدعي `contactDirectFresh` (طلب مباشر جديد ومحادثة جديدة).
