@@ -24,7 +24,9 @@ procedure that preserves the shared ingress; do not remove that guard to deploy.
 Do not infer that current Git HEAD is the published app: live version remained1.1.11
 and build e91dc41 while checkout was FF-updated to the authoritative newer source.
 
-Cross-site infrastructure templates/report are also in alaoufi/aser docs/COOLIFY.md.
+The frontend's Coolify compose file and its notes are in this repository: `deploy/coolify/` (moved from
+alaoufi/aser on 2026-11-14). The shared ingress (`deploy/caddy/Caddyfile`) also routes `jdatna.com` for the
+other site on the same server; see `docs/CLEANUP_2026-11-14.md` before editing it.
 Browser/HTTP parity checks do not prove physical-phone call quality or faster response.
 
 ## Application releases (AYK-206)
