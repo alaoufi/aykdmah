@@ -32,6 +32,10 @@ PostgreSQL 16 في الحاوية `aykdmh-db` (القاعدة والمستخدم
 | 080 | فهارس المحادثات: `message_files(message_id)` و`messages(conversation_id, id)` وفهرس الرسائل غير المقروءة (AYK-231) | `DROP INDEX` |
 | 081 | جدول `message_translations` لترجمات الرسائل لكل لغة، وعمود `users.ui_lang` لغة المستخدم (AYK-231) | حذف الجدول والعمود |
 
+## الإنتاج (متحقق 2026-11-14)
+
+القاعدة `aykdmh` في الحاوية `aykdmh-db` (PostgreSQL 16.15، المجلد `aykdmh_pgdata`)، والـ API يتصل بها عبر `DB_HOST=db` دون `DATABASE_URL`. الوسائط المرفوعة داخل القاعدة نفسها (جدول `uploaded_media`، عمود `data BYTEA`)، فنسخة `pg_dump` تشملها. فحص كامل مع نسخة وتجربة استعادة معزولة: `bash deploy/audit-backup.sh [--encrypt]`.
+
 ## الجداول الأساسية
 
 `users` و`provider_profiles` و`requests` و`offers` و`conversations` و`conversation_participants` و`messages` و`regions` و`governorates` و`cities` و`districts` و`subscriptions` و`payments` و`calls` و`wallet_transactions` و`referral_rewards` و`withdrawal_requests` و`settings`، وجداول الترجمة `translation_memory` و`message_translations` و`request_translations`.
