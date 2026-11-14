@@ -1,3 +1,11 @@
+## الحالة المتحققة 2026-11-14 — الإصدار 1.1.28 (`ca8d6bb`)
+
+تحقق Claude أثناء جرد AYK-234، قراءة فقط من خارج الخادم:
+- `version.json` = 1.1.28 / `ca8d6bb` (يشمل AYK-221 حتى AYK-233، والترحيلات حتى 081 بحسب الإعدادات المنشورة: `google_play_url` و`form_fields_top`).
+- 200 لكل من: الصفحة الرئيسية، `/api/health`، `/api/settings/public`، `/api/categories`، `manifest.webmanifest`، `assetlinks.json` (الحزمة `sa.aykdmh.app`)، وفيديو مراجعة المتاجر.
+- `/.well-known/apple-app-site-association` يعيد صفحة الموقع (text/html) لا ملف AASA؛ غير مستخدم حاليًا لأن تطبيق آيفون يفتح الموقع مباشرة.
+- لم يُتحقق من داخل الخادم (متغيرات الحاويات، القاعدة، النسخ): يتم بـ`deploy/audit-backup.sh`.
+
 ## نشر 2026-11-13 — الإصدار 1.1.18 (`6b42369`)
 
 نشره المالك بـ`deploy/release-app.sh` (دخول SSH بمفتاح من جهازه). يشمل AYK-213 حتى AYK-216 والهجرة 075.
