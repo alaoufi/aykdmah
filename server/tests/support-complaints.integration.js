@@ -120,7 +120,32 @@ if (process.env.AYK_SUPPORT_TEST !== '1') {
     await db.query("INSERT INTO request_translations (request_id, lang, source_lang, title, description, provider) VALUES (?, 'ur', 'ar', 'پانی کا رساؤ', 'باورچی خانے میں', 'test')", [id]);
     const ur = await read('ur');
     assert.equal(ur.translated, true); assert.equal(ur.title, 'پانی کا رساؤ'); assert.equal(ur.description, 'باورچی خانے میں');
+    // The request page carries it already: no second request (AYK-231).
+    const page = (await (await fetch(`${base}/requests/${id}?lang=ur`, { headers: { Authorization: `Bearer ${token(client)}` } })).json()).data;
+    assert.equal(page.translation.title, 'پانی کا رساؤ');
     assert.equal((await fetch(`${base}/requests/${id}/translation?lang=xx`, { headers: { Authorization: `Bearer ${token(client)}` } })).status, 422);
+  });
+
+  test('chat translations come with the messages, in one batch, and only to the chat\'s people (AYK-231)', async () => {
+    const one = await fixture('client'), two = await fixture('provider'), outsider = await fixture('client');
+    const conv = await api('/chat/conversations', one, 201, 'POST', { user_id: two.id });
+    const fd = new FormData(); fd.append('content', 'مرحبا كيف حالك'); fd.append('client_id', 'abc12345xyz');
+    const response = await fetch(`${base}/chat/conversations/${conv.data.id}/messages`, { method: 'POST', body: fd, headers: { Authorization: `Bearer ${token(one)}` } });
+    const sent = (await response.json()).data;
+    assert.equal(response.status, 201);
+    assert.equal(sent.client_id, 'abc12345xyz');
+    await db.query("INSERT INTO message_translations (message_id, lang, source_lang, translated_text, same_language) VALUES (?, 'en', 'ar', 'Hello, how are you', 0)", [sent.id]);
+    const list = await api(`/chat/conversations/${conv.data.id}/messages?lang=en`, two);
+    assert.deepEqual(list.data.at(-1).translation, { lang: 'en', text: 'Hello, how are you', from: 'ar', same: false });
+    // The sender's own messages carry no translation for them.
+    assert.equal((await api(`/chat/conversations/${conv.data.id}/messages?lang=en`, one)).data.at(-1).translation, undefined);
+    const batch = await api(`/chat/conversations/${conv.data.id}/translations`, two, 200, 'POST', { ids: [sent.id], lang: 'en' });
+    assert.equal(batch.data[sent.id].text, 'Hello, how are you');
+    await api(`/chat/conversations/${conv.data.id}/translations`, outsider, 403, 'POST', { ids: [sent.id], lang: 'en' });
+    await api(`/chat/conversations/${conv.data.id}/translations`, two, 400, 'POST', { ids: [sent.id], lang: 'xx' });
+    // Only what came after a message: the catch-up after a dropped connection.
+    assert.deepEqual((await api(`/chat/conversations/${conv.data.id}/messages?after=${sent.id}`, two)).data, []);
+    await api(`/chat/conversations/${conv.data.id}/messages?after=abc`, two, 400);
   });
 
   test('a complaint reaches only the admins who handle user messages', async () => {

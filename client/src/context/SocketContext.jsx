@@ -3,6 +3,7 @@ import { io } from 'socket.io-client';
 import { useAuth } from './AuthContext';
 import { getToken, isAdminScope } from '../services/api';
 import { setLiveSocket } from '../utils/socketBus';
+import i18n from '../i18n';
 
 const SocketContext = createContext(null);
 const realtimeMode = import.meta.env.VITE_REALTIME_MODE === 'polling' ? 'polling' : 'socket';
@@ -28,7 +29,8 @@ export function SocketProvider({ children }) {
 
     const sock = io(url, {
       // The area (AYK-151): the admin area and the site are separate sessions.
-      auth: { token, scope: isAdminScope() ? 'admin' : 'site' },
+      // The language too (AYK-231): messages are translated into it as soon as they are sent.
+      auth: { token, scope: isAdminScope() ? 'admin' : 'site', lang: (i18n.resolvedLanguage || 'ar').split('-')[0] },
       transports: ['websocket', 'polling'],
       // Never give up (a deploy, a network change, a phone asleep); retry at most every 5 s.
       reconnection: true,
@@ -40,7 +42,9 @@ export function SocketProvider({ children }) {
     // Tell the server whether the app is on screen (AYK-125): while it is, a new message is not
     // also sent as a phone notification, which made it sound twice.
     const reportVisible = () => { if (sock.connected) sock.emit('app:visible', document.visibilityState === 'visible'); };
-    sock.on('connect', () => { setConnected(true); reportVisible(); });
+    const reportLang = () => { if (sock.connected) sock.emit('app:lang', (i18n.resolvedLanguage || 'ar').split('-')[0]); };
+    sock.on('connect', () => { setConnected(true); reportVisible(); reportLang(); });
+    i18n.on('languageChanged', reportLang);
     sock.on('disconnect', () => setConnected(false));
     sock.on('connect_error', () => setConnected(false));
 
@@ -57,6 +61,7 @@ export function SocketProvider({ children }) {
       document.removeEventListener('visibilitychange', wake);
       window.removeEventListener('online', wake);
       window.removeEventListener('focus', wake);
+      i18n.off('languageChanged', reportLang);
       setLiveSocket(null);
       sock.disconnect();
       socketRef.current = null;

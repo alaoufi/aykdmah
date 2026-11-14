@@ -104,13 +104,18 @@ async function getSenderId(id) {
 }
 
 // includeDeleted: administrators reviewing a dispute also see messages their author deleted.
-async function listByConversation(conversationId, { beforeId = null, limit = 50, includeDeleted = false } = {}) {
+async function listByConversation(conversationId, { beforeId = null, afterId = null, limit = 50, includeDeleted = false } = {}) {
   limit = Math.max(1, Math.min(100, Number.parseInt(limit, 10) || 50));
   const params = [conversationId];
   let beforeSql = '';
   if (beforeId) {
     beforeSql = 'AND m.id < ?';
     params.push(beforeId);
+  }
+  // Only what came after the last message on screen (AYK-231): the catch-up after a reconnect.
+  if (afterId) {
+    beforeSql += ' AND m.id > ?';
+    params.push(afterId);
   }
   params.push(Number(limit));
 

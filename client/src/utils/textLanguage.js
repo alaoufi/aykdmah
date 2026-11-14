@@ -6,14 +6,18 @@ export function textLanguage(text) {
   if (/[ঀ-৿]/.test(value)) return 'bn';
   if (/[ഀ-ൿ]/.test(value)) return 'ml';
   if (/[ሀ-፿]/.test(value)) return 'am';
-  if (/[ऀ-ॿ]/.test(value)) return 'hi';
+  if (/[ऀ-ॿ]/.test(value)) return 'devanagari';
   return /\p{L}/u.test(value) ? 'latin' : '';
 }
 
-// Whether a reader in `lang` needs the text translated. Latin-script texts are taken as English
-// and Devanagari as Hindi; the server checks again before translating.
+// Scripts that one language alone uses: a text in one of them is in that language.
+const UNIQUE_SCRIPT = new Set(['ar', 'ur', 'bn', 'ml', 'am']);
+
+// Whether a reader in `lang` may need the text translated. Latin letters (English, Filipino,
+// Indonesian, Turkish) and Devanagari (Hindi, Nepali) are shared by several languages, so those
+// are asked of the server, whose translator detects the language (AYK-231).
 export function needsTranslation(text, lang) {
   const source = textLanguage(text);
   if (!source || !lang) return false;
-  return source === 'latin' ? lang !== 'en' : source !== lang;
+  return !(UNIQUE_SCRIPT.has(source) && source === lang);
 }

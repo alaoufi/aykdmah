@@ -93,14 +93,19 @@ function registerChatHandlers(io, socket) {
     }
   });
 
-  socket.on('chat:typing', async (payload) => {
+  // «يكتب…» (AYK-231): only into a conversation this socket joined (joining checks membership),
+  // with no database work per key press, and at most a few packets a second.
+  let lastTyping = 0;
+  socket.on('chat:typing', (payload) => {
     try {
       const { conversationId, isTyping } = payload || {};
-      if (!await Conversation.canSend(conversationId, socket.user.id)) return;
-      await emitConversation(io, conversationId, 'chat:typing', {
-        conversationId, userId: socket.user.id, isTyping: !!isTyping,
-      }, { excludeSocketId: socket.id });
-    } catch (_) { /* Invalid packets do not disclose details or reject an unobserved promise. */ }
+      const id = Number(conversationId);
+      if (!Number.isSafeInteger(id) || id <= 0 || !socket.rooms?.has(`conv:${id}`)) return;
+      const now = Date.now();
+      if (isTyping && now - lastTyping < 400) return;
+      lastTyping = isTyping ? now : 0;
+      socket.to(`conv:${id}`).emit('chat:typing', { conversationId: id, userId: socket.user.id, isTyping: !!isTyping });
+    } catch (_) { /* Invalid packets do not disclose details. */ }
   });
 
   socket.on('chat:send', async (payload, ack) => {

@@ -627,7 +627,12 @@
     "opinions": "Ratings and opinions",
     "requested_professions": "Professions you requested",
     "requested_professions_empty": "You have not requested a profession yet; showing all professions.",
-    "start_new": "Start a new conversation"
+    "start_new": "Start a new conversation",
+    "sending": "Sending",
+    "send_failed": "Not sent",
+    "resend": "Resend",
+    "discard": "Discard",
+    "offline_hint": "No internet connection"
   },
   "tracking": {
     "title": "Live tracking",

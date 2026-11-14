@@ -627,7 +627,12 @@
     "opinions": "Penilaian dan pendapat",
     "requested_professions": "Profesi yang Anda minta",
     "requested_professions_empty": "Anda belum pernah meminta layanan dari suatu profesi; semua profesi ditampilkan.",
-    "start_new": "Mulai percakapan baru"
+    "start_new": "Mulai percakapan baru",
+    "sending": "Mengirim",
+    "send_failed": "Tidak terkirim",
+    "resend": "Kirim ulang",
+    "discard": "Buang",
+    "offline_hint": "Tidak ada koneksi internet"
   },
   "tracking": {
     "title": "Pelacakan langsung",

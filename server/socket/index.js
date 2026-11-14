@@ -47,6 +47,11 @@ function initSocket(httpServer) {
     // On screen or in the background (AYK-125); unknown (an older app) counts as background.
     socket.data.visible = false;
     socket.on('app:visible', visible => { socket.data.visible = visible === true; });
+    // The reader's language (AYK-231): a new message is translated into it as soon as it is sent.
+    const LANGS = ['ar', 'en', 'ur', 'bn', 'hi', 'ml', 'fil', 'id', 'ne', 'am', 'tr'];
+    const setLang = lang => { if (LANGS.includes(lang)) socket.data.lang = lang; };
+    setLang(socket.handshake.auth?.lang);
+    socket.on('app:lang', setLang);
     registerChat(io, socket);
     registerNotifications(io, socket);
 

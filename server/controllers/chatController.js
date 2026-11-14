@@ -51,9 +51,14 @@ const getMessages = asyncHandler(async (req, res) => {
   const isParticipant = await Conversation.isParticipant(conversationId, req.user.id);
   if (!isParticipant) return forbidden(res, req.t('deny_chat_participant'));
 
-  const { before, limit = 50 } = req.query;
-  const messages = await Message.listByConversation(conversationId, { beforeId: before, limit });
+  const { before, after, limit = 50 } = req.query;
+  const validId = value => value == null || /^[1-9][0-9]{0,9}$/.test(String(value));
+  if (!validId(before) || !validId(after)) return error(res, req.t('invalid_data'), 400);
+  const messages = await Message.listByConversation(conversationId, { beforeId: before, afterId: after, limit });
   await hideMessageNames(req, messages);
+  // Each message already in the reader's language when it was translated before (AYK-231).
+  const lang = String(req.query.lang || req.lang || '').toLowerCase();
+  await chatTranslation.attachTranslations(messages.filter(m => Number(m.sender_id) !== Number(req.user.id)), lang);
   return success(res, messages);
 });
 
@@ -104,16 +109,26 @@ const sendMessage = asyncHandler(async (req, res) => {
     return ids;
   });
   const io = req.app.get('io');
-  let message = null;
+  // The sender's own id for the message (AYK-231): the bubble shown at once on their screen is
+  // matched with the saved one, here and in the live copy, instead of appearing twice.
+  const clientId = typeof req.body.client_id === 'string' && /^[A-Za-z0-9_-]{8,64}$/.test(req.body.client_id) ? req.body.client_id : null;
+  const sentMessages = [];
   for (const [index, target] of targets.entries()) {
     const sent = await Message.findById(messageIds[index]);
-    if (index === 0) message = sent;
-    pretranslate(sent).catch(err => logger.warn('Pre-translation failed:', err.message));
-    await emitConversation(io, target, 'chat:message', sent);
-    await notifyParticipants(req, target, { content, isLocation, remind: true });
-    deliverIfOnline(io, target, req.user.id).catch(() => {});
+    sentMessages.push([target, index === 0 && clientId ? { ...sent, client_id: clientId } : sent]);
   }
-  return created(res, { ...await messageForViewer(message,req.user.id,req.t('requester_label')), broadcast_count: targets.length });
+  const message = sentMessages[0][1];
+  // The answer goes back first; the live copy, notifications and translations follow at once
+  // without making the sender wait for them (AYK-231).
+  created(res, { ...await messageForViewer(message,req.user.id,req.t('requester_label')), broadcast_count: targets.length });
+  for (const [target, sent] of sentMessages) {
+    try {
+      pretranslate(sent, io).catch(err => logger.warn('Pre-translation failed:', err.message));
+      await emitConversation(io, target, 'chat:message', sent);
+      deliverIfOnline(io, target, req.user.id).catch(() => {});
+      await notifyParticipants(req, target, { content, isLocation, remind: true });
+    } catch (err) { logger.warn('Message delivery failed:', err.message); }
+  }
 });
 
 // POST /chat/conversations/:id/messages/:messageId/forward { conversation_id? } (AYK-043)
@@ -143,7 +158,7 @@ const forwardMessage = asyncHandler(async (req, res) => {
     const id = await Message.create({ conversation_id: target, sender_id: req.user.id, content: message.content,
       message_type: message.message_type, files, latitude: message.latitude, longitude: message.longitude, accuracy_m: message.accuracy_m });
     const forwarded = await Message.findById(id);
-    pretranslate(forwarded).catch(err => logger.warn('Pre-translation failed:', err.message));
+    pretranslate(forwarded, io).catch(err => logger.warn('Pre-translation failed:', err.message));
     await emitConversation(io, target, 'chat:message', forwarded);
     await notifyParticipants(req, target, { content: message.content, isLocation: message.message_type === 'location', remind: true });
     deliverIfOnline(io, target, req.user.id).catch(() => {});
@@ -195,37 +210,28 @@ const forwardMessages = asyncHandler(async (req, res) => {
 });
 
 // GET /chat/conversations/:id/messages/:messageId/translation?lang=xx (AYK-044)
-// Each message is shown in the reader's own language automatically.
-// One translation per message and language, shared by every request for it: a request that
-// arrives while the translation is on its way waits for that one instead of asking again.
-const translations = new Map();
-function translationFor(message, lang) {
-  const key = `${message.id}:${lang}`;
-  if (!translations.has(key)) {
-    const { translate } = require('../services/translationService');
-    const pending = translate(String(message.content).slice(0, 2000), null, lang)
-      .catch(() => { translations.delete(key); return { text: message.content, provider: 'noop' }; })
-      .then(result => ({ text: result.text, from: result.from || null, same: result.provider === 'noop' || result.text === message.content }));
-    if (translations.size > 5000) translations.delete(translations.keys().next().value);
-    translations.set(key, pending);
-  }
-  return translations.get(key);
-}
+// Each message is shown in the reader's own language automatically; translations are saved and
+// pushed live by services/chatTranslation (AYK-231).
+const chatTranslation = require('../services/chatTranslation');
+const translationFor = chatTranslation.translationFor;
+const pretranslate = (message, io) => chatTranslation.translateForReaders(io, message);
 
-// Translated as soon as it is sent, into each reader's language (the language of their
-// devices), so the bubble shows the translation at once (AYK-119).
-async function pretranslate(message) {
-  if (!message?.content || message.message_type === 'location' || message.message_type === 'system') return;
-  const { SUPPORTED, worthTranslating, detectLanguageFallback } = require('../services/translationService');
-  if (!worthTranslating(message.content)) return;
-  // The reader's screen skips a message whose script only their own language uses; so does this.
-  const script = await detectLanguageFallback(message.content);
-  const unique = ['ar', 'ur', 'bn', 'ml', 'am'].includes(script) ? script : null;
-  const rows = await query(`SELECT DISTINCT ps.lang FROM push_subscriptions ps
-    JOIN conversation_participants cp ON cp.user_id = ps.user_id
-    WHERE cp.conversation_id = ? AND cp.user_id <> ?`, [message.conversation_id, message.sender_id]);
-  for (const lang of new Set(rows.map(row => row.lang).filter(lang => SUPPORTED.includes(lang) && lang !== unique))) translationFor(message, lang);
-}
+// POST /chat/conversations/:id/translations { ids, lang } (AYK-231): the translations of the
+// messages still missing one, in a single request instead of one per message.
+const translateMessages = asyncHandler(async (req, res) => {
+  if (!/^[1-9][0-9]{0,9}$/.test(req.params.id)) return notFound(res);
+  if (!await Conversation.isParticipant(req.params.id, req.user.id)) return forbidden(res, req.t('deny_chat_participant'));
+  const { SUPPORTED } = require('../services/translationService');
+  const lang = String(req.body?.lang || '');
+  const ids = Array.isArray(req.body?.ids) ? [...new Set(req.body.ids.map(Number))].filter(id => Number.isSafeInteger(id) && id > 0).slice(0, 100) : [];
+  if (!SUPPORTED.includes(lang) || !ids.length) return error(res, req.t('invalid_data'), 400);
+  const rows = await query(`SELECT id, conversation_id, sender_id, content, message_type FROM messages
+    WHERE conversation_id = ? AND deleted_at IS NULL AND id IN (${ids.map(() => '?').join(',')})`, [Number(req.params.id), ...ids]);
+  const out = {};
+  await Promise.all(rows.filter(row => Number(row.sender_id) !== Number(req.user.id) && chatTranslation.translatable(row))
+    .map(async row => { out[row.id] = await translationFor(row, lang); }));
+  return success(res, out);
+});
 
 const translateMessage = asyncHandler(async (req, res) => {
   if (!/^[1-9][0-9]{0,9}$/.test(req.params.messageId) || !/^[1-9][0-9]{0,9}$/.test(req.params.id)) return notFound(res);
@@ -424,5 +430,6 @@ const getConversation = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+  translateMessages,
   listConversations, unreadCount, forwardMessage, forwardMessages, translateMessage, createConversation, getMessages, sendMessage, markRead, setFavorite,
   getConversation, deleteMessage, searchMessages, nudge };

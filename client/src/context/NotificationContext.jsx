@@ -79,6 +79,9 @@ export function NotificationProvider({ children }) {
     if (!socket) return;
     const onNotif = (notif) => {
       refresh();
+      // A message in the chat already open on screen (AYK-231): it is there with its own tone,
+      // so no second banner and sound.
+      if (notif?.link && document.visibilityState === 'visible' && window.location.pathname === notif.link) return;
       showToast('', notif);
       chime();
     };

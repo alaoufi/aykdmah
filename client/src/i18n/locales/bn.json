@@ -627,7 +627,12 @@
     "opinions": "মূল্যায়ন ও মতামত",
     "requested_professions": "আপনার অনুরোধ করা পেশা",
     "requested_professions_empty": "আপনি এখনো কোনো পেশার সেবা চাননি; সব পেশা দেখানো হচ্ছে।",
-    "start_new": "নতুন কথোপকথন শুরু করুন"
+    "start_new": "নতুন কথোপকথন শুরু করুন",
+    "sending": "পাঠানো হচ্ছে",
+    "send_failed": "পাঠানো হয়নি",
+    "resend": "আবার পাঠান",
+    "discard": "বাদ দিন",
+    "offline_hint": "ইন্টারনেট সংযোগ নেই"
   },
   "tracking": {
     "title": "লাইভ ট্র্যাকিং",

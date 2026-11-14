@@ -8,7 +8,7 @@ import { localizedName } from '../../utils/localize';
 import TrustSummary from '../../components/reviews/TrustSummary';
 import Avatar from '../../components/common/Avatar';
 import { LoadingState } from '../../components/common/Spinner';
-import { getConversation, createConversation } from '../../services/chatService';
+import { getConversation } from '../../services/chatService';
 import { useCall } from '../../context/CallContext';
 import BlockedNotice from '../../components/common/BlockedNotice';
 import ProblemNotice from '../../components/common/ProblemNotice';
@@ -39,8 +39,8 @@ export default function DirectoryPage({ compact = false }) {
       const previous = await getConversation(p.conversation_id);
       // A conversation whose contact time ended is read-only: start a new one instead (AYK-221).
       if (previous.can_send === false) return (await contactDirectFresh(p.id, p.category_id)).conversation_id;
-      const next = await createConversation({user_id:p.id,request_id:previous.request_id});
-      return next.id;
+      // Writable: straight into it, no second request (AYK-231).
+      return previous.id || p.conversation_id;
     }
     const res = await contactDirect(p.id, p.category_id);
     return res.conversation_id;

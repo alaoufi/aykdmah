@@ -1,5 +1,5 @@
 const { verify } = require('../utils/jwt');
-const { queryOne, tableHasColumn } = require('../config/database');
+const { query, queryOne, tableHasColumn } = require('../config/database');
 const { unauthorized, forbidden } = require('../utils/apiResponse');
 const env = require('../config/env');
 const { ApiError } = require('./errorHandler');
@@ -54,14 +54,14 @@ function asSiteUser(user) {
 
 async function loadSessionUser(payload, fallbackScope = 'site') {
   // A deployment without the permission schema must fail closed for admins.
-  const [hasAdminCols, hasVersion, hasAlsoClient, hasScopes] = await Promise.all([
+  const [hasAdminCols, hasVersion, hasAlsoClient, hasScopes, hasUiLang] = await Promise.all([
     tableHasColumn('users', 'is_super_admin'), tableHasColumn('users', 'auth_version'), tableHasColumn('users', 'also_client'),
-    tableHasColumn('users', 'admin_session_version'),
+    tableHasColumn('users', 'admin_session_version'), tableHasColumn('users', 'ui_lang'),
   ]);
   if (!hasVersion) throw new ApiError('Authentication schema is unavailable', 503);
   const scope = sessionScope(payload, fallbackScope);
   const extra = (hasAdminCols ? ', is_super_admin, permissions' : '') + (hasVersion ? ', auth_version' : '') + (hasAlsoClient ? ', also_client' : '')
-    + (hasScopes ? ', site_session_version, admin_session_version' : '');
+    + (hasScopes ? ', site_session_version, admin_session_version' : '') + (hasUiLang ? ', ui_lang' : '');
   const user = await queryOne(
     `SELECT id, full_name, email, phone, role, is_active, is_blocked, avatar${extra}
      FROM users WHERE id = ? AND deleted_at IS NULL`, [payload.id]
@@ -84,6 +84,14 @@ async function loadSessionUser(payload, fallbackScope = 'site') {
   return shown;
 }
 
+// The language the user uses the site in (AYK-231), kept so their chat messages are translated
+// into it as soon as they are sent. Written only when it changes, without delaying the request.
+const LANGS = new Set(['ar', 'en', 'ur', 'bn', 'hi', 'ml', 'fil', 'id', 'ne', 'am', 'tr']);
+function rememberLanguage(user, lang) {
+  if (!user || !('ui_lang' in user) || !LANGS.has(lang) || user.ui_lang === lang) return;
+  query('UPDATE users SET ui_lang = ? WHERE id = ?', [lang, user.id]).catch(() => {});
+}
+
 async function authenticate(req, res, next) {
   try {
     const { token, cookie } = tokenFromRequest(req);
@@ -103,6 +111,7 @@ async function authenticate(req, res, next) {
     if (!user.is_active) return forbidden(res, req.t('account_inactive'));
 
     req.user = user;
+    rememberLanguage(user, req.lang);
     next();
   } catch (err) {
     next(err);

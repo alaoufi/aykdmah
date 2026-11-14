@@ -13,6 +13,16 @@ const memory = require('./translationMemory');
 
 // After Microsoft refuses for the quota (403) or for speed (429), it is left alone for a while.
 let microsoftPausedUntil = 0;
+// Each provider gets at most this long (AYK-231): a reader never waits long for a slow one.
+const TIMEOUT_MS = 3500;
+// The Google key setting, read at most once a minute instead of on every translation.
+let googleKeyCache = { at: 0, value: null };
+async function googleKey() {
+  if (Date.now() - googleKeyCache.at < 60 * 1000) return googleKeyCache.value;
+  const value = await Setting.get('google_translate_api_key').catch(() => null);
+  googleKeyCache = { at: Date.now(), value };
+  return value;
+}
 
 const SUPPORTED = ['ar', 'en', 'ur', 'bn', 'hi', 'ml', 'fil', 'id', 'ne', 'am', 'tr'];
 
@@ -56,12 +66,14 @@ function pickMyMemory(text, data) {
 
 async function translateViaMyMemory(text, source, target) {
   // A valid contact address raises the free daily quota; the old one had no domain and was refused.
-  const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(text.slice(0, 500))}&langpair=${source}|${target}&de=support@aykdmh.com&mt=1`;
-  const r = await fetch(url, { method: 'GET', signal: AbortSignal.timeout(5000), redirect: 'error' });
+  // Only 500 letters are accepted (AYK-231): the reply is checked against the same 500.
+  const part = text.slice(0, 500);
+  const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(part)}&langpair=${source}|${target}&de=support@aykdmh.com&mt=1`;
+  const r = await fetch(url, { method: 'GET', signal: AbortSignal.timeout(TIMEOUT_MS), redirect: 'error' });
   if (!r.ok) throw new Error(`mymemory:${r.status}`);
   const data = await r.json();
   if (Number(data?.responseStatus) !== 200) throw new Error(`mymemory:status:${data?.responseStatus}`);
-  const translated = pickMyMemory(text, data);
+  const translated = pickMyMemory(part, data);
   if (!translated) throw new Error('mymemory:unreliable');
   if (PROVIDER_ERROR.test(translated.trim())) throw new Error('mymemory:error-text');
   return { text: translated, provider: 'mymemory' };
@@ -71,7 +83,7 @@ async function translateViaGoogle(text, source, target, apiKey) {
   const url = `https://translation.googleapis.com/language/translate/v2?key=${encodeURIComponent(apiKey)}`;
   const r = await fetch(url, {
     method: 'POST',
-    signal: AbortSignal.timeout(5000),
+    signal: AbortSignal.timeout(TIMEOUT_MS),
     redirect: 'error',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ q: text, source, target, format: 'text' }),
@@ -83,6 +95,23 @@ async function translateViaGoogle(text, source, target, apiKey) {
   return { text: translated, provider: 'google' };
 }
 
+// Cuts a long text at line, sentence or word ends into pieces of at most `size` letters;
+// joined back together they give the text again exactly.
+function splitText(text, size) {
+  const pieces = [];
+  let rest = String(text);
+  while (rest.length > size) {
+    const window = rest.slice(0, size);
+    const ends = [window.lastIndexOf('\n'), ...[...window.matchAll(/[.!?؟]\s/g)].map(m => m.index + 1), window.lastIndexOf(' ')];
+    const cut = Math.max(...ends);
+    const at = cut > size / 2 ? cut + 1 : size;
+    pieces.push(rest.slice(0, at));
+    rest = rest.slice(at);
+  }
+  pieces.push(rest);
+  return pieces.filter(piece => piece.length);
+}
+
 // Microsoft Translator v3. Without a source it detects the language, and a message already in
 // the reader's language comes back as is.
 async function translateViaMicrosoft(text, source, target, apiKey, region = 'global') {
@@ -90,17 +119,19 @@ async function translateViaMicrosoft(text, source, target, apiKey, region = 'glo
   if (source) params.set('from', source);
   const r = await fetch(`https://api.cognitive.microsofttranslator.com/translate?${params}`, {
     method: 'POST',
-    signal: AbortSignal.timeout(5000),
+    signal: AbortSignal.timeout(TIMEOUT_MS),
     redirect: 'error',
     headers: { 'Content-Type': 'application/json', 'Ocp-Apim-Subscription-Key': apiKey, 'Ocp-Apim-Subscription-Region': region },
-    body: JSON.stringify([{ Text: text.slice(0, 2000) }]),
+    // A long text goes whole, in pieces cut at line or sentence ends (AYK-231), not cut short.
+    body: JSON.stringify(splitText(text, 4500).map(Text => ({ Text }))),
   });
   if (!r.ok) { const err = new Error(`microsoft:${r.status}`); err.status = r.status; throw err; }
   const data = await r.json();
   const detected = data?.[0]?.detectedLanguage?.language;
   if (!source && detected === target) return { text, provider: 'noop' };
-  const translated = data?.[0]?.translations?.[0]?.text;
-  if (!translated) throw new Error('microsoft:empty');
+  const pieces = Array.isArray(data) ? data.map(item => item?.translations?.[0]?.text) : [];
+  if (!pieces.length || pieces.some(piece => typeof piece !== 'string')) throw new Error('microsoft:empty');
+  const translated = pieces.join('');
   return { text: translated, provider: 'microsoft', from: source || detected || null };
 }
 
@@ -129,6 +160,10 @@ async function translate(text, sourceLang, targetLang) {
         if (err.status === 403 || err.status === 429) {
           microsoftPausedUntil = Date.now() + (err.status === 403 ? 60 : 1) * 60 * 1000;
           if (err.status === 403) memory.quotaExhausted();
+        } else if (!err.status || err.status >= 500) {
+          // Slow or down (AYK-231): the next messages go straight to the next provider for 30 s
+          // instead of each waiting for the same timeout.
+          microsoftPausedUntil = Date.now() + 30 * 1000;
         }
       }
     }
@@ -138,11 +173,11 @@ async function translate(text, sourceLang, targetLang) {
   if (src === tgt || !text || !worthTranslating(text)) {
     return { text, provider: 'noop' };
   }
-  const apiKey = await Setting.get('google_translate_api_key').catch(() => null);
+  const apiKey = await googleKey();
   if (apiKey && apiKey.length > 10) {
     try { return { ...await translateViaGoogle(text, src, tgt, apiKey), from: src }; } catch (_) { /* fall through */ }
   }
   return { ...await translateViaMyMemory(text, src, tgt), from: src };
 }
 
-module.exports = { translate, detectLanguageFallback, worthTranslating, translateViaMyMemory, translateViaMicrosoft, SUPPORTED, pickMyMemory };
+module.exports = { translate, splitText, detectLanguageFallback, worthTranslating, translateViaMyMemory, translateViaMicrosoft, SUPPORTED, pickMyMemory };

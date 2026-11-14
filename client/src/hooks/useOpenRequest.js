@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './useAuth';
 import { contactRequest } from '../services/requestService';
+import { showProblem } from '../components/common/AppDialog';
 
 // Opening a request card (AYK-044): my own request opens its page; a request for my
 // service opens the chat with its requester straight away (or its page when that fails).
@@ -19,7 +20,9 @@ export default function useOpenRequest() {
       navigate(`/chat/${conversation_id}`);
     } catch (err) {
       if (err?.cancelled) return;
+      // Why the chat could not open, with its way out (AYK-219), then the request's page.
       navigate(`/requests/${request.id}`);
+      showProblem(err);
     } finally { setOpening(0); }
   };
   return { open, opening, mine, forMyService };

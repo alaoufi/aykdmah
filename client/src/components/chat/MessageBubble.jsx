@@ -1,5 +1,5 @@
 import { safeUrl } from '../../utils/urlSafety';
-import { useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { isValidCoordinates } from '../../utils/geolocation.mjs';
 import { formatTime } from '../../utils/formatters';
@@ -73,7 +73,14 @@ function languageName(code, reader) {
   try { return new Intl.DisplayNames([reader || 'ar'], { type: 'language' }).of(code) || code; } catch (_) { return code; }
 }
 
-export default function MessageBubble({ message, isMine, onReply, onDelete, onForward, renderTranslation, firstInRun = true, onCallBack }) {
+// A file still on this phone while its message is being sent (AYK-231): shown from memory.
+const localUrl = f => f?.local && typeof f.file_url === 'string' && f.file_url.startsWith('blob:') ? f.file_url : '';
+
+function MessageBubble({ message, isMine, onReply, onDelete, onForward, renderTranslation, firstInRun = true, onCallBack, onRetry, onDiscard }) {
+  const sending = message.status === 'pending';
+  const failed = message.status === 'failed';
+  const temporary = sending || failed;
+  if (temporary) { onReply = undefined; onForward = undefined; onDelete = undefined; }
   const { t, i18n } = useTranslation();
   const [showMenu, setShowMenu] = useState(false);
   // The other side's words in my language, in place of the original (AYK-065).
@@ -94,7 +101,7 @@ export default function MessageBubble({ message, isMine, onReply, onDelete, onFo
     return () => { document.removeEventListener('keydown', onKey); document.removeEventListener('pointerdown', onDown); };
   }, [showMenu, viewer]);
 
-  const files = Array.isArray(message.files) ? message.files.filter(f => safeUrl(f.file_url)) : [];
+  const files = Array.isArray(message.files) ? message.files.filter(f => localUrl(f) || safeUrl(f.file_url)) : [];
   const kind = f => (f.file_type || '').split('/')[0];
   const hasMedia = files.some(f => ['audio', 'video', 'image'].includes(kind(f)));
   const isLocation = message.message_type === 'location' && message.latitude != null && message.longitude != null && isValidCoordinates(Number(message.latitude), Number(message.longitude));
@@ -140,7 +147,7 @@ export default function MessageBubble({ message, isMine, onReply, onDelete, onFo
         {files.length > 0 && (
           <div className="files">
             {files.map(f => {
-              const url = safeUrl(f.file_url);
+              const url = localUrl(f) || safeUrl(f.file_url);
               if (kind(f) === 'image') {
                 return (
                   <button key={f.id} type="button" className="wa-photo" onClick={() => setViewer({ type: 'image', url, name: f.file_name })}
@@ -179,17 +186,26 @@ export default function MessageBubble({ message, isMine, onReply, onDelete, onFo
 
         <div className={`meta ${mediaOnly ? 'on-media' : ''}`}>
           <span>{formatTime(message.created_at)}</span>
-          {isMine && (
+          {isMine && sending && <span className="read-ticks" aria-label={t('chat.sending')} data-testid="message-sending">🕒</span>}
+          {isMine && failed && <span className="read-ticks text-danger" aria-label={t('chat.send_failed')}>⚠️</span>}
+          {isMine && !temporary && (
             <span className={`read-ticks ${message.is_read ? 'read' : ''}`} aria-label={t(message.is_read ? 'chat.read' : message.delivered_at ? 'chat.delivered' : 'chat.sent')}>
               {message.is_read || message.delivered_at ? '✓✓' : '✓'}
             </span>
           )}
         </div>
+        {failed && (
+          <div className="flex flex-wrap items-center gap-2 mt-1 text-[12px]" role="alert" data-testid="message-failed">
+            <span className="text-danger font-semibold">{t('chat.send_failed')}{message.error ? ` — ${message.error}` : ''}</span>
+            {onRetry && <button type="button" className="font-bold text-primary" onClick={() => onRetry(message)} data-testid="message-retry">🔄 {t('chat.resend')}</button>}
+            {onDiscard && <button type="button" className="text-fg-muted" onClick={() => onDiscard(message)}>✕ {t('chat.discard')}</button>}
+          </div>
+        )}
 
         {/* Shown beside the requester's own message in a request chat (AYK-043). */}
         {onForward && <button type="button" className="msg-forward" data-testid="forward-message" onClick={() => onForward(message)}>↪ {t('requester.forward')}</button>}
 
-        <button className="msg-action" onClick={() => setShowMenu(v => !v)} aria-label={t('common.more')}>⌄</button>
+        {!temporary && <button className="msg-action" onClick={() => setShowMenu(v => !v)} aria-label={t('common.more')}>⌄</button>}
         {showMenu && (
           <div className="menu" onMouseLeave={() => setShowMenu(false)}>
             {onReply && (
@@ -317,3 +333,6 @@ export default function MessageBubble({ message, isMine, onReply, onDelete, onFo
     </div>
   );
 }
+
+// Redrawn only when its own message changes (AYK-231), not on every new message in the chat.
+export default memo(MessageBubble);

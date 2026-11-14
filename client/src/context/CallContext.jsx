@@ -554,8 +554,11 @@ export function CallProvider({ children }) {
     leavingRef.current = false;
     endingRef.current = false;
     const mic = earlyMic();
+    // This call's own id (AYK-231): a failure ends only it, never a call coming in meanwhile.
+    let ownId = null;
     try {
       const created = await calls.startCall(conversationId, callType);
+      ownId = created?.id || null;
       setCall(created);
       setPhase('outgoing');
       await connectMedia(created, mic);
@@ -571,8 +574,10 @@ export function CallProvider({ children }) {
       if (inProgress()) return;
       const code = err?.response?.data?.message || (err?.name === 'NotAllowedError' ? 'media_denied' : 'call_failed');
       setError(code);
+      if (ownId) calls.declineCall(ownId, 'failed').catch(() => {});
+      // Both called each other at once: the other's call is kept to answer, not overwritten.
       const current = callRef.current;
-      if (current) calls.declineCall(current.id, 'failed').catch(() => {});
+      if (current && current.id !== ownId && current.direction !== 'outgoing') return;
       await finishLocally(null);
       setPhase('ended');
       setCall({ status: 'failed', end_reason: code, call_type: callType, peer: {} });
@@ -600,6 +605,9 @@ export function CallProvider({ children }) {
       if (endingRef.current) return;
       console.warn('[call] accept failed:', err?.name, err?.message, roomRef.current?.state);
       if (inProgress()) return;
+      // Answered on another device first (AYK-231): this one just stops ringing; declining here
+      // would end the call that is already going on the other device.
+      if (err?.response?.status === 409) { await finishLocally(null); return; }
       setError(err?.name === 'NotAllowedError' ? 'media_denied' : err?.response?.data?.message || 'call_failed');
       calls.declineCall(current.id).catch(() => {});
       await finishLocally({ ...current, status: 'failed' });

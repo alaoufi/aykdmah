@@ -262,9 +262,9 @@ async function finish(row, status, reason) {
   // The ringing notification on the callee's closed devices (same tag and topic replace it):
   // unanswered (the caller gave up, or no answer) becomes a lasting "missed call" that opens
   // the chat, like WhatsApp (AYK-064); declined or answered elsewhere just closes it.
+  // A call replaced by the caller's next try, or failed on the caller's own phone, is not "missed".
+  const missed = row.status === 'ringing' && (status === 'missed' || (status === 'cancelled' && reason !== 'replaced' && reason !== 'failed'));
   if (row.status === 'ringing') {
-    // A call replaced by the caller's next try is not "missed": the new one is ringing.
-    const missed = status === 'missed' || (status === 'cancelled' && reason !== 'replaced' && reason !== 'failed');
     pushService.sendToUser(row.callee_id, missed
       ? lang => ({
         kind: 'missed_call', call_id: row.id, tag: `call-${row.id}`, url: `/chat/${row.conversation_id}`,
@@ -279,11 +279,13 @@ async function finish(row, status, reason) {
       .catch(() => {});
     if (missed) await recordMissedCall(row).catch(err => logger.warn('Missed call line failed:', err.message));
   }
-  if (status === 'missed' || (status === 'cancelled' && !row.answered_at)) {
+  // The same rule for the bell in the app (AYK-231), in the callee's own language.
+  if (missed) {
+    const lang = (await queryOne('SELECT ui_lang FROM users WHERE id = ?', [row.callee_id]).catch(() => null))?.ui_lang || 'ar';
     notificationService.notifyUser(row.callee_id, {
       type: 'missed_call',
-      title: 'مكالمة فائتة',
-      body: `${callerShown(row, 'ar')} حاول الاتصال بك`,
+      title: translate(lang, 'push_missed_title'),
+      body: translate(lang, 'push_missed_body', { name: callerShown(row, lang) }),
       data: { call_id: row.id, conversation_id: row.conversation_id },
       link: `/chat/${row.conversation_id}`,
     }).catch(() => {});
@@ -315,6 +317,10 @@ async function accept(callId, user) {
   if (!updated.affectedRows) throw fail(409, 'call_not_ringing');
   const final = await findCall(row.id);
   await emitState(final);
+  // Answered into a room the caller already left (AYK-231): ended after a short wait instead of
+  // leaving the callee on «جارٍ الاتصال…».
+  const check = setTimeout(() => endIfCallerMissing(row.id).catch(() => {}), 30 * 1000);
+  check.unref?.();
   // Answered: every device of the callee stops ringing, the app (FCM) and the browser (AYK-097).
   fcm.sendToUser(row.callee_id, { kind: 'call_end', call_id: row.id, conversation_id: row.conversation_id }, { ttlSeconds: 60 }).catch(() => {});
   pushService.sendToUser(row.callee_id, { kind: 'call_end', call_id: row.id, tag: `call-${row.id}` }, { TTL: 60, urgency: 'high', topic: `call-${row.id}` }).catch(() => {});
@@ -440,7 +446,36 @@ async function handleWebhook(rawBody, authHeader) {
     const timer = setTimeout(() => endIfAbandoned(row.id).catch(err => logger.warn('Call rejoin check failed:', err.message)), REJOIN_GRACE_MS);
     timer.unref?.();
   }
+  // The caller closed the page while it was still ringing (AYK-231): unless they are back within
+  // a few seconds, the other phone stops ringing instead of ringing on into an empty call.
+  if (event.event === 'participant_left' && row.status === 'ringing' && event.participant?.identity === `user-${row.caller_id}`) {
+    const timer = setTimeout(() => cancelIfCallerGone(row.id).catch(err => logger.warn('Caller check failed:', err.message)), CALLER_GONE_MS);
+    timer.unref?.();
+  }
   return { handled: event.event };
+}
+
+const CALLER_GONE_MS = 10 * 1000;
+async function cancelIfCallerGone(callId) {
+  const row = await findCall(callId);
+  if (!row || row.status !== 'ringing') return;
+  const client = roomClient();
+  if (!client) return;
+  let callerHere = true;
+  try { callerHere = (await client.listParticipants(row.room_name)).some(p => p.identity === `user-${row.caller_id}`); } catch (_) { callerHere = true; }
+  if (!callerHere) await finish(row, 'cancelled', 'caller_left');
+}
+
+// Only on a clear answer from LiveKit that the caller is not in the room; an unreachable
+// LiveKit never ends a call.
+async function endIfCallerMissing(callId) {
+  const row = await findCall(callId);
+  if (!row || row.status !== 'accepted') return;
+  const client = roomClient();
+  if (!client) return;
+  let people;
+  try { people = await client.listParticipants(row.room_name); } catch (_) { return; }
+  if (Array.isArray(people) && !people.some(p => p.identity === `user-${row.caller_id}`)) await finish(row, 'ended', 'participant_left');
 }
 
 async function endIfAbandoned(callId) {

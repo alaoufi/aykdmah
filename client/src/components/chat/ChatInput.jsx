@@ -10,7 +10,22 @@ import ChatCameraPreview from './ChatCameraPreview';
 
 const EMOJIS = ['😀', '😂', '😍', '👍', '🙏', '🔥', '✅', '❤️', '👏', '💯', '🎉', '😎'];
 
-export default function ChatInput({ onSend, onShareLocation, sharingLocation, disabled, sessionKey }) {
+export default function ChatInput({ onSend, onShareLocation, sharingLocation, disabled, sessionKey, onTyping }) {
+  // «يكتب…» for the other side (AYK-231): said at most every 2 s while typing, and stopped after
+  // 3 s without a key, on sending, or on leaving the box.
+  const typingRef = useRef({ at: 0, timer: null });
+  const stopTyping = () => {
+    clearTimeout(typingRef.current.timer);
+    if (typingRef.current.at) { typingRef.current.at = 0; onTyping?.(false); }
+  };
+  const typed = () => {
+    if (!onTyping) return;
+    const now = Date.now();
+    if (now - typingRef.current.at > 2000) { typingRef.current.at = now; onTyping(true); }
+    clearTimeout(typingRef.current.timer);
+    typingRef.current.timer = setTimeout(stopTyping, 3000);
+  };
+  useEffect(() => () => clearTimeout(typingRef.current.timer), []);
   const { t } = useTranslation();
   const [text, setText] = useState('');
   const [files, setFiles] = useState([]);
@@ -89,6 +104,7 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
     sendingRef.current = true;
     setSending(true);
     setError(null);
+    stopTyping();
     try {
       const sent = await onSend({ content: trimmed, files: attachments });
       if (sent === false || !mountedRef.current || ownerRevision !== ownerRevisionRef.current) return;
@@ -250,7 +266,8 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
       <div className="input-row">
         <div className="wa-pill">
           <button type="button" onClick={() => { setShowEmoji(value => !value); setShowVideo(false); }} aria-label={t('chat.emoji')} aria-expanded={showEmoji} disabled={busy}>😀</button>
-          <input ref={inputRef} type="text" value={text} onChange={event => setText(event.target.value)} onKeyDown={handleKey} placeholder={t('chat.placeholder')} aria-label={t('chat.placeholder')} disabled={busy} />
+          {/* Never locked while a message is on its way (AYK-231): the keyboard stays open. */}
+          <input ref={inputRef} type="text" value={text} onChange={event => { setText(event.target.value); typed(); }} onBlur={stopTyping} onKeyDown={handleKey} placeholder={t('chat.placeholder')} aria-label={t('chat.placeholder')} disabled={disabled || recording} />
           <button type="button" onClick={() => setAttachmentMenu(v => !v)} aria-expanded={attachmentMenu} aria-label={t('request.attachments')} title={t('request.attachments')} disabled={busy}>📎</button>
           <button type="button" onClick={() => { setShowVideo(value => !value); setShowEmoji(false); }} aria-label={t('chat.video_message')} title={t('chat.video_message')} aria-expanded={showVideo} aria-controls="chat-video-actions" disabled={busy}>📷</button>
           {onShareLocation && (

@@ -627,7 +627,12 @@
     "opinions": "ደረጃዎች እና አስተያየቶች",
     "requested_professions": "እርስዎ የጠየቋቸው ሙያዎች",
     "requested_professions_empty": "እስካሁን የሙያ አገልግሎት አልጠየቁም፤ ሁሉም ሙያዎች እየታዩ ነው።",
-    "start_new": "አዲስ ውይይት ጀምር"
+    "start_new": "አዲስ ውይይት ጀምር",
+    "sending": "በመላክ ላይ",
+    "send_failed": "አልተላከም",
+    "resend": "እንደገና ላክ",
+    "discard": "ሰርዝ",
+    "offline_hint": "የበይነመረብ ግንኙነት የለም"
   },
   "tracking": {
     "title": "የቀጥታ ስርጭት መከታተያ",

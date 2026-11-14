@@ -32,6 +32,8 @@ import { askConfirm, askText, showAlert, showProblem } from '../components/commo
 import AdSlot from '../components/ads/AdSlot';
 import BottomNav from '../components/layout/BottomNav';
 import useChatViewport from '../hooks/useChatViewport';
+import { cachedConversation, cacheConversation, mergeMessages, appendMessages, updateConversationList, isTemporary } from '../utils/chatCache';
+import { primeTranslations, receiveTranslation } from '../components/chat/AutoTranslation';
 
 // A bold back arrow toward the start side: right in Arabic, left in English (AYK-137).
 function BackArrow() {
@@ -93,6 +95,9 @@ export default function ChatPage() {
   const messagePollRef = useRef(null);
   const typingTimerRef = useRef(null);
   const scopeRef = useRef(null);
+  const firstScroll = useRef(true);
+  const messagesRef = useRef([]);
+  messagesRef.current = messages;
   const sessionKey = `${user?.id}:${activeId || ''}`;
   useEffect(() => {setFocusedMessage(null);setSelectedMessages([]);forwardOwner.current.close();setForwarding(null);setSearchOpen(false);setSelectMode(false);}, [activeId,user?.id]);
   scopeRef.current = sessionKey;
@@ -112,14 +117,16 @@ export default function ChatPage() {
   const currentMessageError = messageError && messageErrorScope === sessionKey;
 
   const loadList = useCallback(() => listPollRef.current?.refresh(), []);
+  // Searching the list waits for a pause in typing, and the old results stay until the new ones
+  // arrive (AYK-231); only another account starts from an empty list.
+  const [searchTerm, setSearchTerm] = useState('');
+  useEffect(() => { const timer = setTimeout(() => setSearchTerm(listQuery), 300); return () => clearTimeout(timer); }, [listQuery]);
+  useEffect(() => { setConversations([]); setListOwnerId(null); setLoadingList(true); }, [user?.id]);
 
   useEffect(() => {
-    setConversations([]);
-    setListOwnerId(null);
-    setLoadingList(true);
     setListError(false);
     if (!user?.id) { setLoadingList(false); return; }
-    const poll = createPollingLoop(() => listConversations({q:listQuery,page:listPage,limit:20}), {
+    const poll = createPollingLoop(() => listConversations({q:searchTerm,page:listPage,limit:20}), {
       intervalMs: realtimeMode === 'polling' ? 10000 : null,
       onResult: (items) => {
         setConversations(items || []);
@@ -131,7 +138,34 @@ export default function ChatPage() {
     });
     listPollRef.current = poll;
     return () => { poll.stop(); listPollRef.current = null; };
-  }, [user?.id, realtimeMode, listQuery, listPage]);
+  }, [user?.id, realtimeMode, searchTerm, listPage]);
+
+  // The first chats of the list are fetched ahead (AYK-231), so opening one shows it at once.
+  const prefetched = useRef(new Set());
+  const prefetch = useCallback(id => {
+    const key = `${user?.id}:${id}`;
+    if (!user?.id || prefetched.current.has(key) || cachedConversation(user.id, id)) return;
+    prefetched.current.add(key);
+    Promise.all([getConversation(id), getMessages(id, { limit: 80 })])
+      .then(([conv, msgs]) => { primeTranslations(msgs); if (!cachedConversation(user.id, id)) cacheConversation(user.id, id, conv, msgs); })
+      .catch(() => prefetched.current.delete(key));
+  }, [user?.id]);
+  useEffect(() => {
+    if (!listReady) return undefined;
+    const timer = setTimeout(() => conversations.slice(0, 6).forEach(c => prefetch(c.id)), 400);
+    return () => clearTimeout(timer);
+  }, [listReady, conversations, prefetch]);
+
+  // Read, only while the chat is on screen (AYK-231): a chat open in a background tab or on a
+  // locked phone no longer turns the sender's ticks blue.
+  const readTimer = useRef(null);
+  const markReadSoon = useCallback(id => {
+    clearTimeout(readTimer.current);
+    readTimer.current = setTimeout(() => {
+      if (document.visibilityState !== 'visible') return;
+      markRead(id).then(() => { refreshBadges(); setConversations(rows => rows.map(c => Number(c.id) === Number(id) ? { ...c, unread_count: 0 } : c)); }).catch(() => {});
+    }, 300);
+  }, [refreshBadges]);
 
   useEffect(() => {
     setActive(null);
@@ -146,25 +180,35 @@ export default function ChatPage() {
     setMessageError(false);
     setMessageErrorScope(null);
     if (!activeId || !user?.id) { setLoadingMsgs(false); return; }
-    setLoadingMsgs(true);
     const scope = `${user.id}:${activeId}`;
-    let markingRead = false;
+    firstScroll.current = true;
+    // Seen before: shown at once from memory while the server is asked (AYK-231).
+    const cached = !focusedMessage && cachedConversation(user.id, activeId);
+    if (cached) {
+      setActive(cached.conv);
+      setActiveScope(scope);
+      setMessages(cached.messages);
+      setLoadingMsgs(false);
+    } else setLoadingMsgs(true);
     const poll = createPollingLoop(
       () => Promise.all([getConversation(activeId), getMessages(activeId, { limit: 80, ...(focusedMessage ? { before: Number(focusedMessage) + 1 } : {}) })]),
       {
         // With the socket too, every 15 s: read ticks (✓✓) and missed messages after a dropped connection.
         intervalMs: realtimeMode === 'polling' ? 5000 : 15000,
         onResult: ([conv, msgs]) => {
+          primeTranslations(msgs);
           setActive(conv);
           setActiveScope(scope);
-          setMessages(msgs || []);
+          // Combined with what is on screen, so a message that came live meanwhile stays.
+          setMessages(prev => {
+            const next = mergeMessages(prev, msgs || [], user.id);
+            if (!focusedMessage) cacheConversation(user.id, activeId, conv, next);
+            return next;
+          });
           setLoadingMsgs(false);
           setMessageError(false);
           setMessageErrorScope(null);
-          if (!markingRead && msgs?.some(m => m.sender_id !== user.id && !m.is_read)) {
-            markingRead = true;
-            markRead(activeId).then(() => { loadList(); refreshBadges(); }).catch(() => {}).finally(() => { markingRead = false; });
-          }
+          if (msgs?.some(m => m.sender_id !== user.id && !m.is_read)) markReadSoon(activeId);
         },
         onError: (error) => {
           setLoadingMsgs(false);
@@ -176,7 +220,16 @@ export default function ChatPage() {
     );
     messagePollRef.current = poll;
     return () => { poll.stop(); messagePollRef.current = null; };
-  }, [activeId, user?.id, realtimeMode, navigate, loadList, focusedMessage]);
+  }, [activeId, user?.id, realtimeMode, navigate, markReadSoon, focusedMessage]);
+
+  // Back on screen: what arrived while away is marked read then.
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === 'visible' && activeId && messagesRef.current.some(m => m.sender_id !== user?.id && !m.is_read)) markReadSoon(activeId);
+    };
+    document.addEventListener('visibilitychange', onVisible);
+    return () => document.removeEventListener('visibilitychange', onVisible);
+  }, [activeId, user?.id, markReadSoon]);
 
   useEffect(() => () => {
     scopeRef.current = null;
@@ -190,11 +243,31 @@ export default function ChatPage() {
     const onMessage = (msg) => {
       if (scopeRef.current !== scope) return;
       if (Number(msg.conversation_id) === Number(activeId)) {
-        setMessages(prev => prev.some(m => m.id === msg.id) ? prev : [...prev, msg]);
-        markRead(activeId).then(refreshBadges).catch(() => {});
+        setMessages(prev => appendMessages(prev, [msg]));
+        if (Number(msg.sender_id) !== Number(user?.id)) markReadSoon(activeId);
       }
+      // The list row moves up in place; the whole list is asked for only for a new chat.
+      setConversations(rows => {
+        const next = updateConversationList(rows, msg, { activeId, myId: user?.id });
+        if (!next) loadList();
+        return next || rows;
+      });
+    };
+    // A message's translation, pushed as soon as the server has it (AYK-231).
+    const onTranslation = payload => receiveTranslation(payload);
+    // Back after a dropped connection: only what came after the last message on screen.
+    const onReconnect = () => {
+      if (scopeRef.current !== scope) return;
+      // A new connection starts outside the chat's room: join it again («يكتب…», live location).
+      socket.emit('chat:join', Number(activeId));
+      const lastId = messagesRef.current.filter(m => !isTemporary(m)).reduce((max, m) => Math.max(max, Number(m.id) || 0), 0);
+      getMessages(activeId, lastId ? { after: lastId, limit: 100 } : { limit: 80 })
+        .then(msgs => { if (scopeRef.current === scope && msgs?.length) { primeTranslations(msgs); setMessages(prev => appendMessages(prev, msgs)); } })
+        .catch(() => {});
       loadList();
     };
+    socket.on('chat:translation', onTranslation);
+    socket.io?.on?.('reconnect', onReconnect);
     const onTyping = (data) => {
       if (scopeRef.current !== scope) return;
       if (Number(data.conversationId) === Number(activeId) && data.userId !== user.id) {
@@ -231,6 +304,8 @@ export default function ChatPage() {
     };
     socket.on('chat:delivered', onDelivered);
     return () => {
+      socket.off('chat:translation', onTranslation);
+      socket.io?.off?.('reconnect', onReconnect);
       socket.off('chat:delivered', onDelivered);
       clearTimeout(typingTimerRef.current);
       socket.emit('chat:leave', Number(activeId));
@@ -239,11 +314,15 @@ export default function ChatPage() {
       socket.off('chat:deleted', onDeleted);
       socket.off('chat:read', onRead);
     };
-  }, [socket, activeId, user, loadList]);
+  }, [socket, activeId, user, loadList, markReadSoon]);
 
+  // Opening a chat lands on its last message at once; later messages scroll smoothly.
   useEffect(() => {
     if (focusedMessage) document.getElementById(`chat-message-${focusedMessage}`)?.scrollIntoView({block:'center'});
-    else endRef.current?.scrollIntoView({ behavior: 'smooth' });
+    else if (messages.length) {
+      endRef.current?.scrollIntoView(firstScroll.current ? { block: 'end' } : { behavior: 'smooth' });
+      firstScroll.current = false;
+    }
   }, [messages.length, messages.at(-1)?.id, typingUserId, focusedMessage]);
 
   // Own text and media may be forwarded to explicitly selected writable chats.
@@ -263,30 +342,57 @@ export default function ChatPage() {
     }
     catch (err) { setNudgeNote(err?.response?.data?.message || t('chat.nudge_failed')); }
   };
+  // Sending is instant (AYK-231): the bubble shows at once with a clock, becomes ✓ when the server
+  // has it, and offers «إعادة الإرسال» if it could not be sent. The box is free for the next one.
+  const deliver = async (draft, scope) => {
+    const { content, files, replyId, conversationId, clientId } = draft;
+    const fd = new FormData();
+    if (content) fd.append('content', content);
+    const isVoice = files.length === 1 && files[0].type?.startsWith('audio/');
+    if (isVoice) fd.append('message_type', 'voice');
+    else if (files.length && !content) fd.append('message_type', 'file');
+    if (replyId) fd.append('reply_to_id', String(replyId));
+    fd.append('client_id', clientId);
+    files.forEach(f => fd.append('files', f));
+    try {
+      const msg = await sendMessage(conversationId, fd);
+      if (scopeRef.current !== scope) return;
+      setMessages(prev => appendMessages(prev, [{ ...msg, client_id: clientId }]));
+      setConversations(rows => updateConversationList(rows, msg, { activeId: conversationId, myId: user?.id }) || rows);
+    } catch (err) {
+      if (scopeRef.current !== scope) return;
+      const reason = err?.response?.data?.message || (navigator.onLine === false ? t('chat.offline_hint') : t('errors.generic'));
+      setMessages(prev => prev.map(m => m.client_id === clientId && isTemporary(m) ? { ...m, status: 'failed', error: reason } : m));
+    }
+  };
   const handleSend = async ({ content, files }) => {
     if (!activeId || !canSend) return false;
     const scope = scopeRef.current;
-    try {
-      const fd = new FormData();
-      if (content) fd.append('content', content);
-      const isVoice = files.length === 1 && files[0].type?.startsWith('audio/');
-      if (isVoice) fd.append('message_type', 'voice');
-      else if (files.length && !content) fd.append('message_type', 'file');
-      if (replyTo) fd.append('reply_to_id', String(replyTo.id));
-      files.forEach(f => fd.append('files', f));
-      const msg = await sendMessage(activeId, fd);
-      if (scopeRef.current !== scope) return false;
-      messagePollRef.current?.refresh();
-      setMessages(prev => prev.some(m => m.id === msg.id) ? prev : [...prev, msg]);
-      sentTone();
-      setReplyTo(null);
-      loadList();
-      return true;
-    } catch (err) {
-      if (scopeRef.current === scope) showAlert({ message: t('errors.generic') });
-      return false;
-    }
+    const clientId = `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 10)}`;
+    const isVoice = files.length === 1 && files[0].type?.startsWith('audio/');
+    const draft = { content, files, replyId: replyTo?.id || null, conversationId: activeId, clientId };
+    const temporary = {
+      id: `tmp-${clientId}`, client_id: clientId, status: 'pending', draft,
+      conversation_id: Number(activeId), sender_id: user.id, sender_name: user.full_name, content: content || null,
+      message_type: isVoice ? 'voice' : files.length && !content ? 'file' : 'text',
+      reply_to_id: replyTo?.id || null, reply_content: replyTo?.content || null, reply_type: replyTo?.message_type || null,
+      reply_sender_name: replyTo?.sender_name || null, created_at: new Date().toISOString(), is_read: 0,
+      files: files.map(file => ({ file_url: URL.createObjectURL(file), file_name: file.name, file_type: file.type, file_size: file.size, local: true })),
+      files_pending: files.length > 0,
+    };
+    setMessages(prev => [...prev, temporary]);
+    sentTone();
+    setReplyTo(null);
+    deliver(draft, scope);
+    return true;
   };
+  const retrySend = message => {
+    if (!message?.draft) return;
+    const scope = scopeRef.current;
+    setMessages(prev => prev.map(m => m.id === message.id ? { ...m, status: 'pending', error: null } : m));
+    deliver(message.draft, scope);
+  };
+  const discardFailed = message => setMessages(prev => prev.filter(m => m.id !== message.id));
 
   const handleShareLocation = async () => {
     if (!activeId || !canShareLocation || sharingLocation) return;
@@ -301,10 +407,9 @@ export default function ChatPage() {
         reply_to_id: replyTo ? replyTo.id : undefined,
       });
       if (scopeRef.current !== scope) return;
-      messagePollRef.current?.refresh();
-      setMessages(prev => prev.some(m => m.id === msg.id) ? prev : [...prev, msg]);
+      setMessages(prev => appendMessages(prev, [msg]));
       setReplyTo(null);
-      loadList();
+      setConversations(rows => updateConversationList(rows, msg, { activeId, myId: user?.id }) || rows);
     } catch (err) {
       if (scopeRef.current === scope) showAlert({ message: t('location.geolocation_failed') });
     } finally {
@@ -318,7 +423,6 @@ export default function ChatPage() {
     try {
       await deleteMessage(activeId, deleteCandidate.id);
       if (scopeRef.current !== scope) return;
-      messagePollRef.current?.refresh();
       setMessages(prev => prev.filter(m => m.id !== deleteCandidate.id));
     } catch (_) {}
     if (scopeRef.current === scope) setDeleteCandidate(null);
@@ -444,7 +548,7 @@ export default function ChatPage() {
               return (
                 // A tidy row like the phone's own chat lists (AYK-154): picture, name with its number,
                 // the time, the last message, and the unread count under the time.
-                <Link key={c.id} to={`/chat/${c.id}`} className={`conv-item ${isActive ? 'active' : ''} ${c.unread_count > 0 ? 'unread' : ''}`}>
+                <Link key={c.id} to={`/chat/${c.id}`} onPointerDown={() => prefetch(c.id)} onMouseEnter={() => prefetch(c.id)} className={`conv-item ${isActive ? 'active' : ''} ${c.unread_count > 0 ? 'unread' : ''}`}>
                   {other?.role === 'client' && !other?.avatar
                     ? <span className="conv-avatar-person" aria-hidden="true"><svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><path d="M12 12a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9Zm0 2c-4.2 0-8 2.1-8 5v1.2c0 .4.4.8.8.8h14.4c.4 0 .8-.4.8-.8V19c0-2.9-3.8-5-8-5Z" /></svg></span>
                     : <Avatar src={other?.avatar} name={other?.full_name} />}
@@ -555,6 +659,8 @@ export default function ChatPage() {
                       onForward={item.sender_id === user.id && !['system','location'].includes(item.message_type) ? message => { setForwardNote(''); openForward([message.id]); } : undefined}
                       onDelete={setDeleteCandidate}
                       onCallBack={canSend ? kind => startCall(Number(activeId), kind) : undefined}
+                      onRetry={retrySend}
+                      onDiscard={discardFailed}
                     />
                     </div>
                   );
@@ -625,7 +731,8 @@ export default function ChatPage() {
               onSend={handleSend}
               onShareLocation={canShareLocation ? handleShareLocation : undefined}
               sharingLocation={sharingLocation}
-              disabled={!canSend || (realtimeMode === 'socket' && !socket)}
+              disabled={!canSend}
+              onTyping={isTyping => socket?.emit('chat:typing', { conversationId: Number(activeId), isTyping })}
             />
             <p className="chat-admin-notice" data-testid="chat-admin-notice">🔒 {t('chat.admin_notice')}</p>
           </>

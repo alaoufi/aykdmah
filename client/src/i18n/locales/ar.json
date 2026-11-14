@@ -627,7 +627,12 @@
     "opinions": "التقييمات والآراء",
     "requested_professions": "المهن التي طلبتها",
     "requested_professions_empty": "لا توجد مهن طلبتها سابقًا؛ نعرض كل المهن.",
-    "start_new": "ابدأ محادثة جديدة"
+    "start_new": "ابدأ محادثة جديدة",
+    "sending": "جارٍ الإرسال",
+    "send_failed": "لم تُرسل",
+    "resend": "إعادة الإرسال",
+    "discard": "حذف",
+    "offline_hint": "لا يوجد اتصال بالإنترنت"
   },
   "tracking": {
     "title": "تتبع مباشر",

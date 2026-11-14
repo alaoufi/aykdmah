@@ -627,7 +627,12 @@
     "opinions": "Mga marka at opinyon",
     "requested_professions": "Mga propesyong hiniling mo",
     "requested_professions_empty": "Wala ka pang hinihiling na propesyon; ipinapakita ang lahat ng propesyon.",
-    "start_new": "Magsimula ng bagong usapan"
+    "start_new": "Magsimula ng bagong usapan",
+    "sending": "Ipinapadala",
+    "send_failed": "Hindi naipadala",
+    "resend": "Ipadala muli",
+    "discard": "Itapon",
+    "offline_hint": "Walang koneksyon sa internet"
   },
   "tracking": {
     "title": "Live na pagsubaybay",

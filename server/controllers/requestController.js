@@ -11,6 +11,9 @@ const { hasPermission } = require('../middleware/roleCheck');
 const { requiredFields } = require('../utils/formFields');
 const { ApiError } = require('../middleware/errorHandler');
 const translationService = require('../services/translationService');
+const requestTranslation = require('../services/requestTranslation');
+// The reader's language for request texts (AYK-231): ?lang= or the site language.
+const readerLang = req => String(req.query?.lang || req.lang || '').toLowerCase();
 
 const privateAccess = (user, request) => user && (user.id === request.client_id
   || user.id === request.assigned_provider_id || user.id === request.direct_provider_id || hasPermission(user, 'requests.manage'));
@@ -64,7 +67,9 @@ const create = asyncHandler(async (req, res) => {
   const io = req.app.get('io');
   if (io) io.emit('request:new_nearby', Request.publicView(request));
   await announceToProviders(req, request);
-  return created(res, request, req.t('request_created'));
+  created(res, request, req.t('request_created'));
+  // Into the providers' languages right away, so they read it in theirs at once (AYK-231).
+  requestTranslation.translateForProviders(request).catch(() => {});
 });
 
 // Right after posting, providers of that profession covering the request's area who
@@ -106,7 +111,9 @@ const getNearby = asyncHandler(async (req, res) => {
     page, limit,
     providerId: req.query.matching === '1' && req.user?.role === 'provider' ? req.user.id : null,
   });
-  return paginate(res, items.map(Request.publicView), total, page, limit);
+  // Each request already in the reader's language when it was translated (AYK-231).
+  const shown = await requestTranslation.attachTranslations(items.map(Request.publicView), readerLang(req));
+  return paginate(res, shown, total, page, limit);
 });
 
 const getOne = asyncHandler(async (req, res) => {
@@ -118,16 +125,17 @@ const getOne = asyncHandler(async (req, res) => {
   await Request.incrementViews(req.params.id);
   // A provider already in contact about the request also gets its voice note and photos.
   if (!allowed && req.user?.role === 'provider' && await queryOne('SELECT 1 AS ok FROM offers WHERE request_id = ? AND provider_id = ?', [request.id, req.user.id])) {
-    return success(res, { ...Request.publicView(request), files: request.files });
+    return success(res, (await requestTranslation.attachTranslations([{ ...Request.publicView(request), files: request.files }], readerLang(req)))[0]);
   }
-  if (!allowed) return success(res, Request.publicView(request));
+  if (!allowed) return success(res, (await requestTranslation.attachTranslations([Request.publicView(request)], readerLang(req)))[0]);
   // How long the two sides can still write after it ends (AYK-081).
   const contactInfo = await queryOne(`SELECT ${contactWindow.DONE_DAYS_SQL} AS days,
       CASE WHEN ${contactWindow.FINISHED_SQL} THEN ${contactWindow.UNTIL_SQL} END AS until
     FROM requests r WHERE r.id = ?`, [request.id]);
   // The assigned provider does not see the requester's name either (AYK-142).
   const shown = Number(request.client_id) === Number(req.user?.id) || hasPermission(req.user, 'requests.manage') ? request : { ...request, client_name: null };
-  return success(res, { ...shown, contact_days: Number(contactInfo?.days) || 7, contact_until: contactInfo?.until || null });
+  const [withTranslation] = await requestTranslation.attachTranslations([{ ...shown }], readerLang(req));
+  return success(res, { ...withTranslation, contact_days: Number(contactInfo?.days) || 7, contact_until: contactInfo?.until || null });
 });
 
 // The request's title and details in the viewer's language (AYK-229). Same visibility as
@@ -137,32 +145,9 @@ const getTranslation = asyncHandler(async (req, res) => {
   const request = await Request.findById(req.params.id);
   if (!request) return notFound(res);
   if (!privateAccess(req.user, request) && (request.status !== 'open' || request.direct_provider_id)) return notFound(res);
-  const lang = String(req.query.lang || req.lang || 'ar').toLowerCase();
+  const lang = readerLang(req) || 'ar';
   if (!translationService.SUPPORTED.includes(lang)) return error(res, req.t('invalid_data'), 422);
-  const title = String(request.title || '');
-  const description = String(request.description || '');
-  const sameText = description.trim() === title.trim();
-  const source = await translationService.detectLanguageFallback(`${title} ${sameText ? '' : description}`);
-  const original = { language: source, source_lang: source, title, description, translated: false };
-  if (source === lang) return success(res, original);
-  const saved = await queryOne('SELECT source_lang, title, description FROM request_translations WHERE request_id = ? AND lang = ?', [request.id, lang]);
-  if (saved) return success(res, { language: lang, source_lang: saved.source_lang, title: saved.title, description: saved.description ?? saved.title, translated: true, cached: true });
-  try {
-    const [t1, t2] = await Promise.all([
-      translationService.translate(title, null, lang),
-      sameText || !description ? null : translationService.translate(description, null, lang),
-    ]);
-    const translatedTitle = t1?.provider !== 'noop' && t1?.text ? t1.text : null;
-    const translatedDescription = sameText ? translatedTitle : (t2?.provider !== 'noop' && t2?.text ? t2.text : null);
-    if (!translatedTitle && !translatedDescription) return success(res, original);
-    const row = { title: translatedTitle || title, description: translatedDescription || description };
-    await query(`INSERT INTO request_translations (request_id, lang, source_lang, title, description, provider)
-      VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT (request_id, lang) DO NOTHING`,
-    [request.id, lang, t1?.from || source, row.title, row.description, String(t1?.provider || t2?.provider || '').slice(0, 30)]).catch(() => {});
-    return success(res, { language: lang, source_lang: t1?.from || source, ...row, translated: true });
-  } catch (_) {
-    return success(res, { ...original, error: 'translation_unavailable' });
-  }
+  return success(res, await requestTranslation.translationFor(request, lang));
 });
 
 const updateStatus = asyncHandler(async (req, res) => {
@@ -228,14 +213,15 @@ const contact = asyncHandler(async (req, res) => {
   if (await require('./userBlockController').blockedRefusal(req, res, owner ? providerId : request.client_id)) return undefined;
   await Offer.create({ request_id: request.id, provider_id: providerId, contact: true });
   const conversationId = await Conversation.findOrCreateBetween(request.client_id, providerId, request.id, {fresh:req.body?.fresh === true});
+  // The chat opens at once; the other side's notice follows without delaying it (AYK-231).
+  success(res, { conversation_id: conversationId });
   await notificationService.notifyUser(owner ? providerId : request.client_id, {
     type: 'request_contact',
     title: req.t('request_contact_title'),
     body: req.t('request_contact_body', { name: req.user.full_name, title: request.title }),
     link: `/chat/${conversationId}`,
     data: { request_id: request.id, conversation_id: conversationId },
-  });
-  return success(res, { conversation_id: conversationId });
+  }).catch(() => {});
 });
 
 // "Agreed": the requester picks one provider; the request is assigned to them and the
@@ -290,6 +276,7 @@ const direct = asyncHandler(async (req, res) => {
   }
   const request = await Request.findById(requestId);
   const conversationId = await Conversation.findOrCreateBetween(req.user.id, providerId, requestId, {fresh:req.body?.fresh === true});
+  success(res, { request_id: requestId, conversation_id: conversationId });
   if (!existing) {
     await notificationService.notifyUser(providerId, {
       type: 'request_contact',
@@ -297,9 +284,8 @@ const direct = asyncHandler(async (req, res) => {
       body: req.t('request_contact_body', { name: req.user.full_name, title: request.title }),
       link: `/chat/${conversationId}`,
       data: { request_id: requestId, conversation_id: conversationId },
-    });
+    }).catch(() => {});
   }
-  return success(res, { request_id: requestId, conversation_id: conversationId });
 });
 
 const remove = asyncHandler(async (req, res) => {

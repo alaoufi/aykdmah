@@ -627,7 +627,12 @@
     "opinions": "Puanlar ve görüşler",
     "requested_professions": "Talep ettiğiniz meslekler",
     "requested_professions_empty": "Henüz bir meslekten hizmet talep etmediniz; tüm meslekler gösteriliyor.",
-    "start_new": "Yeni sohbet başlat"
+    "start_new": "Yeni sohbet başlat",
+    "sending": "Gönderiliyor",
+    "send_failed": "Gönderilmedi",
+    "resend": "Yeniden gönder",
+    "discard": "Vazgeç",
+    "offline_hint": "İnternet bağlantısı yok"
   },
   "tracking": {
     "title": "Canlı izleme",
