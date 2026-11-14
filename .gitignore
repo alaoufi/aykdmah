@@ -17,3 +17,7 @@ __pycache__/
 *.pyc
 # ملفات بناء قديمة يولّدها الخادم عند كل نشر (انظر docs/DECISIONS.md)
 client/compat-assets/
+# ناتج تشغيل اختبارات المتصفح على الخادم (deploy/e2e-calls.sh): لقطات وحزمة Playwright مؤقتة
+e2e/package.json
+e2e/package-lock.json
+e2e/*.png
