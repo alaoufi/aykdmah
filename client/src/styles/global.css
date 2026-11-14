@@ -335,6 +335,13 @@ button, input, select, textarea { font: inherit; color: inherit; }
   .mobile-bottom-nav { top: var(--mobile-nav-viewport-bottom, 100dvh); }
 }
 .site-footer { padding-bottom: 48px; }
+/* AYK-226: the footer takes the template's own button colour, darker, so it matches every
+   template (it was the fixed navy brand-slate, which clashed with brown buttons). */
+.site-footer {
+  background: linear-gradient(180deg,
+    color-mix(in srgb, rgb(var(--color-primary-from)) 62%, #000) 0%,
+    color-mix(in srgb, rgb(var(--color-primary-from)) 48%, #000) 100%);
+}
 
 /* Reserve the whole navigation, its raised action button, and the safe area. */
 @media (max-width: 767.98px) {
