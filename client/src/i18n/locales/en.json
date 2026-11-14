@@ -2448,7 +2448,7 @@
     "voice_delete": "Delete",
     "voice_hint": "Optional, up to 10 minutes. Every provider you talk with hears it, so you don't repeat it.",
     "attach_label": "Photo or video",
-    "publish": "Post",
+    "publish": "Post your request and wait for replies",
     "publish_hint": "Your request reaches providers of that profession in your area right away. Your description and photos appear at the top of every chat, where you agree on details and price.",
     "brief_title": "Request",
     "forward": "Forward",

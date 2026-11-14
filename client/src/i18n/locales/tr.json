@@ -2448,7 +2448,7 @@
     "voice_delete": "Sil",
     "voice_hint": "İsteğe bağlı, en fazla 10 dakika. Konuştuğunuz her hizmet veren bunu dinler, tekrar etmenize gerek kalmaz.",
     "attach_label": "Fotoğraf veya video",
-    "publish": "Yayımla",
+    "publish": "Talebinizi yayınlayın ve yanıtları bekleyin",
     "publish_hint": "Talebiniz hemen bölgenizdeki o mesleğin hizmet verenlerine ulaşır. Açıklamanız ve fotoğraflarınız her sohbetin üstünde görünür; ayrıntıları ve fiyatı orada kararlaştırırsınız.",
     "brief_title": "Talep",
     "forward": "İlet",

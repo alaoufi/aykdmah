@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import Input from './Input';
@@ -22,11 +22,18 @@ function SimpleRequestLocation({ control, prefix, disabled }) {
     localizedName(control.district, lang) || localizedName(control.governorate, lang)].filter(Boolean))].join('، ');
   const needsDistrict = control.ready && control.districts.length > 0 && !control.location.district_id;
   const missing = !control.location.city_id ? t('auth.simple_location_required') : needsDistrict ? t('auth.simple_district_required') : '';
+  // Choosing is enough (AYK-224): once the place is complete after a change, the fields close by
+  // themselves and only the line stays; «حفظ» still closes them at once.
+  const changed = useRef(false);
+  const pick = (key, value) => { changed.current = true; control.change(key, value); };
+  useEffect(() => {
+    if (open && changed.current && !missing && control.ready && !control.loading) { changed.current = false; setOpen(false); }
+  }, [open, missing, control.ready, control.loading]);
   const select = (key, label, rows, unavailable = false) => (
     <div key={key}>
       <label className="form-label text-[13px]" htmlFor={`${prefix}-${key}`}>{label}</label>
       <select id={`${prefix}-${key}`} name={`${key}_id`} className="select" value={control.location[`${key}_id`]}
-        onChange={event => control.change(`${key}_id`, event.target.value)} disabled={disabled || unavailable || rows.length === 0}>
+        onChange={event => pick(`${key}_id`, event.target.value)} disabled={disabled || unavailable || rows.length === 0}>
         <option value="">{control.loading && rows.length === 0 ? t('common.loading') : t('common.select')}</option>
         {rows.map(row => <option key={row.id} value={row.id}>{localizedName(row, lang)}</option>)}
       </select>
