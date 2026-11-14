@@ -275,7 +275,14 @@ async function finish(row, status, reason) {
       .then(sent => logger.info(`Push ${missed ? 'missed_call' : 'call_end'} call=${row.id} user=${row.callee_id} devices=${sent}`))
       .catch(() => {});
     // The app stops ringing (and shows nothing more: the missed call comes as a notification).
-    fcm.sendToUser(row.callee_id, { kind: missed ? 'missed_call' : 'call_end', call_id: row.id, conversation_id: row.conversation_id }, { ttlSeconds: missed ? 3600 : 60 })
+    // A missed call carries a title (AYK-232): the iPhone app (APNs) shows only notices with one, so
+    // «📞 مكالمة فائتة» replaces the ringing notice there (same call-<id>). Android ignores it and
+    // stops ringing as before.
+    const calleeLang = missed ? (await queryOne('SELECT ui_lang FROM users WHERE id = ?', [row.callee_id]).catch(() => null))?.ui_lang || 'ar' : 'ar';
+    fcm.sendToUser(row.callee_id, {
+      kind: missed ? 'missed_call' : 'call_end', call_id: row.id, conversation_id: row.conversation_id,
+      ...(missed ? { title: translate(calleeLang, 'push_missed_title'), body: translate(calleeLang, 'push_missed_body', { name: callerShown(row, calleeLang) }) } : {}),
+    }, { ttlSeconds: missed ? 3600 : 60 })
       .catch(() => {});
     if (missed) await recordMissedCall(row).catch(err => logger.warn('Missed call line failed:', err.message));
   }
