@@ -27,7 +27,7 @@ function SimpleRequestLocation({ control, prefix, disabled }) {
   const changed = useRef(false);
   const pick = (key, value) => { changed.current = true; control.change(key, value); };
   useEffect(() => {
-    if (open && changed.current && !missing && control.ready && !control.loading) { changed.current = false; setOpen(false); }
+    if (open && changed.current && !missing && control.ready && !control.loading) { changed.current = false; control.rememberPlace?.(); setOpen(false); }
   }, [open, missing, control.ready, control.loading]);
   const select = (key, label, rows, unavailable = false) => (
     <div key={key}>
@@ -51,7 +51,7 @@ function SimpleRequestLocation({ control, prefix, disabled }) {
             {missing && <span className="block text-[12px] font-normal text-danger" data-testid="request-location-missing">{missing}</span>}
           </span>
           <Button type="button" size="sm" variant={open ? 'primary' : 'outline'} disabled={disabled || control.loading || (open && Boolean(missing))}
-            onClick={() => setOpen(!open)} data-testid="request-location-change" aria-expanded={open}>
+            onClick={() => { if (open) control.rememberPlace?.(); setOpen(!open); }} data-testid="request-location-change" aria-expanded={open}>
             {open ? `✓ ${t('common.save')}` : `🔄 ${t('request_location.change_place')}`}
           </Button>
         </div>

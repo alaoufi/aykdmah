@@ -31,7 +31,7 @@ export default function CreateRequestPage() {
   const { user, refresh } = useAuth();
   const [params] = useSearchParams();
   const { country } = useCountry();
-  const requestLocation = useRequestLocation({ user, params, fallbackCountryId: country?.id });
+  const requestLocation = useRequestLocation({ user, params, fallbackCountryId: country?.id, rememberLast: true });
 
   // A profession page links here with ?category=<id> already chosen.
   const startForm = () => ({ ...EMPTY_FORM, category_id: params.get('category') || '', service_id: params.get('service') || '' });

@@ -50,7 +50,16 @@ export function savedRequestLocation(user, catalog) {
 
 // Explicit browsing context wins. Account address and pin only carry across
 // when the requested area still contains that same saved neighborhood.
-export function initialRequestLocation({ user, params, catalog, fallbackCountryId }) {
+// The place last saved in the request form (AYK-228), kept on this device: only ids, checked
+// against the current catalog so a removed or moved city is never used.
+export function rememberedRequestLocation(stored, catalog) {
+  const location = requestCityLocation(stored?.city_id, catalog);
+  if (!location) return null;
+  for (const key of ['country_id', 'region_id']) if (locationId(stored?.[key]) !== location[key]) return null;
+  return { ...location, district_id: locationId(stored?.district_id) };
+}
+
+export function initialRequestLocation({ user, params, catalog, fallbackCountryId, remembered = null }) {
   const saved = savedRequestLocation(user, catalog);
   const requestedCity = locationId(params?.get?.('city') || params?.get?.('city_id'));
   const requestedDistrict = locationId(params?.get?.('district') || params?.get?.('district_id'));
@@ -65,6 +74,12 @@ export function initialRequestLocation({ user, params, catalog, fallbackCountryI
       source: 'query',
       location: { ...(sameArea ? saved : selected), district_id: requestedDistrict || (sameArea ? saved.district_id : '') },
     };
+  }
+  const last = rememberedRequestLocation(remembered, catalog);
+  if (last) {
+    // The same saved neighbourhood keeps the account's address and pin with it.
+    const sameArea = saved && saved.city_id === last.city_id && saved.district_id === last.district_id;
+    return { source: sameArea ? 'saved' : 'remembered', location: sameArea ? saved : last };
   }
   if (saved) return { source: 'saved', location: saved };
   const country = findLocation(catalog?.countries, user?.country_id || fallbackCountryId) || catalog?.countries?.find(activeLocationRow);

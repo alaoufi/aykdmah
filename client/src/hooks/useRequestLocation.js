@@ -9,8 +9,17 @@ import {
 } from '../utils/requestLocation';
 
 const EMPTY_CATALOG = { countries: [], regions: [], governorates: [], cities: [] };
+const PLACE_KEY = owner => `ayk_request_place_${owner}`;
+// The last place saved in the request form, per account on this device (AYK-228).
+function readPlace(owner) {
+  try { return JSON.parse(localStorage.getItem(PLACE_KEY(owner)) || 'null'); } catch (_) { return null; }
+}
+function writePlace(owner, location) {
+  const place = Object.fromEntries(REQUEST_LOCATION_LEVELS.map(key => [key, location[key] || '']));
+  try { localStorage.setItem(PLACE_KEY(owner), JSON.stringify(place)); } catch (_) { /* private mode: this visit only */ }
+}
 
-export default function useRequestLocation({ user, params, enabled = true, fallbackCountryId }) {
+export default function useRequestLocation({ user, params, enabled = true, fallbackCountryId, rememberLast = false }) {
   const owner = String(user?.id || '');
   const query = params?.toString?.() || '';
   const userSignature = JSON.stringify([owner, ...REQUEST_LOCATION_LEVELS.map(key => user?.[key]), user?.address, user?.latitude, user?.longitude]);
@@ -79,12 +88,12 @@ export default function useRequestLocation({ user, params, enabled = true, fallb
     const signature = `${userSignature}:${query}:${fallbackCountryId || ''}:${reload}`;
     if (applied.current === signature) return;
     applied.current = signature;
-    const initial = initialRequestLocation({ user, params, catalog, fallbackCountryId });
+    const initial = initialRequestLocation({ user, params, catalog, fallbackCountryId, remembered: rememberLast ? readPlace(owner) : null });
     cancelPending();
     freshPoint.current = false;
     setLocation(initial.location);
     setSource(initial.source);
-  }, [catalogReady, catalog, userSignature, query, fallbackCountryId, reload, cancelPending]);
+  }, [catalogReady, catalog, userSignature, query, fallbackCountryId, reload, cancelPending, rememberLast]);
 
   useEffect(() => {
     if (!location.city_id || districtsLoading || districtsError) return;
@@ -205,6 +214,8 @@ export default function useRequestLocation({ user, params, enabled = true, fallb
     // For the one-line summary of the saved area (AYK-222): region, city, district or centre.
     region: findLocation(catalog.regions, location.region_id), governorate: findLocation(catalog.governorates, location.governorate_id),
     accountAvailable: Boolean(accountLocation), cancelPending,
+    // «حفظ» in the request form keeps the chosen place for the next visit (AYK-228).
+    rememberPlace: () => { if (rememberLast && owner && latestLocation.current.city_id) writePlace(owner, latestLocation.current); },
     change, useAccount, clearPoint, useDeviceLocation, confirmMapPoint,
   };
 }

@@ -109,3 +109,20 @@ test('cleared request location is explicitly serialized so saved home fields can
   assert.equal(exact.get('longitude'), '0');
   assert.equal(exact.get('remember_location'), 'true');
 });
+
+test('the place last saved in the request form comes back on the next visit (AYK-228)', () => {
+  const start = remembered => initialRequestLocation({ user: { ...home, district_id: null }, params: new URLSearchParams(''), catalog, remembered });
+  const other = start({ country_id: '1', region_id: '5', city_id: '22', district_id: '' });
+  assert.equal(other.source, 'remembered'); assert.equal(other.location.city_id, '22'); assert.equal(other.location.address, '');
+  const district = start({ country_id: '1', region_id: '4', governorate_id: '9', city_id: '21', district_id: '32' });
+  assert.equal(district.location.district_id, '32');
+  // A city that moved region or no longer exists is ignored: the account place is used.
+  assert.equal(start({ country_id: '1', region_id: '5', city_id: '21' }).source, 'saved');
+  assert.equal(start({ city_id: '99' }).source, 'saved');
+  assert.equal(start(null).source, 'saved');
+  // The same neighbourhood as the account keeps the account's address and pin.
+  const same = initialRequestLocation({ user: home, params: new URLSearchParams(''), catalog, remembered: { country_id: '1', region_id: '4', city_id: '21', district_id: '31' } });
+  assert.equal(same.source, 'saved'); assert.equal(same.location.address, home.address);
+  // An explicit search area still wins.
+  assert.equal(initialRequestLocation({ user: home, params: new URLSearchParams('city=22'), catalog, remembered: { country_id: '1', region_id: '4', city_id: '21' } }).source, 'query');
+});
