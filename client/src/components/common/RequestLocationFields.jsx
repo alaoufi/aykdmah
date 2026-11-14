@@ -23,11 +23,18 @@ function SimpleRequestLocation({ control, prefix, disabled }) {
   const needsDistrict = control.ready && control.districts.length > 0 && !control.location.district_id;
   const missing = !control.location.city_id ? t('auth.simple_location_required') : needsDistrict ? t('auth.simple_district_required') : '';
   // Choosing is enough (AYK-224): once the place is complete after a change, the fields close by
-  // themselves and only the line stays; «حفظ» still closes them at once.
+  // themselves and only the line stays.
   const changed = useRef(false);
-  const pick = (key, value) => { changed.current = true; control.change(key, value); };
+  const edited = useRef(false);
+  const pick = (key, value) => { changed.current = true; edited.current = true; control.change(key, value); };
+  // Saved by itself on every choice (AYK-233), no «حفظ» needed: leaving and coming back shows the
+  // place as it was last chosen.
+  const { region_id: regionId, city_id: cityId, district_id: districtId } = control.location;
   useEffect(() => {
-    if (open && changed.current && !missing && control.ready && !control.loading) { changed.current = false; control.rememberPlace?.(); setOpen(false); }
+    if (edited.current && cityId) control.rememberPlace?.();
+  }, [regionId, cityId, districtId]);
+  useEffect(() => {
+    if (open && changed.current && !missing && control.ready && !control.loading) { changed.current = false; setOpen(false); }
   }, [open, missing, control.ready, control.loading]);
   const select = (key, label, rows, unavailable = false) => (
     <div key={key}>
@@ -50,9 +57,10 @@ function SimpleRequestLocation({ control, prefix, disabled }) {
             📍 {area || t('request_location.not_set')}
             {missing && <span className="block text-[12px] font-normal text-danger" data-testid="request-location-missing">{missing}</span>}
           </span>
-          <Button type="button" size="sm" variant={open ? 'primary' : 'outline'} disabled={disabled || control.loading || (open && Boolean(missing))}
-            onClick={() => { if (open) control.rememberPlace?.(); setOpen(!open); }} data-testid="request-location-change" aria-expanded={open}>
-            {open ? `✓ ${t('common.save')}` : `🔄 ${t('request_location.change_place')}`}
+          {/* Open: only «إغلاق» (the choice is already saved); closed: «تغيير مكان الطلب». */}
+          <Button type="button" size="sm" variant="outline" disabled={disabled || control.loading}
+            onClick={() => setOpen(!open)} data-testid="request-location-change" aria-expanded={open}>
+            {open ? `✕ ${t('common.close')}` : `🔄 ${t('request_location.change_place')}`}
           </Button>
         </div>
         <div className="grid transition-[grid-template-rows] duration-300 ease-out" style={{ gridTemplateRows: open ? '1fr' : '0fr' }}>
