@@ -1,0 +1,37 @@
+{
+  "schemaVersion":1,
+  "ownerApprovalRequired":true,
+  "storeOperations":{
+    "readAppState":"whenCredentialsConfigured",
+    "draftMetadata":"localOnly",
+    "build":"projectSpecific",
+    "uploadBinary":"approvalAndOfficialCredentials",
+    "submitReview":"approvalAndOfficialCredentials",
+    "releaseProduction":"separateOwnerApproval"
+  },
+  "applications":[
+    {
+      "project":"aykdmah",
+      "googlePlay":{"packageId":"sa.aykdmh.app","listing":"unverified","enabled":false},
+      "appStore":{"bundleId":null,"appStoreId":null,"enabled":false},
+      "sourceOfTruth":"docs/PROJECT_HANDOFF.md",
+      "notes":"Confirm current version, signatures, credentials and publishing role before any action"
+    },
+    {
+      "project":"trbhh",
+      "googlePlay":{"packageId":null,"listing":"unverified","enabled":false},
+      "appStore":{"bundleId":null,"appStoreId":null,"enabled":false},
+      "notes":"Discover identifiers and publication state from connected authorized accounts; do not infer"
+    }
+  ],
+  "storeChecklist":[
+    "Verify project and app ID",
+    "Verify owner-approved version and changelog",
+    "Check signing and release artifact SHA256",
+    "Validate screenshots, Arabic text, privacy and policy declarations",
+    "Choose internal testing or production explicitly",
+    "Request explicit owner approval for each upload/submission and separately for rollout",
+    "Log authorized action and exact platform response",
+    "Never commit keys, certificates, signing files or service account JSON"
+  ]
+}

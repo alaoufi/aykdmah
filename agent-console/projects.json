@@ -1,0 +1,51 @@
+{
+  "schemaVersion": 1,
+  "policy": {
+    "language": "ar",
+    "defaultAgent": "auto",
+    "allowedPaidAI": ["claude-code-subscription", "codex-chatgpt-subscription"],
+    "allowMeteredApi": false,
+    "allowAutomaticPurchases": false,
+    "requireOwnerApprovalFor": ["production-deployment","app-store-release","play-store-release","payment","dns-change","database-destructive-change","credential-rotation"],
+    "maxConcurrentTasksPerProject": 1,
+    "reviewHighRiskChanges": true,
+    "branchPerTask": true,
+    "requireCommitAndPush": true,
+    "requireTestsBeforeRelease": true,
+    "neverClaimUnverifiedSuccess": true,
+    "failover": "Use another officially authenticated subscription-based tool only if available and permitted; preserve handoff and commit state. Otherwise pause."
+  },
+  "projects": [
+    {
+      "id":"aykdmah",
+      "name":"أي خدمة",
+      "repository":"alaoufi/aykdmah",
+      "developmentBranch":"claude/deploy-setup",
+      "deliverables":["web","android-apk","android-aab","ios"],
+      "website":"https://aykdmh.com",
+      "deployment":"manual-approval",
+      "appPublishing":"manual-approval",
+      "instructions":["AGENTS.md","CLAUDE.md","docs/PROJECT_HANDOFF.md","docs/TASKS.md"],
+      "notes":"Existing production and app store release processes must remain unchanged until audited; preserve all live changes."
+    },
+    {
+      "id":"trbhh",
+      "name":"تربح",
+      "repository":"alaoufi/Trbhh",
+      "developmentBranch":null,
+      "deliverables":["web","android-apk","android-aab","ios"],
+      "website":null,
+      "deployment":"manual-approval",
+      "appPublishing":"manual-approval",
+      "instructions":[],
+      "notes":"Verify current development and deployed branches before acting; customer purchasing must remain disabled until owner's approved end-to-end test."
+    }
+  ],
+  "newProjectDefaults":{
+    "deliverables":["web"],
+    "deployment":"manual-approval",
+    "appPublishing":"manual-approval",
+    "developmentBranch":null,
+    "instructions":[]
+  }
+}
