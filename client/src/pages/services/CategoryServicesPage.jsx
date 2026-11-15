@@ -6,7 +6,7 @@ import { tx, localizedName } from '../../utils/localize';
 import { filterCatalogServices } from '../../utils/catalogFilters';
 import useCatalogFilters from '../../hooks/useCatalogFilters';
 import { useAuth } from '../../hooks/useAuth';
-import { listCategories } from '../../services/serviceService';
+import { listCategories, listCities } from '../../services/serviceService';
 import ServiceCard from '../../components/catalog/ServiceCard';
 import SearchAndFilters from '../../components/catalog/SearchAndFilters';
 import CatalogLocationNotice from '../../components/catalog/CatalogLocationNotice';
@@ -18,10 +18,21 @@ import AdSlot from '../../components/ads/AdSlot';
 export default function CategoryServicesPage() {
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
-  const { slug } = useParams();
+  const { slug, city: cityPart } = useParams();
+  // «/services/category/plumbing/1-riyadh» (AYK-239): the city's page, filtered to that city.
+  const cityId = cityPart ? String(Number(String(cityPart).split('-')[0]) || '') : '';
+  const [cityRow, setCityRow] = useState(null);
   const { user } = useAuth();
   const category = getCategory(slug);
   const discovery = useCatalogFilters();
+  useEffect(() => {
+    if (!cityId) { setCityRow(null); return undefined; }
+    let alive = true;
+    listCities().then(rows => { if (alive) setCityRow((rows || []).find(row => String(row.id) === cityId) || null); }).catch(() => {});
+    if (discovery.filters.city !== cityId) discovery.change({ city: cityId });
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cityId]);
   const [orderService, setOrderService] = useState(null);
   // The profession as stored on the platform (every category, not only the showcased ones).
   const [dbCategory, setDbCategory] = useState(undefined);
@@ -40,7 +51,8 @@ export default function CategoryServicesPage() {
       <div className="text-center mt-4"><Link to={catalogUrl} className="text-brand-600 font-semibold no-underline">{t('catalog.browse_all')}</Link></div>
     </div>
   );
-  const name = category ? tx(category.name, lang) : localizedName(dbCategory, lang);
+  const baseName = category ? tx(category.name, lang) : localizedName(dbCategory, lang);
+  const name = cityRow ? t('catalog.in_city', { name: baseName, city: localizedName(cityRow, lang) }) : baseName;
 
   return (
     <div className="bg-cream min-h-screen">
@@ -52,7 +64,8 @@ export default function CategoryServicesPage() {
         </div>
         <div className="flex items-center gap-3 mb-6">
           <span className="w-12 h-12 rounded-card grid place-items-center text-2xl shrink-0" style={category ? { background: category.bg, color: category.tint } : undefined}>{category ? category.icon : dbCategory.icon}</span>
-          <div><h1 className="text-ink text-2xl md:text-3xl font-extrabold tracking-tight">{name}</h1>{category && <p className="text-slate-500 text-[13.5px]">{tx(category.desc, lang)}</p>}</div>
+          <div><h1 className="text-ink text-2xl md:text-3xl font-extrabold tracking-tight">{name}</h1>{category && <p className="text-slate-500 text-[13.5px]">{tx(category.desc, lang)}</p>}
+            {cityRow && <p className="text-slate-600 text-[14px] mt-2 mb-0" data-testid="city-intro">{t('catalog.city_intro', { name: baseName, city: localizedName(cityRow, lang) })}</p>}</div>
         </div>
         {showProviders && (
           <div className="mb-8">

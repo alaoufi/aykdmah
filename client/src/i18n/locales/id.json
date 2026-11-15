@@ -1348,7 +1348,9 @@
     "offers_notice": "Anda dapat meminta jenis layanan ini di area peluncuran. Ketersediaan penyedia dan harga dikonfirmasi melalui penawaran.",
     "login_to_order": "Masuk untuk mengirim permintaan layanan Anda.",
     "provider_services_unavailable": "Daftar layanan penyedia belum tersedia. Menelusuri permintaan pelanggan dan mengirimkan penawaran.",
-    "browse_requests": "Menelusuri permintaan pelanggan"
+    "browse_requests": "Menelusuri permintaan pelanggan",
+    "in_city": "{{name}} di {{city}}",
+    "city_intro": "Mencari {{name}} di {{city}}? Tulis permintaan gratis: sampai ke penyedia terdekat di {{city}}, Anda menerima penawaran, membandingkan rating, dan berbicara lewat chat atau panggilan tanpa membagikan nomor Anda."
   },
   "promote": {
     "page_title": "Mengiklankan pelayanan Anda",

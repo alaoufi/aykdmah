@@ -1348,7 +1348,9 @@
     "offers_notice": "Maaari mong humingi ng mga ganitong uri ng serbisyo sa loob ng lugar ng paglalabas.",
     "login_to_order": "Mag-sign in upang magpadala ng iyong request ng serbisyo.",
     "provider_services_unavailable": "Hindi pa available ang mga listahan ng serbisyo ng provider.",
-    "browse_requests": "Pag-browse ng mga kahilingan ng customer"
+    "browse_requests": "Pag-browse ng mga kahilingan ng customer",
+    "in_city": "{{name}} sa {{city}}",
+    "city_intro": "Naghahanap ng {{name}} sa {{city}}? Mag-post ng request nang libre: aabot ito sa mga malapit na provider sa {{city}}, matatanggap mo ang kanilang alok, ihambing ang ratings at kausapin sila sa chat o tawag nang hindi ibinibigay ang numero mo."
   },
   "promote": {
     "page_title": "I-promote ang iyong serbisyo",

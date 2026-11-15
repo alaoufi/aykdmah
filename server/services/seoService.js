@@ -27,16 +27,48 @@ function indexHtml() {
   return null;
 }
 
+// The words people search with for each profession (AYK-239): the person they look for and
+// other common phrasings, used in titles, descriptions and the readable text.
+const SEARCH_WORDS = {
+  electrical: { person: 'كهربائي', alt: ['فني كهرباء', 'معلم كهرباء', 'تمديدات كهربائية', 'تصليح كهرباء المنازل'] },
+  plumbing: { person: 'سباك', alt: ['فني سباكة', 'معلم سباكة', 'كشف تسربات المياه', 'تسليك مجاري'] },
+  'ac-cooling': { person: 'فني تكييف', alt: ['تصليح مكيفات', 'صيانة مكيفات', 'تنظيف مكيفات', 'تركيب مكيفات سبليت'] },
+  cleaning: { person: 'شركة تنظيف', alt: ['تنظيف منازل', 'تنظيف فلل وشقق', 'تنظيف خزانات', 'تنظيف كنب وسجاد'] },
+  moving: { person: 'نقل عفش', alt: ['شركة نقل أثاث', 'فك وتركيب أثاث', 'نقل عفش مع التغليف', 'دينا نقل'] },
+  'paint-decor': { person: 'دهان', alt: ['معلم دهانات', 'فني ديكور', 'ورق جدران', 'جبس بورد'] },
+  gardens: { person: 'منسق حدائق', alt: ['تنسيق حدائق', 'زراعة نجيل', 'صيانة حدائق', 'شبكات ري'] },
+  'home-maintenance': { person: 'فني صيانة منازل', alt: ['صيانة منزلية', 'معلم صيانة عامة', 'تصليح أبواب ونوافذ', 'صيانة شقق وفلل'] },
+};
+const wordsFor = category => SEARCH_WORDS[category.slug] || { person: category.name_ar, alt: [] };
+const MIN_CITY_DISTRICTS = 3;
+// «1-riyadh»: the id keeps it unique, the name keeps it readable.
+const citySlug = city => `${city.id}-${String(city.name_en || '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'city'}`;
+
 let catalog = { data: null, at: 0 };
 async function loadCatalog() {
   if (catalog.data && Date.now() - catalog.at < CACHE_MS) return catalog.data;
-  const [categories, services, regions] = await Promise.all([
+  const [categories, services, regions, cities, districts, settings] = await Promise.all([
     Category.findAll(true), Service.findAll({ activeOnly: true }),
-    query('SELECT name_ar FROM regions ORDER BY id').catch(() => []),
+    query('SELECT id, name_ar FROM regions ORDER BY id').catch(() => []),
+    query(`SELECT c.id, c.name_ar, c.name_en, COALESCE(c.region_id, g.region_id) AS region_id
+      FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id WHERE c.is_active = 1`).catch(() => []),
+    query('SELECT city_id, name_ar FROM districts WHERE is_active = 1 ORDER BY id').catch(() => []),
+    query(`SELECT setting_key, setting_value FROM settings WHERE setting_key IN ('google_site_verification', 'bing_site_verification', 'google_play_url', 'app_store_url')`).catch(() => []),
   ]);
+  const regionName = name => String(name).replace(/^(منطقة|المنطقة)\s+/, '').replace(/^ال(شرقية)$/, 'المنطقة الشرقية');
+  const byCity = new Map();
+  for (const d of districts) { if (!byCity.has(Number(d.city_id))) byCity.set(Number(d.city_id), []); byCity.get(Number(d.city_id)).push(d.name_ar); }
+  const regionById = new Map(regions.map(r => [Number(r.id), regionName(r.name_ar)]));
+  // The cities with their own neighbourhoods, biggest first: those get their own pages.
+  const cityRows = cities.map(c => ({ ...c, slug: citySlug(c), region: regionById.get(Number(c.region_id)) || '', districts: byCity.get(Number(c.id)) || [] }))
+    .filter(c => c.districts.length >= MIN_CITY_DISTRICTS)
+    .sort((a, b) => b.districts.length - a.districts.length || a.id - b.id);
+  const setting = key => String(settings.find(row => row.setting_key === key)?.setting_value || '').replace(/^"|"$/g, '').trim();
   const data = {
-    categories, services,
-    regions: regions.map(r => String(r.name_ar).replace(/^(منطقة|المنطقة)\s+/, '').replace(/^ال(شرقية)$/, 'المنطقة الشرقية')),
+    categories, services, cities: cityRows,
+    regions: regions.map(r => regionName(r.name_ar)),
+    verification: { google: setting('google_site_verification'), bing: setting('bing_site_verification') },
+    sameAs: ['google_play_url', 'app_store_url'].map(setting).filter(url => /^https:\/\//.test(url)),
   };
   catalog = { data, at: Date.now() };
   return data;
@@ -49,7 +81,7 @@ const breadcrumbs = items => ({ '@context': 'https://schema.org', '@type': 'Brea
 const link = (href, text) => `<a href="${esc(href)}">${esc(text)}</a>`;
 const list = items => `<ul>${items.map(i => `<li>${i}</li>`).join('')}</ul>`;
 
-function homePage({ categories, services, regions }) {
+function homePage({ categories, services, regions, cities = [] }) {
   const byCategory = categories.map(c => `<h2>${link(`/services/category/${c.slug}`, `${c.icon || ''} ${c.name_ar}`)}</h2>`
     + list(services.filter(s => Number(s.category_id) === Number(c.id)).map(s => link(`/services/${s.id}`, s.name_ar))));
   return {
@@ -60,6 +92,7 @@ function homePage({ categories, services, regions }) {
     body: `<h1>${NAME} — اطلب أي خدمة منزلية وقارن عروض الأسعار</h1>
 <p>منصة سعودية تربطك بمقدمي الخدمة القريبين منك: اكتب ما تحتاجه، وتصلك العروض، وتتواصل بالمحادثة والمكالمة داخل الموقع دون كشف رقمك. متاحة في: ${esc(regions.join('، '))}.</p>
 ${byCategory.join('\n')}
+${cities.length ? `<h2>الخدمات في أكبر المدن</h2>${cities.slice(0, 12).map(city => `<h3>${esc(city.name_ar)}</h3>${list(categories.filter(c => SEARCH_WORDS[c.slug]).map(c => link(`/services/category/${c.slug}/${city.slug}`, `${wordsFor(c).person} في ${city.name_ar}`)))}`).join('\n')}` : ''}
 <p>${link('/services', 'كل الخدمات')} · ${link('/providers/map', 'خريطة مقدمي الخدمة')} · ${link('/guide', 'دليل الاستخدام')} · ${link('/register', 'سجّل كمقدم خدمة')}</p>`,
   };
 }
@@ -75,21 +108,55 @@ function servicesPage({ categories, services }) {
   };
 }
 
-function categoryPage({ categories, services, regions }, slug) {
+function categoryPage({ categories, services, regions, cities = [] }, slug) {
   const category = categories.find(c => c.slug === slug);
   if (!category) return null;
   const items = services.filter(s => Number(s.category_id) === Number(category.id));
   const path = `/services/category/${category.slug}`;
+  const words = wordsFor(category);
+  const topCities = cities.slice(0, 30);
   return {
-    title: `${category.name_ar} في السعودية — اطلب عروض أسعار | ${NAME}`,
-    description: `خدمات ${category.name_ar}: ${items.slice(0, 10).map(s => s.name_ar).join('، ')}. اطلب الآن واستقبل عروضًا من مقدمي خدمة قريبين منك في ${regions.slice(0, 5).join('، ')} وبقية المناطق.`,
+    title: `${words.person} في السعودية | ${category.name_ar} — اطلب عروض أسعار | ${NAME}`,
+    description: `${words.person} و${words.alt.slice(0, 2).join(' و') || category.name_ar} قريب منك: ${items.slice(0, 6).map(s => s.name_ar).join('، ')}. اطلب مجانًا واستقبل عروضًا في ${topCities.slice(0, 5).map(c => c.name_ar).join('، ') || regions.slice(0, 5).join('، ')} وبقية المدن.`,
     path,
     ld: [breadcrumbs([{ name: NAME, path: '/' }, { name: 'الخدمات', path: '/services' }, { name: category.name_ar, path }]),
       { '@context': 'https://schema.org', '@type': 'ItemList', name: category.name_ar,
         itemListElement: items.map((s, i) => ({ '@type': 'ListItem', position: i + 1, url: `${SITE}/services/${s.id}`, name: s.name_ar })) }],
-    body: `<h1>${esc(category.name_ar)} في جميع مناطق السعودية</h1>
-<p>اختر الخدمة واكتب طلبك مجانًا، وتصلك عروض الأسعار من مقدمي ${esc(category.name_ar)} القريبين منك.</p>
-${list(items.map(s => link(`/services/${s.id}`, s.name_ar)))}`,
+    body: `<h1>${esc(words.person)} و${esc(category.name_ar)} في جميع مناطق السعودية</h1>
+<p>تبحث عن ${esc([words.person, ...words.alt].join(' أو '))}؟ اختر الخدمة واكتب طلبك مجانًا، وتصلك عروض الأسعار من مقدمي ${esc(category.name_ar)} القريبين منك.</p>
+${list(items.map(s => link(`/services/${s.id}`, s.name_ar)))}
+${topCities.length ? `<h2>${esc(words.person)} حسب المدينة</h2>${list(topCities.map(c => link(`${path}/${c.slug}`, `${words.person} في ${c.name_ar}`)))}` : ''}`,
+  };
+}
+
+// One page per profession and city (AYK-239): «سباك في الرياض», with the city's own
+// neighbourhoods and the same profession in the nearby cities.
+function cityCategoryPage({ categories, services, cities }, slug, cityPart) {
+  const category = categories.find(c => c.slug === slug);
+  const cityId = Number(String(cityPart).split('-')[0]);
+  const city = cities.find(c => Number(c.id) === cityId);
+  if (!category || !city) return null;
+  const words = wordsFor(category);
+  const items = services.filter(s => Number(s.category_id) === Number(category.id));
+  const base = `/services/category/${category.slug}`;
+  const path = `${base}/${city.slug}`;
+  const nearby = cities.filter(c => c.id !== city.id && c.region === city.region).slice(0, 8);
+  const others = categories.filter(c => c.id !== category.id).slice(0, 8);
+  return {
+    title: `${words.person} في ${city.name_ar} | ${[words.alt[0], words.alt[2]].filter(Boolean).join(' و') || category.name_ar} — ${NAME}`,
+    description: `تحتاج ${words.person} في ${city.name_ar}؟ اكتب طلبك مجانًا في ${NAME} وتصلك عروض أسعار من مقدمي ${category.name_ar} القريبين منك في أحياء ${city.name_ar}: ${city.districts.slice(0, 4).join('، ')} وغيرها.${words.alt.length ? ` ${words.alt.join('، ')}.` : ''}`,
+    path,
+    ld: [breadcrumbs([{ name: NAME, path: '/' }, { name: category.name_ar, path: base }, { name: `${words.person} في ${city.name_ar}`, path }]),
+      { '@context': 'https://schema.org', '@type': 'Service', name: `${words.person} في ${city.name_ar}`, serviceType: category.name_ar,
+        provider: ORG, url: `${SITE}${path}`,
+        areaServed: { '@type': 'City', name: city.name_ar, containedInPlace: { '@type': 'Country', name: 'المملكة العربية السعودية' } } }],
+    body: `<h1>${esc(words.person)} في ${esc(city.name_ar)}</h1>
+<p>تبحث عن ${esc([words.person, ...words.alt].join(' أو '))} في ${esc(city.name_ar)}${city.region ? ` (${esc(city.region)})` : ''}؟ في ${NAME} تكتب طلبك مجانًا مع الحي والموعد المناسب، فيصل لمقدمي ${esc(category.name_ar)} القريبين منك، وتقارن العروض والتقييمات وتتواصل معهم بالمحادثة والمكالمة داخل الموقع دون كشف رقمك.</p>
+<h2>خدمات ${esc(category.name_ar)} في ${esc(city.name_ar)}</h2>${list(items.map(s => link(`/services/${s.id}`, `${s.name_ar} في ${city.name_ar}`)))}
+<h2>أحياء ${esc(city.name_ar)}</h2><p>${esc(city.districts.slice(0, 40).join('، '))}</p>
+${nearby.length ? `<h2>${esc(words.person)} في مدن قريبة</h2>${list(nearby.map(c => link(`${base}/${c.slug}`, `${words.person} في ${c.name_ar}`)))}` : ''}
+${others.length ? `<h2>خدمات أخرى في ${esc(city.name_ar)}</h2>${list(others.map(c => link(`/services/category/${c.slug}/${city.slug}`, `${wordsFor(c).person} في ${city.name_ar}`)))}` : ''}
+<p>${link('/requests/new', `اطلب ${words.person} في ${city.name_ar} الآن`)}</p>`,
   };
 }
 
@@ -123,21 +190,36 @@ const STATIC = {
   '/terms': { title: `الشروط والأحكام | ${NAME}`, description: `الشروط والأحكام لاستخدام ${NAME}.`, h1: 'الشروط والأحكام' },
 };
 
+// Search Console / Bing ownership tags and the store links (AYK-239), on every page.
+function withSite(page, data) {
+  if (!page) return page;
+  const ld = (page.ld || []).map(item => (item['@type'] === 'Organization' && data.sameAs?.length ? { ...item, sameAs: data.sameAs } : item));
+  return { ...page, ld, verification: data.verification };
+}
+
 // Returns { status, page } for a public path, or null when the path is not one of them.
 async function pageFor(pathname) {
   const clean = (pathname || '/').replace(/\/+$/, '') || '/';
+  const data = await loadCatalog();
   if (STATIC[clean]) {
     const s = STATIC[clean];
-    return { status: 200, page: { ...s, path: clean, ld: [breadcrumbs([{ name: NAME, path: '/' }, { name: s.h1, path: clean }])], body: `<h1>${esc(s.h1)}</h1><p>${esc(s.description)}</p>` } };
+    return { status: 200, page: withSite({ ...s, path: clean, ld: [breadcrumbs([{ name: NAME, path: '/' }, { name: s.h1, path: clean }])], body: `<h1>${esc(s.h1)}</h1><p>${esc(s.description)}</p>` }, data) };
   }
-  const data = await loadCatalog();
-  if (clean === '/') return { status: 200, page: homePage(data) };
-  if (clean === '/services') return { status: 200, page: servicesPage(data) };
-  let match = clean.match(/^\/services\/category\/([A-Za-z0-9_-]{1,100})$/);
-  if (match) { const page = categoryPage(data, match[1]); return page ? { status: 200, page } : { status: 404, page: null }; }
+  if (clean === '/') return { status: 200, page: withSite(homePage(data), data) };
+  if (clean === '/services') return { status: 200, page: withSite(servicesPage(data), data) };
+  let match = clean.match(/^\/services\/category\/([A-Za-z0-9_-]{1,100})\/(\d{1,9}(?:-[a-z0-9-]{0,80})?)$/);
+  if (match) { const page = cityCategoryPage(data, match[1], match[2]); return page ? { status: 200, page: withSite(page, data) } : { status: 404, page: null }; }
+  match = clean.match(/^\/services\/category\/([A-Za-z0-9_-]{1,100})$/);
+  if (match) { const page = categoryPage(data, match[1]); return page ? { status: 200, page: withSite(page, data) } : { status: 404, page: null }; }
   match = clean.match(/^\/services\/(\d{1,9})$/);
-  if (match) { const page = servicePage(data, match[1]); return page ? { status: 200, page } : { status: 404, page: null }; }
+  if (match) { const page = servicePage(data, match[1]); return page ? { status: 200, page: withSite(page, data) } : { status: 404, page: null }; }
   return null;
+}
+
+const TOKEN = /^[A-Za-z0-9_-]{8,120}$/;
+function verificationTags(v = {}) {
+  return (TOKEN.test(v.google || '') ? `    <meta name="google-site-verification" content="${esc(v.google)}" />\n` : '')
+    + (TOKEN.test(v.bing || '') ? `    <meta name="msvalidate.01" content="${esc(v.bing)}" />\n` : '');
 }
 
 function render(page) {
@@ -150,18 +232,20 @@ function render(page) {
     .replace(/<meta name="description" content="[^"]*"\s*\/?>/, `<meta name="description" content="${esc(page.description)}" />`)
     .replace(/<meta property="og:title" content="[^"]*"\s*\/?>/, `<meta property="og:title" content="${esc(page.title)}" />`)
     .replace(/<meta property="og:description" content="[^"]*"\s*\/?>/, `<meta property="og:description" content="${esc(page.description)}" />`)
-    .replace('</head>', `    <link rel="canonical" href="${esc(url)}" />\n    <meta property="og:url" content="${esc(url)}" />\n    ${page.ld.map(jsonLd).join('\n    ')}\n  </head>`)
+    .replace('</head>', `${verificationTags(page.verification)}    <link rel="canonical" href="${esc(url)}" />\n    <meta property="og:url" content="${esc(url)}" />\n    ${page.ld.map(jsonLd).join('\n    ')}\n  </head>`)
     .replace('<div id="root"></div>', `<div id="root"><main class="seo-static" dir="rtl" style="max-width:56rem;margin:0 auto;padding:1rem;font-family:Cairo,Tahoma,sans-serif;line-height:1.9">${page.body}</main></div>`);
   return html;
 }
 
 async function sitemap() {
-  const { categories, services } = await loadCatalog();
+  const { categories, services, cities } = await loadCatalog();
   const today = new Date().toISOString().slice(0, 10);
   const urls = [
     ['/', '1.0', 'daily'], ['/services', '0.9', 'weekly'], ['/providers/map', '0.6', 'weekly'], ['/guide', '0.5', 'monthly'],
     ...categories.map(c => [`/services/category/${c.slug}`, '0.8', 'weekly']),
     ...services.map(s => [`/services/${s.id}`, '0.8', 'weekly']),
+    // Every profession in every city with its own neighbourhoods (AYK-239).
+    ...categories.flatMap(c => cities.map(city => [`/services/category/${c.slug}/${city.slug}`, '0.7', 'weekly'])),
     ['/privacy', '0.2', 'yearly'], ['/terms', '0.2', 'yearly'],
   ];
   return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(([p, priority, freq]) =>

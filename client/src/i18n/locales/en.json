@@ -1348,7 +1348,9 @@
     "offers_notice": "You can request these service types within the launch area. Provider availability and price are confirmed through offers.",
     "login_to_order": "Sign in to send your service request.",
     "provider_services_unavailable": "Provider service listings are not available yet. Browse customer requests and submit an offer.",
-    "browse_requests": "Browse customer requests"
+    "browse_requests": "Browse customer requests",
+    "in_city": "{{name}} in {{city}}",
+    "city_intro": "Looking for {{name}} in {{city}}? Post your request for free: it reaches nearby providers in {{city}}, you get their offers, compare ratings and talk to them by chat or call without sharing your number."
   },
   "promote": {
     "page_title": "Promote your service",

@@ -216,6 +216,17 @@ if (!databaseName) {
     const xml = await sitemap.text();
     assert.ok(xml.includes(`<loc>https://aykdmh.com/services/${service.id}</loc>`));
     assert.ok(xml.includes(`<loc>https://aykdmh.com/services/category/${category.slug}</loc>`));
+    // A page per profession and city, with the city's neighbourhoods (AYK-239).
+    const city = await db.queryOne(`SELECT c.id, c.name_ar FROM cities c WHERE c.is_active = 1
+      AND (SELECT COUNT(*) FROM districts d WHERE d.city_id = c.id AND d.is_active = 1) >= 3 ORDER BY c.id LIMIT 1`);
+    if (city) {
+      const local = await page(`/services/category/${category.slug}/${city.id}-any-name`);
+      assert.equal(local.status, 200);
+      assert.ok(local.html.includes(city.name_ar), 'the city is named');
+      assert.match(local.html, /"@type":"City"/);
+      assert.ok(xml.includes(`/services/category/${category.slug}/${city.id}-`), 'the sitemap lists the city page');
+    }
+    assert.equal((await page(`/services/category/${category.slug}/999999999-nowhere`)).status, 404);
     require('fs').unlinkSync(shell);
   });
   test('search-engine text is escaped', () => {

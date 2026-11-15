@@ -1348,7 +1348,9 @@
     "offers_notice": "Bu hizmet türlerini fırlatma alanında talep edebilirsiniz.",
     "login_to_order": "Hizmet talebini göndermek için giriş yapın.",
     "provider_services_unavailable": "Hizmet sağlayıcı listeleri henüz mevcut değil. Müşteri isteklerini tarayın ve bir teklif gönderin.",
-    "browse_requests": "Müşteri isteklerini tarayın"
+    "browse_requests": "Müşteri isteklerini tarayın",
+    "in_city": "{{city}} içinde {{name}}",
+    "city_intro": "{{city}} içinde {{name}} mı arıyorsunuz? Talebinizi ücretsiz yazın: {{city}} içindeki yakın hizmet verenlere ulaşır, tekliflerini alır, puanları karşılaştırır ve numaranızı paylaşmadan sohbet veya aramayla konuşursunuz."
   },
   "promote": {
     "page_title": "Hizmetinizi teşvik edin",

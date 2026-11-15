@@ -6414,6 +6414,13 @@ WHERE deleted_at IS NOT NULL
   AND (username IS NOT NULL OR email IS NOT NULL OR phone IS NOT NULL OR facebook_id IS NOT NULL);
 INSERT INTO schema_migrations(name) VALUES ('082_release_deleted_identifiers.sql');
 
+-- migrations/083_search_console.sql
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description)
+VALUES ('google_site_verification', '', 'string', 'general', 0, 'رمز تحقق Google Search Console'),
+       ('bing_site_verification', '', 'string', 'general', 0, 'رمز تحقق Bing Webmaster Tools')
+ON CONFLICT (setting_key) DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('083_search_console.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

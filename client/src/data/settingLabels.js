@@ -13,6 +13,8 @@ export const SETTING_LABELS = Object.freeze({
   support_whatsapp: L('رقم واتساب الدعم الفني والشكاوى', 'WhatsApp number for support and complaints', 'سپورٹ اور شکایات کے لیے واٹس ایپ نمبر', 'सहायता और शिकायतों के लिए व्हाट्सऐप नंबर', 'সহায়তা ও অভিযোগের হোয়াটসঅ্যাপ নম্বর'),
   google_play_url: L('رابط التطبيق في Google Play', 'App link on Google Play', 'Google Play پر ایپ کا لنک', 'Google Play पर ऐप का लिंक', 'Google Play-তে অ্যাপের লিংক'),
   app_store_url: L('رابط التطبيق في App Store', 'App link on the App Store', 'App Store پر ایپ کا لنک', 'App Store पर ऐप का लिंक', 'App Store-এ অ্যাপের লিংক'),
+  google_site_verification: L('رمز تحقق Google Search Console', 'Google Search Console verification code', 'Google Search Console تصدیقی کوڈ', 'Google Search Console सत्यापन कोड', 'Google Search Console যাচাই কোড'),
+  bing_site_verification: L('رمز تحقق Bing Webmaster', 'Bing Webmaster verification code', 'Bing Webmaster تصدیقی کوڈ', 'Bing Webmaster सत्यापन कोड', 'Bing Webmaster যাচাই কোড'),
   default_language: L('اللغة الافتراضية', 'Default language', 'پہلے سے منتخب زبان', 'डिफ़ॉल्ट भाषा', 'ডিফল্ট ভাষা'),
   default_currency: L('العملة الافتراضية', 'Default currency', 'پہلے سے منتخب کرنسی', 'डिफ़ॉल्ट मुद्रा', 'ডিফল্ট মুদ্রা'),
   map_provider: L('مزود الخرائط osm|google', 'Map provider (osm | google)', 'نقشے فراہم کرنے والا (osm | google)', 'मानचित्र प्रदाता (osm | google)', 'মানচিত্র প্রদানকারী (osm | google)'),

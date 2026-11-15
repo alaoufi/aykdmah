@@ -175,6 +175,8 @@ export default function AppRoutes() {
           {/* AYK services catalog */}
           <Route path="/services" element={<RequesterPage><ServicesCatalogPage /></RequesterPage>} />
           <Route path="/services/category/:slug" element={<RequesterPage><CategoryServicesPage /></RequesterPage>} />
+          {/* A profession in one city, the page search engines list (AYK-239). */}
+          <Route path="/services/category/:slug/:city" element={<RequesterPage><CategoryServicesPage /></RequesterPage>} />
           <Route path="/services/:id" element={<ServiceDetailsPage />} />
           {/* Provider opportunities = browse open client requests (legacy services list) */}
           <Route path="/opportunities" element={<OpportunitiesPage />} />
