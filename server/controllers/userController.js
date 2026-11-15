@@ -192,12 +192,26 @@ const createByAdmin = asyncHandler(async (req, res) => {
     ...location,
     is_active: req.body.is_active,
   }); } catch (err) {
-    if (err.code === '23505') return error(res, req.t('invalid_data'), 409);
+    if (duplicateError(req, res, err)) return undefined;
     throw err;
   }
   const user = await User.findById(id);
   return created(res, user, req.t('account_created'));
 });
+
+// A duplicate sign-in field names itself (AYK-237): «البريد مسجل مسبقًا» on the email field, not a
+// generic «تحقق من البيانات».
+function duplicateField(err) {
+  if (err?.code !== '23505') return null;
+  const text = `${err.constraint || ''} ${err.detail || ''}`.toLowerCase();
+  return ['email', 'username', 'phone', 'facebook'].find(field => text.includes(field)) || 'other';
+}
+function duplicateError(req, res, err) {
+  const field = duplicateField(err);
+  if (!field) return null;
+  if (field === 'other') return error(res, req.t('invalid_data'), 409);
+  return error(res, req.t(`${field}_taken`), 409, { field: field === 'facebook' ? 'facebook_id' : field });
+}
 
 const updateByAdmin = asyncHandler(async (req, res) => {
   const data = { ...req.body };
@@ -216,7 +230,7 @@ const updateByAdmin = asyncHandler(async (req, res) => {
   let user;
   try { user = await User.adminUpdate(req.params.id, data, req.user); }
   catch (err) {
-    if (err.code === '23505') return error(res, req.t('invalid_data'), 409);
+    if (duplicateError(req, res, err)) return undefined;
     throw err;
   }
   if (!user) return notFound(res);

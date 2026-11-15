@@ -148,6 +148,19 @@ if (process.env.AYK_SUPPORT_TEST !== '1') {
     await api(`/chat/conversations/${conv.data.id}/messages?after=abc`, two, 400);
   });
 
+  test('an admin edit names the duplicate field and saves a lone password change (AYK-237)', async () => {
+    const admin = await fixture('admin', [], 1);
+    const owner = await fixture('client'), review = await fixture('client');
+    await db.query('UPDATE users SET email = ? WHERE id = ?', [`owner-${owner.id}@example.test`, owner.id]);
+    const taken = await api(`/users/${review.id}`, admin, 409, 'PUT', { email: `owner-${owner.id}@example.test` });
+    assert.equal(taken.errors.field, 'email');
+    assert.match(taken.message, /البريد|Email/);
+    await api(`/users/${review.id}`, admin, 200, 'PUT', { password: 'Review2026Ayk' });
+    const login = await fetch(`${base}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ identifier: review.username, password: 'Review2026Ayk' }) });
+    assert.equal(login.status, 200);
+  });
+
   test('a complaint reaches only the admins who handle user messages', async () => {
     const full = await fixture('admin', [], 1);
     const handler = await fixture('admin', ['users.manage']);

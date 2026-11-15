@@ -55,6 +55,10 @@ export default function AdminUsersPage() {
   const [saving, setSaving] = useState(false);
   const [showPw, setShowPw] = useState(false);
   const [formError, setFormError] = useState('');
+  // Errors under the field they belong to (AYK-237), and the values the form opened with, so only
+  // what was changed is sent and a stale or autofilled field elsewhere cannot block the save.
+  const [fieldErrors, setFieldErrors] = useState({});
+  const original = useRef(null);
   const [confirm, setConfirm] = useState({ open: false });
   const [permsTarget, setPermsTarget] = useState(null);
   const [error, setError] = useState('');
@@ -94,7 +98,7 @@ export default function AdminUsersPage() {
     if (u.role === 'admin' && !canEditPerms) { setError(t('errors.forbidden')); return; }
     ++editVersion.current;
     setEditing(u);
-    setForm({
+    const opened = {
       full_name: u.full_name || '',
       username: u.username || '',
       email: u.email || '',
@@ -103,7 +107,10 @@ export default function AdminUsersPage() {
       password: '',
       role: u.role,
       is_active: !!u.is_active,
-    });
+    };
+    original.current = opened;
+    setForm(opened);
+    setFieldErrors({});
     setFormError('');
     setShowPw(false);
     setEditOpen(true);
@@ -111,7 +118,8 @@ export default function AdminUsersPage() {
 
   const closeEdit = () => {
     ++editVersion.current;
-    setEditOpen(false); setForm(EMPTY_FORM); setEditing(null); setShowPw(false); setFormError('');
+    setEditOpen(false); setForm(EMPTY_FORM); setEditing(null); setShowPw(false); setFormError(''); setFieldErrors({});
+    original.current = null;
   };
 
   const onSave = async (e) => {
@@ -123,11 +131,14 @@ export default function AdminUsersPage() {
     saveInFlight.current = true;
     setSaving(true);
     setFormError('');
+    setFieldErrors({});
     try {
       if (editing) {
-        const payload = { ...form };
-        if (!payload.password) delete payload.password;
-        await updateUser(editing.id, payload);
+        // Only what changed (AYK-237); nothing changed closes the form.
+        const before = original.current || {};
+        const payload = Object.fromEntries(Object.entries(form).filter(([key, value]) => key !== 'password' && value !== before[key]));
+        if (form.password) payload.password = form.password;
+        if (Object.keys(payload).length) await updateUser(editing.id, payload);
       } else {
         await createUser(form);
       }
@@ -135,12 +146,22 @@ export default function AdminUsersPage() {
       closeEdit();
       load();
     } catch (err) {
-      if (version === editVersion.current) setFormError(apiError(err) || t('errors.generic'));
+      if (version === editVersion.current) {
+        const body = err?.response?.data || {};
+        const list = Array.isArray(body.errors) ? body.errors : body.errors?.field ? [{ field: body.errors.field, message: body.message }] : [];
+        const byField = {};
+        for (const item of list) if (item?.field && !byField[item.field]) byField[item.field] = item.message && !/^invalid value$/i.test(item.message) ? item.message : t('admin.user_field_invalid');
+        setFieldErrors(byField);
+        setFormError(Object.keys(byField).length ? t('admin.user_fix_marked') : apiError(err) || t('errors.generic'));
+      }
     } finally {
       saveInFlight.current = false;
       setSaving(false);
     }
   };
+
+  const fieldClass = key => `w-full px-3 py-2 rounded-card border ${fieldErrors[key] ? 'border-rose-400 bg-rose-50' : 'border-slate-200 bg-slate-50'} focus:bg-white focus:border-brand-500 outline-none text-[14px]`;
+  const fieldError = key => fieldErrors[key] ? <p className="text-[12px] text-rose-700 mt-1 mb-0" data-testid={`field-error-${key}`}>⚠️ {fieldErrors[key]}</p> : null;
 
   const askBlock = async (u) => {
     if (u.role === 'admin' && !canEditPerms) { setError(t('errors.forbidden')); return; }
@@ -389,14 +410,15 @@ export default function AdminUsersPage() {
           </>
         }
       >
-        <form id="AdminUsersPage-form" onSubmit={onSave} className="space-y-3">
+        <form id="AdminUsersPage-form" onSubmit={onSave} className="space-y-3" autoComplete="off">
           {formError && (
             <div className="px-3 py-2 rounded bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">{formError}</div>
           )}
           <div>
             <label className="block text-[12px] font-bold text-ink mb-1">{t('admin.field_full_name')}</label>
-            <input required value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })}
-              className="w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]" />
+            <input required value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} autoComplete="off"
+              className={fieldClass('full_name')} />
+            {fieldError('full_name')}
           </div>
           <div className="px-3 py-2 rounded-card bg-blue-50 border border-blue-200 text-blue-700 text-[12px]">
             💡 {t('auth.identifiers_hint')}
@@ -405,24 +427,28 @@ export default function AdminUsersPage() {
             <div>
               <label className="block text-[12px] font-bold text-ink mb-1">{t('auth.username')}</label>
               <input value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })}
-                placeholder="ahmad95" autoComplete="username"
-                className="w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]" />
+                placeholder="ahmad95" autoComplete="off" name="ayk-admin-username"
+                className={fieldClass('username')} />
+              {fieldError('username')}
             </div>
             <div>
               <label className="block text-[12px] font-bold text-ink mb-1">{t('admin.field_email')}</label>
-              <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })}
-                className="w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]" />
+              <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} autoComplete="off" name="ayk-admin-email"
+                className={fieldClass('email')} />
+              {fieldError('email')}
             </div>
             <div>
               <label className="block text-[12px] font-bold text-ink mb-1">{t('admin.field_phone')}</label>
               <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                placeholder="+9665XXXXXXXX"
-                className="w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]" />
+                placeholder="+9665XXXXXXXX" autoComplete="off" name="ayk-admin-phone"
+                className={fieldClass('phone')} />
+              {fieldError('phone')}
             </div>
             <div>
               <label className="block text-[12px] font-bold text-ink mb-1">{t('auth.facebook_id')}</label>
-              <input value={form.facebook_id} onChange={(e) => setForm({ ...form, facebook_id: e.target.value })}
-                className="w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]" />
+              <input value={form.facebook_id} onChange={(e) => setForm({ ...form, facebook_id: e.target.value })} autoComplete="off" name="ayk-admin-facebook"
+                className={fieldClass('facebook_id')} />
+              {fieldError('facebook_id')}
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -435,9 +461,10 @@ export default function AdminUsersPage() {
                   type={showPw ? 'text' : 'password'}
                   required={!editing}
                   autoComplete="new-password"
+                  name="ayk-admin-new-password"
                   value={form.password}
                   onChange={(e) => setForm({ ...form, password: e.target.value })}
-                  className="w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]"
+                  className={fieldClass('password')}
                   style={{ paddingInlineEnd: '40px' }}
                 />
                 <button type="button" onClick={() => setShowPw(v => !v)}
@@ -447,6 +474,7 @@ export default function AdminUsersPage() {
                   {showPw ? '🙈' : '👁️'}
                 </button>
               </div>
+              {fieldError('password')}
             </div>
             <div>
               <label className="block text-[12px] font-bold text-ink mb-1">{t('admin.field_role')}</label>

@@ -1216,7 +1216,9 @@
       "required_top": "Kolom wajib selalu tampil bersama Terbitkan pertama",
       "top_done": "“{{field}}” kini bersama Terbitkan pertama",
       "second_done": "“{{field}}” kini bersama Terbitkan kedua"
-    }
+    },
+    "user_field_invalid": "Nilai ini tidak valid",
+    "user_fix_marked": "Perbaiki kolom bertanda merah, lalu simpan."
   },
   "errors": {
     "generic": "Sesuatu yang salah",

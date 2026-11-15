@@ -1216,7 +1216,9 @@
       "required_top": "Zorunlu alan her zaman ilk Yayınla ile görünür",
       "top_done": "“{{field}}” artık ilk Yayınla ile",
       "second_done": "“{{field}}” artık ikinci Yayınla ile"
-    }
+    },
+    "user_field_invalid": "Bu değer geçerli değil",
+    "user_fix_marked": "Kırmızıyla işaretli alanı düzeltip kaydedin."
   },
   "errors": {
     "generic": "Bir şey ters gitti",

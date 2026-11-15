@@ -1216,7 +1216,9 @@
       "required_top": "A required field always shows with the first Publish",
       "top_done": "“{{field}}” now shows with the first Publish",
       "second_done": "“{{field}}” now shows with the second Publish"
-    }
+    },
+    "user_field_invalid": "This value is not valid",
+    "user_fix_marked": "Fix the field marked in red, then save."
   },
   "errors": {
     "generic": "Something went wrong",

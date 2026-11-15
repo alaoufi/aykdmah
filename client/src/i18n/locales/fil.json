@@ -1216,7 +1216,9 @@
       "required_top": "Laging kasama ng unang I-publish ang kailangang field",
       "top_done": "Kasama na ng unang I-publish ang “{{field}}”",
       "second_done": "Kasama na ng ikalawang I-publish ang “{{field}}”"
-    }
+    },
+    "user_field_invalid": "Hindi tama ang value na ito",
+    "user_fix_marked": "Ayusin ang field na naka-pula, saka i-save."
   },
   "errors": {
     "generic": "May nagkamali",
