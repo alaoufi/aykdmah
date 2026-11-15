@@ -161,6 +161,15 @@ if (process.env.AYK_SUPPORT_TEST !== '1') {
     assert.equal(login.status, 200);
   });
 
+  test('an account deleted by an admin frees its username and phone for a new account (AYK-238)', async () => {
+    const admin = await fixture('admin', [], 1);
+    const old = await fixture('client');
+    await db.query('UPDATE users SET phone = ? WHERE id = ?', [`05${String(old.id).padStart(8, '0')}`, old.id]);
+    await api(`/users/${old.id}`, admin, 200, 'DELETE');
+    const again = await api('/users', admin, 201, 'POST', { full_name: 'Again', username: old.username, phone: `05${String(old.id).padStart(8, '0')}`, password: 'Review2026Ayk', role: 'client' });
+    assert.equal(again.data.username, old.username);
+  });
+
   test('a complaint reaches only the admins who handle user messages', async () => {
     const full = await fixture('admin', [], 1);
     const handler = await fixture('admin', ['users.manage']);

@@ -384,7 +384,10 @@ async function softDelete(id, actor) {
   return lockedAdminMutation(id, actor, async (conn, currentActor, target) => {
     if (!hasPermission(currentActor, 'users.manage') || (target.role === 'admin' && !canManageAdmin(currentActor, target))) throw new ApiError('Forbidden', 403);
     await protectLastSuper(conn, target, true);
-    await conn.execute('UPDATE users SET deleted_at = CURRENT_TIMESTAMP, auth_version = auth_version + 1 WHERE id = ?', [id]);
+    // The sign-in names go free with the account (AYK-238), like a user's own deletion: the same
+    // username, phone or email can make a new account later.
+    await conn.execute(`UPDATE users SET deleted_at = CURRENT_TIMESTAMP, auth_version = auth_version + 1,
+      username = NULL, email = NULL, phone = NULL, facebook_id = NULL WHERE id = ?`, [id]);
     return target.id;
   });
 }

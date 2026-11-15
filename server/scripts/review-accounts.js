@@ -45,7 +45,7 @@ async function prepareReviewAccounts(password, { seedOnly = false } = {}) {
 
     const ids = {};
     for (const account of ACCOUNTS) {
-      const existing = await db.queryOne('SELECT id FROM users WHERE username = ?', [account.username]);
+      const existing = await db.queryOne('SELECT id FROM users WHERE username = ? AND deleted_at IS NULL', [account.username]);
       let id = existing?.id;
       if (seedOnly && !id) throw new Error(`Create ${account.username} in the admin area first (Users → New).`);
       if (seedOnly) {
