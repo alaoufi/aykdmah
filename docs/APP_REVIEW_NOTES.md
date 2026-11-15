@@ -1,6 +1,15 @@
 # App Review — «أي خدمة | aykdmh» (AYK-205)
 
 Rejection 2026-11-02: **Guideline 2.1 – Information Needed** (2.1.0 App Completeness). Apple asks for six items in the
+
+Rejection 2026-11-14 (1.0.1 build 2, iPad Air 11-inch M3, iPadOS 27.2.1) — AYK-236:
+- **2.1(a) App Completeness:** "an error occurred when we tapped on the login button". `deploy/review-login-status.sh`
+  showed `apple_review_client` with 3 failed sign-ins and no successful sign-in ever (`last_login_at` empty), and
+  `apple_review_provider` never used: the password given to Apple did not match the accounts' password. Not locked
+  (the lock needs 5). Fix: the owner sets one new password on both accounts in the admin area, puts the same one in
+  App Review Information → Password, and signs in once on the site to prove it before resubmitting.
+- **2.5.4 Software Requirements:** `audio` in `UIBackgroundModes` without persistent background audio. Removed in
+  `alaoufi/apple-apps` branch `claude/aykhidmah-1.0.1-build3` (`7597739`), build 3; only `remote-notification` stays.
 **Notes** of App Review Information, and a screen recording on a physical iPhone. No passwords here: the repository is public.
 
 ## Review accounts (done 2026-11-11)
