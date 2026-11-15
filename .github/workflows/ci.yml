@@ -1,7 +1,11 @@
 name: Ay Khidma checks
 on:
+  # Only the branch the server deploys, pull requests and a manual run (AYK-236): pushes to backup
+  # and work branches no longer spend Actions minutes.
   push:
+    branches: [claude/deploy-setup]
   pull_request:
+  workflow_dispatch:
 permissions:
   contents: read
 jobs:
