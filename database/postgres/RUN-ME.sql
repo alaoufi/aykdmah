@@ -6408,6 +6408,12 @@ CREATE TABLE IF NOT EXISTS message_translations (
 ALTER TABLE users ADD COLUMN IF NOT EXISTS ui_lang VARCHAR(10) NULL;
 INSERT INTO schema_migrations(name) VALUES ('081_message_translations.sql');
 
+-- migrations/082_release_deleted_identifiers.sql
+UPDATE users SET username = NULL, email = NULL, phone = NULL, facebook_id = NULL
+WHERE deleted_at IS NOT NULL
+  AND (username IS NOT NULL OR email IS NOT NULL OR phone IS NOT NULL OR facebook_id IS NOT NULL);
+INSERT INTO schema_migrations(name) VALUES ('082_release_deleted_identifiers.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;
