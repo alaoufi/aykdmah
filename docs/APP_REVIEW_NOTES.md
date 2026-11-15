@@ -8,6 +8,8 @@ Rejection 2026-11-14 (1.0.1 build 2, iPad Air 11-inch M3, iPadOS 27.2.1) — AYK
   `apple_review_provider` never used: the password given to Apple did not match the accounts' password. Not locked
   (the lock needs 5). Fix: the owner sets one new password on both accounts in the admin area, puts the same one in
   App Review Information → Password, and signs in once on the site to prove it before resubmitting.
+  Done 2026-11-15: `apple_review_client` recreated after AYK-238 (1.1.31), sign-in tested by the owner,
+  sample data reseeded with `--seed-only` (request 18, conversation 10).
 - **2.5.4 Software Requirements:** `audio` in `UIBackgroundModes` without persistent background audio. Removed in
   `alaoufi/apple-apps` branch `claude/aykhidmah-1.0.1-build3` (`7597739`), build 3; only `remote-notification` stays.
 **Notes** of App Review Information, and a screen recording on a physical iPhone. No passwords here: the repository is public.
