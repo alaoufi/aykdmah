@@ -330,6 +330,12 @@ function reportRange(q) {
     return { since, until, days: Math.round((until - since) / DAY) };
   }
   const days = [1, 7, 30, 90].includes(Number(q.days)) ? Number(q.days) : 7;
+  // "Today" starts at midnight Saudi time (UTC+3), so its totals only grow during the day.
+  if (days === 1) {
+    const RIYADH = 3 * 3600000;
+    const since = new Date(Math.floor((Date.now() + RIYADH) / DAY) * DAY - RIYADH);
+    return { since, until: new Date(Date.now() + 60000), days: 1 };
+  }
   return { since: new Date(Date.now() - days * DAY), until: new Date(Date.now() + 60000), days };
 }
 

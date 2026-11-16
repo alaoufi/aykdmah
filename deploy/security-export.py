@@ -11,11 +11,14 @@ Reads logs only; writes only the security_events table. Never records passwords.
 """
 import csv, io, json, os, re, subprocess, sys
 from collections import defaultdict
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 STATE = os.environ.get('SECURITY_EXPORT_STATE', '/var/lib/aykdmh-security-export')
 FIRST_RUN = not os.path.exists(f'{STATE}/done')
-SINCE = '-48h' if FIRST_RUN else '-3h'
+# Recount whole hours only: start at the top of the hour (48 or 3 hours back), in UTC, so every
+# hour bucket that is rewritten is complete; a partial first hour would lower a stored count.
+_START = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0) - timedelta(hours=48 if FIRST_RUN else 3)
+SINCE = _START.strftime('%Y-%m-%d %H:%M:%S UTC')
 # One attempt per connection (address + source port), or its number of wrong passwords if more.
 # Since password sign-in is off, attackers are refused before any password: those connections
 # only log "Invalid user", "Connection closed by ..." or "Disconnected from ... [preauth]".
@@ -96,7 +99,7 @@ def ban_rows():
 
 def flood_rows():
     """Requests the server gateway refused for flooding (429), per address and hour (AYK-243)."""
-    cutoff = datetime.now(timezone.utc).timestamp() - (48 if FIRST_RUN else 3) * 3600
+    cutoff = _START.timestamp()
     buckets = defaultdict(lambda: {'n': 0, 'last': None, 'hosts': []})
     for path in os.environ.get('SECURITY_EXPORT_EDGE_LOG', '/srv/edge/logs/access.log').split():
         if not os.path.exists(path):
@@ -135,7 +138,7 @@ def main():
         'COPY incoming FROM STDIN WITH (FORMAT csv);\n' + data.getvalue() + '\\.\n'
         "INSERT INTO security_events (source, event, status, ip, attempts, detail, first_at, last_at)\n"
         "  SELECT source, event, status, ip, attempts, detail, first_at AT TIME ZONE 'UTC', last_at AT TIME ZONE 'UTC' FROM incoming\n"
-        '  ON CONFLICT (source, event, ip, first_at) DO UPDATE SET attempts = EXCLUDED.attempts, detail = EXCLUDED.detail, last_at = EXCLUDED.last_at;\n'
+        '  ON CONFLICT (source, event, ip, first_at) DO UPDATE SET attempts = GREATEST(security_events.attempts, EXCLUDED.attempts), detail = EXCLUDED.detail, last_at = GREATEST(security_events.last_at, EXCLUDED.last_at);\n'
         "DELETE FROM security_events WHERE last_at < CURRENT_TIMESTAMP - INTERVAL '90 days';\n"
         "SELECT 'security_events: ' || count(*) || ' rows, last ' || COALESCE(max(last_at)::text, '-') FROM security_events;\n"
     )
