@@ -15,7 +15,17 @@ from datetime import datetime, timezone
 STATE = os.environ.get('SECURITY_EXPORT_STATE', '/var/lib/aykdmh-security-export')
 FIRST_RUN = not os.path.exists(f'{STATE}/done')
 SINCE = '-48h' if FIRST_RUN else '-3h'
-FAILED = re.compile(r'Failed (?:password|publickey|keyboard-interactive/pam|none) for (?:invalid user )?(\S*) from (\S+) port')
+# One attempt per connection (address + source port), or its number of wrong passwords if more.
+# Since password sign-in is off, attackers are refused before any password: those connections
+# only log "Invalid user", "Connection closed by ..." or "Disconnected from ... [preauth]".
+FAILED = re.compile(r'Failed (?:password|publickey|keyboard-interactive/pam|none) for (?:invalid user )?(\S*) from (\S+) port (\d+)')
+PREAUTH = [
+    re.compile(r'Invalid user (\S*) from (\S+) port (\d+)'),
+    re.compile(r'(?:Connection closed by|Disconnected from) (?:invalid|authenticating) user (\S*) (\S+) port (\d+)'),
+    re.compile(r'(?:Connection closed by|Disconnected from) ()(\S+) port (\d+) \[preauth\]'),
+    re.compile(r'Received disconnect from ()(\S+) port (\d+):.*\[preauth\]'),
+]
+ACCEPTED = re.compile(r'Accepted \S+ for \S+ from (\S+) port (\d+)')
 BAN = re.compile(r'^(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d),\d+ .*\[(\S+)\] Ban (\S+)')
 
 
@@ -29,7 +39,8 @@ def ssh_rows():
     else:
         out = subprocess.run(['journalctl', '-u', 'ssh', '-u', 'sshd', '--since', SINCE, '-o', 'json', '--no-pager'],
                              capture_output=True, text=True, check=False).stdout
-    buckets = defaultdict(lambda: {'n': 0, 'last': None, 'users': []})
+    connections = {}
+    accepted = set()
     for line in out.splitlines():
         try:
             entry = json.loads(line)
@@ -38,16 +49,28 @@ def ssh_rows():
         message = entry.get('MESSAGE')
         if not isinstance(message, str):
             continue
-        match = FAILED.search(message)
+        ok = ACCEPTED.search(message)
+        if ok:
+            accepted.add((ok.group(1), ok.group(2)))
+            continue
+        failed = FAILED.search(message)
+        match = failed or next((m for m in (r.search(message) for r in PREAUTH) if m), None)
         if not match:
             continue
         at = datetime.fromtimestamp(int(entry['__REALTIME_TIMESTAMP']) / 1e6, timezone.utc)
-        hour = at.replace(minute=0, second=0, microsecond=0)
-        b = buckets[(match.group(2), hour)]
-        b['n'] += 1
-        b['last'] = max(b['last'] or at, at)
-        user = clean(match.group(1))
-        if user not in b['users'] and len(b['users']) < 5:
+        c = connections.setdefault((match.group(2), match.group(3)), {'first': at, 'last': at, 'failed': 0, 'user': ''})
+        c['last'] = max(c['last'], at)
+        c['failed'] += 1 if failed else 0
+        c['user'] = c['user'] or match.group(1)
+    buckets = defaultdict(lambda: {'n': 0, 'last': None, 'users': []})
+    for key, c in connections.items():
+        if key in accepted:
+            continue
+        b = buckets[(key[0], c['first'].replace(minute=0, second=0, microsecond=0))]
+        b['n'] += max(1, c['failed'])
+        b['last'] = max(b['last'] or c['last'], c['last'])
+        user = clean(c['user']) if c['user'] else None
+        if user and user not in b['users'] and len(b['users']) < 5:
             b['users'].append(user)
     for (ip, hour), b in buckets.items():
         yield ['ssh', 'ssh_failed', 'failed', ip, b['n'], ', '.join(b['users']), hour.isoformat(), b['last'].isoformat()]
