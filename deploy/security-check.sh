@@ -30,7 +30,9 @@ echo; echo "== 4. Secrets file =="
 if [[ -f $ENV ]]; then
   mode=$(stat -c '%a %U' "$ENV"); [[ "$mode" == "600 root" ]] && ok ".env mode $mode" || warn ".env mode $mode (should be 600 root)"
   for n in BOOTSTRAP_ADMIN_PASSWORD; do grep -qE "^$n=." "$ENV" && warn "$n still set (only needed once; remove it)" || ok "$n empty"; done
-  grep -qE '^PAYMENT_PROVIDER=test' "$ENV" && warn "PAYMENT_PROVIDER=test: subscriptions are free (switch off before a real gateway)" || ok "payment test mode off"
+  # The running app's value (deploy/docker-compose.yml sets it, not only .env).
+  [[ "$(docker inspect -f '{{range .Config.Env}}{{println .}}{{end}}' aykdmh-app 2>/dev/null | sed -n 's/^PAYMENT_PROVIDER=//p')" == test ]] \
+    && warn "PAYMENT_PROVIDER=test: subscriptions are free (switch off before a real gateway)" || ok "payment test mode off"
   len=$(sed -n 's/^JWT_SECRET=//p' "$ENV" | tr -d '\n' | wc -c); [[ $len -ge 32 ]] && ok "JWT_SECRET length $len" || warn "JWT_SECRET short ($len)"
 else warn "$ENV not found"; fi
 ls -la /root/backups 2>/dev/null | head -3
