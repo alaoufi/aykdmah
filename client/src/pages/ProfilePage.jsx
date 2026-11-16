@@ -361,7 +361,7 @@ export default function ProfilePage() {
             <PasswordInput label={t('profile.current_password')} required autoComplete="current-password"
               value={pw.current_password} onChange={e => setPw({ ...pw, current_password: e.target.value })} />
             <Link to="/forgot-password" className="inline-block text-[13px] font-semibold text-primary mb-3">{t('profile.forgot_current_password')}</Link>
-            <PasswordInput label={t('profile.new_password')} required minLength={4} autoComplete="new-password"
+            <PasswordInput label={t('profile.new_password')} required minLength={4} autoComplete="new-password" adviseLength
               value={pw.new_password} onChange={e => setPw({ ...pw, new_password: e.target.value })} />
             <div className="flex gap-2">
               <Button type="submit" variant="primary">{t('profile.change_password_save')}</Button>

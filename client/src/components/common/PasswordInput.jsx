@@ -8,7 +8,7 @@ import { useTranslation } from 'react-i18next';
 export default function PasswordInput({
   label, error, hint, value, onChange, name = 'password',
   autoComplete = 'current-password', required = false, minLength, placeholder,
-  className = '', inputMode,
+  className = '', inputMode, adviseLength = false,
 }) {
   const { t } = useTranslation();
   const inputId = useId();
@@ -53,6 +53,10 @@ export default function PasswordInput({
         </button>
       </div>
       {hint && !error && <div className="text-xs text-muted mt-1">{hint}</div>}
+      {/* A new password: 4 characters are allowed, 6 or more are advised (owner's choice, AYK-240). */}
+      {adviseLength && !error && value && String(value).length < 6 && (
+        <div className="text-xs mt-1" style={{ color: '#b45309' }} role="status">⚠️ {t('auth.password_advice')}</div>
+      )}
       {error && <div className="form-error">{error}</div>}
     </div>
   );

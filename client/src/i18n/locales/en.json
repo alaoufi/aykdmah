@@ -316,7 +316,8 @@
     "admin_use_panel": "This is an admin account: sign in at aykdmh.com/admin. To use the site, sign in with a regular user account.",
     "forgot_login_info": "Forgot your sign-in details?",
     "registration_success": "Account created successfully",
-    "registration_login": "Click here to sign in"
+    "registration_login": "Click here to sign in",
+    "password_advice": "For better protection, use at least 6 characters"
   },
   "request": {
     "create_title": "Create a new request",

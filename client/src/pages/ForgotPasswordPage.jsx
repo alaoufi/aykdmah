@@ -70,7 +70,7 @@ export default function ForgotPasswordPage() {
         <Input id="forgot-code" label={t('auth.verification_code')} dir="ltr" inputMode="numeric" autoComplete="one-time-code"
           maxLength={length} placeholder={'1234567890'.slice(0, length)} value={code}
           className="text-center tracking-[.5em] font-mono" onChange={e => { setCode(e.target.value.replace(/\D/g, '')); setError(''); }} />
-        <PasswordInput label={t('auth.new_password')} minLength={4} autoComplete="new-password" value={password}
+        <PasswordInput label={t('auth.new_password')} minLength={4} autoComplete="new-password" adviseLength value={password}
           onChange={e => { setPassword(e.target.value); setError(''); }} />
         <div className="flex justify-between text-[13px]">
           <button type="button" className="text-primary font-semibold" onClick={() => { setStep('phone'); setCode(''); }}>{t('auth.change_phone')}</button>

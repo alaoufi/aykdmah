@@ -316,7 +316,8 @@
     "admin_use_panel": "هذا حساب إدارة: ادخل من aykdmh.com/admin. ولاستخدام الموقع كمستخدم سجّل بحساب مستخدم عادي.",
     "forgot_login_info": "نسيت معلومات الدخول؟",
     "registration_success": "لقد تم التسجيل بنجاح",
-    "registration_login": "لتسجيل الدخول اضغط هنا"
+    "registration_login": "لتسجيل الدخول اضغط هنا",
+    "password_advice": "الأفضل 6 خانات على الأقل لحماية أقوى"
   },
   "request": {
     "create_title": "إنشاء طلب جديد",

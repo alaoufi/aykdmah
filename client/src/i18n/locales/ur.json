@@ -316,7 +316,8 @@
     "admin_use_panel": "یہ انتظامی اکاؤنٹ ہے: aykdmh.com/admin سے داخل ہوں۔ سائٹ کے لیے عام صارف اکاؤنٹ استعمال کریں۔",
     "forgot_login_info": "سائن ان کی معلومات بھول گئے؟",
     "registration_success": "اکاؤنٹ کامیابی سے بن گیا",
-    "registration_login": "لاگ ان کرنے کے لیے یہاں کلک کریں"
+    "registration_login": "لاگ ان کرنے کے لیے یہاں کلک کریں",
+    "password_advice": "بہتر حفاظت کے لیے کم از کم 6 حروف رکھیں"
   },
   "request": {
     "create_title": "نئی درخواست بنائیں",

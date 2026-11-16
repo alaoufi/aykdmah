@@ -8,7 +8,7 @@ const digest = password => crypto.createHash('sha256').update(password, 'utf8').
 
 async function hashPassword(password) {
   if (typeof password !== 'string' || Array.from(password).length < 4 || Array.from(password).length > 100) {
-    throw new TypeError('Password must contain 6 to 100 characters');
+    throw new TypeError('Password must contain 4 to 100 characters');
   }
   // bcrypt consumes only the first 72 UTF-8 bytes. Prehash new passwords so
   // the entire accepted password contributes, including long Unicode input.

@@ -316,7 +316,8 @@
     "admin_use_panel": "Ini akun admin: masuk di aykdmh.com/admin. Untuk situs, gunakan akun pengguna biasa.",
     "forgot_login_info": "Lupa detail masuk?",
     "registration_success": "Akun berhasil dibuat",
-    "registration_login": "Klik di sini untuk masuk"
+    "registration_login": "Klik di sini untuk masuk",
+    "password_advice": "Untuk perlindungan lebih baik, gunakan minimal 6 karakter"
   },
   "request": {
     "create_title": "Buat permintaan baru",

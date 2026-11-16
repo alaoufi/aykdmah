@@ -316,7 +316,8 @@
     "admin_use_panel": "Bu bir yönetici hesabı: aykdmh.com/admin üzerinden girin. Site için normal kullanıcı hesabı kullanın.",
     "forgot_login_info": "Giriş bilgilerinizi mi unuttunuz?",
     "registration_success": "Hesap başarıyla oluşturuldu",
-    "registration_login": "Giriş yapmak için buraya tıklayın"
+    "registration_login": "Giriş yapmak için buraya tıklayın",
+    "password_advice": "Daha iyi koruma için en az 6 karakter kullanın"
   },
   "request": {
     "create_title": "Yeni bir talebi oluştur",

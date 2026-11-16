@@ -295,7 +295,7 @@ export default function RegisterPage() {
         )}
         {/* A simple password, 4 characters at least: digits, letters or symbols, the full keyboard
             (AYK-139; it opened the number pad only). */}
-        <PasswordInput label={t('auth.password')} required minLength={4} autoComplete="new-password"
+        <PasswordInput label={t('auth.password')} required minLength={4} autoComplete="new-password" adviseLength
           hint={t('auth.password_min')} value={form.password} error={fieldErrors.password} onChange={e => update('password', e.target.value)} />
         <Input id="register-full_name" name="full_name" label={t('auth.name_optional')} maxLength={150}
           autoComplete="name" value={form.full_name} error={fieldErrors.full_name} onChange={e => update('full_name', e.target.value)} />

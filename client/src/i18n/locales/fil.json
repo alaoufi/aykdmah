@@ -316,7 +316,8 @@
     "admin_use_panel": "Admin account ito: mag-sign in sa aykdmh.com/admin. Para sa site, gumamit ng karaniwang user account.",
     "forgot_login_info": "Nakalimutan ang detalye sa pag-sign in?",
     "registration_success": "Matagumpay na nalikha ang account",
-    "registration_login": "Pindutin dito upang mag-sign in"
+    "registration_login": "Pindutin dito upang mag-sign in",
+    "password_advice": "Para sa mas mahusay na proteksyon, gumamit ng hindi bababa sa 6 na character"
   },
   "request": {
     "create_title": "Gumawa ng bagong kahilingan",

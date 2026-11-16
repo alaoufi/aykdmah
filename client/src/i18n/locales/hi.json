@@ -316,7 +316,8 @@
     "admin_use_panel": "यह प्रशासन खाता है: aykdmh.com/admin से प्रवेश करें। साइट के लिए सामान्य उपयोगकर्ता खाता इस्तेमाल करें।",
     "forgot_login_info": "साइन-इन जानकारी भूल गए?",
     "registration_success": "खाता सफलतापूर्वक बन गया",
-    "registration_login": "लॉग इन करने के लिए यहाँ क्लिक करें"
+    "registration_login": "लॉग इन करने के लिए यहाँ क्लिक करें",
+    "password_advice": "बेहतर सुरक्षा के लिए कम से कम 6 अक्षर रखें"
   },
   "request": {
     "create_title": "नया अनुरोध बनाएं",
