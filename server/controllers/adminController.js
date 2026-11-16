@@ -309,7 +309,7 @@ const activityLogs = asyncHandler(async (req, res) => {
 // Attempts against the server (SSH, from the export timer) and the site (sign-in failures,
 // lockouts, rate limits, admin sign-ins), with time, address, country and status.
 const SITE_EVENTS = { login_failed: 'failed', login_locked: 'blocked', login_while_locked: 'blocked', rate_limited: 'blocked', admin_login: 'success' };
-const SERVER_STATUS = { ssh_failed: 'failed', ssh_banned: 'blocked' };
+const SERVER_STATUS = { ssh_failed: 'failed', ssh_banned: 'blocked', http_flood: 'blocked', flood_banned: 'blocked', repeat_banned: 'blocked' };
 
 const tableExists = async name => Boolean(await queryOne(
   "SELECT 1 AS ok FROM information_schema.tables WHERE table_schema = current_schema() AND table_name = ?", [name]));
@@ -400,7 +400,8 @@ const securityReport = asyncHandler(async (req, res) => {
       ssh_failed: sum(['ssh_failed']), ssh_banned: sum(['ssh_banned']),
       site_failed: sum(['login_failed']), locked: sum(['login_locked', 'login_while_locked']),
       rate_limited: sum(['rate_limited']), admin_logins: sum(['admin_login']),
-      blocked: sum(['ssh_banned', 'login_locked', 'login_while_locked', 'rate_limited']),
+      blocked: sum(['ssh_banned', 'login_locked', 'login_while_locked', 'rate_limited', 'flood_banned', 'repeat_banned']),
+      http_flood: sum(['http_flood']), flood_banned: sum(['flood_banned', 'repeat_banned']),
       per_day: Math.round(attempts / Math.max(1, days)),
     },
     daily: Object.entries(daily).sort(([x], [y]) => (x < y ? -1 : 1)).map(([date, v]) => ({ date, ...v })),

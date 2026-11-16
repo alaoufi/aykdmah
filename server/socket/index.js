@@ -22,7 +22,11 @@ function initSocket(httpServer) {
     maxHttpBufferSize: 64 * 1024,
   });
 
+  // AYK-243: connection floods are refused before authentication work, then per account.
+  const floodGuard = require('./floodGuard');
+  io.use(floodGuard.connectionRate);
   io.use(socketAuth);
+  io.use(floodGuard.userLimit);
 
   io.on('connection', async (socket) => {
     const user = socket.user;

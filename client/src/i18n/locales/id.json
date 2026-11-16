@@ -1272,7 +1272,12 @@
     "sec_none": "Tidak ada percobaan pada periode ini",
     "sec_note": "Data server diperbarui setiap 10 menit dan disimpan 90 hari. Negara ditentukan secara lokal; alamat tidak dikirim ke mana pun.",
     "sec_unknown_country": "Tidak diketahui",
-    "sec_group": "Keamanan"
+    "sec_group": "Keamanan",
+    "sec_http_flood": "Permintaan banjir ditolak",
+    "sec_flood_banned": "Alamat diblokir karena membanjiri",
+    "sec_event_http_flood": "Banjir permintaan (ditolak)",
+    "sec_event_flood_banned": "Alamat diblokir karena membanjiri",
+    "sec_event_repeat_banned": "Pelanggar berulang diblokir sehari"
   },
   "errors": {
     "generic": "Sesuatu yang salah",

@@ -55,6 +55,8 @@ export default function AdminSecurityReportPage() {
     { label: t('admin.sec_site_failed'), value: s.site_failed, tone: 'text-amber-700' },
     { label: t('admin.sec_locked'), value: s.locked, tone: 'text-rose-700' },
     { label: t('admin.sec_rate_limited'), value: s.rate_limited, tone: 'text-rose-700' },
+    { label: t('admin.sec_http_flood'), value: s.http_flood, tone: 'text-rose-700' },
+    { label: t('admin.sec_flood_banned'), value: s.flood_banned, tone: 'text-rose-700' },
     { label: t('admin.sec_admin_logins'), value: s.admin_logins, tone: 'text-emerald-700' },
   ] : [];
   const maxDay = Math.max(1, ...(data?.daily || []).map((d) => d.failed + d.blocked));

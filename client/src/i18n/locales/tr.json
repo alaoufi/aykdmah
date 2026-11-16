@@ -1272,7 +1272,12 @@
     "sec_none": "Bu dönemde girişim yok",
     "sec_note": "Sunucu verisi 10 dakikada bir güncellenir ve 90 gün saklanır. Ülke yerel olarak belirlenir; adresler hiçbir yere gönderilmez.",
     "sec_unknown_country": "Bilinmiyor",
-    "sec_group": "Güvenlik"
+    "sec_group": "Güvenlik",
+    "sec_http_flood": "Reddedilen yoğun istekler",
+    "sec_flood_banned": "Yoğun istek nedeniyle engellenen adresler",
+    "sec_event_http_flood": "İstek seli (reddedildi)",
+    "sec_event_flood_banned": "Yoğun istek nedeniyle adres engellendi",
+    "sec_event_repeat_banned": "Tekrarlayan ihlal için bir gün engel"
   },
   "errors": {
     "generic": "Bir şey ters gitti",

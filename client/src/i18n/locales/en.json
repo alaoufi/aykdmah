@@ -1272,7 +1272,12 @@
     "sec_none": "No attempts in this period",
     "sec_note": "Server data updates every 10 minutes and is kept for 90 days. Countries are looked up locally; addresses are not sent anywhere.",
     "sec_unknown_country": "Unknown",
-    "sec_group": "Security"
+    "sec_group": "Security",
+    "sec_http_flood": "Flood requests refused",
+    "sec_flood_banned": "Addresses banned for flooding",
+    "sec_event_http_flood": "Request flood (refused)",
+    "sec_event_flood_banned": "Address banned for flooding",
+    "sec_event_repeat_banned": "Repeat offender banned for a day"
   },
   "errors": {
     "generic": "Something went wrong",

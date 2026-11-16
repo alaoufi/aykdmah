@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
-"""Server security events -> security_events table (AYK-242), for the admin security report.
+"""Server security events -> security_events table (AYK-242, AYK-243), for the admin security report.
 
 Run by the aykdmh-security-export timer every 10 minutes (deploy/install-security-export.sh).
 - Failed SSH sign-ins from the journal: one row per address and hour with the count and up to
   five user names tried. The last 3 hours are recounted on every run, so a run is idempotent.
-- fail2ban bans from /var/log/fail2ban.log: one row per ban.
+- fail2ban bans from /var/log/fail2ban.log: one row per ban (SSH, flood, repeat offender).
+- Requests the server gateway refused for flooding (429): one row per address and hour.
 - Rows older than 90 days are deleted.
 Reads logs only; writes only the security_events table. Never records passwords.
 """
@@ -76,6 +77,9 @@ def ssh_rows():
         yield ['ssh', 'ssh_failed', 'failed', ip, b['n'], ', '.join(b['users']), hour.isoformat(), b['last'].isoformat()]
 
 
+JAIL_EVENT = {'sshd': 'ssh_banned', 'edge-flood': 'flood_banned', 'recidive': 'repeat_banned'}
+
+
 def ban_rows():
     for path in os.environ.get('SECURITY_EXPORT_F2B', '/var/log/fail2ban.log /var/log/fail2ban.log.1').split():
         if not os.path.exists(path):
@@ -86,11 +90,44 @@ def ban_rows():
                 if match:
                     # fail2ban logs local time; convert to UTC like the journal rows.
                     at = datetime.strptime(match.group(1), '%Y-%m-%d %H:%M:%S').astimezone(timezone.utc)
-                    yield ['ssh', 'ssh_banned', 'blocked', match.group(3), 1, f'fail2ban {match.group(2)}', at.isoformat(), at.isoformat()]
+                    event = JAIL_EVENT.get(match.group(2), 'ssh_banned')
+                    yield ['ssh', event, 'blocked', match.group(3), 1, f'fail2ban {match.group(2)}', at.isoformat(), at.isoformat()]
+
+
+def flood_rows():
+    """Requests the server gateway refused for flooding (429), per address and hour (AYK-243)."""
+    cutoff = datetime.now(timezone.utc).timestamp() - (48 if FIRST_RUN else 3) * 3600
+    buckets = defaultdict(lambda: {'n': 0, 'last': None, 'hosts': []})
+    for path in os.environ.get('SECURITY_EXPORT_EDGE_LOG', '/srv/edge/logs/access.log').split():
+        if not os.path.exists(path):
+            continue
+        with open(path, encoding='utf-8', errors='replace') as handle:
+            for line in handle:
+                if '"status":429' not in line:
+                    continue
+                try:
+                    entry = json.loads(line)
+                except ValueError:
+                    continue
+                if entry.get('ts', 0) < cutoff:
+                    continue
+                at = datetime.fromtimestamp(entry['ts'], timezone.utc)
+                request = entry.get('request') or {}
+                ip = request.get('remote_ip')
+                if not ip:
+                    continue
+                b = buckets[(ip, at.replace(minute=0, second=0, microsecond=0))]
+                b['n'] += 1
+                b['last'] = max(b['last'] or at, at)
+                host = re.sub(r'[^\w.:-]', '?', str(request.get('host', '')))[:60]
+                if host and host not in b['hosts'] and len(b['hosts']) < 3:
+                    b['hosts'].append(host)
+    for (ip, hour), b in buckets.items():
+        yield ['ssh', 'http_flood', 'blocked', ip, b['n'], ', '.join(b['hosts']), hour.isoformat(), b['last'].isoformat()]
 
 
 def main():
-    rows = list(ssh_rows()) + list(ban_rows())
+    rows = list(ssh_rows()) + list(ban_rows()) + list(flood_rows())
     data = io.StringIO()
     csv.writer(data, lineterminator='\n').writerows(rows)
     sql = (

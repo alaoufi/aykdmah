@@ -1272,7 +1272,12 @@
     "sec_none": "በዚህ ጊዜ ምንም ሙከራ የለም",
     "sec_note": "የሰርቨር መረጃ በየ10 ደቂቃው ይዘመናል፣ ለ90 ቀናትም ይቀመጣል። ሀገር በአካባቢው ይለያል፤ አድራሻዎች ወደ የትም አይላኩም።",
     "sec_unknown_country": "ያልታወቀ",
-    "sec_group": "ደህንነት"
+    "sec_group": "ደህንነት",
+    "sec_http_flood": "የተከለከሉ የጎርፍ ጥያቄዎች",
+    "sec_flood_banned": "በጎርፍ ምክንያት የታገዱ አድራሻዎች",
+    "sec_event_http_flood": "የጥያቄ ጎርፍ (ተከልክሏል)",
+    "sec_event_flood_banned": "በጎርፍ ምክንያት አድራሻ ታግዷል",
+    "sec_event_repeat_banned": "በተደጋጋሚ ጥሰት ለአንድ ቀን ታግዷል"
   },
   "errors": {
     "generic": "የሆነ ነገር ተበላሸ",
