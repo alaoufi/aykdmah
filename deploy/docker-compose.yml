@@ -92,6 +92,8 @@ services:
       - "7881:7881/tcp"
       - "7882:7882/udp"
       - "3478:3478/udp"
+      # TURN over TLS for the server gateway (alaoufi/server-edge): local to the server only.
+      - "127.0.0.1:5349:5349/tcp"
     cpus: 4
     mem_limit: 4g
     logging: *logging
