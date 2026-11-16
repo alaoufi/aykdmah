@@ -305,6 +305,112 @@ const activityLogs = asyncHandler(async (req, res) => {
   return paginate(res, items, total, page, limit);
 });
 
+// ─── Security report (AYK-242) ──────────────────────────────────────────
+// Attempts against the server (SSH, from the export timer) and the site (sign-in failures,
+// lockouts, rate limits, admin sign-ins), with time, address, country and status.
+const SITE_EVENTS = { login_failed: 'failed', login_locked: 'blocked', login_while_locked: 'blocked', rate_limited: 'blocked', admin_login: 'success' };
+const SERVER_STATUS = { ssh_failed: 'failed', ssh_banned: 'blocked' };
+
+const tableExists = async name => Boolean(await queryOne(
+  "SELECT 1 AS ok FROM information_schema.tables WHERE table_schema = current_schema() AND table_name = ?", [name]));
+
+const DAY = 86400000;
+const dayKey = d => new Date(d).toISOString().slice(0, 10);
+// A DATE column may arrive as a local-midnight Date or as text.
+const dateKey = v => (v instanceof Date
+  ? `${v.getFullYear()}-${String(v.getMonth() + 1).padStart(2, '0')}-${String(v.getDate()).padStart(2, '0')}`
+  : String(v).slice(0, 10));
+
+// Period: ?from=YYYY-MM-DD&to=YYYY-MM-DD (inclusive, at most 90 days) or ?days=1|7|30|90.
+function reportRange(q) {
+  const valid = v => typeof v === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(v) && !Number.isNaN(Date.parse(v));
+  if (valid(q.from) && valid(q.to) && q.from <= q.to) {
+    const since = new Date(`${q.from}T00:00:00Z`);
+    const until = new Date(Math.min(Date.parse(`${q.to}T00:00:00Z`) + DAY, since.getTime() + 90 * DAY));
+    return { since, until, days: Math.round((until - since) / DAY) };
+  }
+  const days = [1, 7, 30, 90].includes(Number(q.days)) ? Number(q.days) : 7;
+  return { since: new Date(Date.now() - days * DAY), until: new Date(Date.now() + 60000), days };
+}
+
+const securityReport = asyncHandler(async (req, res) => {
+  const { since, until, days } = reportRange(req.query);
+  const source = ['server', 'site'].includes(req.query.source) ? req.query.source : 'all';
+  const hasTable = await tableExists('security_events');
+  const useServer = source !== 'site' && hasTable;
+  const useSite = source !== 'server';
+  const siteKeys = Object.keys(SITE_EVENTS);
+  const siteIn = siteKeys.map(() => '?').join(', ');
+
+  // Totals per event and day, straight from the database (not from a sample of rows).
+  const serverDaily = useServer ? await query(
+    `SELECT event, date(last_at) AS d, SUM(attempts) AS n FROM security_events
+     WHERE last_at >= ? AND last_at < ? GROUP BY event, date(last_at)`, [since, until]) : [];
+  const siteDaily = useSite ? await query(
+    `SELECT action AS event, date(created_at) AS d, COUNT(*) AS n FROM activity_logs
+     WHERE action IN (${siteIn}) AND created_at >= ? AND created_at < ? GROUP BY action, date(created_at)`,
+    [...siteKeys, since, until]) : [];
+  const statusOf = e => SERVER_STATUS[e] || SITE_EVENTS[e];
+  const totals = {};
+  const daily = {};
+  for (let t = since.getTime(); t < until.getTime(); t += DAY) daily[dayKey(t)] = { failed: 0, blocked: 0, success: 0 };
+  for (const r of [...serverDaily, ...siteDaily]) {
+    const n = Number(r.n) || 0;
+    totals[r.event] = (totals[r.event] || 0) + n;
+    const k = dateKey(r.d);
+    daily[k] = daily[k] || { failed: 0, blocked: 0, success: 0 };
+    daily[k][statusOf(r.event)] += n;
+  }
+
+  // Attempts per address (successful admin sign-ins are not attacks).
+  const perIp = {};
+  const addIps = rows => { for (const r of rows) if (r.ip) perIp[r.ip] = (perIp[r.ip] || 0) + Number(r.n); };
+  if (useServer) addIps(await query(`SELECT ip, SUM(attempts) AS n FROM security_events WHERE last_at >= ? AND last_at < ? GROUP BY ip`, [since, until]));
+  if (useSite) addIps(await query(`SELECT ip_address AS ip, COUNT(*) AS n FROM activity_logs
+    WHERE action IN (${siteIn}) AND action <> 'admin_login' AND created_at >= ? AND created_at < ? GROUP BY ip_address`, [...siteKeys, since, until]));
+
+  // The latest events, for the table.
+  const server = useServer ? await query(
+    `SELECT event, ip, attempts, detail, first_at, last_at FROM security_events
+     WHERE last_at >= ? AND last_at < ? ORDER BY last_at DESC LIMIT 300`, [since, until]) : [];
+  const site = useSite ? await query(
+    `SELECT al.action, al.ip_address, al.description, al.created_at, u.username
+     FROM activity_logs al LEFT JOIN users u ON u.id = al.user_id
+     WHERE al.action IN (${siteIn}) AND al.created_at >= ? AND al.created_at < ?
+     ORDER BY al.created_at DESC LIMIT 300`, [...siteKeys, since, until]) : [];
+  const events = [
+    ...server.map(r => ({ source: 'server', event: r.event, status: SERVER_STATUS[r.event] || 'failed', ip: r.ip,
+      attempts: Number(r.attempts) || 1, detail: r.detail || null, at: r.last_at, first_at: r.first_at })),
+    ...site.map(r => ({ source: 'site', event: r.action, status: SITE_EVENTS[r.action], ip: r.ip_address || null,
+      attempts: 1, detail: r.username || r.description || null, at: r.created_at })),
+  ].sort((x, y) => new Date(y.at) - new Date(x.at)).slice(0, 300);
+
+  const countryOf = await require('../services/geoip').countries([...Object.keys(perIp), ...events.map(e => e.ip)].filter(Boolean));
+  for (const e of events) e.country = countryOf[e.ip] || null;
+  const byCountry = {};
+  for (const [ip, n] of Object.entries(perIp)) { const c = countryOf[ip] || '??'; byCountry[c] = (byCountry[c] || 0) + n; }
+  const attempts = Object.values(perIp).reduce((a, n) => a + n, 0);
+  const sum = keys => keys.reduce((a, k) => a + (totals[k] || 0), 0);
+
+  return success(res, {
+    range: { from: dayKey(since), to: dayKey(until - 1), days }, source, server_feed: hasTable,
+    server_last_at: hasTable ? (await queryOne('SELECT MAX(created_at) AS t FROM security_events'))?.t || null : null,
+    summary: {
+      attempts, attackers: Object.keys(perIp).length, countries: Object.keys(byCountry).filter(c => c !== '??').length,
+      ssh_failed: sum(['ssh_failed']), ssh_banned: sum(['ssh_banned']),
+      site_failed: sum(['login_failed']), locked: sum(['login_locked', 'login_while_locked']),
+      rate_limited: sum(['rate_limited']), admin_logins: sum(['admin_login']),
+      blocked: sum(['ssh_banned', 'login_locked', 'login_while_locked', 'rate_limited']),
+      per_day: Math.round(attempts / Math.max(1, days)),
+    },
+    daily: Object.entries(daily).sort(([x], [y]) => (x < y ? -1 : 1)).map(([date, v]) => ({ date, ...v })),
+    countries: Object.entries(byCountry).sort((x, y) => y[1] - x[1]).slice(0, 12).map(([code, n]) => ({ code, attempts: n })),
+    top_ips: Object.entries(perIp).sort((x, y) => y[1] - x[1]).slice(0, 10).map(([ip, n]) => ({ ip, attempts: n, country: countryOf[ip] || null })),
+    events,
+    attribution: 'IP Geolocation by DB-IP',
+  });
+});
+
 // --- Admin request actions ---
 const updateRequest = asyncHandler(async (req, res) => {
   const request = await Request.findById(req.params.id);
@@ -670,7 +776,7 @@ module.exports = {
   applyMigrations,
   listVerifications, reviewVerification,
   listAds, createAd, updateAd, deleteAd, uploadAdMedia,
-  activityLogs,
+  activityLogs, securityReport,
   updateRequest, assignRequest, cancelRequest, deleteRequest,
   listPlans, createPlan, updatePlan, deletePlan,
   listReviewsAdmin, hideReview, showReview, removeReview,

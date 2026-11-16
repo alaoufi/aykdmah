@@ -319,6 +319,12 @@ export async function uploadAdMedia(file) {
   return data.data;
 }
 
+// --- Security report (AYK-242) ---
+export async function getSecurityReport(params = {}) {
+  const { data } = await api.get('/admin/security-report', { params });
+  return data;
+}
+
 // --- Activity logs ---
 export async function listActivityLogs(params = {}) {
   const { data } = await api.get('/admin/activity-logs', { params });

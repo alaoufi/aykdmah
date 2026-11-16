@@ -26,6 +26,17 @@ class AuthRateLimitStore {
   }
 }
 
+// AYK-242: the first refused request of each block is recorded for the admin security report
+// (once per address and window, not on every refused request).
+function blockedHandler(name) {
+  return (req, res, next, options) => {
+    if (req.rateLimit && req.rateLimit.current === req.rateLimit.limit + 1) {
+      require('../utils/securityLog').logSecurityEvent(req, 'rate_limited', { description: name }).catch(() => {});
+    }
+    res.status(options.statusCode).json(options.message);
+  };
+}
+
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   // Polling uses several authenticated reads per refresh on serverless hosts.
@@ -41,6 +52,7 @@ const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 20,
   store: new AuthRateLimitStore('auth-ip'),
+  handler: blockedHandler('auth'),
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: 'محاولات كثيرة. حاول لاحقاً.' },
@@ -50,6 +62,7 @@ const accountAuthLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 40,
   store: new AuthRateLimitStore('auth-account'),
+  handler: blockedHandler('account'),
   keyGenerator: req => String(req.body?.identifier || req.body?.email || '').trim().toLowerCase().replace(/[\s()-]/g, '').slice(0, 200),
   standardHeaders: true,
   legacyHeaders: false,
@@ -71,6 +84,7 @@ const smsLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: Number(process.env.SMS_RATE_LIMIT) || 10,
   store: new AuthRateLimitStore('sms-ip'),
+  handler: blockedHandler('sms'),
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: 'محاولات كثيرة. حاول لاحقاً.' },

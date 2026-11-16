@@ -55,6 +55,7 @@ const NAV_GROUPS = [
     items: [
       { to: '/admin/ads',           icon: '📣', labelKey: 'admin.ads',            perm: 'ads.manage' },
       { to: '/admin/activity-logs', icon: '📜', labelKey: 'admin.activity_logs',  perm: 'activity_logs.view' },
+      { to: '/admin/security', icon: '🛡️', labelKey: 'admin.security_report', perm: 'activity_logs.view' },
     ],
   },
   {

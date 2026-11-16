@@ -408,6 +408,33 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     assert.deepEqual(await phoneCodes.verifyCode({ phone, purpose: 'reset', code: '4321' }), { ok: false, reason: 'max_attempts' });
   });
 
+  test('AYK-242: security report sums server and site attempts per period, admins with the log permission only', async () => {
+    process.env.GEOIP_DISABLE = '1';
+    const now = Date.now();
+    const at = h => new Date(now - h * 3600000);
+    await db.query(`INSERT INTO security_events (source, event, status, ip, attempts, detail, first_at, last_at) VALUES
+      ('ssh', 'ssh_failed', 'failed', '203.0.113.7', 40, 'root', ?, ?), ('ssh', 'ssh_failed', 'failed', '203.0.113.8', 2, 'admin', ?, ?),
+      ('ssh', 'ssh_banned', 'blocked', '203.0.113.7', 1, 'fail2ban sshd', ?, ?), ('ssh', 'ssh_failed', 'failed', '203.0.113.9', 500, 'old', ?, ?)`,
+      [at(2), at(1), at(3), at(3), at(1), at(1), at(24 * 40), at(24 * 40)]);
+    await db.query("INSERT INTO activity_logs (action, entity_type, ip_address, created_at) VALUES ('login_failed', 'auth', '198.51.100.4', ?), ('rate_limited', 'auth', '198.51.100.4', ?)", [at(5), at(5)]);
+    const admin = { token: tokenFor(fixtures.superA), headers: { 'X-Ayk-Scope': 'admin' } };
+    const week = (await api('/admin/security-report?days=7', admin)).data;
+    assert.equal(week.summary.ssh_failed, 42);
+    assert.equal(week.summary.ssh_banned, 1);
+    assert.ok(week.summary.site_failed >= 1 && week.summary.rate_limited >= 1);
+    assert.ok(week.top_ips[0].ip === '203.0.113.7' && week.top_ips[0].attempts === 41);
+    assert.ok(!week.events.some(e => e.ip === '203.0.113.9'), 'older than the period');
+    assert.equal(week.daily.length >= 7, true);
+    const old = new Date(now - 24 * 40 * 3600000).toISOString().slice(0, 10);
+    const custom = (await api(`/admin/security-report?from=${old}&to=${old}&source=server`, admin)).data;
+    assert.equal(custom.summary.ssh_failed, 500);
+    assert.deepEqual(custom.range, { from: old, to: old, days: 1 });
+    const limited = await createUser('admin');
+    await db.query('UPDATE users SET permissions = ? WHERE id = ?', [JSON.stringify(['users.manage']), limited.id]);
+    await api('/admin/security-report', { token: tokenFor(await User.findByIdRaw(limited.id)), headers: { 'X-Ayk-Scope': 'admin' }, expected: 403 });
+    await api('/admin/security-report', { token: tokenFor(fixtures.client), expected: 403 });
+  });
+
   test('password replacement revokes existing sessions and preserves full long passwords', async () => {
     const user = await createUser(), token = tokenFor(user), nextPassword = 'a'.repeat(72) + 'first';
     const changed = (await api('/auth/password', { token, method: 'PUT', body: { current_password: password, new_password: nextPassword } })).data;

@@ -102,6 +102,7 @@ router.put('/reviews/:id/show',     requirePermission('reviews.manage'), c.showR
 router.delete('/reviews/:id',       requirePermission('reviews.manage'), c.removeReview);
 
 router.get('/activity-logs', requirePermission('activity_logs.view'), c.activityLogs);
+router.get('/security-report', requirePermission('activity_logs.view'), c.securityReport);
 
 // System maintenance — sensitive
 router.post('/system/migrate', requirePermission('settings.manage'), c.applyMigrations);
