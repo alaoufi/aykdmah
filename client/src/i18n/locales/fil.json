@@ -1277,7 +1277,9 @@
     "sec_flood_banned": "Mga address na hinarang dahil sa flooding",
     "sec_event_http_flood": "Flood ng request (tinanggihan)",
     "sec_event_flood_banned": "Hinarang ang address dahil sa flooding",
-    "sec_event_repeat_banned": "Isang araw na harang sa paulit-ulit na lumalabag"
+    "sec_event_repeat_banned": "Isang araw na harang sa paulit-ulit na lumalabag",
+    "visitors_title": "Bilang ng bisita",
+    "visitors_hint": "Ipinapakita sa lahat sa ibaba ng site at mga app, o sa admin lamang, ayon sa setting na «Ipakita sa lahat ang bilang ng bisita at view». Isang beses bawat araw binibilang ang bawat bisita."
   },
   "errors": {
     "generic": "May nagkamali",
@@ -1614,7 +1616,10 @@
     "branch_of_before": "Ang Ay Khidmah ay sangay ng",
     "parent_site": "Trbhh",
     "app_version": "App",
-    "inquiry": "Para sa mga katanungan"
+    "inquiry": "Para sa mga katanungan",
+    "visitors_today": "Mga bisita ngayon",
+    "visitors_total": "Kabuuang bisita",
+    "visitors_online": "Online ngayon"
   },
   "policy": {
     "privacy_intro": "Ipaliwanag ng patakaran na ito kung paano ginagamit ng Ay Khidma ang iyong impormasyon kapag nag-register ka at humingi ng mga serbisyo sa bahay.",

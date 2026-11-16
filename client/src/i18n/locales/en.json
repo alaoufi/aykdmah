@@ -1277,7 +1277,9 @@
     "sec_flood_banned": "Addresses banned for flooding",
     "sec_event_http_flood": "Request flood (refused)",
     "sec_event_flood_banned": "Address banned for flooding",
-    "sec_event_repeat_banned": "Repeat offender banned for a day"
+    "sec_event_repeat_banned": "Repeat offender banned for a day",
+    "visitors_title": "Visitor counter",
+    "visitors_hint": "Shown to everyone at the bottom of the site and apps, or to admins only, by the setting «Show the visitor counter and views to everyone». Each visitor counts once a day."
   },
   "errors": {
     "generic": "Something went wrong",
@@ -1614,7 +1616,10 @@
     "branch_of_before": "Ay Khidmah is a branch of",
     "parent_site": "Trbhh",
     "app_version": "App",
-    "inquiry": "For inquiries"
+    "inquiry": "For inquiries",
+    "visitors_today": "Visitors today",
+    "visitors_total": "Total visitors",
+    "visitors_online": "Online now"
   },
   "policy": {
     "privacy_intro": "This policy explains how Ay Khidma uses your information when you register and request home services.",

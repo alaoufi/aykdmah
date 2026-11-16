@@ -1277,7 +1277,9 @@
     "sec_flood_banned": "Alamat diblokir karena membanjiri",
     "sec_event_http_flood": "Banjir permintaan (ditolak)",
     "sec_event_flood_banned": "Alamat diblokir karena membanjiri",
-    "sec_event_repeat_banned": "Pelanggar berulang diblokir sehari"
+    "sec_event_repeat_banned": "Pelanggar berulang diblokir sehari",
+    "visitors_title": "Penghitung pengunjung",
+    "visitors_hint": "Ditampilkan untuk semua di bagian bawah situs dan aplikasi, atau hanya untuk admin, sesuai pengaturan «Tampilkan penghitung pengunjung dan tayangan untuk semua». Setiap pengunjung dihitung sekali sehari."
   },
   "errors": {
     "generic": "Sesuatu yang salah",
@@ -1614,7 +1616,10 @@
     "branch_of_before": "Ay Khidmah adalah cabang dari",
     "parent_site": "Trbhh",
     "app_version": "Aplikasi",
-    "inquiry": "Untuk pertanyaan"
+    "inquiry": "Untuk pertanyaan",
+    "visitors_today": "Pengunjung hari ini",
+    "visitors_total": "Total pengunjung",
+    "visitors_online": "Online sekarang"
   },
   "policy": {
     "privacy_intro": "Kebijakan ini menjelaskan bagaimana Ay Khidma menggunakan informasi Anda saat Anda mendaftar dan meminta layanan rumah.",

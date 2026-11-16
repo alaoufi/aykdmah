@@ -122,7 +122,8 @@ const getOne = asyncHandler(async (req, res) => {
   if (!request) return notFound(res);
   const allowed = privateAccess(req.user, request);
   if (!allowed && (request.status !== 'open' || request.direct_provider_id)) return notFound(res);
-  await Request.incrementViews(req.params.id);
+  // AYK-244: each viewer once a day; the owner and crawlers are not counted.
+  await require('../services/visitors').recordRequestView(req, request).catch(() => {});
   // A provider already in contact about the request also gets its voice note and photos.
   if (!allowed && req.user?.role === 'provider' && await queryOne('SELECT 1 AS ok FROM offers WHERE request_id = ? AND provider_id = ?', [request.id, req.user.id])) {
     return success(res, (await requestTranslation.attachTranslations([{ ...Request.publicView(request), files: request.files }], readerLang(req)))[0]);

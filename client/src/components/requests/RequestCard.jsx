@@ -47,6 +47,8 @@ export default function RequestCard({ request }) {
         {request.city_name && <span>📍 {localizedJoinedName(request, 'city', i18n.resolvedLanguage)}{request.district_name ? ` · ${localizedJoinedName(request, 'district', i18n.resolvedLanguage)}` : ''}</span>}
         {request.distance_km != null && <span>📏 {formatDistance(request.distance_km)}</span>}
         {request.offers_count > 0 && <span>📨 {request.offers_count} {t('request.offers_count')}</span>}
+        {/* AYK-244: present only when views are public (admin setting) or the viewer is an admin. */}
+        {request.views_count != null && <span>👁 {request.views_count} {t('request.views_count')}</span>}
         {request.budget_min && (
           <span>💰 {formatCurrency(request.budget_min)}{request.budget_max ? ` — ${formatCurrency(request.budget_max)}` : ''}</span>
         )}

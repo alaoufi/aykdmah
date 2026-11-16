@@ -1,5 +1,7 @@
 const express = require('express');
 const router = express.Router();
+// AYK-244: request view counts are shown only when public (admin setting) or to admin accounts.
+router.use(require('../services/visitors').viewsFilter);
 router.param('id', (req, res, next, value) => {
   if (!/^[1-9][0-9]{0,9}$/.test(value) || Number(value) > 2147483647) return res.status(422).json({ success: false, message: 'invalid_id' });
   next();

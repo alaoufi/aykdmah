@@ -1277,7 +1277,9 @@
     "sec_flood_banned": "Yoğun istek nedeniyle engellenen adresler",
     "sec_event_http_flood": "İstek seli (reddedildi)",
     "sec_event_flood_banned": "Yoğun istek nedeniyle adres engellendi",
-    "sec_event_repeat_banned": "Tekrarlayan ihlal için bir gün engel"
+    "sec_event_repeat_banned": "Tekrarlayan ihlal için bir gün engel",
+    "visitors_title": "Ziyaretçi sayacı",
+    "visitors_hint": "Ayarlardaki «Ziyaretçi sayacını ve görüntülenmeleri herkese göster» seçeneğine göre sitenin ve uygulamaların altında herkese ya da yalnızca yöneticilere görünür. Her ziyaretçi günde bir kez sayılır."
   },
   "errors": {
     "generic": "Bir şey ters gitti",
@@ -1614,7 +1616,10 @@
     "branch_of_before": "Ay Khidmah şu sitenin bir şubesidir:",
     "parent_site": "Trbhh",
     "app_version": "Uygulama",
-    "inquiry": "Bilgi için"
+    "inquiry": "Bilgi için",
+    "visitors_today": "Bugünkü ziyaretçiler",
+    "visitors_total": "Toplam ziyaretçi",
+    "visitors_online": "Şu an çevrimiçi"
   },
   "policy": {
     "privacy_intro": "Bu politika, Ay Khidma'nın ev hizmetlerini kayıt edince ve talep ettiğinizde bilgilerinizi nasıl kullandığını açıklar.",

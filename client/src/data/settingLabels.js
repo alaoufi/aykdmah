@@ -13,6 +13,7 @@ export const SETTING_LABELS = Object.freeze({
   support_whatsapp: L('رقم واتساب الدعم الفني والشكاوى', 'WhatsApp number for support and complaints', 'سپورٹ اور شکایات کے لیے واٹس ایپ نمبر', 'सहायता और शिकायतों के लिए व्हाट्सऐप नंबर', 'সহায়তা ও অভিযোগের হোয়াটসঅ্যাপ নম্বর'),
   google_play_url: L('رابط التطبيق في Google Play', 'App link on Google Play', 'Google Play پر ایپ کا لنک', 'Google Play पर ऐप का लिंक', 'Google Play-তে অ্যাপের লিংক'),
   app_store_url: L('رابط التطبيق في App Store', 'App link on the App Store', 'App Store پر ایپ کا لنک', 'App Store पर ऐप का लिंक', 'App Store-এ অ্যাপের লিংক'),
+  visitors_public: L('إظهار عداد الزوار والمشاهدات للجميع (عند الإيقاف تظهر للإدارة فقط)', 'Show the visitor counter and views to everyone (when off, only admins see them)', 'وزیٹر کاؤنٹر اور ویوز سب کو دکھائیں (بند ہونے پر صرف ایڈمن دیکھیں)', 'विज़िटर काउंटर और व्यू सबको दिखाएँ (बंद होने पर केवल एडमिन देखें)', 'ভিজিটর কাউন্টার ও ভিউ সবাইকে দেখান (বন্ধ থাকলে শুধু অ্যাডমিন দেখবেন)'),
   google_site_verification: L('رمز تحقق Google Search Console', 'Google Search Console verification code', 'Google Search Console تصدیقی کوڈ', 'Google Search Console सत्यापन कोड', 'Google Search Console যাচাই কোড'),
   bing_site_verification: L('رمز تحقق Bing Webmaster', 'Bing Webmaster verification code', 'Bing Webmaster تصدیقی کوڈ', 'Bing Webmaster सत्यापन कोड', 'Bing Webmaster যাচাই কোড'),
   default_language: L('اللغة الافتراضية', 'Default language', 'پہلے سے منتخب زبان', 'डिफ़ॉल्ट भाषा', 'ডিফল্ট ভাষা'),

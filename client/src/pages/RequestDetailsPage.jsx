@@ -282,7 +282,7 @@ export default function RequestDetailsPage() {
             {requestMapsUrl(request) && <a href={requestMapsUrl(request)} target="_blank" rel="noopener noreferrer" className="ms-2 text-primary font-semibold" data-testid="request-maps">🗺️ {t('requester.open_maps')}</a>}</div>
           <div>💰 <strong>{t('request.budget')}:</strong> {request.budget_min ? `${formatCurrency(request.budget_min)}${request.budget_max ? ` - ${formatCurrency(request.budget_max)}` : ''}` : t('request.budget_not_set')}</div>
           <div>📨 <strong>{t('request.offers_count')}:</strong> {request.offers_count}</div>
-          <div>👁️ <strong>{t('request.views_count')}:</strong> {request.views_count}</div>
+          {request.views_count != null && <div>👁️ <strong>{t('request.views_count')}:</strong> {request.views_count}</div>}
         </div>
 
         {request.files && request.files.length > 0 && (

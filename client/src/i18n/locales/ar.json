@@ -1277,7 +1277,9 @@
     "sec_flood_banned": "عناوين حُظرت بسبب الإغراق",
     "sec_event_http_flood": "إغراق بالطلبات (رُفض)",
     "sec_event_flood_banned": "حظر عنوان بسبب الإغراق",
-    "sec_event_repeat_banned": "حظر يوم لتكرار المخالفة"
+    "sec_event_repeat_banned": "حظر يوم لتكرار المخالفة",
+    "visitors_title": "عداد الزوار",
+    "visitors_hint": "يظهر للجميع أسفل الموقع والتطبيقات، أو للإدارة فقط، حسب إعداد «إظهار عداد الزوار والمشاهدات للجميع» في الإعدادات. كل زائر يُحسب مرة في اليوم."
   },
   "errors": {
     "generic": "حدث خطأ",
@@ -1423,7 +1425,10 @@
     "branch_of_before": "موقع أي خدمة فرع من موقع",
     "parent_site": "تربح",
     "app_version": "التطبيق",
-    "inquiry": "للاستفسار"
+    "inquiry": "للاستفسار",
+    "visitors_today": "زوار اليوم",
+    "visitors_total": "إجمالي الزوار",
+    "visitors_online": "المتواجدون الآن"
   },
   "promote": {
     "page_title": "أعلن عن خدمتك",

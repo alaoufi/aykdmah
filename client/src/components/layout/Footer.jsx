@@ -5,6 +5,7 @@ import usePublicSettings, { subscriptionsOn } from '../../hooks/usePublicSetting
 import { nativeAppVersion } from '../../utils/nativeApp';
 import AdSlot from '../ads/AdSlot';
 import AdminPanelLink from './AdminPanelLink';
+import VisitorCounter from './VisitorCounter';
 import { whatsappLink } from '../../utils/whatsapp';
 
 export default function Footer() {
@@ -96,6 +97,7 @@ export default function Footer() {
             <div className="mb-1">
               {t('footer.branch_of_before')} <a href="https://trbhh.sa" target="_blank" rel="noopener" className="text-white/80 hover:text-white underline font-bold">{t('footer.parent_site')}</a>
             </div>
+            <VisitorCounter className="mb-1 text-white/70" />
             © {year} {t('common.brand')}. {t('footer.all_rights_reserved')}.
             {/* The deployed release (commit and date), set by deploy/setup-server.sh. */}
             {import.meta.env.VITE_APP_VERSION && (

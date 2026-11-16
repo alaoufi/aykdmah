@@ -1277,7 +1277,9 @@
     "sec_flood_banned": "በጎርፍ ምክንያት የታገዱ አድራሻዎች",
     "sec_event_http_flood": "የጥያቄ ጎርፍ (ተከልክሏል)",
     "sec_event_flood_banned": "በጎርፍ ምክንያት አድራሻ ታግዷል",
-    "sec_event_repeat_banned": "በተደጋጋሚ ጥሰት ለአንድ ቀን ታግዷል"
+    "sec_event_repeat_banned": "በተደጋጋሚ ጥሰት ለአንድ ቀን ታግዷል",
+    "visitors_title": "የጎብኚ ቆጣሪ",
+    "visitors_hint": "በቅንብሩ «የጎብኚ ቆጣሪውን እና እይታዎችን ለሁሉም አሳይ» መሰረት ከጣቢያው እና ከመተግበሪያዎቹ በታች ለሁሉም፣ ወይም ለአስተዳዳሪዎች ብቻ ይታያል። እያንዳንዱ ጎብኚ በቀን አንድ ጊዜ ይቆጠራል።"
   },
   "errors": {
     "generic": "የሆነ ነገር ተበላሸ",
@@ -1614,7 +1616,10 @@
     "branch_of_before": "አይ ኺድማ የዚህ ጣቢያ ቅርንጫፍ ነው፦",
     "parent_site": "Trbhh",
     "app_version": "መተግበሪያ",
-    "inquiry": "ለጥያቄዎች"
+    "inquiry": "ለጥያቄዎች",
+    "visitors_today": "የዛሬ ጎብኚዎች",
+    "visitors_total": "ጠቅላላ ጎብኚዎች",
+    "visitors_online": "አሁን በመስመር ላይ"
   },
   "policy": {
     "privacy_intro": "ይህ ፖሊሲ የአይ ኪድማ የቤት ውስጥ አገልግሎቶችን ሲመዘገቡ እና ሲጠይቁ መረጃዎን እንዴት እንደሚጠቀም ያብራራል ።",

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getDashboard } from '../../services/adminService';
+import VisitorCounter from '../../components/layout/VisitorCounter';
 import { apiError } from '../../services/api';
 import { formatCurrency, formatRelativeTime } from '../../utils/formatters';
 import { REQUEST_STATUS } from '../../utils/constants';
@@ -170,6 +171,13 @@ export default function AdminDashboardPage() {
             </Wrap>
           );
         })}
+      </div>
+
+      {/* AYK-244: the site's visitor counter (admins always see it; the public sees it when enabled in settings). */}
+      <div className="bg-white rounded-card border border-slate-100 p-5 md:p-6 shadow-soft">
+        <h3 className="text-ink text-[15px] font-extrabold mb-3">{t('admin.visitors_title')}</h3>
+        <VisitorCounter className="text-ink text-[14px] gap-x-6" />
+        <p className="text-[12px] text-slate-500 mt-2 mb-0">{t('admin.visitors_hint')}</p>
       </div>
 
       {translation && <TranslationMeter usage={translation} />}

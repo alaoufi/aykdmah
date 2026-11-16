@@ -33,7 +33,9 @@ export default function RequestCard({ item, urgent = false }) {
         </span>
         <TrustSummary userId={item.client_id} type="on_requester" average={item.client_rating_avg} count={item.client_rating_count} opinion={item.client_opinion} />
         <OwnerBadge mine={mine(item)} forService={forMyService(item)} />
-        <span className="ms-auto inline-flex items-center gap-1 text-[11px] text-slate-500 font-medium">
+        {/* AYK-244: present only when views are public (admin setting) or the viewer is an admin. */}
+        {item.views_count != null && <span className="ms-auto text-[11px] text-slate-500 font-medium">👁 {item.views_count}</span>}
+        <span className={`${item.views_count != null ? '' : 'ms-auto '}inline-flex items-center gap-1 text-[11px] text-slate-500 font-medium`}>
           <IconClock size={13} />
           {formatRelativeTime(item.created_at)}
         </span>

@@ -435,6 +435,38 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     await api('/admin/security-report', { token: tokenFor(fixtures.client), expected: 403 });
   });
 
+  test('AYK-244: visitor counter counts each visitor once a day, skips crawlers, and obeys the visibility setting', async () => {
+    const visit = async (ua, token, headers = {}) => {
+      const response = await fetch(base + '/visits', { method: 'POST', headers: { 'User-Agent': ua, ...(token ? { Authorization: `Bearer ${token}` } : {}), ...headers } });
+      return (await response.json()).data;
+    };
+    const before = (await visit('Mozilla/5.0 Visitor-A')).today;
+    assert.equal((await visit('Mozilla/5.0 Visitor-A')).today, before, 'the same visitor again is not counted');
+    assert.equal((await visit('Mozilla/5.0 Visitor-B')).today, before + 1);
+    assert.equal((await visit('Googlebot/2.1')).today, before + 1, 'crawlers are not counted');
+    const shown = await visit('Mozilla/5.0 Visitor-B');
+    assert.equal(shown.visible, true);
+    assert.ok(shown.total >= shown.today && shown.online >= 2);
+
+    // Hidden: the public sees nothing, an admin account still sees the counter.
+    await db.query("UPDATE settings SET setting_value = 'false' WHERE setting_key = 'visitors_public'");
+    assert.deepEqual(await visit('Mozilla/5.0 Visitor-C'), { visible: false });
+    const admin = await visit('Mozilla/5.0 Admin', tokenFor(fixtures.superA), { 'X-Ayk-Scope': 'admin' });
+    assert.equal(admin.visible, true);
+    assert.equal(admin.today, before + 3, 'hidden counters still count (visitor C and the admin)');
+
+    // Request views: once a day per viewer, the owner is not counted, hidden from the public.
+    const owner = await createUser('client');
+    const viewer = await createUser('provider');
+    const [{ id }] = await db.query("INSERT INTO requests (client_id, title, description, status) VALUES (?, 'Views test', 'Views test request', 'open') RETURNING id", [owner.id]);
+    const open = async (user, headers = {}) => (await api(`/requests/${id}`, { token: user ? tokenFor(user) : undefined, headers })).data;
+    await open(owner); await open(viewer); await open(viewer);
+    assert.equal(Number((await db.queryOne('SELECT views_count FROM requests WHERE id = ?', [id])).views_count), 1);
+    assert.equal((await open(null)).views_count, undefined, 'hidden from the public');
+    await db.query("UPDATE settings SET setting_value = 'true' WHERE setting_key = 'visitors_public'");
+    assert.equal(Number((await open(null)).views_count), 2, 'shown once public (and the anonymous visit counted)');
+  });
+
   test('password replacement revokes existing sessions and preserves full long passwords', async () => {
     const user = await createUser(), token = tokenFor(user), nextPassword = 'a'.repeat(72) + 'first';
     const changed = (await api('/auth/password', { token, method: 'PUT', body: { current_password: password, new_password: nextPassword } })).data;
