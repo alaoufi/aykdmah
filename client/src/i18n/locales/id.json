@@ -1271,7 +1271,8 @@
     "sec_event_admin_login": "Masuk ke area admin",
     "sec_none": "Tidak ada percobaan pada periode ini",
     "sec_note": "Data server diperbarui setiap 10 menit dan disimpan 90 hari. Negara ditentukan secara lokal; alamat tidak dikirim ke mana pun.",
-    "sec_unknown_country": "Tidak diketahui"
+    "sec_unknown_country": "Tidak diketahui",
+    "sec_group": "Keamanan"
   },
   "errors": {
     "generic": "Sesuatu yang salah",

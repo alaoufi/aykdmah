@@ -21,6 +21,14 @@ const NAV_GROUPS = [
     ],
   },
   {
+    // AYK-242: security has its own section near the top (it was under ads).
+    label: 'admin.sec_group',
+    items: [
+      { to: '/admin/security', icon: '🛡️', labelKey: 'admin.security_report', perm: 'activity_logs.view' },
+      { to: '/admin/activity-logs', icon: '📜', labelKey: 'admin.activity_logs',  perm: 'activity_logs.view' },
+    ],
+  },
+  {
     label: 'admin.users',
     items: [
       { to: '/admin/users',         icon: '👥', labelKey: 'admin.users',           perm: 'users.manage' },
@@ -54,8 +62,6 @@ const NAV_GROUPS = [
     label: 'admin.ads',
     items: [
       { to: '/admin/ads',           icon: '📣', labelKey: 'admin.ads',            perm: 'ads.manage' },
-      { to: '/admin/activity-logs', icon: '📜', labelKey: 'admin.activity_logs',  perm: 'activity_logs.view' },
-      { to: '/admin/security', icon: '🛡️', labelKey: 'admin.security_report', perm: 'activity_logs.view' },
     ],
   },
   {

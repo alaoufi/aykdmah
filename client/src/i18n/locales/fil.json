@@ -1271,7 +1271,8 @@
     "sec_event_admin_login": "Pag-sign in sa admin area",
     "sec_none": "Walang pagtatangka sa panahong ito",
     "sec_note": "Ina-update ang data ng server bawat 10 minuto at itinatago nang 90 araw. Lokal na tinutukoy ang bansa; hindi ipinapadala ang mga address kahit saan.",
-    "sec_unknown_country": "Hindi alam"
+    "sec_unknown_country": "Hindi alam",
+    "sec_group": "Seguridad"
   },
   "errors": {
     "generic": "May nagkamali",

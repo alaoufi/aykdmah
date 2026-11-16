@@ -1271,7 +1271,8 @@
     "sec_event_admin_login": "Admin area sign-in",
     "sec_none": "No attempts in this period",
     "sec_note": "Server data updates every 10 minutes and is kept for 90 days. Countries are looked up locally; addresses are not sent anywhere.",
-    "sec_unknown_country": "Unknown"
+    "sec_unknown_country": "Unknown",
+    "sec_group": "Security"
   },
   "errors": {
     "generic": "Something went wrong",

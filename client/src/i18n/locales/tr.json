@@ -1271,7 +1271,8 @@
     "sec_event_admin_login": "Yönetim paneline giriş",
     "sec_none": "Bu dönemde girişim yok",
     "sec_note": "Sunucu verisi 10 dakikada bir güncellenir ve 90 gün saklanır. Ülke yerel olarak belirlenir; adresler hiçbir yere gönderilmez.",
-    "sec_unknown_country": "Bilinmiyor"
+    "sec_unknown_country": "Bilinmiyor",
+    "sec_group": "Güvenlik"
   },
   "errors": {
     "generic": "Bir şey ters gitti",

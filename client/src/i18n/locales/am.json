@@ -1271,7 +1271,8 @@
     "sec_event_admin_login": "ወደ አስተዳዳሪ ክፍል መግቢያ",
     "sec_none": "በዚህ ጊዜ ምንም ሙከራ የለም",
     "sec_note": "የሰርቨር መረጃ በየ10 ደቂቃው ይዘመናል፣ ለ90 ቀናትም ይቀመጣል። ሀገር በአካባቢው ይለያል፤ አድራሻዎች ወደ የትም አይላኩም።",
-    "sec_unknown_country": "ያልታወቀ"
+    "sec_unknown_country": "ያልታወቀ",
+    "sec_group": "ደህንነት"
   },
   "errors": {
     "generic": "የሆነ ነገር ተበላሸ",

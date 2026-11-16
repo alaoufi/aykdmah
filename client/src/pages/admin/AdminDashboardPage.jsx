@@ -104,6 +104,7 @@ export default function AdminDashboardPage() {
   ];
 
   const QUICK_ACTIONS = [
+    { to: '/admin/security', icon: '🛡️', labelKey: 'admin.security_report', perm: 'activity_logs.view' },
     { to: '/admin/users', icon: '👥', labelKey: 'admin.users', perm: 'users.manage' },
     { to: '/admin/conversations', icon: '💬', labelKey: 'admin.conversations_monitor', perm: 'conversations.read' },
     { to: '/admin/locations', icon: '🗺️', labelKey: 'admin.locations', perm: 'locations.manage' },
