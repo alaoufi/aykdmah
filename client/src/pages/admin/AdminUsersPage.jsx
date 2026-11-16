@@ -1,3 +1,4 @@
+import ScrollStrip from '../../components/common/ScrollStrip';
 import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
 import { localizedJoinedName } from '../../utils/localizeJoined';
 import { useEffect, useRef, useState } from 'react';
@@ -209,7 +210,7 @@ export default function AdminUsersPage() {
       {error && <div role="alert" className="px-4 py-2 rounded-card bg-rose-50 text-rose-700 text-[13px]">{error}</div>}
 
       <div className="bg-white rounded-card border border-slate-100 p-4 md:p-5 flex flex-wrap items-center gap-3 shadow-soft">
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar -mx-1 px-1">
+        <ScrollStrip className="flex items-center gap-1.5 -mx-1 px-1">
           {ROLE_TABS.map((tab) => (
             <button
               key={tab.value}
@@ -223,7 +224,7 @@ export default function AdminUsersPage() {
               {tab.label}
             </button>
           ))}
-        </div>
+        </ScrollStrip>
         <form onSubmit={onSearch} className="flex-1 min-w-[200px] md:max-w-[320px] md:ms-auto relative">
           <span className="absolute inset-y-0 right-3 grid place-items-center text-slate-400 pointer-events-none">
             <IconSearch size={16} />

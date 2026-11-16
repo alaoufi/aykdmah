@@ -34,7 +34,9 @@
     "advertisement": "ማስታወቂያ",
     "speed_unit": "ኪሜ/ሰዓት",
     "meter_short": "m",
-    "kilometer_short": "ኪሎ ሜትር"
+    "kilometer_short": "ኪሎ ሜትር",
+    "scroll_left": "ወደ ግራ ያንሸራትቱ",
+    "scroll_right": "ወደ ቀኝ ያንሸራትቱ"
   },
   "nav": {
     "home": "ቤት",

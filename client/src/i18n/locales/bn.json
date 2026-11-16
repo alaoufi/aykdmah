@@ -34,7 +34,9 @@
     "advertisement": "বিজ্ঞাপন",
     "speed_unit": "কিমি/ঘণ্টা",
     "meter_short": "মিটার",
-    "kilometer_short": "কিমি"
+    "kilometer_short": "কিমি",
+    "scroll_left": "বামে স্ক্রল করুন",
+    "scroll_right": "ডানে স্ক্রল করুন"
   },
   "nav": {
     "home": "হোম",

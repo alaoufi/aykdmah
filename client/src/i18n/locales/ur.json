@@ -34,7 +34,9 @@
     "advertisement": "اشتہار",
     "speed_unit": "کلومیٹر/گھنٹہ",
     "meter_short": "میٹر",
-    "kilometer_short": "کلومیٹر"
+    "kilometer_short": "کلومیٹر",
+    "scroll_left": "بائیں سکرول کریں",
+    "scroll_right": "دائیں سکرول کریں"
   },
   "nav": {
     "home": "ہوم",

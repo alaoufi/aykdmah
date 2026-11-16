@@ -1,3 +1,4 @@
+import ScrollStrip from '../../components/common/ScrollStrip';
 import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
 import { localizedName } from '../../utils/localize';
 import { useEffect, useRef, useState } from 'react';
@@ -504,7 +505,7 @@ export default function AdminAdsPage() {
 
       {section === 'manage' && (<>
       <div className="bg-white rounded-card border border-slate-100 p-3 shadow-soft space-y-3">
-        <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
+        <ScrollStrip className="flex gap-1.5">
           {STATUS_TABS.map((tab) => (
             <button key={tab.value} onClick={() => setStatusFilter(tab.value)}
               className={`shrink-0 px-3.5 py-1.5 rounded-pill text-[12.5px] font-semibold transition border ${
@@ -513,7 +514,7 @@ export default function AdminAdsPage() {
                   : 'bg-white text-slate-600 border-slate-200 hover:border-brand-300'
               }`}>{tab.label}</button>
           ))}
-        </div>
+        </ScrollStrip>
         <input value={search} onChange={(e) => setSearch(e.target.value)}
           placeholder={t('admin.search_placeholder')}
           className="w-full px-3 py-2 rounded-pill border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[13px]" />

@@ -34,7 +34,9 @@
     "advertisement": "Iklan",
     "speed_unit": "km/jam",
     "meter_short": "m",
-    "kilometer_short": "km"
+    "kilometer_short": "km",
+    "scroll_left": "Gulir ke kiri",
+    "scroll_right": "Gulir ke kanan"
   },
   "nav": {
     "home": "Rumah",

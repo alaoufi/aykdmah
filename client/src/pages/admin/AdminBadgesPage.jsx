@@ -1,3 +1,4 @@
+import ScrollStrip from '../../components/common/ScrollStrip';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { adminListBadges, adminApproveBadge, adminRejectBadge } from '../../services/badgeService';
@@ -100,7 +101,7 @@ export default function AdminBadgesPage() {
       )}
 
       <div className="bg-white rounded-card border border-slate-100 p-3 shadow-soft">
-        <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
+        <ScrollStrip className="flex gap-1.5">
           {STATUS_TABS.map((tab) => (
             <button key={tab.value}
               onClick={() => { setStatus(tab.value); setPage(1); }}
@@ -111,7 +112,7 @@ export default function AdminBadgesPage() {
               }`}
             >{t(tab.labelKey)}</button>
           ))}
-        </div>
+        </ScrollStrip>
       </div>
 
       {loading ? (

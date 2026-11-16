@@ -175,7 +175,8 @@ export default function AdminSettingsPage() {
 
       {/* Sticky horizontal tab strip — mobile-first */}
       <div className="bg-white rounded-card border border-slate-100 shadow-soft sticky top-0 z-10">
-        <div className="flex gap-1 overflow-x-auto no-scrollbar p-2">
+        {/* All tabs always visible, wrapping onto more lines when the screen is narrow (owner's choice). */}
+        <div className="flex flex-wrap gap-2 p-3 pb-4">
           {TABS.map((tab) => {
             const active = activeTab === tab.key;
             // Show a small dot when the tab has settings in it.
@@ -183,13 +184,18 @@ export default function AdminSettingsPage() {
             return (
               <button
                 key={tab.key}
+                aria-selected={active}
                 onClick={() => setActiveTab(tab.key)}
-                className={`shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-pill text-[13px] font-semibold transition ${
+                // 3D tabs (owner's choice): raised keys with a bottom edge; the selected one is pressed in.
+                className={`shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl text-[13px] font-semibold border transition-all duration-150 ${
                   active
-                    ? 'text-white shadow-soft'
-                    : 'text-slate-600 hover:text-brand-700 hover:bg-slate-50'
+                    ? 'text-white border-transparent translate-y-[2px]'
+                    : 'text-slate-700 bg-gradient-to-b from-white to-slate-50 border-slate-200 hover:-translate-y-[1px] hover:text-brand-700 active:translate-y-[2px]'
                 }`}
-                style={active ? { background: 'linear-gradient(135deg, rgb(var(--color-primary-from)), rgb(var(--color-primary-to)))' } : undefined}
+                style={active
+                  ? { background: 'linear-gradient(180deg, rgb(var(--color-primary-from)), rgb(var(--color-primary-to)))',
+                      boxShadow: 'inset 0 2px 4px rgba(0,0,0,.25), 0 1px 0 rgba(0,0,0,.15)' }
+                  : { boxShadow: '0 3px 0 rgb(203 213 225), 0 5px 10px rgba(15,23,42,.08), inset 0 1px 0 #fff' }}
               >
                 <span>{GROUP_ICONS[tab.key]}</span>
                 <span>{tab.label}</span>

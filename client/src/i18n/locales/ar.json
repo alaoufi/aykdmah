@@ -34,7 +34,9 @@
     "advertisement": "إعلان",
     "speed_unit": "كم/س",
     "meter_short": "م",
-    "kilometer_short": "كم"
+    "kilometer_short": "كم",
+    "scroll_left": "مرّر لليسار",
+    "scroll_right": "مرّر لليمين"
   },
   "nav": {
     "home": "الرئيسية",

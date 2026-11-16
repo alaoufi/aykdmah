@@ -34,7 +34,9 @@
     "advertisement": "Advertisement",
     "speed_unit": "km/h",
     "meter_short": "m",
-    "kilometer_short": "km"
+    "kilometer_short": "km",
+    "scroll_left": "Scroll left",
+    "scroll_right": "Scroll right"
   },
   "nav": {
     "home": "Home",

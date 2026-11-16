@@ -34,7 +34,9 @@
     "advertisement": "പരസ്യം",
     "speed_unit": "കിലോമീറ്റർ/മണിക്കൂർ",
     "meter_short": "m",
-    "kilometer_short": "കിലോമീറ്റർ"
+    "kilometer_short": "കിലോമീറ്റർ",
+    "scroll_left": "ഇടത്തേക്ക് സ്ക്രോൾ ചെയ്യുക",
+    "scroll_right": "വലത്തേക്ക് സ്ക്രോൾ ചെയ്യുക"
   },
   "nav": {
     "home": "വീട്",
