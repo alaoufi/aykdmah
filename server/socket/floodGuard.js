@@ -1,8 +1,8 @@
-// Socket flood guard (AYK-243). Before authentication: at most CONNECT_PER_MINUTE new connections a
+// Socket flood guard (AYK-243). Before authentication: at most CONNECT_PER_MINUTE (300) new connections a
 // minute from one address. After authentication: at most SOCKETS_PER_USER live connections for one
 // account (tabs, phone and app together stay far below it). Refusals are counted, and the first
 // refusal of each address and minute is recorded for the admin security report.
-const CONNECT_PER_MINUTE = Number(process.env.SOCKET_CONNECT_PER_MINUTE) || 60;
+const CONNECT_PER_MINUTE = Number(process.env.SOCKET_CONNECT_PER_MINUTE) || 300; // generous: carriers share addresses
 const SOCKETS_PER_USER = Number(process.env.SOCKETS_PER_USER) || 12;
 
 const windows = new Map(); // address -> { start, count, logged }
