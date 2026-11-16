@@ -6,6 +6,9 @@ import EmptyState from '../../components/admin/EmptyState';
 import { formatRelativeTime } from '../../utils/formatters';
 import { apiError } from '../../services/api';
 
+const SECURITY_ACTIONS = ['login_failed', 'login_locked', 'login_while_locked'];
+const AUTH_ACTIONS = [...SECURITY_ACTIONS, 'admin_login'];
+
 export default function AdminActivityLogsPage() {
   const { t } = useTranslation();
   const [items, setItems] = useState([]);
@@ -13,20 +16,31 @@ export default function AdminActivityLogsPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [error, setError] = useState('');
+  const [action, setAction] = useState('');
 
   useEffect(() => {
     let active = true;
     setLoading(true); setError('');
-    listActivityLogs({ page, limit: 50 })
+    listActivityLogs({ page, limit: 50, ...(action ? { action } : {}) })
       .then((res) => { if (active) { setItems(res.data || []); setMeta(res.meta); } })
       .catch((e) => { if (active) { setItems([]); setMeta(null); setError(apiError(e)); } })
       .finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
-  }, [page]);
+  }, [page, action]);
 
   return (
     <div className="space-y-6">
       <AdminPageHeader title={t('admin.activity_logs')} count={meta?.pagination?.total} />
+
+      {/* AYK-240: security events (failed sign-ins and lockouts) can be shown on their own. */}
+      <label className="flex items-center gap-2 text-[13px] text-slate-600">
+        {t('admin.log_filter_label')}
+        <select value={action} onChange={(e) => { setPage(1); setAction(e.target.value); }}
+          className="border border-slate-200 rounded-lg px-3 py-1.5 bg-white text-ink">
+          <option value="">{t('admin.log_filter_all')}</option>
+          {AUTH_ACTIONS.map((a) => <option key={a} value={a}>{t(`admin.log_${a}`)}</option>)}
+        </select>
+      </label>
 
       {error && <div role="alert" className="text-rose-700 text-[13px]">{error}</div>}
 
@@ -58,10 +72,12 @@ export default function AdminActivityLogsPage() {
                   <tr key={l.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition">
                     <td className="px-5 py-3 text-[13px] font-semibold text-ink">{l.full_name || '—'}</td>
                     <td className="py-3 text-[12.5px] text-slate-700">
-                      <span className="inline-flex px-2 py-0.5 rounded-pill bg-brand-50 text-brand-700 font-bold text-[11px]">{l.action}</span>
+                      <span className={`inline-flex px-2 py-0.5 rounded-pill font-bold text-[11px] ${SECURITY_ACTIONS.includes(l.action) ? 'bg-rose-50 text-rose-700' : 'bg-brand-50 text-brand-700'}`}>
+                        {AUTH_ACTIONS.includes(l.action) ? t(`admin.log_${l.action}`) : l.action}
+                      </span>
                     </td>
                     <td className="py-3 text-[12px] text-slate-600">
-                      {l.target_type || '—'}{l.target_id ? ` #${l.target_id}` : ''}
+                      {l.entity_type || '—'}{l.entity_id ? ` #${l.entity_id}` : ''}
                     </td>
                     <td className="py-3 text-[11.5px] text-slate-500 font-mono">{l.ip_address || '—'}</td>
                     <td className="py-3 px-5 text-[11.5px] text-slate-400">{formatRelativeTime(l.created_at)}</td>

@@ -16,7 +16,8 @@ async function emitPresence(io, userId, isOnline) {
 
 function initSocket(httpServer) {
   const io = new Server(httpServer, {
-    cors: { origin: env.CLIENT_URL || '*', credentials: true },
+    // AYK-240: the same origins as the API (never "*"); native apps send no Origin header.
+    cors: { origin: [env.CLIENT_URL, env.APP_URL].filter(Boolean), credentials: true },
     pingTimeout: 30000,
     maxHttpBufferSize: 64 * 1024,
   });

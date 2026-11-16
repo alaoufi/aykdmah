@@ -288,15 +288,20 @@ const deleteAd = asyncHandler(async (req, res) => {
 });
 
 const activityLogs = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 50 } = req.query;
+  // AYK-240: bounded paging and an optional action filter (e.g. ?action=login_failed).
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const limit = Math.min(200, Math.max(1, parseInt(req.query.limit, 10) || 50));
   const offset = (page - 1) * limit;
+  const action = typeof req.query.action === 'string' && /^[a-z_]{1,100}$/.test(req.query.action) ? req.query.action : null;
+  const where = action ? 'WHERE al.action = ?' : '';
+  const params = action ? [action] : [];
   const items = await query(
     `SELECT al.*, u.full_name FROM activity_logs al
      LEFT JOIN users u ON al.user_id = u.id
-     ORDER BY al.created_at DESC LIMIT ? OFFSET ?`,
-    [Number(limit), Number(offset)]
+     ${where} ORDER BY al.created_at DESC LIMIT ? OFFSET ?`,
+    [...params, limit, offset]
   );
-  const [{ total }] = await query('SELECT COUNT(*) AS total FROM activity_logs');
+  const [{ total }] = await query(`SELECT COUNT(*) AS total FROM activity_logs al ${where}`, params);
   return paginate(res, items, total, page, limit);
 });
 

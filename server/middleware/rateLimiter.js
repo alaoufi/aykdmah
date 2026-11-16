@@ -65,4 +65,15 @@ const uploadLimiter = rateLimit({
   message: { success: false, message: 'تجاوزت حد رفع الملفات. حاول لاحقاً.' },
 });
 
-module.exports = { generalLimiter, authLimiter, accountAuthLimiter, uploadLimiter, AuthRateLimitStore };
+// AYK-240: SMS codes cost money. Besides the per-number resend wait and daily cap, one address
+// may ask for at most 10 codes an hour (to any numbers), which stops SMS pumping.
+const smsLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: Number(process.env.SMS_RATE_LIMIT) || 10,
+  store: new AuthRateLimitStore('sms-ip'),
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'محاولات كثيرة. حاول لاحقاً.' },
+});
+
+module.exports = { generalLimiter, authLimiter, accountAuthLimiter, uploadLimiter, smsLimiter, AuthRateLimitStore };

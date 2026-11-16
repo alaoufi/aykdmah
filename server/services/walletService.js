@@ -164,7 +164,11 @@ async function requestWithdrawal(user, { amount, iban, account_name, password })
     await conn.execute('SELECT id FROM users WHERE id = ? FOR UPDATE', [user.id]);
     const [open] = await conn.execute("SELECT id FROM withdrawal_requests WHERE user_id = ? AND status = 'pending'", [user.id]);
     if (open.length) throw fail(409, 'withdrawal_pending');
-    if (await balanceIn(conn, user.id) < halalas) throw fail(409, 'insufficient_balance');
+    // AYK-240: commissions earned from test payments (note 'test') never become bank money, even
+    // after test mode is switched off for a real gateway.
+    const [testCredits] = await conn.execute(
+      "SELECT COALESCE(SUM(amount), 0) AS total FROM wallet_transactions WHERE user_id = ? AND note = 'test' AND amount > 0 AND status <> 'cancelled'", [user.id]);
+    if (await balanceIn(conn, user.id) - toHalalas(testCredits[0].total) < halalas) throw fail(409, 'insufficient_balance');
     const txId = await insertTx(conn, { userId: user.id, halalas: -halalas, type: 'withdrawal', status: 'pending', referenceType: 'withdrawal' });
     const [result] = await conn.execute(
       'INSERT INTO withdrawal_requests (user_id, amount, iban, account_name, wallet_transaction_id) VALUES (?, ?, ?, ?, ?)',

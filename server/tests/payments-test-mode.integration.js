@@ -124,6 +124,16 @@ if (!databasePrefix) {
     assert.equal(ask.status, 409);
     assert.equal(ask.body.message, 'test_mode_withdrawals_disabled');
     assert.equal(Number((await db.queryOne('SELECT COUNT(*) AS n FROM withdrawal_requests')).n), 0);
+    // AYK-240: after test mode is switched off (a real gateway), the test commission still cannot leave.
+    const saved = env.PAYMENT.PROVIDER;
+    env.PAYMENT.PROVIDER = '';
+    try {
+      const later = await api('/wallet/withdrawals', { user: users.referrer, method: 'POST',
+        body: { amount: 2, iban: 'SA0380000000608010167519', account_name: 'Referrer Name', password: PASSWORD } });
+      assert.equal(later.status, 409);
+      assert.equal(later.body.message, 'insufficient_balance');
+      assert.equal(Number((await db.queryOne('SELECT COUNT(*) AS n FROM withdrawal_requests')).n), 0);
+    } finally { env.PAYMENT.PROVIDER = saved; }
   });
 
   test('the test endpoints refuse everything when test mode is off', async () => {

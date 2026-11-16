@@ -1218,7 +1218,13 @@
       "second_done": "Kasama na ng ikalawang I-publish ang “{{field}}”"
     },
     "user_field_invalid": "Hindi tama ang value na ito",
-    "user_fix_marked": "Ayusin ang field na naka-pula, saka i-save."
+    "user_fix_marked": "Ayusin ang field na naka-pula, saka i-save.",
+    "log_filter_all": "Lahat ng pangyayari",
+    "log_login_failed": "Bigong pag-sign in",
+    "log_login_locked": "Na-lock ang account matapos ang maling pagsubok",
+    "log_login_while_locked": "Pag-sign in sa naka-lock na account",
+    "log_filter_label": "Uri ng pangyayari",
+    "log_admin_login": "Pag-sign in sa admin area"
   },
   "errors": {
     "generic": "May nagkamali",

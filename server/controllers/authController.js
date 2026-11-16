@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { logSecurityEvent } = require('../utils/securityLog');
 const Setting = require('../models/Setting');
 const { hashPassword, comparePassword } = require('../utils/hash');
 const { sign } = require('../utils/jwt');
@@ -21,9 +22,11 @@ const { sessionCookieName, requestScope, asSiteUser } = require('../middleware/a
 async function issueSession(req, res, user) {
   const scope = requestScope(req);
   const sv = await User.areaSessionVersion(user.id, scope);
-  // AYK-208: the site and the app stay signed in on the device (a year); the admin area keeps the default.
+  // AYK-208: the site and the app stay signed in on the device (a year). AYK-240: the admin area
+  // gets a short session (12 hours by default) and every admin sign-in is logged.
   const token = sign({ id: user.id, role: user.role, auth_version: Number(user.auth_version || 0), scope, sv },
-    scope === 'site' ? { expiresIn: process.env.SITE_SESSION_EXPIRES_IN || '365d' } : {});
+    { expiresIn: scope === 'site' ? (process.env.SITE_SESSION_EXPIRES_IN || '365d') : (process.env.ADMIN_SESSION_EXPIRES_IN || '12h') });
+  if (scope === 'admin') await logSecurityEvent(req, 'admin_login', { userId: user.id });
   const expires = require('../utils/jwt').decode(token)?.exp;
   res.cookie(sessionCookieName(req), token, { ...cookieOptions(), ...(expires ? { expires: new Date(expires * 1000) } : {}) });
   return token;
@@ -298,17 +301,28 @@ const login = asyncHandler(async (req, res) => {
   if (!id) return error(res, req.t('invalid_credentials'), 400);
 
   let user = await User.findByIdentifier(id);
-  if (!user) return unauthorized(res, req.t('invalid_credentials'));
+  if (!user) {
+    await logSecurityEvent(req, 'login_failed', { description: 'unknown account' });
+    return unauthorized(res, req.t('invalid_credentials'));
+  }
   // AYK-208: locked after 5 wrong passwords until an SMS-code password reset.
-  if (user.login_locked_at) return error(res, req.t('account_locked_reset'), 423);
+  if (user.login_locked_at) {
+    await logSecurityEvent(req, 'login_while_locked', { userId: user.id });
+    return error(res, req.t('account_locked_reset'), 423);
+  }
   // Phone sign-in (AYK-041): a code sent by SMS instead of a password.
   if (req.body.phone_code) {
     const check = await phoneCodes.verifyCode({ phone: phoneCodes.normalizePhone(id), purpose: 'login', code: req.body.phone_code });
-    if (!check.ok) return unauthorized(res, req.t(CODE_ERRORS[check.reason] || 'phone_code_invalid'));
+    if (!check.ok) {
+      await logSecurityEvent(req, 'login_failed', { userId: user.id, description: 'phone code' });
+      return unauthorized(res, req.t(CODE_ERRORS[check.reason] || 'phone_code_invalid'));
+    }
   } else {
     const valid = await comparePassword(password || '', user.password_hash || '');
     if (!valid) {
-      if (await User.recordFailedLogin(user)) return error(res, req.t('account_locked_reset'), 423);
+      const locked = await User.recordFailedLogin(user);
+      await logSecurityEvent(req, locked ? 'login_locked' : 'login_failed', { userId: user.id, description: 'password' });
+      if (locked) return error(res, req.t('account_locked_reset'), 423);
       return unauthorized(res, req.t('invalid_credentials'));
     }
   }

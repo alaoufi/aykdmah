@@ -155,9 +155,9 @@ if (process.env.AYK_SUPPORT_TEST !== '1') {
     const taken = await api(`/users/${review.id}`, admin, 409, 'PUT', { email: `owner-${owner.id}@example.test` });
     assert.equal(taken.errors.field, 'email');
     assert.match(taken.message, /البريد|Email/);
-    await api(`/users/${review.id}`, admin, 200, 'PUT', { password: 'Review2026Ayk' });
+    await api(`/users/${review.id}`, admin, 200, 'PUT', { password: 'Local-Support-Review-240' });
     const login = await fetch(`${base}/auth/login`, { method: 'POST', headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ identifier: review.username, password: 'Review2026Ayk' }) });
+      body: JSON.stringify({ identifier: review.username, password: 'Local-Support-Review-240' }) });
     assert.equal(login.status, 200);
   });
 
@@ -166,7 +166,7 @@ if (process.env.AYK_SUPPORT_TEST !== '1') {
     const old = await fixture('client');
     await db.query('UPDATE users SET phone = ? WHERE id = ?', [`05${String(old.id).padStart(8, '0')}`, old.id]);
     await api(`/users/${old.id}`, admin, 200, 'DELETE');
-    const again = await api('/users', admin, 201, 'POST', { full_name: 'Again', username: old.username, phone: `05${String(old.id).padStart(8, '0')}`, password: 'Review2026Ayk', role: 'client' });
+    const again = await api('/users', admin, 201, 'POST', { full_name: 'Again', username: old.username, phone: `05${String(old.id).padStart(8, '0')}`, password: 'Local-Support-Review-240', role: 'client' });
     assert.equal(again.data.username, old.username);
   });
 

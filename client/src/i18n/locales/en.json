@@ -1218,7 +1218,13 @@
       "second_done": "“{{field}}” now shows with the second Publish"
     },
     "user_field_invalid": "This value is not valid",
-    "user_fix_marked": "Fix the field marked in red, then save."
+    "user_fix_marked": "Fix the field marked in red, then save.",
+    "log_filter_all": "All events",
+    "log_login_failed": "Failed sign-in",
+    "log_login_locked": "Account locked after wrong attempts",
+    "log_login_while_locked": "Sign-in to a locked account",
+    "log_filter_label": "Event type",
+    "log_admin_login": "Admin area sign-in"
   },
   "errors": {
     "generic": "Something went wrong",

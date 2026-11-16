@@ -1218,7 +1218,13 @@
       "second_done": "«{{field}}» अब दोस्रो प्रकाशनसँग छ"
     },
     "user_field_invalid": "यो फिल्डको मान सही छैन",
-    "user_fix_marked": "रातोले चिन्ह लगाएको फिल्ड सच्याएर सुरक्षित गर्नुहोस्।"
+    "user_fix_marked": "रातोले चिन्ह लगाएको फिल्ड सच्याएर सुरक्षित गर्नुहोस्।",
+    "log_filter_all": "सबै घटनाहरू",
+    "log_login_failed": "असफल साइन-इन",
+    "log_login_locked": "गलत प्रयासपछि खाता लक",
+    "log_login_while_locked": "लक भएको खातामा साइन-इन",
+    "log_filter_label": "घटनाको प्रकार",
+    "log_admin_login": "एडमिन क्षेत्रमा साइन-इन"
   },
   "errors": {
     "generic": "केही गल्ती भयो",

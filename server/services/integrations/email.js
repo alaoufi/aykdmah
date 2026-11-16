@@ -1,4 +1,6 @@
 const { providerFetch } = require('../../utils/integrationHttp');
+// Plain text placed in HTML is escaped (AYK-240), whatever it contains.
+const escapeHtml = value => String(value ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 // Email adapters — SendGrid + Resend + console fallback. SMTP is left
 // as a future plug-in (would require nodemailer dependency).
 
@@ -41,7 +43,7 @@ async function resendSend({ credentials, config, to, subject, html, text }) {
     },
     body: JSON.stringify({
       from, to, subject,
-      html: html || `<p>${text || subject}</p>`,
+      html: html || `<p>${escapeHtml(text || subject)}</p>`,
       text: text || subject,
     }),
   });

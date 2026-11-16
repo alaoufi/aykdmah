@@ -320,6 +320,12 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     const plain = await createUser();
     const plainLogin = (await api('/auth/login', { method: 'POST', body: { identifier: plain.username, password } })).data;
     await api('/auth/admin-session', { token: plainLogin.token, method: 'POST', headers: { 'X-Ayk-Scope': 'admin' }, expected: 403 });
+    // AYK-240: the admin session is short (12 hours) and each admin sign-in is logged; the site keeps a year.
+    const life = token => { const p = jwt.decode(token); return p.exp - p.iat; };
+    assert.equal(life(opened.token), 12 * 3600);
+    assert.equal(life(fresh.token), 365 * 24 * 3600);
+    const logged = await db.query("SELECT COUNT(*) AS n FROM activity_logs WHERE user_id = ? AND action = 'admin_login'", [user.id]);
+    assert.equal(Number(logged[0].n), 3);
   });
 
   test('AYK-208: five wrong passwords lock an account with a phone until an SMS reset', async () => {
@@ -335,6 +341,71 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     const row = await User.findByIdRaw(user.id);
     assert.equal(Number(row.failed_logins), 0);
     assert.equal(row.login_locked_at, null);
+  });
+
+  test('AYK-240: failed sign-ins, lockouts and locked sign-ins are logged without secrets', async () => {
+    const phone = '05' + String(Date.now() + 7).slice(-8);
+    const user = await createUser('client', { phone });
+    const wrong = 'Wrong-Secret-Value-240';
+    await db.query('DELETE FROM auth_rate_limits'); // earlier tests' attempts must not throttle this one
+    for (let i = 1; i < User.LOGIN_LOCK_AFTER; i += 1) await api('/auth/login', { method: 'POST', body: { identifier: user.username, password: wrong }, expected: 401 });
+    await api('/auth/login', { method: 'POST', body: { identifier: user.username, password: wrong }, expected: 423 });
+    await api('/auth/login', { method: 'POST', body: { identifier: user.username, password }, expected: 423 });
+    await api('/auth/login', { method: 'POST', body: { identifier: 'nobody_' + identity(), password: wrong }, expected: 401 });
+    const rows = await db.query('SELECT action, description, ip_address FROM activity_logs WHERE user_id = ? ORDER BY id', [user.id]);
+    assert.deepEqual(rows.map(r => r.action), [...Array(User.LOGIN_LOCK_AFTER - 1).fill('login_failed'), 'login_locked', 'login_while_locked']);
+    assert.ok(rows.every(r => r.ip_address));
+    const unknown = await db.query("SELECT COUNT(*) AS n FROM activity_logs WHERE action = 'login_failed' AND user_id IS NULL");
+    assert.ok(Number(unknown[0].n) >= 1);
+    const all = JSON.stringify(await db.query('SELECT * FROM activity_logs'));
+    assert.ok(!all.includes(wrong) && !all.includes(password));
+    await User.clearFailedLogins(user.id);
+    await db.query('DELETE FROM auth_rate_limits'); // this test's attempts must not throttle the next ones
+  });
+
+  test('AYK-240: SQL injection text is treated as data in sign-in and public search', async () => {
+    await db.query('DELETE FROM auth_rate_limits');
+    for (const identifier of ["' OR '1'='1", "admin'--", "1; DROP TABLE users; --"]) {
+      await api('/auth/login', { method: 'POST', body: { identifier, password: "' OR '1'='1" }, expected: 401 });
+    }
+    for (const search of ["' OR 1=1 --", "%' UNION SELECT password_hash FROM users --"]) {
+      const { data } = await api(`/services?search=${encodeURIComponent(search)}`);
+      assert.ok(!JSON.stringify(data).includes('$2'), 'no password hash leaks');
+    }
+    assert.ok(Number((await db.query('SELECT COUNT(*) AS n FROM users'))[0].n) > 0, 'users table intact');
+    await db.query('DELETE FROM auth_rate_limits');
+  });
+
+  test('AYK-240: one address can ask for at most 10 SMS codes an hour, to any numbers', async () => {
+    await db.query('DELETE FROM auth_rate_limits');
+    const statuses = [];
+    for (let i = 0; i < 11; i += 1) {
+      const response = await fetch(base + '/auth/phone-code', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ phone: '05' + String(10000000 + i * 7919), purpose: 'register' }) });
+      statuses.push(response.status);
+    }
+    assert.ok(statuses.slice(0, 10).every(code => code !== 429), statuses.join(','));
+    assert.equal(statuses[10], 429);
+    await db.query('DELETE FROM auth_rate_limits');
+  });
+
+  test('AYK-240: reset codes expire, work once, and wrong guesses are capped per day across codes', async () => {
+    const phoneCodes = require('../services/phoneCodeService');
+    const { hashCode } = require('../models/UserVerification');
+    const phone = '+9665' + String(Date.now()).slice(-8);
+    const add = (code, minutes = 10) => db.query(`INSERT INTO phone_codes (phone, purpose, code_hash, max_attempts, expires_at)
+      VALUES (?, 'reset', ?, 5, CURRENT_TIMESTAMP + (?::int * INTERVAL '1 minute'))`, [phone, hashCode(code), minutes]);
+    await add('1234', -1); // already expired
+    assert.equal((await phoneCodes.verifyCode({ phone, purpose: 'reset', code: '1234' })).reason, 'no_active_code');
+    await add('2345');
+    assert.equal((await phoneCodes.verifyCode({ phone, purpose: 'reset', code: '2345' })).ok, true);
+    assert.equal((await phoneCodes.verifyCode({ phone, purpose: 'reset', code: '2345' })).ok, false, 'single use');
+    // Ten wrong guesses over two codes; after that even the right code of a new one is refused today.
+    for (let c = 0; c < 2; c += 1) {
+      await add('9999');
+      for (let i = 0; i < 5; i += 1) assert.equal((await phoneCodes.verifyCode({ phone, purpose: 'reset', code: '000' + i })).ok, false);
+    }
+    await add('4321');
+    assert.deepEqual(await phoneCodes.verifyCode({ phone, purpose: 'reset', code: '4321' }), { ok: false, reason: 'max_attempts' });
   });
 
   test('password replacement revokes existing sessions and preserves full long passwords', async () => {

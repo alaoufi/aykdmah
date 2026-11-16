@@ -1218,7 +1218,13 @@
       "second_done": "«{{field}}» अब दूसरे प्रकाशित के साथ है"
     },
     "user_field_invalid": "इस फ़ील्ड का मान सही नहीं है",
-    "user_fix_marked": "लाल चिह्नित फ़ील्ड ठीक करें, फिर सहेजें।"
+    "user_fix_marked": "लाल चिह्नित फ़ील्ड ठीक करें, फिर सहेजें।",
+    "log_filter_all": "सभी घटनाएँ",
+    "log_login_failed": "असफल साइन-इन",
+    "log_login_locked": "गलत प्रयासों के बाद खाता लॉक",
+    "log_login_while_locked": "लॉक खाते में साइन-इन",
+    "log_filter_label": "घटना का प्रकार",
+    "log_admin_login": "एडमिन क्षेत्र में साइन-इन"
   },
   "errors": {
     "generic": "कुछ गलत हो गया",

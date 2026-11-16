@@ -1218,7 +1218,13 @@
       "second_done": "«{{field}}» አሁን ከሁለተኛው ማተም ጋር ነው"
     },
     "user_field_invalid": "ይህ እሴት ትክክል አይደለም",
-    "user_fix_marked": "በቀይ የተመለከተውን መስክ አስተካክለው ያስቀምጡ።"
+    "user_fix_marked": "በቀይ የተመለከተውን መስክ አስተካክለው ያስቀምጡ።",
+    "log_filter_all": "ሁሉም ክስተቶች",
+    "log_login_failed": "ያልተሳካ መግቢያ",
+    "log_login_locked": "ከተሳሳቱ ሙከራዎች በኋላ የተቆለፈ መለያ",
+    "log_login_while_locked": "ወደ ተቆለፈ መለያ መግቢያ",
+    "log_filter_label": "የክስተት አይነት",
+    "log_admin_login": "ወደ አስተዳዳሪ ክፍል መግቢያ"
   },
   "errors": {
     "generic": "የሆነ ነገር ተበላሸ",

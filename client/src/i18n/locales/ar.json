@@ -1218,7 +1218,13 @@
       "second_done": "صار «{{field}}» مع النشر الثاني"
     },
     "user_field_invalid": "قيمة غير صحيحة في هذا الحقل",
-    "user_fix_marked": "صحّح الحقل المعلَّم بالأحمر ثم احفظ."
+    "user_fix_marked": "صحّح الحقل المعلَّم بالأحمر ثم احفظ.",
+    "log_filter_all": "كل الأحداث",
+    "log_login_failed": "محاولة دخول فاشلة",
+    "log_login_locked": "قفل حساب بعد محاولات خاطئة",
+    "log_login_while_locked": "دخول إلى حساب مقفل",
+    "log_filter_label": "نوع الحدث",
+    "log_admin_login": "دخول إلى لوحة الإدارة"
   },
   "errors": {
     "generic": "حدث خطأ",

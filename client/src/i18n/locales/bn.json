@@ -1218,7 +1218,13 @@
       "second_done": "«{{field}}» এখন দ্বিতীয় প্রকাশের সাথে"
     },
     "user_field_invalid": "এই ঘরের মান সঠিক নয়",
-    "user_fix_marked": "লাল চিহ্নিত ঘরটি ঠিক করে সংরক্ষণ করুন।"
+    "user_fix_marked": "লাল চিহ্নিত ঘরটি ঠিক করে সংরক্ষণ করুন।",
+    "log_filter_all": "সব ঘটনা",
+    "log_login_failed": "ব্যর্থ সাইন-ইন",
+    "log_login_locked": "ভুল চেষ্টার পর অ্যাকাউন্ট লক",
+    "log_login_while_locked": "লক করা অ্যাকাউন্টে সাইন-ইন",
+    "log_filter_label": "ঘটনার ধরন",
+    "log_admin_login": "অ্যাডমিন এলাকায় সাইন-ইন"
   },
   "errors": {
     "generic": "কিছু ভুল হয়েছে",

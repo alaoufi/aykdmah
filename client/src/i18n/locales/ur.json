@@ -1218,7 +1218,13 @@
       "second_done": "«{{field}}» اب دوسرے شائع کے ساتھ ہے"
     },
     "user_field_invalid": "اس خانے کی قدر درست نہیں",
-    "user_fix_marked": "سرخ نشان والا خانہ درست کریں، پھر محفوظ کریں۔"
+    "user_fix_marked": "سرخ نشان والا خانہ درست کریں، پھر محفوظ کریں۔",
+    "log_filter_all": "تمام واقعات",
+    "log_login_failed": "ناکام سائن اِن",
+    "log_login_locked": "غلط کوششوں کے بعد اکاؤنٹ مقفل",
+    "log_login_while_locked": "مقفل اکاؤنٹ میں سائن اِن",
+    "log_filter_label": "واقعے کی قسم",
+    "log_admin_login": "ایڈمن ایریا میں سائن اِن"
   },
   "errors": {
     "generic": "کچھ غلط ہو گیا",

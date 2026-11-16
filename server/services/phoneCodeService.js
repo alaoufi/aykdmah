@@ -6,6 +6,7 @@ const UserVerification = require('../models/UserVerification');
 
 // Codes sent before a session exists: sign-up and "forgot password" (AYK-016).
 const PURPOSES = ['signup', 'reset', 'login'];
+const DAILY_WRONG_LIMIT = 10; // wrong codes per phone and purpose a day (AYK-240)
 const DAILY_LIMIT = 10; // per phone and purpose, to bound SMS cost and abuse
 
 const normalizePhone = value => String(value || '').trim().replace(/[\s()-]/g, '');
@@ -63,6 +64,11 @@ async function verifyCode({ phone, purpose, code }) {
     const [[row]] = await conn.query(`SELECT * FROM phone_codes WHERE phone = ? AND purpose = ? AND consumed_at IS NULL
       AND expires_at > CURRENT_TIMESTAMP ORDER BY id DESC LIMIT 1 FOR UPDATE`, [phone, purpose]);
     if (!row) return { ok: false, reason: 'no_active_code' };
+    // AYK-240: at most DAILY_WRONG_LIMIT wrong codes a day per number and purpose, across all its
+    // codes, so new codes cannot be used to keep guessing a short code.
+    const [[wrong]] = await conn.query(`SELECT COALESCE(SUM(attempts), 0) AS n FROM phone_codes
+      WHERE phone = ? AND purpose = ? AND created_at > CURRENT_TIMESTAMP - INTERVAL '1 day'`, [phone, purpose]);
+    if (Number(wrong.n) >= DAILY_WRONG_LIMIT) return { ok: false, reason: 'max_attempts' };
     if (row.attempts >= row.max_attempts) {
       await conn.execute('UPDATE phone_codes SET consumed_at = CURRENT_TIMESTAMP WHERE id = ?', [row.id]);
       return { ok: false, reason: 'max_attempts' };

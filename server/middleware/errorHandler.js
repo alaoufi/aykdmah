@@ -6,12 +6,20 @@ function notFoundHandler(req, res, next) {
 }
 
 function errorHandler(err, req, res, next) { // eslint-disable-line no-unused-vars
+  // Errors raised before the locale middleware (e.g. malformed JSON) still get a translated message.
+  if (typeof req.t !== 'function') {
+    const { translate, pickLang } = require('../utils/i18n');
+    const lang = pickLang(req.headers?.['accept-language']);
+    req.t = (key, vars) => translate(lang, key, vars);
+  }
   const inputCodes = new Set(['22P02', '22001', '22003', '23502', '23503', '23514']);
   const databaseStatus = err.code === '23505' ? 409 : inputCodes.has(err.code) ? 400 : null;
   const candidate = Number(err.status || err.statusCode || databaseStatus || 500);
   const status = Number.isInteger(candidate) && candidate >= 400 && candidate <= 599 ? candidate : 500;
+  // AYK-240: body-parser errors (malformed JSON, too large) do not echo parser internals.
+  const parserError = typeof err.type === 'string' && err.type.startsWith('entity.');
   const message = err.message === 'verification_required' && status === 403 ? req.t('verification_required')
-    : databaseStatus ? req.t('invalid_data') : status >= 500 && env.NODE_ENV === 'production'
+    : databaseStatus || parserError ? req.t('invalid_data') : status >= 500 && env.NODE_ENV === 'production'
     ? req.t('server_error') : err.message || req.t('server_error');
 
   logger.error(`${req.method} ${req.path}`, err);

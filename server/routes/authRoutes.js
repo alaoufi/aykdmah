@@ -4,7 +4,7 @@ const router = express.Router();
 
 const authController = require('../controllers/authController');
 const { authenticate } = require('../middleware/auth');
-const { authLimiter, accountAuthLimiter } = require('../middleware/rateLimiter');
+const { authLimiter, accountAuthLimiter, smsLimiter } = require('../middleware/rateLimiter');
 const { validate, sanitizeBody } = require('../middleware/validate');
 const providersChanged = require('../middleware/providersChanged');
 
@@ -28,7 +28,7 @@ router.post(
 );
 
 // Phone codes for sign-up and "forgot password" (AYK-016).
-router.post('/phone-code', authLimiter, sanitizeBody(['phone']), authController.sendPhoneCode);
+router.post('/phone-code', authLimiter, smsLimiter, sanitizeBody(['phone']), authController.sendPhoneCode);
 router.post('/phone-check', authLimiter, sanitizeBody(['phone']), authController.checkPhone);
 router.post('/reset-password', authLimiter, sanitizeBody(['phone']), authController.resetPassword);
 

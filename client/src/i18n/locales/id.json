@@ -1218,7 +1218,13 @@
       "second_done": "“{{field}}” kini bersama Terbitkan kedua"
     },
     "user_field_invalid": "Nilai ini tidak valid",
-    "user_fix_marked": "Perbaiki kolom bertanda merah, lalu simpan."
+    "user_fix_marked": "Perbaiki kolom bertanda merah, lalu simpan.",
+    "log_filter_all": "Semua peristiwa",
+    "log_login_failed": "Gagal masuk",
+    "log_login_locked": "Akun terkunci setelah percobaan salah",
+    "log_login_while_locked": "Masuk ke akun terkunci",
+    "log_filter_label": "Jenis peristiwa",
+    "log_admin_login": "Masuk ke area admin"
   },
   "errors": {
     "generic": "Sesuatu yang salah",

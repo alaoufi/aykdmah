@@ -1218,7 +1218,13 @@
       "second_done": "“{{field}}” artık ikinci Yayınla ile"
     },
     "user_field_invalid": "Bu değer geçerli değil",
-    "user_fix_marked": "Kırmızıyla işaretli alanı düzeltip kaydedin."
+    "user_fix_marked": "Kırmızıyla işaretli alanı düzeltip kaydedin.",
+    "log_filter_all": "Tüm olaylar",
+    "log_login_failed": "Başarısız giriş",
+    "log_login_locked": "Hatalı denemelerden sonra hesap kilitlendi",
+    "log_login_while_locked": "Kilitli hesaba giriş",
+    "log_filter_label": "Olay türü",
+    "log_admin_login": "Yönetim paneline giriş"
   },
   "errors": {
     "generic": "Bir şey ters gitti",

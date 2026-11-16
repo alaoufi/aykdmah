@@ -20,7 +20,7 @@ if (process.env.TRUST_PROXY === '1') app.set('trust proxy', 1);
 app.disable('x-powered-by');
 app.use(helmet({
   contentSecurityPolicy: { directives: {
-    defaultSrc: ["'self'"], scriptSrc: ["'self'", "'wasm-unsafe-eval'"],
+    defaultSrc: ["'self'"], scriptSrc: ["'self'"],
     workerSrc: ["'self'"],
     styleSrc: ["'self'", "'unsafe-inline'", 'https://fonts.googleapis.com'],
     imgSrc: ["'self'", 'data:', 'blob:', 'https:'],

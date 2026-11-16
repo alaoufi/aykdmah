@@ -1,7 +1,8 @@
 const bcrypt = require('bcryptjs');
 const crypto = require('crypto');
 
-const SALT_ROUNDS = 10;
+// Cost 12 (AYK-240): about four times the work of 10 for anyone guessing a stolen hash.
+const SALT_ROUNDS = 12;
 const PREFIX = 'ayk-sha256:';
 const digest = password => crypto.createHash('sha256').update(password, 'utf8').digest('base64');
 
