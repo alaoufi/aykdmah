@@ -6,7 +6,8 @@
 # by listing it), the uploaded files volume and the server .env (secrets; root only).
 # Keeps the last KEEP_DAYS daily sets, and removes deploy-time dumps older than 30 days.
 #
-# Off-server copy (optional): put BACKUP_REMOTE=user@host:/path in /root/aykdmh-backup.conf
+# Off-server copy in Cloudflare R2, encrypted (AYK-247): see deploy/r2-setup.sh.
+# Off-server copy over SSH (optional): put BACKUP_REMOTE=user@host:/path in /root/aykdmh-backup.conf
 # (an SSH target the owner controls, with key login set up for root). Each set is then
 # copied there with rsync over SSH. Nothing is sent anywhere when it is not set.
 set -euo pipefail
@@ -43,6 +44,27 @@ if [[ -n "$BACKUP_REMOTE" ]]; then
     # The off-server copy keeps the same number of days (AYK-165).
     ssh -o BatchMode=yes ${BACKUP_SSH_KEY:+-i $BACKUP_SSH_KEY} "${BACKUP_REMOTE%%:*}" \
         "find '${BACKUP_REMOTE#*:}' -mindepth 1 -maxdepth 1 -type d -mtime +$KEEP_DAYS -exec rm -rf {} +" || log "remote rotation skipped"
+fi
+
+# Off-server encrypted copy in Cloudflare R2 (AYK-247), when deploy/r2-setup.sh has been run.
+# The set (database, uploads, .env) is encrypted on this server (AES-256, key in
+# /etc/aykdmh/backup-encryption.key, kept by the owner too) before upload; R2 keeps 30 days.
+R2_ENV=/etc/aykdmh/r2.env
+R2_KEY=/etc/aykdmh/backup-encryption.key
+if [[ -s "$R2_ENV" && -s "$R2_KEY" ]]; then
+    log "encrypting for R2"
+    mkdir -p "$BASE/offsite"
+    ENC="$BASE/offsite/aykdmh-$STAMP.tar.enc"
+    tar cf - -C "$BASE/daily" "$STAMP" | openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -pass "file:$R2_KEY" -out "$ENC"
+    R2_BUCKET="$(sed -n 's/^R2_BUCKET=//p' "$R2_ENV")"
+    rc() { docker run --rm --network host --env-file "$R2_ENV" -v "$BASE/offsite":/data rclone/rclone:1.68.2 "$@"; }
+    if rc copyto "/data/$(basename "$ENC")" "r2:$R2_BUCKET/daily/$(basename "$ENC")"; then
+        log "uploaded to R2: daily/$(basename "$ENC") ($(du -h "$ENC" | cut -f1))"
+        rc delete --min-age 30d "r2:$R2_BUCKET/daily/" || log "R2 rotation skipped"
+    else
+        log "R2 UPLOAD FAILED (the local set is kept)"
+    fi
+    rm -f "$ENC"
 fi
 
 # Rotation: newest KEEP_DAYS daily sets stay.
