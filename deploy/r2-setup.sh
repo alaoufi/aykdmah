@@ -24,6 +24,13 @@ mkdir -p "$DIR"
 echo "== 1. R2 key for the bucket $BUCKET =="
 if [[ -s "$ENV" && $REENTER -eq 0 ]]; then
   echo "already saved ($ENV): kept as it is (run with --reenter to type it again)"
+  # A secret pasted twice (128 characters, both halves equal) is repaired in place, never printed.
+  saved="$(sed -n 's/^RCLONE_CONFIG_R2_SECRET_ACCESS_KEY=//p' "$ENV")"
+  if [[ ${#saved} -eq 128 && "${saved:0:64}" == "${saved:64}" ]]; then
+    sed -i "s/^RCLONE_CONFIG_R2_SECRET_ACCESS_KEY=.*/RCLONE_CONFIG_R2_SECRET_ACCESS_KEY=${saved:0:64}/" "$ENV"
+    echo "fixed: the secret had been pasted twice; one copy kept"
+  fi
+  unset saved
 else
 echo "Paste each value from the Cloudflare page, then press Enter (the secret is not shown)."
 read -r -p "S3 API endpoint (https://<account id>.r2.cloudflarestorage.com): " endpoint
@@ -31,7 +38,10 @@ read -r -p "Access Key ID: " key_id
 read -r -s -p "Secret Access Key: " secret; echo
 endpoint="${endpoint%/}"; endpoint="${endpoint%/$BUCKET}"
 [[ "$endpoint" =~ ^https://[a-f0-9]{32}\.(eu\.)?r2\.cloudflarestorage\.com$ ]] || { echo "endpoint does not look like an R2 S3 API address: nothing saved"; exit 1; }
-[[ -n "$key_id" && -n "$secret" ]] || { echo "empty key: nothing saved"; exit 1; }
+key_id="${key_id//[[:space:]]/}"; secret="${secret//[[:space:]]/}"
+[[ ${#secret} -eq 128 && "${secret:0:64}" == "${secret:64}" ]] && secret="${secret:0:64}" # pasted twice
+[[ "$key_id" =~ ^[a-f0-9]{32}$ ]] || { echo "Access Key ID should be 32 characters (got ${#key_id}): nothing saved"; exit 1; }
+[[ "$secret" =~ ^[a-f0-9]{64}$ ]] || { echo "Secret Access Key should be 64 characters (got ${#secret}): nothing saved"; exit 1; }
 cat > "$ENV" <<EOF
 RCLONE_CONFIG_R2_TYPE=s3
 RCLONE_CONFIG_R2_PROVIDER=Cloudflare
