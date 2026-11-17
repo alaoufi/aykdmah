@@ -3,8 +3,8 @@
 #   ssh -t root@84.247.166.216 "cd /opt/aykdmh && git pull --ff-only && bash deploy/r2-setup.sh"
 # 1. Asks for the R2 API token of the aykdmh-backups bucket (typed or pasted here, never in a
 #    chat or in Git) and saves it in /etc/aykdmh/r2.env (root only).
-# 2. Creates the backup encryption key /etc/aykdmh/backup-encryption.key (once) and shows it ONE
-#    time: the owner keeps it in a password manager. A backup cannot be restored without it.
+# 2. Creates the backup encryption key /etc/aykdmh/backup-encryption.key (once). It is never printed:
+#    the owner copies it to the PC with scp and keeps it in a password manager (no restore without it).
 # 3. Tests the connection: uploads, lists and deletes a small test file.
 # Running it again keeps the saved R2 key and the encryption key. Options:
 #   --reenter              type the three R2 values again (a new or wrong R2 key)
@@ -54,9 +54,11 @@ if [[ -s "$KEY" ]]; then
   echo "already exists ($KEY): kept as it is"
 else
   openssl rand -base64 48 > "$KEY"; chmod 600 "$KEY"
-  echo "NEW backup encryption key. Copy it now into your password manager (it is shown only once):"
-  echo; echo "    $(cat "$KEY")"; echo
-  echo "Without this key no off-server backup can be restored. Do not send it in a chat."
+  # Never printed (an output pasted into a chat would leak it): the owner copies the file to the PC.
+  echo "NEW backup encryption key saved in $KEY (not shown here)."
+  echo "Copy it to your password manager from the PC (see docs/BACKUP_R2.md):"
+  echo "  scp root@84.247.166.216:$KEY \$HOME\\Desktop\\aykdmh-backup-key.txt"
+  echo "Without this key no off-server backup can be restored."
 fi
 
 echo; echo "== 3. Connection test =="
