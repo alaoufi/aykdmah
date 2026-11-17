@@ -31,3 +31,13 @@
   `scp root@84.247.166.216:/etc/aykdmh/backup-encryption.key $HOME\Desktop\aykdmh-backup-key.txt`،
   ثم ينقل محتواه لمدير كلمات المرور ويحذف الملف من سطح المكتب.
 - `deploy/r2-diagnose.sh` (قراءة فقط): أطوال القيم المحفوظة، وعناوين الخادم، وردّ R2 برمز الخطأ عبر IPv4 وIPv6.
+
+## محتوى النسخة (قرار المالك 2026-11-17: قاعدة البيانات + الكود كاملًا بكل أسراره وتعليماته)
+| الملف | المحتوى | الاستعادة |
+|---|---|---|
+| `db.dump` | قاعدة البيانات (pg_dump) | `pg_restore` |
+| `uploads.tgz` | مجلد الرفع القديم (الوسائط حاليًا داخل قاعدة البيانات) | `tar xzf` |
+| `env` | ملف `.env` للخادم (الأسرار) | ينسخ إلى `/opt/aykdmh/.env` |
+| `code.bundle` | الكود كاملًا بتاريخه وكل الفروع، ومعه `CLAUDE.md` و`AGENTS.md` و`docs/` | `git clone code.bundle aykdmh` |
+| `local-files.tgz` | ملفات الخادم غير الموجودة في Git (بلا node_modules وdist وcompat-assets، فهي تُبنى من الكود) | `tar xzf -C /opt/aykdmh` |
+| `server-settings.tgz` | `/etc/aykdmh` (مفتاح R2) ووحدات systemd الخاصة بـ aykdmh. **مفتاح التشفير لا يدخل فيها أبدًا** | `tar xzf -C /` |

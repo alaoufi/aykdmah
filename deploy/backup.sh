@@ -3,7 +3,8 @@
 # setup-server.sh installs. Run by hand as root: bash deploy/backup.sh
 #
 # Saves to /root/backups/daily/<stamp>/: the database (pg_dump custom format, verified
-# by listing it), the uploaded files volume and the server .env (secrets; root only).
+# by listing it), the uploaded files volume, the server .env (secrets; root only), the full code
+# (git bundle of every branch), files not in Git, and /etc/aykdmh with the aykdmh systemd units.
 # Keeps the last KEEP_DAYS daily sets, and removes deploy-time dumps older than 30 days.
 #
 # Off-server copy in Cloudflare R2, encrypted (AYK-247): see deploy/r2-setup.sh.
@@ -33,7 +34,21 @@ docker exec -i aykdmh-db pg_restore --list < "$DEST/db.dump" > /dev/null
 log "uploads"
 docker run --rm -v aykdmh_uploads:/data:ro -v "$DEST":/out alpine:3.20 tar czf /out/uploads.tgz -C /data .
 cp "$REPO_DIR/.env" "$DEST/env"
-(cd "$DEST" && sha256sum db.dump uploads.tgz env > SHA256SUMS)
+# The whole code with its history, instructions (CLAUDE.md, AGENTS.md, docs) and every branch, as
+# it is on the server (owner's decision 2026-11-17: a backup is the database plus the full code
+# with all its secrets). Restore: git clone code.bundle aykdmh
+log "code"
+git -C "$REPO_DIR" bundle create "$DEST/code.bundle" --all 2>/dev/null
+git -C "$REPO_DIR" bundle verify "$DEST/code.bundle" > /dev/null 2>&1
+# Files on the server that are not in Git (secrets, local settings), without dependencies or builds
+# (node_modules, dist, compat-assets are rebuilt from the code).
+(cd "$REPO_DIR" && git ls-files --others -z | { grep -zvE '(^|/)(node_modules|dist|build|__pycache__|\.cache|compat-assets)/' || true; } \
+  | tar czf "$DEST/local-files.tgz" --null -T -)
+# Server settings of aykdmh: /etc/aykdmh (R2 key; never the backup encryption key itself) and its
+# systemd units (backup, security export).
+tar czf "$DEST/server-settings.tgz" --exclude='backup-encryption.key*' /etc/aykdmh \
+  $(ls /etc/systemd/system/aykdmh-* 2>/dev/null) 2>/dev/null
+(cd "$DEST" && sha256sum db.dump uploads.tgz env code.bundle local-files.tgz server-settings.tgz > SHA256SUMS)
 log "saved $DEST ($(du -sh "$DEST" | cut -f1))"
 
 if [[ -n "$BACKUP_REMOTE" ]]; then
@@ -47,7 +62,7 @@ if [[ -n "$BACKUP_REMOTE" ]]; then
 fi
 
 # Off-server encrypted copy in Cloudflare R2 (AYK-247), when deploy/r2-setup.sh has been run.
-# The set (database, uploads, .env) is encrypted on this server (AES-256, key in
+# The set (database, uploads, .env, code, server settings) is encrypted on this server (AES-256, key in
 # /etc/aykdmh/backup-encryption.key, kept by the owner too) before upload; R2 keeps 30 days.
 R2_ENV=/etc/aykdmh/r2.env
 R2_KEY=/etc/aykdmh/backup-encryption.key

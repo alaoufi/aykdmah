@@ -25,5 +25,9 @@ echo "   decrypted with the key: OK"
 set_dir="$(find "$TMP" -mindepth 1 -maxdepth 1 -type d | head -1)"
 (cd "$set_dir" && sha256sum -c --quiet SHA256SUMS) && echo "   every file matches its checksum: OK"
 docker exec -i aykdmh-db pg_restore --list < "$set_dir/db.dump" | grep -c 'TABLE DATA' | xargs -I{} echo "   database dump readable: OK ({} tables with data)"
+if [[ -f "$set_dir/code.bundle" ]]; then
+  git clone -q "$set_dir/code.bundle" "$TMP/code" 2>/dev/null && echo "   code restorable: OK ($(git -C "$TMP/code" log -1 --format='%h %cs') on $(git -C "$TMP/code" branch --show-current), $(git -C "$TMP/code" branch -a | wc -l) branches)"
+  echo "   files outside Git: $(tar tzf "$set_dir/local-files.tgz" | wc -l); server settings: $(tar tzf "$set_dir/server-settings.tgz" | grep -vc '/$')"
+fi
 echo "   files in the set: $(cd "$set_dir" && ls | tr '\n' ' ')"
 echo; echo "== RESTORABLE: the off-server backup works (temporary copy deleted) =="
