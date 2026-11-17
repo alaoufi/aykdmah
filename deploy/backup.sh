@@ -57,7 +57,7 @@ if [[ -s "$R2_ENV" && -s "$R2_KEY" ]]; then
     ENC="$BASE/offsite/aykdmh-$STAMP.tar.enc"
     tar cf - -C "$BASE/daily" "$STAMP" | openssl enc -aes-256-cbc -pbkdf2 -iter 200000 -salt -pass "file:$R2_KEY" -out "$ENC"
     R2_BUCKET="$(sed -n 's/^R2_BUCKET=//p' "$R2_ENV")"
-    rc() { docker run --rm --network host --env-file "$R2_ENV" -v "$BASE/offsite":/data rclone/rclone:1.68.2 --bind 0.0.0.0 "$@"; }
+    rc() { docker run --rm --network host --env-file "$R2_ENV" -v "$BASE/offsite":/data rclone/rclone:1.68.2 --bind 0.0.0.0 -q "$@"; }
     if rc copyto "/data/$(basename "$ENC")" "r2:$R2_BUCKET/daily/$(basename "$ENC")"; then
         log "uploaded to R2: daily/$(basename "$ENC") ($(du -h "$ENC" | cut -f1))"
         rc delete --min-age 30d "r2:$R2_BUCKET/daily/" || log "R2 rotation skipped"
