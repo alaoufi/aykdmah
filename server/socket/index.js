@@ -21,6 +21,9 @@ function initSocket(httpServer) {
     pingTimeout: 30000,
     maxHttpBufferSize: 64 * 1024,
   });
+  // Several server copies (AYK-251): a message sent from one copy reaches people connected to
+  // another, and room queries cover all of them.
+  if (require('cluster').isWorker) io.adapter(require('@socket.io/cluster-adapter').createAdapter());
 
   // AYK-243: connection floods are refused before authentication work, then per account.
   const floodGuard = require('./floodGuard');
@@ -49,6 +52,13 @@ function initSocket(httpServer) {
     refresh.unref();
 
     socket.join(`user:${user.id}`);
+    // With several server copies each one counts only its own connections, so the per-account
+    // limit is checked again across all of them (AYK-251).
+    if (require('cluster').isWorker) {
+      io.in(`user:${user.id}`).fetchSockets().then(all => {
+        if (all.length > floodGuard.SOCKETS_PER_USER) socket.disconnect(true);
+      }).catch(() => {});
+    }
     // On screen or in the background (AYK-125); unknown (an older app) counts as background.
     socket.data.visible = false;
     socket.on('app:visible', visible => { socket.data.visible = visible === true; });

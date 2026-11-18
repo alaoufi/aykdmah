@@ -62,6 +62,8 @@ services:
       R2_MEDIA_BUCKET: ${R2_MEDIA_BUCKET:-}
       R2_MEDIA_ACCESS_KEY_ID: ${R2_MEDIA_ACCESS_KEY_ID:-}
       R2_MEDIA_SECRET_ACCESS_KEY: ${R2_MEDIA_SECRET_ACCESS_KEY:-}
+      # AYK-251: server copies, one per CPU core to use (empty or 1 = a single process as before).
+      APP_WORKERS: ${APP_WORKERS:-}
       PUSH_PUBLIC_KEY: ${PUSH_PUBLIC_KEY:-}
       PUSH_PRIVATE_KEY: ${PUSH_PRIVATE_KEY:-}
       PUSH_SUBJECT: https://aykdmh.com

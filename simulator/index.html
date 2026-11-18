@@ -98,6 +98,7 @@
       <option value="100000">+ 100,000 حساب آلي</option>
     </select>
     <label class="num">اندفاع: يفتحون التطبيق في اللحظة نفسها<input id="n-rush" type="number" inputmode="numeric" min="0" max="50000" step="500" value="0"></label>
+    <label class="num">نسخ الخادم (أنوية)<input id="n-workers" type="number" inputmode="numeric" min="1" max="16" value="1"></label>
     <button class="go" id="go" type="button">▶ ابدأ المحاكاة</button>
     <select id="history" aria-label="محاكاة سابقة"><option value="">المحاكاة السابقة…</option></select>
   </div>
@@ -242,7 +243,7 @@ document.querySelector('.seg').addEventListener('click', e => {
 $('go').addEventListener('click', async () => {
   if (running) return;
   const n = id => Math.max(1, Math.floor(Number($(id).value) || 0));
-  const r = await fetch(`/start?providers=${n('n-providers')}&clients=${n('n-clients')}&together=${n('n-together')}&bulk=${$('bulk').value}&rush=${Math.max(0, Math.floor(Number($('n-rush').value) || 0))}`, { method: 'POST' });
+  const r = await fetch(`/start?providers=${n('n-providers')}&clients=${n('n-clients')}&together=${n('n-together')}&bulk=${$('bulk').value}&rush=${Math.max(0, Math.floor(Number($('n-rush').value) || 0))}&workers=${n('n-workers')}`, { method: 'POST' });
   if (!r.ok) alert((await r.json()).message || 'تعذر البدء');
 });
 $('history').addEventListener('change', async e => { if (e.target.value && !running) { reset(); showSummary(await (await fetch(`/run?file=${encodeURIComponent(e.target.value)}`)).json()); } });

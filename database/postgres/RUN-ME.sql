@@ -6503,6 +6503,11 @@ INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, i
 ON CONFLICT (setting_key) DO NOTHING;
 INSERT INTO schema_migrations(name) VALUES ('086_media_r2.sql');
 
+-- migrations/087_open_requests_geo_index.sql
+CREATE INDEX IF NOT EXISTS idx_requests_open_geo ON requests (latitude, longitude)
+  WHERE status = 'open' AND deleted_at IS NULL;
+INSERT INTO schema_migrations(name) VALUES ('087_open_requests_geo_index.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

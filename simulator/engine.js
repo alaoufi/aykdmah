@@ -37,7 +37,7 @@ async function inBatches(items, size, fn) {
   return results;
 }
 
-async function runSimulation({ providers = 10, clients = 10, bulk = 0, together = 0, rush = 0, emit = () => {}, pg = {} } = {}) {
+async function runSimulation({ providers = 10, clients = 10, bulk = 0, together = 0, rush = 0, workers = Number(process.env.SIM_APP_WORKERS) || 1, emit = () => {}, pg = {} } = {}) {
   const pgHost = pg.host || process.env.SIM_PG_HOST || '127.0.0.1';
   const pgPort = Number(pg.port || process.env.SIM_PG_PORT || 5432);
   const pgUser = pg.user || process.env.SIM_PG_USER || 'postgres';
@@ -87,7 +87,7 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
     DATABASE_URL: '', DIRECT_DATABASE_URL: '', JWT_SECRET: crypto.randomBytes(48).toString('hex'),
     ENCRYPTION_KEY: crypto.randomBytes(32).toString('hex'), PAYMENT_PROVIDER: 'test',
     MAIL_HOST: '', WHATSAPP_PROVIDER: '', BOOTSTRAP_ADMIN_EMAIL: '', BOOTSTRAP_ADMIN_PASSWORD: '', GEOIP_DISABLE: '1',
-    NO_PROXY: '127.0.0.1,localhost', ...(process.env.SIM_DB_POOL_MAX ? { DB_POOL_MAX: process.env.SIM_DB_POOL_MAX } : {}),
+    NO_PROXY: '127.0.0.1,localhost', ...(process.env.SIM_DB_POOL_MAX ? { DB_POOL_MAX: process.env.SIM_DB_POOL_MAX } : {}), ...(workers > 1 ? { APP_WORKERS: String(workers) } : {}),
     // Calls: rings, answers and tokens are real; no media server runs here, so no audio is carried.
     LIVEKIT_URL: 'wss://calls.sim.invalid/livekit', LIVEKIT_API_URL: '', LIVEKIT_API_KEY: 'simkey', LIVEKIT_API_SECRET: crypto.randomBytes(32).toString('hex'),
   };
@@ -239,7 +239,10 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
     const txBefore = await transactions();
     // CPU seconds used by the app copy (all its threads) and by this simulator during the rush:
     // if the simulator itself is the busy one, the numbers measure it, not the site.
-    const serverCpu = () => { try { const f = require('node:fs').readFileSync(`/proc/${app.pid}/stat`, 'utf8').split(') ')[1].split(' '); return (Number(f[11]) + Number(f[12])) / 100; } catch (_) { return 0; } };
+    const fsx = require('node:fs');
+    const cpuOf = pid => { try { const f = fsx.readFileSync(`/proc/${pid}/stat`, 'utf8').split(') ')[1].split(' '); return (Number(f[11]) + Number(f[12])) / 100; } catch (_) { return 0; } };
+    const copies = () => { try { return fsx.readFileSync(`/proc/${app.pid}/task/${app.pid}/children`, 'utf8').trim().split(/\s+/).filter(Boolean); } catch (_) { return []; } };
+    const serverCpu = () => cpuOf(app.pid) + copies().reduce((sum, pid) => sum + cpuOf(pid), 0);
     const cpu0 = { server: serverCpu(), sim: process.cpuUsage() };
     const t0 = Date.now();
     await Promise.all(crowdPeople.map(openApp));
@@ -631,7 +634,8 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
         sockets.push(s);
         s.on('connect', () => resolve(true)); s.on('connect_error', () => resolve(false)); setTimeout(() => resolve(false), 5000);
       })));
-      const live = opened.filter(Boolean).length;
+      await sleep(1500); // with several server copies the extra connections are closed a moment after opening
+      const live = sockets.slice(-16).filter(s => s.connected).length;
       check('flood', live <= 13, '16 اتصالًا حيًّا لحساب واحد: الخادم يحد عددها', `فُتح ${live} من 16`);
       say(`حساب واحد حاول فتح 16 اتصالًا حيًّا → قُبل ${live}`, { actor: 'مهاجم', bad: live > 13 });
     }
@@ -729,7 +733,7 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
     const stalls = [...(prober?.stalls || [])].sort((x, y) => x - y);
     const stall = { p95: percentile(stalls, 0.95), max: stalls[stalls.length - 1] || 0, samples: stalls.length };
     check('speed', stall.max < 500, 'الخادم لا يتجمد على بقية المستخدمين أثناء الضغط', `أطول تجمد ${stall.max}ms، و95٪ من الفحوص تحت ${stall.p95}ms (${stall.samples} فحصًا كل 100ms)`, stall.max > 1500 ? 'خطير' : 'متوسط');
-    check('speed', connectionsPeak <= 10, 'اتصالات قاعدة البيانات ضمن الحد', `أقصى اتصالات مفتوحة ${connectionsPeak}`);
+    check('speed', connectionsPeak <= 10 * workers, 'اتصالات قاعدة البيانات ضمن الحد', `أقصى اتصالات مفتوحة ${connectionsPeak} (الحد ${10 * workers} لـ ${workers} نسخة خادم)`);
     if (serverErrors.length) finding('errors', 'خطير', `سجل الخادم فيه ${serverErrors.length} خطأ أثناء المحاكاة`, [...new Set(serverErrors)].slice(0, 5).join(' | '));
     else passes.errors += 1;
     return { table, stall };
@@ -761,7 +765,7 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
   }
   const summary = {
     startedAt: new Date(startedAt).toISOString(), seconds: Math.round((Date.now() - startedAt) / 1000),
-    providers, clients, together, signIn, crowd, rush: rushReport, mode: bulk ? `حشد ${bulk.toLocaleString('en')} حساب` : load ? 'استقرار (عدد كبير)' : 'كل الاحتمالات',
+    providers, clients, together, signIn, crowd, rush: rushReport, workers, mode: bulk ? `حشد ${bulk.toLocaleString('en')} حساب` : load ? 'استقرار (عدد كبير)' : 'كل الاحتمالات',
     cleanedUp: true, // the copy is stopped and its database dropped in teardown(): nothing is left behind
     requests: stats.requests, failed5xx: stats.failed5xx, messages: stats.messages, delivered: stats.delivered,
     jobs: jobs.length, completed: jobs.filter(j => j.completed).length,

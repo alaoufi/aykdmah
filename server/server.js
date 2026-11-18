@@ -1,3 +1,16 @@
+// AYK-251: one copy of the server per CPU core. A single copy uses one core however many the
+// machine has (about 440 requests a second in the simulator); APP_WORKERS=N starts N copies that
+// share the port, and their live connections talk to each other through the cluster adapter.
+// APP_WORKERS unset or 1 = exactly the earlier single process.
+const cluster = require('cluster');
+const WORKERS = Math.max(1, Math.min(32, Number(process.env.APP_WORKERS) || 1));
+if (WORKERS > 1 && cluster.isPrimary) {
+  require('./cluster').startPrimary(WORKERS);
+  return;
+}
+// Timers that must run once for the whole site (reminders, the stale-call sweep), not once per copy.
+const BACKGROUND = !cluster.isWorker || process.env.APP_WORKER_INDEX === '0';
+
 const http = require('http');
 const env = require('./config/env');
 const app = require('./app');
@@ -10,12 +23,12 @@ const io = initSocket(httpServer);
 
 app.set('io', io);
 notificationService.setIo(io);
-require('./services/callService').attach(io);
-require('./services/requestReminderService').start();
+require('./services/callService').attach(io, { background: BACKGROUND });
+if (BACKGROUND) require('./services/requestReminderService').start();
 
 const PORT = env.APP_PORT;
 httpServer.listen(PORT, () => {
-  logger.info(`Server listening on port ${PORT} (${env.NODE_ENV})`);
+  logger.info(`Server listening on port ${PORT} (${env.NODE_ENV})${cluster.isWorker ? `, copy ${process.env.APP_WORKER_INDEX}` : ''}`);
   logger.info('Database setup and migrations use npm run seed.');
 });
 

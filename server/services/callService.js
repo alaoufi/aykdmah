@@ -39,9 +39,10 @@ const isConfigured = () => { const c = config(); return !!(c.url && c.key && c.s
 
 let io = null;
 let sweeper = null;
-function attach(ioInstance) {
+function attach(ioInstance, { background = true } = {}) {
   io = ioInstance;
-  if (!sweeper) {
+  // With several server copies only one sweeps stale calls (AYK-251).
+  if (background && !sweeper) {
     sweeper = setInterval(() => sweep().catch(err => logger.warn('Call sweep failed:', err.message)), 10 * 1000);
     sweeper.unref?.();
   }

@@ -260,53 +260,52 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
     if (fit.length) { where.push(`(r.direct_provider_id = ? OR (${fit.join(' AND ')}))`); whereParams.push(providerId, ...fitParams); }
   }
 
+  // AYK-251: the board is every provider's first screen. It used to build the full card (six
+  // joins and three review sub-queries) for EVERY open request, and only then keep one page:
+  // 29 ms of database processor per call with 2,500 open requests, 120 calls a second at most.
+  // Now: 1) pick the page's ids from the requests table alone, inside a latitude/longitude box
+  // the index can use; 2) build the cards for those few ids only. Same rows, same order, same total.
   const hasGeo = latitude != null && longitude != null;
-  let distanceSelect = '';
-  const orderParts = [];
-  if (hasGeo) {
-    distanceSelect = `,
-      CASE WHEN r.latitude IS NULL OR r.longitude IS NULL THEN NULL ELSE (6371 * acos(LEAST(1, GREATEST(-1,
+  const DISTANCE = `CASE WHEN r.latitude IS NULL OR r.longitude IS NULL THEN NULL ELSE (6371 * acos(LEAST(1, GREATEST(-1,
         cos(radians(?)) * cos(radians(ROUND(r.latitude, 2))) *
         cos(radians(ROUND(r.longitude, 2)) - radians(?)) +
         sin(radians(?)) * sin(radians(ROUND(r.latitude, 2)))
-      )))) END AS distance_km`;
-    orderParts.push('distance_km ASC');
+      )))) END`;
+  const boxWhere = [...where];
+  const boxParams = [...whereParams];
+  if (hasGeo) {
+    // A square that surely contains the circle (plus the 0.01° the distance rounds positions by).
+    const latSpan = radiusKm / 110.5 + 0.02;
+    const lonSpan = radiusKm / (111.3 * Math.max(0.05, Math.cos(latitude * Math.PI / 180))) + 0.02;
+    boxWhere.push('(r.latitude IS NULL OR r.longitude IS NULL OR (r.latitude BETWEEN ? AND ? AND r.longitude BETWEEN ? AND ?))');
+    boxParams.push(latitude - latSpan, latitude + latSpan, longitude - lonSpan, longitude + lonSpan);
   }
-  orderParts.push('r.is_urgent DESC', 'r.created_at DESC');
+  // OFFSET 0 keeps the distance in its own step, so it is worked out once per request (it was
+  // three times: twice to filter, once to sort), and the total comes from the same pass instead
+  // of a second identical scan.
+  const candidates = hasGeo
+    ? `SELECT r.id, r.is_urgent, r.created_at, ${DISTANCE} AS distance_km FROM requests r WHERE ${boxWhere.join(' AND ')} OFFSET 0`
+    : `SELECT r.id, r.is_urgent, r.created_at FROM requests r WHERE ${boxWhere.join(' AND ')}`;
+  const candidateParams = hasGeo ? [latitude, longitude, latitude, ...boxParams] : boxParams;
+  const within = hasGeo ? 'WHERE distance_km IS NULL OR distance_km <= ?' : '';
+  const withinParams = hasGeo ? [radiusKm] : [];
+  const order = `${hasGeo ? 'distance_km ASC, ' : ''}is_urgent DESC, created_at DESC, id DESC`;
 
-  const itemsSql = `
-    SELECT ${BASE_SELECT}${distanceSelect}
-    FROM requests r ${BASE_JOINS}
-    WHERE ${where.join(' AND ')}
-  `;
-  const filteredItemsSql = `SELECT * FROM (${itemsSql}) nearby
-    ${hasGeo ? 'WHERE distance_km IS NULL OR distance_km <= ?' : ''}
-    ORDER BY ${orderParts.map(part => part.replace(/r\./g, '')).join(', ')}
-    LIMIT ? OFFSET ?
-  `;
-  const itemsParams = hasGeo
-    ? [latitude, longitude, latitude, ...whereParams, radiusKm, Number(limit), Number(offset)]
-    : [...whereParams, Number(limit), Number(offset)];
-
-  const items = await query(filteredItemsSql, itemsParams);
-
-  const countSql = hasGeo
-    ? `SELECT COUNT(*) AS total FROM (
-         SELECT r.id,
-           CASE WHEN r.latitude IS NULL OR r.longitude IS NULL THEN NULL ELSE (6371 * acos(LEAST(1, GREATEST(-1,
-             cos(radians(?)) * cos(radians(ROUND(r.latitude, 2))) *
-             cos(radians(ROUND(r.longitude, 2)) - radians(?)) +
-             sin(radians(?)) * sin(radians(ROUND(r.latitude, 2)))
-           )))) END AS distance_km
-         FROM requests r
-         WHERE ${where.join(' AND ')}
-       ) t WHERE distance_km IS NULL OR distance_km <= ?`
-    : `SELECT COUNT(*) AS total FROM requests r WHERE ${where.join(' AND ')}`;
-  const countParams = hasGeo
-    ? [latitude, longitude, latitude, ...whereParams, radiusKm]
-    : whereParams;
-  const [{ total }] = await query(countSql, countParams);
+  const page_ = await query(`SELECT id${hasGeo ? ', distance_km' : ''}, COUNT(*) OVER () AS total FROM (${candidates}) nearby ${within} ORDER BY ${order} LIMIT ? OFFSET ?`,
+    [...candidateParams, ...withinParams, Number(limit), Number(offset)]);
+  let items = [];
+  if (page_.length) {
+    const ids = page_.map(row => row.id);
+    const rows = await query(`SELECT ${BASE_SELECT} FROM requests r ${BASE_JOINS} WHERE r.id IN (${ids.map(() => '?').join(', ')})`, ids);
+    const byId = new Map(rows.map(row => [Number(row.id), row]));
+    items = page_.filter(row => byId.has(Number(row.id)))
+      .map(row => (hasGeo ? { ...byId.get(Number(row.id)), distance_km: row.distance_km } : byId.get(Number(row.id))));
+  }
+  // A page past the end has no row to carry the total: count it then (rare).
+  const total = page_.length ? page_[0].total
+    : offset === 0 ? 0 : (await query(`SELECT COUNT(*) AS total FROM (${candidates}) nearby ${within}`, [...candidateParams, ...withinParams]))[0].total;
   return { items, total };
+
 }
 
 // The requester stops (or restarts) the "Did you find someone?" reminders.
