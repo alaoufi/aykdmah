@@ -68,3 +68,23 @@ test('this launch counts only what the app sent now, and survives route changes'
   const opened = await launch('', [['ayk_native_app', '1.3.2'], ['ayk_native_src', 'apk']]);
   assert.deepEqual(opened.api.thisLaunch(), { version: '', source: '' });
 });
+
+// AYK-287: the minimum app version from the admin settings sends older store apps to the store.
+test('a store app below the minimum set in the settings is sent to its store', async () => {
+  const { api } = await launch('');
+  const android = 'Mozilla/5.0 (Linux; Android 12; HBP-LX9) Chrome/130 Mobile';
+  const iphone = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_4 like Mac OS X) Mobile/15E148';
+  const settings = { app_min_version_android: '1.3.8', google_play_url: 'https://play.google.com/store/apps/details?id=sa.aykdmh.app',
+    app_min_version_ios: '', app_store_url: '' };
+  assert.deepEqual(api.storeUpdateNeeded({ version: '1.2.5', source: '' }, settings, android),
+    { version: '1.3.8', url: 'https://play.google.com/store/apps/details?id=sa.aykdmh.app', store: true });
+  assert.equal(api.storeUpdateNeeded({ version: '1.3.8', source: 'play' }, settings, android), null);
+  assert.equal(api.storeUpdateNeeded({ version: '1.4.0', source: 'play' }, settings, android), null);
+  // The downloaded APK keeps its own update screen; the website and an empty minimum stop nobody.
+  assert.equal(api.storeUpdateNeeded({ version: '1.2.5', source: 'apk' }, settings, android), null);
+  assert.equal(api.storeUpdateNeeded({ version: '', source: '' }, settings, android), null);
+  assert.equal(api.storeUpdateNeeded({ version: '1.0.0', source: '' }, settings, iphone), null);
+  assert.equal(api.storeUpdateNeeded({ version: '1.2.5', source: '' }, { ...settings, app_min_version_android: '' }, android), null);
+  // Never a link outside the store.
+  assert.equal(api.storeUpdateNeeded({ version: '1.2.5', source: '' }, { ...settings, google_play_url: 'https://evil.test/' }, android), null);
+});

@@ -2605,7 +2605,10 @@
     "title": "Uygulama güncellemesi gerekli",
     "body": "Devam etmek için uygulamanın yeni sürümünü indirin:",
     "download": "Güncellemeyi indir",
-    "hint": "İndirdikten sonra dosyayı açıp \"Güncelle\"ye dokunun, ardından uygulamayı yeniden açın."
+    "hint": "İndirdikten sonra dosyayı açıp \"Güncelle\"ye dokunun, ardından uygulamayı yeniden açın.",
+    "store_body": "Devam etmek için uygulamayı mağazadan güncelleyin. Gereken sürüm:",
+    "store_button": "Mağazadan güncelle",
+    "store_hint": "Güncelledikten sonra uygulamayı yeniden açın."
   },
   "update": {
     "done": "Güncellendi:"

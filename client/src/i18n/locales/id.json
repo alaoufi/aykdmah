@@ -2605,7 +2605,10 @@
     "title": "Aplikasi perlu diperbarui",
     "body": "Unduh versi baru aplikasi untuk melanjutkan:",
     "download": "Unduh pembaruan",
-    "hint": "Setelah terunduh, buka file lalu ketuk \"Perbarui\", kemudian buka aplikasi lagi."
+    "hint": "Setelah terunduh, buka file lalu ketuk \"Perbarui\", kemudian buka aplikasi lagi.",
+    "store_body": "Perbarui aplikasi dari toko untuk melanjutkan. Versi yang diperlukan:",
+    "store_button": "Perbarui dari toko",
+    "store_hint": "Setelah memperbarui, buka aplikasi lagi."
   },
   "update": {
     "done": "Diperbarui ke"

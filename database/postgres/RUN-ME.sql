@@ -6548,6 +6548,15 @@ CREATE TABLE IF NOT EXISTS directory_contacts (
 CREATE INDEX IF NOT EXISTS idx_directory_contacts_user ON directory_contacts (user_id, id);
 INSERT INTO schema_migrations(name) VALUES ('090_directory_contacts.sql');
 
+-- migrations/091_app_min_version.sql
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description)
+VALUES ('app_min_version_android', '', 'string', 'general', 1, 'أقل إصدار مسموح لتطبيق الأندرويد (مثل 1.3.8). من عنده أقدم يُطلب منه التحديث من المتجر. اكتبه فقط بعد أن يظهر الإصدار في Google Play للجميع')
+ON CONFLICT (setting_key) DO NOTHING;
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description)
+VALUES ('app_min_version_ios', '', 'string', 'general', 1, 'أقل إصدار مسموح لتطبيق الآيفون. اكتبه فقط بعد أن يظهر الإصدار في App Store للجميع')
+ON CONFLICT (setting_key) DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('091_app_min_version.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

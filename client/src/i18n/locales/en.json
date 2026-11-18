@@ -2605,7 +2605,10 @@
     "title": "App update required",
     "body": "Download the new version of the app to continue:",
     "download": "Download the update",
-    "hint": "After it downloads, open the file and tap \"Update\", then open the app again."
+    "hint": "After it downloads, open the file and tap \"Update\", then open the app again.",
+    "store_body": "Update the app from the store to continue. Required version:",
+    "store_button": "Update from the store",
+    "store_hint": "After updating, open the app again."
   },
   "update": {
     "done": "Updated to"

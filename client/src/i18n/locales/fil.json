@@ -2605,7 +2605,10 @@
     "title": "Kailangang i-update ang app",
     "body": "I-download ang bagong bersyon ng app para magpatuloy:",
     "download": "I-download ang update",
-    "hint": "Pagkatapos mag-download, buksan ang file at pindutin ang \"Update\", saka buksan muli ang app."
+    "hint": "Pagkatapos mag-download, buksan ang file at pindutin ang \"Update\", saka buksan muli ang app.",
+    "store_body": "I-update ang app mula sa store para magpatuloy. Kailangang bersyon:",
+    "store_button": "I-update mula sa store",
+    "store_hint": "Pagkatapos mag-update, buksan muli ang app."
   },
   "update": {
     "done": "Na-update sa"

@@ -66,3 +66,24 @@ export function openNativeCall({ id, userId, key, video, name, code, incoming })
   const query = new URLSearchParams({ user: String(userId), key, type: video ? 'video' : 'audio', name: name || '', code: code || '', dir: incoming ? 'in' : 'out' });
   window.location.href = `intent://call/${id}?${query}#Intent;scheme=aykdmhcall;package=sa.aykdmh.app;end`;
 }
+
+// AYK-287: a store app older than the minimum set in the admin settings (app_min_version_android
+// or _ios) is stopped the same way, with one button to its store page. This reaches every store
+// app that names its version, Google Play 1.2.5 included, so a store update is required for all
+// from the site itself, the moment it is published.
+const STORE_HOSTS = { android: ['play.google.com'], ios: ['apps.apple.com'] };
+function storeLink(value, platform) {
+  try {
+    const url = new URL(String(value || '').trim());
+    return url.protocol === 'https:' && STORE_HOSTS[platform].includes(url.hostname) ? url.href : '';
+  } catch (_) { return ''; }
+}
+export function storeUpdateNeeded(launch, settings, userAgent) {
+  if (!launch?.version || launch.source === 'apk') return null;
+  const platform = /iPhone|iPad|iPod/i.test(userAgent || '') ? 'ios' : /Android/i.test(userAgent || '') ? 'android' : '';
+  if (!platform) return null;
+  const minimum = String(settings?.[`app_min_version_${platform}`] || '').trim();
+  const url = storeLink(settings?.[platform === 'ios' ? 'app_store_url' : 'google_play_url'], platform);
+  if (!/^[0-9][0-9.]{0,15}$/.test(minimum) || !url || atLeast(launch.version, minimum)) return null;
+  return { version: minimum, url, store: true };
+}
