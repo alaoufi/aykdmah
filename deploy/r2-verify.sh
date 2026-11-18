@@ -29,5 +29,6 @@ if [[ -f "$set_dir/code.bundle" ]]; then
   git clone -q "$set_dir/code.bundle" "$TMP/code" 2>/dev/null && echo "   code restorable: OK ($(git -C "$TMP/code" log -1 --format='%h %cs') on $(git -C "$TMP/code" branch --show-current), $(git -C "$TMP/code" branch -a | wc -l) branches)"
   echo "   files outside Git: $(tar tzf "$set_dir/local-files.tgz" | wc -l); server settings: $(tar tzf "$set_dir/server-settings.tgz" | grep -vc '/$')"
 fi
+[[ -f "$set_dir/README-RESTORE.md" ]] && echo "   restore guide for developers: OK (README-RESTORE.md)"
 echo "   files in the set: $(cd "$set_dir" && ls | tr '\n' ' ')"
 echo; echo "== RESTORABLE: the off-server backup works (temporary copy deleted) =="

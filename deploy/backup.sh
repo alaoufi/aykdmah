@@ -48,7 +48,9 @@ git -C "$REPO_DIR" bundle verify "$DEST/code.bundle" > /dev/null 2>&1
 # systemd units (backup, security export).
 tar czf "$DEST/server-settings.tgz" --exclude='backup-encryption.key*' /etc/aykdmh \
   $(ls /etc/systemd/system/aykdmh-* 2>/dev/null) 2>/dev/null
-(cd "$DEST" && sha256sum db.dump uploads.tgz env code.bundle local-files.tgz server-settings.tgz > SHA256SUMS)
+# Instructions for any developer: what is in the set and how to rebuild the site from it.
+cp "$REPO_DIR/docs/RESTORE.md" "$DEST/README-RESTORE.md"
+(cd "$DEST" && sha256sum db.dump uploads.tgz env code.bundle local-files.tgz server-settings.tgz README-RESTORE.md > SHA256SUMS)
 log "saved $DEST ($(du -sh "$DEST" | cut -f1))"
 
 if [[ -n "$BACKUP_REMOTE" ]]; then

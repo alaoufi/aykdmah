@@ -1,8 +1,18 @@
 import api from './api';
+import i18n from '../i18n';
 
-export async function listCategories() {
-  const { data } = await api.get('/categories');
-  return data.data;
+// AYK-249: several parts of one screen ask for the categories at once (the home page asked
+// twice). One answer per language is shared for a minute; a failure is not kept.
+const CATEGORIES_TTL = 60 * 1000;
+let categoriesCache = null;
+
+export function listCategories() {
+  const lang = i18n.language || '';
+  if (categoriesCache && categoriesCache.lang === lang && Date.now() - categoriesCache.at < CATEGORIES_TTL) return categoriesCache.promise;
+  const promise = api.get('/categories').then(({ data }) => data.data);
+  categoriesCache = { lang, at: Date.now(), promise };
+  promise.catch(() => { if (categoriesCache?.promise === promise) categoriesCache = null; });
+  return promise;
 }
 
 export async function listServices(categoryId) {
