@@ -635,7 +635,10 @@
     "send_failed": "አልተላከም",
     "resend": "እንደገና ላክ",
     "discard": "ሰርዝ",
-    "offline_hint": "የበይነመረብ ግንኙነት የለም"
+    "offline_hint": "የበይነመረብ ግንኙነት የለም",
+    "media_limits_hint": "ቪዲዮ እስከ {{video_min}} ደቂቃ ወይም {{video_mb}} MB · ድምፅ እስከ {{voice_min}} ደቂቃ · ምስል እስከ {{image_mb}} MB · ፋይል እስከ {{file_mb}} MB",
+    "media_file_too_large": "ይህ ፋይል ከ {{size}} MB ይበልጣል።",
+    "uploading_percent": "በመጫን ላይ {{percent}}%"
   },
   "tracking": {
     "title": "የቀጥታ ስርጭት መከታተያ",

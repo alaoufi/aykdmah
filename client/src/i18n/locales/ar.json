@@ -635,7 +635,10 @@
     "send_failed": "لم تُرسل",
     "resend": "إعادة الإرسال",
     "discard": "حذف",
-    "offline_hint": "لا يوجد اتصال بالإنترنت"
+    "offline_hint": "لا يوجد اتصال بالإنترنت",
+    "media_limits_hint": "فيديو حتى {{video_min}} دقائق أو {{video_mb}} ميجابايت · صوت حتى {{voice_min}} دقائق · صورة حتى {{image_mb}} ميجابايت · ملف حتى {{file_mb}} ميجابايت",
+    "media_file_too_large": "حجم هذا الملف أكبر من {{size}} ميجابايت.",
+    "uploading_percent": "يُرفع {{percent}}٪"
   },
   "tracking": {
     "title": "تتبع مباشر",

@@ -12,6 +12,7 @@ const { success, created, error, notFound, forbidden } = require('../utils/apiRe
 const asyncHandler = require('../utils/asyncHandler');
 const { withUploadedFiles } = require('../utils/uploadPersistence');
 const { emitConversation } = require('../utils/conversationEvents');
+const directUploads = require('../services/directUploads');
 const { validateChatMessage, recordingDuration, searchQuery, forwardSelection, forwardOperationId, canForward } = require('../utils/chatMessageValidation');
 
 const unreadCount = asyncHandler(async (req, res) => success(res, { count: await Conversation.unreadTotal(req.user.id) }));
@@ -70,12 +71,31 @@ const sendMessage = asyncHandler(async (req, res) => {
   const { content, message_type = 'text', reply_to_id, latitude, longitude, accuracy_m } = req.body;
   if (!await Conversation.canSend(conversationId, req.user.id)) return forbidden(res, req.t('deny_chat_closed'));
   const isLocation = message_type === 'location' && latitude != null && longitude != null;
-  if (!content && !(req.files || []).length && !isLocation) return error(res, req.t('message_empty'));
+
+  // AYK-248: files the phone already put in R2 (POST /api/media/uploads), as media_ids.
+  let mediaIds = [];
+  try {
+    const raw = req.body.media_ids;
+    if (raw != null && raw !== '') mediaIds = Array.isArray(raw) ? raw : JSON.parse(raw);
+    if (!Array.isArray(mediaIds) || mediaIds.length > 4 || mediaIds.some(id => typeof id !== 'string')) throw new Error('invalid');
+  } catch (_) { return error(res, req.t('invalid_data')); }
+  if (mediaIds.length && (req.files || []).length) return error(res, req.t('invalid_data'));
+  if (!content && !(req.files || []).length && !mediaIds.length && !isLocation) return error(res, req.t('message_empty'));
+
+  let direct = [];
+  if (mediaIds.length) {
+    try {
+      direct = await directUploads.claim({ userId: req.user.id, conversationId: Number(conversationId), mediaIds });
+    } catch (err) {
+      if (!err.i18nKey) throw err;
+      return error(res, req.t(err.i18nKey), err.status || 400);
+    }
+  }
 
   let duration;
   try {
-    validateChatMessage({ content, message_type, files: req.files || [] });
-    duration = recordingDuration(req.body.duration_seconds, req.files || []);
+    validateChatMessage({ content, message_type, files: mediaIds.length ? direct : req.files || [] });
+    duration = recordingDuration(req.body.duration_seconds, mediaIds.length ? direct : req.files || []);
   } catch (_) { return error(res, req.t('invalid_data')); }
 
   // "To everyone" (AYK-043): the requester sends one message to every provider they
@@ -91,7 +111,8 @@ const sendMessage = asyncHandler(async (req, res) => {
     }
   }
 
-  const messageIds = await withUploadedFiles(req.files, { ownerId: req.user.id, scope: 'chat', scopeId: conversationId }, async files => {
+  const messageIds = await withUploadedFiles(req.files, { ownerId: req.user.id, scope: 'chat', scopeId: conversationId }, async uploaded => {
+    const files = mediaIds.length ? direct : uploaded;
     const ids = [];
     for (const target of targets) {
       ids.push(await Message.create({
@@ -100,7 +121,7 @@ const sendMessage = asyncHandler(async (req, res) => {
         content,
         message_type,
         reply_to_id: target === Number(conversationId) ? reply_to_id || null : null,
-        files: duration == null ? files : files.map(file => ({ ...file, duration_seconds: duration })),
+        files: duration == null ? files : files.map(file => ({ ...file, duration_seconds: file.duration_seconds || duration })),
         latitude: isLocation ? Number(latitude) : null,
         longitude: isLocation ? Number(longitude) : null,
         accuracy_m: isLocation && accuracy_m ? Number(accuracy_m) : null,

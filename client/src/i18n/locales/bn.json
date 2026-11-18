@@ -635,7 +635,10 @@
     "send_failed": "পাঠানো হয়নি",
     "resend": "আবার পাঠান",
     "discard": "বাদ দিন",
-    "offline_hint": "ইন্টারনেট সংযোগ নেই"
+    "offline_hint": "ইন্টারনেট সংযোগ নেই",
+    "media_limits_hint": "ভিডিও {{video_min}} মিনিট বা {{video_mb}} MB পর্যন্ত · অডিও {{voice_min}} মিনিট পর্যন্ত · ছবি {{image_mb}} MB পর্যন্ত · ফাইল {{file_mb}} MB পর্যন্ত",
+    "media_file_too_large": "এই ফাইলটি {{size}} MB-এর চেয়ে বড়।",
+    "uploading_percent": "আপলোড হচ্ছে {{percent}}%"
   },
   "tracking": {
     "title": "লাইভ ট্র্যাকিং",

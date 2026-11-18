@@ -7,6 +7,7 @@ import {
   listConversations, getConversation, getMessages, sendMessage, markRead,
   deleteMessage, sendLocationMessage, nudgeConversation, setUserBlocked, setConversationFavorite,
 } from '../services/chatService';
+import { loadMediaLimits, uploadChatFile } from '../services/mediaUpload';
 import { apiError } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 import { useNotifications } from '../hooks/useNotifications';
@@ -120,6 +121,8 @@ export default function ChatPage() {
   // Searching the list waits for a pause in typing, and the old results stay until the new ones
   // arrive (AYK-231); only another account starts from an empty list.
   const [searchTerm, setSearchTerm] = useState('');
+  // The owner's media limits (AYK-248) before the first attachment is chosen.
+  useEffect(() => { loadMediaLimits(); }, []);
   useEffect(() => { const timer = setTimeout(() => setSearchTerm(listQuery), 300); return () => clearTimeout(timer); }, [listQuery]);
   useEffect(() => { setConversations([]); setListOwnerId(null); setLoadingList(true); }, [user?.id]);
 
@@ -353,8 +356,25 @@ export default function ChatPage() {
     else if (files.length && !content) fd.append('message_type', 'file');
     if (replyId) fd.append('reply_to_id', String(replyId));
     fd.append('client_id', clientId);
-    files.forEach(f => fd.append('files', f));
     try {
+      // AYK-248: with R2 on, each file goes from this device straight to R2 (with progress on
+      // the bubble); the message then carries only their ids. Otherwise it goes in the form.
+      if (files.length && (await loadMediaLimits()).direct) {
+        const shares = files.map(() => 0);
+        const ids = [];
+        for (const [index, file] of files.entries()) {
+          ids.push(await uploadChatFile(conversationId, file, {
+            onProgress: share => {
+              shares[index] = share;
+              const percent = Math.round((shares.reduce((a, b) => a + b, 0) / files.length) * 100);
+              if (scopeRef.current === scope) setMessages(prev => prev.map(m => m.client_id === clientId && isTemporary(m) ? { ...m, upload_percent: percent } : m));
+            },
+          }));
+        }
+        fd.append('media_ids', JSON.stringify(ids));
+      } else {
+        files.forEach(f => fd.append('files', f));
+      }
       const msg = await sendMessage(conversationId, fd);
       if (scopeRef.current !== scope) return;
       setMessages(prev => appendMessages(prev, [{ ...msg, client_id: clientId }]));

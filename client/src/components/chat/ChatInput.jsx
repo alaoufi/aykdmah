@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import useVoiceRecording, { useVideoRecording } from '../../hooks/useVoiceRecording';
 import {
   addChatAttachments, CHAT_ATTACHMENT_ACCEPT, CHAT_MEDIA_MAX_BYTES, CHAT_MEDIA_MAX_FILES,
-  recordingTime, VIDEO_MAX_SECONDS, VOICE_MAX_SECONDS,
+  recordingTime, chatVideoMaxSeconds, chatVoiceMaxSeconds, chatMaxBytesFor, chatMediaLimits,
 } from '../../utils/chatMedia';
 import ChatDraftAttachment from './ChatDraftAttachment';
 import ChatCameraPreview from './ChatCameraPreview';
@@ -46,9 +46,11 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
   const sendingRef = useRef(false);
   const ownerRevisionRef = useRef(0);
 
+  const [errorSize, setErrorSize] = useState(null);
   const addFiles = selected => {
     const result = addChatAttachments(filesRef.current, selected);
     setError(result.error);
+    setErrorSize(result.size || null);
     if (!result.error) {
       filesRef.current = result.files;
       setFiles(result.files);
@@ -69,6 +71,15 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
   const recording = voice.status !== 'idle' || videoRecording;
   const busy = disabled || sending || recording;
   const visibleError = error || video.error || voice.error;
+  // With R2 on (AYK-248): each recording may use its kind's whole limit; otherwise what is left of 3.5 MB.
+  const availableBytes = kind => (chatMediaLimits().direct
+    ? chatMaxBytesFor(kind)
+    : CHAT_MEDIA_MAX_BYTES - filesRef.current.reduce((sum, file) => sum + file.size, 0));
+  const limits = chatMediaLimits();
+  const limitsHint = limits.direct ? t('chat.media_limits_hint', {
+    video_min: Math.round(limits.video_max_seconds / 60), video_mb: limits.video_max_mb,
+    voice_min: Math.round(limits.voice_max_seconds / 60), image_mb: limits.image_max_mb, file_mb: limits.file_max_mb,
+  }) : null;
 
   useEffect(() => {
     mountedRef.current = true;
@@ -197,7 +208,7 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
     setShowEmoji(false);
     setShowVideo(false);
     if (filesRef.current.length >= CHAT_MEDIA_MAX_FILES) { setError('chat.media_limit'); return; }
-    voice.start(CHAT_MEDIA_MAX_BYTES - filesRef.current.reduce((sum, file) => sum + file.size, 0));
+    voice.start(availableBytes('audio'));
   };
   const startVideoRecording = () => {
     if (busy) return;
@@ -206,14 +217,14 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
     setShowEmoji(false);
     setShowVideo(false);
     if (filesRef.current.length >= CHAT_MEDIA_MAX_FILES) { setError('chat.media_limit'); return; }
-    video.start(CHAT_MEDIA_MAX_BYTES - filesRef.current.reduce((sum, file) => sum + file.size, 0));
+    video.start(availableBytes('video'));
   };
 
   return (
     <div className="chat-input">
       {visibleError && (
         <p className="chat-composer-error" role="alert">
-          {t(visibleError, { count: CHAT_MEDIA_MAX_FILES, size: '3.5' })}
+          {t(visibleError, { count: CHAT_MEDIA_MAX_FILES, size: errorSize || '3.5' })}
         </p>
       )}
       {files.length > 0 && (
@@ -231,8 +242,8 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
             <span className="chat-recording-status" role="status" aria-live="polite">
               {activeRecorder.status === 'pending'
                 ? t(videoRecording ? 'chat.camera_pending' : 'chat.microphone_pending')
-                : videoRecording ? t('chat.video_recording_time', { time: recordingTime(activeRecorder.elapsedMs), limit: VIDEO_MAX_SECONDS })
-                  : t('chat.recording_time_long', { time: recordingTime(activeRecorder.elapsedMs), limit: recordingTime(VOICE_MAX_SECONDS * 1000) })}
+                : videoRecording ? t('chat.video_recording_time', { time: recordingTime(activeRecorder.elapsedMs), limit: chatVideoMaxSeconds() })
+                  : t('chat.recording_time_long', { time: recordingTime(activeRecorder.elapsedMs), limit: recordingTime(chatVoiceMaxSeconds() * 1000) })}
             </span>
             {videoRecording && activeRecorder.status === 'recording' && <button type="button" onClick={activeRecorder.stop}>⏹ {t('chat.stop_recording')}</button>}
             {!videoRecording && <span className="text-[12px] text-fg-muted">{t(handsFree ? 'chat.tap_to_send' : 'chat.release_to_send')}</span>}
@@ -254,6 +265,7 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
         <button type="button" disabled={busy} onClick={() => audioRef.current?.click()}>🎵 {t('chat.attach_audio')}</button>
         <button type="button" disabled={busy} onClick={() => videoRef.current?.click()}>🎞️ {t('chat.choose_video')}</button>
         <button type="button" disabled={busy} onClick={() => fileRef.current?.click()}>📁 {t('request.attachments')}</button>
+        {limitsHint && <p className="basis-full w-full text-[11.5px] leading-snug text-fg-muted px-1" data-testid="media-limits">{limitsHint}</p>}
       </div>}
       {showVideo && (
         <div className="chat-video-actions" id="chat-video-actions">

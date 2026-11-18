@@ -3,6 +3,24 @@ export const CHAT_MEDIA_MAX_BYTES = 3.5 * 1024 * 1024;
 // Ten minutes of speech at 32 kbps is about 2.4 MB, inside the upload limit.
 export const VOICE_MAX_SECONDS = 600;
 export const VIDEO_MAX_SECONDS = 20;
+
+// AYK-248: when the server stores media in R2 (GET /api/media/limits -> direct), each file goes
+// from the phone straight to R2 and the owner's per-kind limits apply (video 3 min / 100 MB by
+// default) instead of the 3.5 MB total of an upload through the server.
+const MB = 1024 * 1024;
+let mediaLimits = { direct: false };
+export function setChatMediaLimits(limits) {
+  mediaLimits = limits && typeof limits === 'object' ? { ...limits, direct: limits.direct === true } : { direct: false };
+}
+export function chatMediaLimits() { return mediaLimits; }
+export function chatVideoMaxSeconds() { return mediaLimits.direct ? Number(mediaLimits.video_max_seconds) || VIDEO_MAX_SECONDS : VIDEO_MAX_SECONDS; }
+export function chatVoiceMaxSeconds() { return mediaLimits.direct ? Number(mediaLimits.voice_max_seconds) || VOICE_MAX_SECONDS : VOICE_MAX_SECONDS; }
+// Largest single file of one kind ('image' | 'document' | 'audio' | 'video'), in bytes.
+export function chatMaxBytesFor(kind) {
+  if (!mediaLimits.direct) return CHAT_MEDIA_MAX_BYTES;
+  const mb = { video: mediaLimits.video_max_mb, audio: mediaLimits.voice_max_mb, image: mediaLimits.image_max_mb, document: mediaLimits.file_max_mb }[kind];
+  return Math.min(100, Number(mb) || 3.5) * MB;
+}
 export const CHAT_ATTACHMENT_ACCEPT = 'image/jpeg,image/png,image/webp,application/pdf,audio/mpeg,audio/mp3,audio/wav,audio/webm,audio/ogg,audio/mp4,audio/x-m4a,video/mp4,video/webm,video/ogg,video/quicktime,.jpg,.jpeg,.png,.webp,.pdf,.mp3,.wav,.webm,.ogg,.m4a,.mp4,.mov,.ogv';
 export const VIDEO_CAPTURE_CONSTRAINTS = {
   video: { facingMode: { ideal: 'environment' }, width: { ideal: 640 }, height: { ideal: 360 }, frameRate: { ideal: 15, max: 15 } },
@@ -42,10 +60,14 @@ export function addChatAttachments(current, selected) {
   const additions = Array.from(selected || []);
   if (!additions.length) return { files: current, error: null };
   const files = [...current, ...additions];
-  if (files.length > CHAT_MEDIA_MAX_FILES || files.reduce((sum, file) => sum + file.size, 0) > CHAT_MEDIA_MAX_BYTES) {
+  if (files.length > CHAT_MEDIA_MAX_FILES) return { files: current, error: 'chat.media_limit' };
+  if (additions.some(file => !chatAttachmentKind(file))) return { files: current, error: 'chat.media_unsupported' };
+  if (mediaLimits.direct) {
+    const tooLarge = additions.find(file => file.size > chatMaxBytesFor(chatAttachmentKind(file)));
+    if (tooLarge) return { files: current, error: 'chat.media_file_too_large', size: Math.round(chatMaxBytesFor(chatAttachmentKind(tooLarge)) / MB) };
+  } else if (files.reduce((sum, file) => sum + file.size, 0) > CHAT_MEDIA_MAX_BYTES) {
     return { files: current, error: 'chat.media_limit' };
   }
-  if (additions.some(file => !chatAttachmentKind(file))) return { files: current, error: 'chat.media_unsupported' };
   if (additions.some(file => !Number.isFinite(file.size) || file.size <= 0)) return { files: current, error: 'chat.media_empty' };
   return { files, error: null };
 }
@@ -90,7 +112,7 @@ export function createVoiceRecording({
   clearInterval: clearTimer = timer => clearInterval(timer),
 }) {
   const video = mediaKind === 'video';
-  const maximumSeconds = video ? VIDEO_MAX_SECONDS : VOICE_MAX_SECONDS;
+  let maximumSeconds = video ? chatVideoMaxSeconds() : chatVoiceMaxSeconds();
   const errorKey = video ? videoRecordingErrorKey : recordingErrorKey;
   let generation = 0;
   let disposed = false;
@@ -143,7 +165,8 @@ export function createVoiceRecording({
       return;
     }
     if (availableBytes <= 0) { publish('idle', 'chat.media_limit'); return; }
-    maximumBytes = Math.min(availableBytes, CHAT_MEDIA_MAX_BYTES);
+    maximumSeconds = video ? chatVideoMaxSeconds() : chatVoiceMaxSeconds();
+    maximumBytes = Math.min(availableBytes, chatMaxBytesFor(video ? 'video' : 'audio'));
     const request = ++generation;
     startedAt = now();
     publish('pending');

@@ -4,6 +4,34 @@ const storage = require('../services/objectStorage');
 const asyncHandler = require('../utils/asyncHandler');
 const { authenticate } = require('../middleware/auth');
 const router = express.Router();
+const directUploads = require('../services/directUploads');
+const Conversation = require('../models/Conversation');
+const { requireMarketplaceWrite } = require('../middleware/verificationPolicy');
+const { uploadLimiter } = require('../middleware/rateLimiter');
+
+// AYK-248: the owner's media limits and whether large files go straight to R2 (public: the
+// attachment menu shows "up to 3 minutes or 100 MB" before anyone signs in).
+router.get('/limits', asyncHandler(async (req, res) => {
+  res.set('Cache-Control', 'no-store');
+  res.json({ success: true, data: await directUploads.limits() });
+}));
+
+// POST /api/media/uploads { conversation_id, file_name, type, size, duration_seconds? }
+// -> a 15-minute URL the phone PUTs the bytes to; the message then carries media_ids.
+router.post('/uploads', authenticate, requireMarketplaceWrite, uploadLimiter, asyncHandler(async (req, res) => {
+  const { conversation_id: conversationId, file_name: fileName, type, size, duration_seconds: durationSeconds } = req.body || {};
+  if (!/^[1-9][0-9]{0,9}$/.test(String(conversationId || ''))) return res.status(400).json({ success: false, message: req.t('invalid_data') });
+  if (!await Conversation.isParticipant(conversationId, req.user.id) || !await Conversation.canSend(conversationId, req.user.id)) {
+    return res.status(403).json({ success: false, message: req.t('deny_chat_participant') });
+  }
+  try {
+    const ticket = await directUploads.createTicket({ userId: req.user.id, conversationId: Number(conversationId), fileName, type, size, durationSeconds });
+    return res.status(201).json({ success: true, data: ticket });
+  } catch (err) {
+    if (!err.i18nKey) throw err;
+    return res.status(err.status || 400).json({ success: false, message: req.t(err.i18nKey) });
+  }
+}));
 
 // Browser media requests use the same HttpOnly session cookie as API requests.
 // Public avatars/reviews are checked against their current visible parent row.

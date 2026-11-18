@@ -27,7 +27,9 @@ app.use(helmet({
     fontSrc: ["'self'", 'https://fonts.gstatic.com'],
     // Same sources as deploy/caddy/Caddyfile: map tiles and the LiveKit signaling origin.
     connectSrc: ["'self'", 'https://tiles.openfreemap.org', 'https://nominatim.openstreetmap.org',
-      ...(() => { try { return process.env.LIVEKIT_URL ? [new URL(process.env.LIVEKIT_URL).origin] : []; } catch (_) { return []; } })()],
+      ...(() => { try { return process.env.LIVEKIT_URL ? [new URL(process.env.LIVEKIT_URL).origin] : []; } catch (_) { return []; } })(),
+      // AYK-248: chat files are uploaded from the device straight to the R2 media bucket.
+      ...(() => { try { return process.env.R2_MEDIA_ENDPOINT ? [new URL(process.env.R2_MEDIA_ENDPOINT).origin] : []; } catch (_) { return []; } })()],
     mediaSrc: ["'self'", 'blob:', 'https:'], objectSrc: ["'none'"],
     frameAncestors: ["'none'"], baseUri: ["'self'"], formAction: ["'self'"],
     upgradeInsecureRequests: env.NODE_ENV === 'production' ? [] : null,

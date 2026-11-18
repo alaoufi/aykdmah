@@ -635,7 +635,10 @@
     "send_failed": "नहीं भेजा गया",
     "resend": "फिर से भेजें",
     "discard": "हटाएँ",
-    "offline_hint": "इंटरनेट कनेक्शन नहीं है"
+    "offline_hint": "इंटरनेट कनेक्शन नहीं है",
+    "media_limits_hint": "वीडियो {{video_min}} मिनट या {{video_mb}} MB तक · ऑडियो {{voice_min}} मिनट तक · छवि {{image_mb}} MB तक · फ़ाइल {{file_mb}} MB तक",
+    "media_file_too_large": "यह फ़ाइल {{size}} MB से बड़ी है।",
+    "uploading_percent": "अपलोड हो रहा है {{percent}}%"
   },
   "tracking": {
     "title": "लाइव ट्रैकिंग",

@@ -635,7 +635,10 @@
     "send_failed": "Hindi naipadala",
     "resend": "Ipadala muli",
     "discard": "Itapon",
-    "offline_hint": "Walang koneksyon sa internet"
+    "offline_hint": "Walang koneksyon sa internet",
+    "media_limits_hint": "Video hanggang {{video_min}} min o {{video_mb}} MB · audio hanggang {{voice_min}} min · larawan hanggang {{image_mb}} MB · file hanggang {{file_mb}} MB",
+    "media_file_too_large": "Mas malaki sa {{size}} MB ang file na ito.",
+    "uploading_percent": "Ina-upload {{percent}}%"
   },
   "tracking": {
     "title": "Live na pagsubaybay",

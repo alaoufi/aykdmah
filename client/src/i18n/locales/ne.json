@@ -635,7 +635,10 @@
     "send_failed": "पठाइएन",
     "resend": "फेरि पठाउनुहोस्",
     "discard": "हटाउनुहोस्",
-    "offline_hint": "इन्टरनेट जडान छैन"
+    "offline_hint": "इन्टरनेट जडान छैन",
+    "media_limits_hint": "भिडियो {{video_min}} मिनेट वा {{video_mb}} MB सम्म · अडियो {{voice_min}} मिनेट सम्म · तस्बिर {{image_mb}} MB सम्म · फाइल {{file_mb}} MB सम्म",
+    "media_file_too_large": "यो फाइल {{size}} MB भन्दा ठूलो छ।",
+    "uploading_percent": "अपलोड हुँदैछ {{percent}}%"
   },
   "tracking": {
     "title": "प्रत्यक्ष अनुगमन",

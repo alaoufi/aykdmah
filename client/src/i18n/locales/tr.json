@@ -635,7 +635,10 @@
     "send_failed": "Gönderilmedi",
     "resend": "Yeniden gönder",
     "discard": "Vazgeç",
-    "offline_hint": "İnternet bağlantısı yok"
+    "offline_hint": "İnternet bağlantısı yok",
+    "media_limits_hint": "Video en fazla {{video_min}} dk veya {{video_mb}} MB · ses en fazla {{voice_min}} dk · görsel en fazla {{image_mb}} MB · dosya en fazla {{file_mb}} MB",
+    "media_file_too_large": "Bu dosya {{size}} MB'tan büyük.",
+    "uploading_percent": "Yükleniyor %{{percent}}"
   },
   "tracking": {
     "title": "Canlı izleme",

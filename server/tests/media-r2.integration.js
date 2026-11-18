@@ -72,7 +72,7 @@ if (!databasePrefix) {
     });
   });
 
-  let server, base, createdDatabase = false, db, UploadedMedia;
+  let server, base, createdDatabase = false, db, UploadedMedia, conversationId;
   const users = {};
   const { Client } = require('pg');
   const admin = () => new Client({ host: '127.0.0.1', port, user: 'postgres', password: '', database: 'postgres', ssl: false });
@@ -112,10 +112,13 @@ if (!databasePrefix) {
     const setup = await require('../services/installService').setupFromEnv();
     assert.equal(setup.migrations.flatMap(m => m.errors).length, 0);
     const jwt = require('../utils/jwt');
-    for (const [name, role] of [['client', 'client'], ['outsider', 'client']]) {
+    for (const [name, role] of [['client', 'client'], ['outsider', 'client'], ['provider', 'provider']]) {
       const row = await db.query('INSERT INTO users (full_name, email, password_hash, role) VALUES (?, ?, ?, ?)', [name, `${name}-r2@test.invalid`, 'unused-local-test-hash', role]);
       users[name] = { id: row.insertId, token: jwt.sign({ id: row.insertId, role, auth_version: 0 }) };
     }
+    const r = await db.query("INSERT INTO requests (client_id, title, description, assigned_provider_id, status) VALUES (?, ?, ?, ?, 'assigned')",
+      [users.client.id, 'R2 chat media', 'Local private request', users.provider.id]);
+    conversationId = await require('../models/Conversation').findOrCreateBetween(users.client.id, users.provider.id, r.insertId);
     server = require('../app').listen(0);
     await new Promise(resolve => server.once('listening', resolve));
     base = `http://127.0.0.1:${server.address().port}/api`;
@@ -210,5 +213,124 @@ if (!databasePrefix) {
     await assert.rejects(db.query("INSERT INTO uploaded_media (id, owner_id, scope, filename, mime, size, data, storage, object_key) VALUES (?, ?, 'chat', 'a', 'image/png', 1, NULL, 'r2', NULL)", [id, users.client.id]));
     await assert.rejects(db.query("INSERT INTO uploaded_media (id, owner_id, scope, filename, mime, size, data, storage, object_key) VALUES (?, ?, 'chat', 'a', 'image/png', 1, ?, 'r2', 'k')", [id, users.client.id, Buffer.from('x')]));
     await assert.rejects(db.query("INSERT INTO uploaded_media (id, owner_id, scope, filename, mime, size, data, storage, object_key) VALUES (?, ?, 'chat', 'a', 'video/mp4', 104857601, NULL, 'r2', 'k')", [id, users.client.id]));
+  });
+
+  // ---- phase B: direct uploads from the phone ------------------------------------------------
+  const mp4 = Buffer.concat([Buffer.from('00000018667479706d703432', 'hex'), crypto.randomBytes(3000)]);
+  async function api(route, user, { method = 'GET', body } = {}) {
+    const response = await fetch(base + route, { method, headers: { Authorization: `Bearer ${user.token}`, ...(body ? { 'Content-Type': 'application/json' } : {}) }, body: body ? JSON.stringify(body) : undefined });
+    return { status: response.status, body: await response.json().catch(() => null) };
+  }
+  const ticket = (user, extra = {}) => api('/media/uploads', user, { method: 'POST', body: { conversation_id: conversationId, file_name: 'clip.mp4', type: 'video/mp4', size: mp4.length, duration_seconds: 42, ...extra } });
+  const put = (t, bytes, type = 'video/mp4') => fetch(t.upload_url, { method: 'PUT', headers: { 'Content-Type': type }, body: bytes });
+
+  test('limits are public and say large files go straight to R2', async () => {
+    const response = await fetch(`${base}/media/limits`);
+    const { data } = await response.json();
+    assert.deepEqual(data, { direct: true, video_max_mb: 100, video_max_seconds: 180, voice_max_mb: 20, voice_max_seconds: 600, image_max_mb: 10, file_max_mb: 20 });
+  });
+
+  test('a video goes phone -> R2 -> message: never through the server, checked before anyone sees it', async () => {
+    const t = await ticket(users.client);
+    assert.equal(t.status, 201, t.body?.message);
+    const url = new URL(t.body.data.upload_url);
+    assert.equal(url.searchParams.get('X-Amz-SignedHeaders'), 'content-length;content-type;host');
+    assert.equal(url.searchParams.get('X-Amz-Expires'), '900');
+    const pending = await db.queryOne('SELECT status, data, duration_seconds FROM uploaded_media WHERE id = ?', [t.body.data.media_id]);
+    assert.equal(pending.status, 'pending');
+    assert.equal(pending.data, null);
+    assert.equal((await media(`/api/media/${t.body.data.media_id}`, users.client)).status, 404, 'pending is never readable');
+    assert.equal((await put(t.body.data, mp4)).status, 200);
+    const sent = await api(`/chat/conversations/${conversationId}/messages`, users.client, { method: 'POST', body: { media_ids: [t.body.data.media_id], message_type: 'file' } });
+    assert.equal(sent.status, 201, sent.body?.message);
+    assert.equal(sent.body.data.files[0].file_url, `/api/media/${t.body.data.media_id}`);
+    assert.equal(Number(sent.body.data.files[0].duration_seconds), 42);
+    assert.equal((await db.queryOne('SELECT status FROM uploaded_media WHERE id = ?', [t.body.data.media_id])).status, 'ready');
+    const forProvider = await media(`/api/media/${t.body.data.media_id}`, users.provider);
+    assert.equal(forProvider.status, 302);
+    const bytes = Buffer.from(await (await fetch(forProvider.headers.get('location'))).arrayBuffer());
+    assert.deepEqual(bytes, mp4);
+    assert.equal((await media(`/api/media/${t.body.data.media_id}`, users.outsider)).status, 404);
+  });
+
+  test('R2 refuses bytes of another size or type than the ticket was signed for', async () => {
+    const t = (await ticket(users.client)).body.data;
+    assert.equal((await put(t, mp4.subarray(0, 1000))).status, 403, 'size is part of the signature');
+    assert.equal((await put(t, mp4, 'text/html')).status, 403, 'type is part of the signature');
+    const sent = await api(`/chat/conversations/${conversationId}/messages`, users.client, { method: 'POST', body: { media_ids: [t.media_id] } });
+    assert.equal(sent.status, 409, 'nothing uploaded: not sendable');
+  });
+
+  test('a file that is not what it claims is deleted, not sent', async () => {
+    const fake = Buffer.alloc(mp4.length, 0x41);
+    const t = (await ticket(users.client)).body.data;
+    assert.equal((await put(t, fake)).status, 200);
+    const key = (await db.queryOne('SELECT object_key FROM uploaded_media WHERE id = ?', [t.media_id])).object_key;
+    const sent = await api(`/chat/conversations/${conversationId}/messages`, users.client, { method: 'POST', body: { media_ids: [t.media_id] } });
+    assert.equal(sent.status, 400);
+    assert.equal(await db.queryOne('SELECT id FROM uploaded_media WHERE id = ?', [t.media_id]), null);
+    assert.equal(objects.has(`/aykdmh-media/${key}`), false);
+  });
+
+  test('only the sender, in their own conversation, within the owner\'s limits', async () => {
+    assert.equal((await ticket(users.outsider)).status, 403, 'not a participant');
+    const t = (await ticket(users.client)).body.data;
+    await put(t, mp4);
+    const stolen = await api(`/chat/conversations/${conversationId}/messages`, users.provider, { method: 'POST', body: { media_ids: [t.media_id] } });
+    assert.equal(stolen.status, 400, 'another user cannot send my upload');
+    assert.equal((await ticket(users.client, { size: 100 * 1024 * 1024 + 1 })).status, 413);
+    assert.equal((await ticket(users.client, { duration_seconds: 181 })).status, 413);
+    assert.equal((await ticket(users.client, { file_name: 'x.exe', type: 'application/x-msdownload' })).status, 400);
+    assert.equal((await ticket(users.client, { file_name: 'clip.mp4', type: 'audio/mpeg' })).status, 400, 'extension must fit the type');
+    await db.query("UPDATE settings SET setting_value = '1' WHERE setting_key = 'media_video_max_mb'");
+    assert.equal((await ticket(users.client, { size: 2 * 1024 * 1024 })).status, 413, 'the owner\'s setting applies');
+    await db.query("UPDATE settings SET setting_value = '100' WHERE setting_key = 'media_video_max_mb'");
+  });
+
+  test('unclaimed uploads are removed after two hours, with their objects', async () => {
+    const t = (await ticket(users.client)).body.data;
+    await put(t, mp4);
+    const key = (await db.queryOne('SELECT object_key FROM uploaded_media WHERE id = ?', [t.media_id])).object_key;
+    await db.query("UPDATE uploaded_media SET created_at = CURRENT_TIMESTAMP - INTERVAL '3 hours' WHERE id = ?", [t.media_id]);
+    assert.ok(await require('../services/directUploads').cleanupPending() >= 1);
+    assert.equal(await db.queryOne('SELECT id FROM uploaded_media WHERE id = ?', [t.media_id]), null);
+    assert.equal(objects.has(`/aykdmh-media/${key}`), false);
+  });
+
+  // ---- phase C: old attachments move from the database to R2 ---------------------------------
+  test('media-to-r2 reports first, then moves old database files to R2 and empties their bytes', async () => {
+    const { moveMediaToR2 } = require('../scripts/media-to-r2');
+    const ids = [crypto.randomUUID(), crypto.randomUUID()];
+    for (const id of ids) {
+      await db.query("INSERT INTO uploaded_media (id, owner_id, scope, scope_id, filename, mime, size, data) VALUES (?, ?, 'requests', NULL, 'old.png', 'image/png', ?, ?)", [id, users.client.id, png.length, png]);
+    }
+    const quiet = () => {};
+    const report = await moveMediaToR2({ log: quiet });
+    assert.equal(report.found, 2);
+    assert.equal(report.moved, 0);
+    assert.equal(Number((await db.queryOne("SELECT COUNT(*) AS n FROM uploaded_media WHERE storage = 'db'")).n), 2, 'report changes nothing');
+    const result = await moveMediaToR2({ apply: true, batch: 1, log: quiet });
+    assert.deepEqual(result, { found: 2, moved: 2, failed: 0 });
+    for (const id of ids) {
+      const row = await db.queryOne('SELECT storage, object_key, data FROM uploaded_media WHERE id = ?', [id]);
+      assert.equal(row.storage, 'r2');
+      assert.equal(row.data, null);
+      assert.deepEqual(objects.get(`/aykdmh-media/${row.object_key}`).body, png);
+    }
+    assert.equal((await moveMediaToR2({ apply: true, log: quiet })).moved, 0, 'running again moves nothing');
+  });
+
+  test('media-to-r2 keeps a file in the database when R2 refuses it', async () => {
+    const { moveMediaToR2 } = require('../scripts/media-to-r2');
+    const id = crypto.randomUUID();
+    await db.query("INSERT INTO uploaded_media (id, owner_id, scope, scope_id, filename, mime, size, data) VALUES (?, ?, 'requests', NULL, 'old.png', 'image/png', ?, ?)", [id, users.client.id, png.length, png]);
+    failPuts = true;
+    try {
+      const result = await moveMediaToR2({ apply: true, log: () => {} });
+      assert.equal(result.failed, 1);
+    } finally { failPuts = false; }
+    const row = await db.queryOne('SELECT storage, data FROM uploaded_media WHERE id = ?', [id]);
+    assert.equal(row.storage, 'db');
+    assert.deepEqual(row.data, png, 'bytes untouched');
   });
 }

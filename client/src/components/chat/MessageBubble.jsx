@@ -186,6 +186,9 @@ function MessageBubble({ message, isMine, onReply, onDelete, onForward, renderTr
 
         <div className={`meta ${mediaOnly ? 'on-media' : ''}`}>
           <span>{formatTime(message.created_at)}</span>
+          {isMine && sending && Number.isFinite(message.upload_percent) && message.upload_percent < 100 && (
+            <span className="text-[11px] tabular-nums" data-testid="message-upload-percent">{t('chat.uploading_percent', { percent: message.upload_percent })}</span>
+          )}
           {isMine && sending && <span className="read-ticks" aria-label={t('chat.sending')} data-testid="message-sending">🕒</span>}
           {isMine && failed && <span className="read-ticks text-danger" aria-label={t('chat.send_failed')}>⚠️</span>}
           {isMine && !temporary && (
