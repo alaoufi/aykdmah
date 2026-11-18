@@ -6,6 +6,12 @@ set -euo pipefail
 WORK=/root/aykdmh-android
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 mkdir -p "$WORK/project"
+# AYK-289: two builds started together in the same folder broke each other (Gradle's lock and
+# missing intermediate files): only one at a time, and the half-built output of a failed one is
+# removed first.
+exec 9>"$WORK/build.lock"
+flock -n 9 || { echo "Another Android build is running; wait for it (tail /root/android-build.log)."; exit 1; }
+rm -rf "$WORK/project/app/build" "$WORK/project/.gradle"
 cp "$REPO_DIR/android/twa-manifest.json" "$WORK/project/twa-manifest.json"
 set -a; . "$WORK/keys/secrets.env"; set +a
 
