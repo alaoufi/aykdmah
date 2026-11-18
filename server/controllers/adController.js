@@ -33,8 +33,33 @@ function matchesGeo(ad, geo) {
 
 // --- Public (visitors / authed users) ---
 
+// GET /api/ads/live?placements=home_top,home_hero,... (AYK-286): every slot of a page in one request
+// (the home page asked six times on opening). One read of the live ads, one visitor location,
+// then each placement as /live?placement= would answer it: { placement: [ads] }.
+const PLACEMENT_NAME = /^[a-z][a-z0-9_]{0,39}$/;
+async function liveMany(req, res) {
+  const wanted = [...new Set(String(req.query.placements).split(','))].filter(p => PLACEMENT_NAME.test(p)).slice(0, 12);
+  await adRequestService.sweep();
+  const all = await Ad.listLive({ applyExclusivity: false });
+  const targeted = a => (Array.isArray(a.target_countries) && a.target_countries.length)
+    || (Array.isArray(a.target_cities) && a.target_cities.length)
+    || (Array.isArray(a.target_regions) && a.target_regions.length);
+  let geo = null;
+  if (all.some(targeted)) {
+    try { geo = await ipGeo.resolveVisitorGeo(req); } catch (_) { /* targeted ads stay hidden */ }
+  }
+  const result = {};
+  for (const placement of wanted) {
+    const here = all.filter(a => (a.placement === placement || (Array.isArray(a.placements) && a.placements.includes(placement))) && matchesGeo(a, geo));
+    const exclusives = here.filter(a => a.exclusive);
+    result[placement] = exclusives.length ? exclusives : here;
+  }
+  return success(res, result);
+}
+
 // GET /api/ads/live?placement=home_top — ads currently servable
 const live = financeHandler(async (req, res) => {
+  if (req.query.placements) return liveMany(req, res);
   await adRequestService.sweep();
   const items = await Ad.listLive({ placement: req.query.placement, applyExclusivity: false });
   // Geo-filter: if any ad declared targeting, resolve visitor's

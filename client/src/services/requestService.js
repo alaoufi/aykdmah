@@ -28,9 +28,18 @@ export async function listMyRequests(params = {}) {
   return data;
 }
 
-export async function listNearbyRequests(params = {}) {
-  const { data } = await api.get('/requests/nearby', { params });
-  return data;
+// AYK-286: two parts of the home page ask for the same list on opening (latest and urgent
+// requests); the same question asked within two seconds shares one answer.
+const nearbyAsked = new Map();
+export function listNearbyRequests(params = {}) {
+  const key = JSON.stringify(Object.keys(params).sort().map(k => [k, params[k]]));
+  const known = nearbyAsked.get(key);
+  if (known && Date.now() - known.at < 2000) return known.promise;
+  const promise = api.get('/requests/nearby', { params }).then(({ data }) => data);
+  nearbyAsked.set(key, { at: Date.now(), promise });
+  promise.catch(() => nearbyAsked.delete(key));
+  if (nearbyAsked.size > 20) nearbyAsked.delete(nearbyAsked.keys().next().value);
+  return promise;
 }
 
 export async function getRequest(id) {

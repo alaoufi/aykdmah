@@ -11,7 +11,8 @@ export default function Urgent({ position }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const params = { limit: 8, status: 'open' };
+    // The same question as the latest requests below, so both share one answer (AYK-286).
+    const params = { limit: 12, status: 'open' };
     if (position) { params.latitude = position.latitude; params.longitude = position.longitude; }
     listNearbyRequests(params)
       .then((res) => {

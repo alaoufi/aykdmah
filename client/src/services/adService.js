@@ -54,9 +54,37 @@ export async function getMyGeo() {
 }
 
 // Public — visitors fetch live ads and report views/clicks.
-export async function getLiveAds(placement) {
+// AYK-286: the slots a page shows at once are asked for in one request, not one each (the home
+// page made six). Slots that ask within the same moment share it; a server without the batch
+// form answers with a list, and then each slot asks on its own as before.
+let pending = null;
+async function askOne(placement) {
   const { data } = await api.get('/ads/live', { params: { placement } });
   return data.data;
+}
+export function getLiveAds(placement) {
+  if (!pending) {
+    const batch = { slots: new Map() };
+    pending = batch;
+    setTimeout(() => {
+      if (pending === batch) pending = null;
+      const names = [...batch.slots.keys()];
+      api.get('/ads/live', { params: { placements: names.join(',') } })
+        .then(({ data }) => {
+          const map = data?.data;
+          for (const [name, waiters] of batch.slots) {
+            if (map && !Array.isArray(map) && typeof map === 'object') waiters.forEach(w => w.resolve(map[name] || []));
+            else askOne(name).then(rows => waiters.forEach(w => w.resolve(rows)), e => waiters.forEach(w => w.reject(e)));
+          }
+        })
+        .catch(e => { for (const waiters of batch.slots.values()) waiters.forEach(w => w.reject(e)); });
+    }, 30);
+  }
+  return new Promise((resolve, reject) => {
+    const waiters = pending.slots.get(placement) || [];
+    waiters.push({ resolve, reject });
+    pending.slots.set(placement, waiters);
+  });
 }
 
 export async function trackAdView(id) {

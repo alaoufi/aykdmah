@@ -2,11 +2,12 @@ import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
 import LanguageDetector from 'i18next-browser-languagedetector';
 
-// AYK-249: only Arabic (the default) and English (the fallback) are part of the app's main file.
-// Every other language is its own small file, loaded when that language is used: the main file
-// shrank from about 2.7 MB to under 1 MB, so the app opens much faster on phones.
+// AYK-249: only Arabic is part of the app's main file. Every other language is its own small
+// file, loaded when that language is used: the main file shrank from about 2.7 MB to under 1 MB.
+// AYK-286: English was in the main file too, as everyone's fallback; Arabic readers never need it
+// (their fallback is Arabic), so it is now loaded only for the other languages: about 44 KB less
+// to download on every first opening.
 import ar from './locales/ar.json';
-import en from './locales/en.json';
 
 // Single source of truth for languages enabled on the platform.
 // Adding a new language here + a matching locale JSON file is the only
@@ -28,8 +29,8 @@ export const SUPPORTED_LANGUAGES = [
 ];
 
 // The built-in texts of each language (the locale files), before any edit from the admin area.
-// Arabic and English are always here; another language appears once loadDefaultTexts() loaded it.
-export const DEFAULT_TEXTS = { ar, en };
+// Arabic is always here; another language (English too) appears once loadDefaultTexts() loaded it.
+export const DEFAULT_TEXTS = { ar };
 const loading = {};
 
 export function loadDefaultTexts(code) {
@@ -105,7 +106,8 @@ export const i18nReady = i18n
       .map(([code, texts]) => [code, { translation: JSON.parse(JSON.stringify(texts)) }])),
     // The bundled languages are used as they are; the others come from lazyLocales.
     partialBundledLanguages: true,
-    fallbackLng: FALLBACK_CHAIN,
+    // Arabic falls back to itself only, so English is not fetched for it (AYK-286).
+    fallbackLng: { ar: ['ar'], default: FALLBACK_CHAIN },
     supportedLngs: SUPPORTED_LANG_CODES,
     interpolation: { escapeValue: false },
     detection: {

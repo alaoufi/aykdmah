@@ -133,4 +133,15 @@ if (!databasePrefix) {
     assert.deepEqual(await db.query('SELECT * FROM ads ORDER BY id'), beforeAds);
     assert.deepEqual(await db.query('SELECT * FROM schema_migrations ORDER BY name'), beforeJournal);
   });
+
+  // AYK-286: the home page asks for all its slots in one request; each answer is what the
+  // one-placement request gives (legacy and JSONB placements, limits, exclusivity).
+  test('all slots in one request answer exactly as one request per slot', async () => {
+    const slots = ['home_top', 'home_hero', 'home_middle', 'home_bottom', 'footer'];
+    const response = await fetch(`${base}/ads/live?placements=${slots.join(',')},bad name,home_top`);
+    const result = await response.json();
+    assert.equal(response.status, 200, result.message);
+    assert.deepEqual(Object.keys(result.data).sort(), [...slots].sort());
+    for (const slot of slots) assert.deepEqual(ids(result.data[slot]), ids(await live(slot)), slot);
+  });
 }
