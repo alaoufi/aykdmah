@@ -28,7 +28,9 @@ export function serverVersion() {
 function busy() {
   const el = document.activeElement;
   const typing = ['INPUT', 'TEXTAREA'].includes(el?.tagName) && el.value;
-  return Boolean(typing || document.querySelector('[role="dialog"][aria-modal="true"]'));
+  // A required-update screen is not something to lose: it must never hold back the site's own
+  // update (AYK-292: an old copy's update screen kept the new copy, which removes it, from loading).
+  return Boolean(typing || document.querySelector('[role="dialog"][aria-modal="true"]:not([data-testid="app-update-gate"])'));
 }
 
 async function newCopySaved(registration) {

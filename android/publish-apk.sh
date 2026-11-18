@@ -1,7 +1,6 @@
 #!/bin/bash
-# Publishes the APK that android/build.sh made for download at aykdmh.com/dl (AYK-124), and marks
-# it as the newest one (AYK-148): apps installed from there that are older must update before
-# they work again (client/src/components/common/AppUpdateGate.jsx reads /dl/latest.json).
+# Publishes the APK that android/build.sh made at aykdmh.com/dl (AYK-124), for testing only, and the
+# bundle for Google Play. Since AYK-292 no update screen points to it: updates come from the stores.
 # Usage (as root on the server, after build.sh): bash android/publish-apk.sh
 set -euo pipefail
 REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
@@ -12,6 +11,7 @@ cp /root/aykdmh-android/project/aykdmh.apk "$DL/aykdmh-$VERSION.apk"
 cp /root/aykdmh-android/project/aykdmh.aab "/root/aykdmh-android/aykdmh-$VERSION.aab"
 # The bundle for Google Play, downloadable at aykdmh.com/dl to upload in Play Console (AYK-164).
 cp /root/aykdmh-android/project/aykdmh.aab "$DL/aykdmh-$VERSION.aab"
-printf '{"version":"%s","url":"/dl/aykdmh-%s.apk"}\n' "$VERSION" "$VERSION" > "$DL/latest.json.tmp"
-mv "$DL/latest.json.tmp" "$DL/latest.json"
-echo "published https://aykdmh.com/dl/aykdmh-$VERSION.apk (latest.json → $VERSION)"
+# AYK-292: no latest.json any more. Updates come from the stores only; older copies of the site
+# still on phones showed a "download the file" screen whenever this file named a newer version.
+rm -f "$DL/latest.json.tmp"
+echo "published https://aykdmh.com/dl/aykdmh-$VERSION.apk (for testing only; no update screen points to it)"

@@ -23,7 +23,7 @@ async function newVersionReady() {
 // Something the person would lose on a reload: a call or a dialog on screen, or text being typed.
 function busyOnScreen() {
   const typing = ['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName) && document.activeElement.value;
-  return Boolean(typing || document.querySelector('[role="dialog"][aria-modal="true"]'));
+  return Boolean(typing || document.querySelector('[role="dialog"][aria-modal="true"]:not([data-testid="app-update-gate"])'));
 }
 
 // Silent site updates (AYK-053, AYK-074, AYK-148): compares this build's version with the one on
