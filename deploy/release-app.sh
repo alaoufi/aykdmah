@@ -45,9 +45,21 @@ APP_BUILD="$COMMIT · $(date +%Y-%m-%d)"
 echo "Version $APP_VERSION (build $APP_BUILD)"
 # AYK-270: the build may use at most BUILD_CPUS cores (2 by default) at low priority, so the other
 # sites on this server keep their share of the processor while it runs.
-nice -n 10 docker run --rm --cpus "${BUILD_CPUS:-2}" -v "$REPO_DIR":/src -w /src \
+# AYK-285: the 482 client packages are installed only when they changed (package-lock.json or the
+# Node version); otherwise the ones from the last release are reused. Downloads that are needed
+# come from a cache kept between releases. A release went from about 3 minutes to about 1.
+nice -n 10 docker run --rm --cpus "${BUILD_CPUS:-2}" -v "$REPO_DIR":/src -v aykdmh-npm-cache:/tmp/.npm -w /src \
     -e VITE_REALTIME_MODE=socket -e HOME=/tmp -e VITE_APP_VERSION="$APP_VERSION" -e VITE_APP_BUILD="$APP_BUILD" \
-    node:22-bookworm sh -c "npm --prefix client ci --include=dev --no-audit --no-fund && npm --prefix client run build"
+    node:22-bookworm sh -c '
+      set -e
+      want="$(node -v) $(sha256sum client/package-lock.json | cut -c1-64)"
+      if [ -d client/node_modules ] && [ "$(cat client/node_modules/.ayk-installed 2>/dev/null)" = "$want" ]; then
+        echo "client packages unchanged: install skipped"
+      else
+        npm --prefix client ci --include=dev --no-audit --no-fund
+        echo "$want" > client/node_modules/.ayk-installed
+      fi
+      npm --prefix client run build'
 mkdir -p "$SITE_ROOT/releases/$STAMP"
 cp -r "$REPO_DIR/client/dist/." "$SITE_ROOT/releases/$STAMP/"
 chmod -R a+rX "$SITE_ROOT/releases/$STAMP"
