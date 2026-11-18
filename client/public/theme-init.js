@@ -1,4 +1,16 @@
 (function () {
+  // AYK-266: the web fonts load without holding back the first paint (index.html loads them as
+  // media="print"); they are switched on as soon as they arrive.
+  try {
+    var fonts = document.getElementById('ayk-fonts');
+    if (fonts) {
+      var on = function () { fonts.media = 'all'; };
+      if (fonts.sheet) on(); else { fonts.addEventListener('load', on); fonts.addEventListener('error', on); }
+    }
+  } catch (_) {}
+})();
+
+(function () {
   // Runs before React: base theme, contrast and text size from saved preferences.
   try {
     var root = document.documentElement;

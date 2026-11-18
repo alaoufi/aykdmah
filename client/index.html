@@ -22,7 +22,12 @@
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- AYK-266: the first screen has the app's own background at once (no white flash between the
+         Android/iPhone splash and the page), and the fonts no longer hold back the first paint:
+         theme-init.js switches them on when they arrive; until then the device's Arabic font shows. -->
+    <style>html{background:#FAF7F2}html[data-theme="dark"]{background:#12161A}</style>
+    <link id="ayk-fonts" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap" rel="stylesheet" media="print">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
     <title>أي خدمة — خدمة أسرع، حياة أسهل</title>
     <!-- Found as written with or without the hamza (اي خدمة), while the brand stays أي خدمة (AYK-141). -->
     <meta name="keywords" content="أي خدمة, اي خدمة, أي خدمه, اي خدمه, ايخدمة, aykdmh, Ay Khidmah, خدمات منزلية, سباكة, كهرباء, صيانة, غسيل الأحواش, مقدمي الخدمة" />
