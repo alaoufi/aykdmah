@@ -13,6 +13,11 @@ const ONLINE_MS = 5 * 60 * 1000;
 const online = new Map(); // viewer key -> last seen (ms)
 let lastPrune = 0;
 
+// AYK-253: the "online now" list forgets idle visitors on a timer (it was only cleaned when
+// someone read the counter) and never holds more than 200,000 entries.
+setInterval(() => { const cutoff = Date.now() - ONLINE_MS; for (const [key, at] of online) if (at < cutoff) online.delete(key); }, 60000).unref();
+const markOnline = key => { if (online.size >= 200000) online.clear(); online.set(key, Date.now()); };
+
 const isBot = req => BOT.test(String(req.headers?.['user-agent'] || ''));
 
 function viewerKey(req) {
@@ -58,7 +63,7 @@ async function prune() {
 async function recordVisit(req) {
   if (isBot(req)) return;
   const key = viewerKey(req);
-  online.set(key, Date.now());
+  markOnline(key);
   const inserted = await query(
     "INSERT INTO entity_views (entity_type, entity_id, viewer_key, view_day) VALUES ('site', 0, ?, CURRENT_DATE) ON CONFLICT DO NOTHING",
     [key]);

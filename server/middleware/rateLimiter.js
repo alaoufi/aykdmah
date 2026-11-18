@@ -71,12 +71,28 @@ const accountAuthLimiter = rateLimit({
 
 const uploadLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 30,
+  max: Number(process.env.UPLOAD_RATE_LIMIT) || 30,
   store: new AuthRateLimitStore('upload-ip'),
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: 'تجاوزت حد رفع الملفات. حاول لاحقاً.' },
 });
+
+// AYK-252: a text message carries no file, yet every one cost a database write in the upload
+// limiter above. Text messages are counted in memory (same allowance); a message with files still
+// goes through the shared upload limiter.
+const textMessageLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: Number(process.env.UPLOAD_RATE_LIMIT) || 30,
+  // One server copy counts in memory. With several copies (APP_WORKERS) each would count alone and
+  // the allowance would multiply (the simulator caught 55 of 60 passing with 3 copies), so they
+  // share the database counter.
+  ...(require('cluster').isWorker ? { store: new AuthRateLimitStore('chat-text-ip') } : {}),
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'تجاوزت حد الرسائل. حاول لاحقاً.' },
+});
+const chatSendLimiter = (req, res, next) => (req.is('multipart/form-data') ? uploadLimiter : textMessageLimiter)(req, res, next);
 
 // AYK-240: SMS codes cost money. Besides the per-number resend wait and daily cap, one address
 // may ask for at most 10 codes an hour (to any numbers), which stops SMS pumping.
@@ -90,4 +106,4 @@ const smsLimiter = rateLimit({
   message: { success: false, message: 'محاولات كثيرة. حاول لاحقاً.' },
 });
 
-module.exports = { generalLimiter, authLimiter, accountAuthLimiter, uploadLimiter, smsLimiter, AuthRateLimitStore };
+module.exports = { generalLimiter, authLimiter, accountAuthLimiter, uploadLimiter, chatSendLimiter, smsLimiter, AuthRateLimitStore };

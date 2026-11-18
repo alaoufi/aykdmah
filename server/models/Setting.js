@@ -13,8 +13,30 @@ function parseValue(row) {
   return v;
 }
 
+// AYK-252: settings are read on almost every request (who may write, whether views are public,
+// the media limits...), each time with its own query. All of them (a few dozen rows) are now read
+// once and kept for 5 seconds; everyone asking meanwhile shares that one read. A change made
+// through this model shows at once in this server copy and within 5 seconds in the others.
+// Off in tests (they change settings straight in the database and expect it at once).
+const SNAPSHOT_MS = process.env.NODE_ENV === 'test' ? 0 : 5000;
+let snapshot = null; // { at, rows: Map(key -> row) } | { pending }
+function forgetSnapshot() { snapshot = null; }
+async function allRows() {
+  if (!SNAPSHOT_MS) return null;
+  if (snapshot?.rows && Date.now() - snapshot.at < SNAPSHOT_MS) return snapshot.rows;
+  if (snapshot?.pending) return snapshot.pending;
+  const pending = query('SELECT * FROM settings').then(rows => {
+    const map = new Map(rows.map(row => [row.setting_key, row]));
+    snapshot = { at: Date.now(), rows: map };
+    return map;
+  }, err => { snapshot = null; throw err; });
+  snapshot = { pending };
+  return pending;
+}
+
 async function get(key, defaultValue = null) {
-  const row = await queryOne('SELECT * FROM settings WHERE setting_key = ?', [key]);
+  const rows = await allRows();
+  const row = rows ? rows.get(key) : await queryOne('SELECT * FROM settings WHERE setting_key = ?', [key]);
   if (!row) return defaultValue;
   const v = parseValue(row);
   return v == null ? defaultValue : v;
@@ -22,13 +44,21 @@ async function get(key, defaultValue = null) {
 
 async function getMany(keys) {
   if (!Array.isArray(keys) || !keys.length) return {};
-  const rows = await query(
+  const cached = await allRows();
+  const rows = cached ? keys.map(key => cached.get(key)).filter(Boolean) : await query(
     `SELECT * FROM settings WHERE setting_key IN (${keys.map(() => '?').join(',')})`,
     keys
   );
   const result = {};
   for (const r of rows) result[r.setting_key] = parseValue(r);
   return result;
+}
+
+// Raw text values of some keys, for callers that parse them themselves (the marketplace policy).
+async function rawValues(keys) {
+  const cached = await allRows();
+  if (!cached) return null;
+  return keys.map(key => cached.get(key)).filter(Boolean).map(row => ({ setting_key: row.setting_key, setting_value: row.setting_value }));
 }
 
 async function getPublic() {
@@ -63,6 +93,7 @@ async function set(key, value, type = 'string', group = 'general', isPublic = 0,
                              description = COALESCE(EXCLUDED.description, settings.description)`,
     [key, stored, type, group, isPublic ? 1 : 0, description]
   );
+  forgetSnapshot();
   return get(key);
 }
 
@@ -92,6 +123,7 @@ async function updateMany(items) {
       await conn.execute('UPDATE settings SET setting_value = ? WHERE setting_key = ?', [stored, it.key]);
     }
   });
+  forgetSnapshot();
 }
 
-module.exports = { get, getMany, getPublic, getAll, set, updateMany };
+module.exports = { get, getMany, getPublic, getAll, set, updateMany, rawValues, forgetSnapshot };

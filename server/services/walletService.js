@@ -245,7 +245,11 @@ async function giftSubscription(user, { recipient, plan_id, password }) {
   const outcome = await transaction(async conn => {
     const ids = [Number(user.id), Number(target.id)].sort((a, b) => a - b);
     await conn.execute('SELECT id FROM users WHERE id IN (?, ?) ORDER BY id FOR UPDATE', ids);
-    if (await balanceIn(conn, user.id) < halalas) throw fail(409, 'insufficient_balance');
+    // AYK-253: like withdrawals (AYK-240), a gift cannot be paid with commissions earned from test
+    // payments: they would become real subscriptions once a real gateway is switched on.
+    const [testCredits] = await conn.execute(
+      "SELECT COALESCE(SUM(amount), 0) AS total FROM wallet_transactions WHERE user_id = ? AND note = 'test' AND amount > 0 AND status <> 'cancelled'", [user.id]);
+    if (await balanceIn(conn, user.id) - toHalalas(testCredits[0].total) < halalas) throw fail(409, 'insufficient_balance');
     const [open] = await conn.execute(
       "SELECT id FROM subscriptions WHERE user_id = ? AND (status = 'pending' OR (status = 'active' AND ends_at > CURRENT_TIMESTAMP)) LIMIT 1", [target.id]);
     if (open.length) throw fail(409, 'recipient_has_subscription');

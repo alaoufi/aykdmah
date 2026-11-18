@@ -22,6 +22,19 @@ const create = asyncHandler(async (req, res) => {
   const isProvider = request.assigned_provider_id === req.user.id;
   if (!isClient && !isProvider) return forbidden(res, req.t('deny_review_parties'));
 
+  // AYK-253: a requester can assign a provider from the directory and complete the request alone.
+  // A review of that provider then needs the provider's own part in the request (a message they
+  // wrote in its chat, or a priced offer they sent); otherwise anyone could post an unearned
+  // 1-star (or 5-star) review on any provider in seconds.
+  if (isClient) {
+    const engaged = await require('../config/database').queryOne(
+      `SELECT 1 AS found WHERE EXISTS (SELECT 1 FROM offers o WHERE o.request_id = ? AND o.provider_id = ? AND o.price > 0)
+        OR EXISTS (SELECT 1 FROM conversations c JOIN messages m ON m.conversation_id = c.id
+          WHERE c.request_id = ? AND m.sender_id = ? AND m.deleted_at IS NULL)`,
+      [request.id, request.assigned_provider_id, request.id, request.assigned_provider_id]);
+    if (!engaged) return error(res, req.t('provider_not_engaged'), 403);
+  }
+
   const review_type = isClient ? 'on_provider' : 'on_requester';
   const target_user_id = isClient ? request.assigned_provider_id : request.client_id;
 

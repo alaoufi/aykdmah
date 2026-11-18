@@ -6,7 +6,8 @@ async function create({ user_id, type, title, body, data, link, channel = 'in_ap
      VALUES (?, ?, ?, ?, ?, ?, ?)`,
     [user_id, type, title, body || null, data ? JSON.stringify(data) : null, link || null, channel]
   );
-  return queryOne('SELECT * FROM notifications WHERE id = ?', [result.insertId]);
+  // The insert already returns the stored row (the database layer adds RETURNING *): no second read.
+  return result[0] || queryOne('SELECT * FROM notifications WHERE id = ?', [result.insertId]);
 }
 
 async function listForUser(userId, { unreadOnly = false, page = 1, limit = 20 } = {}) {

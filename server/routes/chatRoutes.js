@@ -4,7 +4,7 @@ const c = require('../controllers/chatController');
 const loc = require('../controllers/locationController');
 const { authenticate } = require('../middleware/auth');
 const { uploadChat } = require('../middleware/upload');
-const { uploadLimiter } = require('../middleware/rateLimiter');
+const { chatSendLimiter } = require('../middleware/rateLimiter');
 const { requireMarketplaceWrite } = require('../middleware/verificationPolicy');
 
 router.get('/conversations', authenticate, c.listConversations);
@@ -17,7 +17,7 @@ router.post('/conversations/:id/messages/:messageId/forward', authenticate, requ
 router.post('/conversations', authenticate, requireMarketplaceWrite, c.createConversation);
 router.get('/conversations/:id', authenticate, c.getConversation);
 router.get('/conversations/:id/messages', authenticate, c.getMessages);
-router.post('/conversations/:id/messages', authenticate, requireMarketplaceWrite, uploadLimiter, uploadChat.array('files', 4), c.sendMessage);
+router.post('/conversations/:id/messages', authenticate, requireMarketplaceWrite, chatSendLimiter, uploadChat.array('files', 4), c.sendMessage);
 router.delete('/conversations/:id/messages/:messageId', authenticate, c.deleteMessage);
 router.get('/conversations/:id/search', authenticate, c.searchMessages);
 router.put('/conversations/:id/read', authenticate, c.markRead);

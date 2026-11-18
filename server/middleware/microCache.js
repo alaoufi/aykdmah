@@ -21,7 +21,8 @@ function microCache(seconds, paths) {
       return next();
     }
     if (!exact.has(path.replace(/\/$/, '')) || req.method !== 'GET') return next();
-    if (req.query.all === 'true' || req.get('x-ayk-scope') === 'admin') return next();
+    // Any query string bypasses it: only the plain address is stored, so it cannot be flooded with ?x=1, ?x=2...
+    if (Object.keys(req.query).length || req.get('x-ayk-scope') === 'admin') return next();
     const key = `${req.lang || ''}|${req.originalUrl}`;
     const send = entry => {
       res.status(entry.status).set({ 'Content-Type': entry.type, 'X-Cache': 'hit' });

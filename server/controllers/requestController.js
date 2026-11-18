@@ -235,6 +235,7 @@ const agree = asyncHandler(async (req, res) => {
   if (request.status !== 'open') return error(res, req.t('request_not_open'), 409);
   const providerId = Number(req.body?.provider_id);
   if (!Number.isSafeInteger(providerId) || providerId < 1) return error(res, req.t('invalid_data'));
+  if (await require('./userBlockController').blockedRefusal(req, res, providerId)) return undefined;
   let offer = await queryOne("SELECT id FROM offers WHERE request_id = ? AND provider_id = ? AND status = 'pending'", [request.id, providerId]);
   if (!offer) offer = { id: await Offer.create({ request_id: request.id, provider_id: providerId, contact: true }) };
   await Offer.acceptOffer(offer.id, req.user.id);

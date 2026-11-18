@@ -547,6 +547,20 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
     mark(r.status < 500, 'حقن SQL في البحث لا يكسر الخادم', `الحالة ${r.status}`);
     r = await call('اختراق: تقييم طلب غيره', '/reviews', { actor: intruder, method: 'POST', body: { request_id: job.requestId, rating: 1, comment: 'تقييم مزيف' }, quiet: true });
     mark([400, 403, 404].includes(r.status), 'تقييم طلب لم يشارك فيه', `الحالة ${r.status}`);
+    // A requester assigns a provider who never took part, completes alone, and tries to review them.
+    const victim = P().find(p => p.token && p !== job.provider);
+    const liar = C().find(p => p.token && p !== job.client);
+    if (victim && liar) {
+      const direct = await call('اختراق: طلب مباشر', '/requests/direct', { actor: liar, method: 'POST', body: { provider_id: victim.id }, quiet: true });
+      const directId = direct.data?.request_id || direct.data?.id;
+      if (directId) {
+        await call('اختراق: اعتماد', `/requests/${directId}/agree`, { actor: liar, method: 'POST', body: { provider_id: victim.id }, quiet: true });
+        await call('اختراق: إنهاء منفرد', `/requests/${directId}/status`, { actor: liar, method: 'PUT', body: { status: 'completed' }, quiet: true });
+        r = await call('اختراق: تقييم مزيف', '/reviews', { actor: liar, method: 'POST', body: { request_id: directId, rating: 1, comment: 'تقييم كيدي' }, quiet: true });
+        check('security', r.status !== 201, 'تقييم مزود لم يشارك في الطلب إطلاقًا (تقييم كيدي)', `الحالة ${r.status}`, 'خطير');
+        say(`${liar.label} حاول تقييم ${victim.label} دون أن يتعامل معه → ${r.status !== 201 ? 'مُنع ✓' : 'نجح ✗'}`, { actor: liar.label, peer: victim.label, bad: r.status === 201 });
+      }
+    }
     r = await call('اختراق: ملف تنفيذي', `/chat/conversations/${job.conversationId}/messages`, { actor: job.client, method: 'POST', quiet: true, form: (() => { const f = new FormData(); f.append('message_type', 'file'); f.append('files', new Blob([Buffer.from('MZ\x90\x00binary')], { type: 'image/png' }), 'virus.png'); return f; })() });
     mark(r.status === 400, 'رفع ملف تنفيذي متنكر في صورة', `الحالة ${r.status}`);
     r = await call('اختراق: رسالة ضخمة', `/chat/conversations/${job.conversationId}/messages`, { actor: job.client, method: 'POST', body: { content: 'ا'.repeat(20000) }, quiet: true });

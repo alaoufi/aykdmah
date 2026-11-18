@@ -148,9 +148,35 @@ function shapeResult(originalSql, result) {
 
 // ─── Public API (matches the old mysql2-flavoured surface) ──────────────
 
+// SQL_TRACE=1 (the simulator's query report, never in production): one line per statement with its
+// duration, so the statements behind a slow screen can be counted.
+const TRACE = process.env.SQL_TRACE === '1' && process.env.NODE_ENV !== 'production';
+function traced(sql, started) {
+  console.log(`SQLT ${(Number(process.hrtime.bigint() - started) / 1e6).toFixed(2)} ${sql.replace(/\s+/g, ' ').trim().slice(0, 150)}`);
+}
+
+// AYK-252: prepared statements. The chat's permission checks and the list screens are long
+// queries; PostgreSQL worked out how to run each one again on every call (more time than running
+// it). Under a name, each connection plans a statement once and reuses the plan. The translated
+// text is also remembered, so the MySQL-to-PostgreSQL rewrite happens once per statement.
+// Only statements with parameters are named; DB_PREPARED=0 turns it off.
+const PREPARED = process.env.DB_PREPARED !== '0';
+const statements = new Map(); // original sql -> { text, name }
+const STATEMENTS_MAX = 2000;
+function statement(sql, params) {
+  let known = statements.get(sql);
+  if (!known) {
+    const text = translateSql(sql);
+    known = { text, name: `s${require('crypto').createHash('sha1').update(text).digest('hex').slice(0, 24)}` };
+    if (statements.size < STATEMENTS_MAX) statements.set(sql, known);
+  }
+  return PREPARED && params && params.length ? { name: known.name, text: known.text, values: params } : { text: known.text, values: params };
+}
+
 async function query(sql, params = []) {
-  const pgsql = translateSql(sql);
-  const result = await getPool().query(pgsql, params);
+  const started = TRACE ? process.hrtime.bigint() : 0n;
+  const result = await getPool().query(statement(sql, params));
+  if (TRACE) traced(sql, started);
   return shapeResult(sql, result);
 }
 
@@ -168,7 +194,9 @@ async function transaction(callback) {
   //   await conn.execute(sql, params)  →  [result, fields]
   //                                       result.insertId, result.affectedRows
   const execute = async (sql, params = []) => {
-    const result = await client.query(translateSql(sql), params);
+    const started = TRACE ? process.hrtime.bigint() : 0n;
+    const result = await client.query(statement(sql, params));
+    if (TRACE) traced(`[tx] ${sql}`, started);
     return [shapeResult(sql, result), undefined];
   };
   // Both methods follow mysql2's [rowsOrResult, fields] contract.

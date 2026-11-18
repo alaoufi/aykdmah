@@ -53,7 +53,10 @@ export function NotificationProvider({ children }) {
     let seenIds = null;
     const poll = createPollingLoop(() => Promise.all([listNotifications({ limit: 30 }), getChatUnread().catch(() => null), supportUnread().catch(() => null)])
       .then(([res, chats, support]) => { if (chats !== null) setChatUnread(chats); if (support !== null) setSupportCount(support); return res; }), {
-      intervalMs: realtimeMode === 'polling' ? 10000 : 15000,
+      // AYK-252: with the live connection up, new notifications and messages arrive through it at
+      // once, so asking the server every 15 seconds only loads it (three requests each time, from
+      // every open app). Connected: a safety check every 90–120 seconds. Not connected: as before.
+      intervalMs: () => (realtimeMode === 'polling' ? 10000 : connectedRef.current ? 90000 + Math.floor(Math.random() * 30000) : 15000),
       onResult: (res) => {
         const next = res.data || [];
         if (seenIds && (realtimeMode === 'polling' || !connectedRef.current)) {
@@ -74,6 +77,9 @@ export function NotificationProvider({ children }) {
       toastTimers.current.clear();
     };
   }, [user?.id, realtimeMode, showToast]);
+
+  // Whatever arrived while the live connection was down is fetched the moment it is back.
+  useEffect(() => { if (connected) refresh(); }, [connected, refresh]);
 
   useEffect(() => {
     if (!socket) return;

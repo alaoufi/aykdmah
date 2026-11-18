@@ -38,7 +38,11 @@ export function createPollingLoop(load, {
       running = false;
       if (!stopped && visible()) {
         if (queued) runningTask = run();
-        else if (intervalMs != null) timer = setTimer(refresh, intervalMs);
+        else if (intervalMs != null) {
+          // A function gives the wait each time (e.g. long while a live connection delivers events).
+          const wait = typeof intervalMs === 'function' ? intervalMs() : intervalMs;
+          if (wait != null) timer = setTimer(refresh, wait);
+        }
       }
     }
   };

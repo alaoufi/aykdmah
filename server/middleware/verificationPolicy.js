@@ -10,7 +10,10 @@ const email = value => String(value || '').trim().toLowerCase();
 async function marketplacePolicy(runQuery = query) {
   // Read the registry atomically. A DB error must propagate, rather than
   // defaulting a configured restriction off while the platform keeps writing.
-  const rows = await runQuery(`SELECT setting_key, setting_value FROM settings WHERE setting_key IN (${POLICY_KEYS.map(() => '?').join(', ')})`, POLICY_KEYS);
+  // Outside a transaction the shared 5-second settings snapshot answers (AYK-252); inside one
+  // (runQuery is the transaction's own) the registry is read there, as before.
+  const rows = (runQuery === query && await require('../models/Setting').rawValues(POLICY_KEYS))
+    || await runQuery(`SELECT setting_key, setting_value FROM settings WHERE setting_key IN (${POLICY_KEYS.map(() => '?').join(', ')})`, POLICY_KEYS);
   const values = Object.fromEntries(rows.map(row => [row.setting_key, row.setting_value]));
   const csv = value => [...new Set(String(value || '').split(',').map(key => key.trim().toLowerCase()).filter(Boolean))];
   return {

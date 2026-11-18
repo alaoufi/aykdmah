@@ -36,6 +36,17 @@ function initSocket(httpServer) {
     logger.info(`Socket connected: user=${user.id}`);
 
     socket.data.authToken = socket.authToken;
+    // AYK-253: at most 40 events in any 10 seconds per connection (typing, reading, joining...).
+    // More than that is not a person; the extra ones are dropped before they reach the database.
+    let bucket = { start: Date.now(), count: 0 };
+    socket.use((packet, next) => {
+      const now = Date.now();
+      if (now - bucket.start >= 10000) bucket = { start: now, count: 0 };
+      if (++bucket.count <= 40) return next();
+      const ack = packet[packet.length - 1];
+      if (typeof ack === 'function') ack({ ok: false, error: 'rate_limited' });
+      return undefined; // dropped
+    });
     socket.use(async (packet, next) => {
       try { socket.user = await socketAuth.validateToken(socket.authToken, socket.handshake.auth?.scope); next(); }
       catch (_) {

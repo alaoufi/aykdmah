@@ -55,7 +55,16 @@ const live = financeHandler(async (req, res) => {
 // POST /api/ads/:id/view  — fire-and-forget tracker called when an ad
 // is actually shown to a visitor; expires the ad once max_views is hit.
 const trackView = financeHandler(async (req, res) => {
-  if (!await Ad.bumpViews(Number(req.params.id))) return notFound(res);
+  // AYK-253: ads are sold by number of views, and this address needs no sign-in: each viewer
+  // counts once a day per ad, so nobody can burn a competitor's paid views by repeating the call.
+  const adId = Number(req.params.id);
+  if (!Number.isSafeInteger(adId) || adId < 1) return notFound(res);
+  const visitors = require('../services/visitors');
+  if (visitors.isBot(req)) return success(res, null);
+  const first = await require('../config/database').query(
+    "INSERT INTO entity_views (entity_type, entity_id, viewer_key, view_day) VALUES ('ad', ?, ?, CURRENT_DATE) ON CONFLICT DO NOTHING", [adId, visitors.viewerKey(req)]);
+  if (!first.affectedRows) return success(res, null);
+  if (!await Ad.bumpViews(adId)) return notFound(res);
   // Best-effort cap enforcement on every Nth call would be cheaper,
   // but expireOverdue is cheap enough to run on the bump for now.
   await adRequestService.sweep();

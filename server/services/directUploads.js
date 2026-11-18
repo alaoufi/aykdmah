@@ -98,6 +98,9 @@ async function createTicket({ userId, conversationId, fileName, type, size, dura
     if (duration > max) throw uploadError('upload_too_long', 413);
   }
   cleanupPending().catch(() => {});
+  // AYK-253: at most 8 uploads waiting per person, so nobody parks gigabytes of unsent files.
+  const waiting = await queryOne("SELECT COUNT(*) AS n FROM uploaded_media WHERE owner_id = ? AND status = 'pending'", [userId]);
+  if (Number(waiting.n) >= 8) throw uploadError('upload_too_many_pending', 429);
   const id = randomUUID();
   const key = storage.objectKey('chat', id);
   await query(`INSERT INTO uploaded_media (id, owner_id, scope, scope_id, filename, mime, size, data, storage, object_key, status, duration_seconds)
