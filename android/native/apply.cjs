@@ -95,6 +95,8 @@ if (!manifest.includes('.FcmService')) {
 const notifyLine = '<uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>';
 if (!manifest.includes('POST_NOTIFICATIONS')) manifest = manifest.replace(/(<manifest[^>]*>)/, `$1\n    ${notifyLine}`);
 fs.writeFileSync(manifestFile, manifest);
+// The opening screen without the logo (AYK-276).
+console.log(`opening screen without logo (${require('./splash.cjs').applySplash(project)} splash images cleared)`);
 
 const keys = process.env.KEYS_DIR || '/keys';
 fs.copyFileSync(path.join(keys, 'google-services.json'), path.join(project, 'app/google-services.json'));

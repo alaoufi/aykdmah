@@ -42,7 +42,8 @@ jarsigner -verify /work/aykdmh.aab >/dev/null && echo "AAB signature OK"
 ls -la /work/aykdmh.aab /work/aykdmh.apk
 INNER
 
-docker run --rm -u root \
+# At most 2 of the server's cores (AYK-276), so the sites keep theirs while the app is built.
+docker run --rm -u root --cpus "${BUILD_CPUS:-2}" \
   -e BUBBLEWRAP_KEYSTORE_PASSWORD="$KEYSTORE_PASSWORD" -e BUBBLEWRAP_KEY_PASSWORD="$KEY_PASSWORD" \
   -v "$WORK/project":/work -v "$WORK/keys":/keys -v "$WORK/inner.sh":/inner.sh:ro \
   -v "$REPO_DIR/android/native":/native:ro \
