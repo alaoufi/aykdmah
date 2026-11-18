@@ -18,6 +18,7 @@ import CoverageDistrictsPicker from '../components/common/CoverageDistrictsPicke
 import { weekdayName } from '../components/common/AvailabilityBadge';
 import WorkHoursPicker from '../components/common/WorkHoursPicker';
 import DevicePermissions from '../components/common/DevicePermissions';
+import SignupHowTo from '../components/common/SignupHowTo';
 import SafeHtml from '../components/common/SafeHtml';
 import { apiError } from '../services/api';
 import { localizedName } from '../utils/localize';
@@ -270,6 +271,7 @@ export default function RegisterPage() {
     <form onSubmit={handleSubmit} data-testid="register-form" noValidate>
       <fieldset disabled={loading} className="min-w-0 border-0 p-0 m-0 space-y-3">
         <h2 className="mb-0">{t('auth.register_title')}</h2>
+        <SignupHowTo />
 
         {error && <ProblemNotice error={error} />}
 
