@@ -80,8 +80,9 @@ test('a store app below the minimum set in the settings is sent to its store', a
     { version: '1.3.8', url: 'https://play.google.com/store/apps/details?id=sa.aykdmh.app', store: true });
   assert.equal(api.storeUpdateNeeded({ version: '1.3.8', source: 'play' }, settings, android), null);
   assert.equal(api.storeUpdateNeeded({ version: '1.4.0', source: 'play' }, settings, android), null);
-  // The downloaded APK keeps its own update screen; the website and an empty minimum stop nobody.
-  assert.equal(api.storeUpdateNeeded({ version: '1.2.5', source: 'apk' }, settings, android), null);
+  // AYK-292: a store app on Huawei (Google Play inside GBox) says "apk": it too goes to the store,
+  // never to a file download. The website and an empty minimum stop nobody.
+  assert.equal(api.storeUpdateNeeded({ version: '1.3.5', source: 'apk' }, settings, android)?.url, settings.google_play_url);
   assert.equal(api.storeUpdateNeeded({ version: '', source: '' }, settings, android), null);
   assert.equal(api.storeUpdateNeeded({ version: '1.0.0', source: '' }, settings, iphone), null);
   assert.equal(api.storeUpdateNeeded({ version: '1.2.5', source: '' }, { ...settings, app_min_version_android: '' }, android), null);

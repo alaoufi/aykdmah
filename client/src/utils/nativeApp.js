@@ -79,7 +79,8 @@ function storeLink(value, platform) {
   } catch (_) { return ''; }
 }
 export function storeUpdateNeeded(launch, settings, userAgent) {
-  if (!launch?.version || launch.source === 'apk') return null;
+  // Every app, whatever it says it was installed from, goes to its store (AYK-292).
+  if (!launch?.version) return null;
   const platform = /iPhone|iPad|iPod/i.test(userAgent || '') ? 'ios' : /Android/i.test(userAgent || '') ? 'android' : '';
   if (!platform) return null;
   const minimum = String(settings?.[`app_min_version_${platform}`] || '').trim();
