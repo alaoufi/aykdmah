@@ -1322,7 +1322,8 @@
     "blocked_you": "Bu kişi sizi engelledi, mesaj gönderemez veya arayamazsınız.",
     "account_delete_admin": "Yönetici hesabı buradan silinemez.",
     "account_delete_wrong_password": "Yanlış şifre.",
-    "account_delete_active_jobs": "Devam eden işiniz var. Önce bitirin veya çekilin."
+    "account_delete_active_jobs": "Devam eden işiniz var. Önce bitirin veya çekilin.",
+    "busy": "Site şu anda çok yoğun. Lütfen birazdan tekrar deneyin."
   },
   "catalog": {
     "title": "Hizmetler",

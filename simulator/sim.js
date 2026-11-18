@@ -73,11 +73,11 @@ const readJson = (file, fallback) => { try { return JSON.parse(fs.readFileSync(f
 const runsList = () => fs.readdirSync(RUNS).filter(f => f.endsWith('.json')).sort().reverse().slice(0, 30)
   .map(f => { const r = readJson(path.join(RUNS, f), {}); return { file: f, startedAt: r.startedAt, providers: r.providers, clients: r.clients, seconds: r.seconds, findings: (r.findings || []).length, mode: r.mode, crowd: r.crowd?.accounts || 0 }; });
 
-async function start({ providers, clients, bulk, together, rush, workers }) {
+async function start({ providers, clients, bulk, together, rush, workers, providersTogether, clientsTogether, task, capacity }) {
   current = { events: [], startedAt: Date.now() };
-  emit({ type: 'start', providers, clients, bulk, together, rush });
+  emit({ type: 'start', providers, clients, bulk, together, rush, providersTogether, clientsTogether, task });
   try {
-    const summary = await runSimulation({ providers, clients, bulk, together, rush, workers, emit });
+    const summary = await runSimulation({ providers, clients, bulk, together, rush, workers, providersTogether, clientsTogether, task, capacity, emit });
     fs.writeFileSync(path.join(RUNS, `${summary.startedAt.replace(/[:.]/g, '-')}.json`), JSON.stringify(summary, null, 1));
   } catch (err) {
     emit({ type: 'done', summary: { fatal: err.message, findings: [], passes: {}, speed: { table: [], stall: {} } } });
@@ -114,8 +114,14 @@ http.createServer((req, res) => {
     const together = Math.min(providers + clients, Math.max(1, Number(url.searchParams.get('together')) || Math.min(20, providers + clients)));
     const rush = Math.min(MAX.rush, Math.max(0, Number(url.searchParams.get('rush')) || 0));
     const workers = Math.min(MAX.workers, Math.max(1, Number(url.searchParams.get('workers')) || 1));
-    start({ providers, clients, bulk, together, rush, workers });
-    return json(202, { started: true, providers, clients, bulk, together, rush, workers });
+    // AYK-273: providers and requesters signing in together, each group on its own; the task; the
+    // waiting room's size for this run (0 = the site's own default).
+    const providersTogether = Math.min(providers, Math.max(1, Number(url.searchParams.get('pt')) || Math.min(providers, 10)));
+    const clientsTogether = Math.min(clients, Math.max(1, Number(url.searchParams.get('ct')) || Math.min(clients, 10)));
+    const task = ['all', 'signin', 'agreement', 'chats', 'security', 'conflicts', 'flood', 'rush'].includes(url.searchParams.get('task')) ? url.searchParams.get('task') : 'all';
+    const capacity = Math.min(10000, Math.max(0, Number(url.searchParams.get('capacity')) || 0));
+    start({ providers, clients, bulk, together: providersTogether + clientsTogether, rush, workers, providersTogether, clientsTogether, task, capacity });
+    return json(202, { started: true, providers, clients, bulk, rush, workers, providersTogether, clientsTogether, task, capacity });
   }
   if (req.method === 'GET' && url.pathname === '/runs') return json(200, runsList());
   if (req.method === 'GET' && url.pathname === '/run') {

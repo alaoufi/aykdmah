@@ -1322,7 +1322,8 @@
     "blocked_you": "Na-block ka ng taong ito, kaya hindi ka makakapag-mensahe o tumawag.",
     "account_delete_admin": "Hindi mabubura dito ang admin account.",
     "account_delete_wrong_password": "Maling password.",
-    "account_delete_active_jobs": "May trabahong nagaganap. Tapusin o umatras muna."
+    "account_delete_active_jobs": "May trabahong nagaganap. Tapusin o umatras muna.",
+    "busy": "Napakaraming gumagamit ngayon. Subukang muli maya-maya."
   },
   "catalog": {
     "title": "Mga Serbisyo",

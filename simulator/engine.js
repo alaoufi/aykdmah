@@ -30,6 +30,17 @@ function wav(seconds = 1) { // a real, silent, playable WAV
 }
 
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+// The tasks a run can be limited to (AYK-273): name shown on the page -> the parts it runs.
+const TASKS = {
+  all: { label: 'كل الاحتمالات' },
+  signin: { label: 'التسجيل والدخول' },
+  agreement: { label: 'الاتفاق: الطلب والعروض والقبول والرفض والانسحاب والإلغاء والضمان والنزاع' },
+  chats: { label: 'المحادثات' },
+  security: { label: 'الأمان' },
+  conflicts: { label: 'التعارض' },
+  flood: { label: 'الإغراق' },
+  rush: { label: 'الاندفاع: آلاف يفتحون التطبيق معًا' },
+};
 const percentile = (sorted, p) => sorted.length ? sorted[Math.min(sorted.length - 1, Math.floor(sorted.length * p))] : 0;
 async function inBatches(items, size, fn) {
   const results = [];
@@ -37,7 +48,7 @@ async function inBatches(items, size, fn) {
   return results;
 }
 
-async function runSimulation({ providers = 10, clients = 10, bulk = 0, together = 0, rush = 0, workers = Number(process.env.SIM_APP_WORKERS) || 1, emit = () => {}, pg = {} } = {}) {
+async function runSimulation({ providers = 10, clients = 10, bulk = 0, together = 0, rush = 0, providersTogether = 0, clientsTogether = 0, task = 'all', capacity = 0, workers = Number(process.env.SIM_APP_WORKERS) || 1, emit = () => {}, pg = {} } = {}) {
   const pgHost = pg.host || process.env.SIM_PG_HOST || '127.0.0.1';
   const pgPort = Number(pg.port || process.env.SIM_PG_PORT || 5432);
   const pgUser = pg.user || process.env.SIM_PG_USER || 'postgres';
@@ -49,6 +60,14 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
   const load = providers + clients > 40; // phase 2: stability under many users
   // How many people sign in at the very same instant (the rest follow in waves of the same size).
   together = Math.min(providers + clients, Math.max(1, Math.floor(Number(together) || Math.min(20, providers + clients))));
+  // AYK-273: how many providers and how many requesters sign in at the very same instant, each
+  // group on its own (both groups start together); and which task the run tests.
+  providersTogether = Math.min(providers, Math.max(1, Math.floor(Number(providersTogether) || Math.ceil(together * providers / (providers + clients)))));
+  clientsTogether = Math.min(clients, Math.max(1, Math.floor(Number(clientsTogether) || Math.max(1, together - providersTogether))));
+  together = providersTogether + clientsTogether;
+  task = TASKS[task] ? task : 'all';
+  if (task === 'rush' && !Number(rush)) rush = 1000;
+  capacity = Math.max(0, Math.floor(Number(capacity) || 0));
   // The rush: this many people, already signed in on their phones, open the app in the same instant.
   rush = Math.min(50000, Math.max(0, Math.floor(Number(rush) || 0)));
   bulk = Math.min(200000, Math.max(rush, Math.floor(Number(bulk) || 0))); // accounts written straight into the database
@@ -87,10 +106,12 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
     DATABASE_URL: '', DIRECT_DATABASE_URL: '', JWT_SECRET: crypto.randomBytes(48).toString('hex'),
     ENCRYPTION_KEY: crypto.randomBytes(32).toString('hex'), PAYMENT_PROVIDER: 'test',
     MAIL_HOST: '', WHATSAPP_PROVIDER: '', BOOTSTRAP_ADMIN_EMAIL: '', BOOTSTRAP_ADMIN_PASSWORD: '', GEOIP_DISABLE: '1',
-    NO_PROXY: '127.0.0.1,localhost', ...(process.env.SIM_DB_POOL_MAX ? { DB_POOL_MAX: process.env.SIM_DB_POOL_MAX } : {}), ...(workers > 1 ? { APP_WORKERS: String(workers) } : {}),
+    NO_PROXY: '127.0.0.1,localhost', ...(process.env.SIM_DB_POOL_MAX ? { DB_POOL_MAX: process.env.SIM_DB_POOL_MAX } : {}), ...(workers > 1 ? { APP_WORKERS: String(workers) } : {}), ...(capacity ? { ADMISSION_MAX_ACTIVE: String(capacity) } : {}),
     // Calls: rings, answers and tokens are real; no media server runs here, so no audio is carried.
     LIVEKIT_URL: 'wss://calls.sim.invalid/livekit', LIVEKIT_API_URL: '', LIVEKIT_API_KEY: 'simkey', LIVEKIT_API_SECRET: crypto.randomBytes(32).toString('hex'),
   };
+  const queue = { peakWaiting: 0, peakActive: 0, capacity: 0, last: null };
+  let queueWatch = null;
   let app = null, dbCreated = false, memoryPeakMb = 0, connectionsPeak = 0, monitor = null, prober = null, crowd = null, signIn = null, rushReport = null;
   const sockets = [];
 
@@ -128,6 +149,26 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
       if (i === 79) throw new Error('نسخة الموقع لم تبدأ');
     }
     say('نسخة الموقع المعزولة تعمل', { actor: 'النظام' });
+    // AYK-273: the waiting room's counts, read every half second with an administrator of this copy.
+    try {
+      const c = new Client({ host: pgHost, port: pgPort, user: pgUser, password: pgPassword, database: dbName, ssl: false });
+      await c.connect();
+      const adminId = (await c.query("INSERT INTO users (full_name, username, password_hash, role, is_active, is_super_admin) VALUES ('مراقب المحاكاة', $1, 'sim-observer-cannot-sign-in', 'admin', 1, 1) RETURNING id", [`sim_observer_${crypto.randomBytes(4).toString('hex')}`])).rows[0].id;
+      await c.end();
+      const observer = serverRequire('jsonwebtoken').sign({ id: adminId, role: 'admin', auth_version: 0, scope: 'admin', sv: 0 }, env.JWT_SECRET, { algorithm: 'HS256', expiresIn: '6h' });
+      queueWatch = setInterval(async () => {
+        try {
+          const r = await fetch(`${base}/health/queue`, { headers: { Authorization: `Bearer ${observer}`, 'X-Forwarded-For': '10.251.0.1' } });
+          if (!r.ok) return;
+          const q = (await r.json()).data;
+          queue.last = q;
+          queue.peakWaiting = Math.max(queue.peakWaiting, q.waiting);
+          queue.peakActive = Math.max(queue.peakActive, q.active);
+          queue.capacity = q.max_active;
+          emit({ type: 'queue', waiting: q.waiting, active: q.active, capacity: q.max_active, refused: q.refused + q.timed_out, peak: queue.peakWaiting });
+        } catch (_) { /* a missed sample */ }
+      }, 500);
+    } catch (err) { say(`تعذر تشغيل مراقبة الطابور: ${err.message}`, { actor: 'النظام' }); }
     // Server memory and database connections, sampled during the whole run.
     monitor = setInterval(async () => {
       try {
@@ -151,6 +192,7 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
 
   async function teardown() {
     clearInterval(monitor);
+    clearInterval(queueWatch);
     if (prober) clearInterval(prober.timer);
     for (const s of sockets) { try { s.disconnect(); } catch (_) { /* closed */ } }
     if (app) { app.kill(process.env.SIM_PROFILE ? 'SIGINT' : 'SIGTERM'); await sleep(process.env.SIM_PROFILE ? 3000 : 400); if (app.exitCode === null) app.kill('SIGKILL'); }
@@ -214,7 +256,7 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
       token: jwt.sign({ id: row.id, role: row.role, auth_version: 0, scope: 'site', sv: 0 }, env.JWT_SECRET, { algorithm: 'HS256', expiresIn: '1h' }),
     }));
     const statuses = {}, durations = [], perRoute = {};
-    let failedPeople = 0, done = 0;
+    let failedPeople = 0, done = 0, busyRetries = 0;
     const openApp = async person => {
       const t = Date.now();
       const headers = { Authorization: `Bearer ${person.token}`, 'X-Forwarded-For': person.ip, 'Accept-Language': 'ar' };
@@ -223,7 +265,16 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
       await Promise.all(routes.map(async route => {
         let status = 0;
         const started = Date.now();
-        try { const r = await fetch(base + route, { headers }); status = r.status; await r.arrayBuffer(); } catch (_) { /* refused or reset */ }
+        // Like the app (AYK-272): a read refused by a full waiting room is asked again after the pause.
+        for (let attempt = 0; attempt <= 3; attempt++) {
+          try {
+            const r = await fetch(base + route, { headers });
+            status = r.status;
+            const text = await r.text();
+            if (status === 503 && attempt < 3 && /busy_queue/.test(text)) { busyRetries += 1; await sleep(2000 * (attempt + 1) + Math.floor(Math.random() * 1500)); continue; }
+          } catch (_) { /* refused or reset */ }
+          break;
+        }
         const name = route.split('?')[0];
         (perRoute[name] ||= []).push(Date.now() - started);
         statuses[status] = (statuses[status] || 0) + 1;
@@ -268,7 +319,7 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
     const sorted = durations.sort((x, y) => x - y);
     const stalls = prober.stalls.slice(before).sort((x, y) => x - y);
     rushReport = {
-      people: rush, seconds: Number(seconds.toFixed(1)), requests: rush * 5, queriesPerRequest, cpu, perSecond: Math.round(rush * 5 / seconds),
+      people: rush, busyRetries, seconds: Number(seconds.toFixed(1)), requests: rush * 5, queriesPerRequest, cpu, perSecond: Math.round(rush * 5 / seconds),
       failedPeople, statuses, medianMs: percentile(sorted, 0.5), p95Ms: percentile(sorted, 0.95), maxMs: sorted[sorted.length - 1] || 0,
       routes: Object.fromEntries(Object.entries(perRoute).map(([k, v]) => { v.sort((x, y) => x - y); return [k, { medianMs: percentile(v, 0.5), p95Ms: percentile(v, 0.95) }]; })),
       live, liveTarget, liveSeconds: Number(liveSeconds.toFixed(1)), memoryMb: memoryPeakMb, stallMaxMs: stalls[stalls.length - 1] || 0,
@@ -334,16 +385,20 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
     const alive = people.filter(p => p.token);
     check('errors', alive.length === people.length, 'كل الحسابات أُنشئت', `${alive.length} من ${people.length}`, 'خطير');
     // Sign-in: everyone, `together` people at the very same instant, wave after wave.
-    phase(`تسجيل الدخول: ${alive.length} مستخدمًا، ${together} في اللحظة نفسها`);
-    const waves = [];
-    await inBatches(alive, together, async person => {
+    // AYK-273: providers and requesters sign in at the same instant, each group in waves of its own size.
+    phase(`تسجيل الدخول: ${providersTogether} مقدم خدمة و${clientsTogether} طالب خدمة في اللحظة نفسها`);
+    const waves = { provider: [], client: [] };
+    const signInGroup = (group, size) => inBatches(group, size, async person => {
       const r = await call('تسجيل الدخول', '/auth/login', { actor: person, method: 'POST', token: null, body: { identifier: person.username, password: person.password } });
-      waves.push(r.ms);
+      waves[person.role].push(r.ms);
       if (r.status === 200 && r.data?.token) { person.token = r.data.token; if (alive.length <= 60 || alive.indexOf(person) % 10 === 0) say(`${person.label} سجّل دخوله`, { actor: person.label, ms: r.ms }); }
       else finding('errors', 'خطير', 'فشل تسجيل الدخول بكلمة مرور صحيحة', `${person.label}: ${r.status} ${r.message || ''}`);
     });
-    signIn = { together, people: alive.length, slowestMs: Math.max(0, ...waves), averageMs: Math.round(waves.reduce((x, y) => x + y, 0) / Math.max(1, waves.length)) };
-    say(`دخل ${alive.length} مستخدمًا، كل ${together} معًا: المتوسط ${signIn.averageMs}ms والأبطأ ${signIn.slowestMs}ms`, { actor: 'النظام' });
+    await Promise.all([signInGroup(alive.filter(p => p.role === 'provider'), providersTogether), signInGroup(alive.filter(p => p.role === 'client'), clientsTogether)]);
+    const sum = list => ({ averageMs: Math.round(list.reduce((x, y) => x + y, 0) / Math.max(1, list.length)), slowestMs: Math.max(0, ...list) });
+    const all = [...waves.provider, ...waves.client];
+    signIn = { together, providersTogether, clientsTogether, people: alive.length, ...sum(all), providers: sum(waves.provider), clients: sum(waves.client) };
+    say(`دخل ${alive.length} مستخدمًا (${providersTogether} مقدم و${clientsTogether} طالب معًا): المتوسط ${signIn.averageMs}ms والأبطأ ${signIn.slowestMs}ms`, { actor: 'النظام' });
     const me = await call('بياناتي', '/auth/me', { actor: alive[0] });
     check('errors', me.status === 200 && Number(me.data?.user?.id) === Number(alive[0].id), 'الجلسة تعيد بيانات صاحبها');
     check('security', !JSON.stringify(me.json || {}).includes('password_hash'), 'بيانات الحساب لا تكشف كلمة المرور المشفرة', '', 'خطير');
@@ -955,7 +1010,7 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
       table.push(row);
       const heavy = /إنشاء حساب|تسجيل الدخول/.test(label); // password hashing is slow on purpose
       const limit = heavy ? 3000 : 800;
-      if (label === 'تسجيل الدخول') row.label = `تسجيل الدخول (${together} في اللحظة نفسها)`;
+      if (label === 'تسجيل الدخول') row.label = `تسجيل الدخول (${providersTogether} مقدم و${clientsTogether} طالب في اللحظة نفسها)`;
       if (row.p95 > limit) finding('speed', row.p95 > limit * 2 ? 'خطير' : 'متوسط', `عملية بطيئة: ${row.label}`, `أبطأ 5٪ تأخذ ${row.p95}ms (الحد ${limit}ms)، المتوسط ${row.avg}ms، الأقصى ${row.max}ms، ${row.count} مرة`);
       else passes.speed += 1;
     }
@@ -966,27 +1021,41 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
     check('speed', connectionsPeak <= 10 * workers, 'اتصالات قاعدة البيانات ضمن الحد', `أقصى اتصالات مفتوحة ${connectionsPeak} (الحد ${10 * workers} لـ ${workers} نسخة خادم)`);
     if (serverErrors.length) finding('errors', 'خطير', `سجل الخادم فيه ${serverErrors.length} خطأ أثناء المحاكاة`, [...new Set(serverErrors)].slice(0, 5).join(' | '));
     else passes.errors += 1;
-    return { table, stall };
+    // AYK-273: the waiting room. Waiting is how the site protects itself; refusing means the line was
+    // full or the wait ran out, which the app retries, and is shown as a flood finding.
+    const q = queue.last;
+    const queueReport = q ? { capacity: q.max_active, peakWaiting: queue.peakWaiting, peakActive: queue.peakActive, waited: q.waited, refused: q.refused,
+      timedOut: q.timed_out, longestWaitMs: q.longest_wait_ms, averageWaitMs: q.average_wait_ms, served: q.served, perCopy: workers > 1 } : null;
+    if (queueReport) {
+      say(`الطابور: أقصى انتظار ${queueReport.peakWaiting} طلبًا في اللحظة نفسها، انتظر ${queueReport.waited} طلبًا بمتوسط ${queueReport.averageWaitMs}ms، ورُفض ${queueReport.refused + queueReport.timedOut}`, { actor: 'النظام', bad: queueReport.refused + queueReport.timedOut > 0 });
+      check('flood', queueReport.refused + queueReport.timedOut === 0, 'الطابور استوعب الضغط: لم يُرفض أحد', `رُفض ${queueReport.refused} لامتلاء الطابور و${queueReport.timedOut} لطول الانتظار (التطبيق يعيد المحاولة تلقائيًا)`, 'متوسط');
+    }
+    return { table, stall, queue: queueReport };
   }
 
   // ---- the run ----------------------------------------------------------------------------------
   let speedReport = { table: [], stall: {} }, fatal = null;
   try {
     await setup();
+    // AYK-273: a run can test one task; it still runs the parts that task needs first.
+    const PLAN = { signin: [], agreement: ['sockets', 'marketplace', 'completion', 'lifecycle'], chats: ['sockets', 'marketplace', 'chats'],
+      security: ['sockets', 'marketplace', 'chats', 'security'], conflicts: ['marketplace', 'conflicts'], flood: ['sockets', 'flood'], rush: ['rush'] };
+    const want = part => task === 'all' || PLAN[task].includes(part);
+    if (task !== 'all') say(`المهمة: ${TASKS[task].label}`, { actor: 'النظام' });
     await seedCrowd();
     makePeople();
     await signUp();
-    await connectSockets();
-    await marketplace();
-    await chats();
-    await completion();
-    await lifecycle();
-    await theRush();
-    if (rush) await connectSockets(); // the rush closed every live connection; the people reconnect
-    await security();
-    await conflicts();
-    await gaps();
-    await flood();
+    if (want('sockets')) await connectSockets();
+    if (want('marketplace')) await marketplace();
+    if (want('chats')) await chats();
+    if (want('completion')) await completion();
+    if (want('lifecycle')) await lifecycle();
+    if (want('rush')) await theRush();
+    if (rush && want('rush') && want('sockets')) await connectSockets(); // the rush closed every live connection; the people reconnect
+    if (want('security')) await security();
+    if (want('conflicts')) await conflicts();
+    if (task === 'all') await gaps();
+    if (want('flood')) await flood();
     speedReport = speed();
   } catch (err) {
     fatal = err.message;
@@ -996,7 +1065,7 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
   }
   const summary = {
     startedAt: new Date(startedAt).toISOString(), seconds: Math.round((Date.now() - startedAt) / 1000),
-    providers, clients, together, signIn, crowd, rush: rushReport, workers, mode: bulk ? `حشد ${bulk.toLocaleString('en')} حساب` : load ? 'استقرار (عدد كبير)' : 'كل الاحتمالات',
+    providers, clients, together, providersTogether, clientsTogether, task, taskLabel: TASKS[task].label, capacity, signIn, crowd, rush: rushReport, workers, mode: bulk ? `حشد ${bulk.toLocaleString('en')} حساب` : load ? 'استقرار (عدد كبير)' : 'كل الاحتمالات',
     cleanedUp: true, // the copy is stopped and its database dropped in teardown(): nothing is left behind
     requests: stats.requests, failed5xx: stats.failed5xx, messages: stats.messages, delivered: stats.delivered,
     jobs: jobs.length, completed: jobs.filter(j => j.completed).length,

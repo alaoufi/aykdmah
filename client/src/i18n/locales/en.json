@@ -1322,7 +1322,8 @@
     "blocked_you": "This person blocked you, so you cannot message or call them.",
     "account_delete_admin": "An admin account cannot be deleted here.",
     "account_delete_wrong_password": "Wrong password.",
-    "account_delete_active_jobs": "You have work in progress. Finish it or withdraw first."
+    "account_delete_active_jobs": "You have work in progress. Finish it or withdraw first.",
+    "busy": "The site is very busy right now. Please try again in a moment."
   },
   "catalog": {
     "title": "Services",

@@ -56,6 +56,16 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (res) => res,
   (err) => {
+    // AYK-272: the server's waiting room was full ("busy_queue", 503 with Retry-After). A read is
+    // asked again by itself after the given pause (with a little spread, so a crowd does not come
+    // back all at once), up to three times; only then is the person told it is busy.
+    const cfg = err.config;
+    if (err.response?.status === 503 && err.response.data?.code === 'busy_queue' && cfg
+        && String(cfg.method || 'get').toLowerCase() === 'get' && (cfg.__busyRetries || 0) < 3) {
+      cfg.__busyRetries = (cfg.__busyRetries || 0) + 1;
+      const pause = (Number(err.response.data.retry_after) || 2) * 1000 * cfg.__busyRetries + Math.floor(Math.random() * 1500);
+      return new Promise(resolve => setTimeout(resolve, pause)).then(() => api(cfg));
+    }
     if (err.response && err.response.status === 401) {
       const url = String(err.config?.url || '');
       const credentialCheck = /^\/auth\/(login|password)(?:\?|$)/.test(url);
@@ -85,7 +95,7 @@ const errorMessages = new Map();
 const statusErrorKeys = new Map([
   [400, 'errors.invalid_data'], [401, 'errors.unauthorized'], [403, 'errors.forbidden'],
   [404, 'errors.not_found'], [409, 'errors.conflict'], [422, 'errors.invalid_data'],
-  [429, 'errors.too_many_requests'],
+  [429, 'errors.too_many_requests'], [503, 'errors.busy'],
 ]);
 
 for (const [code, key, messages] of [
@@ -120,6 +130,7 @@ for (const [code, key, messages] of [
   ["too_many_requests", "errors.too_many_requests", ["تجاوزت الحد المسموح من الطلبات. حاول لاحقاً.","Too many requests. Try again later.","بہت زیادہ درخواستیں۔ بعد میں کوشش کریں۔","অনেক বেশি অনুরোধ। পরে চেষ্টা করুন।","बहुत अधिक अनुरोध। बाद में पुनः प्रयास करें।"]],
   ["too_many_attempts", "errors.too_many_requests", ["محاولات كثيرة. حاول لاحقاً.","Too many attempts. Try again later.","بہت زیادہ کوششیں۔ بعد میں کوشش کریں۔","অনেক বেশি চেষ্টা। পরে চেষ্টা করুন।","बहुत अधिक प्रयास। बाद में पुनः प्रयास करें।"]],
   ["too_many_uploads", "errors.too_many_requests", ["تجاوزت حد رفع الملفات. حاول لاحقاً.","Upload limit exceeded. Try again later.","اپ لوڈ کی حد ختم۔ بعد میں کوشش کریں۔","আপলোডের সীমা অতিক্রান্ত। পরে চেষ্টা করুন।","अपलोड सीमा पार। बाद में पुनः प्रयास करें।"]],
+  ["busy_queue", "errors.busy", ["الضغط على الموقع عالٍ الآن، وأنت في الانتظار. أعد المحاولة بعد لحظات.","The site is very busy right now and you are in line. Please try again in a moment."]],
   ["invalid_status", "errors.invalid_status", ["حالة غير صحيحة","Invalid status","غلط حیثیت","অবৈধ অবস্থা","अमान्य स्थिति"]],
   ["must_complete_first", "errors.invalid_status", ["يجب اكتمال الطلب قبل التقييم","Request must be completed before review","جائزے سے پہلے درخواست مکمل ہونی چاہیے","পর্যালোচনার আগে অনুরোধটি সম্পূর্ণ হতে হবে","समीक्षा से पहले अनुरोध पूरा होना चाहिए"]],
   ["badge_not_approved_yet", "errors.invalid_status", ["لا يمكن الدفع قبل موافقة الإدارة","Cannot pay before admin approval","ایڈمن منظوری سے پہلے ادائیگی ممکن نہیں","অ্যাডমিন অনুমোদনের আগে পেমেন্ট সম্ভব নয়","एडमिन की मंजूरी से पहले भुगतान संभव नहीं"]],

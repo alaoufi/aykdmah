@@ -67,6 +67,8 @@ app.use('/api', (req, res, next) => {
   res.setHeader('Cache-Control', 'no-store');
   next();
 });
+// AYK-272: the waiting room. Beyond what this copy works on well at once, requests wait in line.
+app.use('/api', require('./middleware/admissionQueue').admission);
 
 // Wait for pending migrations before handling API requests.
 let _migrationsPromise = null;

@@ -1322,7 +1322,8 @@
     "blocked_you": "Orang ini memblokir Anda, jadi Anda tidak bisa mengirim pesan atau menelepon.",
     "account_delete_admin": "Akun admin tidak bisa dihapus di sini.",
     "account_delete_wrong_password": "Kata sandi salah.",
-    "account_delete_active_jobs": "Ada pekerjaan berjalan. Selesaikan atau mundur dulu."
+    "account_delete_active_jobs": "Ada pekerjaan berjalan. Selesaikan atau mundur dulu.",
+    "busy": "Situs sedang sangat sibuk. Coba lagi sebentar lagi."
   },
   "catalog": {
     "title": "Layanan",

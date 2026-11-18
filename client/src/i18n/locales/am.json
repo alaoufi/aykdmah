@@ -1322,7 +1322,8 @@
     "blocked_you": "ይህ ሰው አግዶዎታል፣ መልእክት መላክ ወይም መደወል አይችሉም።",
     "account_delete_admin": "የአስተዳደር መለያ ከዚህ አይሰረዝም።",
     "account_delete_wrong_password": "የተሳሳተ የይለፍ ቃል።",
-    "account_delete_active_jobs": "በሂደት ላይ ያለ ስራ አለ። መጀመሪያ ይጨርሱ ወይም ይውጡ።"
+    "account_delete_active_jobs": "በሂደት ላይ ያለ ስራ አለ። መጀመሪያ ይጨርሱ ወይም ይውጡ።",
+    "busy": "ጣቢያው አሁን በጣም ተጨናንቋል። ከጥቂት ጊዜ በኋላ እንደገና ይሞክሩ።"
   },
   "catalog": {
     "title": "አገልግሎቶች",
