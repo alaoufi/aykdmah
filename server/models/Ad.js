@@ -287,20 +287,20 @@ async function remove(id) {
   await query('DELETE FROM ads WHERE id = ?', [id]);
 }
 
+// One view of a live ad, and its daily statistic, in ONE statement (AYK-268): it was a transaction
+// of four round trips to the database for every ad shown on every page. Still atomic, and the
+// purchased cap is still checked on the locked row, so concurrent views never exceed it.
 async function bumpViews(id) {
-  return transaction(async conn => {
-  const [result] = await conn.execute(`UPDATE ads SET views_count = views_count + 1 WHERE id = ? AND status = 'active' AND is_active = 1
-    AND (starts_at IS NULL OR starts_at <= CURRENT_TIMESTAMP) AND (ends_at IS NULL OR ends_at > CURRENT_TIMESTAMP)
-    AND (max_views IS NULL OR views_count < max_views) AND views_count < 2147483647 AND ${paymentGuard()}`, [id]);
-  if (!result.affectedRows) return false;
-  await conn.execute(
-    `INSERT INTO ad_stats_daily (ad_id, day, views_count, clicks_count)
-     VALUES (?, CURRENT_DATE, 1, 0)
-     ON CONFLICT (ad_id, day) DO UPDATE SET views_count = ad_stats_daily.views_count + 1`,
-    [id]
-  );
-  return true;
-  });
+  const rows = await query(`WITH bumped AS (
+      UPDATE ads SET views_count = views_count + 1 WHERE id = ? AND status = 'active' AND is_active = 1
+        AND (starts_at IS NULL OR starts_at <= CURRENT_TIMESTAMP) AND (ends_at IS NULL OR ends_at > CURRENT_TIMESTAMP)
+        AND (max_views IS NULL OR views_count < max_views) AND views_count < 2147483647 AND ${paymentGuard()}
+      RETURNING id)
+    INSERT INTO ad_stats_daily (ad_id, day, views_count, clicks_count)
+    SELECT id, CURRENT_DATE, 1, 0 FROM bumped
+    ON CONFLICT (ad_id, day) DO UPDATE SET views_count = ad_stats_daily.views_count + 1
+    RETURNING ad_id`, [id]);
+  return rows.length > 0;
 }
 
 async function bumpClicks(id) {

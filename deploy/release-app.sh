@@ -43,7 +43,9 @@ fi
 APP_VERSION="$PREFIX.$((10#$RELEASE))"
 APP_BUILD="$COMMIT · $(date +%Y-%m-%d)"
 echo "Version $APP_VERSION (build $APP_BUILD)"
-docker run --rm -v "$REPO_DIR":/src -w /src \
+# AYK-270: the build may use at most BUILD_CPUS cores (2 by default) at low priority, so the other
+# sites on this server keep their share of the processor while it runs.
+nice -n 10 docker run --rm --cpus "${BUILD_CPUS:-2}" -v "$REPO_DIR":/src -w /src \
     -e VITE_REALTIME_MODE=socket -e HOME=/tmp -e VITE_APP_VERSION="$APP_VERSION" -e VITE_APP_BUILD="$APP_BUILD" \
     node:22-bookworm sh -c "npm --prefix client ci --include=dev --no-audit --no-fund && npm --prefix client run build"
 mkdir -p "$SITE_ROOT/releases/$STAMP"
