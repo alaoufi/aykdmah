@@ -13,24 +13,29 @@ export const SLOW_LOADING_MS = 1000;
 export function LoadingState({ text, slowAfter = SLOW_LOADING_MS }) {
   const { t } = useTranslation();
   // A screen that opens at once keeps the plain ring and «جارٍ التحميل…», as before. Only one that
-  // is still loading after a second shows the owner's animated mark (AYK-257), so it is never a
+  // is still loading after a second shows the owner's animated mark (AYK-257/263), so it is never a
   // flash on fast screens, and is not even downloaded for them.
+  // No blink when it comes (AYK-265): the space is the mark's size from the start, so nothing
+  // moves; the ring stays until the picture has fully arrived, then the two cross-fade.
+  // With the device's "reduce motion" setting the picture is never shown (owner's decision).
   const [slow, setSlow] = useState(false);
+  const [ready, setReady] = useState(false);
   useEffect(() => {
+    const still = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (still) return undefined;
     const timer = setTimeout(() => setSlow(true), slowAfter);
     return () => clearTimeout(timer);
   }, [slowAfter]);
   return (
     <div className="loading-state">
-      {slow ? (
-        /* With the device's "reduce motion" setting the picture is not shown at all (a frozen frame
-           of it looks broken; the owner's decision): the ring stays. The empty source keeps the
-           picture from being downloaded there. */
-        <picture className="loading-mark" data-testid="loading-mark">
-          <source media="(prefers-reduced-motion: reduce)" srcSet="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" />
-          <img src={loadingAnim} width="96" height="96" alt="" decoding="async" />
-        </picture>
-      ) : <Spinner large />}
+      <div className={`loading-box${ready ? ' is-ready' : ''}`}>
+        <Spinner large />
+        {slow && (
+          <span className="loading-mark" data-testid="loading-mark">
+            <img src={loadingAnim} width="96" height="96" alt="" decoding="async" onLoad={() => setReady(true)} />
+          </span>
+        )}
+      </div>
       <div style={{ marginTop: 12 }} role="status">{text || t('common.loading')}</div>
     </div>
   );
