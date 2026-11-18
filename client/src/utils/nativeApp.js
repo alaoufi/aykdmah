@@ -15,8 +15,13 @@ export function nativeAppVersion() {
 const SOURCE_KEY = 'ayk_native_src';
 export function nativeAppSource() {
   try {
-    const fromUrl = new URLSearchParams(window.location.search).get('src');
+    const params = new URLSearchParams(window.location.search);
+    const fromUrl = params.get('src');
     if (fromUrl === 'play' || fromUrl === 'apk') localStorage.setItem(SOURCE_KEY, fromUrl);
+    // An app that names its version but not its source (Play 1.2.5 and older) is not the APK
+    // remembered from an earlier install: forget that, or it would be asked to update an APK it
+    // no longer is (AYK-279).
+    else if (params.get('app')) localStorage.removeItem(SOURCE_KEY);
     return localStorage.getItem(SOURCE_KEY) || '';
   } catch (_) { return ''; }
 }

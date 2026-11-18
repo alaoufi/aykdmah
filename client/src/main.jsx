@@ -9,6 +9,7 @@ import './styles/tailwind.css';
 import './styles/global.css';
 import 'leaflet/dist/leaflet.css';
 import { installChunkRecovery } from './utils/chunkRecovery';
+import { freshStart } from './utils/freshStart';
 
 // Apply theme synchronously before mounting React so Tailwind CSS
 // variables are populated for the very first render.
@@ -32,3 +33,6 @@ const render = () => createRoot(document.getElementById('root')).render(
   </StrictMode>
 );
 i18nReady.then(render, render);
+
+// Never stay on an old saved copy of the site after a release (AYK-279).
+freshStart().catch(() => {});

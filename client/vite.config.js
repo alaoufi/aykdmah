@@ -59,7 +59,12 @@ export default defineConfig(({ mode }) => {
           ],
         },
         workbox: {
-          globIgnores: ['version.json', 'install/refresh.html', 'refresh-site.js'],
+          // AYK-279: a new release saves ~5.7 MB on every phone before it can switch; on a weak
+          // connection one failed file meant it never switched. Maps, calls and the nine other
+          // languages are fetched only when used (and kept then, below), so the saved copy is small.
+          globIgnores: ['version.json', 'install/refresh.html', 'refresh-site.js',
+            '**/maplibre-gl-*', '**/livekit-client*', '**/leaflet-maplibre-gl-*',
+            '**/{am,bn,fil,hi,id,ml,ne,tr,ur}-*.js'],
           // Incoming-call notifications (AYK-008).
           importScripts: ['push-sw.js'],
           // The main bundle passed the 2 MiB default; it must stay in the offline cache.
@@ -73,6 +78,13 @@ export default defineConfig(({ mode }) => {
             // API responses contain account, chat and request data; always use
             // the network and never retain them across logout or account changes.
             { urlPattern: ({ url }) => /^\/(?:api|uploads|install)(?:\/|$)/.test(url.pathname), handler: 'NetworkOnly' },
+            {
+              // Files left out of the saved copy: names change with every release, so a kept one
+              // is never stale (AYK-279).
+              urlPattern: ({ url }) => url.origin === self.location.origin && /^\/assets\/.+\.(?:js|mjs|css)$/.test(url.pathname),
+              handler: 'CacheFirst',
+              options: { cacheName: 'assets-on-demand', expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 * 30 } },
+            },
             {
               // Same-origin only: the worker's fetch obeys the page CSP connect-src, so routing
               // cross-origin images (map tiles, previews) through it made them fail to load.

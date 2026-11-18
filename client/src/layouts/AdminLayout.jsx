@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import Avatar from '../components/common/Avatar';
 import BrandLogo from '../components/common/BrandLogo';
 import LanguageSwitcher from '../components/common/LanguageSwitcher';
+import UpdateBar from '../components/common/UpdateBar';
 import { IconMenu, IconClose, IconBell } from '../components/common/Icons';
 import { useNotifications } from '../hooks/useNotifications';
 import { AdminBackProvider, AdminBackButton } from '../components/admin/AdminBackNavigation';
@@ -122,6 +123,8 @@ function AdminLayoutFrame() {
   return (
     // The menu sits at the start of the reading direction: on the right in Arabic (AYK-204).
     <div className="min-h-screen bg-bg text-fg flex">
+      {/* The admin area updates itself like the site (AYK-279). */}
+      <UpdateBar />
       <aside
         className={`fixed lg:static inset-y-0 start-0 z-40 w-72 bg-ink text-white/75 flex flex-col transition-transform ${
           open ? 'translate-x-0' : 'rtl:translate-x-full ltr:-translate-x-full lg:!translate-x-0'
