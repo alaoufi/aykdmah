@@ -184,6 +184,13 @@ button, input, select, textarea { font: inherit; color: inherit; }
   padding: 60px 20px;
   color: var(--text-muted);
 }
+.loading-state.loading-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  align-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
 
 .loading-box {
   position: relative;

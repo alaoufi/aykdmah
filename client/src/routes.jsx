@@ -158,9 +158,9 @@ export default function AppRoutes() {
   // home page for half a second, then their own page replaced it (and the header and the bottom
   // bar changed with it). While a saved session is being restored, the loading screen stays until
   // it is known who they are; a visitor without a saved session is not held back at all.
-  if (loading && !user && getToken()) return <LoadingState />;
+  if (loading && !user && getToken()) return <LoadingState page />;
   return (
-    <Suspense fallback={<LoadingState />}>
+    <Suspense fallback={<LoadingState page />}>
       <ErrorBoundary key={pathname}>
       <Routes key={pathname}>
         <Route element={<AuthLayout />}>

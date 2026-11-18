@@ -10,7 +10,9 @@ export default function Spinner({ large = false }) {
 // After how long a wait the animated mark replaces the plain ring (the owner's decision, AYK-263).
 export const SLOW_LOADING_MS = 1000;
 
-export function LoadingState({ text, slowAfter = SLOW_LOADING_MS }) {
+// `page`: the whole screen is waiting (app start, a page still downloading), so the mark sits in
+// the middle of the screen, not at the top (owner's request, AYK-278).
+export function LoadingState({ text, slowAfter = SLOW_LOADING_MS, page = false }) {
   const { t } = useTranslation();
   // A screen that opens at once keeps the plain ring and «جارٍ التحميل…», as before. Only one that
   // is still loading after a second shows the owner's animated mark (AYK-257/263), so it is never a
@@ -27,7 +29,7 @@ export function LoadingState({ text, slowAfter = SLOW_LOADING_MS }) {
     return () => clearTimeout(timer);
   }, [slowAfter]);
   return (
-    <div className="loading-state">
+    <div className={`loading-state${page ? ' loading-page' : ''}`}>
       <div className={`loading-box${ready ? ' is-ready' : ''}`}>
         <Spinner large />
         {slow && (
