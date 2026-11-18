@@ -891,8 +891,12 @@
     "offer_rejected_body": "दुर्भाग्यवश, तपाईंको प्रस्ताव अस्वीकृत भयो",
     "request_completed_title": "अनुरोध पूरा",
     "request_completed_body": "तपाईंको अनुरोध पूर्ण रूपमा चिन्हित गरिएको छ",
-    "many_messages": "{{count}} नयाँ सन्देशहरू",
-    "many_new": "{{count}} नयाँ सूचनाहरू"
+    "pair_messages": "{{count}} नयाँ सन्देशहरू",
+    "few_messages": "{{count}} नयाँ सन्देशहरू",
+    "lots_messages": "{{count}} नयाँ सन्देशहरू",
+    "pair_new": "{{count}} नयाँ सूचनाहरू",
+    "few_new": "{{count}} नयाँ सूचनाहरू",
+    "lots_new": "{{count}} नयाँ सूचनाहरू"
   },
   "admin": {
     "panel": "प्रशासनिक प्यानल",

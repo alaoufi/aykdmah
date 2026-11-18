@@ -891,8 +891,12 @@
     "offer_rejected_body": "የሚያሳዝነው ግን፣ የእርስዎ አቅርቦት ውድቅ ተደርጓል።",
     "request_completed_title": "የተጠናቀቀ ጥያቄ",
     "request_completed_body": "ጥያቄዎ የተጠናቀቀ ነው",
-    "many_messages": "{{count}} አዲስ መልዕክቶች",
-    "many_new": "{{count}} አዲስ ማሳወቂያዎች"
+    "pair_messages": "{{count}} አዲስ መልዕክቶች",
+    "few_messages": "{{count}} አዲስ መልዕክቶች",
+    "lots_messages": "{{count}} አዲስ መልዕክቶች",
+    "pair_new": "{{count}} አዲስ ማሳወቂያዎች",
+    "few_new": "{{count}} አዲስ ማሳወቂያዎች",
+    "lots_new": "{{count}} አዲስ ማሳወቂያዎች"
   },
   "admin": {
     "panel": "የአስተዳዳሪ ፓነል",

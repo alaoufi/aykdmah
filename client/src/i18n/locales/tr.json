@@ -891,8 +891,12 @@
     "offer_rejected_body": "Ne yazık ki teklifiniz reddedildi",
     "request_completed_title": "Başvuru tamamlandı",
     "request_completed_body": "İsteğiniz tamamlandı",
-    "many_messages": "{{count}} yeni mesaj",
-    "many_new": "{{count}} yeni bildirim"
+    "pair_messages": "{{count}} yeni mesaj",
+    "few_messages": "{{count}} yeni mesaj",
+    "lots_messages": "{{count}} yeni mesaj",
+    "pair_new": "{{count}} yeni bildirim",
+    "few_new": "{{count}} yeni bildirim",
+    "lots_new": "{{count}} yeni bildirim"
   },
   "admin": {
     "panel": "Yöneticiler paneli",

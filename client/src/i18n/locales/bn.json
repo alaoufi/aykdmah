@@ -891,8 +891,12 @@
     "offer_rejected_body": "দুর্ভাগ্যবশত, আপনার অফার প্রত্যাখ্যাত হয়েছে",
     "request_completed_title": "অনুরোধ সম্পন্ন হয়েছে",
     "request_completed_body": "আপনার অনুরোধ সম্পূর্ণ চিহ্নিত হয়েছে",
-    "many_messages": "{{count}}টি নতুন বার্তা",
-    "many_new": "{{count}}টি নতুন বিজ্ঞপ্তি"
+    "pair_messages": "{{count}}টি নতুন বার্তা",
+    "few_messages": "{{count}}টি নতুন বার্তা",
+    "lots_messages": "{{count}}টি নতুন বার্তা",
+    "pair_new": "{{count}}টি নতুন বিজ্ঞপ্তি",
+    "few_new": "{{count}}টি নতুন বিজ্ঞপ্তি",
+    "lots_new": "{{count}}টি নতুন বিজ্ঞপ্তি"
   },
   "admin": {
     "panel": "অ্যাডমিন প্যানেল",

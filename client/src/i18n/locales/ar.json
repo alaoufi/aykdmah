@@ -891,8 +891,12 @@
     "offer_rejected_body": "للأسف، تم رفض عرضك",
     "request_completed_title": "اكتمل الطلب",
     "request_completed_body": "تم إكمال طلبك بنجاح",
-    "many_messages": "{{count}} رسائل جديدة",
-    "many_new": "{{count}} تنبيهات جديدة"
+    "pair_messages": "رسالتان جديدتان",
+    "few_messages": "{{count}} رسائل جديدة",
+    "lots_messages": "{{count}} رسالة جديدة",
+    "pair_new": "تنبيهان جديدان",
+    "few_new": "{{count}} تنبيهات جديدة",
+    "lots_new": "{{count}} تنبيهًا جديدًا"
   },
   "admin": {
     "panel": "لوحة الإدارة",

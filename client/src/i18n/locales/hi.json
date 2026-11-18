@@ -891,8 +891,12 @@
     "offer_rejected_body": "दुर्भाग्य से, आपका ऑफ़र अस्वीकार कर दिया गया",
     "request_completed_title": "अनुरोध पूर्ण",
     "request_completed_body": "आपका अनुरोध पूर्ण के रूप में चिह्नित",
-    "many_messages": "{{count}} नए संदेश",
-    "many_new": "{{count}} नई सूचनाएँ"
+    "pair_messages": "{{count}} नए संदेश",
+    "few_messages": "{{count}} नए संदेश",
+    "lots_messages": "{{count}} नए संदेश",
+    "pair_new": "{{count}} नई सूचनाएँ",
+    "few_new": "{{count}} नई सूचनाएँ",
+    "lots_new": "{{count}} नई सूचनाएँ"
   },
   "admin": {
     "panel": "व्यवस्थापक पैनल",

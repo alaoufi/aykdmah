@@ -891,8 +891,12 @@
     "offer_rejected_body": "بدقسمتی سے، آپ کی پیشکش مسترد کر دی گئی",
     "request_completed_title": "درخواست مکمل ہو گئی",
     "request_completed_body": "آپ کی درخواست مکمل قرار دے دی گئی",
-    "many_messages": "{{count}} نئے پیغامات",
-    "many_new": "{{count}} نئی اطلاعات"
+    "pair_messages": "{{count}} نئے پیغامات",
+    "few_messages": "{{count}} نئے پیغامات",
+    "lots_messages": "{{count}} نئے پیغامات",
+    "pair_new": "{{count}} نئی اطلاعات",
+    "few_new": "{{count}} نئی اطلاعات",
+    "lots_new": "{{count}} نئی اطلاعات"
   },
   "admin": {
     "panel": "ایڈمن پینل",

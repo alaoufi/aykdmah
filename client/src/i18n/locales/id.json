@@ -891,8 +891,12 @@
     "offer_rejected_body": "Sayangnya, tawaranmu ditolak",
     "request_completed_title": "Permintaan selesai",
     "request_completed_body": "Permintaan Anda telah ditandai selesai",
-    "many_messages": "{{count}} pesan baru",
-    "many_new": "{{count}} notifikasi baru"
+    "pair_messages": "{{count}} pesan baru",
+    "few_messages": "{{count}} pesan baru",
+    "lots_messages": "{{count}} pesan baru",
+    "pair_new": "{{count}} notifikasi baru",
+    "few_new": "{{count}} notifikasi baru",
+    "lots_new": "{{count}} notifikasi baru"
   },
   "admin": {
     "panel": "Panel Admin",
