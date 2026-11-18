@@ -27,6 +27,9 @@
   .seg button { border: 0; background: transparent; color: var(--ink); padding: 8px 12px; font: inherit; cursor: pointer; }
   .seg button + button { border-inline-start: 1px solid var(--line); }
   .seg button[aria-pressed="true"] { background: var(--brand); color: var(--brand-ink); font-weight: 700; }
+  .num { display: flex; flex-direction: column; font-size: 12.5px; color: var(--muted); gap: 2px; flex: 1 1 110px; }
+  .num input { font: inherit; font-size: 17px; font-weight: 700; padding: 7px 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); width: 100%; font-variant-numeric: tabular-nums; }
+  @media (max-width: 760px) { header { position: static; } .go { width: 100%; padding: 13px; } #bulk, #history { width: 100%; } .feed { height: 260px; } }
   .go { background: var(--brand); color: var(--brand-ink); border: 0; border-radius: 10px; padding: 10px 22px; font: inherit; font-weight: 800; font-size: 16px; cursor: pointer; }
   .go:disabled { opacity: .55; cursor: progress; }
   select { font: inherit; padding: 8px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); max-width: 100%; }
@@ -79,11 +82,14 @@
   <h1>محاكي «أي خدمة»</h1>
   <p class="sub">يشغّل نسخة معزولة من الموقع بقاعدة بيانات مؤقتة، ولا يمس الموقع الحقيقي ولا بيانات العملاء.</p>
   <div class="controls">
-    <div class="seg" role="group" aria-label="حجم المحاكاة">
-      <button type="button" data-n="10" aria-pressed="true">10 + 10 · كل الاحتمالات</button>
-      <button type="button" data-n="50">50 + 50</button>
-      <button type="button" data-n="150">150 + 150 · استقرار</button>
-      <button type="button" data-n="300">300 + 300</button>
+    <label class="num">مقدمو الخدمة<input id="n-providers" type="number" inputmode="numeric" min="2" max="1000" value="10"></label>
+    <label class="num">طالبو الخدمة<input id="n-clients" type="number" inputmode="numeric" min="2" max="1000" value="10"></label>
+    <label class="num">يدخلون في اللحظة نفسها<input id="n-together" type="number" inputmode="numeric" min="1" max="2000" value="20"></label>
+    <div class="seg" role="group" aria-label="أحجام جاهزة">
+      <button type="button" data-n="10" data-t="20">10+10</button>
+      <button type="button" data-n="50" data-t="50">50+50</button>
+      <button type="button" data-n="150" data-t="100">150+150</button>
+      <button type="button" data-n="300" data-t="200">300+300</button>
     </div>
     <select id="bulk" aria-label="حسابات آلية إضافية">
       <option value="0">بلا حشد آلي</option>
@@ -117,7 +123,7 @@
 const TABS = [['gaps', 'النواقص'], ['speed', 'السرعة'], ['security', 'الأمان'], ['conflict', 'التعارض'], ['errors', 'الأخطاء'], ['flood', 'الإغراق']];
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-let size = 10, active = 'gaps', running = false, fixes = [], clock = null, t0 = 0;
+let active = 'gaps', running = false, fixes = [], clock = null, t0 = 0;
 let state;
 const fresh = () => ({ findings: [], passes: Object.fromEntries(TABS.map(([k]) => [k, []])), speed: null, messages: 0, summary: null });
 state = fresh();
@@ -185,7 +191,7 @@ function showSummary(summary) {
   $('v-bad').textContent = state.findings.filter(f => f.severity !== 'ملاحظة').length;
   const bad = state.findings.filter(f => f.severity !== 'ملاحظة').length;
   $('phase').textContent = summary.fatal ? `توقفت المحاكاة: ${summary.fatal}`
-    : `انتهت${summary.crowd ? ` مع ${Number(summary.crowd.accounts).toLocaleString('en')} حساب آلي (${summary.crowd.databaseSize})` : ''}: ${summary.providers} مقدم خدمة و${summary.clients} طالب خدمة، ${summary.completed} طلبًا اكتمل من ${summary.jobs}، ${summary.delivered} رسالة وصلت فورًا. ${bad ? `${bad} مشكلة مرصودة.` : 'لا مشاكل مرصودة.'} حُذفت كل الحسابات والبيانات التجريبية.`;
+    : `انتهت${summary.crowd ? ` مع ${Number(summary.crowd.accounts).toLocaleString('en')} حساب آلي (${summary.crowd.databaseSize})` : ''}: ${summary.providers} مقدم خدمة و${summary.clients} طالب خدمة${summary.signIn ? ` (دخل كل ${summary.signIn.together} معًا، الأبطأ ${summary.signIn.slowestMs}ms)` : ''}، ${summary.completed} طلبًا اكتمل من ${summary.jobs}، ${summary.delivered} رسالة وصلت فورًا. ${bad ? `${bad} مشكلة مرصودة.` : 'لا مشاكل مرصودة.'} حُذفت كل الحسابات والبيانات التجريبية.`;
   renderTabs(); renderPanel();
 }
 function handle(event) {
@@ -218,12 +224,12 @@ async function loadHistory(showLatest) {
 $('tabs').addEventListener('click', e => { const tab = e.target.closest('[data-tab]'); if (tab) { active = tab.dataset.tab; renderTabs(); renderPanel(); } });
 document.querySelector('.seg').addEventListener('click', e => {
   const b = e.target.closest('[data-n]'); if (!b) return;
-  size = Number(b.dataset.n);
-  for (const x of document.querySelectorAll('.seg button')) x.setAttribute('aria-pressed', String(x === b));
+  $('n-providers').value = b.dataset.n; $('n-clients').value = b.dataset.n; $('n-together').value = b.dataset.t;
 });
 $('go').addEventListener('click', async () => {
   if (running) return;
-  const r = await fetch(`/start?providers=${size}&clients=${size}&bulk=${$('bulk').value}`, { method: 'POST' });
+  const n = id => Math.max(1, Math.floor(Number($(id).value) || 0));
+  const r = await fetch(`/start?providers=${n('n-providers')}&clients=${n('n-clients')}&together=${n('n-together')}&bulk=${$('bulk').value}`, { method: 'POST' });
   if (!r.ok) alert((await r.json()).message || 'تعذر البدء');
 });
 $('history').addEventListener('change', async e => { if (e.target.value && !running) { reset(); showSummary(await (await fetch(`/run?file=${encodeURIComponent(e.target.value)}`)).json()); } });

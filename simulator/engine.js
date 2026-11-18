@@ -37,7 +37,7 @@ async function inBatches(items, size, fn) {
   return results;
 }
 
-async function runSimulation({ providers = 10, clients = 10, bulk = 0, emit = () => {}, pg = {} } = {}) {
+async function runSimulation({ providers = 10, clients = 10, bulk = 0, together = 0, emit = () => {}, pg = {} } = {}) {
   const pgHost = pg.host || process.env.SIM_PG_HOST || '127.0.0.1';
   const pgPort = Number(pg.port || process.env.SIM_PG_PORT || 5432);
   const pgUser = pg.user || process.env.SIM_PG_USER || 'postgres';
@@ -47,6 +47,8 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, emit = ()
   const appPort = 4700 + Math.floor(Math.random() * 200);
   const base = `http://127.0.0.1:${appPort}/api`;
   const load = providers + clients > 40; // phase 2: stability under many users
+  // How many people sign in at the very same instant (the rest follow in waves of the same size).
+  together = Math.min(providers + clients, Math.max(1, Math.floor(Number(together) || Math.min(20, providers + clients))));
   bulk = Math.min(200000, Math.max(0, Math.floor(Number(bulk) || 0))); // accounts written straight into the database
   const startedAt = Date.now();
 
@@ -87,7 +89,7 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, emit = ()
     // Calls: rings, answers and tokens are real; no media server runs here, so no audio is carried.
     LIVEKIT_URL: 'wss://calls.sim.invalid/livekit', LIVEKIT_API_URL: '', LIVEKIT_API_KEY: 'simkey', LIVEKIT_API_SECRET: crypto.randomBytes(32).toString('hex'),
   };
-  let app = null, dbCreated = false, memoryPeakMb = 0, connectionsPeak = 0, monitor = null, prober = null, crowd = null;
+  let app = null, dbCreated = false, memoryPeakMb = 0, connectionsPeak = 0, monitor = null, prober = null, crowd = null, signIn = null;
   const sockets = [];
 
   async function setup() {
@@ -243,14 +245,17 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, emit = ()
     });
     const alive = people.filter(p => p.token);
     check('errors', alive.length === people.length, 'كل الحسابات أُنشئت', `${alive.length} من ${people.length}`, 'خطير');
-    // Sign-in: everyone in a normal run; a sample under load (hashing is the slowest step by design).
-    const sample = load ? alive.slice(0, 20) : alive;
-    phase(`تسجيل الدخول (${sample.length} مستخدمًا في وقت واحد)`);
-    await Promise.all(sample.map(async person => {
+    // Sign-in: everyone, `together` people at the very same instant, wave after wave.
+    phase(`تسجيل الدخول: ${alive.length} مستخدمًا، ${together} في اللحظة نفسها`);
+    const waves = [];
+    await inBatches(alive, together, async person => {
       const r = await call('تسجيل الدخول', '/auth/login', { actor: person, method: 'POST', token: null, body: { identifier: person.username, password: person.password } });
-      if (r.status === 200 && r.data?.token) { person.token = r.data.token; say(`${person.label} سجّل دخوله`, { actor: person.label, ms: r.ms }); }
+      waves.push(r.ms);
+      if (r.status === 200 && r.data?.token) { person.token = r.data.token; if (alive.length <= 60 || alive.indexOf(person) % 10 === 0) say(`${person.label} سجّل دخوله`, { actor: person.label, ms: r.ms }); }
       else finding('errors', 'خطير', 'فشل تسجيل الدخول بكلمة مرور صحيحة', `${person.label}: ${r.status} ${r.message || ''}`);
-    }));
+    });
+    signIn = { together, people: alive.length, slowestMs: Math.max(0, ...waves), averageMs: Math.round(waves.reduce((x, y) => x + y, 0) / Math.max(1, waves.length)) };
+    say(`دخل ${alive.length} مستخدمًا، كل ${together} معًا: المتوسط ${signIn.averageMs}ms والأبطأ ${signIn.slowestMs}ms`, { actor: 'النظام' });
     const me = await call('بياناتي', '/auth/me', { actor: alive[0] });
     check('errors', me.status === 200 && Number(me.data?.user?.id) === Number(alive[0].id), 'الجلسة تعيد بيانات صاحبها');
     check('security', !JSON.stringify(me.json || {}).includes('password_hash'), 'بيانات الحساب لا تكشف كلمة المرور المشفرة', '', 'خطير');
@@ -631,7 +636,8 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, emit = ()
       table.push(row);
       const heavy = /إنشاء حساب|تسجيل الدخول/.test(label); // password hashing is slow on purpose
       const limit = heavy ? 3000 : 800;
-      if (row.p95 > limit) finding('speed', row.p95 > limit * 2 ? 'خطير' : 'متوسط', `عملية بطيئة: ${label}`, `أبطأ 5٪ تأخذ ${row.p95}ms (الحد ${limit}ms)، المتوسط ${row.avg}ms، الأقصى ${row.max}ms، ${row.count} مرة`);
+      if (label === 'تسجيل الدخول') row.label = `تسجيل الدخول (${together} في اللحظة نفسها)`;
+      if (row.p95 > limit) finding('speed', row.p95 > limit * 2 ? 'خطير' : 'متوسط', `عملية بطيئة: ${row.label}`, `أبطأ 5٪ تأخذ ${row.p95}ms (الحد ${limit}ms)، المتوسط ${row.avg}ms، الأقصى ${row.max}ms، ${row.count} مرة`);
       else passes.speed += 1;
     }
     table.sort((x, y) => y.p95 - x.p95);
@@ -668,7 +674,7 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, emit = ()
   }
   const summary = {
     startedAt: new Date(startedAt).toISOString(), seconds: Math.round((Date.now() - startedAt) / 1000),
-    providers, clients, crowd, mode: bulk ? `حشد ${bulk.toLocaleString('en')} حساب` : load ? 'استقرار (عدد كبير)' : 'كل الاحتمالات',
+    providers, clients, together, signIn, crowd, mode: bulk ? `حشد ${bulk.toLocaleString('en')} حساب` : load ? 'استقرار (عدد كبير)' : 'كل الاحتمالات',
     cleanedUp: true, // the copy is stopped and its database dropped in teardown(): nothing is left behind
     requests: stats.requests, failed5xx: stats.failed5xx, messages: stats.messages, delivered: stats.delivered,
     jobs: jobs.length, completed: jobs.filter(j => j.completed).length,
