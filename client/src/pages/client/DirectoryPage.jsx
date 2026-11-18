@@ -38,10 +38,13 @@ export default function DirectoryPage({ compact = false }) {
     if (p.conversation_id) {
       const previous = await getConversation(p.conversation_id);
       // A conversation whose contact time ended is read-only: start a new one instead (AYK-221).
+      if (previous.can_send === false && p.is_provider === false) throw Object.assign(new Error(t('directory.contact_ended')), { response: { data: { message: t('directory.contact_ended') } } });
       if (previous.can_send === false) return (await contactDirectFresh(p.id, p.category_id)).conversation_id;
       // Writable: straight into it, no second request (AYK-231).
       return previous.id || p.conversation_id;
     }
+    // A direct request exists for service providers only; anyone else is reached through an open chat.
+    if (p.is_provider === false) throw Object.assign(new Error(t('directory.contact_ended')), { response: { data: { message: t('directory.contact_ended') } } });
     const res = await contactDirect(p.id, p.category_id);
     return res.conversation_id;
   };
@@ -81,9 +84,13 @@ export default function DirectoryPage({ compact = false }) {
                   <TrustSummary userId={p.id} type={p.is_provider === false ? 'on_requester' : 'on_provider'} average={p.rating_avg} count={p.rating_count} opinion={p.opinion} />
                   {p.availability && <span className={p.availability?.state === 'available' ? 'text-success' : ''}>● {t(p.availability?.state === 'available' ? 'for_you.available' : 'for_you.unavailable')}</span>}
                 </div>
+                {p.can_message === false && <p className="text-[13px] text-fg-muted mt-2 mb-0" data-testid="directory-contact-ended">⏳ {t('directory.contact_ended')}</p>}
                 <div className="flex items-center gap-3 mt-2">
-                  <button type="button" className="btn btn-primary btn-sm" disabled={busy === p.id} onClick={() => contact(p)} data-testid="directory-contact">💬 {t('directory.message')}</button>
-                  <button type="button" className="btn btn-outline btn-sm" disabled={busy === p.id} onClick={() => call(p)} data-testid="directory-call">📞 {t('directory.call')}</button>
+                  {/* No way to write to them from here (AYK-260): say why instead of buttons that fail. */}
+                  {p.can_message === false ? null : <>
+                    <button type="button" className="btn btn-primary btn-sm" disabled={busy === p.id} onClick={() => contact(p)} data-testid="directory-contact">💬 {t('directory.message')}</button>
+                    <button type="button" className="btn btn-outline btn-sm" disabled={busy === p.id} onClick={() => call(p)} data-testid="directory-call">📞 {t('directory.call')}</button>
+                  </>}
                   <button type="button" className="text-[13px] font-semibold text-fg-muted" disabled={busy === p.id} onClick={() => remove(p)}>✕ {t('requester.remove_directory')}</button>
                 </div>
               </div>

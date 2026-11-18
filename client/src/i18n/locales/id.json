@@ -2635,7 +2635,8 @@
     "saved_note": "«{{name}}» disimpan ke direktori Anda.",
     "message": "Pesan",
     "call": "Telepon",
-    "save_title": "Simpan ke direktori saya"
+    "save_title": "Simpan ke direktori saya",
+    "contact_ended": "Waktu kontak dengan mereka berakhir setelah permintaan selesai. Kontak terbuka lagi jika mereka meminta Anda lagi."
   },
   "account_delete": {
     "title": "Hapus akun saya",

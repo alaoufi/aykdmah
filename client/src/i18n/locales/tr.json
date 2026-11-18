@@ -2635,7 +2635,8 @@
     "saved_note": "«{{name}}» rehberinize kaydedildi.",
     "message": "Mesaj",
     "call": "Ara",
-    "save_title": "Rehberime kaydet"
+    "save_title": "Rehberime kaydet",
+    "contact_ended": "Talep bittikten sonra onunla iletişim süresi doldu. Sizden yeniden talepte bulunduğunda iletişim tekrar açılır."
   },
   "account_delete": {
     "title": "Hesabımı sil",

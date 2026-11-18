@@ -8,6 +8,7 @@ const { availability } = require('../utils/providerAvailability');
 const providerId = value => (/^[1-9][0-9]{0,9}$/.test(String(value)) && Number(value) <= 2147483647 ? Number(value) : null);
 
 const { hideRequesterNames } = require('../utils/requesterPrivacy');
+const Conversation = require('../models/Conversation');
 const list = asyncHandler(async (req, res) => {
   const rows = await query(`SELECT u.id, u.full_name, u.avatar, u.is_verified, pp.business_name, pp.category_id,
       CASE WHEN u.role = 'provider' THEN pp.rating_avg ELSE (SELECT COALESCE(AVG(rv.rating),0) FROM reviews rv WHERE rv.target_user_id = u.id AND rv.review_type = 'on_requester' AND rv.is_visible = 1) END AS rating_avg,
@@ -30,6 +31,22 @@ const list = asyncHandler(async (req, res) => {
     LEFT JOIN districts dist ON dist.id = u.district_id
     WHERE sp.user_id = ? ORDER BY sp.created_at DESC`, [req.user.id]);
   await hideRequesterNames(req.user.id, rows, req.t('requester_label'));
+  // Can this person be written to from here? (AYK-260) A provider always can: a direct request
+  // opens a chat. Anyone else (a requester kept from a chat) only through a conversation that is
+  // still open; once its contact time has ended there is no way to start one from this side, so
+  // the card says so instead of offering buttons that end in "not found".
+  for (const row of rows) {
+    row.can_message = true;
+    if (row.role === 'provider') continue;
+    const shared = await query(`SELECT c.id FROM conversations c
+      JOIN conversation_participants mine ON mine.conversation_id = c.id AND mine.user_id = ?
+      JOIN conversation_participants theirs ON theirs.conversation_id = c.id AND theirs.user_id = ?
+      ORDER BY c.last_message_at DESC NULLS LAST, c.id DESC LIMIT 5`, [req.user.id, row.id]);
+    let open = null;
+    for (const conversation of shared) if (await Conversation.canSend(conversation.id, req.user.id)) { open = conversation.id; break; }
+    row.can_message = open !== null;
+    if (open !== null) row.conversation_id = open;
+  }
   return success(res, rows.map(row => ({
     id: row.id, full_name: row.full_name, business_name: row.business_name, avatar: row.avatar,
     is_verified: Number(row.is_verified) === 1, category_id: row.category_id,
@@ -39,7 +56,7 @@ const list = asyncHandler(async (req, res) => {
     rating_avg: Number(row.rating_avg) || 0, rating_count: Number(row.rating_count) || 0,
     completed_orders: Number(row.completed_orders) || 0, availability: row.role === 'provider' ? availability(row) : null,
     nickname: row.nickname || null, referral_code: row.referral_code || null, is_provider: row.role === 'provider',
-    conversation_id: row.conversation_id ? Number(row.conversation_id) : null,
+    conversation_id: row.conversation_id ? Number(row.conversation_id) : null, can_message: row.can_message,
   })));
 });
 

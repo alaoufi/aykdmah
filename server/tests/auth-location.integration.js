@@ -703,6 +703,22 @@ if (!databasePrefix) {
     const archive = await api('/requests/my?status=completed', { token: client.token });
     assert.ok(archive.some(item => Number(item.id) === Number(direct.request_id) && item.assigned_provider_name === 'سباك الحي'));
 
+    // AYK-260: the provider keeps this requester in their own directory. The request finished
+    // 8 days ago (above), so the contact time has passed: the card says it cannot be written to
+    // (no buttons that end in "not found"). While the chat is open it offers it. A provider entry always can.
+    await api(`/users/me/directory/${client.user.id}`, { method: 'POST', token: provider.token, body: { nickname: 'عميل الحي' } });
+    const keptClient = async () => (await api('/users/me/directory', { token: provider.token })).find(item => Number(item.id) === Number(client.user.id));
+    let kept = await keptClient();
+    assert.equal(kept.is_provider, false);
+    assert.equal(kept.can_message, false);
+    assert.equal((await api('/users/me/directory', { token: client.token })).find(item => Number(item.id) === Number(provider.user.id)).can_message, true);
+    await db.query('UPDATE requests SET completed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [direct.request_id]);
+    kept = await keptClient();
+    assert.equal(kept.can_message, true);
+    assert.equal(Number(kept.conversation_id), Number(direct.conversation_id));
+    await db.query("UPDATE requests SET completed_at = CURRENT_TIMESTAMP - INTERVAL '8 days', updated_at = CURRENT_TIMESTAMP - INTERVAL '8 days' WHERE id = ?", [direct.request_id]);
+    await api(`/users/me/directory/${client.user.id}`, { method: 'DELETE', token: provider.token });
+
     await api(`/users/me/directory/${provider.user.id}`, { method: 'DELETE', token: client.token });
     assert.deepEqual(await api('/users/me/directory/ids', { token: client.token }), []);
   });
