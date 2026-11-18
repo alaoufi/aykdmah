@@ -4,7 +4,7 @@ import App from './App';
 import { ThemeProvider } from './theme/ThemeProvider';
 import { applyPrefs } from './theme/applyTheme';
 import { readPrefs } from './theme/preferences';
-import './i18n';
+import { i18nReady } from './i18n';
 import './styles/tailwind.css';
 import './styles/global.css';
 import 'leaflet/dist/leaflet.css';
@@ -22,10 +22,13 @@ if ('caches' in window) caches.delete('api-cache').catch(() => {});
 // deployments without that bootstrap use the same guarded recovery helper.
 if (!window.__AYK_ASSET_RECOVERY__) installChunkRecovery();
 
-createRoot(document.getElementById('root')).render(
+// A visitor in another language than Arabic or English waits for that one small file first,
+// so the first screen is never shown in the wrong language (AYK-249).
+const render = () => createRoot(document.getElementById('root')).render(
   <StrictMode>
     <ThemeProvider>
       <App />
     </ThemeProvider>
   </StrictMode>
 );
+i18nReady.then(render, render);
