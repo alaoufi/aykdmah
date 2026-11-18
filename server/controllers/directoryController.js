@@ -102,9 +102,61 @@ const chat = asyncHandler(async (req, res) => {
   return success(res, { conversation_id: Number(await Conversation.findOrCreateBetween(req.user.id, id, null)) });
 });
 
+// ---- contacts the person types in themselves (AYK-261, the owner's decision) -----------------
+// A name, a mobile number, optionally another WhatsApp number, and notes. Their own notes: not
+// tied to any account and never copied from one, so they stay whatever happens to that person's
+// account. At most 200 per person.
+const CONTACTS_MAX = 200;
+const plainText = (value, max) => (typeof value === 'string' && !value.includes('\0') ? value.trim().slice(0, max) : '');
+// "+966 50 123-4567" -> "+966501234567"; Arabic-Indic digits are accepted. '' when not a number.
+function phoneNumber(value) {
+  const digits = String(value ?? '').trim()
+    .replace(/[\u0660-\u0669]/g, d => String(d.charCodeAt(0) - 0x0660)).replace(/[\u06f0-\u06f9]/g, d => String(d.charCodeAt(0) - 0x06f0))
+    .replace(/[\s().-]/g, '');
+  return /^\+?[0-9]{7,15}$/.test(digits) ? digits : '';
+}
+function contactFields(req) {
+  const name = plainText(req.body?.name, 80), phone = phoneNumber(req.body?.phone);
+  const rawWhatsapp = req.body?.whatsapp, whatsapp = rawWhatsapp == null || String(rawWhatsapp).trim() === '' ? null : phoneNumber(rawWhatsapp);
+  const rawNotes = req.body?.notes;
+  if (!name || !phone || whatsapp === '' || (rawNotes != null && (typeof rawNotes !== 'string' || rawNotes.length > 1000 || rawNotes.includes('\0')))) return null;
+  return { name, phone, whatsapp, notes: plainText(rawNotes, 1000) || null };
+}
+const contactRow = row => ({ id: Number(row.id), name: row.name, phone: row.phone, whatsapp: row.whatsapp || null, notes: row.notes || null });
+
+const listContacts = asyncHandler(async (req, res) => success(res,
+  (await query('SELECT id, name, phone, whatsapp, notes FROM directory_contacts WHERE user_id = ? ORDER BY id DESC', [req.user.id])).map(contactRow)));
+
+const addContact = asyncHandler(async (req, res) => {
+  const fields = contactFields(req);
+  if (!fields) return error(res, req.t('invalid_data'), 400);
+  const count = await queryOne('SELECT COUNT(*) AS n FROM directory_contacts WHERE user_id = ?', [req.user.id]);
+  if (Number(count.n) >= CONTACTS_MAX) return error(res, req.t('directory_contacts_full'), 409);
+  const made = await query('INSERT INTO directory_contacts (user_id, name, phone, whatsapp, notes) VALUES (?, ?, ?, ?, ?)',
+    [req.user.id, fields.name, fields.phone, fields.whatsapp, fields.notes]);
+  return success(res, { id: Number(made.insertId), ...fields }, req.t('directory_added'), 201);
+});
+
+const updateContact = asyncHandler(async (req, res) => {
+  const id = providerId(req.params.contactId), fields = contactFields(req);
+  if (!id) return notFound(res);
+  if (!fields) return error(res, req.t('invalid_data'), 400);
+  const changed = await query('UPDATE directory_contacts SET name = ?, phone = ?, whatsapp = ?, notes = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?',
+    [fields.name, fields.phone, fields.whatsapp, fields.notes, id, req.user.id]);
+  if (!changed.affectedRows) return notFound(res);
+  return success(res, { id, ...fields });
+});
+
+const removeContact = asyncHandler(async (req, res) => {
+  const id = providerId(req.params.contactId);
+  if (!id) return notFound(res);
+  await query('DELETE FROM directory_contacts WHERE id = ? AND user_id = ?', [id, req.user.id]);
+  return success(res, { removed: true }, req.t('directory_removed'));
+});
+
 const ids = asyncHandler(async (req, res) => {
   const rows = await query('SELECT provider_id FROM saved_providers WHERE user_id = ?', [req.user.id]);
   return success(res, rows.map(row => Number(row.provider_id)));
 });
 
-module.exports = { list, add, remove, ids, chat };
+module.exports = { list, add, remove, ids, chat, listContacts, addContact, updateContact, removeContact, _internal: { phoneNumber } };

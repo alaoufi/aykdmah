@@ -37,6 +37,11 @@ const directory = require('../controllers/directoryController');
 const { requireMarketplaceWrite } = require('../middleware/verificationPolicy');
 router.get('/me/directory', authenticate, directory.list);
 router.get('/me/directory/ids', authenticate, directory.ids);
+// Contacts typed in by the person (a name, a number, notes); before the :providerId routes.
+router.get('/me/directory/contacts', authenticate, directory.listContacts);
+router.post('/me/directory/contacts', authenticate, directory.addContact);
+router.put('/me/directory/contacts/:contactId', authenticate, directory.updateContact);
+router.delete('/me/directory/contacts/:contactId', authenticate, directory.removeContact);
 router.post('/me/directory/:providerId', authenticate, directory.add);
 router.delete('/me/directory/:providerId', authenticate, directory.remove);
 router.post('/me/directory/:providerId/chat', authenticate, requireMarketplaceWrite, directory.chat);

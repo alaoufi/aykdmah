@@ -112,6 +112,22 @@ export async function saveToDirectory(providerId, saved = true, nickname = null)
   return data.data;
 }
 
+// Numbers the person typed into their directory themselves (AYK-261).
+export async function listDirectoryContacts() {
+  const { data } = await api.get('/users/me/directory/contacts');
+  return data.data || [];
+}
+
+export async function saveDirectoryContact({ id, name, phone, whatsapp, notes }) {
+  const body = { name, phone, whatsapp: whatsapp || null, notes: notes || null };
+  const { data } = id ? await api.put(`/users/me/directory/contacts/${id}`, body) : await api.post('/users/me/directory/contacts', body);
+  return data.data;
+}
+
+export async function removeDirectoryContact(id) {
+  await api.delete(`/users/me/directory/contacts/${id}`);
+}
+
 // A conversation with someone kept in my directory who is not a service provider (AYK-260).
 export async function directoryChat(userId) {
   const { data } = await api.post(`/users/me/directory/${userId}/chat`);

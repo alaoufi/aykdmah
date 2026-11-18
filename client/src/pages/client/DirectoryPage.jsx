@@ -12,6 +12,7 @@ import { getConversation } from '../../services/chatService';
 import { useCall } from '../../context/CallContext';
 import BlockedNotice from '../../components/common/BlockedNotice';
 import ProblemNotice from '../../components/common/ProblemNotice';
+import DirectoryContacts from '../../components/directory/DirectoryContacts';
 
 // "My directory" (AYK-041): providers the requester kept, to contact again directly
 // without posting a request. Each contact is still recorded as a request.
@@ -93,6 +94,7 @@ export default function DirectoryPage({ compact = false }) {
             </li>
           ))}
         </ol>}
+      <DirectoryContacts compact={compact} />
     </section>
   );
 }

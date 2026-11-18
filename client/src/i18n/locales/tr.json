@@ -2635,7 +2635,16 @@
     "saved_note": "«{{name}}» rehberinize kaydedildi.",
     "message": "Mesaj",
     "call": "Ara",
-    "save_title": "Rehberime kaydet"
+    "save_title": "Rehberime kaydet",
+    "add_number": "＋ Numara ekle",
+    "numbers_title": "Kendi kaydettiğim numaralar",
+    "numbers_private": "Yalnızca siz görürsünüz; o kişi hesabını silse de kalır.",
+    "contact_name": "Ad",
+    "contact_phone": "Cep numarası",
+    "contact_whatsapp": "WhatsApp numarası (farklıysa)",
+    "contact_notes": "Notlar",
+    "whatsapp": "WhatsApp",
+    "number_invalid": "Bir ad ve geçerli bir cep numarası yazın."
   },
   "account_delete": {
     "title": "Hesabımı sil",

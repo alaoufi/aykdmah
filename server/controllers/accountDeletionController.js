@@ -29,6 +29,7 @@ const deleteMe = asyncHandler(async (req, res) => {
       'DELETE FROM push_subscriptions WHERE user_id = ?',
       'DELETE FROM native_push_tokens WHERE user_id = ?',
       'DELETE FROM saved_providers WHERE user_id = ? OR provider_id = ?',
+      'DELETE FROM directory_contacts WHERE user_id = ?',
       'DELETE FROM user_blocks WHERE blocker_id = ? OR blocked_id = ?',
       'DELETE FROM device_reports WHERE user_id = ?',
     ]) await conn.execute(sql, sql.includes(' OR ') ? [user.id, user.id] : [user.id]);

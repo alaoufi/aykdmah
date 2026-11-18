@@ -2635,7 +2635,16 @@
     "saved_note": "\"{{name}}\" saved to your directory.",
     "message": "Message",
     "call": "Call",
-    "save_title": "Save to my directory"
+    "save_title": "Save to my directory",
+    "add_number": "＋ Add a number",
+    "numbers_title": "Numbers I saved myself",
+    "numbers_private": "Only you see them, and they stay even if that person deletes their account.",
+    "contact_name": "Name",
+    "contact_phone": "Mobile number",
+    "contact_whatsapp": "WhatsApp number (if different)",
+    "contact_notes": "Notes",
+    "whatsapp": "WhatsApp",
+    "number_invalid": "Enter a name and a valid mobile number."
   },
   "account_delete": {
     "title": "Delete my account",

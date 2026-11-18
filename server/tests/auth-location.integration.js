@@ -729,6 +729,27 @@ if (!databasePrefix) {
 
     await api(`/users/me/directory/${provider.user.id}`, { method: 'DELETE', token: client.token });
     assert.deepEqual(await api('/users/me/directory/ids', { token: client.token }), []);
+
+    // AYK-261: numbers the person types in themselves, with notes. Their own: nobody else reads,
+    // changes or removes them; a bad number is refused; nothing ties them to an account.
+    await api('/users/me/directory/contacts', { method: 'POST', token: client.token, expected: 400, body: { name: 'بلا رقم' } });
+    await api('/users/me/directory/contacts', { method: 'POST', token: client.token, expected: 400, body: { name: 'رقم خاطئ', phone: 'javascript:alert(1)' } });
+    await api('/users/me/directory/contacts', { method: 'POST', token: client.token, expected: 400, body: { name: 'واتساب خاطئ', phone: '0501234567', whatsapp: 'abc' } });
+    await api('/users/me/directory/contacts', { method: 'POST', token: client.token, expected: 400, body: { name: 'ملاحظة طويلة', phone: '0501234567', notes: 'ا'.repeat(1001) } });
+    const typed = await api('/users/me/directory/contacts', { method: 'POST', token: client.token, expected: 201,
+      body: { name: '  كهربائي الحارة ', phone: '+966 50 123-4567', notes: 'يأتي بعد العصر، سعره مناسب' } });
+    assert.equal(typed.name, 'كهربائي الحارة');
+    assert.equal(typed.phone, '+966501234567');
+    assert.equal(typed.whatsapp, null);
+    assert.deepEqual((await api('/users/me/directory/contacts', { token: client.token })).map(row => [row.id, row.notes]), [[typed.id, 'يأتي بعد العصر، سعره مناسب']]);
+    assert.deepEqual(await api('/users/me/directory/contacts', { token: provider.token }), []);
+    await api(`/users/me/directory/contacts/${typed.id}`, { method: 'PUT', token: provider.token, expected: 404, body: { name: 'دخيل', phone: '0500000000' } });
+    await api(`/users/me/directory/contacts/${typed.id}`, { method: 'DELETE', token: provider.token });
+    const edited = await api(`/users/me/directory/contacts/${typed.id}`, { method: 'PUT', token: client.token, body: { name: 'كهربائي الحارة', phone: '0501234567', whatsapp: '٠٥٥٥٥٥٥٥٥٥', notes: '' } });
+    assert.deepEqual([edited.phone, edited.whatsapp, edited.notes], ['0501234567', '0555555555', null]);
+    assert.equal((await api('/users/me/directory/contacts', { token: client.token })).length, 1);
+    await api(`/users/me/directory/contacts/${typed.id}`, { method: 'DELETE', token: client.token });
+    assert.deepEqual(await api('/users/me/directory/contacts', { token: client.token }), []);
   });
 
   test('monthly subscriptions by area and profession (AYK-042): off by default, paid rules hide unsubscribed providers, free rules win', async () => {

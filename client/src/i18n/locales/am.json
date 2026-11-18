@@ -2635,7 +2635,16 @@
     "saved_note": "«{{name}}» በማውጫዎ ተቀምጧል።",
     "message": "መልእክት",
     "call": "ደውል",
-    "save_title": "በማውጫዬ አስቀምጥ"
+    "save_title": "በማውጫዬ አስቀምጥ",
+    "add_number": "＋ ቁጥር ጨምር",
+    "numbers_title": "እኔ ራሴ ያስቀመጥኳቸው ቁጥሮች",
+    "numbers_private": "እርስዎ ብቻ ያዩዋቸዋል፤ ሰውየው መለያውን ቢሰርዝም ይቆያሉ።",
+    "contact_name": "ስም",
+    "contact_phone": "የሞባይል ቁጥር",
+    "contact_whatsapp": "የዋትስአፕ ቁጥር (የተለየ ከሆነ)",
+    "contact_notes": "ማስታወሻ",
+    "whatsapp": "ዋትስአፕ",
+    "number_invalid": "ስም እና ትክክለኛ የሞባይል ቁጥር ያስገቡ።"
   },
   "account_delete": {
     "title": "መለያዬን ሰርዝ",

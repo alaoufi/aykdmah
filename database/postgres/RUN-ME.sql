@@ -8,7 +8,7 @@ DO $ayk_fresh$ BEGIN
   IF EXISTS (
     SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
     WHERE n.nspname = current_schema() AND c.relkind IN ('r','p','v','m','f')
-      AND c.relname IN ('activity_logs','ad_admin_messages','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_diagnostics','call_reports','calls','categories','chat_forward_receipts','cities','conversation_archives','conversation_participants','conversations','countries','device_reports','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','district_name_cleanup_','districts','entity_views','governorates','install_lock','ip_geo_cache','location_shares','message_files','message_translations','messages','native_push_tokens','notifications','offers','payments','phone_codes','provider_badges','provider_coverage_districts','provider_profiles','push_subscriptions','referral_rewards','regions','request_files','request_translations','requests','review_reports','review_translations','review_votes','reviews','roles','saved_providers','schema_migrations','security_events','services','settings','subscription_plans','subscription_rules','subscriptions','support_messages','support_tickets','translation_memory','translation_usage','ui_text_overrides','uploaded_media','user_blocks','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','visit_days','wallet_transactions','withdrawal_requests')
+      AND c.relname IN ('activity_logs','ad_admin_messages','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_diagnostics','call_reports','calls','categories','chat_forward_receipts','cities','conversation_archives','conversation_participants','conversations','countries','device_reports','directory_contacts','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','district_name_cleanup_','districts','entity_views','governorates','install_lock','ip_geo_cache','location_shares','message_files','message_translations','messages','native_push_tokens','notifications','offers','payments','phone_codes','provider_badges','provider_coverage_districts','provider_profiles','push_subscriptions','referral_rewards','regions','request_files','request_translations','requests','review_reports','review_translations','review_votes','reviews','roles','saved_providers','schema_migrations','security_events','services','settings','subscription_plans','subscription_rules','subscriptions','support_messages','support_tickets','translation_memory','translation_usage','ui_text_overrides','uploaded_media','user_blocks','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','visit_days','wallet_transactions','withdrawal_requests')
   ) THEN
     RAISE EXCEPTION 'AY KHIDMA bootstrap requires a fresh database schema; use journaled migrations for an existing installation';
   END IF;
@@ -6532,6 +6532,21 @@ CREATE INDEX IF NOT EXISTS idx_users_email_lower ON users (LOWER(email)) WHERE d
 CREATE INDEX IF NOT EXISTS idx_users_phone_plain ON users (REGEXP_REPLACE(phone, '[[:space:]()-]', '', 'g')) WHERE deleted_at IS NULL;
 CREATE INDEX IF NOT EXISTS idx_users_facebook ON users (facebook_id) WHERE facebook_id IS NOT NULL;
 INSERT INTO schema_migrations(name) VALUES ('089_login_lookup_indexes.sql');
+
+-- migrations/090_directory_contacts.sql
+CREATE TABLE IF NOT EXISTS directory_contacts (
+  id SERIAL PRIMARY KEY,
+  user_id INT NOT NULL,
+  name VARCHAR(80) NOT NULL,
+  phone VARCHAR(20) NOT NULL,
+  whatsapp VARCHAR(20) NULL DEFAULT NULL,
+  notes VARCHAR(1000) NULL DEFAULT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_directory_contacts_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+CREATE INDEX IF NOT EXISTS idx_directory_contacts_user ON directory_contacts (user_id, id);
+INSERT INTO schema_migrations(name) VALUES ('090_directory_contacts.sql');
 
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$

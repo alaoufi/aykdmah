@@ -2635,7 +2635,16 @@
     "saved_note": "حُفظ «{{name}}» في دليلك.",
     "message": "مراسلة",
     "call": "اتصال",
-    "save_title": "حفظ في دليلي"
+    "save_title": "حفظ في دليلي",
+    "add_number": "＋ إضافة رقم",
+    "numbers_title": "أرقام حفظتها بنفسي",
+    "numbers_private": "تبقى عندك أنت فقط ولا يراها غيرك، ولا تتأثر بحذف صاحبها حسابه.",
+    "contact_name": "الاسم",
+    "contact_phone": "رقم الجوال",
+    "contact_whatsapp": "رقم واتساب (إن اختلف عن الجوال)",
+    "contact_notes": "ملاحظات",
+    "whatsapp": "واتساب",
+    "number_invalid": "اكتب الاسم ورقم جوال صحيحًا."
   },
   "account_delete": {
     "title": "حذف حسابي",

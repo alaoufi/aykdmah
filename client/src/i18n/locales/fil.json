@@ -2635,7 +2635,16 @@
     "saved_note": "Na-save ang «{{name}}» sa iyong direktoryo.",
     "message": "Mensahe",
     "call": "Tawag",
-    "save_title": "I-save sa aking direktoryo"
+    "save_title": "I-save sa aking direktoryo",
+    "add_number": "＋ Magdagdag ng numero",
+    "numbers_title": "Mga numerong ako mismo ang nag-save",
+    "numbers_private": "Ikaw lang ang nakakakita nito, at nananatili kahit burahin ng taong iyon ang account niya.",
+    "contact_name": "Pangalan",
+    "contact_phone": "Numero ng mobile",
+    "contact_whatsapp": "Numero ng WhatsApp (kung iba)",
+    "contact_notes": "Mga tala",
+    "whatsapp": "WhatsApp",
+    "number_invalid": "Ilagay ang pangalan at wastong numero ng mobile."
   },
   "account_delete": {
     "title": "Burahin ang aking account",

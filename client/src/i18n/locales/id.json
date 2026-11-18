@@ -2635,7 +2635,16 @@
     "saved_note": "«{{name}}» disimpan ke direktori Anda.",
     "message": "Pesan",
     "call": "Telepon",
-    "save_title": "Simpan ke direktori saya"
+    "save_title": "Simpan ke direktori saya",
+    "add_number": "＋ Tambah nomor",
+    "numbers_title": "Nomor yang saya simpan sendiri",
+    "numbers_private": "Hanya Anda yang melihatnya, dan tetap ada meski orang itu menghapus akunnya.",
+    "contact_name": "Nama",
+    "contact_phone": "Nomor ponsel",
+    "contact_whatsapp": "Nomor WhatsApp (jika berbeda)",
+    "contact_notes": "Catatan",
+    "whatsapp": "WhatsApp",
+    "number_invalid": "Isi nama dan nomor ponsel yang benar."
   },
   "account_delete": {
     "title": "Hapus akun saya",
