@@ -7,6 +7,7 @@ import AuthLayout from './layouts/AuthLayout';
 import AdminLayout from './layouts/AdminLayout';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import { useAuth } from './hooks/useAuth';
+import { getToken } from './services/api';
 import { LoadingState } from './components/common/Spinner';
 import { canRequestService } from './utils/canRequest';
 
@@ -151,6 +152,12 @@ function RoleDashboard() {
 
 export default function AppRoutes() {
   const { pathname } = useLocation();
+  const { user, loading } = useAuth();
+  // AYK-267 (the owner's screen recording): a signed-in person opening the app saw the visitors'
+  // home page for half a second, then their own page replaced it (and the header and the bottom
+  // bar changed with it). While a saved session is being restored, the loading screen stays until
+  // it is known who they are; a visitor without a saved session is not held back at all.
+  if (loading && !user && getToken()) return <LoadingState />;
   return (
     <Suspense fallback={<LoadingState />}>
       <ErrorBoundary key={pathname}>
