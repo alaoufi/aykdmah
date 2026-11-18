@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { atLeast, nativeAppSource, nativeAppVersion } from '../../utils/nativeApp';
+import { atLeast, thisLaunch } from '../../utils/nativeApp';
 
 // A required app update (AYK-148). An Android app installed from aykdmh.com/dl (?src=apk) stops
 // at this screen while a newer app is published there (/dl/latest.json, written by
@@ -11,8 +11,9 @@ export default function AppUpdateGate() {
   const [latest, setLatest] = useState(null);
 
   useEffect(() => {
-    const current = nativeAppVersion();
-    if (!current || nativeAppSource() !== 'apk') return undefined;
+    // Only an app that said, as it opened the site this time, that it is a downloaded APK (AYK-280).
+    const { version: current, source } = thisLaunch();
+    if (!current || source !== 'apk') return undefined;
     const check = () => {
       if (document.hidden) return;
       fetch('/dl/latest.json', { cache: 'no-store' }).then(r => (r.ok ? r.json() : null))

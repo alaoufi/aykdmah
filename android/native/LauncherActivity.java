@@ -9,6 +9,11 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.SystemClock;
+
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 
 import com.google.android.play.core.appupdate.AppUpdateManager;
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory;
@@ -42,6 +47,7 @@ public class LauncherActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        diag("create", savedInstanceState == null ? "fresh" : "restored");
         // Setting an orientation crashes the app due to the transparent background on Android 8.0
         // Oreo and below (https://github.com/GoogleChromeLabs/bubblewrap/issues/496).
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {
@@ -92,6 +98,7 @@ public class LauncherActivity
     private void launchOnce() {
         if (launched || updating || isFinishing() || !tokenReady || !updateChecked) return;
         launched = true;
+        diag("launch", null);
         launchTwa();
     }
 
@@ -123,6 +130,94 @@ public class LauncherActivity
         // Play restarts the app once the update is installed; without it, the app does not open.
         if (requestCode == UPDATE_REQUEST && resultCode != RESULT_OK) finish();
     }
+
+    // ---- Temporary launch diagnostics (AYK-280) ------------------------------------------------
+    // The owner's phone closes the app on the first tap after leaving it and opens it on the
+    // second. These lines tell the server (docker logs: APPDIAG) what this screen did and who
+    // closed it, with no account or personal data: the step, this screen's and the task's ids,
+    // the launch flags, the library's own counters, and the phone model. Removed once fixed.
+    private static Object field(String name, Object owner) {
+        try {
+            java.lang.reflect.Field f = com.google.androidbrowserhelper.trusted.LauncherActivity.class.getDeclaredField(name);
+            f.setAccessible(true);
+            return f.get(owner);
+        } catch (Exception e) { return "?"; }
+    }
+
+    private void diag(String step, String extra) {
+        Intent intent = getIntent();
+        String body = "{\"step\":\"" + step + "\""
+                + ",\"v\":\"" + installedVersion() + "\""
+                + ",\"pid\":" + android.os.Process.myPid()
+                + ",\"screen\":" + System.identityHashCode(this)
+                + ",\"task\":" + getTaskId()
+                + ",\"root\":" + isTaskRoot()
+                + ",\"finishing\":" + isFinishing()
+                + ",\"flags\":\"" + (intent == null ? "-" : Integer.toHexString(intent.getFlags())) + "\""
+                + ",\"alive\":\"" + field("sLauncherActivitiesAlive", null) + "\""
+                + ",\"browserLaunched\":\"" + field("mBrowserWasLaunched", this) + "\""
+                + ",\"launched\":" + launched + ",\"token\":" + tokenReady + ",\"update\":" + updateChecked
+                + ",\"ms\":" + SystemClock.uptimeMillis()
+                + ",\"sdk\":" + Build.VERSION.SDK_INT
+                + ",\"model\":\"" + (Build.MANUFACTURER + " " + Build.MODEL).replaceAll("[^A-Za-z0-9 _.-]", "") + "\""
+                + ",\"extra\":\"" + (extra == null ? "" : extra.replaceAll("[^A-Za-z0-9 _.:$<>()-]", "")) + "\"}";
+        new Thread(() -> {
+            HttpURLConnection con = null;
+            try {
+                con = (HttpURLConnection) new URL("https://aykdmh.com/api/app-diag").openConnection();
+                con.setConnectTimeout(8000);
+                con.setReadTimeout(8000);
+                con.setRequestMethod("POST");
+                con.setDoOutput(true);
+                con.setRequestProperty("Content-Type", "application/json");
+                try (OutputStream out = con.getOutputStream()) { out.write(body.getBytes("UTF-8")); }
+                con.getResponseCode();
+            } catch (Exception ignored) {
+            } finally { if (con != null) con.disconnect(); }
+        }).start();
+    }
+
+    private static String caller() {
+        StringBuilder out = new StringBuilder();
+        StackTraceElement[] stack = new Throwable().getStackTrace();
+        for (int i = 2; i < Math.min(stack.length, 7); i++) {
+            out.append(stack[i].getClassName().replaceAll(".*\\.", "")).append('.').append(stack[i].getMethodName())
+                    .append(':').append(stack[i].getLineNumber()).append(' ');
+        }
+        return out.toString();
+    }
+
+    @Override
+    public void finish() {
+        diag("finish", caller());
+        super.finish();
+    }
+
+    @Override
+    protected void onRestart() {
+        diag("restart-before", null);
+        super.onRestart();
+        diag("restart-after", null);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        diag("resume", null);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        diag("new-intent", intent == null ? null : Integer.toHexString(intent.getFlags()));
+    }
+
+    @Override
+    protected void onDestroy() {
+        diag("destroy", null);
+        super.onDestroy();
+    }
+    // ---------------------------------------------------------------------------------------------
 
     private boolean fromPlay() {
         try {

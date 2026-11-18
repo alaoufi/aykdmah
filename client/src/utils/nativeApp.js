@@ -21,15 +21,34 @@ export function nativeAppSource() {
     // An app that names its version but not its source (Play 1.2.5 and older) is not the APK
     // remembered from an earlier install: forget that, or it would be asked to update an APK it
     // no longer is (AYK-279).
-    else if (params.get('app')) localStorage.removeItem(SOURCE_KEY);
+    else if (/^[0-9][0-9.]{0,15}$/.test(params.get('app') || '')) localStorage.removeItem(SOURCE_KEY);
     return localStorage.getItem(SOURCE_KEY) || '';
   } catch (_) { return ''; }
+}
+
+// What the app said when it opened the site THIS time (AYK-280). A required-update screen must
+// never rest on what an earlier installation left in this phone's storage: a Play install after
+// an APK one was told to "update" an APK it no longer was. Kept for this session only (it survives
+// a reload, not a new launch), and only the app's own words (?app= and ?src=) count.
+const LAUNCH_KEY = 'ayk_native_launch';
+export function thisLaunch() {
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const version = params.get('app');
+    if (version && /^[0-9][0-9.]{0,15}$/.test(version)) {
+      const source = ['play', 'apk'].includes(params.get('src')) ? params.get('src') : '';
+      sessionStorage.setItem(LAUNCH_KEY, JSON.stringify({ version, source }));
+    }
+    const saved = JSON.parse(sessionStorage.getItem(LAUNCH_KEY) || 'null');
+    return saved && typeof saved.version === 'string' ? { version: saved.version, source: saved.source || '' } : { version: '', source: '' };
+  } catch (_) { return { version: '', source: '' }; }
 }
 
 // Capture launch metadata before React/router redirects can drop the query. Otherwise the
 // footer, update gate and device report may keep the previous installation's version.
 nativeAppVersion();
 nativeAppSource();
+thisLaunch();
 
 // The app's own call engine (AYK-145), from app 1.3.0 on Android: calls run like phone calls
 // (earpiece, proximity sensor, Bluetooth, in the background). The site hands the call over.

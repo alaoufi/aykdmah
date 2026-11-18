@@ -19,7 +19,7 @@ for (const variant of ['inherited', 'explicit', 'existing-tools']) {
       const tools = variant === 'existing-tools' ? ' xmlns:tools="http://schemas.android.com/tools"' : '';
       const declaration = variant === 'explicit' ? `<uses-permission android:name="${permission}"/>` : '';
       const file = path.join(main, 'AndroidManifest.xml');
-      fs.writeFileSync(file, `<manifest xmlns:android="http://schemas.android.com/apk/res/android"${tools}>${declaration}<application/></manifest>`.replace('<application/>', '<application></application>'));
+      fs.writeFileSync(file, `<manifest xmlns:android="http://schemas.android.com/apk/res/android"${tools}>${declaration}<application/></manifest>`.replace('<application/>', '<application><activity android:name="LauncherActivity"></activity></application>'));
       fs.writeFileSync(path.join(dir, 'build.gradle'), 'buildscript { repositories { google() } }');
       fs.writeFileSync(path.join(dir, 'app/build.gradle'), "plugins { id 'com.android.application' }\ndependencies {\n}\n");
       const run = () => execFileSync(process.execPath, [path.join(__dirname, '../native/apply.cjs'), dir], {
