@@ -19,7 +19,7 @@
 | `code.bundle` | الكود كاملًا بتاريخه وكل الفروع، ومعه **تعليمات المشروع**: `CLAUDE.md` و`AGENTS.md` و`docs/` (المرجع الأساسي `docs/PROJECT_HANDOFF.md`) |
 | `env` | ملف `.env` للخادم: كل الأسرار (قاعدة البيانات، JWT، التشفير، LiveKit، الإشعارات، R2) |
 | `local-files.tgz` | ملفات الخادم غير الموجودة في Git (بلا `node_modules` و`dist`، فهي تُبنى من الكود) |
-| `server-settings.tgz` | `/etc/aykdmh` (مفتاح R2 للنسخ) ووحدات systemd الخاصة بـ «أي خدمة» |
+| `server-settings.tgz` | `/etc/aykdmh` (مفتاح R2 للنسخ)، ووحدات systemd الخاصة بـ «أي خدمة»، وعدّاد الإصدارات `/var/lib/aykdmh`، و**مفتاح توقيع تطبيق أندرويد وكلمات مروره** `/root/aykdmh-android/keys` (بدونه لا يُحدَّث التطبيق في Google Play) |
 | `uploads.tgz` | مجلد الرفع القديم (المرفقات صارت في قاعدة البيانات أو في R2 `aykdmh-media`) |
 | `SHA256SUMS` | بصمة كل ملف |
 | `README-RESTORE.md` | هذا الدليل |

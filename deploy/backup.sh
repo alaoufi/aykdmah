@@ -44,10 +44,13 @@ git -C "$REPO_DIR" bundle verify "$DEST/code.bundle" > /dev/null 2>&1
 # (node_modules, dist, compat-assets are rebuilt from the code).
 (cd "$REPO_DIR" && git ls-files --others -z | { grep -zvE '(^|/)(node_modules|dist|build|__pycache__|\.cache|compat-assets)/' || true; } \
   | tar czf "$DEST/local-files.tgz" --null -T -)
-# Server settings of aykdmh: /etc/aykdmh (R2 key; never the backup encryption key itself) and its
-# systemd units (backup, security export).
+# Server settings of aykdmh: /etc/aykdmh (R2 key; never the backup encryption key itself), its
+# systemd units (backup, security export), the release counter (/var/lib/aykdmh), and the Android
+# app's signing key with its passwords (/root/aykdmh-android/keys, AYK-274): without it the app in
+# Google Play cannot be updated until Google resets the upload key.
 tar czf "$DEST/server-settings.tgz" --exclude='backup-encryption.key*' /etc/aykdmh \
-  $(ls /etc/systemd/system/aykdmh-* 2>/dev/null) 2>/dev/null
+  $(ls /etc/systemd/system/aykdmh-* 2>/dev/null) \
+  $(ls -d /var/lib/aykdmh /root/aykdmh-android/keys 2>/dev/null) 2>/dev/null
 # Instructions for any developer: what is in the set and how to rebuild the site from it.
 cp "$REPO_DIR/docs/RESTORE.md" "$DEST/README-RESTORE.md"
 (cd "$DEST" && sha256sum db.dump uploads.tgz env code.bundle local-files.tgz server-settings.tgz README-RESTORE.md > SHA256SUMS)
