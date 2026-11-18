@@ -44,7 +44,7 @@ const nearby = asyncHandler(async (req, res) => {
     SELECT u.id, u.full_name, u.avatar, u.is_verified, u.is_online,
            pp.business_name, pp.category_id, pp.service_ids, pp.service_radius_km,
            pp.rating_avg, pp.rating_count, pp.completed_orders,
-           (SELECT rv.comment FROM reviews rv WHERE rv.target_user_id = u.id AND rv.review_type = 'on_provider' AND rv.is_visible = 1 AND rv.comment IS NOT NULL AND rv.comment <> '' ORDER BY rv.id DESC LIMIT 1) AS opinion, pp.location_mode,
+           pp.location_mode,
            pp.show_location_on_map, pp.fixed_latitude, pp.fixed_longitude,
            to_jsonb(pp)->>'availability_status' AS availability_status, to_jsonb(pp)->>'vacation_from' AS vacation_from,
            to_jsonb(pp)->>'vacation_to' AS vacation_to, to_jsonb(pp)->>'work_days' AS work_days,
@@ -54,7 +54,16 @@ const nearby = asyncHandler(async (req, res) => {
     FROM users u
     JOIN provider_profiles pp ON pp.user_id = u.id
     LEFT JOIN cities c ON c.id = u.city_id
-    WHERE u.role = 'provider' AND u.is_active = 1 AND u.is_blocked = 0 AND u.deleted_at IS NULL`);
+    WHERE u.role = 'provider' AND u.is_active = 1 AND u.is_blocked = 0 AND u.deleted_at IS NULL
+      -- AYK-254: only providers whose shown point (their own, or their city's) can lie inside the
+      -- circle are read; this used to read every provider in the country on each map view.
+      AND ((pp.fixed_latitude BETWEEN ? AND ? AND pp.fixed_longitude BETWEEN ? AND ?)
+        OR (c.latitude BETWEEN ? AND ? AND c.longitude BETWEEN ? AND ?))`,
+    (() => {
+      const latSpan = radius / 110.5 + 0.05, lonSpan = radius / (111.3 * Math.max(0.05, Math.cos(lat * Math.PI / 180))) + 0.05;
+      const box = [lat - latSpan, lat + latSpan, lon - lonSpan, lon + lonSpan];
+      return [...box, ...box];
+    })());
   // A provider may work in several professions: match any of their services.
   const categoryServices = categoryId !== null
     ? new Set((await query('SELECT id FROM services WHERE category_id = ?', [categoryId])).map(row => Number(row.id))) : null;
@@ -94,7 +103,16 @@ const nearby = asyncHandler(async (req, res) => {
   }
   // Providers available now come first, then by distance.
   providers.sort((a, b) => (a.availability.state !== 'available') - (b.availability.state !== 'available') || a.distance_km - b.distance_km);
-  return success(res, { providers: providers.slice(0, MAX_RESULTS), radius_km: radius });
+  // The latest written opinion is read for the providers actually returned, not for everyone.
+  const shown = providers.slice(0, MAX_RESULTS);
+  if (shown.length) {
+    const opinions = await query(`SELECT DISTINCT ON (rv.target_user_id) rv.target_user_id, rv.comment FROM reviews rv
+      WHERE rv.target_user_id IN (${shown.map(() => '?').join(', ')}) AND rv.review_type = 'on_provider' AND rv.is_visible = 1
+        AND rv.comment IS NOT NULL AND rv.comment <> '' ORDER BY rv.target_user_id, rv.id DESC`, shown.map(p => p.id));
+    const byId = new Map(opinions.map(row => [Number(row.target_user_id), row.comment]));
+    for (const provider of shown) provider.opinion = byId.get(Number(provider.id)) || null;
+  }
+  return success(res, { providers: shown, radius_km: radius });
 });
 
 // GET /api/providers/matching?service_id|category_id[&district_id&city_id]  (AYK-035)

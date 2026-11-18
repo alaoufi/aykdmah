@@ -278,7 +278,14 @@ async function cancel({ user, adId }) {
   return updated ? { ok: true, ad: updated } : { ok: false, error: 'wrong_state' };
 }
 
-async function sweep() {
+// AYK-254: every ad slot on every page view (five on the home page) and every counted view ran
+// this table-wide UPDATE. Once every 30 seconds is enough to retire finished ads; the live list
+// itself already leaves out ads past their end or their paid views.
+let lastSweep = 0;
+async function sweep({ force = false } = {}) {
+  const now = Date.now();
+  if (!force && process.env.NODE_ENV !== 'test' && now - lastSweep < 30000) return;
+  lastSweep = now;
   await Ad.expireOverdue();
 }
 

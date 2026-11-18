@@ -10,7 +10,9 @@ export default function useLiveRefresh(events = [], everyMs = 60000) {
   const key = events.join('|');
   useEffect(() => {
     let timer = null;
-    const bump = () => { clearTimeout(timer); timer = setTimeout(() => setTick(v => v + 1), 1200); };
+    // AYK-254: a broadcast ("new request nearby") reaches every open app at the same instant. A
+    // random 1.2–5 second wait spreads their reloads instead of all hitting the server together.
+    const bump = () => { clearTimeout(timer); timer = setTimeout(() => setTick(v => v + 1), 1200 + Math.floor(Math.random() * 3800)); };
     const onVisible = () => { if (document.visibilityState === 'visible') bump(); };
     const names = key ? key.split('|') : [];
     const offs = names.map(name => onLive(name, bump));

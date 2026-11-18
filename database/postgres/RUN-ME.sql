@@ -6526,6 +6526,13 @@ CREATE INDEX IF NOT EXISTS idx_subscriptions_user ON subscriptions (user_id);
 CREATE INDEX IF NOT EXISTS idx_provider_badges_user ON provider_badges (user_id, badge_type);
 INSERT INTO schema_migrations(name) VALUES ('088_hot_path_indexes.sql');
 
+-- migrations/089_login_lookup_indexes.sql
+CREATE INDEX IF NOT EXISTS idx_users_username_lower ON users (LOWER(username)) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_users_email_lower ON users (LOWER(email)) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_users_phone_plain ON users (REGEXP_REPLACE(phone, '[[:space:]()-]', '', 'g')) WHERE deleted_at IS NULL;
+CREATE INDEX IF NOT EXISTS idx_users_facebook ON users (facebook_id) WHERE facebook_id IS NOT NULL;
+INSERT INTO schema_migrations(name) VALUES ('089_login_lookup_indexes.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

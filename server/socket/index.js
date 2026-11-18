@@ -8,10 +8,13 @@ const logger = require('../utils/logger');
 const Conversation = require('../models/Conversation');
 const { emitUser } = require('../utils/conversationEvents');
 
+// AYK-254: "online / offline" goes to each contact's own room in one step. It used to look up
+// every contact's connections and re-check each session, one contact after another: a provider
+// with 300 chats cost 300 look-ups on every connect and disconnect. The notice holds only an id
+// and a flag, and a room only ever contains that account's own authenticated connections.
 async function emitPresence(io, userId, isOnline) {
-  for (const contact of await Conversation.getContacts(userId)) {
-    await emitUser(io, contact.id, 'user:online', { userId, isOnline });
-  }
+  const contacts = await Conversation.getContacts(userId);
+  for (const contact of contacts) io.to(`user:${contact.id}`).emit('user:online', { userId, isOnline });
 }
 
 function initSocket(httpServer) {
