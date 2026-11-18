@@ -41,3 +41,7 @@
 | `code.bundle` | الكود كاملًا بتاريخه وكل الفروع، ومعه `CLAUDE.md` و`AGENTS.md` و`docs/` | `git clone code.bundle aykdmh` |
 | `local-files.tgz` | ملفات الخادم غير الموجودة في Git (بلا node_modules وdist وcompat-assets، فهي تُبنى من الكود) | `tar xzf -C /opt/aykdmh` |
 | `server-settings.tgz` | `/etc/aykdmh` (مفتاح R2) ووحدات systemd الخاصة بـ aykdmh. **مفتاح التشفير لا يدخل فيها أبدًا** | `tar xzf -C /` |
+
+## صفحة المراقبة والتنزيل (AYK-262)
+صفحة واحدة لكل مواقع الخادم في `alaoufi/server-edge` (`backups-monitor/README.md`): حالة نسخ كل موقع، وتنزيلها على جهازك، وفتحها في المتصفح بملف المفتاح.
+تقرأ المخزن بمفتاح **للقراءة فقط** مستقل عن مفتاح النسخ. و`r2-verify.sh` يكتب بعد كل اختبار ناجح `verified/<النسخة>.json` لتعرض الصفحة تاريخه.

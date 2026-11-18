@@ -2,7 +2,9 @@
 # Proves the newest encrypted backup in R2 can be restored: downloads it, decrypts it with
 # /etc/aykdmh/backup-encryption.key into a temporary folder, checks every file against its
 # SHA256SUMS and that the database dump can be listed, then deletes the temporary copy.
-# Changes nothing in R2 or on the site. Run as root:  bash /opt/aykdmh/deploy/r2-verify.sh
+# Changes nothing on the site. In R2 it only adds a small note verified/<backup>.json after a
+# successful test, which the backups page shows as "last successful restore test" (server-edge
+# backups-monitor); notes older than 30 days are removed. Run as root:  bash /opt/aykdmh/deploy/r2-verify.sh
 set -euo pipefail
 ENV=/etc/aykdmh/r2.env
 KEY=/etc/aykdmh/backup-encryption.key
@@ -31,4 +33,12 @@ if [[ -f "$set_dir/code.bundle" ]]; then
 fi
 [[ -f "$set_dir/README-RESTORE.md" ]] && echo "   restore guide for developers: OK (README-RESTORE.md)"
 echo "   files in the set: $(cd "$set_dir" && ls | tr '\n' ' ')"
+# The backups page reads this note (a failed test above stops the script before it is written).
+printf '{"backup":"%s","checked_at":"%s","result":"restorable"}\n' "$newest" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" > "$TMP/verified.json"
+if rc copyto /data/verified.json "r2:$BUCKET/verified/$newest.json"; then
+  rc delete --min-age 30d "r2:$BUCKET/verified/" || true
+  echo "   result noted in R2 for the backups page: verified/$newest.json"
+else
+  echo "   (could not note the result in R2; the test itself passed)"
+fi
 echo; echo "== RESTORABLE: the off-server backup works (temporary copy deleted) =="
