@@ -358,7 +358,7 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
       const socket = io(`http://127.0.0.1:${appPort}`, { auth: { token: person.token, lang: 'ar' }, transports: ['websocket'], reconnection: false, extraHeaders: { 'X-Forwarded-For': person.ip } });
       sockets.push(socket);
       person.socket = socket;
-      socket.on('chat:message', message => person.received.push({ id: message.id, at: Date.now() }));
+      socket.on('chat:message', message => person.received.push({ id: message.id, conversation_id: message.conversation_id, at: Date.now() }));
       socket.on('connect', resolve);
       socket.on('connect_error', err => { finding('errors', 'متوسط', 'تعذر فتح الاتصال الحي', `${person.label}: ${err.message}`); resolve(); });
       setTimeout(resolve, 6000);
@@ -498,6 +498,222 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
       const wallet = await call('المحفظة', '/wallet', { actor: finished.provider });
       check('gaps', wallet.status === 200, 'صفحة المحفظة تفتح للمزود', `الحالة ${wallet.status}`);
     }
+  }
+
+  // ---- the rest of a request's life: refusal, withdrawal, cancelling, warranty, dispute, and one
+  // provider asked by several people at the same instant (AYK-258) ---------------------------------
+  async function lifecycle() {
+    const cs = C().filter(p => p.token), ps = P().filter(p => p.token);
+    if (cs.length < 2 || ps.length < 2) return;
+    const [c1, c2, c3 = cs[0]] = cs, [p1, p2, p3 = ps[0]] = ps;
+    const newRequest = async (client, title) => (await call('إنشاء طلب', '/requests', { actor: client, method: 'POST', quiet: true, body: { title, description: `${title} في بريدة`, address: 'بريدة', latitude: 26.33, longitude: 43.98 } })).data?.id;
+    const offer = (provider, requestId, price) => call('إرسال عرض', '/offers', { actor: provider, method: 'POST', quiet: true, body: { request_id: requestId, price, message: `عرض بـ ${price}` } });
+    const status = (actor, requestId, value, extra = {}) => call(`تغيير حالة الطلب إلى ${value}`, `/requests/${requestId}/status`, { actor, method: 'PUT', quiet: true, body: { status: value, ...extra } });
+    const detail = async (actor, requestId) => (await call('تفاصيل الطلب', `/requests/${requestId}`, { actor, quiet: true })).data;
+    const offersOf = async (client, requestId) => (await call('عرض العروض', `/offers/request/${requestId}`, { actor: client, quiet: true })).data || [];
+    // How many notifications the person has in all (the list's own total, not one page of it).
+    const notesOf = async person => { const r = await call('الإشعارات', '/notifications?limit=1', { actor: person, quiet: true }); return { length: Number(r.json?.meta?.pagination?.total ?? r.json?.pagination?.total ?? r.data?.total ?? 0) }; };
+    const message = (from, conversationId, content) => call('إرسال رسالة', `/chat/conversations/${conversationId}/messages`, { actor: from, method: 'POST', quiet: true, body: { content } });
+    const both = async (title, a, b, expectOne = 1) => {
+      const results = await Promise.all([a(), b()]);
+      const ok = results.filter(r => r.status >= 200 && r.status < 300).length;
+      check('conflict', ok === expectOne && results.every(r => r.status < 500), title, `نجح ${ok} من 2 (المتوقع ${expectOne})؛ الحالات: ${results.map(r => r.status).join('، ')}`, 'خطير');
+      say(`تعارض: ${title} → نجح ${ok} من 2`, { actor: 'النظام', bad: ok !== expectOne });
+      return results;
+    };
+
+    // -- negotiation before choosing, then refusing an offer --
+    phase('المفاهمة قبل الاختيار، ثم رفض عرض');
+    const r1 = await newRequest(c1, 'طلب المفاهمة والرفض');
+    const [o1, o2] = [await offer(p1, r1, 200), await offer(p2, r1, 150)];
+    if (!r1 || !o1.data?.id || !o2.data?.id) { finding('errors', 'خطير', 'تعذر تجهيز طلب بعرضين لفحوص الرفض', `${o1.status} ${o2.status}`); return; }
+    const talk = await call('مفاهمة مع صاحب الطلب', `/requests/${r1}/contact`, { actor: p1, method: 'POST', quiet: true, body: {} });
+    const conv1 = talk.data?.conversation_id;
+    check('errors', talk.status === 200 && Boolean(conv1), 'مقدم العرض يفتح محادثة مع صاحب الطلب قبل قبول عرضه', `الحالة ${talk.status} ${talk.message || ''}`);
+    if (conv1) {
+      const a = await message(p1, conv1, 'أقدر أنزل السعر إلى 180 لو اليوم');
+      const b = await message(c1, conv1, 'خلّها 170 ونتفق');
+      check('errors', a.status === 201 && b.status === 201, 'الطرفان يتفاهمان على السعر في المحادثة قبل القبول', `المزود ${a.status}، العميل ${b.status}`);
+      say(`${p1.label} و${c1.label} يتفاهمان على السعر قبل القبول`, { actor: p1.label, peer: c1.label, chat: true });
+    }
+    const outsider = people.find(p => p.token && ![c1, c2, c3, p1, p2, p3, ps[ps.length - 1]].includes(p));
+    if (!outsider) return;
+    let r = await call('رفض عرض ليس على طلبه', `/offers/${o1.data.id}/reject`, { actor: outsider, method: 'PUT', quiet: true });
+    check('security', [403, 404].includes(r.status), 'رفض عرض على طلب ليس له', `الحالة ${r.status}`, 'خطير');
+    const before = (await notesOf(p1)).length;
+    r = await call('رفض عرض', `/offers/${o1.data.id}/reject`, { actor: c1, method: 'PUT' });
+    check('errors', r.status === 200, 'العميل يرفض عرضًا', `الحالة ${r.status} ${r.message || ''}`);
+    say(`${c1.label} رفض عرض ${p1.label}`, { actor: c1.label, peer: p1.label });
+    let list = await offersOf(c1, r1);
+    check('errors', list.find(o => Number(o.id) === Number(o1.data.id))?.status === 'rejected' && list.find(o => Number(o.id) === Number(o2.data.id))?.status === 'pending', 'الرفض يغيّر العرض المرفوض وحده، والعروض الأخرى تبقى قائمة');
+    check('gaps', (await notesOf(p1)).length > before, 'المزود يصله إشعار عند رفض عرضه');
+    r = await call('رفض العرض نفسه ثانية', `/offers/${o1.data.id}/reject`, { actor: c1, method: 'PUT', quiet: true });
+    check('conflict', r.status === 409, 'رفض العرض نفسه مرة ثانية يُرفض', `الحالة ${r.status}`);
+    r = await call('قبول عرض مرفوض', `/offers/${o1.data.id}/accept`, { actor: c1, method: 'PUT', quiet: true });
+    check('conflict', r.status === 409, 'العرض المرفوض لا يُقبل بعد رفضه', `الحالة ${r.status}`);
+    if (conv1) {
+      r = await message(p1, conv1, 'طيب خلّها 160');
+      check('security', r.status === 403, 'صاحب العرض المرفوض لا يواصل مراسلة العميل على الطلب نفسه', `الحالة ${r.status}`);
+    }
+    r = await offer(p1, r1, 120);
+    check('conflict', r.status === 409, 'صاحب العرض المرفوض لا يقدّم عرضًا ثانيًا على الطلب نفسه', `الحالة ${r.status}`);
+
+    // -- the provider withdraws after being chosen --
+    phase('انسحاب المزود بعد اختياره');
+    await call('قبول عرض', `/offers/${o2.data.id}/accept`, { actor: c1, method: 'PUT', quiet: true });
+    r = await status(c1, r1, 'open');
+    check('security', r.status === 403, 'العميل لا يستطيع إعادة الطلب «مفتوحًا» باسم المزود', `الحالة ${r.status}`);
+    const notesBefore = (await notesOf(c1)).length;
+    r = await status(p2, r1, 'open');
+    let state = await detail(c1, r1);
+    check('errors', r.status === 200 && state?.status === 'open' && !state?.assigned_provider_id, 'المزود ينسحب فيعود الطلب مفتوحًا بلا مزود', `الحالة ${r.status}، الطلب ${state?.status}`);
+    say(`${p2.label} انسحب من طلب ${c1.label}`, { actor: p2.label, peer: c1.label });
+    check('gaps', (await notesOf(c1)).length > notesBefore, 'العميل يصله إشعار عند انسحاب المزود');
+    list = await offersOf(c1, r1);
+    check('conflict', list.filter(o => o.status === 'accepted').length === 0, 'بعد الانسحاب لا يبقى عرض حالته «مقبول»', `${list.filter(o => o.status === 'accepted').length} مقبول`);
+    r = await call('قبول عرض', `/offers/${o2.data.id}/accept`, { actor: c1, method: 'PUT', quiet: true });
+    check('errors', r.status === 200, 'العميل يتفق من جديد مع المزود الذي انسحب', `الحالة ${r.status} ${r.message || ''}`);
+    await status(p2, r1, 'in_progress');
+    await both('المزود ينسحب والعميل ينهي الطلب في اللحظة نفسها: واحد فقط ينجح', () => status(p2, r1, 'open'), () => status(c1, r1, 'completed'));
+    state = await detail(c1, r1);
+    check('conflict', (state?.status === 'completed' && Boolean(state?.assigned_provider_id)) || (state?.status === 'open' && !state?.assigned_provider_id), 'الطلب بعد التعارض في حالة سليمة: مكتمل بمزوده أو مفتوح بلا مزود', `الحالة ${state?.status}، المزود ${state?.assigned_provider_id}`, 'خطير');
+
+    // -- cancelling and deleting --
+    phase('إلغاء الطلب وحذفه');
+    const r2 = await newRequest(c2, 'طلب الإلغاء');
+    const [q1, q2] = [await offer(p1, r2, 90), await offer(p3, r2, 95)];
+    r = await status(p1, r2, 'cancelled');
+    check('security', r.status === 403, 'مقدم عرض لا يلغي طلب العميل', `الحالة ${r.status}`);
+    r = await status(c2, r2, 'cancelled', { cancellation_reason: 'غيّرت رأيي' });
+    check('errors', r.status === 200 && r.data?.status === 'cancelled', 'العميل يلغي طلبه المفتوح مع ذكر السبب', `الحالة ${r.status} ${r.message || ''}`);
+    say(`${c2.label} ألغى طلبه`, { actor: c2.label });
+    list = await offersOf(c2, r2);
+    check('conflict', list.length > 0 && list.every(o => o.status === 'rejected'), 'إلغاء الطلب يغلق كل العروض المعلقة عليه', list.map(o => o.status).join('، '));
+    r = await offer(p2, r2, 80);
+    check('conflict', r.status === 409, 'لا عرض جديد على طلب ملغى', `الحالة ${r.status}`);
+    if (q1.data?.id) {
+      r = await call('قبول عرض على طلب ملغى', `/offers/${q1.data.id}/accept`, { actor: c2, method: 'PUT', quiet: true });
+      check('conflict', r.status === 409, 'لا يُقبل عرض على طلب ملغى', `الحالة ${r.status}`);
+    }
+    const r3 = await newRequest(c2, 'طلب الإلغاء مع القبول');
+    const w1 = await offer(p1, r3, 70);
+    if (r3 && w1.data?.id) {
+      await both('العميل يقبل عرضًا ويلغي الطلب في اللحظة نفسها (من جهازين): واحد فقط ينجح',
+        () => call('تعارض: قبول', `/offers/${w1.data.id}/accept`, { actor: c2, method: 'PUT', quiet: true }), () => status(c2, r3, 'cancelled'));
+      state = await detail(c2, r3);
+      list = await offersOf(c2, r3);
+      const accepted = list.filter(o => o.status === 'accepted').length;
+      check('conflict', (state?.status === 'assigned' && accepted === 1) || (state?.status === 'cancelled' && accepted === 0), 'الطلب بعد التعارض: مسند بعرض مقبول واحد، أو ملغى بلا عرض مقبول', `الحالة ${state?.status}، المقبول ${accepted}`, 'خطير');
+    }
+    const r4 = await newRequest(c3, 'طلب الإلغاء بعد الإسناد');
+    const w2 = await offer(p2, r4, 60);
+    if (r4 && w2.data?.id) {
+      await call('قبول عرض', `/offers/${w2.data.id}/accept`, { actor: c3, method: 'PUT', quiet: true });
+      r = await call('حذف طلب مسند', `/requests/${r4}`, { actor: c3, method: 'DELETE', quiet: true });
+      check('conflict', r.status === 409, 'الطلب المسند لمزود لا يُحذف', `الحالة ${r.status}`);
+      const seen = (await notesOf(p2)).length;
+      r = await status(c3, r4, 'cancelled', { cancellation_reason: 'وجدت حلًّا آخر' });
+      check('errors', r.status === 200, 'العميل يلغي طلبًا بعد إسناده', `الحالة ${r.status} ${r.message || ''}`);
+      check('gaps', (await notesOf(p2)).length > seen, 'المزود يصله إشعار عند إلغاء العميل طلبًا مسندًا له', 'ألغى العميل الطلب ولم يصل المزود أي إشعار');
+      r = await status(p2, r4, 'in_progress');
+      check('conflict', r.status === 409 || r.status === 403, 'المزود لا يبدأ تنفيذ طلب ملغى', `الحالة ${r.status}`);
+    }
+    const r5 = await newRequest(c3, 'طلب الحذف');
+    await offer(p1, r5, 50);
+    r = await call('حذف طلب', `/requests/${r5}`, { actor: c3, method: 'DELETE', quiet: true });
+    check('errors', r.status === 200, 'العميل يحذف طلبه المفتوح', `الحالة ${r.status} ${r.message || ''}`);
+    r = await call('تفاصيل طلب محذوف', `/requests/${r5}`, { actor: p1, quiet: true });
+    check('errors', r.status === 404, 'الطلب المحذوف لا يظهر بعد حذفه', `الحالة ${r.status}`);
+    r = await offer(p2, r5, 40);
+    check('conflict', [404, 409].includes(r.status), 'لا عرض على طلب محذوف', `الحالة ${r.status}`);
+
+    // -- warranty and dispute on a running job --
+    phase('الضمان والنزاع');
+    const r6 = await newRequest(c1, 'طلب الضمان والنزاع');
+    const w3 = await offer(p3, r6, 300);
+    if (r6 && w3.data?.id) {
+      await call('قبول عرض', `/offers/${w3.data.id}/accept`, { actor: c1, method: 'PUT', quiet: true });
+      r = await call('اقتراح ضمان من غير أطراف الطلب', `/requests/${r6}/warranty`, { actor: outsider, method: 'PUT', quiet: true, body: { days: 30 } });
+      check('security', r.status === 403, 'اقتراح ضمان على طلب ليس طرفًا فيه', `الحالة ${r.status}`, 'خطير');
+      r = await call('ضمان بمدة غير صالحة', `/requests/${r6}/warranty`, { actor: p3, method: 'PUT', quiet: true, body: { days: 9999 } });
+      check('errors', r.status === 400, 'مدة ضمان غير معقولة تُرفض', `الحالة ${r.status}`);
+      r = await call('اقتراح ضمان', `/requests/${r6}/warranty`, { actor: p3, method: 'PUT', body: { days: 30 } });
+      check('errors', r.status === 200 && Number(r.data?.warranty_proposed_days) === 30, 'المزود يقترح ضمانًا 30 يومًا', `الحالة ${r.status} ${r.message || ''}`);
+      r = await call('قبول ضمان اقترحه بنفسه', `/requests/${r6}/warranty/accept`, { actor: p3, method: 'POST', quiet: true });
+      check('conflict', r.status === 409, 'من اقترح الضمان لا يوافق عليه بنفسه', `الحالة ${r.status}`);
+      r = await call('قبول الضمان', `/requests/${r6}/warranty/accept`, { actor: c1, method: 'POST' });
+      check('errors', r.status === 200 && Number(r.data?.warranty_days) === 30, 'العميل يوافق فيُعتمد الضمان', `الحالة ${r.status}، الضمان ${r.data?.warranty_days}`);
+      say(`${p3.label} اقترح ضمان 30 يومًا و${c1.label} وافق`, { actor: p3.label, peer: c1.label });
+      await status(p3, r6, 'in_progress');
+      r = await call('فتح نزاع على طلب ليس طرفًا فيه', '/disputes', { actor: outsider, method: 'POST', quiet: true, body: { request_id: r6, subject: 'نزاع دخيل' } });
+      check('security', [403, 404].includes(r.status), 'فتح نزاع على طلب ليس طرفًا فيه', `الحالة ${r.status}`, 'خطير');
+      const opened = await both('الطرفان يفتحان نزاعًا على الطلب نفسه في اللحظة نفسها: نزاع واحد',
+        () => call('فتح نزاع', '/disputes', { actor: c1, method: 'POST', quiet: true, body: { request_id: r6, subject: 'العمل لم يكتمل', description: 'بقي جزء' } }),
+        () => call('فتح نزاع', '/disputes', { actor: p3, method: 'POST', quiet: true, body: { request_id: r6, subject: 'العميل لم يدفع', description: 'بعد الإنجاز' } }));
+      const disputeId = opened.find(x => x.status === 201)?.data?.id;
+      if (disputeId) {
+        say(`نزاع فُتح بين ${c1.label} و${p3.label}`, { actor: 'النظام' });
+        const seenBy = await Promise.all([c1, p3].map(person => call('عرض النزاع', `/disputes/${disputeId}`, { actor: person, quiet: true })));
+        check('errors', seenBy.every(x => x.status === 200), 'الطرفان يريان النزاع', seenBy.map(x => x.status).join('، '));
+        r = await call('عرض نزاع غيره', `/disputes/${disputeId}`, { actor: outsider, quiet: true });
+        check('security', [403, 404].includes(r.status), 'قراءة نزاع ليس طرفًا فيه', `الحالة ${r.status}`, 'خطير');
+        const said = await Promise.all([c1, p3].map(person => call('رسالة في النزاع', `/disputes/${disputeId}/messages`, { actor: person, method: 'POST', quiet: true, body: { body: 'توضيحي للإدارة' } })));
+        check('errors', said.every(x => x.status === 200 || x.status === 201), 'الطرفان يكتبان توضيحهما في النزاع', said.map(x => `${x.status} ${x.message || ''}`).join('، '));
+        r = await call('حل النزاع بحساب عادي', `/disputes/${disputeId}/resolve`, { actor: c1, method: 'PUT', quiet: true, body: { resolution: 'لصالحي' } });
+        check('security', [401, 403].includes(r.status), 'أحد الطرفين لا يحسم النزاع لنفسه', `الحالة ${r.status}`, 'خطير');
+        const frozen = Number(seenBy[0].data?.frozen) === 1 || seenBy[0].data?.frozen === true;
+        r = await status(c1, r6, 'completed');
+        check('conflict', frozen ? r.status === 409 : r.status < 500, frozen ? 'الطلب المجمَّد بنزاع لا تتغير حالته حتى تحسم الإدارة' : 'تغيير حالة طلب عليه نزاع غير مجمَّد لا يكسر الخادم', `الحالة ${r.status}`);
+      }
+    }
+
+    // -- one provider asked by several people at the same instant --
+    phase('عدة طلبات لمزود واحد في اللحظة نفسها');
+    const star = ps[ps.length - 1], askers = [...new Set([c1, c2, c3])];
+    const liveBefore = star.received.length;
+    const notesStar = (await notesOf(star)).length;
+    const asked = await Promise.all(askers.map((client, i) => call('طلب مباشر لمزود', '/requests/direct', { actor: client, method: 'POST', body: { provider_id: star.id, title: `طلب مباشر ${i + 1}`, description: 'أحتاجك اليوم' } })));
+    const rooms = asked.map(x => x.data?.conversation_id), directs = asked.map(x => x.data?.request_id);
+    check('errors', asked.every(x => x.status === 200) && new Set(rooms).size === askers.length && new Set(directs).size === askers.length, `${askers.length} عملاء يطلبون المزود نفسه معًا: لكل واحد طلبه ومحادثته المستقلة`, `الحالات ${asked.map(x => x.status).join('، ')}؛ محادثات ${new Set(rooms).size}، طلبات ${new Set(directs).size}`, 'خطير');
+    say(`${askers.length} عملاء طلبوا ${star.label} في اللحظة نفسها`, { actor: 'النظام', peer: star.label });
+    if (asked.every(x => x.status === 200)) {
+      check('gaps', (await notesOf(star)).length >= notesStar + askers.length, 'المزود يصله إشعار مستقل عن كل طلب وصله', `زادت إشعاراته ${(await notesOf(star)).length - notesStar} من ${askers.length}`);
+      const first = await Promise.all(askers.map((client, i) => message(client, rooms[i], `السلام عليكم، أنا ${client.name} وأحتاجك`)));
+      await sleep(1200);
+      const mine = await call('قائمة المحادثات', '/chat/conversations', { actor: star, quiet: true });
+      const listed = (Array.isArray(mine.data) ? mine.data : mine.data?.items || mine.data?.conversations || []).filter(c => rooms.includes(c.id));
+      check('errors', listed.length === askers.length, 'المزود يرى محادثة مستقلة لكل عميل في قائمته', `ظهر ${listed.length} من ${askers.length}`);
+      check('gaps', listed.every(c => Number(c.unread_count ?? c.unread ?? 0) >= 1), 'كل محادثة تُظهر للمزود أن فيها رسالة لم تُقرأ', listed.map(c => c.unread_count ?? c.unread ?? '؟').join('، '));
+      if (star.socket?.connected) {
+        const got = star.received.slice(liveBefore);
+        check('errors', first.every(x => got.some(m => Number(m.id) === Number(x.data?.id))), 'رسائل العملاء الثلاثة وصلت المزود فورًا كلها', `وصل ${got.length}`, 'خطير');
+        check('conflict', first.every((x, i) => got.filter(m => Number(m.id) === Number(x.data?.id)).every(m => Number(m.conversation_id) === Number(rooms[i]))), 'كل رسالة وصلت في محادثة صاحبها، بلا خلط بين العملاء', '', 'خطير');
+      }
+      const marks = askers.map(client => client.received.length);
+      const replies = await Promise.all(askers.map((client, i) => message(star, rooms[i], `أهلًا ${client.name}، أرتب وقتك وأرد عليك`)));
+      await sleep(1200);
+      check('errors', replies.every(x => x.status === 201), 'المزود يرد على العملاء الثلاثة، كلٌّ في محادثته', replies.map(x => x.status).join('، '));
+      const leaked = askers.filter((client, i) => client.socket?.connected && client.received.slice(marks[i]).some(m => replies.some((x, j) => j !== i && Number(x.data?.id) === Number(m.id))));
+      check('security', leaked.length === 0, 'لا عميل تصله ردود المزود على عميل آخر', `${leaked.length} عميل وصله رد ليس له`, 'خطير');
+      r = await call('قراءة محادثة عميل آخر مع المزود نفسه', `/chat/conversations/${rooms[1]}/messages`, { actor: askers[0], quiet: true });
+      check('security', [403, 404].includes(r.status), 'عميل لا يقرأ محادثة عميل آخر مع المزود نفسه', `الحالة ${r.status}`, 'خطير');
+      // All of them agree with the provider at once: each request is its own job.
+      const agreed = await Promise.all(askers.map((client, i) => call('اعتماد المزود', `/requests/${directs[i]}/agree`, { actor: client, method: 'POST', quiet: true, body: { provider_id: star.id } })));
+      const jobsNow = await Promise.all(askers.map((client, i) => detail(client, directs[i])));
+      check('conflict', agreed.every(x => x.status === 200) && jobsNow.every(j => j?.status === 'assigned' && Number(j?.assigned_provider_id) === Number(star.id)), 'العملاء الثلاثة يعتمدون المزود معًا: كل طلب يُسند له مستقلًّا', `الحالات ${agreed.map(x => x.status).join('، ')}`);
+      say(`${star.label} صار عنده ${jobsNow.filter(j => j?.status === 'assigned').length} طلبات مسندة في وقت واحد`, { actor: star.label });
+      finding('gaps', 'ملاحظة', 'المزود يُسند له أي عدد من الطلبات في وقت واحد', `لا حد لعدد الطلبات الجارية عند مزود واحد، ولا تنبيه للعميل بأن المزود مشغول بـ ${askers.length - 1} طلبات أخرى. قرار للمالك: يبقى كذلك أم يُضاف حد أو تنبيه.`);
+    }
+    // The same person asks the same provider twice at the same instant (two taps, two devices).
+    const twin = await Promise.all([0, 1].map(() => call('طلب مباشر مكرر', '/requests/direct', { actor: c2, method: 'POST', quiet: true, body: { provider_id: p1.id, title: 'طلب مكرر', description: 'نقرتان' } })));
+    check('conflict', twin.every(x => x.status === 200) && twin[0].data?.request_id === twin[1].data?.request_id, 'العميل نفسه يطلب المزود نفسه مرتين في اللحظة نفسها: طلب واحد لا اثنان', `الحالات ${twin.map(x => x.status).join('، ')}؛ الطلبان ${twin.map(x => x.data?.request_id).join(' و')}`);
+    // Several offers land on one request at the same instant.
+    const r7 = await newRequest(c1, 'طلب العروض المتزامنة');
+    const seenNotes = (await notesOf(c1)).length;
+    const rain = await Promise.all(ps.slice(0, Math.min(5, ps.length)).map((provider, i) => offer(provider, r7, 100 + i)));
+    list = await offersOf(c1, r7);
+    check('conflict', rain.every(x => x.status === 201) && list.length === rain.length, `${rain.length} مزودين يقدّمون عروضهم على الطلب نفسه في اللحظة نفسها: كلها تُسجَّل`, `سُجّل ${list.length} من ${rain.length}؛ الحالات ${rain.map(x => x.status).join('، ')}`);
+    check('gaps', (await notesOf(c1)).length >= seenNotes + rain.length, 'العميل يصله إشعار عن كل عرض وصله', `زادت إشعاراته ${(await notesOf(c1)).length - seenNotes} من ${rain.length}`);
   }
 
   // ---- security: everyone tries what is not theirs ------------------------------------------------
@@ -764,6 +980,7 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
     await marketplace();
     await chats();
     await completion();
+    await lifecycle();
     await theRush();
     if (rush) await connectSockets(); // the rush closed every live connection; the people reconnect
     await security();

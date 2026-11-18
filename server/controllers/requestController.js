@@ -2,7 +2,7 @@ const Request = require('../models/Request');
 const contactWindow = require('../utils/contactWindow');
 const Conversation = require('../models/Conversation');
 const Offer = require('../models/Offer');
-const { query, queryOne } = require('../config/database');
+const { query, queryOne, transaction } = require('../config/database');
 const notificationService = require('../services/notificationService');
 const { success, created, error, notFound, forbidden, paginate } = require('../utils/apiResponse');
 const asyncHandler = require('../utils/asyncHandler');
@@ -176,6 +176,18 @@ const updateStatus = asyncHandler(async (req, res) => {
     }).catch(() => {});
   }
 
+  // The owner cancelled a request that was already given to a provider: tell that provider, who
+  // otherwise only finds out by opening the request (AYK-258, found by the simulator).
+  if (status === 'cancelled' && request.assigned_provider_id && Number(request.assigned_provider_id) !== Number(req.user.id)) {
+    await notificationService.notifyUser(request.assigned_provider_id, {
+      type: 'request_cancelled',
+      title: req.t('notif_request_cancelled_title'),
+      body: updated.title || '',
+      link: `/requests/${updated.id}`,
+      data: { request_id: updated.id },
+    }).catch(() => {});
+  }
+
   if (status === 'completed' && updated.assigned_provider_id && updated.client_id) {
     await notificationService.notifyUser(updated.client_id, {
       type: 'request_completed',
@@ -261,11 +273,16 @@ const direct = asyncHandler(async (req, res) => {
     WHERE u.id = ? AND u.role = 'provider' AND u.deleted_at IS NULL AND u.is_active = 1 AND u.is_blocked = 0`, [providerId]);
   if (!provider) return notFound(res);
   if (await require('./userBlockController').blockedRefusal(req, res, providerId)) return undefined;
-  // An open direct contact with the same provider is reopened rather than duplicated.
-  const existing = await queryOne(`SELECT id FROM requests WHERE client_id = ? AND direct_provider_id = ? AND deleted_at IS NULL
-    AND status IN ('open', 'assigned', 'in_progress') ORDER BY id DESC LIMIT 1`, [req.user.id, providerId]);
-  let requestId = existing?.id;
-  if (!requestId) {
+  // An open direct contact with the same provider is reopened rather than duplicated. Two taps (or
+  // two devices) at the same instant wait for each other here, so the second finds the first's
+  // request instead of making its own (AYK-258, found by the simulator).
+  let existing = null, requestId = null;
+  await transaction(async conn => {
+    await conn.query('SELECT pg_advisory_xact_lock(?, ?)', [req.user.id, providerId]);
+    existing = await queryOne(`SELECT id FROM requests WHERE client_id = ? AND direct_provider_id = ? AND deleted_at IS NULL
+      AND status IN ('open', 'assigned', 'in_progress') ORDER BY id DESC LIMIT 1`, [req.user.id, providerId]);
+    requestId = existing?.id;
+    if (requestId) return;
     const categoryId = req.body?.category_id || provider.category_id || null;
     try {
       requestId = await Request.create({ client_id: req.user.id, category_id: categoryId, title: req.body?.title, description: req.body?.description });
@@ -275,7 +292,7 @@ const direct = asyncHandler(async (req, res) => {
     }
     await query('UPDATE requests SET direct_provider_id = ?, reminders_off = 1 WHERE id = ?', [providerId, requestId]);
     await Offer.create({ request_id: requestId, provider_id: providerId, contact: true });
-  }
+  });
   const request = await Request.findById(requestId);
   const conversationId = await Conversation.findOrCreateBetween(req.user.id, providerId, requestId, {fresh:req.body?.fresh === true});
   success(res, { request_id: requestId, conversation_id: conversationId });
