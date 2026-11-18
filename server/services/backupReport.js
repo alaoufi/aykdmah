@@ -20,6 +20,10 @@ function config() {
   return { endpoint, bucket: process.env.R2_BACKUPS_BUCKET || 'aykdmh-backups', keyId, secret };
 }
 
+// The daily timer (setup-server.sh) starts at 00:30 UTC; a backup that reached R2 within the next
+// 90 minutes is the scheduled one, any other is a manual run.
+const isDaily = iso => { const d = new Date(iso); const m = d.getUTCHours() * 60 + d.getUTCMinutes(); return m >= 30 && m <= 120; };
+
 let cache = null; // { at, value }
 async function status({ fresh = false } = {}) {
   const cfg = config();
@@ -31,6 +35,7 @@ async function status({ fresh = false } = {}) {
     const byNewest = (a, b) => String(b.modified).localeCompare(String(a.modified));
     backups.sort(byNewest); verified.sort(byNewest);
     const newest = backups[0] || null;
+    const tested = new Set(verified.map(v => path.basename(v.key).replace(/\.json$/, '')));
     const ageHours = newest ? (Date.now() - Date.parse(newest.modified)) / 3600e3 : null;
     value = {
       configured: true, bucket: cfg.bucket, expect_hours: EXPECT_HOURS,
@@ -39,7 +44,10 @@ async function status({ fresh = false } = {}) {
       newest: newest && { name: path.basename(newest.key), modified: newest.modified, size: newest.size },
       count: backups.length, total_bytes: backups.reduce((sum, o) => sum + o.size, 0),
       last_verified: verified[0] ? { modified: verified[0].modified, backup: path.basename(verified[0].key).replace(/\.json$/, '') } : null,
-      backups: backups.map(o => ({ key: o.key, name: path.basename(o.key), size: o.size, modified: o.modified })),
+      backups: backups.map(o => ({
+        key: o.key, name: path.basename(o.key), size: o.size, modified: o.modified,
+        verified: tested.has(path.basename(o.key)), automatic: isDaily(o.modified),
+      })),
     };
   } catch (err) {
     value = { configured: true, bucket: cfg.bucket, error: err.status === 403 ? 'access_denied' : err.status ? `r2_${err.status}` : 'r2_unreachable', backups: [] };
@@ -75,4 +83,4 @@ async function isListed(key) {
 
 function open(key, { signal } = {}) { return s3.get(config(), key, { signal }); }
 
-module.exports = { config, status, linkToken, readToken, isListed, open, _internal: { LINK_SECONDS, reset: () => { cache = null; } } };
+module.exports = { config, status, linkToken, readToken, isListed, open, _internal: { LINK_SECONDS, isDaily, reset: () => { cache = null; } } };

@@ -2767,6 +2767,11 @@
     "download": "تنزيل",
     "under_hour": "قبل أقل من ساعة",
     "hours_ago": "قبل {{count}} ساعة",
-    "days_ago": "قبل {{count}} يومًا"
+    "days_ago": "قبل {{count}} يومًا",
+    "newest_tag": "الأحدث",
+    "verified_tag": "✓ اختُبر استرجاعها",
+    "auto_tag": "يومية تلقائية",
+    "manual_tag": "يدوية",
+    "row_size": "الحجم {{size}}"
   }
 }

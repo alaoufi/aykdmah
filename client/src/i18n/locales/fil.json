@@ -2767,6 +2767,11 @@
     "download": "I-download",
     "under_hour": "Wala pang isang oras",
     "hours_ago": "{{count}} oras ang nakalipas",
-    "days_ago": "{{count}} araw ang nakalipas"
+    "days_ago": "{{count}} araw ang nakalipas",
+    "newest_tag": "Pinakabago",
+    "verified_tag": "✓ Nasubok ang pag-restore",
+    "auto_tag": "Araw-araw, awtomatiko",
+    "manual_tag": "Manwal",
+    "row_size": "Laki {{size}}"
   }
 }

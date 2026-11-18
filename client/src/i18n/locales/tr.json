@@ -2767,6 +2767,11 @@
     "download": "İndir",
     "under_hour": "Bir saatten az önce",
     "hours_ago": "{{count}} saat önce",
-    "days_ago": "{{count}} gün önce"
+    "days_ago": "{{count}} gün önce",
+    "newest_tag": "En yeni",
+    "verified_tag": "✓ Geri yükleme test edildi",
+    "auto_tag": "Günlük, otomatik",
+    "manual_tag": "Elle",
+    "row_size": "Boyut {{size}}"
   }
 }

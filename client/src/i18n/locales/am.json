@@ -2767,6 +2767,11 @@
     "download": "አውርድ",
     "under_hour": "ከአንድ ሰዓት በታች በፊት",
     "hours_ago": "ከ{{count}} ሰዓት በፊት",
-    "days_ago": "ከ{{count}} ቀን በፊት"
+    "days_ago": "ከ{{count}} ቀን በፊት",
+    "newest_tag": "አዲሱ",
+    "verified_tag": "✓ መመለስ ተፈትኗል",
+    "auto_tag": "ዕለታዊ፣ ራስ-ሰር",
+    "manual_tag": "በእጅ",
+    "row_size": "መጠን {{size}}"
   }
 }

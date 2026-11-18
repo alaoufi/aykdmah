@@ -2767,6 +2767,11 @@
     "download": "Unduh",
     "under_hour": "Kurang dari satu jam lalu",
     "hours_ago": "{{count}} jam lalu",
-    "days_ago": "{{count}} hari lalu"
+    "days_ago": "{{count}} hari lalu",
+    "newest_tag": "Terbaru",
+    "verified_tag": "✓ Pemulihan diuji",
+    "auto_tag": "Harian, otomatis",
+    "manual_tag": "Manual",
+    "row_size": "Ukuran {{size}}"
   }
 }

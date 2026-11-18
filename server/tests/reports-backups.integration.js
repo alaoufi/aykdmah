@@ -92,6 +92,14 @@ test('backups report: off without a key, then the backups, the restore test, and
   assert.equal(report.can_download, false);
   assert.ok(!JSON.stringify(report).includes('f'.repeat(64)));
   assert.ok(report.backups.every(o => o.key.startsWith('daily/')));
+  // AYK-277: each backup says whether its restore was tested and whether the daily timer made it.
+  assert.deepEqual(report.backups.map(o => o.verified), [true, false]);
+  assert.ok(report.backups.every(o => typeof o.automatic === 'boolean'));
+  const { isDaily } = backupReport._internal;
+  assert.equal(isDaily('2026-11-18T00:31:37Z'), true);
+  assert.equal(isDaily('2026-11-18T01:59:00Z'), true);
+  assert.equal(isDaily('2026-11-18T17:07:11Z'), false);
+  assert.equal(isDaily('2026-11-17T00:10:00Z'), false);
 
   // Only the main administrator gets a link, only for a listed backup.
   await api('/admin/reports/backups/link', { user: users.auditor, method: 'POST', body: { key: report.backups[0].key }, expected: 403 });

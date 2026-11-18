@@ -2767,6 +2767,11 @@
     "download": "ڈاؤن لوڈ",
     "under_hour": "ایک گھنٹے سے کم پہلے",
     "hours_ago": "{{count}} گھنٹے پہلے",
-    "days_ago": "{{count}} دن پہلے"
+    "days_ago": "{{count}} دن پہلے",
+    "newest_tag": "تازہ ترین",
+    "verified_tag": "✓ بحالی آزمائی گئی",
+    "auto_tag": "روزانہ، خودکار",
+    "manual_tag": "دستی",
+    "row_size": "سائز {{size}}"
   }
 }

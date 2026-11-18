@@ -2767,6 +2767,11 @@
     "download": "ডাউনলোড",
     "under_hour": "এক ঘণ্টার কম আগে",
     "hours_ago": "{{count}} ঘণ্টা আগে",
-    "days_ago": "{{count}} দিন আগে"
+    "days_ago": "{{count}} দিন আগে",
+    "newest_tag": "সর্বশেষ",
+    "verified_tag": "✓ পুনরুদ্ধার পরীক্ষিত",
+    "auto_tag": "দৈনিক, স্বয়ংক্রিয়",
+    "manual_tag": "ম্যানুয়াল",
+    "row_size": "আকার {{size}}"
   }
 }

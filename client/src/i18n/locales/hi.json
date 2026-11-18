@@ -2767,6 +2767,11 @@
     "download": "डाउनलोड",
     "under_hour": "एक घंटे से कम पहले",
     "hours_ago": "{{count}} घंटे पहले",
-    "days_ago": "{{count}} दिन पहले"
+    "days_ago": "{{count}} दिन पहले",
+    "newest_tag": "सबसे नया",
+    "verified_tag": "✓ पुनर्स्थापना जाँची गई",
+    "auto_tag": "दैनिक, स्वचालित",
+    "manual_tag": "मैनुअल",
+    "row_size": "आकार {{size}}"
   }
 }

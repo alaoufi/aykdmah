@@ -2767,6 +2767,11 @@
     "download": "Download",
     "under_hour": "Less than an hour ago",
     "hours_ago": "{{count}} hours ago",
-    "days_ago": "{{count}} days ago"
+    "days_ago": "{{count}} days ago",
+    "newest_tag": "Newest",
+    "verified_tag": "✓ Restore tested",
+    "auto_tag": "Daily, automatic",
+    "manual_tag": "Manual",
+    "row_size": "Size {{size}}"
   }
 }
