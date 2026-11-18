@@ -54,8 +54,10 @@ async function prepareReviewAccounts(password, { seedOnly = false } = {}) {
           governorate_id = COALESCE(governorate_id, ?), city_id = COALESCE(city_id, ?), district_id = COALESCE(district_id, ?)
           WHERE id = ?`, [area.country_id, area.region_id, area.governorate_id, area.city_id, area.district_id, id]);
       } else if (id) {
+        // A new password also lifts the five-wrong-passwords lock (AYK-291: a password check against
+        // old candidates locked apple_review_client, and App Review would have met the lock).
         await db.query(`UPDATE users SET password_hash = ?, role = ?, is_active = 1, is_blocked = 0, deleted_at = NULL,
-          auth_version = auth_version + 1 WHERE id = ?`, [hash, account.role, id]);
+          failed_logins = 0, login_locked_at = NULL, auth_version = auth_version + 1 WHERE id = ?`, [hash, account.role, id]);
       } else {
         id = (await db.query(`INSERT INTO users (full_name, username, email, password_hash, role, is_active, is_verified,
             email_verified_at, country_id, region_id, governorate_id, city_id, district_id)
