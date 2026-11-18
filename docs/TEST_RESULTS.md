@@ -2,7 +2,7 @@
 
 - **السبب:** `Protected` في `routes.jsx` يحوّل كل `must_change_password = 1` إلى `/profile`، وهي جلسة الموقع (`lsm_token`) لا جلسة الإدارة (`lsm_admin_token`)، فيظهر المدير زائرًا.
 - **الإصلاح:** `passwordChangeRedirect` في `client/src/utils/passwordGate.js`: جلسة الإدارة إلى `/admin/password`، والموقع إلى `/profile` كما كان. الخادم لم يتغير (`PUT /auth/password` يعمل بجلسة الإدارة ويعيد جلسة إدارة جديدة).
-- **الاختبارات:** واجهة 163/167 (منها `passwordGate.test.mjs` الجديد)، خادم 71/71، تكامل 273/273 على PostgreSQL 16 محلي، والبناء ناجح.
+- **الاختبارات:** واجهة 163/163 (منها `passwordGate.test.mjs` الجديد)، خادم 71/71، تكامل 273/273 على PostgreSQL 16 محلي، والبناء ناجح.
 - **في المتصفح** (Chromium، قاعدة جديدة بـ `seed.js` و`BOOTSTRAP_ADMIN_*`، الخادم بوضع production): الدخول من `/admin/login` ينتهي في `/admin/password`، وفتح `/admin/users` يعيد إليها،
   وبعد تغيير الكلمة تظهر رسالة النجاح ويُفتح `/admin/users`، و`must_change_password` في القاعدة صار 0.
 - **`npm run i18n:check` يفشل قبل هذا التغيير وبعده** (`interpolation mismatch` في `notification.pair_messages` و`notification.pair_new` في 10 لغات)؛ لم يُضف هنا أي نص جديد.
