@@ -53,6 +53,7 @@ const AdminVerificationsPage = lazy(() => import('./pages/admin/AdminVerificatio
 const AdminAdsPage = lazy(() => import('./pages/admin/AdminAdsPage'));
 const AdminActivityLogsPage = lazy(() => import('./pages/admin/AdminActivityLogsPage'));
 const AdminSecurityReportPage = lazy(() => import('./pages/admin/AdminSecurityReportPage'));
+const AdminBackupsReportPage = lazy(() => import('./pages/admin/AdminBackupsReportPage'));
 const AdminReviewsPage = lazy(() => import('./pages/admin/AdminReviewsPage'));
 const AdminDisputesPage = lazy(() => import('./pages/admin/AdminDisputesPage'));
 const AdminIntegrationsPage = lazy(() => import('./pages/admin/AdminIntegrationsPage'));
@@ -234,6 +235,7 @@ export default function AppRoutes() {
           <Route path="/admin/ads" element={<AdminAdsPage />} />
           <Route path="/admin/activity-logs" element={<AdminActivityLogsPage />} />
           <Route path="/admin/security" element={<AdminSecurityReportPage />} />
+          <Route path="/admin/reports/backups" element={<AdminBackupsReportPage />} />
           <Route path="/admin/reviews" element={<AdminReviewsPage />} />
           <Route path="/admin/disputes" element={<AdminDisputesPage />} />
           <Route path="/admin/integrations" element={<AdminIntegrationsPage />} />

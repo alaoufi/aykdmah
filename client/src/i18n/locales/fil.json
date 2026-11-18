@@ -1290,7 +1290,9 @@
     "sec_event_flood_banned": "Hinarang ang address dahil sa flooding",
     "sec_event_repeat_banned": "Isang araw na harang sa paulit-ulit na lumalabag",
     "visitors_title": "Bilang ng bisita",
-    "visitors_hint": "Ipinapakita sa lahat sa ibaba ng site at mga app, o sa admin lamang, ayon sa setting na «Ipakita sa lahat ang bilang ng bisita at view». Isang beses bawat araw binibilang ang bawat bisita."
+    "visitors_hint": "Ipinapakita sa lahat sa ibaba ng site at mga app, o sa admin lamang, ayon sa setting na «Ipakita sa lahat ang bilang ng bisita at view». Isang beses bawat araw binibilang ang bawat bisita.",
+    "reports_group": "Mga ulat",
+    "backups_report": "Ulat ng mga backup"
   },
   "errors": {
     "generic": "May nagkamali",
@@ -2738,5 +2740,32 @@
     "action_choose_both": "Piliin ang «Pareho»",
     "title_chat_closed": "Sarado ang usapan",
     "fix_chat_closed": "Tapos na ang oras ng pakikipag-ugnayan sa usapang ito. Magsimula ng bagong usapan sa parehong tao para mag-message o tumawag."
+  },
+  "backups_report": {
+    "subtitle": "Ang mga naka-encrypt na backup ng site sa Cloudflare R2: ang pinakabago, kung nasa oras, at ang huling matagumpay na restore test.",
+    "refresh": "I-refresh",
+    "off_title": "Hindi pa naka-set up ang ulat",
+    "off_body": "Kailangan ng read-only na key para sa backup storage sa server (deploy/r2-backups-read-setup.sh). Normal na tumatakbo ang mga backup.",
+    "this_site": "Ang site na ito",
+    "state_ok": "✓ Nasa oras",
+    "state_late": "⚠ Huli",
+    "state_none": "✗ Walang backup",
+    "state_error": "✗ Error",
+    "error_denied": "Tinanggihan ng R2 ang read key: tiyaking read-only ito sa backup storage at limitado sa address ng server.",
+    "error_reach": "Hindi maabot ang R2 ngayon.",
+    "late_hint": "Walang dumating na backup nang higit {{count}} oras.",
+    "newest": "Pinakabagong backup",
+    "newest_date": "Petsa nito",
+    "newest_size": "Laki nito",
+    "count": "Mga naka-save na backup",
+    "total": "Kabuuang espasyo",
+    "last_verified": "Huling matagumpay na restore test",
+    "not_recorded": "Hindi naitala",
+    "bucket": "Storage",
+    "encrypted_note": "Naka-encrypt ang mga backup at nabubuksan lamang ng encryption key ng may-ari.",
+    "download": "I-download",
+    "under_hour": "Wala pang isang oras",
+    "hours_ago": "{{count}} oras ang nakalipas",
+    "days_ago": "{{count}} araw ang nakalipas"
   }
 }

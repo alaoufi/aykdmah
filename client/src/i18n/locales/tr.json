@@ -1290,7 +1290,9 @@
     "sec_event_flood_banned": "Yoğun istek nedeniyle adres engellendi",
     "sec_event_repeat_banned": "Tekrarlayan ihlal için bir gün engel",
     "visitors_title": "Ziyaretçi sayacı",
-    "visitors_hint": "Ayarlardaki «Ziyaretçi sayacını ve görüntülenmeleri herkese göster» seçeneğine göre sitenin ve uygulamaların altında herkese ya da yalnızca yöneticilere görünür. Her ziyaretçi günde bir kez sayılır."
+    "visitors_hint": "Ayarlardaki «Ziyaretçi sayacını ve görüntülenmeleri herkese göster» seçeneğine göre sitenin ve uygulamaların altında herkese ya da yalnızca yöneticilere görünür. Her ziyaretçi günde bir kez sayılır.",
+    "reports_group": "Raporlar",
+    "backups_report": "Yedekleme raporu"
   },
   "errors": {
     "generic": "Bir şey ters gitti",
@@ -2738,5 +2740,32 @@
     "action_choose_both": "«İkisi de»yi seç",
     "title_chat_closed": "Sohbet kapalı",
     "fix_chat_closed": "Bu sohbetin iletişim süresi doldu. Mesaj atmak veya aramak için aynı kişiyle yeni bir sohbet başlatın."
+  },
+  "backups_report": {
+    "subtitle": "Sitenin Cloudflare R2'deki şifreli yedekleri: en yenisi, zamanında olup olmadığı ve son başarılı geri yükleme testi.",
+    "refresh": "Yenile",
+    "off_title": "Rapor henüz kurulmadı",
+    "off_body": "Sunucuda yedek deposu için salt okunur bir anahtar gerekir (deploy/r2-backups-read-setup.sh). Yedekler her zamanki gibi çalışıyor.",
+    "this_site": "Bu site",
+    "state_ok": "✓ Zamanında",
+    "state_late": "⚠ Gecikmiş",
+    "state_none": "✗ Yedek yok",
+    "state_error": "✗ Hata",
+    "error_denied": "R2 okuma anahtarını reddetti: yedek deposunda salt okunur ve sunucu adresiyle sınırlı olduğundan emin olun.",
+    "error_reach": "Şu an R2'ye ulaşılamıyor.",
+    "late_hint": "{{count}} saatten uzun süredir yedek gelmedi.",
+    "newest": "En yeni yedek",
+    "newest_date": "Tarihi",
+    "newest_size": "Boyutu",
+    "count": "Saklanan yedekler",
+    "total": "Toplam alan",
+    "last_verified": "Son başarılı geri yükleme testi",
+    "not_recorded": "Kaydedilmedi",
+    "bucket": "Depo",
+    "encrypted_note": "Yedekler şifrelidir ve yalnızca sahibin şifreleme anahtarıyla açılır.",
+    "download": "İndir",
+    "under_hour": "Bir saatten az önce",
+    "hours_ago": "{{count}} saat önce",
+    "days_ago": "{{count}} gün önce"
   }
 }

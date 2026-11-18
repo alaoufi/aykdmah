@@ -480,3 +480,14 @@ export async function adminResetText(lang, key, allLanguages = false) {
   const { data } = await api.post('/admin/texts/reset', { lang, key, all_languages: allLanguages });
   return data.data;
 }
+
+// Reports (AYK-271): the backups report, and a two-minute download link for one backup.
+export async function getBackupsReport(params = {}) {
+  const { data } = await api.get('/admin/reports/backups', { params });
+  return data.data;
+}
+
+export async function getBackupLink(key) {
+  const { data } = await api.post('/admin/reports/backups/link', { key });
+  return data.data.url;
+}

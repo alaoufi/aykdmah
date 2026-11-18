@@ -39,6 +39,7 @@
 | 14 | **في Cloudflare (أنت):** مفتاح **للقراءة فقط** على `aykdmh-backups`، مقيّد بعنوان الخادم | — |
 | 15 | إضافة «أي خدمة» لها | `ssh -t root@84.247.166.216 "bash /opt/edge/backups-monitor/add-site.sh aykdmh"` |
 | 16 | **بموافقتك:** سجل DNS لـ `backups.aykdmh.com` إلى الخادم، ثم دمج الفرع `site/backups-monitor` في `server-edge`، ثم `bash scripts/reload.sh` | تجهزها الجلسة يومها |
+| 16أ | **تقرير النسخ في لوحة التحكم:** المفتاح نفسه للقراءة فقط (الخطوة 14)، ثم الخطوة 4 | `ssh -t root@84.247.166.216 "cd /opt/aykdmh && bash deploy/r2-backups-read-setup.sh"` |
 
 ## المرحلة 5: المحاكي على الخادم (اختياري)
 | # | الخطوة | الأمر |

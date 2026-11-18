@@ -1290,7 +1290,9 @@
     "sec_event_flood_banned": "Alamat diblokir karena membanjiri",
     "sec_event_repeat_banned": "Pelanggar berulang diblokir sehari",
     "visitors_title": "Penghitung pengunjung",
-    "visitors_hint": "Ditampilkan untuk semua di bagian bawah situs dan aplikasi, atau hanya untuk admin, sesuai pengaturan «Tampilkan penghitung pengunjung dan tayangan untuk semua». Setiap pengunjung dihitung sekali sehari."
+    "visitors_hint": "Ditampilkan untuk semua di bagian bawah situs dan aplikasi, atau hanya untuk admin, sesuai pengaturan «Tampilkan penghitung pengunjung dan tayangan untuk semua». Setiap pengunjung dihitung sekali sehari.",
+    "reports_group": "Laporan",
+    "backups_report": "Laporan cadangan"
   },
   "errors": {
     "generic": "Sesuatu yang salah",
@@ -2738,5 +2740,32 @@
     "action_choose_both": "Pilih «Keduanya»",
     "title_chat_closed": "Percakapan ditutup",
     "fix_chat_closed": "Waktu kontak percakapan ini telah berakhir. Mulai percakapan baru dengan orang yang sama untuk mengirim pesan atau menelepon."
+  },
+  "backups_report": {
+    "subtitle": "Cadangan terenkripsi situs di Cloudflare R2: yang terbaru, ketepatan waktu, dan uji pemulihan terakhir yang berhasil.",
+    "refresh": "Muat ulang",
+    "off_title": "Laporan belum diaktifkan",
+    "off_body": "Perlu kunci hanya-baca untuk penyimpanan cadangan di server (deploy/r2-backups-read-setup.sh). Cadangan tetap berjalan normal.",
+    "this_site": "Situs ini",
+    "state_ok": "✓ Tepat waktu",
+    "state_late": "⚠ Terlambat",
+    "state_none": "✗ Tidak ada cadangan",
+    "state_error": "✗ Galat",
+    "error_denied": "R2 menolak kunci baca: pastikan hanya-baca pada penyimpanan cadangan dan dibatasi ke alamat server.",
+    "error_reach": "R2 tidak dapat dijangkau sekarang.",
+    "late_hint": "Tidak ada cadangan selama lebih dari {{count}} jam.",
+    "newest": "Cadangan terbaru",
+    "newest_date": "Tanggalnya",
+    "newest_size": "Ukurannya",
+    "count": "Cadangan tersimpan",
+    "total": "Total ruang",
+    "last_verified": "Uji pemulihan terakhir yang berhasil",
+    "not_recorded": "Tidak tercatat",
+    "bucket": "Penyimpanan",
+    "encrypted_note": "Cadangan terenkripsi dan hanya terbuka dengan kunci enkripsi milik pemilik.",
+    "download": "Unduh",
+    "under_hour": "Kurang dari satu jam lalu",
+    "hours_ago": "{{count}} jam lalu",
+    "days_ago": "{{count}} hari lalu"
   }
 }

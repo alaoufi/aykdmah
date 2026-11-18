@@ -21,10 +21,12 @@ const NAV_GROUPS = [
     ],
   },
   {
-    // AYK-242: security has its own section near the top (it was under ads).
-    label: 'admin.sec_group',
+    // AYK-271 (the owner's request): one "Reports" section near the top for every report, today
+    // security, backups and the activity log; a future report is one more line here.
+    label: 'admin.reports_group',
     items: [
       { to: '/admin/security', icon: '🛡️', labelKey: 'admin.security_report', perm: 'activity_logs.view' },
+      { to: '/admin/reports/backups', icon: '🗄️', labelKey: 'admin.backups_report', perm: 'activity_logs.view' },
       { to: '/admin/activity-logs', icon: '📜', labelKey: 'admin.activity_logs',  perm: 'activity_logs.view' },
     ],
   },

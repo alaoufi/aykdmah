@@ -103,6 +103,10 @@ router.delete('/reviews/:id',       requirePermission('reviews.manage'), c.remov
 
 router.get('/activity-logs', requirePermission('activity_logs.view'), c.activityLogs);
 router.get('/security-report', requirePermission('activity_logs.view'), c.securityReport);
+// Reports (AYK-271): the backups report; downloading one is for the main administrator only.
+const reports = require('../controllers/reportsController');
+router.get('/reports/backups', requirePermission('activity_logs.view'), reports.backups);
+router.post('/reports/backups/link', requirePermission('activity_logs.view'), reports.backupLink);
 
 // System maintenance — sensitive
 router.post('/system/migrate', requirePermission('settings.manage'), c.applyMigrations);

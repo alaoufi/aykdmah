@@ -1290,7 +1290,9 @@
     "sec_event_flood_banned": "Address banned for flooding",
     "sec_event_repeat_banned": "Repeat offender banned for a day",
     "visitors_title": "Visitor counter",
-    "visitors_hint": "Shown to everyone at the bottom of the site and apps, or to admins only, by the setting «Show the visitor counter and views to everyone». Each visitor counts once a day."
+    "visitors_hint": "Shown to everyone at the bottom of the site and apps, or to admins only, by the setting «Show the visitor counter and views to everyone». Each visitor counts once a day.",
+    "reports_group": "Reports",
+    "backups_report": "Backups report"
   },
   "errors": {
     "generic": "Something went wrong",
@@ -2738,5 +2740,32 @@
     "action_choose_both": "Choose «Both»",
     "title_chat_closed": "The conversation is closed",
     "fix_chat_closed": "The contact time of this conversation has ended. Start a new conversation with the same person to message or call them."
+  },
+  "backups_report": {
+    "subtitle": "The site's encrypted backups in Cloudflare R2: the newest, whether they are on time, and the last successful restore test.",
+    "refresh": "Refresh",
+    "off_title": "The report is not set up yet",
+    "off_body": "It needs a read-only key for the backups bucket on the server (deploy/r2-backups-read-setup.sh). The backups themselves run as usual.",
+    "this_site": "This site",
+    "state_ok": "✓ On time",
+    "state_late": "⚠ Late",
+    "state_none": "✗ No backups",
+    "state_error": "✗ Error",
+    "error_denied": "R2 refused the read key: check it is read-only on the backups bucket and limited to the server's address.",
+    "error_reach": "R2 cannot be reached right now.",
+    "late_hint": "No backup has arrived for more than {{count}} hours.",
+    "newest": "Newest backup",
+    "newest_date": "Its date",
+    "newest_size": "Its size",
+    "count": "Backups kept",
+    "total": "Total space",
+    "last_verified": "Last successful restore test",
+    "not_recorded": "Not recorded",
+    "bucket": "Bucket",
+    "encrypted_note": "Backups are encrypted and open only with the encryption key the owner keeps.",
+    "download": "Download",
+    "under_hour": "Less than an hour ago",
+    "hours_ago": "{{count}} hours ago",
+    "days_ago": "{{count}} days ago"
   }
 }
