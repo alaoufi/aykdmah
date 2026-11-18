@@ -37,7 +37,7 @@ async function inBatches(items, size, fn) {
   return results;
 }
 
-async function runSimulation({ providers = 10, clients = 10, emit = () => {}, pg = {} } = {}) {
+async function runSimulation({ providers = 10, clients = 10, bulk = 0, emit = () => {}, pg = {} } = {}) {
   const pgHost = pg.host || process.env.SIM_PG_HOST || '127.0.0.1';
   const pgPort = Number(pg.port || process.env.SIM_PG_PORT || 5432);
   const pgUser = pg.user || process.env.SIM_PG_USER || 'postgres';
@@ -47,6 +47,7 @@ async function runSimulation({ providers = 10, clients = 10, emit = () => {}, pg
   const appPort = 4700 + Math.floor(Math.random() * 200);
   const base = `http://127.0.0.1:${appPort}/api`;
   const load = providers + clients > 40; // phase 2: stability under many users
+  bulk = Math.min(200000, Math.max(0, Math.floor(Number(bulk) || 0))); // accounts written straight into the database
   const startedAt = Date.now();
 
   const findings = [];
@@ -86,14 +87,21 @@ async function runSimulation({ providers = 10, clients = 10, emit = () => {}, pg
     // Calls: rings, answers and tokens are real; no media server runs here, so no audio is carried.
     LIVEKIT_URL: 'wss://calls.sim.invalid/livekit', LIVEKIT_API_URL: '', LIVEKIT_API_KEY: 'simkey', LIVEKIT_API_SECRET: crypto.randomBytes(32).toString('hex'),
   };
-  let app = null, dbCreated = false, memoryPeakMb = 0, connectionsPeak = 0, monitor = null, prober = null;
+  let app = null, dbCreated = false, memoryPeakMb = 0, connectionsPeak = 0, monitor = null, prober = null, crowd = null;
   const sockets = [];
 
   async function setup() {
     phase('تجهيز نسخة معزولة من الموقع');
     const client = admin();
     await client.connect();
-    try { await client.query(`CREATE DATABASE "${dbName}"`); dbCreated = true; } finally { await client.end(); }
+    try {
+      // A run that was interrupted (the simulator was closed mid-run) may have left its database:
+      // remove every earlier simulation database nobody is connected to.
+      const stale = await client.query("SELECT d.datname FROM pg_database d WHERE d.datname LIKE 'ayk\\_sim\\_%' AND NOT EXISTS (SELECT 1 FROM pg_stat_activity a WHERE a.datname = d.datname)");
+      for (const row of stale.rows) if (/^ayk_sim_[a-f0-9]{12}$/.test(row.datname)) await client.query(`DROP DATABASE IF EXISTS "${row.datname}"`);
+      if (stale.rows.length) say(`حُذفت ${stale.rows.length} قاعدة تجريبية قديمة من محاكاة لم تكتمل`, { actor: 'النظام' });
+      await client.query(`CREATE DATABASE "${dbName}"`); dbCreated = true;
+    } finally { await client.end(); }
     say('أُنشئت قاعدة بيانات مؤقتة للمحاكاة', { actor: 'النظام' });
     await new Promise((resolve, reject) => {
       const child = spawn(process.execPath, ['-e', "require('./server/services/installService').setupFromEnv().then(r=>{const e=r.migrations.flatMap(m=>m.errors);if(e.length){console.error(e.join('; '));process.exit(1)}process.exit(0)}).catch(e=>{console.error(e.message);process.exit(1)})"], { cwd: ROOT, env });
@@ -146,6 +154,42 @@ async function runSimulation({ providers = 10, clients = 10, emit = () => {}, pg
       const client = admin();
       try { await client.connect(); await client.query(`DROP DATABASE IF EXISTS "${dbName}" WITH (FORCE)`); } catch (_) { /* reported below */ } finally { await client.end().catch(() => {}); }
     }
+  }
+
+  // ---- tens of thousands of accounts, with their requests and offers ------------------------------
+  // Written straight into the throw-away database in seconds (signing each one up through the site
+  // would take hours: every password is hashed slowly on purpose). The live people then work on
+  // top of this crowd, so slow searches and missing indexes show up as they would on a busy site.
+  async function seedCrowd() {
+    if (!bulk) return;
+    phase(`تجهيز ${bulk.toLocaleString('en')} حساب آلي مع طلباتهم وعروضهم`);
+    const half = Math.floor(bulk / 2);
+    const db = new Client({ host: pgHost, port: pgPort, user: pgUser, password: pgPassword, database: dbName, ssl: false });
+    await db.connect();
+    const t = Date.now();
+    try {
+      await db.query(`INSERT INTO users (full_name, email, password_hash, role)
+        SELECT 'مزود آلي ' || g, 'crowd_p' || g || '@sim.invalid', 'crowd-account-cannot-sign-in', 'provider' FROM generate_series(1, $1) g`, [half]);
+      await db.query(`INSERT INTO users (full_name, email, password_hash, role)
+        SELECT 'عميل آلي ' || g, 'crowd_c' || g || '@sim.invalid', 'crowd-account-cannot-sign-in', 'client' FROM generate_series(1, $1) g`, [half]);
+      say(`${bulk.toLocaleString('en')} حساب آلي أُنشئ`, { actor: 'النظام', ms: Date.now() - t });
+      const made = await db.query(`INSERT INTO requests (client_id, title, description, status, latitude, longitude, address)
+        SELECT u.id, 'طلب آلي ' || u.id, 'طلب من الحشد الآلي لقياس السرعة مع بيانات كثيرة', 'open',
+               26.2 + random() * 0.3, 43.8 + random() * 0.4, 'بريدة'
+        FROM users u WHERE u.email LIKE 'crowd_c%'`);
+      // Two offers on every crowd request, from two different crowd providers.
+      await db.query(`WITH p AS (SELECT id, ROW_NUMBER() OVER (ORDER BY id) - 1 AS n FROM users WHERE email LIKE 'crowd_p%'),
+          r AS (SELECT id, ROW_NUMBER() OVER (ORDER BY id) - 1 AS n FROM requests WHERE title LIKE 'طلب آلي%')
+        INSERT INTO offers (request_id, provider_id, price, message, status)
+        SELECT r.id, p.id, 50 + (r.n % 400), 'عرض آلي', 'pending'
+        FROM r CROSS JOIN generate_series(0, 1) k JOIN p ON p.n = (r.n + k * 7) % $1`, [half]);
+      await db.query('ANALYZE');
+      const size = await db.query('SELECT pg_size_pretty(pg_database_size(current_database())) AS size, (SELECT COUNT(*) FROM users) AS users, (SELECT COUNT(*) FROM requests) AS requests, (SELECT COUNT(*) FROM offers) AS offers');
+      crowd = { accounts: bulk, requests: made.rowCount, offers: Number(size.rows[0].offers), databaseSize: size.rows[0].size, seconds: Math.round((Date.now() - t) / 1000) };
+      say(`قاعدة البيانات الآن: ${Number(size.rows[0].users).toLocaleString('en')} حساب، ${Number(size.rows[0].requests).toLocaleString('en')} طلب، ${Number(size.rows[0].offers).toLocaleString('en')} عرض (${size.rows[0].size})`, { actor: 'النظام', ms: Date.now() - t });
+    } catch (err) {
+      finding('errors', 'خطير', 'تعذر تجهيز الحسابات الآلية', err.message);
+    } finally { await db.end().catch(() => {}); }
   }
 
   // ---- one HTTP call as one simulated person ----------------------------------------------------
@@ -528,6 +572,13 @@ async function runSimulation({ providers = 10, clients = 10, emit = () => {}, pg
     }
     r = await call('نقص: الأقسام', '/categories', { token: null, ip: '10.77.0.4', quiet: true });
     check('gaps', Array.isArray(r.data) && r.data.length > 0, 'توجد أقسام خدمات جاهزة في تثبيت جديد', `${r.data?.length ?? 0} قسمًا`);
+    if (bulk) {
+      const provider = P().find(p => p.token);
+      for (const [label, route] of [['قائمة الطلبات القريبة (50)', '/requests/nearby?latitude=26.33&longitude=43.98&radius=30&limit=50'], ['بحث الطلبات', '/requests/nearby?latitude=26.33&longitude=43.98&radius=30&q=' + encodeURIComponent('طلب آلي 12')],
+        ['الإحصاءات العامة', '/stats/public'], ['قائمة المحادثات', '/chat/conversations'], ['الإشعارات', '/notifications']]) {
+        for (let i = 0; i < 5; i++) await call(`مع الحشد: ${label}`, route, { actor: provider });
+      }
+    }
     const mine = await call('طلباتي', '/requests/my', { actor: C().find(p => p.token) });
     check('gaps', mine.status === 200, 'العميل يرى قائمة طلباته', `الحالة ${mine.status}`);
     const myOffers = await call('عروضي', '/offers/my', { actor: P().find(p => p.token) });
@@ -597,6 +648,7 @@ async function runSimulation({ providers = 10, clients = 10, emit = () => {}, pg
   let speedReport = { table: [], stall: {} }, fatal = null;
   try {
     await setup();
+    await seedCrowd();
     makePeople();
     await signUp();
     await connectSockets();
@@ -616,7 +668,8 @@ async function runSimulation({ providers = 10, clients = 10, emit = () => {}, pg
   }
   const summary = {
     startedAt: new Date(startedAt).toISOString(), seconds: Math.round((Date.now() - startedAt) / 1000),
-    providers, clients, mode: load ? 'استقرار (عدد كبير)' : 'كل الاحتمالات',
+    providers, clients, crowd, mode: bulk ? `حشد ${bulk.toLocaleString('en')} حساب` : load ? 'استقرار (عدد كبير)' : 'كل الاحتمالات',
+    cleanedUp: true, // the copy is stopped and its database dropped in teardown(): nothing is left behind
     requests: stats.requests, failed5xx: stats.failed5xx, messages: stats.messages, delivered: stats.delivered,
     jobs: jobs.length, completed: jobs.filter(j => j.completed).length,
     memoryPeakMb, connectionsPeak, fatal, passes, findings, speed: speedReport,

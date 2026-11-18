@@ -85,6 +85,12 @@
       <button type="button" data-n="150">150 + 150 · استقرار</button>
       <button type="button" data-n="300">300 + 300</button>
     </div>
+    <select id="bulk" aria-label="حسابات آلية إضافية">
+      <option value="0">بلا حشد آلي</option>
+      <option value="10000">+ 10,000 حساب آلي</option>
+      <option value="40000">+ 40,000 حساب آلي</option>
+      <option value="100000">+ 100,000 حساب آلي</option>
+    </select>
     <button class="go" id="go" type="button">▶ ابدأ المحاكاة</button>
     <select id="history" aria-label="محاكاة سابقة"><option value="">المحاكاة السابقة…</option></select>
   </div>
@@ -179,7 +185,7 @@ function showSummary(summary) {
   $('v-bad').textContent = state.findings.filter(f => f.severity !== 'ملاحظة').length;
   const bad = state.findings.filter(f => f.severity !== 'ملاحظة').length;
   $('phase').textContent = summary.fatal ? `توقفت المحاكاة: ${summary.fatal}`
-    : `انتهت: ${summary.providers} مقدم خدمة و${summary.clients} طالب خدمة، ${summary.completed} طلبًا اكتمل من ${summary.jobs}، ${summary.delivered} رسالة وصلت فورًا. ${bad ? `${bad} مشكلة مرصودة.` : 'لا مشاكل مرصودة.'}`;
+    : `انتهت${summary.crowd ? ` مع ${Number(summary.crowd.accounts).toLocaleString('en')} حساب آلي (${summary.crowd.databaseSize})` : ''}: ${summary.providers} مقدم خدمة و${summary.clients} طالب خدمة، ${summary.completed} طلبًا اكتمل من ${summary.jobs}، ${summary.delivered} رسالة وصلت فورًا. ${bad ? `${bad} مشكلة مرصودة.` : 'لا مشاكل مرصودة.'} حُذفت كل الحسابات والبيانات التجريبية.`;
   renderTabs(); renderPanel();
 }
 function handle(event) {
@@ -206,7 +212,7 @@ function handle(event) {
 async function loadHistory(showLatest) {
   const runs = await (await fetch('/runs')).json();
   $('history').innerHTML = '<option value="">المحاكاة السابقة…</option>' + runs.map(r =>
-    `<option value="${esc(r.file)}">${esc(new Date(r.startedAt).toLocaleString('ar-SA'))} · ${r.providers}+${r.clients} · ${r.findings} ملاحظة · ${r.seconds}ث</option>`).join('');
+    `<option value="${esc(r.file)}">${esc(new Date(r.startedAt).toLocaleString('ar-SA'))} · ${r.providers}+${r.clients}${r.crowd ? ` +${Number(r.crowd).toLocaleString('en')}` : ''} · ${r.findings} ملاحظة · ${r.seconds}ث</option>`).join('');
   if (showLatest && runs[0] && !state.summary && !running) showSummary(await (await fetch(`/run?file=${encodeURIComponent(runs[0].file)}`)).json());
 }
 $('tabs').addEventListener('click', e => { const tab = e.target.closest('[data-tab]'); if (tab) { active = tab.dataset.tab; renderTabs(); renderPanel(); } });
@@ -217,7 +223,7 @@ document.querySelector('.seg').addEventListener('click', e => {
 });
 $('go').addEventListener('click', async () => {
   if (running) return;
-  const r = await fetch(`/start?providers=${size}&clients=${size}`, { method: 'POST' });
+  const r = await fetch(`/start?providers=${size}&clients=${size}&bulk=${$('bulk').value}`, { method: 'POST' });
   if (!r.ok) alert((await r.json()).message || 'تعذر البدء');
 });
 $('history').addEventListener('change', async e => { if (e.target.value && !running) { reset(); showSummary(await (await fetch(`/run?file=${encodeURIComponent(e.target.value)}`)).json()); } });
