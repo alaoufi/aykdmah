@@ -136,6 +136,10 @@ if (!app.includes('livekit-android')) {
 if (!app.includes('com.google.android.play:app-update')) {
   app = app.replace(/dependencies \{\n/, "dependencies {\n    implementation 'com.google.android.play:app-update:2.1.0'\n");
 }
+// AYK-283: the launcher asks whether the phone has Google services at all (Huawei has none).
+if (!app.includes('play-services-base')) {
+  app = app.replace(/dependencies \{\n/, "dependencies {\n    implementation 'com.google.android.gms:play-services-base:18.5.0'\n");
+}
 if (!app.includes('firebase-messaging')) {
   app = app.replace(/dependencies \{\n/, "dependencies {\n    implementation 'com.google.firebase:firebase-messaging:24.1.0'\n");
   app += "\napply plugin: 'com.google.gms.google-services'\n";
