@@ -10,11 +10,14 @@ export function LoadingState({ text }) {
   const { t } = useTranslation();
   return (
     <div className="loading-state">
-      {/* The owner's animated mark while a screen loads (AYK-257). It moves for everyone, also with
-          the device's "reduce motion" setting (the owner's decision); the ring turns until it arrives. */}
-      <span className="loading-mark">
+      {/* The owner's animated mark while a screen loads (AYK-257). With the device's "reduce motion"
+          setting the picture is not shown at all (a frozen frame of it looks broken; the owner's
+          decision): the plain ring and the text stay, as before. The empty source keeps the
+          picture from being downloaded there. */}
+      <picture className="loading-mark">
+        <source media="(prefers-reduced-motion: reduce)" srcSet="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" />
         <img src={loadingAnim} width="96" height="96" alt="" decoding="async" />
-      </span>
+      </picture>
       <div style={{ marginTop: 12 }} role="status">{text || t('common.loading')}</div>
     </div>
   );
