@@ -12,6 +12,10 @@ const BOT = /bot|crawl|spider|slurp|preview|facebookexternalhit|whatsapp|telegra
 const ONLINE_MS = 5 * 60 * 1000;
 const online = new Map(); // viewer key -> last seen (ms)
 let lastPrune = 0;
+const counted = new Set(); // visitors this process already counted on countedDay
+let countedDay = '';
+let statsCache = null; // { at, today, total }
+const STATS_MS = process.env.NODE_ENV === 'test' ? 0 : 10000;
 
 // AYK-253: the "online now" list forgets idle visitors on a timer (it was only cleaned when
 // someone read the counter) and never holds more than 200,000 entries.
@@ -64,6 +68,13 @@ async function recordVisit(req) {
   if (isBot(req)) return;
   const key = viewerKey(req);
   markOnline(key);
+  // AYK-256: an open page reports every 2 minutes; once this copy of the server has counted the
+  // visitor today, the later reports are answered from memory instead of asking the database again.
+  const day = new Date().toISOString().slice(0, 10);
+  if (day !== countedDay) { countedDay = day; counted.clear(); }
+  if (counted.has(key)) return;
+  if (counted.size >= 200000) counted.clear();
+  counted.add(key);
   const inserted = await query(
     "INSERT INTO entity_views (entity_type, entity_id, viewer_key, view_day) VALUES ('site', 0, ?, CURRENT_DATE) ON CONFLICT DO NOTHING",
     [key]);
@@ -85,9 +96,13 @@ async function recordRequestView(req, request) {
 async function stats() {
   const now = Date.now();
   for (const [key, at] of online) if (now - at > ONLINE_MS) online.delete(key);
-  const today = await queryOne('SELECT visitors FROM visit_days WHERE day = CURRENT_DATE');
-  const total = await queryOne('SELECT COALESCE(SUM(visitors), 0) AS n FROM visit_days');
-  return { today: Number(today?.visitors || 0), total: Number(total?.n || 0), online: online.size };
+  // AYK-256: the two totals are read at most once every 10 seconds, whoever asks.
+  if (!statsCache || now - statsCache.at >= STATS_MS) {
+    const row = await queryOne(`SELECT COALESCE(SUM(visitors), 0) AS total,
+      COALESCE(SUM(CASE WHEN day = CURRENT_DATE THEN visitors ELSE 0 END), 0) AS today FROM visit_days`);
+    statsCache = { at: now, today: Number(row?.today || 0), total: Number(row?.total || 0) };
+  }
+  return { today: statsCache.today, total: statsCache.total, online: online.size };
 }
 
 

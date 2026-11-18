@@ -43,11 +43,13 @@ function currentVerification(row, user, now = Date.now()) {
   return false;
 }
 
-async function assertMarketplaceWriteAccess(subject, { query: runQuery = query } = {}) {
+// `loaded`: the account row read from the database earlier in this same request (authenticate),
+// so the HTTP guard does not read it a second time (AYK-256). Never a token's claims.
+async function assertMarketplaceWriteAccess(subject, { query: runQuery = query, loaded = null } = {}) {
   const id = subject && typeof subject === 'object' ? subject.id : subject;
   if (!Number.isSafeInteger(Number(id)) || Number(id) <= 0) throw new ApiError('must_login', 401);
-  const users = await runQuery('SELECT id, email, phone, role, is_active, is_blocked FROM users WHERE id = ? AND deleted_at IS NULL', [id]);
-  const user = users[0];
+  const fresh = loaded && Number(loaded.id) === Number(id) && 'is_active' in loaded && 'is_blocked' in loaded && 'email' in loaded && 'phone' in loaded && loaded.role;
+  const user = fresh ? loaded : (await runQuery('SELECT id, email, phone, role, is_active, is_blocked FROM users WHERE id = ? AND deleted_at IS NULL', [id]))[0];
   if (!user || !user.is_active || user.is_blocked) throw new ApiError('forbidden', 403);
   if (user.role === 'admin') return;
   const policy = await marketplacePolicy(runQuery);
@@ -62,7 +64,7 @@ async function assertMarketplaceWriteAccess(subject, { query: runQuery = query }
 }
 
 async function requireMarketplaceWrite(req, res, next) {
-  try { await assertMarketplaceWriteAccess(req.user?.id); next(); }
+  try { await assertMarketplaceWriteAccess(req.user?.id, { loaded: req.user }); next(); }
   catch (err) { localizePolicyError(req, err); next(err); }
 }
 

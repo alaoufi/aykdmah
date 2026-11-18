@@ -104,7 +104,12 @@ const nearby = asyncHandler(async (req, res) => {
   // Providers available now come first, then by distance.
   providers.sort((a, b) => (a.availability.state !== 'available') - (b.availability.state !== 'available') || a.distance_km - b.distance_km);
   // The latest written opinion is read for the providers actually returned, not for everyone.
-  const shown = providers.slice(0, MAX_RESULTS);
+  const shown = await withOpinions(providers.slice(0, MAX_RESULTS));
+  return success(res, { providers: shown, radius_km: radius });
+});
+
+// The latest visible written opinion about each listed provider, in one statement for the list.
+async function withOpinions(shown) {
   if (shown.length) {
     const opinions = await query(`SELECT DISTINCT ON (rv.target_user_id) rv.target_user_id, rv.comment FROM reviews rv
       WHERE rv.target_user_id IN (${shown.map(() => '?').join(', ')}) AND rv.review_type = 'on_provider' AND rv.is_visible = 1
@@ -112,8 +117,8 @@ const nearby = asyncHandler(async (req, res) => {
     const byId = new Map(opinions.map(row => [Number(row.target_user_id), row.comment]));
     for (const provider of shown) provider.opinion = byId.get(Number(provider.id)) || null;
   }
-  return success(res, { providers: shown, radius_km: radius });
-});
+  return shown;
+}
 
 // GET /api/providers/matching?service_id|category_id[&district_id&city_id]  (AYK-035)
 // The core of the site: providers who serve the requester's area (their coverage
@@ -148,7 +153,8 @@ const providerCategories = (row, byService) => new Set([
   ...(row.category_id ? [Number(row.category_id)] : []),
 ]);
 
-// Active providers serving a district (or a whole city).
+// Active providers serving a district (or a whole city). Everyone, because the counts and the
+// notifications need them all; the written opinion is read later for the listed ones only (AYK-256).
 function coveringProviders({ districtId, cityId, excludeId = 0 }) {
   // Coverage: an explicit district list wins; without one the coverage city, else the home city.
   const coverage = districtId
@@ -162,7 +168,6 @@ function coveringProviders({ districtId, cityId, excludeId = 0 }) {
     SELECT u.id, u.full_name, u.avatar, u.is_verified, u.is_online,
            pp.business_name, pp.category_id, pp.service_ids,
            pp.rating_avg, pp.rating_count, pp.completed_orders,
-           (SELECT rv.comment FROM reviews rv WHERE rv.target_user_id = u.id AND rv.review_type = 'on_provider' AND rv.is_visible = 1 AND rv.comment IS NOT NULL AND rv.comment <> '' ORDER BY rv.id DESC LIMIT 1) AS opinion,
            cat.name_ar AS category_name_ar, cat.name_en AS category_name_en, cat.name_translations AS category_name_translations,
            dist.name_ar AS district_name_ar, dist.name_en AS district_name_en,
            to_jsonb(pp)->>'availability_status' AS availability_status, to_jsonb(pp)->>'vacation_from' AS vacation_from,
@@ -200,8 +205,8 @@ const matching = asyncHandler(async (req, res) => {
   const cityProviders = where.districtId ? (await list({ districtId: null, cityId: where.cityId })).filter(inRequested) : null;
   return success(res, {
     area: where.area, requested_category_ids: requestedCategories,
-    providers: providers.slice(0, MAX_RESULTS),
-    ...(cityProviders ? { city_providers: cityProviders.slice(0, MAX_RESULTS) } : {}),
+    providers: await withOpinions(providers.slice(0, MAX_RESULTS)),
+    ...(cityProviders ? { city_providers: await withOpinions(cityProviders.slice(0, MAX_RESULTS)) } : {}),
   });
 });
 

@@ -18,9 +18,10 @@ async function emitUser(io, userId, event, payload, { excludeSocketId } = {}) {
 
 // Do not broadcast private data to cached conversation-room memberships.
 // Participants are resolved for each emission, after any removal/reassignment.
-async function emitConversation(io, conversationId, event, payload, { excludeSocketId } = {}) {
+// `participants`: the list a caller already read for this conversation (AYK-256), else read here.
+async function emitConversation(io, conversationId, event, payload, { excludeSocketId, participants: known } = {}) {
   if (!io) return;
-  const participants = await Conversation.getParticipants(conversationId);
+  const participants = known || await Conversation.getParticipants(conversationId);
   for (const participant of participants) {
     const visible = event === 'chat:message' ? await messageForViewer(payload, participant.id, translate('ar','requester_label')) : payload;
     await emitUser(io, participant.id, event, visible, { excludeSocketId });

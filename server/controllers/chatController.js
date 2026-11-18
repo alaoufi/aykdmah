@@ -65,11 +65,12 @@ const getMessages = asyncHandler(async (req, res) => {
 
 const sendMessage = asyncHandler(async (req, res) => {
   const conversationId = req.params.id;
-  const isParticipant = await Conversation.isParticipant(conversationId, req.user.id);
-  if (!isParticipant) return forbidden(res, req.t('deny_chat_participant'));
-
   const { content, message_type = 'text', reply_to_id, latitude, longitude, accuracy_m } = req.body;
-  if (!await Conversation.canSend(conversationId, req.user.id)) return forbidden(res, req.t('deny_chat_closed'));
+  // Whoever may send is a participant (the send rule is the stricter one), so the usual case is
+  // one check; only a refusal asks which of the two reasons to show (AYK-256).
+  if (!await Conversation.canSend(conversationId, req.user.id)) {
+    return forbidden(res, req.t(await Conversation.isParticipant(conversationId, req.user.id) ? 'deny_chat_closed' : 'deny_chat_participant'));
+  }
   const isLocation = message_type === 'location' && latitude != null && longitude != null;
 
   // AYK-248: files the phone already put in R2 (POST /api/media/uploads), as media_ids.
@@ -145,9 +146,11 @@ const sendMessage = asyncHandler(async (req, res) => {
   for (const [target, sent] of sentMessages) {
     try {
       pretranslate(sent, io).catch(err => logger.warn('Pre-translation failed:', err.message));
-      await emitConversation(io, target, 'chat:message', sent);
-      deliverIfOnline(io, target, req.user.id).catch(() => {});
-      await notifyParticipants(req, target, { content, isLocation, remind: true });
+      // The participants are read once for the live copy, the delivery ticks and the alerts (AYK-256).
+      const participants = await Conversation.getParticipants(target);
+      await emitConversation(io, target, 'chat:message', sent, { participants });
+      deliverIfOnline(io, target, req.user.id, participants).catch(() => {});
+      await notifyParticipants(req, target, { content, isLocation, remind: true, participants });
     } catch (err) { logger.warn('Message delivery failed:', err.message); }
   }
 });
@@ -270,9 +273,9 @@ async function onScreen(io, userId) {
 }
 
 // The other side's app is open somewhere: the message reached their phone (grey ✓✓, AYK-122).
-async function deliverIfOnline(io, conversationId, senderId) {
+async function deliverIfOnline(io, conversationId, senderId, participants = null) {
   if (!io) return;
-  for (const p of await Conversation.getParticipants(conversationId)) {
+  for (const p of participants || await Conversation.getParticipants(conversationId)) {
     if (Number(p.id) === Number(senderId)) continue;
     if ((await io.in(`user:${p.id}`).fetchSockets()).length) await Message.markDelivered(io, p.id, conversationId);
   }
@@ -322,8 +325,8 @@ function remindUnread(io, senderId, recipientId, conversationId, alert) {
   if (reminders.size > 10000) reminders.delete(reminders.keys().next().value);
 }
 
-async function notifyParticipants(req, conversationId, { content, isLocation, remind = false }) {
-  const participants = await Conversation.getParticipants(conversationId);
+async function notifyParticipants(req, conversationId, { content, isLocation, remind = false, participants: known = null }) {
+  const participants = known || await Conversation.getParticipants(conversationId);
   const senderIsRequester = req.user.role === 'client';
   for (const p of participants) {
     if (p.id !== req.user.id) {

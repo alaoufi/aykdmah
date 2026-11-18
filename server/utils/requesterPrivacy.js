@@ -7,7 +7,8 @@ const isRequester = user => user && user.role === 'client';
 
 // Names the viewer saved these people under, by id.
 async function savedNames(viewerId, ids) {
-  const wanted = [...new Set(ids.filter(Boolean).map(Number))];
+  // The viewer's own name is never replaced, so their own id needs no lookup (AYK-256).
+  const wanted = [...new Set(ids.filter(Boolean).map(Number))].filter(id => id !== Number(viewerId));
   if (!viewerId || !wanted.length) return new Map();
   const rows = await query(`SELECT provider_id, nickname FROM saved_providers
     WHERE user_id = ? AND provider_id IN (${wanted.map(() => '?').join(',')}) AND nickname IS NOT NULL`, [viewerId, ...wanted]);
