@@ -25,7 +25,12 @@
 
   function entryFallback() {
     const root = document.getElementById('root');
-    if (!root || root.childNodes.length) return;
+    // The server's text copy for search engines (AYK-281) is not the app: it gives way to this.
+    if (!root) return;
+    const nodes = Array.from(root.childNodes || []);
+    const seo = nodes.find(node => node.classList && node.classList.contains('seo-static'));
+    if (nodes.some(node => node !== seo && !(node.nodeType === 3 && !String(node.textContent).trim()))) return;
+    if (seo) seo.remove();
     let lang = 'ar';
     try { lang = (localStorage.getItem('lsm_lang') || 'ar').split(/[-_]/)[0]; } catch (_) {}
     const copies = {

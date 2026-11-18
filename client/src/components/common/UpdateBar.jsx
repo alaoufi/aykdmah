@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { serverVersion } from '../../utils/freshStart';
 
 const CURRENT = import.meta.env.VITE_APP_VERSION || '';
 const UPDATED_FROM = 'ayk_updated_from';
@@ -59,9 +60,9 @@ export default function UpdateBar() {
     };
     const check = () => {
       if (document.hidden) { switchWhenHidden(); return; }
-      fetch('/version.json', { cache: 'no-store' }).then(r => (r.ok ? r.json() : null))
-        .then(v => {
-          if (!v?.version || v.version === CURRENT) return;
+      serverVersion()
+        .then(version => {
+          if (!version || version === CURRENT) return;
           available.current = true;
           // Download it now, so switching takes no time.
           navigator.serviceWorker?.getRegistration().then(r => r?.update()).catch(() => {});

@@ -36,7 +36,8 @@ export async function logout() {
 }
 
 export async function me() {
-  const { data } = await api.get('/auth/me');
+  // At start-up the whole app waits for this: on a dead connection, try again after 10 s, not 30 (AYK-282).
+  const { data } = await api.get('/auth/me', { timeout: 10000 });
   return data.data;
 }
 

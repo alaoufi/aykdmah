@@ -181,6 +181,20 @@ test('offline or blocked session storage shows native fallback without clearing 
   }
 });
 
+// AYK-282: the server's text copy for search engines sits in #root before the app starts; when
+// the app's own file fails, the error screen with its reload button must still appear.
+test('the search-engine text copy gives way to the error screen when the app file fails', async () => {
+  const fixture = browserFixture({ online: false });
+  vm.runInContext(await generatedSource, fixture.context);
+  const seo = { nodeType: 1, textContent: 'أي خدمة — نص لمحركات البحث', classList: { contains: name => name === 'seo-static' },
+    remove() { fixture.root.childNodes.splice(fixture.root.childNodes.indexOf(seo), 1); } };
+  fixture.root.appendChild(seo);
+  fixture.dispatch('error', fixture.moduleError);
+  assert.equal(fixture.root.childNodes.length, 1);
+  assert.notEqual(fixture.root.childNodes[0], seo);
+  assert.equal(fixture.root.childNodes[0].childNodes[0].textContent, 'تعذّر تحميل الموقع');
+});
+
 test('external scripts, classic scripts, ordinary app errors and mounted React content are respected', async () => {
   const fixture = browserFixture({ online: false });
   vm.runInContext(await generatedSource, fixture.context);

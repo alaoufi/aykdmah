@@ -59,7 +59,7 @@ export function AuthProvider({ children }) {
       // Busy or offline is not a sign-out: keep the session and try again shortly.
       if (sameSession && (err.response?.status === 429 || !err.response) && retriesRef.current < 5) {
         retriesRef.current += 1;
-        await new Promise(resolve => setTimeout(resolve, 3000 * retriesRef.current));
+        await new Promise(resolve => setTimeout(resolve, 1500 * retriesRef.current));
         if (version === refreshVersion.current) return await refreshRef.current();
         return null;
       }

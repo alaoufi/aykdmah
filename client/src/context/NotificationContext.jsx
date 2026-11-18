@@ -61,6 +61,7 @@ export function NotificationProvider({ children }) {
   const announce = useCallback(notification => burstRef.current.add(notification), []);
 
   const refresh = useCallback(() => pollRef.current?.refresh(), []);
+  const lastLoadRef = useRef(0);
 
   useEffect(() => {
     setItems([]);
@@ -70,7 +71,7 @@ export function NotificationProvider({ children }) {
     setToasts([]);
     if (!user?.id) return;
     let seenIds = null;
-    const poll = createPollingLoop(() => Promise.all([listNotifications({ limit: 30 }), getChatUnread().catch(() => null), supportUnread().catch(() => null)])
+    const poll = createPollingLoop(() => (lastLoadRef.current = Date.now()) && Promise.all([listNotifications({ limit: 30 }), getChatUnread().catch(() => null), supportUnread().catch(() => null)])
       .then(([res, chats, support]) => { if (chats !== null) setChatUnread(chats); if (support !== null) setSupportCount(support); return res; }), {
       // AYK-252: with the live connection up, new notifications and messages arrive through it at
       // once, so asking the server every 15 seconds only loads it (three requests each time, from
@@ -97,7 +98,8 @@ export function NotificationProvider({ children }) {
   }, [user?.id, realtimeMode, showToast, announce]);
 
   // Whatever arrived while the live connection was down is fetched the moment it is back.
-  useEffect(() => { if (connected) refresh(); }, [connected, refresh]);
+  // Not when the first load has only just gone out (AYK-282: start-up asked for everything twice).
+  useEffect(() => { if (connected && Date.now() - lastLoadRef.current > 5000) refresh(); }, [connected, refresh]);
 
   useEffect(() => {
     if (!socket) return;

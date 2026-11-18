@@ -14,6 +14,17 @@ const WINDOW_MS = 12000;
 
 const withTimeout = (promise, ms) => Promise.race([promise, new Promise(resolve => setTimeout(resolve, ms))]);
 
+// The server's version, asked once for start-up and the update bar together (AYK-282: it was
+// asked twice in the first second). A fresh question after 10 s.
+let asked = null;
+export function serverVersion() {
+  if (asked && Date.now() - asked.at < 10000) return asked.promise;
+  const promise = withTimeout(fetch('/version.json', { cache: 'no-store' }), 4000)
+    .then(res => (res?.ok ? res.json() : null)).then(v => v?.version || null).catch(() => null);
+  asked = { at: Date.now(), promise };
+  return promise;
+}
+
 function busy() {
   const el = document.activeElement;
   const typing = ['INPUT', 'TEXTAREA'].includes(el?.tagName) && el.value;
@@ -47,11 +58,7 @@ export async function freshStart({ now = () => Date.now(), reload = () => window
   let tries = 0;
   try { tries = Number(sessionStorage.getItem(TRIES)) || 0; } catch (_) { return 'skip'; }
 
-  let server = null;
-  try {
-    const res = await withTimeout(fetch('/version.json', { cache: 'no-store' }), 4000);
-    server = res?.ok ? (await res.json())?.version : null;
-  } catch (_) { /* offline or blocked: keep what we have */ }
+  const server = await serverVersion();
   if (!server || server === CURRENT) {
     try { sessionStorage.removeItem(TRIES); } catch (_) { /* private mode */ }
     return 'current';

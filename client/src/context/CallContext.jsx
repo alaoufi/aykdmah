@@ -384,6 +384,7 @@ export function CallProvider({ children }) {
   }, [finishLocally, phase]);
 
   // Realtime events, with a slow poll as a fallback when the socket is down.
+  const lastCallPollRef = useRef(0);
   useEffect(() => {
     if (!user) return undefined;
     const socket = socketRef?.current;
@@ -403,6 +404,7 @@ export function CallProvider({ children }) {
     socket?.on('call:state', onState);
     let timer = null;
     const poll = async () => {
+      lastCallPollRef.current = Date.now();
       try {
         const list = await calls.activeCalls();
         const current = callRef.current;
@@ -416,7 +418,8 @@ export function CallProvider({ children }) {
         }
       } catch (_) { /* offline: try again next tick */ }
     };
-    poll();
+    // The effect re-runs as the connection comes up; a check made a moment ago is enough (AYK-282).
+    if (Date.now() - lastCallPollRef.current > 3000) poll();
     // While a call rings, check every 4 s even if the socket looks connected: on a weak network
     // it can be silently dead and the end of the call would never arrive (AYK-083).
     timer = setInterval(poll, ['outgoing', 'incoming'].includes(phase) ? 4000 : connected ? 20000 : 5000);

@@ -67,7 +67,9 @@ export function SocketProvider({ children }) {
       socketRef.current = null;
       setConnected(false);
     };
-  }, [user]);
+    // The same account read again (a profile save) keeps its connection (AYK-282).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
 
   return (
     <SocketContext.Provider value={{ socket: socketRef.current, connected, socketRef, realtimeMode }}>
