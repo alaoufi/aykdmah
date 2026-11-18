@@ -2,7 +2,6 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import BrandLogo from '../common/BrandLogo';
 import usePublicSettings, { subscriptionsOn } from '../../hooks/usePublicSettings';
-import { nativeAppVersion } from '../../utils/nativeApp';
 import AdSlot from '../ads/AdSlot';
 import AdminPanelLink from './AdminPanelLink';
 import VisitorCounter from './VisitorCounter';
@@ -103,7 +102,9 @@ export default function Footer() {
             {import.meta.env.VITE_APP_VERSION && (
               <span className="ms-2 text-white/40 text-[11px]" data-testid="app-version">
                 · {t('footer.version')} <span dir="ltr" title={import.meta.env.VITE_APP_BUILD || undefined}>{import.meta.env.VITE_APP_VERSION}</span>
-                {nativeAppVersion() && <> · {t('footer.app_version')} <span dir="ltr">{nativeAppVersion()}</span></>}
+                {/* One number for everyone, the site's (owner's decision, AYK-284): what people use is the
+                    site, on the web and inside the Android and iPhone apps alike, and it changes with every
+                    release without the stores. The app's own number stays in the admin devices log. */}
               </span>
             )}
           </div>
