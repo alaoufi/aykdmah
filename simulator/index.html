@@ -248,6 +248,12 @@ $('go').addEventListener('click', async () => {
 });
 $('history').addEventListener('change', async e => { if (e.target.value && !running) { reset(); showSummary(await (await fetch(`/run?file=${encodeURIComponent(e.target.value)}`)).json()); } });
 fetch('/fixes').then(r => r.json()).then(list => { fixes = list; renderPanel(); });
+// On a server the ceilings are lower than on a laptop: show only what this installation allows.
+fetch('/limits').then(r => r.json()).then(max => {
+  for (const id of ['n-providers', 'n-clients']) $(id).max = max.people;
+  $('n-rush').max = max.rush; $('n-workers').max = max.workers;
+  for (const option of $('bulk').options) if (Number(option.value) > max.bulk) option.disabled = true;
+}).catch(() => {});
 renderTabs(); renderPanel();
 new EventSource('/events').onmessage = m => handle(JSON.parse(m.data));
 </script>
