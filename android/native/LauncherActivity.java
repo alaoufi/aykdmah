@@ -87,10 +87,14 @@ public class LauncherActivity
     /** False on a phone without Google services, or where getting a token failed last time. */
     private boolean fcmExpected() {
         if (getSharedPreferences(FcmService.PREFS, MODE_PRIVATE).getBoolean(NO_FCM, false)) return false;
+        // Asked by name: it comes with Firebase, and a separate library for it broke the build
+        // (its Kotlin version did not match the app's). Missing or failing means "no services".
         try {
-            return com.google.android.gms.common.GoogleApiAvailability.getInstance()
-                    .isGooglePlayServicesAvailable(this) == com.google.android.gms.common.ConnectionResult.SUCCESS;
-        } catch (RuntimeException | LinkageError e) { return false; }
+            Class<?> api = Class.forName("com.google.android.gms.common.GoogleApiAvailability");
+            Object instance = api.getMethod("getInstance").invoke(null);
+            Object result = api.getMethod("isGooglePlayServicesAvailable", android.content.Context.class).invoke(instance, this);
+            return Integer.valueOf(0).equals(result); // ConnectionResult.SUCCESS
+        } catch (Exception | LinkageError e) { return false; }
     }
 
     private void rememberFcm(boolean works) {
