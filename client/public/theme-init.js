@@ -1,3 +1,6 @@
+// AYK-281: scripts run, so the text copy for search engines stays hidden (index.html).
+try { document.documentElement.classList.add('js'); } catch (_) {}
+
 (function () {
   // AYK-266: the web fonts load without holding back the first paint (index.html loads them as
   // media="print"); they are switched on as soon as they arrive.
