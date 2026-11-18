@@ -37,6 +37,7 @@ const output = await build({
   },
   bundle: true, write: false, format: 'esm', platform: 'node', jsx: 'automatic',
   define: { 'import.meta.env': '{}' },
+  loader: { '.webp': 'dataurl' }, // pictures imported by components (the loading mark, AYK-257)
   plugins: [{ name: 'shared-dependencies', setup(builder) {
     // Keep React DOM shared too: its CommonJS entry requires React, which cannot
     // be dynamically required by the generated data: ES module.
