@@ -8,6 +8,13 @@ import { IconHome, IconGrid, IconPlus, IconChat, IconUser, IconBell, IconSearch 
 import { pageZoom } from '../../utils/pageZoom';
 import { canRequestService } from '../../utils/canRequest';
 
+// The signed-in member's own name on their tab, in place of «ملفي» (owner's request, AYK-293):
+// the first word, kept short so the bar keeps its shape.
+function firstName(user) {
+  const first = String(user?.full_name || '').trim().split(/\s+/)[0] || '';
+  return first.length > 10 ? `${first.slice(0, 9)}…` : first;
+}
+
 export default function BottomNav() {
   const navRef = useRef(null);
   const { t } = useTranslation();
@@ -69,7 +76,7 @@ export default function BottomNav() {
     ]),
     // A visitor opening the chats is invited to join there (AYK-158).
     { id: 'chat', to: '/chat', label: t('nav.chat'), Icon: IconChat, badge: chatUnread },
-    { id: 'account', to: user ? accountLink : '/login', label: user ? t('nav.profile') : t('nav.login'), Icon: IconUser },
+    { id: 'account', to: user ? accountLink : '/login', label: user ? firstName(user) || t('nav.profile') : t('nav.login'), Icon: IconUser },
   ];
 
   return createPortal(

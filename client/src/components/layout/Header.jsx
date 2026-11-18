@@ -233,15 +233,22 @@ export default function Header() {
                 <IconClose size={18} />
               </button>
             </div>
-            {/* "Your number" first (it is also a sign-in identifier), then the user's area. */}
+            {/* Who is signed in, by name (owner's request, AYK-293), then "your number" (it is also a
+                sign-in identifier) and the user's area. */}
             {user && (
-              <div className="mb-3 px-3 py-2.5 rounded-card bg-primary-soft flex items-center justify-between gap-2 flex-wrap" data-testid="menu-your-number">
+              <div className="mb-3 px-3 py-2.5 rounded-card bg-primary-soft" data-testid="menu-your-number">
+                <Link to="/profile" onClick={() => setMobileOpen(false)} className="flex items-center gap-2.5 mb-1.5 no-underline" data-testid="menu-user-name">
+                  <Avatar src={user.avatar} name={user.full_name} />
+                  <span className="min-w-0 text-[17px] font-extrabold text-fg truncate">{user.full_name}</span>
+                </Link>
+                <div className="flex items-center justify-between gap-2 flex-wrap">
                 {user.referral_code && (
                   <span className="text-[15px] text-fg">{t('brand.your_number')}: <b dir="ltr" className="tracking-wider text-[17px]">{user.referral_code}</b></span>
                 )}
                 {['client', 'provider'].includes(user.role) && (
                   <Link to="/profile#my-area" onClick={() => setMobileOpen(false)} className="text-[13px] font-semibold text-primary underline underline-offset-2" data-testid="edit-area">📍 {t('for_you.edit_area')}</Link>
                 )}
+                </div>
               </div>
             )}
             {/* "Manage" right under "your number" (AYK-075/076): what this member needs, by role. */}
