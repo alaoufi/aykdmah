@@ -1,3 +1,13 @@
+## AYK-272 — 2026-11-18 — مدير بكلمة مرور مؤقتة يغيّرها داخل الإدارة، **بلا نشر**
+
+- **السبب:** `Protected` في `routes.jsx` يحوّل كل `must_change_password = 1` إلى `/profile`، وهي جلسة الموقع (`lsm_token`) لا جلسة الإدارة (`lsm_admin_token`)، فيظهر المدير زائرًا.
+- **الإصلاح:** `passwordChangeRedirect` في `client/src/utils/passwordGate.js`: جلسة الإدارة إلى `/admin/password`، والموقع إلى `/profile` كما كان. الخادم لم يتغير (`PUT /auth/password` يعمل بجلسة الإدارة ويعيد جلسة إدارة جديدة).
+- **الاختبارات:** واجهة 163/167 (منها `passwordGate.test.mjs` الجديد)، خادم 71/71، تكامل 273/273 على PostgreSQL 16 محلي، والبناء ناجح.
+- **في المتصفح** (Chromium، قاعدة جديدة بـ `seed.js` و`BOOTSTRAP_ADMIN_*`، الخادم بوضع production): الدخول من `/admin/login` ينتهي في `/admin/password`، وفتح `/admin/users` يعيد إليها،
+  وبعد تغيير الكلمة تظهر رسالة النجاح ويُفتح `/admin/users`، و`must_change_password` في القاعدة صار 0.
+- **`npm run i18n:check` يفشل قبل هذا التغيير وبعده** (`interpolation mismatch` في `notification.pair_messages` و`notification.pair_new` في 10 لغات)؛ لم يُضف هنا أي نص جديد.
+- **لم يُختبر** على الخادم ولا بـ `deploy/run-tests.sh` (Docker).
+
 ## AYK-271 — 2026-11-18 — قسم «التقارير» في لوحة التحكم، وتقرير النسخ الاحتياطية، **بلا نشر**
 
 بطلب المالك: قسم «التقارير» في قائمة لوحة التحكم، تحته: التقرير الأمني، وتقرير النسخ الاحتياطية (جديد)، وسجل النشاطات. وأي تقرير لاحق سطر واحد فيه.

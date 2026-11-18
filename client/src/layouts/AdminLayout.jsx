@@ -188,6 +188,14 @@ function AdminLayoutFrame() {
               </div>
             </div>
           </div>
+          {/* The admin session's own password (AYK-272): the site's /profile is another session. */}
+          <Link
+            to="/admin/password"
+            className="block mb-2 px-3 py-2 rounded-pill bg-white/5 hover:bg-white/10 text-white text-[12px] font-semibold text-center no-underline transition"
+            data-testid="admin-password-link"
+          >
+            🔑 {t('profile.change_password')}
+          </Link>
           <div className="grid grid-cols-2 gap-2">
             <Link
               to="/"

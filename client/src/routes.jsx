@@ -10,6 +10,7 @@ import { useAuth } from './hooks/useAuth';
 import { getToken } from './services/api';
 import { LoadingState } from './components/common/Spinner';
 import { canRequestService } from './utils/canRequest';
+import { passwordChangeRedirect } from './utils/passwordGate';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const LoginPage = lazy(() => import('./pages/LoginPage'));
@@ -28,6 +29,7 @@ const TestCheckoutPage = lazy(() => import('./pages/TestCheckoutPage'));
 const ProviderProfilePage = lazy(() => import('./pages/ProviderProfilePage'));
 const GuidePage = lazy(() => import('./pages/GuidePage'));
 const AdminGuidePage = lazy(() => import('./pages/admin/AdminGuidePage'));
+const AdminPasswordPage = lazy(() => import('./pages/admin/AdminPasswordPage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
 
 // AYK services catalog
@@ -96,8 +98,10 @@ function Protected({ children, roles, loginPath = '/login' }) {
   // A "both" account is a provider that may also use the requester pages.
   const allowed = !roles || roles.includes(user.role) || (roles.includes('client') && isBothAccount(user));
   if (!allowed) return <Navigate to="/" replace />;
-  // A generated first password must be replaced before anything else.
-  if (Number(user.must_change_password) === 1 && location.pathname !== '/profile') return <Navigate to="/profile" replace />;
+  // A generated first password must be replaced before anything else, in this area's own session:
+  // the admin area on /admin/password, the site on /profile (AYK-272).
+  const passwordPage = passwordChangeRedirect(user, location.pathname);
+  if (passwordPage) return <Navigate to={passwordPage} replace />;
   return children;
 }
 
@@ -226,6 +230,7 @@ export default function AppRoutes() {
         <Route element={<Protected roles={['admin']} loginPath="/admin/login"><AdminLayout /></Protected>}>
           <Route path="/admin" element={<AdminDashboardPage />} />
           <Route path="/admin/guide" element={<AdminGuidePage />} />
+          <Route path="/admin/password" element={<AdminPasswordPage />} />
           <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/admin/requests" element={<AdminRequestsPage />} />
           <Route path="/admin/categories" element={<AdminCategoriesPage />} />
