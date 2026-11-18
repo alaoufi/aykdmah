@@ -19,6 +19,11 @@ async function emitPresence(io, userId, isOnline) {
 
 function initSocket(httpServer) {
   const io = new Server(httpServer, {
+    // AYK-275: with several server copies (APP_WORKERS > 1) a live connection must stay on one copy.
+    // A WebSocket does; the long-polling fallback sends each request to any copy and would fail.
+    // So clustered, only WebSocket is offered: a phone that cannot open one keeps working through
+    // the app's own refresh every few seconds (NotificationContext / useLiveRefresh), as offline.
+    ...(Number(process.env.APP_WORKERS) > 1 ? { transports: ['websocket'] } : {}),
     // AYK-240: the same origins as the API (never "*"); native apps send no Origin header.
     cors: { origin: [env.CLIENT_URL, env.APP_URL].filter(Boolean), credentials: true },
     pingTimeout: 30000,
