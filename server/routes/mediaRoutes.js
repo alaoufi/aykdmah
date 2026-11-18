@@ -1,5 +1,6 @@
 const express = require('express');
 const UploadedMedia = require('../models/UploadedMedia');
+const storage = require('../services/objectStorage');
 const asyncHandler = require('../utils/asyncHandler');
 const { authenticate } = require('../middleware/auth');
 const router = express.Router();
@@ -16,6 +17,17 @@ router.get('/:id', asyncHandler(async (req, res, next) => {
 }), asyncHandler(async (req, res) => {
   const file = req.media;
   if (!await UploadedMedia.canRead(file, req.user)) return res.status(404).end();
+  if (file.status && file.status !== 'ready') return res.status(404).end();
+  if (file.storage === 'r2') {
+    // AYK-248: after the same access check, a 5-minute link straight to the private R2 object.
+    // The bytes never pass through this server; R2 answers range requests for audio and video.
+    const response = { 'response-content-type': file.mime, 'response-cache-control': 'private, no-store' };
+    if (file.mime === 'application/pdf') {
+      response['response-content-disposition'] = `attachment; filename="document.pdf"; filename*=UTF-8''${encodeURIComponent(file.filename)}`;
+    }
+    res.set({ 'Cache-Control': 'private, no-store', 'Referrer-Policy': 'no-referrer', 'X-Robots-Tag': 'noindex, nofollow, noarchive' });
+    return res.redirect(302, storage.presign('GET', file.object_key, { expires: 300, response }));
+  }
   res.set({
     'Content-Type': file.mime,
     'Cache-Control': 'private, no-store',

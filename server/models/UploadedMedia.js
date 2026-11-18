@@ -2,25 +2,53 @@ const { randomUUID } = require('crypto');
 const { query, queryOne, transaction } = require('../config/database');
 const { validateUpload } = require('../utils/uploadValidation');
 const Conversation = require('./Conversation');
+const storage = require('../services/objectStorage');
 
+// AYK-248: with R2 configured the bytes go to the private media bucket (from memory, never the
+// server's disk) and the row keeps only the metadata and access scope; otherwise they stay in the
+// database as before. Objects uploaded for a batch that then fails are deleted again.
 async function createBatch(files, { ownerId, scope, scopeId = null }) {
-  return transaction(async conn => {
-    const entries = [];
-    for (const file of files) {
-      validateUpload(file);
-      const id = randomUUID();
-      await conn.execute(
-        'INSERT INTO uploaded_media (id, owner_id, scope, scope_id, filename, mime, size, data) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-        [id, ownerId, scope, scopeId, String(file.originalname || 'file').slice(0, 200), file.mimetype, file.buffer.length, file.buffer]
-      );
-      entries.push({ media_id: id, file_url: `/api/media/${id}`, file_name: file.originalname, file_type: file.mimetype, file_size: file.buffer.length });
-    }
-    return entries;
+  const useR2 = storage.enabled();
+  const prepared = files.map(file => {
+    validateUpload(file);
+    const id = randomUUID();
+    return { file, id, key: useR2 ? storage.objectKey(scope, id) : null };
   });
+  const uploaded = [];
+  try {
+    if (useR2) {
+      for (const item of prepared) {
+        await storage.put(item.key, item.file.buffer, item.file.mimetype);
+        uploaded.push(item.key);
+      }
+    }
+    return await transaction(async conn => {
+      const entries = [];
+      for (const { file, id, key } of prepared) {
+        const name = String(file.originalname || 'file').slice(0, 200);
+        if (key) {
+          await conn.execute(
+            "INSERT INTO uploaded_media (id, owner_id, scope, scope_id, filename, mime, size, data, storage, object_key, status) VALUES (?, ?, ?, ?, ?, ?, ?, NULL, 'r2', ?, 'ready')",
+            [id, ownerId, scope, scopeId, name, file.mimetype, file.buffer.length, key]
+          );
+        } else {
+          await conn.execute(
+            'INSERT INTO uploaded_media (id, owner_id, scope, scope_id, filename, mime, size, data) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            [id, ownerId, scope, scopeId, name, file.mimetype, file.buffer.length, file.buffer]
+          );
+        }
+        entries.push({ media_id: id, file_url: `/api/media/${id}`, file_name: file.originalname, file_type: file.mimetype, file_size: file.buffer.length });
+      }
+      return entries;
+    });
+  } catch (err) {
+    for (const key of uploaded) await storage.remove(key).catch(() => {});
+    throw err;
+  }
 }
 
 async function findById(id) {
-  return queryOne('SELECT id, owner_id, scope, scope_id, mime, size, filename, data FROM uploaded_media WHERE id = ?', [id]);
+  return queryOne('SELECT id, owner_id, scope, scope_id, mime, size, filename, data, storage, object_key, status FROM uploaded_media WHERE id = ?', [id]);
 }
 
 async function canRead(file, user = null) {
@@ -56,7 +84,10 @@ async function canRead(file, user = null) {
 
 async function removeBatch(ids) {
   if (!ids.length) return;
-  await query(`DELETE FROM uploaded_media WHERE id IN (${ids.map(() => '?').join(',')})`, ids);
+  const marks = ids.map(() => '?').join(',');
+  const objects = await query(`SELECT object_key FROM uploaded_media WHERE id IN (${marks}) AND object_key IS NOT NULL`, ids);
+  await query(`DELETE FROM uploaded_media WHERE id IN (${marks})`, ids);
+  for (const { object_key: key } of objects) await storage.remove(key).catch(() => {});
 }
 
 module.exports = { createBatch, findById, canRead, removeBatch };
