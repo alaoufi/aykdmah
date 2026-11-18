@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>محاكي «أي خدمة»</title>
+<style>
+  :root {
+    --bg: #f4f6f9; --panel: #ffffff; --ink: #14202e; --muted: #5f6f82; --line: #dfe5ec;
+    --brand: #0b7a75; --brand-ink: #ffffff; --ok: #1a7f4b; --ok-bg: #e4f5ec;
+    --bad: #b3261e; --bad-bg: #fde9e7; --warn: #96600a; --warn-bg: #fdf1dc; --note: #2b5c9e; --note-bg: #e6eefb;
+    --client: #7a4bb5; --provider: #0b7a75; --glow: #f2b233;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #0f151c; --panel: #18212b; --ink: #e8eef5; --muted: #9aa8b8; --line: #2a3644;
+      --brand: #2bb3ac; --brand-ink: #06201f; --ok: #5fd39a; --ok-bg: #12301f; --bad: #ff8a80; --bad-bg: #3a1614;
+      --warn: #f2c063; --warn-bg: #33270f; --note: #8ab4f8; --note-bg: #14253f; --client: #b792ea; --provider: #2bb3ac; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.6 system-ui, "Segoe UI", Tahoma, sans-serif; }
+  header { background: var(--panel); border-bottom: 1px solid var(--line); padding: 14px 16px; position: sticky; top: 0; z-index: 5; }
+  .wrap { max-width: 1180px; margin: 0 auto; }
+  h1 { font-size: 20px; margin: 0 0 2px; }
+  .sub { color: var(--muted); font-size: 13px; margin: 0 0 10px; }
+  .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+  .seg button { border: 0; background: transparent; color: var(--ink); padding: 8px 12px; font: inherit; cursor: pointer; }
+  .seg button + button { border-inline-start: 1px solid var(--line); }
+  .seg button[aria-pressed="true"] { background: var(--brand); color: var(--brand-ink); font-weight: 700; }
+  .go { background: var(--brand); color: var(--brand-ink); border: 0; border-radius: 10px; padding: 10px 22px; font: inherit; font-weight: 800; font-size: 16px; cursor: pointer; }
+  .go:disabled { opacity: .55; cursor: progress; }
+  select { font: inherit; padding: 8px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); max-width: 100%; }
+  main { padding: 14px 16px 60px; }
+  .vitals { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 8px; margin-bottom: 12px; }
+  .vital { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; }
+  .vital b { display: block; font-size: 20px; font-variant-numeric: tabular-nums; }
+  .vital span { color: var(--muted); font-size: 12.5px; }
+  .phase { background: var(--note-bg); color: var(--note); border-radius: 10px; padding: 8px 12px; font-weight: 700; margin-bottom: 12px; min-height: 40px; }
+  .stage { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 12px; }
+  @media (max-width: 760px) { .stage { grid-template-columns: 1fr; } }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 12px; }
+  .card h2 { font-size: 15px; margin: 0 0 8px; }
+  .people { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chip { border: 1.5px solid var(--line); border-radius: 999px; padding: 3px 10px; font-size: 13px; transition: box-shadow .25s, transform .25s, background .25s; }
+  .chip.provider { border-color: var(--provider); } .chip.client { border-color: var(--client); }
+  .chip.on { box-shadow: 0 0 0 3px var(--glow); transform: scale(1.07); background: var(--warn-bg); }
+  .legend { color: var(--muted); font-size: 12.5px; margin: 8px 0 0; }
+  .dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; margin-inline-end: 4px; }
+  .feed { height: 330px; overflow: auto; display: flex; flex-direction: column; gap: 4px; }
+  .line { padding: 5px 9px; border-radius: 8px; background: var(--bg); font-size: 13.5px; animation: in .28s ease-out; display: flex; gap: 8px; justify-content: space-between; }
+  .line.chat { background: var(--ok-bg); } .line.bad { background: var(--bad-bg); color: var(--bad); font-weight: 700; }
+  .line small { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  @keyframes in { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .line { animation: none; } .chip { transition: none; } }
+  .tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 16px 0 10px; }
+  .tab { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 10px; padding: 8px 12px; font: inherit; cursor: pointer; display: inline-flex; gap: 8px; align-items: center; }
+  .tab[aria-selected="true"] { border-color: var(--brand); box-shadow: inset 0 -3px 0 var(--brand); font-weight: 800; }
+  .badge { border-radius: 999px; padding: 0 8px; font-size: 12.5px; font-weight: 800; font-variant-numeric: tabular-nums; }
+  .badge.bad { background: var(--bad-bg); color: var(--bad); } .badge.ok { background: var(--ok-bg); color: var(--ok); }
+  .item { border: 1px solid var(--line); border-inline-start: 5px solid var(--warn); border-radius: 10px; padding: 9px 12px; margin-bottom: 8px; background: var(--panel); }
+  .item.s-خطير { border-inline-start-color: var(--bad); } .item.s-ملاحظة { border-inline-start-color: var(--note); }
+  .item h3 { margin: 0; font-size: 14.5px; } .item p { margin: 4px 0 0; color: var(--muted); font-size: 13px; overflow-wrap: anywhere; }
+  .sev { font-size: 12px; font-weight: 800; border-radius: 6px; padding: 1px 7px; margin-inline-end: 6px; background: var(--warn-bg); color: var(--warn); }
+  .s-خطير .sev { background: var(--bad-bg); color: var(--bad); } .s-ملاحظة .sev { background: var(--note-bg); color: var(--note); }
+  .clean { background: var(--ok-bg); color: var(--ok); border-radius: 10px; padding: 10px 12px; font-weight: 700; }
+  details { margin-top: 10px; } summary { cursor: pointer; color: var(--muted); font-weight: 700; }
+  .passes { columns: 2; column-gap: 18px; margin: 8px 0 0; padding-inline-start: 18px; font-size: 13px; color: var(--muted); }
+  @media (max-width: 760px) { .passes { columns: 1; } }
+  .fix { border: 1px dashed var(--ok); border-radius: 10px; padding: 9px 12px; margin-top: 8px; }
+  .fix h3 { margin: 0; font-size: 14px; } .fix p { margin: 3px 0 0; font-size: 13px; color: var(--muted); }
+  .fix .st { color: var(--ok); font-weight: 800; }
+  .tablewrap { overflow-x: auto; } table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  th, td { text-align: start; padding: 6px 8px; border-bottom: 1px solid var(--line); white-space: nowrap; } td.n { font-variant-numeric: tabular-nums; }
+  h2.sec { font-size: 15px; margin: 18px 0 6px; }
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <h1>محاكي «أي خدمة»</h1>
+  <p class="sub">يشغّل نسخة معزولة من الموقع بقاعدة بيانات مؤقتة، ولا يمس الموقع الحقيقي ولا بيانات العملاء.</p>
+  <div class="controls">
+    <div class="seg" role="group" aria-label="حجم المحاكاة">
+      <button type="button" data-n="10" aria-pressed="true">10 + 10 · كل الاحتمالات</button>
+      <button type="button" data-n="50">50 + 50</button>
+      <button type="button" data-n="150">150 + 150 · استقرار</button>
+      <button type="button" data-n="300">300 + 300</button>
+    </div>
+    <button class="go" id="go" type="button">▶ ابدأ المحاكاة</button>
+    <select id="history" aria-label="محاكاة سابقة"><option value="">المحاكاة السابقة…</option></select>
+  </div>
+</div></header>
+<main><div class="wrap">
+  <div class="vitals">
+    <div class="vital"><b id="v-time">0</b><span>ثانية</span></div>
+    <div class="vital"><b id="v-req">0</b><span>طلب للخادم</span></div>
+    <div class="vital"><b id="v-msg">0</b><span>رسالة محادثة</span></div>
+    <div class="vital"><b id="v-mem">—</b><span>ذاكرة الخادم (MB)</span></div>
+    <div class="vital"><b id="v-db">—</b><span>اتصالات قاعدة البيانات</span></div>
+    <div class="vital"><b id="v-bad">0</b><span>مشكلة مرصودة</span></div>
+  </div>
+  <div class="phase" id="phase" aria-live="polite">اضغط «ابدأ المحاكاة».</div>
+  <div class="stage">
+    <section class="card"><h2>المشاركون</h2><div class="people" id="people"></div>
+      <p class="legend"><span class="dot" style="background:var(--provider)"></span>مقدم خدمة <span class="dot" style="background:var(--client);margin-inline-start:10px"></span>طالب خدمة · يضيء من يتحرك الآن</p></section>
+    <section class="card"><h2>ما يحدث الآن</h2><div class="feed" id="feed" aria-live="off"></div></section>
+  </div>
+  <div class="tabs" role="tablist" id="tabs"></div>
+  <section id="panel" role="tabpanel"></section>
+</div></main>
+<script>
+const TABS = [['gaps', 'النواقص'], ['speed', 'السرعة'], ['security', 'الأمان'], ['conflict', 'التعارض'], ['errors', 'الأخطاء'], ['flood', 'الإغراق']];
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+let size = 10, active = 'gaps', running = false, fixes = [], clock = null, t0 = 0;
+let state;
+const fresh = () => ({ findings: [], passes: Object.fromEntries(TABS.map(([k]) => [k, []])), speed: null, messages: 0, summary: null });
+state = fresh();
+
+function renderTabs() {
+  $('tabs').innerHTML = TABS.map(([key, label]) => {
+    const bad = state.findings.filter(f => f.tab === key && f.severity !== 'ملاحظة').length;
+    const ok = state.summary ? (state.summary.passes?.[key] ?? 0) : state.passes[key].length;
+    return `<button class="tab" role="tab" aria-selected="${key === active}" data-tab="${key}">${label}
+      ${bad ? `<span class="badge bad">${bad}</span>` : ''}<span class="badge ok">✓ ${ok}</span></button>`;
+  }).join('');
+}
+function renderPanel() {
+  const list = state.findings.filter(f => f.tab === active);
+  const passed = state.passes[active];
+  const label = TABS.find(([k]) => k === active)[1];
+  let html = '';
+  if (list.length) html += list.map(f => `<article class="item s-${esc(f.severity)}"><h3><span class="sev">${esc(f.severity)}</span>${esc(f.title)}${f.count > 1 ? ` ×${f.count}` : ''}</h3>${f.detail ? `<p>${esc(f.detail)}</p>` : ''}</article>`).join('');
+  else html += `<div class="clean">${state.summary || running ? `لا مشكلة مرصودة في «${label}» ${running ? 'حتى الآن' : 'في هذه المحاكاة'}.` : 'لم تبدأ محاكاة بعد.'}</div>`;
+  if (active === 'speed' && state.speed?.table?.length) {
+    const s = state.speed.stall || {};
+    html += `<h2 class="sec">مدة كل عملية (بالملّي ثانية)</h2><div class="tablewrap"><table><thead><tr><th>العملية</th><th>العدد</th><th>المتوسط</th><th>أبطأ 5٪</th><th>الأقصى</th></tr></thead><tbody>${
+      state.speed.table.map(r => `<tr><td>${esc(r.label)}</td><td class="n">${r.count}</td><td class="n">${r.avg}</td><td class="n">${r.p95}</td><td class="n">${r.max}</td></tr>`).join('')}</tbody></table></div>
+      <p class="legend">تجمد الخادم على بقية المستخدمين: أطول مرة ${s.max ?? '—'}ms، و95٪ من الفحوص تحت ${s.p95 ?? '—'}ms (${s.samples ?? 0} فحصًا).</p>`;
+  }
+  if (passed.length) html += `<details><summary>ما نجح (${passed.length})</summary><ul class="passes">${passed.map(p => `<li>${esc(p)}</li>`).join('')}</ul></details>`;
+  const done = fixes.filter(f => f.tab === active);
+  html += `<h2 class="sec">الإصلاح: ما تم</h2>`;
+  html += done.length ? done.map(f => `<article class="fix"><h3>${esc(f.title)}</h3><p>${esc(f.fix)}</p><p><span class="st">${esc(f.status)}</span> · ${esc(f.date)}${f.commit ? ` · ${esc(f.commit)}` : ''}</p></article>`).join('')
+    : `<p class="legend">لا إصلاحات مسجلة في هذا التبويب بعد.</p>`;
+  $('panel').innerHTML = html;
+}
+function addLine(event) {
+  const div = document.createElement('div');
+  div.className = `line${event.chat ? ' chat' : ''}${event.bad ? ' bad' : ''}`;
+  div.innerHTML = `<span>${esc(event.text)}</span>${event.ms != null ? `<small>${event.ms}ms</small>` : ''}`;
+  const feed = $('feed');
+  feed.prepend(div);
+  while (feed.children.length > 250) feed.lastChild.remove();
+  for (const who of [event.actor, event.peer]) {
+    const chip = who && document.querySelector(`.chip[data-who="${CSS.escape(who)}"]`);
+    if (chip) { chip.classList.add('on'); setTimeout(() => chip.classList.remove('on'), 700); }
+  }
+}
+function setRunning(value) {
+  running = value;
+  $('go').disabled = value;
+  $('go').textContent = value ? '… المحاكاة تعمل' : '▶ ابدأ المحاكاة';
+  clearInterval(clock);
+  if (value) { t0 = Date.now(); clock = setInterval(() => { $('v-time').textContent = Math.round((Date.now() - t0) / 1000); }, 500); }
+}
+function reset() {
+  state = fresh();
+  $('feed').innerHTML = ''; $('people').innerHTML = '';
+  for (const id of ['v-req', 'v-msg', 'v-bad', 'v-time']) $(id).textContent = '0';
+  $('v-mem').textContent = '—'; $('v-db').textContent = '—';
+  renderTabs(); renderPanel();
+}
+function showSummary(summary) {
+  state.summary = summary;
+  state.findings = summary.findings || [];
+  state.speed = summary.speed;
+  $('v-time').textContent = summary.seconds ?? 0; $('v-req').textContent = summary.requests ?? 0; $('v-msg').textContent = summary.messages ?? 0;
+  $('v-mem').textContent = summary.memoryPeakMb || '—'; $('v-db').textContent = summary.connectionsPeak || '—';
+  $('v-bad').textContent = state.findings.filter(f => f.severity !== 'ملاحظة').length;
+  const bad = state.findings.filter(f => f.severity !== 'ملاحظة').length;
+  $('phase').textContent = summary.fatal ? `توقفت المحاكاة: ${summary.fatal}`
+    : `انتهت: ${summary.providers} مقدم خدمة و${summary.clients} طالب خدمة، ${summary.completed} طلبًا اكتمل من ${summary.jobs}، ${summary.delivered} رسالة وصلت فورًا. ${bad ? `${bad} مشكلة مرصودة.` : 'لا مشاكل مرصودة.'}`;
+  renderTabs(); renderPanel();
+}
+function handle(event) {
+  if (event.type === 'hello') { setRunning(event.running); if (!event.running) loadHistory(true); return; }
+  if (event.type === 'start') { reset(); setRunning(true); $('phase').textContent = 'بدأت المحاكاة…'; return; }
+  if (event.type === 'phase') { $('phase').textContent = event.title; addLine({ text: `— ${event.title} —` }); return; }
+  if (event.type === 'people') {
+    const shown = event.people.slice(0, 80);
+    $('people').innerHTML = shown.map(p => `<span class="chip ${p.role}" data-who="${esc(p.label)}">${esc(p.label.replace(/^(المزود|العميل) /, ''))}</span>`).join('')
+      + (event.people.length > shown.length ? `<span class="chip">+${event.people.length - shown.length}</span>` : '');
+    return;
+  }
+  if (event.type === 'act') { if (event.chat) $('v-msg').textContent = ++state.messages; addLine(event); return; }
+  if (event.type === 'pass') { state.passes[event.tab].push(event.title); renderTabs(); if (event.tab === active) renderPanel(); return; }
+  if (event.type === 'finding') {
+    state.findings.push(event);
+    $('v-bad').textContent = state.findings.filter(f => f.severity !== 'ملاحظة').length;
+    addLine({ text: `⚠ ${event.title}`, bad: event.severity !== 'ملاحظة' });
+    renderTabs(); if (event.tab === active) renderPanel(); return;
+  }
+  if (event.type === 'vitals') { $('v-mem').textContent = event.memoryMb || '—'; $('v-db').textContent = event.connections || '—'; $('v-req').textContent = event.requests; return; }
+  if (event.type === 'done') { setRunning(false); showSummary(event.summary); loadHistory(false); }
+}
+async function loadHistory(showLatest) {
+  const runs = await (await fetch('/runs')).json();
+  $('history').innerHTML = '<option value="">المحاكاة السابقة…</option>' + runs.map(r =>
+    `<option value="${esc(r.file)}">${esc(new Date(r.startedAt).toLocaleString('ar-SA'))} · ${r.providers}+${r.clients} · ${r.findings} ملاحظة · ${r.seconds}ث</option>`).join('');
+  if (showLatest && runs[0] && !state.summary && !running) showSummary(await (await fetch(`/run?file=${encodeURIComponent(runs[0].file)}`)).json());
+}
+$('tabs').addEventListener('click', e => { const tab = e.target.closest('[data-tab]'); if (tab) { active = tab.dataset.tab; renderTabs(); renderPanel(); } });
+document.querySelector('.seg').addEventListener('click', e => {
+  const b = e.target.closest('[data-n]'); if (!b) return;
+  size = Number(b.dataset.n);
+  for (const x of document.querySelectorAll('.seg button')) x.setAttribute('aria-pressed', String(x === b));
+});
+$('go').addEventListener('click', async () => {
+  if (running) return;
+  const r = await fetch(`/start?providers=${size}&clients=${size}`, { method: 'POST' });
+  if (!r.ok) alert((await r.json()).message || 'تعذر البدء');
+});
+$('history').addEventListener('change', async e => { if (e.target.value && !running) { reset(); showSummary(await (await fetch(`/run?file=${encodeURIComponent(e.target.value)}`)).json()); } });
+fetch('/fixes').then(r => r.json()).then(list => { fixes = list; renderPanel(); });
+renderTabs(); renderPanel();
+new EventSource('/events').onmessage = m => handle(JSON.parse(m.data));
+</script>
+</body>
+</html>

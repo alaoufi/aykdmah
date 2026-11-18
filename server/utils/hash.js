@@ -12,7 +12,9 @@ const digest = password => crypto.createHash('sha256').update(password, 'utf8').
 // AYK-249: bcrypt (pure JavaScript) at cost 12 takes about half a second per sign-in. On the main
 // thread that froze every other user's messages, calls and pages meanwhile. It now runs in a small
 // pool of worker threads; the main thread stays free. If a worker cannot start, it runs inline as before.
-const POOL_SIZE = Math.max(1, Math.min(2, (os.availableParallelism?.() || os.cpus().length) - 1));
+// Up to 4 workers, always leaving one core for the main thread: 20 people signing in at the same
+// instant waited 3.3 s each with 2 workers in the simulator (AYK-250).
+const POOL_SIZE = Math.max(1, Math.min(4, (os.availableParallelism?.() || os.cpus().length) - 1));
 const pool = [];
 const pending = new Map();
 let nextId = 0, nextWorker = 0, workersBroken = false;

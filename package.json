@@ -15,7 +15,8 @@
     "i18n:check": "node scripts/check-translations.js",
     "i18n:fix": "node scripts/check-translations.js --fix",
     "test": "npm --prefix server test",
-    "test:integration": "node scripts/run-integration-tests.cjs"
+    "test:integration": "node scripts/run-integration-tests.cjs",
+    "simulate": "node simulator/sim.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",
