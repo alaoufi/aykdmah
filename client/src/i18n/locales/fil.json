@@ -890,7 +890,9 @@
     "offer_rejected_title": "Ang iyong alok ay tinanggihan",
     "offer_rejected_body": "Sa kasamaang palad, ang iyong alok ay tinanggihan",
     "request_completed_title": "Nagbigay ng kahilingan",
-    "request_completed_body": "Ang iyong kahilingan ay nakatakda na kumpleto"
+    "request_completed_body": "Ang iyong kahilingan ay nakatakda na kumpleto",
+    "many_messages": "{{count}} bagong mensahe",
+    "many_new": "{{count}} bagong abiso"
   },
   "admin": {
     "panel": "Panel ng mga admin",

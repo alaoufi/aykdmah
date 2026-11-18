@@ -7,12 +7,13 @@ import { localizedNotification } from '../data/notificationLabels';
 
 import { createPollingLoop } from '../utils/polling';
 import { chime } from '../utils/ringtone';
+import { createBurst, burstSummary } from '../utils/notifyBurst';
 import { supportUnread } from '../services/supportService';
 
 const NotificationContext = createContext(null);
 
 export function NotificationProvider({ children }) {
-  const { i18n } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAuth();
   const { socket, realtimeMode, connected } = useSocket();
   // While the live connection is down, polling also announces new notifications (AYK-056).
@@ -41,6 +42,24 @@ export function NotificationProvider({ children }) {
     toastTimers.current.add(timer);
   }, []);
 
+  // Notifications that arrive in the same moment are announced once: one banner ("3 new
+  // messages") and one chime instead of three of each (AYK-259).
+  const burstRef = useRef(null);
+  if (!burstRef.current) {
+    burstRef.current = createBurst(batch => {
+      const summary = burstSummary(batch);
+      if (summary.single) announceRef.current('', summary.single);
+      else announceRef.current(tRef.current(summary.key, { count: summary.count }));
+      chime();
+    });
+  }
+  const announceRef = useRef(showToast);
+  announceRef.current = showToast;
+  const tRef = useRef(t);
+  tRef.current = t;
+  useEffect(() => () => burstRef.current.stop(), []);
+  const announce = useCallback(notification => burstRef.current.add(notification), []);
+
   const refresh = useCallback(() => pollRef.current?.refresh(), []);
 
   useEffect(() => {
@@ -61,8 +80,7 @@ export function NotificationProvider({ children }) {
         const next = res.data || [];
         if (seenIds && (realtimeMode === 'polling' || !connectedRef.current)) {
           const fresh = next.filter(n => !seenIds.has(n.id) && !n.is_read);
-          fresh.forEach(n => showToast('', n));
-          if (fresh.length) chime();
+          fresh.forEach(announce);
         }
         seenIds = new Set(next.map(n => n.id));
         setItems(next);
@@ -76,7 +94,7 @@ export function NotificationProvider({ children }) {
       toastTimers.current.forEach(clearTimeout);
       toastTimers.current.clear();
     };
-  }, [user?.id, realtimeMode, showToast]);
+  }, [user?.id, realtimeMode, showToast, announce]);
 
   // Whatever arrived while the live connection was down is fetched the moment it is back.
   useEffect(() => { if (connected) refresh(); }, [connected, refresh]);
@@ -88,12 +106,11 @@ export function NotificationProvider({ children }) {
       // A message in the chat already open on screen (AYK-231): it is there with its own tone,
       // so no second banner and sound.
       if (notif?.link && document.visibilityState === 'visible' && window.location.pathname === notif.link) return;
-      showToast('', notif);
-      chime();
+      announce(notif);
     };
     socket.on('notification:new', onNotif);
     return () => { socket.off('notification:new', onNotif); };
-  }, [socket, refresh, showToast]);
+  }, [socket, refresh, announce]);
 
   const markRead = async (id) => {
     const userId = user?.id;

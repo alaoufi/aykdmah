@@ -890,7 +890,9 @@
     "offer_rejected_title": "Your offer was rejected",
     "offer_rejected_body": "Unfortunately, your offer was rejected",
     "request_completed_title": "Request completed",
-    "request_completed_body": "Your request has been marked complete"
+    "request_completed_body": "Your request has been marked complete",
+    "many_messages": "{{count}} new messages",
+    "many_new": "{{count}} new notifications"
   },
   "admin": {
     "panel": "Admin Panel",

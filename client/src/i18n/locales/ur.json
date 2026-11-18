@@ -890,7 +890,9 @@
     "offer_rejected_title": "آپ کی پیشکش مسترد کر دی گئی",
     "offer_rejected_body": "بدقسمتی سے، آپ کی پیشکش مسترد کر دی گئی",
     "request_completed_title": "درخواست مکمل ہو گئی",
-    "request_completed_body": "آپ کی درخواست مکمل قرار دے دی گئی"
+    "request_completed_body": "آپ کی درخواست مکمل قرار دے دی گئی",
+    "many_messages": "{{count}} نئے پیغامات",
+    "many_new": "{{count}} نئی اطلاعات"
   },
   "admin": {
     "panel": "ایڈمن پینل",

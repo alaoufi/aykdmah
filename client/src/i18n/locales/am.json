@@ -890,7 +890,9 @@
     "offer_rejected_title": "የእርስዎ አቅርቦት ውድቅ ተደርጓል",
     "offer_rejected_body": "የሚያሳዝነው ግን፣ የእርስዎ አቅርቦት ውድቅ ተደርጓል።",
     "request_completed_title": "የተጠናቀቀ ጥያቄ",
-    "request_completed_body": "ጥያቄዎ የተጠናቀቀ ነው"
+    "request_completed_body": "ጥያቄዎ የተጠናቀቀ ነው",
+    "many_messages": "{{count}} አዲስ መልዕክቶች",
+    "many_new": "{{count}} አዲስ ማሳወቂያዎች"
   },
   "admin": {
     "panel": "የአስተዳዳሪ ፓነል",

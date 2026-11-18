@@ -890,7 +890,9 @@
     "offer_rejected_title": "تم رفض عرضك",
     "offer_rejected_body": "للأسف، تم رفض عرضك",
     "request_completed_title": "اكتمل الطلب",
-    "request_completed_body": "تم إكمال طلبك بنجاح"
+    "request_completed_body": "تم إكمال طلبك بنجاح",
+    "many_messages": "{{count}} رسائل جديدة",
+    "many_new": "{{count}} تنبيهات جديدة"
   },
   "admin": {
     "panel": "لوحة الإدارة",

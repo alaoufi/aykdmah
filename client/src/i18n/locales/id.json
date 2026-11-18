@@ -890,7 +890,9 @@
     "offer_rejected_title": "Tawaranmu ditolak",
     "offer_rejected_body": "Sayangnya, tawaranmu ditolak",
     "request_completed_title": "Permintaan selesai",
-    "request_completed_body": "Permintaan Anda telah ditandai selesai"
+    "request_completed_body": "Permintaan Anda telah ditandai selesai",
+    "many_messages": "{{count}} pesan baru",
+    "many_new": "{{count}} notifikasi baru"
   },
   "admin": {
     "panel": "Panel Admin",
