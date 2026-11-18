@@ -25,11 +25,11 @@ const readJson = (file, fallback) => { try { return JSON.parse(fs.readFileSync(f
 const runsList = () => fs.readdirSync(RUNS).filter(f => f.endsWith('.json')).sort().reverse().slice(0, 30)
   .map(f => { const r = readJson(path.join(RUNS, f), {}); return { file: f, startedAt: r.startedAt, providers: r.providers, clients: r.clients, seconds: r.seconds, findings: (r.findings || []).length, mode: r.mode, crowd: r.crowd?.accounts || 0 }; });
 
-async function start({ providers, clients, bulk, together }) {
+async function start({ providers, clients, bulk, together, rush }) {
   current = { events: [], startedAt: Date.now() };
-  emit({ type: 'start', providers, clients, bulk, together });
+  emit({ type: 'start', providers, clients, bulk, together, rush });
   try {
-    const summary = await runSimulation({ providers, clients, bulk, together, emit });
+    const summary = await runSimulation({ providers, clients, bulk, together, rush, emit });
     fs.writeFileSync(path.join(RUNS, `${summary.startedAt.replace(/[:.]/g, '-')}.json`), JSON.stringify(summary, null, 1));
   } catch (err) {
     emit({ type: 'done', summary: { fatal: err.message, findings: [], passes: {}, speed: { table: [], stall: {} } } });
@@ -58,8 +58,9 @@ http.createServer((req, res) => {
     const clients = Math.min(1000, Math.max(2, Number(url.searchParams.get('clients')) || 10));
     const bulk = Math.min(200000, Math.max(0, Number(url.searchParams.get('bulk')) || 0));
     const together = Math.min(providers + clients, Math.max(1, Number(url.searchParams.get('together')) || Math.min(20, providers + clients)));
-    start({ providers, clients, bulk, together });
-    return json(202, { started: true, providers, clients, bulk, together });
+    const rush = Math.min(50000, Math.max(0, Number(url.searchParams.get('rush')) || 0));
+    start({ providers, clients, bulk, together, rush });
+    return json(202, { started: true, providers, clients, bulk, together, rush });
   }
   if (req.method === 'GET' && url.pathname === '/runs') return json(200, runsList());
   if (req.method === 'GET' && url.pathname === '/run') {

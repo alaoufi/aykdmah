@@ -97,6 +97,7 @@
       <option value="40000">+ 40,000 حساب آلي</option>
       <option value="100000">+ 100,000 حساب آلي</option>
     </select>
+    <label class="num">اندفاع: يفتحون التطبيق في اللحظة نفسها<input id="n-rush" type="number" inputmode="numeric" min="0" max="50000" step="500" value="0"></label>
     <button class="go" id="go" type="button">▶ ابدأ المحاكاة</button>
     <select id="history" aria-label="محاكاة سابقة"><option value="">المحاكاة السابقة…</option></select>
   </div>
@@ -148,6 +149,18 @@ function renderPanel() {
     html += `<h2 class="sec">مدة كل عملية (بالملّي ثانية)</h2><div class="tablewrap"><table><thead><tr><th>العملية</th><th>العدد</th><th>المتوسط</th><th>أبطأ 5٪</th><th>الأقصى</th></tr></thead><tbody>${
       state.speed.table.map(r => `<tr><td>${esc(r.label)}</td><td class="n">${r.count}</td><td class="n">${r.avg}</td><td class="n">${r.p95}</td><td class="n">${r.max}</td></tr>`).join('')}</tbody></table></div>
       <p class="legend">تجمد الخادم على بقية المستخدمين: أطول مرة ${s.max ?? '—'}ms، و95٪ من الفحوص تحت ${s.p95 ?? '—'}ms (${s.samples ?? 0} فحصًا).</p>`;
+  }
+  if (active === 'speed' && state.summary?.rush) {
+    const r = state.summary.rush;
+    html += `<h2 class="sec">الاندفاع: ${Number(r.people).toLocaleString('en')} مستخدم فتحوا التطبيق في اللحظة نفسها</h2><div class="tablewrap"><table><tbody>
+      <tr><td>المدة حتى خُدم الجميع</td><td class="n">${r.seconds} ثانية</td></tr>
+      <tr><td>طلبات أنجزها الخادم في الثانية</td><td class="n">${Number(r.perSecond).toLocaleString('en')}</td></tr>
+      <tr><td>فتح الشاشة الأولى: الوسيط / أبطأ 5٪</td><td class="n">${(r.medianMs / 1000).toFixed(1)} / ${(r.p95Ms / 1000).toFixed(1)} ثانية</td></tr>
+      <tr><td>مستخدمون لم تكتمل شاشتهم</td><td class="n">${Number(r.failedPeople).toLocaleString('en')}</td></tr>
+      <tr><td>اتصالات حية فُتحت</td><td class="n">${Number(r.live).toLocaleString('en')} من ${Number(r.liveTarget).toLocaleString('en')}</td></tr>
+      <tr><td>استعلامات قاعدة البيانات لكل طلب</td><td class="n">${r.queriesPerRequest}</td></tr>
+      <tr><td>وقت المعالج: الخادم / المحاكي</td><td class="n">${r.cpu?.serverSeconds} / ${r.cpu?.simulatorSeconds} ثانية</td></tr>
+    </tbody></table></div>`;
   }
   if (passed.length) html += `<details><summary>ما نجح (${passed.length})</summary><ul class="passes">${passed.map(p => `<li>${esc(p)}</li>`).join('')}</ul></details>`;
   const done = fixes.filter(f => f.tab === active);
@@ -229,7 +242,7 @@ document.querySelector('.seg').addEventListener('click', e => {
 $('go').addEventListener('click', async () => {
   if (running) return;
   const n = id => Math.max(1, Math.floor(Number($(id).value) || 0));
-  const r = await fetch(`/start?providers=${n('n-providers')}&clients=${n('n-clients')}&together=${n('n-together')}&bulk=${$('bulk').value}`, { method: 'POST' });
+  const r = await fetch(`/start?providers=${n('n-providers')}&clients=${n('n-clients')}&together=${n('n-together')}&bulk=${$('bulk').value}&rush=${Math.max(0, Math.floor(Number($('n-rush').value) || 0))}`, { method: 'POST' });
   if (!r.ok) alert((await r.json()).message || 'تعذر البدء');
 });
 $('history').addEventListener('change', async e => { if (e.target.value && !running) { reset(); showSummary(await (await fetch(`/run?file=${encodeURIComponent(e.target.value)}`)).json()); } });

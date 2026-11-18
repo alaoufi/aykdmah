@@ -11,6 +11,7 @@ const env = require('./config/env');
 const apiRoutes = require('./routes');
 const { notFoundHandler, errorHandler } = require('./middleware/errorHandler');
 const { generalLimiter } = require('./middleware/rateLimiter');
+const { microCache } = require('./middleware/microCache');
 const { localeMiddleware } = require('./utils/i18n');
 
 const app = express();
@@ -37,7 +38,9 @@ app.use(helmet({
   crossOriginResourcePolicy: { policy: 'same-origin' },
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
 }));
-app.use(compression());
+// Level 1 (AYK-251): the default level spent about a tenth of the server's time compressing when
+// thousands opened the app at once; level 1 is several times cheaper for answers a little larger.
+app.use(compression({ level: 1 }));
 const allowedOrigins = new Set([env.CLIENT_URL, env.APP_URL].filter(Boolean));
 app.use(cors({
   origin: (origin, callback) => callback(null, !origin || allowedOrigins.has(origin)),
@@ -85,7 +88,8 @@ app.use('/api', (req, res, next) => {
 
 // Search-engine pages and sitemap: crawlers fetch many pages, so no per-IP API limit.
 app.use('/api/seo', require('./routes/seoRoutes'));
-app.use('/api', generalLimiter, apiRoutes);
+// AYK-251: public reads every app start asks for, answered from memory for 5 seconds.
+app.use('/api', generalLimiter, microCache(5, ['/api/settings/public', '/api/categories', '/api/countries']), apiRoutes);
 
 if (env.NODE_ENV === 'production' && fs.existsSync(env.PATHS.CLIENT_DIST)) {
   app.use(express.static(env.PATHS.CLIENT_DIST, { index: false }));

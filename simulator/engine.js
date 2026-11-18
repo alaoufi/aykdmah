@@ -37,7 +37,7 @@ async function inBatches(items, size, fn) {
   return results;
 }
 
-async function runSimulation({ providers = 10, clients = 10, bulk = 0, together = 0, emit = () => {}, pg = {} } = {}) {
+async function runSimulation({ providers = 10, clients = 10, bulk = 0, together = 0, rush = 0, emit = () => {}, pg = {} } = {}) {
   const pgHost = pg.host || process.env.SIM_PG_HOST || '127.0.0.1';
   const pgPort = Number(pg.port || process.env.SIM_PG_PORT || 5432);
   const pgUser = pg.user || process.env.SIM_PG_USER || 'postgres';
@@ -49,7 +49,9 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
   const load = providers + clients > 40; // phase 2: stability under many users
   // How many people sign in at the very same instant (the rest follow in waves of the same size).
   together = Math.min(providers + clients, Math.max(1, Math.floor(Number(together) || Math.min(20, providers + clients))));
-  bulk = Math.min(200000, Math.max(0, Math.floor(Number(bulk) || 0))); // accounts written straight into the database
+  // The rush: this many people, already signed in on their phones, open the app in the same instant.
+  rush = Math.min(50000, Math.max(0, Math.floor(Number(rush) || 0)));
+  bulk = Math.min(200000, Math.max(rush, Math.floor(Number(bulk) || 0))); // accounts written straight into the database
   const startedAt = Date.now();
 
   const findings = [];
@@ -85,11 +87,11 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
     DATABASE_URL: '', DIRECT_DATABASE_URL: '', JWT_SECRET: crypto.randomBytes(48).toString('hex'),
     ENCRYPTION_KEY: crypto.randomBytes(32).toString('hex'), PAYMENT_PROVIDER: 'test',
     MAIL_HOST: '', WHATSAPP_PROVIDER: '', BOOTSTRAP_ADMIN_EMAIL: '', BOOTSTRAP_ADMIN_PASSWORD: '', GEOIP_DISABLE: '1',
-    NO_PROXY: '127.0.0.1,localhost',
+    NO_PROXY: '127.0.0.1,localhost', ...(process.env.SIM_DB_POOL_MAX ? { DB_POOL_MAX: process.env.SIM_DB_POOL_MAX } : {}),
     // Calls: rings, answers and tokens are real; no media server runs here, so no audio is carried.
     LIVEKIT_URL: 'wss://calls.sim.invalid/livekit', LIVEKIT_API_URL: '', LIVEKIT_API_KEY: 'simkey', LIVEKIT_API_SECRET: crypto.randomBytes(32).toString('hex'),
   };
-  let app = null, dbCreated = false, memoryPeakMb = 0, connectionsPeak = 0, monitor = null, prober = null, crowd = null, signIn = null;
+  let app = null, dbCreated = false, memoryPeakMb = 0, connectionsPeak = 0, monitor = null, prober = null, crowd = null, signIn = null, rushReport = null;
   const sockets = [];
 
   async function setup() {
@@ -112,7 +114,7 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
       child.on('exit', code => (code === 0 ? resolve() : reject(new Error(`فشل تجهيز القاعدة: ${err.slice(-400)}`))));
     });
     say('طُبّقت كل الترحيلات على القاعدة المؤقتة', { actor: 'النظام' });
-    app = spawn(process.execPath, ['server/server.js'], { cwd: ROOT, env });
+    app = spawn(process.execPath, [...(process.env.SIM_PROFILE ? ['--cpu-prof', `--cpu-prof-dir=${process.env.SIM_PROFILE}`] : []), 'server/server.js'], { cwd: ROOT, env });
     const onLog = data => {
       for (const line of String(data).split('\n')) {
         if (/TypeError|ReferenceError|RangeError|SyntaxError|UnhandledPromiseRejection|ECONNREFUSED|deadlock|too many clients|out of memory/i.test(line)) serverErrors.push(line.replace(/\u001b\[[0-9;]*m/g, '').slice(0, 300));
@@ -151,7 +153,7 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
     clearInterval(monitor);
     if (prober) clearInterval(prober.timer);
     for (const s of sockets) { try { s.disconnect(); } catch (_) { /* closed */ } }
-    if (app) { app.kill('SIGTERM'); await sleep(400); if (app.exitCode === null) app.kill('SIGKILL'); }
+    if (app) { app.kill(process.env.SIM_PROFILE ? 'SIGINT' : 'SIGTERM'); await sleep(process.env.SIM_PROFILE ? 3000 : 400); if (app.exitCode === null) app.kill('SIGKILL'); }
     if (dbCreated) {
       const client = admin();
       try { await client.connect(); await client.query(`DROP DATABASE IF EXISTS "${dbName}" WITH (FORCE)`); } catch (_) { /* reported below */ } finally { await client.end().catch(() => {}); }
@@ -192,6 +194,89 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
     } catch (err) {
       finding('errors', 'خطير', 'تعذر تجهيز الحسابات الآلية', err.message);
     } finally { await db.end().catch(() => {}); }
+  }
+
+  // ---- the rush: tens of thousands open the app at the same instant -------------------------------
+  // People stay signed in for a year, so opening the app does not hash a password: it restores the
+  // saved session and loads the first screen. Each crowd account gets a valid session (signed with
+  // this copy's own key) and, all at once, does what the app does on opening: who am I, settings,
+  // categories, my list, unread count. A share of them also opens the live connection.
+  async function theRush() {
+    if (!rush) return;
+    phase(`الاندفاع: ${rush.toLocaleString('en')} مستخدم يفتحون التطبيق في اللحظة نفسها`);
+    const jwt = serverRequire('jsonwebtoken');
+    const db = new Client({ host: pgHost, port: pgPort, user: pgUser, password: pgPassword, database: dbName, ssl: false });
+    await db.connect();
+    const rows = (await db.query("SELECT id, role FROM users WHERE email LIKE 'crowd\\_%' ORDER BY id LIMIT $1", [rush])).rows;
+    await db.end();
+    const crowdPeople = rows.map((row, i) => ({
+      id: row.id, role: row.role, ip: `11.${Math.floor(i / 62500) % 250}.${Math.floor(i / 250) % 250}.${(i % 250) + 1}`,
+      token: jwt.sign({ id: row.id, role: row.role, auth_version: 0, scope: 'site', sv: 0 }, env.JWT_SECRET, { algorithm: 'HS256', expiresIn: '1h' }),
+    }));
+    const statuses = {}, durations = [], perRoute = {};
+    let failedPeople = 0, done = 0;
+    const openApp = async person => {
+      const t = Date.now();
+      const headers = { Authorization: `Bearer ${person.token}`, 'X-Forwarded-For': person.ip, 'Accept-Language': 'ar' };
+      const routes = ['/auth/me', '/settings/public', '/categories', person.role === 'provider' ? '/requests/nearby?latitude=26.33&longitude=43.98&radius=20&limit=12' : '/requests/my', '/chat/unread'];
+      let ok = true;
+      await Promise.all(routes.map(async route => {
+        let status = 0;
+        const started = Date.now();
+        try { const r = await fetch(base + route, { headers }); status = r.status; await r.arrayBuffer(); } catch (_) { /* refused or reset */ }
+        const name = route.split('?')[0];
+        (perRoute[name] ||= []).push(Date.now() - started);
+        statuses[status] = (statuses[status] || 0) + 1;
+        stats.requests += 1;
+        if (status !== 200) ok = false;
+      }));
+      durations.push(Date.now() - t);
+      if (!ok) failedPeople += 1;
+      if (++done % Math.max(500, Math.floor(rush / 10)) === 0) say(`${done.toLocaleString('en')} من ${rush.toLocaleString('en')} فتحوا التطبيق`, { actor: 'النظام' });
+    };
+    const before = prober.stalls.length;
+    const transactions = async () => { const c = admin(); try { await c.connect(); return Number((await c.query('SELECT xact_commit + xact_rollback AS n FROM pg_stat_database WHERE datname = $1', [dbName])).rows[0].n); } catch (_) { return 0; } finally { await c.end().catch(() => {}); } };
+    const txBefore = await transactions();
+    // CPU seconds used by the app copy (all its threads) and by this simulator during the rush:
+    // if the simulator itself is the busy one, the numbers measure it, not the site.
+    const serverCpu = () => { try { const f = require('node:fs').readFileSync(`/proc/${app.pid}/stat`, 'utf8').split(') ')[1].split(' '); return (Number(f[11]) + Number(f[12])) / 100; } catch (_) { return 0; } };
+    const cpu0 = { server: serverCpu(), sim: process.cpuUsage() };
+    const t0 = Date.now();
+    await Promise.all(crowdPeople.map(openApp));
+    const seconds = (Date.now() - t0) / 1000;
+    const simCpu = process.cpuUsage(cpu0.sim);
+    const cpu = { serverSeconds: Number((serverCpu() - cpu0.server).toFixed(1)), simulatorSeconds: Number(((simCpu.user + simCpu.system) / 1e6).toFixed(1)) };
+    await sleep(600); // statistics are flushed a moment later
+    const queriesPerRequest = Number(((await transactions() - txBefore) / (rush * 5)).toFixed(1));
+    // Live connections: a share of the crowd connects at once and must all be accepted.
+    const { io } = clientRequire('socket.io-client');
+    const liveTarget = Math.min(rush, 3000);
+    let live = 0;
+    const tLive = Date.now();
+    await inBatches(crowdPeople.slice(0, liveTarget), 500, person => new Promise(resolve => {
+      const socket = io(`http://127.0.0.1:${appPort}`, { auth: { token: person.token, lang: 'ar' }, transports: ['websocket'], reconnection: false, extraHeaders: { 'X-Forwarded-For': person.ip } });
+      sockets.push(socket);
+      socket.on('connect', () => { live += 1; resolve(); });
+      socket.on('connect_error', () => resolve());
+      setTimeout(resolve, 15000);
+    }));
+    const liveSeconds = (Date.now() - tLive) / 1000;
+    await sleep(500);
+    const sorted = durations.sort((x, y) => x - y);
+    const stalls = prober.stalls.slice(before).sort((x, y) => x - y);
+    rushReport = {
+      people: rush, seconds: Number(seconds.toFixed(1)), requests: rush * 5, queriesPerRequest, cpu, perSecond: Math.round(rush * 5 / seconds),
+      failedPeople, statuses, medianMs: percentile(sorted, 0.5), p95Ms: percentile(sorted, 0.95), maxMs: sorted[sorted.length - 1] || 0,
+      routes: Object.fromEntries(Object.entries(perRoute).map(([k, v]) => { v.sort((x, y) => x - y); return [k, { medianMs: percentile(v, 0.5), p95Ms: percentile(v, 0.95) }]; })),
+      live, liveTarget, liveSeconds: Number(liveSeconds.toFixed(1)), memoryMb: memoryPeakMb, stallMaxMs: stalls[stalls.length - 1] || 0,
+    };
+    say(`انتهى الاندفاع: ${rush.toLocaleString('en')} فتحوا التطبيق خلال ${rushReport.seconds} ثانية (${rushReport.perSecond.toLocaleString('en')} طلب في الثانية)`, { actor: 'النظام', bad: failedPeople > 0 });
+    const histogram = Object.entries(statuses).map(([k, v]) => `${k === '0' ? 'انقطاع' : k}×${v.toLocaleString('en')}`).join('، ');
+    check('errors', failedPeople === 0, `الاندفاع: كل الـ ${rush.toLocaleString('en')} فتحوا التطبيق بنجاح`, `${failedPeople.toLocaleString('en')} مستخدم لم تكتمل شاشته الأولى؛ ردود الخادم: ${histogram}`, 'خطير');
+    check('speed', rushReport.p95Ms <= 5000, 'الاندفاع: الشاشة الأولى تفتح خلال 5 ثوانٍ لـ 95٪ من المستخدمين', `الوسيط ${rushReport.medianMs}ms، أبطأ 5٪ ${rushReport.p95Ms}ms، الأقصى ${rushReport.maxMs}ms`, rushReport.p95Ms > 15000 ? 'خطير' : 'متوسط');
+    check('errors', live === liveTarget, `الاندفاع: ${liveTarget.toLocaleString('en')} اتصالًا حيًّا فُتحت كلها`, `فُتح ${live.toLocaleString('en')} من ${liveTarget.toLocaleString('en')} خلال ${rushReport.liveSeconds} ثانية`, 'خطير');
+    for (const s of sockets.splice(0)) { try { s.disconnect(); } catch (_) { /* closed */ } }
+    await sleep(1000);
   }
 
   // ---- one HTTP call as one simulated person ----------------------------------------------------
@@ -661,6 +746,8 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
     await marketplace();
     await chats();
     await completion();
+    await theRush();
+    if (rush) await connectSockets(); // the rush closed every live connection; the people reconnect
     await security();
     await conflicts();
     await gaps();
@@ -674,7 +761,7 @@ async function runSimulation({ providers = 10, clients = 10, bulk = 0, together 
   }
   const summary = {
     startedAt: new Date(startedAt).toISOString(), seconds: Math.round((Date.now() - startedAt) / 1000),
-    providers, clients, together, signIn, crowd, mode: bulk ? `حشد ${bulk.toLocaleString('en')} حساب` : load ? 'استقرار (عدد كبير)' : 'كل الاحتمالات',
+    providers, clients, together, signIn, crowd, rush: rushReport, mode: bulk ? `حشد ${bulk.toLocaleString('en')} حساب` : load ? 'استقرار (عدد كبير)' : 'كل الاحتمالات',
     cleanedUp: true, // the copy is stopped and its database dropped in teardown(): nothing is left behind
     requests: stats.requests, failed5xx: stats.failed5xx, messages: stats.messages, delivered: stats.delivered,
     jobs: jobs.length, completed: jobs.filter(j => j.completed).length,
