@@ -703,20 +703,28 @@ if (!databasePrefix) {
     const archive = await api('/requests/my?status=completed', { token: client.token });
     assert.ok(archive.some(item => Number(item.id) === Number(direct.request_id) && item.assigned_provider_name === 'سباك الحي'));
 
-    // AYK-260: the provider keeps this requester in their own directory. The request finished
-    // 8 days ago (above), so the contact time has passed: the card says it cannot be written to
-    // (no buttons that end in "not found"). While the chat is open it offers it. A provider entry always can.
+    // AYK-260 (the owner's decision): whoever is in my directory can be written to, a provider or
+    // not. The provider keeps this requester. The request finished 8 days ago (above), so their
+    // request chat is closed: "message" opens a plain conversation instead of ending in "not found",
+    // the same one each time, and both can write in it. While the request chat is open, it is used.
+    await api(`/users/me/directory/${client.user.id}/chat`, { method: 'POST', token: provider.token, expected: 404 }); // not in my directory yet
     await api(`/users/me/directory/${client.user.id}`, { method: 'POST', token: provider.token, body: { nickname: 'عميل الحي' } });
     const keptClient = async () => (await api('/users/me/directory', { token: provider.token })).find(item => Number(item.id) === Number(client.user.id));
     let kept = await keptClient();
     assert.equal(kept.is_provider, false);
     assert.equal(kept.can_message, false);
+    const plain = await api(`/users/me/directory/${client.user.id}/chat`, { method: 'POST', token: provider.token });
+    assert.ok(plain.conversation_id && Number(plain.conversation_id) !== Number(direct.conversation_id));
+    assert.equal((await api(`/users/me/directory/${client.user.id}/chat`, { method: 'POST', token: provider.token })).conversation_id, plain.conversation_id);
+    await api(`/chat/conversations/${plain.conversation_id}/messages`, { method: 'POST', token: provider.token, body: { content: 'السلام عليكم، عندنا عرض جديد' }, expected: 201 });
+    await api(`/chat/conversations/${plain.conversation_id}/messages`, { method: 'POST', token: client.token, body: { content: 'وعليكم السلام' }, expected: 201 });
+    assert.equal((await keptClient()).can_message, true);
     assert.equal((await api('/users/me/directory', { token: client.token })).find(item => Number(item.id) === Number(provider.user.id)).can_message, true);
-    await db.query('UPDATE requests SET completed_at = CURRENT_TIMESTAMP, updated_at = CURRENT_TIMESTAMP WHERE id = ?', [direct.request_id]);
-    kept = await keptClient();
-    assert.equal(kept.can_message, true);
-    assert.equal(Number(kept.conversation_id), Number(direct.conversation_id));
-    await db.query("UPDATE requests SET completed_at = CURRENT_TIMESTAMP - INTERVAL '8 days', updated_at = CURRENT_TIMESTAMP - INTERVAL '8 days' WHERE id = ?", [direct.request_id]);
+    // A stranger's directory chat with someone they never saved is refused; so is one across a block.
+    await api(`/users/me/directory/${client.user.id}/chat`, { method: 'POST', token: other.token, expected: 404 });
+    await api(`/users/me/blocks/${provider.user.id}`, { method: 'POST', token: client.token });
+    await api(`/users/me/directory/${client.user.id}/chat`, { method: 'POST', token: provider.token, expected: 403 });
+    await api(`/users/me/blocks/${provider.user.id}`, { method: 'DELETE', token: client.token });
     await api(`/users/me/directory/${client.user.id}`, { method: 'DELETE', token: provider.token });
 
     await api(`/users/me/directory/${provider.user.id}`, { method: 'DELETE', token: client.token });

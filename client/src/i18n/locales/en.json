@@ -2635,8 +2635,7 @@
     "saved_note": "\"{{name}}\" saved to your directory.",
     "message": "Message",
     "call": "Call",
-    "save_title": "Save to my directory",
-    "contact_ended": "The contact time with them ended after the request finished. It opens again when they request you again."
+    "save_title": "Save to my directory"
   },
   "account_delete": {
     "title": "Delete my account",

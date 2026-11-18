@@ -112,6 +112,12 @@ export async function saveToDirectory(providerId, saved = true, nickname = null)
   return data.data;
 }
 
+// A conversation with someone kept in my directory who is not a service provider (AYK-260).
+export async function directoryChat(userId) {
+  const { data } = await api.post(`/users/me/directory/${userId}/chat`);
+  return data.data;
+}
+
 export async function contactDirect(providerId, categoryId) {
   return withContactIntent(async intent => {
   const choice = await contactChoice({user_id:providerId},intent);

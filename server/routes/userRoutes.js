@@ -34,10 +34,12 @@ router.post('/me/avatar', authenticate, require('../middleware/rateLimiter').upl
   require('../middleware/upload').uploadAvatar.single('file'), userController.uploadAvatar);
 // The requester's own directory of providers (AYK-041).
 const directory = require('../controllers/directoryController');
+const { requireMarketplaceWrite } = require('../middleware/verificationPolicy');
 router.get('/me/directory', authenticate, directory.list);
 router.get('/me/directory/ids', authenticate, directory.ids);
 router.post('/me/directory/:providerId', authenticate, directory.add);
 router.delete('/me/directory/:providerId', authenticate, directory.remove);
+router.post('/me/directory/:providerId/chat', authenticate, requireMarketplaceWrite, directory.chat);
 // Deleting one's own account (AYK-116, Google Play).
 router.post('/me/delete', authenticate, require('../controllers/accountDeletionController').deleteMe);
 // Members block each other (AYK-084).

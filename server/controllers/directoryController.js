@@ -31,10 +31,11 @@ const list = asyncHandler(async (req, res) => {
     LEFT JOIN districts dist ON dist.id = u.district_id
     WHERE sp.user_id = ? ORDER BY sp.created_at DESC`, [req.user.id]);
   await hideRequesterNames(req.user.id, rows, req.t('requester_label'));
-  // Can this person be written to from here? (AYK-260) A provider always can: a direct request
-  // opens a chat. Anyone else (a requester kept from a chat) only through a conversation that is
-  // still open; once its contact time has ended there is no way to start one from this side, so
-  // the card says so instead of offering buttons that end in "not found".
+  // Whoever is in my directory can be written to, a provider or not (the owner's decision, AYK-260).
+  // A provider through a direct request, as before. Anyone else through a chat with them that is
+  // still open; when none is (the contact time after a finished request has passed), `chat`
+  // below opens a plain conversation with them. `can_message` is false only here when that plain
+  // conversation is what the buttons will use, so the page knows which way to go.
   for (const row of rows) {
     row.can_message = true;
     if (row.role === 'provider') continue;
@@ -82,9 +83,28 @@ const remove = asyncHandler(async (req, res) => {
   return success(res, { saved: false }, req.t('directory_removed'));
 });
 
+// POST /users/me/directory/:providerId/chat (AYK-260): a conversation with someone I keep in my
+// directory, whatever their role. An open chat between us is reused; otherwise a plain one (not
+// tied to a request) is opened. Only for people in my own directory, and never across a block.
+const chat = asyncHandler(async (req, res) => {
+  const id = providerId(req.params.providerId);
+  if (!id || id === req.user.id) return error(res, req.t('invalid_data'), 400);
+  const kept = await queryOne(`SELECT sp.provider_id FROM saved_providers sp
+    JOIN users u ON u.id = sp.provider_id AND u.deleted_at IS NULL AND u.is_active = 1 AND u.is_blocked = 0
+    WHERE sp.user_id = ? AND sp.provider_id = ?`, [req.user.id, id]);
+  if (!kept) return notFound(res);
+  if (await require('./userBlockController').blockedRefusal(req, res, id)) return undefined;
+  const shared = await query(`SELECT c.id FROM conversations c
+    JOIN conversation_participants mine ON mine.conversation_id = c.id AND mine.user_id = ?
+    JOIN conversation_participants theirs ON theirs.conversation_id = c.id AND theirs.user_id = ?
+    ORDER BY c.last_message_at DESC NULLS LAST, c.id DESC LIMIT 5`, [req.user.id, id]);
+  for (const conversation of shared) if (await Conversation.canSend(conversation.id, req.user.id)) return success(res, { conversation_id: Number(conversation.id) });
+  return success(res, { conversation_id: Number(await Conversation.findOrCreateBetween(req.user.id, id, null)) });
+});
+
 const ids = asyncHandler(async (req, res) => {
   const rows = await query('SELECT provider_id FROM saved_providers WHERE user_id = ?', [req.user.id]);
   return success(res, rows.map(row => Number(row.provider_id)));
 });
 
-module.exports = { list, add, remove, ids };
+module.exports = { list, add, remove, ids, chat };

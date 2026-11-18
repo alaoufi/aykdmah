@@ -2635,8 +2635,7 @@
     "saved_note": "Na-save ang «{{name}}» sa iyong direktoryo.",
     "message": "Mensahe",
     "call": "Tawag",
-    "save_title": "I-save sa aking direktoryo",
-    "contact_ended": "Natapos na ang panahon ng pakikipag-ugnayan sa kanila matapos ang kahilingan. Magbubukas ito muli kapag humiling sila ulit sa iyo."
+    "save_title": "I-save sa aking direktoryo"
   },
   "account_delete": {
     "title": "Burahin ang aking account",

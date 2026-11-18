@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { listDirectory, saveToDirectory, contactDirect, contactDirectFresh } from '../../services/requestService';
+import { listDirectory, saveToDirectory, contactDirect, contactDirectFresh, directoryChat } from '../../services/requestService';
 import { apiError } from '../../services/api';
 import { localizedJoinedName } from '../../utils/localizeJoined';
 import { localizedName } from '../../utils/localize';
@@ -35,16 +35,16 @@ export default function DirectoryPage({ compact = false }) {
   };
   // Message: the existing chat, or (a provider) a direct request; call: through that chat (AYK-109).
   const chatWith = async p => {
+    // Not a service provider (a requester kept from a chat): the open chat between us, or a plain
+    // new one. Whoever is in the directory can always be written to (the owner's decision, AYK-260).
+    if (p.is_provider === false) return (await directoryChat(p.id)).conversation_id;
     if (p.conversation_id) {
       const previous = await getConversation(p.conversation_id);
       // A conversation whose contact time ended is read-only: start a new one instead (AYK-221).
-      if (previous.can_send === false && p.is_provider === false) throw Object.assign(new Error(t('directory.contact_ended')), { response: { data: { message: t('directory.contact_ended') } } });
       if (previous.can_send === false) return (await contactDirectFresh(p.id, p.category_id)).conversation_id;
       // Writable: straight into it, no second request (AYK-231).
       return previous.id || p.conversation_id;
     }
-    // A direct request exists for service providers only; anyone else is reached through an open chat.
-    if (p.is_provider === false) throw Object.assign(new Error(t('directory.contact_ended')), { response: { data: { message: t('directory.contact_ended') } } });
     const res = await contactDirect(p.id, p.category_id);
     return res.conversation_id;
   };
@@ -66,7 +66,7 @@ export default function DirectoryPage({ compact = false }) {
       {problem === t('errors.blocked_by_you')
         ? <BlockedNotice message={problem} otherId={problemWith} onUnblocked={() => setProblem('')} className="form-error" />
         : problemError && <ProblemNotice error={problemError} onClose={() => { setProblem(''); setProblemError(null); }}
-          handlers={{ start_new: () => run(problemWith, async () => navigate(`/chat/${(await contactDirectFresh(problemWith)).conversation_id}`)) }} />}
+          handlers={{ start_new: () => run(problemWith, async () => { const kept = items.find(row => row.id === problemWith); navigate(`/chat/${(kept?.is_provider === false ? await directoryChat(problemWith) : await contactDirectFresh(problemWith)).conversation_id}`); }) }} />}
       {items.length === 0
         ? <p className="card text-fg-muted text-[14px] m-0">{t('requester.directory_empty')}</p>
         : <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 list-none p-0 m-0">
@@ -84,13 +84,9 @@ export default function DirectoryPage({ compact = false }) {
                   <TrustSummary userId={p.id} type={p.is_provider === false ? 'on_requester' : 'on_provider'} average={p.rating_avg} count={p.rating_count} opinion={p.opinion} />
                   {p.availability && <span className={p.availability?.state === 'available' ? 'text-success' : ''}>● {t(p.availability?.state === 'available' ? 'for_you.available' : 'for_you.unavailable')}</span>}
                 </div>
-                {p.can_message === false && <p className="text-[13px] text-fg-muted mt-2 mb-0" data-testid="directory-contact-ended">⏳ {t('directory.contact_ended')}</p>}
                 <div className="flex items-center gap-3 mt-2">
-                  {/* No way to write to them from here (AYK-260): say why instead of buttons that fail. */}
-                  {p.can_message === false ? null : <>
-                    <button type="button" className="btn btn-primary btn-sm" disabled={busy === p.id} onClick={() => contact(p)} data-testid="directory-contact">💬 {t('directory.message')}</button>
-                    <button type="button" className="btn btn-outline btn-sm" disabled={busy === p.id} onClick={() => call(p)} data-testid="directory-call">📞 {t('directory.call')}</button>
-                  </>}
+                  <button type="button" className="btn btn-primary btn-sm" disabled={busy === p.id} onClick={() => contact(p)} data-testid="directory-contact">💬 {t('directory.message')}</button>
+                  <button type="button" className="btn btn-outline btn-sm" disabled={busy === p.id} onClick={() => call(p)} data-testid="directory-call">📞 {t('directory.call')}</button>
                   <button type="button" className="text-[13px] font-semibold text-fg-muted" disabled={busy === p.id} onClick={() => remove(p)}>✕ {t('requester.remove_directory')}</button>
                 </div>
               </div>
