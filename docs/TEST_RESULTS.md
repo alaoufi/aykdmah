@@ -1100,3 +1100,5 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - allowed after an answered call.
   - It fails on the old code (10 pass, 2 fail) and passes on the new (12 pass, 0 fail).
 - Not confirmed with the tester: the exact message they saw was not available.
+- Deploy 44530440888 (AYK-310) succeeded: the live site is 1.1.56 (99ffc33), and `https://aykdmh.com/api/app-texts?lang=ur` returns the Urdu texts.
+- Next commit: [android], the first Android build on the server and upload to the internal testing track through GitHub (1.3.9, code 19).
