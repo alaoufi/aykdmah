@@ -1,0 +1,20 @@
+# Read-only check of the Google Play upload key (AYK-306): Actions → «Google Play key check» →
+# Run workflow. It lists the app's tracks and versions and changes nothing in the store.
+name: Google Play key check
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node android/play/check.cjs
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          PLAY_PACKAGE: sa.aykdmh.app
