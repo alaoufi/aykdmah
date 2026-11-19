@@ -1294,3 +1294,7 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - «مشاركة» opened with the link;
   - no page errors.
 - Client tests 166 pass; `i18n:check` 2580 keys.
+- First real report (19:22 UTC, minutes after a deploy restarted the server): the slowest requests were all in the first minute after the restart:
+  - `GET /active` 4.9 s, `GET /unread` 4.4 s, `POST /` 4.1 s;
+  - even `GET /health` took 1.9 s.
+  - Then: server load 1.8; app CPU 0 %, 174 MB; database CPU 0.3 %.
