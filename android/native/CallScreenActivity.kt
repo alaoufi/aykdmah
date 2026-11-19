@@ -117,7 +117,7 @@ class CallScreenActivity : Activity() {
             return
         }
         if (checkSelfPermission(Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-            status.text = getString(R.string.callNeedsMic)
+            status.text = AppTexts.get(this@CallScreenActivity, "callNeedsMic", R.string.callNeedsMic)
             end(local = true, reason = "failed")
             return
         }
@@ -173,7 +173,7 @@ class CallScreenActivity : Activity() {
         }
         column.addView(avatar)
         column.addView(TextView(this).apply {
-            text = c.peerName.ifEmpty { getString(R.string.callTitle) }
+            text = c.peerName.ifEmpty { AppTexts.get(this@CallScreenActivity, "callTitle", R.string.callTitle) }
             textSize = 28f
             setTextColor(Color.WHITE)
             gravity = Gravity.CENTER
@@ -186,7 +186,7 @@ class CallScreenActivity : Activity() {
             gravity = Gravity.CENTER
         })
         status = TextView(this).apply {
-            text = getString(if (c.outgoing) R.string.callRinging else R.string.callConnecting)
+            text = if (c.outgoing) AppTexts.get(this@CallScreenActivity, "callRinging", R.string.callRinging) else AppTexts.get(this@CallScreenActivity, "callConnecting", R.string.callConnecting)
             textSize = 17f
             setTextColor(Color.parseColor("#D6E2F0"))
             gravity = Gravity.CENTER
@@ -215,7 +215,7 @@ class CallScreenActivity : Activity() {
         setContentView(root)
     }
 
-    private fun setStatus(res: Int) = ui.post { if (!ended) status.text = getString(res) }
+    private fun setStatus(res: Int) = ui.post { if (!ended) status.text = AppTexts.get(this@CallScreenActivity, resources.getResourceEntryName(res), res) }
 
     private val ticker = object : Runnable {
         override fun run() {
@@ -230,7 +230,7 @@ class CallScreenActivity : Activity() {
 
     private fun begin() {
         val c = call ?: return
-        CallOngoingService.start(this, c.peerName.ifEmpty { getString(R.string.callTitle) }, false)
+        CallOngoingService.start(this, c.peerName.ifEmpty { AppTexts.get(this@CallScreenActivity, "callTitle", R.string.callTitle) }, false)
         if (c.outgoing) CallTelecom.reportOutgoing(this, c.callId, c.peerName)
         CallTelecom.onHangUp = { id -> if (id == c.callId) ui.post { end(local = true) } }
         CallTelecom.defaultRoute(c.callId, c.video)
@@ -461,7 +461,7 @@ class CallScreenActivity : Activity() {
         proximity?.let { if (it.isHeld) it.release() }
         proximity = null
         CallOngoingService.stop(this)
-        status.text = getString(R.string.callEnded)
+        status.text = AppTexts.get(this@CallScreenActivity, "callEnded", R.string.callEnded)
         ui.postDelayed({ finish() }, 900)
     }
 

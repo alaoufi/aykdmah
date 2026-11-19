@@ -35,11 +35,11 @@ class CallOngoingService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        val title = intent?.getStringExtra(EXTRA_TITLE) ?: getString(R.string.callOngoing)
+        val title = intent?.getStringExtra(EXTRA_TITLE) ?: AppTexts.get(this@CallOngoingService, "callOngoing", R.string.callOngoing)
         val video = intent?.getBooleanExtra(EXTRA_VIDEO, false) ?: false
         val manager = getSystemService(NotificationManager::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O && manager.getNotificationChannel(CHANNEL) == null) {
-            manager.createNotificationChannel(NotificationChannel(CHANNEL, getString(R.string.callOngoing), NotificationManager.IMPORTANCE_LOW))
+            manager.createNotificationChannel(NotificationChannel(CHANNEL, AppTexts.get(this@CallOngoingService, "callOngoing", R.string.callOngoing), NotificationManager.IMPORTANCE_LOW))
         }
         val open = PendingIntent.getActivity(this, 0,
             Intent(this, CallScreenActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT or Intent.FLAG_ACTIVITY_NEW_TASK),
@@ -47,7 +47,7 @@ class CallOngoingService : Service() {
         val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) Notification.Builder(this, CHANNEL) else Notification.Builder(this)
         val notification = builder.setSmallIcon(R.drawable.ic_notification_icon)
             .setContentTitle(title)
-            .setContentText(getString(R.string.callOngoing))
+            .setContentText(AppTexts.get(this@CallOngoingService, "callOngoing", R.string.callOngoing))
             .setCategory(Notification.CATEGORY_CALL)
             .setOngoing(true)
             .setContentIntent(open)

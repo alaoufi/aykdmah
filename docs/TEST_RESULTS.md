@@ -1076,3 +1076,17 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 
 ## 2026-11-19 — AYK-309: Android release through GitHub
 - The first [android] run (44529657387) was cancelled before its release step: the server still had the deploy-only `ci-command.sh`. This [deploy] puts the new script (with `android-build` and `android-aab`) on the server. It is client and script only: no server code changed, so the API container is not rebuilt.
+
+## 2026-11-19 — AYK-310: the Android app's texts come from the site
+- Owner's rule: almost every update reaches users through the site, not the store. The app's own texts (call screen, notifications) were built into the app.
+- Now:
+  - The server sends them in the user's language with every call (`texts` in the FCM payload).
+  - It serves them at `/api/app-texts?lang=`.
+  - The app keeps the last ones it received, and falls back to its built-in Arabic and English.
+- Fixed on the way: the Android call push read a language field that participant rows do not have, so it was always Arabic. It now uses `users.ui_lang`.
+- Tests:
+  - `server/tests/app-texts.test.js`: 2 pass (12 texts × 11 languages, each fits what the app accepts, a push stays under 1.5 KB).
+  - Server unit tests: 82 pass.
+  - `callService` and the routes load.
+- Not compiled here (no Android SDK in this environment): `AppTexts.java` and its use in the call screens. The build on the server compiles them.
+- iPhone 1.0.3 (5): uploaded to App Store Connect from GitHub (apple-apps run 44529192165, «Upload with altool» success). Not submitted for review.

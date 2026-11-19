@@ -47,6 +47,7 @@ public class LauncherActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        AppTexts.refresh(this); // the app's texts follow the site (AYK-310)
         // Setting an orientation crashes the app due to the transparent background on Android 8.0
         // Oreo and below (https://github.com/GoogleChromeLabs/bubblewrap/issues/496).
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O) {

@@ -33,6 +33,8 @@ public class FcmService extends FirebaseMessagingService {
     @Override
     public void onMessageReceived(RemoteMessage message) {
         Map<String, String> data = message.getData();
+        // The site's texts in the user's language travel with each call (AYK-310).
+        if (data.get("texts") != null) AppTexts.save(this, data.get("texts"));
         if ("message".equals(data.get("kind"))) {
             MessageAlert.show(this, data.get("tag"), data.get("title"), data.get("body"), data.get("url"));
             return;

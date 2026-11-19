@@ -83,10 +83,10 @@ public class CallActivity extends Activity {
         LinearLayout buttons = new LinearLayout(this);
         buttons.setOrientation(LinearLayout.HORIZONTAL);
         buttons.setGravity(Gravity.CENTER);
-        buttons.addView(roundButton(getString(R.string.callDecline), "#DC2626", v -> act(decline)));
+        buttons.addView(roundButton(AppTexts.get(this, "callDecline", R.string.callDecline), "#DC2626", v -> act(decline)));
         View gap = new View(this);
         buttons.addView(gap, new LinearLayout.LayoutParams(160, 1));
-        buttons.addView(roundButton(getString(R.string.callAnswer), "#059669", v -> act(answer)));
+        buttons.addView(roundButton(AppTexts.get(this, "callAnswer", R.string.callAnswer), "#059669", v -> act(answer)));
         root.addView(buttons);
 
         setContentView(root);

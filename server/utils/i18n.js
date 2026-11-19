@@ -236,6 +236,28 @@ function pickLang(acceptLanguage) {
   return SUPPORTED.includes(first) ? first : DEFAULT_LANG;
 }
 
+// Texts of the Android app's own screens (call screen, notifications), sent to the app with each
+// call and served at /api/app-texts, so changing them needs a site deploy, never a store release
+// (owner's rule, AYK-310). The app keeps the last ones it got and falls back to its built-in Arabic and English.
+const APP_TEXTS = {
+  callChannelName: {"ar": "المكالمات الواردة", "en": "Incoming calls", "ur": "آنے والی کالیں", "hi": "आने वाली कॉल", "bn": "ইনকামিং কল", "ml": "ഇൻകമിംഗ് കോളുകൾ", "fil": "Mga papasok na tawag", "id": "Panggilan masuk", "ne": "आउने कलहरू", "am": "ገቢ ጥሪዎች", "tr": "Gelen aramalar"},
+  callAnswer: {"ar": "رد", "en": "Answer", "ur": "جواب دیں", "hi": "जवाब दें", "bn": "উত্তর দিন", "ml": "സ്വീകരിക്കുക", "fil": "Sagutin", "id": "Jawab", "ne": "उठाउनुहोस्", "am": "መልስ", "tr": "Yanıtla"},
+  callDecline: {"ar": "رفض", "en": "Decline", "ur": "مسترد کریں", "hi": "अस्वीकार करें", "bn": "প্রত্যাখ্যান করুন", "ml": "നിരസിക്കുക", "fil": "Tanggihan", "id": "Tolak", "ne": "अस्वीकार गर्नुहोस्", "am": "ውድቅ አድርግ", "tr": "Reddet"},
+  messageChannelName: {"ar": "الرسائل", "en": "Messages", "ur": "پیغامات", "hi": "संदेश", "bn": "বার্তা", "ml": "സന്ദേശങ്ങൾ", "fil": "Mga mensahe", "id": "Pesan", "ne": "सन्देशहरू", "am": "መልዕክቶች", "tr": "Mesajlar"},
+  callOngoing: {"ar": "مكالمة جارية", "en": "Call in progress", "ur": "کال جاری ہے", "hi": "कॉल जारी है", "bn": "কল চলছে", "ml": "കോൾ നടക്കുന്നു", "fil": "Kasalukuyang tawag", "id": "Panggilan berlangsung", "ne": "कल जारी छ", "am": "ጥሪ በሂደት ላይ", "tr": "Arama sürüyor"},
+  callTitle: {"ar": "مكالمة أي خدمة", "en": "Ay Khidma call", "ur": "Ay Khidma کال", "hi": "Ay Khidma कॉल", "bn": "Ay Khidma কল", "ml": "Ay Khidma കോൾ", "fil": "Tawag sa Ay Khidma", "id": "Panggilan Ay Khidma", "ne": "Ay Khidma कल", "am": "የAy Khidma ጥሪ", "tr": "Ay Khidma araması"},
+  callRinging: {"ar": "يرن…", "en": "Ringing…", "ur": "گھنٹی بج رہی ہے…", "hi": "घंटी बज रही है…", "bn": "রিং হচ্ছে…", "ml": "റിംഗ് ചെയ്യുന്നു…", "fil": "Nagri-ring…", "id": "Berdering…", "ne": "घण्टी बज्दैछ…", "am": "እየጠራ ነው…", "tr": "Çalıyor…"},
+  callConnecting: {"ar": "جارٍ الاتصال…", "en": "Connecting…", "ur": "رابطہ ہو رہا ہے…", "hi": "कनेक्ट हो रहा है…", "bn": "সংযোগ হচ্ছে…", "ml": "കണക്റ്റ് ചെയ്യുന്നു…", "fil": "Kumokonekta…", "id": "Menghubungkan…", "ne": "जडान हुँदैछ…", "am": "በመገናኘት ላይ…", "tr": "Bağlanıyor…"},
+  callReconnecting: {"ar": "يعيد الاتصال…", "en": "Reconnecting…", "ur": "دوبارہ رابطہ ہو رہا ہے…", "hi": "फिर से कनेक्ट हो रहा है…", "bn": "আবার সংযোগ হচ্ছে…", "ml": "വീണ്ടും കണക്റ്റ് ചെയ്യുന്നു…", "fil": "Muling kumokonekta…", "id": "Menghubungkan ulang…", "ne": "फेरि जडान हुँदैछ…", "am": "እንደገና በመገናኘት ላይ…", "tr": "Yeniden bağlanıyor…"},
+  callFailed: {"ar": "تعذر الاتصال", "en": "Could not connect", "ur": "رابطہ نہیں ہو سکا", "hi": "कनेक्ट नहीं हो सका", "bn": "সংযোগ করা যায়নি", "ml": "കണക്റ്റ് ചെയ്യാനായില്ല", "fil": "Hindi makakonekta", "id": "Tidak dapat terhubung", "ne": "जडान हुन सकेन", "am": "መገናኘት አልተቻለም", "tr": "Bağlanılamadı"},
+  callEnded: {"ar": "انتهت المكالمة", "en": "Call ended", "ur": "کال ختم ہو گئی", "hi": "कॉल खत्म हुई", "bn": "কল শেষ হয়েছে", "ml": "കോൾ അവസാനിച്ചു", "fil": "Natapos ang tawag", "id": "Panggilan berakhir", "ne": "कल सकियो", "am": "ጥሪው አብቅቷል", "tr": "Arama sona erdi"},
+  callNeedsMic: {"ar": "المكالمة تحتاج إذن الميكروفون", "en": "The call needs microphone permission", "ur": "کال کے لیے مائیکروفون کی اجازت درکار ہے", "hi": "कॉल के लिए माइक्रोफ़ोन की अनुमति चाहिए", "bn": "কলের জন্য মাইক্রোফোনের অনুমতি দরকার", "ml": "കോളിന് മൈക്രോഫോൺ അനുമതി വേണം", "fil": "Kailangan ng tawag ang pahintulot sa mikropono", "id": "Panggilan memerlukan izin mikrofon", "ne": "कलका लागि माइक्रोफोन अनुमति चाहिन्छ", "am": "ጥሪው የማይክሮፎን ፈቃድ ያስፈልገዋል", "tr": "Arama için mikrofon izni gerekiyor"},
+};
+function appTexts(lang) {
+  const code = SUPPORTED.includes(lang) ? lang : DEFAULT_LANG;
+  return Object.fromEntries(Object.entries(APP_TEXTS).map(([key, values]) => [key, values[code] || values.en]));
+}
+
 function translate(lang, key, vars) {
   const entry = MESSAGES[key];
   if (!entry) return key;
@@ -258,4 +280,4 @@ function localeMiddleware(req, res, next) {
   next();
 }
 
-module.exports = { translate, pickLang, localeMiddleware, SUPPORTED, DEFAULT_LANG, FALLBACK_CHAIN };
+module.exports = { appTexts, APP_TEXTS, translate, pickLang, localeMiddleware, SUPPORTED, DEFAULT_LANG, FALLBACK_CHAIN };

@@ -17,7 +17,7 @@ const { emitUser, emitConversation } = require('../utils/conversationEvents');
 const notificationService = require('./notificationService');
 const pushService = require('./pushService');
 const fcm = require('./fcmService');
-const { translate } = require('../utils/i18n');
+const { translate, appTexts } = require('../utils/i18n');
 const logger = require('../utils/logger');
 
 const RING_TIMEOUT_MS = 45 * 1000;
@@ -159,7 +159,8 @@ async function start({ caller, conversationId, callType }) {
     .catch(err => logger.warn('Call push failed:', err.message));
   ring(0);
   // The Android app rings by itself, continuously, with a call screen over other apps (AYK-094).
-  const calleeLang = callee.language || callee.preferred_language || 'ar';
+  // The callee's own language (AYK-310: the participant rows have no language field, so it was always Arabic).
+  const calleeLang = (await queryOne('SELECT ui_lang FROM users WHERE id = ?', [callee.id]).catch(() => null))?.ui_lang || 'ar';
   fcm.sendToUser(callee.id, {
     kind: 'call', call_id: callId, conversation_id: conversationId, call_type: callType,
     native_key: nativeKey(callId, callee.id), user_id: callee.id, peer_code: row.caller_code || '',
@@ -168,6 +169,8 @@ async function start({ caller, conversationId, callType }) {
     body: translate(calleeLang, 'push_call_body', { name: callerShown(row, calleeLang) }),
     answer_label: translate(calleeLang, 'push_call_answer'),
     decline_label: translate(calleeLang, 'push_call_decline'),
+    // The app's own texts in the callee's language (AYK-310): the call screen and notifications follow the site.
+    texts: JSON.stringify(appTexts(calleeLang)),
   }, { ttlSeconds: Math.round(RING_TIMEOUT_MS / 1000) })
     .then(sent => logger.info(`FCM call call=${callId} user=${callee.id} devices=${sent}`))
     .catch(err => logger.warn('FCM call failed:', err.message));

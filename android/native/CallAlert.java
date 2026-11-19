@@ -91,7 +91,7 @@ final class CallAlert {
         NotificationManager manager = context.getSystemService(NotificationManager.class);
         if (manager.getNotificationChannel(CHANNEL_ID) != null) return;
         NotificationChannel channel = new NotificationChannel(CHANNEL_ID,
-                context.getString(R.string.callChannelName), NotificationManager.IMPORTANCE_HIGH);
+                AppTexts.get(context, "callChannelName", R.string.callChannelName), NotificationManager.IMPORTANCE_HIGH);
         Uri ringtone = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
         channel.setSound(ringtone, new AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
@@ -137,8 +137,8 @@ final class CallAlert {
                 .setAutoCancel(false)
                 .setContentIntent(fullScreen)
                 .setFullScreenIntent(fullScreen, true)
-                .addAction(new Notification.Action.Builder(null, context.getString(R.string.callDecline), decline).build())
-                .addAction(new Notification.Action.Builder(null, context.getString(R.string.callAnswer), answer).build());
+                .addAction(new Notification.Action.Builder(null, AppTexts.get(context, "callDecline", R.string.callDecline), decline).build())
+                .addAction(new Notification.Action.Builder(null, AppTexts.get(context, "callAnswer", R.string.callAnswer), answer).build());
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) {
             builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE))
                     .setVibrate(new long[] {0, 800, 400, 800, 400});
