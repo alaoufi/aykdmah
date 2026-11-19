@@ -1056,3 +1056,13 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - deploy older c2 after that: refused (exit 4).
   - unknown commit: refused.
   - any other command: refused (exit 2).
+- Run 44525529418:
+  - The checks passed.
+  - The deploy step could not load the key («Load key: error in libcrypto», then Permission denied). The likely cause is \r line endings from a key pasted out of Windows Notepad.
+  - The step still showed success, because GitHub's default shell has no pipefail behind `| tail`.
+  - The site was not touched. It was already at 1.1.53 (90f47cc) from the owner's manual deploy.
+- Fixes in `deploy.yml`:
+  - `shell: bash` (pipefail).
+  - `tr -d '\r'` on both secrets.
+  - `ssh-keygen -y` checks the key first, with a clear error.
+  - Not tested locally: ssh-keygen is not installed in this environment.
