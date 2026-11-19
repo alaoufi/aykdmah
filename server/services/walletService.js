@@ -107,7 +107,7 @@ async function commissionPercent() {
 
 // AYK-322: marketing by commission. The administration turns it on or off and picks one way a
 // marketer earns: `percent` of the invited account's first payment; `count`, a fixed amount for
-// every N invited service providers who registered (nothing to do with subscriptions);
+// each invited service provider once at least N of them registered (nothing to do with subscriptions);
 // `subscription`, a fixed amount once an invited provider's subscription is paid and activated.
 const MARKETING_MODES = ['percent', 'count', 'subscription'];
 async function marketing() {
@@ -135,31 +135,33 @@ const QUALIFIED_PROVIDER = `r.role = 'provider' AND r.is_active = 1 AND r.is_blo
   AND EXISTS (SELECT 1 FROM provider_profiles pp WHERE pp.user_id = r.id
     AND pp.service_ids IS NOT NULL AND CAST(pp.service_ids AS TEXT) NOT IN ('', '[]', 'null'))`;
 
-// The `count` way: pays every complete block of N invited providers not paid for yet. Safe to call
-// at any time and any number of times; it does nothing when marketing is off or in another mode.
+// The `count` way (the owner's rule): below the minimum number of invited providers nothing is due;
+// from the minimum on, the amount is due for EVERY invited provider (10 at 5 SAR = 50, the 11th
+// adds 5). `counted` records how many were paid for, so nobody is paid for twice. Safe to call at
+// any time and any number of times; it does nothing when marketing is off or in another mode.
 async function settleCountRewards(referrerId) {
   const cfg = await marketing();
   if (!cfg.enabled || cfg.mode !== 'count' || !cfg.countEvery || !cfg.countAmount) return 0;
-  const blocks = await transaction(async conn => {
+  const paidFor = await transaction(async conn => {
     const [users] = await conn.execute('SELECT id FROM users WHERE id = ? AND deleted_at IS NULL FOR UPDATE', [Number(referrerId)]);
     if (!users[0]) return 0;
     const [qualified] = await conn.execute(`SELECT COUNT(*) AS n FROM users r WHERE r.referred_by = ? AND ${QUALIFIED_PROVIDER}`, [users[0].id]);
+    if (Number(qualified[0].n) < cfg.countEvery) return 0; // the minimum is not reached yet
     const [used] = await conn.execute('SELECT COALESCE(SUM(counted), 0) AS n FROM referral_count_rewards WHERE referrer_id = ?', [users[0].id]);
-    const due = Math.floor((Number(qualified[0].n) - Number(used[0].n)) / cfg.countEvery);
-    for (let i = 0; i < due; i += 1) {
-      const txId = await insertTx(conn, { userId: users[0].id, halalas: cfg.countAmount, type: 'referral_count_reward', referenceType: 'referral_count' });
-      await conn.execute('INSERT INTO referral_count_rewards (referrer_id, counted, amount, wallet_transaction_id) VALUES (?, ?, ?, ?)',
-        [users[0].id, cfg.countEvery, toSar(cfg.countAmount), txId]);
-    }
-    return Math.max(0, due);
+    const due = Number(qualified[0].n) - Number(used[0].n);
+    if (due <= 0) return 0;
+    const txId = await insertTx(conn, { userId: users[0].id, halalas: cfg.countAmount * due, type: 'referral_count_reward', referenceType: 'referral_count' });
+    await conn.execute('INSERT INTO referral_count_rewards (referrer_id, counted, amount, wallet_transaction_id) VALUES (?, ?, ?, ?)',
+      [users[0].id, due, toSar(cfg.countAmount * due), txId]);
+    return due;
   });
-  if (blocks > 0) {
+  if (paidFor > 0) {
     notificationService.notifyUser(Number(referrerId), {
       type: 'referral_commission', title: 'أُضيفت مكافأة تسويق إلى رصيدك',
-      body: `أُضيف ${toSar(cfg.countAmount * blocks)} ريال إلى رصيدك عن ${cfg.countEvery * blocks} مقدم خدمة سجّلوا بكودك`, link: '/wallet',
+      body: `أُضيف ${toSar(cfg.countAmount * paidFor)} ريال إلى رصيدك عن ${paidFor} من مقدمي الخدمة سجّلوا بكودك`, link: '/wallet',
     }).catch(() => {});
   }
-  return blocks;
+  return paidFor;
 }
 
 // Called after an invited provider's profile changes (their services), which is when they start to count.
@@ -400,7 +402,8 @@ async function adminOverview() {
   // The `count` way: settle whoever has a complete block waiting, so the statement is current.
   if (cfg.enabled && cfg.mode === 'count' && cfg.countEvery && cfg.countAmount) {
     const waiting = await query(`SELECT r.referred_by AS id FROM users r WHERE r.referred_by IS NOT NULL AND ${QUALIFIED_PROVIDER}
-      GROUP BY r.referred_by HAVING COUNT(*) - COALESCE((SELECT SUM(c.counted) FROM referral_count_rewards c WHERE c.referrer_id = r.referred_by), 0) >= ? LIMIT 200`, [cfg.countEvery]);
+      GROUP BY r.referred_by HAVING COUNT(*) >= ?
+        AND COUNT(*) > COALESCE((SELECT SUM(c.counted) FROM referral_count_rewards c WHERE c.referrer_id = r.referred_by), 0) LIMIT 200`, [cfg.countEvery]);
     for (const row of waiting) await settleCountRewards(row.id).catch(() => {});
   }
   // The marketers' statement: everyone whose code was used, what they earned, what was paid, what is owed.

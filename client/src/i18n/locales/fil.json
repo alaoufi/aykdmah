@@ -2271,9 +2271,9 @@
     "test_mode": "Test mode: galing sa test na bayad ang mga komisyon, at naka-off ang bank withdrawal hanggang maikonekta ang totoong payment gateway.",
     "marketing": {
       "off": "Kasalukuyang nakahinto ang marketing na may komisyon.",
-      "count": "Sa bawat {{every}} service provider na magre-register gamit ang coupon mo, madadagdag sa balanse mo ang SAR {{amount}}.",
+      "count": "Kapag {{every}} o higit pang service provider ang nag-register gamit ang coupon mo, madadagdag sa balanse mo ang SAR {{amount}} para sa bawat isa sa kanila. Kung wala pang {{every}}, walang makukuha.",
       "subscription": "Sa bawat service provider na magre-register gamit ang coupon mo, pagkatapos ay magbayad ng subscription at ma-activate ito, madadagdag sa balanse mo ang SAR {{amount}}.",
-      "progress": "{{have}} sa {{every}} tungo sa susunod na gantimpala",
+      "progress": "{{have}} sa {{every}} para maabot ang minimum",
       "providers": "Mga service provider na nag-register gamit ang coupon mo",
       "paid_out": "Naibayad na sa iyo",
       "invited_title": "Sino ang nag-register gamit ang coupon mo",

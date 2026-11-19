@@ -1337,3 +1337,8 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - Server 84, client 166 pass; `i18n:check` 2620 keys; `check-deploy` 22 ok.
 - Browser check (local site): as a requester, `/wallet` showed «كل 3 من مقدمي الخدمة يسجّلون بكوبونك، يُضاف إلى رصيدك 100 ريال», «1 من 3 نحو المكافأة القادمة», balance 100.00 and the four people who signed up; the admin page showed the settings and the statement line (4, 4, 0, 100.00, 0.00, 100.00) with «تسليم نقدي». No page errors.
 - Not tried: a real bank transfer or a real gateway payment (payments run in test mode).
+- **The owner's rule for the count way (same day):** a minimum and an amount per person. Below the minimum nothing is due; from the minimum on, the amount is due for every invited provider (minimum 10 at 5 SAR: 9 earn nothing, 10 earn 50, the 11th adds 5). Both numbers are settings.
+  - The subscription way is confirmed: once only, after the payment completes.
+  - `wallet.integration.js` (13 pass): with a minimum of 3 at 100, two providers earn 0, the third makes 300, the fourth 400; after changing the numbers only the new provider is paid, at the new amount; a marketer below the minimum gets 0; three concurrent settlements pay once.
+  - The marketer's page shows «{{have}} من {{every}} للوصول إلى الحد الأدنى» until the minimum is reached (11 languages).
+  - Client 166, server 84 pass; `i18n:check` 2620 keys. Not re-run for this change: the other integration suites (277 passed before it; only the count settlement and texts changed).

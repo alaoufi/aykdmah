@@ -2271,9 +2271,9 @@
     "test_mode": "Mode uji coba: komisi berasal dari pembayaran uji coba, dan penarikan ke bank dinonaktifkan sampai gateway pembayaran sungguhan terhubung.",
     "marketing": {
       "off": "Pemasaran dengan komisi sedang dihentikan.",
-      "count": "Untuk setiap {{every}} penyedia layanan yang mendaftar dengan kupon Anda, SAR {{amount}} ditambahkan ke saldo Anda.",
+      "count": "Setelah {{every}} atau lebih penyedia layanan mendaftar dengan kupon Anda, SAR {{amount}} ditambahkan ke saldo Anda untuk setiap orang. Kurang dari {{every}} tidak mendapat apa-apa.",
       "subscription": "Untuk setiap penyedia layanan yang mendaftar dengan kupon Anda, lalu membayar langganannya dan langganan itu aktif, SAR {{amount}} ditambahkan ke saldo Anda.",
-      "progress": "{{have}} dari {{every}} menuju hadiah berikutnya",
+      "progress": "{{have}} dari {{every}} untuk mencapai batas minimum",
       "providers": "Penyedia layanan yang mendaftar dengan kupon Anda",
       "paid_out": "Sudah dibayarkan kepada Anda",
       "invited_title": "Siapa yang mendaftar dengan kupon Anda",

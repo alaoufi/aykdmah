@@ -2271,9 +2271,9 @@
     "test_mode": "Deneme modu: komisyonlar deneme ödemelerinden gelir; gerçek ödeme sistemi bağlanana kadar banka ile para çekme kapalıdır.",
     "marketing": {
       "off": "Komisyonlu pazarlama şu anda kapalı.",
-      "count": "Kuponunuzla kaydolan her {{every}} hizmet veren için bakiyenize {{amount}} SAR eklenir.",
+      "count": "Kuponunuzla {{every}} veya daha fazla hizmet veren kaydolduğunda, her biri için bakiyenize {{amount}} SAR eklenir. {{every}} kişiden azı için bir şey kazanılmaz.",
       "subscription": "Kuponunuzla kaydolan, ardından aboneliğini ödeyen ve aboneliği etkinleşen her hizmet veren için bakiyenize {{amount}} SAR eklenir.",
-      "progress": "Sonraki ödüle doğru {{every}} içinden {{have}}",
+      "progress": "Alt sınıra ulaşmak için {{every}} içinden {{have}}",
       "providers": "Kuponunuzla kaydolan hizmet verenler",
       "paid_out": "Size ödenen",
       "invited_title": "Kuponunuzla kimler kaydoldu",

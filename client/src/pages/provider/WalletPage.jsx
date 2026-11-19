@@ -65,7 +65,8 @@ export default function WalletPage() {
 
   const marketing = data.marketing || { enabled: false, mode: 'percent' };
   const invited = data.invited || [];
-  const toward = Math.min(Number(data.referrals.toward_next) || 0, marketing.count_every || 0) % (marketing.count_every || 1);
+  // The `count` way: how far from the minimum number of providers; hidden once it is reached.
+  const toward = Number(data.referrals.providers) || 0;
   const explainer = !marketing.enabled ? t('wallet.marketing.off')
     : marketing.mode === 'count' ? (marketing.count_amount > 0 ? t('wallet.marketing.count', { every: marketing.count_every, amount: marketing.count_amount }) : t('wallet.coupon_inactive'))
     : marketing.mode === 'subscription' ? (marketing.subscription_amount > 0 ? t('wallet.marketing.subscription', { amount: marketing.subscription_amount }) : t('wallet.coupon_inactive'))
@@ -89,7 +90,7 @@ export default function WalletPage() {
         </div>
         {/* AYK-322: what the code earns, by the way the administration chose. */}
         <p className="text-[12.5px] text-fg-muted" data-testid="marketing-explainer">{explainer}</p>
-        {marketing.enabled && marketing.mode === 'count' && marketing.count_every > 0 && (
+        {marketing.enabled && marketing.mode === 'count' && marketing.count_every > 0 && toward < marketing.count_every && (
           <div data-testid="marketing-progress">
             <div className="h-2 rounded-pill bg-surface-alt overflow-hidden">
               <div className="h-full bg-primary" style={{ width: `${Math.min(100, (toward / marketing.count_every) * 100)}%` }} />

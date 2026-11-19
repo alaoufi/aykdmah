@@ -2271,9 +2271,9 @@
     "test_mode": "Test mode: commissions come from test payments, and bank withdrawals are disabled until a real gateway is connected.",
     "marketing": {
       "off": "Marketing by commission is currently off.",
-      "count": "For every {{every}} service providers who sign up with your coupon, SAR {{amount}} is added to your balance.",
+      "count": "Once {{every}} or more service providers sign up with your coupon, SAR {{amount}} is added to your balance for each of them. Fewer than {{every}} earns nothing.",
       "subscription": "For each service provider who signs up with your coupon, then pays their subscription and it becomes active, SAR {{amount}} is added to your balance.",
-      "progress": "{{have}} of {{every}} toward the next reward",
+      "progress": "{{have}} of {{every}} to reach the minimum",
       "providers": "Service providers who signed up with your coupon",
       "paid_out": "Paid out to you",
       "invited_title": "Who signed up with your coupon",
