@@ -2838,5 +2838,10 @@
     "show_whatsapp": "واٹس ایپ کا بٹن دکھائیں",
     "call": "کال کریں",
     "whatsapp_button": "واٹس ایپ"
+  },
+  "provider_page": {
+    "contact": "رابطہ",
+    "rating_count": "ریٹنگز: {{count}}",
+    "completed": "مکمل درخواستیں: {{count}}"
   }
 }

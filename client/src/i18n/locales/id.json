@@ -2838,5 +2838,10 @@
     "show_whatsapp": "Tampilkan tombol WhatsApp",
     "call": "Telepon",
     "whatsapp_button": "WhatsApp"
+  },
+  "provider_page": {
+    "contact": "Hubungi",
+    "rating_count": "Jumlah penilaian: {{count}}",
+    "completed": "Permintaan selesai: {{count}}"
   }
 }

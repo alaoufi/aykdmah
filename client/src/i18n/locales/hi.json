@@ -2838,5 +2838,10 @@
     "show_whatsapp": "व्हाट्सएप बटन दिखाएँ",
     "call": "कॉल करें",
     "whatsapp_button": "व्हाट्सएप"
+  },
+  "provider_page": {
+    "contact": "संपर्क",
+    "rating_count": "रेटिंग: {{count}}",
+    "completed": "पूरे हुए अनुरोध: {{count}}"
   }
 }

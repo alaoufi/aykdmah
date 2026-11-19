@@ -2838,5 +2838,10 @@
     "show_whatsapp": "WhatsApp düğmesini göster",
     "call": "Ara",
     "whatsapp_button": "WhatsApp"
+  },
+  "provider_page": {
+    "contact": "İletişim",
+    "rating_count": "Değerlendirme sayısı: {{count}}",
+    "completed": "Tamamlanan talepler: {{count}}"
   }
 }

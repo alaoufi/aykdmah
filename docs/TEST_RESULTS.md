@@ -1275,3 +1275,22 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - `.github/workflows/server-report.yml` runs it for the last 3 hours on a push whose message contains `[server-report]`.
 - Checked here: `slow-requests 99` and `slow-requests 3; id` are refused; the `?` filter turns `GET /api/x?token=abc 200 5 ms` into `GET /api/x 200 5 ms`.
 - AYK-319 follow-up (owner: smaller logo): the header logo is 38 px on phones, 42 px on tablets and 48 px on computers, about the size of the buttons beside it. Local build, phone: bar 57 px, logo 38 px from 9 px down.
+
+## 2026-11-19 — AYK-320: the provider page as one organized panel
+- The owner's request: the provider's details in one panel, contact as a drop-down list, and the rating clear to everyone.
+- The panel, from the top:
+  - picture, name, verified, city, availability and working days;
+  - a rating box: the average in large type (e.g. «4.5»), the stars, «عدد التقييمات: n» and «طلبات مكتملة: n», or «بلا تقييم بعد»;
+  - one row of buttons: «📞 تواصل ▾», «📇 أضف إلى دليلي» and «🔗 مشاركة ▾».
+    - «تواصل» opens the voice and video call buttons, plus the mobile and WhatsApp numbers when the provider shows them.
+    - «مشاركة» opens the page link, «نسخ الرابط» and «واتساب».
+- «آراء طالبي الخدمة»: the latest 5 opinions on the page for everyone, with stars, text, «مفيد» and «تبليغ». «عرض الكل» (the existing list) appears when there are more.
+  - A visitor sees the reviewer only as «طالب خدمة». Checked: the public reviews answer gives `reviewer_name` «طالب خدمة» and no picture.
+- New texts `provider_page.*` in 11 languages.
+- Browser check (local site, phone size):
+  - the rating box read «4.5 ★★★★★ عدد التقييمات: 2 · طلبات مكتملة: 3»;
+  - the two reviews showed;
+  - «تواصل» was closed at first and opened with the call buttons and both numbers;
+  - «مشاركة» opened with the link;
+  - no page errors.
+- Client tests 166 pass; `i18n:check` 2580 keys.

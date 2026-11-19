@@ -2838,5 +2838,10 @@
     "show_whatsapp": "Ipakita ang button ng WhatsApp",
     "call": "Tumawag",
     "whatsapp_button": "WhatsApp"
+  },
+  "provider_page": {
+    "contact": "Makipag-ugnayan",
+    "rating_count": "Mga rating: {{count}}",
+    "completed": "Natapos na kahilingan: {{count}}"
   }
 }

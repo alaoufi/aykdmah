@@ -2838,5 +2838,10 @@
     "show_whatsapp": "Show a WhatsApp button",
     "call": "Call",
     "whatsapp_button": "WhatsApp"
+  },
+  "provider_page": {
+    "contact": "Contact",
+    "rating_count": "Ratings: {{count}}",
+    "completed": "Completed requests: {{count}}"
   }
 }

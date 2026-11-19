@@ -2838,5 +2838,10 @@
     "show_whatsapp": "হোয়াটসঅ্যাপ বোতাম দেখান",
     "call": "কল করুন",
     "whatsapp_button": "হোয়াটসঅ্যাপ"
+  },
+  "provider_page": {
+    "contact": "যোগাযোগ",
+    "rating_count": "রেটিং: {{count}}",
+    "completed": "সম্পন্ন অনুরোধ: {{count}}"
   }
 }

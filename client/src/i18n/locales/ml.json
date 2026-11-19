@@ -2838,5 +2838,10 @@
     "show_whatsapp": "വാട്സാപ്പ് ബട്ടൺ കാണിക്കുക",
     "call": "വിളിക്കുക",
     "whatsapp_button": "വാട്സാപ്പ്"
+  },
+  "provider_page": {
+    "contact": "ബന്ധപ്പെടുക",
+    "rating_count": "റേറ്റിംഗുകൾ: {{count}}",
+    "completed": "പൂർത്തിയായ അഭ്യർത്ഥനകൾ: {{count}}"
   }
 }

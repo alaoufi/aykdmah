@@ -2838,5 +2838,10 @@
     "show_whatsapp": "የዋትስአፕ ቁልፍ አሳይ",
     "call": "ይደውሉ",
     "whatsapp_button": "ዋትስአፕ"
+  },
+  "provider_page": {
+    "contact": "ያግኙ",
+    "rating_count": "የደረጃዎች ብዛት: {{count}}",
+    "completed": "የተጠናቀቁ ጥያቄዎች: {{count}}"
   }
 }

@@ -29,14 +29,47 @@ async function copyText(text) {
   }
 }
 
+// «أضف إلى دليلي» on its own (AYK-320), for the provider page's action row.
+export function DirectoryButton({ providerId, name, onNote }) {
+  const { t } = useTranslation();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [saved, setSaved] = useState(false);
+  const [busy, setBusy] = useState(false);
+  useEffect(() => {
+    if (!user || Number(user.id) === Number(providerId)) return undefined;
+    let alive = true;
+    listDirectoryIds().then(ids => { if (alive) setSaved(ids.map(Number).includes(Number(providerId))); }).catch(() => {});
+    return () => { alive = false; };
+  }, [user, providerId]);
+  if (user && Number(user.id) === Number(providerId)) return null;
+  const toggle = async () => {
+    if (!user) { navigate('/login', { state: { from: location.pathname } }); return; }
+    setBusy(true);
+    try {
+      await saveToDirectory(providerId, !saved);
+      setSaved(!saved);
+      onNote?.(!saved ? t('directory.saved_note', { name }) : '');
+    } catch (err) { onNote?.(apiError(err)); } finally { setBusy(false); }
+  };
+  return (
+    <button type="button" onClick={toggle} disabled={busy} aria-pressed={saved} data-testid="directory-toggle"
+      className="px-3 py-2 rounded-pill text-[13px] bg-surface-alt border border-border font-bold">
+      📇 {saved ? t('requester.in_directory') : t('requester.add_directory')}
+    </button>
+  );
+}
+
 // mine: the provider looking at their own link (dashboard), so no «add to my directory».
-export default function ShareProviderLink({ providerId, name, mine = false }) {
+// bare (AYK-320): only the link and its buttons, inside the provider page's «مشاركة» menu.
+export default function ShareProviderLink({ providerId, name, mine = false, bare = false }) {
   const { t } = useTranslation();
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const url = providerLink(providerId);
-  const self = mine || Number(user?.id) === Number(providerId);
+  const self = mine || bare || Number(user?.id) === Number(providerId);
   const [note, setNote] = useState('');
   const [saved, setSaved] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -74,8 +107,8 @@ export default function ShareProviderLink({ providerId, name, mine = false }) {
   };
 
   return (
-    <div className="card p-4 space-y-2" data-testid="share-provider">
-      <h2 className="font-bold text-fg">{mine ? t('share_provider.my_title') : t('share_provider.title')}</h2>
+    <div className={bare ? 'space-y-2' : 'card p-4 space-y-2'} data-testid="share-provider">
+      {!bare && <h2 className="font-bold text-fg">{mine ? t('share_provider.my_title') : t('share_provider.title')}</h2>}
       {mine && <p className="text-[12.5px] text-fg-muted">{t('share_provider.my_hint')}</p>}
       <div dir="ltr" className="text-[12.5px] text-fg bg-surface-alt border border-border rounded-card px-3 py-2 break-all select-all"
         data-testid="share-provider-url">{url}</div>
