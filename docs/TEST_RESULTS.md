@@ -1355,3 +1355,8 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - server never answers: page drawn after 1.4 s, no reload.
 - Client tests 166 pass; `check-deploy` 22 ok.
 - Not tried here: the real switch between two releases through the service worker on a phone. The first opening after this deploy still runs the previous code once.
+
+## 2026-11-20 — AYK-324: the «التقييمات والآراء» dialog
+- The owner's screenshot: the dialog looked plain (a bare «★ 5/5», a line, and page buttons for a single page).
+- Now: the average in large type with gold stars and «عدد التقييمات» on top; each opinion is a card with its gold stars, its time and the comment; the page buttons show only when there is another page.
+- Browser check (local site, phone size, from «دليلي»): average 4.5 with 2 ratings, two opinion cards, no page buttons, no page errors. Client tests 166 pass.
