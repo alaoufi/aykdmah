@@ -1,5 +1,5 @@
-# Deploys aykdmh.com from GitHub (AYK-305): Actions → «Deploy aykdmh.com» → Run workflow,
-# on the branch claude/deploy-setup. The same checks as every push run first; only then the
+# Deploys aykdmh.com from GitHub (AYK-305): a push to claude/deploy-setup whose commit message
+# contains [deploy] (a manual run needs this file on the default branch). The same checks as every push run first; only then the
 # server is asked to deploy exactly this commit, and the live site is checked to show it.
 # The SSH key can do nothing else on the server (deploy/ci-command.sh, set up by deploy/ci-setup.sh).
 # Secrets: AYKDMH_DEPLOY_KEY (the private key) and AYKDMH_HOST_KEY (the server's public key line).
@@ -7,6 +7,8 @@ name: Deploy aykdmh.com
 
 on:
   workflow_dispatch:
+  push:
+    branches: [claude/deploy-setup]
 
 concurrency:
   group: deploy-aykdmh
@@ -17,7 +19,7 @@ permissions:
 
 jobs:
   checks:
-    if: github.ref == 'refs/heads/claude/deploy-setup'
+    if: github.ref == 'refs/heads/claude/deploy-setup' && (github.event_name == 'workflow_dispatch' || contains(github.event.head_commit.message, '[deploy]'))
     uses: ./.github/workflows/ci.yml
 
   deploy:
