@@ -1245,3 +1245,10 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - English and Urdu rating titles now name the service provider the same way as the sign-up role.
 - Browser check (local site): one row of stars, no file input. 4 stars and a comment saved («✅ … published»); the review has no criteria and no images.
 - Tests: client 166, server 84 pass; `i18n:check` 2577 keys.
+- **Second step (same day): the home page is fetched with the main bundle.**
+  - Measured live, first open, phone-sized Chromium with the processor slowed 4× and a ~10 Mbit/s, 100 ms network:
+    - the main bundle arrived at 1.8 s;
+    - only after it ran (2.3 s) did the browser start fetching the home page's 15 small files, done at 3.1 s;
+    - content showed at 3.4 s, and the data requests started after that.
+  - Fix: `build-tools/preloadHome.mjs` adds `<link rel="modulepreload">` to `index.html` for the home page and everything it imports. The browser fetches them together with the main bundle.
+  - Also checked on the live site: the rating page served is the new one (no detailed rating, no file input, the «تم نشر تقييمك» message present), and `POST /api/reviews` without sign-in answers 401.

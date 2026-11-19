@@ -6,6 +6,7 @@ import darkTheme from './src/theme/themes/dark';
 import { themeToCssVars } from './src/theme/tokens';
 import { compatibilityAssetsPlugin } from './build-tools/compatibilityAssets.mjs';
 import { earlyRecoveryPlugin } from './build-tools/earlyRecovery.mjs';
+import { preloadHomePlugin } from './build-tools/preloadHome.mjs';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
@@ -113,6 +114,7 @@ export default defineConfig(({ mode }) => {
         },
       }),
       compatibilityAssetsPlugin(),
+      preloadHomePlugin(),
     ],
     server: {
       port: 5173,
