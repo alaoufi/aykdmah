@@ -1269,3 +1269,8 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - the test waits until the requests have arrived (at most 5 s) instead of a fixed 30 ms;
   - each test server is closed after the tests, connections included, even after a failure.
 - `admissionQueue.test.js` 3 runs × 3 pass; server tests 84 pass.
+
+## 2026-11-19 — AYK-318: a slowness report without anyone at the server
+- The deploy key gained one READ-ONLY command, `slow-requests <hours>` (1-72), that runs `deploy/slow-requests.sh`. Anything after `?` in the request paths is removed, so no token reaches GitHub.
+- `.github/workflows/server-report.yml` runs it for the last 3 hours on a push whose message contains `[server-report]`.
+- Checked here: `slow-requests 99` and `slow-requests 3; id` are refused; the `?` filter turns `GET /api/x?token=abc 200 5 ms` into `GET /api/x 200 5 ms`.
