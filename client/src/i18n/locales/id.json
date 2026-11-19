@@ -2307,7 +2307,8 @@
       "paused": "Dijeda",
       "vacation": "Sedang cuti",
       "off_day": "Bukan hari kerja",
-      "off_hours": "Di luar jam kerja"
+      "off_hours": "Di luar jam kerja",
+      "offline": "Sedang tidak terhubung"
     },
     "vacation_until": "Cuti sampai {{date}}",
     "off_hours_range": "Bekerja dari {{from}} sampai {{to}}",

@@ -2307,7 +2307,8 @@
       "paused": "ለጊዜው ቆሟል",
       "vacation": "ዕረፍት ላይ",
       "off_day": "የሥራ ቀን አይደለም",
-      "off_hours": "ከሥራ ሰዓት ውጭ"
+      "off_hours": "ከሥራ ሰዓት ውጭ",
+      "offline": "አሁን አልተገናኘም"
     },
     "vacation_until": "እስከ {{date}} ዕረፍት ላይ",
     "off_hours_range": "ከ{{from}} እስከ {{to}} ይሠራል",

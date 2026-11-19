@@ -2307,7 +2307,8 @@
       "paused": "Paused",
       "vacation": "On vacation",
       "off_day": "Not a working day",
-      "off_hours": "Outside working hours"
+      "off_hours": "Outside working hours",
+      "offline": "Not connected now"
     },
     "vacation_until": "On vacation until {{date}}",
     "off_hours_range": "Works {{from}} to {{to}}",

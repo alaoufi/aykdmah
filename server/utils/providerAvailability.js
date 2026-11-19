@@ -34,7 +34,11 @@ function availability(profile = {}, now = new Date()) {
     const inside = from <= to ? local.minutes >= from && local.minutes < to : local.minutes >= from || local.minutes < to;
     if (!inside) return { state: 'off_hours', ...base };
   }
-  return { state: 'available', ...base };
+  // AYK-325 (the owner): «متواجد» means really there now, measured by the app's live connection to
+  // the site, not by the provider's own settings. `present` is given only where the row carries
+  // is_online; the schedule (`state`) still decides who is told about a request, since a closed
+  // app is reached by a notification.
+  return { state: 'available', ...base, ...(profile.is_online === undefined ? {} : { present: Number(profile.is_online) === 1 }) };
 }
 
 const empty = value => value === null || value === '';

@@ -93,7 +93,7 @@ export default function ProviderProfilePage() {
         <div className="rounded-card bg-surface border border-border p-3 flex items-center gap-3 flex-wrap" data-testid="provider-rating">
           <span className="text-3xl font-extrabold text-fg leading-none">{count ? average.toFixed(1) : '—'}</span>
           <div className="min-w-0">
-            <StarRating value={Math.round(average)} readOnly size={20} />
+            <StarRating value={average} readOnly size={20} />
             <div className="text-[12.5px] text-fg-muted">
               {count ? t('provider_page.rating_count', { count }) : t('for_you.no_ratings')}
               {done ? ` · ${t('provider_page.completed', { count: done })}` : ''}

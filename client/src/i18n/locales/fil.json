@@ -2307,7 +2307,8 @@
       "paused": "Pansamantalang nakahinto",
       "vacation": "Naka-bakasyon",
       "off_day": "Hindi araw ng trabaho",
-      "off_hours": "Labas sa oras ng trabaho"
+      "off_hours": "Labas sa oras ng trabaho",
+      "offline": "Hindi konektado ngayon"
     },
     "vacation_until": "Naka-bakasyon hanggang {{date}}",
     "off_hours_range": "Nagtatrabaho mula {{from}} hanggang {{to}}",

@@ -2332,11 +2332,12 @@
     "title": "التوفر وأوقات العمل",
     "manage": "إدارة التوفر",
     "state": {
-      "available": "متاح الآن",
+      "available": "متواجد الآن",
       "paused": "متوقف مؤقتًا",
       "vacation": "في إجازة",
       "off_day": "ليس يوم عمل",
-      "off_hours": "خارج ساعات العمل"
+      "off_hours": "خارج ساعات العمل",
+      "offline": "غير متصل الآن"
     },
     "vacation_until": "في إجازة حتى {{date}}",
     "off_hours_range": "يعمل من {{from}} إلى {{to}}",
@@ -2463,7 +2464,7 @@
     "verified": "موثق",
     "no_ratings": "بلا تقييم بعد",
     "completed": "{{count}} خدمة منجزة",
-    "available": "متاح الآن",
+    "available": "متواجد الآن",
     "unavailable": "خارج الخدمة",
     "view_profile": "عرض الملف والتواصل",
     "view_all": "عرض الكل",
@@ -2476,7 +2477,7 @@
     "choose_profession": "اختر المهنة…",
     "area_totals": "في منطقتك: {{providers}} مقدم خدمة، منهم {{available}} متاح الآن، و{{requests}} طلب مفتوح",
     "stat_providers": "{{count}} مقدم خدمة في منطقتك",
-    "stat_available": "{{count}} متاح الآن",
+    "stat_available": "{{count}} متواجد الآن",
     "stat_featured": "{{count}} متميز",
     "stat_open": "{{count}} طلب مفتوح",
     "sign_in_for_stats": "سجّل الدخول لترى عدد مقدمي الخدمة في منطقتك",
@@ -2533,7 +2534,7 @@
   "requester": {
     "all_professions": "كل المهن",
     "stat_total": "{{count}} مقدم خدمة قريب منك",
-    "stat_available": "{{count}} متاح الآن",
+    "stat_available": "{{count}} متواجد الآن",
     "contact_direct": "تواصل",
     "in_directory": "في دليلي",
     "add_directory": "أضف إلى دليلي",

@@ -1360,3 +1360,19 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - The owner's screenshot: the dialog looked plain (a bare «★ 5/5», a line, and page buttons for a single page).
 - Now: the average in large type with gold stars and «عدد التقييمات» on top; each opinion is a card with its gold stars, its time and the comment; the page buttons show only when there is another page.
 - Browser check (local site, phone size, from «دليلي»): average 4.5 with 2 ratings, two opinion cards, no page buttons, no page errors. Client tests 166 pass.
+
+## 2026-11-20 — AYK-325: «متواجد الآن» follows the live connection; AYK-326: glowing stars
+- The owner's rule: «متواجد» means really active and receiving, checked by the connection, not by the provider's own choices.
+  - 🟢 «متواجد الآن»: on duty by their hours and not paused, AND their app is connected to the site right now (the live socket: `users.is_online`).
+  - 🔴 otherwise. On duty but not connected reads «غير متصل الآن» (11 languages); the other reasons are as before.
+  - The server gives `availability.present`. The schedule alone still decides who is told about a new request, because a closed app is reached by its notification.
+  - A restart clears connection marks older than a minute; apps reconnect and mark themselves again.
+- Stars: gold with a glow that grows with the rating (brightest at 5), pale when empty, and a partly filled star for averages (4.5 fills half of the fifth).
+- Browser check (local site, two browsers):
+  - provider's app closed → page badge and «دليلي» show «🔴 غير متصل الآن»;
+  - the provider signs in → both show «🟢 متواجد الآن»;
+  - the provider closes the app → red again within 1.5 s;
+  - the rating box shows 4.5 with four full stars and half of the fifth, glowing;
+  - no page errors.
+- Tests: integration 277 pass, 0 fail; server 84; client 166; `i18n:check` 2621 keys; `check-deploy` 22 ok.
+- Not tried: presence on real phones, where Android may keep or drop the connection of an app in the background.

@@ -21,10 +21,14 @@ export function workingSummary(availability, t, lang) {
   return `${daysText} · ${hours}`;
 }
 
+// AYK-325 (the owner): there now = on duty by their hours AND their app connected to the site now.
+// An older answer without `present` falls back to the hours alone.
+export const isPresent = availability => availability?.state === 'available' && availability.present !== false;
+
 export default function AvailabilityBadge({ availability, className = '' }) {
   const { t } = useTranslation();
   if (!availability?.state) return null;
-  const { state } = availability;
+  const state = availability.state === 'available' && !isPresent(availability) ? 'offline' : availability.state;
   const label = state === 'vacation' && availability.until
     ? t('availability.vacation_until', { date: availability.until })
     : state === 'off_hours' && availability.work_from

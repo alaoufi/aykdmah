@@ -2307,7 +2307,8 @@
       "paused": "Geçici olarak durduruldu",
       "vacation": "Tatilde",
       "off_day": "Çalışma günü değil",
-      "off_hours": "Çalışma saatleri dışında"
+      "off_hours": "Çalışma saatleri dışında",
+      "offline": "Şu anda bağlı değil"
     },
     "vacation_until": "{{date}} tarihine kadar izinde",
     "off_hours_range": "{{from}} - {{to}} arası çalışır",

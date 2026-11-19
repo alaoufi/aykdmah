@@ -37,7 +37,7 @@ export default function TrustSummary({ userId, type = 'on_provider', average = 0
           <div className="mx-4 mt-2 p-3 rounded-card bg-amber-50 border border-amber-200 flex items-center gap-3" data-testid="trust-average">
             <span className="text-3xl font-extrabold text-amber-700 leading-none">{Number(average).toFixed(1)}</span>
             <div>
-              <StarRating value={Math.round(Number(average))} readOnly size={20} />
+              <StarRating value={Number(average)} readOnly size={20} />
               <div className="text-[12.5px] text-amber-800">{t('provider_page.rating_count', { count })}</div>
             </div>
           </div>

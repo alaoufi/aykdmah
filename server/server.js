@@ -27,6 +27,12 @@ require('./services/callService').attach(io, { background: BACKGROUND });
 if (BACKGROUND) require('./services/requestReminderService').start();
 
 const PORT = env.APP_PORT;
+// AYK-325: «متواجد الآن» follows the live connection. A restart drops every connection without
+// its goodbye, so marks older than a minute are cleared; apps reconnect and mark themselves again.
+if (BACKGROUND) {
+  require('./config/database').query("UPDATE users SET is_online = 0 WHERE is_online = 1 AND (last_seen_at IS NULL OR last_seen_at < CURRENT_TIMESTAMP - INTERVAL '1 minute')")
+    .catch(err => logger.warn('Presence reset failed:', err.message));
+}
 httpServer.listen(PORT, () => {
   logger.info(`Server listening on port ${PORT} (${env.NODE_ENV})${cluster.isWorker ? `, copy ${process.env.APP_WORKER_INDEX}` : ''}`);
   logger.info('Database setup and migrations use npm run seed.');

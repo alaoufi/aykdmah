@@ -14,6 +14,7 @@ import BlockedNotice from '../../components/common/BlockedNotice';
 import ProblemNotice from '../../components/common/ProblemNotice';
 import DirectoryContacts from '../../components/directory/DirectoryContacts';
 import ProviderNumbers from '../../components/providers/ProviderNumbers';
+import { isPresent } from '../../components/common/AvailabilityBadge';
 
 // "My directory" (AYK-041): providers the requester kept, to contact again directly
 // without posting a request. Each contact is still recorded as a request.
@@ -84,7 +85,7 @@ export default function DirectoryPage({ compact = false }) {
                   {p.category_name && <span>🛠️ {localizedJoinedName(p, 'category', lang)}</span>}
                   {p.district_name_ar && <span>📍 {localizedName({ name_ar: p.district_name_ar, name_en: p.district_name_en }, lang)}</span>}
                   <TrustSummary userId={p.id} type={p.is_provider === false ? 'on_requester' : 'on_provider'} average={p.rating_avg} count={p.rating_count} opinion={p.opinion} />
-                  {p.availability && <span className={p.availability?.state === 'available' ? 'text-success' : 'text-danger'}>{p.availability?.state === 'available' ? '🟢' : '🔴'} {t(p.availability?.state === 'available' ? 'for_you.available' : 'for_you.unavailable')}</span>}
+                  {p.availability && <span className={isPresent(p.availability) ? 'text-success' : 'text-danger'}>{isPresent(p.availability) ? '🟢' : '🔴'} {t(isPresent(p.availability) ? 'for_you.available' : p.availability.state === 'available' ? 'availability.state.offline' : 'for_you.unavailable')}</span>}
                 </div>
                 <ProviderNumbers phone={p.public_phone} whatsapp={p.public_whatsapp} className="mt-2" />
                 <div className="flex items-center gap-3 mt-2">

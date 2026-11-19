@@ -11,6 +11,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { canRequestService } from '../../utils/canRequest';
 import { listDirectoryIds, saveToDirectory, contactDirect } from '../../services/requestService';
 import { apiError } from '../../services/api';
+import { isPresent } from '../common/AvailabilityBadge';
 
 // Providers who serve the signed-in requester's registered district in a profession
 // (AYK-035): every provider covering that district, featured (paid) first, then by
@@ -93,7 +94,7 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
     await saveToDirectory(id, next);
     setSaved(previous => { const copy = new Set(previous); if (next) copy.add(id); else copy.delete(id); return copy; });
   };
-  const availableCount = result?.providers?.filter(p => p.availability?.state === 'available').length || 0;
+  const availableCount = result?.providers?.filter(p => isPresent(p.availability)).length || 0;
   // The requester's own list (AYK-055): available now in the district; if none, available now in
   // the city with a "not covered" note. On a request page (onContact) the list stays as it was.
   const isAvailable = p => p.availability?.state === 'available';
@@ -171,7 +172,7 @@ function CityBox({ providers, cityName, requester, categoryId }) {
       <ul className="list-none p-0 m-0 max-h-64 overflow-y-auto divide-y divide-border">
         {providers.map(p => (
           <li key={p.id} className="flex items-center gap-2 py-2 text-[13px] flex-wrap" data-testid="city-provider">
-            <span aria-label={t(p.availability?.state === 'available' ? 'for_you.available' : 'for_you.unavailable')}>{p.availability?.state === 'available' ? '🟢' : '🔴'}</span>
+            <span aria-label={t(isPresent(p.availability) ? 'for_you.available' : 'for_you.unavailable')}>{isPresent(p.availability) ? '🟢' : '🔴'}</span>
             <Link to={`/providers/${p.id}`} className="font-semibold text-fg truncate">{p.business_name || p.full_name}</Link>
             <span className="text-fg-muted truncate flex-1">
               {p.category_name_ar ? localizedName({ name_ar: p.category_name_ar, name_en: p.category_name_en, name_translations: p.category_name_translations }, lang) : ''}
@@ -211,7 +212,7 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
           {p.district_name_ar && <span>📍 {localizedName({ name_ar: p.district_name_ar, name_en: p.district_name_en }, lang)}</span>}
           <TrustSummary userId={p.id} average={p.rating_avg} count={p.rating_count} opinion={p.opinion} />
           {p.completed_orders > 0 && <span>✅ {t('for_you.completed', { count: p.completed_orders })}</span>}
-          <span className={state === 'available' ? 'text-success' : 'text-danger'}>{state === 'available' ? '🟢' : '🔴'} {t(state === 'available' ? 'for_you.available' : 'for_you.unavailable')}</span>
+          <span className={isPresent(p.availability) ? 'text-success' : 'text-danger'}>{isPresent(p.availability) ? '🟢' : '🔴'} {t(isPresent(p.availability) ? 'for_you.available' : state === 'available' ? 'availability.state.offline' : 'for_you.unavailable')}</span>
         </div>
         <div className="flex items-center gap-3 mt-2">
           {onContact && <button type="button" className="btn btn-primary btn-sm" disabled={busy} data-testid="contact-provider"
