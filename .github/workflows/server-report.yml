@@ -1,0 +1,30 @@
+# A read-only slowness report from the server (AYK-318): a push to claude/deploy-setup whose commit
+# message contains [server-report] runs deploy/slow-requests.sh there for the last 3 hours, through
+# the same restricted key as the deploy (it can only run the commands in deploy/ci-command.sh).
+name: Server slowness report
+
+on:
+  push:
+    branches: [claude/deploy-setup]
+
+concurrency:
+  group: server-report-aykdmh
+  cancel-in-progress: false
+
+jobs:
+  report:
+    if: contains(github.event.head_commit.message, '[server-report]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Slowest requests and server load
+        shell: bash
+        env:
+          KEY: ${{ secrets.AYKDMH_DEPLOY_KEY }}
+          HOST_KEY: ${{ secrets.AYKDMH_HOST_KEY }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$KEY" | tr -d '\r' > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          printf '%s\n' "$HOST_KEY" | tr -d '\r' > ~/.ssh/known_hosts
+          ssh -i ~/.ssh/deploy -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o BatchMode=yes root@84.247.166.216 "slow-requests 3"
+          rm -f ~/.ssh/deploy

@@ -8,6 +8,9 @@
 #                     "AAB <sha256> <bytes>" (AYK-309).
 #   android-aab <sha256>  sends that bundle on standard output, only if its SHA-256 matches, so
 #                     GitHub uploads exactly what was built (to Google Play, with its own key).
+#   slow-requests <hours>  READ ONLY: deploy/slow-requests.sh for the last 1-72 hours (how long the app
+#                     takes to answer, server load), so a slowness report needs no one at the server.
+#                     Anything after "?" in a path is removed, so no token reaches GitHub (AYK-318).
 #   deploy <commit>   fetch, move the branch forward to exactly that commit (the one GitHub tested),
 #                     then deploy/release-app.sh. A commit older than the server's is refused.
 # One deploy at a time. Everything is logged to /var/log/aykdmh-ci.log.
@@ -20,6 +23,11 @@ AAB=/root/aykdmh-android/project/aykdmh.aab
 case "$request" in
   status)
     cat /var/www/aykdmh/current/version.json; echo; exit 0 ;;
+  slow-requests\ *)
+    hours="${request#slow-requests }"
+    [[ "$hours" =~ ^[0-9]{1,2}$ ]] && (( hours >= 1 && hours <= 72 )) || { echo "refused: 'slow-requests' needs 1-72 hours"; exit 2; }
+    bash "$REPO_DIR/deploy/slow-requests.sh" "$hours" 2>&1 | sed -E 's/\?[^ ]*//g'
+    exit 0 ;;
   android-aab\ *)
     want="${request#android-aab }"
     [[ "$want" =~ ^[0-9a-f]{64}$ ]] || { echo "refused: 'android-aab' needs the bundle's SHA-256" >&2; exit 2; }
@@ -33,7 +41,7 @@ case "$request" in
     commit="${request#deploy }"; action=deploy
     [[ "$commit" =~ ^[0-9a-f]{40}$ ]] || { echo "refused: 'deploy' needs a full 40-character commit id"; exit 2; } ;;
   *)
-    echo "refused: this key may only run 'status', 'deploy <commit>', 'android-build <commit>' or 'android-aab <sha256>'"; exit 2 ;;
+    echo "refused: this key may only run 'status', 'slow-requests <hours>', 'deploy <commit>', 'android-build <commit>' or 'android-aab <sha256>'"; exit 2 ;;
 esac
 
 exec 8> /run/aykdmh-ci.lock
