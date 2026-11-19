@@ -1,0 +1,32 @@
+# Publishes an Android version that is already in Google Play to production (AYK-309): a push to
+# claude/deploy-setup whose message contains [android-promote], with android/play/production.txt
+# saying "production <version code>" (the owner's approval). No rebuild: the same bundle is published.
+name: Android publish
+
+on:
+  push:
+    branches: [claude/deploy-setup]
+
+permissions:
+  contents: read
+
+jobs:
+  promote:
+    if: contains(github.event.head_commit.message, '[android-promote]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Publish to production
+        shell: bash
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          PLAY_PACKAGE: sa.aykdmh.app
+        run: |
+          confirm="$(tr -d '\r\n' < android/play/production.txt)"
+          export PLAY_CONFIRM="$confirm" PLAY_VERSION_CODE="${confirm#production }"
+          export PLAY_NOTES_AR="$(cat android/play/notes-ar.txt)" PLAY_NOTES_EN="$(cat android/play/notes-en.txt)"
+          node android/play/promote.cjs
