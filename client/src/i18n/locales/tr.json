@@ -2780,12 +2780,12 @@
     "row_size": "Boyut {{size}}"
   },
   "signup_guide": {
-    "title": "Nasıl kaydolunur",
+    "title": "Kayıt rehberi",
     "intro": "Kayıt bir iki dakika sürer. Bu adımlar kayıt sayfasındaki sırayla aynıdır.",
     "choose_language": "Dilinizi seçin",
     "choose_language_hint": "Bu rehber ve sitenin tamamı bu dilde gösterilir. Daha sonra sayfanın üst kısmından değiştirebilirsiniz.",
     "start": "Kayda başla",
-    "reopen": "Nasıl kaydolunur, adım adım",
+    "reopen": "Adım adım kayıt rehberi",
     "image_note": "Kayıt sayfasının kendisinden bir görüntü.",
     "steps": {
       "types": {

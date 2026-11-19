@@ -2780,12 +2780,12 @@
     "row_size": "Laki {{size}}"
   },
   "signup_guide": {
-    "title": "Paano mag-sign up",
+    "title": "Gabay sa pagpaparehistro",
     "intro": "Isa o dalawang minuto lang ang pag-sign up. Ang mga hakbang na ito ay nasa parehong ayos ng pahina ng pag-sign up.",
     "choose_language": "Piliin ang iyong wika",
     "choose_language_hint": "Ipapakita sa wikang ito ang gabay at ang buong site. Mapapalitan mo ito mamaya sa itaas ng pahina.",
     "start": "Simulan ang pag-sign up",
-    "reopen": "Paano mag-sign up, hakbang-hakbang",
+    "reopen": "Gabay sa pagpaparehistro, hakbang-hakbang",
     "image_note": "Larawan ng mismong pahina ng pag-sign up.",
     "steps": {
       "types": {

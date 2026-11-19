@@ -2780,12 +2780,12 @@
     "row_size": "Ukuran {{size}}"
   },
   "signup_guide": {
-    "title": "Cara mendaftar",
+    "title": "Panduan pendaftaran",
     "intro": "Pendaftaran hanya satu atau dua menit. Langkah-langkah ini urutannya sama dengan halaman pendaftaran.",
     "choose_language": "Pilih bahasa Anda",
     "choose_language_hint": "Panduan ini dan seluruh situs akan ditampilkan dalam bahasa ini. Anda bisa mengubahnya nanti di bagian atas halaman.",
     "start": "Mulai mendaftar",
-    "reopen": "Cara mendaftar, langkah demi langkah",
+    "reopen": "Panduan pendaftaran langkah demi langkah",
     "image_note": "Gambar dari halaman pendaftaran itu sendiri.",
     "steps": {
       "types": {

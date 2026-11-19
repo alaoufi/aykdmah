@@ -2780,12 +2780,12 @@
     "row_size": "Size {{size}}"
   },
   "signup_guide": {
-    "title": "How to sign up",
+    "title": "Sign-up guide",
     "intro": "Signing up takes a minute or two. These steps follow the same order as the sign-up page.",
     "choose_language": "Choose your language",
     "choose_language_hint": "This guide and the whole site will be shown in it. You can change it later at the top of the page.",
     "start": "Start signing up",
-    "reopen": "How to sign up, step by step",
+    "reopen": "Sign-up guide, step by step",
     "image_note": "A picture of the sign-up page itself.",
     "steps": {
       "types": {
