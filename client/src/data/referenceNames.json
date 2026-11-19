@@ -8,8 +8,8 @@
       "ur": "گھر کی دیکھ بھال",
       "hi": "घर की मरम्मत",
       "bn": "বাড়ির মেরামত",
-      "ml": "വീട് പരിപാലനം",
-      "fil": "Pag-uusig sa tahanan",
+      "ml": "വീട് അറ്റകുറ്റപ്പണി",
+      "fil": "Pag-aayos ng bahay",
       "id": "Pemeliharaan rumah",
       "ne": "घरको मर्मतसम्भार",
       "am": "የቤት ጥገና",
@@ -22,7 +22,7 @@
       "en": "Cleaning",
       "ur": "صفائی",
       "hi": "सफ़ाई",
-      "bn": "পরিষ্কার",
+      "bn": "পরিচ্ছন্নতা",
       "ml": "വൃത്തിയാക്കൽ",
       "fil": "Paglinis",
       "id": "Pembersihan",
@@ -38,12 +38,12 @@
       "ur": "سامان کی منتقلی",
       "hi": "सामान की ढुलाई",
       "bn": "মালামাল স্থানান্তর",
-      "ml": "നീങ്ങുന്നു",
-      "fil": "Paglilipat",
-      "id": "Pindah",
-      "ne": "सार्दै",
-      "am": "መንቀሳቀስ",
-      "tr": "Hareket"
+      "ml": "ഫർണിച്ചർ ഷിഫ്റ്റിംഗ്",
+      "fil": "Paglilipat ng gamit",
+      "id": "Pindahan barang",
+      "ne": "सामान ढुवानी",
+      "am": "የቤት ዕቃ ማጓጓዝ",
+      "tr": "Eşya taşıma"
     },
     {
       "kind": "category",
@@ -53,11 +53,11 @@
       "ur": "بجلی کا کام",
       "hi": "बिजली का काम",
       "bn": "বিদ্যুতের কাজ",
-      "ml": "വൈദ്യുതി",
-      "fil": "Mga elektrikal",
+      "ml": "ഇലക്ട്രിക്കൽ ജോലികൾ",
+      "fil": "Gawaing elektrikal",
       "id": "Listrik",
-      "ne": "विद्युतीय",
-      "am": "የኤሌክትሪክ",
+      "ne": "बिजुलीको काम",
+      "am": "የኤሌክትሪክ ሥራ",
       "tr": "Elektrik"
     },
     {
@@ -69,11 +69,11 @@
       "hi": "प्लंबिंग",
       "bn": "প্লাম্বিং",
       "ml": "പ്ലംബിംഗ്",
-      "fil": "Pag-iimbak ng mga tubo",
-      "id": "Pembuatan pipa",
-      "ne": "पाइपलाइन",
+      "fil": "Pagtutubero",
+      "id": "Perpipaan",
+      "ne": "प्लम्बिङ",
       "am": "የቧንቧ ሥራ",
-      "tr": "Tesis tesisatı"
+      "tr": "Sıhhi tesisat"
     },
     {
       "kind": "category",
@@ -83,12 +83,12 @@
       "ur": "ایئر کنڈیشننگ اور کولنگ",
       "hi": "एसी और कूलिंग",
       "bn": "এসি ও কুলিং",
-      "ml": "എസി & കൂളിംഗ്",
+      "ml": "എസിയും കൂളിംഗും",
       "fil": "AC & paglamig",
       "id": "AC & pendinginan",
-      "ne": "एसी र शीतलन",
-      "am": "የአየር ማቀዝቀዣ እና ማቀዝቀዣ",
-      "tr": "AC ve soğutma"
+      "ne": "एसी र कुलिङ",
+      "am": "ኤሲ እና ማቀዝቀዣ",
+      "tr": "Klima ve soğutma"
     },
     {
       "kind": "category",
@@ -98,42 +98,42 @@
       "ur": "رنگ و سجاوٹ",
       "hi": "पेंट और सजावट",
       "bn": "রং ও সাজসজ্জা",
-      "ml": "പെയിന്റ് & ഡെക്കറേഷൻ",
+      "ml": "പെയിന്റിംഗും ഡെക്കറേഷനും",
       "fil": "Pintura & dekorasyon",
       "id": "Cat & dekorasi",
       "ne": "पेंट र सजावट",
-      "am": "ቀለም እና ዲኮር",
-      "tr": "Boyalı ve dekorasyon"
+      "am": "ቀለም ቅብ እና ዲኮር",
+      "tr": "Boya ve dekorasyon"
     },
     {
       "kind": "category",
       "slug": "gardens",
       "ar": "حدائق ومناظر",
       "en": "Gardens & landscaping",
-      "ur": "باغات اور زمین کی آرائش",
-      "hi": "बाग़ और भूदृश्य",
+      "ur": "باغبانی اور لینڈ اسکیپنگ",
+      "hi": "बाग़बानी और लैंडस्केपिंग",
       "bn": "বাগান ও ল্যান্ডস্কেপ",
       "ml": "പൂന്തോട്ടങ്ങളും ലാൻഡ്സ്കേപ്പിംഗും",
-      "fil": "Mga hardin at pag-uukit ng lupa",
+      "fil": "Hardin at landscaping",
       "id": "Kebun & lansekap",
-      "ne": "बागवानी र परिदृश्य",
-      "am": "የአትክልት ስፍራዎች እና የአትክልት ስፍራዎች",
-      "tr": "Bahçeler ve tarımsal alanlar"
+      "ne": "बगैंचा र ल्यान्डस्केपिङ",
+      "am": "የአትክልት ስፍራ እና የመሬት ገጽታ",
+      "tr": "Bahçe ve peyzaj"
     },
     {
       "kind": "category",
       "slug": "education",
       "ar": "تعليم وتدريس",
       "en": "Tutoring",
-      "ur": "ٹیوشن",
-      "hi": "ट्यूशन",
-      "bn": "প্রাইভেট পড়ানো",
-      "ml": "ട്യൂഷൻ",
-      "fil": "Pagtuturo",
-      "id": "Pengajaran",
-      "ne": "शिक्षण",
-      "am": "የማስተማር ሥራ",
-      "tr": "Öğretmenlik"
+      "ur": "تعلیم اور ٹیوشن",
+      "hi": "शिक्षा और ट्यूशन",
+      "bn": "শিক্ষা ও টিউশন",
+      "ml": "വിദ്യാഭ്യാസവും ട്യൂഷനും",
+      "fil": "Edukasyon at pagtuturo",
+      "id": "Pendidikan & les",
+      "ne": "शिक्षा र ट्युसन",
+      "am": "ትምህርት እና ማስጠናት",
+      "tr": "Eğitim ve özel ders"
     },
     {
       "kind": "category",
@@ -158,7 +158,7 @@
       "ur": "ٹیکنالوجی اور کمپیوٹر",
       "hi": "तकनीक और कंप्यूटर",
       "bn": "প্রযুক্তি ও কম্পিউটার",
-      "ml": "സാങ്കേതിക വിദ്യയും കമ്പ്യൂട്ടറുകളും",
+      "ml": "സാങ്കേതികവിദ്യയും കമ്പ്യൂട്ടറും",
       "fil": "Teknolohiya & computer",
       "id": "Teknologi & komputer",
       "ne": "टेक्नोलोजी र कम्प्युटर",
@@ -174,11 +174,11 @@
       "hi": "कार्यक्रम और खानपान",
       "bn": "অনুষ্ঠান ও খাবার সরবরাহ",
       "ml": "പരിപാടികളും കാറ്ററിംഗും",
-      "fil": "Mga kaganapan & pag-aalaga",
+      "fil": "Okasyon at catering",
       "id": "Acara & katering",
       "ne": "कार्यक्रम र खानपान",
-      "am": "ዝግጅቶች እና ምግብ",
-      "tr": "Olaylar & yemek"
+      "am": "ዝግጅቶች እና መስተንግዶ",
+      "tr": "Etkinlik ve ikram"
     },
     {
       "kind": "category",
@@ -188,12 +188,12 @@
       "ur": "گھریلو کاروبار",
       "hi": "घरेलू व्यवसाय",
       "bn": "ঘরোয়া ব্যবসা",
-      "ml": "വീട്ടുജോലികൾ",
+      "ml": "വീട്ടുസംരംഭങ്ങൾ",
       "fil": "Mga negosyo sa bahay",
       "id": "Bisnis rumahan",
-      "ne": "घर व्यवसाय",
+      "ne": "घरेलु व्यवसाय",
       "am": "የቤት ውስጥ ንግዶች",
-      "tr": "Ev işleri"
+      "tr": "Ev üreticileri"
     },
     {
       "kind": "category",
@@ -203,12 +203,12 @@
       "ur": "فوٹوگرافی اور تخلیقی خدمات",
       "hi": "फ़ोटोग्राफ़ी और रचनात्मक सेवाएँ",
       "bn": "ফটোগ্রাফি ও সৃজনশীল সেবা",
-      "ml": "ഫോട്ടോഗ്രാഫിയും ക്രിയേറ്റീവും",
-      "fil": "Pinakamahusay na Paglikha",
+      "ml": "ഫോട്ടോഗ്രാഫിയും ക്രിയേറ്റീവ് സേവനങ്ങളും",
+      "fil": "Photography at creative",
       "id": "Fotografi & kreatif",
       "ne": "फोटोग्राफी र रचनात्मक",
       "am": "ፎቶግራፍ እና ፈጠራ",
-      "tr": "Fotoğrafçılık & Yaratıcılık"
+      "tr": "Fotoğraf ve yaratıcı hizmetler"
     },
     {
       "kind": "category",
@@ -233,11 +233,11 @@
       "ur": "ڈیلیوری اور شپنگ",
       "hi": "डिलीवरी और शिपिंग",
       "bn": "ডেলিভারি ও শিপিং",
-      "ml": "ഡെലിവറി & ഷിപ്പിംഗ്",
+      "ml": "ഡെലിവറിയും ഷിപ്പിംഗും",
       "fil": "Paghatid & pagpapadala",
-      "id": "Pengiriman & pengiriman",
+      "id": "Pengantaran & pengiriman",
       "ne": "वितरण र ढुवानी",
-      "am": "መላኪያ እና መላኪያ",
+      "am": "ማድረስ እና ጭነት",
       "tr": "Teslimat ve nakliye"
     },
     {
@@ -248,11 +248,11 @@
       "ur": "جائیداد اور کرایہ",
       "hi": "संपत्ति और किराये की सेवाएँ",
       "bn": "সম্পত্তি ও ভাড়া",
-      "ml": "റിയൽ എസ്റ്റേറ്റ് & വാടക",
+      "ml": "റിയൽ എസ്റ്റേറ്റും വാടകയും",
       "fil": "Real estate & rental",
       "id": "Real estat & sewa",
       "ne": "घर जग्गा र भाडा",
-      "am": "የሪል እስቴት እና ኪራይ",
+      "am": "ሪል እስቴት እና ኪራይ",
       "tr": "Emlak ve kiralama"
     },
     {
@@ -264,11 +264,11 @@
       "hi": "निर्माण और ठेकेदारी",
       "bn": "নির্মাণ ও ঠিকাদারি",
       "ml": "നിർമ്മാണവും കരാറുകളും",
-      "fil": "Pagbuo at pagkontrak",
-      "id": "Konstruksi & Kontraktor",
-      "ne": "निर्माण र ठेक्का सम्झौता",
+      "fil": "Konstruksyon at kontrata",
+      "id": "Konstruksi & kontraktor",
+      "ne": "निर्माण र ठेक्का",
       "am": "የግንባታ እና የኮንትራት ስራዎች",
-      "tr": "İnşaat ve sözleşme"
+      "tr": "İnşaat ve müteahhitlik"
     },
     {
       "kind": "category",
@@ -278,7 +278,7 @@
       "ur": "ذاتی نگہداشت اور خوبصورتی",
       "hi": "व्यक्तिगत देखभाल और सौंदर्य",
       "bn": "ব্যক্তিগত যত্ন ও সৌন্দর্য",
-      "ml": "വ്യക്തി പരിചരണവും സൌന്ദര്യവും",
+      "ml": "വ്യക്തിഗത പരിചരണവും സൗന്ദര്യവും",
       "fil": "Personal na pangangalaga & kagandahan",
       "id": "Perawatan pribadi & kecantikan",
       "ne": "व्यक्तिगत हेरचाह र सौन्दर्य",
@@ -297,7 +297,7 @@
       "fil": "Paglakbay & mga tour",
       "id": "Perjalanan & tur",
       "ne": "यात्रा र भ्रमण",
-      "am": "የጉዞ እና ጉብኝት",
+      "am": "ጉዞ እና ጉብኝት",
       "tr": "Seyahat ve turlar"
     },
     {
@@ -308,7 +308,7 @@
       "ur": "کاروباری خدمات",
       "hi": "व्यावसायिक सेवाएँ",
       "bn": "ব্যবসায়িক সেবা",
-      "ml": "ബിസിനസ് സേവനങ്ങള്",
+      "ml": "ബിസിനസ് സേവനങ്ങൾ",
       "fil": "Mga serbisyo sa negosyo",
       "id": "Layanan bisnis",
       "ne": "व्यापार सेवाहरू",
@@ -323,10 +323,10 @@
       "ur": "گھر پر صحت اور نگہداشت",
       "hi": "घर पर स्वास्थ्य और देखभाल",
       "bn": "বাড়িতে স্বাস্থ্যসেবা ও যত্ন",
-      "ml": "ഹോം ഹെൽത്ത് ആൻഡ് കെയർ",
-      "fil": "Pangkalusugan sa tahanan & pangangalaga",
+      "ml": "വീട്ടിലെ ആരോഗ്യ പരിചരണം",
+      "fil": "Kalusugan at pag-aalaga sa bahay",
       "id": "Kesehatan & perawatan di rumah",
-      "ne": "घर स्वास्थ्य र हेरचाह",
+      "ne": "घरमै स्वास्थ्य र हेरचाह",
       "am": "የቤት ውስጥ ጤና እና እንክብካቤ",
       "tr": "Evde sağlık ve bakım"
     },
@@ -339,7 +339,7 @@
       "hi": "प्रशिक्षण और पाठ्यक्रम",
       "bn": "প্রশিক্ষণ ও কোর্স",
       "ml": "പരിശീലനവും കോഴ്സുകളും",
-      "fil": "Pag-aaral at mga kurso",
+      "fil": "Pagsasanay at mga kurso",
       "id": "Pelatihan & kursus",
       "ne": "प्रशिक्षण र पाठ्यक्रम",
       "am": "ስልጠና እና ኮርሶች",
@@ -358,7 +358,7 @@
       "id": "Kebugaran & olahraga",
       "ne": "फिटनेस र खेलकुद",
       "am": "የአካል ብቃት እንቅስቃሴ እና ስፖርት",
-      "tr": "Fitness & Spor"
+      "tr": "Fitness ve spor"
     },
     {
       "kind": "category",
@@ -368,9 +368,9 @@
       "ur": "طلبہ کی خدمات",
       "hi": "छात्र सेवाएँ",
       "bn": "শিক্ষার্থীদের সেবা",
-      "ml": "വിദ്യാര് ത്ഥി സേവനങ്ങള്",
+      "ml": "വിദ്യാർത്ഥി സേവനങ്ങൾ",
       "fil": "Mga serbisyo sa mga mag-aaral",
-      "id": "Layanan Mahasiswa",
+      "id": "Layanan pelajar",
       "ne": "विद्यार्थी सेवा",
       "am": "የተማሪዎች አገልግሎት",
       "tr": "Öğrenci hizmetleri"
@@ -383,12 +383,12 @@
       "ur": "سلائی اور درزی کی خدمات",
       "hi": "सिलाई और दर्ज़ी सेवाएँ",
       "bn": "সেলাই ও দর্জির সেবা",
-      "ml": "തയ്യൽ & തയ്യൽ",
-      "fil": "Pag-uutos at pag-uutos",
-      "id": "Tailoring & menjahit",
-      "ne": "सिलाई र सिलाई",
-      "am": "የልብስ ስፌት እና ስፌት",
-      "tr": "Dükme ve dikişleme"
+      "ml": "തയ്യൽ സേവനങ്ങൾ",
+      "fil": "Pananahi at pagsasastre",
+      "id": "Penjahitan & jahit pesanan",
+      "ne": "सिलाई र दर्जी सेवा",
+      "am": "የልብስ ስፌት",
+      "tr": "Terzilik ve dikiş"
     },
     {
       "kind": "category",
@@ -399,11 +399,11 @@
       "hi": "परिवहन",
       "bn": "যাতায়াত",
       "ml": "ഗതാഗതവും മൊബിലിറ്റിയും",
-      "fil": "Transport & mobility",
+      "fil": "Transportasyon",
       "id": "Transportasi dan mobilitas",
-      "ne": "यातायात र गतिशीलता",
+      "ne": "यातायात",
       "am": "ትራንስፖርት እና ተንቀሳቃሽነት",
-      "tr": "Taşıma ve hareketlilik"
+      "tr": "Ulaşım ve taşımacılık"
     },
     {
       "kind": "service",
@@ -414,7 +414,7 @@
       "hi": "सामान्य मरम्मत",
       "bn": "সাধারণ মেরামত",
       "ml": "പൊതുവായ അറ്റകുറ്റപ്പണി",
-      "fil": "pangkalahatang pagpapanatili",
+      "fil": "Pangkalahatang pag-aayos",
       "id": "Pemeliharaan umum",
       "ne": "सामान्य मर्मतसम्भार",
       "am": "አጠቃላይ ጥገና",
@@ -428,12 +428,12 @@
       "ur": "فرنیچر کی تنصیب",
       "hi": "फ़र्नीचर लगाना",
       "bn": "আসবাবপত্র স্থাপন",
-      "ml": "ഫർണിച്ചറുകളുടെ ഇൻസ്റ്റലേഷൻ",
-      "fil": "Pag-install ng mga mubilyo",
+      "ml": "ഫർണിച്ചർ ഇൻസ്റ്റലേഷൻ",
+      "fil": "Pag-install ng muwebles",
       "id": "Instalasi perabot",
       "ne": "फर्निचर स्थापना",
-      "am": "የቤት እቃዎች መጫን",
-      "tr": "Mobilya kurulum"
+      "am": "የቤት ዕቃ ገጠማ",
+      "tr": "Mobilya kurulumu"
     },
     {
       "kind": "service",
@@ -443,11 +443,11 @@
       "ur": "دروازوں اور کھڑکیوں کی مرمت",
       "hi": "दरवाज़े और खिड़की की मरम्मत",
       "bn": "দরজা ও জানালা মেরামত",
-      "ml": "വാതിലുകളും ജനലുകളും നന്നാക്കുക",
+      "ml": "വാതിൽ, ജനൽ അറ്റകുറ്റപ്പണി",
       "fil": "Pag-aayos ng pintuan at bintana",
       "id": "Perbaikan pintu dan jendela",
       "ne": "ढोका र झ्यालको मर्मत",
-      "am": "የበሩና መስኮት ጥገና",
+      "am": "የበርና የመስኮት ጥገና",
       "tr": "Kapı ve pencere tamiri"
     },
     {
@@ -461,8 +461,8 @@
       "ml": "വീട് വൃത്തിയാക്കൽ",
       "fil": "Paglinis ng tahanan",
       "id": "Pembersihan rumah",
-      "ne": "घर सफा गर्ने",
-      "am": "የቤት ውስጥ ንፅህና",
+      "ne": "घर सफाई",
+      "am": "የቤት ጽዳት",
       "tr": "Ev temizliği"
     },
     {
@@ -476,7 +476,7 @@
       "ml": "വാട്ടർ ടാങ്ക് വൃത്തിയാക്കൽ",
       "fil": "Paglinis ng tangke ng tubig",
       "id": "Pembersihan tangki air",
-      "ne": "पानी ट्यांक सफाई",
+      "ne": "पानी ट्याङ्की सफाई",
       "am": "የውሃ ማጠራቀሚያ ማጽዳት",
       "tr": "Su tankı temizliği"
     },
@@ -492,8 +492,8 @@
       "fil": "Paglinis ng AC",
       "id": "Pembersihan AC",
       "ne": "एसी सफाई",
-      "am": "የአየር ንብረት ማጽዳት",
-      "tr": "AC temizliği"
+      "am": "የኤሲ ጽዳት",
+      "tr": "Klima temizliği"
     },
     {
       "kind": "service",
@@ -503,12 +503,12 @@
       "ur": "کیڑوں کا خاتمہ",
       "hi": "कीट नियंत्रण",
       "bn": "কীটপতঙ্গ নিয়ন্ত্রণ",
-      "ml": "കീടനാശിനികളുടെ നിയന്ത്രണം",
-      "fil": "Pagkontrol ng mga parasito",
+      "ml": "കീട നിയന്ത്രണം",
+      "fil": "Pagpuksa ng peste",
       "id": "Pengendalian hama",
       "ne": "कीरा नियन्त्रण",
-      "am": "የዕፅዋት መቆጣጠሪያ",
-      "tr": "Çekirdekler kontrolü"
+      "am": "የተባይ ማጥፊያ",
+      "tr": "Haşere ilaçlama"
     },
     {
       "kind": "service",
@@ -517,13 +517,13 @@
       "en": "Moving in city",
       "ur": "شہر کے اندر سامان کی منتقلی",
       "hi": "शहर के अंदर सामान की ढुलाई",
-      "bn": "শহরের মধ্যে মালামাল স্থানান্তর",
-      "ml": "നഗരത്തില് താമസം മാറ്റുക",
-      "fil": "Paglilipat sa lungsod",
-      "id": "Pindah ke kota",
-      "ne": "शहरमा सार्नु",
-      "am": "ወደ ከተማው መዛወር",
-      "tr": "Şehirde taşınmak"
+      "bn": "শহরের ভেতরে মালামাল স্থানান্তর",
+      "ml": "നഗരത്തിനുള്ളിൽ ഫർണിച്ചർ ഷിഫ്റ്റിംഗ്",
+      "fil": "Paglilipat ng gamit sa loob ng lungsod",
+      "id": "Pindahan dalam kota",
+      "ne": "शहरभित्र सामान ढुवानी",
+      "am": "በከተማ ውስጥ የዕቃ ማጓጓዝ",
+      "tr": "Şehir içi eşya taşıma"
     },
     {
       "kind": "service",
@@ -532,13 +532,13 @@
       "en": "Moving between cities",
       "ur": "شہروں کے درمیان سامان کی منتقلی",
       "hi": "शहरों के बीच सामान की ढुलाई",
-      "bn": "শহরের মধ্যে দূরপাল্লার মালামাল স্থানান্তর",
-      "ml": "നഗരങ്ങള് തമ്മില് ചലനം",
-      "fil": "Paglilipat sa pagitan ng mga lungsod",
-      "id": "Pindah-pindah antara kota",
-      "ne": "शहरहरू बीचको सार्नु",
-      "am": "ከተሞች መካከል መጓዝ",
-      "tr": "Şehirler arasında hareket etmek"
+      "bn": "আন্তঃশহর মালামাল স্থানান্তর",
+      "ml": "നഗരങ്ങൾക്കിടയിൽ ഫർണിച്ചർ ഷിഫ്റ്റിംഗ്",
+      "fil": "Paglilipat ng gamit sa ibang lungsod",
+      "id": "Pindahan antarkota",
+      "ne": "शहरहरूबीच सामान ढुवानी",
+      "am": "በከተሞች መካከል የዕቃ ማጓጓዝ",
+      "tr": "Şehirler arası eşya taşıma"
     },
     {
       "kind": "service",
@@ -548,12 +548,12 @@
       "ur": "فرنیچر کھولنا اور جوڑنا",
       "hi": "फ़र्नीचर खोलना और जोड़ना",
       "bn": "আসবাবপত্র খোলা ও জোড়া লাগানো",
-      "ml": "ഫർണിച്ചറുകളുടെ കൂട്ടിച്ചേർക്കൽ",
-      "fil": "Pag-aayos ng mga mubilyo",
-      "id": "Pengumpulan furnitur",
-      "ne": "फर्निचरको भेला",
-      "am": "የቤት እቃዎች ስብስብ",
-      "tr": "Mobilya montajı"
+      "ml": "ഫർണിച്ചർ അഴിക്കലും ഘടിപ്പിക്കലും",
+      "fil": "Pagkalas at pagkabit ng muwebles",
+      "id": "Bongkar pasang furnitur",
+      "ne": "फर्निचर खोल्ने र जोड्ने",
+      "am": "የቤት ዕቃ መፍታትና መግጠም",
+      "tr": "Mobilya söküm ve montajı"
     },
     {
       "kind": "service",
@@ -563,10 +563,10 @@
       "ur": "بجلی کی خرابیوں کی مرمت",
       "hi": "बिजली की ख़राबी की मरम्मत",
       "bn": "বৈদ্যুতিক ত্রুটি মেরামত",
-      "ml": "വൈദ്യുത റിപ്പയർ",
+      "ml": "ഇലക്ട്രിക്കൽ റിപ്പയർ",
       "fil": "Pag-aayos ng kuryente",
       "id": "Perbaikan listrik",
-      "ne": "विद्युतीय मर्मत",
+      "ne": "बिजुली मर्मत",
       "am": "የኤሌክትሪክ ጥገና",
       "tr": "Elektrik tamiri"
     },
@@ -578,12 +578,12 @@
       "ur": "بجلی کی وائرنگ",
       "hi": "बिजली की वायरिंग",
       "bn": "বৈদ্যুতিক তার লাগানো",
-      "ml": "വൈദ്യുത വയറിംഗ്",
-      "fil": "Mga cable ng kuryente",
-      "id": "Kabel listrik",
-      "ne": "विद्युतीय तार",
-      "am": "የኤሌክትሪክ ሽቦ",
-      "tr": "Elektrik kabloları"
+      "ml": "ഇലക്ട്രിക്കൽ വയറിംഗ്",
+      "fil": "Wiring ng kuryente",
+      "id": "Instalasi kabel listrik",
+      "ne": "बिजुली वायरिङ",
+      "am": "የኤሌክትሪክ ሽቦ ዝርጋታ",
+      "tr": "Elektrik tesisatı"
     },
     {
       "kind": "service",
@@ -594,11 +594,11 @@
       "hi": "पानी के रिसाव की मरम्मत",
       "bn": "পানির লিক মেরামত",
       "ml": "ചോർച്ച പരിഹാരം",
-      "fil": "Pag-aayos ng pag-uubos",
+      "fil": "Pag-aayos ng tagas",
       "id": "Perbaikan kebocoran",
       "ne": "चुहावटको मर्मत",
-      "am": "የውሃ ፍሳሽ ጥገና",
-      "tr": "Çıkış tamiri"
+      "am": "የውሃ መፍሰስ ጥገና",
+      "tr": "Su kaçağı tamiri"
     },
     {
       "kind": "service",
@@ -608,42 +608,42 @@
       "ur": "نالی کی صفائی",
       "hi": "नाली की सफ़ाई",
       "bn": "নালা পরিষ্কার",
-      "ml": "ഡെക്നിംഗ് ക്ലീനിംഗ്",
-      "fil": "Paglinis ng drenage",
-      "id": "Pembersihan saluran air",
-      "ne": "जल निकासीको सफाई",
+      "ml": "ഡ്രെയിനേജ് ബ്ലോക്ക് നീക്കൽ",
+      "fil": "Pag-alis ng bara sa kanal",
+      "id": "Pembersihan saluran mampet",
+      "ne": "ढल खोल्ने र सफाई",
       "am": "የውሃ ፍሳሽ ማጽዳት",
-      "tr": "Çöp temizliği"
+      "tr": "Tıkalı gider açma"
     },
     {
       "kind": "service",
       "slug": "split-ac-service",
       "ar": "صيانة مكيفات سبليت",
       "en": "Split AC service",
-      "ur": "اسپلٹ اے سی کی مرمت",
+      "ur": "اسپلٹ اے سی سروس",
       "hi": "स्प्लिट एसी की सर्विस",
       "bn": "স্প্লিট এসি সার্ভিস",
-      "ml": "വിഭജിത എസി സേവനം",
+      "ml": "സ്പ്ലിറ്റ് എസി സർവീസ്",
       "fil": "Serbisyo ng split AC",
-      "id": "Layanan AC terbagi",
-      "ne": "विभाजित AC सेवा",
-      "am": "የተከፋፈለ የአየር ንብረት አገልግሎት",
-      "tr": "Bölünmüş AC servisi"
+      "id": "Servis AC split",
+      "ne": "स्प्लिट एसी सर्भिस",
+      "am": "የስፕሊት ኤሲ ጥገና",
+      "tr": "Split klima servisi"
     },
     {
       "kind": "service",
       "slug": "central-ac-service",
       "ar": "صيانة مكيفات مركزية",
       "en": "Central AC service",
-      "ur": "سنٹرل اے سی کی مرمت",
+      "ur": "سنٹرل اے سی سروس",
       "hi": "सेंट्रल एसी की सर्विस",
       "bn": "সেন্ট্রাল এসি সার্ভিস",
-      "ml": "കേന്ദ്ര എസി സേവനം",
-      "fil": "Serbisyo ng sentral na AC",
-      "id": "Layanan AC pusat",
-      "ne": "केन्द्रीय एसी सेवा",
-      "am": "ማዕከላዊ የአየር ንብረት አገልግሎት",
-      "tr": "Merkez AC hizmeti"
+      "ml": "സെൻട്രൽ എസി സർവീസ്",
+      "fil": "Serbisyo ng central AC",
+      "id": "Servis AC sentral",
+      "ne": "सेन्ट्रल एसी सर्भिस",
+      "am": "የሴንትራል ኤሲ ጥገና",
+      "tr": "Merkezi klima servisi"
     },
     {
       "kind": "service",
@@ -654,11 +654,11 @@
       "hi": "घर की पुताई",
       "bn": "বাড়ির রং করা",
       "ml": "വീട് പെയിന്റിംഗ്",
-      "fil": "Pagluluto ng bahay",
-      "id": "Lukisan rumah",
-      "ne": "घरको चित्रकला",
-      "am": "የቤት ውስጥ ሥዕል",
-      "tr": "Ev resimleri"
+      "fil": "Pagpipintura ng bahay",
+      "id": "Pengecatan rumah",
+      "ne": "घर रंगाइ",
+      "am": "የቤት ቀለም ቅብ",
+      "tr": "Ev boyama"
     },
     {
       "kind": "service",
@@ -671,7 +671,7 @@
       "ml": "വാൾപേപ്പർ",
       "fil": "Wallpaper",
       "id": "Wallpaper",
-      "ne": "भित्ताको कागज",
+      "ne": "वालपेपर",
       "am": "የግድግዳ ወረቀት",
       "tr": "Duvar kağıdı"
     },
@@ -681,14 +681,14 @@
       "ar": "تنسيق حدائق",
       "en": "Garden landscaping",
       "ur": "باغ کی آرائش",
-      "hi": "बाग़ का भूदृश्य",
+      "hi": "बग़ीचे की लैंडस्केपिंग",
       "bn": "বাগান সাজানো",
-      "ml": "തോട്ടങ്ങളുടെ ലാൻഡ്സ്കേപ്പിംഗ്",
-      "fil": "Pag-uuma ng lupa sa hardin",
-      "id": "Taman lansekap",
-      "ne": "बागवानी",
-      "am": "የአትክልት ስፍራ አከባቢ",
-      "tr": "Bahçe tarzı"
+      "ml": "ഗാർഡൻ ലാൻഡ്സ്കേപ്പിംഗ്",
+      "fil": "Landscaping ng hardin",
+      "id": "Penataan taman",
+      "ne": "बगैंचा सजावट",
+      "am": "የአትክልት ስፍራ ዲዛይን",
+      "tr": "Bahçe düzenleme"
     },
     {
       "kind": "service",
@@ -698,12 +698,12 @@
       "ur": "نجی ٹیوشن",
       "hi": "निजी ट्यूशन",
       "bn": "প্রাইভেট পড়ানো",
-      "ml": "സ്വകാര്യ ട്യൂട്ടോറിയൽ",
-      "fil": "Privadong tutoring",
-      "id": "Pelajaran pribadi",
-      "ne": "निजी शिक्षण",
+      "ml": "സ്വകാര്യ ട്യൂഷൻ",
+      "fil": "Pribadong tutor",
+      "id": "Les privat",
+      "ne": "निजी ट्युसन",
       "am": "የግል ትምህርት",
-      "tr": "Özel öğretim"
+      "tr": "Özel ders"
     },
     {
       "kind": "service",
@@ -729,7 +729,7 @@
       "hi": "वेबसाइट डिज़ाइन",
       "bn": "ওয়েবসাইট ডিজাইন",
       "ml": "വെബ് ഡിസൈൻ",
-      "fil": "Pag-disenyo ng Web",
+      "fil": "Disenyo ng website",
       "id": "Desain web",
       "ne": "वेब डिजाइन",
       "am": "የድር ዲዛይን",
@@ -744,11 +744,11 @@
       "hi": "कार्यक्रम की योजना",
       "bn": "অনুষ্ঠান আয়োজন",
       "ml": "പരിപാടി ആസൂത്രണം",
-      "fil": "Pag-aayos ng kaganapan",
+      "fil": "Pag-organisa ng party",
       "id": "Perencanaan acara",
       "ne": "कार्यक्रमको योजना",
-      "am": "የክስተት እቅድ",
-      "tr": "Olay planlaması"
+      "am": "የድግስ ዝግጅት",
+      "tr": "Parti organizasyonu"
     },
     {
       "kind": "service",
@@ -758,12 +758,12 @@
       "ur": "پردوں کی تنصیب",
       "hi": "परदे लगाना",
       "bn": "পর্দা লাগানো",
-      "ml": "മൂടുശീല സ്ഥാപനം",
+      "ml": "കർട്ടൻ ഫിറ്റിംഗ്",
       "fil": "Pag-install ng mga kurtina",
-      "id": "Instalasi tirai",
+      "id": "Instalasi gorden",
       "ne": "पर्दा स्थापना",
-      "am": "መጋረጃ ማዋቀር",
-      "tr": "Perdeler kurulum"
+      "am": "የመጋረጃ ገጠማ",
+      "tr": "Perde montajı"
     },
     {
       "kind": "service",
@@ -776,8 +776,8 @@
       "ml": "പരവതാനി ശുചീകരണം",
       "fil": "Paglinis ng mga karpet",
       "id": "Pembersihan karpet",
-      "ne": "कार्पेट सफा गर्ने",
-      "am": "የካርፕትን ማጽዳት",
+      "ne": "कार्पेट सफाई",
+      "am": "የምንጣፍ ጽዳት",
       "tr": "Halı temizliği"
     },
     {
@@ -788,12 +788,12 @@
       "ur": "روشنیوں کی تنصیب",
       "hi": "बत्तियाँ लगाना",
       "bn": "বাতি লাগানো",
-      "ml": "വെളിച്ചം സ്ഥാപിക്കുക",
+      "ml": "ലൈറ്റ് ഫിറ്റിംഗ്",
       "fil": "Pag-install ng ilaw",
       "id": "Instalasi pencahayaan",
-      "ne": "प्रकाश स्थापना",
-      "am": "የመብራት መጫን",
-      "tr": "Işıklandırma tesisatı"
+      "ne": "बत्ती स्थापना",
+      "am": "የመብራት ገጠማ",
+      "tr": "Aydınlatma montajı"
     },
     {
       "kind": "service",
@@ -803,12 +803,12 @@
       "ur": "پانی کے ہیٹر کی تنصیب",
       "hi": "पानी का हीटर लगाना",
       "bn": "পানির হিটার লাগানো",
-      "ml": "ചൂടാക്കൽ സംവിധാനം",
-      "fil": "Pag-install ng heater",
-      "id": "Instalasi pemanas",
-      "ne": "हीटर स्थापना",
-      "am": "የሙቀት መሙያ ማቀነባበሪያ",
-      "tr": "Isıtma tesisatı"
+      "ml": "വാട്ടർ ഹീറ്റർ ഫിറ്റിംഗ്",
+      "fil": "Pag-install ng water heater",
+      "id": "Instalasi pemanas air",
+      "ne": "वाटर हिटर स्थापना",
+      "am": "የውሃ ማሞቂያ ገጠማ",
+      "tr": "Su ısıtıcısı montajı"
     },
     {
       "kind": "service",
@@ -822,8 +822,8 @@
       "fil": "Pag-install ng AC",
       "id": "Instalasi AC",
       "ne": "एसी स्थापना",
-      "am": "የአየር ንብረት ማቀነባበሪያ",
-      "tr": "AC kurulum"
+      "am": "የኤሲ ገጠማ",
+      "tr": "Klima montajı"
     },
     {
       "kind": "service",
@@ -833,12 +833,12 @@
       "ur": "جپسم کی سجاوٹ",
       "hi": "जिप्सम की सजावट",
       "bn": "জিপসামের সাজসজ্জা",
-      "ml": "ഗിപ്സസ് അലങ്കാരങ്ങൾ",
+      "ml": "ജിപ്സം ഡെക്കറേഷൻ",
       "fil": "Mga dekorasyon ng gypsum",
       "id": "Dekorasi gypsum",
-      "ne": "ग्यासको सजावट",
-      "am": "የጂፕስ ማስጌጫ",
-      "tr": "Dükkanlı dekorasyon"
+      "ne": "जिप्समको सजावट",
+      "am": "የጂፕሰም ዲኮር",
+      "tr": "Alçı dekorasyon"
     },
     {
       "kind": "service",
@@ -849,10 +849,10 @@
       "hi": "लॉन की देखभाल",
       "bn": "লনের যত্ন",
       "ml": "പുൽത്തകിടി സംരക്ഷണം",
-      "fil": "Pag-aalaga ng mga halaman",
+      "fil": "Pag-aalaga ng damuhan",
       "id": "Perawatan rumput",
       "ne": "घाँसको हेरचाह",
-      "am": "የሣር እርሻ",
+      "am": "የሣር እንክብካቤ",
       "tr": "Çimen bakımı"
     },
     {
@@ -860,15 +860,15 @@
       "slug": "quran-teaching",
       "ar": "تحفيظ قرآن",
       "en": "Quran teaching",
-      "ur": "قرآن کی تعلیم",
-      "hi": "क़ुरआन की शिक्षा",
-      "bn": "কুরআন শিক্ষা",
-      "ml": "ഖുര് ആന് പഠിപ്പിക്കൽ",
-      "fil": "Pagtuturo ng Qur'an",
-      "id": "Pengajaran Al-Quran",
-      "ne": "कुरानको शिक्षा",
-      "am": "ቁርአን ማስተማር",
-      "tr": "Kur'an öğretimi"
+      "ur": "حفظِ قرآن",
+      "hi": "क़ुरआन हिफ़्ज़",
+      "bn": "কুরআন হিফজ",
+      "ml": "ഖുർആൻ മനഃപാഠം",
+      "fil": "Pagsasaulo ng Qur'an",
+      "id": "Tahfiz Al-Qur'an",
+      "ne": "कुरान कण्ठ",
+      "am": "ቁርአን ማስሸምደድ",
+      "tr": "Kur'an hafızlığı"
     },
     {
       "kind": "service",
@@ -878,8 +878,8 @@
       "ur": "زبانوں کی تعلیم",
       "hi": "भाषाओं की शिक्षा",
       "bn": "ভাষা শিক্ষা",
-      "ml": "ഭാഷാ പഠന",
-      "fil": "Pagtuturo sa wika",
+      "ml": "ഭാഷാ ട്യൂഷൻ",
+      "fil": "Pagtuturo ng wika",
       "id": "Pelajaran bahasa",
       "ne": "भाषा शिक्षण",
       "am": "የቋንቋ ትምህርት",
@@ -895,9 +895,9 @@
       "bn": "গাড়ি ধোয়া",
       "ml": "കാർ വാഷ്",
       "fil": "Paghuhugas ng kotse",
-      "id": "Pembersih mobil",
-      "ne": "कार धुने",
-      "am": "የመኪና ማጠቢያ",
+      "id": "Cuci mobil",
+      "ne": "कार धुलाई",
+      "am": "የመኪና እጥበት",
       "tr": "Araba yıkama"
     },
     {
@@ -908,12 +908,12 @@
       "ur": "گاڑی کی پالش",
       "hi": "कार की पॉलिश",
       "bn": "গাড়ি পালিশ",
-      "ml": "കാറുകളുടെ പൊളിഷിംഗ്",
+      "ml": "കാർ പോളിഷിംഗ്",
       "fil": "Pag-polish ng kotse",
-      "id": "Polishing mobil",
+      "id": "Poles mobil",
       "ne": "कार पोलिशिंग",
-      "am": "የመኪና ማጣሪያ",
-      "tr": "Otomobil cilalama"
+      "am": "የመኪና ፖሊሽ",
+      "tr": "Araba cilalama"
     },
     {
       "kind": "service",
@@ -923,12 +923,12 @@
       "ur": "انجن کا تیل تبدیل کرنا",
       "hi": "इंजन का तेल बदलना",
       "bn": "ইঞ্জিনের তেল বদলানো",
-      "ml": "എണ്ണ മാറ്റം",
-      "fil": "Pagbabago ng langis",
-      "id": "Perubahan minyak",
-      "ne": "तेल परिवर्तन",
-      "am": "የነዳጅ ለውጥ",
-      "tr": "Petrol değişimi"
+      "ml": "ഓയിൽ ചേഞ്ച്",
+      "fil": "Pagpapalit ng langis",
+      "id": "Ganti oli",
+      "ne": "इन्जिन तेल फेर्ने",
+      "am": "የሞተር ዘይት ቅያሪ",
+      "tr": "Yağ değişimi"
     },
     {
       "kind": "service",
@@ -939,11 +939,11 @@
       "hi": "आपके पास आने वाला मैकेनिक",
       "bn": "আপনার কাছে আসা মেকানিক",
       "ml": "മൊബൈൽ മെക്കാനിക്",
-      "fil": "Mobile mekaniko",
-      "id": "Mekanik seluler",
-      "ne": "मोबाइल मेकानिक",
+      "fil": "Home service na mekaniko",
+      "id": "Mekanik panggilan",
+      "ne": "घरमै आउने मेकानिक",
       "am": "ተንቀሳቃሽ ሜካኒክ",
-      "tr": "Mobil mekanikçi"
+      "tr": "Yerinde oto tamiri"
     },
     {
       "kind": "service",
@@ -954,11 +954,11 @@
       "hi": "तकनीकी सहायता",
       "bn": "প্রযুক্তিগত সহায়তা",
       "ml": "സാങ്കേതിക പിന്തുണ",
-      "fil": "Teknolohikal na suporta",
+      "fil": "Teknikal na suporta",
       "id": "Dukungan teknis",
       "ne": "प्राविधिक सहयोग",
       "am": "የቴክኒክ ድጋፍ",
-      "tr": "Teknoloji desteği"
+      "tr": "Teknik destek"
     },
     {
       "kind": "service",
@@ -968,12 +968,12 @@
       "ur": "نیٹ ورک کی تنصیب",
       "hi": "नेटवर्क लगाना",
       "bn": "নেটওয়ার্ক স্থাপন",
-      "ml": "നെറ്റ് വർക്ക് ഇൻസ്റ്റലേഷൻ",
+      "ml": "നെറ്റ്‌വർക്ക് ഇൻസ്റ്റലേഷൻ",
       "fil": "Pag-install ng network",
       "id": "Instalasi jaringan",
       "ne": "नेटवर्क स्थापना",
-      "am": "የአውታረ መረብ መጫን",
-      "tr": "Ağ kurulum"
+      "am": "የኔትወርክ ዝርጋታ",
+      "tr": "Ağ kurulumu"
     },
     {
       "kind": "service",
@@ -987,8 +987,8 @@
       "fil": "Pag-install ng camera",
       "id": "Instalasi kamera",
       "ne": "क्यामेरा स्थापना",
-      "am": "ካሜራ መጫን",
-      "tr": "Kamera kurulum"
+      "am": "የካሜራ ገጠማ",
+      "tr": "Kamera kurulumu"
     },
     {
       "kind": "service",
@@ -998,10 +998,10 @@
       "ur": "ایپ کی تیاری",
       "hi": "ऐप बनाना",
       "bn": "অ্যাপ তৈরি",
-      "ml": "ആപ്ലിക്കേഷന് വികസനം",
+      "ml": "ആപ്പ് ഡെവലപ്‌മെന്റ്",
       "fil": "Pagbuo ng app",
       "id": "Pengembangan aplikasi",
-      "ne": "अनुप्रयोग विकास",
+      "ne": "एप विकास",
       "am": "የመተግበሪያ ልማት",
       "tr": "Uygulama geliştirme"
     },
@@ -1013,12 +1013,12 @@
       "ur": "شادی کے اسٹیج کی سجاوٹ",
       "hi": "शादी का मंच सजाना",
       "bn": "বিয়ের মঞ্চ সাজানো",
-      "ml": "വിവാഹ ഘട്ടങ്ങൾ",
-      "fil": "Mga yugto ng kasal",
-      "id": "Tahap pernikahan",
-      "ne": "विवाहको चरण",
-      "am": "የሠርግ ደረጃዎች",
-      "tr": "Düğün aşamaları"
+      "ml": "വിവാഹ സ്റ്റേജ് അലങ്കാരം",
+      "fil": "Dekorasyon ng entablado sa kasal",
+      "id": "Dekorasi pelaminan",
+      "ne": "विवाह मञ्च सजावट",
+      "am": "የሠርግ መድረክ ማስጌጫ",
+      "tr": "Düğün sahnesi süsleme"
     },
     {
       "kind": "service",
@@ -1029,11 +1029,11 @@
       "hi": "कार्यक्रम की फ़ोटोग्राफ़ी",
       "bn": "অনুষ্ঠানের ফটোগ্রাফি",
       "ml": "ഇവന്റ് ഫോട്ടോഗ്രാഫി",
-      "fil": "Pag-aaral ng pangyayari",
+      "fil": "Pagkuha ng larawan sa okasyon",
       "id": "Fotografi acara",
-      "ne": "घटनाको फोटोग्राफी",
-      "am": "የክስተት ፎቶግራፍ",
-      "tr": "Olay fotoğrafı"
+      "ne": "कार्यक्रम फोटोग्राफी",
+      "am": "የዝግጅት ፎቶግራፍ",
+      "tr": "Etkinlik fotoğrafçılığı"
     },
     {
       "kind": "service",
@@ -1043,7 +1043,7 @@
       "ur": "کرسیوں اور میزوں کا کرایہ",
       "hi": "कुर्सियाँ और मेज़ किराये पर देना",
       "bn": "চেয়ার ও টেবিল ভাড়া",
-      "ml": "കസേരയും മേശയും വാടകയ്ക്കെടുക്കുക",
+      "ml": "കസേര, മേശ വാടകയ്ക്ക്",
       "fil": "Pag-upa ng upuan at mesa",
       "id": "Sewa kursi & meja",
       "ne": "कुर्सी र टेबल भाडा",
@@ -1058,10 +1058,10 @@
       "ur": "گھر کا کھانا",
       "hi": "घर का खाना",
       "bn": "ঘরোয়া রান্না",
-      "ml": "ഹോം പാചകം",
+      "ml": "വീട്ടുപാചകം",
       "fil": "Pagluluto sa bahay",
-      "id": "Masakan di rumah",
-      "ne": "घरमै खाना पकाउने",
+      "id": "Masakan rumahan",
+      "ne": "घरेलु खाना",
       "am": "የቤት ውስጥ ምግብ ማብሰል",
       "tr": "Ev yemekleri"
     },
@@ -1074,8 +1074,8 @@
       "hi": "कॉफ़ी और मिठाइयाँ",
       "bn": "কফি ও মিষ্টি",
       "ml": "കാപ്പിയും മധുരപലഹാരങ്ങളും",
-      "fil": "Coffee & sweets",
-      "id": "Kopi & permen",
+      "fil": "Kape at matatamis",
+      "id": "Kopi & makanan manis",
       "ne": "कफी र मिठाई",
       "am": "ቡና እና ጣፋጮች",
       "tr": "Kahve ve tatlılar"
@@ -1088,11 +1088,11 @@
       "ur": "گوشت اور دعوت کا انتظام",
       "hi": "मांस और दावत का खानपान",
       "bn": "মাংস ও ভোজের খাবার সরবরাহ",
-      "ml": "ഭക്ഷണശാലയും ഭക്ഷണവിഭവങ്ങളും",
-      "fil": "Pagluluto ng karne & mga pista",
-      "id": "Catering daging & pesta",
-      "ne": "खानपान मासु & भोज",
-      "am": "ምግብ ቤት ሥጋ እና ግብዣዎች",
+      "ml": "ഇറച്ചിയും വിരുന്നുകളും",
+      "fil": "Karne at handaan",
+      "id": "Daging & jamuan",
+      "ne": "मासु र भोज",
+      "am": "እርድ እና ግብዣ",
       "tr": "Et ve ziyafetler"
     },
     {
@@ -1108,7 +1108,7 @@
       "id": "Makanan tradisional",
       "ne": "परम्परागत खाद्य पदार्थ",
       "am": "ባህላዊ ምግቦች",
-      "tr": "Geleneksel gıdalar"
+      "tr": "Geleneksel yemekler"
     },
     {
       "kind": "service",
@@ -1119,11 +1119,11 @@
       "hi": "बेकरी",
       "bn": "বেকারি",
       "ml": "ബേക്കറി",
-      "fil": "Panadero",
-      "id": "Bakery",
+      "fil": "Tinapay at pastry",
+      "id": "Roti & kue",
       "ne": "बेकरी",
-      "am": "የቦካ ቤት",
-      "tr": "Çömlekçi"
+      "am": "ዳቦ እና ኬክ",
+      "tr": "Unlu mamuller"
     },
     {
       "kind": "service",
@@ -1134,7 +1134,7 @@
       "hi": "उत्पाद फ़ोटोग्राफ़ी",
       "bn": "পণ্যের ফটোগ্রাফি",
       "ml": "ഉൽപ്പന്ന ഫോട്ടോഗ്രാഫി",
-      "fil": "Pag-iwan ng mga produkto",
+      "fil": "Pagkuha ng larawan ng produkto",
       "id": "Foto produk",
       "ne": "उत्पादन फोटोग्राफी",
       "am": "የምርት ፎቶግራፍ",
@@ -1150,10 +1150,10 @@
       "bn": "ভিডিও ধারণ",
       "ml": "വീഡിയോ ഷൂട്ടിംഗ്",
       "fil": "Pag-shoot ng video",
-      "id": "Pemotretan video",
+      "id": "Syuting video",
       "ne": "भिडियो शूट",
       "am": "የቪዲዮ ቀረፃ",
-      "tr": "Video çekimleri"
+      "tr": "Video çekimi"
     },
     {
       "kind": "service",
@@ -1163,9 +1163,9 @@
       "ur": "ڈیزائن اور طباعت",
       "hi": "डिज़ाइन और प्रिंटिंग",
       "bn": "ডিজাইন ও মুদ্রণ",
-      "ml": "ഡിസൈൻ & പ്രിന്റിംഗ്",
+      "ml": "ഡിസൈനും പ്രിന്റിംഗും",
       "fil": "Pag-disenyo & pag-print",
-      "id": "Desain & Pencetakan",
+      "id": "Desain & cetak",
       "ne": "डिजाइन र मुद्रण",
       "am": "ዲዛይን እና ማተሚያ",
       "tr": "Tasarım ve baskı"
@@ -1193,12 +1193,12 @@
       "ur": "ڈرون سے فضائی عکس بندی",
       "hi": "ड्रोन से हवाई फ़ोटोग्राफ़ी",
       "bn": "ড্রোন দিয়ে আকাশ থেকে ছবি তোলা",
-      "ml": "ഡ്രോൺ വിമാനങ്ങൾ",
-      "fil": "Mga drone na nag-shoot sa hangin",
-      "id": "Menembak udara drone",
-      "ne": "ड्रोन हवाई गोली",
-      "am": "የበረራ አየር ተኩስ",
-      "tr": "Uçak uçuşları"
+      "ml": "ഡ്രോൺ ഏരിയൽ ഷൂട്ട്",
+      "fil": "Aerial na kuha gamit ang drone",
+      "id": "Foto udara dengan drone",
+      "ne": "ड्रोनबाट हवाई छायांकन",
+      "am": "በድሮን የአየር ላይ ቀረጻ",
+      "tr": "Drone ile hava çekimi"
     },
     {
       "kind": "service",
@@ -1224,7 +1224,7 @@
       "hi": "सोशल मीडिया खाते प्रबंधन",
       "bn": "সামাজিক মাধ্যম অ্যাকাউন্ট পরিচালনা",
       "ml": "സോഷ്യൽ മീഡിയ മാനേജ്മെന്റ്",
-      "fil": "Pag-aari ng social media",
+      "fil": "Pamamahala ng social media",
       "id": "Manajemen media sosial",
       "ne": "सामाजिक सञ्जाल व्यवस्थापन",
       "am": "ማህበራዊ ሚዲያ አስተዳደር",
@@ -1235,15 +1235,15 @@
       "slug": "paid-ads",
       "ar": "إعلانات ممولة",
       "en": "Paid ads",
-      "ur": "معاوضے کے اشتہارات",
+      "ur": "سپانسرڈ اشتہارات",
       "hi": "सशुल्क विज्ञापन",
       "bn": "অর্থপ্রদত্ত বিজ্ঞাপন",
       "ml": "പണമടച്ചുള്ള പരസ്യങ്ങൾ",
-      "fil": "Pagbabayad na mga ad",
+      "fil": "Mga bayad na ad",
       "id": "Iklan berbayar",
       "ne": "सशुल्क विज्ञापन",
       "am": "የሚከፈልባቸው ማስታወቂያዎች",
-      "tr": "Ödenmiş reklamlar"
+      "tr": "Ücretli reklamlar"
     },
     {
       "kind": "service",
@@ -1253,11 +1253,11 @@
       "ur": "سرچ انجن کی بہتری",
       "hi": "खोज इंजन अनुकूलन",
       "bn": "সার্চ ইঞ্জিন অপ্টিমাইজেশন",
-      "ml": "സെ. ഒ",
+      "ml": "എസ്.ഇ.ഒ",
       "fil": "SEO",
       "id": "SEO",
       "ne": "एसईओ",
-      "am": "የ SEO",
+      "am": "SEO",
       "tr": "SEO"
     },
     {
@@ -1266,29 +1266,29 @@
       "ar": "تسويق مؤثرين",
       "en": "Influencer marketing",
       "ur": "انفلوئنسر مارکیٹنگ",
-      "hi": "प्रभावशाली व्यक्तियों से प्रचार",
+      "hi": "इन्फ़्लुएंसर मार्केटिंग",
       "bn": "ইনফ্লুয়েন্সার মার্কেটিং",
-      "ml": "സ്വാധീനം ചെലുത്തുന്ന വിപണനം",
-      "fil": "Pamamahagi ng mga influencer",
+      "ml": "ഇൻഫ്ലുവൻസർ മാർക്കറ്റിംഗ്",
+      "fil": "Influencer marketing",
       "id": "Pemasaran influencer",
-      "ne": "प्रभावकारी मार्केटिङ",
+      "ne": "इन्फ्लुएन्सर मार्केटिङ",
       "am": "ተጽዕኖ ፈጣሪ ግብይት",
-      "tr": "Etkileyiciler pazarlaması"
+      "tr": "Influencer pazarlaması"
     },
     {
       "kind": "service",
       "slug": "parcel-delivery",
       "ar": "توصيل طلبات",
       "en": "Parcel delivery",
-      "ur": "پارسل کی ترسیل",
-      "hi": "पार्सल डिलीवरी",
-      "bn": "পার্সেল পৌঁছে দেওয়া",
-      "ml": "പാക്കേജ് കൈമാറൽ",
-      "fil": "Paghatid ng pakete",
-      "id": "Pengiriman paket",
-      "ne": "प्याकेज वितरण",
-      "am": "የፓርስ መላኪያ",
-      "tr": "Paket teslimatı"
+      "ur": "آرڈرز کی ترسیل",
+      "hi": "ऑर्डर डिलीवरी",
+      "bn": "অর্ডার ডেলিভারি",
+      "ml": "ഓർഡർ ഡെലിവറി",
+      "fil": "Paghatid ng order",
+      "id": "Antar pesanan",
+      "ne": "अर्डर डेलिभरी",
+      "am": "ትዕዛዝ ማድረስ",
+      "tr": "Sipariş teslimatı"
     },
     {
       "kind": "service",
@@ -1298,12 +1298,12 @@
       "ur": "ملک کے اندر شپنگ",
       "hi": "देश के अंदर शिपिंग",
       "bn": "দেশের মধ্যে শিপিং",
-      "ml": "പ്രാദേശിക കപ്പൽ",
+      "ml": "ആഭ്യന്തര ഷിപ്പിംഗ്",
       "fil": "Lokal na pagpapadala",
-      "id": "Pengangkutan lokal",
-      "ne": "स्थानीय शिपिंग",
-      "am": "የአካባቢው የመርከብ አገልግሎት",
-      "tr": "Yerel gemi taşımacılığı"
+      "id": "Pengiriman domestik",
+      "ne": "आन्तरिक ढुवानी",
+      "am": "የሀገር ውስጥ ጭነት",
+      "tr": "Yurt içi kargo"
     },
     {
       "kind": "service",
@@ -1312,28 +1312,28 @@
       "en": "Intercity shipping",
       "ur": "شہروں کے درمیان شپنگ",
       "hi": "शहरों के बीच शिपिंग",
-      "bn": "শহরের মধ্যে দূরপাল্লার শিপিং",
-      "ml": "നഗരാന്തര കടൽ യാത്ര",
-      "fil": "Paglalakbay sa Intercity",
-      "id": "Pengangkutan antar kota",
-      "ne": "अन्तर-शहर शिपिंग",
-      "am": "የከተማ መርከብ",
-      "tr": "Şehirlerarası nakliye"
+      "bn": "আন্তঃশহর শিপিং",
+      "ml": "നഗരങ്ങൾക്കിടയിലെ ഷിപ്പിംഗ്",
+      "fil": "Pagpapadala sa pagitan ng mga lungsod",
+      "id": "Pengiriman antarkota",
+      "ne": "शहरहरूबीच ढुवानी",
+      "am": "በከተሞች መካከል ጭነት",
+      "tr": "Şehirler arası kargo"
     },
     {
       "kind": "service",
       "slug": "delivery-rep",
       "ar": "مندوب توصيل",
       "en": "Delivery rep",
-      "ur": "ڈیلیوری کا نمائندہ",
-      "hi": "डिलीवरी प्रतिनिधि",
-      "bn": "ডেলিভারি প্রতিনিধি",
-      "ml": "വിതരണ പ്രതിനിധി",
-      "fil": "Rep sa paghahatid",
-      "id": "Rep pengiriman",
-      "ne": "वितरण प्रतिनिधि",
-      "am": "የጭነት ማቅረቢያ",
-      "tr": "Teslimat temsilcisi"
+      "ur": "ڈیلیوری ڈرائیور",
+      "hi": "डिलीवरी ड्राइवर",
+      "bn": "ডেলিভারি ম্যান",
+      "ml": "ഡെലിവറി ഡ്രൈവർ",
+      "fil": "Delivery rider",
+      "id": "Kurir",
+      "ne": "डेलिभरी चालक",
+      "am": "የዴሊቨሪ ሹፌር",
+      "tr": "Kurye"
     },
     {
       "kind": "service",
@@ -1344,11 +1344,11 @@
       "hi": "दैनिक किराया",
       "bn": "দৈনিক ভাড়া",
       "ml": "ദിവസേനയുള്ള വാടക",
-      "fil": "Araw-araw na rental",
-      "id": "Pendapatan harian",
+      "fil": "Arawang upa",
+      "id": "Sewa harian",
       "ne": "दैनिक भाडा",
       "am": "ዕለታዊ ኪራይ",
-      "tr": "Günde kiralama"
+      "tr": "Günlük kiralama"
     },
     {
       "kind": "service",
@@ -1358,12 +1358,12 @@
       "ur": "فرنیچر والے اپارٹمنٹس",
       "hi": "सुसज्जित अपार्टमेंट",
       "bn": "সজ্জিত অ্যাপার্টমেন্ট",
-      "ml": "ഫർണിച്ചറുകള്",
-      "fil": "Mga apartment na may muble",
-      "id": "Apartemen yang mebel",
+      "ml": "ഫർണിഷ്ഡ് അപ്പാർട്ട്മെന്റുകൾ",
+      "fil": "Mga furnished na apartment",
+      "id": "Apartemen berperabot",
       "ne": "फर्निचर भएका अपार्टमेन्टहरू",
-      "am": "የተሸከሙ አፓርታማዎች",
-      "tr": "Mobilyalanmış daireler"
+      "am": "ዕቃ የተሟላላቸው አፓርታማዎች",
+      "tr": "Eşyalı daireler"
     },
     {
       "kind": "service",
@@ -1373,12 +1373,12 @@
       "ur": "شالے اور ریزورٹس",
       "hi": "शैले और रिसॉर्ट",
       "bn": "শালে ও রিসোর্ট",
-      "ml": "ചാലറ്റുകൾ & റിസോർട്ടുകൾ",
-      "fil": "Mga Chalets & resort",
-      "id": "Chalets & resorts",
-      "ne": "चलेट्स र रिसोर्ट्स",
-      "am": "ካሌቶች እና ሪዞርቶች",
-      "tr": "Chalets & resorts"
+      "ml": "ചാലറ്റുകളും റിസോർട്ടുകളും",
+      "fil": "Mga chalet at resort",
+      "id": "Chalet & tempat peristirahatan",
+      "ne": "शैले र रिसोर्ट",
+      "am": "ሻሌዎች እና ሪዞርቶች",
+      "tr": "Şale ve dinlenme tesisleri"
     },
     {
       "kind": "service",
@@ -1389,11 +1389,11 @@
       "hi": "संपत्ति प्रबंधन",
       "bn": "সম্পত্তি পরিচালনা",
       "ml": "സ്വത്ത് മാനേജ്മെന്റ്",
-      "fil": "Pamamahala ng mga kabtangan",
+      "fil": "Pamamahala ng ari-arian",
       "id": "Pengelolaan properti",
       "ne": "सम्पत्ति व्यवस्थापन",
       "am": "የንብረት አስተዳደር",
-      "tr": "Mülkiyet yönetimi"
+      "tr": "Mülk yönetimi"
     },
     {
       "kind": "service",
@@ -1403,12 +1403,12 @@
       "ur": "تعمیر کے آخری کام",
       "hi": "निर्माण का अंतिम काम",
       "bn": "নির্মাণের শেষ পর্যায়ের কাজ",
-      "ml": "പൂര് ത്തിയാക്കല്",
-      "fil": "Pag-aalis",
-      "id": "Pembuatan",
-      "ne": "समाप्ति",
-      "am": "ማጠናቀቅ",
-      "tr": "Bitirme"
+      "ml": "ഫിനിഷിംഗ് ജോലികൾ",
+      "fil": "Finishing ng bahay",
+      "id": "Pekerjaan finishing",
+      "ne": "फिनिसिङ काम",
+      "am": "የማጠናቀቂያ ሥራዎች",
+      "tr": "İnce işler"
     },
     {
       "kind": "service",
@@ -1418,12 +1418,12 @@
       "ur": "بڑھئی کا کام",
       "hi": "बढ़ई का काम",
       "bn": "কাঠের কাজ",
-      "ml": "കല്പ്പനശാല",
-      "fil": "Karpentero",
-      "id": "Tanah liat",
-      "ne": "कारीगरी",
+      "ml": "മരപ്പണി",
+      "fil": "Karpinterya",
+      "id": "Pertukangan kayu",
+      "ne": "सिकर्मी काम",
       "am": "የእንጨት ሥራ",
-      "tr": "Çömlekçülük"
+      "tr": "Marangozluk"
     },
     {
       "kind": "service",
@@ -1434,11 +1434,11 @@
       "hi": "वेल्डिंग",
       "bn": "ওয়েল্ডিং",
       "ml": "വെൽഡിംഗ്",
-      "fil": "Pag-aalis",
+      "fil": "Pagwewelding",
       "id": "Pengelasan",
       "ne": "वेल्डिंग",
-      "am": "የመሳሪያ ማቀነባበሪያ",
-      "tr": "Çalçalanma"
+      "am": "የብረታ ብረት ሥራ",
+      "tr": "Demircilik ve kaynak"
     },
     {
       "kind": "service",
@@ -1448,12 +1448,12 @@
       "ur": "جپسم کا کام",
       "hi": "जिप्सम का काम",
       "bn": "জিপসামের কাজ",
-      "ml": "ഗിപ്സും",
+      "ml": "ജിപ്സം വർക്ക്",
       "fil": "Mga gawaing gypsum",
       "id": "Pekerjaan gypsum",
       "ne": "जिप्समको काम",
-      "am": "የጂፕስ ሥራ",
-      "tr": "Dükükük işlemi"
+      "am": "የጂፕሰም ሥራ",
+      "tr": "Alçı işleri"
     },
     {
       "kind": "service",
@@ -1463,12 +1463,12 @@
       "ur": "عمارت کی مرمت اور تجدید",
       "hi": "भवन की मरम्मत और नवीनीकरण",
       "bn": "ভবন মেরামত ও সংস্কার",
-      "ml": "പുനരുദ്ധാരണ",
-      "fil": "Pag- Renovation",
+      "ml": "പുതുക്കിപ്പണിയൽ",
+      "fil": "Renobasyon",
       "id": "Renovasi",
       "ne": "नवीकरण",
       "am": "እድሳት",
-      "tr": "Yenilenme"
+      "tr": "Tadilat"
     },
     {
       "kind": "service",
@@ -1478,12 +1478,12 @@
       "ur": "حجامت",
       "hi": "बाल काटना",
       "bn": "চুল কাটা",
-      "ml": "മുടിയിഴപ്പിക്കൽ",
-      "fil": "Pag-aalis ng buhok",
-      "id": "Berambut",
-      "ne": "बायरबर्इङ",
-      "am": "የጭጉር ሥራ",
-      "tr": "Saçlama"
+      "ml": "മുടിവെട്ടൽ",
+      "fil": "Gupit at pag-ahit",
+      "id": "Pangkas rambut",
+      "ne": "कपाल काट्ने",
+      "am": "ፀጉር ቤት",
+      "tr": "Berberlik"
     },
     {
       "kind": "service",
@@ -1494,7 +1494,7 @@
       "hi": "मेकअप",
       "bn": "মেকআপ",
       "ml": "മേക്കപ്പ്",
-      "fil": "Mga makeup",
+      "fil": "Makeup",
       "id": "Make-up",
       "ne": "मेकअप",
       "am": "ሜካፕ",
@@ -1528,7 +1528,7 @@
       "id": "Perawatan kuku",
       "ne": "नाखूनको हेरचाह",
       "am": "የጥፍር እንክብካቤ",
-      "tr": "Mıçı bakımı"
+      "tr": "Tırnak bakımı"
     },
     {
       "kind": "service",
@@ -1538,11 +1538,11 @@
       "ur": "اسپا اور مالش",
       "hi": "स्पा और मालिश",
       "bn": "স্পা ও ম্যাসাজ",
-      "ml": "സ്പാ & മസാജ്",
+      "ml": "സ്പായും മസാജും",
       "fil": "Spa & massage",
       "id": "Spa & pijat",
       "ne": "स्पा र मसाज",
-      "am": "ስፓ እና ማሰጅ",
+      "am": "ስፓ እና ማሳጅ",
       "tr": "Spa ve masaj"
     },
     {
@@ -1555,10 +1555,10 @@
       "bn": "ভ্রমণ আয়োজন",
       "ml": "ടൂർ സംഘടിപ്പിക്കൽ",
       "fil": "Pag-organisa ng tour",
-      "id": "Organisasi tur",
+      "id": "Pengaturan perjalanan",
       "ne": "भ्रमणको आयोजना",
       "am": "የጉዞ አደረጃጀት",
-      "tr": "Tur örgütlemesi"
+      "tr": "Tur organizasyonu"
     },
     {
       "kind": "service",
@@ -1569,7 +1569,7 @@
       "hi": "होटल बुकिंग",
       "bn": "হোটেল বুকিং",
       "ml": "ഹോട്ടൽ ബുക്കിംഗ്",
-      "fil": "Pag-reserbar ng hotel",
+      "fil": "Pag-book ng hotel",
       "id": "Pemesanan hotel",
       "ne": "होटल बुकिंग",
       "am": "የሆቴል ቦታ ማስያዝ",
@@ -1584,10 +1584,10 @@
       "hi": "पर्यटन गाइड",
       "bn": "পর্যটন গাইড",
       "ml": "ടൂർ ഗൈഡ്",
-      "fil": "Mga gabay sa paglibot",
-      "id": "Panduan wisata",
+      "fil": "Tour guide",
+      "id": "Pemandu wisata",
       "ne": "भ्रमण गाइड",
-      "am": "የጉዞ መመሪያ",
+      "am": "አስጎብኚ",
       "tr": "Tur rehberi"
     },
     {
@@ -1595,8 +1595,8 @@
       "slug": "car-rental",
       "ar": "تأجير سيارات",
       "en": "Car rental",
-      "ur": "گاڑی کرائے پر دینا",
-      "hi": "कार किराये पर लेना",
+      "ur": "کار کرایہ پر",
+      "hi": "कार किराया",
       "bn": "গাড়ি ভাড়া",
       "ml": "കാർ വാടക",
       "fil": "Pag-upa ng kotse",
@@ -1629,7 +1629,7 @@
       "hi": "कानूनी सेवाएँ",
       "bn": "আইনি সেবা",
       "ml": "നിയമ സേവനങ്ങൾ",
-      "fil": "Mga serbisyo sa ligal",
+      "fil": "Mga serbisyong legal",
       "id": "Layanan hukum",
       "ne": "कानूनी सेवाहरू",
       "am": "የሕግ አገልግሎቶች",
@@ -1643,8 +1643,8 @@
       "ur": "حساب کتاب",
       "hi": "लेखांकन",
       "bn": "হিসাবরক্ষণ",
-      "ml": "അക്കൌണ്ടിംഗ്",
-      "fil": "Pag-uulat",
+      "ml": "അക്കൗണ്ടിംഗ്",
+      "fil": "Accounting",
       "id": "Akuntansi",
       "ne": "लेखा",
       "am": "የሂሳብ አያያዝ",
@@ -1663,7 +1663,7 @@
       "id": "Pembentukan perusahaan",
       "ne": "कम्पनी गठन",
       "am": "የኩባንያ ምስረታ",
-      "tr": "Şirket kurulması"
+      "tr": "Şirket kuruluşu"
     },
     {
       "kind": "service",
@@ -1673,12 +1673,12 @@
       "ur": "منصوبے کی عملی جانچ",
       "hi": "परियोजना की व्यवहार्यता का अध्ययन",
       "bn": "প্রকল্পের সম্ভাব্যতা যাচাই",
-      "ml": "സാധ്യമായ പഠനങ്ങൾ",
-      "fil": "Mga pag-aaral ng pagiging posible",
+      "ml": "സാധ്യതാ പഠനം",
+      "fil": "Feasibility study",
       "id": "Studi kelayakan",
       "ne": "सम्भाव्यता अध्ययन",
-      "am": "የማስቻቻል ጥናቶች",
-      "tr": "Yapılandırılabilirlik çalışmaları"
+      "am": "የአዋጭነት ጥናት",
+      "tr": "Fizibilite çalışmaları"
     },
     {
       "kind": "service",
@@ -1689,11 +1689,11 @@
       "hi": "घर पर नर्सिंग",
       "bn": "বাড়িতে নার্সিং",
       "ml": "ഹോം നഴ്സിംഗ്",
-      "fil": "Pag-aalaga sa tahanan",
-      "id": "Perawat di rumah",
+      "fil": "Nursing sa bahay",
+      "id": "Layanan perawat di rumah",
       "ne": "घरमै नर्सिंग",
-      "am": "የቤት ውስጥ ነርሶች",
-      "tr": "Ev bakım"
+      "am": "የቤት ውስጥ ነርሲንግ",
+      "tr": "Evde hemşirelik"
     },
     {
       "kind": "service",
@@ -1703,12 +1703,12 @@
       "ur": "بزرگوں کی نگہداشت",
       "hi": "बुज़ुर्गों की देखभाल",
       "bn": "বয়স্কদের যত্ন",
-      "ml": "പ്രായമായവരെ പരിചരിക്കുക",
+      "ml": "വയോജന പരിചരണം",
       "fil": "Pag-aalaga sa mga may edad na",
-      "id": "Penjagaan orang tua",
+      "id": "Perawatan lansia",
       "ne": "वृद्धवृद्धाको हेरचाह",
       "am": "የአረጋውያን እንክብካቤ",
-      "tr": "Yaşlılar"
+      "tr": "Yaşlı bakımı"
     },
     {
       "kind": "service",
@@ -1718,12 +1718,12 @@
       "ur": "بچوں کی دیکھ بھال",
       "hi": "बच्चों की देखभाल",
       "bn": "শিশুদের যত্ন",
-      "ml": "കുട്ടികളെ പരിപാലിക്കുക",
+      "ml": "കുട്ടികളെ നോക്കൽ",
       "fil": "Pag-aalaga ng sanggol",
-      "id": "Menjaga bayi",
+      "id": "Pengasuh anak",
       "ne": "बच्चाको हेरचाह",
       "am": "ሕፃናት መጠበቅ",
-      "tr": "Bebek bakımı"
+      "tr": "Çocuk bakıcılığı"
     },
     {
       "kind": "service",
@@ -1733,12 +1733,12 @@
       "ur": "فزیوتھراپی",
       "hi": "फ़िज़ियोथेरेपी",
       "bn": "ফিজিওথেরাপি",
-      "ml": "ശാരീരിക ചികിത്സ",
-      "fil": "Terapia ng katawan",
-      "id": "Terapi fisik",
-      "ne": "शारीरिक उपचार",
+      "ml": "ഫിസിയോതെറാപ്പി",
+      "fil": "Physical therapy",
+      "id": "Fisioterapi",
+      "ne": "फिजियोथेरापी",
       "am": "አካላዊ ሕክምና",
-      "tr": "Fiziksel terapiler"
+      "tr": "Fizik tedavi"
     },
     {
       "kind": "service",
@@ -1748,10 +1748,10 @@
       "ur": "گھر پر لیبارٹری ٹیسٹ",
       "hi": "घर पर लैब जाँच",
       "bn": "বাড়িতে ল্যাব পরীক্ষা",
-      "ml": "ഹോം ലാബോറട്ടറി പരിശോധനകൾ",
+      "ml": "വീട്ടിൽ ലാബ് പരിശോധന",
       "fil": "Mga pagsubok sa laboratoryo sa bahay",
-      "id": "Tes laboratorium rumah",
-      "ne": "होम ल्याब परीक्षण",
+      "id": "Tes laboratorium di rumah",
+      "ne": "घरमै ल्याब परीक्षण",
       "am": "የቤት ውስጥ ላቦራቶሪ ምርመራዎች",
       "tr": "Evde laboratuvar testleri"
     },
@@ -1764,7 +1764,7 @@
       "hi": "पेशेवर पाठ्यक्रम",
       "bn": "পেশাগত কোর্স",
       "ml": "പ്രൊഫഷണൽ കോഴ്സുകൾ",
-      "fil": "Mga kurso ng propesyonal",
+      "fil": "Mga propesyonal na kurso",
       "id": "Kursus profesional",
       "ne": "व्यावसायिक पाठ्यक्रमहरू",
       "am": "የሙያ ኮርሶች",
@@ -1798,7 +1798,7 @@
       "id": "Kursus teknis",
       "ne": "प्राविधिक पाठ्यक्रमहरू",
       "am": "የቴክኒክ ኮርሶች",
-      "tr": "Teknoloji dersleri"
+      "tr": "Teknoloji kursları"
     },
     {
       "kind": "service",
@@ -1808,9 +1808,9 @@
       "ur": "پیشہ ورانہ تربیت",
       "hi": "व्यावसायिक प्रशिक्षण",
       "bn": "পেশাগত প্রশিক্ষণ",
-      "ml": "തൊഴില് പരിശീലനം",
-      "fil": "Pag-aaral ng propesyon",
-      "id": "Pelatihan Profesional",
+      "ml": "തൊഴിൽ പരിശീലനം",
+      "fil": "Bokasyonal na pagsasanay",
+      "id": "Pelatihan vokasi",
       "ne": "व्यावसायिक प्रशिक्षण",
       "am": "የሙያ ስልጠና",
       "tr": "Mesleki eğitim"
@@ -1824,11 +1824,11 @@
       "hi": "व्यक्तिगत फ़िटनेस प्रशिक्षण",
       "bn": "ব্যক্তিগত ফিটনেস প্রশিক্ষণ",
       "ml": "വ്യക്തിഗത പരിശീലനം",
-      "fil": "Pag-aaral sa personal",
+      "fil": "Personal training",
       "id": "Pelatihan pribadi",
       "ne": "व्यक्तिगत प्रशिक्षण",
       "am": "የግል ስልጠና",
-      "tr": "Kişisel eğitim"
+      "tr": "Kişisel antrenörlük"
     },
     {
       "kind": "service",
@@ -1839,10 +1839,10 @@
       "hi": "समूह व्यायाम",
       "bn": "দলগত ব্যায়াম",
       "ml": "ഗ്രൂപ്പ് ഫിറ്റ്നസ്",
-      "fil": "Pag-aayos ng grupo",
+      "fil": "Pang-grupong ehersisyo",
       "id": "Kebugaran kelompok",
       "ne": "समूह फिटनेस",
-      "am": "የቡድን ብቃት",
+      "am": "የቡድን የአካል ብቃት",
       "tr": "Grup fitness"
     },
     {
@@ -1854,9 +1854,9 @@
       "hi": "खेल प्रशिक्षण",
       "bn": "খেলাধুলার প্রশিক্ষণ",
       "ml": "കായിക പരിശീലനം",
-      "fil": "Pag-coach sa isport",
-      "id": "Pelatih olahraga",
-      "ne": "खेलकुद प्रशिक्षक",
+      "fil": "Pag-coach sa sports",
+      "id": "Pelatihan olahraga",
+      "ne": "खेलकुद प्रशिक्षण",
       "am": "የስፖርት አሰልጣኝነት",
       "tr": "Spor koçluğu"
     },
@@ -1865,15 +1865,15 @@
       "slug": "nutrition-diet",
       "ar": "تغذية وحمية",
       "en": "Nutrition & diet",
-      "ur": "غذائیت اور خوراک",
+      "ur": "غذائیت اور ڈائٹ",
       "hi": "पोषण और आहार",
-      "bn": "পুষ্টি ও খাদ্য",
-      "ml": "പോഷകാഹാരവും ഭക്ഷണവും",
-      "fil": "Pagkain & diyeta",
+      "bn": "পুষ্টি ও ডায়েট",
+      "ml": "പോഷകാഹാരവും ഡയറ്റും",
+      "fil": "Nutrisyon at diyeta",
       "id": "Nutrisi & diet",
       "ne": "पोषण र आहार",
-      "am": "የአመጋገብ እና የአመጋገብ ስርዓት",
-      "tr": "Beslenme ve beslenme"
+      "am": "ሥነ-ምግብ እና አመጋገብ",
+      "tr": "Beslenme ve diyet"
     },
     {
       "kind": "service",
@@ -1885,10 +1885,10 @@
       "bn": "যোগ ও ধ্যান",
       "ml": "യോഗയും ധ്യാനവും",
       "fil": "Yoga at pagmumuni-muni",
-      "id": "Yoga & Meditasi",
+      "id": "Yoga & meditasi",
       "ne": "योग र ध्यान",
       "am": "ዮጋና ማሰላሰል",
-      "tr": "Yoga ve Meditasyon"
+      "tr": "Yoga ve meditasyon"
     },
     {
       "kind": "service",
@@ -1914,11 +1914,11 @@
       "hi": "शैक्षणिक अनुवाद",
       "bn": "একাডেমিক অনুবাদ",
       "ml": "അക്കാദമിക് പരിഭാഷ",
-      "fil": "Pag-aalinlangan ng akademiko",
-      "id": "Terjemahan Akademik",
+      "fil": "Akademikong pagsasalin",
+      "id": "Terjemahan akademik",
       "ne": "शैक्षिक अनुवाद",
       "am": "የአካዳሚክ ትርጉም",
-      "tr": "Akademik çeviriler"
+      "tr": "Akademik çeviri"
     },
     {
       "kind": "service",
@@ -1929,7 +1929,7 @@
       "hi": "प्रस्तुति डिज़ाइन",
       "bn": "উপস্থাপনা ডিজাইন",
       "ml": "അവതരണ രൂപകൽപ്പന",
-      "fil": "Desinyo ng presentasyon",
+      "fil": "Disenyo ng presentasyon",
       "id": "Desain presentasi",
       "ne": "प्रस्तुति डिजाइन",
       "am": "የዝግጅት አቀራረብ ንድፍ",
@@ -1943,12 +1943,12 @@
       "ur": "ہوم ورک میں مدد",
       "hi": "गृहकार्य में मदद",
       "bn": "বাড়ির পড়ায় সাহায্য",
-      "ml": "ഹോം വർക്ക് സഹായം",
-      "fil": "Tulong sa mga gawaing-bahay",
+      "ml": "ഹോംവർക്ക് സഹായം",
+      "fil": "Tulong sa takdang-aralin",
       "id": "Bantuan pekerjaan rumah",
       "ne": "गृहकार्यमा सहयोग",
-      "am": "የቤት ውስጥ ሥራዎች",
-      "tr": "Ev ödevleri için yardım"
+      "am": "የቤት ሥራ እገዛ",
+      "tr": "Ödev yardımı"
     },
     {
       "kind": "service",
@@ -1959,11 +1959,11 @@
       "hi": "पुरुषों की सिलाई",
       "bn": "পুরুষদের পোশাক সেলাই",
       "ml": "പുരുഷന്മാരുടെ തുന്നൽ",
-      "fil": "Mga tao na mag-uutos",
-      "id": "Pengrajin pria",
+      "fil": "Pananahi para sa lalaki",
+      "id": "Jahit pakaian pria",
       "ne": "पुरुष सिलाई",
-      "am": "የወንዶች ሹራብ",
-      "tr": "Erkekler için terzilik"
+      "am": "የወንዶች ልብስ ስፌት",
+      "tr": "Erkek terziliği"
     },
     {
       "kind": "service",
@@ -1974,10 +1974,10 @@
       "hi": "महिलाओं की सिलाई",
       "bn": "নারীদের পোশাক সেলাই",
       "ml": "വനിതാ തുന്നൽ",
-      "fil": "Mga babae na nag-aayos",
-      "id": "Pengrajin wanita",
+      "fil": "Pananahi para sa babae",
+      "id": "Jahit pakaian wanita",
       "ne": "महिला सिलाई",
-      "am": "የሴቶች ሹራብ",
+      "am": "የሴቶች ልብስ ስፌት",
       "tr": "Kadın terziliği"
     },
     {
@@ -1986,14 +1986,14 @@
       "ar": "تعديل ملابس",
       "en": "Clothing alteration",
       "ur": "کپڑوں کی ترمیم",
-      "hi": "कपड़ों में बदलाव",
+      "hi": "कपड़ों की ऑल्टरेशन",
       "bn": "পোশাকের মাপ ঠিক করা",
-      "ml": "വസ്ത്രങ്ങൾ മാറ്റുക",
-      "fil": "Pagbabago ng damit",
-      "id": "Perubahan pakaian",
-      "ne": "कपडा परिवर्तन",
-      "am": "የልብስ ለውጥ",
-      "tr": "Giyim değişimi"
+      "ml": "വസ്ത്രങ്ങളുടെ ആൾട്ടറേഷൻ",
+      "fil": "Pagpapaayos ng damit",
+      "id": "Permak pakaian",
+      "ne": "कपडाको नाप मिलाउने",
+      "am": "የልብስ ማስተካከያ",
+      "tr": "Kıyafet tadilatı"
     },
     {
       "kind": "service",
@@ -2004,11 +2004,11 @@
       "hi": "परदों की सिलाई",
       "bn": "পর্দা সেলাই",
       "ml": "കർട്ടൻ തയ്യൽ",
-      "fil": "Pag-uutos ng mga kurtina",
-      "id": "Pengukur gorden",
-      "ne": "पर्दा बनाउनु",
-      "am": "የድንጋይ መጋረጃ",
-      "tr": "Perdeler boyama"
+      "fil": "Pananahi ng kurtina",
+      "id": "Jahit gorden",
+      "ne": "पर्दा सिलाई",
+      "am": "የመጋረጃ ስፌት",
+      "tr": "Perde dikimi"
     },
     {
       "kind": "service",
@@ -2018,11 +2018,11 @@
       "ur": "مسافروں کی نقل و حمل",
       "hi": "यात्री परिवहन",
       "bn": "যাত্রী পরিবহন",
-      "ml": "യാത്രാ ഗതാഗതം",
-      "fil": "Paglalakbay ng mga pasahero",
+      "ml": "യാത്രക്കാരുടെ ഗതാഗതം",
+      "fil": "Paghahatid ng pasahero",
       "id": "Transportasi penumpang",
-      "ne": "यात्रुवाहक",
-      "am": "የጉዞ መጓጓዣ",
+      "ne": "यात्रु ढुवानी",
+      "am": "የመንገደኞች ማጓጓዣ",
       "tr": "Yolcu taşımacılığı"
     },
     {
@@ -2034,7 +2034,7 @@
       "hi": "बस किराया",
       "bn": "বাস ভাড়া",
       "ml": "ബസ് വാടക",
-      "fil": "Pag-abang ng bus",
+      "fil": "Pag-upa ng bus",
       "id": "Sewa bus",
       "ne": "बस भाडा",
       "am": "የአውቶቡስ ኪራይ",
@@ -2049,7 +2049,7 @@
       "hi": "स्कूल परिवहन",
       "bn": "স্কুলে যাতায়াত",
       "ml": "സ്കൂൾ ഗതാഗതം",
-      "fil": "Paglalakbay sa paaralan",
+      "fil": "Hatid-sundo sa paaralan",
       "id": "Transportasi sekolah",
       "ne": "विद्यालय यातायात",
       "am": "የትምህርት ቤት መጓጓዣ",
@@ -2060,15 +2060,15 @@
       "slug": "ayk-yard-cleaning",
       "ar": "غسيل الأحواش",
       "en": "Yard cleaning",
-      "ur": "صحن کی صفائی",
-      "hi": "आँगन की सफ़ाई",
-      "bn": "উঠান পরিষ্কার",
-      "ml": "മുറ്റത്ത് വൃത്തിയാക്കൽ",
-      "fil": "Paglinis ng hardin",
-      "id": "Pembersihan halaman",
-      "ne": "आँगन सफा गर्ने",
-      "am": "የአትክልት ስፍራን ማጽዳት",
-      "tr": "Bahçe temizliği"
+      "ur": "صحن کی دھلائی",
+      "hi": "आँगन की धुलाई",
+      "bn": "উঠান ধোয়া",
+      "ml": "മുറ്റം കഴുകൽ",
+      "fil": "Paghuhugas ng bakuran",
+      "id": "Cuci halaman rumah",
+      "ne": "आँगन धुलाई",
+      "am": "የግቢ እጥበት",
+      "tr": "Avlu yıkama"
     }
   ],
   "geography": [
@@ -6409,8 +6409,8 @@
       "ur": "مفت آزمائش",
       "hi": "निःशुल्क परीक्षण",
       "bn": "বিনামূল্যে ট্রায়াল",
-      "ml": "സൌജന്യ ട്രയൽ",
-      "fil": "Libre na pagsubok",
+      "ml": "സൗജന്യ ട്രയൽ",
+      "fil": "Libreng trial",
       "id": "Percobaan gratis",
       "ne": "निःशुल्क परीक्षण",
       "am": "ነፃ ሙከራ",
@@ -6422,11 +6422,11 @@
       "ur": "کارکن کی رکنیت",
       "hi": "कर्मी सदस्यता",
       "bn": "কর্মীর সাবস্ক্রিপশন",
-      "ml": "തൊഴിലാളികളുടെ സബ്സ്ക്രിപ്ഷൻ",
-      "fil": "Pag-sign up ng manggagawa",
+      "ml": "തൊഴിലാളി സബ്സ്ക്രിപ്ഷൻ",
+      "fil": "Subscription ng manggagawa",
       "id": "Langganan pekerja",
-      "ne": "श्रमिकको सदस्यता",
-      "am": "የሰራተኛ ምዝገባ",
+      "ne": "कामदार सदस्यता",
+      "am": "የሠራተኛ የደንበኝነት ምዝገባ",
       "tr": "İşçi aboneliği"
     },
     {
@@ -6436,23 +6436,23 @@
       "hi": "सदस्यता शुल्क शुरू होने से पहले सेवा आज़माएँ",
       "bn": "সাবস্ক্রিপশন বিল চালু হওয়ার আগে সেবাটি ব্যবহার করে দেখুন",
       "ml": "സബ്സ്ക്രിപ്ഷൻ ബില്ലിംഗ് പ്രവർത്തനക്ഷമമാകുന്നതിനു മുമ്പ് സേവനം പരീക്ഷിക്കുക",
-      "fil": "Subukan ang serbisyo bago ma-enable ang pagbuwis ng subscription",
+      "fil": "Subukan ang serbisyo bago magsimula ang singil sa subscription",
       "id": "Cobalah layanan sebelum tagihan berlangganan diaktifkan",
-      "ne": "सदस्यता बिलिङ सक्षम हुनु अघि सेवा प्रयास गर्नुहोस्",
+      "ne": "सदस्यता शुल्क सुरु हुनुअघि सेवा प्रयोग गरेर हेर्नुहोस्",
       "am": "የደንበኝነት ምዝገባ ክፍያ ከመደረጉ በፊት አገልግሎቱን ይሞክሩ",
-      "tr": "Ücretleme işleminin etkinleştirilmeden önce hizmeti deneyin"
+      "tr": "Abonelik ücretlendirmesi başlamadan önce hizmeti deneyin"
     },
     {
       "ar": "اشتراك العامل الشهري في أي خدمة",
       "en": "Monthly worker subscription at Ay Khidma",
-      "ur": "أي خدمة سروسز میں کارکن کی ماہانہ رکنیت",
-      "hi": "औताद सर्विसेज़ में कर्मी की मासिक सदस्यता",
-      "bn": "আওতাদ সার্ভিসেসে কর্মীর মাসিক সাবস্ক্রিপশন",
-      "ml": "ഐ ഖിദ്ദമയിലെ പ്രതിമാസ തൊഴിലാളികളുടെ സബ്സ്ക്രിപ്ഷൻ",
-      "fil": "Pag-sign ng buwanang manggagawa sa Ay Khidma",
+      "ur": "أي خدمة میں کارکن کی ماہانہ رکنیت",
+      "hi": "Ay Khidma पर कर्मी की मासिक सदस्यता",
+      "bn": "Ay Khidma-তে কর্মীর মাসিক সাবস্ক্রিপশন",
+      "ml": "Ay Khidma-യിൽ തൊഴിലാളിയുടെ പ്രതിമാസ സബ്സ്ക്രിപ്ഷൻ",
+      "fil": "Buwanang subscription ng manggagawa sa Ay Khidma",
       "id": "Langganan bulanan pekerja di Ay Khidma",
-      "ne": "आय खेदमा मासिक कर्मचारी सदस्यता",
-      "am": "በ Ay Khidma ውስጥ ወርሃዊ የሰራተኛ ምዝገባ",
+      "ne": "Ay Khidma मा कामदारको मासिक सदस्यता",
+      "am": "በAy Khidma የሠራተኛ ወርሃዊ የደንበኝነት ምዝገባ",
       "tr": "Ay Khidma'da aylık işçi aboneliği"
     },
     {
@@ -6461,12 +6461,12 @@
       "ur": "اپنے علاقے میں درخواستیں وصول کریں",
       "hi": "अपने क्षेत्र में अनुरोध पाएँ",
       "bn": "আপনার এলাকায় অনুরোধ গ্রহণ করুন",
-      "ml": "നിങ്ങളുടെ പ്രദേശത്ത് അപേക്ഷകൾ സ്വീകരിക്കുക",
+      "ml": "നിങ്ങളുടെ പ്രദേശത്തെ അഭ്യർത്ഥനകൾ സ്വീകരിക്കുക",
       "fil": "Makatanggap ng mga kahilingan sa iyong lugar",
       "id": "Terima permintaan di daerah Anda",
       "ne": "तपाईंको क्षेत्रमा अनुरोधहरू प्राप्त गर्नुहोस्",
       "am": "በአካባቢያችሁ ያሉ ጥያቄዎችን ተቀበሉ",
-      "tr": "Bölgenizdeki istekleri kabul edin"
+      "tr": "Bölgenizdeki talepleri alın"
     },
     {
       "ar": "ملف مقدم الخدمة",
@@ -6475,11 +6475,11 @@
       "hi": "सेवा प्रदाता प्रोफ़ाइल",
       "bn": "সেবাদাতার প্রোফাইল",
       "ml": "സേവന ദാതാവിന്റെ പ്രൊഫൈൽ",
-      "fil": "Profil ng tagapagbigay ng serbisyo",
+      "fil": "Profile ng service provider",
       "id": "Profil penyedia layanan",
       "ne": "सेवा प्रदायकको प्रोफाइल",
       "am": "የአገልግሎት አቅራቢ መገለጫ",
-      "tr": "Hizmet sağlayıcısının profilü"
+      "tr": "Hizmet sağlayıcı profili"
     },
     {
       "ar": "عروض أسعار للعملاء",
@@ -6487,12 +6487,12 @@
       "ur": "گاہکوں کے لیے قیمت کی پیشکشیں",
       "hi": "ग्राहकों के लिए मूल्य प्रस्ताव",
       "bn": "গ্রাহকদের জন্য মূল্য প্রস্তাব",
-      "ml": "ഉപഭോക്താക്കൾക്ക് ഉദ്ധരണി",
+      "ml": "ഉപഭോക്താക്കൾക്ക് ക്വട്ടേഷനുകൾ",
       "fil": "Mga quote para sa mga customer",
-      "id": "Kutipan untuk pelanggan",
-      "ne": "ग्राहकहरूको लागि उद्धरण",
-      "am": "ለደንበኞች የሚሆን ዋጋ",
-      "tr": "Müşteriler için alıntılar"
+      "id": "Penawaran harga untuk pelanggan",
+      "ne": "ग्राहकहरूलाई मूल्य प्रस्ताव",
+      "am": "ለደንበኞች የዋጋ ማቅረቢያ",
+      "tr": "Müşterilere fiyat teklifi"
     },
     {
       "ar": "مجاني",
@@ -6500,9 +6500,9 @@
       "ur": "مفت",
       "hi": "निःशुल्क",
       "bn": "বিনামূল্যে",
-      "ml": "സൌജന്യമായി",
+      "ml": "സൗജന്യം",
       "fil": "Libre",
-      "id": "Bebas",
+      "id": "Gratis",
       "ne": "निःशुल्क",
       "am": "ነፃ",
       "tr": "Ücretsiz"
@@ -6517,7 +6517,7 @@
       "fil": "Premium",
       "id": "Premium",
       "ne": "प्रीमियम",
-      "am": "የቅድመ ክፍያ",
+      "am": "ፕሪሚየም",
       "tr": "Premium"
     },
     {
@@ -6527,7 +6527,7 @@
       "hi": "पेशेवर",
       "bn": "পেশাদার",
       "ml": "പ്രൊഫഷണൽ",
-      "fil": "Mga propesyonal",
+      "fil": "Propesyonal",
       "id": "Profesional",
       "ne": "व्यावसायिक",
       "am": "ሙያዊ",
@@ -6536,40 +6536,40 @@
     {
       "ar": "الباقة المجانية للمبتدئين",
       "en": "Free plan for beginners",
-      "ur": "نئے صارفین کے لیے مفت منصوبہ",
-      "hi": "नए उपयोगकर्ताओं के लिए निःशुल्क योजना",
-      "bn": "নতুন ব্যবহারকারীদের জন্য বিনামূল্যের পরিকল্পনা",
-      "ml": "തുടക്കക്കാർക്ക് സൌജന്യ പ്ലാൻ",
-      "fil": "Libre na plano para sa mga nagsisimula",
-      "id": "Rencana gratis untuk pemula",
-      "ne": "शुरुवातकर्ताहरूको लागि निःशुल्क योजना",
-      "am": "ለጀማሪዎች ነፃ ዕቅድ",
-      "tr": "Başlangıç için ücretsiz plan"
+      "ur": "نئے صارفین کے لیے مفت پلان",
+      "hi": "नए उपयोगकर्ताओं के लिए निःशुल्क प्लान",
+      "bn": "নতুন ব্যবহারকারীদের জন্য বিনামূল্যের প্ল্যান",
+      "ml": "തുടക്കക്കാർക്ക് സൗജന്യ പ്ലാൻ",
+      "fil": "Libreng plan para sa mga nagsisimula",
+      "id": "Paket gratis untuk pemula",
+      "ne": "सुरुवात गर्नेहरूका लागि निःशुल्क प्लान",
+      "am": "ለጀማሪዎች ነፃ ጥቅል",
+      "tr": "Yeni başlayanlar için ücretsiz plan"
     },
     {
       "ar": "الباقة المميزة لزيادة الأعمال",
       "en": "Premium plan to grow your business",
-      "ur": "کاروبار بڑھانے کے لیے پریمیم منصوبہ",
-      "hi": "व्यवसाय बढ़ाने के लिए प्रीमियम योजना",
-      "bn": "ব্যবসা বাড়ানোর জন্য প্রিমিয়াম পরিকল্পনা",
-      "ml": "നിങ്ങളുടെ ബിസിനസ്സിനെ വളര് ത്തിക്കാന് പ്രീമിയം പ്ലാന്റ്",
-      "fil": "Premium na plano upang madagdagan ang iyong negosyo",
-      "id": "Rencana premium untuk mengembangkan bisnis Anda",
-      "ne": "तपाईंको व्यवसाय बढाउनको लागि प्रीमियम योजना",
-      "am": "ንግድዎን ለማሳደግ ፕሪሚየም ዕቅድ",
+      "ur": "کاروبار بڑھانے کے لیے پریمیم پلان",
+      "hi": "व्यवसाय बढ़ाने के लिए प्रीमियम प्लान",
+      "bn": "ব্যবসা বাড়ানোর জন্য প্রিমিয়াম প্ল্যান",
+      "ml": "ബിസിനസ് വളർത്താൻ പ്രീമിയം പ്ലാൻ",
+      "fil": "Premium na plan para palaguin ang negosyo",
+      "id": "Paket premium untuk mengembangkan bisnis",
+      "ne": "व्यवसाय बढाउन प्रिमियम प्लान",
+      "am": "ንግድዎን ለማሳደግ ፕሪሚየም ጥቅል",
       "tr": "İşinizi büyütmek için premium plan"
     },
     {
       "ar": "الباقة الاحترافية للمحترفين",
       "en": "Professional plan for professionals",
-      "ur": "ماہرین کے لیے پیشہ ورانہ منصوبہ",
-      "hi": "पेशेवरों के लिए पेशेवर योजना",
-      "bn": "পেশাদারদের জন্য পেশাদার পরিকল্পনা",
+      "ur": "پیشہ ور افراد کے لیے پیشہ ورانہ پلان",
+      "hi": "पेशेवरों के लिए पेशेवर प्लान",
+      "bn": "পেশাদারদের জন্য পেশাদার প্ল্যান",
       "ml": "പ്രൊഫഷണലുകൾക്കുള്ള പ്രൊഫഷണൽ പ്ലാൻ",
-      "fil": "Pansyal na plano para sa mga propesyonal",
-      "id": "Rencana profesional untuk profesional",
-      "ne": "व्यावसायिकहरुको लागि व्यावसायिक योजना",
-      "am": "ለባለሙያዎች የሙያ እቅድ",
+      "fil": "Propesyonal na plan para sa mga propesyonal",
+      "id": "Paket profesional untuk para profesional",
+      "ne": "पेसेवरहरूका लागि व्यावसायिक प्लान",
+      "am": "ለባለሙያዎች ሙያዊ ጥቅል",
       "tr": "Profesyoneller için profesyonel plan"
     },
     {
@@ -6579,16 +6579,16 @@
       "hi": "हर महीने 5 प्रस्ताव",
       "bn": "প্রতি মাসে ৫টি প্রস্তাব",
       "ml": "പ്രതിമാസം 5 ഓഫറുകൾ",
-      "fil": "5 na alok sa buwan",
+      "fil": "5 alok kada buwan",
       "id": "5 penawaran per bulan",
       "ne": "प्रति महिना ५ वटा प्रस्ताव",
-      "am": "በወር 5 ቅናሾች",
+      "am": "በወር 5 የዋጋ ማቅረቢያዎች",
       "tr": "Ayda 5 teklif"
     },
     {
       "ar": "ظهور عادي",
       "en": "Standard visibility",
-      "ur": "عام نمایاں ہونا",
+      "ur": "عام نمائش",
       "hi": "सामान्य दृश्यता",
       "bn": "সাধারণভাবে প্রদর্শন",
       "ml": "സാധാരണ ദൃശ്യപരത",
@@ -6607,7 +6607,7 @@
       "ml": "ഇമെയിൽ പിന്തുണ",
       "fil": "Suporta sa email",
       "id": "Dukungan email",
-      "ne": "ईमेल समर्थन",
+      "ne": "ईमेल सहयोग",
       "am": "የኢሜይል ድጋፍ",
       "tr": "E-posta desteği"
     },
@@ -6618,10 +6618,10 @@
       "hi": "हर महीने 50 प्रस्ताव",
       "bn": "প্রতি মাসে ৫০টি প্রস্তাব",
       "ml": "പ്രതിമാസം 50 ഓഫറുകൾ",
-      "fil": "50 na alok sa buwan",
+      "fil": "50 alok kada buwan",
       "id": "50 penawaran per bulan",
-      "ne": "प्रति महिना ५० प्रस्ताव",
-      "am": "በወር 50 ቅናሾች",
+      "ne": "प्रति महिना ५० वटा प्रस्ताव",
+      "am": "በወር 50 የዋጋ ማቅረቢያዎች",
       "tr": "Ayda 50 teklif"
     },
     {
@@ -6630,12 +6630,12 @@
       "ur": "نتائج میں نمایاں ہونا",
       "hi": "परिणामों में विशेष रूप से दिखाना",
       "bn": "ফলাফলে বিশেষভাবে প্রদর্শন",
-      "ml": "ഫലങ്ങള് ൽ പ്രാധാന്യം",
-      "fil": "Ipinapakita sa mga resulta",
-      "id": "Ditekankan dalam hasil",
-      "ne": "परिणामहरूमा हाइलाइट गरियो",
-      "am": "ውጤቶች ላይ ጎላ",
-      "tr": "Sonuçlarda vurgulanıyor"
+      "ml": "ഫലങ്ങളിൽ ഹൈലൈറ്റ്",
+      "fil": "Naka-highlight sa mga resulta",
+      "id": "Disorot dalam hasil",
+      "ne": "नतिजामा हाइलाइट",
+      "am": "በውጤቶች ውስጥ ጎልቶ መታየት",
+      "tr": "Sonuçlarda öne çıkarılma"
     },
     {
       "ar": "شارة موثق",
@@ -6643,9 +6643,9 @@
       "ur": "تصدیق شدہ نشان",
       "hi": "सत्यापित बैज",
       "bn": "যাচাইকৃত ব্যাজ",
-      "ml": "പരിശോധിച്ച ബാഡ്ജ്",
-      "fil": "Pinapakita na badge",
-      "id": "Pendaftaran",
+      "ml": "വെരിഫൈഡ് ബാഡ്ജ്",
+      "fil": "Verified badge",
+      "id": "Lencana terverifikasi",
       "ne": "प्रमाणित ब्याज",
       "am": "የተረጋገጠ ባጅ",
       "tr": "Doğrulanmış rozet"
@@ -6659,7 +6659,7 @@
       "ml": "വേഗത്തിലുള്ള പിന്തുണ",
       "fil": "Mabilis na suporta",
       "id": "Dukungan cepat",
-      "ne": "छिटो समर्थन",
+      "ne": "छिटो सहयोग",
       "am": "ፈጣን ድጋፍ",
       "tr": "Hızlı destek"
     },
@@ -6671,9 +6671,9 @@
       "bn": "সীমাহীন প্রস্তাব",
       "ml": "പരിധിയില്ലാത്ത ഓഫറുകൾ",
       "fil": "Walang limitasyong mga alok",
-      "id": "Tawaran tak terbatas",
+      "id": "Penawaran tak terbatas",
       "ne": "असीमित प्रस्तावहरू",
-      "am": "ያልተገደበ ቅናሾች",
+      "am": "ያልተገደበ የዋጋ ማቅረቢያዎች",
       "tr": "Sınırsız teklifler"
     },
     {
@@ -6682,12 +6682,12 @@
       "ur": "نتائج میں سب سے اوپر دکھانا",
       "hi": "परिणामों में सबसे ऊपर दिखाना",
       "bn": "ফলাফলের শীর্ষে প্রদর্শন",
-      "ml": "ഫലങ്ങളുടെ മുകളില് കാണിച്ചിരിക്കുന്ന",
+      "ml": "ഫലങ്ങളിൽ ഏറ്റവും മുകളിൽ",
       "fil": "Ipinakita sa tuktok ng mga resulta",
       "id": "Ditampilkan di bagian atas hasil",
-      "ne": "परिणामहरूको शीर्षमा देखाइएको",
+      "ne": "नतिजाको शीर्षमा देखिने",
       "am": "ውጤቶች አናት ላይ ይታያል",
-      "tr": "Sonuçların en üst kısmında gösterilmiştir"
+      "tr": "Sonuçlarda en üstte gösterim"
     },
     {
       "ar": "شارة احترافي",
@@ -6696,11 +6696,11 @@
       "hi": "पेशेवर बैज",
       "bn": "পেশাদার ব্যাজ",
       "ml": "പ്രൊഫഷണൽ ബാഡ്ജ്",
-      "fil": "Karapatan ng propesyonal",
-      "id": "Pakar profesional",
-      "ne": "व्यावसायिक प्रतिमा",
+      "fil": "Badge ng propesyonal",
+      "id": "Lencana profesional",
+      "ne": "व्यावसायिक ब्याज",
       "am": "የባለሙያ ባጅ",
-      "tr": "Mesleki rozet"
+      "tr": "Profesyonel rozeti"
     },
     {
       "ar": "إعلانات داخلية مجانية",
@@ -6708,12 +6708,12 @@
       "ur": "ایپ میں مفت اشتہارات",
       "hi": "ऐप में निःशुल्क विज्ञापन",
       "bn": "অ্যাপে বিনামূল্যে বিজ্ঞাপন",
-      "ml": "സൌജന്യമായി അപ്ലിക്കേഷനിലെ പരസ്യങ്ങൾ",
+      "ml": "ആപ്പിനുള്ളിൽ സൗജന്യ പരസ്യങ്ങൾ",
       "fil": "Libre na mga ad sa app",
       "id": "Iklan gratis di dalam aplikasi",
       "ne": "निःशुल्क इन-एप विज्ञापनहरू",
-      "am": "ነፃ መተግበሪያ ውስጥ ማስታወቂያዎች",
-      "tr": "Uygulama içindeki ücretsiz reklamlar"
+      "am": "በመተግበሪያው ውስጥ ነፃ ማስታወቂያዎች",
+      "tr": "Uygulama içi ücretsiz reklamlar"
     },
     {
       "ar": "دعم متميز 24/7",
@@ -6722,11 +6722,11 @@
       "hi": "हर समय प्रीमियम सहायता",
       "bn": "সারাক্ষণ প্রিমিয়াম সহায়তা",
       "ml": "24/7 പ്രീമിയം പിന്തുണ",
-      "fil": "Suporta sa premium 24/7",
+      "fil": "Premium na suporta 24/7",
       "id": "Dukungan premium 24/7",
-      "ne": "प्रिमियम समर्थन २//७",
-      "am": "የቀጥታ ድጋፍ 24/7",
-      "tr": "24/24 destek"
+      "ne": "प्रिमियम सहयोग २४/७",
+      "am": "ፕሪሚየም ድጋፍ 24/7",
+      "tr": "7/24 premium destek"
     }
   ]
 }
