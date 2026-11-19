@@ -276,8 +276,29 @@ function translate(lang, key, vars) {
 // Express middleware: attaches req.lang and req.t(key, vars)
 function localeMiddleware(req, res, next) {
   req.lang = pickLang(req.headers['accept-language']);
-  req.t = (key, vars) => translate(req.lang, key, vars);
+  // Texts written from MESSAGES during this request (AYK-313), so a refusal built from them can be
+  // marked as the platform's own words, safe to show the person as is.
+  const said = new Set();
+  req.t = (key, vars) => {
+    const text = translate(req.lang, key, vars);
+    if (Object.prototype.hasOwnProperty.call(MESSAGES, key)) said.add(text);
+    return text;
+  };
+  const json = res.json.bind(res);
+  res.json = body => json(markLocalized(body, req, said));
   next();
+}
+
+// A refusal (4xx) whose message is one of our own translated texts gets `localized: true`; the site
+// shows those as they are and keeps hiding anything else (internal or unknown messages). A thrown
+// ApiError carries a MESSAGES key as its message: it is translated here into the reader's language.
+function markLocalized(body, req, said) {
+  if (!body || typeof body !== 'object' || body.success !== false || typeof body.message !== 'string') return body;
+  if (Object.prototype.hasOwnProperty.call(MESSAGES, body.message)) {
+    const text = translate(req.lang, body.message);
+    return { ...body, code: body.code || body.message, message: text, localized: true };
+  }
+  return said.has(body.message) ? { ...body, localized: true } : body;
 }
 
 module.exports = { appTexts, APP_TEXTS, translate, pickLang, localeMiddleware, SUPPORTED, DEFAULT_LANG, FALLBACK_CHAIN };

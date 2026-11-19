@@ -1155,3 +1155,27 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - as the provider: the dashboard shows «رابط صفحتك» without the add button;
   - no page errors.
 - Not tried: the phone share sheet itself (no phone here), and the WhatsApp preview before the site rules are applied.
+
+## 2026-11-19 — AYK-313: rating gave neither a refusal nor a confirmation
+- Reported by the owner with a tester's screenshot: after «إرسال التقييم» nothing visible happened.
+- Causes:
+  1. A refusal was shown at the top of the page while the person was at the bottom by the button, so they never saw it.
+  2. A refusal from the server was replaced by the general word «غير مسموح». The site only shows messages it knows, and the review refusals were not in its list.
+  3. A successful rating moved to the request page with no message.
+  4. On phones the button sat partly under the bottom bar.
+- Fixes:
+  - The refusal now shows next to the button and is scrolled into view.
+  - After sending: «✅ تم نشر تقييمك» with «العودة إلى الطلب» (11 languages).
+  - «تقييم تفصيلي» is marked «(اختياري)».
+  - Space under the form keeps the button clear of the bottom bar.
+  - The server now marks a refusal built from its own translations (`localized: true`), and the site shows that reason. Anything else stays hidden as before. A thrown error key (ApiError) is now translated into the reader's language too.
+- Browser check (Chromium, phone size, local site and database):
+  - a request with no contact: the reason shows by the button and is on screen: «لا يمكن تقييم مقدم الخدمة قبل أن يتواصل معك في هذا الطلب: بعرض، أو برسالة في المحادثة، أو بمكالمة.»;
+  - a request with an offer: «✅ تم نشر تقييمك», and the review was saved with the detailed rating;
+  - no page errors.
+- Checked by `curl`: wrong sign-in in Urdu returns the Urdu text with `localized: true`; an unknown path in Turkish returns «Adres bulunamadı».
+- Tests:
+  - integration 275 pass, 0 fail;
+  - client 166 pass, including a new test that an unmarked message stays hidden;
+  - server 84 pass, including the new `localized-refusals.test.js`;
+  - `i18n:check` 2568 keys.

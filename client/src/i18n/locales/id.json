@@ -802,7 +802,10 @@
       "trusted": "Dipercaya",
       "fast_response": "Tanggapan cepat",
       "recommended": "Direkomendasikan"
-    }
+    },
+    "published": "Penilaian Anda telah diterbitkan",
+    "published_hint": "Terima kasih. Penilaian Anda membantu orang lain memilih.",
+    "back_to_request": "Kembali ke permintaan"
   },
   "dispute": {
     "title": "Rincian perselisihan",

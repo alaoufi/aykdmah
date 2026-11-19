@@ -802,7 +802,10 @@
       "trusted": "موثوق",
       "fast_response": "استجابة سريعة",
       "recommended": "موصى به"
-    }
+    },
+    "published": "تم نشر تقييمك",
+    "published_hint": "شكرًا لك، تقييمك يساعد الآخرين على الاختيار.",
+    "back_to_request": "العودة إلى الطلب"
   },
   "dispute": {
     "title": "تفاصيل النزاع",

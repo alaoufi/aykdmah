@@ -186,6 +186,9 @@ export function apiError(err) {
   if (!key && status === 409 && Array.isArray(data?.errors) && data.errors.some(item =>
     ['email', 'phone', 'username', 'facebook_id'].includes(item?.field))) key = 'auth.identity_in_use_hint';
   if (!key && status === 409 && /^\/auth\/register(?:\?|$)/.test(path)) key = 'auth.identity_in_use_hint';
+  // The server's own translated refusal (AYK-313): show its reason instead of a general word.
+  if (!key && status >= 400 && status < 500 && data?.localized === true && typeof data.message === 'string'
+      && data.message.trim() && data.message.length <= 600) return data.message.trim();
   if (!key) key = statusErrorKeys.get(status);
   if (!key && !response && (err?.isAxiosError || ['ERR_NETWORK', 'ECONNABORTED', 'ETIMEDOUT'].includes(err?.code))) key = 'errors.network';
   return i18n.t(key || 'errors.generic');

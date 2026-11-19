@@ -802,7 +802,10 @@
       "trusted": "Trusted",
       "fast_response": "Fast response",
       "recommended": "Recommended"
-    }
+    },
+    "published": "Your rating has been published",
+    "published_hint": "Thank you. Your rating helps others choose.",
+    "back_to_request": "Back to the request"
   },
   "dispute": {
     "title": "Dispute details",

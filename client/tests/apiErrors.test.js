@@ -107,3 +107,11 @@ test('legacy status-only failures retain useful localized account guidance', asy
     assert.equal(apiError({ response: { status: 429 } }), i18n.t('errors.too_many_requests'));
   }
 });
+
+test('a refusal written from the server translations shows its own reason; unmarked messages stay hidden', async () => {
+  await i18n.changeLanguage('ar');
+  const reason = 'لا يمكن تقييم مقدم الخدمة قبل أن يتواصل معك في هذا الطلب.';
+  assert.equal(apiError({ response: { status: 403, data: { message: reason, localized: true } } }), reason);
+  assert.equal(apiError({ response: { status: 403, data: { message: reason } } }), i18n.t('errors.forbidden'));
+  assert.equal(apiError({ response: { status: 500, data: { message: 'db exploded', localized: true } } }), i18n.t('errors.generic'));
+});

@@ -802,7 +802,10 @@
       "trusted": "Mapagkakatiwalaan",
       "fast_response": "Mabilis na pagtugon",
       "recommended": "Inirerekomenda"
-    }
+    },
+    "published": "Nai-publish na ang iyong rating",
+    "published_hint": "Salamat. Nakatutulong ang iyong rating sa iba sa pagpili.",
+    "back_to_request": "Bumalik sa kahilingan"
   },
   "dispute": {
     "title": "Detalye ng dispute",

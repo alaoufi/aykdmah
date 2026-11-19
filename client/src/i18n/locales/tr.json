@@ -802,7 +802,10 @@
       "trusted": "Güvenilir",
       "fast_response": "Hızlı yanıt",
       "recommended": "Tavsiye edilen"
-    }
+    },
+    "published": "Değerlendirmeniz yayınlandı",
+    "published_hint": "Teşekkürler. Değerlendirmeniz başkalarının seçim yapmasına yardımcı olur.",
+    "back_to_request": "Talebe geri dön"
   },
   "dispute": {
     "title": "Anlaşmazlık ayrıntıları",

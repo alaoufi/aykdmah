@@ -802,7 +802,10 @@
       "trusted": "የታመነ",
       "fast_response": "ፈጣን ምላሽ",
       "recommended": "የሚመከር"
-    }
+    },
+    "published": "ደረጃዎ ታትሟል",
+    "published_hint": "እናመሰግናለን፣ ደረጃዎ ሌሎች እንዲመርጡ ይረዳል።",
+    "back_to_request": "ወደ ጥያቄው ይመለሱ"
   },
   "dispute": {
     "title": "የክርክር ዝርዝሮች",
