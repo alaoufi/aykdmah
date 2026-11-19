@@ -1342,3 +1342,16 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - `wallet.integration.js` (13 pass): with a minimum of 3 at 100, two providers earn 0, the third makes 300, the fourth 400; after changing the numbers only the new provider is paid, at the new amount; a marketer below the minimum gets 0; three concurrent settlements pay once.
   - The marketer's page shows «{{have}} من {{every}} للوصول إلى الحد الأدنى» until the minimum is reached (11 languages).
   - Client 166, server 84 pass; `i18n:check` 2620 keys. Not re-run for this change: the other integration suites (277 passed before it; only the count settlement and texts changed).
+
+## 2026-11-19 — AYK-323: the page reloaded after it had appeared
+- Reported by the owner: on opening, the page loads, settles, then refreshes, more than once; updates should be silent.
+- Cause: the start-up version check (AYK-279) ran after the page was drawn. With an older saved copy it waited up to 8 s and reloaded the visible page, and a second time if the old copy was still served. Today's many deploys made every opening hit it.
+- Fix: the check runs before anything is drawn (`main.jsx` waits for `freshStart`, 0.8 s at most).
+  - Copy current, or no answer in time: the page is drawn; a late answer never reloads it (the existing switch while out of sight still applies).
+  - Copy older: the old page is not drawn. The new copy is fetched (6 s at most, else the saved copy is dropped), then one reload. A small spinner shows if this takes over 1.2 s.
+- Browser check (local build 1.0.0, `/version.json` answered by the test, service worker blocked):
+  - same version: no reload;
+  - server newer, then the new copy: one reload, and 0 reloads after the page was drawn;
+  - server never answers: page drawn after 1.4 s, no reload.
+- Client tests 166 pass; `check-deploy` 22 ok.
+- Not tried here: the real switch between two releases through the service worker on a phone. The first opening after this deploy still runs the previous code once.

@@ -2,11 +2,15 @@
 // for hours: the silent switch (UpdateBar) only happens while the app is out of sight and still
 // running, and an app that is swiped away and reopened starts again from the old saved copy.
 //
-// At every launch this compares the saved copy with the server (/version.json). If it is older,
-// it waits a few seconds for the new copy to finish saving, then reloads once, before the
-// person has done anything. If the reload still shows the old copy (the saved copy is stuck),
-// it removes the saved copy and loads straight from the server. At most two reloads per launch,
-// only in the first seconds, never while something is being typed.
+// At every launch this compares the saved copy with the server (/version.json).
+//
+// AYK-323 (the owner: «يحدث أكثر من مرة، المفروض التحديث صامت»): the check now runs BEFORE the
+// page is drawn (main.jsx waits for it), so the person never sees the page and then a reload.
+// - The server answers within 0.8 s that the copy is current, or does not answer: draw at once.
+//   A late answer never reloads a page already on screen; UpdateBar switches while out of sight.
+// - The copy is older: nothing of the old copy is drawn. The new copy is fetched (up to 6 s; if it
+//   is not ready by then the saved copy is dropped so the reload comes straight from the server),
+//   then one reload. A second reload only if that one still showed the old copy.
 
 const CURRENT = import.meta.env.VITE_APP_VERSION || '';
 const TRIES = 'ayk_fresh_tries';
@@ -60,8 +64,10 @@ export async function freshStart({ now = () => Date.now(), reload = () => window
   let tries = 0;
   try { tries = Number(sessionStorage.getItem(TRIES)) || 0; } catch (_) { return 'skip'; }
 
-  const server = await serverVersion();
-  if (!server || server === CURRENT) {
+  // The page waits for this, so the question may take 0.8 s at most.
+  const server = await withTimeout(serverVersion(), 800);
+  if (!server) return 'unknown';
+  if (server === CURRENT) {
     try { sessionStorage.removeItem(TRIES); } catch (_) { /* private mode */ }
     return 'current';
   }
@@ -69,9 +75,9 @@ export async function freshStart({ now = () => Date.now(), reload = () => window
 
   const registration = await navigator.serviceWorker?.getRegistration?.().catch(() => null);
   if (tries === 1 || !registration) await dropSavedCopy();
-  else await withTimeout(newCopySaved(registration), 8000);
+  else if (!await withTimeout(newCopySaved(registration).then(() => true), 6000)) await dropSavedCopy();
 
-  if (now() - started > WINDOW_MS || busy() || document.hidden) return 'later';
+  if (now() - started > WINDOW_MS || busy()) return 'later';
   try { sessionStorage.setItem(TRIES, String(tries + 1)); } catch (_) { return 'skip'; }
   reload();
   return 'reloaded';
