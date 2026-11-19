@@ -1298,3 +1298,11 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - `GET /active` 4.9 s, `GET /unread` 4.4 s, `POST /` 4.1 s;
   - even `GET /health` took 1.9 s.
   - Then: server load 1.8; app CPU 0 %, 174 MB; database CPU 0.3 %.
+- Second report (20:40 UTC, 3 hours of normal use, 64 to 173 calls per path):
+  - average under 130 ms for every path except the unread count (`GET /unread`, 266 ms, 64 calls);
+  - all requests over 1 s are the ones from the minute after the 19:2x restart.
+  - Load average 2.5; app CPU 0 %, 267 MB; database CPU 8 %.
+- Startup alone is not the cause. Locally, an API started cold with a burst of 40 requests the moment its port opened answered every one within 161 ms (warm: 40 in 40 ms).
+  - The likely cause is the deploy's own heavy work on the same machine around the restart: the database dump (`pg_dump`, not limited), building the API image, and the migration run.
+  - Not measured on the server itself: the slowness report only has the app's own request times.
+- Way of working from now: changes go out together in fewer deploys, not one per small change. Normal use is fast.
