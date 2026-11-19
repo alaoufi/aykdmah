@@ -1306,3 +1306,13 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - The likely cause is the deploy's own heavy work on the same machine around the restart: the database dump (`pg_dump`, not limited), building the API image, and the migration run.
   - Not measured on the server itself: the slowness report only has the app's own request times.
 - Way of working from now: changes go out together in fewer deploys, not one per small change. Normal use is fast.
+
+## 2026-11-19 — AYK-321: green for available, red for out of service
+- The owner's request: a green circle when the provider is there, a red one when out of service.
+- On the provider page badge, the matching lists and «دليلي»:
+  - available: 🟢 on green;
+  - every other state: 🔴 on red. Before, these were grey, amber or blue, with 🕒/🏖️/⏸️.
+  - The words still say why: «خارج ساعات العمل», «في إجازة حتى …», «متوقف مؤقتًا».
+- In Arabic «غير متاح الآن» became «خارج الخدمة».
+- Browser check (local site): paused provider → page badge «🔴 متوقف مؤقتًا», «دليلي» «🔴 خارج الخدمة»; active → «🟢 متاح الآن» in both.
+- Client tests 166 pass; `i18n:check` 2580 keys.

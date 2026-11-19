@@ -1,11 +1,10 @@
 import { useTranslation } from 'react-i18next';
 
+// AYK-321 (the owner): available is a green circle; any other state is out of service, a red one.
+// The words still say why (outside hours, day off, on leave until a date, paused).
 const STYLES = {
   available: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  off_hours: 'bg-amber-50 text-amber-700 border-amber-200',
-  off_day: 'bg-amber-50 text-amber-700 border-amber-200',
-  vacation: 'bg-sky-50 text-sky-700 border-sky-200',
-  paused: 'bg-surface-alt text-fg-muted border-border',
+  off: 'bg-rose-50 text-rose-700 border-rose-200',
 };
 
 // Weekday names follow the interface language (0 = Sunday).
@@ -32,9 +31,9 @@ export default function AvailabilityBadge({ availability, className = '' }) {
       ? t('availability.off_hours_range', { from: availability.work_from, to: availability.work_to })
       : t(`availability.state.${state}`);
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-pill border text-[11.5px] font-semibold ${STYLES[state] || STYLES.paused} ${className}`}
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-pill border text-[11.5px] font-semibold ${state === 'available' ? STYLES.available : STYLES.off} ${className}`}
       data-availability={state}>
-      <span aria-hidden="true">{state === 'available' ? '🟢' : state === 'vacation' ? '🏖️' : state === 'paused' ? '⏸️' : '🕒'}</span>{label}
+      <span aria-hidden="true">{state === 'available' ? '🟢' : '🔴'}</span>{label}
     </span>
   );
 }
