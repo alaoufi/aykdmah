@@ -1,0 +1,62 @@
+# Builds the Android app on the server and uploads it to Google Play (AYK-309).
+# Runs on a push to claude/deploy-setup whose commit message contains [android] (internal testing
+# track), or [android-production] together with android/play/production.txt saying
+# "production <version code>" (the owner's approval). The checks run first.
+# The signing key stays on the server: GitHub asks it to build (deploy/ci-command.sh android-build),
+# fetches exactly that bundle by its SHA-256, and uploads it with PLAY_SERVICE_ACCOUNT_JSON.
+name: Android release
+
+on:
+  push:
+    branches: [claude/deploy-setup]
+
+concurrency:
+  group: deploy-aykdmh
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    if: contains(github.event.head_commit.message, '[android]') || contains(github.event.head_commit.message, '[android-production]')
+    uses: ./.github/workflows/ci.yml
+
+  release:
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Build on the server and fetch the bundle
+        shell: bash
+        env:
+          KEY: ${{ secrets.AYKDMH_DEPLOY_KEY }}
+          HOST_KEY: ${{ secrets.AYKDMH_HOST_KEY }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$KEY" | tr -d '\r' > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          printf '%s\n' "$HOST_KEY" | tr -d '\r' > ~/.ssh/known_hosts
+          ssh-keygen -y -f ~/.ssh/deploy > /dev/null
+          S="ssh -i $HOME/.ssh/deploy -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o BatchMode=yes -o ServerAliveInterval=30 root@84.247.166.216"
+          $S "android-build $GITHUB_SHA" | tee build.log | tail -n 15
+          read -r _ sha size < <(grep '^AAB ' build.log | tail -1)
+          [ -n "$sha" ] || { echo "::error::the server did not report a bundle"; exit 1; }
+          $S "android-aab $sha" > app.aab
+          echo "$sha  app.aab" | sha256sum -c -
+          rm -f ~/.ssh/deploy
+      - name: Upload to Google Play
+        shell: bash
+        env:
+          PLAY_SERVICE_ACCOUNT_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          PLAY_PACKAGE: sa.aykdmh.app
+          MSG: ${{ github.event.head_commit.message }}
+        run: |
+          if [[ "$MSG" == *"[android-production]"* ]]; then
+            export PLAY_TRACK=production PLAY_CONFIRM="$(cat android/play/production.txt 2>/dev/null)"
+          fi
+          export PLAY_NOTES_AR="$(cat android/play/notes-ar.txt 2>/dev/null)" PLAY_NOTES_EN="$(cat android/play/notes-en.txt 2>/dev/null)"
+          node android/play/upload.cjs app.aab
