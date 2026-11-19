@@ -961,3 +961,8 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - The 66 guide images were regenerated from the built site with the new texts; the schedule crop was checked visually (ar, tr, am).
 - The backups page (with sample data, as main admin) shows «ماذا تحوي كل نسخة؟», «كيف تؤخذ النسخ تلقائيًا؟», «ما الذي عليك حفظه أنت؟». Not tested against the live R2.
 - Not tested: a native speaker review of the new translations; a real sign-up on the live site.
+
+## 2026-11-19 — AYK-301: deploys without a break
+- `caddy validate` (Caddy v2.11.4, same version as the server) on `deploy/caddy/aykdmh-site.Caddyfile`: Valid configuration.
+- Local test with `lb_try_duration 25s`: a POST sent while the backend was down waited 4.3 s until the backend came up, then answered 200. The request was not lost and not sent twice.
+- `bash -n deploy/update-site-rules.sh`: OK. The new in-place write with `caddy reload` has not been run on the server yet.

@@ -32,6 +32,10 @@
 		reverse_proxy app:5000 {
  header_up X-Forwarded-For {client_ip}
  header_up X-Forwarded-Proto https
+ # AYK-301: while the API restarts on a deploy (a few seconds), wait for it instead of an error.
+ # Only a refused connection is retried, so no request is ever sent twice.
+ lb_try_duration 25s
+ lb_try_interval 250ms
 }
 	}
 
@@ -73,6 +77,10 @@
 		reverse_proxy app:5000 {
  header_up X-Forwarded-For {client_ip}
  header_up X-Forwarded-Proto https
+ # AYK-301: while the API restarts on a deploy (a few seconds), wait for it instead of an error.
+ # Only a refused connection is retried, so no request is ever sent twice.
+ lb_try_duration 25s
+ lb_try_interval 250ms
 }
 	}
 
@@ -104,6 +112,10 @@
 		reverse_proxy app:5000 {
  header_up X-Forwarded-For {client_ip}
  header_up X-Forwarded-Proto https
+ # AYK-301: while the API restarts on a deploy (a few seconds), wait for it instead of an error.
+ # Only a refused connection is retried, so no request is ever sent twice.
+ lb_try_duration 25s
+ lb_try_interval 250ms
 }
 	}
 	# Client-side routes.

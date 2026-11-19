@@ -2,8 +2,8 @@
 # Apply deploy/caddy/aykdmh-site.Caddyfile (CSP and site rules) to the live Coolify frontend (AYK-240).
 # Run as root on the server:  cd /opt/aykdmh && git pull --ff-only && bash deploy/update-site-rules.sh
 # Steps: back up the runtime copy, validate the new file with the frontend's own Caddy image, replace
-# the copy, restart only the frontend container (a second or two), then check the site and the CSP.
-# On a failed check, the backup is put back and the frontend restarted again.
+# the copy in place and reload it without a restart (AYK-301: no break at all; a restart only if the
+# reload fails), then check the site and the CSP. On a failed check, the backup is put back.
 set -euo pipefail
 NEW=/opt/aykdmh/deploy/caddy/aykdmh-site.Caddyfile
 LIVE=/etc/aykdmh/coolify-site/Caddyfile
@@ -26,9 +26,14 @@ diff -u "$LIVE" "$NEW" || true
 docker run --rm --network none -v "$NEW:/etc/site/Caddyfile:ro" --entrypoint /usr/bin/caddy "$IMAGE" \
   validate --config /etc/site/Caddyfile --adapter caddyfile
 cp -p "$LIVE" "$BACKUP"
-cp "$NEW" "$LIVE"
-chmod --reference="$BACKUP" "$LIVE"
-docker restart "$C" > /dev/null
+# Written in place (same file), so the container's mount sees it and a reload is enough.
+cat "$NEW" > "$LIVE"
+DEST="$(docker inspect -f '{{range .Mounts}}{{if eq .Source "'"$LIVE"'"}}{{.Destination}}{{end}}{{end}}' "$C")"
+reload() {
+  if [[ -n "$DEST" ]] && docker exec "$C" caddy reload --config "$DEST" --adapter caddyfile > /dev/null 2>&1; then echo "reloaded without restart"
+  else echo "reload not possible: restarting the frontend"; docker restart "$C" > /dev/null; fi
+}
+reload
 
 ok=0
 for _ in $(seq 1 30); do
@@ -42,6 +47,6 @@ if [[ "$ok" == 1 ]] && grep -q "script-src 'self';" <<< "$csp" && ! grep -qE 'un
   echo "OK: site $root, api $api, new CSP live. Backup of the previous rules: $BACKUP"
 else
   echo "check FAILED (site $root, api $api): restoring the previous rules"
-  cp -p "$BACKUP" "$LIVE"; docker restart "$C" > /dev/null
+  cat "$BACKUP" > "$LIVE"; reload
   exit 1
 fi
