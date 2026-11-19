@@ -2813,5 +2813,16 @@
         "body": "Jika seorang penyedia layanan mengundang Anda, ketuk «{{coupon}}» dan masukkan nomornya; ini opsional. Lalu ketuk «{{create}}»: dengan itu Anda menyetujui «{{terms}}», yang bisa dibaca dari tautan di atas tombol. Jika Anda menerima SMS berisi kode, masukkan kodenya. Tombol hanya berfungsi jika kolom wajib sudah lengkap, dan baris di bawahnya memberi tahu apa yang kurang."
       }
     }
+  },
+  "share_provider": {
+    "title": "Bagikan halaman penyedia jasa ini",
+    "my_title": "Tautan halaman Anda",
+    "my_hint": "Bagikan ke pelanggan Anda lewat WhatsApp dan media sosial. Siapa pun yang membukanya akan melihat halaman Anda dan dapat menghubungi Anda, atau menambahkan Anda ke \"Direktori saya\" agar mudah menemukan Anda nanti.",
+    "share": "Bagikan",
+    "copy": "Salin tautan",
+    "copied": "Tautan disalin",
+    "whatsapp": "WhatsApp",
+    "view": "Lihat halaman saya",
+    "message": "{{name}} di Ay Khidma"
   }
 }

@@ -227,6 +227,27 @@ if (!databaseName) {
       assert.ok(xml.includes(`/services/category/${category.slug}/${city.id}-`), 'the sitemap lists the city page');
     }
     assert.equal((await page(`/services/category/${category.slug}/999999999-nowhere`)).status, 404);
+    // A provider's shared link (AYK-312): the preview names them, and the page is kept out of search.
+    const cat = await db.queryOne('SELECT id, name_ar FROM categories WHERE is_active = 1 ORDER BY id LIMIT 1');
+    const shared = (await db.query("INSERT INTO users (full_name, email, password_hash, role) VALUES ('مصطفى', ?, 'unused', 'provider')",
+      [`shared-${crypto.randomBytes(4).toString("hex")}@ayk-test.local`])).insertId;
+    await db.query("INSERT INTO provider_profiles (user_id, business_name, category_id, rating_avg, rating_count) VALUES (?, 'مؤسسة الإتقان', ?, 4.8, 12)", [shared, cat.id]);
+    const card = await page(`/providers/${shared}`);
+    assert.equal(card.status, 200);
+    assert.ok(card.html.includes(`<title>مؤسسة الإتقان — ${cat.name_ar} | أي خدمة</title>`), 'business name and profession in the title');
+    assert.ok(card.html.includes('⭐ 4.8 (12 تقييم)'), 'rating in the description');
+    assert.match(card.html, /<meta name="robots" content="noindex" \/>/);
+    assert.ok(!(await (await fetch(`${base}/seo/sitemap.xml`)).text()).includes(`/providers/${shared}`), 'not in the sitemap');
+    await db.query('UPDATE users SET is_blocked = 1 WHERE id = ?', [shared]);
+    const hidden = await page(`/providers/${shared}`);
+    assert.ok(!hidden.html.includes('مؤسسة الإتقان'), 'a blocked provider is not named');
+    assert.match(hidden.html, /noindex/);
+    await db.query("UPDATE settings SET setting_value = 'false' WHERE setting_key = 'verify_allow_guest_browsing'");
+    await db.query('UPDATE users SET is_blocked = 0 WHERE id = ?', [shared]);
+    await new Promise(r => setTimeout(r, 5200)); // the settings snapshot lasts 5 seconds
+    assert.ok(!(await page(`/providers/${shared}`)).html.includes('مؤسسة الإتقان'), 'guests may not browse: no name in the preview');
+    await db.query("UPDATE settings SET setting_value = 'true' WHERE setting_key = 'verify_allow_guest_browsing'");
+    await db.query('DELETE FROM users WHERE id = ?', [shared]);
     require('fs').unlinkSync(shell);
   });
   test('search-engine text is escaped', () => {

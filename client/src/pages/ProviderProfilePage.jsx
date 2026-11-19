@@ -12,6 +12,7 @@ import BaseTileLayer from '../components/map/BaseTileLayer';
 import Avatar from '../components/common/Avatar';
 import AvailabilityBadge, { workingSummary } from '../components/common/AvailabilityBadge';
 import CallButtons from '../components/calls/CallButtons';
+import ShareProviderLink from '../components/providers/ShareProviderLink';
 import { LoadingState, ErrorState } from '../components/common/Spinner';
 import { directionsUrl } from '../utils/directions';
 import { localizedName } from '../utils/localize';
@@ -72,6 +73,8 @@ export default function ProviderProfilePage() {
         <h2 className="font-bold text-fg">{t('calls.contact_title')}</h2>
         <CallButtons userId={user.id} />
       </div>
+
+      <ShareProviderLink providerId={user.id} name={provider.business_name || user.full_name} />
 
       {provider.bio && <div className="card p-4 text-[13.5px] text-fg whitespace-pre-line">{provider.bio}</div>}
 

@@ -104,7 +104,7 @@
 	# from the API so search engines index each service and category.
 	@seo {
 		method GET HEAD
-		path / /services /services/* /guide /providers/map /privacy /terms
+		path / /services /services/* /guide /providers/map /providers/* /privacy /terms
 	}
 	handle @seo {
 		header Cache-Control "no-cache, no-store, must-revalidate"

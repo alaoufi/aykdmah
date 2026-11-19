@@ -197,6 +197,32 @@ function withSite(page, data) {
   return { ...page, ld, verification: data.verification };
 }
 
+// A provider's public page (AYK-312), the link a provider shares on WhatsApp and elsewhere. Only
+// what the page already shows to guests: the name, profession, city and rating. Link previews read
+// the title and description; the page is not offered to search engines (noindex, not in the sitemap).
+async function providerPage(id) {
+  const policy = await require('../middleware/verificationPolicy').marketplacePolicy();
+  if (!policy.allow_guest_browsing) return null;
+  const row = (await query(`SELECT u.id, u.full_name, pp.business_name, pp.rating_avg, pp.rating_count,
+      c.name_ar AS city_name, cat.name_ar AS category_name
+    FROM users u JOIN provider_profiles pp ON pp.user_id = u.id
+    LEFT JOIN cities c ON c.id = u.city_id LEFT JOIN categories cat ON cat.id = pp.category_id
+    WHERE u.id = ? AND u.role = 'provider' AND u.deleted_at IS NULL AND u.is_active = 1 AND u.is_blocked = 0`, [id]))[0];
+  if (!row) return null;
+  const name = String(row.business_name || row.full_name || '').trim() || 'مقدم خدمة';
+  const what = [row.category_name, row.city_name].filter(Boolean).join(' — ');
+  const count = Number(row.rating_count) || 0;
+  const rating = count ? `⭐ ${Number(row.rating_avg || 0).toFixed(1)} (${count} تقييم)` : '';
+  const path = `/providers/${row.id}`;
+  return {
+    title: `${name}${row.category_name ? ` — ${row.category_name}` : ''} | ${NAME}`,
+    description: [what, rating, `تواصل معه مباشرة بالمحادثة والمكالمة في ${NAME}، أو أضفه إلى «دليلي».`].filter(Boolean).join(' · '),
+    path, noindex: true,
+    ld: [breadcrumbs([{ name: NAME, path: '/' }, { name, path }])],
+    body: `<h1>${esc(name)}</h1>${what ? `<p>${esc(what)}</p>` : ''}${rating ? `<p>${esc(rating)}</p>` : ''}<p>${link(path, `افتح صفحة ${name} في ${NAME}`)}</p>`,
+  };
+}
+
 // Returns { status, page } for a public path, or null when the path is not one of them.
 async function pageFor(pathname) {
   const clean = (pathname || '/').replace(/\/+$/, '') || '/';
@@ -211,6 +237,8 @@ async function pageFor(pathname) {
   if (match) { const page = cityCategoryPage(data, match[1], match[2]); return page ? { status: 200, page: withSite(page, data) } : { status: 404, page: null }; }
   match = clean.match(/^\/services\/category\/([A-Za-z0-9_-]{1,100})$/);
   if (match) { const page = categoryPage(data, match[1]); return page ? { status: 200, page: withSite(page, data) } : { status: 404, page: null }; }
+  match = clean.match(/^\/providers\/(\d{1,9})$/);
+  if (match) { const page = await providerPage(match[1]); return page ? { status: 200, page: withSite(page, data) } : null; }
   match = clean.match(/^\/services\/(\d{1,9})$/);
   if (match) { const page = servicePage(data, match[1]); return page ? { status: 200, page: withSite(page, data) } : { status: 404, page: null }; }
   return null;
@@ -232,7 +260,7 @@ function render(page) {
     .replace(/<meta name="description" content="[^"]*"\s*\/?>/, `<meta name="description" content="${esc(page.description)}" />`)
     .replace(/<meta property="og:title" content="[^"]*"\s*\/?>/, `<meta property="og:title" content="${esc(page.title)}" />`)
     .replace(/<meta property="og:description" content="[^"]*"\s*\/?>/, `<meta property="og:description" content="${esc(page.description)}" />`)
-    .replace('</head>', `${verificationTags(page.verification)}    <link rel="canonical" href="${esc(url)}" />\n    <meta property="og:url" content="${esc(url)}" />\n    ${page.ld.map(jsonLd).join('\n    ')}\n  </head>`)
+    .replace('</head>', `${page.noindex ? '    <meta name="robots" content="noindex" />\n' : ''}${verificationTags(page.verification)}    <link rel="canonical" href="${esc(url)}" />\n    <meta property="og:url" content="${esc(url)}" />\n    ${page.ld.map(jsonLd).join('\n    ')}\n  </head>`)
     .replace('<div id="root"></div>', `<div id="root"><main class="seo-static" dir="rtl" style="max-width:56rem;margin:0 auto;padding:1rem;font-family:Cairo,Tahoma,sans-serif;line-height:1.9">${page.body}</main></div>`);
   return html;
 }

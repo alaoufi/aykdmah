@@ -2813,5 +2813,16 @@
         "body": "Sizi bir hizmet veren davet ettiyse «{{coupon}}» düğmesine dokunup numarasını yazın; bu isteğe bağlıdır. Sonra «{{create}}» düğmesine dokunun; böylece «{{terms}}» metnini kabul etmiş olursunuz, düğmenin üstündeki bağlantıdan okuyabilirsiniz. Kod içeren bir mesaj gelirse kodu yazın. Düğme, zorunlu alanlar tamamlanmadan çalışmaz; altındaki satır neyin eksik olduğunu söyler."
       }
     }
+  },
+  "share_provider": {
+    "title": "Bu hizmet sağlayıcının sayfasını paylaş",
+    "my_title": "Sayfanızın bağlantısı",
+    "my_hint": "WhatsApp ve sosyal medyada müşterilerinizle paylaşın. Açan herkes sayfanızı görür ve sizinle iletişime geçebilir ya da sizi daha sonra bulmak için \"Rehberim\"e ekleyebilir.",
+    "share": "Paylaş",
+    "copy": "Bağlantıyı kopyala",
+    "copied": "Bağlantı kopyalandı",
+    "whatsapp": "WhatsApp",
+    "view": "Sayfamı görüntüle",
+    "message": "Ay Khidma'da {{name}}"
   }
 }

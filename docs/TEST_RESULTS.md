@@ -1135,3 +1135,23 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
     - `client/src/services/api.js` error lists gained the new wording in all 11 languages (482 entries; the old ones stay).
   - New test: an old stored English price-offer notification still shows in Arabic.
   - Client tests 165 pass, 0 fail; server 82 pass; `i18n:check` OK; `vite build` OK.
+
+## 2026-11-19 — AYK-312: a provider's page link, to share or keep in «دليلي»
+- The provider's page (`/providers/<id>`) gained a «شارك صفحة مقدم الخدمة» card:
+  - the link, «مشاركة» (the phone's share sheet, or copying where it has none), «نسخ الرابط», «واتساب»;
+  - «أضف إلى دليلي» / «في دليلي». A guest is sent to sign in first.
+- The provider's dashboard gained «رابط صفحتك»: the same link, share, copy, WhatsApp and «عرض صفحتي».
+- Texts in 11 languages (`share_provider.*`).
+- Link preview: `/providers/<id>` gets its own title and description, with name, profession, city and rating.
+  - It is `noindex` and not in the sitemap.
+  - Not shown for a blocked or inactive provider, or when guest browsing is off.
+  - Needs the site rules (`deploy/caddy/aykdmh-site.Caddyfile`, `/providers/*`) applied with `update-site-rules.sh`. Until then the link works, with the general site preview.
+- Tests (local PostgreSQL 16):
+  - integration: 275 pass, 0 fail, including the new provider-preview checks (title, rating, noindex, not in the sitemap, blocked, guest browsing off);
+  - client: 165 pass; server: 82 pass; `i18n:check` (2565 keys); `vite build` OK.
+- Browser check (Chromium, phone size, local copy of the site):
+  - as a guest: the link is shown, «نسخ الرابط» copies it, and «أضف إلى دليلي» opens sign-in;
+  - signed in as a requester: «أضف إلى دليلي» saves («حُفظ «مؤسسة سعد للكهرباء» في دليلك»), and the provider appears in «دليلي»;
+  - as the provider: the dashboard shows «رابط صفحتك» without the add button;
+  - no page errors.
+- Not tried: the phone share sheet itself (no phone here), and the WhatsApp preview before the site rules are applied.

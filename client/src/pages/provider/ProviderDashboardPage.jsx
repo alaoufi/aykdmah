@@ -10,10 +10,11 @@ import { OFFER_STATUS } from '../../utils/constants';
 import useLiveRefresh from '../../hooks/useLiveRefresh';
 import AdSlot from '../../components/ads/AdSlot';
 import ProblemNotice from '../../components/common/ProblemNotice';
+import ShareProviderLink from '../../components/providers/ShareProviderLink';
 
 export default function ProviderDashboardPage() {
   const { t } = useTranslation();
-  const { provider } = useAuth();
+  const { user, provider } = useAuth();
   const [nearby, setNearby] = useState([]);
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -89,6 +90,8 @@ export default function ProviderDashboardPage() {
           )}
       </div>
 
+      {/* The provider's own public page link, to share or for others to keep in «دليلي» (AYK-312). */}
+      {user?.id && <div className="mt-4"><ShareProviderLink providerId={user.id} name={provider?.business_name || user.full_name} mine /></div>}
       <AdSlot placement="home_middle" className="mt-4" />
       <AdSlot placement="home_bottom" className="mt-4" />
       <style>{`

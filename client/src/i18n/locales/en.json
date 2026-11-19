@@ -2813,5 +2813,16 @@
         "body": "If a service provider invited you, tap «{{coupon}}» and enter their number; this is optional. Then tap «{{create}}»: doing so accepts «{{terms}}», which you can read from the link above the button. If you receive a text message with a code, enter it. The button works only when the required fields are complete, and the line under it tells you what is missing."
       }
     }
+  },
+  "share_provider": {
+    "title": "Share this provider's page",
+    "my_title": "Your page link",
+    "my_hint": "Share it with your customers on WhatsApp and social media. Anyone who opens it sees your page and can contact you, or add you to \"My directory\" to find you later.",
+    "share": "Share",
+    "copy": "Copy link",
+    "copied": "Link copied",
+    "whatsapp": "WhatsApp",
+    "view": "View my page",
+    "message": "{{name}} on Ay Khidma"
   }
 }

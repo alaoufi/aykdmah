@@ -2813,5 +2813,16 @@
         "body": "Kung inimbita ka ng isang provider, pindutin ang «{{coupon}}» at isulat ang numero niya; opsyonal ito. Saka pindutin ang «{{create}}», at sa paggawa nito ay sumasang-ayon ka sa «{{terms}}», na mababasa mo sa link sa itaas ng button. Kung may dumating na SMS na may code, isulat ito. Hindi gagana ang button hangga't hindi kumpleto ang mga kailangang field, at sinasabi ng linya sa ilalim nito kung ano ang kulang."
       }
     }
+  },
+  "share_provider": {
+    "title": "Ibahagi ang page ng service provider na ito",
+    "my_title": "Link ng iyong page",
+    "my_hint": "Ibahagi ito sa iyong mga customer sa WhatsApp at social media. Ang sinumang magbukas nito ay makikita ang iyong page at makakaugnayan ka, o maidaragdag ka sa \"Aking direktoryo\" para mahanap ka sa susunod.",
+    "share": "Ibahagi",
+    "copy": "Kopyahin ang link",
+    "copied": "Nakopya ang link",
+    "whatsapp": "WhatsApp",
+    "view": "Tingnan ang aking page",
+    "message": "{{name}} sa Ay Khidma"
   }
 }
