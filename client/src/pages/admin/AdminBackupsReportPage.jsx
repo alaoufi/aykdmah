@@ -100,6 +100,42 @@ export default function AdminBackupsReportPage() {
           )}
         </div>
       )}
+      <BackupsGuide t={t} />
+    </div>
+  );
+}
+
+// What is inside each backup and how backups are taken (owner's request, AYK-299): the list above
+// is dates and sizes only; this says in words what each one holds and what the owner must keep.
+function BackupsGuide({ t }) {
+  const items = t('backups_report.guide.items', { returnObjects: true });
+  const steps = t('backups_report.guide.auto_steps', { returnObjects: true });
+  return (
+    <div className="grid gap-4 lg:grid-cols-2 mt-4" data-testid="backups-guide">
+      <section className="card p-4">
+        <h2 className="text-ink font-extrabold text-lg mt-0 mb-1">{t('backups_report.guide.contents_title')}</h2>
+        <p className="text-slate-500 text-[13px] mt-0 mb-3">{t('backups_report.guide.contents_hint')}</p>
+        <ul className="list-none m-0 p-0 grid gap-2.5">
+          {Array.isArray(items) && items.map(item => (
+            <li key={item.title} className="flex gap-3 items-start">
+              <span className="text-xl leading-none mt-0.5" aria-hidden="true">{item.icon}</span>
+              <div><div className="font-bold text-ink text-[14px]">{item.title}</div><div className="text-slate-600 text-[13px] leading-relaxed">{item.body}</div></div>
+            </li>
+          ))}
+        </ul>
+      </section>
+      <div className="grid gap-4 content-start">
+        <section className="card p-4">
+          <h2 className="text-ink font-extrabold text-lg mt-0 mb-3">{t('backups_report.guide.auto_title')}</h2>
+          <ol className="m-0 ps-5 grid gap-2 text-[13.5px] text-slate-700 leading-relaxed">
+            {Array.isArray(steps) && steps.map(step => <li key={step}>{step}</li>)}
+          </ol>
+        </section>
+        <section className="card p-4 border-2 border-amber-300 bg-amber-50">
+          <h2 className="text-amber-800 font-extrabold text-lg mt-0 mb-2">🔑 {t('backups_report.guide.keep_title')}</h2>
+          <p className="text-amber-900 text-[13.5px] leading-relaxed m-0">{t('backups_report.guide.keep_body')}</p>
+        </section>
+      </div>
     </div>
   );
 }

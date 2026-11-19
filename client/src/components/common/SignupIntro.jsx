@@ -20,7 +20,7 @@ export function signupLabels(t) {
     client: t('auth.role_client'), provider: t('auth.role_provider'), both: t('auth.role_both'),
     profile: t('nav.profile'), signin: t('auth.login_button'), forgot: t('auth.forgot_password'),
     map: t('auth.pick_on_map'), all: t('provider.coverage_all'), coupon: t('auth.have_coupon'),
-    create: t('auth.register_button'), terms: t('auth.terms_link'),
+    create: t('auth.register_button'), terms: t('auth.terms_link'), extras: t('auth.provider_extras'),
   };
 }
 

@@ -62,6 +62,9 @@ export default function RegisterPage() {
   const [couponOpen, setCouponOpen] = useState(Boolean(params.get('ref')));
   const [termsOpen, setTermsOpen] = useState(false);
   const [coverageCount, setCoverageCount] = useState(null);
+  // Working days, hours and where the work is done are optional at sign-up (AYK-298): the defaults
+  // (every day, all day, the provider goes to the customer) stand until changed here or in «ملفي».
+  const [extrasOpen, setExtrasOpen] = useState(false);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   // '' | 'checking' | 'available' | 'taken' — checked when the phone field loses focus.
@@ -347,6 +350,14 @@ export default function RegisterPage() {
           <ProfessionsPicker serviceIds={form.service_ids} onChange={ids => update('service_ids', ids)} error={fieldErrors.service_ids} />
           <CoverageDistrictsPicker cityId={place.city_id} value={form.coverage} onChange={ids => update('coverage', ids)}
             error={fieldErrors.coverage} onDistrictsLoaded={setCoverageCount} />
+          <button type="button" onClick={() => setExtrasOpen(v => !v)} aria-expanded={extrasOpen || Boolean(fieldErrors.work_time || fieldErrors.venue_point)}
+            className="w-full text-start rounded-card border border-border bg-surface-alt px-3 py-2.5" data-testid="register-extras-toggle">
+            <span className="flex items-center justify-between gap-2 font-semibold text-fg text-[14px]">
+              <span>⚙️ {t('auth.provider_extras')}</span><span aria-hidden="true">{extrasOpen ? '▴' : '▾'}</span>
+            </span>
+            <span className="block text-[12px] text-fg-muted mt-0.5">{t('auth.provider_extras_hint', { profile: t('nav.profile') })}</span>
+          </button>
+          {(extrasOpen || fieldErrors.work_time || fieldErrors.venue_point) && <>
           <fieldset className="border-0 p-0 m-0 min-w-0" data-testid="register-work-time">
             <legend className="form-label">🗓️ {t('work.register_title')}</legend>
             <p className="text-xs text-muted mb-2">{t('work.register_hint')}</p>
@@ -371,6 +382,7 @@ export default function RegisterPage() {
             {venuePoint && <div className="text-[12px] text-fg-muted mt-1">✓ {t('provider.venue_point_set')} <span dir="ltr">{venuePoint.lat.toFixed(5)}, {venuePoint.lon.toFixed(5)}</span></div>}
             {fieldErrors.venue_point && <div className="form-error">{fieldErrors.venue_point}</div>}
           </div>}
+          </>}
         </>}
 
         {couponOpen ? <Input label={t('auth.invite_label')} hint={t('auth.invite_hint')} dir="ltr" maxLength={12}

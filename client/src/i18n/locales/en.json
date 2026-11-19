@@ -319,7 +319,9 @@
     "forgot_login_info": "Forgot your sign-in details?",
     "registration_success": "Account created successfully",
     "registration_login": "Click here to sign in",
-    "password_advice": "For better protection, use at least 6 characters"
+    "password_advice": "For better protection, use at least 6 characters",
+    "provider_extras": "Working hours and where you work (optional)",
+    "provider_extras_hint": "If you leave them: you work every day at any hour, and you go to the customer. You can change them any time in «{{profile}}»."
   },
   "request": {
     "create_title": "Create a new request",
@@ -2803,8 +2805,8 @@
         "body": "Choose one or more professions, such as plumber or electrician. All the services of a profession are selected for you, so untick those you do not offer. Then choose the districts you serve in your city, or tap «{{all}}». Clients do not see this step."
       },
       "schedule": {
-        "title": "Service provider: your hours and where you work",
-        "body": "Choose your working days and hours. Then say where the service takes place: you go to the customer, the customer comes to you, or both. If customers come to you, mark your place on the map."
+        "title": "Service provider: your hours and where you work (optional)",
+        "body": "This step is optional. If you skip it, you are available every day at any hour and you go to the customer. To change it, tap «{{extras}}», choose your days and hours, then say whether you go to the customer, the customer comes to you, or both; if customers come to you, mark your place on the map. You can change it later in «{{profile}}»."
       },
       "finish": {
         "title": "Create the account",

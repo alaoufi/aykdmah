@@ -952,3 +952,12 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - **الإدارة بالعربية فقط (AYK-295):** لوحة الإدارة وصفحة دخولها تعرضان العربية دائمًا، وأزيل مبدّل اللغة منها، وتُعاد لغة الزائر للموقع عند الخروج دون تغيير المحفوظ.
 - **تدقيق الترجمة (AYK-297):** لا مفاتيح ناقصة ولا زائدة في اللغات الإحدى عشرة، ولا قيم فارغة، والمتغيرات متطابقة (عدا صيغ المثنى العربية المقصودة). أُصلح: «ملفي» بالعربية داخل نصّي النغمات في 8 لغات، و15 نصًا فلبينيًا كان بالإنجليزية، و«Previous Mga» و«Ang parehong» و«Maglikha». وكانت نصوص التسجيل القديمة في الدليل فيها أخطاء آلية (التركية «isim seçeneğidir» و«Forgot password?» بالإنجليزية في التركية والإندونيسية)، فاستُبدلت بالنص الجديد المكتوب لكل لغة.
 - الواجهة 164/164، والبناء ناجح. لا تغيير في الخادم منذ آخر نشر، فالنشر لا يعيد تشغيل الـ API.
+
+## 2026-11-19 — AYK-298/299: easier sign-up, sign-up translations, backups explained
+- `node --test client/tests/*.test.*`: 164 pass, 0 fail.
+- `vite build`: succeeds.
+- Browser (Playwright, Pixel 7, built site): on the sign-up page as a provider, hours and venue are hidden by default and appear after pressing «أوقات العمل ومكان الخدمة (اختياري)» (checked in Arabic).
+- The 100 sign-up page texts were rewritten by hand in tr, id, fil, ur, hi, bn, ne, ml, am (98 keys each, placeholders checked by script), plus the service-mode texts in tr, id, fil, ne, ml, am.
+- The 66 guide images were regenerated from the built site with the new texts; the schedule crop was checked visually (ar, tr, am).
+- The backups page (with sample data, as main admin) shows «ماذا تحوي كل نسخة؟», «كيف تؤخذ النسخ تلقائيًا؟», «ما الذي عليك حفظه أنت؟». Not tested against the live R2.
+- Not tested: a native speaker review of the new translations; a real sign-up on the live site.
