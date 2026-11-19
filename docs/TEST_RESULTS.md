@@ -1066,3 +1066,10 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - `tr -d '\r'` on both secrets.
   - `ssh-keygen -y` checks the key first, with a clear error.
   - Not tested locally: ssh-keygen is not installed in this environment.
+- The key in `AYKDMH_DEPLOY_KEY` failed `ssh-keygen -y` even after the line-ending cleanup. The owner re-copied it with `Get-Content -Raw … | Set-Clipboard`, without Notepad.
+- **Run 44526737017, attempt 2: success.**
+  - checks passed;
+  - the deploy step ran on the server (12:52:58 to 12:57:04);
+  - the live check passed;
+  - the site went from 1.1.53 (90f47cc) to **1.1.54 (790fa95)**.
+- Watched from outside every ~10 s during the deploy: API 200 throughout, except one probe at 12:57:00 that got no reply within its 8-second limit (`000`). That is the request being held while the API restarted (`lb_try_duration`). A user would have seen a slow response, not an error page.
