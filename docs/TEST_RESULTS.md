@@ -1261,3 +1261,11 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - phone: bar 57 px, logo 46 px from 5 px down;
   - computer: bar 73 px, logo 60 px from 3 px down;
   - screenshots match.
+
+## 2026-11-19 — a deploy run hung in the checks (GitHub run 44594158071, cancelled)
+- `npm test` stopped at `admissionQueue.test.js`. The first test gave five requests a fixed 30 ms to reach a local server; on the slow shared runner none had arrived (0 !== 2). The failed test left the server and its connections open, so the run never ended.
+- An old test, not touched by today's changes. It passed in every earlier run.
+- Fix (test only):
+  - the test waits until the requests have arrived (at most 5 s) instead of a fixed 30 ms;
+  - each test server is closed after the tests, connections included, even after a failure.
+- `admissionQueue.test.js` 3 runs × 3 pass; server tests 84 pass.

@@ -16,15 +16,23 @@ async function serve(options) {
   const server = app.listen(0);
   await new Promise(r => server.once('listening', r));
   const base = `http://127.0.0.1:${server.address().port}/api`;
-  return { gate, holds, base, close: () => new Promise(r => server.close(r)) };
+  // Always closed, even after a failed check, so a failure never leaves the test run hanging.
+  test.after(() => { server.closeAllConnections?.(); server.close(); });
+  return { gate, holds, base, close: () => new Promise(r => { server.closeAllConnections?.(); server.close(r); }) };
 }
 const tick = (ms = 30) => new Promise(r => setTimeout(r, ms));
+// Waits for the requests to reach the server instead of a fixed 30 ms, which was too short on a
+// slow shared CI machine (the deploy run of 2026-11-19 failed and then hung there).
+async function until(check, ms = 5000) {
+  const end = Date.now() + ms;
+  while (!check() && Date.now() < end) await tick(10);
+}
 
 test('over the limit the rest wait in line, in order, and are served as places free up', async () => {
   const s = await serve({ maxActive: 2, maxWaiting: 10, maxWaitMs: 5000 });
   const order = [];
   const calls = [1, 2, 3, 4, 5].map(n => fetch(`${s.base}/slow/${n}`).then(r => r.json()).then(b => { order.push(b.n); return b; }));
-  await tick();
+  await until(() => s.holds.length === 2 && s.gate.snapshot().waiting === 3);
   assert.equal(s.holds.length, 2);
   assert.deepEqual({ active: s.gate.snapshot().active, waiting: s.gate.snapshot().waiting }, { active: 2, waiting: 3 });
   assert.equal((await fetch(`${s.base}/health`)).status, 200); // never waits
