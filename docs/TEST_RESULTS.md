@@ -1033,3 +1033,8 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - `submit.mjs`, dry run, same run, job submit: found build 1.0.2 (4) VALID, then stopped with «Version 1.0.2 is READY_FOR_SALE: nothing to submit».
 - Not tested: a real submission. That needs a new version, `"dry_run": false` and the version repeated in `confirm`, and the owner approves each one.
 - ES256 signature checked locally against the public key.
+
+## 2026-11-19 — AYK-305: first deploy from GitHub
+- The owner ran `deploy/ci-setup.sh` on the server: `OK: the GitHub deploy key is ready`.
+- Secrets added: `AYKDMH_DEPLOY_KEY` and `AYKDMH_HOST_KEY`.
+- This commit carries `[deploy]` to run the first real deploy from GitHub. The result is recorded in the next entry.
