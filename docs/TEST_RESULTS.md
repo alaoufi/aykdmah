@@ -1208,3 +1208,11 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - typing «+966 50 765 4321» in «دليلي» was refused with «هذا الرقم محفوظ في دليلك باسم «مؤسسة سعد للكهرباء».»;
   - no page errors.
   - Saving the whole provider form failed for the test provider only: it was made directly in the database with no city or districts, so the existing coverage rule refused it (`coverage_district_ids` empty). The same request without that field saved the numbers.
+
+## 2026-11-19 — AYK-315: the update button did not open the Play Store app
+- Reported by the owner: on the update screen (app older than the minimum, 1.3.8), the button opened the Google Play web page inside the app, and «الفتح في تطبيق متجر Play» did nothing.
+- Fix: on Android the button now uses an `intent://details?id=sa.aykdmh.app#Intent;scheme=market;package=com.android.vending;…` link, which opens the Play Store app itself. `S.browser_fallback_url` keeps the same web page when the store app is missing.
+  - The id is taken from the admin's Play link and checked; a link without a valid id stays the web page.
+  - iPhone is unchanged.
+- Tests: client 166 pass (`nativeAppStartup.test.mjs` updated for the new link and the invalid-id case).
+- Not tried here: tapping it on a real phone (no phone in this environment). The same `intent://` way already opens the native call screen in the app.

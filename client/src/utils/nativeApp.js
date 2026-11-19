@@ -86,5 +86,15 @@ export function storeUpdateNeeded(launch, settings, userAgent) {
   const minimum = String(settings?.[`app_min_version_${platform}`] || '').trim();
   const url = storeLink(settings?.[platform === 'ios' ? 'app_store_url' : 'google_play_url'], platform);
   if (!/^[0-9][0-9.]{0,15}$/.test(minimum) || !url || atLeast(launch.version, minimum)) return null;
-  return { version: minimum, url, store: true };
+  return { version: minimum, url: platform === 'android' ? playStoreAppLink(url) : url, store: true };
+}
+
+// AYK-315: on Android the button opens the Play Store app itself. The Play web page opened inside the
+// app could not hand over to the store («الفتح في تطبيق متجر Play» did nothing). Without the store
+// app, the phone falls back to the same web page.
+export function playStoreAppLink(url) {
+  let id = '';
+  try { id = new URL(url).searchParams.get('id') || ''; } catch (_) { id = ''; }
+  if (!/^[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+$/.test(id)) return url;
+  return `intent://details?id=${id}#Intent;scheme=market;package=com.android.vending;S.browser_fallback_url=${encodeURIComponent(url)};end`;
 }
