@@ -9,9 +9,7 @@ import StarRating from '../components/reviews/StarRating';
 import Input from '../components/common/Input';
 import Button from '../components/common/Button';
 
-// Two sets of criteria depending on direction
-const PROVIDER_CRITERIA = ['quality', 'professionalism', 'speed', 'communication', 'accuracy'];
-const REQUESTER_CRITERIA = ['communication', 'commitment', 'respect', 'payment', 'clarity'];
+// AYK-317 (the owner's decision): a rating is five stars and an opinion, nothing else, as is usual.
 
 export default function ReviewPage() {
   const { t, i18n } = useTranslation();
@@ -20,9 +18,7 @@ export default function ReviewPage() {
 
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
-  const [files, setFiles] = useState([]);
   const [request, setRequest] = useState(null);
-  const [criteria, setCriteria] = useState({});
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   // AYK-313: after sending, say so on this page («تم نشر تقييمك») instead of leaving silently.
@@ -38,14 +34,10 @@ export default function ReviewPage() {
   const isClient = request && user && request.client_id === user.id;
   const isProvider = request && user && request.assigned_provider_id === user.id;
   const direction = isClient ? 'on_provider' : isProvider ? 'on_requester' : null;
-  const criteriaList = direction === 'on_provider' ? PROVIDER_CRITERIA
-                      : direction === 'on_requester' ? REQUESTER_CRITERIA : [];
 
   const targetName = isClient
     ? (request?.assigned_provider_name || request?.provider_name)
     : (request?.client_name || t('auth.role_client'));
-
-  const setCriterion = (key, val) => setCriteria((c) => ({ ...c, [key]: val }));
 
   const submit = async (e) => {
     e.preventDefault();
@@ -57,10 +49,6 @@ export default function ReviewPage() {
       fd.append('rating', rating);
       fd.append('comment', comment);
       fd.append('original_language', (i18n.resolvedLanguage || 'ar').toLowerCase().split(/[-_]/)[0]);
-      if (Object.keys(criteria).length) {
-        fd.append('criteria_ratings', JSON.stringify(criteria));
-      }
-      files.forEach((f) => fd.append('images', f));
       await submitReview(fd);
       setDone(true);
     } catch (err) {
@@ -112,20 +100,6 @@ export default function ReviewPage() {
           </div>
         </div>
 
-        {criteriaList.length > 0 && (
-          <div className="bg-slate-50 rounded-card p-4 space-y-2">
-            <div className="text-[12.5px] font-bold text-slate-700 mb-1">
-              {t('review.detailed_rating')} <span className="text-slate-400 font-normal">({t('common.optional')})</span>
-            </div>
-            {criteriaList.map((c) => (
-              <div key={c} className="flex items-center justify-between gap-3">
-                <span className="text-[13.5px] text-slate-700">{t(`review.criteria.${c}`)}</span>
-                <StarRating value={criteria[c] || 0} onChange={(v) => setCriterion(c, v)} size={20} />
-              </div>
-            ))}
-          </div>
-        )}
-
         <Input
           as="textarea"
           label={t('review.write_review')}
@@ -133,19 +107,6 @@ export default function ReviewPage() {
           value={comment}
           onChange={(e) => setComment(e.target.value)}
         />
-
-        {direction === 'on_provider' && (
-          <div>
-            <label className="block text-[12.5px] font-bold text-slate-600 mb-1">
-              {t('request.attachments')} <span className="text-slate-400 font-normal">({t('common.optional')})</span>
-            </label>
-            <input
-              type="file" multiple accept="image/*"
-              onChange={(e) => setFiles(Array.from(e.target.files || []).slice(0, 4))}
-              className="text-sm"
-            />
-          </div>
-        )}
 
         {error && (
           <div ref={errorRef} role="alert" data-testid="review-error"

@@ -1231,3 +1231,17 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - the header logo has a 128 px file (15 KB instead of 44 KB) for phones that show it small (`srcset`).
 - Tests: client 166 pass; `npm run build`; `tests/check-deploy.sh` 22 ok.
 - Not measured here: the phone's own start of the app (Android opening the app and Chrome). After deploying, the live site is measured again below.
+
+## 2026-11-19 — AYK-317: rating is five stars and an opinion; «مقدم الخدمة» everywhere
+- The owner's decision:
+  - the rating page has only the five stars and a text box, «اكتب رأيك»;
+  - the detailed criteria and the attachments are removed from the form.
+  - Reviews made before keep showing their details. The server still accepts them, so older apps do not fail.
+- Terms (Arabic):
+  - «مزود الخدمة / المزوّد / مزودون», meaning the person who provides the service, became «مقدم الخدمة»: the rating title, its hint, the dispute rating options, the admin labels, and the server message `no_assigned_provider`;
+  - the requester side became «طالب الخدمة», the role name in sign-up: «تقييم طالب الخدمة», «التقييم لطالب الخدمة فقط»;
+  - «مزود» is kept only where it means a technical company (maps, translation, SMS and Nafath gateways) in the admin settings;
+  - the wallet guide now says «عند تفعيل خدمة الرسائل النصية»;
+  - English and Urdu rating titles now name the service provider the same way as the sign-up role.
+- Browser check (local site): one row of stars, no file input. 4 stars and a comment saved («✅ … published»); the review has no criteria and no images.
+- Tests: client 166, server 84 pass; `i18n:check` 2577 keys.

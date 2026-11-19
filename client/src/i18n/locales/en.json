@@ -762,7 +762,7 @@
     "coverage_required": "Choose at least one neighborhood."
   },
   "review": {
-    "rate_provider": "Rate provider",
+    "rate_provider": "Rate the service provider",
     "rate_requester": "Rate client",
     "rate_provider_hint": "Your rating helps other clients choose",
     "rate_requester_hint": "Your rating helps other providers know this client",

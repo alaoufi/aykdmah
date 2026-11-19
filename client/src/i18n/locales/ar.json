@@ -762,13 +762,13 @@
     "coverage_required": "اختر حيًا واحدًا على الأقل."
   },
   "review": {
-    "rate_provider": "تقييم مزود الخدمة",
-    "rate_requester": "تقييم العميل",
+    "rate_provider": "تقييم مقدم الخدمة",
+    "rate_requester": "تقييم طالب الخدمة",
     "rate_provider_hint": "تقييمك يساعد عملاء آخرين على الاختيار",
-    "rate_requester_hint": "تقييمك يساعد مزوّدين آخرين على معرفة هذا العميل",
+    "rate_requester_hint": "تقييمك يساعد مقدمي الخدمة الآخرين على معرفة طالب الخدمة هذا",
     "overall_rating": "التقييم العام",
     "detailed_rating": "تقييم تفصيلي",
-    "write_review": "اكتب تجربتك",
+    "write_review": "اكتب رأيك",
     "review_placeholder": "صف تجربتك بصدق…",
     "submit_review": "إرسال التقييم",
     "verified": "موثّق",
@@ -834,8 +834,8 @@
     "frozen": "الطلب مجمّد",
     "chat_locked": "المحادثة مقفلة",
     "ratings_allowed_both": "التقييم مسموح للطرفين",
-    "ratings_allowed_client_only": "التقييم للعميل فقط",
-    "ratings_allowed_provider_only": "التقييم للمزوّد فقط",
+    "ratings_allowed_client_only": "التقييم لطالب الخدمة فقط",
+    "ratings_allowed_provider_only": "التقييم لمقدم الخدمة فقط",
     "ratings_allowed_none": "التقييم معطّل",
     "resolution": "ملخّص الحل",
     "internal_note": "ملاحظة داخلية",
@@ -1004,7 +1004,7 @@
     },
     "perm": {
       "dashboard": "عرض لوحة التحكم",
-      "users": "إدارة المستخدمين (عملاء/مزودون)",
+      "users": "إدارة المستخدمين (طالبو الخدمة/مقدمو الخدمة)",
       "verifications": "مراجعة طلبات التوثيق",
       "admins": "إدارة المشرفين وصلاحياتهم",
       "requests": "إدارة الطلبات",
@@ -1038,9 +1038,9 @@
     "confirm_block_body": "هل أنت متأكد من حظر {{name}}؟",
     "confirm_action": "تأكيد",
     "request_actions": "إجراءات الطلب",
-    "assign_request": "تعيين مزود",
+    "assign_request": "تعيين مقدم خدمة",
     "cancel_request": "إلغاء الطلب",
-    "select_provider": "اختر مزود الخدمة",
+    "select_provider": "اختر مقدم الخدمة",
     "filter_urgent": "العاجلة فقط",
     "is_urgent": "عاجل",
     "auto_translate_hint": "سيُترجَم الاسم تلقائياً إلى جميع لغات المنصة عند الحفظ، ويُولَّد slug فريد من الترجمة الإنجليزية.",
@@ -1116,7 +1116,7 @@
     "review_rating": "التقييم",
     "review_comment": "التعليق",
     "review_reviewer": "المُقيِّم",
-    "review_provider": "المزود",
+    "review_provider": "مقدم الخدمة",
     "log_user": "المستخدم",
     "log_action": "النشاط",
     "log_target": "العنصر",
@@ -1801,7 +1801,7 @@
       },
       "security": {
         "title": "الأمان",
-        "body": "كل عملية تخصم من رصيدك تتطلب كلمة المرور، ولا يمكن صرف المبلغ نفسه مرتين. سيُضاف رمز تحقق برسالة نصية عند تفعيل مزود الرسائل."
+        "body": "كل عملية تخصم من رصيدك تتطلب كلمة المرور، ولا يمكن صرف المبلغ نفسه مرتين. سيُضاف رمز تحقق برسالة نصية عند تفعيل خدمة الرسائل النصية."
       },
       "payments": {
         "title": "الدفع الآن تجريبي",
