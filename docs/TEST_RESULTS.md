@@ -1047,3 +1047,12 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - `reports-backups.integration.js` now also checks the backup-now button: 403 for other admins, 503 without the shared folder, 401 signed out.
 - Local results: `i18n:check` OK; server unit tests 80 pass; client tests 164 pass; build OK; `check-deploy.sh` OK.
 - Integration: 273 pass, 1 fail before the test update; that test then passed (1/1).
+- Found during the second run: a push made while the checks ran would leave the server newer than the tested commit, and the deploy would be refused.
+- Fix: `ci-command.sh` now fetches and moves forward to exactly the tested commit.
+- Simulated with a local repository:
+  - deploy c2 while c3 exists: deploys c2.
+  - deploy c2 again: deploys c2.
+  - deploy c3: deploys c3.
+  - deploy older c2 after that: refused (exit 4).
+  - unknown commit: refused.
+  - any other command: refused (exit 2).
