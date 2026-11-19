@@ -966,3 +966,4 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - `caddy validate` (Caddy v2.11.4, same version as the server) on `deploy/caddy/aykdmh-site.Caddyfile`: Valid configuration.
 - Local test with `lb_try_duration 25s`: a POST sent while the backend was down waited 4.3 s until the backend came up, then answered 200. The request was not lost and not sent twice.
 - `bash -n deploy/update-site-rules.sh`: OK. The new in-place write with `caddy reload` has not been run on the server yet.
+- Applied on the server on 2026-11-19 with `update-site-rules.sh`: `Valid configuration`, then `OK: site 200, api 200, new CSP live`. The reload was not possible because the site rules set `admin off`, so the frontend was restarted once (a second or two). From now on, an API restart during a deploy is waited for, not shown as an error. A real deploy with an API restart has not been observed yet.

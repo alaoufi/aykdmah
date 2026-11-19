@@ -2,8 +2,10 @@
 # Apply deploy/caddy/aykdmh-site.Caddyfile (CSP and site rules) to the live Coolify frontend (AYK-240).
 # Run as root on the server:  cd /opt/aykdmh && git pull --ff-only && bash deploy/update-site-rules.sh
 # Steps: back up the runtime copy, validate the new file with the frontend's own Caddy image, replace
-# the copy in place and reload it without a restart (AYK-301: no break at all; a restart only if the
-# reload fails), then check the site and the CSP. On a failed check, the backup is put back.
+# the copy in place, then reload it, or restart the frontend (a second or two) when it cannot reload,
+# then check the site and the CSP. On a failed check, the backup is put back.
+# The site rules keep `admin off` (no admin endpoint in the frontend), so in practice this restarts:
+# tested on the server on 2026-11-19 (AYK-301). Site rules change rarely; app deploys do not use this.
 set -euo pipefail
 NEW=/opt/aykdmh/deploy/caddy/aykdmh-site.Caddyfile
 LIVE=/etc/aykdmh/coolify-site/Caddyfile
