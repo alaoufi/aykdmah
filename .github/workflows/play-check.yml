@@ -3,6 +3,10 @@
 name: Google Play key check
 on:
   workflow_dispatch:
+  # Also when the check itself changes on the deployed branch (a manual run needs the default branch).
+  push:
+    branches: [claude/deploy-setup]
+    paths: ['android/play/**', '.github/workflows/play-check.yml']
 permissions:
   contents: read
 jobs:
