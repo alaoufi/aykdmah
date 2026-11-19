@@ -1117,3 +1117,14 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - submitted: «SUBMITTED: 1.0.3 (5) is waiting for App Review».
   - `submit.json` is back to dry run.
 - **Android 1.3.9 (19) published to production for everyone** (run 44541421299, `android-promote.yml`, the same bundle uploaded to internal, no rebuild): «Version 19 set on production for everyone», «DONE». It reaches users after Google's review.
+
+## 2026-11-19 — server messages reviewed in 10 languages
+- Every server message (`MESSAGES` in `server/utils/i18n.js`) checked against the Arabic: 1,201 corrections, 0 rejected.
+- Corrections per language: en 42, tr 154, ur 97, hi 148, bn 67, ne 135, ml 136, am 141, fil 150, id 131. 15 missing messages per language filled in.
+- Worst mistakes found and fixed:
+  - Turkish and Indonesian `user_unblocked` said the opposite («blocked»);
+  - Indonesian `logged_in` meant «signed a document»;
+  - an obscene Nepali word.
+- Button names quoted inside a message now match the site's button exactly in each language (24 places). Covers «مقدم خدمة», «كلاهما», «تم الاتفاق», «✅ إلغاء الحظر», «تعديل», and the account page, now «ملفي» / "My Profile".
+- `node --test server/tests/*.test.js`: 82 pass, 0 fail. `npm run i18n:check`: 11 languages, 2556 keys, matching.
+- Not run here: the integration tests (no database in this environment). Messages only changed text, not logic.
