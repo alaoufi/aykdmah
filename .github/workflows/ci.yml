@@ -6,6 +6,8 @@ on:
     branches: [claude/deploy-setup]
   pull_request:
   workflow_dispatch:
+  # AYK-305: the deploy workflow runs these same checks first.
+  workflow_call:
 permissions:
   contents: read
 jobs:

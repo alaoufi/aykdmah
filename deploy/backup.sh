@@ -70,7 +70,9 @@ git -C "$REPO_DIR" bundle verify "$DEST/code.bundle" > /dev/null 2>&1
 # systemd units (backup, security export), the release counter (/var/lib/aykdmh), and the Android
 # app's signing key with its passwords (/root/aykdmh-android/keys, AYK-274): without it the app in
 # Google Play cannot be updated until Google resets the upload key.
-tar czf "$DEST/server-settings.tgz" --exclude='backup-encryption.key*' /etc/aykdmh \
+# The GitHub deploy key (/etc/aykdmh/ci, AYK-305) stays out too: it lives in GitHub, and
+# deploy/ci-setup.sh makes a new one if needed.
+tar czf "$DEST/server-settings.tgz" --exclude='backup-encryption.key*' --exclude='/etc/aykdmh/ci' /etc/aykdmh \
   $(ls /etc/systemd/system/aykdmh-* 2>/dev/null) \
   $(ls -d /var/lib/aykdmh /root/aykdmh-android/keys 2>/dev/null) 2>/dev/null
 # Instructions for any developer: what is in the set and how to rebuild the site from it.

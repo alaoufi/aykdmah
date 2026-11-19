@@ -1,0 +1,51 @@
+# Deploys aykdmh.com from GitHub (AYK-305): Actions → «Deploy aykdmh.com» → Run workflow,
+# on the branch claude/deploy-setup. The same checks as every push run first; only then the
+# server is asked to deploy exactly this commit, and the live site is checked to show it.
+# The SSH key can do nothing else on the server (deploy/ci-command.sh, set up by deploy/ci-setup.sh).
+# Secrets: AYKDMH_DEPLOY_KEY (the private key) and AYKDMH_HOST_KEY (the server's public key line).
+name: Deploy aykdmh.com
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-aykdmh
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    if: github.ref == 'refs/heads/claude/deploy-setup'
+    uses: ./.github/workflows/ci.yml
+
+  deploy:
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Deploy this commit on the server
+        env:
+          KEY: ${{ secrets.AYKDMH_DEPLOY_KEY }}
+          HOST_KEY: ${{ secrets.AYKDMH_HOST_KEY }}
+        run: |
+          if [ -z "$KEY" ] || [ -z "$HOST_KEY" ]; then echo "::error::Add the secrets AYKDMH_DEPLOY_KEY and AYKDMH_HOST_KEY"; exit 1; fi
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$KEY" > ~/.ssh/deploy && chmod 600 ~/.ssh/deploy
+          printf '%s\n' "$HOST_KEY" > ~/.ssh/known_hosts
+          ssh -i ~/.ssh/deploy -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o BatchMode=yes \
+            -o ServerAliveInterval=30 root@84.247.166.216 "deploy $GITHUB_SHA" | tail -n 30
+          rm -f ~/.ssh/deploy
+
+      - name: Check the live site shows this commit
+        run: |
+          short="${GITHUB_SHA:0:7}"
+          for i in $(seq 1 20); do
+            version="$(curl -fsS --max-time 10 https://aykdmh.com/version.json || true)"
+            api="$(curl -s -o /dev/null -w '%{http_code}' --max-time 10 https://aykdmh.com/api/health || true)"
+            echo "version: $version  api: $api"
+            if grep -q "$short" <<< "$version" && [ "$api" = 200 ]; then echo "Live: $version"; exit 0; fi
+            sleep 6
+          done
+          echo "::error::The live site does not show $short with a healthy API"; exit 1
