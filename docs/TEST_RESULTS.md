@@ -1024,3 +1024,12 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
     - internal: 1.3.5 (15)
     - beta and alpha: empty
 - Not tested: an actual upload with this key (the upload step comes next). The other sites' keys are checked by their own sessions.
+
+## 2026-11-19 — AYK-307: App Store Connect from GitHub (iPhone app, `alaoufi/apple-apps`, `aykhidmah/asc/`)
+- `check.mjs` (read only), run 44523072232, job check:
+  - Signed in with the existing team key and found «أي خدمة» (`sa.aykdmh.app`, id 6829494773).
+  - Versions 1.0.2 and 1.0.1: READY_FOR_SALE.
+  - Builds 1.0.2 (4), 1.0.1 (3 and 2), 1.0.0 (1): VALID.
+- `submit.mjs`, dry run, same run, job submit: found build 1.0.2 (4) VALID, then stopped with «Version 1.0.2 is READY_FOR_SALE: nothing to submit».
+- Not tested: a real submission. That needs a new version, `"dry_run": false` and the version repeated in `confirm`, and the owner approves each one.
+- ES256 signature checked locally against the public key.
