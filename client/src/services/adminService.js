@@ -487,6 +487,18 @@ export async function getBackupsReport(params = {}) {
   return data.data;
 }
 
+// AYK-304: «take a backup now» (main administrator). A refusal comes back as { ok: false, reason }.
+export async function runBackupNow() {
+  try {
+    const { data } = await api.post('/admin/reports/backups/run');
+    return { ok: true, ...data.data };
+  } catch (e) {
+    const body = e?.response?.data?.data;
+    if (body?.reason) return { ok: false, ...body };
+    throw e;
+  }
+}
+
 export async function getBackupLink(key) {
   const { data } = await api.post('/admin/reports/backups/link', { key });
   return data.data.url;

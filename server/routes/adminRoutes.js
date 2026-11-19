@@ -107,6 +107,7 @@ router.get('/security-report', requirePermission('activity_logs.view'), c.securi
 const reports = require('../controllers/reportsController');
 router.get('/reports/backups', requirePermission('activity_logs.view'), reports.backups);
 router.post('/reports/backups/link', requirePermission('activity_logs.view'), reports.backupLink);
+router.post('/reports/backups/run', requirePermission('activity_logs.view'), reports.backupRun);
 
 // System maintenance — sensitive
 router.post('/system/migrate', requirePermission('settings.manage'), c.applyMigrations);

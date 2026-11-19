@@ -67,6 +67,8 @@ services:
       R2_BACKUPS_BUCKET: ${R2_BACKUPS_BUCKET:-aykdmh-backups}
       R2_BACKUPS_READ_KEY_ID: ${R2_BACKUPS_READ_KEY_ID:-}
       R2_BACKUPS_READ_SECRET: ${R2_BACKUPS_READ_SECRET:-}
+      # AYK-304: «take a backup now» leaves a request here; aykdmh-backup-now.path runs deploy/backup.sh.
+      BACKUP_REQUESTS_DIR: /backup-requests
       # AYK-251: server copies, one per CPU core to use (empty or 1 = a single process as before).
       APP_WORKERS: ${APP_WORKERS:-}
       PUSH_PUBLIC_KEY: ${PUSH_PUBLIC_KEY:-}
@@ -85,6 +87,7 @@ services:
       - uploads:/app/server/uploads
       # AYK-032: the active client release, read for search-engine pages (index.html only).
       - /var/www/aykdmh:/srv/site:ro
+      - /var/lib/aykdmh/backup-requests:/backup-requests
     depends_on:
       db:
         condition: service_healthy

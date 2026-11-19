@@ -995,3 +995,18 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - The brand stays «Ay Khidma» in Latin letters in all languages, which the legal-terms test requires.
 - The 66 sign-up guide images were regenerated from the built site with the new texts. ml, fil and hi were checked visually.
 - Not done: a review by native speakers. The Malayalam, Amharic and Nepali place names were transliterated and most need that review.
+
+## 2026-11-19 — AYK-304: «take a backup now» and copying members' media
+- `server/tests/backup-request.test.js`: 6 pass. All server unit tests: 80 pass. Client tests: 164 pass.
+- Browser (built site, sample data, main admin):
+  - The button opens a confirmation.
+  - After confirming, the page shows «تم الطلب…», then the step in progress («نسخ الصور والملفات (6 من 6)») with the button disabled, then «✓ اكتملت النسخة اليدوية».
+- `deploy/backup.sh` run end to end on a simulated server (Docker replaced by a stub that records its arguments):
+  - Nightly run: completes. A manual run: completes, and its name ends in `-manual`.
+  - A second backup started while one runs: «another backup is running: skipped».
+  - Without `R2_MEDIA_*`: completes, with media noted as «in-database».
+  - Without the progress folder: the nightly backup still completes.
+  - The media secret never appears in a command line; its temporary env file is deleted after use.
+  - On a failure, `status.json` says which step failed.
+- A bug found and fixed by this test: the first version of the `-manual` name stopped the nightly backup at the encryption step (under `set -e`). It was never deployed.
+- Not tested on the real server yet: the systemd units (`backup-now-setup.sh`), and rclone copying the real media bucket.

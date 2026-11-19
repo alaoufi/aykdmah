@@ -65,6 +65,8 @@ cp -r "$REPO_DIR/client/dist/." "$SITE_ROOT/releases/$STAMP/"
 chmod -R a+rX "$SITE_ROOT/releases/$STAMP"
 
 echo "== API and migrations =="
+# AYK-304: the folder the API shares with the server for «take a backup now» (node = 1000).
+install -d -o 1000 -g 1000 -m 750 /var/lib/aykdmh/backup-requests
 "${COMPOSE[@]}" build app
 "${COMPOSE[@]}" run --rm --no-deps app node -e "
 require('./server/services/installService').setupFromEnv().then(r => {

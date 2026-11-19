@@ -165,6 +165,8 @@ WantedBy=timers.target
 UNIT
 systemctl daemon-reload
 systemctl enable --now aykdmh-backup.timer >/dev/null
+# AYK-304: «take a backup now» from the backups page.
+bash "$REPO_DIR/deploy/backup-now-setup.sh"
 
 echo "Done. Roll back the client with:"
 echo "  ln -sfn releases/<older> $SITE_ROOT/current"

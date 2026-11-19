@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getBackupsReport, getBackupLink } from '../../services/adminService';
+import { getBackupsReport, getBackupLink, runBackupNow } from '../../services/adminService';
+import ConfirmDialog from '../../components/common/ConfirmDialog';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import EmptyState from '../../components/admin/EmptyState';
 import { apiError } from '../../services/api';
@@ -16,6 +17,8 @@ export default function AdminBackupsReportPage() {
   const [error, setError] = useState('');
   const [busy, setBusy] = useState('');
   const [fresh, setFresh] = useState(0);
+  const [confirmRun, setConfirmRun] = useState(false);
+  const [runMsg, setRunMsg] = useState('');
   const when = iso => (iso ? new Date(iso).toLocaleString(i18n.resolvedLanguage || 'ar', { dateStyle: 'medium', timeStyle: 'short' }) : '—');
   // Each backup by name in words: weekday, date and time in the reader's language (AYK-277).
   const day = iso => (iso ? new Date(iso).toLocaleString(i18n.resolvedLanguage || 'ar', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' }) : '—');
@@ -29,6 +32,23 @@ export default function AdminBackupsReportPage() {
       .catch(e => { if (active) setError(apiError(e)); });
     return () => { active = false; };
   }, [fresh]);
+
+  // While a backup is waiting or running, the page asks again every 5 seconds (AYK-304).
+  const busyRun = Boolean(data?.run?.pending || data?.run?.running);
+  useEffect(() => {
+    if (!busyRun) return undefined;
+    const id = setTimeout(() => setFresh(x => x + 1), 5000);
+    return () => clearTimeout(id);
+  }, [busyRun, data]);
+
+  const startRun = async () => {
+    setRunMsg(''); setError('');
+    try {
+      const r = await runBackupNow();
+      if (!r.ok) setRunMsg(t(`backups_report.run.refused_${r.reason}`, { minutes: Math.max(1, Math.ceil((r.wait_seconds || 0) / 60)) }));
+      setFresh(x => x + 1);
+    } catch (e) { setError(apiError(e)); } finally { setConfirmRun(false); }
+  };
 
   const download = async key => {
     setBusy(key); setError('');
@@ -48,9 +68,17 @@ export default function AdminBackupsReportPage() {
   return (
     <div data-testid="backups-report">
       <AdminPageHeader title={t('admin.backups_report')} subtitle={t('backups_report.subtitle')}>
+        {data?.can_run && data?.run?.available && (
+          <button type="button" className="btn btn-primary btn-sm" disabled={busyRun} onClick={() => setConfirmRun(true)} data-testid="backup-run">
+            💾 {t(busyRun ? 'backups_report.run.busy' : 'backups_report.run.button')}
+          </button>
+        )}
         <button type="button" className="btn btn-outline btn-sm" onClick={() => setFresh(x => x + 1)}>↻ {t('backups_report.refresh')}</button>
       </AdminPageHeader>
       {error && <p className="form-error" role="alert">{error}</p>}
+      {data?.can_run && <BackupRunStatus run={data.run} message={runMsg} t={t} when={when} />}
+      <ConfirmDialog open={confirmRun} tone="primary" title={t('backups_report.run.confirm_title')} body={t('backups_report.run.confirm_body')}
+        confirmLabel={t('backups_report.run.button')} cancelLabel={t('admin.cancel_btn')} onConfirm={startRun} onCancel={() => setConfirmRun(false)} />
       {!data && !error && <p className="text-slate-500">{t('common.loading')}</p>}
       {state === 'off' && (
         <EmptyState icon="🗄️" title={t('backups_report.off_title')} subtitle={t('backups_report.off_body')} />
@@ -100,15 +128,48 @@ export default function AdminBackupsReportPage() {
           )}
         </div>
       )}
-      <BackupsGuide t={t} />
+      <BackupsGuide t={t} mediaInR2={Boolean(data?.media_in_r2)} />
     </div>
   );
 }
 
 // What is inside each backup and how backups are taken (owner's request, AYK-299): the list above
 // is dates and sizes only; this says in words what each one holds and what the owner must keep.
-function BackupsGuide({ t }) {
-  const items = t('backups_report.guide.items', { returnObjects: true });
+// The state of «take a backup now» (AYK-304): waiting for the server, the step it is on, or how the
+// last run ended. Nothing when the button is not set up on this server.
+const STEPS = ['database', 'uploads', 'code', 'encrypting', 'uploading', 'media'];
+function BackupRunStatus({ run, message, t, when }) {
+  if (!run?.available) return null;
+  const last = run.last;
+  let tone = 'bg-slate-50 text-slate-700 border-slate-200';
+  let text = '';
+  if (run.stuck) { tone = 'bg-amber-50 text-amber-800 border-amber-200'; text = t('backups_report.run.stuck'); }
+  else if (run.pending) text = t('backups_report.run.pending');
+  else if (run.running) {
+    const step = STEPS.includes(last?.step) ? t(`backups_report.run.step_${last.step}`) : '';
+    text = t('backups_report.run.running', { step, index: STEPS.indexOf(last?.step) + 1, total: STEPS.length });
+  } else if (last?.state === 'done' && last.trigger === 'manual') {
+    tone = 'bg-emerald-50 text-emerald-800 border-emerald-200'; text = t('backups_report.run.done', { when: when(last.finished) });
+  } else if (last?.state === 'failed') {
+    tone = 'bg-rose-50 text-rose-800 border-rose-200';
+    text = t('backups_report.run.failed', { when: when(last.finished), step: STEPS.includes(last.step) ? t(`backups_report.run.step_${last.step}`) : last.step });
+  }
+  if (last && !run.pending && !run.running && last.media === 'failed') text = `${text ? `${text} ` : ''}${t('backups_report.run.media_failed')}`;
+  if (!text && !message) return null;
+  return (
+    <div className={`border rounded-card px-4 py-3 mb-4 text-[13.5px] ${tone}`} role="status" data-testid="backup-run-status">
+      {(run.pending || run.running) && <span className="inline-block animate-spin me-2" aria-hidden="true">⏳</span>}
+      {message || text}
+    </div>
+  );
+}
+
+function BackupsGuide({ t, mediaInR2 }) {
+  const raw = t('backups_report.guide.items', { returnObjects: true });
+  // The first item is the database; with media in R2 it no longer holds the photos and files.
+  const items = (Array.isArray(raw) ? raw : []).map((item, i) => (
+    i === 0 && mediaInR2 ? { ...item, body: t('backups_report.guide.database_r2') } : item
+  )).concat(mediaInR2 ? [t('backups_report.guide.media_item', { returnObjects: true })] : []);
   const steps = t('backups_report.guide.auto_steps', { returnObjects: true });
   return (
     <div className="grid gap-4 lg:grid-cols-2 mt-4" data-testid="backups-guide">

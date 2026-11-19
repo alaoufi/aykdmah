@@ -3,13 +3,29 @@ const asyncHandler = require('../utils/asyncHandler');
 const { success, error, notFound, forbidden } = require('../utils/apiResponse');
 const { queryOne } = require('../config/database');
 const backupReport = require('../services/backupReport');
+const backupRequest = require('../services/backupRequest');
 const isSuperAdmin = user => user && (user.is_super_admin === 1 || user.is_super_admin === true);
 
 // GET /api/admin/reports/backups  (AYK-271)
 const backups = asyncHandler(async (req, res) => {
   const report = await backupReport.status({ fresh: req.query.fresh === '1' });
   // Downloading a backup is for the main administrator only: it holds the whole site (encrypted).
-  return success(res, { ...report, can_download: isSuperAdmin(req.user) });
+  return success(res, {
+    ...report, can_download: isSuperAdmin(req.user), can_run: isSuperAdmin(req.user),
+    // AYK-304: the manual backup and where members' media is kept (R2 bucket or the database).
+    run: backupRequest.state(), media_in_r2: Boolean(process.env.R2_MEDIA_BUCKET && process.env.R2_MEDIA_ACCESS_KEY_ID),
+  });
+});
+
+// POST /api/admin/reports/backups/run  (AYK-304): «take a backup now», main administrator only.
+const backupRun = asyncHandler(async (req, res) => {
+  if (!isSuperAdmin(req.user)) return forbidden(res, req.t('forbidden'));
+  const result = backupRequest.request(req.user.id);
+  if (!result.ok) {
+    const status = result.reason === 'unavailable' ? 503 : result.reason === 'too_soon' ? 429 : 409;
+    return res.status(status).json({ success: false, message: result.reason, data: { reason: result.reason, wait_seconds: result.wait_seconds || 0, run: backupRequest.state() } });
+  }
+  return success(res, { run: backupRequest.state() });
 });
 
 // POST /api/admin/reports/backups/link { key }: a two-minute link for one listed backup.
@@ -42,4 +58,4 @@ const backupFile = asyncHandler(async (req, res) => {
   return undefined;
 });
 
-module.exports = { backups, backupLink, backupFile };
+module.exports = { backups, backupLink, backupFile, backupRun };

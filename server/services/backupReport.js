@@ -46,7 +46,7 @@ async function status({ fresh = false } = {}) {
       last_verified: verified[0] ? { modified: verified[0].modified, backup: path.basename(verified[0].key).replace(/\.json$/, '') } : null,
       backups: backups.map(o => ({
         key: o.key, name: path.basename(o.key), size: o.size, modified: o.modified,
-        verified: tested.has(path.basename(o.key)), automatic: isDaily(o.modified),
+        verified: tested.has(path.basename(o.key)), automatic: isDaily(o.modified) && !/-manual\.tar\.enc$/.test(o.key),
       })),
     };
   } catch (err) {
