@@ -1274,3 +1274,4 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - The deploy key gained one READ-ONLY command, `slow-requests <hours>` (1-72), that runs `deploy/slow-requests.sh`. Anything after `?` in the request paths is removed, so no token reaches GitHub.
 - `.github/workflows/server-report.yml` runs it for the last 3 hours on a push whose message contains `[server-report]`.
 - Checked here: `slow-requests 99` and `slow-requests 3; id` are refused; the `?` filter turns `GET /api/x?token=abc 200 5 ms` into `GET /api/x 200 5 ms`.
+- AYK-319 follow-up (owner: smaller logo): the header logo is 38 px on phones, 42 px on tablets and 48 px on computers, about the size of the buttons beside it. Local build, phone: bar 57 px, logo 38 px from 9 px down.
