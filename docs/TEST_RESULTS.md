@@ -967,3 +967,31 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Local test with `lb_try_duration 25s`: a POST sent while the backend was down waited 4.3 s until the backend came up, then answered 200. The request was not lost and not sent twice.
 - `bash -n deploy/update-site-rules.sh`: OK. The new in-place write with `caddy reload` has not been run on the server yet.
 - Applied on the server on 2026-11-19 with `update-site-rules.sh`: `Valid configuration`, then `OK: site 200, api 200, new CSP live`. The reload was not possible because the site rules set `admin off`, so the frontend was restarted once (a second or two). From now on, an API restart during a deploy is waited for, not shown as an error. A real deploy with an API restart has not been observed yet.
+
+## 2026-11-19 — AYK-300/302/303: full translation review
+- Every site text (2,495 keys per language) was reviewed against the Arabic, one reviewer per language. Corrections applied:
+
+  | Language | Corrections |
+  |---|---|
+  | en | 183 |
+  | tr | 1,456 |
+  | ur | 553 |
+  | bn | 555 |
+  | fil | 1,689 |
+  | id | 1,090 |
+  | hi | 1,079 |
+  | ne | 1,445 |
+  | am | 1,580 |
+  | ml | 1,306 |
+
+  Each was checked by script before applying (key exists, `{{…}}` placeholders and HTML tags match) and against cross-language mix-ups. No key was lost.
+- Service, category and plan names: 531 corrections in 9 languages. Region, city and district names: 1,685 corrections. The English names were not changed: they are the key that links each name to the database.
+- Migration 092 (Urdu, Hindi and Bengali service names in the database) was tested on a local PostgreSQL loaded with the old 040 names:
+  - 413 names match the new reference.
+  - An administrator's own name is kept.
+  - A second run changes nothing.
+- `reference-languages.integration.js`: 6 pass.
+- Client tests: 164 pass.
+- The brand stays «Ay Khidma» in Latin letters in all languages, which the legal-terms test requires.
+- The 66 sign-up guide images were regenerated from the built site with the new texts. ml, fil and hi were checked visually.
+- Not done: a review by native speakers. The Malayalam, Amharic and Nepali place names were transliterated and most need that review.
