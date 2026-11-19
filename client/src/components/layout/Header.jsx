@@ -77,7 +77,8 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-3 md:px-6 lg:px-8 h-14 md:h-16 lg:h-[72px] flex items-center gap-2 md:gap-4">
         {/* Phones and tablets (owner): ☰ on the page's right edge, logo on the left edge. */}
         <Link to="/" className="site-logo xl:w-[166px] shrink-0 no-underline max-xl:order-5 max-xl:-me-1 max-xl:flex max-xl:justify-end">
-          <BrandLogo wordSize={26} />
+          {/* AYK-319: the logo fits inside the bar (56/64/72 px) with an even margin, never over its line. */}
+          <BrandLogo imgClassName="w-[46px] h-[46px] md:w-[52px] md:h-[52px] lg:w-[60px] lg:h-[60px]" />
         </Link>
 
         {/* Spacer pushes the logo to the opposite edge */}

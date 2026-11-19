@@ -1252,3 +1252,12 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
     - content showed at 3.4 s, and the data requests started after that.
   - Fix: `build-tools/preloadHome.mjs` adds `<link rel="modulepreload">` to `index.html` for the home page and everything it imports. The browser fetches them together with the main bundle.
   - Also checked on the live site: the rating page served is the new one (no detailed rating, no file input, the «تم نشر تقييمك» message present), and `POST /api/reviews` without sign-in answers 401.
+
+## 2026-11-19 — AYK-319: the header logo spilled over the bar
+- Reported by the owner: the logo did not fit the header.
+- Measured live on a phone-sized page: the bar is 57 px and the logo was drawn at 62 px, starting 3 px above the bar, so its top was cut and its base went over the bar's line.
+- Fix: in the header the logo is 46 px on phones, 52 px on tablets and 60 px on computers, for bars of 56, 64 and 72 px, so it is centred with an even margin. `BrandLogo` takes `imgClassName` for this; other places keep their sizes.
+- Checked with a local build:
+  - phone: bar 57 px, logo 46 px from 5 px down;
+  - computer: bar 73 px, logo 60 px from 3 px down;
+  - screenshots match.

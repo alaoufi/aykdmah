@@ -5,14 +5,16 @@ const LOGO_SRCSET = '/brand/aykdmh-logo-128.webp 128w, /brand/aykdmh-logo-256.we
 
 // The «أي خدمة» logo. The artwork already contains the Arabic name, so it is shown
 // as one image; the localized brand name stays available to screen readers.
-export default function BrandLogo({ wordSize = 22, width, tone = 'color', tagline = false, taglineText, className = '' }) {
+// imgClassName (AYK-319): sizes the logo with classes instead, e.g. to fit inside the header bar.
+export default function BrandLogo({ wordSize = 22, width, tone = 'color', tagline = false, taglineText, className = '', imgClassName = '' }) {
   const { t } = useTranslation();
   const size = width ? Math.min(width, 96) : Math.round(wordSize * 2.4);
   const darkBackground = tone === 'mono-light';
   return (
     <div className={`inline-flex items-center gap-2 shrink-0 ${className}`}>
-      <img src="/brand/aykdmh-logo-256.webp" srcSet={LOGO_SRCSET} sizes={`${size}px`} alt={t('common.brand')} width={256} height={256}
-        decoding="async" style={{ width: size, height: size, objectFit: 'contain' }} />
+      <img src="/brand/aykdmh-logo-256.webp" srcSet={LOGO_SRCSET} sizes={imgClassName ? '60px' : `${size}px`} alt={t('common.brand')} width={256} height={256}
+        decoding="async" className={imgClassName || undefined}
+        style={imgClassName ? { objectFit: 'contain' } : { width: size, height: size, objectFit: 'contain' }} />
       {tagline && taglineText && (
         <span dir="auto" className="text-[12px] font-medium"
           style={{ color: darkBackground ? 'rgb(var(--color-brand-ivory))' : 'rgb(var(--color-fg-muted))' }}>
