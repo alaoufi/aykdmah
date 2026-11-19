@@ -2196,7 +2196,9 @@
       "referral_commission": "Kupon komisyonu",
       "withdrawal": "Bankaya çekim",
       "gift_subscription": "Başkası için ödenen abonelik",
-      "admin_adjustment": "Yönetim düzeltmesi"
+      "admin_adjustment": "Yönetim düzeltmesi",
+      "referral_count_reward": "Sayıya göre pazarlama ödülü",
+      "cash_payout": "Nakit ödeme"
     },
     "tx_status": {
       "completed": "Tamamlandı",
@@ -2204,7 +2206,7 @@
       "cancelled": "İptal edildi"
     },
     "register_coupon": "Kupon numarası (isteğe bağlı)",
-    "register_coupon_hint": "Bir hizmet veren sizi davet ettiyse kuponunu buraya yazın.",
+    "register_coupon_hint": "Biri sizi davet ettiyse kuponunu buraya yazın.",
     "errors": {
       "generic": "İşlem yapılamadı. Tekrar deneyin.",
       "load_failed": "Cüzdan yüklenemedi.",
@@ -2266,7 +2268,20 @@
       "rewards": "Kupon komisyonları",
       "test_mode": "Ödeme deneme modunda: mevcut tüm ödemeler ve komisyonlar denemedir, banka havalesi onaylanamaz. Gerçek ödeme sistemini bağlamadan önce deneme verilerini silin."
     },
-    "test_mode": "Deneme modu: komisyonlar deneme ödemelerinden gelir; gerçek ödeme sistemi bağlanana kadar banka ile para çekme kapalıdır."
+    "test_mode": "Deneme modu: komisyonlar deneme ödemelerinden gelir; gerçek ödeme sistemi bağlanana kadar banka ile para çekme kapalıdır.",
+    "marketing": {
+      "off": "Komisyonlu pazarlama şu anda kapalı.",
+      "count": "Kuponunuzla kaydolan her {{every}} hizmet veren için bakiyenize {{amount}} SAR eklenir.",
+      "subscription": "Kuponunuzla kaydolan, ardından aboneliğini ödeyen ve aboneliği etkinleşen her hizmet veren için bakiyenize {{amount}} SAR eklenir.",
+      "progress": "Sonraki ödüle doğru {{every}} içinden {{have}}",
+      "providers": "Kuponunuzla kaydolan hizmet verenler",
+      "paid_out": "Size ödenen",
+      "invited_title": "Kuponunuzla kimler kaydoldu",
+      "invited_empty": "Henüz kimse kuponunuzla kaydolmadı.",
+      "counted": "Sayıldı",
+      "not_counted": "Henüz hizmet seçmedi",
+      "commission": "Komisyon {{amount}} SAR"
+    }
   },
   "test_checkout": {
     "banner": "Deneme ödemesi — hiçbir tutar çekilmeyecek",

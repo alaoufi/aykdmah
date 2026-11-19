@@ -70,7 +70,7 @@ if (!databasePrefix) {
     server = require('../app').listen(0);
     await new Promise(resolve => server.once('listening', resolve));
     base = `http://127.0.0.1:${server.address().port}/api`;
-    await api('/wallet/admin/settings', { user: users.boss, method: 'PUT', body: { commission_percent: 10, min_withdrawal: 1 } });
+    await api('/wallet/admin/settings', { user: users.boss, method: 'PUT', body: { commission_percent: 10, min_withdrawal: 1, marketing_enabled: true, marketing_mode: 'percent' } });
     await api('/wallet/coupon', { user: users.newcomer, method: 'POST', body: { code: await wallet.ensureReferralCode(users.referrer.id) } });
   });
 

@@ -99,7 +99,11 @@ if (!databasePrefix) {
     const code = first.body.data.referral_code;
     assert.match(code, /^[A-HJ-NP-Z]{2}\d{2}$/);
     assert.equal((await api('/wallet', { user: users.referrer })).body.data.referral_code, code);
-    assert.equal((await api('/wallet', { user: users.customer })).status, 403, 'clients have no wallet');
+    // AYK-322: every account has a marketing code and a wallet, a requester too.
+    const asClient = await api('/wallet', { user: users.customer });
+    assert.equal(asClient.status, 200);
+    assert.match(asClient.body.data.referral_code, /^[A-HJ-NP-Z]{2}\d{2}$/);
+    assert.equal(asClient.body.data.marketing.enabled, false, 'marketing is off until the administration turns it on');
     const codes = new Set();
     for (let i = 0; i < 40; i += 1) {
       const u = await makeUser(`bulk${i}`, 'provider');
@@ -134,7 +138,13 @@ if (!databasePrefix) {
   });
 
   test('the referrer earns the configured percent of the FIRST gateway payment only, exactly once', async () => {
+    // AYK-322: with marketing off, a percentage alone pays nothing.
     assert.equal((await api('/wallet/admin/settings', { user: users.boss, method: 'PUT', body: { commission_percent: 12.5 } })).status, 200);
+    const early = await makeUser('offpayer', 'provider');
+    await db.query('UPDATE users SET referred_by = ? WHERE id = ?', [users.other.id, early.id]);
+    assert.equal((await gatewayPayment(early, 40)).result.reward, null, 'no commission while marketing is off');
+    const on = await api('/wallet/admin/settings', { user: users.boss, method: 'PUT', body: { marketing_enabled: true, marketing_mode: 'percent' } });
+    assert.deepEqual([on.status, on.body.data.marketing.enabled, on.body.data.marketing.mode], [200, true, 'percent']);
     const startBalance = await balance(users.referrer);
     const first = await gatewayPayment(users.newcomer, 40);
     assert.equal(first.result.reward.amount, 5);
@@ -276,5 +286,104 @@ if (!databasePrefix) {
 
     const future = await api('/admin/marketing?from=2999-01-01', { user: users.boss });
     assert.equal(future.body.data.summary.total, 0, 'the sign-up period filters accounts');
+  });
+
+  // ---- AYK-322: marketing by commission, the two fixed ways ------------------------------------
+  const setMarketing = body => api('/wallet/admin/settings', { user: users.boss, method: 'PUT', body });
+  const invite = async (name, marketer, { role = 'provider', services = [1] } = {}) => {
+    const user = await makeUser(name, role);
+    if (role === 'provider' && services) await db.query('UPDATE provider_profiles SET service_ids = ? WHERE user_id = ?', [JSON.stringify(services), user.id]);
+    await db.query('UPDATE users SET referred_by = ? WHERE id = ?', [marketer.id, user.id]);
+    return user;
+  };
+
+  test('the subscription way: a fixed amount once the invited provider\'s subscription is paid and active, once', async () => {
+    assert.equal((await setMarketing({ marketing_mode: 'nonsense' })).status, 400);
+    assert.equal((await setMarketing({ subscription_amount: -1 })).body.message, 'invalid_amount');
+    assert.equal((await setMarketing({ marketing_mode: 'subscription', subscription_amount: 15 })).status, 200);
+    const marketer = await makeUser('submarketer', 'client'); // a requester's code earns too
+    const before = await balance(marketer);
+    const joined = await invite('subjoined', marketer);
+    // A payment that is not a subscription (e.g. a badge) pays nothing.
+    const badgeTx = `gw-badge-${crypto.randomBytes(4).toString('hex')}`;
+    await db.query(`INSERT INTO payments (user_id, provider, provider_transaction_id, amount, currency, status) VALUES (?, 'testgateway', ?, 50, 'SAR', 'pending')`, [joined.id, badgeTx]);
+    const badge = await Payment.settleVerified({ authenticated: true, transaction_id: badgeTx, provider: 'testgateway', currency: 'SAR', amount: 50, status: 'completed' });
+    assert.equal(badge.reward, null);
+    assert.equal(await balance(marketer), before);
+    // The subscription payment: activated in the same transaction, then 15 SAR whatever the price.
+    const paid = await gatewayPayment(joined, 40);
+    assert.equal((await db.queryOne('SELECT status FROM subscriptions WHERE id = ?', [paid.subscriptionId])).status, 'active');
+    assert.equal(paid.result.reward.amount, 15);
+    assert.equal(await balance(marketer), before + 15);
+    const reward = await db.queryOne('SELECT mode, amount, percent FROM referral_rewards WHERE referred_user_id = ?', [joined.id]);
+    assert.deepEqual([reward.mode, Number(reward.amount), Number(reward.percent)], ['subscription', 15, 0]);
+    // A renewal does not pay again; a failed payment pays nothing.
+    await expire(joined);
+    assert.equal((await gatewayPayment(joined, 40)).result.reward, null);
+    assert.equal(await balance(marketer), before + 15);
+    const view = (await api('/wallet', { user: marketer })).body.data;
+    assert.deepEqual([view.marketing.mode, view.marketing.subscription_amount, view.referrals.paid, view.earned], ['subscription', 15, 1, 15]);
+    const row = view.invited.find(item => item.id === joined.id);
+    assert.deepEqual([row.name, row.counts, row.commission], ['subjoined', true, 15]);
+    // Off: nothing more is earned, and what was earned stays.
+    await setMarketing({ marketing_enabled: false });
+    const late = await invite('sublate', marketer);
+    assert.equal((await gatewayPayment(late, 40)).result.reward, null);
+    assert.equal(await balance(marketer), before + 15);
+    await setMarketing({ marketing_enabled: true });
+  });
+
+  test('the count way: a fixed amount for every N invited providers who registered, nothing to do with subscriptions', async () => {
+    assert.equal((await setMarketing({ count_every: 0 })).status, 400);
+    assert.equal((await setMarketing({ marketing_mode: 'count', count_every: 3, count_amount: 100 })).status, 200);
+    const marketer = await makeUser('countmarketer', 'client');
+    await invite('count1', marketer);
+    await invite('count2', marketer);
+    await invite('countclient', marketer, { role: 'client' }); // requesters are not counted
+    await invite('countempty', marketer, { services: null }); // a provider without any service is not counted yet
+    let view = (await api('/wallet', { user: marketer })).body.data;
+    assert.deepEqual([view.balance, view.referrals.total, view.referrals.providers, view.referrals.toward_next], [0, 4, 2, 2]);
+    const third = await invite('count3', marketer);
+    view = (await api('/wallet', { user: marketer })).body.data;
+    assert.deepEqual([view.balance, view.earned, view.referrals.toward_next], [100, 100, 0], 'the third provider completes a block');
+    assert.equal((await api('/wallet', { user: marketer })).body.data.balance, 100, 'asking again never pays twice');
+    // A subscription payment in this way pays no commission.
+    assert.equal((await gatewayPayment(third, 40)).result.reward, null);
+    // The provider who had no service chooses one: counted from then (through the profile update).
+    const empty = users.countempty;
+    await db.query('UPDATE provider_profiles SET service_ids = ? WHERE user_id = ?', [JSON.stringify([1]), empty.id]);
+    await wallet.settleCountRewardsForInvited(empty.id);
+    assert.equal(await balance(marketer), 100, 'four counted, three used: one waiting');
+    // Changing N later never pays the same registrations again: 1 waiting + 1 new = one block of 2.
+    await setMarketing({ count_every: 2, count_amount: 30 });
+    assert.equal(await balance(marketer), 100);
+    await invite('count5', marketer);
+    assert.equal(await balance(marketer), 130);
+    assert.equal(Number((await db.queryOne('SELECT SUM(counted) AS n FROM referral_count_rewards WHERE referrer_id = ?', [marketer.id])).n), 5);
+    // Concurrent settlement cannot pay a block twice.
+    await invite('count6', marketer); await invite('count7', marketer);
+    await Promise.all([wallet.settleCountRewards(marketer.id), wallet.settleCountRewards(marketer.id), wallet.settleCountRewards(marketer.id)]);
+    assert.equal(await balance(marketer), 160);
+
+    // The statement and paying in cash.
+    const overview = (await api('/wallet/admin', { user: users.boss })).body.data;
+    const line = overview.marketers.find(m => m.id === marketer.id);
+    assert.deepEqual([line.referrals, line.providers, line.earned, line.paid_out, line.balance], [8, 7, 160, 0, 160]);
+    assert.deepEqual([overview.marketing.mode, overview.marketing.count_every, overview.marketing.count_amount], ['count', 2, 30]);
+    const cash = body => api(`/wallet/admin/users/${marketer.id}/cash-payout`, { user: users.boss, method: 'POST', body });
+    assert.equal((await cash({ amount: 100 })).body.message, 'note_required');
+    assert.equal((await cash({ amount: 500, note: 'سُلّم نقدًا' })).body.message, 'insufficient_balance');
+    assert.equal((await api(`/wallet/admin/users/${marketer.id}/cash-payout`, { user: users.limitedadmin, method: 'POST', body: { amount: 100, note: 'سُلّم نقدًا' } })).status, 403);
+    assert.equal((await cash({ amount: 100, note: 'سُلّم نقدًا في المكتب' })).status, 200);
+    view = (await api('/wallet', { user: marketer })).body.data;
+    assert.deepEqual([view.balance, view.earned, view.paid_out], [60, 160, 100]);
+    assert.ok(view.transactions.some(tx => tx.type === 'cash_payout' && Number(tx.amount) === -100));
+    const after = (await api('/wallet/admin', { user: users.boss })).body.data;
+    assert.equal(after.marketers.find(m => m.id === marketer.id).paid_out, 100);
+    assert.ok(after.totals.cash_paid >= 100);
+    // A requester may ask for a transfer of the rest (test mode blocks the transfer itself here).
+    const ask = await api('/wallet/withdrawals', { user: marketer, method: 'POST', body: { amount: 60, iban: 'SA0380000000608010167519', account_name: 'Count Marketer', password: PASSWORD } });
+    assert.ok([200, 409].includes(ask.status), ask.body?.message);
+    await setMarketing({ marketing_mode: 'percent' });
   });
 }

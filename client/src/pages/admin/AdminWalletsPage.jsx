@@ -15,6 +15,9 @@ export default function AdminWalletsPage() {
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
   const [settings, setSettings] = useState({ commission_percent: '', min_withdrawal: '' });
+  // AYK-322: marketing by commission (on/off, the way a marketer earns, and its numbers).
+  const [marketing, setMarketing] = useState({ enabled: false, mode: 'percent', count_every: '10', count_amount: '0', subscription_amount: '0' });
+  const [cash, setCash] = useState(null);
   const [ledger, setLedger] = useState(null);
   const [adjust, setAdjust] = useState({ amount: '', note: '' });
 
@@ -22,6 +25,9 @@ export default function AdminWalletsPage() {
     walletApi.adminWallets().then(result => {
       setData(result);
       setSettings({ commission_percent: String(result.commission_percent), min_withdrawal: String(result.min_withdrawal) });
+      const m = result.marketing || {};
+      setMarketing({ enabled: !!m.enabled, mode: m.mode || 'percent', count_every: String(m.count_every || 10),
+        count_amount: String(m.count_amount ?? 0), subscription_amount: String(m.subscription_amount ?? 0) });
     }).catch(() => setError('wallet.errors.load_failed'));
   }, []);
   useEffect(() => { load(); }, [load]);
@@ -49,30 +55,125 @@ export default function AdminWalletsPage() {
       )}
       {notice && <div role="status" className={`px-3 py-2 rounded-card text-[13px] ${notice.ok ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'}`}>{notice.text}</div>}
 
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-2">
+      <div className="grid grid-cols-2 lg:grid-cols-6 gap-2">
         {[['liabilities', totals.liabilities], ['commissions', totals.commissions], ['withdrawn', totals.withdrawn],
-          ['pending_withdrawals', totals.pending_withdrawals], ['gifted', totals.gifted]].map(([key, value]) => (
+          ['pending_withdrawals', totals.pending_withdrawals], ['gifted', totals.gifted], ['cash_total', totals.cash_paid]].map(([key, value]) => (
           <div key={key} className="card p-3">
-            <div className="text-[11.5px] text-fg-muted">{t(`wallet.admin.${key}`)}</div>
+            <div className="text-[11.5px] text-fg-muted">{t(key === 'cash_total' ? 'wallet.admin_marketing.cash_total' : `wallet.admin.${key}`)}</div>
             <div className="text-lg font-extrabold text-fg">{t('wallet.amount', { value: money(value) })}</div>
           </div>
         ))}
       </div>
 
+      <form className="card p-3 space-y-3" data-testid="marketing-settings" onSubmit={e => {
+        e.preventDefault();
+        act(() => walletApi.adminWalletSettings({ marketing_enabled: marketing.enabled, marketing_mode: marketing.mode,
+          count_every: Number(marketing.count_every), count_amount: marketing.count_amount, subscription_amount: marketing.subscription_amount,
+          commission_percent: settings.commission_percent }), 'wallet.admin_marketing.saved');
+      }}>
+        <h2 className="font-bold text-fg">📣 {t('wallet.admin_marketing.title')}</h2>
+        <label className="flex items-center gap-2 text-[14px] font-bold cursor-pointer">
+          <input type="checkbox" checked={marketing.enabled} data-testid="marketing-enabled"
+            onChange={e => setMarketing({ ...marketing, enabled: e.target.checked })} />
+          {t('wallet.admin_marketing.enabled')}
+        </label>
+        {!marketing.enabled && <p className="text-[12.5px] text-amber-800 bg-amber-50 rounded-card px-3 py-2 m-0">{t('wallet.admin_marketing.disabled_note')}</p>}
+        <fieldset className="space-y-2">
+          <legend className="text-[13px] font-bold text-fg mb-1">{t('wallet.admin_marketing.mode')}</legend>
+          {['count', 'subscription', 'percent'].map(mode => (
+            <label key={mode} className="flex items-start gap-2 text-[13px] cursor-pointer">
+              <input type="radio" name="marketing-mode" className="mt-1" checked={marketing.mode === mode} data-testid={`marketing-mode-${mode}`}
+                onChange={() => setMarketing({ ...marketing, mode })} />
+              <span className="flex-1">
+                {t(`wallet.admin_marketing.mode_${mode}`)}
+                {marketing.mode === mode && (
+                  <span className="flex flex-wrap gap-3 mt-1">
+                    {mode === 'count' && <>
+                      <label className="text-[12.5px]">{t('wallet.admin_marketing.count_every')}
+                        <input className="input w-28 block" type="number" min="1" max="10000" step="1" required value={marketing.count_every}
+                          onChange={e => setMarketing({ ...marketing, count_every: e.target.value })} />
+                      </label>
+                      <label className="text-[12.5px]">{t('wallet.admin_marketing.count_amount')}
+                        <input className="input w-28 block" type="number" min="0" step="0.01" required value={marketing.count_amount}
+                          onChange={e => setMarketing({ ...marketing, count_amount: e.target.value })} />
+                      </label>
+                    </>}
+                    {mode === 'subscription' && (
+                      <label className="text-[12.5px]">{t('wallet.admin_marketing.subscription_amount')}
+                        <input className="input w-28 block" type="number" min="0" step="0.01" required value={marketing.subscription_amount}
+                          onChange={e => setMarketing({ ...marketing, subscription_amount: e.target.value })} />
+                      </label>
+                    )}
+                    {mode === 'percent' && (
+                      <label className="text-[12.5px]">{t('wallet.admin.commission_percent')}
+                        <input className="input w-28 block" type="number" min="0" max="100" step="0.01" required value={settings.commission_percent}
+                          onChange={e => setSettings({ ...settings, commission_percent: e.target.value })} />
+                      </label>
+                    )}
+                  </span>
+                )}
+              </span>
+            </label>
+          ))}
+        </fieldset>
+        <button type="submit" className="btn btn-primary">{t('common.save')}</button>
+        <p className="text-[12px] text-fg-subtle m-0">{t('wallet.admin_marketing.hint')}</p>
+      </form>
+
+      <div className="card p-3 overflow-x-auto" data-testid="marketers-statement">
+        <h2 className="font-bold text-fg mb-2">🧾 {t('wallet.admin_marketing.statement')}</h2>
+        {(data.marketers || []).length === 0 ? <div className="text-[13px] text-fg-muted">{t('wallet.admin_marketing.none')}</div> : (
+          <table className="w-full text-[12.5px]">
+            <thead><tr className="text-fg-muted">
+              {['marketer', 'signups', 'providers', 'subscribers', 'earned', 'paid_out', 'remaining'].map(key => (
+                <th key={key} className="text-start p-1">{t(`wallet.admin_marketing.${key}`)}</th>))}
+              <th className="p-1" />
+            </tr></thead>
+            <tbody>
+              {data.marketers.map(m => (
+                <tr key={m.id} className="border-t border-border">
+                  <td className="p-1">{m.full_name} <span dir="ltr" className="text-fg-subtle">{m.referral_code}</span><div className="text-fg-subtle" dir="ltr">{m.phone}</div></td>
+                  <td className="p-1">{m.referrals}</td><td className="p-1">{m.providers}</td><td className="p-1">{m.paid_subscribers}</td>
+                  <td className="p-1">{money(m.earned)}</td><td className="p-1">{money(m.paid_out)}</td>
+                  <td className="p-1 font-bold">{money(m.balance)}</td>
+                  <td className="p-1 whitespace-nowrap">
+                    <button type="button" className="btn btn-outline btn-sm me-1" onClick={() => openLedger(m)}>{t('wallet.admin.ledger')}</button>
+                    {m.balance > 0 && <button type="button" className="btn btn-primary btn-sm" data-testid="cash-payout"
+                      onClick={() => setCash({ user: m, amount: money(m.balance), note: '' })}>💵 {t('wallet.admin_marketing.cash')}</button>}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        {cash && (
+          <form className="mt-3 p-3 rounded-card border border-border flex flex-wrap gap-2 items-end" data-testid="cash-form" onSubmit={e => {
+            e.preventDefault();
+            act(() => walletApi.adminCashPayout(cash.user.id, { amount: cash.amount, note: cash.note }), 'wallet.admin_marketing.cash_done').then(ok => ok && setCash(null));
+          }}>
+            <div className="w-full font-bold text-[13px]">{t('wallet.admin_marketing.cash_title')}: {cash.user.full_name}</div>
+            <label className="text-[12.5px]">{t('wallet.admin_marketing.cash_amount')}
+              <input className="input w-32 block" dir="ltr" type="number" min="0.01" step="0.01" max={cash.user.balance} required value={cash.amount}
+                onChange={e => setCash({ ...cash, amount: e.target.value })} />
+            </label>
+            <label className="text-[12.5px] flex-1 min-w-[200px]">{t('wallet.admin_marketing.cash_note')}
+              <input className="input block w-full" required minLength={5} maxLength={500} value={cash.note} onChange={e => setCash({ ...cash, note: e.target.value })} />
+            </label>
+            <button type="submit" className="btn btn-primary btn-sm">{t('common.save')}</button>
+            <button type="button" className="btn btn-outline btn-sm" onClick={() => setCash(null)}>{t('common.cancel')}</button>
+          </form>
+        )}
+      </div>
+
       <form className="card p-3 flex flex-wrap items-end gap-3" onSubmit={e => {
         e.preventDefault();
-        act(() => walletApi.adminWalletSettings({ commission_percent: settings.commission_percent, min_withdrawal: settings.min_withdrawal }), 'wallet.admin.settings_saved');
+        act(() => walletApi.adminWalletSettings({ min_withdrawal: settings.min_withdrawal }), 'wallet.admin.settings_saved');
       }}>
-        <label className="text-[13px]">{t('wallet.admin.commission_percent')}
-          <input className="input w-28 block" type="number" min="0" max="100" step="0.01" required value={settings.commission_percent}
-            onChange={e => setSettings({ ...settings, commission_percent: e.target.value })} />
-        </label>
         <label className="text-[13px]">{t('wallet.admin.min_withdrawal')}
           <input className="input w-28 block" type="number" min="0" step="0.01" required value={settings.min_withdrawal}
             onChange={e => setSettings({ ...settings, min_withdrawal: e.target.value })} />
         </label>
         <button type="submit" className="btn btn-primary">{t('common.save')}</button>
-        <p className="text-[12px] text-fg-subtle w-full">{t('wallet.admin.settings_hint')}</p>
       </form>
 
       <div className="card p-3 overflow-x-auto">
@@ -171,7 +272,7 @@ export default function AdminWalletsPage() {
         {data.rewards.length === 0 ? <div className="text-[13px] text-fg-muted">{t('wallet.admin.none')}</div> : (
           <ul className="text-[12.5px] space-y-1">
             {data.rewards.map(r => (
-              <li key={r.id}>{r.referrer_name} ← {r.referred_name}: {money(r.amount)} ({r.percent}% × {money(r.payment_amount)}) · {formatRelativeTime(r.created_at)}</li>
+              <li key={r.id}>{r.referrer_name} ← {r.referred_name}: {money(r.amount)}{r.mode === 'subscription' ? '' : ` (${r.percent}% × ${money(r.payment_amount)})`} · {formatRelativeTime(r.created_at)}</li>
             ))}
           </ul>
         )}

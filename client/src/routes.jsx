@@ -116,6 +116,7 @@ const CLIENT_SIDEBAR = [
   { to: '/directory', icon: '📒', labelKey: 'requester.directory_title' },
   { to: '/chat', icon: '💬', labelKey: 'nav.chat' },
   { to: '/notifications', icon: '🔔', labelKey: 'nav.notifications' },
+  { to: '/wallet', icon: '💰', labelKey: 'wallet.nav' },
   { to: '/promote', icon: '📣', labelKey: 'nav.promote' },
   { to: '/profile', icon: '👤', labelKey: 'nav.profile' },
 ];
@@ -211,6 +212,11 @@ export default function AppRoutes() {
 
         <Route element={<Protected roles={['client', 'admin']}><RoleDashboard /></Protected>}>
           <Route path="/client" element={<MyRequestsPage />} />
+        </Route>
+
+        {/* AYK-322: every account has a marketing code and a wallet, whatever its role. */}
+        <Route element={<Protected><RoleDashboard /></Protected>}>
+          <Route path="/wallet" element={<WalletPage />} />
         </Route>
 
         <Route element={<Protected roles={['provider']}><RoleDashboard /></Protected>}>

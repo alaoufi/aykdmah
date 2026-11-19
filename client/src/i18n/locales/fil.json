@@ -2196,7 +2196,9 @@
       "referral_commission": "Komisyon ng coupon",
       "withdrawal": "Withdrawal sa bangko",
       "gift_subscription": "Subscription na binayaran para sa iba",
-      "admin_adjustment": "Adjustment mula sa admin"
+      "admin_adjustment": "Adjustment mula sa admin",
+      "referral_count_reward": "Gantimpala sa marketing ayon sa bilang",
+      "cash_payout": "Bayad na cash"
     },
     "tx_status": {
       "completed": "Tapos na",
@@ -2204,7 +2206,7 @@
       "cancelled": "Na-cancel"
     },
     "register_coupon": "Numero ng coupon (opsyonal)",
-    "register_coupon_hint": "Kung inimbita ka ng isang provider, isulat dito ang kanyang coupon.",
+    "register_coupon_hint": "Kung may nag-imbita sa iyo, ilagay dito ang coupon niya.",
     "errors": {
       "generic": "Hindi magawa ang transaksyon. Subukan ulit.",
       "load_failed": "Hindi ma-load ang wallet.",
@@ -2266,7 +2268,20 @@
       "rewards": "Mga komisyon ng coupon",
       "test_mode": "Test mode ang pagbabayad: test lang ang lahat ng kasalukuyang bayad at komisyon, at walang bank transfer na maaaprubahan. Burahin ang test data bago ikonekta ang totoong payment gateway."
     },
-    "test_mode": "Test mode: galing sa test na bayad ang mga komisyon, at naka-off ang bank withdrawal hanggang maikonekta ang totoong payment gateway."
+    "test_mode": "Test mode: galing sa test na bayad ang mga komisyon, at naka-off ang bank withdrawal hanggang maikonekta ang totoong payment gateway.",
+    "marketing": {
+      "off": "Kasalukuyang nakahinto ang marketing na may komisyon.",
+      "count": "Sa bawat {{every}} service provider na magre-register gamit ang coupon mo, madadagdag sa balanse mo ang SAR {{amount}}.",
+      "subscription": "Sa bawat service provider na magre-register gamit ang coupon mo, pagkatapos ay magbayad ng subscription at ma-activate ito, madadagdag sa balanse mo ang SAR {{amount}}.",
+      "progress": "{{have}} sa {{every}} tungo sa susunod na gantimpala",
+      "providers": "Mga service provider na nag-register gamit ang coupon mo",
+      "paid_out": "Naibayad na sa iyo",
+      "invited_title": "Sino ang nag-register gamit ang coupon mo",
+      "invited_empty": "Wala pang nag-register gamit ang coupon mo.",
+      "counted": "Nabilang",
+      "not_counted": "Hindi pa pumipili ng mga serbisyo",
+      "commission": "Komisyon SAR {{amount}}"
+    }
   },
   "test_checkout": {
     "banner": "Test na bayad — walang perang ibabawas",

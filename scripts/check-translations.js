@@ -18,7 +18,7 @@ const values = Object.fromEntries(languages.map(language => [language, flatten(J
 const reference = values.ar;
 // The admin area is Arabic only (owner's decision, AYK-295): admin-only texts added since then exist in
 // ar.json alone and are not missing elsewhere. Keep this list to keys used only under /admin.
-const arabicOnly = ['backups_report.guide.', 'backups_report.run.'];
+const arabicOnly = ['backups_report.guide.', 'backups_report.run.', 'wallet.admin_marketing.'];
 const adminOnly = key => arabicOnly.some(prefix => key.startsWith(prefix));
 const placeholders = value => typeof value === 'string' ? [...value.matchAll(/{{\s*([^{}]+?)\s*}}/g)].map(match => match[1]).sort() : [];
 const errors = [];

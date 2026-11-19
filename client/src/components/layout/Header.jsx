@@ -260,7 +260,8 @@ export default function Header() {
                   canRequestService(user) && { key: 'requests', icon: '📋', label: t('nav.my_requests'), to: '/client', extra: [
                     { to: '/requests/new', label: `➕ ${t('request.create_title')}` },
                     { to: '/directory', label: `📒 ${t('requester.directory_title')}`, testid: 'menu-directory' },
-                  ] },
+                    user.role !== 'provider' && { to: '/wallet', label: `💰 ${t('wallet.nav')}` },
+                  ].filter(Boolean) },
                   user.role === 'provider' && { key: 'tasks', icon: '🧰', label: t('work.tasks_title'), to: '/provider/tasks', extra: [
                     { to: '/opportunities', label: `🔍 ${t('work.requests_nav')}` },
                     { to: '/profile#work', label: `🛠️ ${t('work.professions_areas')}` },

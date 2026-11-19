@@ -150,6 +150,8 @@ const updateProvider = asyncHandler(async (req, res) => {
   if (coverage) await saveCoverage(query, userId, coverage);
   if (payload.also_client !== undefined) await query('UPDATE users SET also_client = ? WHERE id = ?', [[true, 1, '1'].includes(payload.also_client) ? 1 : 0, userId]);
   const profile = await User.updateProviderProfile(userId, payload);
+  // AYK-322: an invited provider starts to count for their marketer once they have services.
+  require('../services/walletService').settleCountRewardsForInvited(userId).catch(() => {});
   return success(res, profile, req.t('provider_updated'));
 });
 

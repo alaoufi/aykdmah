@@ -13,6 +13,7 @@ export const adminWallets = () => data(api.get('/wallet/admin'));
 export const adminLedger = userId => data(api.get(`/wallet/admin/users/${userId}`));
 export const adminAdjust = (userId, body) => data(api.post(`/wallet/admin/users/${userId}/adjust`, body));
 export const adminProcessWithdrawal = (id, body) => data(api.post(`/wallet/admin/withdrawals/${id}`, body));
+export const adminCashPayout = (userId, body) => data(api.post(`/wallet/admin/users/${userId}/cash-payout`, body));
 export const adminWalletSettings = body => data(api.put('/wallet/admin/settings', body));
 
 // Server error codes become translated messages (wallet.errors.<code>).

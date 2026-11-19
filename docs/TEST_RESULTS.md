@@ -1316,3 +1316,24 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - In Arabic «غير متاح الآن» became «خارج الخدمة».
 - Browser check (local site): paused provider → page badge «🔴 متوقف مؤقتًا», «دليلي» «🔴 خارج الخدمة»; active → «🟢 متاح الآن» in both.
 - Client tests 166 pass; `i18n:check` 2580 keys.
+
+## 2026-11-19 — AYK-322: marketing by commission
+- The owner's design. Built on the existing coupons, wallet and withdrawals.
+- What changed:
+  - every account's number is a marketing code: a requester's code earns too (before, only a provider's);
+  - a switch in the administration, «التسويق مفعّل». Off: no new commission, earned balances stay. It is on after this deploy only where a percentage was already set;
+  - the way a marketer earns, chosen by the administration:
+    - **count**: a fixed amount for every N invited service providers who registered and chose their services. Nothing to do with subscriptions. N and the amount are settings;
+    - **subscription**: a fixed amount once an invited provider's subscription payment completes and the subscription is activated (same database transaction), once per invited provider;
+    - **percent**: of the first payment, as before;
+  - the marketer's page (`/wallet`, now for every account): the code, what it earns, progress to the next reward, who signed up with it, earned, paid out, balance, and the withdrawal request;
+  - the administration's page: the settings, «كشف المسوّقين» (sign-ups, counted providers, paid subscribers, earned, paid out, remaining), and «تسليم نقدي», which records a cash payment as a ledger row and lowers the balance.
+- Migration 094 (additive): `referral_count_rewards`, `referral_rewards.mode`, five `marketing_*` settings.
+- Decisions taken as proposed to the owner, easy to change: the subscription commission is paid once (not on renewals); a provider counts once they have chosen services; the percentage stays as a third way.
+- Tests (local PostgreSQL 16): integration 277 pass, 0 fail. New in `wallet.integration.js`:
+  - off pays nothing; a requester has a wallet and a code;
+  - subscription way: nothing for a non-subscription payment; the fixed amount when the subscription is paid and active; no second payment on renewal; nothing while off;
+  - count way: requesters and providers without services are not counted; the third provider completes a block; asking again never pays twice; a subscription payment pays nothing; changing N never pays the same registrations again; three concurrent settlements pay once; the statement's numbers; cash payout needs a note, cannot exceed the balance, needs the wallets permission, and shows as paid out.
+  - Server 84, client 166 pass; `i18n:check` 2620 keys; `check-deploy` 22 ok.
+- Browser check (local site): as a requester, `/wallet` showed «كل 3 من مقدمي الخدمة يسجّلون بكوبونك، يُضاف إلى رصيدك 100 ريال», «1 من 3 نحو المكافأة القادمة», balance 100.00 and the four people who signed up; the admin page showed the settings and the statement line (4, 4, 0, 100.00, 0.00, 100.00) with «تسليم نقدي». No page errors.
+- Not tried: a real bank transfer or a real gateway payment (payments run in test mode).

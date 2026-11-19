@@ -41,7 +41,7 @@ function normalizeCode(value) {
 
 // Gives every account its permanent number (idempotent). It is the customer
 // number shown in the header and accepted at sign-in; only a provider's number
-// earns commission as an invitation (findReferrerByCode).
+// is also their marketing code (AYK-322): any active account's number earns.
 async function ensureReferralCode(userId) {
   const user = await queryOne('SELECT id, role, referral_code FROM users WHERE id = ?', [userId]);
   if (!user) return null;
@@ -64,7 +64,9 @@ async function ensureReferralCode(userId) {
 async function findReferrerByCode(code) {
   const normalized = normalizeCode(code);
   if (!/^[A-Z]{2,4}\d{2,4}$/.test(normalized)) return null;
-  return queryOne(`SELECT id, full_name FROM users WHERE referral_code = ? AND role = 'provider'
+  // AYK-322 (the owner): every registered account's number is a marketing code, not only a
+  // provider's. Administrators are left out.
+  return queryOne(`SELECT id, full_name FROM users WHERE referral_code = ? AND role IN ('provider', 'client')
     AND is_active = 1 AND is_blocked = 0 AND deleted_at IS NULL`, [normalized]);
 }
 
@@ -81,7 +83,7 @@ async function applyReferralCode(userId, code) {
     if (paid.length) throw fail(409, 'coupon_after_payment');
     await conn.execute('UPDATE users SET referred_by = ? WHERE id = ? AND referred_by IS NULL', [referrer.id, userId]);
     return { referrer_id: referrer.id, referrer_name: referrer.full_name };
-  });
+  }).then(result => { settleCountRewards(result.referrer_id).catch(() => {}); return result; });
 }
 
 async function balanceIn(conn, userId) {
@@ -103,20 +105,92 @@ async function commissionPercent() {
   return Number.isFinite(value) && value > 0 && value <= 100 ? value : 0;
 }
 
+// AYK-322: marketing by commission. The administration turns it on or off and picks one way a
+// marketer earns: `percent` of the invited account's first payment; `count`, a fixed amount for
+// every N invited service providers who registered (nothing to do with subscriptions);
+// `subscription`, a fixed amount once an invited provider's subscription is paid and activated.
+const MARKETING_MODES = ['percent', 'count', 'subscription'];
+async function marketing() {
+  const [enabled, mode, every, countAmount, subscriptionAmount] = await Promise.all(
+    ['marketing_enabled', 'marketing_mode', 'marketing_count_every', 'marketing_count_amount', 'marketing_subscription_amount'].map(key => Setting.get(key)));
+  const amount = value => { const n = Number(value); return Number.isFinite(n) && n > 0 && n <= 100000 ? toHalalas(n) : 0; };
+  const n = Math.floor(Number(every));
+  return {
+    enabled: enabled === true || String(enabled) === 'true',
+    mode: MARKETING_MODES.includes(mode) ? mode : 'percent',
+    countEvery: Number.isFinite(n) && n >= 1 && n <= 10000 ? n : 0,
+    countAmount: amount(countAmount),
+    subscriptionAmount: amount(subscriptionAmount),
+    percent: await commissionPercent(),
+  };
+}
+const marketingView = cfg => ({
+  enabled: cfg.enabled, mode: cfg.mode, percent: cfg.percent, count_every: cfg.countEvery,
+  count_amount: toSar(cfg.countAmount), subscription_amount: toSar(cfg.subscriptionAmount),
+});
+
+// An invited service provider counts once their account is usable: active, and with at least one
+// service chosen (sign-up as a provider asks for it), so empty accounts are not paid for.
+const QUALIFIED_PROVIDER = `r.role = 'provider' AND r.is_active = 1 AND r.is_blocked = 0 AND r.deleted_at IS NULL
+  AND EXISTS (SELECT 1 FROM provider_profiles pp WHERE pp.user_id = r.id
+    AND pp.service_ids IS NOT NULL AND CAST(pp.service_ids AS TEXT) NOT IN ('', '[]', 'null'))`;
+
+// The `count` way: pays every complete block of N invited providers not paid for yet. Safe to call
+// at any time and any number of times; it does nothing when marketing is off or in another mode.
+async function settleCountRewards(referrerId) {
+  const cfg = await marketing();
+  if (!cfg.enabled || cfg.mode !== 'count' || !cfg.countEvery || !cfg.countAmount) return 0;
+  const blocks = await transaction(async conn => {
+    const [users] = await conn.execute('SELECT id FROM users WHERE id = ? AND deleted_at IS NULL FOR UPDATE', [Number(referrerId)]);
+    if (!users[0]) return 0;
+    const [qualified] = await conn.execute(`SELECT COUNT(*) AS n FROM users r WHERE r.referred_by = ? AND ${QUALIFIED_PROVIDER}`, [users[0].id]);
+    const [used] = await conn.execute('SELECT COALESCE(SUM(counted), 0) AS n FROM referral_count_rewards WHERE referrer_id = ?', [users[0].id]);
+    const due = Math.floor((Number(qualified[0].n) - Number(used[0].n)) / cfg.countEvery);
+    for (let i = 0; i < due; i += 1) {
+      const txId = await insertTx(conn, { userId: users[0].id, halalas: cfg.countAmount, type: 'referral_count_reward', referenceType: 'referral_count' });
+      await conn.execute('INSERT INTO referral_count_rewards (referrer_id, counted, amount, wallet_transaction_id) VALUES (?, ?, ?, ?)',
+        [users[0].id, cfg.countEvery, toSar(cfg.countAmount), txId]);
+    }
+    return Math.max(0, due);
+  });
+  if (blocks > 0) {
+    notificationService.notifyUser(Number(referrerId), {
+      type: 'referral_commission', title: 'أُضيفت مكافأة تسويق إلى رصيدك',
+      body: `أُضيف ${toSar(cfg.countAmount * blocks)} ريال إلى رصيدك عن ${cfg.countEvery * blocks} مقدم خدمة سجّلوا بكودك`, link: '/wallet',
+    }).catch(() => {});
+  }
+  return blocks;
+}
+
+// Called after an invited provider's profile changes (their services), which is when they start to count.
+async function settleCountRewardsForInvited(userId) {
+  const row = await queryOne('SELECT referred_by FROM users WHERE id = ?', [Number(userId)]);
+  if (row?.referred_by) await settleCountRewards(row.referred_by);
+}
+
 // Called inside Payment.settleVerified's transaction when a gateway payment completes.
 async function awardReferralIn(conn, payment) {
   if (String(payment.provider).toLowerCase() === 'wallet') return null;
+  const cfg = await marketing();
+  // Off, or the `count` way (which has nothing to do with payments): no commission from a payment.
+  if (!cfg.enabled || cfg.mode === 'count') return null;
+  // The `subscription` way pays only for a subscription payment. settleVerified activates the
+  // subscription in this same transaction just before this call, so it is paid and active here.
+  if (cfg.mode === 'subscription' && !payment.subscription_id) return null;
   const [users] = await conn.execute('SELECT id, referred_by FROM users WHERE id = ? FOR UPDATE', [payment.user_id]);
   const referrerId = users[0]?.referred_by;
   if (!referrerId) return null;
-  const [earlier] = await conn.execute(
-    "SELECT id FROM payments WHERE user_id = ? AND status = 'completed' AND id <> ? AND LOWER(provider) <> 'wallet' LIMIT 1",
-    [payment.user_id, payment.id]);
-  if (earlier.length) return null; // only the first payment counts
+  if (cfg.mode === 'percent') {
+    const [earlier] = await conn.execute(
+      "SELECT id FROM payments WHERE user_id = ? AND status = 'completed' AND id <> ? AND LOWER(provider) <> 'wallet' LIMIT 1",
+      [payment.user_id, payment.id]);
+    if (earlier.length) return null; // only the first payment counts
+  }
+  // Once per invited account, whichever way: the first subscription, not every renewal.
   const [existing] = await conn.execute('SELECT id FROM referral_rewards WHERE referred_user_id = ?', [payment.user_id]);
   if (existing.length) return null;
-  const percent = await commissionPercent();
-  const halalas = Math.floor(toHalalas(payment.amount) * percent / 100);
+  const percent = cfg.mode === 'percent' ? cfg.percent : 0;
+  const halalas = cfg.mode === 'percent' ? Math.floor(toHalalas(payment.amount) * percent / 100) : cfg.subscriptionAmount;
   if (halalas <= 0) return null;
   await conn.execute('SELECT id FROM users WHERE id = ? FOR UPDATE', [referrerId]);
   const txId = await insertTx(conn, {
@@ -125,8 +199,8 @@ async function awardReferralIn(conn, payment) {
     note: String(payment.provider).toLowerCase() === 'test' ? 'test' : null,
   });
   await conn.execute(
-    `INSERT INTO referral_rewards (referred_user_id, referrer_id, payment_id, payment_amount, percent, amount, wallet_transaction_id)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`, [payment.user_id, referrerId, payment.id, payment.amount, percent, toSar(halalas), txId]);
+    `INSERT INTO referral_rewards (referred_user_id, referrer_id, payment_id, payment_amount, percent, amount, wallet_transaction_id, mode)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`, [payment.user_id, referrerId, payment.id, payment.amount, percent, toSar(halalas), txId, cfg.mode]);
   return { referrerId, amount: toSar(halalas) };
 }
 
@@ -134,7 +208,7 @@ async function notifyCommission(reward) {
   if (!reward) return;
   notificationService.notifyUser(reward.referrerId, {
     type: 'referral_commission', title: 'أُضيفت عمولة إلى رصيدك',
-    body: `أُضيف ${reward.amount} ريال إلى رصيدك من كوبونك`, link: '/provider/wallet',
+    body: `أُضيف ${reward.amount} ريال إلى رصيدك من كودك`, link: '/wallet',
   }).catch(() => {});
 }
 
@@ -212,7 +286,7 @@ async function processWithdrawal(admin, id, { action, note, transfer_reference }
     type: 'withdrawal_' + action,
     title: action === 'paid' ? 'تم تحويل طلب السحب' : 'رُفض طلب السحب',
     body: action === 'paid' ? `حُوّل ${result.amount} ريال إلى حسابك البنكي` : 'أُعيد المبلغ إلى رصيدك',
-    link: '/provider/wallet',
+    link: '/wallet',
   }).catch(() => {});
   return { id: result.id, status: action };
 }
@@ -277,14 +351,24 @@ async function giftSubscription(user, { recipient, plan_id, password }) {
 
 async function summary(userId) {
   const code = await ensureReferralCode(userId);
+  await settleCountRewards(userId).catch(() => {});
+  const cfg = await marketing();
   const totals = await queryOne(`SELECT
       COALESCE(SUM(CASE WHEN status <> 'cancelled' THEN amount END), 0) AS balance,
       COALESCE(SUM(CASE WHEN status = 'pending' THEN -amount END), 0) AS pending_withdrawals,
-      COALESCE(SUM(CASE WHEN type = 'referral_commission' AND status = 'completed' THEN amount END), 0) AS earned
+      COALESCE(SUM(CASE WHEN type IN ('referral_commission', 'referral_count_reward') AND status = 'completed' THEN amount END), 0) AS earned,
+      COALESCE(SUM(CASE WHEN type IN ('withdrawal', 'cash_payout') AND status = 'completed' THEN -amount END), 0) AS paid_out
     FROM wallet_transactions WHERE user_id = ?`, [userId]);
   const referrals = await queryOne(`SELECT COUNT(*) AS total,
-      (SELECT COUNT(*) FROM referral_rewards WHERE referrer_id = ?) AS paid
-    FROM users WHERE referred_by = ?`, [userId, userId]);
+      (SELECT COUNT(*) FROM referral_rewards WHERE referrer_id = ?) AS paid,
+      (SELECT COUNT(*) FROM users r WHERE r.referred_by = ? AND ${QUALIFIED_PROVIDER}) AS providers,
+      (SELECT COALESCE(SUM(counted), 0) FROM referral_count_rewards WHERE referrer_id = ?) AS counted
+    FROM users WHERE referred_by = ?`, [userId, userId, userId, userId]);
+  // Who joined with my code: the name, when, and where they stand. Nothing else about them.
+  const invited = await query(`SELECT r.id, r.full_name, r.role, r.created_at,
+      CASE WHEN ${QUALIFIED_PROVIDER} THEN 1 ELSE 0 END AS counts,
+      (SELECT rw.amount FROM referral_rewards rw WHERE rw.referred_user_id = r.id) AS commission
+    FROM users r WHERE r.referred_by = ? AND r.deleted_at IS NULL ORDER BY r.id DESC LIMIT 200`, [userId]);
   const transactions = await query(`SELECT t.id, t.amount, t.type, t.status, t.created_at, t.note, u.full_name AS related_name
     FROM wallet_transactions t LEFT JOIN users u ON u.id = t.related_user_id
     WHERE t.user_id = ? ORDER BY t.id DESC LIMIT 100`, [userId]);
@@ -295,7 +379,13 @@ async function summary(userId) {
   return {
     referral_code: code,
     balance: Number(totals.balance), pending_withdrawals: Number(totals.pending_withdrawals), earned: Number(totals.earned),
-    referrals: { total: Number(referrals.total), paid: Number(referrals.paid) },
+    paid_out: Number(totals.paid_out),
+    referrals: { total: Number(referrals.total), paid: Number(referrals.paid), providers: Number(referrals.providers),
+      // The `count` way: how many of my invited providers are waiting for the next block.
+      toward_next: Math.max(0, Number(referrals.providers) - Number(referrals.counted)) },
+    marketing: marketingView(cfg),
+    invited: invited.map(row => ({ id: row.id, name: row.full_name, role: row.role, created_at: row.created_at,
+      counts: Number(row.counts) === 1, commission: row.commission == null ? null : Number(row.commission) })),
     commission_percent: await commissionPercent(),
     min_withdrawal: Number(await Setting.get('wallet_min_withdrawal')) || 0,
     can_apply_coupon: !me?.referred_by && !paidBefore,
@@ -306,16 +396,34 @@ async function summary(userId) {
 
 // Administrator views.
 async function adminOverview() {
+  const cfg = await marketing();
+  // The `count` way: settle whoever has a complete block waiting, so the statement is current.
+  if (cfg.enabled && cfg.mode === 'count' && cfg.countEvery && cfg.countAmount) {
+    const waiting = await query(`SELECT r.referred_by AS id FROM users r WHERE r.referred_by IS NOT NULL AND ${QUALIFIED_PROVIDER}
+      GROUP BY r.referred_by HAVING COUNT(*) - COALESCE((SELECT SUM(c.counted) FROM referral_count_rewards c WHERE c.referrer_id = r.referred_by), 0) >= ? LIMIT 200`, [cfg.countEvery]);
+    for (const row of waiting) await settleCountRewards(row.id).catch(() => {});
+  }
+  // The marketers' statement: everyone whose code was used, what they earned, what was paid, what is owed.
+  const marketers = await query(`SELECT u.id, u.full_name, u.phone, u.referral_code, u.role,
+      (SELECT COUNT(*) FROM users r WHERE r.referred_by = u.id) AS referrals,
+      (SELECT COUNT(*) FROM users r WHERE r.referred_by = u.id AND ${QUALIFIED_PROVIDER}) AS providers,
+      (SELECT COUNT(*) FROM referral_rewards rw WHERE rw.referrer_id = u.id) AS paid_subscribers,
+      COALESCE((SELECT SUM(t.amount) FROM wallet_transactions t WHERE t.user_id = u.id AND t.type IN ('referral_commission', 'referral_count_reward') AND t.status = 'completed'), 0) AS earned,
+      COALESCE((SELECT SUM(-t.amount) FROM wallet_transactions t WHERE t.user_id = u.id AND t.type IN ('withdrawal', 'cash_payout') AND t.status = 'completed'), 0) AS paid_out,
+      COALESCE((SELECT SUM(t.amount) FROM wallet_transactions t WHERE t.user_id = u.id AND t.status <> 'cancelled'), 0) AS balance
+    FROM users u WHERE EXISTS (SELECT 1 FROM users r WHERE r.referred_by = u.id)
+    ORDER BY earned DESC, referrals DESC LIMIT 300`);
   const totals = await queryOne(`SELECT
       COALESCE(SUM(CASE WHEN status <> 'cancelled' THEN amount END), 0) AS liabilities,
-      COALESCE(SUM(CASE WHEN type = 'referral_commission' AND status = 'completed' THEN amount END), 0) AS commissions,
+      COALESCE(SUM(CASE WHEN type IN ('referral_commission', 'referral_count_reward') AND status = 'completed' THEN amount END), 0) AS commissions,
       COALESCE(SUM(CASE WHEN type = 'withdrawal' AND status = 'completed' THEN -amount END), 0) AS withdrawn,
+      COALESCE(SUM(CASE WHEN type = 'cash_payout' AND status = 'completed' THEN -amount END), 0) AS cash_paid,
       COALESCE(SUM(CASE WHEN type = 'withdrawal' AND status = 'pending' THEN -amount END), 0) AS pending_withdrawals,
       COALESCE(SUM(CASE WHEN type = 'gift_subscription' AND status = 'completed' THEN -amount END), 0) AS gifted
     FROM wallet_transactions`);
   const wallets = await query(`SELECT u.id, u.full_name, u.phone, u.referral_code,
       COALESCE(SUM(CASE WHEN t.status <> 'cancelled' THEN t.amount END), 0) AS balance,
-      COALESCE(SUM(CASE WHEN t.type = 'referral_commission' AND t.status = 'completed' THEN t.amount END), 0) AS earned,
+      COALESCE(SUM(CASE WHEN t.type IN ('referral_commission', 'referral_count_reward') AND t.status = 'completed' THEN t.amount END), 0) AS earned,
       (SELECT COUNT(*) FROM users r WHERE r.referred_by = u.id) AS referrals
     FROM users u JOIN wallet_transactions t ON t.user_id = u.id
     GROUP BY u.id, u.full_name, u.phone, u.referral_code ORDER BY balance DESC LIMIT 200`);
@@ -325,7 +433,10 @@ async function adminOverview() {
     JOIN users a ON a.id = r.referrer_id JOIN users b ON b.id = r.referred_user_id ORDER BY r.id DESC LIMIT 200`);
   const num = row => Object.fromEntries(Object.entries(row).map(([k, v]) => [k, Number(v)]));
   return {
-    totals: num(totals), commission_percent: await commissionPercent(), test_mode: isTestMode(),
+    totals: num(totals), commission_percent: cfg.percent, test_mode: isTestMode(),
+    marketing: marketingView(cfg),
+    marketers: marketers.map(m => ({ ...m, referrals: Number(m.referrals), providers: Number(m.providers),
+      paid_subscribers: Number(m.paid_subscribers), earned: Number(m.earned), paid_out: Number(m.paid_out), balance: Number(m.balance) })),
     min_withdrawal: Number(await Setting.get('wallet_min_withdrawal')) || 0,
     wallets: wallets.map(w => ({ ...w, balance: Number(w.balance), earned: Number(w.earned), referrals: Number(w.referrals) })),
     withdrawals, rewards,
@@ -353,7 +464,46 @@ async function adminAdjust(admin, userId, { amount, note }) {
   });
 }
 
-async function setSettings({ commission_percent, min_withdrawal }) {
+// A marketer was paid in cash (the `count` way is settled like this): one ledger row that lowers
+// the balance, with who paid and a note. Never more than the balance.
+async function adminCashPayout(admin, userId, { amount, note }) {
+  const halalas = parseAmount(amount);
+  const reason = String(note || '').trim();
+  if (reason.length < 5) throw fail(400, 'note_required');
+  const result = await transaction(async conn => {
+    const [users] = await conn.execute('SELECT id FROM users WHERE id = ? FOR UPDATE', [Number(userId)]);
+    if (!users[0]) throw fail(404, 'user_not_found');
+    if (await balanceIn(conn, users[0].id) < halalas) throw fail(409, 'insufficient_balance');
+    const id = await insertTx(conn, { userId: users[0].id, halalas: -halalas, type: 'cash_payout', note: reason.slice(0, 500), createdBy: admin.id });
+    return { id, user_id: users[0].id, amount: toSar(halalas) };
+  });
+  notificationService.notifyUser(result.user_id, {
+    type: 'withdrawal_paid', title: 'سُلّمت لك عمولتك نقدًا',
+    body: `سُجّل تسليم ${result.amount} ريال نقدًا وخُصم من رصيدك`, link: '/wallet',
+  }).catch(() => {});
+  return result;
+}
+
+async function setSettings({ commission_percent, min_withdrawal, marketing_enabled, marketing_mode, count_every, count_amount, subscription_amount }) {
+  if (marketing_enabled !== undefined) {
+    if (![true, false, 'true', 'false', 0, 1].includes(marketing_enabled)) throw fail(400, 'invalid_data');
+    await Setting.set('marketing_enabled', [true, 'true', 1].includes(marketing_enabled), 'boolean', 'payments', 0);
+  }
+  if (marketing_mode !== undefined) {
+    if (!MARKETING_MODES.includes(marketing_mode)) throw fail(400, 'invalid_data');
+    await Setting.set('marketing_mode', marketing_mode, 'string', 'payments', 0);
+  }
+  if (count_every !== undefined) {
+    const value = Number(count_every);
+    if (!Number.isInteger(value) || value < 1 || value > 10000) throw fail(400, 'invalid_data');
+    await Setting.set('marketing_count_every', String(value), 'number', 'payments', 0);
+  }
+  for (const [key, value] of [['marketing_count_amount', count_amount], ['marketing_subscription_amount', subscription_amount]]) {
+    if (value === undefined) continue;
+    const n = Number(value);
+    if (!Number.isFinite(n) || n < 0 || n > 100000) throw fail(400, 'invalid_amount');
+    await Setting.set(key, String(Math.round(n * 100) / 100), 'number', 'payments', 0);
+  }
   if (commission_percent !== undefined) {
     const value = Number(commission_percent);
     if (!Number.isFinite(value) || value < 0 || value > 100) throw fail(400, 'invalid_percent');
@@ -364,10 +514,12 @@ async function setSettings({ commission_percent, min_withdrawal }) {
     if (!Number.isFinite(value) || value < 0 || value > 100000) throw fail(400, 'invalid_amount');
     await Setting.set('wallet_min_withdrawal', String(Math.round(value * 100) / 100), 'number', 'payments', 0);
   }
-  return { commission_percent: await commissionPercent(), min_withdrawal: Number(await Setting.get('wallet_min_withdrawal')) || 0 };
+  return { commission_percent: await commissionPercent(), min_withdrawal: Number(await Setting.get('wallet_min_withdrawal')) || 0,
+    marketing: marketingView(await marketing()) };
 }
 
 module.exports = {
+  settleCountRewards, settleCountRewardsForInvited, adminCashPayout,
   ensureReferralCode, findReferrerByCode, applyReferralCode, awardReferralIn, notifyCommission,
   requestWithdrawal, cancelWithdrawal, processWithdrawal, previewGift, giftSubscription,
   summary, adminOverview, adminLedger, adminAdjust, setSettings, normalizeCode, CODE_TIERS,

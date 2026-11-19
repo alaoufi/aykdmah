@@ -24,16 +24,19 @@ const handle = fn => asyncHandler(async (req, res) => {
 const providerOnly = (req, res, next) => (req.user?.role === 'provider' ? next() : error(res, 'providers_only', 403));
 const admin = [authenticate, requireAdmin, requirePermission('wallets.manage')];
 
-router.get('/', authenticate, providerOnly, handle(req => wallet.summary(req.user.id)));
+// AYK-322: every account has a marketing code and a balance, so the wallet, withdrawals and their
+// cancellation are for any signed-in account. Paying someone's subscription stays for providers.
+router.get('/', authenticate, handle(req => wallet.summary(req.user.id)));
 router.post('/coupon', authenticate, moneyLimiter, handle(req => wallet.applyReferralCode(req.user.id, req.body?.code)));
-router.post('/withdrawals', authenticate, providerOnly, moneyLimiter, handle(req => wallet.requestWithdrawal(req.user, req.body || {})));
-router.post('/withdrawals/:id/cancel', authenticate, providerOnly, handle(req => wallet.cancelWithdrawal(req.user, req.params.id)));
+router.post('/withdrawals', authenticate, moneyLimiter, handle(req => wallet.requestWithdrawal(req.user, req.body || {})));
+router.post('/withdrawals/:id/cancel', authenticate, handle(req => wallet.cancelWithdrawal(req.user, req.params.id)));
 router.post('/gift/preview', authenticate, providerOnly, handle(req => wallet.previewGift(req.user, req.body || {})));
 router.post('/gift', authenticate, providerOnly, moneyLimiter, handle(req => wallet.giftSubscription(req.user, req.body || {})));
 
 router.get('/admin', ...admin, handle(() => wallet.adminOverview()));
 router.get('/admin/users/:id', ...admin, handle(req => wallet.adminLedger(req.params.id)));
 router.post('/admin/users/:id/adjust', ...admin, handle(req => wallet.adminAdjust(req.user, req.params.id, req.body || {})));
+router.post('/admin/users/:id/cash-payout', ...admin, handle(req => wallet.adminCashPayout(req.user, req.params.id, req.body || {})));
 router.post('/admin/withdrawals/:id', ...admin, handle(req => wallet.processWithdrawal(req.user, req.params.id, req.body || {})));
 router.put('/admin/settings', ...admin, handle(req => wallet.setSettings(req.body || {})));
 

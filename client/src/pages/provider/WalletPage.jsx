@@ -8,6 +8,7 @@ import { listPlans } from '../../services/adminService';
 import * as walletApi from '../../services/walletService';
 import { formatRelativeTime } from '../../utils/formatters';
 import { localizedName } from '../../utils/localize';
+import { useAuth } from '../../hooks/useAuth';
 
 const sar = (value, t) => t('wallet.amount', { value: Number(value || 0).toFixed(2) });
 
@@ -22,6 +23,8 @@ function Stat({ label, value }) {
 
 export default function WalletPage() {
   const { t, i18n } = useTranslation();
+  const { user } = useAuth();
+  const isProvider = user?.role === 'provider';
   const [data, setData] = useState(null);
   const [plans, setPlans] = useState([]);
   const [loadError, setLoadError] = useState(null);
@@ -60,6 +63,14 @@ export default function WalletPage() {
     try { await navigator.clipboard.writeText(data.referral_code); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch (_) { /* clipboard blocked */ }
   };
 
+  const marketing = data.marketing || { enabled: false, mode: 'percent' };
+  const invited = data.invited || [];
+  const toward = Math.min(Number(data.referrals.toward_next) || 0, marketing.count_every || 0) % (marketing.count_every || 1);
+  const explainer = !marketing.enabled ? t('wallet.marketing.off')
+    : marketing.mode === 'count' ? (marketing.count_amount > 0 ? t('wallet.marketing.count', { every: marketing.count_every, amount: marketing.count_amount }) : t('wallet.coupon_inactive'))
+    : marketing.mode === 'subscription' ? (marketing.subscription_amount > 0 ? t('wallet.marketing.subscription', { amount: marketing.subscription_amount }) : t('wallet.coupon_inactive'))
+    : (marketing.percent > 0 ? t('wallet.coupon_explainer', { percent: marketing.percent }) : t('wallet.coupon_inactive'));
+
   return (
     <div className="space-y-4 max-w-3xl">
       <h1 className="text-xl font-extrabold text-fg">{t('wallet.title')}</h1>
@@ -76,16 +87,44 @@ export default function WalletPage() {
           <a className="btn btn-outline btn-sm" target="_blank" rel="noopener noreferrer"
             href={`https://wa.me/?text=${encodeURIComponent(shareText)}`}>{t('wallet.share_whatsapp')}</a>
         </div>
-        <p className="text-[12.5px] text-fg-muted">
-          {data.commission_percent > 0 ? t('wallet.coupon_explainer', { percent: data.commission_percent }) : t('wallet.coupon_inactive')}
-        </p>
+        {/* AYK-322: what the code earns, by the way the administration chose. */}
+        <p className="text-[12.5px] text-fg-muted" data-testid="marketing-explainer">{explainer}</p>
+        {marketing.enabled && marketing.mode === 'count' && marketing.count_every > 0 && (
+          <div data-testid="marketing-progress">
+            <div className="h-2 rounded-pill bg-surface-alt overflow-hidden">
+              <div className="h-full bg-primary" style={{ width: `${Math.min(100, (toward / marketing.count_every) * 100)}%` }} />
+            </div>
+            <div className="text-[12px] text-fg-muted mt-1">{t('wallet.marketing.progress', { have: toward, every: marketing.count_every })}</div>
+          </div>
+        )}
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
         <Stat label={t('wallet.balance')} value={sar(data.balance, t)} />
         <Stat label={t('wallet.pending_withdrawals')} value={sar(data.pending_withdrawals, t)} />
         <Stat label={t('wallet.earned')} value={sar(data.earned, t)} />
-        <Stat label={t('wallet.referrals')} value={`${data.referrals.paid} / ${data.referrals.total}`} />
+        <Stat label={t('wallet.marketing.paid_out')} value={sar(data.paid_out, t)} />
+        {marketing.mode === 'count'
+          ? <Stat label={t('wallet.marketing.providers')} value={data.referrals.providers} />
+          : <Stat label={t('wallet.referrals')} value={`${data.referrals.paid} / ${data.referrals.total}`} />}
+      </div>
+
+      <div className="card p-4" data-testid="marketing-invited">
+        <h2 className="font-bold text-fg mb-2">{t('wallet.marketing.invited_title')}</h2>
+        {invited.length === 0 ? <div className="text-[13px] text-fg-muted">{t('wallet.marketing.invited_empty')}</div> : (
+          <ul className="space-y-2 text-[13px] max-h-72 overflow-auto">
+            {invited.map(person => (
+              <li key={person.id} className="flex flex-wrap justify-between gap-2 border-b border-border pb-2">
+                <span>{person.name} · {t(person.role === 'provider' ? 'auth.role_provider' : 'auth.role_client')}</span>
+                <span className="text-fg-muted">
+                  {person.commission != null ? `✓ ${t('wallet.marketing.commission', { amount: Number(person.commission).toFixed(2) })}`
+                    : person.role === 'provider' ? (person.counts ? `✓ ${t('wallet.marketing.counted')}` : t('wallet.marketing.not_counted')) : ''}
+                  {' · '}{formatRelativeTime(person.created_at)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       {data.can_apply_coupon && (
@@ -117,7 +156,8 @@ export default function WalletPage() {
         <Button type="submit" loading={busy}>{t('wallet.request_withdrawal')}</Button>
       </form>
 
-      <form className="card p-4 space-y-2" onSubmit={async e => {
+      {/* Paying another provider's subscription from the balance stays for providers. */}
+      {isProvider && <form className="card p-4 space-y-2" onSubmit={async e => {
         e.preventDefault();
         if (!giftPreview) {
           setBusy(true); setNotice(null);
@@ -151,7 +191,7 @@ export default function WalletPage() {
           <Button type="submit" loading={busy}>{giftPreview ? t('wallet.gift_pay') : t('wallet.gift_check')}</Button>
           {giftPreview && <Button type="button" variant="outline" onClick={() => { setGiftPreview(null); setGift({ ...gift, password: '' }); }}>{t('wallet.change')}</Button>}
         </div>
-      </form>
+      </form>}
 
       {data.withdrawals.length > 0 && (
         <div className="card p-4">

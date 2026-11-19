@@ -2196,7 +2196,9 @@
       "referral_commission": "Coupon commission",
       "withdrawal": "Bank withdrawal",
       "gift_subscription": "Subscription paid for another",
-      "admin_adjustment": "Administrator adjustment"
+      "admin_adjustment": "Administrator adjustment",
+      "referral_count_reward": "Marketing reward by count",
+      "cash_payout": "Cash payout"
     },
     "tx_status": {
       "completed": "Completed",
@@ -2204,7 +2206,7 @@
       "cancelled": "Cancelled"
     },
     "register_coupon": "Coupon code (optional)",
-    "register_coupon_hint": "If a provider invited you, enter their coupon here.",
+    "register_coupon_hint": "If someone invited you, enter their coupon here.",
     "errors": {
       "generic": "The operation could not be completed. Please try again.",
       "load_failed": "Could not load the wallet.",
@@ -2266,7 +2268,20 @@
       "rewards": "Coupon commissions",
       "test_mode": "Payments are in test mode: all current payments and commissions are test data and no bank transfer can be approved. Clear test data before connecting the real gateway."
     },
-    "test_mode": "Test mode: commissions come from test payments, and bank withdrawals are disabled until a real gateway is connected."
+    "test_mode": "Test mode: commissions come from test payments, and bank withdrawals are disabled until a real gateway is connected.",
+    "marketing": {
+      "off": "Marketing by commission is currently off.",
+      "count": "For every {{every}} service providers who sign up with your coupon, SAR {{amount}} is added to your balance.",
+      "subscription": "For each service provider who signs up with your coupon, then pays their subscription and it becomes active, SAR {{amount}} is added to your balance.",
+      "progress": "{{have}} of {{every}} toward the next reward",
+      "providers": "Service providers who signed up with your coupon",
+      "paid_out": "Paid out to you",
+      "invited_title": "Who signed up with your coupon",
+      "invited_empty": "No one has signed up with your coupon yet.",
+      "counted": "Counted",
+      "not_counted": "Has not chosen services yet",
+      "commission": "Commission SAR {{amount}}"
+    }
   },
   "test_checkout": {
     "banner": "Test payment — no money will be charged",

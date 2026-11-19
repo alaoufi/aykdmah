@@ -8,7 +8,7 @@ DO $ayk_fresh$ BEGIN
   IF EXISTS (
     SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
     WHERE n.nspname = current_schema() AND c.relkind IN ('r','p','v','m','f')
-      AND c.relname IN ('activity_logs','ad_admin_messages','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_diagnostics','call_reports','calls','categories','chat_forward_receipts','cities','conversation_archives','conversation_participants','conversations','countries','device_reports','directory_contacts','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','district_name_cleanup_','districts','entity_views','governorates','install_lock','ip_geo_cache','location_shares','message_files','message_translations','messages','native_push_tokens','notifications','offers','payments','phone_codes','provider_badges','provider_coverage_districts','provider_profiles','push_subscriptions','referral_rewards','regions','request_files','request_translations','requests','review_reports','review_translations','review_votes','reviews','roles','saved_providers','schema_migrations','security_events','services','settings','subscription_plans','subscription_rules','subscriptions','support_messages','support_tickets','translation_memory','translation_usage','ui_text_overrides','uploaded_media','user_blocks','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','visit_days','wallet_transactions','withdrawal_requests')
+      AND c.relname IN ('activity_logs','ad_admin_messages','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_diagnostics','call_reports','calls','categories','chat_forward_receipts','cities','conversation_archives','conversation_participants','conversations','countries','device_reports','directory_contacts','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','district_name_cleanup_','districts','entity_views','governorates','install_lock','ip_geo_cache','location_shares','message_files','message_translations','messages','native_push_tokens','notifications','offers','payments','phone_codes','provider_badges','provider_coverage_districts','provider_profiles','push_subscriptions','referral_count_rewards','referral_rewards','regions','request_files','request_translations','requests','review_reports','review_translations','review_votes','reviews','roles','saved_providers','schema_migrations','security_events','services','settings','subscription_plans','subscription_rules','subscriptions','support_messages','support_tickets','translation_memory','translation_usage','ui_text_overrides','uploaded_media','user_blocks','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','visit_days','wallet_transactions','withdrawal_requests')
   ) THEN
     RAISE EXCEPTION 'AY KHIDMA bootstrap requires a fresh database schema; use journaled migrations for an existing installation';
   END IF;
@@ -6627,6 +6627,38 @@ ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS show_phone SMALLINT NOT N
 ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS whatsapp VARCHAR(20) NULL DEFAULT NULL;
 ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS show_whatsapp SMALLINT NOT NULL DEFAULT 0;
 INSERT INTO schema_migrations(name) VALUES ('093_provider_public_contact.sql');
+
+-- migrations/094_marketing_commission.sql
+ALTER TABLE referral_rewards ADD COLUMN IF NOT EXISTS mode VARCHAR(20) NOT NULL DEFAULT 'percent';
+CREATE TABLE IF NOT EXISTS referral_count_rewards (
+  id SERIAL PRIMARY KEY,
+  referrer_id INT NOT NULL,
+  counted INT NOT NULL,
+  amount DECIMAL(12,2) NOT NULL,
+  wallet_transaction_id INT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (referrer_id) REFERENCES users(id) ON DELETE RESTRICT
+);
+CREATE INDEX IF NOT EXISTS idx_referral_count_rewards_referrer ON referral_count_rewards (referrer_id);
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description)
+SELECT 'marketing_enabled',
+  CASE WHEN EXISTS (SELECT 1 FROM settings WHERE setting_key = 'referral_commission_percent' AND setting_value NOT IN ('', '0', '0.0', '0.00'))
+    THEN 'true' ELSE 'false' END,
+  'boolean', 'payments', 0, 'التسويق بالعمولة: مفعّل أو موقوف'
+ON CONFLICT (setting_key) DO NOTHING;
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description)
+VALUES ('marketing_mode', 'percent', 'string', 'payments', 0, 'طريقة مردود المسوّق: percent نسبة من أول دفعة، count بعدد مقدمي الخدمة المسجلين، subscription مبلغ عند دفع الاشتراك')
+ON CONFLICT (setting_key) DO NOTHING;
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description)
+VALUES ('marketing_count_every', '10', 'number', 'payments', 0, 'طريقة العدد: كل كم مقدم خدمة مسجل')
+ON CONFLICT (setting_key) DO NOTHING;
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description)
+VALUES ('marketing_count_amount', '0', 'number', 'payments', 0, 'طريقة العدد: المبلغ لكل مجموعة (ريال)')
+ON CONFLICT (setting_key) DO NOTHING;
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description)
+VALUES ('marketing_subscription_amount', '0', 'number', 'payments', 0, 'طريقة الاشتراك: المبلغ عن كل مقدم خدمة دفع اشتراكه وتفعّل (ريال)')
+ON CONFLICT (setting_key) DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('094_marketing_commission.sql');
 
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
