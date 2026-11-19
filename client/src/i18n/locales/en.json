@@ -1701,7 +1701,7 @@
       },
       "offers": {
         "title": "Wait for providers, or contact them yourself",
-        "body": "Your request reaches providers of that profession working now in your area straight away, and they contact you. You can also contact whoever is available, or add the ones you like to \"My directory\" to contact them directly later without posting a request."
+        "body": "Your request reaches providers of that profession working now in your area straight away, and they contact you. You can also contact whoever is available, or add the ones you like to \"My directory\" to contact them directly later without posting a request. If a provider allows it, their mobile or WhatsApp number shows on their page and in \"My directory\", and the same number is never kept twice in \"My directory\"."
       },
       "chat": {
         "title": "Your description in every chat; \"Forward\" your messages",
@@ -1709,7 +1709,7 @@
       },
       "finish": {
         "title": "Confirm completion and rate the service",
-        "body": "Follow the status in the request details. You can mark work as started when it begins and confirm completion after the service is done. Rating becomes available once the request is completed."
+        "body": "Follow the status in the request details. You can mark work as started when it begins and confirm completion after the service is done. Rating becomes available once the request is completed. A rating is accepted once the provider has contacted you on the request, by an offer, a message or a call. After sending you see \"Your rating has been published\"; if it cannot be sent, the reason shows next to the button."
       }
     },
     "provider_steps": {
@@ -1719,7 +1719,7 @@
       },
       "profile": {
         "title": "The “My work” panel",
-        "body": "“My work” shows your professions, the districts you cover and your working hours. From there you add a new profession, pause when you are busy and resume, and edit your hours and vacation. You only see requests in your profession and area."
+        "body": "“My work” shows your professions, the districts you cover and your working hours. From there you add a new profession, pause when you are busy and resume, and edit your hours and vacation. You only see requests in your profession and area. In \"My Profile\" you choose whether everyone sees your mobile and WhatsApp numbers on your page; they stay hidden until you turn them on. On \"Home\" you find \"Your page link\" to share with your customers on WhatsApp, so they can add you to \"My directory\"."
       },
       "find": {
         "title": "Clients see you automatically",
@@ -2827,5 +2827,16 @@
     "whatsapp": "WhatsApp",
     "view": "View my page",
     "message": "{{name}} on Ay Khidma"
+  },
+  "provider_contact": {
+    "title": "My numbers on my page",
+    "hint": "Choose what everyone sees on your page and in the \"My directory\" of whoever saved you. No number is shown until you turn it on.",
+    "show_phone": "Show my mobile number",
+    "no_phone": "Your account has no mobile number. Add it in your account details first.",
+    "whatsapp": "WhatsApp number (if different)",
+    "whatsapp_hint": "Leave it empty to use your mobile number for WhatsApp.",
+    "show_whatsapp": "Show a WhatsApp button",
+    "call": "Call",
+    "whatsapp_button": "WhatsApp"
   }
 }

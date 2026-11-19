@@ -8,6 +8,7 @@ const { hashPassword } = require('../utils/hash');
 const { validateUserLocation, booleanIntent, locationChanged, isCompleteAccountProfile, requireCompleteAccountProfile } = require('../utils/userLocation');
 const { validateProviderServices } = require('../utils/providerServices');
 const { validateCoverage, saveCoverage } = require('../utils/providerCoverage');
+const { phoneNumber, publicContact } = require('../utils/providerContact');
 const { validateAvailability } = require('../utils/providerAvailability');
 const { hasPermission } = require('../middleware/roleCheck');
 const { queryOne, query } = require('../config/database');
@@ -39,6 +40,7 @@ const getOne = asyncHandler(async (req, res) => {
   if (user.role === 'provider') {
     provider = await User.getProviderProfile(user.id);
   }
+  const rawProvider = provider;
   if (!privateAccess) {
     user = pick(user, user.role === 'client' ? ['id','role','full_name','avatar','is_verified'] : PUBLIC_USER_FIELDS);
     await hideRequesterNames(req.user?.id,[user],req.t('requester_label'));
@@ -52,6 +54,8 @@ const getOne = asyncHandler(async (req, res) => {
       provider.fixed_longitude = Number(fullProvider.fixed_longitude);
     }
   }
+  // The numbers the provider chose to show to everyone (AYK-314).
+  if (provider) Object.assign(provider, publicContact(rawProvider));
   return success(res, { user, provider });
 });
 
@@ -106,6 +110,16 @@ const updateProvider = asyncHandler(async (req, res) => {
   if (payload.show_location_on_map !== undefined) {
     if (![0, 1, true, false, '0', '1'].includes(payload.show_location_on_map)) return error(res, req.t('invalid_data'), 400);
     payload.show_location_on_map = [1, true, '1'].includes(payload.show_location_on_map) ? 1 : 0;
+  }
+  // The numbers shown on the page and in «دليلي» (AYK-314): off until the provider turns them on.
+  for (const flag of ['show_phone', 'show_whatsapp']) {
+    if (payload[flag] === undefined) continue;
+    if (![0, 1, true, false, '0', '1'].includes(payload[flag])) return error(res, req.t('invalid_data'), 400);
+    payload[flag] = [1, true, '1'].includes(payload[flag]) ? 1 : 0;
+  }
+  if (payload.whatsapp !== undefined) {
+    if (payload.whatsapp === null || String(payload.whatsapp).trim() === '') payload.whatsapp = null;
+    else if (typeof payload.whatsapp !== 'string' || !(payload.whatsapp = phoneNumber(payload.whatsapp))) return error(res, req.t('invalid_data'), 400);
   }
   if (payload.location_mode !== undefined && !['fixed', 'mobile', 'both'].includes(payload.location_mode)) return error(res, req.t('invalid_data'), 400);
   if (payload.service_radius_km !== undefined && (!Number.isFinite(Number(payload.service_radius_km)) || Number(payload.service_radius_km) < 1 || Number(payload.service_radius_km) > 200)) return error(res, req.t('invalid_data'), 400);

@@ -6622,6 +6622,12 @@ UPDATE services SET name_translations = jsonb_set(name_translations::jsonb, '{ur
   WHERE slug = 'central-ac-service' AND name_translations::jsonb ->> 'ur' = 'سنٹرل اے سی کی مرمت';
 INSERT INTO schema_migrations(name) VALUES ('092_catalog_names_review.sql');
 
+-- migrations/093_provider_public_contact.sql
+ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS show_phone SMALLINT NOT NULL DEFAULT 0;
+ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS whatsapp VARCHAR(20) NULL DEFAULT NULL;
+ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS show_whatsapp SMALLINT NOT NULL DEFAULT 0;
+INSERT INTO schema_migrations(name) VALUES ('093_provider_public_contact.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

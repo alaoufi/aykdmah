@@ -1179,3 +1179,32 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - client 166 pass, including a new test that an unmarked message stays hidden;
   - server 84 pass, including the new `localized-refusals.test.js`;
   - `i18n:check` 2568 keys.
+
+## 2026-11-19 — AYK-314: a provider's numbers on their page and in «دليلي», a number kept once, guide updated
+- The owner's decision: show the number to everyone when the provider allows it.
+- Provider settings in «ملفي», under «أرقامي في صفحتي»:
+  - «اعرض رقم جوالي» uses the account's phone; it is disabled when the account has none;
+  - «رقم واتساب (إن اختلف عن الجوال)»;
+  - «اعرض زر واتساب»;
+  - all off by default.
+- Migration 093 (additive): `provider_profiles.show_phone`, `whatsapp`, `show_whatsapp`.
+- Where the numbers show:
+  - the public page and «دليلي» show «📞 اتصال <number>» (`tel:`) and «💬 واتساب <number>» (`wa.me`), only when turned on;
+  - WhatsApp turned on without its own number uses the mobile;
+  - the raw fields are never in the public answer, and a requester's number is never shown.
+- No repeats in «دليلي»: a typed-in number that is already there is refused, written any way (0…, +966…, 00966…, Arabic digits). That covers another typed-in contact's mobile or WhatsApp, and the shown number of a kept provider. The message names where it is: «هذا الرقم محفوظ في دليلك باسم «…»» (11 languages). Editing a contact keeps its own number.
+- «دليل الاستخدام» (11 languages):
+  - the request step mentions the shown numbers and no repeats;
+  - the rating step says when a rating is accepted and what you see after sending;
+  - the provider's «شغلي» step mentions the number settings and «رابط صفحتك».
+- The WhatsApp spelling of the share texts now matches the site in Hindi, Malayalam and Nepali.
+- Tests (local PostgreSQL 16):
+  - integration 275 pass, 0 fail. The new part of the directory test covers: hidden by default, invalid values refused, shown after turning on (page and «دليلي»), WhatsApp falls back to the mobile, repeats refused, editing a contact, and hidden again after turning off;
+  - client 166 pass; server 84 pass; `i18n:check` 2577 keys; `vite build` OK.
+- Browser check (Chromium, phone size, local site):
+  - the settings show the account number and the WhatsApp field;
+  - after turning them on, the provider page shows «📞 اتصال 0507654321» → `tel:0507654321` and «💬 واتساب 0554444444» → `https://wa.me/966554444444`;
+  - «دليلي» shows the same two links;
+  - typing «+966 50 765 4321» in «دليلي» was refused with «هذا الرقم محفوظ في دليلك باسم «مؤسسة سعد للكهرباء».»;
+  - no page errors.
+  - Saving the whole provider form failed for the test provider only: it was made directly in the database with no city or districts, so the existing coverage rule refused it (`coverage_district_ids` empty). The same request without that field saved the numbers.

@@ -1701,7 +1701,7 @@
       },
       "offers": {
         "title": "Hintayin ang mga provider, o ikaw ang kumontak",
-        "body": "Agad na makakarating ang iyong kahilingan sa mga provider ng trabahong iyon sa iyong distrito na nagtatrabaho ngayon, at kokontakin ka nila. Puwede mo ring kontakin ang available, o idagdag ang gusto mo sa «Aking direktoryo» para direkta mo siyang makontak sa susunod nang hindi gumagawa ng kahilingan."
+        "body": "Agad na makakarating ang iyong kahilingan sa mga provider ng trabahong iyon sa iyong distrito na nagtatrabaho ngayon, at kokontakin ka nila. Puwede mo ring kontakin ang available, o idagdag ang gusto mo sa «Aking direktoryo» para direkta mo siyang makontak sa susunod nang hindi gumagawa ng kahilingan. Kung papayagan ng provider, makikita ang kanyang mobile o WhatsApp number sa kanyang page at sa \"Aking direktoryo\", at hindi naise-save nang dalawang beses ang iisang numero sa \"Aking direktoryo\"."
       },
       "chat": {
         "title": "Ang paglalarawan mo sa bawat chat, at «I-forward» para sa mga mensahe mo",
@@ -1709,7 +1709,7 @@
       },
       "finish": {
         "title": "Kumpirmahing tapos na at i-rate ang serbisyo",
-        "body": "Subaybayan ang status sa detalye ng kahilingan. Kapag nagsimula ang trabaho, puwede mong itala na nagsimula na ito, at kapag natapos, kumpirmahin na tapos na ang serbisyo. Lalabas ang pag-rate kapag tapos na ang kahilingan."
+        "body": "Subaybayan ang status sa detalye ng kahilingan. Kapag nagsimula ang trabaho, puwede mong itala na nagsimula na ito, at kapag natapos, kumpirmahin na tapos na ang serbisyo. Lalabas ang pag-rate kapag tapos na ang kahilingan. Tinatanggap ang rating kapag nakipag-ugnayan na sa iyo ang provider sa kahilingan, sa pamamagitan ng alok, mensahe o tawag. Pagkatapos ipadala, makikita mo ang \"Nai-publish na ang iyong rating\"; kung hindi maipadala, makikita ang dahilan sa tabi ng button."
       }
     },
     "provider_steps": {
@@ -1719,7 +1719,7 @@
       },
       "profile": {
         "title": "Ang panel na «Trabaho ko»",
-        "body": "Sa «Trabaho ko», makikita mo ang iyong mga trabaho, ang mga distritong sakop mo at ang oras ng trabaho mo. Dito ka magdadagdag ng bagong trabaho, ihihinto ang paglabas mo kapag abala ka saka itutuloy, at babaguhin ang oras at bakasyon. Ang mga kahilingan lang sa iyong trabaho at saklaw ang makikita mo."
+        "body": "Sa «Trabaho ko», makikita mo ang iyong mga trabaho, ang mga distritong sakop mo at ang oras ng trabaho mo. Dito ka magdadagdag ng bagong trabaho, ihihinto ang paglabas mo kapag abala ka saka itutuloy, at babaguhin ang oras at bakasyon. Ang mga kahilingan lang sa iyong trabaho at saklaw ang makikita mo. Sa \"Aking profile\" pinipili mo kung makikita ng lahat ang iyong mobile at WhatsApp number sa iyong page; nakatago ang mga ito hangga't hindi mo binubuksan. Sa \"Home\" makikita mo ang \"Link ng iyong page\" para ibahagi sa iyong mga customer sa WhatsApp, upang maidagdag ka nila sa \"Aking direktoryo\"."
       },
       "find": {
         "title": "Awtomatiko kang makikita ng mga kliyente",
@@ -2827,5 +2827,16 @@
     "whatsapp": "WhatsApp",
     "view": "Tingnan ang aking page",
     "message": "{{name}} sa Ay Khidma"
+  },
+  "provider_contact": {
+    "title": "Aking mga numero sa aking page",
+    "hint": "Piliin kung ano ang makikita ng lahat sa iyong page at sa \"Aking direktoryo\" ng mga nag-save sa iyo. Walang numerong ipapakita hangga't hindi mo ito binubuksan.",
+    "show_phone": "Ipakita ang aking mobile number",
+    "no_phone": "Walang mobile number ang iyong account. Idagdag muna ito sa mga detalye ng account.",
+    "whatsapp": "Numero ng WhatsApp (kung iba)",
+    "whatsapp_hint": "Iwanang blangko para gamitin ang iyong mobile number sa WhatsApp.",
+    "show_whatsapp": "Ipakita ang button ng WhatsApp",
+    "call": "Tumawag",
+    "whatsapp_button": "WhatsApp"
   }
 }

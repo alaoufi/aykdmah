@@ -13,6 +13,7 @@ import { useCall } from '../../context/CallContext';
 import BlockedNotice from '../../components/common/BlockedNotice';
 import ProblemNotice from '../../components/common/ProblemNotice';
 import DirectoryContacts from '../../components/directory/DirectoryContacts';
+import ProviderNumbers from '../../components/providers/ProviderNumbers';
 
 // "My directory" (AYK-041): providers the requester kept, to contact again directly
 // without posting a request. Each contact is still recorded as a request.
@@ -85,6 +86,7 @@ export default function DirectoryPage({ compact = false }) {
                   <TrustSummary userId={p.id} type={p.is_provider === false ? 'on_requester' : 'on_provider'} average={p.rating_avg} count={p.rating_count} opinion={p.opinion} />
                   {p.availability && <span className={p.availability?.state === 'available' ? 'text-success' : ''}>● {t(p.availability?.state === 'available' ? 'for_you.available' : 'for_you.unavailable')}</span>}
                 </div>
+                <ProviderNumbers phone={p.public_phone} whatsapp={p.public_whatsapp} className="mt-2" />
                 <div className="flex items-center gap-3 mt-2">
                   <button type="button" className="btn btn-primary btn-sm" disabled={busy === p.id} onClick={() => contact(p)} data-testid="directory-contact">💬 {t('directory.message')}</button>
                   <button type="button" className="btn btn-outline btn-sm" disabled={busy === p.id} onClick={() => call(p)} data-testid="directory-call">📞 {t('directory.call')}</button>

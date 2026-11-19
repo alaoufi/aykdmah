@@ -1701,7 +1701,7 @@
       },
       "offers": {
         "title": "Talebiniz hizmet verenleri bekler, ya da siz iletişime geçin",
-        "body": "Talebiniz hemen mahallenizde şu an çalışan o meslekteki hizmet verenlere ulaşır ve sizinle iletişime geçerler. Siz de müsait olanla iletişime geçebilir ya da beğendiklerinizi «Rehberim»e ekleyip daha sonra talep oluşturmadan doğrudan iletişime geçebilirsiniz."
+        "body": "Talebiniz hemen mahallenizde şu an çalışan o meslekteki hizmet verenlere ulaşır ve sizinle iletişime geçerler. Siz de müsait olanla iletişime geçebilir ya da beğendiklerinizi «Rehberim»e ekleyip daha sonra talep oluşturmadan doğrudan iletişime geçebilirsiniz. Hizmet veren izin verirse cep veya WhatsApp numarası sayfasında ve \"Rehberim\"de görünür; aynı numara \"Rehberim\"e iki kez kaydedilmez."
       },
       "chat": {
         "title": "Açıklamanız her sohbette, mesajlarınız için «İlet»",
@@ -1709,7 +1709,7 @@
       },
       "finish": {
         "title": "İşin bittiğini onaylayın ve değerlendirin",
-        "body": "Durumu talep ayrıntılarından takip edin. İş başladığında işin başladığını kaydedebilir, bittikten sonra hizmetin tamamlandığını onaylayabilirsiniz. Değerlendirme, talep tamamlandıktan sonra görünür."
+        "body": "Durumu talep ayrıntılarından takip edin. İş başladığında işin başladığını kaydedebilir, bittikten sonra hizmetin tamamlandığını onaylayabilirsiniz. Değerlendirme, talep tamamlandıktan sonra görünür. Değerlendirme, hizmet veren talep üzerinden sizinle teklif, mesaj veya aramayla iletişime geçtikten sonra kabul edilir. Gönderdikten sonra \"Değerlendirmeniz yayınlandı\" görünür; gönderilemezse nedeni düğmenin yanında görünür."
       }
     },
     "provider_steps": {
@@ -1719,7 +1719,7 @@
       },
       "profile": {
         "title": "«İşim» paneli",
-        "body": "«İşim» bölümünde mesleklerinizi, hizmet verdiğiniz mahalleleri ve çalışma saatlerinizi görürsünüz. Buradan yeni meslek ekler, meşgulken görünmeyi durdurup sonra devam ettirir, saatleri ve izni düzenlersiniz. Size yalnızca mesleğinizdeki ve bölgenizdeki talepler görünür."
+        "body": "«İşim» bölümünde mesleklerinizi, hizmet verdiğiniz mahalleleri ve çalışma saatlerinizi görürsünüz. Buradan yeni meslek ekler, meşgulken görünmeyi durdurup sonra devam ettirir, saatleri ve izni düzenlersiniz. Size yalnızca mesleğinizdeki ve bölgenizdeki talepler görünür. \"Profilim\"de cep ve WhatsApp numaralarınızın sayfanızda herkese görünüp görünmeyeceğini seçersiniz; siz açana kadar gizli kalırlar. \"Ana sayfa\"da müşterilerinize WhatsApp'tan göndermeniz için \"Sayfanızın bağlantısı\" bulunur; böylece sizi \"Rehberim\"e ekleyebilirler."
       },
       "find": {
         "title": "Hizmet arayanlara otomatik görünürsünüz",
@@ -2827,5 +2827,16 @@
     "whatsapp": "WhatsApp",
     "view": "Sayfamı görüntüle",
     "message": "Ay Khidma'da {{name}}"
+  },
+  "provider_contact": {
+    "title": "Sayfamdaki numaralarım",
+    "hint": "Sayfanızda ve sizi kaydedenlerin \"Rehberim\" listesinde herkesin ne göreceğini seçin. Siz açmadıkça hiçbir numara gösterilmez.",
+    "show_phone": "Telefon numaramı göster",
+    "no_phone": "Hesabınızda telefon numarası yok. Önce hesap bilgilerinize ekleyin.",
+    "whatsapp": "WhatsApp numarası (telefondan farklıysa)",
+    "whatsapp_hint": "WhatsApp için telefon numaranızı kullanmak üzere boş bırakın.",
+    "show_whatsapp": "WhatsApp düğmesini göster",
+    "call": "Ara",
+    "whatsapp_button": "WhatsApp"
   }
 }

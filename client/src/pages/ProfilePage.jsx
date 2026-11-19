@@ -414,6 +414,10 @@ function ProviderSection({ onSaved, onError, t, refresh }) {
         fixed_longitude: p.fixed_longitude == null ? null : Number(p.fixed_longitude),
         fixed_address: p.fixed_address || '',
         show_location_on_map: Number(p.show_location_on_map) === 1,
+        // The numbers shown on the page and in «دليلي» (AYK-314), off until turned on.
+        show_phone: Number(p.show_phone) === 1,
+        show_whatsapp: Number(p.show_whatsapp) === 1,
+        whatsapp: p.whatsapp || '',
       });
       if (p.fixed_latitude != null && p.fixed_longitude != null) {
         setPickPos({ latitude: Number(p.fixed_latitude), longitude: Number(p.fixed_longitude) });
@@ -450,6 +454,8 @@ function ProviderSection({ onSaved, onError, t, refresh }) {
       // Services may span several professions; coverage is one city's districts.
       const { coverage, coverage_city_id, category_id: _category, ...fields } = provider;
       const payload = { ...fields, show_location_on_map: provider.show_location_on_map ? 1 : 0,
+        show_phone: provider.show_phone ? 1 : 0, show_whatsapp: provider.show_whatsapp ? 1 : 0,
+        whatsapp: String(provider.whatsapp || '').trim() || null,
         any_category: true, also_client: provider.also_client ? 1 : 0, coverage_district_ids: coverage,
         ...(coverage_city_id ? { coverage_city_id: Number(coverage_city_id) } : {}) };
       if (pickPos && payload.location_mode !== 'mobile') {
@@ -549,6 +555,33 @@ function ProviderSection({ onSaved, onError, t, refresh }) {
         {provider.location_mode !== 'fixed' && <Input label={t('profile.service_radius')} type="number" min="1" max="200"
           value={provider.service_radius_km}
           onChange={(e) => setProvider({ ...provider, service_radius_km: Number(e.target.value) || 1 })} />}
+
+        {/* AYK-314: the provider chooses whether their numbers appear on their page and in «دليلي». */}
+        <fieldset className="space-y-2 border border-border rounded-card p-3" data-testid="provider-public-contact">
+          <legend className="px-1 text-[13px] font-bold text-fg">📞 {t('provider_contact.title')}</legend>
+          <p className="text-[12px] text-fg-subtle m-0">{t('provider_contact.hint')}</p>
+          <label htmlFor="provider-show-phone" className="flex items-start gap-2 text-[13px] text-fg cursor-pointer">
+            <input id="provider-show-phone" type="checkbox" className="mt-1" disabled={!user?.phone}
+              checked={!!provider.show_phone && !!user?.phone}
+              onChange={event => setProvider(previous => ({ ...previous, show_phone: event.target.checked }))} />
+            <span>
+              {t('provider_contact.show_phone')}
+              <span className="block text-[11.5px] text-fg-subtle" dir="auto">
+                {user?.phone ? <bdi dir="ltr">{user.phone}</bdi> : t('provider_contact.no_phone')}
+              </span>
+            </span>
+          </label>
+          <Input label={t('provider_contact.whatsapp')} type="tel" inputMode="tel" dir="ltr" maxLength={20}
+            value={provider.whatsapp} placeholder="05xxxxxxxx" hint={t('provider_contact.whatsapp_hint')}
+            onChange={(e) => setProvider({ ...provider, whatsapp: e.target.value })} />
+          <label htmlFor="provider-show-whatsapp" className="flex items-start gap-2 text-[13px] text-fg cursor-pointer">
+            <input id="provider-show-whatsapp" type="checkbox" className="mt-1"
+              disabled={!String(provider.whatsapp || '').trim() && !user?.phone}
+              checked={!!provider.show_whatsapp}
+              onChange={event => setProvider(previous => ({ ...previous, show_whatsapp: event.target.checked }))} />
+            <span>{t('provider_contact.show_whatsapp')}</span>
+          </label>
+        </fieldset>
 
         <Button type="submit" variant="primary" loading={saving} disabled={locating}>{t('common.save')}</Button>
       </form>

@@ -750,6 +750,44 @@ if (!databasePrefix) {
     assert.equal((await api('/users/me/directory/contacts', { token: client.token })).length, 1);
     await api(`/users/me/directory/contacts/${typed.id}`, { method: 'DELETE', token: client.token });
     assert.deepEqual(await api('/users/me/directory/contacts', { token: client.token }), []);
+
+    // AYK-314 (the owner's decision): a provider's numbers show to everyone only once the provider
+    // turns them on, and a number is kept once in «دليلي».
+    await db.query('UPDATE users SET phone = ? WHERE id = ?', ['0507654321', provider.user.id]);
+    const publicPage = async () => (await api(`/users/${provider.user.id}`)).provider;
+    let shownPage = await publicPage();
+    assert.deepEqual([shownPage.public_phone, shownPage.public_whatsapp], [null, null], 'hidden until the provider turns them on');
+    assert.equal(shownPage.whatsapp, undefined, 'the raw WhatsApp field is not public');
+    await api('/users/me/provider', { method: 'PUT', token: provider.token, expected: 400, body: { whatsapp: 'not a number' } });
+    await api('/users/me/provider', { method: 'PUT', token: provider.token, expected: 400, body: { show_phone: 'yes' } });
+    await api('/users/me/provider', { method: 'PUT', token: provider.token, body: { show_phone: 1, show_whatsapp: 1, whatsapp: '٠٥٥٤٤٤٤٤٤٤' } });
+    shownPage = await publicPage();
+    assert.deepEqual([shownPage.public_phone, shownPage.public_whatsapp], ['0507654321', '0554444444']);
+    await api(`/users/me/directory/${provider.user.id}`, { method: 'POST', token: client.token });
+    const keptProvider = (await api('/users/me/directory', { token: client.token })).find(item => Number(item.id) === Number(provider.user.id));
+    assert.deepEqual([keptProvider.public_phone, keptProvider.public_whatsapp], ['0507654321', '0554444444']);
+    // WhatsApp shown without its own number uses the mobile.
+    await api('/users/me/provider', { method: 'PUT', token: provider.token, body: { show_phone: 0, whatsapp: '' } });
+    shownPage = await publicPage();
+    assert.deepEqual([shownPage.public_phone, shownPage.public_whatsapp], [null, '0507654321']);
+    // The same number typed in again, written another way, is refused and says where it is.
+    const first = await api('/users/me/directory/contacts', { method: 'POST', token: client.token, expected: 201, body: { name: 'سباك', phone: '0531112222' } });
+    const repeated = await (await fetch(`${base}/users/me/directory/contacts`, { method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${client.token}` },
+      body: JSON.stringify({ name: 'سباك ثاني', phone: '+966 53 111 2222' }) })).json();
+    assert.match(repeated.message, /سباك/);
+    assert.equal(repeated.localized, true);
+    await api('/users/me/directory/contacts', { method: 'POST', token: client.token, expected: 409, body: { name: 'نفس الواتساب', phone: '0539990000', whatsapp: '00966531112222' } });
+    // A number a kept provider already shows is refused too; editing a contact keeps its own number.
+    await api('/users/me/directory/contacts', { method: 'POST', token: client.token, expected: 409, body: { name: 'مكرر', phone: '0507654321' } });
+    await api(`/users/me/directory/contacts/${first.id}`, { method: 'PUT', token: client.token, body: { name: 'سباك الحي', phone: '0531112222' } });
+    // Turned off: hidden again, and the number may be typed in.
+    await api('/users/me/provider', { method: 'PUT', token: provider.token, body: { show_whatsapp: 0 } });
+    shownPage = await publicPage();
+    assert.deepEqual([shownPage.public_phone, shownPage.public_whatsapp], [null, null]);
+    await api('/users/me/directory/contacts', { method: 'POST', token: client.token, expected: 201, body: { name: 'جواله', phone: '0507654321' } });
+    await db.query('DELETE FROM directory_contacts WHERE user_id = ?', [client.user.id]);
+    await api(`/users/me/directory/${provider.user.id}`, { method: 'DELETE', token: client.token });
   });
 
   test('monthly subscriptions by area and profession (AYK-042): off by default, paid rules hide unsubscribed providers, free rules win', async () => {

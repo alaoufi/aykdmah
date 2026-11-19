@@ -1701,7 +1701,7 @@
       },
       "offers": {
         "title": "Tunggu penyedia layanan, atau hubungi sendiri",
-        "body": "Permintaan Anda langsung sampai ke penyedia layanan dengan profesi itu yang sedang bekerja di lingkungan Anda, lalu mereka menghubungi Anda. Anda juga bisa menghubungi yang tersedia, atau menambahkan yang Anda suka ke «Direktori saya» agar bisa langsung menghubunginya nanti tanpa membuat permintaan."
+        "body": "Permintaan Anda langsung sampai ke penyedia layanan dengan profesi itu yang sedang bekerja di lingkungan Anda, lalu mereka menghubungi Anda. Anda juga bisa menghubungi yang tersedia, atau menambahkan yang Anda suka ke «Direktori saya» agar bisa langsung menghubunginya nanti tanpa membuat permintaan. Jika penyedia jasa mengizinkan, nomor ponsel atau WhatsApp-nya tampil di halamannya dan di \"Direktori saya\", dan nomor yang sama tidak pernah tersimpan dua kali di \"Direktori saya\"."
       },
       "chat": {
         "title": "Deskripsi Anda di setiap percakapan, dan «Teruskan» untuk pesan Anda",
@@ -1709,7 +1709,7 @@
       },
       "finish": {
         "title": "Konfirmasi selesai dan beri penilaian",
-        "body": "Pantau status di rincian permintaan. Saat pekerjaan dimulai, Anda bisa mencatat mulai bekerja, dan setelah selesai, konfirmasi bahwa layanan sudah selesai. Penilaian muncul setelah permintaan selesai."
+        "body": "Pantau status di rincian permintaan. Saat pekerjaan dimulai, Anda bisa mencatat mulai bekerja, dan setelah selesai, konfirmasi bahwa layanan sudah selesai. Penilaian muncul setelah permintaan selesai. Penilaian diterima setelah penyedia jasa menghubungi Anda pada permintaan itu, lewat penawaran, pesan, atau panggilan. Setelah dikirim, muncul \"Penilaian Anda telah diterbitkan\"; jika tidak bisa dikirim, alasannya muncul di samping tombol."
       }
     },
     "provider_steps": {
@@ -1719,7 +1719,7 @@
       },
       "profile": {
         "title": "Panel «Pekerjaan saya»",
-        "body": "Di «Pekerjaan saya» Anda melihat profesi, lingkungan yang Anda layani, dan jam kerja. Dari sana Anda bisa menambah profesi baru, berhenti tampil saat sibuk lalu melanjutkannya, serta mengubah jam kerja dan cuti. Anda hanya melihat permintaan di profesi dan wilayah Anda."
+        "body": "Di «Pekerjaan saya» Anda melihat profesi, lingkungan yang Anda layani, dan jam kerja. Dari sana Anda bisa menambah profesi baru, berhenti tampil saat sibuk lalu melanjutkannya, serta mengubah jam kerja dan cuti. Anda hanya melihat permintaan di profesi dan wilayah Anda. Di \"Profil saya\" Anda memilih apakah nomor ponsel dan WhatsApp Anda terlihat oleh semua orang di halaman Anda; keduanya tersembunyi sampai Anda mengaktifkannya. Di \"Beranda\" ada \"Tautan halaman Anda\" untuk dibagikan ke pelanggan lewat WhatsApp, agar mereka bisa menambahkan Anda ke \"Direktori saya\"."
       },
       "find": {
         "title": "Anda tampil otomatis bagi pencari layanan",
@@ -2827,5 +2827,16 @@
     "whatsapp": "WhatsApp",
     "view": "Lihat halaman saya",
     "message": "{{name}} di Ay Khidma"
+  },
+  "provider_contact": {
+    "title": "Nomor saya di halaman saya",
+    "hint": "Pilih apa yang dilihat semua orang di halaman Anda dan di \"Direktori saya\" milik orang yang menyimpan Anda. Tidak ada nomor yang ditampilkan sampai Anda mengaktifkannya.",
+    "show_phone": "Tampilkan nomor ponsel saya",
+    "no_phone": "Akun Anda belum punya nomor ponsel. Tambahkan dulu di data akun.",
+    "whatsapp": "Nomor WhatsApp (jika berbeda)",
+    "whatsapp_hint": "Biarkan kosong untuk memakai nomor ponsel Anda untuk WhatsApp.",
+    "show_whatsapp": "Tampilkan tombol WhatsApp",
+    "call": "Telepon",
+    "whatsapp_button": "WhatsApp"
   }
 }

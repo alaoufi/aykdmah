@@ -19,7 +19,7 @@ const list = asyncHandler(async (req, res) => {
       to_jsonb(pp)->>'availability_status' AS availability_status, to_jsonb(pp)->>'vacation_from' AS vacation_from,
       to_jsonb(pp)->>'vacation_to' AS vacation_to, to_jsonb(pp)->>'work_days' AS work_days,
       to_jsonb(pp)->>'work_from' AS work_from, to_jsonb(pp)->>'work_to' AS work_to
-      , sp.nickname, u.referral_code, u.role,
+      , sp.nickname, u.referral_code, u.role, u.phone, pp.show_phone, pp.whatsapp, pp.show_whatsapp,
       (SELECT c.id FROM conversations c
         JOIN conversation_participants mine ON mine.conversation_id = c.id AND mine.user_id = sp.user_id
         JOIN conversation_participants theirs ON theirs.conversation_id = c.id AND theirs.user_id = u.id
@@ -58,6 +58,8 @@ const list = asyncHandler(async (req, res) => {
     completed_orders: Number(row.completed_orders) || 0, availability: row.role === 'provider' ? availability(row) : null,
     nickname: row.nickname || null, referral_code: row.referral_code || null, is_provider: row.role === 'provider',
     conversation_id: row.conversation_id ? Number(row.conversation_id) : null, can_message: row.can_message,
+    // The numbers a provider chose to show (AYK-314); never a requester's.
+    ...(row.role === 'provider' ? publicContact(row) : { public_phone: null, public_whatsapp: null }),
   })));
 });
 
@@ -108,12 +110,22 @@ const chat = asyncHandler(async (req, res) => {
 // account. At most 200 per person.
 const CONTACTS_MAX = 200;
 const plainText = (value, max) => (typeof value === 'string' && !value.includes('\0') ? value.trim().slice(0, max) : '');
-// "+966 50 123-4567" -> "+966501234567"; Arabic-Indic digits are accepted. '' when not a number.
-function phoneNumber(value) {
-  const digits = String(value ?? '').trim()
-    .replace(/[\u0660-\u0669]/g, d => String(d.charCodeAt(0) - 0x0660)).replace(/[\u06f0-\u06f9]/g, d => String(d.charCodeAt(0) - 0x06f0))
-    .replace(/[\s().-]/g, '');
-  return /^\+?[0-9]{7,15}$/.test(digits) ? digits : '';
+const { phoneNumber, sameNumberKey, publicContact } = require('../utils/providerContact');
+
+// AYK-314: a number is kept once in «دليلي». A number typed in that is already there (in another
+// typed-in contact, or as the shown number of a kept provider) is refused, naming where it is.
+async function numberAlreadyKept(req, fields, exceptId = 0) {
+  const wanted = new Set([fields.phone, fields.whatsapp].filter(Boolean).map(sameNumberKey));
+  const typed = await query('SELECT id, name, phone, whatsapp FROM directory_contacts WHERE user_id = ? AND id <> ?', [req.user.id, exceptId]);
+  for (const row of typed) if ([row.phone, row.whatsapp].some(n => n && wanted.has(sameNumberKey(n)))) return row.name;
+  const kept = await query(`SELECT u.full_name, pp.business_name, u.phone, pp.show_phone, pp.whatsapp, pp.show_whatsapp
+    FROM saved_providers sp JOIN users u ON u.id = sp.provider_id AND u.deleted_at IS NULL AND u.is_active = 1 AND u.is_blocked = 0
+    JOIN provider_profiles pp ON pp.user_id = u.id WHERE sp.user_id = ?`, [req.user.id]);
+  for (const row of kept) {
+    const shown = publicContact(row);
+    if ([shown.public_phone, shown.public_whatsapp].some(n => n && wanted.has(sameNumberKey(n)))) return row.business_name || row.full_name;
+  }
+  return null;
 }
 function contactFields(req) {
   const name = plainText(req.body?.name, 80), phone = phoneNumber(req.body?.phone);
@@ -132,6 +144,8 @@ const addContact = asyncHandler(async (req, res) => {
   if (!fields) return error(res, req.t('invalid_data'), 400);
   const count = await queryOne('SELECT COUNT(*) AS n FROM directory_contacts WHERE user_id = ?', [req.user.id]);
   if (Number(count.n) >= CONTACTS_MAX) return error(res, req.t('directory_contacts_full'), 409);
+  const already = await numberAlreadyKept(req, fields);
+  if (already) return error(res, req.t('directory_number_exists', { name: already }), 409);
   const made = await query('INSERT INTO directory_contacts (user_id, name, phone, whatsapp, notes) VALUES (?, ?, ?, ?, ?)',
     [req.user.id, fields.name, fields.phone, fields.whatsapp, fields.notes]);
   return success(res, { id: Number(made.insertId), ...fields }, req.t('directory_added'), 201);
@@ -141,6 +155,8 @@ const updateContact = asyncHandler(async (req, res) => {
   const id = providerId(req.params.contactId), fields = contactFields(req);
   if (!id) return notFound(res);
   if (!fields) return error(res, req.t('invalid_data'), 400);
+  const already = await numberAlreadyKept(req, fields, id);
+  if (already) return error(res, req.t('directory_number_exists', { name: already }), 409);
   const changed = await query('UPDATE directory_contacts SET name = ?, phone = ?, whatsapp = ?, notes = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?',
     [fields.name, fields.phone, fields.whatsapp, fields.notes, id, req.user.id]);
   if (!changed.affectedRows) return notFound(res);

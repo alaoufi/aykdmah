@@ -13,6 +13,7 @@ import Avatar from '../components/common/Avatar';
 import AvailabilityBadge, { workingSummary } from '../components/common/AvailabilityBadge';
 import CallButtons from '../components/calls/CallButtons';
 import ShareProviderLink from '../components/providers/ShareProviderLink';
+import ProviderNumbers from '../components/providers/ProviderNumbers';
 import { LoadingState, ErrorState } from '../components/common/Spinner';
 import { directionsUrl } from '../utils/directions';
 import { localizedName } from '../utils/localize';
@@ -72,6 +73,7 @@ export default function ProviderProfilePage() {
       <div className="card p-4 space-y-2">
         <h2 className="font-bold text-fg">{t('calls.contact_title')}</h2>
         <CallButtons userId={user.id} />
+        <ProviderNumbers phone={provider.public_phone} whatsapp={provider.public_whatsapp} />
       </div>
 
       <ShareProviderLink providerId={user.id} name={provider.business_name || user.full_name} />
