@@ -28,10 +28,15 @@ const create = asyncHandler(async (req, res) => {
   // 1-star (or 5-star) review on any provider in seconds.
   if (isClient) {
     const engaged = await require('../config/database').queryOne(
-      `SELECT 1 AS found WHERE EXISTS (SELECT 1 FROM offers o WHERE o.request_id = ? AND o.provider_id = ? AND o.price > 0)
+      // AYK-311: any offer (one priced «after inspection» has no price), a message, or an answered
+      // call between them counts. A tester was refused after a phone call and an unpriced offer.
+      `SELECT 1 AS found WHERE EXISTS (SELECT 1 FROM offers o WHERE o.request_id = ? AND o.provider_id = ?)
         OR EXISTS (SELECT 1 FROM conversations c JOIN messages m ON m.conversation_id = c.id
-          WHERE c.request_id = ? AND m.sender_id = ? AND m.deleted_at IS NULL)`,
-      [request.id, request.assigned_provider_id, request.id, request.assigned_provider_id]);
+          WHERE c.request_id = ? AND m.sender_id = ? AND m.deleted_at IS NULL)
+        OR EXISTS (SELECT 1 FROM conversations c JOIN calls k ON k.conversation_id = c.id
+          WHERE c.request_id = ? AND k.answered_at IS NOT NULL AND (k.caller_id = ? OR k.callee_id = ?))`,
+      [request.id, request.assigned_provider_id, request.id, request.assigned_provider_id,
+        request.id, request.assigned_provider_id, request.assigned_provider_id]);
     if (!engaged) return error(res, req.t('provider_not_engaged'), 403);
   }
 

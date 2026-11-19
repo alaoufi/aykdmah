@@ -1090,3 +1090,13 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - `callService` and the routes load.
 - Not compiled here (no Android SDK in this environment): `AppTexts.java` and its use in the call screens. The build on the server compiles them.
 - iPhone 1.0.3 (5): uploaded to App Store Connect from GitHub (apple-apps run 44529192165, «Upload with altool» success). Not submitted for review.
+
+## 2026-11-19 — AYK-311: a tester could not rate a provider
+- Cause in the code (AYK-253): a requester could rate only if the provider had sent a priced offer (price > 0) or a chat message. An unpriced offer («after inspection») or a phone call did not count.
+- Fix: any offer by that provider on the request, a message, or an answered call between them counts. Someone who never dealt with the provider is still refused.
+- The refusal message names the three ways, in 11 languages.
+- New sub-test in `security-business.integration.js`:
+  - refused before any contact, and still refused with an unanswered call;
+  - allowed after an answered call.
+  - It fails on the old code (10 pass, 2 fail) and passes on the new (12 pass, 0 fail).
+- Not confirmed with the tester: the exact message they saw was not available.

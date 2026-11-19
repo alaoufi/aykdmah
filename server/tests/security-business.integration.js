@@ -393,4 +393,21 @@ test('business security: real PostgreSQL requests, offers, disputes, reviews and
       await db.query("UPDATE settings SET setting_value = ? WHERE setting_key = 'max_offers_per_request'", [original.setting_value]);
     }
   });
+
+  // AYK-311: a requester rates a provider only after the provider took part in the request. A
+  // tester was refused after a phone call: an answered call (or any offer, or a message) counts.
+  await t.test('a requester may rate the provider after an answered call, never before any contact', async () => {
+    const rater = await account('client'), hired = await account('provider');
+    await db.query('DELETE FROM auth_rate_limits'); // the earlier tests used this address's upload allowance
+    const direct = await requestFor(rater);
+    await db.query("UPDATE requests SET status = 'completed', assigned_provider_id = ? WHERE id = ?", [hired.id, direct.id]);
+    const refused = await api('/reviews', { user: rater, method: 'POST', body: { request_id: direct.id, rating: 5 }, expected: 403 });
+    assert.match(refused.message, /call|مكالمة/);
+    const conversation = await db.queryOne('INSERT INTO conversations (request_id) VALUES (?) RETURNING id', [direct.id]);
+    await db.query("INSERT INTO calls (room_name, conversation_id, request_id, caller_id, callee_id, status) VALUES (?, ?, ?, ?, ?, 'ended')",
+      [`ayk-311-${direct.id}`, conversation.id, direct.id, hired.id, rater.id]);
+    await api('/reviews', { user: rater, method: 'POST', body: { request_id: direct.id, rating: 5 }, expected: 403 });
+    await db.query('UPDATE calls SET answered_at = CURRENT_TIMESTAMP WHERE conversation_id = ?', [conversation.id]);
+    await api('/reviews', { user: rater, method: 'POST', body: { request_id: direct.id, rating: 5, comment: 'تمت الخدمة بعد مكالمة' }, expected: 201 });
+  });
 });
