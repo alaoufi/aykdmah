@@ -1108,3 +1108,12 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - GitHub fetched the bundle by SHA-256 (`app.aab: OK`);
   - it was uploaded as `aykdmh-play`: «Bundle accepted: version code 19», «Release 19 set on internal with notes», «DONE».
 - **The full path works without the owner's computer, for both stores and the site.** Production publishing and App Review submission still wait for the owner's approval.
+
+## 2026-11-19 — releases approved by the owner, done from GitHub
+- **iPhone 1.0.3 (5) submitted to App Review** (`apple-apps` run 44541347122). The run:
+  - created App Store version 1.0.3, released automatically after approval;
+  - attached build 5;
+  - set What's New (ar-SA);
+  - submitted: «SUBMITTED: 1.0.3 (5) is waiting for App Review».
+  - `submit.json` is back to dry run.
+- **Android 1.3.9 (19) published to production for everyone** (run 44541421299, `android-promote.yml`, the same bundle uploaded to internal, no rebuild): «Version 19 set on production for everyone», «DONE». It reaches users after Google's review.
