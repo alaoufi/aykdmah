@@ -1010,3 +1010,17 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - On a failure, `status.json` says which step failed.
 - A bug found and fixed by this test: the first version of the `-manual` name stopped the nightly backup at the encryption step (under `set -e`). It was never deployed.
 - Not tested on the real server yet: the systemd units (`backup-now-setup.sh`), and rclone copying the real media bucket.
+
+## 2026-11-19 — AYK-306: Google Play upload key
+- Owner set up, in Google Cloud and Play Console:
+  - A service account per site: «أي خدمة» `aykdmh-play`, in its own project `aykdmh-db034`; the others in the neutral project `play-upload`.
+  - A JSON key for each.
+  - In Play Console, release permissions only (production, testing tracks), each for its own app.
+  - The key is stored as the GitHub secret `PLAY_SERVICE_ACCOUNT_JSON` in each site's repository.
+- `android/play/check.cjs` was run from GitHub Actions (run 44521603854). Read only; the edit was deleted.
+  - Signed in as `aykdmh-play@aykdmh-db034.iam.gserviceaccount.com`.
+  - Tracks of `sa.aykdmh.app`:
+    - production: 1.3.8 (18), completed
+    - internal: 1.3.5 (15)
+    - beta and alpha: empty
+- Not tested: an actual upload with this key (the upload step comes next). The other sites' keys are checked by their own sessions.
