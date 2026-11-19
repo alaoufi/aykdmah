@@ -34,7 +34,10 @@ export default defineConfig(({ mode }) => {
       },
       VitePWA({
         registerType: 'autoUpdate',
-        includeAssets: ['offline.js', 'theme-init.js', 'offline.html', 'favicon.ico', 'icons/favicon-16.png', 'icons/favicon-32.png', 'icons/apple-touch-icon.png', 'icons/android-chrome-192x192.png', 'icons/android-chrome-512x512.png', 'icons/app-icon-192.png', 'icons/app-icon-512.png', 'icons/app-icon-maskable-192.png', 'icons/app-icon-maskable-512.png', 'brand/aykdmh-logo-256.webp', 'brand/aykdmh-logo.webp'],
+        includeAssets: ['offline.js', 'theme-init.js', 'offline.html', 'favicon.ico', 'icons/favicon-16.png', 'icons/favicon-32.png', 'icons/apple-touch-icon.png', 'brand/aykdmh-logo-128.webp', 'brand/aykdmh-logo-256.webp'],
+        // AYK-316: the large store icons (650 KB) are for installing, not for the pages; they are no
+        // longer downloaded into the saved copy on first open.
+        includeManifestIcons: false,
         // Replace the old SW immediately + claim open tabs so a stale
         // index.html doesn't keep pointing at chunks that no longer
         // exist after a redeploy ("Failed to fetch dynamically imported
@@ -64,7 +67,10 @@ export default defineConfig(({ mode }) => {
           // languages are fetched only when used (and kept then, below), so the saved copy is small.
           globIgnores: ['version.json', 'install/refresh.html', 'refresh-site.js',
             '**/maplibre-gl-*', '**/livekit-client*', '**/leaflet-maplibre-gl-*',
-            '**/{am,bn,fil,hi,id,ml,ne,tr,ur}-*.js', 'guide/signup/**'],
+            '**/{am,bn,fil,hi,id,ml,ne,tr,ur}-*.js', 'guide/signup/**',
+            // AYK-316: on a weak connection the first open was slow while the worker downloaded 3.2 MB.
+            // The admin pages, the map library and English are fetched when used and kept then.
+            '**/Admin*', '**/leaflet-vendor-*', '**/en-*.js'],
           // Incoming-call notifications (AYK-008).
           importScripts: ['push-sw.js'],
           // The main bundle passed the 2 MiB default; it must stay in the offline cache.

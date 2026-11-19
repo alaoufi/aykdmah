@@ -1,5 +1,8 @@
 import { useTranslation } from 'react-i18next';
 
+// AYK-316: the header shows the logo at about 50 px, so most phones take the 128 px file (15 KB, not 44 KB).
+const LOGO_SRCSET = '/brand/aykdmh-logo-128.webp 128w, /brand/aykdmh-logo-256.webp 256w';
+
 // The «أي خدمة» logo. The artwork already contains the Arabic name, so it is shown
 // as one image; the localized brand name stays available to screen readers.
 export default function BrandLogo({ wordSize = 22, width, tone = 'color', tagline = false, taglineText, className = '' }) {
@@ -8,7 +11,7 @@ export default function BrandLogo({ wordSize = 22, width, tone = 'color', taglin
   const darkBackground = tone === 'mono-light';
   return (
     <div className={`inline-flex items-center gap-2 shrink-0 ${className}`}>
-      <img src="/brand/aykdmh-logo-256.webp" alt={t('common.brand')} width={256} height={256}
+      <img src="/brand/aykdmh-logo-256.webp" srcSet={LOGO_SRCSET} sizes={`${size}px`} alt={t('common.brand')} width={256} height={256}
         decoding="async" style={{ width: size, height: size, objectFit: 'contain' }} />
       {tagline && taglineText && (
         <span dir="auto" className="text-[12px] font-medium"
@@ -27,7 +30,7 @@ export function BrandWordmark({ size = 22, className = '' }) {
 export function BrandMark({ size = 36, className = '' }) {
   const { t } = useTranslation();
   return (
-    <img src="/brand/aykdmh-logo-256.webp" alt={t('common.brand')} width={256} height={256} decoding="async"
+    <img src="/brand/aykdmh-logo-256.webp" srcSet={LOGO_SRCSET} sizes={`${size}px`} alt={t('common.brand')} width={256} height={256} decoding="async"
       className={`inline-block shrink-0 ${className}`} style={{ width: size, height: size, objectFit: 'contain' }} />
   );
 }

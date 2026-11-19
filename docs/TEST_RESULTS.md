@@ -1216,3 +1216,18 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - iPhone is unchanged.
 - Tests: client 166 pass (`nativeAppStartup.test.mjs` updated for the new link and the invalid-id case).
 - Not tried here: tapping it on a real phone (no phone in this environment). The same `intent://` way already opens the native call screen in the app.
+
+## 2026-11-19 — AYK-316: slow first open of the app
+- Reported by the owner after installing from Google Play: the start was very slow.
+- Measured on the live site, cold, phone-sized Chromium at ~8 Mbit/s with 150 ms delay: content shown after 3.4 s, about 480 KB. Opened again: 0.6 s. The site itself is not slow once its files are on the phone.
+- Found: on the first open the offline worker downloads a saved copy of the site. That was 3.2 MB in 153 files:
+  - the store icons (650 KB), which no page shows;
+  - every admin page, for every visitor;
+  - the map library and English.
+  - On a weak mobile connection this competed with the pages and the requests the person was waiting for.
+- Fix:
+  - the saved copy no longer includes those (`includeManifestIcons: false`, `globIgnores` for `Admin*`, `leaflet-vendor-*`, `en-*.js`); they are fetched when used and kept then (the existing `assets-on-demand` rule);
+  - the saved copy is now 1.7 MB in 112 files;
+  - the header logo has a 128 px file (15 KB instead of 44 KB) for phones that show it small (`srcset`).
+- Tests: client 166 pass; `npm run build`; `tests/check-deploy.sh` 22 ok.
+- Not measured here: the phone's own start of the app (Android opening the app and Chrome). After deploying, the live site is measured again below.
