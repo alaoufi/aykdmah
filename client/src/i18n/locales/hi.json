@@ -893,10 +893,10 @@
     "offer_rejected_body": "दुर्भाग्य से, आपका ऑफ़र अस्वीकार कर दिया गया",
     "request_completed_title": "अनुरोध पूरा हुआ",
     "request_completed_body": "आपका अनुरोध सफलतापूर्वक पूरा हुआ",
-    "pair_messages": "{{count}} नए संदेश",
+    "pair_messages": "2 नए संदेश",
     "few_messages": "{{count}} नए संदेश",
     "lots_messages": "{{count}} नए संदेश",
-    "pair_new": "{{count}} नई सूचनाएँ",
+    "pair_new": "2 नई सूचनाएँ",
     "few_new": "{{count}} नई सूचनाएँ",
     "lots_new": "{{count}} नई सूचनाएँ"
   },

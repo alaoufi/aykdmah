@@ -893,10 +893,10 @@
     "offer_rejected_body": "Paumanhin, tinanggihan ang alok mo",
     "request_completed_title": "Tapos na ang kahilingan",
     "request_completed_body": "Matagumpay na natapos ang iyong kahilingan",
-    "pair_messages": "{{count}} bagong mensahe",
+    "pair_messages": "2 bagong mensahe",
     "few_messages": "{{count}} bagong mensahe",
     "lots_messages": "{{count}} bagong mensahe",
-    "pair_new": "{{count}} bagong notification",
+    "pair_new": "2 bagong notification",
     "few_new": "{{count}} bagong notification",
     "lots_new": "{{count}} bagong notification"
   },

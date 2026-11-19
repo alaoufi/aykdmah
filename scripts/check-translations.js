@@ -16,12 +16,16 @@ function flatten(value, prefix = '', result = {}) {
 }
 const values = Object.fromEntries(languages.map(language => [language, flatten(JSON.parse(fs.readFileSync(path.join(directory, `${language}.json`), 'utf8')))]));
 const reference = values.ar;
+// The admin area is Arabic only (owner's decision, AYK-295): admin-only texts added since then exist in
+// ar.json alone and are not missing elsewhere. Keep this list to keys used only under /admin.
+const arabicOnly = ['backups_report.guide.', 'backups_report.run.'];
+const adminOnly = key => arabicOnly.some(prefix => key.startsWith(prefix));
 const placeholders = value => typeof value === 'string' ? [...value.matchAll(/{{\s*([^{}]+?)\s*}}/g)].map(match => match[1]).sort() : [];
 const errors = [];
 for (const language of languages) {
   for (const key of new Set([...Object.keys(reference), ...Object.keys(values[language])])) {
     if (!Object.hasOwn(reference, key)) errors.push(`${language}: extra key ${key}`);
-    else if (!Object.hasOwn(values[language], key)) errors.push(`${language}: missing key ${key}`);
+    else if (!Object.hasOwn(values[language], key)) { if (!adminOnly(key)) errors.push(`${language}: missing key ${key}`); }
     else if (typeof reference[key] !== typeof values[language][key]) errors.push(`${language}: type mismatch ${key}`);
     else if (JSON.stringify(placeholders(reference[key])) !== JSON.stringify(placeholders(values[language][key]))) errors.push(`${language}: interpolation mismatch ${key}`);
     else if (typeof values[language][key] === 'string' && /\uFFFD/.test(values[language][key])) errors.push(`${language}: invalid replacement character ${key}`);

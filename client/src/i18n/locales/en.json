@@ -893,10 +893,10 @@
     "offer_rejected_body": "Unfortunately, your offer was rejected",
     "request_completed_title": "Request completed",
     "request_completed_body": "Your request has been marked complete",
-    "pair_messages": "{{count}} new messages",
+    "pair_messages": "2 new messages",
     "few_messages": "{{count}} new messages",
     "lots_messages": "{{count}} new messages",
-    "pair_new": "{{count}} new notifications",
+    "pair_new": "2 new notifications",
     "few_new": "{{count}} new notifications",
     "lots_new": "{{count}} new notifications"
   },

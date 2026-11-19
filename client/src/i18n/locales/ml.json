@@ -893,10 +893,10 @@
     "offer_rejected_body": "നിർഭാഗ്യവശാൽ, നിങ്ങളുടെ ഓഫർ നിരസിക്കപ്പെട്ടു",
     "request_completed_title": "അഭ്യർത്ഥന പൂർത്തിയായി",
     "request_completed_body": "നിങ്ങളുടെ അഭ്യർത്ഥന വിജയകരമായി പൂർത്തിയായി",
-    "pair_messages": "{{count}} പുതിയ സന്ദേശങ്ങൾ",
+    "pair_messages": "2 പുതിയ സന്ദേശങ്ങൾ",
     "few_messages": "{{count}} പുതിയ സന്ദേശങ്ങൾ",
     "lots_messages": "{{count}} പുതിയ സന്ദേശങ്ങൾ",
-    "pair_new": "{{count}} പുതിയ അറിയിപ്പുകൾ",
+    "pair_new": "2 പുതിയ അറിയിപ്പുകൾ",
     "few_new": "{{count}} പുതിയ അറിയിപ്പുകൾ",
     "lots_new": "{{count}} പുതിയ അറിയിപ്പുകൾ"
   },

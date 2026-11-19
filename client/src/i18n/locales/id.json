@@ -893,10 +893,10 @@
     "offer_rejected_body": "Sayangnya, penawaran Anda ditolak",
     "request_completed_title": "Permintaan selesai",
     "request_completed_body": "Permintaan Anda berhasil diselesaikan",
-    "pair_messages": "{{count}} pesan baru",
+    "pair_messages": "2 pesan baru",
     "few_messages": "{{count}} pesan baru",
     "lots_messages": "{{count}} pesan baru",
-    "pair_new": "{{count}} notifikasi baru",
+    "pair_new": "2 notifikasi baru",
     "few_new": "{{count}} notifikasi baru",
     "lots_new": "{{count}} notifikasi baru"
   },

@@ -1038,3 +1038,12 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - The owner ran `deploy/ci-setup.sh` on the server: `OK: the GitHub deploy key is ready`.
 - Secrets added: `AYKDMH_DEPLOY_KEY` and `AYKDMH_HOST_KEY`.
 - This commit carries `[deploy]` to run the first real deploy from GitHub. The result is recorded in the next entry.
+- First attempt, run 44524302295: the checks failed at `i18n:check`, so nothing was deployed. Causes:
+  - The new Arabic-only admin texts for the backups page.
+  - «pair» notification texts: other languages had `{{count}}`, the Arabic dual form has no count.
+- Fixes:
+  - `scripts/check-translations.js` allows the admin-only `backups_report.guide.*` and `backups_report.run.*` keys to exist in ar.json alone (admin is Arabic only, AYK-295).
+  - The pair texts use the number 2.
+  - `reports-backups.integration.js` now also checks the backup-now button: 403 for other admins, 503 without the shared folder, 401 signed out.
+- Local results: `i18n:check` OK; server unit tests 80 pass; client tests 164 pass; build OK; `check-deploy.sh` OK.
+- Integration: 273 pass, 1 fail before the test update; that test then passed (1/1).

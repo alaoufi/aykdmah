@@ -77,7 +77,11 @@ test.after(async () => {
 });
 
 test('backups report: off without a key, then the backups, the restore test, and who may download', async () => {
-  assert.deepEqual(await api('/admin/reports/backups', { user: users.auditor }), { configured: false, can_download: false });
+  assert.deepEqual(await api('/admin/reports/backups', { user: users.auditor }), { configured: false, can_download: false, can_run: false, run: { available: false }, media_in_r2: false });
+  // AYK-304: «take a backup now» is for the main administrator only, and unavailable without the shared folder.
+  await api('/admin/reports/backups/run', { user: users.auditor, method: 'POST', expected: 403 });
+  await api('/admin/reports/backups/run', { user: users.owner, method: 'POST', expected: 503 });
+  await api('/admin/reports/backups/run', { method: 'POST', expected: 401 });
   await api('/admin/reports/backups', { user: users.other, expected: 403 });
   await api('/admin/reports/backups', { expected: 401 });
 
