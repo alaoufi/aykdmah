@@ -1102,3 +1102,9 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Not confirmed with the tester: the exact message they saw was not available.
 - Deploy 44530440888 (AYK-310) succeeded: the live site is 1.1.56 (99ffc33), and `https://aykdmh.com/api/app-texts?lang=ur` returns the Urdu texts.
 - Next commit: [android], the first Android build on the server and upload to the internal testing track through GitHub (1.3.9, code 19).
+- **Android release run 44531983060: success.**
+  - checks passed;
+  - the server built and signed 1.3.9 (19): «APK signature OK», «AAB signature OK», 32,221,597 bytes. This also compiled `AppTexts.java` and the changed Kotlin call screens;
+  - GitHub fetched the bundle by SHA-256 (`app.aab: OK`);
+  - it was uploaded as `aykdmh-play`: «Bundle accepted: version code 19», «Release 19 set on internal with notes», «DONE».
+- **The full path works without the owner's computer, for both stores and the site.** Production publishing and App Review submission still wait for the owner's approval.
