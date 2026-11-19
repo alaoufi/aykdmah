@@ -1073,3 +1073,6 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - the live check passed;
   - the site went from 1.1.53 (90f47cc) to **1.1.54 (790fa95)**.
 - Watched from outside every ~10 s during the deploy: API 200 throughout, except one probe at 12:57:00 that got no reply within its 8-second limit (`000`). That is the request being held while the API restarted (`lb_try_duration`). A user would have seen a slow response, not an error page.
+
+## 2026-11-19 — AYK-309: Android release through GitHub
+- The first [android] run (44529657387) was cancelled before its release step: the server still had the deploy-only `ci-command.sh`. This [deploy] puts the new script (with `android-build` and `android-aab`) on the server. It is client and script only: no server code changed, so the API container is not rebuilt.
