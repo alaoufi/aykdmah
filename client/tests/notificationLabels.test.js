@@ -112,3 +112,14 @@ test('dispute status labels translate while subjects, resolutions and comments r
     }
   }
 });
+
+test('notifications stored with the wording before the 2026-11-19 review still translate', () => {
+  // The old English title and body of a price offer, as saved in the database before the review.
+  const old = { type: 'new_offer', title: 'New quote received', body: 'Sara sent an offer of 25' };
+  const result = localizedNotification(old, 'ar');
+  assert.equal(result.title, translate('ar', 'notif_new_offer_title'));
+  assert.equal(result.body, 'قدم Sara عرضاً بقيمة 25');
+  const attachment = localizedNotification({ type: 'new_message', title: 'New message', body: 'نیا منسلک',
+    data: { system_title: 'new_message', system_body: 'new_attachment' } }, 'en');
+  assert.equal(attachment.body, translate('en', 'notif_new_attachment'));
+});

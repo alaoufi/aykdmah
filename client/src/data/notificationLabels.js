@@ -6,29 +6,29 @@ const labels = {
   "new_offer": {
     "title": {
       "ar": "عرض سعر جديد",
-      "en": "New quote received",
+      "en": "New price offer",
       "ur": "نئی قیمت کی پیشکش",
-      "bn": "নতুন দর প্রাপ্ত",
-      "hi": "नया कोटेशन प्राप्त",
-      "ml": "പുതിയ വിലപേശല്",
-      "fil": "Bagong quote na natanggap",
-      "id": "Penawaran baru diterima",
-      "ne": "नयाँ उद्धरण प्राप्त",
-      "am": "አዲስ ዋጋ የተቀበለው",
-      "tr": "Yeni alıntı"
+      "bn": "নতুন দামের অফার",
+      "hi": "कीमत का नया ऑफ़र",
+      "ml": "പുതിയ വില ഓഫർ",
+      "fil": "Bagong alok na presyo",
+      "id": "Penawaran harga baru",
+      "ne": "नयाँ मूल्य प्रस्ताव",
+      "am": "አዲስ የዋጋ ሀሳብ",
+      "tr": "Yeni fiyat teklifi"
     },
     "body": {
       "ar": "قدم {{name}} عرضاً بقيمة {{price}}",
       "en": "{{name}} sent an offer of {{price}}",
       "ur": "{{name}} نے {{price}} کی پیشکش بھیجی",
-      "bn": "{{name}} {{price}} এর একটি অফার পাঠিয়েছেন",
+      "bn": "{{name}} {{price}} দামের একটি অফার দিয়েছেন",
       "hi": "{{name}} ने {{price}} का ऑफ़र भेजा",
-      "ml": "{{name}} ഒരു ഓഫർ അയച്ചു {{price}}",
-      "fil": "{{name}} nagpadala ng isang alok ng {{price}}",
-      "id": "{{name}} mengirimkan penawaran untuk {{price}}",
-      "ne": "{{name}} ले प्रस्ताव पठायो {{price}}",
-      "am": "{{name}} የ {{price}} ቅናሽ ላከ",
-      "tr": "{{name}} gönderdi bir teklif {{price}}"
+      "ml": "{{name}} {{price}} വിലയുള്ള ഒരു ഓഫർ അയച്ചു",
+      "fil": "Nagpadala si {{name}} ng alok na {{price}}",
+      "id": "{{name}} mengajukan penawaran sebesar {{price}}",
+      "ne": "{{name}} ले {{price}} को प्रस्ताव पठाउनुभयो",
+      "am": "{{name}} የ{{price}} የዋጋ ሀሳብ ልከዋል",
+      "tr": "{{name}} {{price}} tutarında bir teklif verdi"
     }
   },
   "offer_accepted": {
@@ -37,25 +37,25 @@ const labels = {
       "en": "Your offer was accepted",
       "ur": "آپ کی پیشکش قبول ہو گئی",
       "bn": "আপনার অফার গৃহীত হয়েছে",
-      "hi": "आपका ऑफ़र स्वीकार हुआ",
+      "hi": "आपका ऑफ़र स्वीकार कर लिया गया",
       "ml": "നിങ്ങളുടെ ഓഫർ സ്വീകരിച്ചു",
       "fil": "Tinanggap ang iyong alok",
-      "id": "Tawaranmu diterima",
+      "id": "Penawaran Anda diterima",
       "ne": "तपाईंको प्रस्ताव स्वीकार गरियो",
-      "am": "የእርስዎ አቅርቦት ተቀባይነት አግኝቷል",
+      "am": "የዋጋ ሀሳብዎ ተቀባይነት አግኝቷል",
       "tr": "Teklifiniz kabul edildi"
     },
     "body": {
       "ar": "قبل العميل عرضك على: {{title}}",
       "en": "The client accepted your offer on: {{title}}",
-      "ur": "کلائنٹ نے آپ کی پیشکش قبول کی: {{title}}",
-      "bn": "ক্লায়েন্ট আপনার অফার গ্রহণ করেছেন: {{title}}",
+      "ur": "گاہک نے آپ کی پیشکش قبول کر لی: {{title}}",
+      "bn": "সেবাপ্রার্থী আপনার অফার গ্রহণ করেছেন: {{title}}",
       "hi": "ग्राहक ने आपका ऑफ़र स्वीकार किया: {{title}}",
-      "ml": "നിങ്ങളുടെ ഓഫർ ക്ലയന്റ് സ്വീകരിച്ചു: {{title}}",
+      "ml": "ഉപഭോക്താവ് നിങ്ങളുടെ ഓഫർ സ്വീകരിച്ചു: {{title}}",
       "fil": "Tinanggap ng kliyente ang iyong alok sa: {{title}}",
-      "id": "Klien menerima tawaranmu pada: {{title}}",
-      "ne": "ग्राहकले तपाईंको प्रस्ताव स्वीकार गरेः {{title}}",
-      "am": "ደንበኛው የእርስዎን አቅርቦት ተቀብሏል: {{title}}",
+      "id": "Klien menerima penawaran Anda untuk: {{title}}",
+      "ne": "ग्राहकले तपाईंको प्रस्ताव स्वीकार गर्नुभयो: {{title}}",
+      "am": "ደንበኛው የዋጋ ሀሳብዎን ተቀብለዋል፦ {{title}}",
       "tr": "Müşteri teklifinizi kabul etti: {{title}}"
     }
   },
@@ -65,12 +65,12 @@ const labels = {
       "en": "Your offer was rejected",
       "ur": "آپ کی پیشکش مسترد ہو گئی",
       "bn": "আপনার অফার প্রত্যাখ্যাত হয়েছে",
-      "hi": "आपका ऑफ़र अस्वीकार हुआ",
+      "hi": "आपका ऑफ़र अस्वीकार कर दिया गया",
       "ml": "നിങ്ങളുടെ ഓഫർ നിരസിക്കപ്പെട്ടു",
-      "fil": "Ang iyong alok ay tinanggihan",
-      "id": "Tawaranmu ditolak",
+      "fil": "Tinanggihan ang iyong alok",
+      "id": "Penawaran Anda ditolak",
       "ne": "तपाईंको प्रस्ताव अस्वीकृत भयो",
-      "am": "የእርስዎ አቅርቦት ውድቅ ተደርጓል",
+      "am": "የዋጋ ሀሳብዎ ውድቅ ተደርጓል",
       "tr": "Teklifiniz reddedildi"
     },
     "body": {
@@ -80,10 +80,10 @@ const labels = {
       "bn": "দুর্ভাগ্যবশত, আপনার অফার প্রত্যাখ্যাত হয়েছে",
       "hi": "दुर्भाग्य से, आपका ऑफ़र अस्वीकार कर दिया गया",
       "ml": "നിർഭാഗ്യവശാൽ, നിങ്ങളുടെ ഓഫർ നിരസിക്കപ്പെട്ടു",
-      "fil": "Sa kasamaang palad, ang iyong alok ay tinanggihan",
-      "id": "Sayangnya, tawaranmu ditolak",
+      "fil": "Paumanhin, tinanggihan ang iyong alok",
+      "id": "Mohon maaf, penawaran Anda ditolak",
       "ne": "दुर्भाग्यवश, तपाईंको प्रस्ताव अस्वीकृत भयो",
-      "am": "የሚያሳዝነው ግን፣ የእርስዎ አቅርቦት ውድቅ ተደርጓል።",
+      "am": "እናዝናለን፣ የዋጋ ሀሳብዎ ውድቅ ተደርጓል።",
       "tr": "Ne yazık ki teklifiniz reddedildi"
     }
   },
@@ -94,12 +94,12 @@ const labels = {
       "ur": "درخواست کے بارے میں رابطہ",
       "bn": "অনুরোধ নিয়ে যোগাযোগ",
       "hi": "अनुरोध के बारे में संपर्क",
-      "ml": "ഒരു അഭ്യർത്ഥന സംബന്ധിച്ച പുതിയ കോൺടാക്റ്റ്",
-      "fil": "Bagong kontak tungkol sa isang kahilingan",
-      "id": "Kontak baru tentang permintaan",
+      "ml": "ഒരു അഭ്യർത്ഥനയെക്കുറിച്ച് പുതിയ ബന്ധപ്പെടൽ",
+      "fil": "May nakikipag-ugnayan tungkol sa kahilingan",
+      "id": "Ada yang menghubungi Anda tentang permintaan",
       "ne": "अनुरोधको बारेमा नयाँ सम्पर्क",
-      "am": "ስለ ጥያቄ አዲስ እውቂያ",
-      "tr": "Bir talebe ilişkin yeni bir iletişim"
+      "am": "ስለ ጥያቄዎ አዲስ ግንኙነት",
+      "tr": "Bir talep hakkında iletişim"
     },
     "body": {
       "ar": "{{name}} يتواصل معك بخصوص «{{title}}»",
@@ -107,27 +107,27 @@ const labels = {
       "ur": "{{name}} نے «{{title}}» کے بارے میں آپ سے رابطہ کیا",
       "bn": "{{name}} «{{title}}» নিয়ে আপনার সাথে যোগাযোগ করেছেন",
       "hi": "{{name}} ने «{{title}}» के बारे में आपसे संपर्क किया",
-      "ml": "{{name}} നിങ്ങളെ \"{{title}}\" നെ കുറിച്ച് ബന്ധപ്പെട്ടു",
-      "fil": "{{name}} nakipag-ugnay sa iyo tungkol sa \"{{title}}\"",
+      "ml": "«{{title}}» സംബന്ധിച്ച് {{name}} നിങ്ങളെ ബന്ധപ്പെടുന്നു",
+      "fil": "Nakikipag-ugnayan sa iyo si {{name}} tungkol sa «{{title}}»",
       "id": "{{name}} menghubungi Anda tentang \"{{title}}\"",
-      "ne": "{{name}} तपाईंलाई \"{{title}}\" को बारेमा सम्पर्क गरियो",
-      "am": "{{name}} ስለ \"{{title}}\" አነጋግሬያችኋለሁ",
-      "tr": "{{name}} \"{{title}}\" hakkında sizinle iletişime geçti"
+      "ne": "{{name}} ले «{{title}}» बारे तपाईंलाई सम्पर्क गर्दै हुनुहुन्छ",
+      "am": "{{name}} ስለ «{{title}}» አነጋግረውዎታል",
+      "tr": "{{name}}, \"{{title}}\" hakkında sizinle iletişime geçiyor"
     }
   },
   "request_reminder": {
     "title": {
       "ar": "هل وجدت من يخدمك؟",
-      "en": "Did you find someone?",
+      "en": "Have you found someone to help you?",
       "ur": "کیا آپ کو خدمت کرنے والا مل گیا؟",
       "bn": "আপনি কি সেবাদাতা পেয়েছেন?",
       "hi": "क्या आपको सेवा देने वाला मिल गया?",
-      "ml": "ആരെയെങ്കിലും കണ്ടെത്തിയോ?",
-      "fil": "May nakita ka ba?",
-      "id": "Apa kau menemukan seseorang?",
-      "ne": "के तपाईंले कसैलाई भेट्टाउनुभयो?",
-      "am": "አንድ ሰው አገኘህ?",
-      "tr": "Birini buldun mu?"
+      "ml": "നിങ്ങൾക്ക് സേവനം നൽകാൻ ആരെയെങ്കിലും കിട്ടിയോ?",
+      "fil": "May nakita ka na bang magseserbisyo sa iyo?",
+      "id": "Sudah menemukan yang bisa membantu Anda?",
+      "ne": "के तपाईंले सेवा दिने कोही भेट्टाउनुभयो?",
+      "am": "የሚያገለግልዎ ሰው አግኝተዋል?",
+      "tr": "Size hizmet verecek birini buldunuz mu?"
     },
     "body": {
       "ar": "طلبك «{{title}}» ما زال مفتوحًا. إن اتفقت مع أحد فأوقف الطلب، أو أوقف هذا التذكير.",
@@ -135,12 +135,12 @@ const labels = {
       "ur": "آپ کی درخواست «{{title}}» ابھی کھلی ہے۔ اگر کسی سے بات طے ہو گئی ہے تو اسے بند کریں، یا یہ یاد دہانی روک دیں۔",
       "bn": "আপনার অনুরোধ «{{title}}» এখনো খোলা। কারও সাথে চুক্তি হলে বন্ধ করুন, অথবা এই রিমাইন্ডার বন্ধ করুন।",
       "hi": "आपका अनुरोध «{{title}}» अभी खुला है। अगर किसी से बात तय हो गई है तो इसे बंद करें, या यह याद दिलाना बंद करें।",
-      "ml": "നിങ്ങളുടെ അഭ്യർത്ഥന \"{{title}}\" ഇപ്പോഴും തുറന്നിരിക്കുന്നു. നിങ്ങൾ ആരുമായും യോജിച്ചെങ്കിൽ, അത് അടയ്ക്കുക, അല്ലെങ്കിൽ ഈ ഓർമ്മപ്പെടുത്തൽ നിർത്തുക.",
-      "fil": "Ang iyong kahilingan \"{{title}}\" ay bukas pa rin. Kung ikaw ay sumasang-ayon sa isang tao, i-close ito, o i-stop ang paalala.",
-      "id": "Jika Anda telah setuju dengan seseorang, tutupnya, atau berhenti mengingatkan. {{title}}",
-      "ne": "तपाईंको अनुरोध \"{{title}}\" अझै खुला छ। यदि तपाईं कसैसँग सहमत हुनुभयो भने, यसलाई बन्द गर्नुहोस्, वा यो सम्झाउने बन्द गर्नुहोस्।",
-      "am": "ጥያቄህ \"{{title}}\" አሁንም ክፍት ነው። ከአንድ ሰው ጋር ተስማምተህ ከሆነ ጥያቄውን አቁም ወይም ይህን ማሳሰቢያ አቁም።",
-      "tr": "Bir kişiyle anlaştığınızda, bunu kapatın ya da bu hatırlatmayı bırakın. {{title}}"
+      "ml": "നിങ്ങളുടെ അഭ്യർത്ഥന «{{title}}» ഇപ്പോഴും തുറന്നിരിക്കുന്നു. ആരുമായെങ്കിലും ധാരണയായെങ്കിൽ അഭ്യർത്ഥന നിർത്തുക, അല്ലെങ്കിൽ ഈ ഓർമ്മപ്പെടുത്തൽ നിർത്തുക.",
+      "fil": "Bukas pa rin ang iyong kahilingang «{{title}}». Kung may nakasundo ka na, itigil ang kahilingan, o itigil ang paalalang ito.",
+      "id": "Permintaan Anda «{{title}}» masih terbuka. Jika sudah sepakat dengan seseorang, hentikan permintaannya, atau matikan pengingat ini.",
+      "ne": "तपाईंको अनुरोध «{{title}}» अझै खुला छ। कसैसँग सहमति भइसकेको भए अनुरोध बन्द गर्नुहोस्, वा यो रिमाइन्डर बन्द गर्नुहोस्।",
+      "am": "ጥያቄዎ «{{title}}» አሁንም ክፍት ነው። ከአንድ ሰው ጋር ከተስማሙ ጥያቄውን ያቁሙ፣ ወይም ይህን ማሳሰቢያ ያቁሙ።",
+      "tr": "\"{{title}}\" talebiniz hâlâ açık. Biriyle anlaştıysanız talebi durdurun veya bu hatırlatmayı kapatın."
     }
   },
   "request_completed": {
@@ -149,13 +149,13 @@ const labels = {
       "en": "Request completed",
       "ur": "درخواست مکمل ہو گئی",
       "bn": "অনুরোধ সম্পন্ন হয়েছে",
-      "hi": "अनुरोध पूर्ण हुआ",
-      "ml": "അഭ്യർത്ഥന പൂര് ത്തിയാക്കി",
-      "fil": "Nagbigay ng kahilingan",
+      "hi": "अनुरोध पूरा हो गया",
+      "ml": "അഭ്യർത്ഥന പൂർത്തിയായി",
+      "fil": "Nakumpleto ang kahilingan",
       "id": "Permintaan selesai",
-      "ne": "अनुरोध पूरा",
-      "am": "የተጠናቀቀ ጥያቄ",
-      "tr": "Başvuru tamamlandı"
+      "ne": "अनुरोध पूरा भयो",
+      "am": "ጥያቄው ተጠናቋል",
+      "tr": "Talep tamamlandı"
     },
     "body": {
       "ar": "تم إكمال طلبك: {{title}}",
@@ -174,46 +174,46 @@ const labels = {
   "new_review": {
     "title": {
       "ar": "تقييم جديد",
-      "en": "New review",
-      "ur": "نیا جائزہ",
-      "bn": "নতুন পর্যালোচনা",
-      "hi": "नई समीक्षा",
-      "ml": "പുതിയ അവലോകനം",
-      "fil": "Bagong pagsusuri",
+      "en": "New rating",
+      "ur": "نئی ریٹنگ",
+      "bn": "নতুন রেটিং",
+      "hi": "नई रेटिंग",
+      "ml": "പുതിയ റേറ്റിംഗ്",
+      "fil": "Bagong review",
       "id": "Ulasan baru",
-      "ne": "नयाँ समीक्षा",
+      "ne": "नयाँ मूल्याङ्कन",
       "am": "አዲስ ግምገማ",
-      "tr": "Yeni inceleme"
+      "tr": "Yeni değerlendirme"
     }
   },
   "admin_assigned": {
     "title": {
       "ar": "تم تحديث الحالة",
       "en": "Status updated",
-      "ur": "حیثیت اپ ڈیٹ ہو گئی",
+      "ur": "اسٹیٹس اپ ڈیٹ ہو گیا",
       "bn": "অবস্থা আপডেট হয়েছে",
-      "hi": "स्थिति अपडेट हुई",
-      "ml": "അപ്ഡേറ്റ് ചെയ്ത നില",
-      "fil": "Na-update na katayuan",
+      "hi": "स्थिति अपडेट हो गई",
+      "ml": "നില അപ്‌ഡേറ്റ് ചെയ്തു",
+      "fil": "Na-update ang status",
       "id": "Status diperbarui",
-      "ne": "हालसम्मको स्थिति",
-      "am": "የዘመነ ሁኔታ",
-      "tr": "Güncelleştirilmiş durum"
+      "ne": "स्थिति अपडेट भयो",
+      "am": "ሁኔታው ተዘምኗል",
+      "tr": "Durum güncellendi"
     }
   },
   "dispute_opened": {
     "title": {
       "ar": "فُتح نزاع",
       "en": "Dispute opened",
-      "ur": "تنازعہ کھلا",
+      "ur": "تنازعہ کھولا گیا",
       "bn": "বিরোধ খোলা হয়েছে",
       "hi": "विवाद खोला गया",
       "ml": "തർക്കം തുറന്നു",
-      "fil": "Nagbukas ang dispute",
-      "id": "Perdebatan dibuka",
-      "ne": "विवाद खुला",
+      "fil": "May binuksang dispute",
+      "id": "Sengketa dibuka",
+      "ne": "विवाद खोलियो",
       "am": "ክርክር ተከፍቷል",
-      "tr": "Dava açıldı"
+      "tr": "Anlaşmazlık açıldı"
     }
   },
   "dispute_resolved": {
@@ -224,41 +224,41 @@ const labels = {
       "bn": "বিরোধ সমাধান হয়েছে",
       "hi": "विवाद हल हो गया",
       "ml": "തർക്കം പരിഹരിക്കപ്പെട്ടു",
-      "fil": "Natutunaw ang dispute",
-      "id": "Pertikaian diselesaikan",
-      "ne": "विवाद समाधान",
+      "fil": "Naresolba na ang dispute",
+      "id": "Sengketa telah diselesaikan",
+      "ne": "विवाद समाधान भयो",
       "am": "ክርክር ተፈታ",
-      "tr": "Çözülmüş anlaşmazlık"
+      "tr": "Anlaşmazlık çözüldü"
     }
   },
   "dispute_status": {
     "title": {
       "ar": "تحديث حالة النزاع",
       "en": "Dispute status updated",
-      "ur": "تنازعہ کی حیثیت اپ ڈیٹ",
+      "ur": "تنازعے کا اسٹیٹس اپ ڈیٹ ہو گیا",
       "bn": "বিরোধ অবস্থা আপডেট",
-      "hi": "विवाद स्थिति अपडेट",
-      "ml": "തർക്ക നില അപ്ഡേറ്റ് ചെയ്തു",
-      "fil": "Na-update ang katayuan ng mga kontrata",
-      "id": "Status perselisihan diperbarui",
+      "hi": "विवाद की स्थिति अपडेट हो गई",
+      "ml": "തർക്ക നില അപ്‌ഡേറ്റ് ചെയ്തു",
+      "fil": "Na-update ang status ng dispute",
+      "id": "Status sengketa diperbarui",
       "ne": "विवादको स्थिति अपडेट",
-      "am": "የተቃውሞ ሁኔታ",
-      "tr": "Tartışma durumu güncellenmiştir"
+      "am": "የክርክሩ ሁኔታ ተዘምኗል",
+      "tr": "Anlaşmazlık durumu güncellendi"
     }
   },
   "dispute_message": {
     "title": {
       "ar": "رسالة جديدة في النزاع",
-      "en": "New dispute message",
+      "en": "New message in the dispute",
       "ur": "تنازعہ میں نیا پیغام",
       "bn": "বিরোধে নতুন বার্তা",
       "hi": "विवाद में नया संदेश",
       "ml": "പുതിയ തർക്ക സന്ദേശം",
       "fil": "Bagong mensahe sa dispute",
-      "id": "Pesan sengketa baru",
-      "ne": "नयाँ विवाद सन्देश",
-      "am": "አዲስ የውዝግብ መልዕክት",
-      "tr": "Yeni anlaşmazlık mesajı"
+      "id": "Pesan baru dalam sengketa",
+      "ne": "विवादमा नयाँ सन्देश",
+      "am": "በክርክሩ ውስጥ አዲስ መልዕክት",
+      "tr": "Anlaşmazlıkta yeni mesaj"
     }
   },
   "subscription_activated": {
@@ -267,13 +267,13 @@ const labels = {
       "en": "Your subscription is active",
       "ur": "آپ کی سبسکرپشن فعال ہو گئی",
       "bn": "আপনার সাবস্ক্রিপশন সক্রিয় হয়েছে",
-      "hi": "आपकी सदस्यता सक्रिय है",
-      "ml": "നിങ്ങളുടെ സബ്സ്ക്രിപ്ഷൻ സജീവമാണ്",
-      "fil": "Ang iyong subscription ay aktibo",
-      "id": "Langganan Anda aktif",
-      "ne": "तपाईंको सदस्यता सक्रिय छ",
-      "am": "የእርስዎ ምዝገባ ንቁ ነው",
-      "tr": "aboneliğiniz aktif"
+      "hi": "आपकी सदस्यता चालू हो गई",
+      "ml": "നിങ്ങളുടെ സബ്‌സ്ക്രിപ്ഷൻ സജീവമാക്കി",
+      "fil": "Aktibo na ang iyong subscription",
+      "id": "Langganan Anda telah diaktifkan",
+      "ne": "तपाईंको सदस्यता सक्रिय भयो",
+      "am": "የደንበኝነት ምዝገባዎ ነቅቷል",
+      "tr": "Aboneliğiniz etkinleştirildi"
     },
     "body": {
       "ar": "شكراً لاشتراكك في منصتنا",
@@ -293,15 +293,15 @@ const labels = {
     "title": {
       "ar": "تمت عملية الدفع بنجاح",
       "en": "Payment successful",
-      "ur": "ادائیگی کامیاب",
+      "ur": "ادائیگی کامیابی سے ہو گئی",
       "bn": "পেমেন্ট সফল হয়েছে",
-      "hi": "भुगतान सफल",
-      "ml": "പേയ്മെന്റ് വിജയകരമായി",
-      "fil": "Nagtagumpay na pagbabayad",
+      "hi": "भुगतान सफल रहा",
+      "ml": "പേയ്‌മെന്റ് വിജയകരമായി പൂർത്തിയായി",
+      "fil": "Matagumpay ang pagbabayad",
       "id": "Pembayaran berhasil",
-      "ne": "भुक्तानी सफल",
-      "am": "ክፍያ የተሳካ",
-      "tr": "Ödemesi başarıyla"
+      "ne": "भुक्तानी सफल भयो",
+      "am": "ክፍያው በተሳካ ሁኔታ ተፈጽሟል",
+      "tr": "Ödeme başarıyla tamamlandı"
     },
     "body": {
       "ar": "تم دفع {{amount}} {{currency}}",
@@ -337,10 +337,199 @@ const labels = {
 const attachmentLabel = {
   "ar": "مرفق جديد",
   "en": "New attachment",
-  "ur": "نیا منسلک",
+  "ur": "نیا منسلکہ",
   "bn": "নতুন সংযুক্তি",
-  "hi": "नया अनुलग्नक"
+  "hi": "नया अटैचमेंट",
+  "ml": "പുതിയ അറ്റാച്ച്മെന്റ്",
+  "fil": "Bagong attachment",
+  "id": "Lampiran baru",
+  "ne": "नयाँ संलग्नक",
+  "am": "አዲስ አባሪ",
+  "tr": "Yeni ek"
 };
+
+// Earlier wordings of the same server texts (before the 2026-11-19 review). Notifications already
+// stored keep the old words, so they are still recognized and shown in the reader's language.
+const legacyLabels = {
+  "new_offer": {
+    "title": [
+      "New quote received",
+      "নতুন দর প্রাপ্ত",
+      "नया कोटेशन प्राप्त",
+      "പുതിയ വിലപേശല്",
+      "Bagong quote na natanggap",
+      "Penawaran baru diterima",
+      "नयाँ उद्धरण प्राप्त",
+      "አዲስ ዋጋ የተቀበለው",
+      "Yeni alıntı"
+    ],
+    "body": [
+      "{{name}} {{price}} এর একটি অফার পাঠিয়েছেন",
+      "{{name}} ഒരു ഓഫർ അയച്ചു {{price}}",
+      "{{name}} nagpadala ng isang alok ng {{price}}",
+      "{{name}} mengirimkan penawaran untuk {{price}}",
+      "{{name}} ले प्रस्ताव पठायो {{price}}",
+      "{{name}} የ {{price}} ቅናሽ ላከ",
+      "{{name}} gönderdi bir teklif {{price}}"
+    ]
+  },
+  "offer_accepted": {
+    "title": [
+      "आपका ऑफ़र स्वीकार हुआ",
+      "Tawaranmu diterima",
+      "የእርስዎ አቅርቦት ተቀባይነት አግኝቷል"
+    ],
+    "body": [
+      "کلائنٹ نے آپ کی پیشکش قبول کی: {{title}}",
+      "ক্লায়েন্ট আপনার অফার গ্রহণ করেছেন: {{title}}",
+      "നിങ്ങളുടെ ഓഫർ ക്ലയന്റ് സ്വീകരിച്ചു: {{title}}",
+      "Klien menerima tawaranmu pada: {{title}}",
+      "ग्राहकले तपाईंको प्रस्ताव स्वीकार गरेः {{title}}",
+      "ደንበኛው የእርስዎን አቅርቦት ተቀብሏል: {{title}}"
+    ]
+  },
+  "offer_rejected": {
+    "title": [
+      "आपका ऑफ़र अस्वीकार हुआ",
+      "Ang iyong alok ay tinanggihan",
+      "Tawaranmu ditolak",
+      "የእርስዎ አቅርቦት ውድቅ ተደርጓል"
+    ],
+    "body": [
+      "Sa kasamaang palad, ang iyong alok ay tinanggihan",
+      "Sayangnya, tawaranmu ditolak",
+      "የሚያሳዝነው ግን፣ የእርስዎ አቅርቦት ውድቅ ተደርጓል።"
+    ]
+  },
+  "request_contact": {
+    "title": [
+      "ഒരു അഭ്യർത്ഥന സംബന്ധിച്ച പുതിയ കോൺടാക്റ്റ്",
+      "Bagong kontak tungkol sa isang kahilingan",
+      "Kontak baru tentang permintaan",
+      "ስለ ጥያቄ አዲስ እውቂያ",
+      "Bir talebe ilişkin yeni bir iletişim"
+    ],
+    "body": [
+      "{{name}} നിങ്ങളെ \"{{title}}\" നെ കുറിച്ച് ബന്ധപ്പെട്ടു",
+      "{{name}} nakipag-ugnay sa iyo tungkol sa \"{{title}}\"",
+      "{{name}} तपाईंलाई \"{{title}}\" को बारेमा सम्पर्क गरियो",
+      "{{name}} ስለ \"{{title}}\" አነጋግሬያችኋለሁ",
+      "{{name}} \"{{title}}\" hakkında sizinle iletişime geçti"
+    ]
+  },
+  "request_reminder": {
+    "title": [
+      "Did you find someone?",
+      "ആരെയെങ്കിലും കണ്ടെത്തിയോ?",
+      "May nakita ka ba?",
+      "Apa kau menemukan seseorang?",
+      "के तपाईंले कसैलाई भेट्टाउनुभयो?",
+      "አንድ ሰው አገኘህ?",
+      "Birini buldun mu?"
+    ],
+    "body": [
+      "നിങ്ങളുടെ അഭ്യർത്ഥന \"{{title}}\" ഇപ്പോഴും തുറന്നിരിക്കുന്നു. നിങ്ങൾ ആരുമായും യോജിച്ചെങ്കിൽ, അത് അടയ്ക്കുക, അല്ലെങ്കിൽ ഈ ഓർമ്മപ്പെടുത്തൽ നിർത്തുക.",
+      "Ang iyong kahilingan \"{{title}}\" ay bukas pa rin. Kung ikaw ay sumasang-ayon sa isang tao, i-close ito, o i-stop ang paalala.",
+      "Jika Anda telah setuju dengan seseorang, tutupnya, atau berhenti mengingatkan. {{title}}",
+      "तपाईंको अनुरोध \"{{title}}\" अझै खुला छ। यदि तपाईं कसैसँग सहमत हुनुभयो भने, यसलाई बन्द गर्नुहोस्, वा यो सम्झाउने बन्द गर्नुहोस्।",
+      "ጥያቄህ \"{{title}}\" አሁንም ክፍት ነው። ከአንድ ሰው ጋር ተስማምተህ ከሆነ ጥያቄውን አቁም ወይም ይህን ማሳሰቢያ አቁም።",
+      "Bir kişiyle anlaştığınızda, bunu kapatın ya da bu hatırlatmayı bırakın. {{title}}"
+    ]
+  },
+  "request_completed": {
+    "title": [
+      "अनुरोध पूर्ण हुआ",
+      "അഭ്യർത്ഥന പൂര് ത്തിയാക്കി",
+      "Nagbigay ng kahilingan",
+      "अनुरोध पूरा",
+      "የተጠናቀቀ ጥያቄ",
+      "Başvuru tamamlandı"
+    ]
+  },
+  "new_review": {
+    "title": [
+      "New review",
+      "نیا جائزہ",
+      "নতুন পর্যালোচনা",
+      "नई समीक्षा",
+      "പുതിയ അവലോകനം",
+      "Bagong pagsusuri",
+      "नयाँ समीक्षा",
+      "Yeni inceleme"
+    ]
+  },
+  "admin_assigned": {
+    "title": [
+      "حیثیت اپ ڈیٹ ہو گئی",
+      "स्थिति अपडेट हुई",
+      "അപ്ഡേറ്റ് ചെയ്ത നില",
+      "Na-update na katayuan",
+      "हालसम्मको स्थिति",
+      "የዘመነ ሁኔታ",
+      "Güncelleştirilmiş durum"
+    ]
+  },
+  "dispute_opened": {
+    "title": [
+      "تنازعہ کھلا",
+      "Nagbukas ang dispute",
+      "Perdebatan dibuka",
+      "विवाद खुला",
+      "Dava açıldı"
+    ]
+  },
+  "dispute_resolved": {
+    "title": [
+      "Natutunaw ang dispute",
+      "Pertikaian diselesaikan",
+      "विवाद समाधान",
+      "Çözülmüş anlaşmazlık"
+    ]
+  },
+  "dispute_status": {
+    "title": [
+      "تنازعہ کی حیثیت اپ ڈیٹ",
+      "विवाद स्थिति अपडेट",
+      "തർക്ക നില അപ്ഡേറ്റ് ചെയ്തു",
+      "Na-update ang katayuan ng mga kontrata",
+      "Status perselisihan diperbarui",
+      "የተቃውሞ ሁኔታ",
+      "Tartışma durumu güncellenmiştir"
+    ]
+  },
+  "dispute_message": {
+    "title": [
+      "New dispute message",
+      "Pesan sengketa baru",
+      "नयाँ विवाद सन्देश",
+      "አዲስ የውዝግብ መልዕክት",
+      "Yeni anlaşmazlık mesajı"
+    ]
+  },
+  "subscription_activated": {
+    "title": [
+      "आपकी सदस्यता सक्रिय है",
+      "നിങ്ങളുടെ സബ്സ്ക്രിപ്ഷൻ സജീവമാണ്",
+      "Ang iyong subscription ay aktibo",
+      "Langganan Anda aktif",
+      "तपाईंको सदस्यता सक्रिय छ",
+      "የእርስዎ ምዝገባ ንቁ ነው",
+      "aboneliğiniz aktif"
+    ]
+  },
+  "payment_success": {
+    "title": [
+      "ادائیگی کامیاب",
+      "भुगतान सफल",
+      "പേയ്മെന്റ് വിജയകരമായി",
+      "Nagtagumpay na pagbabayad",
+      "भुक्तानी सफल",
+      "ክፍያ የተሳካ",
+      "Ödemesi başarıyla"
+    ]
+  }
+};
+const legacyAttachment = ["نیا منسلک","नया अनुलग्नक","አዲስ ማያዣ","Yeni ekleme"];
 const disputeStatuses = {
   "open": {
     "ar": "مفتوح",
@@ -434,6 +623,10 @@ function metadata(data) {
   return data && typeof data === 'object' && !Array.isArray(data) ? data : null;
 }
 
+function knownTitle(type, definition, title) {
+  return Object.values(definition.title).includes(title) || Boolean(legacyLabels[type]?.title?.includes(title));
+}
+
 export function localizedNotification(notification, language) {
   const title = typeof notification?.title === 'string' ? notification.title : '';
   const body = typeof notification?.body === 'string' ? notification.body : '';
@@ -446,17 +639,19 @@ export function localizedNotification(notification, language) {
   if (type === 'new_message') {
     const data = metadata(notification.data);
     return {
-      title: data?.system_title === 'new_message' && Object.values(definition.title).includes(title)
+      title: data?.system_title === 'new_message' && knownTitle(type, definition, title)
         ? tx(definition.title, language) : title,
-      body: data?.system_body === 'new_attachment' && Object.values(attachmentLabel).includes(body)
+      body: data?.system_body === 'new_attachment' &&
+        (Object.values(attachmentLabel).includes(body) || legacyAttachment.includes(body))
         ? tx(attachmentLabel, language) : body,
     };
   }
 
-  if (!Object.values(definition.title).includes(title)) return { title, body };
+  if (!knownTitle(type, definition, title)) return { title, body };
   let localizedBody = body;
   if (definition.body) {
-    const values = matchTemplate(body, definition.body);
+    const values = matchTemplate(body, definition.body) ??
+      (legacyLabels[type]?.body ? matchTemplate(body, legacyLabels[type].body) : null);
     if (values && (!values.price || /^[+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?$/i.test(values.price)) &&
         (!values.amount || /^[+-]?(?:\d+(?:\.\d+)?|\.\d+)(?:e[+-]?\d+)?$/i.test(values.amount)) &&
         (!values.currency || /^[A-Z]{3}$/.test(values.currency))) {

@@ -1128,3 +1128,10 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Button names quoted inside a message now match the site's button exactly in each language (24 places). Covers «مقدم خدمة», «كلاهما», «تم الاتفاق», «✅ إلغاء الحظر», «تعديل», and the account page, now «ملفي» / "My Profile".
 - `node --test server/tests/*.test.js`: 82 pass, 0 fail. `npm run i18n:check`: 11 languages, 2556 keys, matching.
 - Not run here: the integration tests (no database in this environment). Messages only changed text, not logic.
+- **First deploy attempt (run 44543310787) stopped at the checks; nothing reached the server.**
+  - 4 client tests failed: the site recognizes server messages and stored notifications by their exact wording, and the new wording was not in its lists.
+  - Fix:
+    - `client/src/data/notificationLabels.js` now carries the new wording, plus the earlier wording as `legacyLabels`, so notifications saved before today are still recognized and shown in the reader's language.
+    - `client/src/services/api.js` error lists gained the new wording in all 11 languages (482 entries; the old ones stay).
+  - New test: an old stored English price-offer notification still shows in Arabic.
+  - Client tests 165 pass, 0 fail; server 82 pass; `i18n:check` OK; `vite build` OK.
