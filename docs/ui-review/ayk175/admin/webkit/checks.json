@@ -1,0 +1,194 @@
+[
+  {
+    "name": "390: one contextual back control",
+    "ok": true
+  },
+  {
+    "name": "390: geographic required error is inline and prevents mutation",
+    "ok": true
+  },
+  {
+    "name": "390: add preserves city and document scroll during background refresh",
+    "ok": true
+  },
+  {
+    "name": "390: user-scoped context survives reload",
+    "ok": true
+  },
+  {
+    "name": "390: cancelled edit makes no API mutation and retains form",
+    "ok": true
+  },
+  {
+    "name": "390: cancelled deletion makes no API mutation",
+    "ok": true
+  },
+  {
+    "name": "390: another administrator does not inherit location selection",
+    "ok": true
+  },
+  {
+    "name": "390: contextual back returns one geographic level",
+    "ok": true
+  },
+  {
+    "name": "390: category-only administrator has no subservice mutation controls",
+    "ok": true
+  },
+  {
+    "name": "390: category required error is inline and prevents mutation",
+    "ok": true
+  },
+  {
+    "name": "390: required subservice name is marked with an inline reason before writing",
+    "ok": true
+  },
+  {
+    "name": "390: subservice create locks the selected category",
+    "ok": true
+  },
+  {
+    "name": "390: category remains expanded after adding a subservice",
+    "ok": true
+  },
+  {
+    "name": "390: no horizontal overflow",
+    "ok": true
+  },
+  {
+    "name": "390: no client runtime errors",
+    "ok": true
+  },
+  {
+    "name": "390: a direct admin link with older browser entries returns to /admin",
+    "ok": true
+  },
+  {
+    "name": "768: one contextual back control",
+    "ok": true
+  },
+  {
+    "name": "768: geographic required error is inline and prevents mutation",
+    "ok": true
+  },
+  {
+    "name": "768: add preserves city and document scroll during background refresh",
+    "ok": true
+  },
+  {
+    "name": "768: user-scoped context survives reload",
+    "ok": true
+  },
+  {
+    "name": "768: cancelled edit makes no API mutation and retains form",
+    "ok": true
+  },
+  {
+    "name": "768: cancelled deletion makes no API mutation",
+    "ok": true
+  },
+  {
+    "name": "768: another administrator does not inherit location selection",
+    "ok": true
+  },
+  {
+    "name": "768: contextual back returns one geographic level",
+    "ok": true
+  },
+  {
+    "name": "768: category-only administrator has no subservice mutation controls",
+    "ok": true
+  },
+  {
+    "name": "768: category required error is inline and prevents mutation",
+    "ok": true
+  },
+  {
+    "name": "768: required subservice name is marked with an inline reason before writing",
+    "ok": true
+  },
+  {
+    "name": "768: subservice create locks the selected category",
+    "ok": true
+  },
+  {
+    "name": "768: category remains expanded after adding a subservice",
+    "ok": true
+  },
+  {
+    "name": "768: no horizontal overflow",
+    "ok": true
+  },
+  {
+    "name": "768: no client runtime errors",
+    "ok": true
+  },
+  {
+    "name": "768: a direct admin link with older browser entries returns to /admin",
+    "ok": true
+  },
+  {
+    "name": "1440: one contextual back control",
+    "ok": true
+  },
+  {
+    "name": "1440: geographic required error is inline and prevents mutation",
+    "ok": true
+  },
+  {
+    "name": "1440: add preserves city and document scroll during background refresh",
+    "ok": true
+  },
+  {
+    "name": "1440: user-scoped context survives reload",
+    "ok": true
+  },
+  {
+    "name": "1440: cancelled edit makes no API mutation and retains form",
+    "ok": true
+  },
+  {
+    "name": "1440: cancelled deletion makes no API mutation",
+    "ok": true
+  },
+  {
+    "name": "1440: another administrator does not inherit location selection",
+    "ok": true
+  },
+  {
+    "name": "1440: contextual back returns one geographic level",
+    "ok": true
+  },
+  {
+    "name": "1440: category-only administrator has no subservice mutation controls",
+    "ok": true
+  },
+  {
+    "name": "1440: category required error is inline and prevents mutation",
+    "ok": true
+  },
+  {
+    "name": "1440: required subservice name is marked with an inline reason before writing",
+    "ok": true
+  },
+  {
+    "name": "1440: subservice create locks the selected category",
+    "ok": true
+  },
+  {
+    "name": "1440: category remains expanded after adding a subservice",
+    "ok": true
+  },
+  {
+    "name": "1440: no horizontal overflow",
+    "ok": true
+  },
+  {
+    "name": "1440: no client runtime errors",
+    "ok": true
+  },
+  {
+    "name": "1440: a direct admin link with older browser entries returns to /admin",
+    "ok": true
+  }
+]

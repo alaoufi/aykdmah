@@ -1,0 +1,99 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body {
+    font-family: var(--font-sans), system-ui, sans-serif;
+    background: rgb(var(--color-bg));
+    color: rgb(var(--color-fg));
+  }
+  * { -webkit-tap-highlight-color: transparent; }
+}
+
+@layer utilities {
+  /* Bridge older utilities to semantic tokens. Tailwind also generates their
+     focus/hover/group variants, keeping old pages usable in the dark mode. */
+  .bg-white { background-color: rgb(var(--color-surface)); }
+  .bg-white\/90 { background-color: rgb(var(--color-surface) / .9); }
+  .bg-white\/95 { background-color: rgb(var(--color-surface) / .95); }
+  .text-ink { color: rgb(var(--color-fg)); }
+  .text-primary,
+  .text-brand-500,
+  .text-brand-600,
+  .text-brand-700,
+  .text-brand-800,
+  .text-brand-900,
+  .text-sand-600,
+  .text-sand-700 { color: rgb(var(--color-primary-text)); }
+
+  .no-scrollbar::-webkit-scrollbar { display: none; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  /* Slate protects the white headline; sky and clay add the supplied brand
+     colours. The final stop merges into the active page surface. */
+  .grad-hero {
+    position: relative;
+    background:
+      radial-gradient(ellipse 75% 80% at 100% 0%, rgb(var(--color-brand-sky) / .24), transparent 70%),
+      radial-gradient(ellipse 60% 70% at 0% 35%, rgb(var(--color-brand-clay) / .20), transparent 70%),
+      linear-gradient(180deg,
+        rgb(var(--color-brand-slate)) 0%,
+        rgb(var(--color-brand-slate)) 45%,
+        rgb(var(--color-hero-mid))    70%,
+        rgb(var(--color-bg))          100%);
+  }
+  /* Keep the headline clear through the blue and clay lighting. */
+  .grad-hero::before {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background:
+      linear-gradient(180deg, rgb(var(--color-brand-slate) / .18) 0%, transparent 55%),
+      radial-gradient(900px 260px at 50% 30%, rgba(255,255,255,0.06), transparent 70%);
+  }
+
+  .grad-text {
+    background: linear-gradient(90deg, rgb(var(--color-primary-to)), rgb(var(--color-accent)));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* Subtle Najdi heritage weave for selected surfaces */
+  .heritage-weave {
+    background-image:
+      repeating-linear-gradient(45deg, rgb(var(--color-brand-clay) / .05) 0 1px, transparent 1px 14px),
+      repeating-linear-gradient(-45deg, rgb(var(--color-brand-clay) / .05) 0 1px, transparent 1px 14px);
+  }
+
+  .cat-tile {
+    transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  }
+  .cat-tile:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 40px -12px rgb(var(--color-brand-clay) / .22), 0 8px 16px -8px rgb(var(--color-brand-slate) / .10);
+  }
+
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(40px);
+    opacity: .35;
+    pointer-events: none;
+  }
+
+  .pulse-dot {
+    animation: pulseDot 1.4s ease-in-out infinite;
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .text-wrap-balance {
+    text-wrap: balance;
+  }
+}
+
+select {
+  background-position: left 0.75rem center;
+}

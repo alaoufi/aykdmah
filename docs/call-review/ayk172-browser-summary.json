@@ -1,0 +1,107 @@
+{
+  "task": "AYK-172",
+  "date": "2026-11-03",
+  "source": "93d125e37e2feb2d80b5d56a0d1d8efd0166793f",
+  "live": "1.1.8 / a1f6ebf",
+  "method": "Isolated Edge; 390x844; 4x CPU; 100ms latency; 200000 bytes/s download; 100000 bytes/s upload; one sample per case; guest full-document navigations; not physical Android or authenticated SPA navigation",
+  "caveats": [
+    "FCP is first paint, not app readiness",
+    "Resource Timing transfer sum excludes some service worker/background requests",
+    "Cold case cache disabled; warm case cache enabled"
+  ],
+  "cases": [
+    {
+      "label": "cold-public-home",
+      "url": "/",
+      "fcpMs": 1652,
+      "loadMs": 5432.899999856949,
+      "responseStartMs": 609.7999999523163,
+      "observedResourceTransferBytes": 919119,
+      "largestResources": [
+        {
+          "path": "/assets/index-BSzjxQTu.js",
+          "bytes": 690244,
+          "encoded": 689944,
+          "ms": 4564.900000095367,
+          "kind": "script"
+        },
+        {
+          "path": "/assets/react-vendor-CIC_mdx-.js",
+          "bytes": 63091,
+          "encoded": 62791,
+          "ms": 1090.2999999523163,
+          "kind": "other"
+        },
+        {
+          "path": "/brand/aykdmh-logo-256.webp",
+          "bytes": 45026,
+          "encoded": 44726,
+          "ms": 694.1999998092651,
+          "kind": "img"
+        }
+      ]
+    },
+    {
+      "label": "warm-public-home",
+      "url": "/",
+      "fcpMs": 416,
+      "loadMs": 454.7000000476837,
+      "responseStartMs": 152.59999990463257,
+      "observedResourceTransferBytes": 91622,
+      "largestResources": [
+        {
+          "path": "/brand/aykdmh-logo-256.webp",
+          "bytes": 45026,
+          "encoded": 44726,
+          "ms": 408.59999990463257,
+          "kind": "img"
+        },
+        {
+          "path": "/icons/app-icon-192.png",
+          "bytes": 40254,
+          "encoded": 39954,
+          "ms": 416.7000000476837,
+          "kind": "other"
+        },
+        {
+          "path": "/app-recovery.js",
+          "bytes": 3371,
+          "encoded": 3071,
+          "ms": 199.80000019073486,
+          "kind": "script"
+        }
+      ]
+    },
+    {
+      "label": "public-services-document",
+      "url": "/services",
+      "fcpMs": 1648,
+      "loadMs": 1612,
+      "responseStartMs": 548.0999999046326,
+      "observedResourceTransferBytes": 114389,
+      "largestResources": [
+        {
+          "path": "/brand/aykdmh-logo-256.webp",
+          "bytes": 45026,
+          "encoded": 44726,
+          "ms": 1401.6999998092651,
+          "kind": "img"
+        },
+        {
+          "path": "/icons/app-icon-192.png",
+          "bytes": 40254,
+          "encoded": 39954,
+          "ms": 1397,
+          "kind": "other"
+        },
+        {
+          "path": "/assets/RequestLocationFields-Df_k-yO_.js",
+          "bytes": 5331,
+          "encoded": 5031,
+          "ms": 1205.7999999523163,
+          "kind": "script"
+        }
+      ]
+    }
+  ]
+}

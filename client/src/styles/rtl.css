@@ -1,0 +1,42 @@
+/* Direction-aware styles (lang/dir set dynamically by i18n) */
+html[dir="rtl"] body { direction: rtl; text-align: right; }
+html[dir="ltr"] body { direction: ltr; text-align: left; }
+.ltr { direction: ltr; text-align: left; }
+.rtl { direction: rtl; text-align: right; }
+
+/* Per-language fonts */
+html[lang="ar"] body { font-family: 'Cairo', system-ui, -apple-system, Segoe UI, Tahoma, sans-serif; }
+html[lang="ur"] body {
+  font-family: 'Noto Nastaliq Urdu', 'Cairo', system-ui, sans-serif;
+  line-height: 2;
+}
+html[lang="en"] body { font-family: 'Inter', system-ui, -apple-system, Segoe UI, sans-serif; }
+html[lang="bn"] body {
+  font-family: 'Noto Sans Bengali', 'Hind Siliguri', 'Inter', system-ui, sans-serif;
+  line-height: 1.7;
+}
+html[lang="hi"] body {
+  font-family: 'Noto Sans Devanagari', 'Hind', 'Mukta', 'Inter', system-ui, sans-serif;
+  line-height: 1.7;
+}
+
+/* Leaflet attribution may overflow */
+.leaflet-container { direction: ltr; }
+.leaflet-control-attribution { direction: ltr; text-align: left; }
+
+/* Inputs with icons */
+.input-with-icon { position: relative; }
+.input-with-icon .input { padding-inline-start: 40px; }
+.input-with-icon .icon {
+  position: absolute;
+  inset-inline-start: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: var(--border-strong); border-radius: 8px; }
+::-webkit-scrollbar-track { background: var(--bg-soft); }

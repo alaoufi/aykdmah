@@ -1,0 +1,19 @@
+PASS incoming voice call screen shown to the provider
+PASS voice: client has a live remote audio track
+PASS voice: provider has a live remote audio track
+PASS voice: client receives non-silent decoded samples ({"activeFrames":70,"peak":1.02462})
+PASS voice: provider receives non-silent decoded samples ({"activeFrames":68,"peak":1.02515})
+PASS voice: mute toggles
+PASS voice: hang-up by provider ends the call for the client
+PASS declined call is reported to the caller
+PASS video: client receives provider video (sizes 640,960)
+PASS video: provider receives client video (sizes 960,960)
+PASS video: camera off toggles
+PASS outsider token refused (HTTP 404)
+PASS outsider accept refused (HTTP 404)
+PASS outsider decline refused (HTTP 404)
+PASS video: remote track remains live after a 4 s browser offline toggle (sizes 960,960)
+PASS video: client receives decoded audio after browser returns online ({"activeFrames":75,"peak":1.02484})
+PASS video: provider receives decoded audio after browser returns online ({"activeFrames":57,"peak":1.0287})
+PASS video: hang-up by client ends the call for the provider
+18/18 checks passed

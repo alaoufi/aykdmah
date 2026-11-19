@@ -1,0 +1,17 @@
+{
+  "date": "2026-11-03T21:04:42.798Z",
+  "version": {
+    "version": "1.1.9",
+    "build": "ee1d68a · 2026-11-03"
+  },
+  "publicGuestUI": {
+    "ready": "complete",
+    "filter": true,
+    "browse": true,
+    "noOverlap": true,
+    "noOverflow": true,
+    "providerGradient": true,
+    "requestGradient": true,
+    "bodyGradient": true
+  }
+}

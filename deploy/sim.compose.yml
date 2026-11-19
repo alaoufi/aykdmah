@@ -1,0 +1,66 @@
+# The simulator on the server (AYK-250): a password-protected page on 127.0.0.1:8103, reached from
+# outside only through the gateway (sim.aykdmh.com). Separate project `aykdmh-sim`: it shares no
+# network, volume or database with the live site, and is started and removed on its own.
+#   bash deploy/install-simulator.sh      bash deploy/remove-simulator.sh
+services:
+  # Throw-away PostgreSQL for the simulated copies only. No published database port.
+  sim-db:
+    image: postgres:16-alpine
+    container_name: aykdmh-sim-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${SIM_PG_PASSWORD:?set in /etc/aykdmh/sim.env}
+    command: postgres -c max_connections=300 -c shared_buffers=512MB -c fsync=off -c synchronous_commit=off -c full_page_writes=off
+    shm_size: 1g
+    volumes:
+      - simdata:/var/lib/postgresql/data
+    ports:
+      # The simulator page (the `sim` container lives in this container's network).
+      - "127.0.0.1:8103:4600"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    # Ceilings so a run can never starve the other sites on this server.
+    cpus: ${SIM_DB_CPUS:-2}
+    mem_limit: 3g
+    logging: &logging
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+
+  sim:
+    build:
+      context: ..
+      dockerfile: deploy/sim.Dockerfile
+    image: aykdmh-sim:latest
+    container_name: aykdmh-sim
+    restart: unless-stopped
+    # Same network as sim-db, so the database is at 127.0.0.1: the engine refuses any other host.
+    network_mode: "service:sim-db"
+    environment:
+      SIM_PASSWORD: ${SIM_PASSWORD:?set in /etc/aykdmh/sim.env}
+      SIM_PG_PASSWORD: ${SIM_PG_PASSWORD:?set in /etc/aykdmh/sim.env}
+      SIM_MAX_PEOPLE: ${SIM_MAX_PEOPLE:-300}
+      SIM_MAX_BULK: ${SIM_MAX_BULK:-40000}
+      SIM_MAX_RUSH: ${SIM_MAX_RUSH:-5000}
+      SIM_MAX_WORKERS: ${SIM_MAX_WORKERS:-3}
+    volumes:
+      - simruns:/app/simulator/runs
+    depends_on:
+      sim-db:
+        condition: service_healthy
+    cpus: ${SIM_CPUS:-3}
+    mem_limit: 3g
+    pids_limit: 2000
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /app/server/uploads
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
+    logging: *logging
+
+volumes:
+  simdata:
+  simruns:

@@ -1,0 +1,35 @@
+{
+  "apk": "aykdmh-1.3.3-test.apk",
+  "bytes": 62878395,
+  "sha256": "4a289245b069b6cf3fe093b1068c2bfaf76cd9b4e7241fce022fbb32a8281814",
+  "nativeLibrariesMatchBaseline": true,
+  "nativeLibraryFiles": 14,
+  "newRoutingClassPresent": true,
+  "testLibrariesExcluded": true,
+  "package": "sa.aykdmh.app",
+  "versionName": "1.3.3",
+  "versionCode": 13,
+  "signerMatchesBaseline": true,
+  "signerSha256": "f8a1ab9d6ca36b330b760ecd3f5f5b2c752e7f6ada695a0eb3f357c524da4697",
+  "routingTests": {
+    "tests": 17,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "apis": [
+      24,
+      28,
+      34
+    ]
+  },
+  "physicalPhonesTested": false,
+  "publishedToWebsite": false,
+  "publishedToStore": false,
+  "sourceHashes": {
+    "android/native/CallScreenActivity.kt": "22055b4f95696b6dd5da7a02a7469a6584ccc96ede4528d329d1d372c837cec5",
+    "android/native/CallTelecom.kt": "30c41d1d22c07747c53511b85cd0dfb8f47f5fefc20a69bc5da179d850b69092",
+    "android/twa-manifest.json": "dc05ea90a5005ae051ff5ee79538b2402ee0981e0b3f9e136b60def9e42a1638",
+    "android/tests/CallAudioRoutingTest.kt": "4422bc6d7cd354275f5ddd27c375519a828dca0a985774c7147f838c37fa387b",
+    "android/tests/build-test-apk-inner.sh": "3bc32bf2952d2d7dcf31d74aee2df1de8b9a167c91c528dba5c71785bfd23998"
+  }
+}

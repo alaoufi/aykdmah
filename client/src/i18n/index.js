@@ -1,0 +1,175 @@
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import LanguageDetector from 'i18next-browser-languagedetector';
+
+// AYK-249: only Arabic is part of the app's main file. Every other language is its own small
+// file, loaded when that language is used: the main file shrank from about 2.7 MB to under 1 MB.
+// AYK-286: English was in the main file too, as everyone's fallback; Arabic readers never need it
+// (their fallback is Arabic), so it is now loaded only for the other languages: about 44 KB less
+// to download on every first opening.
+import ar from './locales/ar.json';
+
+// Single source of truth for languages enabled on the platform.
+// Adding a new language here + a matching locale JSON file is the only
+// step required to enable it across the entire UI.
+// Ordered by how many service providers in the Kingdom speak each language
+// (AYK-037); English, the shared fallback, closes the list.
+export const SUPPORTED_LANGUAGES = [
+  { code: 'ar', label: 'العربية', dir: 'rtl', flag: '🇸🇦' },
+  { code: 'ur', label: 'اردو',    dir: 'rtl', flag: '🇵🇰' },
+  { code: 'hi', label: 'हिन्दी',   dir: 'ltr', flag: '🇮🇳' },
+  { code: 'bn', label: 'বাংলা',   dir: 'ltr', flag: '🇧🇩' },
+  { code: 'ml', label: 'മലയാളം', dir: 'ltr', flag: '🇮🇳' },
+  { code: 'fil', label: 'Filipino', dir: 'ltr', flag: '🇵🇭' },
+  { code: 'id', label: 'Bahasa Indonesia', dir: 'ltr', flag: '🇮🇩' },
+  { code: 'ne', label: 'नेपाली', dir: 'ltr', flag: '🇳🇵' },
+  { code: 'am', label: 'አማርኛ', dir: 'ltr', flag: '🇪🇹' },
+  { code: 'tr', label: 'Türkçe', dir: 'ltr', flag: '🇹🇷' },
+  { code: 'en', label: 'English', dir: 'ltr', flag: '🇬🇧' },
+];
+
+// The built-in texts of each language (the locale files), before any edit from the admin area.
+// Arabic is always here; another language (English too) appears once loadDefaultTexts() loaded it.
+export const DEFAULT_TEXTS = { ar };
+const loading = {};
+
+export function loadDefaultTexts(code) {
+  if (DEFAULT_TEXTS[code]) return Promise.resolve(DEFAULT_TEXTS[code]);
+  if (!SUPPORTED_LANGUAGES.some(l => l.code === code)) return Promise.resolve(null);
+  loading[code] ||= import(`./locales/${code}.json`)
+    .then(module => (DEFAULT_TEXTS[code] = module.default || module))
+    .catch(error => { delete loading[code]; throw error; });
+  return loading[code];
+}
+
+// i18next asks this "backend" for a language it does not have yet; changeLanguage() waits for it.
+const lazyLocales = {
+  type: 'backend',
+  init() {},
+  read(language, namespace, callback) {
+    loadDefaultTexts(language)
+      // i18next writes into what it gets; the admin page compares against the untouched originals.
+      .then(texts => callback(null, texts ? JSON.parse(JSON.stringify(texts)) : {}))
+      .catch(error => callback(error, null));
+  },
+};
+
+// Ordered fallbacks: if a key is missing we try these in order.
+// Keep `ar` last as the project's original language.
+export const FALLBACK_CHAIN = ['en', 'ar'];
+
+export const SUPPORTED_LANG_CODES = SUPPORTED_LANGUAGES.map(l => l.code);
+
+export const LANG_STORAGE_KEY = 'lsm_lang';
+
+export function getLanguageDir(code) {
+  const lang = SUPPORTED_LANGUAGES.find(l => l.code === code);
+  return lang ? lang.dir : 'ltr';
+}
+
+export function applyLanguageToDocument(code) {
+  if (typeof document === 'undefined') return;
+  const base = String(code || '').toLowerCase().split(/[-_]/)[0];
+  const normalized = SUPPORTED_LANG_CODES.includes(base) ? base : 'ar';
+  document.documentElement.lang = normalized;
+  document.documentElement.dir = getLanguageDir(normalized);
+  const title = `${i18n.t('common.brand', { lng: normalized })} — ${i18n.t('common.tagline', { lng: normalized })}`;
+  const description = i18n.t('meta.description', { lng: normalized });
+  document.title = title;
+  const setMeta = (attribute, key, value) => {
+    let node = document.head.querySelector(`meta[${attribute}="${key}"]`);
+    if (!node) {
+      node = document.createElement('meta');
+      node.setAttribute(attribute, key);
+      document.head.appendChild(node);
+    }
+    node.setAttribute('content', value);
+  };
+  setMeta('name', 'description', description);
+  setMeta('property', 'og:locale', { ar: 'ar_SA', en: 'en_US', ur: 'ur_PK', hi: 'hi_IN', bn: 'bn_BD', ml: 'ml_IN', fil: 'fil_PH', id: 'id_ID', ne: 'ne_NP', am: 'am_ET', tr: 'tr_TR' }[normalized]);
+  setMeta('property', 'og:site_name', i18n.t('common.brand', { lng: normalized }));
+  setMeta('property', 'og:title', title);
+  setMeta('property', 'og:description', description);
+  setMeta('name', 'twitter:title', title);
+  setMeta('name', 'twitter:description', description);
+}
+
+// Resolves once the starting language's texts are in place (main.jsx renders after it).
+export const i18nReady = i18n
+  .use(lazyLocales)
+  .use(LanguageDetector)
+  .use(initReactI18next)
+  .init({
+    // i18next writes into the objects it is given; edited texts must not overwrite the
+    // built-in ones the admin page compares against, so it gets copies.
+    resources: Object.fromEntries(Object.entries(DEFAULT_TEXTS)
+      .map(([code, texts]) => [code, { translation: JSON.parse(JSON.stringify(texts)) }])),
+    // The bundled languages are used as they are; the others come from lazyLocales.
+    partialBundledLanguages: true,
+    // Arabic falls back to itself only, so English is not fetched for it (AYK-286).
+    fallbackLng: { ar: ['ar'], default: FALLBACK_CHAIN },
+    supportedLngs: SUPPORTED_LANG_CODES,
+    interpolation: { escapeValue: false },
+    detection: {
+      order: ['localStorage', 'navigator'],
+      lookupLocalStorage: LANG_STORAGE_KEY,
+      caches: ['localStorage'],
+    },
+    returnEmptyString: false,
+    // Texts edited in the admin area arrive after start-up (AYK-210): re-render when they do.
+    react: { bindI18nStore: 'added', useSuspense: false },
+    // never expose raw keys to users
+    parseMissingKeyHandler: (key) => key.split('.').pop(),
+  });
+
+// Interface texts edited in the admin area (AYK-210): { "group.key": "text" } per language, kept
+// on the device so the next visit shows them at once, then refreshed from /api/texts/<lang>.
+const TEXTS_CACHE_PREFIX = 'ayk_ui_texts_';
+const applied = {};
+
+export function getDefaultText(code, key) {
+  return key.split('.').reduce((node, part) => (node && typeof node === 'object' ? node[part] : undefined), DEFAULT_TEXTS[code]);
+}
+
+export function applyTextOverrides(code, overrides) {
+  if (!DEFAULT_TEXTS[code] || !overrides || typeof overrides !== 'object') return;
+  const next = {};
+  for (const [key, value] of Object.entries(overrides)) {
+    if (typeof value === 'string' && value.trim() && typeof getDefaultText(code, key) === 'string') next[key] = value;
+  }
+  // A text reset in the admin area goes back to its built-in wording.
+  const restore = {};
+  for (const key of Object.keys(applied[code] || {})) if (!(key in next)) restore[key] = getDefaultText(code, key);
+  applied[code] = next;
+  const changes = { ...restore, ...next };
+  if (Object.keys(changes).length) i18n.addResources(code, 'translation', changes);
+  if (code === baseLanguage(i18n.language)) applyLanguageToDocument(code);
+}
+
+function baseLanguage(code) {
+  const base = String(code || '').toLowerCase().split(/[-_]/)[0];
+  return SUPPORTED_LANG_CODES.includes(base) ? base : 'ar';
+}
+
+export async function loadTextOverrides(code = i18n.language) {
+  const lang = baseLanguage(code);
+  await loadDefaultTexts(lang).catch(() => {});
+  try { applyTextOverrides(lang, JSON.parse(localStorage.getItem(TEXTS_CACHE_PREFIX + lang) || 'null')); } catch (_) { /* no cache */ }
+  if (typeof fetch !== 'function') return;
+  const apiBase = (import.meta.env && import.meta.env.VITE_API_URL) || '';
+  return fetch(`${apiBase}/api/texts/${lang}`, { cache: 'no-store' })
+    .then(response => (response.ok ? response.json() : null))
+    .then(body => {
+      if (!body?.success || !body.data || typeof body.data !== 'object') return;
+      applyTextOverrides(lang, body.data);
+      try { localStorage.setItem(TEXTS_CACHE_PREFIX + lang, JSON.stringify(applied[lang] || {})); } catch (_) { /* private mode */ }
+    })
+    .catch(() => {});
+}
+
+i18n.on('languageChanged', applyLanguageToDocument);
+i18n.on('languageChanged', code => { loadTextOverrides(code); });
+applyLanguageToDocument(i18n.language);
+if (typeof window !== 'undefined') loadTextOverrides(i18n.language);
+
+export default i18n;

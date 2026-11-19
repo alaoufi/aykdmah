@@ -1,0 +1,194 @@
+{
+  "browser": "chromium",
+  "checks": [
+    {
+      "name": "360x640-ar-m: header stays within viewport while list scrolls",
+      "ok": true
+    },
+    {
+      "name": "360x640-ar-m: bottom navigation remains visible and does not cover last row",
+      "ok": true
+    },
+    {
+      "name": "360x640-ar-m: list scrolls independently",
+      "ok": true
+    },
+    {
+      "name": "360x640-ar-m: no horizontal overflow",
+      "ok": true
+    },
+    {
+      "name": "360x640-ar-m: header menu remains usable",
+      "ok": true
+    },
+    {
+      "name": "360x640-ar-m: conversation header and composer fit reduced viewport",
+      "ok": true
+    },
+    {
+      "name": "360x640-ar-m: sent message persists after reload",
+      "ok": true
+    },
+    {
+      "name": "360x640-ar-m: leaving chat restores document scrolling and a single navigation",
+      "ok": true
+    },
+    {
+      "name": "360x640-ar-m: no uncaught exceptions",
+      "ok": true
+    },
+    {
+      "name": "360x640-ar-xl: header stays within viewport while list scrolls",
+      "ok": true
+    },
+    {
+      "name": "360x640-ar-xl: bottom navigation remains visible and does not cover last row",
+      "ok": true
+    },
+    {
+      "name": "360x640-ar-xl: list scrolls independently",
+      "ok": true
+    },
+    {
+      "name": "360x640-ar-xl: no horizontal overflow",
+      "ok": true
+    },
+    {
+      "name": "360x640-ar-xl: header menu remains usable",
+      "ok": true
+    },
+    {
+      "name": "360x640-ar-xl: conversation header and composer fit reduced viewport",
+      "ok": true
+    },
+    {
+      "name": "360x640-ar-xl: leaving chat restores document scrolling and a single navigation",
+      "ok": true
+    },
+    {
+      "name": "360x640-ar-xl: no uncaught exceptions",
+      "ok": true
+    },
+    {
+      "name": "390x844-en-m: header stays within viewport while list scrolls",
+      "ok": true
+    },
+    {
+      "name": "390x844-en-m: bottom navigation remains visible and does not cover last row",
+      "ok": true
+    },
+    {
+      "name": "390x844-en-m: list scrolls independently",
+      "ok": true
+    },
+    {
+      "name": "390x844-en-m: no horizontal overflow",
+      "ok": true
+    },
+    {
+      "name": "390x844-en-m: header menu remains usable",
+      "ok": true
+    },
+    {
+      "name": "390x844-en-m: conversation header and composer fit reduced viewport",
+      "ok": true
+    },
+    {
+      "name": "390x844-en-m: leaving chat restores document scrolling and a single navigation",
+      "ok": true
+    },
+    {
+      "name": "390x844-en-m: no uncaught exceptions",
+      "ok": true
+    },
+    {
+      "name": "390x844-en-xl: header stays within viewport while list scrolls",
+      "ok": true
+    },
+    {
+      "name": "390x844-en-xl: bottom navigation remains visible and does not cover last row",
+      "ok": true
+    },
+    {
+      "name": "390x844-en-xl: list scrolls independently",
+      "ok": true
+    },
+    {
+      "name": "390x844-en-xl: no horizontal overflow",
+      "ok": true
+    },
+    {
+      "name": "390x844-en-xl: header menu remains usable",
+      "ok": true
+    },
+    {
+      "name": "390x844-en-xl: conversation header and composer fit reduced viewport",
+      "ok": true
+    },
+    {
+      "name": "390x844-en-xl: leaving chat restores document scrolling and a single navigation",
+      "ok": true
+    },
+    {
+      "name": "390x844-en-xl: no uncaught exceptions",
+      "ok": true
+    },
+    {
+      "name": "768x1024-en-m: header stays within viewport while list scrolls",
+      "ok": true
+    },
+    {
+      "name": "768x1024-en-m: list scrolls independently",
+      "ok": true
+    },
+    {
+      "name": "768x1024-en-m: no horizontal overflow",
+      "ok": true
+    },
+    {
+      "name": "768x1024-en-m: header menu remains usable",
+      "ok": true
+    },
+    {
+      "name": "768x1024-en-m: conversation header and composer fit reduced viewport",
+      "ok": true
+    },
+    {
+      "name": "768x1024-en-m: leaving chat restores document scrolling and a single navigation",
+      "ok": true
+    },
+    {
+      "name": "768x1024-en-m: no uncaught exceptions",
+      "ok": true
+    },
+    {
+      "name": "1280x800-ar-m: header stays within viewport while list scrolls",
+      "ok": true
+    },
+    {
+      "name": "1280x800-ar-m: list scrolls independently",
+      "ok": true
+    },
+    {
+      "name": "1280x800-ar-m: no horizontal overflow",
+      "ok": true
+    },
+    {
+      "name": "1280x800-ar-m: header menu remains usable",
+      "ok": true
+    },
+    {
+      "name": "1280x800-ar-m: conversation header and composer fit reduced viewport",
+      "ok": true
+    },
+    {
+      "name": "1280x800-ar-m: leaving chat restores document scrolling and a single navigation",
+      "ok": true
+    },
+    {
+      "name": "1280x800-ar-m: no uncaught exceptions",
+      "ok": true
+    }
+  ],
+  "passed": true
+}

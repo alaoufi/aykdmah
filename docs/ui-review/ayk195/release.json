@@ -1,0 +1,23 @@
+{
+  "task": "AYK-195",
+  "source": "967957ac7ef273b403d795f4f80a421fc6ec34b1",
+  "version": "1.1.10",
+  "deployment": "DEPLOYED/DONE",
+  "backupRestoreVerified": true,
+  "criticalRowCountsRetained": true,
+  "criticalCountsExactMatch": true,
+  "latestJsonUnchanged": true,
+  "apkVersion": "1.3.5",
+  "apkCode": 15,
+  "apkSha256": "c0240276cb3f673d4baf614fb95be55ed816e708a748484daeacb24985e7fe60",
+  "apkUrl": "https://aykdmh.com/dl/aykdmh-1.3.5-test.apk",
+  "storesChanged": false,
+  "physicalPhoneVerified": false,
+  "publicHttpDownloadMatched": true,
+  "apiHealthHttp": 200,
+  "liveBrowserChecks": 13,
+  "appliedMigrations": [
+    "070_district_english_suffix.sql",
+    "071_chat_forward_receipts.sql"
+  ]
+}

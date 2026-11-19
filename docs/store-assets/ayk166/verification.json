@@ -1,0 +1,78 @@
+{
+  "sourceCommit": "4750cf5c585722bf483e046111cc246934df0b80",
+  "syntheticDataOnly": true,
+  "screenshots": [
+    {
+      "file": "01-home.png",
+      "width": 1080,
+      "height": 1920,
+      "sha256": "95054bb562eb8ee581002862ea95c5c3807264b1328e27f366916c7c59fc09f0",
+      "masks": [
+        ".ad-slot",
+        ".avatar",
+        ".chat-peer-name",
+        ".conv-name-text",
+        "[data-testid=\"chat-peer-code\"]",
+        "[data-testid=\"menu-your-number\"]",
+        "[data-testid=\"provider-card\"] a.font-bold[href^=\"/providers/\"]",
+        "[data-testid=\"provider-card\"] img",
+        "[data-testid=\"city-provider\"] a[href^=\"/providers/\"]"
+      ]
+    },
+    {
+      "file": "02-services.png",
+      "width": 1080,
+      "height": 1920,
+      "sha256": "c408ca643264c81322811650174b3383a123221b34cb44d29e88598be0ccef34",
+      "masks": [
+        ".ad-slot",
+        ".avatar",
+        ".chat-peer-name",
+        ".conv-name-text",
+        "[data-testid=\"chat-peer-code\"]",
+        "[data-testid=\"menu-your-number\"]"
+      ]
+    },
+    {
+      "file": "03-request.png",
+      "width": 1080,
+      "height": 1920,
+      "sha256": "56249b1bd0681e4f5e6148012b7dffb47925792ab30f617c10d8a917e1102be5",
+      "masks": [
+        ".ad-slot",
+        ".avatar",
+        ".chat-peer-name",
+        ".conv-name-text",
+        "[data-testid=\"chat-peer-code\"]",
+        "[data-testid=\"menu-your-number\"]"
+      ]
+    },
+    {
+      "file": "04-chat.png",
+      "width": 1080,
+      "height": 1920,
+      "sha256": "cd2595f2b92dfead9baad243a53c0088e7a575014b5806f7968de8ba5655eef6",
+      "masks": [
+        ".ad-slot",
+        ".avatar",
+        ".chat-peer-name",
+        ".conv-name-text",
+        "[data-testid=\"chat-peer-code\"]",
+        "[data-testid=\"menu-your-number\"]"
+      ]
+    }
+  ],
+  "checks": [
+    "Authenticated home displays the seeded provider",
+    "Service catalogue displays at least nine profession options",
+    "Authenticated request form renders",
+    "Chat message sent and persisted after reload",
+    "No uncaught browser exceptions"
+  ],
+  "captureSources": {
+    "e2e/store-screenshots.mjs": "fd2ba3a74bb5fb2ae10ffcb80138eedcc9a91c0ae9edfc004b8312e200d5d5de",
+    "e2e/store-seed.cjs": "565ae2a231facb179227b0fe054caf518697ce5a10a407bfc35d06f1ff17a51b",
+    "deploy/store-screenshots.sh": "463bda8136e85d5ccab7cd04d7c92ff19db4d9ec4d206bf8b9345f4f5c733751"
+  },
+  "passed": true
+}

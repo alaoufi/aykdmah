@@ -1,0 +1,85 @@
+import { createContext, useContext, useEffect, useRef, useState } from 'react';
+import { io } from 'socket.io-client';
+import { useAuth } from './AuthContext';
+import { getToken, isAdminScope } from '../services/api';
+import { setLiveSocket } from '../utils/socketBus';
+import i18n from '../i18n';
+
+const SocketContext = createContext(null);
+const realtimeMode = import.meta.env.VITE_REALTIME_MODE === 'polling' ? 'polling' : 'socket';
+
+export function SocketProvider({ children }) {
+  const { user } = useAuth();
+  const [connected, setConnected] = useState(false);
+  const socketRef = useRef(null);
+
+  useEffect(() => {
+    if (!user || realtimeMode === 'polling') {
+      if (socketRef.current) {
+        socketRef.current.disconnect();
+        socketRef.current = null;
+      }
+      setConnected(false);
+      return;
+    }
+
+    const url = import.meta.env.VITE_API_URL || window.location.origin;
+    const token = getToken();
+    if (!token) return;
+
+    const sock = io(url, {
+      // The area (AYK-151): the admin area and the site are separate sessions.
+      // The language too (AYK-231): messages are translated into it as soon as they are sent.
+      auth: { token, scope: isAdminScope() ? 'admin' : 'site', lang: (i18n.resolvedLanguage || 'ar').split('-')[0] },
+      transports: ['websocket', 'polling'],
+      // Never give up (a deploy, a network change, a phone asleep); retry at most every 5 s.
+      reconnection: true,
+      reconnectionAttempts: Infinity,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+    });
+
+    // Tell the server whether the app is on screen (AYK-125): while it is, a new message is not
+    // also sent as a phone notification, which made it sound twice.
+    const reportVisible = () => { if (sock.connected) sock.emit('app:visible', document.visibilityState === 'visible'); };
+    const reportLang = () => { if (sock.connected) sock.emit('app:lang', (i18n.resolvedLanguage || 'ar').split('-')[0]); };
+    sock.on('connect', () => { setConnected(true); reportVisible(); reportLang(); });
+    i18n.on('languageChanged', reportLang);
+    sock.on('disconnect', () => setConnected(false));
+    sock.on('connect_error', () => setConnected(false));
+
+    // Back on screen or back online: reconnect now instead of waiting for the next retry.
+    const wake = () => { reportVisible(); if (!document.hidden && !sock.connected) sock.connect(); };
+    document.addEventListener('visibilitychange', wake);
+    window.addEventListener('online', wake);
+    window.addEventListener('focus', wake);
+
+    socketRef.current = sock;
+    setLiveSocket(sock);
+
+    return () => {
+      document.removeEventListener('visibilitychange', wake);
+      window.removeEventListener('online', wake);
+      window.removeEventListener('focus', wake);
+      i18n.off('languageChanged', reportLang);
+      setLiveSocket(null);
+      sock.disconnect();
+      socketRef.current = null;
+      setConnected(false);
+    };
+    // The same account read again (a profile save) keeps its connection (AYK-282).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user?.id]);
+
+  return (
+    <SocketContext.Provider value={{ socket: socketRef.current, connected, socketRef, realtimeMode }}>
+      {children}
+    </SocketContext.Provider>
+  );
+}
+
+export function useSocket() {
+  const ctx = useContext(SocketContext);
+  if (!ctx) throw new Error('useSocket must be used within SocketProvider');
+  return ctx;
+}
