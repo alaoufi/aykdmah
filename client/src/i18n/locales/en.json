@@ -2776,5 +2776,40 @@
     "auto_tag": "Daily, automatic",
     "manual_tag": "Manual",
     "row_size": "Size {{size}}"
+  },
+  "signup_guide": {
+    "title": "How to sign up",
+    "intro": "Signing up takes a minute or two. These steps follow the same order as the sign-up page.",
+    "choose_language": "Choose your language",
+    "choose_language_hint": "This guide and the whole site will be shown in it. You can change it later at the top of the page.",
+    "start": "Start signing up",
+    "reopen": "How to sign up, step by step",
+    "image_note": "A picture of the sign-up page itself.",
+    "steps": {
+      "types": {
+        "title": "Choose your account type",
+        "body": "At the top of the page there are three buttons: «{{client}}» if you are looking for someone to provide a service, «{{provider}}» if you provide a service to people, and «{{both}}» if you provide a service and sometimes need others' services. You can change it later in «{{profile}}»."
+      },
+      "account": {
+        "title": "Phone number and password",
+        "body": "Enter your Saudi mobile number, such as 05XXXXXXXX, then a password of at least 4 characters: digits, letters or symbols. The name is optional. If your number is already registered, you get a «{{signin}}» button and a «{{forgot}}» button instead of signing up again."
+      },
+      "location": {
+        "title": "Your location",
+        "body": "Allow location when your phone asks, and your city and district are found on their own. If you refuse or it fails, tap «{{map}}» and choose your place. The district is asked only when it is not found automatically. A client can also set the location later."
+      },
+      "work": {
+        "title": "Service provider: your profession and districts",
+        "body": "Choose one or more professions, such as plumber or electrician. All the services of a profession are selected for you, so untick those you do not offer. Then choose the districts you serve in your city, or tap «{{all}}». Clients do not see this step."
+      },
+      "schedule": {
+        "title": "Service provider: your hours and where you work",
+        "body": "Choose your working days and hours. Then say where the service takes place: you go to the customer, the customer comes to you, or both. If customers come to you, mark your place on the map."
+      },
+      "finish": {
+        "title": "Create the account",
+        "body": "If a service provider invited you, tap «{{coupon}}» and enter their number; this is optional. Then tap «{{create}}»: doing so accepts «{{terms}}», which you can read from the link above the button. If you receive a text message with a code, enter it. The button works only when the required fields are complete, and the line under it tells you what is missing."
+      }
+    }
   }
 }

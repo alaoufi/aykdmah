@@ -2619,12 +2619,12 @@
     "hint": "Nada pesan dan dering panggilan saat situs terbuka. Tombol volume ponsel juga menaikkan dan menurunkannya (volume media). Saat situs tertutup, mengikuti volume notifikasi ponsel.",
     "test": "Uji notifikasi",
     "test_sent": "Notifikasi uji telah dikirim ke ponsel Anda. Tutup situs dan lihat apakah muncul di atas aplikasi lain.",
-    "test_none": "Perangkat ini belum berlangganan. Ketuk «🔔 Notifikasi» di atas «ملفي», lalu uji.",
+    "test_none": "Perangkat ini belum berlangganan. Ketuk «🔔 Notifikasi» di atas «Profilku», lalu uji.",
     "android_title": "Tampilkan notifikasi di atas aplikasi dengan nada khas (Android)",
     "android_steps": "Buka Setelan ponsel → Aplikasi → Chrome → Notifikasi.|Gulir ke «Situs» dan ketuk aykdmh.com.|Aktifkan «Muncul di layar».|Ketuk «Suara» dan pilih nada khas untuk Ay Khidmah.|Aktifkan «Abaikan Jangan Ganggu» agar panggilan tidak terlewat.|Kembali dan ketuk «🔔 Uji notifikasi».",
     "ios_must_install": "Di iPhone, notifikasi saat situs tertutup hanya datang setelah situs ditambahkan ke Layar Utama dan dibuka dari ikonnya.",
     "ios_title": "Notifikasi iPhone (iOS 16.4 atau lebih baru)",
-    "ios_steps": "Buka aykdmh.com di Safari.|Ketuk tombol Bagikan (kotak dan panah) di bawah.|Pilih «Tambah ke Layar Utama», lalu «Tambah».|Buka Ay Khidmah dari ikon barunya dan masuk.|Di «ملفي» ketuk «🔔 Notifikasi» dan izinkan.|Di Pengaturan → Notifikasi → Ay Khidmah: aktifkan Banner, Suara, dan Notifikasi Sensitif Waktu.|Ketuk «🔔 Uji notifikasi» untuk memastikan.",
+    "ios_steps": "Buka aykdmh.com di Safari.|Ketuk tombol Bagikan (kotak dan panah) di bawah.|Pilih «Tambah ke Layar Utama», lalu «Tambah».|Buka Ay Khidmah dari ikon barunya dan masuk.|Di «Profilku» ketuk «🔔 Notifikasi» dan izinkan.|Di Pengaturan → Notifikasi → Ay Khidmah: aktifkan Banner, Suara, dan Notifikasi Sensitif Waktu.|Ketuk «🔔 Uji notifikasi» untuk memastikan.",
     "app_ring": "Dering panggilan di aplikasi",
     "app_ring_on": "aktif",
     "app_ring_reopen": "tutup aplikasi sepenuhnya lalu buka lagi"
@@ -2776,5 +2776,40 @@
     "auto_tag": "Harian, otomatis",
     "manual_tag": "Manual",
     "row_size": "Ukuran {{size}}"
+  },
+  "signup_guide": {
+    "title": "Cara mendaftar",
+    "intro": "Pendaftaran hanya satu atau dua menit. Langkah-langkah ini urutannya sama dengan halaman pendaftaran.",
+    "choose_language": "Pilih bahasa Anda",
+    "choose_language_hint": "Panduan ini dan seluruh situs akan ditampilkan dalam bahasa ini. Anda bisa mengubahnya nanti di bagian atas halaman.",
+    "start": "Mulai mendaftar",
+    "reopen": "Cara mendaftar, langkah demi langkah",
+    "image_note": "Gambar dari halaman pendaftaran itu sendiri.",
+    "steps": {
+      "types": {
+        "title": "Pilih jenis akun",
+        "body": "Di bagian atas halaman ada tiga tombol: «{{client}}» jika Anda mencari orang yang memberi layanan, «{{provider}}» jika Anda memberi layanan kepada orang lain, dan «{{both}}» jika Anda memberi layanan dan kadang membutuhkan layanan orang lain. Anda bisa mengubahnya nanti di «{{profile}}»."
+      },
+      "account": {
+        "title": "Nomor ponsel dan kata sandi",
+        "body": "Masukkan nomor ponsel Saudi Anda, misalnya 05XXXXXXXX, lalu kata sandi minimal 4 karakter: angka, huruf, atau simbol. Nama boleh dikosongkan. Jika nomor Anda sudah terdaftar, akan muncul tombol «{{signin}}» dan «{{forgot}}» alih-alih mendaftar lagi."
+      },
+      "location": {
+        "title": "Lokasi Anda",
+        "body": "Izinkan lokasi saat ponsel bertanya, maka kota dan lingkungan Anda ditemukan otomatis. Jika Anda menolak atau gagal, ketuk «{{map}}» dan pilih tempat Anda. Lingkungan hanya ditanyakan jika tidak ditemukan otomatis. Klien juga bisa mengatur lokasi nanti."
+      },
+      "work": {
+        "title": "Penyedia layanan: profesi dan lingkungan",
+        "body": "Pilih satu atau lebih profesi, misalnya tukang ledeng atau tukang listrik. Semua layanan profesi itu terpilih otomatis; hapus yang tidak Anda tawarkan. Lalu pilih lingkungan di kota Anda yang Anda layani, atau ketuk «{{all}}». Klien tidak melihat langkah ini."
+      },
+      "schedule": {
+        "title": "Penyedia layanan: jam dan tempat kerja",
+        "body": "Pilih hari dan jam kerja Anda. Lalu tentukan di mana layanan diberikan: Anda datang ke pelanggan, pelanggan datang ke Anda, atau keduanya. Jika pelanggan datang ke Anda, tandai tempat Anda di peta."
+      },
+      "finish": {
+        "title": "Buat akun",
+        "body": "Jika seorang penyedia layanan mengundang Anda, ketuk «{{coupon}}» dan masukkan nomornya; ini opsional. Lalu ketuk «{{create}}»: dengan itu Anda menyetujui «{{terms}}», yang bisa dibaca dari tautan di atas tombol. Jika Anda menerima SMS berisi kode, masukkan kodenya. Tombol hanya berfungsi jika kolom wajib sudah lengkap, dan baris di bawahnya memberi tahu apa yang kurang."
+      }
+    }
   }
 }

@@ -1,3 +1,4 @@
+import useArabicOnly from '../../hooks/useArabicOnly';
 import { useRef, useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -39,6 +40,7 @@ function AdminPasswordField({ value, onChange, t }) {
 }
 
 export default function AdminLoginPage() {
+  useArabicOnly();
   const { t } = useTranslation();
   const { login, logout } = useAuth();
   const navigate = useNavigate();

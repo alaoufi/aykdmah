@@ -9,7 +9,7 @@
     "send": "Ipadala",
     "back": "Lumilipas",
     "next": "Susunod",
-    "previous": "Previous Mga",
+    "previous": "Nakaraan",
     "loading": "Pag-load..",
     "yes": "Oo, oo",
     "no": "Hindi",
@@ -196,9 +196,9 @@
   },
   "auth": {
     "welcome_back": "Mag-sign up para magpatuloy",
-    "create_account": "Maglikha ng bagong account",
+    "create_account": "Gumawa ng bagong account",
     "login_title": "Mag-sign in",
-    "register_title": "Maglikha ng Account",
+    "register_title": "Gumawa ng Account",
     "email": "Email",
     "username": "Pangalan ng gumagamit",
     "identifier": "Telepono, numero ng customer o email",
@@ -214,7 +214,7 @@
     "role_client": "Klien (naghahanap ng isang serbisyo)",
     "role_provider": "Nagbibigay ng serbisyo",
     "login_button": "Mag-sign in",
-    "register_button": "Maglikha ng Account",
+    "register_button": "Gumawa ng Account",
     "terms_prefix": "Sumasang-ayon ako sa",
     "terms_link": "Mga Termino at Kondisyon",
     "terms_title": "Mga Termino at Kondisyon",
@@ -265,7 +265,7 @@
     "location_confirmation": "Pinapahayag ko na ang lugar, lungsod at kapitbahayan ay ang aking tamang lokasyon.",
     "location_required_hint": "Piliin ang iyong lungsod at kapitbahayan, pagkatapos ay gamitin ang lokasyon ng aparato o piliin ang isang punto sa mapa. Maaari kang pumili sa mapa nang hindi mo pinapayagan ang pag-access sa lokasyon.",
     "account_phone_unavailable": "Ang pagrehistro ay pansamantalang hindi magagamit dahil ang pagrehistro sa telepono ay hindi aktibo.",
-    "role_both": "Ang parehong",
+    "role_both": "Pareho",
     "role_both_hint": "Mag-alok ng iyong mga serbisyo at humingi ng iba pang mga serbisyo sa parehong account.",
     "account_type": "Ang uri ng account",
     "name_optional": "Pangalan (pag-iisa)",
@@ -399,7 +399,7 @@
   },
   "offer": {
     "submit_title": "Ipadala ang isang quote",
-    "price": "Proposed price (SAR)",
+    "price": "Iminungkahing presyo (SAR)",
     "duration": "Kinakalat na tagal",
     "duration_placeholder": "Halimbawa, 2 oras",
     "message_to_client": "Mensahe sa kliyente",
@@ -450,7 +450,7 @@
     "events": "Mga kaganapan & pag-aalaga",
     "home-businesses": "Mga negosyo sa bahay",
     "photography": "Pinakamahusay na Paglikha",
-    "digital-marketing": "Digital marketing",
+    "digital-marketing": "Digital na marketing",
     "delivery": "Paghatid & pagpapadala",
     "real-estate": "Real estate & rental",
     "construction": "Pagbuo at pagkontrak",
@@ -459,10 +459,10 @@
     "business-services": "Mga serbisyo sa negosyo",
     "home-health": "Pangkalusugan sa tahanan & pangangalaga",
     "training": "Pag-aaral at mga kurso",
-    "fitness": "Fitness & sports",
+    "fitness": "Fitness at palakasan",
     "student-services": "Mga serbisyo sa mga mag-aaral",
     "tailoring": "Pag-uutos at pag-uutos",
-    "transport": "Transport & mobility",
+    "transport": "Transportasyon at paglalakbay",
     "general": "Mga pangkalahatang serbisyo",
     "home": "Mga serbisyo sa tahanan"
   },
@@ -528,7 +528,7 @@
     "search_in_conversation": "Maghanap sa pag-uusap",
     "periodic_updates": "Ang mga mensahe ay updated bawat 5 segundo",
     "emoji": "Emoji",
-    "video_message": "Video message",
+    "video_message": "Mensaheng video",
     "choose_video": "Pumili ng isang video",
     "capture_video": "I-record ang isang video",
     "stop_recording": "Ihinto ang pag-record",
@@ -833,7 +833,7 @@
     "ratings_allowed_provider_only": "Ang tagapagbigay lamang ang maaaring mag-rate",
     "ratings_allowed_none": "Ang mga rating ay hindi nakakatulong",
     "resolution": "Resolusyon",
-    "internal_note": "Internal note",
+    "internal_note": "Panloob na tala",
     "write_clarification": "Magdagdag ng isang paliwanag o bagong impormasyon..",
     "my_disputes": "Ang aking mga pagtatalo",
     "my_disputes_hint": "Sa bawat pagtatalo na iyong binuksan o ikaw ay isang partido sa.",
@@ -946,7 +946,7 @@
     "integrations": "Mga Pagsasama ng API",
     "settings": "Pag-iisa",
     "new": "Bagong",
-    "create": "Maglikha",
+    "create": "Gumawa",
     "edit": "I-edit ang mga ito",
     "delete": "I-delete",
     "save": "I-save ang",
@@ -1315,7 +1315,7 @@
     "reason_update_body": "Nire-reload namin ang pahina ngayon. Kung hindi, pindutin ang \"Subukan muli\".",
     "reason_ours_title": "May mali sa pahina sa aming panig",
     "reason_ours_body": "Hindi ikaw ang may mali, at awtomatiko kaming naabisuhan. Pindutin ang \"Subukan muli\"; kung maulit, ipadala sa amin ang error code.",
-    "reason_code": "Error code: {{code}}",
+    "reason_code": "Code ng error: {{code}}",
     "blocked": "Hindi puwedeng makipag-ugnayan: may nag-block sa isa. ✅",
     "block_during_work": "Hindi puwedeng mag-block habang may trabaho kayo o sa mga araw ng pagsusuri at warranty.",
     "blocked_by_you": "Na-block mo ang taong ito. Para i-unblock, buksan ang chat ninyo at pindutin ang «✅ I-unblock».",
@@ -1413,7 +1413,7 @@
     "customer": "Customer",
     "service": "Serbisyo",
     "demo_notice": "Ang mga presyo ay mga pagtatasa. Ang huling presyo at programa ay nagmumula sa nag-aalok ng provider na tinatanggap mo.",
-    "sort_default": "Default order",
+    "sort_default": "Karaniwang ayos",
     "sort_name_asc": "Pangalan: A hanggang Z",
     "sort_name_desc": "Pangalan: Z hanggang A",
     "request_location": "Pinili na lokasyon ng kahilingan",
@@ -1450,7 +1450,7 @@
     "placement_pricing_title": "Pagpapalit ng presyo",
     "placement_pricing_hint": "Ang huling presyo = sum ng rate ng bawat napili na pag-alok. Ang kolum na × ay ang multiplikador ng exclusivity na inilapat kapag 'Exclusive' ay naka-on.",
     "price_per_day_short": "SAR / araw",
-    "price_per_1k_views_short": "SAR / 1k views",
+    "price_per_1k_views_short": "SAR / bawat 1k na view",
     "exclusive_mode": "Exclusive sa mga pinili na lugar",
     "exclusive_short": "Eksklusyonaryong",
     "exclusive_desc": "Ang iyong ad ay nag-iisa sa paglalagay  walang rotation.",
@@ -2138,8 +2138,8 @@
     "report_title": "I-report ang tawag"
   },
   "wallet": {
-    "nav": "Wallet & coupon",
-    "title": "Wallet & coupon",
+    "nav": "Wallet at kupon",
+    "title": "Wallet at kupon",
     "amount": "SAR {{value}}",
     "your_coupon": "Ang iyong coupon",
     "copy": "Pag-copy",
@@ -2148,7 +2148,7 @@
     "share_text": "Makipag-ugnay kay Ay Khidma sa aking kupon {{code}}: {{url}}",
     "coupon_explainer": "Kapag may nag-sign up sa iyong coupon at nagbabayad ng kanilang unang subscription, {{percent}}% nito ang idinagdag sa iyong balanse.",
     "coupon_inactive": "Hindi pa nagtakda ang mga administrador ng komisyon sa kupon.",
-    "balance": "Available balance",
+    "balance": "Magagamit na balanse",
     "pending_withdrawals": "Mga pag-alis sa pagsusuri",
     "earned": "Ang kabuuang komisyon",
     "referrals": "Nagbabayad / lahat ng pag-sign up",
@@ -2619,12 +2619,12 @@
     "hint": "Tono ng mensahe at ring ng tawag habang bukas ang site. Ang volume buttons ng telepono ay nagpapalakas at nagpapahina rin nito (media volume). Kapag sarado, sumusunod sa lakas ng abiso ng telepono.",
     "test": "Subukan ang abiso",
     "test_sent": "May pagsubok na abisong ipinadala sa telepono mo. Isara ang site at tingnan kung lilitaw ito sa ibabaw ng ibang apps.",
-    "test_none": "Hindi pa naka-subscribe ang device na ito. Pindutin ang «🔔 Mga abiso» sa itaas ng «ملفي», saka subukan.",
+    "test_none": "Hindi pa naka-subscribe ang device na ito. Pindutin ang «🔔 Mga abiso» sa itaas ng «Ang aking Profil», saka subukan.",
     "android_title": "Ipalitaw ang abiso sa ibabaw ng apps na may natatanging tono (Android)",
     "android_steps": "Buksan ang Settings ng telepono → Apps → Chrome → Notifications.|Pumunta sa «Sites» at pindutin ang aykdmh.com.|I-on ang «Pop on screen».|Pindutin ang «Sound» at pumili ng natatanging tono para sa Ay Khidmah.|I-on ang «Override Do Not Disturb» kung ayaw mong makaligtaan ang tawag.|Bumalik at pindutin ang «🔔 Subukan ang abiso».",
     "ios_must_install": "Sa iPhone, darating lang ang abiso kapag sarado ang site kung idinagdag ito sa Home Screen at binuksan mula sa icon.",
     "ios_title": "Mga abiso sa iPhone (iOS 16.4 o mas bago)",
-    "ios_steps": "Buksan ang aykdmh.com sa Safari.|Pindutin ang Share button (kahon at arrow) sa ibaba.|Piliin ang «Add to Home Screen», saka «Add».|Buksan ang Ay Khidmah mula sa bagong icon at mag-sign in.|Sa «ملفي» pindutin ang «🔔 Mga abiso» at payagan.|Sa Settings → Notifications → Ay Khidmah: i-on ang Banners, Sounds at Time Sensitive.|Pindutin ang «🔔 Subukan ang abiso» para tiyakin.",
+    "ios_steps": "Buksan ang aykdmh.com sa Safari.|Pindutin ang Share button (kahon at arrow) sa ibaba.|Piliin ang «Add to Home Screen», saka «Add».|Buksan ang Ay Khidmah mula sa bagong icon at mag-sign in.|Sa «Ang aking Profil» pindutin ang «🔔 Mga abiso» at payagan.|Sa Settings → Notifications → Ay Khidmah: i-on ang Banners, Sounds at Time Sensitive.|Pindutin ang «🔔 Subukan ang abiso» para tiyakin.",
     "app_ring": "Ring ng tawag sa app",
     "app_ring_on": "naka-on",
     "app_ring_reopen": "isara nang buo ang app at buksan muli"
@@ -2776,5 +2776,40 @@
     "auto_tag": "Araw-araw, awtomatiko",
     "manual_tag": "Manwal",
     "row_size": "Laki {{size}}"
+  },
+  "signup_guide": {
+    "title": "Paano mag-sign up",
+    "intro": "Isa o dalawang minuto lang ang pag-sign up. Ang mga hakbang na ito ay nasa parehong ayos ng pahina ng pag-sign up.",
+    "choose_language": "Piliin ang iyong wika",
+    "choose_language_hint": "Ipapakita sa wikang ito ang gabay at ang buong site. Mapapalitan mo ito mamaya sa itaas ng pahina.",
+    "start": "Simulan ang pag-sign up",
+    "reopen": "Paano mag-sign up, hakbang-hakbang",
+    "image_note": "Larawan ng mismong pahina ng pag-sign up.",
+    "steps": {
+      "types": {
+        "title": "Piliin ang uri ng account",
+        "body": "May tatlong button sa itaas ng pahina: «{{client}}» kung naghahanap ka ng magbibigay sa iyo ng serbisyo, «{{provider}}» kung nagbibigay ka ng serbisyo sa mga tao, at «{{both}}» kung nagbibigay ka ng serbisyo at minsan kailangan mo rin ang serbisyo ng iba. Mapapalitan mo ito mamaya sa «{{profile}}»."
+      },
+      "account": {
+        "title": "Numero ng mobile at password",
+        "body": "Ilagay ang iyong Saudi mobile number, gaya ng 05XXXXXXXX, saka isang password na hindi bababa sa 4 na character: numero, titik o simbolo. Opsyonal ang pangalan. Kung naka-register na ang numero mo, lalabas ang «{{signin}}» at «{{forgot}}» sa halip na mag-sign up ulit."
+      },
+      "location": {
+        "title": "Ang iyong lokasyon",
+        "body": "Payagan ang lokasyon kapag nagtanong ang telepono, at kusang malalaman ang iyong lungsod at distrito. Kung tumanggi ka o hindi ito makita, pindutin ang «{{map}}» at piliin ang iyong lugar. Itatanong lang ang distrito kapag hindi ito kusang nalaman. Puwede ring ilagay ng kliyente ang lokasyon mamaya."
+      },
+      "work": {
+        "title": "Nagbibigay ng serbisyo: propesyon at mga distrito",
+        "body": "Pumili ng isa o higit pang propesyon, gaya ng tubero o elektrisyan. Kusang napipili ang lahat ng serbisyo ng propesyon; alisin ang hindi mo ibinibigay. Pagkatapos, piliin ang mga distrito sa iyong lungsod na pinagsisilbihan mo, o pindutin ang «{{all}}». Hindi ito nakikita ng kliyente."
+      },
+      "schedule": {
+        "title": "Nagbibigay ng serbisyo: oras at lugar ng trabaho",
+        "body": "Piliin ang iyong mga araw at oras ng trabaho. Pagkatapos, sabihin kung saan ginagawa ang serbisyo: pupunta ka sa customer, pupunta ang customer sa iyo, o pareho. Kung pupunta ang customer sa iyo, markahan ang iyong lugar sa mapa."
+      },
+      "finish": {
+        "title": "Gumawa ng account",
+        "body": "Kung inimbitahan ka ng isang nagbibigay ng serbisyo, pindutin ang «{{coupon}}» at ilagay ang numero niya; opsyonal ito. Saka pindutin ang «{{create}}»: sa paggawa nito, tinatanggap mo ang «{{terms}}», na mababasa mo sa link sa itaas ng button. Kung may dumating na text message na may code, ilagay ito. Gagana lang ang button kapag kumpleto ang mga kailangang field, at sinasabi ng linya sa ilalim nito kung ano ang kulang."
+      }
+    }
   }
 }

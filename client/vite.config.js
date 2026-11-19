@@ -64,7 +64,7 @@ export default defineConfig(({ mode }) => {
           // languages are fetched only when used (and kept then, below), so the saved copy is small.
           globIgnores: ['version.json', 'install/refresh.html', 'refresh-site.js',
             '**/maplibre-gl-*', '**/livekit-client*', '**/leaflet-maplibre-gl-*',
-            '**/{am,bn,fil,hi,id,ml,ne,tr,ur}-*.js'],
+            '**/{am,bn,fil,hi,id,ml,ne,tr,ur}-*.js', 'guide/signup/**'],
           // Incoming-call notifications (AYK-008).
           importScripts: ['push-sw.js'],
           // The main bundle passed the 2 MiB default; it must stay in the offline cache.

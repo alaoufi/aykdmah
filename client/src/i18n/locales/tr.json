@@ -2619,12 +2619,12 @@
     "hint": "Site açıkken mesaj tonu ve arama zili. Telefonun ses tuşları da bunu açar ve kısar (medya sesi). Site kapalıyken telefonunuzun bildirim sesine göre.",
     "test": "Bildirimi dene",
     "test_sent": "Telefonunuza deneme bildirimi gönderildi. Siteyi kapatın ve diğer uygulamaların üzerinde çıkıp çıkmadığına bakın.",
-    "test_none": "Bu cihaz henüz abone değil. «ملفي» üstündeki «🔔 Bildirimler»e dokunup deneyin.",
+    "test_none": "Bu cihaz henüz abone değil. «Benim Profilüm» üstündeki «🔔 Bildirimler»e dokunup deneyin.",
     "android_title": "Bildirimi uygulamaların üzerinde özel tonla göster (Android)",
     "android_steps": "Telefon Ayarları → Uygulamalar → Chrome → Bildirimler bölümünü açın.|«Siteler» kısmına inip aykdmh.com seçin.|«Ekranda açılır pencere» seçeneğini açın.|«Ses» seçeneğine dokunup Ay Khidmah için özel bir ton seçin.|Aramaları kaçırmamak için «Rahatsız Etmeyin modunu geçersiz kıl» seçeneğini açın.|Geri dönüp «🔔 Bildirimi dene» düğmesine dokunun.",
     "ios_must_install": "iPhone’da site kapalıyken bildirim, yalnızca site Ana Ekrana eklenip simgesinden açılınca gelir.",
     "ios_title": "iPhone bildirimleri (iOS 16.4 veya üstü)",
-    "ios_steps": "aykdmh.com’u Safari’de açın.|Alttaki Paylaş düğmesine (kare ve ok) dokunun.|«Ana Ekrana Ekle» ve ardından «Ekle»yi seçin.|Ay Khidmah’ı yeni simgesinden açıp giriş yapın.|«ملفي» içinde «🔔 Bildirimler»e dokunup izin verin.|Ayarlar → Bildirimler → Ay Khidmah: Afişler, Sesler ve Zamana Duyarlı Bildirimleri açın.|Kontrol için «🔔 Bildirimi dene»ye dokunun.",
+    "ios_steps": "aykdmh.com’u Safari’de açın.|Alttaki Paylaş düğmesine (kare ve ok) dokunun.|«Ana Ekrana Ekle» ve ardından «Ekle»yi seçin.|Ay Khidmah’ı yeni simgesinden açıp giriş yapın.|«Benim Profilüm» içinde «🔔 Bildirimler»e dokunup izin verin.|Ayarlar → Bildirimler → Ay Khidmah: Afişler, Sesler ve Zamana Duyarlı Bildirimleri açın.|Kontrol için «🔔 Bildirimi dene»ye dokunun.",
     "app_ring": "Uygulamada arama zili",
     "app_ring_on": "açık",
     "app_ring_reopen": "uygulamayı tamamen kapatıp yeniden açın"
@@ -2776,5 +2776,40 @@
     "auto_tag": "Günlük, otomatik",
     "manual_tag": "Elle",
     "row_size": "Boyut {{size}}"
+  },
+  "signup_guide": {
+    "title": "Nasıl kaydolunur",
+    "intro": "Kayıt bir iki dakika sürer. Bu adımlar kayıt sayfasındaki sırayla aynıdır.",
+    "choose_language": "Dilinizi seçin",
+    "choose_language_hint": "Bu rehber ve sitenin tamamı bu dilde gösterilir. Daha sonra sayfanın üst kısmından değiştirebilirsiniz.",
+    "start": "Kayda başla",
+    "reopen": "Nasıl kaydolunur, adım adım",
+    "image_note": "Kayıt sayfasının kendisinden bir görüntü.",
+    "steps": {
+      "types": {
+        "title": "Hesap türünü seçin",
+        "body": "Sayfanın üstünde üç düğme vardır: size hizmet verecek birini arıyorsanız «{{client}}», insanlara hizmet veriyorsanız «{{provider}}», hizmet verip bazen başkalarının hizmetine de ihtiyaç duyuyorsanız «{{both}}». Daha sonra «{{profile}}» bölümünden değiştirebilirsiniz."
+      },
+      "account": {
+        "title": "Cep telefonu ve şifre",
+        "body": "Suudi cep telefonu numaranızı yazın, örneğin 05XXXXXXXX, ardından en az 4 karakterli bir şifre: rakam, harf veya sembol. İsim isteğe bağlıdır. Numaranız zaten kayıtlıysa, yeniden kaydolmak yerine «{{signin}}» ve «{{forgot}}» düğmeleri çıkar."
+      },
+      "location": {
+        "title": "Konumunuz",
+        "body": "Telefon sorduğunda konuma izin verin; şehriniz ve mahalleniz kendiliğinden bulunur. Reddederseniz veya bulunamazsa «{{map}}» düğmesine dokunup yerinizi seçin. Mahalle yalnızca otomatik bulunamazsa sorulur. Müşteri konumunu daha sonra da belirleyebilir."
+      },
+      "work": {
+        "title": "Hizmet sağlayıcı: meslek ve mahalleler",
+        "body": "Tesisatçı veya elektrikçi gibi bir ya da daha fazla meslek seçin. Mesleğin tüm hizmetleri otomatik seçilir; vermediklerinizi kaldırın. Sonra şehrinizde hizmet verdiğiniz mahalleleri seçin ya da «{{all}}» düğmesine dokunun. Müşteriler bu adımı görmez."
+      },
+      "schedule": {
+        "title": "Hizmet sağlayıcı: çalışma saatleri ve yeri",
+        "body": "Çalışma günlerinizi ve saatlerinizi seçin. Ardından hizmetin nerede verildiğini belirtin: siz müşteriye gidersiniz, müşteri size gelir ya da ikisi de. Müşteri size geliyorsa yerinizi haritada işaretleyin."
+      },
+      "finish": {
+        "title": "Hesabı oluşturun",
+        "body": "Sizi bir hizmet sağlayıcı davet ettiyse «{{coupon}}» düğmesine dokunup numarasını yazın; bu isteğe bağlıdır. Sonra «{{create}}» düğmesine dokunun: böylece «{{terms}}» metnini kabul etmiş olursunuz; düğmenin üstündeki bağlantıdan okuyabilirsiniz. Kod içeren bir SMS gelirse kodu yazın. Düğme, zorunlu alanlar tamamlanmadan çalışmaz; altındaki satır neyin eksik olduğunu söyler."
+      }
+    }
   }
 }

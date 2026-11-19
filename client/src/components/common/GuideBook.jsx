@@ -4,7 +4,7 @@ import { guidePageForHash, guidePageIndex } from '../../utils/guideBook';
 import './GuideBook.css';
 
 // HTML remains selectable, zoomable and accessible. No canvas/WebGL or remote assets.
-export default function GuideBook({ children, titles, ids, title, images = [] }) {
+export default function GuideBook({ children, titles, ids, title, images = [], illustrationNote = true }) {
   const { t, i18n } = useTranslation();
   const chapters = Children.toArray(children);
   const [selectedPage, setPage] = useState(() => guidePageForHash(window.location.hash, ids) ?? 0);
@@ -43,7 +43,7 @@ export default function GuideBook({ children, titles, ids, title, images = [] })
       <aside className="guide-book-picture" aria-label={t('help.book_illustration')}>
         {images[page] && <img src={images[page]} alt={titles[page]} loading="lazy" width="720" height="1000" />}
         <div className="guide-book-picture-title"><span aria-hidden="true">{number.format(page + 1)}</span><strong>{titles[page]}</strong></div>
-        <p>{t('help.book_illustration_note')}</p>
+        {illustrationNote && <p>{t('help.book_illustration_note')}</p>}
       </aside>
       <div className="guide-book-page">
         <h2 ref={heading} tabIndex={-1} className="guide-book-chapter">{titles[page]}</h2>

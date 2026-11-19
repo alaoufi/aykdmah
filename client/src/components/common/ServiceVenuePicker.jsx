@@ -9,7 +9,7 @@ export default function ServiceVenuePicker({ value, onChange, name = 'location_m
   const id = useId();
 
   return (
-    <fieldset className="form-group min-w-0 border-0 p-0" disabled={disabled}>
+    <fieldset className="form-group min-w-0 border-0 p-0" disabled={disabled} data-venue-picker>
       <legend className="form-label">{t('provider.location_mode')}</legend>
       <div className="grid grid-cols-1 gap-2">
         {MODES.map(mode => (

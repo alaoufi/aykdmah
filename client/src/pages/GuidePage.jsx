@@ -2,8 +2,10 @@ import { useEffect } from 'react';
 import GuideBook from '../components/common/GuideBook';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { SIGNUP_STEPS, signupLabels } from '../components/common/SignupIntro';
 
-const SIGNUP_POINTS = ['types', 'basics', 'location', 'professions', 'coverage', 'coupon', 'matching', 'stats', 'edit', 'change_type'];
+// The sign-up steps are the same text as the sign-up page's own guide (AYK-296); then what follows.
+const SIGNUP_POINTS = ['matching', 'stats', 'edit', 'change_type'];
 const AVAILABILITY_POINTS = ['pause', 'vacation', 'days', 'hours', 'search'];
 const CALL_POINTS = ['chat', 'delete', 'ring', 'closed', 'audio', 'iphone', 'network'];
 const WALLET_POINTS = ['coupon', 'invite', 'commission', 'balance', 'withdraw', 'gift', 'security', 'payments'];
@@ -99,9 +101,15 @@ export default function GuidePage() {
           <p className="text-fg-muted text-sm md:text-base leading-loose mt-3 mb-5">{t('help.signup_intro')}</p>
           <p className="card text-sm leading-relaxed">{t('help.account_completion')}</p>
           <ol className="space-y-3">
+            {SIGNUP_STEPS.map((step, index) => (
+              <li key={step} className="card p-4">
+                <h3 className="text-fg font-bold text-base">{index + 1}. {t(`signup_guide.steps.${step}.title`)}</h3>
+                <p className="text-fg-muted text-sm leading-loose mt-1">{t(`signup_guide.steps.${step}.body`, signupLabels(t))}</p>
+              </li>
+            ))}
             {SIGNUP_POINTS.map((point, index) => (
               <li key={point} className="card p-4">
-                <h3 className="text-fg font-bold text-base">{index + 1}. {t(`help.signup_points.${point}.title`)}</h3>
+                <h3 className="text-fg font-bold text-base">{SIGNUP_STEPS.length + index + 1}. {t(`help.signup_points.${point}.title`)}</h3>
                 <p className="text-fg-muted text-sm leading-loose mt-1">{t(`help.signup_points.${point}.body`)}</p>
               </li>
             ))}

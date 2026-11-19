@@ -18,7 +18,7 @@ import CoverageDistrictsPicker from '../components/common/CoverageDistrictsPicke
 import { weekdayName } from '../components/common/AvailabilityBadge';
 import WorkHoursPicker from '../components/common/WorkHoursPicker';
 import DevicePermissions from '../components/common/DevicePermissions';
-import SignupHowTo from '../components/common/SignupHowTo';
+import SignupIntro, { signupIntroSeen } from '../components/common/SignupIntro';
 import SafeHtml from '../components/common/SafeHtml';
 import { apiError } from '../services/api';
 import { localizedName } from '../utils/localize';
@@ -45,6 +45,7 @@ export default function RegisterPage() {
   const { settings } = usePublicSettings();
   const termsHtml = localizedTerms(settings, lang, t);
 
+  const [intro, setIntro] = useState(() => (signupIntroSeen() ? null : 'language'));
   const [form, setForm] = useState({
     role: ['provider', 'both'].includes(params.get('role')) ? params.get('role') : 'client',
     phone: '', password: '', full_name: '',
@@ -271,7 +272,11 @@ export default function RegisterPage() {
     <form onSubmit={handleSubmit} data-testid="register-form" noValidate>
       <fieldset disabled={loading} className="min-w-0 border-0 p-0 m-0 space-y-3">
         <h2 className="mb-0">{t('auth.register_title')}</h2>
-        <SignupHowTo />
+        {/* The sign-up guide (AYK-296): on first opening, language then the book; again from here. */}
+        <button type="button" onClick={() => setIntro('book')} data-testid="signup-howto"
+          className="w-full flex items-center justify-center gap-2 min-h-[46px] rounded-card border-2 border-primary/50 bg-primary-soft text-primary font-extrabold text-[15px]">
+          📖 {t('signup_guide.reopen')}
+        </button>
 
         {error && <ProblemNotice error={error} />}
 
@@ -419,6 +424,8 @@ export default function RegisterPage() {
           </div>
         </div>
       )}
+
+      <SignupIntro open={Boolean(intro)} startWithLanguage={intro === 'language'} onClose={() => setIntro(null)} />
 
       <LocationPickerMap open={venueMapOpen} initialLat={venuePoint?.lat ?? place.lat} initialLon={venuePoint?.lon ?? place.lon}
         initialPointSelected={!!venuePoint} onClose={() => setVenueMapOpen(false)}

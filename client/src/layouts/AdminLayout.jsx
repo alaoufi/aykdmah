@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 import Avatar from '../components/common/Avatar';
 import BrandLogo from '../components/common/BrandLogo';
-import LanguageSwitcher from '../components/common/LanguageSwitcher';
+import useArabicOnly from '../hooks/useArabicOnly';
 import UpdateBar from '../components/common/UpdateBar';
 import { IconMenu, IconClose, IconBell } from '../components/common/Icons';
 import { useNotifications } from '../hooks/useNotifications';
@@ -94,6 +94,7 @@ function findCurrentLabel(pathname) {
 }
 
 function AdminLayoutFrame() {
+  useArabicOnly();
   const { t } = useTranslation();
   const { user, logout, hasPermission, isSuperAdmin } = useAuth();
   const { unread } = useNotifications();
@@ -227,7 +228,6 @@ function AdminLayoutFrame() {
             </div>
             <div className="text-[15px] font-extrabold text-fg truncate">{t(currentLabel)}</div>
           </div>
-          <LanguageSwitcher />
           <Link
             to="/notifications"
             className="relative w-10 h-10 grid place-items-center rounded-pill text-fg-muted hover:bg-surface-alt no-underline"
