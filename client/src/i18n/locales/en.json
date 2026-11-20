@@ -2914,7 +2914,8 @@
     "call": "Call",
     "whatsapp_button": "WhatsApp",
     "mobile": "Mobile",
-    "chat": "Chat"
+    "chat": "Chat",
+    "opening": "Opening the chat…"
   },
   "provider_page": {
     "contact": "Contact",

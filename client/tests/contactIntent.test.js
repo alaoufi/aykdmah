@@ -10,7 +10,7 @@ test('contact lookup and choice cannot write after route/session invalidation or
     const window={location:{pathname:'/',search:'',hash:''}};
     const context=vm.createContext({window,AbortController,getToken:()=>token,i18n:{t:k=>k},askChoice:()=>new Promise(r=>{resolveChoice=r;}),api:{get:()=>new Promise(r=>{resolveLookup=r;}),post:async()=>{writes++;return {data:{data:{conversation_id:9}}};}}});
     vm.runInContext(scope+'\n'+service,context);
-    const pending=vm.runInContext('contactDirect(2,5)',context);pending.catch(()=>{});
+    const pending=vm.runInContext('contactRequest(77,2)',context);pending.catch(()=>{});
     if(mode==='lookup-route'){window.location.pathname='/directory';vm.runInContext('invalidateContactIntents()',context);}
     resolveLookup({data:{data:[{id:8}]}});
     await new Promise(resolve=>setImmediate(resolve));
@@ -36,4 +36,14 @@ test('both request-scoped entry points defer every mutation until a current affi
     if(stale){await assert.rejects(pending,error=>error.cancelled);assert.equal(posts.length,0);}
     else{await pending;assert.equal(posts.length,1);assert.equal(posts[0].body.fresh,true);assert.equal(posts[0].config.headers.Authorization,'Bearer session-one');}
   }
+});
+
+test('AYK-380: contacting a provider opens the existing chat at once, without a question or a write',async()=>{
+  const strip=s=>s.replace(/^import .*;\s*/gm,'').replaceAll('export ','');
+  const sources=['../src/utils/contactIntent.js','../src/services/requestService.js'].map(p=>strip(fs.readFileSync(new URL(p,import.meta.url),'utf8'))).join('\n');
+  let asked=0;const posts=[];
+  const context=vm.createContext({window:{location:{pathname:'/',search:'',hash:''}},AbortController,getToken:()=> 'session-one',i18n:{t:k=>k},askChoice:async()=>{asked++;return 'new';},api:{get:async()=>({data:{data:[{id:8,request_id:3}]}}),post:async(path,body)=>{posts.push({path,body});return {data:{data:{conversation_id:9}}};}}});
+  vm.runInContext(sources,context);
+  const result=await vm.runInContext('contactDirect(2,5)',context);
+  assert.equal(result.conversation_id,8);assert.equal(asked,0);assert.equal(posts.length,0);
 });

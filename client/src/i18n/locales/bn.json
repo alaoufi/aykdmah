@@ -2914,7 +2914,8 @@
     "call": "কল করুন",
     "whatsapp_button": "হোয়াটসঅ্যাপ",
     "mobile": "মোবাইল",
-    "chat": "চ্যাট"
+    "chat": "চ্যাট",
+    "opening": "চ্যাট খুলছে…"
   },
   "provider_page": {
     "contact": "যোগাযোগ",

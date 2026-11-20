@@ -2914,7 +2914,8 @@
     "call": "Telepon",
     "whatsapp_button": "WhatsApp",
     "mobile": "Ponsel",
-    "chat": "Obrolan"
+    "chat": "Obrolan",
+    "opening": "Membuka obrolan…"
   },
   "provider_page": {
     "contact": "Hubungi",

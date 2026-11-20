@@ -2914,7 +2914,8 @@
     "call": "कल",
     "whatsapp_button": "व्हाट्सएप",
     "mobile": "मोबाइल",
-    "chat": "च्याट"
+    "chat": "च्याट",
+    "opening": "च्याट खोल्दै…"
   },
   "provider_page": {
     "contact": "सम्पर्क",

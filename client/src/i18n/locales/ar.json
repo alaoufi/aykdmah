@@ -3018,7 +3018,8 @@
     "call": "اتصال",
     "whatsapp_button": "واتساب",
     "mobile": "جوال",
-    "chat": "محادثة"
+    "chat": "محادثة",
+    "opening": "جارٍ فتح المحادثة…"
   },
   "provider_page": {
     "contact": "تواصل",
