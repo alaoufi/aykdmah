@@ -2749,7 +2749,8 @@
     "delete": "I-delete",
     "required": "Kailangan ang field na ito",
     "min_length": "Sumulat ng kahit {{count}} character",
-    "done": "Sige"
+    "done": "Sige",
+    "deleted": "Natanggal na"
   },
   "join": {
     "title_request": "Mag-request ng serbisyo sa loob ng isang minuto",

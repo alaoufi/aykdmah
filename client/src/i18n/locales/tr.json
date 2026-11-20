@@ -2749,7 +2749,8 @@
     "delete": "Sil",
     "required": "Bu alan zorunlu",
     "min_length": "En az {{count}} karakter yazın",
-    "done": "Tamam"
+    "done": "Tamam",
+    "deleted": "Silindi"
   },
   "join": {
     "title_request": "Hizmetinizi bir dakikada isteyin",

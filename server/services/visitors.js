@@ -67,7 +67,8 @@ async function prune() {
 // every entry to the site counts as a visit. The page says when it is an entry (once per opening of
 // the site or the app, not on every page or on the 2-minute "still here" reports); the same visitor
 // entering again within a minute is one entry (a reload loop does not inflate the counter).
-const ENTRY_GAP_MS = 60 * 1000;
+// AYK-376: a reload counts; the short gap only drops a doubled report of the same opening.
+const ENTRY_GAP_MS = 3 * 1000;
 const lastEntry = new Map(); // viewer key -> last counted entry (ms)
 async function countEntry(key) {
   const now = Date.now();

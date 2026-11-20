@@ -2749,7 +2749,8 @@
     "delete": "ይሰርዙ",
     "required": "ይህ መስክ ያስፈልጋል",
     "min_length": "ቢያንስ {{count}} ፊደላት ይጻፉ",
-    "done": "እሺ"
+    "done": "እሺ",
+    "deleted": "ተሰርዟል"
   },
   "join": {
     "title_request": "በአንድ ደቂቃ አገልግሎት ይጠይቁ",

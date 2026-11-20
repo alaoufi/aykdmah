@@ -2749,7 +2749,8 @@
     "delete": "Hapus",
     "required": "Kolom ini wajib diisi",
     "min_length": "Tulis minimal {{count}} karakter",
-    "done": "Selesai"
+    "done": "Selesai",
+    "deleted": "Terhapus"
   },
   "join": {
     "title_request": "Minta layanan dalam satu menit",

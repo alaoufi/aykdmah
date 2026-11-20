@@ -29,7 +29,6 @@ import AvatarPicker from '../components/profile/AvatarPicker';
 import AdminPanelLink from '../components/layout/AdminPanelLink';
 import ProblemNotice from '../components/common/ProblemNotice';
 import { showAlert } from '../components/common/AppDialog';
-import { flash } from '../components/common/Flash';
 
 const LOCATION_LEVELS = ['country_id', 'region_id', 'governorate_id', 'city_id', 'district_id'];
 const formFromUser = (user) => ({
@@ -258,10 +257,7 @@ export default function ProfilePage() {
         setPointConfirmed(isValidCoordinates(Number(saved?.latitude), Number(saved?.longitude)) && saved?.latitude != null && saved?.longitude != null);
       }
       await refresh();
-      flash(`✅ ${t('profile.saved_toast')}`);
-    } catch (e2) {
-      showAlert({ title: t('profile.not_saved'), message: apiError(e2), tone: 'danger', confirmText: t('dialog.done') });
-    }
+    } catch (_) { /* the reasons are shown by the save message (services/api.js, AYK-376) */ }
     finally { setSaving(false); }
   };
   const savePassword = async (e) => {

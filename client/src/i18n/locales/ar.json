@@ -2778,7 +2778,8 @@
     "delete": "حذف",
     "required": "هذا الحقل مطلوب",
     "min_length": "اكتب {{count}} أحرف على الأقل",
-    "done": "تم"
+    "done": "تم",
+    "deleted": "تم الحذف"
   },
   "join": {
     "title_request": "اطلب خدمتك في دقيقة",

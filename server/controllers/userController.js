@@ -75,14 +75,14 @@ const updateMe = asyncHandler(async (req, res) => {
   if (payload.phone !== undefined) {
     if (payload.phone !== null && typeof payload.phone !== 'string') return error(res, req.t('invalid_data'), 400);
     payload.phone = String(payload.phone || '').trim().replace(/[\s()-]/g, '') || null;
-    if (payload.phone && (payload.phone.length > 30 || !/^[+\d\s()-]+$/.test(payload.phone))) return error(res, req.t('invalid_data'), 400);
+    if (payload.phone && (payload.phone.length > 30 || !/^[+\d\s()-]+$/.test(payload.phone))) return error(res, req.t('phone_invalid'), 400);
     const other = payload.phone && await User.findByPhone(payload.phone);
     if (other && Number(other.id) !== Number(req.user.id)) return error(res, req.t('phone_taken'), 409);
   }
   if (payload.full_name !== undefined) {
     if (typeof payload.full_name !== 'string') return error(res, req.t('invalid_data'), 400);
     payload.full_name = payload.full_name.trim();
-    if (payload.full_name.length < 2 || payload.full_name.length > 150) return error(res, req.t('invalid_data'), 400);
+    if (payload.full_name.length < 2 || payload.full_name.length > 150) return error(res, req.t('name_length'), 400);
   }
   const location = await validateUserLocation(req.body, current, req.t('invalid_data'));
   Object.assign(payload, location);

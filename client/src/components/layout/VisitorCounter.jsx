@@ -6,7 +6,6 @@ import api from '../../services/api';
 // 2 minutes while it is visible (for "online now"); each visitor is counted once a day on the
 // server. The counter shows only when the owner made it public, or to admin accounts.
 const PING_MS = 2 * 60 * 1000;
-const ENTRY_KEY = 'ayk_visit_entry';
 
 export default function VisitorCounter({ className = '' }) {
   const { t, i18n } = useTranslation();
@@ -14,12 +13,12 @@ export default function VisitorCounter({ className = '' }) {
 
   useEffect(() => {
     let active = true;
-    // AYK-350: each entry to the site is a visit: the first report of this opening says so (kept for
-    // this tab or app session, so moving between pages or reloading does not count again).
+    // AYK-350: each entry to the site is a visit. AYK-376 (the owner: «لو عملت تحديث المفروض يعتبرها
+    // زيارة»): a reload is an entry too; only moving between pages inside one loading is not.
     const ping = () => {
       if (document.visibilityState === 'hidden') return;
-      let entry = false;
-      try { if (!sessionStorage.getItem(ENTRY_KEY)) { sessionStorage.setItem(ENTRY_KEY, '1'); entry = true; } } catch (_) { entry = !window.__aykEntryCounted; window.__aykEntryCounted = true; }
+      const entry = !window.__aykEntryCounted;
+      window.__aykEntryCounted = true;
       api.post('/visits', { entry }).then((res) => { if (active) setData(res.data?.data || null); }).catch(() => {});
     };
     ping();

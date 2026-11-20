@@ -2749,7 +2749,8 @@
     "delete": "Delete",
     "required": "This field is required",
     "min_length": "Write at least {{count}} characters",
-    "done": "Done"
+    "done": "Done",
+    "deleted": "Deleted"
   },
   "join": {
     "title_request": "Request your service in a minute",
