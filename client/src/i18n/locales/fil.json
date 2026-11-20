@@ -45,12 +45,12 @@
     "login": "Mag-sign in",
     "register": "Gumawa ng account",
     "logout": "Mag-sign out",
-    "profile": "Aking profile",
+    "profile": "Aking account",
     "my_requests": "Aking mga kahilingan",
     "my_offers": "Aking mga alok",
     "notifications": "Mga notification",
     "chat": "Mga Mensahe",
-    "dashboard": "Dashboard",
+    "dashboard": "Admin panel",
     "admin": "Admin panel",
     "settings": "Mga setting",
     "subscription": "Subscription",
@@ -131,7 +131,7 @@
       "urgent_open": "Mga urgent na kahilingan na naghihintay ng alok",
       "updated_at": "Huling update: {{time}}"
     },
-    "browse_by_category": "Mag-browse ayon sa kategorya",
+    "browse_by_category": "Mag-browse ayon sa propesyon",
     "what_do_you_need": "Ano ang kailangan mo ngayon?",
     "how_it_works": "Paano gumagana ang platform?",
     "step_1_title": "Mag-request ng serbisyo",
@@ -336,7 +336,7 @@
     "title_ph": "Hal.: Maintenance ng split na aircon",
     "description": "Paglalarawan",
     "description_ph": "Isulat nang malinaw ang serbisyong kailangan mo",
-    "category": "Kategorya",
+    "category": "Trabaho",
     "service": "Serbisyo",
     "subservice": "Sub-service",
     "address_ph": "Hal.: Distrito ng Al Olaya, Prince Sultan St.",
@@ -476,7 +476,7 @@
     "home": "Serbisyo sa bahay"
   },
   "profile": {
-    "title": "Aking profile",
+    "title": "Aking account",
     "update_profile": "Na-update ang profile",
     "update_provider": "Na-update ang profile ng serbisyo",
     "business_name": "Pangalan ng negosyo",
@@ -1346,7 +1346,7 @@
     "browse_services": "Tingnan ang mga serbisyo",
     "categories_title": "Mga kategorya ng serbisyo",
     "popular_title": "Mga uri ng serbisyo",
-    "featured_categories": "Mga tampok na kategorya",
+    "featured_categories": "Mga nangungunang propesyon",
     "services_available": "{{count}} uri ng serbisyo",
     "price_from": "Tinatayang presyo mula",
     "duration": "Tagal ng trabaho",
@@ -1986,8 +1986,8 @@
     "distance_km": "{{value}} km",
     "providers_title": "Mga provider na malapit",
     "providers_subtitle": "Tantiyang tuwid na layo ang distansya, hindi layo sa daan.",
-    "filter_category": "Kategorya",
-    "all_categories": "Lahat ng kategorya",
+    "filter_category": "Trabaho",
+    "all_categories": "Lahat ng trabaho",
     "filter_radius": "Saklaw ng layo",
     "within_km": "Sa loob ng {{value}} km",
     "choose_origin": "Itakda ang lokasyon mo o pumili ng punto sa mapa para makita ang mga provider na malapit.",
@@ -2539,7 +2539,7 @@
     "my_contacts_title": "Mga kahilingang kinontak mo",
     "assigned_to_you": "Nakatalaga sa iyo: buksan para tapusin o umatras",
     "tasks_title": "Aking mga gawain sa trabaho",
-    "tasks_hint": "Mga kahilingang kinontak mo o itinalaga sa iyo. Ang mga aktibo ay kailangan ka ngayon, at nasa archive ang mga tapos o na-cancel.",
+    "tasks_hint": "Mga request na kinontak mo o itinalaga sa iyo. Kailangan ka ngayon ng «Mga aktibo kong trabaho»; nasa «Archive ng mga trabaho ko» ang natapos o kinansela.",
     "task_waiting": "Naghihintay ng sagot ng may-ari ng kahilingan",
     "professions_areas": "Aking mga trabaho at lugar"
   },
@@ -2694,7 +2694,11 @@
   "manage": {
     "title": "Pamahalaan",
     "active": "Aktibo",
-    "archive": "Archive"
+    "archive": "Archive",
+    "active_requests": "Mga aktibo kong request",
+    "archive_requests": "Archive ng mga request ko",
+    "active_tasks": "Mga aktibo kong trabaho",
+    "archive_tasks": "Archive ng mga trabaho ko"
   },
   "directory": {
     "save": "I-save sa Aking direktoryo",

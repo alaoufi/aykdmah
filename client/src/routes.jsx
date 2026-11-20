@@ -125,7 +125,7 @@ const CLIENT_SIDEBAR = [
 ];
 
 const PROVIDER_SIDEBAR = [
-  { to: '/provider', icon: '📊', labelKey: 'nav.dashboard', end: true },
+  { to: '/provider', icon: '📊', labelKey: 'nav.home', end: true },
   { to: '/provider/tasks', icon: '🧰', labelKey: 'work.tasks_title' },
   { to: '/opportunities', icon: '🔍', labelKey: 'work.requests_nav' },
   { to: '/provider/subscription', icon: '⭐', labelKey: 'nav.subscription' },

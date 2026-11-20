@@ -45,12 +45,12 @@
     "login": "Sign In",
     "register": "Sign Up",
     "logout": "Sign Out",
-    "profile": "My Profile",
+    "profile": "My account",
     "my_requests": "My Requests",
     "my_offers": "My Offers",
     "notifications": "Notifications",
     "chat": "Messages",
-    "dashboard": "Dashboard",
+    "dashboard": "Admin Panel",
     "admin": "Admin Panel",
     "settings": "Settings",
     "subscription": "Subscription",
@@ -131,7 +131,7 @@
       "urgent_open": "Urgent requests awaiting offers",
       "updated_at": "Last refresh: {{time}}"
     },
-    "browse_by_category": "Browse by category",
+    "browse_by_category": "Browse by profession",
     "what_do_you_need": "What do you need today?",
     "how_it_works": "How it works",
     "step_1_title": "Post your request",
@@ -336,7 +336,7 @@
     "title_ph": "e.g. Split AC maintenance",
     "description": "Description",
     "description_ph": "Write a clear description of the service you need",
-    "category": "Category",
+    "category": "Profession",
     "service": "Service",
     "subservice": "Sub-service",
     "address_ph": "e.g. Al Olaya district, Prince Sultan St.",
@@ -476,7 +476,7 @@
     "home": "Home services"
   },
   "profile": {
-    "title": "My Profile",
+    "title": "My account",
     "update_profile": "Profile updated",
     "update_provider": "Provider profile updated",
     "business_name": "Business name",
@@ -1346,7 +1346,7 @@
     "browse_services": "Browse services",
     "categories_title": "Service categories",
     "popular_title": "Service types",
-    "featured_categories": "Top categories",
+    "featured_categories": "Top professions",
     "services_available": "{{count}} service types",
     "price_from": "Estimated price from",
     "duration": "Duration",
@@ -1986,8 +1986,8 @@
     "distance_km": "{{value}} km",
     "providers_title": "Nearby service providers",
     "providers_subtitle": "Distances are approximate straight lines, not road distance.",
-    "filter_category": "Category",
-    "all_categories": "All categories",
+    "filter_category": "Profession",
+    "all_categories": "All professions",
     "filter_radius": "Distance range",
     "within_km": "Within {{value}} km",
     "choose_origin": "Use your location or pick a point on the map to see nearby providers.",
@@ -2539,7 +2539,7 @@
     "my_contacts_title": "Requests you contacted",
     "assigned_to_you": "Assigned to you: open it to finish or withdraw",
     "tasks_title": "My professional tasks",
-    "tasks_hint": "Requests you contacted or were assigned. Active ones need you now; the archive keeps what ended or was cancelled.",
+    "tasks_hint": "Requests you contacted or were assigned. “My active jobs” need you now; “My jobs archive” keeps what ended or was cancelled.",
     "task_waiting": "Waiting for the requester",
     "professions_areas": "My professions & areas"
   },
@@ -2694,7 +2694,11 @@
   "manage": {
     "title": "Manage",
     "active": "Active",
-    "archive": "Archive"
+    "archive": "Archive",
+    "active_requests": "My active requests",
+    "archive_requests": "My requests archive",
+    "active_tasks": "My active jobs",
+    "archive_tasks": "My jobs archive"
   },
   "directory": {
     "save": "Save to My directory",

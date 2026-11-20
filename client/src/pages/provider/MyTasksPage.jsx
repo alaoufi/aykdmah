@@ -45,7 +45,7 @@ export default function MyTasksPage() {
         {['active', 'archive'].map(v => (
           <button key={v} type="button" data-testid={`tab-${v}`} className={scope === v ? 'active' : ''}
             onClick={() => setParams(v === 'archive' ? { tab: 'archive' } : {}, { replace: true })}>
-            {v === 'active' ? `🟢 ${t('manage.active')}` : `🗄️ ${t('manage.archive')}`}
+            {v === 'active' ? `🟢 ${t('manage.active_tasks')}` : `🗄️ ${t('manage.archive_tasks')}`}
           </button>
         ))}
       </div>

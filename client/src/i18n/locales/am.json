@@ -45,12 +45,12 @@
     "login": "ይግቡ",
     "register": "ይመዝገቡ",
     "logout": "ይውጡ",
-    "profile": "የእኔ መገለጫ",
+    "profile": "የእኔ መለያ",
     "my_requests": "ጥያቄዎቼ",
     "my_offers": "ቅናሾቼ",
     "notifications": "ማሳወቂያዎች",
     "chat": "መልዕክቶች",
-    "dashboard": "ዳሽቦርድ",
+    "dashboard": "የአስተዳዳሪ ፓነል",
     "admin": "የአስተዳዳሪ ፓነል",
     "settings": "ቅንብሮች",
     "subscription": "ደንበኝነት",
@@ -131,7 +131,7 @@
       "urgent_open": "ቅናሽ የሚጠብቁ አስቸኳይ ጥያቄዎች",
       "updated_at": "መጨረሻ የታደሰው፦ {{time}}"
     },
-    "browse_by_category": "በምድብ ያስሱ",
+    "browse_by_category": "በሙያ ያስሱ",
     "what_do_you_need": "ዛሬ ምን ያስፈልግዎታል?",
     "how_it_works": "መድረኩ እንዴት ይሠራል?",
     "step_1_title": "ጥያቄዎን ይለጥፉ",
@@ -336,7 +336,7 @@
     "title_ph": "ለምሳሌ፦ የስፕሊት ኤሲ ጥገና",
     "description": "መግለጫ",
     "description_ph": "የሚፈልጉትን አገልግሎት በግልጽ ይግለጹ",
-    "category": "ምድብ",
+    "category": "ሙያ",
     "service": "አገልግሎት",
     "subservice": "ንዑስ አገልግሎት",
     "address_ph": "ለምሳሌ፦ አል ኡለያ ሰፈር፣ የልዑል ሱልጣን መንገድ",
@@ -476,7 +476,7 @@
     "home": "የቤት ውስጥ አገልግሎቶች"
   },
   "profile": {
-    "title": "የእኔ መገለጫ",
+    "title": "የእኔ መለያ",
     "update_profile": "መገለጫ ተዘምኗል",
     "update_provider": "የአገልግሎት መገለጫ ተዘምኗል",
     "business_name": "የንግድ ስም",
@@ -1346,7 +1346,7 @@
     "browse_services": "አገልግሎቶችን ያስሱ",
     "categories_title": "የአገልግሎት ምድቦች",
     "popular_title": "የአገልግሎት ዓይነቶች",
-    "featured_categories": "ዋና ዋና ምድቦች",
+    "featured_categories": "ዋና ሙያዎች",
     "services_available": "{{count}} የአገልግሎት ዓይነቶች",
     "price_from": "የሚገመት ዋጋ ከ",
     "duration": "የሥራ ጊዜ",
@@ -1986,8 +1986,8 @@
     "distance_km": "{{value}} ኪሜ",
     "providers_title": "በአቅራቢያ ያሉ አገልግሎት አቅራቢዎች",
     "providers_subtitle": "ርቀቶቹ ግምታዊ ቀጥተኛ መስመር ናቸው እንጂ የመንገድ ርቀት አይደሉም።",
-    "filter_category": "ምድብ",
-    "all_categories": "ሁሉም ምድቦች",
+    "filter_category": "ሙያ",
+    "all_categories": "ሁሉም ሙያዎች",
     "filter_radius": "የርቀት ክልል",
     "within_km": "በ{{value}} ኪሜ ውስጥ",
     "choose_origin": "በአቅራቢያዎ ያሉ አገልግሎት አቅራቢዎችን ለማየት ቦታዎን ይወስኑ ወይም በካርታው ላይ አንድ ነጥብ ይምረጡ።",
@@ -2539,7 +2539,7 @@
     "my_contacts_title": "ያነጋገሯቸው ጥያቄዎች",
     "assigned_to_you": "ለእርስዎ የተሰጠ፦ ለማጠናቀቅ ወይም ለመውጣት ይክፈቱት",
     "tasks_title": "የሙያ ሥራዎቼ",
-    "tasks_hint": "ያነጋገሯቸው ወይም የተሰጡዎት ጥያቄዎች። ንቁዎቹ አሁን ይፈልጉዎታል፤ ማህደሩ ያለቁትንና የተሰረዙትን ይይዛል።",
+    "tasks_hint": "ያገኟቸው ወይም የተመደቡልዎ ጥያቄዎች። «ንቁ ሥራዎቼ» አሁን ይፈልጉዎታል፤ «የሥራዎቼ ማህደር» ያለቁትን ወይም የተሰረዙትን ይይዛል።",
     "task_waiting": "የጥያቄውን ባለቤት ምላሽ በመጠበቅ ላይ",
     "professions_areas": "ሙያዎቼ እና አካባቢዎቼ"
   },
@@ -2694,7 +2694,11 @@
   "manage": {
     "title": "ማስተዳደር",
     "active": "ንቁ",
-    "archive": "ማህደር"
+    "archive": "ማህደር",
+    "active_requests": "ንቁ ጥያቄዎቼ",
+    "archive_requests": "የጥያቄዎቼ ማህደር",
+    "active_tasks": "ንቁ ሥራዎቼ",
+    "archive_tasks": "የሥራዎቼ ማህደር"
   },
   "directory": {
     "save": "በማውጫዬ ያስቀምጡ",

@@ -45,12 +45,12 @@
     "login": "Giriş",
     "register": "Hesap oluştur",
     "logout": "Çıkış",
-    "profile": "Profilim",
+    "profile": "Hesabım",
     "my_requests": "Taleplerim",
     "my_offers": "Tekliflerim",
     "notifications": "Bildirimler",
     "chat": "Sohbetler",
-    "dashboard": "Kontrol paneli",
+    "dashboard": "Yönetim paneli",
     "admin": "Yönetim paneli",
     "settings": "Ayarlar",
     "subscription": "Abonelik",
@@ -131,7 +131,7 @@
       "urgent_open": "Teklif bekleyen acil talep",
       "updated_at": "Son güncelleme: {{time}}"
     },
-    "browse_by_category": "Kategoriye göre göz atın",
+    "browse_by_category": "Mesleğe göre göz atın",
     "what_do_you_need": "Bugün neye ihtiyacınız var?",
     "how_it_works": "Platform nasıl çalışır?",
     "step_1_title": "Hizmet talep edin",
@@ -336,7 +336,7 @@
     "title_ph": "Örnek: Split klima bakımı",
     "description": "Açıklama",
     "description_ph": "İstediğiniz hizmeti açıkça anlatın",
-    "category": "Kategori",
+    "category": "Meslek",
     "service": "Hizmet",
     "subservice": "Alt hizmet",
     "address_ph": "Örnek: Olaya Mahallesi, Emir Sultan Caddesi",
@@ -476,7 +476,7 @@
     "home": "Ev hizmetleri"
   },
   "profile": {
-    "title": "Profilim",
+    "title": "Hesabım",
     "update_profile": "Profil güncellendi",
     "update_provider": "Hizmet profili güncellendi",
     "business_name": "İşletme adı",
@@ -1346,7 +1346,7 @@
     "browse_services": "Hizmetlere göz atın",
     "categories_title": "Hizmet kategorileri",
     "popular_title": "Hizmet türleri",
-    "featured_categories": "Öne çıkan kategoriler",
+    "featured_categories": "Öne çıkan meslekler",
     "services_available": "{{count}} hizmet türü",
     "price_from": "Tahmini fiyat, başlangıç:",
     "duration": "İş süresi",
@@ -1986,8 +1986,8 @@
     "distance_km": "{{value}} km",
     "providers_title": "Yakındaki hizmet verenler",
     "providers_subtitle": "Mesafeler yaklaşık kuş uçuşudur, yol mesafesi değildir.",
-    "filter_category": "Kategori",
-    "all_categories": "Tüm kategoriler",
+    "filter_category": "Meslek",
+    "all_categories": "Tüm meslekler",
     "filter_radius": "Mesafe aralığı",
     "within_km": "{{value}} km içinde",
     "choose_origin": "Yakındaki hizmet verenleri görmek için konumunuzu belirleyin veya haritada bir nokta seçin.",
@@ -2539,7 +2539,7 @@
     "my_contacts_title": "İletişime geçtiğiniz talepler",
     "assigned_to_you": "Size atandı: bitirmek ya da çekilmek için açın",
     "tasks_title": "Mesleki işlerim",
-    "tasks_hint": "İletişime geçtiğiniz veya size atanan talepler. Aktif olanlar şimdi sizi bekliyor; arşivde biten ya da iptal edilenler var.",
+    "tasks_hint": "İletişime geçtiğiniz veya size atanan talepler. «Aktif işlerim» şimdi sizi bekliyor; «İş arşivim» biten ya da iptal edilenleri tutar.",
     "task_waiting": "Talep sahibinin yanıtı bekleniyor",
     "professions_areas": "Mesleklerim ve bölgelerim"
   },
@@ -2694,7 +2694,11 @@
   "manage": {
     "title": "Yönetim",
     "active": "Aktif",
-    "archive": "Arşiv"
+    "archive": "Arşiv",
+    "active_requests": "Aktif taleplerim",
+    "archive_requests": "Talep arşivim",
+    "active_tasks": "Aktif işlerim",
+    "archive_tasks": "İş arşivim"
   },
   "directory": {
     "save": "Rehberime kaydet",

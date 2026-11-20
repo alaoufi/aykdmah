@@ -274,8 +274,8 @@ export default function Header() {
                   <div key={g.key} className="mb-1.5 last:mb-0 p-2 rounded-card bg-surface" data-testid={`menu-manage-${g.key}`}>
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-fg flex-1 text-[15px]">{g.icon} {g.label}</span>
-                      <Link to={g.to} onClick={() => setMobileOpen(false)} className="px-3 py-1.5 rounded-pill bg-primary text-white text-[13px] font-semibold no-underline">{t('manage.active')}</Link>
-                      <Link to={`${g.to}?tab=archive`} onClick={() => setMobileOpen(false)} className="px-3 py-1.5 rounded-pill bg-surface-alt text-[13px] font-semibold text-fg no-underline">🗄️ {t('manage.archive')}</Link>
+                      <Link to={g.to} onClick={() => setMobileOpen(false)} className="px-3 py-1.5 rounded-pill bg-primary text-white text-[13px] font-semibold no-underline">{t(g.key === 'requests' ? 'manage.active_requests' : 'manage.active_tasks')}</Link>
+                      <Link to={`${g.to}?tab=archive`} onClick={() => setMobileOpen(false)} className="px-3 py-1.5 rounded-pill bg-surface-alt text-[13px] font-semibold text-fg no-underline">🗄️ {t(g.key === 'requests' ? 'manage.archive_requests' : 'manage.archive_tasks')}</Link>
                     </div>
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       {g.extra.map(x => (x.invite && user.referral_code ? (

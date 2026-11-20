@@ -45,12 +45,12 @@
     "login": "Masuk",
     "register": "Daftar",
     "logout": "Keluar",
-    "profile": "Profil saya",
+    "profile": "Akun saya",
     "my_requests": "Permintaan saya",
     "my_offers": "Penawaran saya",
     "notifications": "Pemberitahuan",
     "chat": "Pesan",
-    "dashboard": "Dasbor",
+    "dashboard": "Panel Admin",
     "admin": "Panel Admin",
     "settings": "Pengaturan",
     "subscription": "Langganan",
@@ -131,7 +131,7 @@
       "urgent_open": "Permintaan mendesak menunggu penawaran",
       "updated_at": "Pembaruan terakhir: {{time}}"
     },
-    "browse_by_category": "Telusuri menurut kategori",
+    "browse_by_category": "Telusuri menurut profesi",
     "what_do_you_need": "Apa yang Anda butuhkan hari ini?",
     "how_it_works": "Cara kerjanya",
     "step_1_title": "Kirim permintaan Anda",
@@ -336,7 +336,7 @@
     "title_ph": "Contoh: servis AC split",
     "description": "Deskripsi",
     "description_ph": "Tuliskan deskripsi yang jelas tentang layanan yang Anda butuhkan",
-    "category": "Kategori",
+    "category": "Profesi",
     "service": "Layanan",
     "subservice": "Sub-layanan",
     "address_ph": "Contoh: lingkungan Al Olaya, Jalan Pangeran Sultan",
@@ -476,7 +476,7 @@
     "home": "Layanan rumah tangga"
   },
   "profile": {
-    "title": "Profil saya",
+    "title": "Akun saya",
     "update_profile": "Profil diperbarui",
     "update_provider": "Profil layanan diperbarui",
     "business_name": "Nama usaha",
@@ -1346,7 +1346,7 @@
     "browse_services": "Lihat layanan",
     "categories_title": "Kategori layanan",
     "popular_title": "Jenis layanan",
-    "featured_categories": "Kategori utama",
+    "featured_categories": "Profesi unggulan",
     "services_available": "{{count}} jenis layanan",
     "price_from": "Perkiraan harga dari",
     "duration": "Lama pengerjaan",
@@ -1986,8 +1986,8 @@
     "distance_km": "{{value}} km",
     "providers_title": "Penyedia layanan terdekat",
     "providers_subtitle": "Jarak dihitung kira-kira dalam garis lurus, bukan jarak jalan.",
-    "filter_category": "Kategori",
-    "all_categories": "Semua kategori",
+    "filter_category": "Profesi",
+    "all_categories": "Semua profesi",
     "filter_radius": "Jangkauan jarak",
     "within_km": "Dalam {{value}} km",
     "choose_origin": "Tentukan lokasi Anda atau pilih titik di peta untuk melihat penyedia layanan terdekat.",
@@ -2539,7 +2539,7 @@
     "my_contacts_title": "Permintaan yang sudah Anda hubungi",
     "assigned_to_you": "Ditugaskan kepada Anda: buka untuk menyelesaikan atau mundur",
     "tasks_title": "Tugas kerja saya",
-    "tasks_hint": "Permintaan yang Anda hubungi atau ditugaskan kepada Anda. Yang aktif membutuhkan Anda sekarang; arsip menyimpan yang selesai atau dibatalkan.",
+    "tasks_hint": "Permintaan yang Anda hubungi atau ditugaskan kepada Anda. «Pekerjaan aktif saya» membutuhkan Anda sekarang; «Arsip pekerjaan saya» menyimpan yang selesai atau dibatalkan.",
     "task_waiting": "Menunggu balasan pemilik permintaan",
     "professions_areas": "Profesi & wilayah saya"
   },
@@ -2694,7 +2694,11 @@
   "manage": {
     "title": "Kelola",
     "active": "Aktif",
-    "archive": "Arsip"
+    "archive": "Arsip",
+    "active_requests": "Permintaan aktif saya",
+    "archive_requests": "Arsip permintaan saya",
+    "active_tasks": "Pekerjaan aktif saya",
+    "archive_tasks": "Arsip pekerjaan saya"
   },
   "directory": {
     "save": "Simpan ke Direktori saya",
