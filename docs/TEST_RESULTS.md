@@ -1516,3 +1516,9 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Server unit tests 86 pass. Integration: the first full run had 4 failures in the wallet tests (not touched by this change); the second full run, unchanged, passed 277 of 277. The cause of the first run's failures was not found; the browser measurements were running on the same machine at the time.
 - `check-deploy` 22 ok.
 - Not done here, the owner's own step: Google takes no IndexNow. The site must be added in Google Search Console (and Bing Webmaster Tools) with the owner's account; the ownership code goes in the admin settings (`google_site_verification`, `bing_site_verification`), then the sitemap is submitted there.
+- AYK-336 measured on the live site at the release of 1.1.84 (phone size, 4 Mbit, 150 ms, 3× slower processor, from the test machine):
+  - a copy saved from 1.1.81 (the old way): the page showed after **15.4 s**;
+  - a copy saved from 1.1.83 (the new way): **9.0 s** in the first minute after the release, while the server was still restarting, and **2.4 s** a minute later (a second, separate copy);
+  - each ended on the new version with one reload.
+- AYK-337 on the live site (1.1.84): the electricity page carries its own search words; the key file is served; `scripts/indexnow.js` sent the 1030 sitemap pages: the first try was refused (403, the key had just been published), the second answered 200. Bing and Yandex each answered a single-page notice with 200 and 202.
+- Not verified: whether and when each engine lists the pages; that is theirs to decide and takes days.
