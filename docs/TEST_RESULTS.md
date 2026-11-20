@@ -1563,3 +1563,10 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Browser check (local site, phone size, normal and high contrast): the arrow drawn on the home list and on the six lists of the services page (English, left-to-right); tapping «كل المهن» moves the fill to it; «متواجد الآن» shows 0 cards and the note, «مقدم خدمة قريب منك» brings the card back; on `/profile`, `/client`, `/requests/new`, `/providers/1` and `/directory` only true text links are underlined (one rating link); no page errors. Screenshots reviewed.
 - Client tests 166 pass; `i18n:check` 2625 keys; build and `check-deploy` 22 ok.
 - Not checked: every admin page; a real phone.
+- AYK-340 deployed as 1.1.86 (build 3527cf5).
+
+## 2026-11-20 — AYK-341: the site's footer
+- The owner's screenshot: «في الويب احذف الشعار من الفوتر وأضف تحميل التطبيقات، ورتّب الروابط وقرّب الأسطر، واجعلها أكثر من عمود».
+- Now: no logo in the footer (it stays in the top bar); the Google Play and App Store badges are in the footer (on the website only, as before not inside the apps), and the separate box on the home page is gone so they are not shown twice; the three link groups stand side by side on the phone too, with the lines closer; «الشروط والأحكام» and «سياسة الخصوصية», listed twice, now once.
+- Browser check (local site): phone 390 px and desktop 1280 px: no image in the footer, the badges in it, three columns side by side; opened as the Android app (`?app=1.3.10&src=play`): no badges anywhere; no page errors. Screenshots reviewed.
+- Client tests 166 pass; build and `check-deploy` 22 ok.
