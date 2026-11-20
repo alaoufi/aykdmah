@@ -7,6 +7,7 @@ import { canRequestService } from '../../utils/canRequest';
 import { useNotifications } from '../../hooks/useNotifications';
 import Avatar from '../common/Avatar';
 import LanguageSwitcher from '../common/LanguageSwitcher';
+import ShareMenu from '../common/ShareMenu';
 import ThemeSwitcher from '../common/ThemeSwitcher';
 import BrandLogo from '../common/BrandLogo';
 import { IconMenu, IconBell, IconClose } from '../common/Icons';
@@ -87,6 +88,9 @@ export default function Header() {
         <div className="flex-1 max-xl:order-4" />
 
         {/* Mobile controls cluster — sits on the END edge */}
+        {/* AYK-382: share the site (WhatsApp, Telegram, Facebook, X, TikTok, link, QR). */}
+        <ShareMenu variant="icon" url={`${window.location.origin}/`} title={t('common.brand')} text={t('share.site_text')}
+          label={t('share.site')} className="max-xl:order-3" testId="share-site" />
         <ThemeSwitcher variant="compact" className="md:hidden max-xl:order-3" />
         <LanguageSwitcher variant="compact" className="md:hidden max-xl:order-3" />
         {/* The notifications bell on phones too: its count is not the chats count. */}

@@ -2932,5 +2932,23 @@
     "covers": "Hizmet bölgesi: {{city}}",
     "all_districts": "Tüm mahalleler",
     "more_districts": "ve {{count}} tane daha"
+  },
+  "share": {
+    "title": "Paylaş",
+    "site": "Siteyi paylaş",
+    "site_text": "Ay Khidma: yakınınızdaki her hizmeti isteyin, mahallenizdeki hizmet verenlere kolayca ulaşın.",
+    "native": "Paylaş (görsel, bağlantı)",
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram",
+    "facebook": "Facebook",
+    "x": "X / Twitter",
+    "tiktok": "TikTok",
+    "tiktok_hint": "(bağlantı kopyalanır)",
+    "tiktok_copied": "Bağlantı kopyalandı, TikTok’a yapıştırın",
+    "copy": "Bağlantıyı kopyala",
+    "copied": "Bağlantı kopyalandı",
+    "qr": "QR kodu",
+    "qr_hint": "Bağlantıyı açmak için kodu telefon kamerasıyla okutun",
+    "qr_save": "Görseli kaydet"
   }
 }

@@ -2932,5 +2932,23 @@
     "covers": "Covers: {{city}}",
     "all_districts": "All neighborhoods",
     "more_districts": "and {{count}} more"
+  },
+  "share": {
+    "title": "Share",
+    "site": "Share the site",
+    "site_text": "Ay Khidma: request any service near you and reach the providers in your neighbourhood easily.",
+    "native": "Share (image, link)",
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram",
+    "facebook": "Facebook",
+    "x": "X / Twitter",
+    "tiktok": "TikTok",
+    "tiktok_hint": "(link is copied)",
+    "tiktok_copied": "Link copied, paste it in TikTok",
+    "copy": "Copy link",
+    "copied": "Link copied",
+    "qr": "QR code",
+    "qr_hint": "Scan the code with a phone camera to open the link",
+    "qr_save": "Save image"
   }
 }

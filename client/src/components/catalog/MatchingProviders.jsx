@@ -15,6 +15,8 @@ import { isPresent, ProviderStatus } from '../common/AvailabilityBadge';
 import { optionLabel } from '../../utils/optionLabel';
 import ExpandableText from '../common/ExpandableText';
 import ContactMenu from '../providers/ContactMenu';
+import ShareMenu from '../common/ShareMenu';
+import { providerLink } from '../providers/ShareProviderLink';
 
 // Providers who serve the signed-in requester's registered district in a profession
 // (AYK-035): every provider covering that district, featured (paid) first, then by
@@ -248,6 +250,7 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
           {requester && !saved && (<button type="button" className="btn btn-outline btn-sm" disabled={busy} data-testid="save-provider"
               onClick={() => run(() => onToggleSaved(p.id))}>📇 {t('requester.add_directory')}</button>)}
           <Link to={`/providers/${p.id}`} className="btn btn-outline btn-sm">👤 {t('for_you.view_profile')}</Link>
+          <ShareMenu url={providerLink(p.id)} title={p.business_name || p.full_name} text={t('share_provider.message', { name: p.business_name || p.full_name })} testId="card-share" />
         </div>
         <BlockedNotice message={problem} otherId={p.id} onUnblocked={() => setProblem('')} />
       </div>

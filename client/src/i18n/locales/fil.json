@@ -2932,5 +2932,23 @@
     "covers": "Sakop: {{city}}",
     "all_districts": "Lahat ng kapitbahayan",
     "more_districts": "at {{count}} pa"
+  },
+  "share": {
+    "title": "Ibahagi",
+    "site": "Ibahagi ang site",
+    "site_text": "Ay Khidma: humiling ng anumang serbisyo malapit sa iyo at madaling makipag-ugnayan sa mga provider sa inyong lugar.",
+    "native": "Ibahagi (larawan, link)",
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram",
+    "facebook": "Facebook",
+    "x": "X / Twitter",
+    "tiktok": "TikTok",
+    "tiktok_hint": "(kokopyahin ang link)",
+    "tiktok_copied": "Nakopya ang link, i-paste ito sa TikTok",
+    "copy": "Kopyahin ang link",
+    "copied": "Nakopya ang link",
+    "qr": "QR code",
+    "qr_hint": "I-scan ang code gamit ang camera ng telepono para buksan ang link",
+    "qr_save": "I-save ang larawan"
   }
 }

@@ -2932,5 +2932,23 @@
     "covers": "Wilayah: {{city}}",
     "all_districts": "Semua lingkungan",
     "more_districts": "dan {{count}} lainnya"
+  },
+  "share": {
+    "title": "Bagikan",
+    "site": "Bagikan situs",
+    "site_text": "Ay Khidma: minta layanan apa pun di dekat Anda dan hubungi penyedia di lingkungan Anda dengan mudah.",
+    "native": "Bagikan (gambar, tautan)",
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram",
+    "facebook": "Facebook",
+    "x": "X / Twitter",
+    "tiktok": "TikTok",
+    "tiktok_hint": "(tautan disalin)",
+    "tiktok_copied": "Tautan disalin, tempel di TikTok",
+    "copy": "Salin tautan",
+    "copied": "Tautan disalin",
+    "qr": "Kode QR",
+    "qr_hint": "Pindai kode dengan kamera ponsel untuk membuka tautan",
+    "qr_save": "Simpan gambar"
   }
 }

@@ -11,7 +11,8 @@ import api, { apiError } from '../services/api';
 import BaseTileLayer from '../components/map/BaseTileLayer';
 import Avatar from '../components/common/Avatar';
 import AvailabilityBadge, { PresenceTag, WeekSchedule } from '../components/common/AvailabilityBadge';
-import ShareProviderLink, { DirectoryButton } from '../components/providers/ShareProviderLink';
+import { DirectoryButton, providerLink } from '../components/providers/ShareProviderLink';
+import ShareMenu from '../components/common/ShareMenu';
 import StarRating from '../components/reviews/StarRating';
 import ReviewCard from '../components/reviews/ReviewCard';
 import TrustSummary from '../components/reviews/TrustSummary';
@@ -124,14 +125,8 @@ export default function ProviderProfilePage() {
           {!self && <ContactMenu phone={provider.public_phone} whatsapp={provider.public_whatsapp} busy={chatting} testId="provider-contact-menu"
             onChat={startChat} />}
           <DirectoryButton providerId={user.id} name={name} onNote={setNote} />
-          <details className="group" data-testid="provider-share-menu">
-            <summary className="px-3 py-2 rounded-pill text-[13px] bg-surface-alt border border-border font-bold list-none cursor-pointer select-none">
-              🔗 {t('share_provider.share')} <span className="transition-transform group-open:rotate-180 inline-block">▾</span>
-            </summary>
-            <div className="mt-2 p-3 rounded-card bg-surface border border-border min-w-[240px]">
-              <ShareProviderLink providerId={user.id} name={name} bare />
-            </div>
-          </details>
+          {/* AYK-382: share this provider: WhatsApp, Telegram, Facebook, X, TikTok, link, QR. */}
+          <ShareMenu url={providerLink(user.id)} title={name} text={t('share_provider.message', { name })} testId="provider-share-menu" />
         </div>
         {note && <p role="status" className="text-[12.5px] text-fg-muted m-0">{note}</p>}
       </section>
