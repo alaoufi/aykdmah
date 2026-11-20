@@ -804,13 +804,10 @@ const assignSpecialNumber = asyncHandler(async (req, res) => {
     if (target.referral_code === code) return { status: 200, code };
     const [holders] = await conn.execute('SELECT id FROM users WHERE referral_code = ? AND id <> ? FOR UPDATE', [code, id]);
     if (holders.length) return { status: 409 };
-    // The previous number keeps reaching this account (links already shared); a special one is
-    // freed instead, for the administration to give again.
+    // The owner's rule: the previous number is freed, back in the pool for new accounts, with no tie
+    // to this account (its chats, requests and wallet belong to the account, not to the number).
     const previous = target.referral_code;
-    await conn.execute('DELETE FROM account_number_aliases WHERE code = ?', [code]);
-    if (previous && !/^(\d)\1+$/.test(previous)) {
-      await conn.execute('INSERT INTO account_number_aliases (code, user_id) VALUES (?, ?) ON CONFLICT (code) DO UPDATE SET user_id = EXCLUDED.user_id', [previous, id]);
-    }
+    await conn.execute('DELETE FROM account_number_aliases WHERE code = ? OR user_id = ?', [code, id]);
     await conn.execute('UPDATE users SET referral_code = ? WHERE id = ?', [code, id]);
     await conn.execute(`INSERT INTO activity_logs (user_id, action, entity_type, entity_id, description) VALUES (?, 'admin.number.assign', 'user', ?, ?)`,
       [req.user.id, id, `${previous || '-'} -> ${code}`]);

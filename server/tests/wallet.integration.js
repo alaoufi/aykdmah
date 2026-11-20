@@ -256,8 +256,8 @@ if (!databasePrefix) {
   });
 
   // AYK-357: special numbers (one repeated digit) are given only by the administration; the account's
-  // previous number keeps reaching it; nothing else can be given this way.
-  test('special numbers: never automatic, given by the administration, the previous number still works', async () => {
+  // previous number is freed; nothing else can be given this way.
+  test('special numbers: never automatic, given by the administration, the previous number freed', async () => {
     assert.ok(!wallet.isSpecialNumber('27') && wallet.isSpecialNumber('44') && wallet.isSpecialNumber('777'));
     const a = await makeUser('specialone', 'client');
     const b = await makeUser('specialtwo', 'client');
@@ -272,10 +272,10 @@ if (!databasePrefix) {
     assert.equal((await api(`/admin/users/${b.id}/number`, { user: users.boss, method: 'PUT', body: { number: '44' } })).status, 409, 'taken');
     const list = (await api('/admin/special-numbers', { user: users.boss })).body.data.numbers;
     assert.equal(list.find(n => n.code === '44').free, false);
-    // The previous number still invites to this account.
+    // The owner's rule: the previous number is freed: it no longer reaches this account.
     const reg = await api('/auth/register', { method: 'POST', body: { full_name: 'Via Old Number', username: 'viaoldnumber', password: 'abcd', role: 'client', referral_code: before } });
-    assert.equal(reg.status, 201, reg.body?.message);
-    assert.equal(Number((await db.queryOne('SELECT referred_by FROM users WHERE username = ?', ['viaoldnumber'])).referred_by), a.id);
+    assert.equal(reg.body.message, 'coupon_not_found');
+    assert.equal(Number((await db.queryOne('SELECT COUNT(*) AS n FROM account_number_aliases')).n), 0);
   });
 
   test('admin controls need the wallets permission; adjustments need a reason and cannot overdraw', async () => {

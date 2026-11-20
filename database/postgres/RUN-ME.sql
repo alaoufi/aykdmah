@@ -6716,6 +6716,10 @@ UPDATE users SET referral_code = '22'
  WHERE referral_code = '54' AND role = 'admin' AND NOT EXISTS (SELECT 1 FROM users WHERE referral_code = '22');
 INSERT INTO schema_migrations(name) VALUES ('097_special_numbers.sql');
 
+-- migrations/098_free_previous_numbers.sql
+DELETE FROM account_number_aliases;
+INSERT INTO schema_migrations(name) VALUES ('098_free_previous_numbers.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

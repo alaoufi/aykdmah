@@ -20,7 +20,7 @@ export default function SpecialNumberPicker({ user, onChanged }) {
     try {
       const done = await adminAssignSpecialNumber(user.id, choice);
       setCurrent(done.referral_code);
-      setNote(`تم: رقمه الآن ${done.referral_code}${done.previous ? `، ورقمه السابق ${done.previous} ما زال يوصل إليه` : ''}.`);
+      setNote(`تم: رقمه الآن ${done.referral_code}${done.previous ? `، ورقمه السابق ${done.previous} صار متاحًا للحسابات الجديدة` : ''}. محادثاته وطلباته ومحفظته معه كما هي.`);
       setNumbers(list => (list || []).map(n => (n.code === done.referral_code ? { ...n, free: false } : n.code === done.previous ? { ...n, free: true } : n)));
       setChoice('');
       onChanged?.();
@@ -29,7 +29,7 @@ export default function SpecialNumberPicker({ user, onChanged }) {
   return (
     <div className="mt-3 p-3 rounded-card border border-slate-200 bg-slate-50" data-testid="special-number">
       <div className="text-[13px] font-bold text-ink mb-1">🔢 الرقم المميز</div>
-      <div className="text-[12.5px] text-slate-600 mb-2">رقمه الحالي: <b dir="ltr">{current || '-'}</b>. يمكن نقله إلى رقم مميز فقط (رقم مكرر مثل 11 أو 222).</div>
+      <div className="text-[12.5px] text-slate-600 mb-2">رقمه الحالي: <b dir="ltr">{current || '-'}</b>. يمكن نقله إلى رقم مميز فقط (رقمان متشابهان من 11 إلى 99، أو ثلاثة من 111 إلى 999). رقمه الحالي يتحرر بعد النقل.</div>
       <div className="flex gap-2">
         <select className="flex-1" value={choice} onChange={e => setChoice(e.target.value)} disabled={busy || numbers === null} aria-label="رقم مميز">
           <option value="">{numbers === null ? 'جارٍ التحميل…' : free.length ? 'اختر رقمًا متاحًا' : 'لا توجد أرقام مميزة متاحة'}</option>
