@@ -772,7 +772,13 @@
     "coverage_all": "सबै",
     "coverage_clear": "सबै हटाउनुहोस्",
     "coverage_count": "छानिएका टोल: {{count}}",
-    "coverage_required": "कम्तीमा एक टोल छान्नुहोस्।"
+    "coverage_required": "कम्तीमा एक टोल छान्नुहोस्।",
+    "services_description": "सेवाहरूको विवरण",
+    "services_description_mine": "मेरा सेवाहरूको विवरण",
+    "services_description_hint": "तपाईं के दिनुहुन्छ, अनुभव र विशेषता लेख्नुहोस्, जस्तै: बिजुली वायरिङ, एसी मर्मत, कामको ग्यारेन्टी…",
+    "show_more": "थप हेर्नुहोस्",
+    "show_less": "कम हेर्नुहोस्",
+    "show_translation": "अनुवाद हेर्नुहोस्"
   },
   "review": {
     "rate_provider": "सेवा प्रदायकलाई रेटिङ दिनुहोस्",

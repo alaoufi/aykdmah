@@ -62,9 +62,11 @@ const TABLES = {
   districts: [['name_ar', 'name_translations']],
   subscription_plans: [['name_ar', 'name_translations'], ['description', 'description_translations']],
   ads: [['title', 'title_translations'], ['description', 'description_translations']],
+  // AYK-377: the provider's description of their services, written in any language.
+  provider_profiles: [['bio', 'bio_translations']],
 };
 
-const SOURCE_DETECTED = new Set(['ads']);
+const SOURCE_DETECTED = new Set(['ads', 'provider_profiles']);
 const pending = new Map();
 // Translates one saved row into every language. Safe to call without waiting (never throws).
 function translateRow(table, id) {

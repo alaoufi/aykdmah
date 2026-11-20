@@ -772,7 +772,13 @@
     "coverage_all": "Semua lingkungan",
     "coverage_clear": "Hapus semua",
     "coverage_count": "Lingkungan dipilih: {{count}}",
-    "coverage_required": "Pilih minimal satu lingkungan."
+    "coverage_required": "Pilih minimal satu lingkungan.",
+    "services_description": "Deskripsi layanan",
+    "services_description_mine": "Deskripsi layanan saya",
+    "services_description_hint": "Tulis apa yang Anda tawarkan, pengalaman dan keunggulan Anda, mis.: instalasi listrik, perawatan AC, garansi pekerjaan…",
+    "show_more": "Tampilkan lebih",
+    "show_less": "Tampilkan lebih sedikit",
+    "show_translation": "Tampilkan terjemahan"
   },
   "review": {
     "rate_provider": "Beri penilaian penyedia layanan",

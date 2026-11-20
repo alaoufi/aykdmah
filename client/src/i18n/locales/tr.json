@@ -772,7 +772,13 @@
     "coverage_all": "Tüm mahalleler",
     "coverage_clear": "Tümünü kaldır",
     "coverage_count": "Seçilen mahalleler: {{count}}",
-    "coverage_required": "En az bir mahalle seçin."
+    "coverage_required": "En az bir mahalle seçin.",
+    "services_description": "Hizmetlerin açıklaması",
+    "services_description_mine": "Hizmetlerimin açıklaması",
+    "services_description_hint": "Ne sunduğunuzu, deneyiminizi ve güçlü yönlerinizi yazın; örn. elektrik tesisatı, klima bakımı, işçilik garantisi…",
+    "show_more": "Daha fazla göster",
+    "show_less": "Daha az göster",
+    "show_translation": "Çeviriyi göster"
   },
   "review": {
     "rate_provider": "Hizmet vereni değerlendir",

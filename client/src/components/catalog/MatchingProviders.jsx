@@ -13,6 +13,7 @@ import { listDirectoryIds, saveToDirectory, contactDirect } from '../../services
 import { apiError } from '../../services/api';
 import { isPresent, ProviderStatus } from '../common/AvailabilityBadge';
 import { optionLabel } from '../../utils/optionLabel';
+import ExpandableText from '../common/ExpandableText';
 
 // Providers who serve the signed-in requester's registered district in a profession
 // (AYK-035): every provider covering that district, featured (paid) first, then by
@@ -235,6 +236,8 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
         </div>
         {/* AYK-366: available (their schedule) and present (app open) apart, and where they work. */}
         <ProviderStatus availability={p.availability} coverage={p.coverage} name={p.business_name || p.full_name} className="mt-1.5" />
+        {/* AYK-377: what they say about their services, opening and closing in place. */}
+        <ExpandableText text={p.bio} translated={p.bio_translated} lines={2} className="mt-2" testId="provider-bio" />
         <div className="flex flex-wrap items-center gap-2 mt-2">
           {onContact && <button type="button" className="btn btn-primary btn-sm" disabled={busy} data-testid="contact-provider"
             onClick={async () => { setBusy(true); try { await onContact(p); } finally { setBusy(false); } }}>💬 {t('request.contact')}</button>}

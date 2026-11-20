@@ -15,6 +15,7 @@ const { queryOne, query } = require('../config/database');
 const { withUploadedFiles } = require('../utils/uploadPersistence');
 const pick = (object, fields) => Object.fromEntries(fields.filter(key => object[key] !== undefined).map(key => [key, object[key]]));
 const PUBLIC_USER_FIELDS = ['id', 'full_name', 'role', 'avatar', 'is_verified', 'is_online', 'city_id', 'district_id', 'country_id', 'region_id', 'governorate_id', 'city_name', 'city_name_ar', 'city_name_en', 'district_name', 'district_name_ar', 'district_name_en', 'governorate_name', 'governorate_name_ar', 'governorate_name_en', 'region_name', 'region_name_ar', 'region_name_en', 'country_name', 'country_name_ar', 'country_name_en'];
+const { BIO_MAX, bioFor, readerOf } = require('../utils/providerBio');
 const PUBLIC_PROVIDER_FIELDS = ['id', 'user_id', 'business_name', 'bio', 'experience_years', 'category_id', 'service_ids', 'service_radius_km', 'hourly_rate', 'cover_image', 'gallery', 'rating_avg', 'rating_count', 'completed_orders', 'is_trusted', 'is_featured_badge', 'location_mode', 'fixed_address', 'show_location_on_map', 'coverage_city_id', 'coverage_districts', 'availability'];
 const validImageUrl = value => value === null || value === '' || (typeof value === 'string' && value.length <= 255 && /^(?:https?:\/\/|\/(?!\/))/i.test(value) && !/[\u0000-\u0020]/.test(value));
 
@@ -56,6 +57,8 @@ const getOne = asyncHandler(async (req, res) => {
   }
   // The numbers the provider chose to show to everyone (AYK-314).
   if (provider) Object.assign(provider, publicContact(rawProvider));
+  // AYK-377: the description in the reader's language too (the whole text on this page).
+  if (provider && rawProvider) { const { bio_translated } = bioFor(rawProvider, readerOf(req), BIO_MAX); if (bio_translated) provider.bio_translated = bio_translated; else delete provider.bio_translated; }
   return success(res, { user, provider });
 });
 
@@ -132,7 +135,7 @@ const updateProvider = asyncHandler(async (req, res) => {
   }
   if (payload.location_mode !== undefined && !['fixed', 'mobile', 'both'].includes(payload.location_mode)) return error(res, req.t('invalid_data'), 400);
   if (payload.service_radius_km !== undefined && (!Number.isFinite(Number(payload.service_radius_km)) || Number(payload.service_radius_km) < 1 || Number(payload.service_radius_km) > 200)) return error(res, req.t('invalid_data'), 400);
-  for (const [field, max] of [['business_name', 200], ['bio', 10000], ['fixed_address', 255], ['cover_image', 255]]) {
+  for (const [field, max] of [['business_name', 200], ['bio', BIO_MAX], ['fixed_address', 255], ['cover_image', 255]]) {
     if (payload[field] !== undefined && payload[field] !== null && (typeof payload[field] !== 'string' || payload[field].length > max)) return error(res, req.t('invalid_data'), 400);
   }
   for (const [field, max] of [['experience_years', 100], ['hourly_rate', 10000000]]) {
@@ -159,6 +162,8 @@ const updateProvider = asyncHandler(async (req, res) => {
   if (coverage) await saveCoverage(query, userId, coverage);
   if (payload.also_client !== undefined) await query('UPDATE users SET also_client = ? WHERE id = ?', [[true, 1, '1'].includes(payload.also_client) ? 1 : 0, userId]);
   const profile = await User.updateProviderProfile(userId, payload);
+  // AYK-377: the description in the 11 languages, without waiting.
+  if (payload.bio !== undefined && profile?.id) require('../services/contentTranslation').later('provider_profiles', profile.id);
   // AYK-322: an invited provider starts to count for their marketer once they have services.
   require('../services/walletService').settleCountRewardsForInvited(userId).catch(() => {});
   return success(res, profile, req.t('provider_updated'));

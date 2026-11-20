@@ -16,6 +16,7 @@ import AvailabilityBadge, { ProviderStatus } from '../components/common/Availabi
 import { getCurrentPosition, isValidCoordinates } from '../utils/geolocation.mjs';
 import { directionsUrl, formatDistanceKm } from '../utils/directions';
 import { localizedName } from '../utils/localize';
+import ExpandableText from '../components/common/ExpandableText';
 
 const pinIcon = icon({ iconUrl: markerImage, iconRetinaUrl: markerImage2x, shadowUrl: markerShadow,
   iconSize: [25, 41], iconAnchor: [12, 41], shadowSize: [41, 41] });
@@ -152,6 +153,7 @@ export default function ProvidersMapPage() {
                 {p.location_precision === 'city' && ` · ${t('map.city_precision')}`}
               </div>
               <ProviderStatus availability={p.availability} coverage={p.coverage} name={p.business_name || p.full_name} className="mt-1" />
+              <ExpandableText text={p.bio} translated={p.bio_translated} lines={2} className="mt-1.5" testId="provider-bio" />
             </div>
             {p.location_precision === 'exact' && (
               <a href={directionsUrl(p.latitude, p.longitude)} target="_blank" rel="noopener noreferrer"

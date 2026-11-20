@@ -30,6 +30,7 @@ import AdminPanelLink from '../components/layout/AdminPanelLink';
 import ProblemNotice from '../components/common/ProblemNotice';
 import { showAlert } from '../components/common/AppDialog';
 
+
 const LOCATION_LEVELS = ['country_id', 'region_id', 'governorate_id', 'city_id', 'district_id'];
 const formFromUser = (user) => ({
   full_name: user?.full_name || '', phone: user?.phone || '', address: user?.address || '',
@@ -500,8 +501,13 @@ function ProviderSection({ onSaved, onError, t, refresh }) {
         <Input label={t('profile.business_name')} value={provider.business_name}
           onChange={(e) => setProvider({ ...provider, business_name: e.target.value })} />
 
-        <Input as="textarea" label={t('profile.bio')} value={provider.bio}
-          onChange={(e) => setProvider({ ...provider, bio: e.target.value })} />
+        {/* AYK-377: «وصف خدماتي», shown on the provider's card and page in every language. */}
+        <div>
+          <Input as="textarea" label={t('provider.services_description_mine')} value={provider.bio} rows={5} maxLength={2000}
+            placeholder={t('provider.services_description_hint')} data-testid="provider-bio-input"
+            onChange={(e) => setProvider({ ...provider, bio: e.target.value })} />
+          <div className="text-[11.5px] text-fg-muted text-end mt-0.5" dir="ltr">{(provider.bio || '').length} / 2000</div>
+        </div>
         <Input label={t('profile.experience_years')} type="number" min="0" max="100" value={provider.experience_years}
           onChange={event => setProvider(previous => ({ ...previous, experience_years: event.target.value }))} />
 

@@ -5,6 +5,7 @@ const { distanceKm, isValidLatLng } = require('../services/geoService');
 const { COVERAGE_SQL, coverageOf } = require('../utils/providerCoverage');
 const { availability } = require('../utils/providerAvailability');
 const ProviderBadge = require('../models/ProviderBadge');
+const { BIO_SQL, bioFor, readerOf } = require('../utils/providerBio');
 
 const MAX_RADIUS_KM = 200;
 // AYK-370: everyone covering the area is listed (it was cut at 50).
@@ -44,7 +45,7 @@ const nearby = asyncHandler(async (req, res) => {
 
   const rows = await query(`
     SELECT u.id, u.full_name, u.avatar, u.is_verified, u.is_online,
-           pp.business_name, pp.category_id, pp.service_ids, pp.service_radius_km,
+           pp.business_name, pp.category_id, pp.service_ids, pp.service_radius_km, ${BIO_SQL},
            pp.rating_avg, pp.rating_count, pp.completed_orders,
            pp.location_mode,
            pp.show_location_on_map, pp.fixed_latitude, pp.fixed_longitude,
@@ -91,7 +92,7 @@ const nearby = asyncHandler(async (req, res) => {
       is_verified: Number(row.is_verified) === 1,
       is_online: Number(row.is_online) === 1,
       category_id: row.category_id,
-      opinion: row.opinion || null,
+      opinion: row.opinion || null, ...bioFor(row, readerOf(req)),
       rating_avg: Number(row.rating_avg) || 0,
       rating_count: Number(row.rating_count) || 0,
       completed_orders: Number(row.completed_orders) || 0,
@@ -171,7 +172,7 @@ function coveringProviders({ districtId, cityId, excludeId = 0 }) {
             AND COALESCE(pp.coverage_city_id, u.city_id) = ?))`;
   return query(`
     SELECT u.id, u.full_name, u.avatar, u.is_verified, u.is_online,
-           pp.business_name, pp.category_id, pp.service_ids,
+           pp.business_name, pp.category_id, pp.service_ids, ${BIO_SQL},
            pp.rating_avg, pp.rating_count, pp.completed_orders,
            cat.name_ar AS category_name_ar, cat.name_en AS category_name_en, cat.name_translations AS category_name_translations,
            dist.name_ar AS district_name_ar, dist.name_en AS district_name_en,
@@ -199,7 +200,7 @@ const matching = asyncHandler(async (req, res) => {
   const categoryServices = categoryId !== null
     ? new Set((await query('SELECT id FROM services WHERE category_id = ?', [categoryId])).map(row => Number(row.id))) : null;
   const list = async scope => listProviders(await coveringProviders({ ...scope, excludeId: req.user?.id || 0 }),
-    { categoryId, serviceId, categoryServices, cityId: where.cityId });
+    { categoryId, serviceId, categoryServices, cityId: where.cityId, reader: readerOf(req) });
   let requestedCategories = [];
   // The professions this person asked for: always sent (the page lists them first, AYK-339); the
   // list keeps only them when «المهن التي طلبتها» is chosen (matching=1).
@@ -222,7 +223,7 @@ const matching = asyncHandler(async (req, res) => {
 
 // Filters covering providers by profession, drops those whose required subscription is
 // missing (AYK-042), and ranks them: available now first, then featured, then rating.
-async function listProviders(rows, { categoryId, serviceId, categoryServices, cityId }) {
+async function listProviders(rows, { categoryId, serviceId, categoryServices, cityId, reader = 'ar' }) {
   const providers = [];
   for (const row of rows) {
     const services = parseServiceIds(row.service_ids);
@@ -233,7 +234,7 @@ async function listProviders(rows, { categoryId, serviceId, categoryServices, ci
       is_verified: Number(row.is_verified) === 1, is_online: Number(row.is_online) === 1,
       is_featured: row.is_featured === true || Number(row.is_featured) === 1,
       category_id: row.category_id, service_ids: services,
-      opinion: row.opinion || null,
+      opinion: row.opinion || null, ...bioFor(row, reader),
       rating_avg: Number(row.rating_avg) || 0, rating_count: Number(row.rating_count) || 0,
       completed_orders: Number(row.completed_orders) || 0,
       availability: availability(row),

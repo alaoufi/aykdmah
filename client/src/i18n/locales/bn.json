@@ -772,7 +772,13 @@
     "coverage_all": "সব",
     "coverage_clear": "সব বাদ দিন",
     "coverage_count": "বেছে নেওয়া এলাকা: {{count}}",
-    "coverage_required": "অন্তত একটি এলাকা বেছে নিন।"
+    "coverage_required": "অন্তত একটি এলাকা বেছে নিন।",
+    "services_description": "সেবার বিবরণ",
+    "services_description_mine": "আমার সেবার বিবরণ",
+    "services_description_hint": "আপনি কী দেন, আপনার অভিজ্ঞতা ও বিশেষত্ব লিখুন, যেমন: বৈদ্যুতিক ওয়্যারিং, এসি মেরামত, কাজের গ্যারান্টি…",
+    "show_more": "আরও দেখুন",
+    "show_less": "কম দেখুন",
+    "show_translation": "অনুবাদ দেখুন"
   },
   "review": {
     "rate_provider": "সেবা প্রদানকারীকে রেটিং দিন",

@@ -15,6 +15,7 @@ import ProblemNotice from '../../components/common/ProblemNotice';
 import DirectoryContacts from '../../components/directory/DirectoryContacts';
 import ProviderNumbers from '../../components/providers/ProviderNumbers';
 import { ProviderStatus } from '../../components/common/AvailabilityBadge';
+import ExpandableText from '../../components/common/ExpandableText';
 
 // "My directory" (AYK-041): providers the requester kept, to contact again directly
 // without posting a request. Each contact is still recorded as a request.
@@ -87,6 +88,7 @@ export default function DirectoryPage({ compact = false }) {
                   <TrustSummary userId={p.id} type={p.is_provider === false ? 'on_requester' : 'on_provider'} average={p.rating_avg} count={p.rating_count} opinion={p.opinion} />
                 </div>
                 {p.availability && <ProviderStatus availability={p.availability} coverage={p.coverage} name={p.nickname || p.business_name || p.full_name} className="mt-1.5" />}
+                <ExpandableText text={p.bio} translated={p.bio_translated} lines={2} className="mt-2" testId="provider-bio" />
                 <ProviderNumbers phone={p.public_phone} whatsapp={p.public_whatsapp} className="mt-2" />
                 <div className="flex items-center gap-3 mt-2">
                   <button type="button" className="btn btn-primary btn-sm" disabled={busy === p.id} onClick={() => contact(p)} data-testid="directory-contact">💬 {t('directory.message')}</button>

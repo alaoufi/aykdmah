@@ -772,7 +772,13 @@
     "coverage_all": "تمام محلے",
     "coverage_clear": "سب ہٹائیں",
     "coverage_count": "منتخب محلے: {{count}}",
-    "coverage_required": "کم از کم ایک محلہ چنیں۔"
+    "coverage_required": "کم از کم ایک محلہ چنیں۔",
+    "services_description": "خدمات کی تفصیل",
+    "services_description_mine": "میری خدمات کی تفصیل",
+    "services_description_hint": "لکھیں کہ آپ کیا پیش کرتے ہیں، آپ کا تجربہ اور خوبیاں، مثلاً: بجلی کی وائرنگ، اے سی کی مرمت، کام کی گارنٹی…",
+    "show_more": "مزید دکھائیں",
+    "show_less": "کم دکھائیں",
+    "show_translation": "ترجمہ دکھائیں"
   },
   "review": {
     "rate_provider": "سروس فراہم کنندہ کو ریٹنگ دیں",

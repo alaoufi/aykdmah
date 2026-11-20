@@ -772,7 +772,13 @@
     "coverage_all": "All",
     "coverage_clear": "Clear",
     "coverage_count": "Selected: {{count}}",
-    "coverage_required": "Choose at least one neighborhood."
+    "coverage_required": "Choose at least one neighborhood.",
+    "services_description": "About the services",
+    "services_description_mine": "Describe my services",
+    "services_description_hint": "Write what you offer, your experience and strengths, e.g. electrical wiring, AC maintenance, work guarantee…",
+    "show_more": "Show more",
+    "show_less": "Show less",
+    "show_translation": "Show translation"
   },
   "review": {
     "rate_provider": "Rate the service provider",

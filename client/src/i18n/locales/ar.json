@@ -772,7 +772,13 @@
     "coverage_all": "كل الأحياء",
     "coverage_clear": "إلغاء الكل",
     "coverage_count": "الأحياء المختارة: {{count}}",
-    "coverage_required": "اختر حيًا واحدًا على الأقل."
+    "coverage_required": "اختر حيًا واحدًا على الأقل.",
+    "services_description": "وصف الخدمات",
+    "services_description_mine": "وصف خدماتي",
+    "services_description_hint": "اكتب ما تقدمه وخبرتك ومميزاتك، مثل: تمديدات كهربائية، صيانة مكيفات، ضمان على العمل…",
+    "show_more": "عرض المزيد",
+    "show_less": "عرض أقل",
+    "show_translation": "عرض الترجمة"
   },
   "review": {
     "rate_provider": "تقييم مقدم الخدمة",

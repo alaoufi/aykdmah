@@ -772,7 +772,13 @@
     "coverage_all": "ሁሉም",
     "coverage_clear": "ሁሉንም ያንሱ",
     "coverage_count": "የተመረጡ፦ {{count}}",
-    "coverage_required": "ቢያንስ አንድ ሰፈር ይምረጡ።"
+    "coverage_required": "ቢያንስ አንድ ሰፈር ይምረጡ።",
+    "services_description": "የአገልግሎቶቹ መግለጫ",
+    "services_description_mine": "የአገልግሎቶቼ መግለጫ",
+    "services_description_hint": "የሚያቀርቡትን፣ ልምድዎንና ጠንካራ ጎኖችዎን ይጻፉ፣ ለምሳሌ፦ የኤሌክትሪክ ዝርጋታ፣ የአየር ማቀዝቀዣ ጥገና፣ የሥራ ዋስትና…",
+    "show_more": "ተጨማሪ አሳይ",
+    "show_less": "ያነሰ አሳይ",
+    "show_translation": "ትርጉሙን አሳይ"
   },
   "review": {
     "rate_provider": "ለአገልግሎት አቅራቢው ደረጃ ይስጡ",

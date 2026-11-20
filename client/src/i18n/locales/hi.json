@@ -772,7 +772,13 @@
     "coverage_all": "सभी मोहल्ले",
     "coverage_clear": "सब हटाएँ",
     "coverage_count": "चुने गए मोहल्ले: {{count}}",
-    "coverage_required": "कम से कम एक मोहल्ला चुनें।"
+    "coverage_required": "कम से कम एक मोहल्ला चुनें।",
+    "services_description": "सेवाओं का विवरण",
+    "services_description_mine": "मेरी सेवाओं का विवरण",
+    "services_description_hint": "लिखें आप क्या देते हैं, आपका अनुभव और खूबियाँ, जैसे: बिजली की वायरिंग, एसी की मरम्मत, काम की गारंटी…",
+    "show_more": "और दिखाएँ",
+    "show_less": "कम दिखाएँ",
+    "show_translation": "अनुवाद दिखाएँ"
   },
   "review": {
     "rate_provider": "सेवा प्रदाता को रेटिंग दें",

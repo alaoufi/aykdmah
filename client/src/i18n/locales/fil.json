@@ -772,7 +772,13 @@
     "coverage_all": "Lahat ng distrito",
     "coverage_clear": "Alisin lahat",
     "coverage_count": "Napiling distrito: {{count}}",
-    "coverage_required": "Pumili ng kahit isang distrito."
+    "coverage_required": "Pumili ng kahit isang distrito.",
+    "services_description": "Paglalarawan ng mga serbisyo",
+    "services_description_mine": "Paglalarawan ng aking mga serbisyo",
+    "services_description_hint": "Isulat ang iyong inaalok, karanasan at kalakasan, hal.: electrical wiring, maintenance ng aircon, garantiya sa trabaho…",
+    "show_more": "Ipakita pa",
+    "show_less": "Ipakita nang mas kaunti",
+    "show_translation": "Ipakita ang salin"
   },
   "review": {
     "rate_provider": "I-rate ang provider",

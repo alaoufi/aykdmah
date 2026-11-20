@@ -21,6 +21,7 @@ import ProviderNumbers from '../components/providers/ProviderNumbers';
 import { LoadingState, ErrorState } from '../components/common/Spinner';
 import { directionsUrl } from '../utils/directions';
 import { localizedName } from '../utils/localize';
+import ExpandableText from '../components/common/ExpandableText';
 
 const pinIcon = icon({ iconUrl: markerImage, iconRetinaUrl: markerImage2x, shadowUrl: markerShadow,
   iconSize: [25, 41], iconAnchor: [12, 41], shadowSize: [41, 41] });
@@ -137,7 +138,8 @@ export default function ProviderProfilePage() {
         {count > reviews?.length && <TrustSummary userId={user.id} average={average} count={count} />}
       </section>
 
-      {provider.bio && <div className="card p-4 text-[13.5px] text-fg whitespace-pre-line">{provider.bio}</div>}
+      {/* AYK-377: «وصف الخدمات», a few lines that open in place, in the reader's language. */}
+      {provider.bio && <ExpandableText text={provider.bio} translated={provider.bio_translated} lines={4} title={t('provider.services_description')} testId="provider-bio" />}
 
       <div className="card p-4 space-y-2">
         <h2 className="font-bold text-fg">{t('map.service_area')}</h2>

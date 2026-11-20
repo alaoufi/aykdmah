@@ -10,8 +10,9 @@ const providerId = value => (/^[1-9][0-9]{0,9}$/.test(String(value)) && Number(v
 
 const { hideRequesterNames } = require('../utils/requesterPrivacy');
 const Conversation = require('../models/Conversation');
+const { BIO_SQL, bioFor, readerOf } = require('../utils/providerBio');
 const list = asyncHandler(async (req, res) => {
-  const rows = await query(`SELECT u.id, u.full_name, u.avatar, u.is_verified, pp.business_name, pp.category_id,
+  const rows = await query(`SELECT u.id, u.full_name, u.avatar, u.is_verified, pp.business_name, pp.category_id, ${BIO_SQL},
       CASE WHEN u.role = 'provider' THEN pp.rating_avg ELSE (SELECT COALESCE(AVG(rv.rating),0) FROM reviews rv WHERE rv.target_user_id = u.id AND rv.review_type = 'on_requester' AND rv.is_visible = 1) END AS rating_avg,
       CASE WHEN u.role = 'provider' THEN pp.rating_count ELSE (SELECT COUNT(*) FROM reviews rv WHERE rv.target_user_id = u.id AND rv.review_type = 'on_requester' AND rv.is_visible = 1) END AS rating_count, pp.completed_orders,
       (SELECT rv.comment FROM reviews rv WHERE rv.target_user_id = u.id AND rv.review_type = CASE WHEN u.role = 'provider' THEN 'on_provider' ELSE 'on_requester' END AND rv.is_visible = 1 AND rv.comment IS NOT NULL AND rv.comment <> '' ORDER BY rv.id DESC LIMIT 1) AS opinion,
@@ -55,7 +56,7 @@ const list = asyncHandler(async (req, res) => {
     is_verified: Number(row.is_verified) === 1, category_id: row.category_id,
     category_name: row.category_name, category_name_en: row.category_name_en, category_name_translations: row.category_name_translations,
     district_name_ar: row.district_name_ar, district_name_en: row.district_name_en,
-    opinion: row.opinion || null,
+    opinion: row.opinion || null, ...(row.role === 'provider' ? bioFor(row, readerOf(req)) : {}),
     rating_avg: Number(row.rating_avg) || 0, rating_count: Number(row.rating_count) || 0,
     completed_orders: Number(row.completed_orders) || 0, availability: row.role === 'provider' ? availability(row) : null,
     coverage: row.role === 'provider' ? coverageOf(row) : null,
