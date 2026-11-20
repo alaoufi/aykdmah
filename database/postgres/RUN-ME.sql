@@ -6720,6 +6720,11 @@ INSERT INTO schema_migrations(name) VALUES ('097_special_numbers.sql');
 DELETE FROM account_number_aliases;
 INSERT INTO schema_migrations(name) VALUES ('098_free_previous_numbers.sql');
 
+-- migrations/099_admin_hide.sql
+ALTER TABLE requests ADD COLUMN IF NOT EXISTS hidden_at TIMESTAMP NULL DEFAULT NULL;
+ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS hidden_at TIMESTAMP NULL DEFAULT NULL;
+INSERT INTO schema_migrations(name) VALUES ('099_admin_hide.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

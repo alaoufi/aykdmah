@@ -55,6 +55,7 @@ const nearby = asyncHandler(async (req, res) => {
     JOIN provider_profiles pp ON pp.user_id = u.id
     LEFT JOIN cities c ON c.id = u.city_id
     WHERE u.role = 'provider' AND u.is_active = 1 AND u.is_blocked = 0 AND u.deleted_at IS NULL
+      AND pp.hidden_at IS NULL -- AYK-361: hidden by the administration
       -- AYK-254: only providers whose shown point (their own, or their city's) can lie inside the
       -- circle are read; this used to read every provider in the country on each map view.
       AND ((pp.fixed_latitude BETWEEN ? AND ? AND pp.fixed_longitude BETWEEN ? AND ?)
@@ -180,6 +181,7 @@ function coveringProviders({ districtId, cityId, excludeId = 0 }) {
     LEFT JOIN categories cat ON cat.id = pp.category_id
     LEFT JOIN districts dist ON dist.id = u.district_id
     WHERE u.role = 'provider' AND u.is_active = 1 AND u.is_blocked = 0 AND u.deleted_at IS NULL
+      AND pp.hidden_at IS NULL -- AYK-361: hidden by the administration
       AND u.id <> ? AND ${coverage}`,
   [excludeId, districtId || cityId, cityId]);
 }
@@ -283,7 +285,7 @@ const areaStats = asyncHandler(async (req, res) => {
   }
   const open = await query(`SELECT COALESCE(r.category_id, s.category_id) AS category_id, COUNT(*) AS n
     FROM requests r LEFT JOIN services s ON s.id = r.service_id
-    WHERE r.status = 'open' AND r.deleted_at IS NULL AND ${where.districtId ? 'r.district_id = ?' : 'r.city_id = ?'}
+    WHERE r.status = 'open' AND r.deleted_at IS NULL AND r.hidden_at IS NULL AND ${where.districtId ? 'r.district_id = ?' : 'r.city_id = ?'}
     GROUP BY COALESCE(r.category_id, s.category_id)`, [where.districtId || where.cityId]);
   for (const row of open) if (row.category_id) entry(Number(row.category_id)).open_requests = Number(row.n);
   const categories = [...stats.values()].map(({ rated, rating_sum, ...e }) => ({ ...e, rating_avg: rated ? Math.round((rating_sum / rated) * 10) / 10 : null }));
@@ -326,7 +328,7 @@ const myMarket = asyncHandler(async (req, res) => {
       COUNT(DISTINCT CASE WHEN r.created_at > CURRENT_TIMESTAMP - INTERVAL '30 days' THEN r.client_id END) AS requesters_30d,
       SUM(CASE WHEN r.created_at > CURRENT_TIMESTAMP - INTERVAL '30 days' THEN 1 ELSE 0 END) AS requests_30d
     FROM requests r LEFT JOIN services s ON s.id = r.service_id
-    WHERE r.deleted_at IS NULL AND r.client_id <> ? AND ${areaSql} AND COALESCE(r.category_id, s.category_id) IN (${catSql})
+    WHERE r.deleted_at IS NULL AND r.hidden_at IS NULL AND r.client_id <> ? AND ${areaSql} AND COALESCE(r.category_id, s.category_id) IN (${catSql})
     GROUP BY COALESCE(r.category_id, s.category_id)`, [req.user.id, ...areaParams, ...mine]);
   const userAreaSql = covered.length ? `u.district_id IN (${covered.map(() => '?').join(', ')})` : 'u.city_id = ?';
   const residents = Number((await query(`SELECT COUNT(*) AS n FROM users u WHERE u.deleted_at IS NULL AND u.is_active = 1

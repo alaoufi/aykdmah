@@ -337,3 +337,54 @@ test('concurrent request snapshots complete with a single database pool connecti
   assert.equal(new Set(requests.map(request => request.id)).size, 3);
   for (const request of requests) assert.equal(request.address, session.user.address);
 });
+
+test('AYK-361: the administration lists requests and providers by area and profession, newest first, and hides them', async () => {
+  const adminSession = await register();
+  await db.query("UPDATE users SET role = 'admin', is_super_admin = 1 WHERE id = ?", [adminSession.user.id]);
+  const adminLogin = await fetch(base + '/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Ayk-Scope': 'admin' },
+    body: JSON.stringify({ identifier: adminSession.user.username, password }) });
+  const adminToken = (await adminLogin.json()).data.token;
+  const admin = async (route, { method = 'GET', body, expected = 200 } = {}) => {
+    const response = await fetch(base + route, { method, headers: { Authorization: `Bearer ${adminToken}`, 'X-Ayk-Scope': 'admin',
+      ...(body ? { 'Content-Type': 'application/json' } : {}) }, body: body ? JSON.stringify(body) : undefined });
+    const result = await response.json();
+    assert.equal(response.status, expected, `${method} ${route}: ${result.message}`);
+    return result;
+  };
+  const service = await db.queryOne('SELECT id, category_id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+  const client = await register();
+  const older = await createRequest(client.token, { category_id: service.category_id, service_id: service.id });
+  const newer = await createRequest(client.token, { category_id: service.category_id, service_id: service.id, title: 'طلب أحدث للتحقق من الترتيب' });
+  const city = await db.queryOne('SELECT region_id FROM cities WHERE id = 9');
+
+  let list = await admin(`/admin/requests?city_id=9&region_id=${city.region_id}&category_id=${service.category_id}&limit=100`);
+  const ids = list.data.map(row => Number(row.id));
+  assert.ok(ids.indexOf(Number(newer.id)) > -1 && ids.indexOf(Number(newer.id)) < ids.indexOf(Number(older.id)), 'newest first');
+  assert.equal((await admin('/admin/requests?city_id=16&limit=100')).data.some(row => Number(row.id) === Number(newer.id)), false);
+  assert.ok((await admin(`/admin/requests?search=${newer.id}`)).data.some(row => Number(row.id) === Number(newer.id)), 'search by request number');
+
+  // Hidden: out of the providers' view, still the requester's.
+  const provider = await register({ role: 'provider' });
+  await api(`/requests/${newer.id}`, { token: provider.token });
+  await admin(`/admin/requests/${newer.id}/hide`, { method: 'PUT', body: { hidden: true } });
+  await api(`/requests/${newer.id}`, { token: provider.token, expected: 404 });
+  await api(`/requests/${newer.id}`, { token: client.token });
+  list = await admin('/admin/requests?visibility=hidden&limit=100');
+  assert.ok(list.data.some(row => Number(row.id) === Number(newer.id)));
+  await admin(`/admin/requests/${newer.id}/hide`, { method: 'PUT', body: { hidden: false } });
+  await api(`/requests/${newer.id}`, { token: provider.token });
+
+  // Providers: by area and profession, newest first, hidden and shown again.
+  const second = await register({ role: 'provider' });
+  list = await admin(`/admin/providers?city_id=9&category_id=${service.category_id}&limit=100`);
+  const pids = list.data.map(row => Number(row.id));
+  assert.ok(pids.indexOf(Number(second.user.id)) > -1 && pids.indexOf(Number(second.user.id)) < pids.indexOf(Number(provider.user.id)), 'newest provider first');
+  assert.equal((await admin('/admin/providers?city_id=16&limit=100')).data.some(row => Number(row.id) === Number(second.user.id)), false);
+  await admin(`/admin/providers/${second.user.id}/hide`, { method: 'PUT', body: { hidden: true } });
+  assert.ok((await db.queryOne('SELECT hidden_at FROM provider_profiles WHERE user_id = ?', [second.user.id])).hidden_at);
+  assert.ok((await admin('/admin/providers?visibility=hidden&limit=100')).data.some(row => Number(row.id) === Number(second.user.id)));
+  assert.equal((await admin('/admin/providers?visibility=shown&limit=100')).data.some(row => Number(row.id) === Number(second.user.id)), false);
+  await api('/auth/me', { token: second.token }); // the account still works
+  await admin(`/admin/providers/${second.user.id}/hide`, { method: 'PUT', body: { hidden: false } });
+  await admin('/admin/providers/1/hide', { method: 'PUT', body: { hidden: 'yes' }, expected: 400 });
+});

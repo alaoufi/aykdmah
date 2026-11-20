@@ -4,8 +4,9 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
-  listAllRequests, assignRequest, cancelRequest, deleteRequest, listUsers,
+  listAllRequests, assignRequest, cancelRequest, deleteRequest, listUsers, hideRequest,
 } from '../../services/adminService';
+import AdminListFilters, { VISIBILITY_TABS } from '../../components/admin/AdminListFilters';
 import { REQUEST_STATUS } from '../../utils/constants';
 import { formatCurrency, formatRelativeTime } from '../../utils/formatters';
 import { IconSearch } from '../../components/common/Icons';
@@ -43,6 +44,8 @@ export default function AdminRequestsPage() {
   const [search, setSearch] = useState('');
   const [searchValue, setSearchValue] = useState('');
   const [page, setPage] = useState(1);
+  // AYK-361: region, city, profession and shown/hidden; everything starts at «الكل».
+  const [filters, setFilters] = useState({ region_id: '', city_id: '', category_id: '', visibility: '' });
 
   const [assignFor, setAssignFor] = useState(null);
   const [providers, setProviders] = useState([]);
@@ -58,13 +61,14 @@ export default function AdminRequestsPage() {
   const load = () => {
     const version = ++loadVersion.current;
     setLoading(true); setError('');
-    listAllRequests({ status, search, page, limit: 20 })
+    const picked = Object.fromEntries(Object.entries(filters).filter(([, v]) => v));
+    listAllRequests({ status, search, page, limit: 20, ...picked })
       .then((res) => { if (version === loadVersion.current) { setItems(res.data || []); setMeta(res.meta); } })
       .catch((e) => { if (version === loadVersion.current) { setItems([]); setMeta(null); setError(apiError(e)); } })
       .finally(() => { if (version === loadVersion.current) setLoading(false); });
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [status, search, page]);
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [status, search, page, filters]);
 
   const onSearch = (e) => {
     e.preventDefault();
@@ -116,6 +120,12 @@ export default function AdminRequestsPage() {
     });
   };
 
+  const toggleHidden = async (req) => {
+    if (!(await confirmAdminChange(t, req.title))) return;
+    try { await hideRequest(req.id, !req.hidden_at); load(); }
+    catch (e) { setError(apiError(e)); }
+  };
+
   const askDelete = (req) => {
     setConfirm({
       open: true,
@@ -158,12 +168,23 @@ export default function AdminRequestsPage() {
           </span>
           <input
             type="text"
-            placeholder={t('common.search')}
+            placeholder="بحث: العنوان، رقم الطلب، اسم الطالب أو جواله"
             value={searchValue}
             onChange={(e) => setSearchValue(e.target.value)}
             className="w-full pr-9 pl-3 py-2.5 rounded-pill border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[13.5px]"
           />
         </form>
+        <div className="w-full space-y-2">
+          <AdminListFilters value={filters} onChange={next => { setFilters(next); setPage(1); }} professionLabel="المهنة المطلوبة" />
+          <div className="flex gap-1.5">
+            {VISIBILITY_TABS.map(tab => (
+              <button key={tab.value} type="button" onClick={() => { setFilters(f => ({ ...f, visibility: tab.value })); setPage(1); }}
+                className={`px-3 py-1.5 rounded-pill text-[12px] font-semibold border transition ${filters.visibility === tab.value ? 'bg-ink text-white border-ink' : 'bg-white text-slate-600 border-slate-200'}`}>
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
 
       {loading ? (
@@ -196,13 +217,17 @@ export default function AdminRequestsPage() {
                     <span className={`inline-flex px-2.5 py-0.5 rounded-pill text-[10.5px] font-bold ${STATUS_BADGE[info.color] || STATUS_BADGE['badge']}`}>
                       {infoLabel}
                     </span>
+                    {r.hidden_at && <span className="inline-flex px-2.5 py-0.5 rounded-pill text-[10.5px] font-bold bg-slate-800 text-white">🙈 مخفي</span>}
                   </div>
                   <span className="text-[10.5px] text-slate-400">{formatRelativeTime(r.created_at)}</span>
                 </div>
                 <Link to={`/requests/${r.id}`} className="block no-underline">
                   <h3 className="text-[15px] font-extrabold text-ink mb-1 line-clamp-1 hover:text-brand-700">{r.title}</h3>
-                  <p className="text-[12.5px] text-slate-500 leading-relaxed line-clamp-2 mb-3">{r.description}</p>
+                  <p className="text-[12.5px] text-slate-500 leading-relaxed line-clamp-2 mb-2">{r.description}</p>
                 </Link>
+                <div className="text-[11.5px] text-slate-500 mb-3">
+                  #{r.id} · {[r.category_name || r.service_name, r.city_name, r.district_name].filter(Boolean).join(' · ') || '—'}
+                </div>
                 <div className="flex items-center justify-between pt-3 border-t border-slate-100 text-[12px]">
                   <div className="text-slate-600">
                     <span className="text-slate-400">{t('auth.role_client')}: </span>
@@ -228,6 +253,9 @@ export default function AdminRequestsPage() {
                       {t('admin.cancel_request')}
                     </button>
                   )}
+                  <button onClick={() => toggleHidden(r)} data-testid="toggle-hidden" className="px-3 py-1.5 rounded-pill text-[11.5px] font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">
+                    {r.hidden_at ? '👁️ إظهار' : '🙈 إخفاء'}
+                  </button>
                   <button onClick={() => askDelete(r)} className="px-3 py-1.5 rounded-pill text-[11.5px] font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition">
                     {t('admin.delete')}
                   </button>

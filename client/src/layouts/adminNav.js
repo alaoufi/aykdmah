@@ -25,6 +25,7 @@ export const NAV_GROUPS = [
     label: 'admin.users',
     items: [
       { to: '/admin/users',         icon: '👥', labelKey: 'admin.users',           perm: 'users.manage' },
+      { to: '/admin/providers',     icon: '🧰', labelKey: 'admin.stats_providers', perm: 'users.manage' },
       { to: '/admin/countries',     icon: '🌍', labelKey: 'admin.countries',       perm: 'countries.manage' },
       { to: '/admin/locations',     icon: '🗺️', labelKey: 'admin.locations',       perm: 'locations.manage' },
       { to: '/admin/verifications', icon: '🛡️', labelKey: 'admin.verifications',   perm: 'verifications.review' },

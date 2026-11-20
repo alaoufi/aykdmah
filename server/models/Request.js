@@ -40,7 +40,7 @@ function publicView(request) {
   if (!request) return request;
   const view = { ...request };
   for (const key of ['address', 'latitude', 'longitude', 'files', 'assigned_provider_id', 'accepted_offer_id', 'assigned_provider_name', 'direct_provider_id',
-    'client_name']) delete view[key]; // The requester's name stays private (AYK-142).
+    'client_name', 'hidden_at']) delete view[key]; // The requester's name stays private (AYK-142).
   if (view.distance_km != null) view.distance_km = Math.round(Number(view.distance_km));
   return view;
 }
@@ -95,7 +95,7 @@ const BASE_SELECT = `
   r.budget_min, r.budget_max, r.preferred_date, r.is_urgent, r.status,
   r.assigned_provider_id, r.accepted_offer_id, r.views_count, r.offers_count,
   r.completed_at, r.created_at, r.updated_at, r.reminders_off, r.direct_provider_id,
-  r.warranty_days, r.warranty_proposed_days, r.warranty_proposed_by,
+  r.warranty_days, r.warranty_proposed_days, r.warranty_proposed_by, r.hidden_at,
   ap.full_name AS assigned_provider_name,
   u.full_name AS client_name, u.avatar AS client_avatar,
   (SELECT COALESCE(AVG(rv.rating),0) FROM reviews rv WHERE rv.target_user_id = r.client_id AND rv.review_type = 'on_requester' AND rv.is_visible = 1 AND u.deleted_at IS NULL) AS client_rating_avg,
@@ -223,7 +223,8 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
   if (radiusKm == null) radiusKm = 25;
   categoryId = optionalNumber(categoryId, 1, 2147483647, true); serviceId = optionalNumber(serviceId, 1, 2147483647, true);
   // A direct contact from the requester's directory is not on the board (AYK-041).
-  const where = ['r.deleted_at IS NULL', 'r.status = ?', 'r.direct_provider_id IS NULL'];
+  // AYK-361: a request the administration hid is not offered to providers.
+  const where = ['r.deleted_at IS NULL', 'r.status = ?', 'r.direct_provider_id IS NULL', 'r.hidden_at IS NULL'];
   const whereParams = [status];
   cityId = optionalNumber(cityId,1,2147483647,true);
   if (cityId) {where.push('r.city_id = ?');whereParams.push(cityId);}
@@ -379,28 +380,48 @@ async function softDelete(id, actor) {
   });
 }
 
-async function listAll({ page = 1, limit = 20, status, search } = {}) {
+// The administration's list (AYK-361): newest first, by status, region, city, profession and
+// shown/hidden, and a search over the title, description, request number and the requester.
+async function listAll({ page = 1, limit = 20, status, search, region_id, city_id, category_id, visibility } = {}) {
   ({ page, limit } = pagination(page, limit));
   const offset = (page - 1) * limit;
   const where = ['r.deleted_at IS NULL'];
   const params = [];
+  const id = value => optionalNumber(value, 1, 2147483647, true);
   if (status) { where.push('r.status = ?'); params.push(status); }
-  if (search) {
-    where.push('(r.title LIKE ? OR r.description LIKE ?)');
-    const s = `%${search}%`;
-    params.push(s, s);
+  if (id(region_id)) { where.push('city.region_id = ?'); params.push(id(region_id)); }
+  if (id(city_id)) { where.push('r.city_id = ?'); params.push(id(city_id)); }
+  if (id(category_id)) { where.push('(r.category_id = ? OR svc.category_id = ?)'); params.push(id(category_id), id(category_id)); }
+  if (visibility === 'hidden') where.push('r.hidden_at IS NOT NULL');
+  else if (visibility === 'shown') where.push('r.hidden_at IS NULL');
+  const text = typeof search === 'string' ? search.trim().slice(0, 100) : '';
+  if (text) {
+    const s = `%${text}%`;
+    const digits = /^\d{1,10}$/.test(text) ? Number(text) : null;
+    where.push(`(r.title ILIKE ? OR r.description ILIKE ? OR u.full_name ILIKE ? OR u.phone LIKE ? OR u.referral_code = ?${digits ? ' OR r.id = ?' : ''})`);
+    params.push(s, s, s, s, text, ...(digits ? [digits] : []));
   }
   const whereSql = where.join(' AND ');
   const items = await query(
-    `SELECT ${BASE_SELECT} FROM requests r ${BASE_JOINS} WHERE ${whereSql}
-     ORDER BY r.created_at DESC LIMIT ? OFFSET ?`,
+    `SELECT ${BASE_SELECT}, u.phone AS client_phone, u.referral_code AS client_number, city.region_id AS region_id
+     FROM requests r ${BASE_JOINS} WHERE ${whereSql}
+     ORDER BY r.created_at DESC, r.id DESC LIMIT ? OFFSET ?`,
     [...params, Number(limit), Number(offset)]
   );
   const [{ total }] = await query(
-    `SELECT COUNT(*) AS total FROM requests r WHERE ${whereSql}`,
+    `SELECT COUNT(*) AS total FROM requests r ${BASE_JOINS} WHERE ${whereSql}`,
     params
   );
   return { items, total };
 }
 
-module.exports = { create, findById, incrementViews, findByClient, findNearby, updateStatus, setRemindersOff, softDelete, listAll, pagination, optionalNumber, publicView, validateInput: validateCreate };
+// Hides a request from providers, or shows it again (AYK-361).
+async function setHidden(id, hidden) {
+  id = optionalNumber(id, 1, 2147483647, true);
+  if (id == null) throw new ApiError('invalid_id', 422);
+  await query(`UPDATE requests SET hidden_at = ${hidden ? 'COALESCE(hidden_at, CURRENT_TIMESTAMP)' : 'NULL'}
+    WHERE id = ? AND deleted_at IS NULL`, [id]);
+  return queryOne('SELECT id, hidden_at FROM requests WHERE id = ? AND deleted_at IS NULL', [id]);
+}
+
+module.exports = { create, findById, incrementViews, findByClient, findNearby, updateStatus, setRemindersOff, softDelete, listAll, setHidden, pagination, optionalNumber, publicView, validateInput: validateCreate };

@@ -513,3 +513,17 @@ export async function adminAssignSpecialNumber(id, number) {
   const { data } = await api.put(`/admin/users/${id}/number`, { number });
   return data.data;
 }
+
+// --- AYK-361: hide requests and service providers; the providers list ---
+export async function hideRequest(id, hidden) {
+  const { data } = await api.put(`/admin/requests/${id}/hide`, { hidden });
+  return data.data;
+}
+export async function listProvidersAdmin(params = {}) {
+  const { data } = await api.get('/admin/providers', { params });
+  return data;
+}
+export async function hideProvider(id, hidden) {
+  const { data } = await api.put(`/admin/providers/${id}/hide`, { hidden });
+  return data.data;
+}

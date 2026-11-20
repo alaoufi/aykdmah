@@ -48,6 +48,7 @@ const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage'));
 const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage'));
 const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage'));
 const AdminRequestsPage = lazy(() => import('./pages/admin/AdminRequestsPage'));
+const AdminProvidersPage = lazy(() => import('./pages/admin/AdminProvidersPage'));
 const AdminCategoriesPage = lazy(() => import('./pages/admin/AdminCategoriesPage'));
 const AdminServicesPage = lazy(() => import('./pages/admin/AdminServicesPage'));
 const AdminPlansPage = lazy(() => import('./pages/admin/AdminPlansPage'));
@@ -249,6 +250,7 @@ export default function AppRoutes() {
           <Route path="/admin/guide" element={<AdminGuidePage />} />
           <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/admin/requests" element={<AdminRequestsPage />} />
+          <Route path="/admin/providers" element={<AdminProvidersPage />} />
           <Route path="/admin/categories" element={<AdminCategoriesPage />} />
           <Route path="/admin/services" element={<AdminServicesPage />} />
           <Route path="/admin/plans" element={<AdminPlansPage />} />

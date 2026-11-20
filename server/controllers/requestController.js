@@ -121,7 +121,7 @@ const getOne = asyncHandler(async (req, res) => {
   const request = await Request.findById(req.params.id);
   if (!request) return notFound(res);
   const allowed = privateAccess(req.user, request);
-  if (!allowed && (request.status !== 'open' || request.direct_provider_id)) return notFound(res);
+  if (!allowed && (request.status !== 'open' || request.direct_provider_id || request.hidden_at)) return notFound(res);
   // AYK-244: each viewer once a day; the owner and crawlers are not counted.
   await require('../services/visitors').recordRequestView(req, request).catch(() => {});
   // A provider already in contact about the request also gets its voice note and photos.

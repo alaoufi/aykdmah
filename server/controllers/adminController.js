@@ -127,9 +127,66 @@ const dashboard = asyncHandler(async (req, res) => {
 });
 
 const listAllRequests = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 20, status, search } = req.query;
-  const { items, total } = await Request.listAll({ page, limit, status, search });
+  const { page = 1, limit = 20, status, search, region_id, city_id, category_id, visibility } = req.query;
+  const { items, total } = await Request.listAll({ page, limit, status, search, region_id, city_id, category_id, visibility });
   return paginate(res, items, total, page, limit);
+});
+
+// AYK-361: service providers for the administration: newest first, by region, city, profession and
+// shown/hidden, with a search over the name, number, phone and business name.
+const listProvidersAdmin = asyncHandler(async (req, res) => {
+  const { page, limit } = Request.pagination(req.query.page, req.query.limit);
+  const id = value => { const n = Number(value); return Number.isSafeInteger(n) && n > 0 && n <= 2147483647 ? n : null; };
+  const where = ["u.role = 'provider'", 'u.deleted_at IS NULL'];
+  const params = [];
+  if (id(req.query.region_id)) { where.push('c.region_id = ?'); params.push(id(req.query.region_id)); }
+  if (id(req.query.city_id)) { where.push('u.city_id = ?'); params.push(id(req.query.city_id)); }
+  if (id(req.query.category_id)) {
+    where.push(`(pp.category_id = ? OR EXISTS (SELECT 1 FROM services sv WHERE sv.category_id = ? AND pp.service_ids @> to_jsonb(sv.id)))`);
+    params.push(id(req.query.category_id), id(req.query.category_id));
+  }
+  if (req.query.visibility === 'hidden') where.push('pp.hidden_at IS NOT NULL');
+  else if (req.query.visibility === 'shown') where.push('pp.hidden_at IS NULL');
+  const text = typeof req.query.search === 'string' ? req.query.search.trim().slice(0, 100) : '';
+  if (text) {
+    const like = `%${text}%`;
+    where.push('(u.full_name ILIKE ? OR pp.business_name ILIKE ? OR u.phone LIKE ? OR u.referral_code = ? OR u.username ILIKE ?)');
+    params.push(like, like, like, text, like);
+  }
+  const from = `FROM users u JOIN provider_profiles pp ON pp.user_id = u.id
+    LEFT JOIN cities c ON c.id = u.city_id LEFT JOIN regions rg ON rg.id = c.region_id
+    LEFT JOIN districts d ON d.id = u.district_id LEFT JOIN categories cat ON cat.id = pp.category_id
+    WHERE ${where.join(' AND ')}`;
+  const items = await query(`SELECT u.id, u.full_name, u.username, u.phone, u.referral_code, u.is_active, u.is_blocked, u.also_client,
+      u.created_at, u.last_seen_at, pp.business_name, pp.rating_avg, pp.rating_count, pp.completed_orders, pp.hidden_at,
+      pp.category_id, cat.name_ar AS category_name, c.name_ar AS city_name, rg.name_ar AS region_name, d.name_ar AS district_name
+    ${from} ORDER BY u.created_at DESC, u.id DESC LIMIT ? OFFSET ?`, [...params, limit, (page - 1) * limit]);
+  const [{ total }] = await query(`SELECT COUNT(*) AS total ${from}`, params);
+  return paginate(res, items, total, page, limit);
+});
+
+// AYK-361: hide a provider from the lists people see, or show them again. The account still works.
+const hideProvider = asyncHandler(async (req, res) => {
+  const providerId = Number(req.params.id);
+  if (!Number.isSafeInteger(providerId) || providerId < 1 || ![true, false].includes(req.body?.hidden)) return error(res, req.t('invalid_data'), 400);
+  const found = await queryOne(`SELECT pp.user_id FROM provider_profiles pp JOIN users u ON u.id = pp.user_id
+    WHERE pp.user_id = ? AND u.deleted_at IS NULL`, [providerId]);
+  if (!found) return notFound(res);
+  await query(`UPDATE provider_profiles SET hidden_at = ${req.body.hidden ? 'COALESCE(hidden_at, CURRENT_TIMESTAMP)' : 'NULL'} WHERE user_id = ?`, [providerId]);
+  const rows = [await queryOne('SELECT hidden_at FROM provider_profiles WHERE user_id = ?', [providerId])];
+  await query(`INSERT INTO activity_logs (user_id, action, entity_type, entity_id, description) VALUES (?, ?, 'user', ?, ?)`,
+    [req.user.id, req.body.hidden ? 'admin.provider.hide' : 'admin.provider.show', providerId, null]).catch(() => {});
+  return success(res, { id: providerId, hidden: !!rows[0].hidden_at });
+});
+
+// AYK-361: hide a request from providers or show it again.
+const hideRequest = asyncHandler(async (req, res) => {
+  if (![true, false].includes(req.body?.hidden)) return error(res, req.t('invalid_data'), 400);
+  const row = await Request.setHidden(req.params.id, req.body.hidden);
+  if (!row) return notFound(res);
+  await query(`INSERT INTO activity_logs (user_id, action, entity_type, entity_id, description) VALUES (?, ?, 'request', ?, ?)`,
+    [req.user.id, req.body.hidden ? 'admin.request.hide' : 'admin.request.show', row.id, null]).catch(() => {});
+  return success(res, { id: row.id, hidden: !!row.hidden_at });
 });
 
 const getSettings = asyncHandler(async (req, res) => {
@@ -827,7 +884,7 @@ module.exports = {
   listVerifications, reviewVerification,
   listAds, createAd, updateAd, deleteAd, uploadAdMedia,
   activityLogs, securityReport,
-  updateRequest, assignRequest, cancelRequest, deleteRequest,
+  updateRequest, assignRequest, cancelRequest, deleteRequest, hideRequest, listProvidersAdmin, hideProvider,
   listPlans, createPlan, updatePlan, deletePlan,
   listReviewsAdmin, hideReview, showReview, removeReview,
   listArchives, archiveConversation, getArchive, purgeArchives, restoreArchive, deleteArchive,
