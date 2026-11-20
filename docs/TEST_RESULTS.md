@@ -1707,5 +1707,5 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - the sign-up then links the new account to the inviter as before (the existing registration rule).
 - New texts (box title and hint, menu item) in the 11 languages; `i18n:check` 2628 keys.
 - Browser check (local site, phone size): the menu shows «🎁 دعوة» for a requester and a provider and opens their wallet at the box, in view; the link shown and copied was `https://aykdmh.com/i/32`; another browser opening `/i/32` went to `/register?ref=32`; after visiting another page, a plain `/register` still had 32 in the invite field; no page errors. (The local test database needed migrations 095 and 096 applied by hand first.)
-- Client tests 168 pass; build and `check-deploy` 22 ok. The server is unchanged: registration with an invite number is covered by the existing integration tests.
+- First push: one client test failed (`accountSuccess.test.mjs`: its harness runs the sign-up code without the new `forgetInvite`), so the release stopped at the checks and nothing was deployed. The harness now provides it. Client tests 168 pass; build and `check-deploy` 22 ok. The server is unchanged: registration with an invite number is covered by the existing integration tests.
 - Not tried: a real phone, and the link opened inside the installed app.

@@ -42,7 +42,7 @@ test('acknowledged deletion remains successful when logout cleanup fails', async
 });
 function registerHarness(register, sendPhoneCode=async()=>({required:false})) {
  const state={welcome:null,loading:false,error:''};
- const ctx={submission:{current:false},welcome:null,form:{phone:'0500000000',password:'1234',full_name:'',referral_code:'',role:'client'}, formErrors:()=>({}),cleanPhone:x=>x,codeStep:null,phoneCode:'',place:{},isProvider:false,isValidCoordinates:()=>false,settings:{},register,sendPhoneCode,apiError:e=>e.message,t:x=>x,setFieldErrors(){},setWait(){},setCodeStep:v=>{ctx.codeStep=v;}};
+ const ctx={submission:{current:false},welcome:null,form:{phone:'0500000000',password:'1234',full_name:'',referral_code:'',role:'client'}, formErrors:()=>({}),cleanPhone:x=>x,codeStep:null,phoneCode:'',place:{},isProvider:false,isValidCoordinates:()=>false,settings:{},register,sendPhoneCode,apiError:e=>e.message,t:x=>x,forgetInvite(){},setFieldErrors(){},setWait(){},setCodeStep:v=>{ctx.codeStep=v;}};
  ctx.from='/requests/new'; ctx.navigate=(url, options)=>{assert.equal(url,'/register');assert.equal(options.state.from,ctx.from);state.welcome=options.state.registrationResult;ctx.welcome=state.welcome;};
  for(const k of Object.keys(state))ctx['set'+k[0].toUpperCase()+k.slice(1)]=v=>{state[k]=v;ctx[k]=v;};
  const body=registration.slice(registration.indexOf('  const handleSubmit ='),registration.indexOf('\n  if (welcome)'));
