@@ -2,6 +2,7 @@ const { verify } = require('../utils/jwt');
 const { query, queryOne, tableHasColumn } = require('../config/database');
 const { unauthorized, forbidden } = require('../utils/apiResponse');
 const env = require('../config/env');
+const { sanitizePermissions, expandPermissions } = require('../config/permissions');
 const { ApiError } = require('./errorHandler');
 
 // The admin area's requests say so (X-Ayk-Scope: admin); its pictures and files are asked for
@@ -87,6 +88,9 @@ async function loadSessionUser(payload, fallbackScope = 'site') {
     try { user.permissions = JSON.parse(user.permissions); } catch (_) { user.permissions = []; }
   }
   if (!Array.isArray(user.permissions)) user.permissions = [];
+  // AYK-359: the saved grants (with whole sections) and the tabs they open today.
+  user.permission_grants = sanitizePermissions(user.permissions);
+  user.permissions = expandPermissions(user.permission_grants);
   // Only a session made for the site (since AYK-151) hides the admin role; older tokens keep theirs.
   const shown = payload?.scope === 'site' ? asSiteUser(user) : user;
   shown.session_scope = scope;

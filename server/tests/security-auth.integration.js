@@ -324,6 +324,27 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     assert.ok(row, 'the account is in the administration list');
     assert.equal(row.admin_sections, 1);
     assert.equal(row.permissions, undefined);
+    // AYK-359: a whole section opens its tabs (and tabs added later); every section opens all of
+    // them; neither opens managing other administration accounts.
+    const adminHeaders = { 'X-Ayk-Scope': 'admin' };
+    await db.query("UPDATE users SET permissions = '[\"group:users\"]' WHERE id = ?", [user.id]);
+    await api('/users?limit=1', { token: opened.token, headers: adminHeaders });
+    await api('/admin/dashboard', { token: opened.token, headers: adminHeaders, expected: 403 });
+    await api('/admin/permissions', { token: opened.token, headers: adminHeaders, expected: 403 });
+    await db.query("UPDATE users SET permissions = '[\"*\"]' WHERE id = ?", [user.id]);
+    await api('/admin/dashboard', { token: opened.token, headers: adminHeaders });
+    await api('/admin/permissions', { token: opened.token, headers: adminHeaders, expected: 403 });
+    const me = (await api('/auth/me', { token: opened.token, headers: adminHeaders })).data.user;
+    assert.ok(me.permissions.includes('locations.manage') && !me.permissions.includes('admins.manage'), 'the tabs that «every section» opens today');
+    // A member who manages administration accounts hands on only what is theirs.
+    await db.query("UPDATE users SET permissions = '[\"group:geo\", \"admins.manage\"]' WHERE id = ?", [user.id]);
+    const other = await db.query("INSERT INTO users (username, full_name, password_hash, role, permissions, is_active) VALUES (?, 'x', 'x', 'admin', '[]', 1) RETURNING id", [`perm${Date.now()}`]);
+    const otherId = (other.rows || other)[0].id;
+    await api(`/admin/users/${otherId}/permissions`, { token: opened.token, method: 'PUT', headers: adminHeaders, body: { permissions: ['*'] }, expected: 403 });
+    await api(`/admin/users/${otherId}/permissions`, { token: opened.token, method: 'PUT', headers: adminHeaders, body: { permissions: ['group:geo'] } });
+    await api(`/admin/users/${otherId}/permissions`, { token: opened.token, method: 'PUT', headers: adminHeaders, body: { permissions: ['group:users'] }, expected: 403 });
+    await db.query('DELETE FROM users WHERE id = ?', [otherId]);
+    await db.query("UPDATE users SET permissions = '[\"users.manage\"]' WHERE id = ?", [user.id]);
     // The admin session reaches admin routes (this test account has no extra permissions, so a
     // permission-gated page like the dashboard correctly stays closed).
     await api('/admin/dashboard', { token: opened.token, headers: { 'X-Ayk-Scope': 'admin' }, expected: 403 });

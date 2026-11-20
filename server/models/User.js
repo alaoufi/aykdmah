@@ -1,6 +1,6 @@
 const { query, queryOne, transaction, tableHasColumn } = require('../config/database');
 const { hasPermission, canManageAdmin } = require('../middleware/roleCheck');
-const { sanitizePermissions } = require('../config/permissions');
+const { sanitizePermissions, expandPermissions, grantCovers } = require('../config/permissions');
 const { ApiError } = require('../middleware/errorHandler');
 const ProviderBadge = require('./ProviderBadge');
 const Subscription = require('./Subscription');
@@ -28,6 +28,8 @@ function hydrateAdmin(row) {
     try { row.permissions = JSON.parse(row.permissions); } catch (_) { row.permissions = []; }
   }
   if (!Array.isArray(row.permissions)) row.permissions = [];
+  row.permission_grants = sanitizePermissions(row.permissions);
+  row.permissions = expandPermissions(row.permission_grants);
   row.is_super_admin = row.is_super_admin === 1 || row.is_super_admin === true ? 1 : 0;
   return row;
 }
@@ -423,7 +425,7 @@ async function updateAdminPermissions(id, data, actor) {
     let existing = target.permissions;
     if (typeof existing === 'string') { try { existing = JSON.parse(existing); } catch (_) { existing = []; } }
     const clean = sanitizePermissions(data.permissions === undefined ? existing : data.permissions);
-    if (!currentActor.is_super_admin && clean.some(key => !hasPermission(currentActor, key))) throw new ApiError('Forbidden', 403);
+    if (!currentActor.is_super_admin && clean.some(grant => !grantCovers(currentActor.permission_grants || currentActor.permissions, grant))) throw new ApiError('Forbidden', 403);
     await protectLastSuper(conn, target, !wantSuper);
     await conn.execute('UPDATE users SET is_super_admin = ?, permissions = ?, auth_version = auth_version + 1 WHERE id = ?', [wantSuper ? 1 : 0, JSON.stringify(clean), id]);
     return { id: target.id, is_super_admin: wantSuper ? 1 : 0, permissions: clean };
@@ -466,7 +468,7 @@ async function listPaginated({ role, search, page = 1, limit = 20 }) {
     if (row.role === 'admin') {
       let perms = row.permissions;
       if (typeof perms === 'string') { try { perms = JSON.parse(perms); } catch (_) { perms = []; } }
-      row.admin_sections = Number(row.is_super_admin) === 1 ? -1 : (Array.isArray(perms) ? perms.length : 0);
+      row.admin_sections = Number(row.is_super_admin) === 1 ? -1 : expandPermissions(perms).length;
     }
     delete row.permissions; delete row.is_super_admin;
   }
