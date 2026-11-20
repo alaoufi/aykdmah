@@ -72,9 +72,12 @@ export default function ChatPage() {
   // one closed when the requester agreed with someone else, moves to the archive.
   const [searchParams, setSearchParams] = useSearchParams();
   const showArchive = searchParams.get('archive') === '1';
-  const archived = c => Boolean(c.request_id) && (!c.can_send || ['completed', 'closed', 'cancelled'].includes(c.request_status));
+  // AYK-365: the server says whether the person's row (all their conversations) is archived.
+  const archived = c => (typeof c.archived === 'boolean' ? c.archived : Boolean(c.request_id) && (!c.can_send || ['completed', 'closed', 'cancelled'].includes(c.request_status)));
   const [listOwnerId, setListOwnerId] = useState(null);
   const [active, setActive] = useState(null);
+  // AYK-365: one chat per two people: the ids of all the conversations shown in this one.
+  const pairRef = useRef(new Set());
   const [blockProblem, setBlockProblem] = useState('');
   const listMenuRef = useRef(null);
   const threadMenuRef = useRef(null);
@@ -200,6 +203,9 @@ export default function ChatPage() {
         intervalMs: realtimeMode === 'polling' ? 5000 : 15000,
         onResult: ([conv, msgs]) => {
           primeTranslations(msgs);
+          pairRef.current = new Set([Number(activeId), ...((conv?.pair_ids) || []).map(Number)]);
+          // Opened on an older conversation with this person that is closed: write in the open one.
+          if (conv?.write_id && Number(conv.write_id) !== Number(activeId)) { navigate(`/chat/${conv.write_id}`, { replace: true }); return; }
           setActive(conv);
           setActiveScope(scope);
           // Combined with what is on screen, so a message that came live meanwhile stays.
@@ -245,7 +251,7 @@ export default function ChatPage() {
     socket.emit('chat:join', Number(activeId));
     const onMessage = (msg) => {
       if (scopeRef.current !== scope) return;
-      if (Number(msg.conversation_id) === Number(activeId)) {
+      if (Number(msg.conversation_id) === Number(activeId) || pairRef.current.has(Number(msg.conversation_id))) {
         setMessages(prev => appendMessages(prev, [msg]));
         if (Number(msg.sender_id) !== Number(user?.id)) markReadSoon(activeId);
       }
@@ -273,7 +279,7 @@ export default function ChatPage() {
     socket.io?.on?.('reconnect', onReconnect);
     const onTyping = (data) => {
       if (scopeRef.current !== scope) return;
-      if (Number(data.conversationId) === Number(activeId) && data.userId !== user.id) {
+      if ((Number(data.conversationId) === Number(activeId) || pairRef.current.has(Number(data.conversationId))) && data.userId !== user.id) {
         setTypingUserId(data.isTyping ? data.userId : null);
         if (data.isTyping) {
           clearTimeout(typingTimerRef.current);
@@ -283,13 +289,13 @@ export default function ChatPage() {
     };
     const onDeleted = (payload) => {
       if (scopeRef.current !== scope) return;
-      if (Number(payload.conversationId) === Number(activeId)) {
+      if (Number(payload.conversationId) === Number(activeId) || pairRef.current.has(Number(payload.conversationId))) {
         setMessages(prev => prev.filter(m => m.id !== payload.messageId));
       }
     };
     const onRead = (payload) => {
       if (scopeRef.current !== scope) return;
-      if (Number(payload.conversationId) === Number(activeId) && payload.userId !== user.id) {
+      if ((Number(payload.conversationId) === Number(activeId) || pairRef.current.has(Number(payload.conversationId))) && payload.userId !== user.id) {
         setMessages(prev => prev.map(m =>
           m.sender_id === user.id && !m.is_read ? { ...m, is_read: 1 } : m
         ));
@@ -301,7 +307,7 @@ export default function ChatPage() {
     socket.on('chat:read', onRead);
     // Reached the other phone (AYK-122): ✓ becomes a grey ✓✓.
     const onDelivered = (payload) => {
-      if (scopeRef.current !== scope || Number(payload.conversationId) !== Number(activeId)) return;
+      if (scopeRef.current !== scope || !(Number(payload.conversationId) === Number(activeId) || pairRef.current.has(Number(payload.conversationId)))) return;
       const ids = new Set((payload.ids || []).map(Number));
       setMessages(prev => prev.map(m => ids.has(Number(m.id)) && !m.delivered_at ? { ...m, delivered_at: new Date().toISOString() } : m));
     };
@@ -557,7 +563,7 @@ export default function ChatPage() {
               .map(c => {
               const other = typeof c.other_user === 'string' ? JSON.parse(c.other_user) : c.other_user;
               const last = typeof c.last_message === 'string' ? JSON.parse(c.last_message) : c.last_message;
-              const isActive = Number(activeId) === c.id;
+              const isActive = Number(activeId) === c.id || (c.pair_ids || []).map(Number).includes(Number(activeId));
               const lastPreview = last
                 ? last.message_type === 'location' ? '📍 ' + t('chat.shared_location')
                   : last.message_type === 'system' && /^call:missed:/.test(last.content || '') ? '📞 ' + t('calls.missed_short')
@@ -668,8 +674,12 @@ export default function ChatPage() {
                       </div>
                     );
                   }
+                  // AYK-365: in the one chat with a person, where the talk moves to another request, its title.
+                  const previous = renderedMessages.slice(0, index).reverse().find(m => m.__type !== 'separator' && m.request_title);
+                  const requestLabel = item.request_title && (!previous || previous.request_title !== item.request_title) ? item.request_title : null;
                   return (
                     <div key={item.id} id={`chat-message-${item.id}`} className={Number(focusedMessage) === Number(item.id) ? 'ring-2 ring-primary rounded-card' : ''}>
+                    {requestLabel && <div className="chat-request-label" data-testid="chat-request-label"><span>📋 {requestLabel}</span></div>}
                     {selectMode && item.sender_id === user.id && !['system','location'].includes(item.message_type) && <label className="block px-3 text-[11px]"><input data-testid={`message-select-${item.id}`} type="checkbox" aria-label={t('chat.select_message')} checked={selectedMessages.includes(item.id)} disabled={!selectedMessages.includes(item.id) && selectedMessages.length >= 20} onChange={e => setSelectedMessages(ids => e.target.checked ? [...ids,item.id] : ids.filter(id => id !== item.id))} /></label>}
                     <MessageBubble
                       message={item}
@@ -883,6 +893,10 @@ export default function ChatPage() {
           text-align: center; margin: 16px 0 8px;
         }
         .date-separator { position: sticky; top: 0; z-index: 2; }
+        .chat-request-label { text-align: center; margin: 10px 0 6px; }
+        .chat-request-label span { display: inline-block; max-width: 90%; background: var(--wa-panel); border: 1px solid var(--border, #e2e8f0);
+          padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 700; color: var(--wa-meta);
+          white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .date-separator span {
           display: inline-block; background: var(--wa-in);
           padding: 5px 12px; border-radius: 8px;

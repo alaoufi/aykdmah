@@ -32,7 +32,8 @@ const listConversations = asyncHandler(async (req, res) => {
   const { page = 1, limit = 20, request_id, user_id } = req.query;
   const q = searchQuery(req.query.q);
   for (const id of [request_id, user_id]) if (id != null && !/^[1-9][0-9]{0,9}$/.test(String(id))) return error(res, req.t('invalid_data'), 400);
-  const items = await Conversation.listForUser(req.user.id, { page, limit, q, requestId: request_id, peerId: user_id });
+  // AYK-365: one row per person; `separate=1` lists each conversation on its own (per request).
+  const items = await Conversation.listForUser(req.user.id, { page, limit, q, requestId: request_id, peerId: user_id, merge: req.query.separate !== '1' });
   // A requester's name stays hidden from the other side (AYK-142).
   for (const item of items) if (typeof item.other_user === 'string') { try { item.other_user = JSON.parse(item.other_user); } catch (_) { item.other_user = null; } }
   await hideRequesterNames(req.user.id, items.map(item => item.other_user), req.t('requester_label'));
@@ -47,6 +48,12 @@ const createConversation = asyncHandler(async (req, res) => {
   return created(res, { id: convId });
 });
 
+// AYK-365: whether `otherId` is one of the conversations this user has with the same person.
+async function samePerson(conversationId, otherId, userId) {
+  if (Number(otherId) === Number(conversationId)) return true;
+  return (await Conversation.pairIds(conversationId, userId)).includes(Number(otherId));
+}
+
 const getMessages = asyncHandler(async (req, res) => {
   const conversationId = req.params.id;
   const isParticipant = await Conversation.isParticipant(conversationId, req.user.id);
@@ -55,7 +62,8 @@ const getMessages = asyncHandler(async (req, res) => {
   const { before, after, limit = 50 } = req.query;
   const validId = value => value == null || /^[1-9][0-9]{0,9}$/.test(String(value));
   if (!validId(before) || !validId(after)) return error(res, req.t('invalid_data'), 400);
-  const messages = await Message.listByConversation(conversationId, { beforeId: before, afterId: after, limit });
+  // AYK-365: one chat per two people: the messages of all their conversations, as one timeline.
+  const messages = await Message.listByConversation(await Conversation.pairIds(conversationId, req.user.id), { beforeId: before, afterId: after, limit });
   await hideMessageNames(req, messages);
   // Each message already in the reader's language when it was translated before (AYK-231).
   const lang = String(req.query.lang || req.lang || '').toLowerCase();
@@ -261,7 +269,7 @@ const translateMessage = asyncHandler(async (req, res) => {
   if (!/^[1-9][0-9]{0,9}$/.test(req.params.messageId) || !/^[1-9][0-9]{0,9}$/.test(req.params.id)) return notFound(res);
   if (!await Conversation.isParticipant(req.params.id, req.user.id)) return forbidden(res, req.t('deny_chat_participant'));
   const message = await Message.findById(req.params.messageId);
-  if (!message || Number(message.conversation_id) !== Number(req.params.id) || !message.content) return notFound(res);
+  if (!message || !await samePerson(req.params.id, message.conversation_id, req.user.id) || !message.content) return notFound(res);
   const { SUPPORTED } = require('../services/translationService');
   const lang = SUPPORTED.includes(req.query.lang) ? req.query.lang : 'ar';
   return success(res, await translationFor(message, lang));
@@ -388,7 +396,7 @@ const deleteMessage = asyncHandler(async (req, res) => {
   const messageId = req.params.messageId;
   const row = await Message.getSenderId(messageId);
   if (!row) return notFound(res);
-  if (Number(row.sender_id) !== Number(req.user.id) || Number(row.conversation_id) !== Number(req.params.id)
+  if (Number(row.sender_id) !== Number(req.user.id) || !await samePerson(req.params.id, row.conversation_id, req.user.id)
       || !await Conversation.isParticipant(row.conversation_id, req.user.id)) return forbidden(res, req.t('deny_own_message'));
   await Message.softDelete(messageId);
   const io = req.app.get('io');
@@ -404,7 +412,7 @@ const searchMessages = asyncHandler(async (req, res) => {
   if (!isParticipant) return forbidden(res, req.t('deny_chat_participant'));
   const q = searchQuery(req.query.q);
   if (!q) return success(res, []);
-  const items = await Message.searchInConversation(conversationId, q, { limit: 30, beforeId: /^[1-9][0-9]{0,9}$/.test(String(req.query.before)) ? Number(req.query.before) : null });
+  const items = await Message.searchInConversation(await Conversation.pairIds(conversationId, req.user.id), q, { limit: 30, beforeId: /^[1-9][0-9]{0,9}$/.test(String(req.query.before)) ? Number(req.query.before) : null });
   await hideMessageNames(req, items);
   return success(res, items);
 });
@@ -413,11 +421,13 @@ const markRead = asyncHandler(async (req, res) => {
   const conversationId = req.params.id;
   const isParticipant = await Conversation.isParticipant(conversationId, req.user.id);
   if (!isParticipant) return forbidden(res, req.t('deny_chat_participant'));
-  await Conversation.updateLastRead(conversationId, req.user.id);
+  // AYK-365: reading the chat with a person reads all their conversations.
+  const ids = await Conversation.pairIds(conversationId, req.user.id);
+  for (const id of ids) await Conversation.updateLastRead(id, req.user.id);
   // AYK-363: the conversation's notifications are read with it.
   await require('../models/Notification').markConversationRead(req.user.id, conversationId).catch(() => {});
   const io = req.app.get('io');
-  await emitConversation(io, conversationId, 'chat:read', { conversationId, userId: req.user.id });
+  for (const id of ids) await emitConversation(io, id, 'chat:read', { conversationId: id, userId: req.user.id });
   return success(res, null, req.t('read_marked'));
 });
 
@@ -452,7 +462,13 @@ const getConversation = asyncHandler(async (req, res) => {
     else if (reqRow?.assigned_provider_id && Number(reqRow.assigned_provider_id) !== Number(providerId)) closedReason = 'other_provider';
     else if (offer?.status === 'rejected') closedReason = 'declined';
   }
-  return success(res, { ...conv, participants, blocked_by_me: direction === 'mine', blocked_me: direction === 'theirs', in_directory: Boolean(saved), directory_name: saved?.nickname || null, closed_reason: closedReason });
+  const pairIds = await Conversation.pairIds(conversationId, req.user.id);
+  // An older conversation with this person that cannot be written to opens the one that can.
+  let writeId = null;
+  if (!conv.can_send) {
+    for (const id of [...pairIds].sort((a, b) => b - a)) if (id !== Number(conversationId) && await Conversation.canSend(id, req.user.id)) { writeId = id; break; }
+  }
+  return success(res, { ...conv, pair_ids: pairIds, write_id: writeId, participants, blocked_by_me: direction === 'mine', blocked_me: direction === 'theirs', in_directory: Boolean(saved), directory_name: saved?.nickname || null, closed_reason: closedReason });
 });
 
 module.exports = {

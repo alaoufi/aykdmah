@@ -4,7 +4,7 @@ const vm = require('node:vm');
 const fs = require('node:fs');
 function controller({ messages = [], denied = [], participant = true, notificationFails = false, persistFails = [] } = {}) {
   const writes = []; const receipts=new Map();const failing=new Set(persistFails);
-  const Conversation = { isParticipant: async () => participant, canSend: async id => !denied.includes(id),getParticipants:async()=>{if(notificationFails)throw Error('notification failed');return [];} };
+  const Conversation = { isParticipant: async () => participant, pairIds: async id => [Number(id)], canSend: async id => !denied.includes(id),getParticipants:async()=>{if(notificationFails)throw Error('notification failed');return [];} };
   const Message = { getForwardReceipt:async(_,__,target)=>receipts.get(target), forwardToTarget:async input=>{if(receipts.has(input.targetId))return {messageIds:receipts.get(input.targetId).message_ids,replayed:true};if(failing.has(input.targetId))throw Error('persist failed');writes.push(input);const messageIds=input.messages.map(m=>m.id+100);receipts.set(input.targetId,{fingerprint:input.fingerprint,message_ids:messageIds});return {messageIds,replayed:false};}, findById: async id => messages.find(m => m.id === Number(id)) || { id }, create: async data => { writes.push(data); return 99; }, searchInConversation: async () => [{id:1,sender_id:2,sender_role:'client',sender_name:'Private name',content:'hello'}] };
   const noop = async () => {};
   const requireStub = name => {

@@ -289,8 +289,10 @@ if (!databaseName) {
     const fresh = await Conversation.findOrCreateBetween(customer.user.id,provider.user.id,null,{fresh:true});
     assert.notEqual(fresh,source);
     for (let i=0;i<21;i++) await Conversation.findOrCreateBetween(customer.user.id,provider.user.id,null,{fresh:true});
-    const page2 = (await api('/chat/conversations?page=2&limit=20&q=Workflow', {token:customer.token})).data;
+    const page2 = (await api('/chat/conversations?separate=1&page=2&limit=20&q=Workflow', {token:customer.token})).data;
     assert.equal(page2.length,3,'server search finds conversations past the first page');
+    // AYK-365: the chat list itself shows the person once.
+    assert.equal((await api('/chat/conversations?q=Workflow', {token:customer.token})).data.length,1,'one row per person');
     assert.equal((await api('/chat/conversations?q=Private', {token:provider.token})).data.length,0,'hidden requester name is not a search oracle');
     await api('/chat/conversations?q[]=bad',{token:customer.token,expected:400});
     const text = await Message.create({conversation_id:source,sender_id:customer.user.id,content:'needle-private-search'});

@@ -104,9 +104,11 @@ async function getSenderId(id) {
 }
 
 // includeDeleted: administrators reviewing a dispute also see messages their author deleted.
+// One conversation, or (AYK-365) all the conversations of two people, as one timeline by message id.
 async function listByConversation(conversationId, { beforeId = null, afterId = null, limit = 50, includeDeleted = false } = {}) {
   limit = Math.max(1, Math.min(100, Number.parseInt(limit, 10) || 50));
-  const params = [conversationId];
+  const conversationIds = (Array.isArray(conversationId) ? conversationId : [conversationId]).map(Number).filter(Number.isSafeInteger);
+  const params = [...conversationIds];
   let beforeSql = '';
   if (beforeId) {
     beforeSql = 'AND m.id < ?';
@@ -122,12 +124,15 @@ async function listByConversation(conversationId, { beforeId = null, afterId = n
   const messages = await query(
     `SELECT m.*, u.full_name AS sender_name, u.avatar AS sender_avatar, u.role AS sender_role,
             ru.full_name AS reply_sender_name, ru.id AS reply_sender_id, ru.role AS reply_sender_role,
-            rm.content AS reply_content, rm.message_type AS reply_type
+            rm.content AS reply_content, rm.message_type AS reply_type,
+            mc.request_id AS request_id, mr.title AS request_title
      FROM messages m
      JOIN users u ON m.sender_id = u.id
       LEFT JOIN messages rm ON m.reply_to_id = rm.id AND rm.conversation_id = m.conversation_id AND rm.deleted_at IS NULL
      LEFT JOIN users ru ON rm.sender_id = ru.id
-     WHERE m.conversation_id = ? ${includeDeleted ? '' : 'AND m.deleted_at IS NULL'} ${beforeSql}
+     LEFT JOIN conversations mc ON mc.id = m.conversation_id
+     LEFT JOIN requests mr ON mr.id = mc.request_id
+     WHERE m.conversation_id IN (${conversationIds.map(() => '?').join(', ')}) ${includeDeleted ? '' : 'AND m.deleted_at IS NULL'} ${beforeSql}
      ORDER BY m.id DESC LIMIT ?`,
     params
   );
@@ -156,14 +161,15 @@ async function softDelete(id) {
 }
 
 async function searchInConversation(conversationId, q, { limit = 30, beforeId = null } = {}) {
+  const ids = (Array.isArray(conversationId) ? conversationId : [conversationId]).map(Number).filter(Number.isSafeInteger);
   return query(
-    `SELECT m.id, m.content, m.message_type, m.created_at, m.sender_id,
+    `SELECT m.id, m.conversation_id, m.content, m.message_type, m.created_at, m.sender_id,
             u.full_name AS sender_name, u.role AS sender_role
      FROM messages m JOIN users u ON m.sender_id = u.id
-     WHERE m.conversation_id = ? AND m.deleted_at IS NULL
+     WHERE m.conversation_id IN (${ids.map(() => '?').join(', ')}) AND m.deleted_at IS NULL
        AND m.content LIKE ? AND (?::bigint IS NULL OR m.id < ?)
      ORDER BY m.id DESC LIMIT ?`,
-    [conversationId, `%${q}%`, beforeId, beforeId, Number(limit)]
+    [...ids, `%${q}%`, beforeId, beforeId, Number(limit)]
   );
 }
 

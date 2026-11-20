@@ -441,3 +441,38 @@ test('AYK-364: one person\'s messages are one entry even across conversations; o
   list = await Notification.listForUser(me.user.id, { limit: 50 });
   assert.equal(list.unread, 1, 'opening one conversation with the person read all of theirs');
 });
+
+test('AYK-365: one chat per two people: one row, one timeline across their conversations, read together', async () => {
+  const me = await register();
+  const peer = await register();
+  const conv = async () => {
+    const row = await db.queryOne('INSERT INTO conversations (request_id) VALUES (NULL) RETURNING id');
+    await db.query('INSERT INTO conversation_participants (conversation_id, user_id) VALUES (?, ?), (?, ?)', [row.id, me.user.id, row.id, peer.user.id]);
+    return Number(row.id);
+  };
+  const first = await conv(), second = await conv();
+  const say = async (conversationId, sender, content) => {
+    const m = await db.queryOne("INSERT INTO messages (conversation_id, sender_id, content, message_type) VALUES (?, ?, ?, 'text') RETURNING id", [conversationId, sender, content]);
+    await db.query('UPDATE conversations SET last_message_id = ?, last_message_at = CURRENT_TIMESTAMP WHERE id = ?', [m.id, conversationId]);
+  };
+  await say(first, peer.user.id, 'رسالة قديمة');
+  await say(second, peer.user.id, 'رسالة أحدث');
+  await say(first, peer.user.id, 'الأحدث من الأولى');
+
+  const list = await api('/chat/conversations', { token: me.token });
+  const rows = (Array.isArray(list) ? list : list.items || []).filter(row => (row.pair_ids || [row.id]).some(id => [first, second].includes(Number(id))));
+  assert.equal(rows.length, 1, 'one row for the person');
+  assert.deepEqual([...rows[0].pair_ids].map(Number).sort((a, b) => a - b), [first, second]);
+  assert.equal(Number(rows[0].unread_count), 3);
+
+  const messages = await api(`/chat/conversations/${second}/messages`, { token: me.token });
+  assert.deepEqual(messages.map(m => m.content), ['رسالة قديمة', 'رسالة أحدث', 'الأحدث من الأولى'], 'one timeline, oldest first');
+  const info = await api(`/chat/conversations/${first}`, { token: me.token });
+  assert.deepEqual([...info.pair_ids].map(Number).sort((a, b) => a - b), [first, second]);
+
+  await api(`/chat/conversations/${second}/read`, { token: me.token, method: 'PUT' });
+  assert.equal(Number((await db.queryOne('SELECT COUNT(*) AS n FROM messages WHERE conversation_id IN (?, ?) AND is_read = 0', [first, second])).n), 0, 'read together');
+  // Another person's chat is not mixed in.
+  const stranger = await register();
+  await api(`/chat/conversations/${first}/messages`, { token: stranger.token, expected: 403 });
+});
