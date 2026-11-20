@@ -347,6 +347,8 @@ const login = asyncHandler(async (req, res) => {
   // In the site and the app an admin account is an ordinary user (AYK-151).
   const found = await User.findById(user.id);
   const safe = requestScope(req) === 'site' ? asSiteUser(found) : found;
+  // AYK-344: the account's language comes with the sign-in itself, so the page switches at once.
+  if (safe) safe.ui_lang = (await queryOne('SELECT ui_lang FROM users WHERE id = ?', [user.id]).catch(() => null))?.ui_lang || null;
   return success(res, { user: safe, token }, req.t('logged_in'));
 });
 

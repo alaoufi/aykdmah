@@ -1606,3 +1606,7 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Integration test: the first language kept; a request in another language does not change it, and `/auth/me` returns the account language; an explicit change is saved; an unknown language refused. Full integration run 285 pass, 0 fail; server unit 86, client 166 pass; build and `check-deploy` ok.
 - Browser check (local site, two fresh browsers set to Arabic): an account in Urdu opens in Urdu after sign-in and after reloading; after the account's language was changed to English, a new browser opens in English; no page errors.
 - Not tested: the apps on a phone; the sign-up form itself end to end (its language step is unchanged).
+- AYK-344 deployed as 1.1.90 (build f67c4d0).
+- The owner, to avoid any slowness: «اعتمد اللغة على هذا الحساب وهذا الجهاز ما لم يعدّل». Now the sign-in's own answer carries the account's language, so the page switches at the moment of signing in instead of after a second request; the language is kept on the device, so later openings start in it without waiting for the server.
+  - Browser check (local site, a fresh browser set to Arabic, the account in Urdu): switched to Urdu 272 ms after tapping «تسجيل الدخول»; the next opening, with the server's account answer held back 3 s on purpose, drew the page in Urdu at once (`lsm_lang` = ur); no page errors.
+  - Client tests 166, server unit 86 pass; build and `check-deploy` 22 ok.

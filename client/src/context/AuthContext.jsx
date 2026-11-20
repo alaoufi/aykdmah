@@ -7,6 +7,15 @@ import i18n, { SUPPORTED_LANG_CODES } from '../i18n';
 
 const AuthContext = createContext(null);
 
+// AYK-344 (the owner's rule): the account's language, chosen at sign-up or changed later, is used at
+// every sign-in on any device; the admin area stays Arabic. It is kept on this device too (i18next
+// saves it), so later openings start in it at once without asking the server: the server's answer
+// only switches when the account's language was changed elsewhere.
+function applyAccountLanguage(user) {
+  const own = String(user?.ui_lang || '').toLowerCase();
+  if (!isAdminScope() && SUPPORTED_LANG_CODES.includes(own) && own !== i18n.resolvedLanguage) i18n.changeLanguage(own);
+}
+
 // Moving between /admin and the site switches to that area's own session (AYK-114).
 // Rendered only inside a router.
 function ScopeWatcher() {
@@ -62,10 +71,7 @@ export function AuthProvider({ children }) {
       }
       setUser(data.user);
       setProvider(data.provider || null);
-      // AYK-344 (the owner's rule): the account's language, chosen at sign-up or changed later, is
-      // used at every sign-in on any device. The admin area stays Arabic.
-      const own = String(data.user?.ui_lang || '').toLowerCase();
-      if (!isAdminScope() && SUPPORTED_LANG_CODES.includes(own) && own !== i18n.resolvedLanguage) i18n.changeLanguage(own);
+      applyAccountLanguage(data.user);
       // AYK-328: remembered only to fetch this person's first page early at the next opening.
       try { localStorage.setItem('ayk_last_role', data.user?.role === 'provider' && Number(data.user.also_client) !== 1 ? 'provider' : 'other'); } catch (_) { /* private mode */ }
       return data;
@@ -117,6 +123,7 @@ export function AuthProvider({ children }) {
 
   const login = async (creds) => {
     const data = await loginApi(creds);
+    applyAccountLanguage(data.user); // at once, with the sign-in's own answer
     setUser(data.user);
     setProvider(data.provider || null);
     setLoading(false);
