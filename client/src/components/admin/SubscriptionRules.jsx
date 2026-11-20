@@ -7,6 +7,7 @@ import {
 import { listCountries, listRegions, listCities, listCategories } from '../../services/serviceService';
 import { apiError } from '../../services/api';
 import { localizedName } from '../../utils/localize';
+import { optionLabel } from '../../utils/optionLabel';
 
 const EMPTY = { region_id: '', city_id: '', category_id: '', is_free: false, note: '' };
 
@@ -72,7 +73,7 @@ export default function SubscriptionRules() {
         </select>
         <select className={sel} aria-label={t('requester.profession')} value={form.category_id} onChange={e => setForm(f => ({ ...f, category_id: e.target.value }))}>
           <option value="">{t('requester.all_professions')}</option>
-          {categories.map(c => <option key={c.id} value={c.id}>{c.icon} {localizedName(c, lang)}</option>)}
+          {categories.map(c => <option key={c.id} value={c.id}>{optionLabel(c.icon, localizedName(c, lang), lang)}</option>)}
         </select>
         <select className={sel} aria-label={t('subrules.kind')} value={form.is_free ? '1' : '0'} onChange={e => setForm(f => ({ ...f, is_free: e.target.value === '1' }))}>
           <option value="0">💳 {t('subrules.paid')}</option>

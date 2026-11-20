@@ -12,6 +12,7 @@ import { canRequestService } from '../../utils/canRequest';
 import { listDirectoryIds, saveToDirectory, contactDirect } from '../../services/requestService';
 import { apiError } from '../../services/api';
 import { isPresent } from '../common/AvailabilityBadge';
+import { optionLabel } from '../../utils/optionLabel';
 
 // Providers who serve the signed-in requester's registered district in a profession
 // (AYK-035): every provider covering that district, featured (paid) first, then by
@@ -128,7 +129,7 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
       {showChips && <select className="select mb-3 max-w-md font-semibold" aria-label={t('for_you.profession')} data-testid="profession-select"
         value={categoryId} onChange={e => setCategoryId(e.target.value)}>
         <option value="">{t('requester.all_professions')}</option>
-        {categories.map(c => <option key={c.id} value={c.id}>{c.icon} {localizedName(c, lang)}</option>)}
+        {categories.map(c => <option key={c.id} value={c.id}>{optionLabel(c.icon, localizedName(c, lang), lang)}</option>)}
       </select>}
       {result?.area && result.providers.length > 0 && <div className="flex flex-wrap gap-2 mb-3" role="tablist" data-testid="providers-stats">
         <button type="button" role="tab" aria-selected={!onlyPresent} className="btn btn-outline btn-sm" data-testid="show-all-providers"

@@ -18,6 +18,7 @@ import useVoiceRecording from '../hooks/useVoiceRecording';
 import { addChatAttachments, CHAT_MEDIA_MAX_BYTES, recordingTime } from '../utils/chatMedia';
 import VoiceNote from '../components/chat/VoiceNote';
 import ProblemNotice from '../components/common/ProblemNotice';
+import { optionLabel } from '../utils/optionLabel';
 
 const EMPTY_FORM = { category_id: '', service_id: '', title: '', description: '' };
 
@@ -219,7 +220,7 @@ export default function CreateRequestPage() {
           <label className="form-label">{t('requester.profession')} *</label>
           <select className="select" required value={form.category_id} onChange={(e) => update('category_id', e.target.value)} data-testid="request-category">
             <option value="">{t('common.select')}</option>
-            {categories.map(c => <option key={c.id} value={c.id}>{c.icon} {localizedName(c, lang)}</option>)}
+            {categories.map(c => <option key={c.id} value={c.id}>{optionLabel(c.icon, localizedName(c, lang), lang)}</option>)}
           </select>
         </div>
         {requiredKeys.map(renderField)}

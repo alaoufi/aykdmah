@@ -1610,3 +1610,12 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - The owner, to avoid any slowness: «اعتمد اللغة على هذا الحساب وهذا الجهاز ما لم يعدّل». Now the sign-in's own answer carries the account's language, so the page switches at the moment of signing in instead of after a second request; the language is kept on the device, so later openings start in it without waiting for the server.
   - Browser check (local site, a fresh browser set to Arabic, the account in Urdu): switched to Urdu 272 ms after tapping «تسجيل الدخول»; the next opening, with the server's account answer held back 3 s on purpose, drew the page in Urdu at once (`lsm_lang` = ur); no page errors.
   - Client tests 166, server unit 86 pass; build and `check-deploy` 22 ok.
+- AYK-344 (account and device) deployed as 1.1.91 (build 69289a0).
+
+## 2026-11-20 — AYK-345: a new profession's emoji on the wrong side in the phone's list
+- The owner's screenshot (Android, the professions list): the new profession «بنشر وتغيير زيوت» showed its 🛞 after the name, the others before.
+- Cause: the phone draws each line of its own list in the direction of the line's first letter. 🛞 is a newer emoji (2021) the phone's text library does not know, and an unknown character counts as a left-to-right letter, so that line was laid out left to right. The data is right (live `/api/categories`: icon `🛞` alone, name in Arabic).
+- Now every profession line in the four lists that show an icon starts with an invisible direction mark of the page's language, so the line follows the language whatever the emoji.
+- New client test (Arabic, Urdu, English, no icon): passes; client tests 167 pass; build and `check-deploy` 22 ok.
+- Not tried on the owner's phone.
+- Seen while checking: the English machine translation of «بنشر» came out as «Oil diffusion and change» (the word was taken for «spreading»); the other languages are likely as wrong. Left for the owner to decide (rename in Arabic so it translates well, or correct by hand).

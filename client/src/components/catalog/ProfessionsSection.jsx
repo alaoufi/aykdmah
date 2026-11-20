@@ -5,6 +5,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { listCategories, getAreaStats } from '../../services/serviceService';
 import { CATEGORIES } from '../../data/servicesCatalog';
 import { localizedName, tx } from '../../utils/localize';
+import { optionLabel } from '../../utils/optionLabel';
 
 // Every profession on the platform (AYK-036): a dropdown to jump to one, and a card per
 // profession with what helps a requester decide — how many providers serve their area,
@@ -32,7 +33,7 @@ export default function ProfessionsSection({ query = '' }) {
           onChange={e => e.target.value && navigate(href(e.target.value))}
           className="min-w-0 flex-1 sm:flex-none sm:w-72 px-3 py-2.5 rounded-card border border-border bg-surface text-[14px] font-semibold text-fg">
           <option value="">{t('for_you.choose_profession')}</option>
-          {categories.map(c => <option key={c.id} value={c.slug}>{c.icon} {localizedName(c, lang)}</option>)}
+          {categories.map(c => <option key={c.id} value={c.slug}>{optionLabel(c.icon, localizedName(c, lang), lang)}</option>)}
         </select>
       </div>
 
