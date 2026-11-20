@@ -1644,3 +1644,5 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Cause: on phones every page's main area kept 108 px clear of the bottom bar, and so did the footer under it; the home page had its own main area inside, with another 108 px and 96 px more. The footer alone keeps clear of the bar now; the home page's inner area is a plain block.
 - Browser check (local site, phone size, signed in): the gap between the last content and the footer is 0 px on `/`, `/profile`, `/services` and `/directory`; the footer still ends 108 px above the bottom of the page so the bar covers nothing; screenshot reviewed; no page errors.
 - Client tests 167 pass; build and `check-deploy` 22 ok.
+- AYK-349 deployed with commit ead1974.
+- AYK-348 report (run for ead1974, 2026-11-20 12:50 UTC): Android (Firebase) key **yes**; iPhone (Apple APNs) key **NO**; web push key yes; phones registered: 4 iPhone, 17 Android (19 updated in the last 7 days); 10 browsers for web push; no sending failure logged in the last 3 hours. So Android apps receive notifications with the app closed; the iPhone app does not until the Apple key is on the server (`deploy/apns-setup.sh`, AYK-269).
