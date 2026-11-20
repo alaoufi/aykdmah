@@ -307,7 +307,9 @@ const login = asyncHandler(async (req, res) => {
   let user = await User.findByIdentifier(id);
   if (!user) {
     await logSecurityEvent(req, 'login_failed', { description: 'unknown account' });
-    return unauthorized(res, req.t('invalid_credentials'));
+    // AYK-372 (the owner: «إذا الجوال ليس مسجلًا تكتب الجوال غير مسجل، للتسجيل من هنا؛ وإذا كلمة المرور خطأ،
+    // كلمة المرور غير صحيحة، لاستعادتها من هنا»): the two answers say which one it is.
+    return res.status(401).json({ success: false, message: req.t('invalid_credentials'), code: 'account_not_found' });
   }
   // AYK-208: locked after 5 wrong passwords until an SMS-code password reset.
   if (user.login_locked_at) {
@@ -327,7 +329,7 @@ const login = asyncHandler(async (req, res) => {
       const locked = await User.recordFailedLogin(user);
       await logSecurityEvent(req, locked ? 'login_locked' : 'login_failed', { userId: user.id, description: 'password' });
       if (locked) return error(res, req.t('account_locked_reset'), 423);
-      return unauthorized(res, req.t('invalid_credentials'));
+      return res.status(401).json({ success: false, message: req.t('invalid_credentials'), code: 'wrong_password' });
     }
   }
   if (user.failed_logins) await User.clearFailedLogins(user.id);

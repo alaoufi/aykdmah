@@ -323,8 +323,12 @@
     "password_advice": "Agar lebih aman, gunakan minimal 6 karakter",
     "provider_extras": "Jam kerja dan tempat kerja (opsional)",
     "provider_extras_hint": "Jika tidak diubah: Anda bekerja setiap hari kapan saja, dan Anda yang datang ke pelanggan. Anda bisa mengubahnya kapan saja di «{{profile}}».",
-    "wrong_password": "Kata sandi salah",
-    "recover_password": "Pulihkan kata sandi"
+    "wrong_password": "Kata sandi tidak benar",
+    "recover_password": "Pulihkan kata sandi",
+    "phone_not_registered": "Nomor ponsel ini belum terdaftar",
+    "account_not_registered": "Akun ini belum terdaftar",
+    "register_here": "Daftar di sini",
+    "recover_here": "Pulihkan di sini"
   },
   "request": {
     "create_title": "Buat permintaan baru",

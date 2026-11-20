@@ -323,8 +323,12 @@
     "password_advice": "बेहतर सुरक्षा के लिए कम से कम 6 अक्षर रखें",
     "provider_extras": "काम के घंटे और सेवा की जगह (वैकल्पिक)",
     "provider_extras_hint": "अगर आप इन्हें नहीं बदलते: आप हर दिन, हर समय काम करते हैं और आप ग्राहक के पास जाते हैं। इन्हें कभी भी «{{profile}}» में बदल सकते हैं।",
-    "wrong_password": "पासवर्ड गलत है",
-    "recover_password": "पासवर्ड वापस पाएँ"
+    "wrong_password": "पासवर्ड सही नहीं है",
+    "recover_password": "पासवर्ड वापस पाएँ",
+    "phone_not_registered": "यह मोबाइल नंबर पंजीकृत नहीं है",
+    "account_not_registered": "यह खाता पंजीकृत नहीं है",
+    "register_here": "यहाँ पंजीकरण करें",
+    "recover_here": "यहाँ से वापस पाएँ"
   },
   "request": {
     "create_title": "नया अनुरोध बनाएं",

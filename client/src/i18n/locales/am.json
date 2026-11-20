@@ -323,8 +323,12 @@
     "password_advice": "ለተሻለ ጥበቃ ቢያንስ 6 ቁምፊ ይጠቀሙ",
     "provider_extras": "የሥራ ሰዓትና የሥራ ቦታ (አማራጭ)",
     "provider_extras_hint": "ካልቀየሯቸው፦ በየቀኑ በማንኛውም ሰዓት ይሠራሉ፣ እርስዎም ወደ ደንበኛው ይሄዳሉ። በማንኛውም ጊዜ በ«{{profile}}» ማስተካከል ይችላሉ።",
-    "wrong_password": "የይለፍ ቃሉ ስህተት ነው",
-    "recover_password": "የይለፍ ቃል መልስ"
+    "wrong_password": "የይለፍ ቃሉ ትክክል አይደለም",
+    "recover_password": "የይለፍ ቃል መልስ",
+    "phone_not_registered": "ይህ የሞባይል ቁጥር አልተመዘገበም",
+    "account_not_registered": "ይህ መለያ አልተመዘገበም",
+    "register_here": "እዚህ ይመዝገቡ",
+    "recover_here": "እዚህ ያስመልሱ"
   },
   "request": {
     "create_title": "አዲስ ጥያቄ ይፍጠሩ",

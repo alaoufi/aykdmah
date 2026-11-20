@@ -51,7 +51,10 @@ export default function LoginPage() {
         return;
       }
       // AYK-369 (the owner): a wrong password says only that, with «استعادة كلمة المرور»; no support box.
-      if (err?.response?.status === 401) { setError(''); setWrongPassword(true); return; }
+      // AYK-372: not registered → «للتسجيل من هنا»; a wrong password → «لاستعادتها من هنا».
+      if (err?.response?.status === 401 && !form.phone_code) {
+        setError(''); setWrongPassword(err.response.data?.code === 'account_not_found' ? 'unknown' : 'password'); return;
+      }
       setError(apiError(err));
     } finally {
       setLoading(false);
@@ -68,8 +71,13 @@ export default function LoginPage() {
       {error && <ProblemNotice error={error} />}
       {wrongPassword && !error && (
         <div role="alert" className="mb-3 px-3 py-2.5 rounded-card bg-danger-soft text-danger text-[14px] font-semibold flex items-center justify-between gap-2 flex-wrap" data-testid="wrong-password">
-          <span>{t('auth.wrong_password')}</span>
-          <Link to="/forgot-password" state={{ identifier: form.identifier }} className="text-primary underline">{t('auth.recover_password')}</Link>
+          {wrongPassword === 'unknown' ? (<>
+            <span>{t(/^[\d+\s()-]+$/.test(form.identifier.trim()) ? 'auth.phone_not_registered' : 'auth.account_not_registered')}</span>
+            <Link to="/register" state={{ from, identifier: form.identifier }} className="text-primary underline" data-testid="register-here">{t('auth.register_here')}</Link>
+          </>) : (<>
+            <span>{t('auth.wrong_password')}</span>
+            <Link to="/forgot-password" state={{ identifier: form.identifier }} className="text-primary underline" data-testid="recover-here">{t('auth.recover_here')}</Link>
+          </>)}
         </div>
       )}
 

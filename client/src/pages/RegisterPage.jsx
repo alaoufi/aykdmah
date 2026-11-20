@@ -49,7 +49,8 @@ export default function RegisterPage() {
   const [intro, setIntro] = useState(() => (signupIntroSeen() ? null : 'language'));
   const [form, setForm] = useState({
     role: ['provider', 'both'].includes(params.get('role')) ? params.get('role') : 'client',
-    phone: '', password: '', full_name: '',
+    // AYK-372: from «للتسجيل من هنا» on the sign-in page, the number already typed there.
+    phone: typeof location.state?.identifier === 'string' && /^[\d+\s()-]{8,}$/.test(location.state.identifier.trim()) ? cleanTyped(location.state.identifier.trim()) : '', password: '', full_name: '',
     service_ids: [], coverage: [], location_mode: 'mobile',
     work_days: [0, 1, 2, 3, 4, 5, 6], work_from: '', work_to: '',
     // A shared invitation link (?ref=CODE, or the short aykdmh.com/i/CODE kept on this device,

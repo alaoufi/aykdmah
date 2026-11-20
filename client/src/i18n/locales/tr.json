@@ -324,7 +324,11 @@
     "provider_extras": "Çalışma saatleri ve hizmet yeri (isteğe bağlı)",
     "provider_extras_hint": "Değiştirmezseniz: her gün her saatte çalışırsınız ve müşteriye siz gidersiniz. İstediğiniz zaman «{{profile}}» bölümünden değiştirebilirsiniz.",
     "wrong_password": "Şifre yanlış",
-    "recover_password": "Şifreyi kurtar"
+    "recover_password": "Şifreyi kurtar",
+    "phone_not_registered": "Bu cep telefonu kayıtlı değil",
+    "account_not_registered": "Bu hesap kayıtlı değil",
+    "register_here": "Buradan kaydolun",
+    "recover_here": "Buradan kurtarın"
   },
   "request": {
     "create_title": "Yeni talep oluştur",

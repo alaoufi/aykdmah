@@ -323,8 +323,12 @@
     "password_advice": "الأفضل 6 خانات على الأقل لحماية أقوى",
     "provider_extras": "أوقات العمل ومكان الخدمة (اختياري)",
     "provider_extras_hint": "إن لم تغيّرها: تعمل كل الأيام وكل الساعات، وتذهب أنت إلى العميل. تستطيع تعديلها في أي وقت من «{{profile}}».",
-    "wrong_password": "كلمة المرور خطأ",
-    "recover_password": "استعادة كلمة المرور"
+    "wrong_password": "كلمة المرور غير صحيحة",
+    "recover_password": "استعادة كلمة المرور",
+    "phone_not_registered": "الجوال غير مسجل",
+    "account_not_registered": "الحساب غير مسجل",
+    "register_here": "للتسجيل من هنا",
+    "recover_here": "لاستعادتها من هنا"
   },
   "request": {
     "create_title": "إنشاء طلب جديد",

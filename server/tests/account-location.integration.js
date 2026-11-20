@@ -495,3 +495,13 @@ test('AYK-366: a provider saves a weekly schedule; the profile shows it, availab
   const allDay = (await api('/auth/me', { token: provider.token })).provider.availability;
   assert.equal(allDay.all_hours, true); assert.equal(allDay.state, 'available');
 });
+
+test('AYK-372: sign-in says whether the number is not registered or the password is wrong', async () => {
+  const session = await register();
+  const answer = async identifier => {
+    const r = await fetch(base + '/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ identifier, password: 'not-the-password' }) });
+    return { status: r.status, code: (await r.json()).code };
+  };
+  assert.deepEqual(await answer('0599999991'), { status: 401, code: 'account_not_found' });
+  assert.deepEqual(await answer(session.user.phone), { status: 401, code: 'wrong_password' });
+});
