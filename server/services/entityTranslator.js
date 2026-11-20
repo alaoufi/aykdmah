@@ -28,7 +28,10 @@ async function translateAllLanguages(text, sourceLang = 'ar') {
   );
   for (let i = 0; i < targets.length; i++) {
     const r = results[i];
-    map[targets[i]] = r.status === 'fulfilled' && r.value?.text ? r.value.text : text;
+    // AYK-343: a failed language is left out (it used to get the Arabic text, which then showed
+    // as if it were the translation and was never tried again). contentTranslation fills it later.
+    const out = r.status === 'fulfilled' && r.value?.provider !== 'noop' ? r.value?.text : null;
+    if (out && String(out).trim() && String(out).trim() !== String(text).trim()) map[targets[i]] = out;
   }
   return map;
 }

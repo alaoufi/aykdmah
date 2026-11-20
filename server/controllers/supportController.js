@@ -3,6 +3,7 @@ const { success, created, error, notFound } = require('../utils/apiResponse');
 const asyncHandler = require('../utils/asyncHandler');
 const notificationService = require('../services/notificationService');
 const { hasPermission } = require('../middleware/roleCheck');
+const contentTranslation = require('../services/contentTranslation');
 
 // Messages to the administration (AYK-046): support, suggestions, administration.
 // Each thread keeps both sides' replies; the unread counters are the reminders.
@@ -21,6 +22,24 @@ async function thread(id) {
   return ticket;
 }
 
+// Each reader reads the other side's messages in their own language (the owner: «الرسائل المتبادلة
+// مع الإدارة تصل لكل قارئ بلغته»): the administration always reads Arabic, the writer reads the
+// language of their account. `body` stays the original; `body_translated` is added only when a
+// translation worked and differs, so a failing translator changes nothing.
+async function forReader(ticket, lang, asAdmin) {
+  if (!ticket) return ticket;
+  const others = (ticket.messages || []).filter(m => Boolean(Number(m.from_admin)) !== asAdmin);
+  await contentTranslation.rowsForReader(others, 'body', lang);
+  return ticket;
+}
+// The list's last message, translated only when it came from the other side.
+async function lastForReader(rows, lang, asAdmin) {
+  const others = rows.filter(row => row.last_body && Boolean(Number(row.last_from_admin)) !== asAdmin);
+  await contentTranslation.rowsForReader(others, 'last_body', lang);
+  return rows;
+}
+const userLang = req => contentTranslation.readerLang(req.user.id, req.lang);
+
 // Every active admin who handles these messages is told about a new one (their reminder): the full
 // admin, and admins with the users permission that opens «رسائل المستخدمين» (AYK-212).
 async function tellAdmins(req, ticketId, body) {
@@ -38,9 +57,10 @@ async function tellAdmins(req, ticketId, body) {
 // ---- The writer (any signed-in user) ----------------------------------------
 const listMine = asyncHandler(async (req, res) => {
   const rows = await query(`SELECT t.id, t.topic, t.status, t.user_unread, t.created_at, t.updated_at,
-      (SELECT body FROM support_messages m WHERE m.ticket_id = t.id ORDER BY m.id DESC LIMIT 1) AS last_body
+      (SELECT body FROM support_messages m WHERE m.ticket_id = t.id ORDER BY m.id DESC LIMIT 1) AS last_body,
+      (SELECT from_admin FROM support_messages m WHERE m.ticket_id = t.id ORDER BY m.id DESC LIMIT 1) AS last_from_admin
     FROM support_tickets t WHERE t.user_id = ? ORDER BY t.updated_at DESC LIMIT 100`, [req.user.id]);
-  return success(res, rows);
+  return success(res, await lastForReader(rows, await userLang(req), false));
 });
 
 const create = asyncHandler(async (req, res) => {
@@ -52,8 +72,9 @@ const create = asyncHandler(async (req, res) => {
     await conn.execute('INSERT INTO support_messages (ticket_id, sender_id, from_admin, body) VALUES (?, ?, 0, ?)', [ticket.insertId, req.user.id, body]);
     return ticket.insertId;
   });
+  contentTranslation.prepare(body, 'ar');
   await tellAdmins(req, id, body);
-  return created(res, await thread(id), req.t('support_sent'));
+  return created(res, await forReader(await thread(id), await userLang(req), false), req.t('support_sent'));
 });
 
 const getMine = asyncHandler(async (req, res) => {
@@ -61,6 +82,7 @@ const getMine = asyncHandler(async (req, res) => {
   const ticket = await thread(req.params.id);
   if (!ticket || Number(ticket.user_id) !== Number(req.user.id)) return notFound(res);
   await query('UPDATE support_tickets SET user_unread = 0 WHERE id = ?', [ticket.id]);
+  await forReader(ticket, await userLang(req), false);
   return success(res, { ...ticket, user_unread: 0 });
 });
 
@@ -72,8 +94,9 @@ const replyMine = asyncHandler(async (req, res) => {
   if (!body || body.length > 4000) return error(res, req.t('support_body_required'), 400);
   await query('INSERT INTO support_messages (ticket_id, sender_id, from_admin, body) VALUES (?, ?, 0, ?)', [ticket.id, req.user.id, body]);
   await query("UPDATE support_tickets SET admin_unread = admin_unread + 1, status = 'open', updated_at = CURRENT_TIMESTAMP WHERE id = ?", [ticket.id]);
+  contentTranslation.prepare(body, 'ar');
   await tellAdmins(req, ticket.id, body);
-  return created(res, await thread(ticket.id));
+  return created(res, await forReader(await thread(ticket.id), await userLang(req), false));
 });
 
 const unreadMine = asyncHandler(async (req, res) => {
@@ -88,10 +111,11 @@ const adminList = asyncHandler(async (req, res) => {
   if (TOPICS.includes(req.query.topic)) { where.push('t.topic = ?'); params.push(req.query.topic); }
   const rows = await query(`SELECT t.id, t.topic, t.status, t.admin_unread, t.created_at, t.updated_at,
       u.full_name, u.referral_code,
-      (SELECT body FROM support_messages m WHERE m.ticket_id = t.id ORDER BY m.id DESC LIMIT 1) AS last_body
+      (SELECT body FROM support_messages m WHERE m.ticket_id = t.id ORDER BY m.id DESC LIMIT 1) AS last_body,
+      (SELECT from_admin FROM support_messages m WHERE m.ticket_id = t.id ORDER BY m.id DESC LIMIT 1) AS last_from_admin
     FROM support_tickets t JOIN users u ON u.id = t.user_id
     WHERE ${where.join(' AND ')} ORDER BY (t.admin_unread > 0) DESC, t.updated_at DESC LIMIT 200`, params);
-  return success(res, rows);
+  return success(res, await lastForReader(rows, 'ar', true));
 });
 
 const adminGet = asyncHandler(async (req, res) => {
@@ -99,6 +123,7 @@ const adminGet = asyncHandler(async (req, res) => {
   const ticket = await thread(req.params.id);
   if (!ticket) return notFound(res);
   await query('UPDATE support_tickets SET admin_unread = 0 WHERE id = ?', [ticket.id]);
+  await forReader(ticket, 'ar', true);
   return success(res, { ...ticket, admin_unread: 0 });
 });
 
@@ -110,10 +135,11 @@ const adminReply = asyncHandler(async (req, res) => {
   if (!body || body.length > 4000) return error(res, req.t('support_body_required'), 400);
   await query('INSERT INTO support_messages (ticket_id, sender_id, from_admin, body) VALUES (?, ?, 1, ?)', [ticket.id, req.user.id, body]);
   await query("UPDATE support_tickets SET user_unread = user_unread + 1, admin_unread = 0, status = 'answered', updated_at = CURRENT_TIMESTAMP WHERE id = ?", [ticket.id]);
+  contentTranslation.prepare(body, await contentTranslation.readerLang(ticket.user_id, 'ar'));
   await notificationService.notifyUser(ticket.user_id, {
     type: 'support_reply', title: req.t('support_reply_title'), body: body.slice(0, 120), link: `/support/${ticket.id}`,
   });
-  return created(res, await thread(ticket.id));
+  return created(res, await forReader(await thread(ticket.id), 'ar', true));
 });
 
 const adminStatus = asyncHandler(async (req, res) => {

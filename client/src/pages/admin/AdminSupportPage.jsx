@@ -8,6 +8,7 @@ import { adminListSupport, adminGetSupport, adminReplySupport, adminSupportStatu
 import { apiError } from '../../services/api';
 import { formatRelativeTime, truncate } from '../../utils/formatters';
 import SupportThread from '../../components/support/SupportThread';
+import TranslatedText from '../../components/common/TranslatedText';
 
 const TOPICS = ['support', 'complaint', 'suggestion', 'admin'];
 const STATUSES = ['open', 'answered', 'closed'];
@@ -100,7 +101,7 @@ export default function AdminSupportPage() {
                     <span className={`flex-1 min-w-0 truncate text-[14.5px] text-ink ${unread ? 'font-extrabold' : 'font-bold'}`}>{row.full_name}</span>
                     <span className="text-[11px] text-slate-400 shrink-0">{formatRelativeTime(row.updated_at)}</span>
                   </div>
-                  <div className={`text-[13px] truncate mt-0.5 ${unread ? 'text-ink' : 'text-slate-500'}`}>{truncate(row.last_body || '', 100)}</div>
+                  <div className={`text-[13px] truncate mt-0.5 ${unread ? 'text-ink' : 'text-slate-500'}`}><TranslatedText compact text={truncate(row.last_body || '', 100)} translated={row.last_body_translated && truncate(row.last_body_translated, 100)} /></div>
                   <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
                     <span className={`px-2 py-0.5 rounded-pill text-[11px] leading-4 font-bold ${STATUS_TONE[row.status] || STATUS_TONE.closed}`}>{t(`support.status_${row.status}`)}</span>
                     <span className="px-2 py-0.5 rounded-pill text-[11px] leading-4 bg-slate-100 text-slate-600">{ICONS[row.topic]} {t(`support.topic_${row.topic}`)}</span>

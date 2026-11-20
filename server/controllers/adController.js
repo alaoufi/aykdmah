@@ -7,6 +7,7 @@ const asyncHandler = require('../utils/asyncHandler');
 const { validId, invalid } = require('../models/Payment');
 const { hasPermission } = require('../middleware/roleCheck');
 const { query } = require('../config/database');
+const contentTranslation = require('../services/contentTranslation');
 
 // AYK-342 (the owner: «الإعلان الذي في الويب لا يظهر في التطبيق»): an ad's cities are saved by
 // their Arabic names, while a location found from the connection's address names the city in
@@ -129,8 +130,12 @@ const myAds = financeHandler(async (req, res) => {
     adRequestService.getConfig(),
     Ad.listForUser(req.user.id),
   ]);
-  // The administration's messages about each ad (AYK-153).
-  return success(res, { config, ads: await Ad.withAdminMessages(ads) });
+  // The administration's messages about each ad (AYK-153), in the advertiser's language
+  // (`message` stays the Arabic original; `message_translated` is added when a translation worked).
+  const withMessages = await Ad.withAdminMessages(ads);
+  const lang = await contentTranslation.readerLang(req.user.id, req.lang);
+  await contentTranslation.rowsForReader(withMessages.flatMap(ad => ad.admin_messages || []), 'message', lang);
+  return success(res, { config, ads: withMessages });
 });
 
 // POST /api/ads/quote — preview total cost without saving anything
@@ -477,6 +482,7 @@ const adminMessage = financeHandler(async (req, res) => {
   const message = typeof req.body?.message === 'string' ? req.body.message.trim() : '';
   if (!Ad.MESSAGE_CATEGORIES.includes(category) || !message || message.length > 2000) return error(res, req.t('invalid_data'), 400);
   await Ad.addAdminMessage(ad.id, req.user.id, category, message);
+  if (ad.user_id) contentTranslation.readerLang(ad.user_id, 'ar').then(lang => contentTranslation.prepare(message, lang)).catch(() => {});
   const titles = { financial: 'ملاحظة مالية على إعلانك', administrative: 'ملاحظة إدارية على إعلانك', legal: 'ملاحظة قانونية على إعلانك' };
   if (ad.user_id) {
     require('../services/notificationService').notifyUser(ad.user_id, {

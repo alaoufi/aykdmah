@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { formatDate } from '../../utils/formatters';
 import { apiError } from '../../services/api';
+import TranslatedText from '../common/TranslatedText';
 
 // One message thread with the administration (AYK-046), shared by the writer's page
 // and the admin inbox. `asAdmin` decides which side is "mine".
@@ -31,7 +32,7 @@ export default function SupportThread({ ticket, asAdmin = false, onReply, collap
                   {Number(message.from_admin) ? `🛡️ ${t('support.from_admin')}` : (message.sender_name || ticket.full_name)}
                 </div>
               ) : null}
-              {message.body}
+              <TranslatedText text={message.body} translated={message.body_translated} />
               <div className="text-[10.5px] text-fg-muted mt-1">{formatDate(message.created_at, true)}</div>
             </div>
           );

@@ -28,7 +28,7 @@ const FROM = `
 
 function parseRow(row) {
   if (!row) return null;
-  for (const col of ['placements', 'target_countries', 'target_cities', 'target_regions']) {
+  for (const col of ['placements', 'target_countries', 'target_cities', 'target_regions', 'title_translations', 'description_translations']) {
     if (row[col] && typeof row[col] === 'string') {
       try { row[col] = JSON.parse(row[col]); } catch (_) { row[col] = null; }
     }
@@ -92,7 +92,7 @@ async function listLive({ placement, applyExclusivity = true } = {}) {
     params.push(placement, placement);
   }
   const rows = await query(
-    `SELECT a.id, a.title, a.description, a.image, a.media_type, a.link, a.placement, a.placements,
+    `SELECT a.id, a.title, a.description, a.title_translations, a.description_translations, a.image, a.media_type, a.link, a.placement, a.placements,
        a.exclusive, a.target_countries, a.target_cities, a.target_regions, a.starts_at, a.ends_at
        FROM ads a WHERE ${where} ORDER BY a.sort_order ASC, RAND()`,
     params

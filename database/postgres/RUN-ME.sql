@@ -6660,6 +6660,18 @@ VALUES ('marketing_subscription_amount', '0', 'number', 'payments', 0, 'طريق
 ON CONFLICT (setting_key) DO NOTHING;
 INSERT INTO schema_migrations(name) VALUES ('094_marketing_commission.sql');
 
+-- migrations/095_content_translations.sql
+ALTER TABLE countries ADD COLUMN IF NOT EXISTS name_translations JSONB DEFAULT NULL;
+ALTER TABLE regions ADD COLUMN IF NOT EXISTS name_translations JSONB DEFAULT NULL;
+ALTER TABLE governorates ADD COLUMN IF NOT EXISTS name_translations JSONB DEFAULT NULL;
+ALTER TABLE cities ADD COLUMN IF NOT EXISTS name_translations JSONB DEFAULT NULL;
+ALTER TABLE districts ADD COLUMN IF NOT EXISTS name_translations JSONB DEFAULT NULL;
+ALTER TABLE subscription_plans ADD COLUMN IF NOT EXISTS name_translations JSONB DEFAULT NULL;
+ALTER TABLE subscription_plans ADD COLUMN IF NOT EXISTS description_translations JSONB DEFAULT NULL;
+ALTER TABLE ads ADD COLUMN IF NOT EXISTS title_translations JSONB DEFAULT NULL;
+ALTER TABLE ads ADD COLUMN IF NOT EXISTS description_translations JSONB DEFAULT NULL;
+INSERT INTO schema_migrations(name) VALUES ('095_content_translations.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

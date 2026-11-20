@@ -223,10 +223,12 @@ const createAd = asyncHandler(async (req, res) => {
     }
   }
   const placeholders = cols.map(() => '?').join(', ');
-  await query(
+  const inserted = await query(
     `INSERT INTO ads (${cols.join(', ')}) VALUES (${placeholders})`,
     values
   );
+  // AYK-343: the ad's title and text in the 11 languages.
+  require('../services/contentTranslation').later('ads', inserted?.insertId);
   return success(res, null, req.t('ad_created'));
 });
 
@@ -261,6 +263,7 @@ const updateAd = asyncHandler(async (req, res) => {
   if (!fields.length) return success(res, null, req.t('no_updates'));
   values.push(req.params.id);
   await query(`UPDATE ads SET ${fields.join(', ')} WHERE id = ?`, values);
+  require('../services/contentTranslation').later('ads', req.params.id); // AYK-343
   return success(res, null, req.t('updated'));
 });
 
@@ -493,12 +496,14 @@ const listPlans = asyncHandler(async (req, res) => {
 
 const createPlan = asyncHandler(async (req, res) => {
   const plan = await Subscription.createPlan(req.body);
+  require('../services/contentTranslation').later('subscription_plans', plan?.id); // AYK-343
   return created(res, plan, req.t('updated'));
 });
 
 const updatePlan = asyncHandler(async (req, res) => {
   const plan = await Subscription.updatePlan(req.params.id, req.body);
   if (!plan) return notFound(res, req.t('plan_not_found'));
+  require('../services/contentTranslation').later('subscription_plans', plan.id); // AYK-343
   return success(res, plan, req.t('updated'));
 });
 

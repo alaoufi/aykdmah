@@ -1581,3 +1581,19 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - New integration test (English city name matches an ad saved with the Arabic name, in both forms of the request; with no place, hidden; signed in, shown): passes. Server unit tests 86 and the finance integration file 278 pass.
 - Not verified: which ad the owner saw and its targeting (the live database is not reachable from here).
 - Deployed on the owner's word («أنشر»).
+
+## 2026-11-20 — AYK-343: whatever is added is translated into every language
+- The owner: «أي إضافة في أي مكان مثل إضافة قسم أو رسائل تُترجم مباشرة لكل اللغات».
+- Before: only professions and services were translated when added, and a language whose translation failed got the Arabic name, shown as if it were the translation and never tried again (the seeded professions still have 5 of the 11 languages). Places, subscription plans and ads added by the administration were not translated; messages with the administration were not translated at all.
+- Now (`server/services/contentTranslation.js`, migration 095):
+  - professions, services, countries, regions, governorates, cities, districts, subscription plans and ads are translated into the 11 languages as soon as they are added or renamed; an ad from the language it was written in;
+  - a language that fails is left out and tried again by a sweep every 6 hours (60 names a run, the translators' free allowances being limited), until all 11 are there; the professions and services seeded with 5 languages are completed the same way;
+  - places seeded with the site keep their names from the site's reference list and are not machine-translated;
+  - the place lists and the live ads carry the translations, and the ad banner shows the reader's language;
+  - messages with the administration: support tickets (both ways: the administration reads Arabic, the user the language of their account), disputes (messages and the decision), and the administration's messages about an ad reach each reader translated, with «🌐 مترجم تلقائيًا · عرض الأصل»; translated in advance when sent.
+- Tests: new integration files `content-translation` (a new district in 11 languages; a failed language left out then filled by the sweep; renaming replaces; a seeded place left alone; a new profession keeps no Arabic in place of a failed language; an English ad translated from English and served with its translations) and `support-translation` (an Urdu account receives the admin's Arabic reply in Urdu, the admin the user's message in Arabic, in the thread and the list; with the translator failing nothing is added and every request succeeds). Full integration run: 284 pass, 0 fail. Server unit 86, client 166 pass; `i18n:check` 2625 keys; build and `check-deploy` ok.
+- Not covered:
+  - a place added by the administration is translated in the place lists, but where a page shows a place's name joined from another row (e.g. the district on a provider card), a new place still shows in Arabic or English;
+  - disputes and ad messages have no integration test of their own (code read and loaded; the existing tests pass);
+  - reading a long support thread while the translators are down can wait a few seconds;
+  - not tried with the real translators or on a phone.
