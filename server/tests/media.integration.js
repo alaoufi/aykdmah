@@ -102,7 +102,14 @@ if (!databaseName) {
     assert.equal(message.files.length, 1);
     const media = await fetch(base + message.files[0].file_url, { headers: { Authorization: `Bearer ${client.token}` } });
     assert.deepEqual(Buffer.from(await media.arrayBuffer()), png);
-    assert.ok(await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'new_message'", [client.user.id]));
+    // The server answers before it writes the notification (AYK-231), so wait for it (up to 5 s)
+    // instead of looking at once: on a slow CI machine it was not there yet (run of 2026-11-20).
+    let notified = null;
+    for (let i = 0; i < 50 && !notified; i += 1) {
+      notified = await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'new_message'", [client.user.id]);
+      if (!notified) await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    assert.ok(notified);
   });
 
   test('review images and dispute evidence save persistently; failed batches leave no orphan media', async () => {

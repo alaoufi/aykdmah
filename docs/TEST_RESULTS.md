@@ -1395,3 +1395,4 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Tests: server 86 pass (new `hash-cost.test.js`; `hash-worker.test.js` updated to cost 10); client 166; integration 277 pass, 0 fail, in 81 s; `check-deploy` 22 ok.
 - Not measured: the live server's own sign-in times after this deploy (the slowness report is read below once it has data).
 - Correction: the commit before this one (a8f97aa) was pushed while `hash-worker.test.js` still expected cost 12 (85 pass, 1 fail); its deploy run stops at the checks. This commit fixes that test: server 86 pass, 0 fail.
+- The deploy run of 3439ddf stopped at the checks: `media.integration.js` looked for a chat notification the moment the message was answered, and on the slow CI machine it was not written yet (276 pass, 1 fail there; 277 pass locally). An old test, unrelated to sign-in. It now waits up to 5 s for the notification. Integration here: 277 pass, 0 fail.
