@@ -1,7 +1,7 @@
 const User = require('../models/User');
 const { logSecurityEvent } = require('../utils/securityLog');
 const Setting = require('../models/Setting');
-const { hashPassword, comparePassword } = require('../utils/hash');
+const { hashPassword, comparePassword, needsRehash } = require('../utils/hash');
 const { sign } = require('../utils/jwt');
 const { success, created, error, unauthorized } = require('../utils/apiResponse');
 const asyncHandler = require('../utils/asyncHandler');
@@ -327,6 +327,13 @@ const login = asyncHandler(async (req, res) => {
     }
   }
   if (user.failed_logins) await User.clearFailedLogins(user.id);
+  // AYK-327: a hash kept at an older, slower cost is re-made after the answer is sent, so this
+  // person's next sign-ins are fast. Only while the stored hash is still the one just checked.
+  if (!req.body.phone_code && password && needsRehash(user.password_hash)) {
+    const old = user.password_hash, id = user.id;
+    setImmediate(() => hashPassword(password).then(fresh => require('../config/database').query(
+      'UPDATE users SET password_hash = ? WHERE id = ? AND password_hash = ?', [fresh, id, old])).catch(() => {}));
+  }
   user = await User.completeLogin(user.id, user.password_hash);
   if (!user) return unauthorized(res, req.t('invalid_credentials'));
   if (user.is_blocked) return error(res, req.t('account_blocked'), 403);

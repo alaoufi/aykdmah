@@ -1376,3 +1376,21 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - no page errors.
 - Tests: integration 277 pass, 0 fail; server 84; client 166; `i18n:check` 2621 keys; `check-deploy` 22 ok.
 - Not tried: presence on real phones, where Android may keep or drop the connection of an app in the background.
+
+## 2026-11-20 — AYK-327: sign-in reviewed for speed (the owner: «أبيه لحظي»)
+- Measured first (local production build and database, phone-sized Chromium, processor slowed 4×, ~10 Mbit/s with 100 ms delay): from tapping «دخول» to the next page shown, 1065 ms.
+  - The sign-in request took about 300 ms in the server: the password check (bcryptjs at cost 12, 279 ms measured). The first sign-in after a restart took 1.85 s, because the password worker threads started only then.
+  - The account was then asked for twice (`GET /auth/me`).
+  - The page sign-in leads to was fetched only after signing in.
+- Changes:
+  - password cost 10 instead of 12 (76 ms measured). 10 is the lowest cost OWASP accepts for bcrypt; the lock after 5 wrong passwords is unchanged. This reverses the cost chosen in AYK-240 and only matters to someone holding a stolen copy of the database. A hash at the old cost is re-made after its owner's next successful sign-in, after the answer is sent;
+  - the password workers start at boot (`hash.warm()`);
+  - one `auth/me` per sign-in (calls for the same session share one request, and an answer under 2 s old is reused);
+  - the sign-in page fetches the pages it leads to while the person types; a visitor's browser fetches the sign-in and sign-up pages 2.5 s after the first page settles.
+- After, same measurement:
+  - tap to next page: 539 to 550 ms (requester), 709 ms for a provider's first sign-in, which still checked a cost-12 hash;
+  - sign-in request: 92 ms (was 294 to 331 ms). First after a restart: 475 ms, with a cost-12 hash still to check;
+  - the stored hash went from `$2a$12$` to `$2a$10$` after one sign-in; a wrong password still answers 401;
+  - the sign-in page itself was ready after 1.25 s cold (was 2.2 s).
+- Tests: server 86 pass (new `hash-cost.test.js`; `hash-worker.test.js` updated to cost 10); client 166; integration 277 pass, 0 fail, in 81 s; `check-deploy` 22 ok.
+- Not measured: the live server's own sign-in times after this deploy (the slowness report is read below once it has data).
