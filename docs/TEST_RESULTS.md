@@ -1452,3 +1452,8 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Browser check (local build, phone size): high contrast with the default, desert and dark Saudi looks; the page, the cards and the bar were tinted in each, body text `rgb(0, 0, 0)` in light and `rgb(255, 255, 255)` in dark; screenshots reviewed.
 - Client tests 166 pass; build and `check-deploy` 22 ok.
 - Not changed: places that set plain white themselves instead of the theme's ground (some admin pages).
+- AYK-331 and AYK-332 deployed as 1.1.79 (run for 0a843cd: success) and merged to `main` (pull request #7).
+- **AYK-332, the owner's correction («لا يكون متدرج»):** no gradients in the high-contrast look. The page is one flat shade of the chosen colour (12 %), boxes a lighter flat one (3 %), the top bar a flat shade (14 %). The gradients added for 1.1.79 are removed.
+  - Browser check (local build, phone size): body background is a plain colour with no image in the default, desert and dark Saudi looks (`rgb(242, 232, 229)`, `rgb(240, 234, 228)`, `rgb(0, 10, 5)`); cards have no gradient; text black in light, white in dark. Screenshot reviewed.
+  - Client tests 166 pass; build and `check-deploy` 22 ok.
+  - Not changed: the ordinary (not high-contrast) look keeps its existing gradient, and the visitors' home banner keeps its own.
