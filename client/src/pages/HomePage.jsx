@@ -17,8 +17,10 @@ export default function HomePage() {
   const { position } = useGeolocation();
   const { user } = useAuth();
 
-  // A signed-in requester sees only what they need (AYK-041).
-  if (user?.role === 'client') {
+  // A signed-in requester sees only what they need (AYK-041). So does an account that is both
+  // requester and provider (AYK-333): it was given the visitors' page, with neither the request
+  // card nor the requests in its own profession and area.
+  if (user?.role === 'client' || (user?.role === 'provider' && Number(user.also_client) === 1)) {
     return (
       <main className="pb-24 md:pb-0">
         <div className="container max-w-5xl mx-auto px-4 pt-4"><AdSlot placement="home_top" /></div>

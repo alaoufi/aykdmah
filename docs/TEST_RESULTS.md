@@ -1457,3 +1457,15 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - Browser check (local build, phone size): body background is a plain colour with no image in the default, desert and dark Saudi looks (`rgb(242, 232, 229)`, `rgb(240, 234, 228)`, `rgb(0, 10, 5)`); cards have no gradient; text black in light, white in dark. Screenshot reviewed.
   - Client tests 166 pass; build and `check-deploy` 22 ok.
   - Not changed: the ordinary (not high-contrast) look keeps its existing gradient, and the visitors' home banner keeps its own.
+
+## 2026-11-20 — AYK-333: the home page by the kind of account
+- The owner: «اطلب خدمة وماذا تحتاج اليوم إذا مسجل طالب خدمة، وإذا مقدم خدمة يظهر له طالبو الخدمة بنفس المهنة ومنطقة التغطية».
+- Already so: a requester sees the «ماذا تحتاج اليوم؟» card; a provider-only account opens on its dashboard, which lists «طلبات في مهنتك ونطاقك».
+- The gap found: an account that is both requester and provider was given the visitors' home, with neither the card nor the requests.
+- Now: that account gets the signed-in home with the request card and, under it, the requests in its own profession and coverage area (`WorkRequests`, the same matching list the dashboard uses).
+- Browser check (local site, phone size):
+  - requester (`clienttest`) at `/`: request card shown, no requests list;
+  - both account (`saadtech` with `also_client = 1`) at `/`: request card shown and «طلبات في مهنتك ونطاقك» shown (empty text, no matching request in the test data);
+  - no page errors.
+- Client tests 166 pass; `i18n:check` 2621 keys; build and `check-deploy` ok. Server not changed, integration not re-run.
+- Not tested: the list with real matching requests on the home page (the same list was tested on the dashboard earlier), and a real phone.

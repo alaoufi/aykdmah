@@ -2,12 +2,15 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import MatchingProviders from '../catalog/MatchingProviders';
 import DirectoryPage from '../../pages/client/DirectoryPage';
+import WorkRequests from './WorkRequests';
+import { useAuth } from '../../hooks/useAuth';
 
 // A signed-in requester's home (AYK-041), with nothing else around it: one button to
 // post a request, the professions as a drop-down with how many providers serve the
 // area and how many are working now, and their own directory.
 export default function RequesterHome() {
   const { t } = useTranslation();
+  const { user } = useAuth();
   return (
     <section className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-8 space-y-8" data-testid="requester-home">
       <div className="card tone-request p-4 flex flex-wrap items-center justify-between gap-2">
@@ -20,6 +23,8 @@ export default function RequesterHome() {
           <Link to="/client" className="btn btn-outline">📋 {t('nav.my_requests')}</Link>
         </div>
       </div>
+      {/* An account that is also a provider: the requests in their profession and coverage area (AYK-333). */}
+      {user?.role === 'provider' && <WorkRequests />}
       <MatchingProviders />
       <DirectoryPage compact />
     </section>
