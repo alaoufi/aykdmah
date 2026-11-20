@@ -255,6 +255,29 @@ if (!databasePrefix) {
     assert.equal(await balance(giver), 0);
   });
 
+  // AYK-357: special numbers (one repeated digit) are given only by the administration; the account's
+  // previous number keeps reaching it; nothing else can be given this way.
+  test('special numbers: never automatic, given by the administration, the previous number still works', async () => {
+    assert.ok(!wallet.isSpecialNumber('27') && wallet.isSpecialNumber('44') && wallet.isSpecialNumber('777'));
+    const a = await makeUser('specialone', 'client');
+    const b = await makeUser('specialtwo', 'client');
+    const before = await wallet.ensureReferralCode(a.id);
+    assert.ok(!wallet.isSpecialNumber(before), 'never given automatically');
+    await wallet.ensureReferralCode(b.id);
+    assert.equal((await api(`/admin/users/${a.id}/number`, { user: users.boss, method: 'PUT', body: { number: '145' } })).status, 400, 'only special numbers');
+    assert.equal((await api(`/admin/users/${a.id}/number`, { user: users.customer, method: 'PUT', body: { number: '44' } })).status, 403);
+    const moved = await api(`/admin/users/${a.id}/number`, { user: users.boss, method: 'PUT', body: { number: '44' } });
+    assert.equal(moved.status, 200, moved.body?.message);
+    assert.equal((await db.queryOne('SELECT referral_code FROM users WHERE id = ?', [a.id])).referral_code, '44');
+    assert.equal((await api(`/admin/users/${b.id}/number`, { user: users.boss, method: 'PUT', body: { number: '44' } })).status, 409, 'taken');
+    const list = (await api('/admin/special-numbers', { user: users.boss })).body.data.numbers;
+    assert.equal(list.find(n => n.code === '44').free, false);
+    // The previous number still invites to this account.
+    const reg = await api('/auth/register', { method: 'POST', body: { full_name: 'Via Old Number', username: 'viaoldnumber', password: 'abcd', role: 'client', referral_code: before } });
+    assert.equal(reg.status, 201, reg.body?.message);
+    assert.equal(Number((await db.queryOne('SELECT referred_by FROM users WHERE username = ?', ['viaoldnumber'])).referred_by), a.id);
+  });
+
   test('admin controls need the wallets permission; adjustments need a reason and cannot overdraw', async () => {
     assert.equal((await api('/wallet/admin', { user: users.customer })).status, 403);
     assert.equal((await api('/wallet/admin', { user: users.limitedadmin })).status, 403);

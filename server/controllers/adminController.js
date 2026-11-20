@@ -1,4 +1,5 @@
 const { query, queryOne, transaction, tableHasColumn } = require('../config/database');
+const { canManageAdmin } = require('../middleware/roleCheck');
 const Setting = require('../models/Setting');
 const Request = require('../models/Request');
 const Subscription = require('../models/Subscription');
@@ -782,7 +783,47 @@ const marketing = asyncHandler(async (req, res) => {
   return success(res, stats);
 });
 
+// AYK-357 (the owner): special numbers, one repeated digit (11, 22 … 99, 111 … 999). Never given
+// automatically; the administration moves an account to a free one («44 بدل 145»). Only special
+// numbers can be given this way; any other number stays as the site gave it.
+const SPECIALS = [...Array.from({ length: 9 }, (_, i) => String(i + 1).repeat(2)), ...Array.from({ length: 9 }, (_, i) => String(i + 1).repeat(3))];
+const specialNumbers = asyncHandler(async (req, res) => {
+  const rows = await query(`SELECT id, full_name, referral_code FROM users WHERE referral_code IN (${SPECIALS.map(() => '?').join(',')}) AND deleted_at IS NULL`, SPECIALS);
+  const taken = new Map(rows.map(r => [r.referral_code, { user_id: r.id, full_name: r.full_name }]));
+  return success(res, { numbers: SPECIALS.map(code => ({ code, ...(taken.get(code) || {}), free: !taken.has(code) })) });
+});
+const assignSpecialNumber = asyncHandler(async (req, res) => {
+  const id = Number(req.params.id);
+  const code = String(req.body?.number || '').trim();
+  if (!Number.isSafeInteger(id) || id <= 0 || !SPECIALS.includes(code)) return error(res, 'رقم غير مسموح: الأرقام المميزة فقط (مثل 11 و22 و111)', 400);
+  const result = await transaction(async conn => {
+    const [targets] = await conn.execute('SELECT id, role, is_super_admin, permissions, referral_code FROM users WHERE id = ? AND deleted_at IS NULL FOR UPDATE', [id]);
+    const target = targets[0];
+    if (!target) return { status: 404 };
+    if (target.role === 'admin' && !canManageAdmin(req.user, target)) return { status: 403 };
+    if (target.referral_code === code) return { status: 200, code };
+    const [holders] = await conn.execute('SELECT id FROM users WHERE referral_code = ? AND id <> ? FOR UPDATE', [code, id]);
+    if (holders.length) return { status: 409 };
+    // The previous number keeps reaching this account (links already shared); a special one is
+    // freed instead, for the administration to give again.
+    const previous = target.referral_code;
+    await conn.execute('DELETE FROM account_number_aliases WHERE code = ?', [code]);
+    if (previous && !/^(\d)\1+$/.test(previous)) {
+      await conn.execute('INSERT INTO account_number_aliases (code, user_id) VALUES (?, ?) ON CONFLICT (code) DO UPDATE SET user_id = EXCLUDED.user_id', [previous, id]);
+    }
+    await conn.execute('UPDATE users SET referral_code = ? WHERE id = ?', [code, id]);
+    await conn.execute(`INSERT INTO activity_logs (user_id, action, entity_type, entity_id, description) VALUES (?, 'admin.number.assign', 'user', ?, ?)`,
+      [req.user.id, id, `${previous || '-'} -> ${code}`]);
+    return { status: 200, code, previous };
+  });
+  if (result.status === 404) return notFound(res);
+  if (result.status === 403) return error(res, req.t('forbidden'), 403);
+  if (result.status === 409) return error(res, 'هذا الرقم المميز مستخدم لحساب آخر', 409);
+  return success(res, { id, referral_code: result.code, previous: result.previous || null }, req.t('updated'));
+});
+
 module.exports = {
+  specialNumbers, assignSpecialNumber,
   marketing,
   dashboard, listAllRequests, getSettings, updateSettings,
   applyMigrations,

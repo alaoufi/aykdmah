@@ -116,7 +116,8 @@ async function findByIdentifier(identifier) {
   // AYK-353: digits only now (27, 431); an older letter code (AB12) still signs in.
   const code = /^(\d{2,6}|[A-Za-z]{2,4}\d{2,4})$/.test(v) ? v.toUpperCase() : null;
   const rows = await query(`SELECT * FROM users WHERE deleted_at IS NULL AND
-    (LOWER(username) = LOWER(?) OR LOWER(email) = LOWER(?) OR facebook_id = ? OR REGEXP_REPLACE(phone, '[[:space:]()-]', '', 'g') = ? OR referral_code = ? OR legacy_referral_code = ?) LIMIT 2`, [v, v, v, phone, code, code]);
+    (LOWER(username) = LOWER(?) OR LOWER(email) = LOWER(?) OR facebook_id = ? OR REGEXP_REPLACE(phone, '[[:space:]()-]', '', 'g') = ? OR referral_code = ? OR legacy_referral_code = ?
+    OR id = (SELECT user_id FROM account_number_aliases WHERE code = ?)) LIMIT 2`, [v, v, v, phone, code, code, code]);
   // Dirty legacy records or cross-field collisions must never choose an
   // arbitrary owner. Existing unique formatted phone/email logins still work.
   return rows.length === 1 ? rows[0] : null;

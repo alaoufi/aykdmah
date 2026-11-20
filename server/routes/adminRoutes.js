@@ -130,5 +130,8 @@ router.get('/live-locations',    requirePermission('conversations.read'), c.live
 router.get('/permissions',       requirePermission('admins.manage'), c.listPermissionRegistry);
 router.get('/users/:id/permissions', requirePermission('admins.manage'), c.getUserPermissions);
 router.put('/users/:id/permissions', requirePermission('admins.manage'), c.updateUserPermissions);
+// AYK-357: special numbers (11, 22 … 999), given by the administration.
+router.get('/special-numbers', requirePermission('users.manage'), c.specialNumbers);
+router.put('/users/:id/number', requirePermission('users.manage'), c.assignSpecialNumber);
 
 module.exports = router;

@@ -8,7 +8,7 @@ DO $ayk_fresh$ BEGIN
   IF EXISTS (
     SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
     WHERE n.nspname = current_schema() AND c.relkind IN ('r','p','v','m','f')
-      AND c.relname IN ('activity_logs','ad_admin_messages','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_diagnostics','call_reports','calls','categories','chat_forward_receipts','cities','conversation_archives','conversation_participants','conversations','countries','device_reports','directory_contacts','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','district_name_cleanup_','districts','entity_views','governorates','install_lock','ip_geo_cache','location_shares','message_files','message_translations','messages','native_push_tokens','notifications','offers','payments','phone_codes','provider_badges','provider_coverage_districts','provider_profiles','push_subscriptions','referral_count_rewards','referral_rewards','regions','request_files','request_translations','requests','review_reports','review_translations','review_votes','reviews','roles','saved_providers','schema_migrations','security_events','services','settings','subscription_plans','subscription_rules','subscriptions','support_messages','support_tickets','translation_memory','translation_usage','ui_text_overrides','uploaded_media','user_blocks','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','visit_days','wallet_transactions','withdrawal_requests')
+      AND c.relname IN ('account_number_aliases','activity_logs','ad_admin_messages','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_diagnostics','call_reports','calls','categories','chat_forward_receipts','cities','conversation_archives','conversation_participants','conversations','countries','device_reports','directory_contacts','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','district_name_cleanup_','districts','entity_views','governorates','install_lock','ip_geo_cache','location_shares','message_files','message_translations','messages','native_push_tokens','notifications','offers','payments','phone_codes','provider_badges','provider_coverage_districts','provider_profiles','push_subscriptions','referral_count_rewards','referral_rewards','regions','request_files','request_translations','requests','review_reports','review_translations','review_votes','reviews','roles','saved_providers','schema_migrations','security_events','services','settings','subscription_plans','subscription_rules','subscriptions','support_messages','support_tickets','translation_memory','translation_usage','ui_text_overrides','uploaded_media','user_blocks','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','visit_days','wallet_transactions','withdrawal_requests')
   ) THEN
     RAISE EXCEPTION 'AY KHIDMA bootstrap requires a fresh database schema; use journaled migrations for an existing installation';
   END IF;
@@ -6689,6 +6689,32 @@ UPDATE users u
   FROM pending t JOIN pool p ON p.rn = t.rn
  WHERE u.id = t.id;
 INSERT INTO schema_migrations(name) VALUES ('096_numeric_account_numbers.sql');
+
+-- migrations/097_special_numbers.sql
+CREATE TABLE IF NOT EXISTS account_number_aliases (
+  code VARCHAR(12) PRIMARY KEY,
+  user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_account_number_aliases_user ON account_number_aliases (user_id);
+WITH pool AS (
+  SELECT n::text AS code, row_number() OVER (ORDER BY length(n::text), random()) AS rn
+    FROM generate_series(10, 99999) AS n
+   WHERE n::text !~ '^(\d)\1+$'
+     AND NOT EXISTS (SELECT 1 FROM users x WHERE x.referral_code = n::text OR x.legacy_referral_code = n::text)
+), pending AS (
+  SELECT id, row_number() OVER (ORDER BY id) AS rn FROM users WHERE referral_code ~ '^(\d)\1+$'
+)
+UPDATE users u SET referral_code = p.code
+  FROM pending t JOIN pool p ON p.rn = t.rn
+ WHERE u.id = t.id;
+INSERT INTO account_number_aliases (code, user_id)
+SELECT referral_code, id FROM users
+ WHERE referral_code = '54' AND role = 'admin' AND NOT EXISTS (SELECT 1 FROM users WHERE referral_code = '22')
+ON CONFLICT (code) DO NOTHING;
+UPDATE users SET referral_code = '22'
+ WHERE referral_code = '54' AND role = 'admin' AND NOT EXISTS (SELECT 1 FROM users WHERE referral_code = '22');
+INSERT INTO schema_migrations(name) VALUES ('097_special_numbers.sql');
 
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$

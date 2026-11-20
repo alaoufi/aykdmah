@@ -33,6 +33,9 @@ function randomCode(digits) {
   for (let i = 1; i < digits; i += 1) code += String(crypto.randomInt(10));
   return code;
 }
+// AYK-357: one repeated digit (11, 222) is a special number, given only by the administration.
+const SPECIAL_NUMBER = /^(\d)\1+$/;
+const isSpecialNumber = code => SPECIAL_NUMBER.test(String(code || ''));
 // A number of this account: today's digits, or an older letter code (AYK-353).
 const ACCOUNT_NUMBER = /^(\d{2,6}|[A-Z]{2,4}\d{2,4})$/;
 
@@ -50,8 +53,9 @@ async function ensureReferralCode(userId) {
   for (const digits of CODE_TIERS) {
     for (let attempt = 0; attempt < ATTEMPTS_PER_TIER; attempt += 1) {
       const code = randomCode(digits);
+      if (isSpecialNumber(code)) continue; // AYK-357: reserved for the administration
       // Not a number someone already had as their old code either.
-      if (await queryOne('SELECT 1 AS x FROM users WHERE legacy_referral_code = ?', [code]).catch(() => null)) continue;
+      if (await queryOne('SELECT 1 AS x FROM users WHERE legacy_referral_code = ? UNION ALL SELECT 1 FROM account_number_aliases WHERE code = ?', [code, code]).catch(() => null)) continue;
       try {
         const updated = await query('UPDATE users SET referral_code = ? WHERE id = ? AND referral_code IS NULL', [code, userId]);
         if (updated.affectedRows === 1) return code;
@@ -69,8 +73,9 @@ async function findReferrerByCode(code) {
   if (!ACCOUNT_NUMBER.test(normalized)) return null;
   // AYK-322 (the owner): every registered account's number is a marketing code, not only a
   // provider's. Administrators are left out.
-  return queryOne(`SELECT id, full_name FROM users WHERE (referral_code = ? OR legacy_referral_code = ?) AND role IN ('provider', 'client')
-    AND is_active = 1 AND is_blocked = 0 AND deleted_at IS NULL`, [normalized, normalized]);
+  return queryOne(`SELECT id, full_name FROM users WHERE (referral_code = ? OR legacy_referral_code = ?
+      OR id = (SELECT user_id FROM account_number_aliases WHERE code = ?)) AND role IN ('provider', 'client')
+    AND is_active = 1 AND is_blocked = 0 AND deleted_at IS NULL`, [normalized, normalized, normalized]);
 }
 
 // Links a new account to a coupon. Allowed once, before the account's first payment.
@@ -303,7 +308,8 @@ async function findRecipient(identifier, senderId) {
   const code = normalizeCode(value);
   const phone = value.replace(/[\s()-]/g, '');
   const row = await queryOne(`SELECT id, full_name, role FROM users WHERE deleted_at IS NULL AND is_active = 1 AND is_blocked = 0
-    AND (referral_code = ? OR legacy_referral_code = ? OR LOWER(username) = LOWER(?) OR phone = ?) LIMIT 1`, [code, code, value, phone]);
+    AND (referral_code = ? OR legacy_referral_code = ? OR id = (SELECT user_id FROM account_number_aliases WHERE code = ?)
+      OR LOWER(username) = LOWER(?) OR phone = ?) LIMIT 1`, [code, code, code, value, phone]);
   if (!row || row.role !== 'provider') throw fail(404, 'recipient_not_found');
   if (Number(row.id) === Number(senderId)) throw fail(400, 'recipient_self');
   return row;
@@ -529,5 +535,5 @@ module.exports = {
   settleCountRewards, settleCountRewardsForInvited, adminCashPayout,
   ensureReferralCode, findReferrerByCode, applyReferralCode, awardReferralIn, notifyCommission,
   requestWithdrawal, cancelWithdrawal, processWithdrawal, previewGift, giftSubscription,
-  summary, adminOverview, adminLedger, adminAdjust, setSettings, normalizeCode, CODE_TIERS,
+  summary, adminOverview, adminLedger, adminAdjust, setSettings, normalizeCode, CODE_TIERS, isSpecialNumber,
 };

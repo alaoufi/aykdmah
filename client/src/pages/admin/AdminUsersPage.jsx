@@ -15,6 +15,7 @@ import AdminButton from '../../components/admin/AdminButton';
 import EmptyState from '../../components/admin/EmptyState';
 import AdminFab from '../../components/admin/AdminFab';
 import AdminPermissionsEditor from '../../components/admin/AdminPermissionsEditor';
+import SpecialNumberPicker from '../../components/admin/SpecialNumberPicker';
 import { useAuth } from '../../hooks/useAuth';
 import { formatRelativeTime } from '../../utils/formatters';
 import { IconSearch } from '../../components/common/Icons';
@@ -500,6 +501,7 @@ export default function AdminUsersPage() {
               <span>{t('admin.is_active')}</span>
             </label>
           )}
+          {editing && <SpecialNumberPicker user={editing} onChanged={load} />}
           {editing && form.role === 'admin' && canEditPerms && (
             <button type="button"
               onClick={() => { setPermsTarget({ id: editing.id, name: editing.full_name }); closeEdit(); }}

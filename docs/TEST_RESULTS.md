@@ -1727,3 +1727,13 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Cause in the admin page: giving sections was a second step («🔑 إدارة الصلاحيات», shown only when re-opening an account already saved as administration), easy to miss. Now, when an account is saved as administration (changed or created), the sections editor opens at once.
   - Client tests 168 pass; build and `check-deploy` 22 ok. Not tried in the browser.
 - The owner's step for member 54 (and 86): open the account in «المستخدمون», «🔑 إدارة الصلاحيات», tick the sections, save; the member then signs in again.
+- AYK-356 (sections editor) deployed as 1.1.106 (build 1ea933a).
+
+## 2026-11-20 — AYK-357: special numbers
+- The owner: «عدّل الأرقام: الإدارة 11، سعود 22، مكتب أوتاد سدير 33، واحجب الأرقام المتشابهة مثل 44 إلى 99… الإدارة توجهها لمن تراه، مثلًا 44 بدل 145 وينتقل الرقم، ويمنع أي تعديل غير المتشابه».
+- Now:
+  - numbers of one repeated digit (11 … 99, 111 … 999, and longer) are special: never given automatically;
+  - in «المستخدمون», editing an account shows «🔢 الرقم المميز»: its number and a list of the free special numbers, «نقل إليه»; only special numbers can be given; one held by another account is refused; the account's previous number keeps reaching it (sign-in, invitations, gifts), a previous special number is freed instead; each move is written in the activity log;
+  - migration 097: special numbers given automatically before this rule go back (those accounts get a new ordinary number; their letter code still works); account 54 (سعود, confirmed from the owner's screenshot) becomes 22, and 54 keeps reaching it.
+- Not done by me: «الإدارة» → 11 and «مكتب أوتاد سدير» → 33; which accounts these are is not visible from here; the owner gives them from the new control (or tells their current numbers).
+- Tests: integration (special numbers never automatic; only special numbers can be given; a non-admin refused; taken refused; the list shows it taken; the previous number still invites to the account): full integration 286 pass, 0 fail; server unit 86, client 168 pass; build and `check-deploy` 22 ok. Migration checked on a copy of the local test database (an account holding 44 got 31; an administration account holding 54 got 22 with 54 kept as its alias). The admin control itself was not tried in the browser.
