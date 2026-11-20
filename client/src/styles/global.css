@@ -500,3 +500,27 @@ html[data-contrast="high"] .tone-request, html[data-contrast="high"] .tone-provi
 @supports (background: color-mix(in srgb, red 10%, white)) {
   .site-header { background: color-mix(in srgb, rgb(var(--color-primary-from)) 10%, rgb(var(--color-surface) / 0.92)); }
 }
+
+/* AYK-332 (the owner: «الصفحة بيضاء، اكسر البياض بتدرجات اللون المختار في كامل التطبيق»): the
+   high-contrast choice kept every page flat white. It now carries light shades of the chosen
+   colour too: the page a gradient, cards and boxes a faint tint. Text stays black on a near-white
+   ground (dark: white on near-black), so the strong contrast that choice is for is kept. */
+@supports (color: color-mix(in srgb, red, white)) {
+  html[data-contrast="high"] body {
+    background: linear-gradient(160deg,
+      color-mix(in srgb, rgb(var(--color-primary-from)) 14%, rgb(var(--color-bg))) 0%,
+      color-mix(in srgb, rgb(var(--color-primary-from)) 6%, rgb(var(--color-bg))) 45%,
+      color-mix(in srgb, rgb(var(--color-primary-to)) 12%, rgb(var(--color-bg))) 100%) fixed;
+  }
+  html[data-contrast="high"] .card,
+  html[data-contrast="high"] .stat-card,
+  html[data-contrast="high"] .tone-request,
+  html[data-contrast="high"] .tone-provider {
+    background: linear-gradient(135deg,
+      color-mix(in srgb, rgb(var(--color-primary-from)) 7%, rgb(var(--color-surface))),
+      color-mix(in srgb, rgb(var(--color-primary-from)) 2%, rgb(var(--color-surface)))) !important;
+  }
+  html[data-contrast="high"] .site-header {
+    background: color-mix(in srgb, rgb(var(--color-primary-from)) 16%, rgb(var(--color-surface)));
+  }
+}
