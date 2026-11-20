@@ -2292,7 +2292,8 @@
     },
     "invite_title": "Tautan undangan Anda",
     "invite_hint": "Salin dan bagikan. Siapa pun yang membukanya lalu mendaftar otomatis dihitung untuk Anda.",
-    "invite_nav": "Undang"
+    "invite_nav": "Undang",
+    "invite_send": "Kirim lewat WhatsApp"
   },
   "test_checkout": {
     "banner": "Pembayaran uji coba — tidak ada uang yang dipotong",

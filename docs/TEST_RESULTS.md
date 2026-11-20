@@ -1709,3 +1709,10 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Browser check (local site, phone size): the menu shows «🎁 دعوة» for a requester and a provider and opens their wallet at the box, in view; the link shown and copied was `https://aykdmh.com/i/32`; another browser opening `/i/32` went to `/register?ref=32`; after visiting another page, a plain `/register` still had 32 in the invite field; no page errors. (The local test database needed migrations 095 and 096 applied by hand first.)
 - First push: one client test failed (`accountSuccess.test.mjs`: its harness runs the sign-up code without the new `forgetInvite`), so the release stopped at the checks and nothing was deployed. The harness now provides it. Client tests 168 pass; build and `check-deploy` 22 ok. The server is unchanged: registration with an invite number is covered by the existing integration tests.
 - Not tried: a real phone, and the link opened inside the installed app.
+- AYK-354 deployed as 1.1.103 (build 085e7c0).
+
+## 2026-11-20 — AYK-355: «دعوة» opens copy / send at once
+- The owner: «إذا ضغط على دعوة يظهر له نسخ / إرسال، والإرسال على الواتساب».
+- Now «🎁 دعوة» in the menu opens a sheet over the current page (no page change): the short link, «نسخ الرابط» and «إرسال بالواتساب» (WhatsApp with the invite message and link). The wallet page keeps its own invite box. One new text («إرسال بالواتساب») in the 11 languages; `i18n:check` 2629 keys.
+- Browser check (local site, phone size): requester and provider: the sheet showed `https://aykdmh.com/i/32` and `/i/74`, copying put the link on the clipboard, the page stayed where it was, and the WhatsApp button's message was «سجّل في «أي خدمة» بكوبوني 32: https://aykdmh.com/i/32»; no page errors; screenshot reviewed.
+- Client tests 168 pass; build and `check-deploy` 22 ok.

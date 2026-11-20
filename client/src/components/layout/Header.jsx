@@ -11,6 +11,7 @@ import ThemeSwitcher from '../common/ThemeSwitcher';
 import BrandLogo from '../common/BrandLogo';
 import { IconMenu, IconBell, IconClose } from '../common/Icons';
 import AdminPanelLink from './AdminPanelLink';
+import InviteSheet from '../common/InviteSheet';
 
 export default function Header() {
   const { t } = useTranslation();
@@ -18,6 +19,7 @@ export default function Header() {
   const { unread, chatUnread, supportCount } = useNotifications();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [inviteOpen, setInviteOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const mobileButton = useRef(null);
   const mobilePanel = useRef(null);
@@ -262,13 +264,13 @@ export default function Header() {
                     { to: '/requests/new', label: `➕ ${t('request.create_title')}` },
                     { to: '/directory', label: `📒 ${t('requester.directory_title')}`, testid: 'menu-directory' },
                     user.role !== 'provider' && { to: '/wallet', label: `💰 ${t('wallet.nav')}` },
-                    user.role !== 'provider' && { to: '/wallet#invite', label: `🎁 ${t('wallet.invite_nav')}`, testid: 'menu-invite' },
+                    user.role !== 'provider' && { to: '/wallet#invite', label: `🎁 ${t('wallet.invite_nav')}`, testid: 'menu-invite', invite: true },
                   ].filter(Boolean) },
                   user.role === 'provider' && { key: 'tasks', icon: '🧰', label: t('work.tasks_title'), to: '/provider/tasks', extra: [
                     { to: '/opportunities', label: `🔍 ${t('work.requests_nav')}` },
                     { to: '/profile#work', label: `🛠️ ${t('work.professions_areas')}` },
                     { to: '/provider/wallet', label: `💰 ${t('wallet.nav')}` },
-                    { to: '/provider/wallet#invite', label: `🎁 ${t('wallet.invite_nav')}`, testid: 'menu-invite' },
+                    { to: '/provider/wallet#invite', label: `🎁 ${t('wallet.invite_nav')}`, testid: 'menu-invite', invite: true },
                     { to: '/directory', label: `📒 ${t('requester.directory_title')}` },
                   ] },
                 ].filter(Boolean).map(g => (
@@ -279,10 +281,14 @@ export default function Header() {
                       <Link to={`${g.to}?tab=archive`} onClick={() => setMobileOpen(false)} className="px-3 py-1.5 rounded-pill bg-surface-alt text-[13px] font-semibold text-fg no-underline">🗄️ {t('manage.archive')}</Link>
                     </div>
                     <div className="flex flex-wrap gap-1.5 mt-2">
-                      {g.extra.map(x => (
+                      {g.extra.map(x => (x.invite && user.referral_code ? (
+                        // AYK-355: «دعوة» opens copy / send at once, here.
+                        <button key={x.to} type="button" data-testid={x.testid} onClick={() => { setMobileOpen(false); setInviteOpen(true); }}
+                          className="px-3 py-1.5 rounded-pill border-2 border-primary text-[13px] font-bold text-fg bg-surface hover:bg-surface-alt">{x.label}</button>
+                      ) : (
                         <Link key={x.to} to={x.to} onClick={() => setMobileOpen(false)} data-testid={x.testid}
                           className="px-3 py-1.5 rounded-pill border border-border text-[13px] font-semibold text-fg no-underline hover:bg-surface-alt">{x.label}</Link>
-                      ))}
+                      )))}
                     </div>
                   </div>
                 ))}
@@ -375,6 +381,7 @@ export default function Header() {
           </div>
         </div>, document.body
       )}
+      {inviteOpen && user?.referral_code && <InviteSheet code={user.referral_code} onClose={() => setInviteOpen(false)} />}
     </header>
   );
 }
