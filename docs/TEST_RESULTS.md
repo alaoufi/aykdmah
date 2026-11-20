@@ -1413,3 +1413,21 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - provider: one loading sign, then the dashboard with its ad at 1.09 s; the content is not shown twice. A blank moment of about 0.15 s (at 4× slowdown) remains between two loading signs.
 - Client tests 166, server 86 pass; `i18n:check` 2621 keys; `check-deploy` 22 ok. Integration not re-run: only client files changed since the 277-pass run.
 - Not tried on a real phone.
+- AYK-328 deployed as 1.1.76 (run for fd2b744: success).
+
+## 2026-11-20 — AYK-329: header tint; AYK-330: the admin «رسائل المستخدمين» page
+- Header (the owner): its background is a very light shade of the chosen theme colour (10 % of the theme's main colour over the surface, slightly see-through). Measured in the browser: the default theme gives a warm tint, the Saudi theme a light green. Browsers without `color-mix` keep the plain surface.
+  - A first attempt put a JSX comment before the header element and broke the build; caught by the local build before any commit.
+- Admin messages page (the owner's screenshot):
+  - the back button goes up one level (`/admin/support/7` → `/admin/support` → `/admin`) instead of through the browser history. Before, a message opened from the list and closed again made the button bounce between the two pages for ever;
+  - the title shows once, in the top bar (the page no longer repeats «لوحة الإدارة / رسائل المستخدمين»);
+  - the list is cards: the writer's initial, name, time, a preview, coloured state and topic chips, the unread count; filters are chips, not two drop-downs; links are not underlined;
+  - an opened message has one heading (name, topic, number, phone, state); the writer's name is not repeated on each message;
+  - the reply box is hidden: a «رد» button opens it, and it closes after sending.
+- Browser check (local site, phone size, admin account, two messages sent by a requester):
+  - the list showed 2 cards and the title once;
+  - opening one: no reply box at first, the «رد» button there, the message text once;
+  - reply sent: shown in the thread and the box closed;
+  - back from the message → `/admin/support`; back again → `/admin`; no back button on the admin home;
+  - no page errors.
+- Tests: client 166 (`adminBackTarget.test.mjs` rewritten for the new rule), server 86; `i18n:check` 2621 keys; build and `check-deploy` 22 ok. Integration not re-run: only client files changed since the 277-pass run.

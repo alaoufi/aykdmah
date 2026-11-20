@@ -6,8 +6,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { adminListSupport, adminGetSupport, adminReplySupport, adminSupportStatus } from '../../services/supportService';
 import { apiError } from '../../services/api';
-import { formatDate, truncate } from '../../utils/formatters';
-import AdminPageHeader from '../../components/admin/AdminPageHeader';
+import { formatRelativeTime, truncate } from '../../utils/formatters';
 import SupportThread from '../../components/support/SupportThread';
 
 const TOPICS = ['support', 'complaint', 'suggestion', 'admin'];
@@ -37,22 +36,35 @@ export default function AdminSupportPage() {
     try { await adminSupportStatus(ticket.id, status); setTicket({ ...ticket, status }); } catch (err) { setProblem(apiError(err)); }
   };
   const sel = 'px-3 py-2 rounded-xl border border-slate-200 bg-white text-[13px]';
+  // AYK-330 (the owner: the page looked plain and repeated its title): the title is in the top bar
+  // only; the list is cards with the writer's initial, coloured state and topic, and filter chips.
+  const STATUS_TONE = { open: 'bg-amber-100 text-amber-800', answered: 'bg-emerald-100 text-emerald-800', closed: 'bg-slate-200 text-slate-600' };
+  const chip = on => `px-3 py-1.5 rounded-pill text-[12.5px] font-bold border transition ${on ? 'bg-primary text-white border-primary' : 'bg-white text-slate-600 border-slate-200'}`;
+  const initial = name => Array.from(String(name || '؟').trim())[0] || '؟';
 
   if (id) {
     return (
-      <div className="space-y-4">
-        <AdminPageHeader title={t('support.admin_title')} />
+      <div className="space-y-3" data-testid="admin-support-ticket">
         {problem && <div role="alert" className="text-rose-700 text-[13px]">{problem}</div>}
         {ticket && (
-          <div className="bg-white rounded-card border border-slate-100 p-5 space-y-3">
-            <div className="flex items-center justify-between gap-2 flex-wrap">
-              <div className="font-extrabold">{ICONS[ticket.topic]} {t(`support.topic_${ticket.topic}`)} — {ticket.full_name}
-                <span className="text-[12px] text-slate-500 font-normal"> · {ticket.referral_code || ''} · <span dir="ltr">{ticket.phone || ''}</span></span></div>
+          <div className="bg-white rounded-card border border-slate-100 shadow-soft overflow-hidden">
+            <div className="p-4 border-b border-slate-100 flex items-center gap-3 flex-wrap">
+              <span aria-hidden="true" className="w-11 h-11 rounded-full bg-primary-soft text-primary grid place-items-center text-lg font-extrabold shrink-0">{initial(ticket.full_name)}</span>
+              <div className="flex-1 min-w-0">
+                <div className="font-extrabold text-[15px] text-ink break-words">{ticket.full_name}</div>
+                <div className="text-[12px] text-slate-500 flex flex-wrap gap-x-2">
+                  <span>{ICONS[ticket.topic]} {t(`support.topic_${ticket.topic}`)}</span>
+                  {ticket.referral_code && <span dir="ltr">{ticket.referral_code}</span>}
+                  {ticket.phone && <a href={`tel:${ticket.phone}`} dir="ltr" className="no-underline text-slate-500">{ticket.phone}</a>}
+                </div>
+              </div>
               <select className={sel} value={ticket.status} onChange={e => setStatus(e.target.value)} aria-label={t('support.status')}>
                 {STATUSES.map(s => <option key={s} value={s}>{t(`support.status_${s}`)}</option>)}
               </select>
             </div>
-            <SupportThread ticket={ticket} asAdmin onReply={async text => setTicket(await adminReplySupport(ticket.id, text))} />
+            <div className="p-4">
+              <SupportThread ticket={ticket} asAdmin collapsedReply onReply={async text => setTicket(await adminReplySupport(ticket.id, text))} />
+            </div>
           </div>
         )}
       </div>
@@ -60,32 +72,45 @@ export default function AdminSupportPage() {
   }
 
   return (
-    <div className="space-y-4" data-testid="admin-support">
-      <AdminPageHeader title={t('support.admin_title')} count={items?.length} />
-      <div className="flex gap-2 flex-wrap">
-        <select className={sel} value={filter.status} onChange={e => setFilter(f => ({ ...f, status: e.target.value }))} aria-label={t('support.status')}>
-          <option value="">{t('common.all')}</option>
-          {STATUSES.map(s => <option key={s} value={s}>{t(`support.status_${s}`)}</option>)}
-        </select>
-        <select className={sel} value={filter.topic} onChange={e => setFilter(f => ({ ...f, topic: e.target.value }))} aria-label={t('support.topic')}>
-          <option value="">{t('common.all')}</option>
-          {TOPICS.map(s => <option key={s} value={s}>{ICONS[s]} {t(`support.topic_${s}`)}</option>)}
-        </select>
+    <div className="space-y-3" data-testid="admin-support">
+      <div className="flex gap-2 flex-wrap items-center" role="group" aria-label={t('support.status')}>
+        {['', ...STATUSES].map(value => (
+          <button key={value || 'all'} type="button" className={chip(filter.status === value)} aria-pressed={filter.status === value}
+            onClick={() => setFilter(f => ({ ...f, status: value }))}>{value ? t(`support.status_${value}`) : t('common.all')}</button>
+        ))}
+        {items && <span className="ms-auto text-[12.5px] text-slate-500">{items.length}</span>}
+      </div>
+      <div className="flex gap-2 flex-wrap" role="group" aria-label={t('support.topic')}>
+        {['', ...TOPICS].map(value => (
+          <button key={value || 'all'} type="button" className={chip(filter.topic === value)} aria-pressed={filter.topic === value}
+            onClick={() => setFilter(f => ({ ...f, topic: value }))}>{value ? `${ICONS[value]} ${t(`support.topic_${value}`)}` : t('common.all')}</button>
+        ))}
       </div>
       {problem && <div role="alert" className="text-rose-700 text-[13px]">{problem}</div>}
       {items === null ? <p className="text-slate-500">…</p> : items.length === 0 ? <p className="text-slate-500 text-[13px]">{t('support.none')}</p> : (
         <div className="space-y-2">
-          {items.map(row => (
-            <Link key={row.id} to={`/admin/support/${row.id}`} className={`flex items-center gap-3 bg-white rounded-card border p-3 no-underline text-inherit ${Number(row.admin_unread) > 0 ? 'border-brand-300' : 'border-slate-100'}`}>
-              <span className="text-xl">{ICONS[row.topic]}</span>
-              <div className="flex-1 min-w-0">
-                <div className="font-bold text-[14px]">{row.full_name} <span className="text-[12px] text-slate-500 font-normal">· {row.referral_code || ''} · {t(`support.status_${row.status}`)}</span></div>
-                <div className="text-[13px] text-slate-600 truncate">{truncate(row.last_body || '', 100)}</div>
-                <div className="text-[11px] text-slate-400">{formatDate(row.updated_at, true)}</div>
-              </div>
-              {Number(row.admin_unread) > 0 && <span className="px-2 py-0.5 rounded-pill bg-rose-500 text-white text-[11px] font-bold">{row.admin_unread}</span>}
-            </Link>
-          ))}
+          {items.map(row => {
+            const unread = Number(row.admin_unread) > 0;
+            return (
+              <Link key={row.id} to={`/admin/support/${row.id}`} style={{ textDecoration: 'none' }} data-testid="admin-support-row"
+                className={`flex items-start gap-3 bg-white rounded-card border p-3 text-inherit shadow-soft ${unread ? 'border-primary' : 'border-slate-100'}`}>
+                <span aria-hidden="true" className="w-11 h-11 rounded-full bg-primary-soft text-primary grid place-items-center text-lg font-extrabold shrink-0">{initial(row.full_name)}</span>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className={`flex-1 min-w-0 truncate text-[14.5px] text-ink ${unread ? 'font-extrabold' : 'font-bold'}`}>{row.full_name}</span>
+                    <span className="text-[11px] text-slate-400 shrink-0">{formatRelativeTime(row.updated_at)}</span>
+                  </div>
+                  <div className={`text-[13px] truncate mt-0.5 ${unread ? 'text-ink' : 'text-slate-500'}`}>{truncate(row.last_body || '', 100)}</div>
+                  <div className="flex items-center gap-1.5 flex-wrap mt-1.5">
+                    <span className={`px-2 py-0.5 rounded-pill text-[11px] leading-4 font-bold ${STATUS_TONE[row.status] || STATUS_TONE.closed}`}>{t(`support.status_${row.status}`)}</span>
+                    <span className="px-2 py-0.5 rounded-pill text-[11px] leading-4 bg-slate-100 text-slate-600">{ICONS[row.topic]} {t(`support.topic_${row.topic}`)}</span>
+                    {row.referral_code && <span dir="ltr" className="text-[11px] text-slate-400">{row.referral_code}</span>}
+                    {unread && <span className="ms-auto px-2 py-0.5 rounded-pill bg-rose-500 text-white text-[11px] leading-4 font-bold">{row.admin_unread}</span>}
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
     </div>

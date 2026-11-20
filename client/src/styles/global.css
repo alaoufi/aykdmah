@@ -493,3 +493,10 @@ html[data-contrast="high"] .tone-request, html[data-contrast="high"] .tone-provi
 .problem-3d__btn:active { transform: translateY(3px); box-shadow: 0 1px 0 color-mix(in srgb, rgb(var(--p)) 40%, transparent); }
 @keyframes problem-3d-in { from { opacity: 0; transform: perspective(900px) rotateX(14deg) translateY(-6px); } }
 @media (prefers-reduced-motion: reduce) { .problem-3d { animation: none; } }
+
+/* AYK-329: the top bar takes a very light shade of the chosen theme colour (10% of it over the
+   surface), slightly see-through as before. Older browsers without color-mix keep the plain surface. */
+.site-header { background: rgb(var(--color-surface) / 0.9); }
+@supports (background: color-mix(in srgb, red 10%, white)) {
+  .site-header { background: color-mix(in srgb, rgb(var(--color-primary-from)) 10%, rgb(var(--color-surface) / 0.92)); }
+}

@@ -73,7 +73,8 @@ export default function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-surface/85 backdrop-blur-md border-b border-border/70">
+    // AYK-329 (the owner): the bar's background is a very light shade of the chosen theme colour (.site-header).
+    <header className="site-header sticky top-0 z-40 backdrop-blur-md border-b border-border/70">
       <div className="max-w-7xl mx-auto px-3 md:px-6 lg:px-8 h-14 md:h-16 lg:h-[72px] flex items-center gap-2 md:gap-4">
         {/* Phones and tablets (owner): ☰ on the page's right edge, logo on the left edge. */}
         <Link to="/" className="site-logo xl:w-[166px] shrink-0 no-underline max-xl:order-5 max-xl:-me-1 max-xl:flex max-xl:justify-end">
