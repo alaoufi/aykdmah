@@ -3,6 +3,7 @@ import { useInRouterContext, useLocation } from 'react-router-dom';
 import { getToken, setToken, tokenKey, isAdminScope, TOKEN_CHANGE_EVENT } from '../services/api';
 import { me, takeEarlyMe, login as loginApi, logout as logoutApi, register as registerApi } from '../services/authService';
 import { detachPush } from '../services/pushService';
+import i18n, { SUPPORTED_LANG_CODES } from '../i18n';
 
 const AuthContext = createContext(null);
 
@@ -61,6 +62,10 @@ export function AuthProvider({ children }) {
       }
       setUser(data.user);
       setProvider(data.provider || null);
+      // AYK-344 (the owner's rule): the account's language, chosen at sign-up or changed later, is
+      // used at every sign-in on any device. The admin area stays Arabic.
+      const own = String(data.user?.ui_lang || '').toLowerCase();
+      if (!isAdminScope() && SUPPORTED_LANG_CODES.includes(own) && own !== i18n.resolvedLanguage) i18n.changeLanguage(own);
       // AYK-328: remembered only to fetch this person's first page early at the next opening.
       try { localStorage.setItem('ayk_last_role', data.user?.role === 'provider' && Number(data.user.also_client) !== 1 ? 'provider' : 'other'); } catch (_) { /* private mode */ }
       return data;

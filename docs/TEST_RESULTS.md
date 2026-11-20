@@ -1597,3 +1597,12 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - disputes and ad messages have no integration test of their own (code read and loaded; the existing tests pass);
   - reading a long support thread while the translators are down can wait a few seconds;
   - not tried with the real translators or on a phone.
+- AYK-343 deployed as 1.1.89 (build 1fc3fce); the live place list carries `name_translations`.
+
+## 2026-11-20 — AYK-344: the account's language, from sign-up to every sign-in
+- The owner's rule: «أي إضافة تظهر للمتصفح تُترجم. أول دخول على التسجيل يسأله عن لغته، ثم تُعتمد في أي دخول له ما لم يعدّل». Written into `CLAUDE.md` as a standing rule.
+- Before: sign-up already asked the language first (AYK-296), but the account's language was overwritten by whatever language the device showed at each request, and signing in on another device did not bring the account's language.
+- Now: the language chosen at the start of sign-up is the account's language; signing in on any device switches the site to it; a device showing another language no longer changes it; choosing another language from the language menu while signed in changes the account's language (`PUT /api/users/me/language`). The admin area stays Arabic.
+- Integration test: the first language kept; a request in another language does not change it, and `/auth/me` returns the account language; an explicit change is saved; an unknown language refused. Full integration run 285 pass, 0 fail; server unit 86, client 166 pass; build and `check-deploy` ok.
+- Browser check (local site, two fresh browsers set to Arabic): an account in Urdu opens in Urdu after sign-in and after reloading; after the account's language was changed to English, a new browser opens in English; no page errors.
+- Not tested: the apps on a phone; the sign-up form itself end to end (its language step is unchanged).

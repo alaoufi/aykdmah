@@ -59,6 +59,15 @@ const getOne = asyncHandler(async (req, res) => {
   return success(res, { user, provider });
 });
 
+// AYK-344: the person chose another language; it becomes the account's language on every device.
+const SITE_LANGS = new Set(['ar', 'en', 'ur', 'bn', 'hi', 'ml', 'fil', 'id', 'ne', 'am', 'tr']);
+const setLanguage = asyncHandler(async (req, res) => {
+  const lang = String(req.body?.lang || '').toLowerCase();
+  if (!SITE_LANGS.has(lang)) return error(res, req.t('invalid_data'), 400);
+  await query('UPDATE users SET ui_lang = ? WHERE id = ?', [lang, req.user.id]);
+  return success(res, { ui_lang: lang });
+});
+
 const updateMe = asyncHandler(async (req, res) => {
   const current = await User.findById(req.user.id);
   const payload = { ...req.body };
@@ -346,6 +355,6 @@ const uploadAvatar = asyncHandler(async (req, res) => {
 module.exports = {
   uploadAvatar,
   changeRole,
-  list, getOne, updateMe, updateProvider, getProviderReviews,
+  list, getOne, updateMe, setLanguage, updateProvider, getProviderReviews,
   block, unblock, remove, createByAdmin, updateByAdmin,
 };

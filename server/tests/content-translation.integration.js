@@ -147,3 +147,23 @@ test.after(async () => {
     finally { await admin.end(); }
   }
 });
+
+// AYK-344 (the owner's rule): the account's language is kept for every sign-in until the person
+// changes it; a device showing another language does not change it.
+test('the account language is set once, kept across devices, and changed only on purpose', async () => {
+  const user = await makeUser('client');
+  await db.query('UPDATE users SET ui_lang = NULL WHERE id = ?', [user.id]);
+  const me = lang => fetch(`${base}/auth/me`, { headers: { Authorization: `Bearer ${user.token}`, 'Accept-Language': lang } }).then(r => r.json());
+  await me('ur');
+  await new Promise(resolve => setTimeout(resolve, 100));
+  assert.equal((await db.queryOne('SELECT ui_lang FROM users WHERE id = ?', [user.id])).ui_lang, 'ur', 'the first language is kept');
+  const other = await me('en');
+  await new Promise(resolve => setTimeout(resolve, 100));
+  assert.equal(other.data.user.ui_lang, 'ur', 'sign-in on another device gets the account language');
+  assert.equal((await db.queryOne('SELECT ui_lang FROM users WHERE id = ?', [user.id])).ui_lang, 'ur', 'not changed by that device');
+  const changed = await fetch(`${base}/users/me/language`, { method: 'PUT', headers: { Authorization: `Bearer ${user.token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ lang: 'tr' }) });
+  assert.equal(changed.status, 200);
+  assert.equal((await me('en')).data.user.ui_lang, 'tr');
+  const bad = await fetch(`${base}/users/me/language`, { method: 'PUT', headers: { Authorization: `Bearer ${user.token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ lang: 'xx' }) });
+  assert.equal(bad.status, 400);
+});

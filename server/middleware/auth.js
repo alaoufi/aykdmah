@@ -85,10 +85,13 @@ async function loadSessionUser(payload, fallbackScope = 'site') {
 }
 
 // The language the user uses the site in (AYK-231), kept so their chat messages are translated
-// into it as soon as they are sent. Written only when it changes, without delaying the request.
+// into it as soon as they are sent. AYK-344 (the owner's rule): the language is the account's own,
+// chosen at sign-up and kept for every sign-in on any device until the person changes it. So it is
+// taken from a request only when the account has none yet; a change is saved explicitly
+// (PUT /users/me/language), never by a device that happens to show another language.
 const LANGS = new Set(['ar', 'en', 'ur', 'bn', 'hi', 'ml', 'fil', 'id', 'ne', 'am', 'tr']);
 function rememberLanguage(user, lang) {
-  if (!user || !('ui_lang' in user) || !LANGS.has(lang) || user.ui_lang === lang) return;
+  if (!user || !('ui_lang' in user) || !LANGS.has(lang) || user.ui_lang) return;
   query('UPDATE users SET ui_lang = ? WHERE id = ?', [lang, user.id]).catch(() => {});
 }
 

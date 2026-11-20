@@ -1,4 +1,6 @@
 const User = require('../models/User');
+const { query, queryOne } = require('../config/database');
+const SITE_LANGS = new Set(['ar', 'en', 'ur', 'bn', 'hi', 'ml', 'fil', 'id', 'ne', 'am', 'tr']);
 const { logSecurityEvent } = require('../utils/securityLog');
 const Setting = require('../models/Setting');
 const { hashPassword, comparePassword, needsRehash } = require('../utils/hash');
@@ -213,6 +215,8 @@ const register = asyncHandler(async (req, res) => {
   }
 
   if (Object.keys(workHours).length) await User.updateProviderProfile(userId, workHours);
+  // AYK-344: the language chosen at the start of sign-up becomes the account's language.
+  if (SITE_LANGS.has(req.lang)) await query('UPDATE users SET ui_lang = ? WHERE id = ?', [req.lang, userId]).catch(() => {});
   if (phoneVerified) await markPhoneVerified(userId, filtered.phone);
   if (couponCode) await wallet.applyReferralCode(userId, couponCode).catch(() => {});
   const referralCode = await wallet.ensureReferralCode(userId).catch(() => null);
@@ -373,6 +377,8 @@ const me = asyncHandler(async (req, res) => {
   if (user.role === 'provider') {
     provider = await User.getProviderProfile(user.id);
   }
+  // AYK-344: the account's language, applied by the app at every sign-in on any device.
+  if (user) user.ui_lang = (await queryOne('SELECT ui_lang FROM users WHERE id = ?', [user.id]).catch(() => null))?.ui_lang || null;
   return success(res, { user, provider });
 });
 
