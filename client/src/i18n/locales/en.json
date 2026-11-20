@@ -1765,6 +1765,10 @@
       "contact": {
         "question": "How do I contact support or file a complaint?",
         "answer": "From the ☰ menu or the bottom of the page, choose «Support and complaints». You can message us on WhatsApp directly, or send a message to the administration after choosing a topic: technical support, complaint, suggestion or administration. The reply arrives on the same page with a notification, and a number on the menu shows new replies."
+      },
+      "rating": {
+        "question": "How do I rate a service provider?",
+        "answer": "After the service is finished, choose from one to five stars and write your opinion. Your rating is published immediately and is visible to everyone on the service provider's page."
       }
     },
     "start_title": "Ready to begin?",
@@ -1772,8 +1776,8 @@
     "browse_services": "Browse services",
     "provider_signup": "Sign up as a provider",
     "account_note": "You can read this guide without signing in.",
-    "wallet_title": "Coupon and wallet for providers",
-    "wallet_intro": "Every provider gets a personal coupon at sign-up and earns a share when someone registers with it and pays. Find it under “Wallet & coupon” in the provider dashboard.",
+    "wallet_title": "Coupon and wallet",
+    "wallet_intro": "Every account, client or service provider, has its own coupon. If the administrators turn on marketing by commission, you earn when service providers sign up with your coupon. Find it under “Wallet & coupon”.",
     "wallet_points": {
       "coupon": {
         "title": "Your coupon",
@@ -1785,7 +1789,7 @@
       },
       "commission": {
         "title": "Commission",
-        "body": "When the newcomer's first online payment completes, a percentage set by the administrators is added to your balance automatically, once. Payments made from balances earn no commission."
+        "body": "The administrators choose one method: a percentage of the newcomer's first completed online payment; or a fixed amount for each service provider who signed up with your coupon once a minimum number is reached (fewer than the minimum earns nothing); or a fixed amount for each service provider who paid their subscription and became active, once per person. The current method and its figures are shown in your wallet, and the administrators may turn marketing by commission off."
       },
       "balance": {
         "title": "Balance",
@@ -1875,6 +1879,10 @@
       "search": {
         "title": "Shown in search",
         "body": "Clients see your status: available now, on vacation until a date, or outside working hours. Available providers come first, and clients can show “Available now” only."
+      },
+      "present": {
+        "title": "The green and red circles",
+        "body": "🟢 “Available now” means the service provider is actually online and taking requests right now. 🔴 means they are not connected now or not available now. The schedule alone is not enough for the green circle to appear."
       }
     },
     "appearance_title": "Appearance and themes",

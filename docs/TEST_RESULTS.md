@@ -1492,3 +1492,17 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Browser check (local site, phone size, requester and a provider serving the same district and kept in the directory): one card with the «في دليلي» mark, no city box, nothing repeated under «دليلي», «عرض الكل» present, the directory page lists 1; no page errors. Screenshot reviewed.
 - Client tests 166 pass; `i18n:check` 2621 keys; build and `check-deploy` 22 ok. Server not changed.
 - Not tested: a city box with other providers left in it after the change (the test data has one provider).
+
+## 2026-11-20 — AYK-336: the first opening after a release took very long
+- The owner: «الدخول بطيء مرة، راجعه بعمق».
+- Found by opening the live site with the saved copy of 1.1.81 right after 1.1.82 was released (phone size, 4 Mbit, 150 ms, 3× slower processor, from the test machine): **17.6 s** of a turning ring before the page showed, then one reload. Cause: an older saved copy waited until the whole new copy (113 files, 620 KB compressed) was saved, and only then reloaded. Releases happen several times a day, so this is met often.
+- Now an older saved copy is dropped at once and the page reloads straight from the server, which needs only the first page's files; the full copy is saved again afterwards, out of sight.
+- Rehearsed locally (a release switched under a saved copy, both ways twice): one reload, the new version shown, the saved copy present again afterwards, the next opening normal (0.8–1.0 s), no page errors. The local rehearsal cannot show the time gained (3.0 s before, 3.2 s after): the saving of the copy is not slowed down there as it is over a real connection.
+- To be measured on the live site at the next release: a copy saved from this release against a copy saved from 1.1.81.
+- The change only works for copies saved from this release on: phones still holding an older copy take the old, slow path one last time.
+
+## 2026-11-20 — the guide brought up to date (11 languages)
+- The owner: «تأكد من تحديث الأدلة واللغات والترجمة الفورية».
+- The guide still described the coupon as for providers only with a percentage only, and said nothing of the green and red circles nor of the rating. Updated in the 11 languages: the coupon is for every account; the three ways of commission and that the administrators may stop it; «الدائرة الخضراء والحمراء» (really connected, not the schedule alone); «كيف أقيّم مقدم الخدمة؟» (one to five stars and an opinion, published at once, seen by everyone).
+- `i18n:check`: 11 locales share 2625 keys. Client tests 166 pass; build and `check-deploy` 22 ok.
+- Not checked by a native speaker of each language; the terms follow each language's existing texts.

@@ -1765,6 +1765,10 @@
       "contact": {
         "question": "Bagaimana cara menghubungi dukungan atau mengajukan pengaduan?",
         "answer": "Dari menu ☰ atau bagian bawah halaman, pilih «Dukungan dan pengaduan». Anda bisa langsung mengirim pesan ke kami di WhatsApp, atau mengirim pesan ke admin setelah memilih topik: dukungan teknis, pengaduan, saran, atau pesan ke admin. Balasan admin muncul di halaman yang sama dengan notifikasi, dan angka di menu menunjukkan jumlah balasan baru."
+      },
+      "rating": {
+        "question": "Bagaimana cara menilai penyedia layanan?",
+        "answer": "Setelah layanan selesai, pilih satu sampai lima bintang dan tulis pendapat Anda. Penilaian Anda langsung diterbitkan dan terlihat oleh semua orang di halaman penyedia layanan."
       }
     },
     "start_title": "Siap untuk memulai?",
@@ -1772,8 +1776,8 @@
     "browse_services": "Telusuri layanan",
     "provider_signup": "Daftar sebagai penyedia layanan",
     "account_note": "Anda bisa membaca panduan ini tanpa masuk.",
-    "wallet_title": "Kupon dan dompet untuk penyedia layanan",
-    "wallet_intro": "Setiap penyedia layanan mendapat kupon pribadi saat mendaftar, dan mendapat bagian ketika orang lain mendaftar dengan kupon itu lalu membayar. Kupon ada di «Dompet & Kupon» di dalam dasbor penyedia layanan.",
+    "wallet_title": "Kupon dan dompet",
+    "wallet_intro": "Setiap akun, pencari layanan maupun penyedia layanan, punya kupon sendiri. Jika admin mengaktifkan pemasaran dengan komisi, Anda mendapat penghasilan ketika penyedia layanan mendaftar dengan kupon Anda. Kupon ada di «Dompet & Kupon».",
     "wallet_points": {
       "coupon": {
         "title": "Kupon Anda",
@@ -1785,7 +1789,7 @@
       },
       "commission": {
         "title": "Komisi",
-        "body": "Saat pembayaran online pertama pendaftar baru selesai, persentase yang ditetapkan admin otomatis ditambahkan ke saldo Anda, hanya sekali. Pembayaran dari saldo tidak menghasilkan komisi."
+        "body": "Admin memilih satu cara: persentase dari pembayaran online pertama yang selesai dari pendaftar baru; atau jumlah tetap untuk setiap penyedia layanan yang mendaftar dengan kupon Anda setelah batas minimum jumlah tercapai (kurang dari batas minimum tidak mendapat apa-apa); atau jumlah tetap untuk setiap penyedia layanan yang membayar langganannya dan aktif, sekali untuk setiap orang. Cara yang berlaku saat ini beserta angkanya terlihat di dompet Anda, dan admin dapat menghentikan pemasaran dengan komisi."
       },
       "balance": {
         "title": "Saldo",
@@ -1875,6 +1879,10 @@
       "search": {
         "title": "Tampil di pencarian",
         "body": "Pencari layanan melihat status Anda: tersedia sekarang, sedang cuti sampai tanggal tertentu, atau di luar jam kerja. Yang tersedia tampil lebih dulu, dan pencari layanan bisa memilih hanya «Tersedia sekarang»."
+      },
+      "present": {
+        "title": "Lingkaran hijau dan merah",
+        "body": "🟢 «Tersedia sekarang» berarti penyedia layanan benar-benar terhubung ke internet dan sedang menerima permintaan. 🔴 berarti ia sedang tidak terhubung atau tidak tersedia sekarang. Jadwal saja tidak cukup untuk memunculkan lingkaran hijau."
       }
     },
     "appearance_title": "Penampilan dan tema",

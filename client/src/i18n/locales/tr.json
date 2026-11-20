@@ -1765,6 +1765,10 @@
       "contact": {
         "question": "Teknik destekle nasıl iletişim kurarım veya şikâyette bulunurum?",
         "answer": "☰ menüsünden veya sayfanın altından «Teknik destek ve şikâyetler»i seçin. Bize doğrudan WhatsApp'tan yazabilir ya da bir konu seçip yönetime mesaj gönderebilirsiniz: teknik destek, şikâyet, öneri veya yönetimle yazışma. Yönetimin yanıtı aynı sayfaya bildirimle gelir ve menüde yeni yanıtların sayısı görünür."
+      },
+      "rating": {
+        "question": "Hizmet vereni nasıl değerlendiririm?",
+        "answer": "Hizmet tamamlandıktan sonra bir ile beş yıldız arasında seçim yapın ve görüşünüzü yazın. Değerlendirmeniz hemen yayımlanır ve hizmet verenin sayfasında herkese görünür."
       }
     },
     "start_title": "Başlamaya hazır mısınız?",
@@ -1772,8 +1776,8 @@
     "browse_services": "Hizmetlere göz at",
     "provider_signup": "Hizmet veren olarak kaydol",
     "account_note": "Bu kılavuzu giriş yapmadan okuyabilirsiniz.",
-    "wallet_title": "Hizmet verenler için kupon ve cüzdan",
-    "wallet_intro": "Her hizmet veren kaydolduğunda kendine özel bir kupon alır; başkası bu kuponla kaydolup ödeme yaptığında pay kazanır. Kuponu hizmet veren panelindeki «Cüzdan ve kupon» bölümünde bulursunuz.",
+    "wallet_title": "Kupon ve cüzdan",
+    "wallet_intro": "Hizmet alan olsun hizmet veren olsun, her hesabın kendine özel bir kuponu vardır. Yönetim komisyonlu pazarlamayı etkinleştirirse, hizmet verenler kuponunuzla kaydolduğunda kazanırsınız. Kuponu «Cüzdan ve kupon» bölümünde bulursunuz.",
     "wallet_points": {
       "coupon": {
         "title": "Kuponunuz",
@@ -1785,7 +1789,7 @@
       },
       "commission": {
         "title": "Komisyon",
-        "body": "Yeni kullanıcının ilk tamamlanan elektronik ödemesinde, yönetimin belirlediği bir oran bakiyenize otomatik olarak yalnızca bir kez eklenir. Bakiyeden yapılan ödemeler komisyon getirmez."
+        "body": "Yönetim tek bir yöntem seçer: yeni kullanıcının ilk tamamlanan elektronik ödemesinden bir oran; veya alt sınıra ulaşıldıktan sonra kuponunuzla kaydolan her hizmet veren için sabit bir tutar (alt sınırın altında bir şey kazanılmaz); veya aboneliğini ödeyen ve aboneliği etkinleşen her hizmet veren için sabit bir tutar, kişi başına yalnızca bir kez. Geçerli yöntem ve rakamları cüzdanınızda görünür; yönetim komisyonlu pazarlamayı durdurabilir."
       },
       "balance": {
         "title": "Bakiye",
@@ -1875,6 +1879,10 @@
       "search": {
         "title": "Aramada görünme",
         "body": "Hizmet alan durumunuzu görür: şu an müsait, bir tarihe kadar izinde veya çalışma saatleri dışında. Müsait olanlar önce görünür ve yalnızca «Şu an müsait olanlar»ı seçebilir."
+      },
+      "present": {
+        "title": "Yeşil ve kırmızı daire",
+        "body": "🟢 «Şu an müsait», hizmet verenin gerçekten internete bağlı olduğu ve şu anda talep aldığı anlamına gelir. 🔴 ise şu anda bağlı değil veya şu an müsait değil demektir. Yeşil dairenin görünmesi için yalnızca çalışma programı yeterli değildir."
       }
     },
     "appearance_title": "Görünüm ve temalar",

@@ -6,13 +6,13 @@ import { SIGNUP_STEPS, signupLabels } from '../components/common/SignupIntro';
 
 // The sign-up steps are the same text as the sign-up page's own guide (AYK-296); then what follows.
 const SIGNUP_POINTS = ['matching', 'stats', 'edit', 'change_type'];
-const AVAILABILITY_POINTS = ['pause', 'vacation', 'days', 'hours', 'search'];
+const AVAILABILITY_POINTS = ['pause', 'vacation', 'days', 'hours', 'search', 'present'];
 const CALL_POINTS = ['chat', 'delete', 'ring', 'closed', 'audio', 'iphone', 'network'];
 const WALLET_POINTS = ['coupon', 'invite', 'commission', 'balance', 'withdraw', 'gift', 'security', 'payments'];
 
 const CLIENT_STEPS = ['browse', 'details', 'location', 'offers', 'chat', 'finish'];
 const PROVIDER_STEPS = ['signup', 'profile', 'find', 'quote', 'work'];
-const QUESTIONS = ['price', 'areas', 'tracking', 'dispute', 'subscription', 'contact', 'language'];
+const QUESTIONS = ['price', 'areas', 'tracking', 'dispute', 'subscription', 'contact', 'language', 'rating'];
 
 function GuideSteps({ role, steps, title, intro, icon }) {
   const { t, i18n } = useTranslation();

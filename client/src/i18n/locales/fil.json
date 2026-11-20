@@ -1765,6 +1765,10 @@
       "contact": {
         "question": "Paano ako makikipag-ugnayan sa support o magrereklamo?",
         "answer": "Mula sa menu na ☰ o sa ibaba ng page, piliin ang «Suporta at reklamo». Puwede kang mag-message sa amin nang direkta sa WhatsApp, o magpadala ng mensahe sa admin matapos pumili ng paksa: technical support, reklamo, mungkahi o mensahe sa admin. Darating ang sagot ng admin sa parehong page kasama ang notification, at may numero sa menu na nagpapakita ng bilang ng mga bagong sagot."
+      },
+      "rating": {
+        "question": "Paano ko ire-rate ang service provider?",
+        "answer": "Pagkatapos ng serbisyo, pumili mula isa hanggang limang bituin at isulat ang opinyon mo. Agad na mapa-publish ang rating mo at makikita ng lahat sa page ng service provider."
       }
     },
     "start_title": "Handa ka na bang magsimula?",
@@ -1772,8 +1776,8 @@
     "browse_services": "Tingnan ang mga serbisyo",
     "provider_signup": "Mag-sign up bilang provider",
     "account_note": "Puwede mong basahin ang gabay na ito kahit hindi naka-sign in.",
-    "wallet_title": "Coupon at wallet para sa mga provider",
-    "wallet_intro": "Bawat provider ay nakakakuha ng sariling coupon pag-register, at kumikita siya ng porsyento kapag may nag-register gamit ito at nagbayad. Makikita ito sa «Wallet at coupon» sa panel ng provider.",
+    "wallet_title": "Coupon at wallet",
+    "wallet_intro": "Bawat account, kliyente man o service provider, ay may sariling coupon. Kapag in-activate ng admin ang marketing na may komisyon, kikita ka kapag may mga service provider na nag-register gamit ang coupon mo. Makikita ito sa «Wallet at coupon».",
     "wallet_points": {
       "coupon": {
         "title": "Iyong coupon",
@@ -1785,7 +1789,7 @@
       },
       "commission": {
         "title": "Komisyon",
-        "body": "Kapag nakumpleto ang unang online na bayad ng bagong user, awtomatikong madadagdag sa balanse mo ang porsyentong itinakda ng admin, isang beses lang. Walang komisyon ang bayad na galing sa balanse."
+        "body": "Pumipili ang admin ng isang paraan: porsyento ng unang nakumpletong online na bayad ng bagong user; o nakapirming halaga para sa bawat service provider na nag-register gamit ang coupon mo kapag naabot na ang minimum na bilang (kung kulang sa minimum, walang makukuha); o nakapirming halaga para sa bawat service provider na nagbayad ng subscription at na-activate, isang beses lang sa bawat tao. Makikita sa wallet mo ang kasalukuyang paraan at ang mga numero nito, at maaaring ihinto ng admin ang marketing na may komisyon."
       },
       "balance": {
         "title": "Balanse",
@@ -1875,6 +1879,10 @@
       "search": {
         "title": "Paglabas sa paghahanap",
         "body": "Makikita ng kliyente ang status mo: available ngayon, naka-bakasyon hanggang sa isang petsa, o labas sa oras ng trabaho. Unang lumalabas ang mga available, at puwedeng piliin ng kliyente na «Available ngayon» lang ang makita."
+      },
+      "present": {
+        "title": "Ang berde at pulang bilog",
+        "body": "🟢 Ang «Available ngayon» ay nangangahulugang talagang naka-online ang service provider at tumatanggap ngayon. 🔴 Ibig sabihin ay hindi konektado ngayon o hindi available ngayon. Hindi sapat ang iskedyul lang para lumabas ang berdeng bilog."
       }
     },
     "appearance_title": "Itsura at mga tema",
