@@ -7,6 +7,7 @@ export default function AppLinksPage() {
   return (
     <section className="max-w-3xl mx-auto px-4 py-10 text-center" data-testid="app-links">
       <h1 className="text-2xl md:text-3xl font-extrabold text-fg mb-6">📲 {t('home.get_app')}</h1>
+      {/* On Android the Google Play badge opens the Play Store app itself (a tap is needed for that). */}
       <StoreBadges />
     </section>
   );

@@ -9,7 +9,8 @@ const settings = { google_play_url: 'https://play.google.com/store/apps/details?
 
 test('short app addresses lead to the right store (AYK-351)', () => {
   assert.equal(shortLinkTarget('/app', IPHONE, settings), settings.app_store_url);
-  assert.match(shortLinkTarget('/app', ANDROID, settings), /^intent:\/\/details\?id=sa\.aykdmh\.app#Intent;scheme=market;package=com\.android\.vending;/);
+  assert.equal(shortLinkTarget('/app', ANDROID, settings), '', 'Android: our page, whose button opens the Play Store app');
+  assert.equal(shortLinkTarget('/gl', ANDROID, settings), '');
   assert.equal(shortLinkTarget('/app', PC, settings), '', 'a computer gets the page with both');
   assert.equal(shortLinkTarget('/gl', PC, settings), settings.google_play_url);
   assert.equal(shortLinkTarget('/GL/', IPHONE, settings), settings.google_play_url);

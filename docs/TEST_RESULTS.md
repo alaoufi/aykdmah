@@ -1668,3 +1668,11 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - New client test (iPhone, Android, computer, the three addresses, a setting pointing elsewhere ignored): passes; client tests 168 pass; build and `check-deploy` 22 ok.
 - Browser check (local site): iPhone `/app` → `apps.apple.com/app/id6829494773`; Android `/app` → `intent://details?id=sa.aykdmh.app…`; computer `/app` → the page with both; computer `/gl` → Google Play; computer `/ios` → App Store; no page errors.
 - Not tried on a real phone; a link preview in WhatsApp for these addresses shows the site's usual preview.
+- AYK-351 deployed as 1.1.99 (build 9441233); checked on the live site with the same script (iPhone → App Store, Android → intent, computer → page / Google Play / App Store).
+- The owner's screenshot (Huawei phone, `aykdmh.com/app`): Chrome showed Google Play's web page («التثبيت على أجهزة أخرى»), whose «الفتح في تطبيق متجر Play» did nothing. Two causes:
+  - Chrome on Android opens the Play Store app only from a tap, not from a page that sends itself there, so the automatic sending fell back to the web page;
+  - this phone is a Huawei without Google services: there is no Play Store app to open at all.
+- Changed for phones that have Google Play: on Android, `/app` and `/gl` show our page with the store badges, and the Google Play badge (also in the site's footer on Android) opens the Play Store app on a tap. iPhone and computers unchanged.
+  - Client test updated; client tests 168 pass; build and `check-deploy` 22 ok. Local browser: Android `/app` shows the page, its Google Play badge links `intent://details?id=sa.aykdmh.app…` without a new tab; iPhone and computer as before.
+  - Not tried on a phone with Google Play.
+- Not solved, the owner's decision: a Huawei phone has no Google Play, so no store link can install the app there (the direct download was retired in AYK-292; Huawei AppGallery is postponed).

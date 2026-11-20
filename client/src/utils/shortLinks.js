@@ -3,7 +3,6 @@
 //                      on a computer, a page with both.
 //   aykdmh.com/gl   -> Google Play.        aykdmh.com/ios -> App Store.
 // The store links come from the admin settings; these are used only if the settings cannot be read.
-import { playStoreAppLink } from './nativeApp.js';
 
 export const SHORT_LINKS = { '/app': 'auto', '/gl': 'android', '/ios': 'ios' };
 const FALLBACK = {
@@ -23,8 +22,11 @@ export function shortLinkTarget(pathname, ua, settings = {}) {
   const play = safe(settings.google_play_url, 'play.google.com') || FALLBACK.google_play_url;
   const apple = safe(settings.app_store_url, 'apps.apple.com') || FALLBACK.app_store_url;
   if (store === 'ios') return apple;
-  // On an Android phone, straight into the Play Store app (with the web page as fallback).
-  if (store === 'android') return phoneOf(ua) === 'android' ? playStoreAppLink(play) : play;
+  // AYK-351 (the owner: «يحوّل على قوقل بلاي» the web page, whose «open in the Play Store app» did not
+  // open): Chrome on Android opens the Play Store app only from a tap, not from a page that sends
+  // itself there, so it fell back to the web page. An Android phone gets our page with one big
+  // button instead, which opens the Play Store app directly.
+  if (store === 'android') return phoneOf(ua) === 'android' ? '' : play;
   return '';
 }
 
