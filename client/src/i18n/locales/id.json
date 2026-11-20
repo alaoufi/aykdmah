@@ -202,7 +202,7 @@
     "email": "Email",
     "username": "Nama pengguna",
     "identifier": "Telepon, nomor pelanggan atau email",
-    "identifier_hint": "Masuk dengan nomor telepon Anda, nomor pelanggan yang ditampilkan di bagian atas situs (misalnya AB12), atau email Anda.",
+    "identifier_hint": "Masuk dengan nomor telepon Anda, nomor pelanggan yang ditampilkan di bagian atas situs (misalnya 27), atau email Anda.",
     "identifiers_hint": "Tambahkan setidaknya satu metode masuk (nama pengguna / email / telepon)",
     "password": "Kata sandi",
     "show_password": "Tampilkan kata sandi",
@@ -305,7 +305,7 @@
     "phone_registered": "Nomor ini sudah terdaftar. Silakan masuk, atau gunakan “Lupa kata sandi”.",
     "phone_available": "✓ Nomor valid dan belum terdaftar",
     "invite_label": "Nomor undangan (opsional)",
-    "invite_hint": "Jika seseorang mengundang Anda, tulis nomor undangannya di sini (huruf dan angka). Kosongkan jika tidak ada.",
+    "invite_hint": "Jika seseorang mengundang Anda, tulis nomor undangannya di sini (hanya angka). Kosongkan jika tidak ada.",
     "invite_not_found": "Nomor undangan tidak valid. Periksa atau kosongkan.",
     "complete_to_enable": "Agar tombol aktif: {{item}}",
     "welcome_number_hint_client": "Ini nomor permanen Anda dan ditampilkan di bagian atas situs. Anda bisa masuk dengan nomor ini atau nomor ponsel, beserta kata sandi.",
@@ -1781,7 +1781,7 @@
     "wallet_points": {
       "coupon": {
         "title": "Kupon Anda",
-        "body": "Kode tetap berisi dua huruf dan dua angka, seperti KD27, dan otomatis lebih panjang jika perlu. Kode ini tidak berubah dan tidak dipakai orang lain."
+        "body": "Nomor tetap berisi dua angka, seperti 27, dan otomatis bertambah menjadi tiga lalu empat angka jika perlu. Nomor ini tidak berubah dan tidak dipakai orang lain."
       },
       "invite": {
         "title": "Mengundang",
@@ -1838,7 +1838,7 @@
       },
       "coupon": {
         "title": "Nomor Anda dan nomor undangan",
-        "body": "Setiap akun punya nomor tetap berisi huruf dan angka (misalnya AB12) yang tampil di bagian atas situs dan di menu akun Anda; Anda bisa masuk dengan nomor ini, nomor ponsel, atau email. Nomor penyedia layanan juga merupakan nomor undangannya: orang yang diundang oleh penyedia layanan menulis nomornya di kolom «Nomor undangan» saat mendaftar. Tombol «Buat akun» tidak aktif sampai kolom wajib terisi lengkap dan benar, syarat disetujui, dan kode verifikasi diisi."
+        "body": "Setiap akun punya nomor tetap berisi angka saja (misalnya 27) yang tampil di bagian atas situs dan di menu akun Anda; Anda bisa masuk dengan nomor ini, nomor ponsel, atau email. Nomor penyedia layanan juga merupakan nomor undangannya: orang yang diundang oleh penyedia layanan menulis nomornya di kolom «Nomor undangan» saat mendaftar. Tombol «Buat akun» tidak aktif sampai kolom wajib terisi lengkap dan benar, syarat disetujui, dan kode verifikasi diisi."
       },
       "matching": {
         "title": "Apa yang tampil di beranda Anda",

@@ -134,7 +134,7 @@ export default function WalletPage() {
           <p className="text-[12.5px] text-fg-muted">{t('wallet.apply_coupon_hint')}</p>
           <div className="flex gap-2">
             <input className="input flex-1" dir="ltr" value={coupon} maxLength={12} onChange={e => setCoupon(e.target.value)}
-              placeholder="AB12" aria-label={t('wallet.coupon_code')} />
+              placeholder="27" aria-label={t('wallet.coupon_code')} />
             <Button type="submit" loading={busy} disabled={coupon.trim().length < 4}>{t('wallet.apply')}</Button>
           </div>
         </form>

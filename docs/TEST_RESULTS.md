@@ -1683,3 +1683,16 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Found: `commission_percent` there is an old setting from the first version; no code reads it (the marketing percentage is `referral_commission_percent`, set on «المحافظ والتسويق»). The marketing settings were also listed there a second time, raw (their keys and old wording, e.g. «المبلغ لكل مجموعة», from before the owner's rule of a minimum then an amount per person).
 - Now the settings page no longer lists `commission_percent` nor the marketing settings; the payments tab starts with a link to «المحافظ والتسويق», where marketing is set with its own explanation and example. Nothing is deleted from the database.
 - Client tests 168 pass; build and `check-deploy` 22 ok. Not checked in the browser (admin settings page only).
+- AYK-352 deployed as 1.1.101 (build a7cdcae).
+
+## 2026-11-20 — AYK-353: account numbers in digits only
+- The owner: «أرقام فقط بلا حروف، الحروف صعوبة إدخال، وعدّل الحاليين بأرقام»; starting with two digits, then three, then four.
+- Now:
+  - a new account's number is digits only: two digits (10-99) first, then three, four, and more if ever needed; never a leading zero;
+  - migration 096 gives every existing account a number of digits, in a random order inside each length, and keeps its old code in `legacy_referral_code`;
+  - the old code still signs in and still works as an invite code and as a gift recipient, so nothing already shared stops working;
+  - sign-in, invite and gift fields accept the two-digit numbers (the gift field required 3 characters);
+  - the four texts that described letters (sign-in hint, invite hint, two guide paragraphs) say digits only, example 27, in the 11 languages.
+- Migration checked on a copy of the local test database: the 3 accounts with letter codes (WX76, TQ71, TD30) got 56, 87, 99 with their old codes kept; numbers unique, none left with letters; running it again changes nothing.
+- Tests: integration adds an old letter code signing in (any case) and an old invite code registering; expectations for the new shape updated. Full integration 285 pass, 0 fail; server unit 86, client 168 pass; `i18n:check` 2625 keys; build and `check-deploy` 22 ok.
+- Consequence to know: every user's number shown at the top changes once, at this release; their old one keeps working.

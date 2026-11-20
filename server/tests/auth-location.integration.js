@@ -472,7 +472,7 @@ if (!databasePrefix) {
     assert.equal(session.user.role, 'client');
     assert.ok(session.user.address && session.user.address.length >= 2);
     // Every account gets a permanent customer number, clients included.
-    assert.match(session.referral_code, /^[A-Z]{2,4}\d{2,4}$/);
+    assert.match(session.referral_code, /^\d{2,6}$/, 'digits only (AYK-353)');
     assert.equal(session.user.referral_code, session.referral_code);
     const named = await simpleRegister({ role: 'client', full_name: 'سارة', city_id: area.city_id, district_id: area.district_id });
     assert.equal(named.user.full_name, 'سارة');
@@ -491,7 +491,7 @@ if (!databasePrefix) {
       service_ids: serviceIds, coverage_district_ids: area.districts.slice(0, 2), location_mode: 'mobile' });
     assert.equal(session.user.role, 'provider');
     assert.equal(Number(session.user.also_client), 1);
-    assert.match(session.referral_code, /^[A-Z0-9]{4,12}$/);
+    assert.match(session.referral_code, /^\d{2,6}$/);
     const profile = await db.queryOne('SELECT category_id, service_ids, coverage_city_id FROM provider_profiles WHERE user_id = ?', [session.user.id]);
     assert.deepEqual(profile.service_ids, serviceIds);
     assert.equal(Number(profile.category_id), Number(services[0].category_id));
@@ -1152,9 +1152,13 @@ if (!databasePrefix) {
       await api('/auth/me', { token: session.token, expected: 401 });
       await api('/auth/login', { method: 'POST', body: { identifier: phone, password: '9876' } });
       // A client also gets a permanent customer number, accepted at sign-in in any letter case.
-      assert.match(session.user.referral_code, /^[A-Z]{2,4}\d{2,4}$/);
-      const byNumber = await api('/auth/login', { method: 'POST', body: { identifier: session.user.referral_code.toLowerCase(), password: '9876' } });
+      assert.match(session.user.referral_code, /^\d{2,6}$/);
+      const byNumber = await api('/auth/login', { method: 'POST', body: { identifier: session.user.referral_code, password: '9876' } });
       assert.equal(Number(byNumber.user.id), Number(session.user.id));
+      // AYK-353: an account's old letter code still signs in, in any letter case.
+      await db.query('UPDATE users SET legacy_referral_code = ? WHERE id = ?', ['QX77', session.user.id]);
+      const byOld = await api('/auth/login', { method: 'POST', body: { identifier: 'qx77', password: '9876' } });
+      assert.equal(Number(byOld.user.id), Number(session.user.id));
       await api('/auth/reset-password', { method: 'POST', body: { phone, code, password: '5555' }, expected: 400 });
 
       // A requester signs up with a password and the phone code; a code sent by SMS also signs in.

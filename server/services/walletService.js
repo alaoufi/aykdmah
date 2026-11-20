@@ -18,9 +18,9 @@ const Setting = require('../models/Setting');
 const notificationService = require('./notificationService');
 const { isTestMode } = require('./paymentService');
 
-const LETTERS = 'ABCDEFGHJKLMNPQRSTUVWXYZ'; // no I or O: they read like 1 and 0
-// Code shapes, shortest first: 2 letters + 2 digits, then more digits, then more letters.
-const CODE_TIERS = [[2, 2], [2, 3], [2, 4], [3, 4], [4, 4]];
+// AYK-353 (the owner): account numbers are digits only, easy to type: two digits first, then three,
+// then four (and more if ever needed). Old letter codes stay valid (legacy_referral_code).
+const CODE_TIERS = [2, 3, 4, 5, 6];
 const ATTEMPTS_PER_TIER = 25;
 const IBAN_RE = /^SA\d{22}$/;
 
@@ -28,12 +28,13 @@ function fail(status, code) { return Object.assign(new Error(code), { status, co
 const toHalalas = value => Math.round(Number(value) * 100);
 const toSar = halalas => Number((halalas / 100).toFixed(2));
 
-function randomCode(letters, digits) {
-  let code = '';
-  for (let i = 0; i < letters; i += 1) code += LETTERS[crypto.randomInt(LETTERS.length)];
-  for (let i = 0; i < digits; i += 1) code += String(crypto.randomInt(10));
+function randomCode(digits) {
+  let code = String(1 + crypto.randomInt(9)); // never a leading zero
+  for (let i = 1; i < digits; i += 1) code += String(crypto.randomInt(10));
   return code;
 }
+// A number of this account: today's digits, or an older letter code (AYK-353).
+const ACCOUNT_NUMBER = /^(\d{2,6}|[A-Z]{2,4}\d{2,4})$/;
 
 function normalizeCode(value) {
   return String(value || '').trim().toUpperCase().replace(/[\s-]/g, '');
@@ -46,9 +47,11 @@ async function ensureReferralCode(userId) {
   const user = await queryOne('SELECT id, role, referral_code FROM users WHERE id = ?', [userId]);
   if (!user) return null;
   if (user.referral_code) return user.referral_code;
-  for (const [letters, digits] of CODE_TIERS) {
+  for (const digits of CODE_TIERS) {
     for (let attempt = 0; attempt < ATTEMPTS_PER_TIER; attempt += 1) {
-      const code = randomCode(letters, digits);
+      const code = randomCode(digits);
+      // Not a number someone already had as their old code either.
+      if (await queryOne('SELECT 1 AS x FROM users WHERE legacy_referral_code = ?', [code]).catch(() => null)) continue;
       try {
         const updated = await query('UPDATE users SET referral_code = ? WHERE id = ? AND referral_code IS NULL', [code, userId]);
         if (updated.affectedRows === 1) return code;
@@ -63,11 +66,11 @@ async function ensureReferralCode(userId) {
 
 async function findReferrerByCode(code) {
   const normalized = normalizeCode(code);
-  if (!/^[A-Z]{2,4}\d{2,4}$/.test(normalized)) return null;
+  if (!ACCOUNT_NUMBER.test(normalized)) return null;
   // AYK-322 (the owner): every registered account's number is a marketing code, not only a
   // provider's. Administrators are left out.
-  return queryOne(`SELECT id, full_name FROM users WHERE referral_code = ? AND role IN ('provider', 'client')
-    AND is_active = 1 AND is_blocked = 0 AND deleted_at IS NULL`, [normalized]);
+  return queryOne(`SELECT id, full_name FROM users WHERE (referral_code = ? OR legacy_referral_code = ?) AND role IN ('provider', 'client')
+    AND is_active = 1 AND is_blocked = 0 AND deleted_at IS NULL`, [normalized, normalized]);
 }
 
 // Links a new account to a coupon. Allowed once, before the account's first payment.
@@ -295,11 +298,12 @@ async function processWithdrawal(admin, id, { action, note, transfer_reference }
 
 async function findRecipient(identifier, senderId) {
   const value = String(identifier || '').trim();
-  if (value.length < 3) throw fail(400, 'recipient_required');
+  // AYK-353: an account number can be two digits now (27).
+  if (value.length < 2) throw fail(400, 'recipient_required');
   const code = normalizeCode(value);
   const phone = value.replace(/[\s()-]/g, '');
   const row = await queryOne(`SELECT id, full_name, role FROM users WHERE deleted_at IS NULL AND is_active = 1 AND is_blocked = 0
-    AND (referral_code = ? OR LOWER(username) = LOWER(?) OR phone = ?) LIMIT 1`, [code, value, phone]);
+    AND (referral_code = ? OR legacy_referral_code = ? OR LOWER(username) = LOWER(?) OR phone = ?) LIMIT 1`, [code, code, value, phone]);
   if (!row || row.role !== 'provider') throw fail(404, 'recipient_not_found');
   if (Number(row.id) === Number(senderId)) throw fail(400, 'recipient_self');
   return row;

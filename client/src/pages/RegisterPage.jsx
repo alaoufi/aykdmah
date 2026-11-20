@@ -386,7 +386,7 @@ export default function RegisterPage() {
         </>}
 
         {couponOpen ? <Input label={t('auth.invite_label')} hint={t('auth.invite_hint')} dir="ltr" maxLength={12}
-          value={form.referral_code} onChange={e => update('referral_code', e.target.value.toUpperCase())} placeholder="AB12" /> :
+          value={form.referral_code} onChange={e => update('referral_code', e.target.value.toUpperCase())} placeholder="27" /> :
           <button type="button" className="text-[13px] text-primary font-semibold" onClick={() => setCouponOpen(true)}>🎟️ {t('auth.have_coupon')}</button>}
 
         {/* No checkbox to tick: creating the account accepts the terms (AYK-044). */}

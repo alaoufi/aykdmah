@@ -202,7 +202,7 @@
     "email": "Email",
     "username": "Username",
     "identifier": "Phone, iyong numero o email",
-    "identifier_hint": "Mag-sign in gamit ang iyong phone number, ang iyong numero na nasa itaas ng site (hal. AB12), o ang iyong email.",
+    "identifier_hint": "Mag-sign in gamit ang iyong phone number, ang iyong numero na nasa itaas ng site (hal. 27), o ang iyong email.",
     "identifiers_hint": "Maglagay ng kahit isang paraan ng pag-sign in (username / email / phone)",
     "password": "Password",
     "show_password": "Ipakita ang password",
@@ -305,7 +305,7 @@
     "phone_registered": "Naka-register na ang numerong ito. Mag-sign in, o gamitin ang «Nakalimutan ang password?».",
     "phone_available": "✓ Tamang numero, hindi pa naka-register",
     "invite_label": "Numero ng imbitasyon (opsyonal)",
-    "invite_hint": "Kung may nag-imbita sa iyo, isulat dito ang kanyang numero ng imbitasyon (mga titik at numero). Iwanang blangko kung wala.",
+    "invite_hint": "Kung may nag-imbita sa iyo, isulat dito ang kanyang numero ng imbitasyon (mga digit lamang). Iwanang blangko kung wala.",
     "invite_not_found": "Hindi tama ang numero ng imbitasyon. Suriin ito o iwanang blangko.",
     "complete_to_enable": "Para gumana ang button: {{item}}",
     "welcome_number_hint_client": "Ito ang permanente mong numero at makikita ito sa itaas ng site. Puwede kang mag-sign in gamit ito o ang iyong mobile number, kasama ang password.",
@@ -1781,7 +1781,7 @@
     "wallet_points": {
       "coupon": {
         "title": "Iyong coupon",
-        "body": "Permanenteng code na may dalawang letra at dalawang numero gaya ng KD27, at awtomatiko itong humahaba kung kailangan. Hindi ito nagbabago at hindi ito ibibigay sa iba."
+        "body": "Permanenteng numero na may dalawang digit gaya ng 27, at awtomatiko itong humahaba sa tatlo at pagkatapos ay apat na digit kung kailangan. Hindi ito nagbabago at hindi ito ibibigay sa iba."
       },
       "invite": {
         "title": "Pag-imbita",
@@ -1838,7 +1838,7 @@
       },
       "coupon": {
         "title": "Iyong numero at numero ng imbitasyon",
-        "body": "Bawat account ay may permanenteng numero na binubuo ng mga letra at numero (gaya ng AB12) na makikita sa itaas ng site at sa menu ng account mo, at puwede kang mag-sign in gamit ito, ang iyong mobile o email. Ang numero ng provider ay siya ring numero ng imbitasyon niya: kung inimbita ka ng isang provider, isulat ang numero niya sa field na «Numero ng imbitasyon» habang nagre-register. Hindi gagana ang button na «Gumawa ng account» hangga't hindi kumpleto at tama ang mga kailangang field, hindi ka pa sumasang-ayon sa mga tuntunin, at hindi pa naisusulat ang verification code."
+        "body": "Bawat account ay may permanenteng numero na binubuo lamang ng mga digit (gaya ng 27) na makikita sa itaas ng site at sa menu ng account mo, at puwede kang mag-sign in gamit ito, ang iyong mobile o email. Ang numero ng provider ay siya ring numero ng imbitasyon niya: kung inimbita ka ng isang provider, isulat ang numero niya sa field na «Numero ng imbitasyon» habang nagre-register. Hindi gagana ang button na «Gumawa ng account» hangga't hindi kumpleto at tama ang mga kailangang field, hindi ka pa sumasang-ayon sa mga tuntunin, at hindi pa naisusulat ang verification code."
       },
       "matching": {
         "title": "Ano ang makikita mo sa Home",

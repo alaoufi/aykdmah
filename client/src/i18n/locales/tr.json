@@ -202,7 +202,7 @@
     "email": "E-posta",
     "username": "Kullanıcı adı",
     "identifier": "Telefon, numaranız veya e-posta",
-    "identifier_hint": "Telefon numaranız, sitenin üstünde görünen numaranız (örneğin AB12) veya e-postanızla giriş yapın.",
+    "identifier_hint": "Telefon numaranız, sitenin üstünde görünen numaranız (örneğin 27) veya e-postanızla giriş yapın.",
     "identifiers_hint": "En az bir giriş yöntemi ekleyin (kullanıcı adı / e-posta / telefon)",
     "password": "Şifre",
     "show_password": "Şifreyi göster",
@@ -305,7 +305,7 @@
     "phone_registered": "Bu numara zaten kayıtlı. Giriş yapın veya «Şifrenizi mi unuttunuz?» seçeneğini kullanın.",
     "phone_available": "✓ Numara geçerli, henüz kayıtlı değil",
     "invite_label": "Davet numarası (isteğe bağlı)",
-    "invite_hint": "Sizi biri davet ettiyse davet numarasını buraya yazın (harf ve rakam). Yoksa boş bırakın.",
+    "invite_hint": "Sizi biri davet ettiyse davet numarasını buraya yazın (yalnızca rakam). Yoksa boş bırakın.",
     "invite_not_found": "Davet numarası geçersiz. Kontrol edin ya da boş bırakın.",
     "complete_to_enable": "Düğmeyi etkinleştirmek için: {{item}}",
     "welcome_number_hint_client": "Bu sizin sabit numaranızdır ve sitenin üstünde görünür. Şifrenizle birlikte bununla veya telefonunuzla giriş yapabilirsiniz.",
@@ -1781,7 +1781,7 @@
     "wallet_points": {
       "coupon": {
         "title": "Kuponunuz",
-        "body": "KD27 gibi iki harf ve iki rakamdan oluşan sabit bir kod; gerektiğinde otomatik uzar. Değişmez ve başkasına tekrar verilmez."
+        "body": "27 gibi iki rakamdan oluşan sabit bir numara; gerektiğinde otomatik olarak üç, ardından dört rakama uzar. Değişmez ve başkasına tekrar verilmez."
       },
       "invite": {
         "title": "Davet",
@@ -1838,7 +1838,7 @@
       },
       "coupon": {
         "title": "Numaranız ve davet numarası",
-        "body": "Her hesabın, sitenin üstünde ve hesap menünüzde görünen, harf ve rakamlardan oluşan sabit bir numarası vardır (örneğin AB12); bununla, telefonunuzla veya e-postanızla giriş yapabilirsiniz. Hizmet verenin numarası aynı zamanda davet numarasıdır: bir hizmet veren tarafından davet edilen kişi, kayıt sırasında bu numarayı «Davet numarası» alanına yazar. «Hesap oluştur» düğmesi; zorunlu alanlar eksiksiz ve doğru doldurulmadan, şartlar kabul edilmeden ve doğrulama kodu yazılmadan çalışmaz."
+        "body": "Her hesabın, sitenin üstünde ve hesap menünüzde görünen, yalnızca rakamlardan oluşan sabit bir numarası vardır (örneğin 27); bununla, telefonunuzla veya e-postanızla giriş yapabilirsiniz. Hizmet verenin numarası aynı zamanda davet numarasıdır: bir hizmet veren tarafından davet edilen kişi, kayıt sırasında bu numarayı «Davet numarası» alanına yazar. «Hesap oluştur» düğmesi; zorunlu alanlar eksiksiz ve doğru doldurulmadan, şartlar kabul edilmeden ve doğrulama kodu yazılmadan çalışmaz."
       },
       "matching": {
         "title": "Ana sayfada neler görürsünüz",

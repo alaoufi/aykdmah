@@ -93,16 +93,16 @@ if (!databasePrefix) {
     }
   });
 
-  test('every provider gets one permanent coupon code: 2 letters + 2 digits, no I or O', async () => {
+  test('every provider gets one permanent account number: digits only, two first (AYK-353)', async () => {
     const first = await api('/wallet', { user: users.referrer });
     assert.equal(first.status, 200, first.body?.message);
     const code = first.body.data.referral_code;
-    assert.match(code, /^[A-HJ-NP-Z]{2}\d{2}$/);
+    assert.match(code, /^[1-9]\d$/);
     assert.equal((await api('/wallet', { user: users.referrer })).body.data.referral_code, code);
     // AYK-322: every account has a marketing code and a wallet, a requester too.
     const asClient = await api('/wallet', { user: users.customer });
     assert.equal(asClient.status, 200);
-    assert.match(asClient.body.data.referral_code, /^[A-HJ-NP-Z]{2}\d{2}$/);
+    assert.match(asClient.body.data.referral_code, /^[1-9]\d$/, 'two digits first, no letters (AYK-353)');
     assert.equal(asClient.body.data.marketing.enabled, false, 'marketing is off until the administration turns it on');
     const codes = new Set();
     for (let i = 0; i < 40; i += 1) {
@@ -123,6 +123,11 @@ if (!databasePrefix) {
     assert.equal(good.status, 201, good.body?.message);
     const row = await db.queryOne('SELECT referred_by FROM users WHERE username = ?', ['couponuser']);
     assert.equal(Number(row.referred_by), users.referrer.id);
+    // AYK-353: an invite code shared before the change (letters) still works.
+    await db.query('UPDATE users SET legacy_referral_code = ? WHERE id = ?', ['KD27', users.referrer.id]);
+    const old = await api('/auth/register', { method: 'POST', body: { full_name: 'Old Code User', username: 'oldcodeuser', password: 'abcd', role: 'client', referral_code: 'kd27' } });
+    assert.equal(old.status, 201, old.body?.message);
+    assert.equal(Number((await db.queryOne('SELECT referred_by FROM users WHERE username = ?', ['oldcodeuser'])).referred_by), users.referrer.id);
   });
 
   test('a coupon can be applied once, not to oneself, and not after paying', async () => {
