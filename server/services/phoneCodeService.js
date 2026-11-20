@@ -9,7 +9,11 @@ const PURPOSES = ['signup', 'reset', 'login'];
 const DAILY_WRONG_LIMIT = 10; // wrong codes per phone and purpose a day (AYK-240)
 const DAILY_LIMIT = 10; // per phone and purpose, to bound SMS cost and abuse
 
-const normalizePhone = value => String(value || '').trim().replace(/[\s()-]/g, '');
+// A pasted number may carry hidden direction marks and Arabic digits (AYK-358).
+const normalizePhone = value => String(value || '')
+  .replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF\u061C]/g, '')
+  .replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 0x0660)).replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 0x06f0))
+  .trim().replace(/[\s\u00A0\u202F().-]/g, '');
 const validPhone = phone => /^\+?\d{8,15}$/.test(phone);
 // The SMS gateways are Saudi: 05XXXXXXXX, 5XXXXXXXX, 9665XXXXXXXX, +9665… or 009665…
 const saudiMobile = phone => /^(?:\+966|00966|966|0)?5\d{8}$/.test(phone);

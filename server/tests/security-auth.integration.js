@@ -317,6 +317,13 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     assert.equal((await api('/auth/me', { token: fresh.token })).data.user.admin_access, 1);
     const opened = (await api('/auth/admin-session', { token: fresh.token, method: 'POST', headers: { 'X-Ayk-Scope': 'admin' } })).data;
     assert.equal((await api('/auth/me', { token: opened.token, headers: { 'X-Ayk-Scope': 'admin' } })).data.user.role, 'admin');
+    // AYK-358: the users list says how many sections each administration account enters, and never
+    // sends the permissions themselves.
+    const listed = (await api('/users?role=admin&limit=100', { token: opened.token, headers: { 'X-Ayk-Scope': 'admin' } })).data;
+    const row = (listed.items || listed).find(item => Number(item.id) === Number(user.id));
+    assert.ok(row, 'the account is in the administration list');
+    assert.equal(row.admin_sections, 1);
+    assert.equal(row.permissions, undefined);
     // The admin session reaches admin routes (this test account has no extra permissions, so a
     // permission-gated page like the dashboard correctly stays closed).
     await api('/admin/dashboard', { token: opened.token, headers: { 'X-Ayk-Scope': 'admin' }, expected: 403 });

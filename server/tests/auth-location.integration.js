@@ -1151,6 +1151,15 @@ if (!databasePrefix) {
       await api('/auth/reset-password', { method: 'POST', body: { phone, code, password: '9876' } });
       await api('/auth/me', { token: session.token, expected: 401 });
       await api('/auth/login', { method: 'POST', body: { identifier: phone, password: '9876' } });
+      // AYK-358: a number pasted from WhatsApp or the contacts («\u202A+966 5x xxx xxxx\u202C»,
+      // Arabic digits, 5xxxxxxxx) signs in to the same account.
+      const intl = `+966 ${phone.slice(1, 3)} ${phone.slice(3, 6)} ${phone.slice(6)}`;
+      const arabic = phone.replace(/\d/g, d => String.fromCharCode(0x0660 + Number(d)));
+      for (const pasted of [`\u202A${intl}\u202C`, `\u200E${phone}`, arabic, phone.slice(1), `00966${phone.slice(1)}`]) {
+        await db.query('DELETE FROM auth_rate_limits');
+        const signed = await api('/auth/login', { method: 'POST', body: { identifier: pasted, password: '9876' } });
+        assert.equal(Number(signed.user.id), Number(session.user.id), `pasted form ${JSON.stringify(pasted)}`);
+      }
       // A client also gets a permanent customer number, accepted at sign-in in any letter case.
       assert.match(session.user.referral_code, /^\d{2,6}$/);
       const byNumber = await api('/auth/login', { method: 'POST', body: { identifier: session.user.referral_code, password: '9876' } });

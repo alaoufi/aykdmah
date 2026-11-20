@@ -1741,3 +1741,15 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - The owner's correction: «والثلاث المتشابهة 111 إلى 999 (محجوزة أيضًا)، وبعد تبديل رقمه يكون رقمه القديم محرّرًا ويدخل في طابور التسجيل التلقائي، محرّرًا من أي تبعات؛ المحادثات والطلبات كلها تنتقل للجديد».
   - 111 … 999 were already special (any number of one repeated digit). Now a previous number is freed when an account moves: it no longer reaches the account and can be given to a new account; migration 098 frees the one kept so far (54). Chats, requests, wallet, directory entries and invitations belong to the account, not to its number, so they stay with it under the new number.
   - Integration test updated (after the move the previous number no longer invites, no alias kept): full integration 286 pass, 0 fail; client 168 pass; build and `check-deploy` 22 ok.
+
+## AYK-358 — لصق رقم الجوال في الدخول، وحساب إدارة بلا أقسام (2026-11-20)
+
+- المالك: «ما يقبل اللصق في رقم الجوال في الدخول». الرقم المنسوخ من الواتساب أو جهات الاتصال يأتي مثل «‪+966 50 123 4567‬» بعلامات اتجاه مخفية و+966، والمحفوظ «05…» فلم يتطابقا.
+  - الخادم (`User.findByIdentifier`، `phoneCodeService.normalizePhone`) يحذف العلامات المخفية، ويحوّل الأرقام العربية، ويقبل ‎+9665… و009665… و9665… و5… على أنها 05….
+  - الواجهة (`cleanTyped` في الدخول ونسيت كلمة المرور والتسجيل) تنظّف الحقل عند اللصق.
+  - اختبار متكامل: الدخول بخمس صيغ ملصوقة يصل للحساب نفسه. في المتصفح (390px): لصق «‪+966 50 000 9922‬» ظهر «+966 50 000 9922» ودخل.
+- المالك: «هذا حسابه في صلاحية الإدارة» (الدور «لوحة الإدارة») ولا تظهر له لوحة الإدارة. التقرير: الحساب 22 بلا أقسام محفوظة.
+  - قائمة المستخدمين تُظهر «⚠️ بلا أقسام، لا يدخل الإدارة» بجانب حساب الإدارة الذي لا قسم له (الخادم يرسل عدد الأقسام `admin_sections` لا الصلاحيات نفسها).
+  - نموذج التعديل يُظهر تحت «الدور» مباشرة تنبيهًا وزر «🔑 تحديد الأقسام الآن»، وبعد الحفظ تفتح نافذة الأقسام تلقائيًا لحساب إدارة بلا أقسام.
+  - جُرّب محليًا: حفظ الأقسام ثم «نعم، متابعة» → PUT 200، ثم ظهر للعضو «لوحة الإدارة» وفتح /admin (حاسب وجوال).
+- الاختبارات: متكاملة 286 ناجح، الواجهة 168، الخادم 86، الترجمة 2630 مفتاحًا، فحص النشر سليم، البناء سليم.

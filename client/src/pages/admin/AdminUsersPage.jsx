@@ -26,6 +26,10 @@ const ROLE_BADGE = {
   client: 'bg-brand-50 text-brand-700',
 };
 
+function NoSections() {
+  return <span className="px-2 py-0.5 rounded-pill bg-amber-100 text-amber-900 text-[10.5px] font-bold" data-testid="no-sections">⚠️ بلا أقسام، لا يدخل الإدارة</span>;
+}
+
 const EMPTY_FORM = { full_name: '', username: '', email: '', phone: '', facebook_id: '', password: '', role: 'client', is_active: true };
 
 export default function AdminUsersPage() {
@@ -145,7 +149,8 @@ export default function AdminUsersPage() {
         const payload = Object.fromEntries(Object.entries(form).filter(([key, value]) => key !== 'password' && value !== before[key]));
         if (form.password) payload.password = form.password;
         if (Object.keys(payload).length) await updateUser(editing.id, payload);
-        if (payload.role === 'admin') newAdmin = { id: editing.id, name: editing.full_name };
+        // Also when it was already administration but has no section yet (AYK-358).
+        if (payload.role === 'admin' || (form.role === 'admin' && editing.admin_sections === 0)) newAdmin = { id: editing.id, name: editing.full_name };
       } else {
         const made = await createUser(form);
         if (form.role === 'admin' && made?.id) newAdmin = { id: made.id, name: form.full_name };
@@ -271,6 +276,7 @@ export default function AdminUsersPage() {
                     <span className={`px-2 py-0.5 rounded-pill text-[10.5px] font-bold ${ROLE_BADGE[u.role] || 'bg-slate-100 text-slate-600'}`}>
                       {ROLE_LABEL[u.role] || u.role}
                     </span>
+                    {u.role === 'admin' && u.admin_sections === 0 && <NoSections />}
                     {u.is_blocked ? (
                       <span className="px-2 py-0.5 rounded-pill bg-rose-50 text-rose-600 text-[10.5px] font-bold">{t('admin.is_blocked')}</span>
                     ) : u.is_active ? (
@@ -336,6 +342,7 @@ export default function AdminUsersPage() {
                       <span className={`inline-flex px-2.5 py-0.5 rounded-pill text-[11px] font-bold ${ROLE_BADGE[u.role] || 'bg-slate-100 text-slate-600'}`}>
                         {ROLE_LABEL[u.role] || u.role}
                       </span>
+                      {u.role === 'admin' && u.admin_sections === 0 && <div className="mt-1"><NoSections /></div>}
                     </td>
                     <td className="py-2 text-[12.5px] text-slate-600">{localizedJoinedName(u, 'city', i18n.resolvedLanguage) || '—'}</td>
                     <td className="py-2">
@@ -495,6 +502,24 @@ export default function AdminUsersPage() {
               </select>
             </div>
           </div>
+          {form.role === 'admin' && canEditPerms && (
+            // AYK-358 (the owner: «هذا حسابه في صلاحية الإدارة» and still no «لوحة الإدارة»): the role
+            // alone opens nothing; the sections ticked for the account do. Said here, beside the role.
+            <div className="rounded-card bg-amber-50 border-2 border-amber-300 p-3 space-y-2" data-testid="admin-sections-box">
+              <p className="text-[13px] font-bold text-amber-900">
+                {editing && editing.admin_sections === -1 ? '✅ إدارة كاملة: يدخل كل الأقسام.'
+                  : editing && editing.admin_sections > 0 ? `✅ يدخل ${editing.admin_sections} من أقسام الإدارة.`
+                    : '⚠️ لن تظهر له «لوحة الإدارة» حتى تحدد له الأقسام التي يدخلها.'}
+              </p>
+              {editing ? (
+                <button type="button"
+                  onClick={() => { setPermsTarget({ id: editing.id, name: editing.full_name }); closeEdit(); }}
+                  className="w-full px-4 py-2.5 rounded-card bg-white border-2 border-amber-300 text-amber-900 text-[13px] font-bold hover:bg-amber-100 transition">
+                  🔑 تحديد الأقسام الآن
+                </button>
+              ) : <p className="text-[12px] text-amber-800">بعد الحفظ تفتح لك نافذة الأقسام مباشرة.</p>}
+            </div>
+          )}
           {editing && (
             <label className="inline-flex items-center gap-2 text-[13px] cursor-pointer">
               <input type="checkbox" checked={!!form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />
@@ -502,13 +527,6 @@ export default function AdminUsersPage() {
             </label>
           )}
           {editing && <SpecialNumberPicker user={editing} onChanged={load} />}
-          {editing && form.role === 'admin' && canEditPerms && (
-            <button type="button"
-              onClick={() => { setPermsTarget({ id: editing.id, name: editing.full_name }); closeEdit(); }}
-              className="w-full mt-2 px-4 py-2.5 rounded-card bg-amber-50 border-2 border-amber-200 text-amber-800 text-[13px] font-bold hover:bg-amber-100 transition">
-              🔑 {t('admin.manage_permissions')}
-            </button>
-          )}
         </form>
       </Modal>
 

@@ -107,17 +107,38 @@ async function findByFacebookId(facebookId) {
 // Universal lookup: tries every identifier the user might have signed
 // up with. Used by /auth/login so the form can accept any of them in a
 // single field.
+// Hidden direction marks and spaces that copying adds, Arabic and Persian digits as Latin digits.
+function cleanIdentifier(value) {
+  return String(value ?? '')
+    .replace(/[\u200B-\u200F\u202A-\u202E\u2066-\u2069\uFEFF\u061C]/g, '')
+    .replace(/[\u00A0\u2000-\u200A\u202F\u205F\u3000]/g, ' ')
+    .replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 0x0660)).replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 0x06f0))
+    .trim();
+}
+// The number as typed, and the same Saudi mobile written the way accounts keep it (05XXXXXXXX).
+function phoneForms(value) {
+  const typed = value.replace(/[\s\-().]/g, '');
+  const digits = typed.replace(/^\+/, '').replace(/^00/, '');
+  let local = typed;
+  if (/^9665\d{8}$/.test(digits)) local = `0${digits.slice(3)}`;
+  else if (/^5\d{8}$/.test(digits)) local = `0${digits}`;
+  return [typed, local];
+}
+
 async function findByIdentifier(identifier) {
   if (typeof identifier !== 'string') return null;
-  const v = String(identifier).trim();
+  // A number pasted from WhatsApp or the contacts comes as «\u202A+966 50 123 4567\u202C»: hidden
+  // direction marks, spaces, Arabic digits, the country code. All are read as the same number.
+  const v = cleanIdentifier(identifier);
   if (!v) return null;
-  const phone = /^[\d+\s\-()]+$/.test(v) ? v.replace(/[\s\-()]/g, '') : null;
+  const phones = /^[\d+\s\-().]+$/.test(v) ? phoneForms(v) : [];
+  const phone = phones[0] || null, phone2 = phones[1] || phone;
   // The customer number (referral_code) is a sign-in identifier too.
   // AYK-353: digits only now (27, 431); an older letter code (AB12) still signs in.
   const code = /^(\d{2,6}|[A-Za-z]{2,4}\d{2,4})$/.test(v) ? v.toUpperCase() : null;
   const rows = await query(`SELECT * FROM users WHERE deleted_at IS NULL AND
-    (LOWER(username) = LOWER(?) OR LOWER(email) = LOWER(?) OR facebook_id = ? OR REGEXP_REPLACE(phone, '[[:space:]()-]', '', 'g') = ? OR referral_code = ? OR legacy_referral_code = ?
-    OR id = (SELECT user_id FROM account_number_aliases WHERE code = ?)) LIMIT 2`, [v, v, v, phone, code, code, code]);
+    (LOWER(username) = LOWER(?) OR LOWER(email) = LOWER(?) OR facebook_id = ? OR REGEXP_REPLACE(phone, '[[:space:]()-]', '', 'g') IN (?, ?) OR referral_code = ? OR legacy_referral_code = ?
+    OR id = (SELECT user_id FROM account_number_aliases WHERE code = ?)) LIMIT 2`, [v, v, v, phone, phone2, code, code, code]);
   // Dirty legacy records or cross-field collisions must never choose an
   // arbitrary owner. Existing unique formatted phone/email logins still work.
   return rows.length === 1 ? rows[0] : null;
@@ -429,7 +450,7 @@ async function listPaginated({ role, search, page = 1, limit = 20 }) {
   const whereSql = where.join(' AND ');
 
   const items = await query(
-    `SELECT ${SELECT_FIELDS}, c.name_ar AS city_name, c.name_en AS city_name_en
+    `SELECT ${SELECT_FIELDS}, u.is_super_admin, u.permissions, c.name_ar AS city_name, c.name_en AS city_name_en
      FROM users u LEFT JOIN cities c ON u.city_id = c.id
      WHERE ${whereSql}
      ORDER BY u.created_at DESC
@@ -440,6 +461,15 @@ async function listPaginated({ role, search, page = 1, limit = 20 }) {
     `SELECT COUNT(*) AS total FROM users u WHERE ${whereSql}`,
     params
   );
+  // AYK-358: an administration account with no section cannot enter; the list says so.
+  for (const row of items) {
+    if (row.role === 'admin') {
+      let perms = row.permissions;
+      if (typeof perms === 'string') { try { perms = JSON.parse(perms); } catch (_) { perms = []; } }
+      row.admin_sections = Number(row.is_super_admin) === 1 ? -1 : (Array.isArray(perms) ? perms.length : 0);
+    }
+    delete row.permissions; delete row.is_super_admin;
+  }
   return { items, total };
 }
 
@@ -503,7 +533,7 @@ async function updateProviderProfile(userId, data) {
 
 module.exports = {
   recordFailedLogin, clearFailedLogins, LOGIN_LOCK_AFTER,
-  findById, findByIdRaw, findByEmail, findByPhone, findByUsername, findByFacebookId, findByIdentifier,
+  findById, findByIdRaw, findByEmail, findByPhone, findByUsername, findByFacebookId, findByIdentifier, cleanIdentifier, phoneForms,
   create, update, updatePassword, revokeSessions, endAreaSessions, areaSessionVersion, updateAdminPermissions, completeLogin,
   softDelete, setBlocked, setOnline, listPaginated, adminUpdate,
   getProviderProfile, updateProviderProfile,

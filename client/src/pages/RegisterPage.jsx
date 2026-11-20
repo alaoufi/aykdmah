@@ -6,7 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import usePublicSettings from '../hooks/usePublicSettings';
 import { reverseGeocode, listCountries } from '../services/serviceService';
 import { sendPhoneCode, checkPhone } from '../services/authService';
-import { cleanPhone, isSaudiMobile } from '../utils/saudiPhone';
+import { cleanPhone, cleanTyped, isSaudiMobile } from '../utils/saudiPhone';
 import useLocationOptions from '../hooks/useLocationOptions';
 import Input from '../components/common/Input';
 import PasswordInput from '../components/common/PasswordInput';
@@ -299,7 +299,7 @@ export default function RegisterPage() {
         <Input id="register-phone" name="phone" label={t('auth.phone')} type="tel" required maxLength={30} dir="ltr"
           value={form.phone} error={fieldErrors.phone} autoComplete="tel" inputMode="tel" placeholder="05XXXXXXXX"
           hint={phoneStatus === 'available' ? t('auth.phone_available') : phoneStatus === 'checking' ? '…' : undefined}
-          onBlur={verifyPhone} onChange={e => update('phone', e.target.value)} />
+          onBlur={verifyPhone} onChange={e => update('phone', cleanTyped(e.target.value))} />
         {phoneStatus === 'taken' && (
           <div className="flex gap-4 text-[13px] -mt-2">
             <Link to="/login" state={{ identifier: cleanPhone(form.phone) }} className="text-primary font-semibold">{t('auth.login_button')}</Link>

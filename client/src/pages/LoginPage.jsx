@@ -8,6 +8,7 @@ import Button from '../components/common/Button';
 import { apiError } from '../services/api';
 import { internalAuthReturn, authReturnTarget, isRequestAuthReturn } from '../utils/authReturn';
 import ProblemNotice from '../components/common/ProblemNotice';
+import { cleanTyped } from '../utils/saudiPhone';
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -72,7 +73,7 @@ export default function LoginPage() {
         autoCorrect="off"
         spellCheck={false}
         value={form.identifier}
-        onChange={(e) => setForm({ ...form, identifier: e.target.value })}
+        onChange={(e) => setForm({ ...form, identifier: cleanTyped(e.target.value) })}
       />
       <PasswordInput
         label={t('auth.password')}
