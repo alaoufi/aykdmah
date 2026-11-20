@@ -1884,7 +1884,7 @@
       },
       "present": {
         "title": "The green and red circles",
-        "body": "🟢 “Available now” means the service provider is actually online and taking requests right now. 🔴 means they are not connected now or not available now. The schedule alone is not enough for the green circle to appear."
+        "body": "🟢 “Available now”: the provider takes work now by their own schedule, not on leave and not out of service. 🔴 “Not available” with the reason, and a “Work schedule” link next to it showing all their hours. “📱 In the app now” is something else: their app is open right now."
       }
     },
     "appearance_title": "Appearance and themes",

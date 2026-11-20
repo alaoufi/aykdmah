@@ -1884,7 +1884,7 @@
       },
       "present": {
         "title": "Yeşil ve kırmızı daire",
-        "body": "🟢 «Şu an müsait», hizmet verenin gerçekten internete bağlı olduğu ve şu anda talep aldığı anlamına gelir. 🔴 ise şu anda bağlı değil veya şu an müsait değil demektir. Yeşil dairenin görünmesi için yalnızca çalışma programı yeterli değildir."
+        "body": "🟢 «Şu an müsait»: hizmet veren kendi programına göre şu an iş alıyor; izinde veya hizmet dışı değil. 🔴 «Müsait değil» nedeniyle birlikte, yanında tüm saatlerini gösteren «Çalışma programı» bağlantısı. «📱 Şu an uygulamada» başka bir şey: uygulaması şu an açık."
       }
     },
     "appearance_title": "Görünüm ve temalar",

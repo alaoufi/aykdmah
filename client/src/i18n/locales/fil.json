@@ -1884,7 +1884,7 @@
       },
       "present": {
         "title": "Ang berde at pulang bilog",
-        "body": "🟢 Ang «Available ngayon» ay nangangahulugang talagang naka-online ang service provider at tumatanggap ngayon. 🔴 Ibig sabihin ay hindi konektado ngayon o hindi available ngayon. Hindi sapat ang iskedyul lang para lumabas ang berdeng bilog."
+        "body": "🟢 «Available ngayon»: tumatanggap ng trabaho ngayon ang provider ayon sa sarili niyang iskedyul, hindi naka-leave at hindi wala sa serbisyo. 🔴 «Hindi available» kasama ang dahilan, at may link na «Iskedyul ng trabaho» na nagpapakita ng lahat ng oras niya. Iba ang «📱 Nasa app ngayon»: bukas ang app niya ngayon."
       }
     },
     "appearance_title": "Itsura at mga tema",

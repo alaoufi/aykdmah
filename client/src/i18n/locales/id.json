@@ -1884,7 +1884,7 @@
       },
       "present": {
         "title": "Lingkaran hijau dan merah",
-        "body": "🟢 «Tersedia sekarang» berarti penyedia layanan benar-benar terhubung ke internet dan sedang menerima permintaan. 🔴 berarti ia sedang tidak terhubung atau tidak tersedia sekarang. Jadwal saja tidak cukup untuk memunculkan lingkaran hijau."
+        "body": "🟢 «Tersedia sekarang»: penyedia jasa menerima pekerjaan sekarang sesuai jadwalnya sendiri, tidak sedang cuti dan tidak berhenti melayani. 🔴 «Tidak tersedia» beserta alasannya, dan di sebelahnya tautan «Jadwal kerja» yang menunjukkan semua jam kerjanya. «📱 Sedang di aplikasi» hal yang berbeda: aplikasinya sedang terbuka."
       }
     },
     "appearance_title": "Penampilan dan tema",
