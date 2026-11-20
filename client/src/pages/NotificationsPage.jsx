@@ -25,7 +25,10 @@ export default function NotificationsPage() {
           {items.map(n => (
             <div key={n.id} className={`notif-item ${!n.is_read ? 'unread' : ''}`}>
               <div style={{ flex: 1 }}>
-                <strong>{localizedNotification(n, i18n.language).title}</strong>
+                {/* AYK-364: a person's messages are titled as such. */}
+                <strong>{n.type === 'new_message' && /^\/chat\/\d+$/.test(n.link || '')
+                  ? t('notification.messages_from', { name: localizedNotification(n, i18n.language).title })
+                  : localizedNotification(n, i18n.language).title}</strong>
                 {/* AYK-363: one entry per conversation, like WhatsApp; the number of unread messages in it. */}
                 {n.group_unread > 1 && <span className="notif-count" data-testid="notif-count">{n.group_unread}</span>}
                 {n.body && <p className="text-sm text-secondary" style={{ margin: 0 }}>{localizedNotification(n, i18n.language).body}</p>}

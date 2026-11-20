@@ -885,6 +885,7 @@
     "created_complete_payment": "Subscription created. Complete the payment."
   },
   "notification": {
+    "messages_from": "💬 Messages from {{name}}",
     "title": "Notifications",
     "no_notifications": "No notifications",
     "mark_all_read": "Mark all as read",

@@ -14,7 +14,11 @@ async function create({ user_id, type, title, body, data, link, channel = 'in_ap
 // مثل الواتساب تمامًا حتى لو قديمة»). Notifications that open the same conversation are one entry:
 // the newest of them, with how many there are and how many are unread. Nothing is deleted; reading
 // the entry reads all of them. Other notifications stay one entry each.
-const GROUP_KEY = "CASE WHEN link LIKE '/chat/%' THEN link ELSE CONCAT('n:', id) END";
+// AYK-364 (the owner: «إذا كانت من شخص واحد تكون داخل محادثة واحدة»): grouped by the other person in
+// the conversation, so one person's messages are one entry even across several conversations.
+const CHAT_ID = "CASE WHEN link ~ '^/chat/[0-9]{1,9}$' THEN CAST(SUBSTRING(link FROM 7) AS INTEGER) END";
+const PEER = `(SELECT MIN(cp.user_id) FROM conversation_participants cp WHERE cp.conversation_id = ${CHAT_ID} AND cp.user_id <> notifications.user_id)`;
+const GROUP_KEY = `CASE WHEN link ~ '^/chat/[0-9]{1,9}$' THEN COALESCE('p:' || CAST(${PEER} AS TEXT), link) ELSE CONCAT('n:', id) END`;
 
 async function listForUser(userId, { unreadOnly = false, page = 1, limit = 20 } = {}) {
   page = Math.max(1, Math.min(100000, Number.parseInt(page, 10) || 1));
@@ -47,8 +51,19 @@ async function markRead(id, userId) {
   // Reading a conversation's entry reads every notification of that conversation.
   await query(
     `UPDATE notifications SET is_read = 1, read_at = CURRENT_TIMESTAMP
-     WHERE user_id = ? AND is_read = 0 AND (id = ? OR (link LIKE '/chat/%' AND link = (SELECT link FROM notifications WHERE id = ? AND user_id = ?)))`,
+     WHERE user_id = ? AND is_read = 0 AND (id = ? OR ${GROUP_KEY} = (SELECT ${GROUP_KEY} FROM notifications WHERE id = ? AND user_id = ?))`,
     [userId, id, id, userId]
+  );
+}
+
+// Opening a conversation reads the notifications of every conversation with the same person.
+async function markConversationRead(userId, conversationId) {
+  const link = `/chat/${Number(conversationId)}`;
+  await query(
+    `UPDATE notifications SET is_read = 1, read_at = CURRENT_TIMESTAMP
+     WHERE user_id = ? AND is_read = 0 AND (link = ? OR ${GROUP_KEY} = (
+       SELECT COALESCE('p:' || CAST(MIN(cp.user_id) AS TEXT), ?) FROM conversation_participants cp WHERE cp.conversation_id = ? AND cp.user_id <> ?))`,
+    [userId, link, link, Number(conversationId), userId]
   );
 }
 
@@ -59,4 +74,4 @@ async function markAllRead(userId) {
   );
 }
 
-module.exports = { create, listForUser, markRead, markAllRead };
+module.exports = { create, listForUser, markRead, markAllRead, markConversationRead };

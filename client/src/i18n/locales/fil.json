@@ -885,6 +885,7 @@
     "created_complete_payment": "Nagawa na ang subscription. Kumpletuhin ang bayad."
   },
   "notification": {
+    "messages_from": "💬 Mga mensahe mula kay {{name}}",
     "title": "Mga notification",
     "no_notifications": "Walang notification",
     "mark_all_read": "I-mark ang lahat bilang nabasa",

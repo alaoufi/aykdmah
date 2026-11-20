@@ -885,6 +885,7 @@
     "created_complete_payment": "Langganan dibuat. Selesaikan pembayaran."
   },
   "notification": {
+    "messages_from": "💬 Pesan dari {{name}}",
     "title": "Pemberitahuan",
     "no_notifications": "Tidak ada pemberitahuan",
     "mark_all_read": "Tandai semua sudah dibaca",

@@ -417,3 +417,27 @@ test('AYK-363: notifications of one conversation are one entry, like WhatsApp, o
   const api_ = await api('/notifications?limit=50', { token: session.token });
   assert.equal((Array.isArray(api_) ? api_ : api_.items || []).filter(n => n.link === '/chat/902').length, 1);
 });
+
+test('AYK-364: one person\'s messages are one entry even across conversations; opening one reads them all', async () => {
+  const Notification = require('../models/Notification');
+  const me = await register();
+  const peer = await register();
+  const other = await register();
+  const conv = async (a, b) => {
+    const row = await db.queryOne('INSERT INTO conversations (request_id) VALUES (NULL) RETURNING id');
+    await db.query('INSERT INTO conversation_participants (conversation_id, user_id) VALUES (?, ?), (?, ?)', [row.id, a, row.id, b]);
+    return Number(row.id);
+  };
+  const c1 = await conv(me.user.id, peer.user.id), c2 = await conv(me.user.id, peer.user.id), c3 = await conv(me.user.id, other.user.id);
+  const add = (link, body) => db.query("INSERT INTO notifications (user_id, type, title, body, link) VALUES (?, 'new_message', 'شخص', ?, ?)", [me.user.id, body, link]);
+  await add(`/chat/${c1}`, 'أولى'); await add(`/chat/${c2}`, 'ثانية'); await add(`/chat/${c2}`, 'ثالثة'); await add(`/chat/${c3}`, 'من غيره');
+  let list = await Notification.listForUser(me.user.id, { limit: 50 });
+  const fromPeer = list.items.filter(n => [`/chat/${c1}`, `/chat/${c2}`].includes(n.link));
+  assert.equal(fromPeer.length, 1, 'one entry for the person');
+  assert.equal(fromPeer[0].group_unread, 3);
+  assert.equal(list.items.filter(n => n.link === `/chat/${c3}`).length, 1);
+  assert.equal(list.unread, 2);
+  await Notification.markConversationRead(me.user.id, c1);
+  list = await Notification.listForUser(me.user.id, { limit: 50 });
+  assert.equal(list.unread, 1, 'opening one conversation with the person read all of theirs');
+});

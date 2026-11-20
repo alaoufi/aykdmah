@@ -885,6 +885,7 @@
     "created_complete_payment": "تم إنشاء الاشتراك. أكمل الدفع."
   },
   "notification": {
+    "messages_from": "💬 رسائل من {{name}}",
     "title": "الإشعارات",
     "no_notifications": "لا توجد إشعارات",
     "mark_all_read": "تعليم الكل كمقروء",

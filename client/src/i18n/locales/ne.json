@@ -885,6 +885,7 @@
     "created_complete_payment": "सदस्यता बनाइयो। भुक्तानी पूरा गर्नुहोस्।"
   },
   "notification": {
+    "messages_from": "💬 {{name}} का सन्देशहरू",
     "title": "सूचनाहरू",
     "no_notifications": "कुनै सूचना छैन",
     "mark_all_read": "सबैलाई पढिएको रूपमा चिन्ह लगाउनुहोस्",

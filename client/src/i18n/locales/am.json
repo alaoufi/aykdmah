@@ -885,6 +885,7 @@
     "created_complete_payment": "ደንበኝነቱ ተፈጥሯል። ክፍያውን ያጠናቅቁ።"
   },
   "notification": {
+    "messages_from": "💬 ከ{{name}} የመጡ መልዕክቶች",
     "title": "ማሳወቂያዎች",
     "no_notifications": "ማሳወቂያዎች የሉም",
     "mark_all_read": "ሁሉንም እንደተነበቡ ምልክት ያድርጉ",

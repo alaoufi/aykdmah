@@ -885,6 +885,7 @@
     "created_complete_payment": "സബ്സ്ക്രിപ്ഷൻ സൃഷ്ടിച്ചു. പേയ്മെന്റ് പൂർത്തിയാക്കുക."
   },
   "notification": {
+    "messages_from": "💬 {{name}} അയച്ച സന്ദേശങ്ങൾ",
     "title": "അറിയിപ്പുകൾ",
     "no_notifications": "അറിയിപ്പുകളില്ല",
     "mark_all_read": "എല്ലാം വായിച്ചതായി അടയാളപ്പെടുത്തുക",

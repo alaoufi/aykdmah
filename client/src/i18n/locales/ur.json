@@ -885,6 +885,7 @@
     "created_complete_payment": "سبسکرپشن بن گئی۔ ادائیگی مکمل کریں۔"
   },
   "notification": {
+    "messages_from": "💬 {{name}} کے پیغامات",
     "title": "اطلاعات",
     "no_notifications": "کوئی اطلاعات نہیں",
     "mark_all_read": "سب کو پڑھا ہوا قرار دیں",

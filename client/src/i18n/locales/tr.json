@@ -885,6 +885,7 @@
     "created_complete_payment": "Abonelik oluşturuldu. Ödemeyi tamamlayın."
   },
   "notification": {
+    "messages_from": "💬 {{name}} adlı kişiden mesajlar",
     "title": "Bildirimler",
     "no_notifications": "Bildirim yok",
     "mark_all_read": "Tümünü okundu işaretle",

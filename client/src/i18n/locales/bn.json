@@ -885,6 +885,7 @@
     "created_complete_payment": "সাবস্ক্রিপশন তৈরি হয়েছে। পেমেন্ট সম্পূর্ণ করুন।"
   },
   "notification": {
+    "messages_from": "💬 {{name}}-এর বার্তা",
     "title": "বিজ্ঞপ্তি",
     "no_notifications": "কোনো বিজ্ঞপ্তি নেই",
     "mark_all_read": "সব পঠিত হিসেবে চিহ্নিত করুন",
