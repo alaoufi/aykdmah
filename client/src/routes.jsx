@@ -170,6 +170,9 @@ export default function AppRoutes() {
   // bar changed with it). While a saved session is being restored, the loading screen stays until
   // it is known who they are; a visitor without a saved session is not held back at all.
   if (loading && !user && getToken()) return <LoadingState page />;
+  // AYK-328: a service provider opening the app was first given the requesters' home frame, then
+  // sent to their dashboard, so the screen was drawn twice. They go straight to the dashboard.
+  if (pathname === '/' && user?.role === 'provider' && !isBothAccount(user)) return <Navigate to="/provider" replace />;
   return (
     <Suspense fallback={<LoadingState page />}>
       <ErrorBoundary key={pathname}>

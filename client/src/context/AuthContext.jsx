@@ -61,6 +61,8 @@ export function AuthProvider({ children }) {
       }
       setUser(data.user);
       setProvider(data.provider || null);
+      // AYK-328: remembered only to fetch this person's first page early at the next opening.
+      try { localStorage.setItem('ayk_last_role', data.user?.role === 'provider' && Number(data.user.also_client) !== 1 ? 'provider' : 'other'); } catch (_) { /* private mode */ }
       return data;
     } catch (err) {
       // A profile endpoint failure does not make a valid login invalid.

@@ -1396,3 +1396,20 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Not measured: the live server's own sign-in times after this deploy (the slowness report is read below once it has data).
 - Correction: the commit before this one (a8f97aa) was pushed while `hash-worker.test.js` still expected cost 12 (85 pass, 1 fail); its deploy run stops at the checks. This commit fixes that test: server 86 pass, 0 fail.
 - The deploy run of 3439ddf stopped at the checks: `media.integration.js` looked for a chat notification the moment the message was answered, and on the slow CI machine it was not written yet (276 pass, 1 fail there; 277 pass locally). An old test, unrelated to sign-in. It now waits up to 5 s for the notification. Integration here: 277 pass, 0 fail.
+- Sign-in speed deployed as 1.1.75 (run for da550a6: success).
+
+## 2026-11-20 — AYK-328: on opening, the page showed, paused, then showed again
+- Reported by the owner: every opening shows the page, waits under a second, then opens again.
+- Checked on the live site with a browser that keeps the saved copy (three openings, no deploy between): the document is requested once, so there is no reload. The second "navigation" is the router changing the address inside the page.
+- Recorded what is on screen frame by frame (local production build, signed in, processor slowed 4×, ~10 Mbit/s):
+  - requester: the home page showed at 0.80 s, then at 1.09 s an ad was inserted at the top and pushed the page down;
+  - provider: the requesters' home frame at 0.52 s, then the dashboard frame, the page's content, then at 1.04 s the loading sign again, then the content again with the ad pushed in.
+- Fixes:
+  - ads: the last ads of each place are kept on the device (public data) and drawn with the page; the fresh answer replaces them;
+  - provider dashboard: once shown, a refresh keeps the page and only swaps its data;
+  - a provider opening `/` goes straight to the dashboard, without first drawing the requesters' home frame; the dashboard file is fetched at start for a returning provider.
+- After, same recording, second opening:
+  - requester: one loading sign, then the page with its ad already in place at 0.77 s; nothing moves after;
+  - provider: one loading sign, then the dashboard with its ad at 1.09 s; the content is not shown twice. A blank moment of about 0.15 s (at 4× slowdown) remains between two loading signs.
+- Client tests 166, server 86 pass; `i18n:check` 2621 keys; `check-deploy` 22 ok. Integration not re-run: only client files changed since the 277-pass run.
+- Not tried on a real phone.

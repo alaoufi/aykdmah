@@ -28,15 +28,33 @@ function AdMedia({ url, type, className = '' }) {
   return <img src={url} referrerPolicy="no-referrer" alt="" className={className} />;
 }
 
+// AYK-328: an ad arrived after the page was shown and pushed everything down (it looked like the
+// page opening twice). The last ads of each place are kept on the device (they are public) and
+// drawn with the page; the fresh answer then replaces them, usually with the same ad.
+const CACHE_PREFIX = 'ayk_ads_';
+function cachedAds(placement) {
+  try {
+    const rows = JSON.parse(localStorage.getItem(CACHE_PREFIX + placement) || 'null');
+    return Array.isArray(rows) ? rows : null;
+  } catch (_) { return null; }
+}
+function rememberAds(placement, rows) {
+  try { localStorage.setItem(CACHE_PREFIX + placement, JSON.stringify(rows)); } catch (_) { /* private mode */ }
+}
+
 export default function AdSlot({ placement, className = '', maxAds = 1 }) {
   const { t, i18n } = useTranslation();
-  const [ads, setAds] = useState([]);
-  const [loaded, setLoaded] = useState(false);
+  const [ads, setAds] = useState(() => (cachedAds(placement) || []).slice(0, maxAds));
+  const [loaded, setLoaded] = useState(() => cachedAds(placement) !== null);
 
   useEffect(() => {
     let alive = true;
     getLiveAds(placement)
-      .then((data) => { if (alive) { setAds((data || []).slice(0, maxAds)); setLoaded(true); } })
+      .then((data) => {
+        const rows = (data || []).slice(0, maxAds);
+        rememberAds(placement, rows);
+        if (alive) { setAds(rows); setLoaded(true); }
+      })
       .catch(() => { if (alive) setLoaded(true); });
     return () => { alive = false; };
   }, [placement, maxAds]);
