@@ -373,7 +373,7 @@ export default function ProfilePage() {
         )}
       </div>
       {/* Google Play: deleting the account from the app (AYK-116). */}
-      {user?.role !== 'admin' && <Link to="/delete-account" className="block text-center text-[13px] font-semibold text-danger mt-6 mb-2" data-testid="profile-delete-account">🗑️ {t('account_delete.title')}</Link>}
+      {user?.role !== 'admin' && !user?.admin_account && <Link to="/delete-account" className="block text-center text-[13px] font-semibold text-danger mt-6 mb-2" data-testid="profile-delete-account">🗑️ {t('account_delete.title')}</Link>}
     </div>
   );
 }

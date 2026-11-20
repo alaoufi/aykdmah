@@ -43,7 +43,8 @@ const userLang = req => contentTranslation.readerLang(req.user.id, req.lang);
 // Every active admin who handles these messages is told about a new one (their reminder): the full
 // admin, and admins with the users permission that opens «رسائل المستخدمين» (AYK-212).
 async function tellAdmins(req, ticketId, body) {
-  const admins = await query("SELECT id, role, is_super_admin, permissions FROM users WHERE role = 'admin' AND is_active = 1 AND deleted_at IS NULL");
+  // AYK-383: the administration accounts (the admin mark), acting as the administration.
+  const admins = (await query("SELECT id, role, is_super_admin, permissions FROM users WHERE (is_admin = 1 OR role = 'admin') AND is_active = 1 AND deleted_at IS NULL")).map(a => ({ ...a, role: 'admin' }));
   const readers = admins.filter(row => {
     let permissions = row.permissions;
     if (typeof permissions === 'string') { try { permissions = JSON.parse(permissions); } catch (_) { permissions = []; } }

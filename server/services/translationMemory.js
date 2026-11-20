@@ -77,7 +77,7 @@ async function quotaExhausted() {
 async function tellAdmins(key, percent) {
   const notificationService = require('./notificationService');
   const { translate } = require('../utils/i18n');
-  const admins = await query("SELECT id FROM users WHERE role = 'admin' AND is_active = 1 AND deleted_at IS NULL");
+  const admins = await query("SELECT id FROM users WHERE (is_admin = 1 OR role = 'admin') AND is_active = 1 AND deleted_at IS NULL");
   await notificationService.broadcast(admins.map(row => row.id), {
     type: 'system', title: translate('ar', 'translation_quota_title'), body: translate('ar', key, { percent }), link: '/admin',
   });

@@ -6742,6 +6742,14 @@ CREATE TABLE IF NOT EXISTS message_hidden (
 );
 INSERT INTO schema_migrations(name) VALUES ('102_message_hidden.sql');
 
+-- migrations/103_admin_flag.sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin SMALLINT NOT NULL DEFAULT 0;
+UPDATE users SET is_admin = 1 WHERE role = 'admin';
+UPDATE users SET role = 'client' WHERE role = 'admin';
+INSERT INTO user_profiles (user_id) SELECT id FROM users WHERE is_admin = 1 ON CONFLICT (user_id) DO NOTHING;
+CREATE INDEX IF NOT EXISTS idx_users_is_admin ON users (is_admin) WHERE is_admin = 1;
+INSERT INTO schema_migrations(name) VALUES ('103_admin_flag.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

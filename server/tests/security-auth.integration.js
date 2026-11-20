@@ -151,7 +151,13 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     await db.query('UPDATE users SET email = ?, phone = ?, facebook_id = ?, latitude = 26.35, longitude = 43.97 WHERE id = ?', ['local@example.invalid', '0501111111', '999888777', fixtures.client.id]);
     const data = (await api(`/users/${fixtures.client.id}`)).data;
     for (const field of ['email', 'phone', 'facebook_id', 'username', 'latitude', 'longitude', 'is_super_admin', 'permissions', 'is_active', 'is_blocked']) assert.equal(data.user[field], undefined, field);
-    await api(`/users/${fixtures.superA.id}`, { expected: 404 });
+    // AYK-383: an administration account is an ordinary person on the site; its rights never show.
+    const both = await createUser('provider');
+    await db.query(`UPDATE users SET is_admin = 1, permissions = '["users.manage"]' WHERE id = ?`, [both.id]);
+    const adminPublic = (await api(`/users/${both.id}`)).data.user;
+    assert.equal(adminPublic.role, 'provider', 'a provider who is also in the administration is a provider on the site');
+    for (const field of ['is_admin', 'is_super_admin', 'permissions', 'permission_grants', 'admin_account', 'email', 'phone']) assert.equal(adminPublic[field], undefined, field);
+    assert.notEqual(adminPublic.role, 'admin');
     const own = (await api(`/users/${fixtures.client.id}`, { token: tokenFor(fixtures.client) })).data;
     assert.equal(own.user.phone, '0501111111');
     const provider = (await api(`/users/${fixtures.provider.id}`)).data.provider;
@@ -168,7 +174,7 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     await api('/users', { token, method: 'POST', body: { full_name: 'Forbidden Admin', username: identity(), password, role: 'admin' }, expected: 403 });
     const saved = await User.findByIdRaw(fixtures.superA.id);
     assert.equal(await comparePassword(password, saved.password_hash), true);
-    assert.equal(saved.role, 'admin');
+    assert.equal(Number(saved.is_admin), 1, 'still an administration account (AYK-383: the mark, not the role)');
     assert.equal(saved.is_active, 1);
   });
 
@@ -605,15 +611,45 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     for (let index = 0; index < 21; index++) await api('/auth/login', { method: 'POST', expected: index < 20 ? 401 : 429, body: { identifier: 'missing_local_account', password } });
   });
 
+  test('AYK-383: a provider who is also in the administration is a provider on the site and the administration only in /admin', async () => {
+    await authLimiter.resetKey('127.0.0.1');
+    const user = await createUser('provider');
+    await db.query(`UPDATE users SET is_admin = 1, permissions = '["users.manage"]' WHERE id = ?`, [user.id]);
+    const body = { identifier: user.username, password };
+    const site = (await api('/auth/login', { method: 'POST', body })).data;
+    assert.equal(site.user.role, 'provider', 'on the site: a provider');
+    assert.equal(site.user.admin_access, 1, 'with the way into the administration');
+    assert.equal(site.user.is_super_admin, 0);
+    assert.deepEqual(site.user.permissions, []);
+    // As a provider, freely: the work settings (here the business name) are saved.
+    await api('/users/me/provider', { token: site.token, method: 'PUT', body: { business_name: 'Both At Once' } });
+    assert.equal((await User.getProviderProfile(user.id)).business_name, 'Both At Once');
+    // No administration from the site session.
+    await api('/admin/dashboard', { token: site.token, expected: 403 });
+    await api('/users?limit=5', { token: site.token, expected: 403 });
+    // In the administration: the administration only, with its own sections.
+    const admin = (await api('/auth/login', { method: 'POST', body, headers: { 'X-Ayk-Scope': 'admin' } })).data;
+    assert.equal(admin.user.role, 'admin');
+    await api('/users?limit=5', { token: admin.token, headers: { 'X-Ayk-Scope': 'admin' } });
+    // The admin session never edits its own site self as a provider.
+    await api('/users/me/provider', { token: admin.token, method: 'PUT', headers: { 'X-Ayk-Scope': 'admin' }, body: { business_name: 'From Admin' }, expected: 403 });
+    assert.equal((await User.getProviderProfile(user.id)).business_name, 'Both At Once');
+    // On the site it is still listed among providers in public.
+    assert.equal((await api(`/users/${user.id}`)).data.user.role, 'provider');
+    // Changing the site role does not touch the administration's rights.
+    const raw = await User.findByIdRaw(user.id);
+    assert.equal(Number(raw.is_admin), 1);
+  });
+
   test('concurrent super-admin demotions preserve one active super administrator', async () => {
-    const users = await db.query("SELECT id FROM users WHERE role='admin' AND is_super_admin=1 AND is_active=1 AND is_blocked=0 AND deleted_at IS NULL");
+    const users = await db.query("SELECT id FROM users WHERE (role='admin' OR is_admin=1) AND is_super_admin=1 AND is_active=1 AND is_blocked=0 AND deleted_at IS NULL");
     assert.equal(users.length, 2);
     const attempts = await Promise.all([fixtures.superA, fixtures.superB].map(async user => {
       const response = await fetch(`${base}/admin/users/${user.id}/permissions`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tokenFor(user)}` }, body: JSON.stringify({ is_super_admin: false, permissions: [] }) });
       await response.json(); return response.status;
     }));
     assert.deepEqual(attempts.sort((a, b) => a - b), [200, 400]);
-    const row = await db.queryOne("SELECT COUNT(*) AS total FROM users WHERE role='admin' AND is_super_admin=1 AND is_active=1 AND is_blocked=0 AND deleted_at IS NULL");
+    const row = await db.queryOne("SELECT COUNT(*) AS total FROM users WHERE (role='admin' OR is_admin=1) AND is_super_admin=1 AND is_active=1 AND is_blocked=0 AND deleted_at IS NULL");
     assert.equal(Number(row.total), 1);
   });
 }

@@ -33,6 +33,7 @@ function hydrateAdmin(row) {
   row.is_super_admin = row.is_super_admin === 1 || row.is_super_admin === true ? 1 : 0;
   return row;
 }
+const isAdminRow = row => Boolean(row) && (Number(row.is_admin) === 1 || row.role === 'admin');
 
 async function findById(id) {
   const [hasAdminCols, hasCountry, hasRegion, hasGov, hasCityRegion, hasRegionCountry, hasCountries, hasAlsoClient] = await Promise.all([
@@ -41,7 +42,8 @@ async function findById(id) {
     tableHasColumn('cities', 'region_id'), tableHasColumn('regions', 'country_id'),
     tableHasColumn('countries', 'id'), tableHasColumn('users', 'also_client'),
   ]);
-  const extra = (hasAdminCols ? ', u.is_super_admin, u.permissions' : '') + (hasAlsoClient ? ', u.also_client' : '');
+  const hasAdminFlag = await tableHasColumn('users', 'is_admin');
+  const extra = (hasAdminCols ? ', u.is_super_admin, u.permissions' : '') + (hasAlsoClient ? ', u.also_client' : '') + (hasAdminFlag ? ', u.is_admin' : '');
   const govId = hasGov ? 'COALESCE(u.governorate_id, c.governorate_id)' : 'c.governorate_id';
   const regionPaths = [hasRegion && 'u.region_id', hasCityRegion && 'c.region_id', 'g.region_id'].filter(Boolean);
   const regionId = regionPaths.length > 1 ? `COALESCE(${regionPaths.join(', ')})` : regionPaths[0];
@@ -165,11 +167,12 @@ async function checkIdentifierConflicts(conn, data, existing = null) {
   }
 }
 
-async function create({ full_name, username, email, phone, facebook_id, password_hash, role,
+async function create({ full_name, username, email, phone, facebook_id, password_hash, role: requestedRole,
                         country_id, region_id, governorate_id, city_id, district_id,
                         latitude, longitude, address, is_active = 1, location_mode = 'mobile', fixed_address = null,
                         fixed_latitude = null, fixed_longitude = null, category_id, service_ids, any_category = false,
                         also_client = false, coverage = null }) {
+  let role = requestedRole;
   let providerServices = {};
   const privateAddress = address === undefined ? undefined : accountAddress(address);
   if (role === 'provider') {
@@ -188,6 +191,10 @@ async function create({ full_name, username, email, phone, facebook_id, password
   const hasCountry = await tableHasColumn('users', 'country_id');
   const hasRegion  = await tableHasColumn('users', 'region_id');
   const hasGov     = await tableHasColumn('users', 'governorate_id');
+  // AYK-383: an administration account is a requester on the site, with the admin mark.
+  const hasAdminFlag = await tableHasColumn('users', 'is_admin');
+  const makeAdmin = role === 'admin' && hasAdminFlag;
+  if (makeAdmin) role = 'client';
 
   const cols = ['full_name', 'username', 'email', 'phone', 'facebook_id',
                 'password_hash', 'role', 'city_id', 'district_id',
@@ -199,6 +206,7 @@ async function create({ full_name, username, email, phone, facebook_id, password
   if (hasRegion)  { cols.push('region_id'); vals.push(region_id || null); }
   if (hasGov)     { cols.push('governorate_id'); vals.push(governorate_id || null); }
   if (role === 'provider' && also_client) { cols.push('also_client'); vals.push(1); }
+  if (makeAdmin) { cols.push('is_admin'); vals.push(1); }
   const placeholders = cols.map(() => '?').join(', ');
 
   return transaction(async (conn) => {
@@ -328,6 +336,8 @@ async function lockedAdminMutation(id, actor, callback) {
     await conn.execute('SELECT pg_advisory_xact_lock(731026002)');
     const [actors] = await conn.execute('SELECT * FROM users WHERE id = ? AND deleted_at IS NULL FOR UPDATE', [actor.id]);
     const currentActor = hydrateAdmin(actors[0]);
+    // AYK-383: the acting administrator acts as the administration (its site role stays apart).
+    if (currentActor && Number(currentActor.is_admin) === 1 && currentActor.role !== 'admin') { currentActor.site_role = currentActor.role; currentActor.role = 'admin'; }
     if (!currentActor || !currentActor.is_active || currentActor.is_blocked) throw new ApiError('Forbidden', 403);
     const [targets] = await conn.execute('SELECT * FROM users WHERE id = ? AND deleted_at IS NULL FOR UPDATE', [id]);
     const target = targets[0];
@@ -337,8 +347,8 @@ async function lockedAdminMutation(id, actor, callback) {
 }
 
 async function protectLastSuper(conn, target, losesAccess) {
-  if (!losesAccess || target.role !== 'admin' || !target.is_super_admin || !target.is_active || target.is_blocked) return;
-  const [rows] = await conn.execute("SELECT COUNT(*) AS total FROM users WHERE role = 'admin' AND is_super_admin = 1 AND is_active = 1 AND is_blocked = 0 AND deleted_at IS NULL AND id <> ?", [target.id]);
+  if (!losesAccess || !isAdminRow(target) || !target.is_super_admin || !target.is_active || target.is_blocked) return;
+  const [rows] = await conn.execute(`SELECT COUNT(*) AS total FROM users WHERE (role = 'admin'${await tableHasColumn('users', 'is_admin') ? ' OR is_admin = 1' : ''}) AND is_super_admin = 1 AND is_active = 1 AND is_blocked = 0 AND deleted_at IS NULL AND id <> ?`, [target.id]);
   if (Number(rows[0].total) === 0) throw new ApiError('At least one active super administrator must remain', 400);
 }
 
@@ -360,20 +370,37 @@ async function adminUpdate(id, data, actor) {
     fields.push('password_hash = ?');
     values.push(data.password_hash);
   }
+  // AYK-383: the admin mark is apart from the site role. «admin» as a role (older pages) gives the
+  // mark and keeps the person's site role; is_admin 0/1 sets the mark; client/provider is the site role.
+  const hasAdminFlag = await tableHasColumn('users', 'is_admin');
+  let wantAdmin;
+  if (data.is_admin !== undefined) wantAdmin = data.is_admin === true || Number(data.is_admin) === 1;
+  if (data.role === 'admin' && hasAdminFlag) {
+    wantAdmin = true;
+    const i = fields.findIndex(f => f === 'role = ?');
+    if (i >= 0) { fields.splice(i, 1); values.splice(i, 1); }
+  }
   const updatedId = await lockedAdminMutation(id, actor, async (conn, currentActor, target) => {
     if (!hasPermission(currentActor, 'users.manage')) throw new ApiError('Forbidden', 403);
-    if ((target.role === 'admin' || data.role === 'admin') && !canManageAdmin(currentActor, target)) throw new ApiError('Forbidden', 403);
+    if ((isAdminRow(target) || data.role === 'admin' || wantAdmin !== undefined) && !canManageAdmin(currentActor, target)) throw new ApiError('Forbidden', 403);
     if (data.is_verified !== undefined && data.is_verified !== target.is_verified && !hasPermission(currentActor, 'verifications.review')) throw new ApiError('Forbidden', 403);
     requireIdentifier({ ...target, ...data });
     await checkIdentifierConflicts(conn, data, target);
-    await protectLastSuper(conn, target, data.is_active === 0 || data.is_blocked === 1 || (data.role !== undefined && data.role !== 'admin'));
-    if (data.role !== undefined && data.role !== target.role) {
-      fields.push('is_super_admin = 0', "permissions = '[]'");
+    const losesAdmin = hasAdminFlag ? wantAdmin === false && isAdminRow(target) : data.role !== undefined && data.role !== 'admin';
+    await protectLastSuper(conn, target, data.is_active === 0 || data.is_blocked === 1 || losesAdmin);
+    if (hasAdminFlag && wantAdmin !== undefined && wantAdmin !== isAdminRow(target)) {
+      fields.push(`is_admin = ${wantAdmin ? 1 : 0}`, 'auth_version = auth_version + 1');
+      if (!wantAdmin) fields.push('is_super_admin = 0', "permissions = '[]'");
+      if (target.role === 'admin' && !fields.includes('role = ?')) fields.push("role = 'client'");
+    }
+    const siteRoleChange = data.role !== undefined && data.role !== 'admin' && data.role !== target.role;
+    if (siteRoleChange || (!hasAdminFlag && data.role !== undefined && data.role !== target.role)) {
+      if (!hasAdminFlag) fields.push('is_super_admin = 0', "permissions = '[]'");
       if (data.role === 'provider') await conn.execute('INSERT INTO provider_profiles (user_id) VALUES (?) ON CONFLICT (user_id) DO NOTHING', [id]);
       if (data.role === 'client') await conn.execute('INSERT INTO user_profiles (user_id) VALUES (?) ON CONFLICT (user_id) DO NOTHING', [id]);
     }
     if (fields.length) {
-      if (['password_hash', 'role', 'is_active', 'is_blocked', 'email', 'phone', 'username', 'facebook_id'].some(key => data[key] !== undefined)) fields.push('auth_version = auth_version + 1');
+      if (['password_hash', 'role', 'is_active', 'is_blocked', 'email', 'phone', 'username', 'facebook_id'].some(key => data[key] !== undefined) && !fields.includes('auth_version = auth_version + 1')) fields.push('auth_version = auth_version + 1');
       await conn.execute(`UPDATE users SET ${fields.join(', ')} WHERE id = ?`, [...values, id]);
       await invalidateContactVerification(conn, target, data);
     }
@@ -407,7 +434,7 @@ async function saveAccountLocation(conn, id, location) {
 
 async function softDelete(id, actor) {
   return lockedAdminMutation(id, actor, async (conn, currentActor, target) => {
-    if (!hasPermission(currentActor, 'users.manage') || (target.role === 'admin' && !canManageAdmin(currentActor, target))) throw new ApiError('Forbidden', 403);
+    if (!hasPermission(currentActor, 'users.manage') || (isAdminRow(target) && !canManageAdmin(currentActor, target))) throw new ApiError('Forbidden', 403);
     await protectLastSuper(conn, target, true);
     // The sign-in names go free with the account (AYK-238), like a user's own deletion: the same
     // username, phone or email can make a new account later.
@@ -419,7 +446,7 @@ async function softDelete(id, actor) {
 
 async function updateAdminPermissions(id, data, actor) {
   return lockedAdminMutation(id, actor, async (conn, currentActor, target) => {
-    if (target.role !== 'admin' || !canManageAdmin(currentActor, target)) throw new ApiError('Forbidden', 403);
+    if (!isAdminRow(target) || !canManageAdmin(currentActor, target)) throw new ApiError('Forbidden', 403);
     const wantSuper = data.is_super_admin === undefined ? !!target.is_super_admin : (data.is_super_admin === true || data.is_super_admin === 1);
     if (wantSuper && !currentActor.is_super_admin) throw new ApiError('Forbidden', 403);
     let existing = target.permissions;
@@ -443,7 +470,10 @@ async function listPaginated({ role, search, page = 1, limit = 20 }) {
   const offset = (page - 1) * limit;
   const where = ['u.deleted_at IS NULL'];
   const params = [];
-  if (role) { where.push('u.role = ?'); params.push(role); }
+  // AYK-383: «admin» lists the accounts with the admin mark; the others are site roles.
+  const hasAdminFlag = await tableHasColumn('users', 'is_admin');
+  if (role === 'admin' && hasAdminFlag) where.push("(u.is_admin = 1 OR u.role = 'admin')");
+  else if (role) { where.push('u.role = ?'); params.push(role); }
   if (search) {
     where.push('(u.full_name LIKE ? OR u.email LIKE ? OR u.phone LIKE ?)');
     const s = `%${search}%`;
@@ -452,7 +482,7 @@ async function listPaginated({ role, search, page = 1, limit = 20 }) {
   const whereSql = where.join(' AND ');
 
   const items = await query(
-    `SELECT ${SELECT_FIELDS}, u.is_super_admin, u.permissions, c.name_ar AS city_name, c.name_en AS city_name_en
+    `SELECT ${SELECT_FIELDS}, u.is_super_admin, u.permissions${hasAdminFlag ? ', u.is_admin' : ''}, c.name_ar AS city_name, c.name_en AS city_name_en
      FROM users u LEFT JOIN cities c ON u.city_id = c.id
      WHERE ${whereSql}
      ORDER BY u.created_at DESC
@@ -465,11 +495,14 @@ async function listPaginated({ role, search, page = 1, limit = 20 }) {
   );
   // AYK-358: an administration account with no section cannot enter; the list says so.
   for (const row of items) {
-    if (row.role === 'admin') {
+    if (isAdminRow(row)) {
+      row.is_admin = 1;
+      if (row.role === 'admin') row.role = 'client';
       let perms = row.permissions;
       if (typeof perms === 'string') { try { perms = JSON.parse(perms); } catch (_) { perms = []; } }
       row.admin_sections = Number(row.is_super_admin) === 1 ? -1 : expandPermissions(perms).length;
     }
+    else row.is_admin = 0;
     delete row.permissions; delete row.is_super_admin;
   }
   return { items, total };

@@ -20,7 +20,7 @@ function buildAdminUsernameQueries({ adminId, username, apply = false }) {
     { query: 'SELECT pg_advisory_xact_lock(731026002)', params: [] },
     { query: `WITH target AS MATERIALIZED (
        SELECT id, username FROM users
-       WHERE id = $1 AND role = 'admin' AND is_active = 1 AND is_blocked = 0 AND deleted_at IS NULL
+       WHERE id = $1 AND (is_admin = 1 OR role = 'admin') AND is_active = 1 AND is_blocked = 0 AND deleted_at IS NULL
        FOR UPDATE
      ), conflicts AS MATERIALIZED (
        SELECT id FROM users WHERE id <> $1 AND

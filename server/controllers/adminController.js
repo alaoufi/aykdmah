@@ -865,10 +865,10 @@ const assignSpecialNumber = asyncHandler(async (req, res) => {
   const code = String(req.body?.number || '').trim();
   if (!Number.isSafeInteger(id) || id <= 0 || !SPECIALS.includes(code)) return error(res, 'رقم غير مسموح: الأرقام المميزة فقط (مثل 11 و22 و111)', 400);
   const result = await transaction(async conn => {
-    const [targets] = await conn.execute('SELECT id, role, is_super_admin, permissions, referral_code FROM users WHERE id = ? AND deleted_at IS NULL FOR UPDATE', [id]);
+    const [targets] = await conn.execute('SELECT id, role, is_admin, is_super_admin, permissions, referral_code FROM users WHERE id = ? AND deleted_at IS NULL FOR UPDATE', [id]);
     const target = targets[0];
     if (!target) return { status: 404 };
-    if (target.role === 'admin' && !canManageAdmin(req.user, target)) return { status: 403 };
+    if ((target.role === 'admin' || Number(target.is_admin) === 1) && !canManageAdmin(req.user, target)) return { status: 403 };
     if (target.referral_code === code) return { status: 200, code };
     const [holders] = await conn.execute('SELECT id FROM users WHERE referral_code = ? AND id <> ? FOR UPDATE', [code, id]);
     if (holders.length) return { status: 409 };

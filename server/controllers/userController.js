@@ -109,6 +109,8 @@ const updateProvider = asyncHandler(async (req, res) => {
     return forbidden(res);
   }
   if (req.user.role === 'admin' && !hasPermission(req.user, 'users.manage')) return forbidden(res);
+  // AYK-383: in the administration an account manages others' work pages, never its own site self.
+  if (req.user.role === 'admin' && !req.body.user_id) return forbidden(res);
   const userId = req.user.role === 'admin' && req.body.user_id ? req.body.user_id : req.user.id;
   if (!Number.isSafeInteger(Number(userId)) || Number(userId) <= 0) return error(res, req.t('invalid_data'), 400);
   const target = await User.findById(userId);
@@ -203,7 +205,9 @@ const createByAdmin = asyncHandler(async (req, res) => {
   const { full_name, username, email, phone, facebook_id, password, role } = req.body;
   if (!full_name || !password || !role) return error(res, req.t('invalid_data'));
   if (!['client', 'provider', 'admin'].includes(role)) return error(res, req.t('invalid_data'), 400);
-  if (role === 'admin' && !hasPermission(req.user, 'admins.manage')) return forbidden(res);
+  // AYK-383: the administration's rights are a separate mark (is_admin); role is the site role.
+  const makeAdmin = role === 'admin' || req.body.is_admin === true || Number(req.body.is_admin) === 1;
+  if (makeAdmin && !hasPermission(req.user, 'admins.manage')) return forbidden(res);
   // Need at least one identifier
   if (!username && !email && !phone && !facebook_id) return error(res, req.t('need_one_identifier'));
 
@@ -225,6 +229,7 @@ const createByAdmin = asyncHandler(async (req, res) => {
     if (duplicateError(req, res, err)) return undefined;
     throw err;
   }
+  if (makeAdmin && role !== 'admin') await query('UPDATE users SET is_admin = 1 WHERE id = ?', [id]);
   const user = await User.findById(id);
   return created(res, user, req.t('account_created'));
 });

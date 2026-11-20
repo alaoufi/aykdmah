@@ -17,7 +17,7 @@ const env = require('../config/env');
 const cookieOptions = () => ({ httpOnly: true, secure: env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
 // The admin area (/admin) and the site or app are separate sessions (AYK-114, AYK-151): each has
 // its own cookie, so signing in at /admin in the browser never touches the app on the same phone.
-const { sessionCookieName, requestScope, asSiteUser } = require('../middleware/auth');
+const { sessionCookieName, requestScope, asSiteUser, asAdminUser, isAdminAccount } = require('../middleware/auth');
 
 // A token for the area this request comes from (AYK-151): the same account can be signed in to
 // both, and each signs out on its own.
@@ -348,7 +348,8 @@ const login = asyncHandler(async (req, res) => {
   const token = await issueSession(req, res, user);
   // In the site and the app an admin account is an ordinary user (AYK-151).
   const found = await User.findById(user.id);
-  const safe = requestScope(req) === 'site' ? asSiteUser(found) : found;
+  // AYK-383: the site gets the person as a user; the administration gets the administration only.
+  const safe = requestScope(req) === 'site' ? asSiteUser(found) : asAdminUser(found);
   // AYK-344: the account's language comes with the sign-in itself, so the page switches at once.
   if (safe) safe.ui_lang = (await queryOne('SELECT ui_lang FROM users WHERE id = ?', [user.id]).catch(() => null))?.ui_lang || null;
   return success(res, { user: safe, token }, req.t('logged_in'));
@@ -365,7 +366,7 @@ const logout = asyncHandler(async (req, res) => {
 
 const me = asyncHandler(async (req, res) => {
   const found = await User.findById(req.user.id);
-  const user = req.user.admin_account ? asSiteUser(found) : found;
+  const user = req.user.session_scope === 'admin' ? asAdminUser(found) : asSiteUser(found);
   // Accounts created before every account had a customer number get one here.
   if (user && !user.referral_code) {
     user.referral_code = await require('../services/walletService').ensureReferralCode(user.id).catch(() => null);
@@ -406,7 +407,7 @@ const changePassword = asyncHandler(async (req, res) => {
 const adminSession = asyncHandler(async (req, res) => {
   if (!req.user.admin_account || requestScope(req) !== 'admin') return error(res, req.t('forbidden'), 403);
   const raw = await User.findByIdRaw(req.user.id);
-  if (!raw || raw.role !== 'admin') return error(res, req.t('forbidden'), 403);
+  if (!raw || !isAdminAccount(raw)) return error(res, req.t('forbidden'), 403);
   // AYK-347: an administration account with no section granted does not enter.
   if (!require('../middleware/auth').adminAccess(raw)) return error(res, req.t('forbidden'), 403);
   const token = await issueSession(req, res, raw);
