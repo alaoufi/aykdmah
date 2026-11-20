@@ -73,7 +73,7 @@ export default function DirectoryPage({ compact = false }) {
           handlers={{ start_new: () => run(problemWith, async () => { const kept = items.find(row => row.id === problemWith); navigate(`/chat/${(kept?.is_provider === false ? await directoryChat(problemWith) : await contactDirectFresh(problemWith)).conversation_id}`); }) }} />}
       {items.length === 0
         ? <p className="card text-fg-muted text-[14px] m-0">{t('requester.directory_empty')}</p>
-        : <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 list-none p-0 m-0">
+        : <ol className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 list-none p-0 m-0">
           {shown.map(p => (
             <li key={p.id} className={`card ${p.is_provider === false ? 'tone-request' : 'tone-provider'} p-3 flex gap-3 items-start`} data-testid="directory-item">
               <Avatar src={p.avatar} name={p.nickname || p.business_name || p.full_name} />

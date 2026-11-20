@@ -103,6 +103,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* Cards */
 .card {
+  /* AYK-378: a long word (districts, a number, a link) breaks inside its card instead of pushing
+     the card, and the page, past the right side of the screen. */
+  min-width: 0;
+  overflow-wrap: anywhere;
   background: var(--bg-card);
   border-radius: var(--radius-lg);
   padding: var(--space-5);

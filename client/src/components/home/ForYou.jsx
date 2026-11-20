@@ -41,7 +41,7 @@ function RequestsForMe() {
       </div>
       {items === null ? <p className="text-fg-muted">{t('common.loading')}</p>
         : items.length === 0 ? <p className="card text-fg-muted text-[14px]">{t('for_you.requests_empty')}</p>
-          : <div className="grid gap-3 md:gap-4 sm:grid-cols-2 lg:grid-cols-3">{items.map(item => <RequestCard key={item.id} item={item} />)}</div>}
+          : <div className="grid grid-cols-1 gap-3 md:gap-4 sm:grid-cols-2 lg:grid-cols-3">{items.map(item => <RequestCard key={item.id} item={item} />)}</div>}
     </div>
   );
 }

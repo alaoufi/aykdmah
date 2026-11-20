@@ -84,7 +84,7 @@ export default function AdminBackupsReportPage() {
         <EmptyState icon="🗄️" title={t('backups_report.off_title')} subtitle={t('backups_report.off_body')} />
       )}
       {state && state !== 'off' && (
-        <div className="grid gap-4 lg:grid-cols-[minmax(0,360px)_1fr]">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-[minmax(0,360px)_1fr]">
           <section className="card p-4" data-testid="backups-summary">
             <div className="flex items-center justify-between gap-2 mb-2">
               <h2 className="text-ink font-extrabold text-lg m-0">{t('backups_report.this_site')}</h2>
@@ -172,7 +172,7 @@ function BackupsGuide({ t, mediaInR2 }) {
   )).concat(mediaInR2 ? [t('backups_report.guide.media_item', { returnObjects: true })] : []);
   const steps = t('backups_report.guide.auto_steps', { returnObjects: true });
   return (
-    <div className="grid gap-4 lg:grid-cols-2 mt-4" data-testid="backups-guide">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 mt-4" data-testid="backups-guide">
       <section className="card p-4">
         <h2 className="text-ink font-extrabold text-lg mt-0 mb-1">{t('backups_report.guide.contents_title')}</h2>
         <p className="text-slate-500 text-[13px] mt-0 mb-3">{t('backups_report.guide.contents_hint')}</p>

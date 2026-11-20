@@ -158,7 +158,7 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
                   {!onContact && <Link to="/requests/new" className="btn btn-primary">{t('home.new_request')}</Link>}
                 </div>
               ) : (
-                <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 list-none p-0 m-0">
+                <ol className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 list-none p-0 m-0">
                   {listed.map(p => <ProviderCard key={p.id} provider={p} onContact={onContact}
                     requester={requester} saved={saved.has(p.id)} onToggleSaved={toggleSaved} categoryId={categoryId} />)}
                 </ol>

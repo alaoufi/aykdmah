@@ -489,15 +489,7 @@ function ProviderSection({ onSaved, onError, t, refresh }) {
           of under every chat. */}
       <p className="mb-3 p-2.5 rounded-card bg-surface-alt text-[13px] text-fg-muted" data-testid="provider-agree-hint">🤝 {t('chat.agreed_hint')}</p>
       <form onSubmit={save} className="space-y-3">
-        <ProfessionsPicker serviceIds={provider.service_ids} disabled={saving}
-          onChange={ids => setProvider(previous => ({ ...previous, service_ids: ids }))} />
-        <CoverageDistrictsPicker cityId={provider.coverage_city_id || user?.city_id} value={provider.coverage} disabled={saving}
-          onChange={ids => setProvider(previous => ({ ...previous, coverage: ids }))} />
-        <label className="flex items-start gap-2 text-[13px]">
-          <input type="checkbox" className="mt-1 w-4 h-4 accent-primary shrink-0" checked={provider.also_client}
-            onChange={e => setProvider(previous => ({ ...previous, also_client: e.target.checked }))} />
-          <span><b>{t('auth.role_both')}</b> — {t('auth.role_both_hint')}</span>
-        </label>
+        {/* AYK-377: the name and «وصف خدماتي» first, where the provider sees them at once. */}
         <Input label={t('profile.business_name')} value={provider.business_name}
           onChange={(e) => setProvider({ ...provider, business_name: e.target.value })} />
 
@@ -508,6 +500,15 @@ function ProviderSection({ onSaved, onError, t, refresh }) {
             onChange={(e) => setProvider({ ...provider, bio: e.target.value })} />
           <div className="text-[11.5px] text-fg-muted text-end mt-0.5" dir="ltr">{(provider.bio || '').length} / 2000</div>
         </div>
+        <ProfessionsPicker serviceIds={provider.service_ids} disabled={saving}
+          onChange={ids => setProvider(previous => ({ ...previous, service_ids: ids }))} />
+        <CoverageDistrictsPicker cityId={provider.coverage_city_id || user?.city_id} value={provider.coverage} disabled={saving}
+          onChange={ids => setProvider(previous => ({ ...previous, coverage: ids }))} />
+        <label className="flex items-start gap-2 text-[13px]">
+          <input type="checkbox" className="mt-1 w-4 h-4 accent-primary shrink-0" checked={provider.also_client}
+            onChange={e => setProvider(previous => ({ ...previous, also_client: e.target.checked }))} />
+          <span><b>{t('auth.role_both')}</b> — {t('auth.role_both_hint')}</span>
+        </label>
         <Input label={t('profile.experience_years')} type="number" min="0" max="100" value={provider.experience_years}
           onChange={event => setProvider(previous => ({ ...previous, experience_years: event.target.value }))} />
 

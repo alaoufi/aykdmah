@@ -142,7 +142,7 @@ export default function ProvidersMapPage() {
       {origin && !loading && providers.length === 0 && !error && (
         <div className="text-[13px] text-fg-muted">{t('map.no_providers')}</div>
       )}
-      <ul className="grid gap-2 sm:grid-cols-2">
+      <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {providers.map(p => (
           <li key={p.id} className="card p-3 flex gap-3 items-center">
             <Avatar src={p.avatar} name={p.full_name} />

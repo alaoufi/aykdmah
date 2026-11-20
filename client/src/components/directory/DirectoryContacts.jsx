@@ -70,7 +70,7 @@ export default function DirectoryContacts({ compact = false }) {
       )}
       {!form && problem && <p className="form-error" role="alert">{problem}</p>}
       {shown.length > 0 && (
-        <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 list-none p-0 m-0">
+        <ol className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 list-none p-0 m-0">
           {shown.map(row => (
             <li key={row.id} className="card p-3" data-testid="directory-number">
               <span className="font-bold text-fg block truncate">{row.name}</span>
