@@ -1676,3 +1676,10 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - Client test updated; client tests 168 pass; build and `check-deploy` 22 ok. Local browser: Android `/app` shows the page, its Google Play badge links `intent://details?id=sa.aykdmh.app…` without a new tab; iPhone and computer as before.
   - Not tried on a phone with Google Play.
 - Not solved, the owner's decision: a Huawei phone has no Google Play, so no store link can install the app there (the direct download was retired in AYK-292; Huawei AppGallery is postponed).
+- Deployed as 1.1.100 (build 60ed9c4).
+
+## 2026-11-20 — AYK-352: «نسبة العمولة %» in the settings
+- The owner's screenshot (Settings → payments) and question: «ماذا تقصد في نسبة العمولة».
+- Found: `commission_percent` there is an old setting from the first version; no code reads it (the marketing percentage is `referral_commission_percent`, set on «المحافظ والتسويق»). The marketing settings were also listed there a second time, raw (their keys and old wording, e.g. «المبلغ لكل مجموعة», from before the owner's rule of a minimum then an amount per person).
+- Now the settings page no longer lists `commission_percent` nor the marketing settings; the payments tab starts with a link to «المحافظ والتسويق», where marketing is set with its own explanation and example. Nothing is deleted from the database.
+- Client tests 168 pass; build and `check-deploy` 22 ok. Not checked in the browser (admin settings page only).

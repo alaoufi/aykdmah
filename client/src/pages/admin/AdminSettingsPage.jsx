@@ -1,4 +1,5 @@
 import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
+import { Link } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getSettings, updateSettings, applyMigrations } from '../../services/adminService';
@@ -30,6 +31,16 @@ const HANDLED_BY_CUSTOM_UI = new Set([
   'form_fields_hidden', // its own page, «حقول النماذج» (AYK-215)
   'form_fields_required', // the same page (AYK-218)
   'form_fields_top', // the same page (AYK-230)
+  // AYK-352 (the owner: «ماذا تقصد في نسبة العمولة»): `commission_percent` is an old setting from the
+  // first version that nothing reads any more, and the marketing settings have their own page
+  // (المحافظ والتسويق) with their own explanation. Shown once, there.
+  'commission_percent',
+  'marketing_enabled',
+  'marketing_mode',
+  'marketing_count_every',
+  'marketing_count_amount',
+  'marketing_subscription_amount',
+  'referral_commission_percent',
 ]);
 
 export default function AdminSettingsPage() {
@@ -354,6 +365,11 @@ export default function AdminSettingsPage() {
       )}
 
       {/* === GENERIC TABS (general / map / requests / payments / notifications / files) === */}
+      {activeTab === 'payments' && (
+        <Link to="/admin/wallets" className="block mb-3 rounded-card border-2 border-primary bg-primary-soft px-4 py-3 text-fg font-bold no-underline" data-testid="marketing-settings-link">
+          💰 التسويق بالعمولة (تفعيله، طريقته، أرقامه) ونسبة العمولة: في صفحة «المحافظ والتسويق» ←
+        </Link>
+      )}
       {['general', 'map', 'requests', 'payments', 'notifications', 'files'].includes(activeTab) && (
         groups[activeTab]?.length > 0 ? (
           <SettingGroupCard
