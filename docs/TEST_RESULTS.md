@@ -1549,3 +1549,17 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Not tested: the order under «كل المهن» with providers of several professions (the test data has one provider); a real phone.
 - AYK-338: the owner approved production («ارفع», 2026-11-20). Android 1.3.10 (20) sent to the production track of Google Play through GitHub; the result of that run is recorded below.
 - The publishing run for bda5e24 ended in success: Google Play accepted 1.3.10 (20) on the production track. Not verified: when Google's review ends and the version reaches phones.
+
+## 2026-11-20 — AYK-340: every control looks like what it is
+- The owner's screenshot and words: «كل المهن وضّح أنها قائمة منسدلة، وضّح السهم. المربعات مثل المهن التي طلبتها وكل المهن اجعلها أزرارًا… وكذلك مقدم خدمة قريب منك. كل الروابط تكون زرًّا واضحًا أو رابطًا».
+- Now, on every page:
+  - every drop-down list has a clear arrow on its closing side (left in Arabic and Urdu, right in the others);
+  - a choice drawn as buttons (role «tab»): the chosen one filled with the chosen colour and a ✓, the others outlined;
+  - words that can be tapped inside a page are underlined.
+- On the providers part of the home page:
+  - «حي آخر», «العودة لحيي» and «تعديل منطقتك» are buttons;
+  - «N مقدم خدمة قريب منك» and «N متواجد الآن» are now real buttons: everyone, or only those connected now;
+  - on each card «عرض الملف والتواصل» and «أضف إلى دليلي» are buttons; «في دليلي» is a plain note, no longer shaped like a button.
+- Browser check (local site, phone size, normal and high contrast): the arrow drawn on the home list and on the six lists of the services page (English, left-to-right); tapping «كل المهن» moves the fill to it; «متواجد الآن» shows 0 cards and the note, «مقدم خدمة قريب منك» brings the card back; on `/profile`, `/client`, `/requests/new`, `/providers/1` and `/directory` only true text links are underlined (one rating link); no page errors. Screenshots reviewed.
+- Client tests 166 pass; `i18n:check` 2625 keys; build and `check-deploy` 22 ok.
+- Not checked: every admin page; a real phone.
