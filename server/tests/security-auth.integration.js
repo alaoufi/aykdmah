@@ -310,6 +310,11 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     // AYK-202: one sign-in; the site session of an admin account opens the admin area.
     const fresh = (await api('/auth/login', { method: 'POST', body })).data;
     assert.equal(fresh.user.admin_account, 1);
+    // AYK-347: an administration account with no section granted neither sees nor opens it.
+    assert.equal(fresh.user.admin_access, 0);
+    await api('/auth/admin-session', { token: fresh.token, method: 'POST', headers: { 'X-Ayk-Scope': 'admin' }, expected: 403 });
+    await db.query("UPDATE users SET permissions = '[\"users.manage\"]' WHERE id = ?", [user.id]);
+    assert.equal((await api('/auth/me', { token: fresh.token })).data.user.admin_access, 1);
     const opened = (await api('/auth/admin-session', { token: fresh.token, method: 'POST', headers: { 'X-Ayk-Scope': 'admin' } })).data;
     assert.equal((await api('/auth/me', { token: opened.token, headers: { 'X-Ayk-Scope': 'admin' } })).data.user.role, 'admin');
     // The admin session reaches admin routes (this test account has no extra permissions, so a

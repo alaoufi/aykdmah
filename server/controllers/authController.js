@@ -405,6 +405,8 @@ const adminSession = asyncHandler(async (req, res) => {
   if (!req.user.admin_account || requestScope(req) !== 'admin') return error(res, req.t('forbidden'), 403);
   const raw = await User.findByIdRaw(req.user.id);
   if (!raw || raw.role !== 'admin') return error(res, req.t('forbidden'), 403);
+  // AYK-347: an administration account with no section granted does not enter.
+  if (!require('../middleware/auth').adminAccess(raw)) return error(res, req.t('forbidden'), 403);
   const token = await issueSession(req, res, raw);
   return success(res, { token });
 });

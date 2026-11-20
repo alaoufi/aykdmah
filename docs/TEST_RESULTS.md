@@ -1627,3 +1627,10 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Now `/admin` opens for every member: with the figures permission, the figures as before; without it, a page of the sections this member may open, one tap each, and the guide; with no section granted yet, a note to ask the site's manager. «رجوع» from any admin page ends there. «العودة للموقع» is now at the top of the admin menu (it was at the bottom, as «الرئيسية»).
 - Browser check (local site, phone size): a member with users only: `/admin` shows «المستخدمون», «رسائل المستخدمين», «دليل الإدارة المصور»; a member with nothing: the note; the full administrator: the figures; for all three, guide → «رجوع» → `/admin`, and the menu starts with «🏠 العودة للموقع»; no page errors. The two test members were removed from the local database afterwards.
 - Client tests 167 pass; build and `check-deploy` 22 ok.
+- AYK-346 deployed as 1.1.93 (build c5af2fe).
+
+## 2026-11-20 — AYK-347: «لوحة الإدارة» only for those allowed in
+- The owner: «فقط للمصرّح له بدخول الإدارة، الأعضاء العاديون لا تظهر لهم».
+- Now an administration account sees «لوحة الإدارة» in the site's menu, and can open the admin area (from the menu or its own sign-in page), only when it is a full administrator or has at least one section granted. An administration account with none behaves as an ordinary member: no link, the server refuses the admin session (403), and the admin sign-in page refuses it. Ordinary members never saw it and still do not.
+- Browser check (local site): a member with one section: link shown, admin session 200, admin sign-in opens `/admin`; a member with none: no link, 403, stays on the admin sign-in page; an ordinary requester: no link, 403; no page errors. Test members removed afterwards.
+- The existing test «site and admin sessions of one account are separate» used an administration account with no section and expected it to open the area; it now checks it is refused, then grants one section and checks it opens. Full integration 285 pass, 0 fail; server unit 86, client 167 pass; build and `check-deploy` 22 ok.

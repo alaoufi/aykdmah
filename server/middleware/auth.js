@@ -47,9 +47,18 @@ function sessionScope(payload, fallback = 'site') {
 
 // The site and the app never act as the administration (AYK-151): there, an admin account is an
 // ordinary user, with no admin permissions. The admin tools exist only in an admin session.
+// AYK-347 (the owner: «فقط للمصرّح له بدخول الإدارة، الأعضاء العاديون لا تظهر لهم»): only an
+// account allowed into at least one section of the administration sees «لوحة الإدارة».
+function adminAccess(user) {
+  if (!user || user.role !== 'admin') return false;
+  if (Number(user.is_super_admin) === 1) return true;
+  let perms = user.permissions;
+  if (typeof perms === 'string') { try { perms = JSON.parse(perms); } catch (_) { perms = []; } }
+  return Array.isArray(perms) && perms.length > 0;
+}
 function asSiteUser(user) {
   if (!user || user.role !== 'admin') return user;
-  return { ...user, role: 'client', is_super_admin: 0, permissions: [], admin_account: 1 };
+  return { ...user, role: 'client', is_super_admin: 0, permissions: [], admin_account: 1, admin_access: adminAccess(user) ? 1 : 0 };
 }
 
 async function loadSessionUser(payload, fallbackScope = 'site') {
@@ -138,4 +147,4 @@ async function optionalAuth(req, res, next) {
   next();
 }
 
-module.exports = { authenticate, optionalAuth, loadSessionUser, sessionCookieName, requestScope, asSiteUser };
+module.exports = { authenticate, optionalAuth, loadSessionUser, sessionCookieName, requestScope, asSiteUser, adminAccess };
