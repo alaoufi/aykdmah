@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { useInRouterContext, useLocation } from 'react-router-dom';
 import { getToken, setToken, tokenKey, isAdminScope, TOKEN_CHANGE_EVENT } from '../services/api';
-import { me, login as loginApi, logout as logoutApi, register as registerApi } from '../services/authService';
+import { me, takeEarlyMe, login as loginApi, logout as logoutApi, register as registerApi } from '../services/authService';
 import { detachPush } from '../services/pushService';
 
 const AuthContext = createContext(null);
@@ -45,7 +45,7 @@ export function AuthProvider({ children }) {
       // An answer for this same session from the last 2 seconds is used again as well.
       if (inflight.current?.token !== token || (inflight.current.doneAt && Date.now() - inflight.current.doneAt > 2000)) {
         const entry = { token, doneAt: 0, promise: null };
-        entry.promise = me().then(result => { entry.doneAt = Date.now(); return result; },
+        entry.promise = (takeEarlyMe(token) || me()).then(result => { entry.doneAt = Date.now(); return result; },
           error => { if (inflight.current === entry) inflight.current = null; throw error; });
         inflight.current = entry;
       }

@@ -1469,3 +1469,26 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - no page errors.
 - Client tests 166 pass; `i18n:check` 2621 keys; build and `check-deploy` ok. Server not changed, integration not re-run.
 - Not tested: the list with real matching requests on the home page (the same list was tested on the dashboard earlier), and a real phone.
+
+## 2026-11-20 — AYK-334: the first opening still took long
+- The owner: «لا زال أول فتح ياخذ وقت طويل».
+- Measured on the live site (1.1.80), phone size, with the saved copy present, a 4× slower processor and a slow connection: the page's own files were ready at 0.28 s, the bar at 1.27 s, the content at 1.85 s. The page then waited for two answers from the server, each asked late: the version check (asked only after the main file had been read, about 0.6 s in) and, for a signed-in person, the account (asked only after the first drawing).
+- Now both are asked at the first line of the page (`theme-init.js`), while the main file is still being read; the app uses those answers. A missing or refused account answer is asked again in the usual way, so sign-out is handled as before.
+- Measured before and after (local builds of both, same machine, saved copy present, 4× slower processor, 300 ms each way, five openings each, the middle one):
+  - visitor: bar 1297 → 1245 ms, content 1462 → 1420 ms (first run: 1355 → 1077 and 1528 → 1269);
+  - signed-in requester: bar 1571 → 1119 ms, own page 1743 → 1423 ms;
+  - signed-in provider: bar 1409 → 1158 ms, own page 1656 → 1432 ms.
+  The numbers vary between runs by about 0.2 s; the gain for a signed-in person is about 0.25–0.45 s.
+- Browser check: a good session asks for the account once and the version once; a made-up session is signed out and lands on the sign-in page as before; no page errors.
+- What remains is the phone's own work reading and drawing the app (about 0.7 s on a fast processor, more on a weak one); not changed here.
+- Not tested: a real phone, and the store apps.
+
+## 2026-11-20 — AYK-335: the same provider three times on the home page
+- The owner's screenshot: one provider as a card under «مقدمو الخدمة في منطقتك», again in «كل من يخدم في المجمعة», and again in «دليلي».
+- Now each person is listed once on the home page:
+  - the city box leaves out those already shown as cards (and is not shown when nobody else remains);
+  - «دليلي» on the home page leaves out those already listed above; its title and «عرض الكل» stay, and the directory page itself lists everyone;
+  - a card of someone kept in the directory carries «📇 في دليلي».
+- Browser check (local site, phone size, requester and a provider serving the same district and kept in the directory): one card with the «في دليلي» mark, no city box, nothing repeated under «دليلي», «عرض الكل» present, the directory page lists 1; no page errors. Screenshot reviewed.
+- Client tests 166 pass; `i18n:check` 2621 keys; build and `check-deploy` 22 ok. Server not changed.
+- Not tested: a city box with other providers left in it after the change (the test data has one provider).

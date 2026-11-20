@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import MatchingProviders from '../catalog/MatchingProviders';
@@ -11,6 +12,8 @@ import { useAuth } from '../../hooks/useAuth';
 export default function RequesterHome() {
   const { t } = useTranslation();
   const { user } = useAuth();
+  // Who the providers part already lists, so «دليلي» under it does not repeat them (AYK-335).
+  const [listed, setListed] = useState([]);
   return (
     <section className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-8 space-y-8" data-testid="requester-home">
       <div className="card tone-request p-4 flex flex-wrap items-center justify-between gap-2">
@@ -25,8 +28,8 @@ export default function RequesterHome() {
       </div>
       {/* An account that is also a provider: the requests in their profession and coverage area (AYK-333). */}
       {user?.role === 'provider' && <WorkRequests />}
-      <MatchingProviders />
-      <DirectoryPage compact />
+      <MatchingProviders onShown={setListed} />
+      <DirectoryPage compact hideIds={listed} />
     </section>
   );
 }

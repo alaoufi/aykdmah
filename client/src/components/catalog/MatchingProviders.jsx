@@ -60,7 +60,7 @@ export function AreaLine({ area, browsing, onPick }) {
 
 // On a request page (fixedArea + onContact) the list is that request's area and profession,
 // only providers working right now, each with a "Contact" button.
-export default function MatchingProviders({ categoryId: fixedCategory = '', serviceId = '', showChips = true, title, fixedArea = null, onContact = null }) {
+export default function MatchingProviders({ categoryId: fixedCategory = '', serviceId = '', showChips = true, title, fixedArea = null, onContact = null, onShown = null }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
   const [categories, setCategories] = useState([]);
@@ -102,6 +102,14 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
   const nowInDistrict = (result?.providers || []).filter(isAvailable);
   const widened = !onContact && cityList !== null && nowInDistrict.length === 0;
   const shown = !matching && !onContact ? (result?.providers || []) : onContact || cityList === null ? (result?.providers || []) : widened ? cityList.filter(isAvailable) : nowInDistrict;
+  // AYK-335 (the owner's screenshot): the same provider was on the page three times, as a card,
+  // again in the city box under it, and again in «دليلي». Each person is listed once: the city
+  // box leaves out those already shown as cards, and the page is told who is shown (onShown) so
+  // its «دليلي» part leaves them out too.
+  const cardIds = new Set(shown.map(p => Number(p.id)));
+  const cityRest = (cityList || []).filter(p => !cardIds.has(Number(p.id)));
+  const shownKey = [...cardIds, ...cityRest.map(p => Number(p.id))].join(',');
+  useEffect(() => { if (onShown) onShown(shownKey ? shownKey.split(',').map(Number) : []); }, [shownKey]);
   const districtName = result?.area ? localizedName({ name_ar: result.area.district_name_ar, name_en: result.area.district_name_en }, lang) : '';
   const cityName = result?.area ? localizedName({ name_ar: result.area.city_name_ar, name_en: result.area.city_name_en }, lang) : '';
   return (
@@ -142,8 +150,8 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
                     requester={requester} saved={saved.has(p.id)} onToggleSaved={toggleSaved} categoryId={categoryId} />)}
                 </ol>
               )}
-              {!onContact && cityList?.length > 0 && (
-                <CityBox providers={cityList} cityName={cityName} requester={requester} categoryId={categoryId} />
+              {!onContact && cityRest.length > 0 && (
+                <CityBox providers={cityRest} cityName={cityName} requester={requester} categoryId={categoryId} />
               )}
             </>
           )}
@@ -206,6 +214,7 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
           <Link to={`/providers/${p.id}`} className="font-bold text-fg truncate">{p.business_name || p.full_name}</Link>
           {p.is_featured && <span className="px-2 py-0.5 rounded-pill bg-amber-100 text-amber-800 text-[11px] font-bold">👑 {t('for_you.featured')}</span>}
           {p.is_verified && <span className="text-[11px] text-success font-semibold">✓ {t('for_you.verified')}</span>}
+          {requester && saved && <span className="px-2 py-0.5 rounded-pill bg-surface-alt text-[11px] font-semibold" data-testid="in-directory">📇 {t('requester.in_directory')}</span>}
         </div>
         <div className="text-[13px] text-fg-muted mt-1 flex flex-wrap gap-x-3 gap-y-1">
           {p.category_name_ar && <span>🛠️ {localizedName({ name_ar: p.category_name_ar, name_en: p.category_name_en, name_translations: p.category_name_translations }, lang)}</span>}

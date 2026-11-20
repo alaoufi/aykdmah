@@ -23,6 +23,13 @@ const withTimeout = (promise, ms) => Promise.race([promise, new Promise(resolve 
 let asked = null;
 export function serverVersion() {
   if (asked && Date.now() - asked.at < 10000) return asked.promise;
+  // AYK-334: the first question was already sent by theme-init.js, before this file was read.
+  const early = typeof window !== 'undefined' && window.__aykVersion;
+  if (early) {
+    window.__aykVersion = null;
+    asked = { at: Date.now(), promise: withTimeout(early, 4000).then(v => v || null) };
+    return asked.promise;
+  }
   const promise = withTimeout(fetch('/version.json', { cache: 'no-store' }), 4000)
     .then(res => (res?.ok ? res.json() : null)).then(v => v?.version || null).catch(() => null);
   asked = { at: Date.now(), promise };

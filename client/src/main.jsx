@@ -10,6 +10,8 @@ import './styles/global.css';
 import 'leaflet/dist/leaflet.css';
 import { installChunkRecovery } from './utils/chunkRecovery';
 import { freshStart } from './utils/freshStart';
+import { getToken } from './services/api';
+import { startEarlyMe } from './services/authService';
 
 // Apply theme synchronously before mounting React so Tailwind CSS
 // variables are populated for the very first render.
@@ -32,6 +34,9 @@ const render = () => createRoot(document.getElementById('root')).render(
     </ThemeProvider>
   </StrictMode>
 );
+// AYK-334: a signed-in person's account is asked for now, not after the first drawing.
+try { startEarlyMe(getToken()); } catch (_) { /* private mode */ }
+
 // AYK-328: a service provider's first page is their dashboard, a separate file. It was fetched only
 // after the account was known, leaving the page empty for half a second. Fetch it right away.
 try {
