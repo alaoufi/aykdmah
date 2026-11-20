@@ -395,3 +395,23 @@ test('targeted exclusive ads do not suppress matching shared ads when visitor ge
     assert.ok(!rows.some(row => row.id === targeted.id));
   } finally { geo.resolveVisitorGeo = original; }
 });
+
+// AYK-342: an ad aimed at a city reached visitors in the browser but not in the app. Cities are
+// saved by their Arabic names; a location from the connection names the city in English.
+test('a city-targeted ad matches the city in any of its names, and a signed-in person by their account', async () => {
+  const db = require('../config/database');
+  const city = await db.queryOne("SELECT name_ar, name_en FROM cities WHERE name_en IS NOT NULL AND name_en <> '' ORDER BY id LIMIT 1");
+  assert.ok(city, 'the test database has a city with an English name');
+  const ad = await Ad.create({ title: 'City banner', placement: 'category_top', status: 'active', is_active: true, target_cities: [city.name_ar] });
+  const geo = require('../services/ipGeoService');
+  const original = geo.resolveVisitorGeo;
+  try {
+    geo.resolveVisitorGeo = async () => ({ city: city.name_en, country: 'SA' });
+    assert.ok((await api('/ads/live?placement=category_top')).some(row => row.id === ad.id), 'English city name from the address');
+    assert.ok((await api('/ads/live?placements=category_top')).category_top.some(row => row.id === ad.id), 'the many-placements answer too');
+    // The signed-in person reaches the location step as themselves (their saved city is used there).
+    geo.resolveVisitorGeo = async req => (req.user ? { city: city.name_ar, country: 'SA' } : null);
+    assert.ok(!(await api('/ads/live?placements=category_top')).category_top.some(row => row.id === ad.id), 'a visitor with no location');
+    assert.ok((await api('/ads/live?placements=category_top', { user: users.provider })).category_top.some(row => row.id === ad.id), 'signed in');
+  } finally { geo.resolveVisitorGeo = original; }
+});

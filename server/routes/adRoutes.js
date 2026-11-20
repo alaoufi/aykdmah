@@ -7,9 +7,11 @@ const { uploadLimiter } = require('../middleware/rateLimiter');
 const { uploadAdMedia } = require('../controllers/adminController');
 
 // Public — visitors fetch live ads, track views, follow clicks.
-router.get('/live', c.live);
+// AYK-342: a signed-in person is placed by the city saved on their account, the same on every
+// device and network, instead of by the address their connection happens to come from.
+router.get('/live', optionalAuth, c.live);
 router.get('/placement-pricing', c.placementPricing);
-router.get('/my-geo', c.myGeo);
+router.get('/my-geo', optionalAuth, c.myGeo);
 router.post('/:id/view', c.trackView);
 router.post('/:id/click', c.trackClick);
 

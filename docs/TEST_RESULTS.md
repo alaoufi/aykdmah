@@ -1570,3 +1570,14 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Now: no logo in the footer (it stays in the top bar); the Google Play and App Store badges are in the footer (on the website only, as before not inside the apps), and the separate box on the home page is gone so they are not shown twice; the three link groups stand side by side on the phone too, with the lines closer; «الشروط والأحكام» and «سياسة الخصوصية», listed twice, now once.
 - Browser check (local site): phone 390 px and desktop 1280 px: no image in the footer, the badges in it, three columns side by side; opened as the Android app (`?app=1.3.10&src=play`): no badges anywhere; no page errors. Screenshots reviewed.
 - Client tests 166 pass; build and `check-deploy` 22 ok.
+- AYK-341 deployed as 1.1.87 (build e0b74a3).
+
+## 2026-11-20 — AYK-342: an ad seen in the browser did not show in the app (not deployed yet)
+- The owner: «الإعلان الذي في الويب لا يظهر في التطبيق».
+- From the test machine (outside the Kingdom) the live site serves no ad on the home page, so the ad in question is aimed at a place. Two causes found in the code:
+  - the place of whoever asked was found from the connection's address only, even for a signed-in person: the same phone on Wi-Fi in the browser and on mobile data in the app can be placed in different cities, or in none;
+  - an ad's cities are saved by their Arabic names, while a place found from the address names the city in English: a city-targeted ad never matched it.
+- Now a signed-in person is placed by the city saved on their account, and a city is compared in all its names. A visitor not signed in is still placed by the address.
+- New integration test (English city name matches an ad saved with the Arabic name, in both forms of the request; with no place, hidden; signed in, shown): passes. Server unit tests 86 and the finance integration file 278 pass.
+- Not verified: which ad the owner saw and its targeting (the live database is not reachable from here).
+- Saved without deploying: deploying waits for the owner's word.

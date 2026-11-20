@@ -6,6 +6,22 @@ const { success, created, error, notFound, paginate, forbidden } = require('../u
 const asyncHandler = require('../utils/asyncHandler');
 const { validId, invalid } = require('../models/Payment');
 const { hasPermission } = require('../middleware/roleCheck');
+const { query } = require('../config/database');
+
+// AYK-342 (the owner: «الإعلان الذي في الويب لا يظهر في التطبيق»): an ad's cities are saved by
+// their Arabic names, while a location found from the connection's address names the city in
+// English («Riyadh»), so a city-targeted ad never matched such a visitor. The visitor's city is
+// widened to all its names before comparing.
+async function withCityNames(geo) {
+  if (!geo?.city) return geo;
+  const names = new Set([String(geo.city).trim().toLowerCase()]);
+  try {
+    const rows = await query(
+      'SELECT name_ar, name_en FROM cities WHERE name_ar = ? OR LOWER(name_en) = LOWER(?) LIMIT 5', [geo.city, geo.city]);
+    for (const row of rows) for (const name of [row.name_ar, row.name_en]) if (name) names.add(String(name).trim().toLowerCase());
+  } catch (_) { /* compare by the name as given */ }
+  return { ...geo, city_names: [...names] };
+}
 
 function financeHandler(handler) {
   return asyncHandler(async (req, res) => {
@@ -24,7 +40,8 @@ function matchesGeo(ad, geo) {
   if (countries.length === 0 && cities.length === 0 && regions.length === 0) return true;
   // A targeted placement needs a known matching location.
   if (!geo) return false;
-  const cityMatch    = cities.length    > 0 && geo.city    && cities.some((c) => String(c).toLowerCase() === String(geo.city).toLowerCase());
+  const known = geo.city_names || (geo.city ? [String(geo.city).trim().toLowerCase()] : []);
+  const cityMatch    = cities.length    > 0 && known.length > 0 && cities.some((c) => known.includes(String(c).trim().toLowerCase()));
   const countryMatch = countries.length > 0 && geo.country && countries.some((c) => String(c).toUpperCase() === String(geo.country).toUpperCase());
   const regionMatch  = regions.length   > 0 && geo.region_id && regions.some((r) => Number(r) === Number(geo.region_id));
   // Any axis match wins so an advertiser can mix region+country+city.
@@ -46,7 +63,7 @@ async function liveMany(req, res) {
     || (Array.isArray(a.target_regions) && a.target_regions.length);
   let geo = null;
   if (all.some(targeted)) {
-    try { geo = await ipGeo.resolveVisitorGeo(req); } catch (_) { /* targeted ads stay hidden */ }
+    try { geo = await withCityNames(await ipGeo.resolveVisitorGeo(req)); } catch (_) { /* targeted ads stay hidden */ }
   }
   const result = {};
   for (const placement of wanted) {
@@ -70,7 +87,7 @@ const live = financeHandler(async (req, res) => {
     (Array.isArray(a.target_regions)   && a.target_regions.length));
   let geo = null;
   if (needsGeo) {
-    try { geo = await ipGeo.resolveVisitorGeo(req); } catch (_) { /* targeted ads stay hidden */ }
+    try { geo = await withCityNames(await ipGeo.resolveVisitorGeo(req)); } catch (_) { /* targeted ads stay hidden */ }
   }
   const filtered = items.filter((a) => matchesGeo(a, geo));
   const exclusives = filtered.filter(a => a.exclusive);
