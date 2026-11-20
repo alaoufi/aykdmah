@@ -1716,3 +1716,10 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Now «🎁 دعوة» in the menu opens a sheet over the current page (no page change): the short link, «نسخ الرابط» and «إرسال بالواتساب» (WhatsApp with the invite message and link). The wallet page keeps its own invite box. One new text («إرسال بالواتساب») in the 11 languages; `i18n:check` 2629 keys.
 - Browser check (local site, phone size): requester and provider: the sheet showed `https://aykdmh.com/i/32` and `/i/74`, copying put the link on the clipboard, the page stayed where it was, and the WhatsApp button's message was «سجّل في «أي خدمة» بكوبوني 32: https://aykdmh.com/i/32»; no page errors; screenshot reviewed.
 - Client tests 168 pass; build and `check-deploy` 22 ok.
+- AYK-355 deployed as 1.1.104 (build 4e59ad7).
+
+## 2026-11-20 — AYK-356: «حسابي» in the member's menu; an administration member who cannot get in
+- The owner's screenshot: a member (number 54) given administration rights sees no «لوحة الإدارة» and cannot get in; and «في لوحة العضو يكون حسابي بدل لوحة التحكم (ويدخل على حسابه)».
+- «حسابي»: the member's menu (phone and computer) shows «👤 حسابي», opening their own account (`/profile`), instead of «لوحة التحكم»; the computer's drop-down no longer lists the account twice. New text in the 11 languages; `i18n:check` 2630 keys.
+- The member who cannot get in: since AYK-347 the link and the entry need the account to be an administration account with at least one section. Two ways the member can end with none, found in the code: changing an account's type to administration empties its sections (if sections were ticked first and the type changed after, they were lost); and each change of rights signs the member out, so the member must sign in again. The live database is not reachable from here, so the server report now lists the administration accounts by number only (type, full or not, how many sections, active, blocked; no names), to see which case it is.
+- Client tests 168 pass; build and `check-deploy` 22 ok.

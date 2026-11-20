@@ -171,11 +171,9 @@ export default function Header() {
                     {user.referral_code && <div className="text-xs text-fg-muted mt-0.5">{t('brand.your_number')}: <b dir="ltr">{user.referral_code}</b></div>}
                   </div>
                   <div className="p-1.5">
-                    <Link to={dashLink} className="block px-3 py-2 rounded text-sm font-semibold text-fg hover:bg-surface-alt no-underline" onClick={() => setMenuOpen(false)}>
-                      {t('nav.dashboard')}
-                    </Link>
-                    <Link to="/profile" className="block px-3 py-2 rounded text-sm font-semibold text-fg hover:bg-surface-alt no-underline" onClick={() => setMenuOpen(false)}>
-                      {t('nav.profile')}
+                    {/* AYK-356 (the owner): «حسابي», the member's own account, instead of «لوحة التحكم». */}
+                    <Link to={user.role === 'admin' ? dashLink : '/profile'} className="block px-3 py-2 rounded text-sm font-semibold text-fg hover:bg-surface-alt no-underline" onClick={() => setMenuOpen(false)} data-testid="menu-my-account">
+                      👤 {t(user.role === 'admin' ? 'nav.dashboard' : 'nav.my_account')}
                     </Link>
                     {['client', 'provider'].includes(user.role) && (
                       <Link to="/profile#account-type" className="block px-3 py-2 rounded text-sm font-semibold text-fg hover:bg-surface-alt no-underline" onClick={() => setMenuOpen(false)} data-testid="menu-account-type">
@@ -347,11 +345,12 @@ export default function Header() {
             {user ? (
               <div className="grid grid-cols-2 gap-2">
                 <Link
-                  to={dashLink}
+                  to={user.role === 'admin' ? dashLink : '/profile'}
                   onClick={() => setMobileOpen(false)}
                   className="px-4 py-2.5 rounded-pill font-semibold bg-surface-alt text-fg text-center no-underline"
+                  data-testid="mobile-my-account"
                 >
-                  {t('nav.dashboard')}
+                  👤 {t(user.role === 'admin' ? 'nav.dashboard' : 'nav.my_account')}
                 </Link>
                 <button
                   onClick={() => { setMobileOpen(false); handleLogout(); }}

@@ -55,7 +55,8 @@
     "settings": "Settings",
     "subscription": "Subscription",
     "badges": "Badges",
-    "promote": "Advertise"
+    "promote": "Advertise",
+    "my_account": "My account"
   },
   "theme": {
     "label": "Appearance",

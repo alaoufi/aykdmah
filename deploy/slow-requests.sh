@@ -31,4 +31,11 @@ SELECT '   browsers registered for web push:', COUNT(*) FROM push_subscriptions;
 echo "-- sending in the last ${H}h:"
 docker logs --since "${H}h" aykdmh-app 2>&1 | grep -E 'FCM send failed|APNs send failed|APNs connection' | sed -E 's/user=[0-9]+/user=…/' | sort | uniq -c | sort -rn | head -8 | sed 's/^/   /'
 docker logs --since "${H}h" aykdmh-app 2>&1 | grep -cE 'FCM send failed|APNs send failed|APNs connection' | sed 's/^/   failures logged: /'
+echo; echo "== Administration accounts (AYK-356; number, rights count, no names) =="
+docker exec aykdmh-db psql -U aykdmh -d aykdmh -tA -F ' ' -c "
+SELECT '   number', COALESCE(referral_code, '-'), '· old', COALESCE(legacy_referral_code, '-'), '· role', role,
+       '· full', is_super_admin, '· sections', CASE WHEN jsonb_typeof(permissions::jsonb) = 'array' THEN jsonb_array_length(permissions::jsonb) ELSE -1 END,
+       '· active', is_active, '· blocked', is_blocked
+  FROM users WHERE deleted_at IS NULL AND (role = 'admin' OR (permissions IS NOT NULL AND permissions::text NOT IN ('[]', 'null', '')))
+ ORDER BY id;" 2>&1
 echo; echo "== done (nothing was changed) =="
