@@ -1548,3 +1548,4 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Client tests 166 pass; `i18n:check` 2625 keys; build and `check-deploy` 22 ok. Server not changed.
 - Not tested: the order under «كل المهن» with providers of several professions (the test data has one provider); a real phone.
 - AYK-338: the owner approved production («ارفع», 2026-11-20). Android 1.3.10 (20) sent to the production track of Google Play through GitHub; the result of that run is recorded below.
+- The publishing run for bda5e24 ended in success: Google Play accepted 1.3.10 (20) on the production track. Not verified: when Google's review ends and the version reaches phones.
