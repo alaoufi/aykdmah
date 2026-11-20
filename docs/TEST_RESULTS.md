@@ -1696,3 +1696,16 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Migration checked on a copy of the local test database: the 3 accounts with letter codes (WX76, TQ71, TD30) got 56, 87, 99 with their old codes kept; numbers unique, none left with letters; running it again changes nothing.
 - Tests: integration adds an old letter code signing in (any case) and an old invite code registering; expectations for the new shape updated. Full integration 285 pass, 0 fail; server unit 86, client 168 pass; `i18n:check` 2625 keys; build and `check-deploy` 22 ok.
 - Consequence to know: every user's number shown at the top changes once, at this release; their old one keeps working.
+- AYK-353 deployed as 1.1.102 (build 6cc630f).
+
+## 2026-11-20 — AYK-354: a short invite link
+- The owner: «أبي رابط دعوة واضح في لوحة المستخدم «دعوة»، ينسخ الرابط، وإذا فتحه الآخر وسجّل بنفس الرابط يُسجَّل رقمه ويُضاف له، ويكون الرابط مختصرًا».
+- Now:
+  - each account has a short invite link `aykdmh.com/i/<its number>`;
+  - «🎁 دعوة» is in the menu of every signed-in account and opens the wallet page at a framed «رابط دعوتك» box, first on the page, with the link, «نسخ الرابط», «مشاركة» and «واتساب»; the WhatsApp message carries the short link too;
+  - opening the link keeps the inviter's number on that device for 30 days and opens the sign-up with the number filled in; if the person looks around the site first and signs up later on the same device, the number is still filled in; after a sign-up the device forgets it; someone already signed in just lands on the home page;
+  - the sign-up then links the new account to the inviter as before (the existing registration rule).
+- New texts (box title and hint, menu item) in the 11 languages; `i18n:check` 2628 keys.
+- Browser check (local site, phone size): the menu shows «🎁 دعوة» for a requester and a provider and opens their wallet at the box, in view; the link shown and copied was `https://aykdmh.com/i/32`; another browser opening `/i/32` went to `/register?ref=32`; after visiting another page, a plain `/register` still had 32 in the invite field; no page errors. (The local test database needed migrations 095 and 096 applied by hand first.)
+- Client tests 168 pass; build and `check-deploy` 22 ok. The server is unchanged: registration with an invite number is covered by the existing integration tests.
+- Not tried: a real phone, and the link opened inside the installed app.

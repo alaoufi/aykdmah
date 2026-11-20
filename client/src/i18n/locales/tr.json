@@ -2289,7 +2289,10 @@
       "counted": "Sayıldı",
       "not_counted": "Henüz hizmet seçmedi",
       "commission": "Komisyon {{amount}} SAR"
-    }
+    },
+    "invite_title": "Davet bağlantınız",
+    "invite_hint": "Kopyalayıp paylaşın. Bağlantıyı açıp kaydolan herkes otomatik olarak sizin adınıza sayılır.",
+    "invite_nav": "Davet et"
   },
   "test_checkout": {
     "banner": "Deneme ödemesi — hiçbir tutar çekilmeyecek",

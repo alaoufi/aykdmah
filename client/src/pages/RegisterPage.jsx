@@ -25,6 +25,7 @@ import { localizedName } from '../utils/localize';
 import { getCurrentPosition, isValidCoordinates, geoSelection } from '../utils/geolocation.mjs';
 import { internalAuthReturn, authReturnTarget } from '../utils/authReturn';
 import ProblemNotice from '../components/common/ProblemNotice';
+import { keptInvite, forgetInvite } from '../utils/invite';
 
 const ROLES = [
   { key: 'client', icon: '🙋', label: 'auth.role_client' },
@@ -51,15 +52,16 @@ export default function RegisterPage() {
     phone: '', password: '', full_name: '',
     service_ids: [], coverage: [], location_mode: 'mobile',
     work_days: [0, 1, 2, 3, 4, 5, 6], work_from: '', work_to: '',
-    // A shared invitation link (?ref=CODE) pre-fills the coupon.
-    referral_code: (params.get('ref') || '').trim().toUpperCase().slice(0, 12),
+    // A shared invitation link (?ref=CODE, or the short aykdmh.com/i/CODE kept on this device,
+    // AYK-354) pre-fills the coupon.
+    referral_code: (params.get('ref') || keptInvite() || '').trim().toUpperCase().slice(0, 12),
   });
   const [place, setPlace] = useState({ lat: null, lon: null, region_id: '', governorate_id: '', city_id: '', district_id: '', label: '' });
   const [locStatus, setLocStatus] = useState('idle');
   const [mapOpen, setMapOpen] = useState(false);
   const [venuePoint, setVenuePoint] = useState(null);
   const [venueMapOpen, setVenueMapOpen] = useState(false);
-  const [couponOpen, setCouponOpen] = useState(Boolean(params.get('ref')));
+  const [couponOpen, setCouponOpen] = useState(Boolean(params.get('ref') || keptInvite()));
   const [termsOpen, setTermsOpen] = useState(false);
   const [coverageCount, setCoverageCount] = useState(null);
   // Working days, hours and where the work is done are optional at sign-up (AYK-298): the defaults
@@ -236,6 +238,7 @@ export default function RegisterPage() {
         ...(form.referral_code.trim() ? { referral_code: form.referral_code.trim() } : {}),
       });
       if (!res?.user?.role) throw new Error('Invalid registration response');
+      forgetInvite(); // used: the next sign-up on this device starts clean
       navigate('/register', { replace: true, state: { from, registrationResult: { userId: res.user.id, code: res.referral_code, role: res.user.role } } });
     } catch (err) {
       setError(err.response?.data?.message === 'coupon_not_found' ? t('auth.invite_not_found') : apiError(err));

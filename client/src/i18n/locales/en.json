@@ -2289,7 +2289,10 @@
       "counted": "Counted",
       "not_counted": "Has not chosen services yet",
       "commission": "Commission SAR {{amount}}"
-    }
+    },
+    "invite_title": "Your invite link",
+    "invite_hint": "Copy and share it. Whoever opens it and signs up is counted for you automatically.",
+    "invite_nav": "Invite"
   },
   "test_checkout": {
     "banner": "Test payment — no money will be charged",

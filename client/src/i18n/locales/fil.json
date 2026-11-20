@@ -2289,7 +2289,10 @@
       "counted": "Nabilang",
       "not_counted": "Hindi pa pumipili ng mga serbisyo",
       "commission": "Komisyon SAR {{amount}}"
-    }
+    },
+    "invite_title": "Ang iyong invite link",
+    "invite_hint": "Kopyahin at ibahagi ito. Ang magbubukas nito at magre-register ay awtomatikong mabibilang para sa iyo.",
+    "invite_nav": "Mag-imbita"
   },
   "test_checkout": {
     "banner": "Test na bayad — walang perang ibabawas",

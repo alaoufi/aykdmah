@@ -262,11 +262,13 @@ export default function Header() {
                     { to: '/requests/new', label: `➕ ${t('request.create_title')}` },
                     { to: '/directory', label: `📒 ${t('requester.directory_title')}`, testid: 'menu-directory' },
                     user.role !== 'provider' && { to: '/wallet', label: `💰 ${t('wallet.nav')}` },
+                    user.role !== 'provider' && { to: '/wallet#invite', label: `🎁 ${t('wallet.invite_nav')}`, testid: 'menu-invite' },
                   ].filter(Boolean) },
                   user.role === 'provider' && { key: 'tasks', icon: '🧰', label: t('work.tasks_title'), to: '/provider/tasks', extra: [
                     { to: '/opportunities', label: `🔍 ${t('work.requests_nav')}` },
                     { to: '/profile#work', label: `🛠️ ${t('work.professions_areas')}` },
                     { to: '/provider/wallet', label: `💰 ${t('wallet.nav')}` },
+                    { to: '/provider/wallet#invite', label: `🎁 ${t('wallet.invite_nav')}`, testid: 'menu-invite' },
                     { to: '/directory', label: `📒 ${t('requester.directory_title')}` },
                   ] },
                 ].filter(Boolean).map(g => (

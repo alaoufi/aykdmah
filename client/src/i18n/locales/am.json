@@ -2289,7 +2289,10 @@
       "counted": "ተቆጥሯል",
       "not_counted": "አገልግሎቶቹን ገና አልመረጠም",
       "commission": "ኮሚሽን {{amount}} ሪያል"
-    }
+    },
+    "invite_title": "የእርስዎ የግብዣ ሊንክ",
+    "invite_hint": "ቀድተው ያጋሩት። ከፍቶ የሚመዘገብ ሰው በራስ-ሰር ለእርስዎ ይቆጠራል።",
+    "invite_nav": "ይጋብዙ"
   },
   "test_checkout": {
     "banner": "የሙከራ ክፍያ — ምንም ገንዘብ አይቀነስም",

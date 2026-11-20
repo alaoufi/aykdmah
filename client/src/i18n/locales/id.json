@@ -2289,7 +2289,10 @@
       "counted": "Dihitung",
       "not_counted": "Belum memilih layanan",
       "commission": "Komisi SAR {{amount}}"
-    }
+    },
+    "invite_title": "Tautan undangan Anda",
+    "invite_hint": "Salin dan bagikan. Siapa pun yang membukanya lalu mendaftar otomatis dihitung untuk Anda.",
+    "invite_nav": "Undang"
   },
   "test_checkout": {
     "banner": "Pembayaran uji coba — tidak ada uang yang dipotong",
