@@ -1531,3 +1531,19 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Not tested here: the Java was not compiled or run on this machine (no Android tools here); the build on the server through GitHub is the first compile. Not tried on a phone.
 - The iPhone app has no such wait: it loads the site at once (read in `apple-apps/aykhidmah`, not changed).
 - AYK-338: Android 1.3.10 (20) built on the server and uploaded to the internal testing track through GitHub (run for 6b6a73e: success), so the changed launcher compiles. Not on the production track: that needs the owner's approval. Not tried on a phone.
+
+## 2026-11-20 — AYK-339: the home page by who entered; «دليلي» from the menu only
+- The owner: «دليلي يكون بالقائمة، لا داعي بنشر أسماء الدليل ولا «أرقام حفظتها بنفسي» آخر الصفحة… التركيز في الرئيسية على حسب الداخل».
+- Now:
+  - «دليلي» and «أرقام حفظتها بنفسي» are no longer on the home page; the directory opens from the menu and the bottom bar, with its names, the saved numbers and «إضافة رقم»;
+  - a requester: the request card, then the providers of their area;
+  - a provider only: their dashboard with the requests in their profession and area (as before);
+  - an account that is both: first the requests in their profession and area, then the request card, then the providers; under «كل المهن» the providers of the professions they asked for come first.
+- Browser check (local site, phone size):
+  - requester at `/`: request card → providers; no «دليلي», no saved numbers;
+  - provider only: lands on `/provider` with the requests list;
+  - both at `/`: requests in the profession and area → request card → providers; no «دليلي»;
+  - the directory page: the kept provider listed (requester), the saved-numbers part and «إضافة رقم» present;
+  - no page errors.
+- Client tests 166 pass; `i18n:check` 2625 keys; build and `check-deploy` 22 ok. Server not changed.
+- Not tested: the order under «كل المهن» with providers of several professions (the test data has one provider); a real phone.

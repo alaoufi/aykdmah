@@ -18,7 +18,7 @@ import { isPresent } from '../../components/common/AvailabilityBadge';
 
 // "My directory" (AYK-041): providers the requester kept, to contact again directly
 // without posting a request. Each contact is still recorded as a request.
-export default function DirectoryPage({ compact = false, hideIds = null }) {
+export default function DirectoryPage({ compact = false }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
   const navigate = useNavigate();
@@ -56,10 +56,7 @@ export default function DirectoryPage({ compact = false, hideIds = null }) {
   const remove = p => run(p.id, async () => { await saveToDirectory(p.id, false); setItems(rows => rows.filter(row => row.id !== p.id)); });
 
   if (items === null) return compact ? null : <LoadingState />;
-  // On the home page (AYK-335) a kept provider already listed above is not listed a second time
-  // here; the whole directory stays one tap away («عرض الكل»).
-  const hidden = new Set((compact && hideIds) || []);
-  const shown = compact ? items.filter(p => !hidden.has(Number(p.id))).slice(0, 4) : items;
+  const shown = compact ? items.slice(0, 4) : items;
   return (
     <section data-testid="my-directory" className={compact ? '' : 'container page'}>
       <div className="flex flex-wrap items-end justify-between gap-2 mb-3">

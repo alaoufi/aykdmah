@@ -60,7 +60,7 @@ export function AreaLine({ area, browsing, onPick }) {
 
 // On a request page (fixedArea + onContact) the list is that request's area and profession,
 // only providers working right now, each with a "Contact" button.
-export default function MatchingProviders({ categoryId: fixedCategory = '', serviceId = '', showChips = true, title, fixedArea = null, onContact = null, onShown = null }) {
+export default function MatchingProviders({ categoryId: fixedCategory = '', serviceId = '', showChips = true, title, fixedArea = null, onContact = null }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
   const [categories, setCategories] = useState([]);
@@ -101,15 +101,15 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
   const cityList = result?.city_providers || null;
   const nowInDistrict = (result?.providers || []).filter(isAvailable);
   const widened = !onContact && cityList !== null && nowInDistrict.length === 0;
-  const shown = !matching && !onContact ? (result?.providers || []) : onContact || cityList === null ? (result?.providers || []) : widened ? cityList.filter(isAvailable) : nowInDistrict;
-  // AYK-335 (the owner's screenshot): the same provider was on the page three times, as a card,
-  // again in the city box under it, and again in «دليلي». Each person is listed once: the city
-  // box leaves out those already shown as cards, and the page is told who is shown (onShown) so
-  // its «دليلي» part leaves them out too.
+  // «كل المهن» (AYK-339): the providers of the professions this person asked for come first; the
+  // server's own order (featured, then rating) is kept inside each group.
+  const asked = new Set((result?.requested_category_ids || []).map(Number));
+  const askedFirst = rows => (asked.size ? [...rows.filter(p => asked.has(Number(p.category_id))), ...rows.filter(p => !asked.has(Number(p.category_id)))] : rows);
+  const shown = !matching && !onContact ? askedFirst(result?.providers || []) : onContact || cityList === null ? (result?.providers || []) : widened ? cityList.filter(isAvailable) : nowInDistrict;
+  // AYK-335 (the owner's screenshot): the same provider was on the page as a card and again in
+  // the city box under it. The city box leaves out those already shown as cards.
   const cardIds = new Set(shown.map(p => Number(p.id)));
   const cityRest = (cityList || []).filter(p => !cardIds.has(Number(p.id)));
-  const shownKey = [...cardIds, ...cityRest.map(p => Number(p.id))].join(',');
-  useEffect(() => { if (onShown) onShown(shownKey ? shownKey.split(',').map(Number) : []); }, [shownKey]);
   const districtName = result?.area ? localizedName({ name_ar: result.area.district_name_ar, name_en: result.area.district_name_en }, lang) : '';
   const cityName = result?.area ? localizedName({ name_ar: result.area.city_name_ar, name_en: result.area.city_name_en }, lang) : '';
   return (
