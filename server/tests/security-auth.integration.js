@@ -445,6 +445,17 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
       const response = await fetch(base + '/visits', { method: 'POST', headers: { 'User-Agent': ua, ...(token ? { Authorization: `Bearer ${token}` } : {}), ...headers } });
       return (await response.json()).data;
     };
+    // AYK-350: every entry counts; «still here» reports do not; a second entry within a minute is one.
+    const enter = async (ua, entry) => {
+      const response = await fetch(base + '/visits', { method: 'POST', headers: { 'User-Agent': ua, 'Content-Type': 'application/json' }, body: JSON.stringify({ entry }) });
+      return (await response.json()).data;
+    };
+    const start = (await enter('Mozilla/5.0 Entry-A', false)).today;
+    assert.equal((await enter('Mozilla/5.0 Entry-A', true)).today, start + 1, 'an entry counts');
+    assert.equal((await enter('Mozilla/5.0 Entry-A', false)).today, start + 1, 'a still-here report does not');
+    assert.equal((await enter('Mozilla/5.0 Entry-A', true)).today, start + 1, 'again within a minute is the same entry');
+    assert.equal((await enter('Mozilla/5.0 Entry-B', true)).today, start + 2);
+    assert.equal((await enter('Googlebot/2.1', true)).today, start + 2, 'crawlers are not counted');
     const before = (await visit('Mozilla/5.0 Visitor-A')).today;
     assert.equal((await visit('Mozilla/5.0 Visitor-A')).today, before, 'the same visitor again is not counted');
     assert.equal((await visit('Mozilla/5.0 Visitor-B')).today, before + 1);

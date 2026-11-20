@@ -63,11 +63,30 @@ async function prune() {
   await query("DELETE FROM entity_views WHERE view_day < CURRENT_DATE - INTERVAL '1 day'").catch(() => {});
 }
 
-// Counts this visitor for today (once) and marks it online. Returns nothing.
-async function recordVisit(req) {
+// AYK-350 (the owner: «إذا دخل أكثر من مرة تُحسب كل مرة، لو تكرر دخوله 10 مرات تُضاف 10 زيارات»):
+// every entry to the site counts as a visit. The page says when it is an entry (once per opening of
+// the site or the app, not on every page or on the 2-minute "still here" reports); the same visitor
+// entering again within a minute is one entry (a reload loop does not inflate the counter).
+const ENTRY_GAP_MS = 60 * 1000;
+const lastEntry = new Map(); // viewer key -> last counted entry (ms)
+async function countEntry(key) {
+  const now = Date.now();
+  if (now - (lastEntry.get(key) || 0) < ENTRY_GAP_MS) return;
+  if (lastEntry.size >= 200000) lastEntry.clear();
+  lastEntry.set(key, now);
+  await query('INSERT INTO visit_days (day, visitors) VALUES (CURRENT_DATE, 1) ON CONFLICT (day) DO UPDATE SET visitors = visit_days.visitors + 1');
+}
+
+// Marks this visitor online; counts a visit for each entry (AYK-350), or, from an older page that
+// does not say so, once a day as before. Returns nothing.
+async function recordVisit(req, { entry } = {}) {
   if (isBot(req)) return;
   const key = viewerKey(req);
   markOnline(key);
+  if (entry !== undefined) {
+    if (entry) await countEntry(key);
+    return;
+  }
   // AYK-256: an open page reports every 2 minutes; once this copy of the server has counted the
   // visitor today, the later reports are answered from memory instead of asking the database again.
   const day = new Date().toISOString().slice(0, 10);

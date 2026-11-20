@@ -1646,3 +1646,10 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Client tests 167 pass; build and `check-deploy` 22 ok.
 - AYK-349 deployed with commit ead1974.
 - AYK-348 report (run for ead1974, 2026-11-20 12:50 UTC): Android (Firebase) key **yes**; iPhone (Apple APNs) key **NO**; web push key yes; phones registered: 4 iPhone, 17 Android (19 updated in the last 7 days); 10 browsers for web push; no sending failure logged in the last 3 hours. So Android apps receive notifications with the app closed; the iPhone app does not until the Apple key is on the server (`deploy/apns-setup.sh`, AYK-269).
+- AYK-349 deployed as 1.1.96 (build ead1974).
+
+## 2026-11-20 — AYK-350: every entry is a visit
+- The owner: «إذا دخل أكثر من مرة في كل مرة تُحسب مشاهدة (زائر)، لو تكرر دخوله 10 مرات تُضاف عشر زيارات».
+- Before: each visitor counted once a day. Now each entry to the site or the app counts: the page says it is an entry once per opening (a tab or an app session); moving between pages, reloading and the 2-minute «still here» reports do not count again. The same visitor entering again within one minute is one entry, so a reload loop cannot inflate the counter. Crawlers are still not counted. «Online now» unchanged. Earlier days keep the counts made the old way.
+- Integration test: an entry counts, a «still here» report does not, a second entry within a minute is one, another visitor counts, a crawler does not; the older once-a-day case still passes. Full integration 285 pass, 0 fail; server unit 86, client 167 pass; build and `check-deploy` 22 ok.
+- Browser check (local site): first opening sent `entry: true`, then another page and a reload sent only `entry: false`; a new tab sent `entry: true` again.

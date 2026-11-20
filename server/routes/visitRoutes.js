@@ -13,7 +13,9 @@ async function answer(req, res) {
 }
 
 router.post('/', optionalAuth, asyncHandler(async (req, res) => {
-  await visitors.recordVisit(req).catch(() => {});
+  // AYK-350: { entry: true } on opening the site, { entry: false } on the «still here» reports.
+  const entry = req.body && typeof req.body.entry === 'boolean' ? req.body.entry : undefined;
+  await visitors.recordVisit(req, { entry }).catch(() => {});
   return answer(req, res);
 }));
 router.get('/', optionalAuth, asyncHandler(async (req, res) => answer(req, res)));
