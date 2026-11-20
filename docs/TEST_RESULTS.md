@@ -1661,3 +1661,10 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Not done yet: the owner copies the file to the server and runs the script; then a release so the app reads it; then the server report must say «iPhone key: yes».
 - The owner ran `deploy/apns-setup.sh` on the server (2026-11-20): Apple's check answered «OK Apple accepts this key, key id and team id»; saved in `/opt/aykdmh/.env` (previous copy kept in `/root/backups/env-before-apns-20261120-143844`); the `.p8` copy on the server deleted. A release follows so the app reads it.
 - Released as 1.1.98 (build 89b1d89). Server report after it (run for bd7a8fe, 13:47 UTC): Android key yes, **iPhone key yes**, web push yes; 4 iPhones and 17 Android phones registered; no sending failure logged. Not yet seen: a notification arriving on a closed iPhone (the owner's test).
+
+## 2026-11-20 — AYK-351: short addresses for the apps
+- The owner: «أبي روابط مختصرة للتطبيقات مثل aykdmh.com/app و aykdmh.com/gl».
+- Now: `aykdmh.com/app` sends an iPhone to the App Store and an Android phone straight into the Play Store app (web page as fallback), and shows a computer a page with both stores; `aykdmh.com/gl` is Google Play and `aykdmh.com/ios` the App Store on any device. The store links come from the admin settings (only `play.google.com` / `apps.apple.com` addresses are followed); on a phone nothing of the site is drawn before leaving.
+- New client test (iPhone, Android, computer, the three addresses, a setting pointing elsewhere ignored): passes; client tests 168 pass; build and `check-deploy` 22 ok.
+- Browser check (local site): iPhone `/app` → `apps.apple.com/app/id6829494773`; Android `/app` → `intent://details?id=sa.aykdmh.app…`; computer `/app` → the page with both; computer `/gl` → Google Play; computer `/ios` → App Store; no page errors.
+- Not tried on a real phone; a link preview in WhatsApp for these addresses shows the site's usual preview.

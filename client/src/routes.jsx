@@ -29,6 +29,7 @@ const ProviderProfilePage = lazy(() => import('./pages/ProviderProfilePage'));
 const GuidePage = lazy(() => import('./pages/GuidePage'));
 const AdminGuidePage = lazy(() => import('./pages/admin/AdminGuidePage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+const AppLinksPage = lazy(() => import('./pages/AppLinksPage'));
 
 // AYK services catalog
 const ServicesCatalogPage = lazy(() => import('./pages/services/ServicesCatalogPage'));
@@ -272,6 +273,10 @@ export default function AppRoutes() {
           <Route path="/admin/marketing" element={<AdminMarketingPage />} />
         </Route>
 
+        {/* AYK-351: short addresses for the apps; phones leave for their store before this. */}
+        <Route path="/app" element={<AppLinksPage />} />
+        <Route path="/gl" element={<AppLinksPage />} />
+        <Route path="/ios" element={<AppLinksPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
       </ErrorBoundary>
