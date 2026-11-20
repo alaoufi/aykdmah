@@ -134,7 +134,8 @@ test('new onboarding rejects missing confirmation or incomplete location without
   for (const changes of [
     // AYK-360: an empty address and no confirmation tick are accepted now (tested below).
     { phone: null }, { address: {} },
-    { city_id: null, district_id: null }, { district_id: null }, { latitude: null, longitude: null },
+    // AYK-375: the map point is optional (the city and district are enough).
+    { city_id: null, district_id: null }, { district_id: null },
     { address: 'ع'.repeat(501) }, { region_id: 1 }, { city_id: 2147483648 },
   ]) {
     const username = identity();
@@ -232,7 +233,6 @@ test('failed or incomplete remembered requests leave both account and request ro
   const count = Number((await db.queryOne('SELECT COUNT(*) AS total FROM requests WHERE client_id = ?', [session.user.id])).total);
   const other = await location(88);
   for (const body of [
-    { city_id: other.city_id, district_id: other.district_id, address: other.address },
     { ...other, district_id: null },
     { ...other, title: 'ط'.repeat(201) }, { ...other, service_id: 2147483647 }, { ...other, budget_min: 20, budget_max: 10 },
   ]) {
@@ -271,8 +271,8 @@ test('complete profile updates cannot lose the address or point and explicit com
   const before = await accountLocation(session.user.id);
   const other = await location(88);
   for (const body of [
-    { address: 'عنوان جديد دون تأكيد النقطة' }, { city_id: other.city_id, district_id: other.district_id },
-    { latitude: null, longitude: null },
+    // AYK-375: a move without a point, a new address alone or clearing the point are all allowed now
+    // (the point is optional); what is still refused is tested in the AYK-375 test below.
   ]) {
     await api('/users/me', { token: session.token, method: 'PUT', expected: 400, body });
     assert.deepEqual(await accountLocation(session.user.id), before);
@@ -504,4 +504,16 @@ test('AYK-372: sign-in says whether the number is not registered or the password
   };
   assert.deepEqual(await answer('0599999991'), { status: 401, code: 'account_not_found' });
   assert.deepEqual(await answer(session.user.phone), { status: 401, code: 'wrong_password' });
+});
+
+test('AYK-375: the account location needs the city and district only; the map point is optional', async () => {
+  const session = await register();
+  const other = await location(88);
+  const saved = await api('/users/me', { token: session.token, method: 'PUT', body: { city_id: other.city_id, district_id: other.district_id, latitude: null, longitude: null, complete_profile: true } });
+  assert.equal(Number(saved.city_id), other.city_id); assert.equal(saved.latitude, null);
+  await api('/users/me', { token: session.token, method: 'PUT', expected: 400, body: { city_id: other.city_id, district_id: other.district_id, latitude: 25.9, longitude: null } });
+  const home = await location();
+  const username = identity();
+  await api('/auth/register', { method: 'POST', expected: 201, body: { full_name: 'تسجيل بلا نقطة', username, phone: phone(), password, role: 'client',
+    onboarding_version: 1, ...home, latitude: null, longitude: null } });
 });

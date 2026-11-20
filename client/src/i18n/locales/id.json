@@ -512,7 +512,13 @@
     "forgot_current_password": "Lupa kata sandi saat ini? Pulihkan dengan kode ke ponsel Anda",
     "change_password_save": "Simpan kata sandi baru",
     "password_changed_here": "Kata sandi diubah. Anda tetap masuk di perangkat ini; perangkat lain telah keluar.",
-    "account_type_admin": "Ini akun admin: akun ini meminta layanan dan mengelola platform, dan jenisnya tidak berubah. Untuk mencoba sebagai penyedia layanan, daftarkan akun lain dengan nomor ponsel berbeda."
+    "account_type_admin": "Ini akun admin: akun ini meminta layanan dan mengelola platform, dan jenisnya tidak berubah. Untuk mencoba sebagai penyedia layanan, daftarkan akun lain dengan nomor ponsel berbeda.",
+    "saved_toast": "Tersimpan",
+    "missing_title": "Lengkapi yang berikut",
+    "missing_region": "Pilih wilayah",
+    "missing_city": "Pilih kota",
+    "missing_district": "Pilih lingkungan",
+    "not_saved": "Tidak tersimpan"
   },
   "chat": {
     "title": "Pesan",
@@ -1506,7 +1512,7 @@
     "workflow_hint": "Setelah disetujui admin, halaman pembayaran akan muncul. Iklan dimulai setelah Anda membayar dan admin mengaktifkannya.",
     "my_ads": "Iklan saya",
     "no_ads": "Belum ada iklan",
-    "status_requested": "Sedang ditinjau",
+    "status_requested": "Menunggu persetujuan pengelola (belum ada pembayaran)",
     "status_approved": "Disetujui — menunggu pembayaran",
     "status_awaiting_payment": "Dibayar — menunggu aktivasi",
     "status_active": "Aktif",
@@ -1608,7 +1614,7 @@
     "workflow_hint": "Setelah permintaan dikirim: admin meninjau, lalu Anda membayar biaya, dan lencana langsung aktif.",
     "request_sent": "Permintaan terkirim. Anda akan diberi tahu setelah ditinjau.",
     "current_status": "Status saat ini",
-    "status_requested": "Sedang ditinjau",
+    "status_requested": "Menunggu persetujuan pengelola",
     "status_approved": "Disetujui — menunggu pembayaran",
     "status_awaiting_payment": "Menunggu pembayaran",
     "status_active": "Aktif",
@@ -2742,7 +2748,8 @@
     "cancel": "Batal",
     "delete": "Hapus",
     "required": "Kolom ini wajib diisi",
-    "min_length": "Tulis minimal {{count}} karakter"
+    "min_length": "Tulis minimal {{count}} karakter",
+    "done": "Selesai"
   },
   "join": {
     "title_request": "Minta layanan dalam satu menit",

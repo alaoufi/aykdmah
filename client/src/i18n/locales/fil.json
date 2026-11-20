@@ -512,7 +512,13 @@
     "forgot_current_password": "Nakalimutan ang kasalukuyang password? Bawiin ito gamit ang code sa iyong mobile",
     "change_password_save": "I-save ang bagong password",
     "password_changed_here": "Napalitan ang password. Naka-sign in ka pa rin sa device na ito; na-sign out ang ibang device.",
-    "account_type_admin": "Admin account ito: nagre-request ito ng serbisyo at namamahala sa platform, at hindi nagbabago ang uri nito. Para subukan bilang provider, mag-register ng ibang account gamit ang ibang mobile number."
+    "account_type_admin": "Admin account ito: nagre-request ito ng serbisyo at namamahala sa platform, at hindi nagbabago ang uri nito. Para subukan bilang provider, mag-register ng ibang account gamit ang ibang mobile number.",
+    "saved_toast": "Na-save",
+    "missing_title": "Pakikumpleto ang mga ito",
+    "missing_region": "Piliin ang rehiyon",
+    "missing_city": "Piliin ang lungsod",
+    "missing_district": "Piliin ang kapitbahayan",
+    "not_saved": "Hindi na-save"
   },
   "chat": {
     "title": "Mga Mensahe",
@@ -1506,7 +1512,7 @@
     "workflow_hint": "Kapag inaprubahan ng admin, lalabas ang page ng bayad. Magsisimula ang ad pagkatapos mong magbayad at i-activate ito ng admin.",
     "my_ads": "Aking mga ad",
     "no_ads": "Wala pang ad",
-    "status_requested": "Sinusuri",
+    "status_requested": "Hinihintay ang pag-apruba ng administrasyon (wala pang bayad)",
     "status_approved": "Aprubado — naghihintay ng bayad",
     "status_awaiting_payment": "Bayad na — naghihintay ng pag-activate",
     "status_active": "Aktibo",
@@ -1608,7 +1614,7 @@
     "workflow_hint": "Pagkatapos ipadala: susuriin ng admin → magbabayad ka → agad na maa-activate ang badge.",
     "request_sent": "Naipadala ang hiling. Aabisuhan ka pagkatapos ng pagsusuri.",
     "current_status": "Kasalukuyang status",
-    "status_requested": "Sinusuri",
+    "status_requested": "Hinihintay ang pag-apruba ng administrasyon",
     "status_approved": "Aprubado — naghihintay ng bayad",
     "status_awaiting_payment": "Naghihintay ng bayad",
     "status_active": "Aktibo",
@@ -2742,7 +2748,8 @@
     "cancel": "I-cancel",
     "delete": "I-delete",
     "required": "Kailangan ang field na ito",
-    "min_length": "Sumulat ng kahit {{count}} character"
+    "min_length": "Sumulat ng kahit {{count}} character",
+    "done": "Sige"
   },
   "join": {
     "title_request": "Mag-request ng serbisyo sa loob ng isang minuto",

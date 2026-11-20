@@ -512,7 +512,13 @@
     "forgot_current_password": "Mevcut şifrenizi mi unuttunuz? Telefonunuza gelen kodla kurtarın",
     "change_password_save": "Yeni şifreyi kaydet",
     "password_changed_here": "Şifre değiştirildi. Bu cihazda oturumunuz açık kaldı; diğer cihazlarda oturum kapandı.",
-    "account_type_admin": "Bu bir yönetici hesabı: hizmet ister ve platformu yönetir, türü değişmez. Hizmet veren olarak denemek için farklı bir telefon numarasıyla başka bir hesap açın."
+    "account_type_admin": "Bu bir yönetici hesabı: hizmet ister ve platformu yönetir, türü değişmez. Hizmet veren olarak denemek için farklı bir telefon numarasıyla başka bir hesap açın.",
+    "saved_toast": "Kaydedildi",
+    "missing_title": "Lütfen şunları tamamlayın",
+    "missing_region": "Bölgeyi seçin",
+    "missing_city": "Şehri seçin",
+    "missing_district": "Mahalleyi seçin",
+    "not_saved": "Kaydedilmedi"
   },
   "chat": {
     "title": "Sohbetler",
@@ -1506,7 +1512,7 @@
     "workflow_hint": "Yönetim onayladıktan sonra ödeme sayfası görünür. Reklam, ödemenizden ve yönetim tarafından etkinleştirilmesinden sonra başlar.",
     "my_ads": "Reklamlarım",
     "no_ads": "Henüz reklam yok",
-    "status_requested": "İnceleniyor",
+    "status_requested": "Yönetimin onayı bekleniyor (henüz ödeme yok)",
     "status_approved": "Onaylandı — ödeme bekleniyor",
     "status_awaiting_payment": "Ödendi — etkinleştirme bekleniyor",
     "status_active": "Aktif",
@@ -1608,7 +1614,7 @@
     "workflow_hint": "Talebi gönderdikten sonra: yönetim inceler, ardından ücreti ödersiniz ve rozet hemen etkinleşir.",
     "request_sent": "Talep gönderildi. İncelemeden sonra size bildirilecek.",
     "current_status": "Mevcut durum",
-    "status_requested": "İnceleniyor",
+    "status_requested": "Yönetimin onayı bekleniyor",
     "status_approved": "Onaylandı — ödeme bekleniyor",
     "status_awaiting_payment": "Ödeme bekleniyor",
     "status_active": "Aktif",
@@ -2742,7 +2748,8 @@
     "cancel": "İptal",
     "delete": "Sil",
     "required": "Bu alan zorunlu",
-    "min_length": "En az {{count}} karakter yazın"
+    "min_length": "En az {{count}} karakter yazın",
+    "done": "Tamam"
   },
   "join": {
     "title_request": "Hizmetinizi bir dakikada isteyin",

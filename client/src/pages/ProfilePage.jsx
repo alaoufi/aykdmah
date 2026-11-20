@@ -28,6 +28,8 @@ import AdSlot from '../components/ads/AdSlot';
 import AvatarPicker from '../components/profile/AvatarPicker';
 import AdminPanelLink from '../components/layout/AdminPanelLink';
 import ProblemNotice from '../components/common/ProblemNotice';
+import { showAlert } from '../components/common/AppDialog';
+import { flash } from '../components/common/Flash';
 
 const LOCATION_LEVELS = ['country_id', 'region_id', 'governorate_id', 'city_id', 'district_id'];
 const formFromUser = (user) => ({
@@ -213,24 +215,29 @@ export default function ProfilePage() {
     } finally { if (request === locationRequest.current) setLocating(false); }
   };
 
+  // AYK-375 (the owner: «ضغطت حفظ وكأني لم أعمل شيئًا، وفوق خالص لم يكتمل الإجراء. الصحيح رسالة منبثقة:
+  // تم الحفظ وتختفي، أو هناك نواقص وتذكر 1، 2، 3، تم»). Saved: a short message that goes by itself.
+  // Missing: one window listing each missing thing, numbered, with «تم». The map point is optional.
   const saveProfile = async (e) => {
     e.preventDefault();
     cancelLocation();
     setErr(''); setMsg('');
-    let validationError = '';
-    if ((locationEdited || dirtyScalarKeys.current.has('full_name')) && form.full_name.trim().length < 2) validationError = t('auth.account_name_required');
-    else if ((locationEdited || dirtyScalarKeys.current.has('phone')) && !/^\+?\d{8,15}$/.test(form.phone.trim().replace(/[\s()-]/g, ''))) validationError = t('auth.account_phone_required');
-    if (!validationError && locationEdited) {
-      // AYK-360: the address is optional and the point needs no extra confirmation tick.
-      if (countriesLoading || regionsLoading || citiesLoading || districtsLoading) validationError = t('common.loading');
-      else if (countriesError || regionsError || citiesError || districtsError) validationError = t('location.options_unavailable');
-      else if (!countries.some(row => Number(row.id) === Number(form.country_id)) ||
-          !regions.some(row => Number(row.id) === Number(form.region_id)) ||
-          !cities.some(row => Number(row.id) === Number(form.city_id)) ||
-          (districts.length > 0 && !districts.some(row => Number(row.id) === Number(form.district_id)))) validationError = t('auth.account_area_required');
-      else if (!hasPoint) validationError = t('auth.location_point_required');
+    const missing = [];
+    if ((locationEdited || dirtyScalarKeys.current.has('full_name')) && form.full_name.trim().length < 2) missing.push(t('auth.account_name_required'));
+    if ((locationEdited || dirtyScalarKeys.current.has('phone')) && !/^\+?\d{8,15}$/.test(form.phone.trim().replace(/[\s()-]/g, ''))) missing.push(t('auth.account_phone_required'));
+    if (locationEdited) {
+      if (countriesLoading || regionsLoading || citiesLoading || districtsLoading) missing.push(t('common.loading'));
+      else if (countriesError || regionsError || citiesError || districtsError) missing.push(t('location.options_unavailable'));
+      else {
+        if (!regions.some(row => Number(row.id) === Number(form.region_id))) missing.push(t('profile.missing_region'));
+        if (!cities.some(row => Number(row.id) === Number(form.city_id))) missing.push(t('profile.missing_city'));
+        else if (districts.length > 0 && !districts.some(row => Number(row.id) === Number(form.district_id))) missing.push(t('profile.missing_district'));
+      }
     }
-    if (validationError) { setErr(validationError); return; }
+    if (missing.length) {
+      showAlert({ title: t('profile.missing_title'), message: missing.map((item, i) => `${i + 1}. ${item}`).join('\n'), tone: 'danger', confirmText: t('dialog.done') });
+      return;
+    }
     const revision = formRevision.current;
     setSaving(true);
     try {
@@ -238,7 +245,7 @@ export default function ProfilePage() {
         ...Object.fromEntries([...dirtyScalarKeys.current].map(key => [key, form[key].trim()])),
         ...(locationEdited ? {
           ...Object.fromEntries(LOCATION_LEVELS.map(key => [key, form[key] || null])),
-          address: form.address.trim() || null, latitude: form.latitude, longitude: form.longitude,
+          address: form.address.trim() || null, latitude: hasPoint ? form.latitude : null, longitude: hasPoint ? form.longitude : null,
         } : {}),
         ...(requiresComplete ? { complete_profile: true, location_confirmed: true } : {}),
       });
@@ -251,8 +258,10 @@ export default function ProfilePage() {
         setPointConfirmed(isValidCoordinates(Number(saved?.latitude), Number(saved?.longitude)) && saved?.latitude != null && saved?.longitude != null);
       }
       await refresh();
-      setMsg(t('profile.update_profile'));
-    } catch (e2) { setErr(apiError(e2)); }
+      flash(`✅ ${t('profile.saved_toast')}`);
+    } catch (e2) {
+      showAlert({ title: t('profile.not_saved'), message: apiError(e2), tone: 'danger', confirmText: t('dialog.done') });
+    }
     finally { setSaving(false); }
   };
   const savePassword = async (e) => {
@@ -296,7 +305,7 @@ export default function ProfilePage() {
       <div className="card mb-4" id="my-area">
         {/* Add, change or remove the photo (AYK-161). */}
         <div className="mb-3"><AvatarPicker user={user} onChanged={refresh} /></div>
-        <form onSubmit={saveProfile} data-testid="profile-form">
+        <form noValidate onSubmit={saveProfile} data-testid="profile-form">
           <fieldset disabled={saving} className="min-w-0 border-0 p-0 m-0">
           {(countriesError || regionsError || governoratesError || citiesError || districtsError) && <div role="alert" className="form-error mb-3">{t('location.options_unavailable')}</div>}
           <Input id="profile-full_name" name="full_name" label={t('auth.full_name')} required minLength={2} maxLength={150}

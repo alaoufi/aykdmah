@@ -210,7 +210,9 @@ if (!databasePrefix) {
     await api('/users/me', { token, method: 'PUT', expected: 400, body: { region_id: 1, city_id: 9 } });
     // AYK-360: with the address optional this account is complete, so a move to another city
     // without its new point is refused instead of leaving the account without a point.
-    await api('/users/me', { token, method: 'PUT', expected: 400, body: { city_id: 16, district_id: unaizahDistrict.id } });
+    // AYK-375: the point is optional, so a move without one is saved (the old point is cleared).
+    const moved = await api('/users/me', { token, method: 'PUT', body: { city_id: 16, district_id: unaizahDistrict.id } });
+    assert.equal(moved.latitude, null);
     saved = await api('/users/me', { token, method: 'PUT', body: { city_id: 16, district_id: unaizahDistrict.id, latitude: 26.08, longitude: 43.99 } });
     assert.equal(Number(saved.region_id), 4);
     assert.equal(Number(saved.governorate_id), 47);
@@ -479,7 +481,8 @@ if (!databasePrefix) {
     assert.equal(session.user.referral_code, session.referral_code);
     const named = await simpleRegister({ role: 'client', full_name: 'سارة', city_id: area.city_id, district_id: area.district_id });
     assert.equal(named.user.full_name, 'سارة');
-    await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id, latitude: undefined, longitude: undefined }, 400);
+    // AYK-375: no point on the map is fine; the city and district are enough.
+    await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id, latitude: undefined, longitude: undefined });
     await simpleRegister({ role: 'client', full_name: 'س', city_id: area.city_id, district_id: area.district_id }, 400);
     await simpleRegister({ role: 'both', city_id: area.city_id, district_id: area.district_id }, 400);
   });
