@@ -256,7 +256,7 @@
     "admin_identifier": "Username or email",
     "admin_login_hint": "Sign in with your administrator account to open the dashboard.",
     "account_details_hint": "Complete your details once. Your saved address and location will be used for future requests, and you can edit them in your profile.",
-    "account_address_hint": "Street, building or villa number, and directions needed to find you.",
+    "account_address_hint": "Optional: Street, building or villa number, and directions needed to find you.",
     "account_address_required": "Enter your full address.",
     "account_phone_required": "Enter a valid contact phone number.",
     "account_name_required": "Enter your full name using at least two characters.",

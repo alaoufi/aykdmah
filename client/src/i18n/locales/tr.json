@@ -256,7 +256,7 @@
     "admin_identifier": "Kullanıcı adı veya e-posta",
     "admin_login_hint": "Kontrol panelini açmak için yönetici hesabıyla giriş yapın.",
     "account_details_hint": "Bilgilerinizi bir kez tamamlayın. Kayıtlı adresiniz ve konumunuz sonraki taleplerde kullanılır; bunları profilinizden düzenleyebilirsiniz.",
-    "account_address_hint": "Sokak, bina veya villa numarası ve size ulaşmayı kolaylaştıracak tarifler.",
+    "account_address_hint": "İsteğe bağlı: Sokak, bina veya villa numarası ve size ulaşmayı kolaylaştıracak tarifler.",
     "account_address_required": "Tam adresinizi girin.",
     "account_phone_required": "İletişim için geçerli bir telefon numarası girin.",
     "account_name_required": "En az iki harften oluşan ad soyadınızı girin.",

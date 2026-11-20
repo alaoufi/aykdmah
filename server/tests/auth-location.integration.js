@@ -208,15 +208,18 @@ if (!databasePrefix) {
     assert.equal(Number(saved.district_id), Number(district.id));
     await api('/users/me', { token, method: 'PUT', expected: 400, body: { city_id: 9, district_id: unaizahDistrict.id } });
     await api('/users/me', { token, method: 'PUT', expected: 400, body: { region_id: 1, city_id: 9 } });
-    saved = await api('/users/me', { token, method: 'PUT', body: { city_id: 16, district_id: unaizahDistrict.id } });
+    // AYK-360: with the address optional this account is complete, so a move to another city
+    // without its new point is refused instead of leaving the account without a point.
+    await api('/users/me', { token, method: 'PUT', expected: 400, body: { city_id: 16, district_id: unaizahDistrict.id } });
+    saved = await api('/users/me', { token, method: 'PUT', body: { city_id: 16, district_id: unaizahDistrict.id, latitude: 26.08, longitude: 43.99 } });
     assert.equal(Number(saved.region_id), 4);
     assert.equal(Number(saved.governorate_id), 47);
-    assert.equal(saved.latitude, null);
-    assert.equal(saved.longitude, null);
+    assert.equal(Number(saved.latitude), 26.08);
     const qibah = (await api('/cities?region_id=4')).find(city => city.name_ar === 'قبة');
-    saved = await api('/users/me', { token, method: 'PUT', body: { city_id: qibah.id } });
+    const [qibahDistrict] = await api(`/districts?city_id=${qibah.id}`);
+    saved = await api('/users/me', { token, method: 'PUT', body: { city_id: qibah.id, district_id: qibahDistrict?.id ?? null, latitude: 27.4, longitude: 44.33 } });
     assert.equal(saved.governorate_id, null);
-    assert.equal(saved.district_id, null);
+    assert.equal(saved.district_id == null ? null : Number(saved.district_id), qibahDistrict ? Number(qibahDistrict.id) : null);
     assert.equal(Number(saved.region_id), 4);
     assert.equal(Number(saved.country_id), 1);
     const other = await register({ phone: '0502222222' });

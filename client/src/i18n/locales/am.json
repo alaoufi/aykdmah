@@ -256,7 +256,7 @@
     "admin_identifier": "የተጠቃሚ ስም ወይም ኢሜይል",
     "admin_login_hint": "ዳሽቦርዱን ለመክፈት በአስተዳዳሪ መለያዎ ይግቡ።",
     "account_details_hint": "መረጃዎን አንድ ጊዜ ይሙሉ። የተቀመጠው አድራሻዎና ቦታዎ ለሚቀጥሉት ጥያቄዎች ይውላሉ፤ ከመገለጫዎም ማስተካከል ይችላሉ።",
-    "account_address_hint": "መንገድ፣ የሕንፃ ወይም የቪላ ቁጥር፣ እና እርስዎን ለማግኘት የሚረዱ አቅጣጫዎች።",
+    "account_address_hint": "አማራጭ፦ መንገድ፣ የሕንፃ ወይም የቪላ ቁጥር፣ እና እርስዎን ለማግኘት የሚረዱ አቅጣጫዎች።",
     "account_address_required": "ሙሉ አድራሻዎን ያስገቡ።",
     "account_phone_required": "ለመገናኛ የሚሆን ትክክለኛ የስልክ ቁጥር ያስገቡ።",
     "account_name_required": "ሙሉ ስምዎን ያስገቡ፤ ቢያንስ ሁለት ፊደል።",

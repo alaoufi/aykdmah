@@ -256,7 +256,7 @@
     "admin_identifier": "Nama pengguna atau email",
     "admin_login_hint": "Masuk dengan akun administrator Anda untuk membuka dasbor.",
     "account_details_hint": "Lengkapi data Anda sekali saja. Alamat dan lokasi yang Anda simpan akan dipakai untuk permintaan berikutnya, dan Anda bisa mengubahnya di profil Anda.",
-    "account_address_hint": "Jalan, nomor gedung atau vila, dan petunjuk untuk menemukan Anda.",
+    "account_address_hint": "Opsional: Jalan, nomor gedung atau vila, dan petunjuk untuk menemukan Anda.",
     "account_address_required": "Masukkan alamat lengkap Anda.",
     "account_phone_required": "Masukkan nomor telepon kontak yang valid.",
     "account_name_required": "Tulis nama lengkap Anda, minimal dua huruf.",

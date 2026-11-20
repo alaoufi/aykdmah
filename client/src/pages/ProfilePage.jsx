@@ -56,7 +56,7 @@ export default function ProfilePage() {
   const [entryUser, setEntryUser] = useState(user);
   const [completeOnEntry, setCompleteOnEntry] = useState(false);
   const [locationEdited, setLocationEdited] = useState(false);
-  const [pointConfirmed, setPointConfirmed] = useState(() => isValidCoordinates(Number(user?.latitude), Number(user?.longitude)) && user?.latitude != null && user?.longitude != null);
+  const [, setPointConfirmed] = useState(() => isValidCoordinates(Number(user?.latitude), Number(user?.longitude)) && user?.latitude != null && user?.longitude != null);
   const dirty = useRef(false);
   const dirtyScalarKeys = useRef(new Set());
   const entryCompleteResolved = useRef(false);
@@ -221,15 +221,14 @@ export default function ProfilePage() {
     if ((locationEdited || dirtyScalarKeys.current.has('full_name')) && form.full_name.trim().length < 2) validationError = t('auth.account_name_required');
     else if ((locationEdited || dirtyScalarKeys.current.has('phone')) && !/^\+?\d{8,15}$/.test(form.phone.trim().replace(/[\s()-]/g, ''))) validationError = t('auth.account_phone_required');
     if (!validationError && locationEdited) {
-      if (form.address.trim().length < 5) validationError = t('auth.account_address_required');
-      else if (countriesLoading || regionsLoading || citiesLoading || districtsLoading) validationError = t('common.loading');
+      // AYK-360: the address is optional and the point needs no extra confirmation tick.
+      if (countriesLoading || regionsLoading || citiesLoading || districtsLoading) validationError = t('common.loading');
       else if (countriesError || regionsError || citiesError || districtsError) validationError = t('location.options_unavailable');
       else if (!countries.some(row => Number(row.id) === Number(form.country_id)) ||
           !regions.some(row => Number(row.id) === Number(form.region_id)) ||
           !cities.some(row => Number(row.id) === Number(form.city_id)) ||
           (districts.length > 0 && !districts.some(row => Number(row.id) === Number(form.district_id)))) validationError = t('auth.account_area_required');
       else if (!hasPoint) validationError = t('auth.location_point_required');
-      else if (!pointConfirmed) validationError = t('auth.location_confirmation_required');
     }
     if (validationError) { setErr(validationError); return; }
     const revision = formRevision.current;
@@ -241,7 +240,7 @@ export default function ProfilePage() {
           ...Object.fromEntries(LOCATION_LEVELS.map(key => [key, form[key] || null])),
           address: form.address.trim() || null, latitude: form.latitude, longitude: form.longitude,
         } : {}),
-        ...(requiresComplete ? { complete_profile: true, location_confirmed: pointConfirmed } : {}),
+        ...(requiresComplete ? { complete_profile: true, location_confirmed: true } : {}),
       });
       if (revision === formRevision.current) {
         setForm(formFromUser(saved));
@@ -312,7 +311,7 @@ export default function ProfilePage() {
             {selectLevel('district_id', districts, districtsLoading, !form.city_id, districtsError)}
           </div>
           <Input id="profile-address" name="address" label={t('location.address')} as="textarea" rows={3}
-            required={locationEdited} minLength={locationEdited ? 5 : undefined} maxLength={500} autoComplete="street-address" value={form.address}
+            maxLength={500} autoComplete="street-address" value={form.address}
             onChange={e => updateField('address', e.target.value)} hint={t('auth.account_address_hint')} />
           <div className="flex gap-2 flex-wrap mb-3">
             <Button type="button" variant="ghost" data-testid="profile-use-location" onClick={useMyLocation} loading={locating}>{t('auth.use_my_location')}</Button>
@@ -321,11 +320,6 @@ export default function ProfilePage() {
           </div>
           {hasPoint && <div className="text-sm text-muted mb-3" data-testid="profile-coordinates" dir="ltr">{form.latitude.toFixed(6)}, {form.longitude.toFixed(6)}</div>}
           {locationMsg && <div role="status" className="text-sm text-muted mb-3">{locationMsg}</div>}
-          {requiresComplete && <label className="flex items-start gap-2 text-sm mb-3">
-            <input id="profile-location-confirmation" name="location_confirmed" type="checkbox" checked={pointConfirmed}
-              disabled={!hasPoint || locating} onChange={e => setPointConfirmed(e.target.checked)} className="mt-1 w-4 h-4 accent-primary shrink-0" />
-            <span>{t('auth.location_confirmation')}</span>
-          </label>}
           <p className="text-xs text-muted mb-3">{t('profile.saved_location_hint')}</p>
           {user?.role === 'provider' && <p className="text-xs text-muted mb-3">{t('profile.private_account_address')}</p>}
           <Button type="submit" data-testid="profile-submit" variant="primary" loading={saving} disabled={locating}>{t('common.save')}</Button>

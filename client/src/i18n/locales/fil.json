@@ -256,7 +256,7 @@
     "admin_identifier": "Username o email",
     "admin_login_hint": "Mag-sign in gamit ang admin account para buksan ang dashboard.",
     "account_details_hint": "Kumpletuhin ang iyong detalye nang isang beses. Gagamitin ang naka-save mong address at lokasyon sa mga susunod na kahilingan, at mae-edit mo ang mga ito sa iyong profile.",
-    "account_address_hint": "Kalye, numero ng gusali o villa, at anumang direksyon para madali kang mahanap.",
+    "account_address_hint": "Opsyonal: Kalye, numero ng gusali o villa, at anumang direksyon para madali kang mahanap.",
     "account_address_required": "Ilagay ang buo mong address.",
     "account_phone_required": "Maglagay ng tamang mobile number para makontak ka.",
     "account_name_required": "Ilagay ang buo mong pangalan, kahit dalawang letra man lang.",

@@ -38,7 +38,10 @@ function locationChanged(location, existing = {}) {
 // A saved point must be supplied by the customer, and optional districts are
 // required only when the selected city actually has active neighbourhoods.
 async function requireCompleteLocation(location, message = 'account_location_required', database = {}) {
-  if (!locationId(location.city_id, message) || !accountAddress(location.address, message) ||
+  // AYK-360 (the owner: «العنوان اختياري، وتأكيد العنوان ليس ضروريًا، أريد تسهيل التسجيل والطلب»):
+  // the written address is optional; when given it is still checked.
+  accountAddress(location.address, message);
+  if (!locationId(location.city_id, message) ||
       [location.latitude, location.longitude].some(empty) ||
       ![location.latitude, location.longitude].every(value => ['number', 'string'].includes(typeof value) && Number.isFinite(Number(value))) ||
       Math.abs(Number(location.latitude)) > 90 || Math.abs(Number(location.longitude)) > 180) throw new ApiError(message, 400);
@@ -49,9 +52,10 @@ async function requireCompleteLocation(location, message = 'account_location_req
 }
 
 async function requireCompleteAccountProfile(user, message = 'account_profile_required', { confirmed = false } = {}) {
+  // AYK-360: ticking «أؤكد أن هذه النقطة…» is no longer asked; the point itself still is.
+  void confirmed;
   if (typeof user.full_name !== 'string' || user.full_name.trim().length < 2 || user.full_name.length > 150 ||
-      typeof user.phone !== 'string' || !/^\+?\d{8,15}$/.test(user.phone.replace(/[\s()-]/g, '')) ||
-      (confirmed && user.location_confirmed !== true && user.location_confirmed !== 'true')) throw new ApiError(message, 400);
+      typeof user.phone !== 'string' || !/^\+?\d{8,15}$/.test(user.phone.replace(/[\s()-]/g, ''))) throw new ApiError(message, 400);
   await requireCompleteLocation(user, message);
 }
 

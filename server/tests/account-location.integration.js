@@ -132,7 +132,8 @@ test('complete signup saves each role’s private address and actual point throu
 test('new onboarding rejects missing confirmation or incomplete location without creating accounts', async () => {
   const home = await location();
   for (const changes of [
-    { location_confirmed: false }, { phone: null }, { address: '' }, { address: {} },
+    // AYK-360: an empty address and no confirmation tick are accepted now (tested below).
+    { phone: null }, { address: {} },
     { city_id: null, district_id: null }, { district_id: null }, { latitude: null, longitude: null },
     { address: 'ع'.repeat(501) }, { region_id: 1 }, { city_id: 2147483648 },
   ]) {
@@ -142,6 +143,18 @@ test('new onboarding rejects missing confirmation or incomplete location without
       onboarding_version: 1, location_confirmed: true, ...home, ...changes,
     } });
     assert.equal(await db.queryOne('SELECT id FROM users WHERE username = ?', [username]), null);
+  }
+});
+
+test('AYK-360: sign-up needs no written address and no confirmation tick', async () => {
+  const home = await location();
+  for (const changes of [{ address: '' }, { location_confirmed: false }]) {
+    const username = identity();
+    await api('/auth/register', { method: 'POST', expected: 201, body: {
+      full_name: 'تسجيل بلا عنوان', username, phone: phone(), password, role: 'client',
+      onboarding_version: 1, location_confirmed: true, ...home, ...changes,
+    } });
+    assert.ok(await db.queryOne('SELECT id FROM users WHERE username = ?', [username]));
   }
 });
 
@@ -220,7 +233,7 @@ test('failed or incomplete remembered requests leave both account and request ro
   const other = await location(88);
   for (const body of [
     { city_id: other.city_id, district_id: other.district_id, address: other.address },
-    { ...other, district_id: null }, { ...other, address: '' },
+    { ...other, district_id: null },
     { ...other, title: 'ط'.repeat(201) }, { ...other, service_id: 2147483647 }, { ...other, budget_min: 20, budget_max: 10 },
   ]) {
     await createRequest(session.token, { ...body, remember_location: true }, 422);
@@ -259,7 +272,7 @@ test('complete profile updates cannot lose the address or point and explicit com
   const other = await location(88);
   for (const body of [
     { address: 'عنوان جديد دون تأكيد النقطة' }, { city_id: other.city_id, district_id: other.district_id },
-    { latitude: null, longitude: null }, { ...other, complete_profile: true, location_confirmed: false },
+    { latitude: null, longitude: null },
   ]) {
     await api('/users/me', { token: session.token, method: 'PUT', expected: 400, body });
     assert.deepEqual(await accountLocation(session.user.id), before);
@@ -269,6 +282,10 @@ test('complete profile updates cannot lose the address or point and explicit com
   } });
   assert.equal(saved.address, other.address);
   assert.equal(Number(saved.latitude), other.latitude);
+  // AYK-360: the address may be cleared and completion needs no confirmation tick.
+  const blank = await api('/users/me', { token: session.token, method: 'PUT', body: { ...other, address: '', complete_profile: true, location_confirmed: false } });
+  assert.equal(blank.address || null, null);
+  await api('/users/me', { token: session.token, method: 'PUT', body: { address: other.address, latitude: other.latitude, longitude: other.longitude } });
   await api('/users/me', { token: session.token, method: 'PUT', body: { full_name: 'اسم بعد التعديل فقط' } });
   assert.equal((await api('/auth/me', { token: session.token })).user.address, other.address);
 });
