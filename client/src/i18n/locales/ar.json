@@ -425,7 +425,7 @@
   "status": {
     "request": {
       "open": "مفتوح",
-      "assigned": "تم التعيين",
+      "assigned": "تم اختيار مقدم خدمة",
       "in_progress": "قيد التنفيذ",
       "completed": "مكتمل",
       "cancelled": "ملغى",
@@ -1039,7 +1039,7 @@
     "confirm_block_body": "هل أنت متأكد من حظر {{name}}؟",
     "confirm_action": "تأكيد",
     "request_actions": "إجراءات الطلب",
-    "assign_request": "تعيين مقدم خدمة",
+    "assign_request": "اختيار مقدم خدمة للطلب",
     "cancel_request": "إلغاء الطلب",
     "select_provider": "اختر مقدم الخدمة",
     "filter_urgent": "العاجلة فقط",

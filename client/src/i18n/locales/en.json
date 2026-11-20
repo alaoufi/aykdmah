@@ -425,7 +425,7 @@
   "status": {
     "request": {
       "open": "Open",
-      "assigned": "Assigned",
+      "assigned": "Provider chosen",
       "in_progress": "In progress",
       "completed": "Completed",
       "cancelled": "Cancelled",

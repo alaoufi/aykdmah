@@ -425,7 +425,7 @@
   "status": {
     "request": {
       "open": "খোলা",
-      "assigned": "নিযুক্ত",
+      "assigned": "সেবা প্রদানকারী বাছাই হয়েছে",
       "in_progress": "চলমান",
       "completed": "সম্পন্ন",
       "cancelled": "বাতিল",

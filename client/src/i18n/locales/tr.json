@@ -425,7 +425,7 @@
   "status": {
     "request": {
       "open": "Açık",
-      "assigned": "Atandı",
+      "assigned": "Hizmet veren seçildi",
       "in_progress": "Devam ediyor",
       "completed": "Tamamlandı",
       "cancelled": "İptal edildi",

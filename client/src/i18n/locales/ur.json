@@ -425,7 +425,7 @@
   "status": {
     "request": {
       "open": "کھلا",
-      "assigned": "سونپی گئی",
+      "assigned": "سروس فراہم کنندہ منتخب ہو گیا",
       "in_progress": "جاری",
       "completed": "مکمل",
       "cancelled": "منسوخ",

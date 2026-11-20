@@ -425,7 +425,7 @@
   "status": {
     "request": {
       "open": "खुला",
-      "assigned": "सौंपा गया",
+      "assigned": "सेवा प्रदाता चुना गया",
       "in_progress": "काम चल रहा है",
       "completed": "पूरा",
       "cancelled": "रद्द",

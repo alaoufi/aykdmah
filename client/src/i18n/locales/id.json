@@ -425,7 +425,7 @@
   "status": {
     "request": {
       "open": "Terbuka",
-      "assigned": "Ditugaskan",
+      "assigned": "Penyedia jasa sudah dipilih",
       "in_progress": "Dalam proses",
       "completed": "Selesai",
       "cancelled": "Dibatalkan",

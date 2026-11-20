@@ -425,7 +425,7 @@
   "status": {
     "request": {
       "open": "Bukas",
-      "assigned": "Naitalaga",
+      "assigned": "Napili na ang provider",
       "in_progress": "Ginagawa",
       "completed": "Tapos na",
       "cancelled": "Na-cancel",

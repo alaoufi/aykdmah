@@ -425,7 +425,7 @@
   "status": {
     "request": {
       "open": "ክፍት",
-      "assigned": "ተመድቧል",
+      "assigned": "አገልግሎት ሰጪ ተመርጧል",
       "in_progress": "በሂደት ላይ",
       "completed": "ተጠናቅቋል",
       "cancelled": "ተሰርዟል",

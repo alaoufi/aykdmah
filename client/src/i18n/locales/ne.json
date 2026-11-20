@@ -425,7 +425,7 @@
   "status": {
     "request": {
       "open": "खुला",
-      "assigned": "तोकिएको",
+      "assigned": "सेवा प्रदायक छानिएको",
       "in_progress": "काम भइरहेको",
       "completed": "पूरा भयो",
       "cancelled": "रद्द गरियो",
