@@ -2513,7 +2513,7 @@
     "requesters_note": "Jumlah pencari layanan yang terdaftar di lingkungan yang Anda layani. Nama mereka tidak ditampilkan demi privasi, dan permintaan mereka langsung sampai ke Anda di «Permintaan profesi saya» begitu dipasang."
   },
   "work": {
-    "title": "Pekerjaan saya",
+    "title": "Pengaturan kerja saya",
     "hint": "Inilah yang dilihat pencari layanan tentang Anda: profesi, lingkungan yang Anda layani, dan jam kerja. Anda otomatis tampil bagi mereka selama Anda tersedia.",
     "professions": "Profesi saya",
     "no_professions": "Belum ada profesi yang dipilih",
@@ -2538,7 +2538,7 @@
     "resume_in_profile": "Aktifkan lagi dari Profil saya",
     "my_contacts_title": "Permintaan yang sudah Anda hubungi",
     "assigned_to_you": "Ditugaskan kepada Anda: buka untuk menyelesaikan atau mundur",
-    "tasks_title": "Tugas kerja saya",
+    "tasks_title": "Pekerjaan saya",
     "tasks_hint": "Permintaan yang Anda hubungi atau ditugaskan kepada Anda. «Pekerjaan aktif saya» membutuhkan Anda sekarang; «Arsip pekerjaan saya» menyimpan yang selesai atau dibatalkan.",
     "task_waiting": "Menunggu balasan pemilik permintaan",
     "professions_areas": "Profesi & wilayah saya"

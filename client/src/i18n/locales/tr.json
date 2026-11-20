@@ -2513,7 +2513,7 @@
     "requesters_note": "Hizmet verdiğiniz mahallelerde kayıtlı müşteri sayısı. Gizlilikleri için adlarını göstermeyiz; talepleri yayınlanır yayınlanmaz «Mesleğimin talepleri» bölümüne gelir."
   },
   "work": {
-    "title": "İşim",
+    "title": "İş ayarlarım",
     "hint": "Müşteriler sizinle ilgili bunu görür: meslekleriniz, hizmet verdiğiniz mahalleler ve çalışma saatleriniz. Müsait olduğunuz sürece onlara otomatik görünürsünüz.",
     "professions": "Mesleklerim",
     "no_professions": "Henüz meslek seçmediniz",
@@ -2538,7 +2538,7 @@
     "resume_in_profile": "Profilimden devam et",
     "my_contacts_title": "İletişime geçtiğiniz talepler",
     "assigned_to_you": "Size atandı: bitirmek ya da çekilmek için açın",
-    "tasks_title": "Mesleki işlerim",
+    "tasks_title": "İşlerim",
     "tasks_hint": "İletişime geçtiğiniz veya size atanan talepler. «Aktif işlerim» şimdi sizi bekliyor; «İş arşivim» biten ya da iptal edilenleri tutar.",
     "task_waiting": "Talep sahibinin yanıtı bekleniyor",
     "professions_areas": "Mesleklerim ve bölgelerim"

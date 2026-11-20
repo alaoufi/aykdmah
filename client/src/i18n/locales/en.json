@@ -2513,7 +2513,7 @@
     "requesters_note": "Clients registered in the neighborhoods you cover. Their names are not shown, for their privacy; their requests reach you in “Jobs for me” as soon as they are posted."
   },
   "work": {
-    "title": "My work",
+    "title": "My work settings",
     "hint": "This is what clients see about you: your professions, the neighborhoods you cover and your working hours. You appear to them automatically while you are available.",
     "professions": "My professions",
     "no_professions": "No profession chosen yet",
@@ -2538,7 +2538,7 @@
     "resume_in_profile": "Resume in My Profile",
     "my_contacts_title": "Requests you contacted",
     "assigned_to_you": "Assigned to you: open it to finish or withdraw",
-    "tasks_title": "My professional tasks",
+    "tasks_title": "My jobs",
     "tasks_hint": "Requests you contacted or were assigned. “My active jobs” need you now; “My jobs archive” keeps what ended or was cancelled.",
     "task_waiting": "Waiting for the requester",
     "professions_areas": "My professions & areas"

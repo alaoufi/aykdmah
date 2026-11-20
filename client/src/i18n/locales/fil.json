@@ -2513,7 +2513,7 @@
     "requesters_note": "Bilang ng mga kliyenteng naka-register sa mga distritong sakop mo. Hindi namin ipinapakita ang kanilang pangalan para sa kanilang privacy, at darating sa iyo ang kanilang kahilingan sa «Mga trabaho para sa akin» kapag na-post nila ito."
   },
   "work": {
-    "title": "Trabaho ko",
+    "title": "Mga setting ng trabaho ko",
     "hint": "Ito ang nakikita ng mga kliyente tungkol sa iyo: ang iyong mga trabaho, mga distritong sakop mo at oras ng trabaho mo. Awtomatiko kang lumalabas sa kanila habang available ka.",
     "professions": "Aking mga trabaho",
     "no_professions": "Wala ka pang napiling trabaho",
@@ -2538,7 +2538,7 @@
     "resume_in_profile": "Ituloy sa aking profile",
     "my_contacts_title": "Mga kahilingang kinontak mo",
     "assigned_to_you": "Nakatalaga sa iyo: buksan para tapusin o umatras",
-    "tasks_title": "Aking mga gawain sa trabaho",
+    "tasks_title": "Mga trabaho ko",
     "tasks_hint": "Mga request na kinontak mo o itinalaga sa iyo. Kailangan ka ngayon ng «Mga aktibo kong trabaho»; nasa «Archive ng mga trabaho ko» ang natapos o kinansela.",
     "task_waiting": "Naghihintay ng sagot ng may-ari ng kahilingan",
     "professions_areas": "Aking mga trabaho at lugar"
