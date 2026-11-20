@@ -1506,3 +1506,13 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - The guide still described the coupon as for providers only with a percentage only, and said nothing of the green and red circles nor of the rating. Updated in the 11 languages: the coupon is for every account; the three ways of commission and that the administrators may stop it; «الدائرة الخضراء والحمراء» (really connected, not the schedule alone); «كيف أقيّم مقدم الخدمة؟» (one to five stars and an opinion, published at once, seen by everyone).
 - `i18n:check`: 11 locales share 2625 keys. Client tests 166 pass; build and `check-deploy` 22 ok.
 - Not checked by a native speaker of each language; the terms follow each language's existing texts.
+
+## 2026-11-20 — AYK-337: search engines, every profession and its words
+- The owner: «نشره على قوقل والمتصفحات الأخرى بكل الكلمات الموجودة هنا والتخصصات».
+- Already on the live site: a sitemap of 1030 pages named in `robots.txt` (the 8 professions, 104 services, and every profession in every city with its neighbourhoods), each with its own title, description and readable text.
+- Added:
+  - every page now carries its own search words (the profession as people write it, its other phrasings, its services, its city and neighbourhoods) instead of one fixed list on all pages. Checked locally on `/`, `/services`, a profession, a service and a profession-in-a-city page;
+  - IndexNow: a public key file at the site's root and `scripts/indexnow.js`, which sends every sitemap page to Bing (and through it DuckDuckGo and Yahoo), Yandex, Naver and Seznam.
+- Server unit tests 86 pass. Integration: the first full run had 4 failures in the wallet tests (not touched by this change); the second full run, unchanged, passed 277 of 277. The cause of the first run's failures was not found; the browser measurements were running on the same machine at the time.
+- `check-deploy` 22 ok.
+- Not done here, the owner's own step: Google takes no IndexNow. The site must be added in Google Search Console (and Bing Webmaster Tools) with the owner's account; the ownership code goes in the admin settings (`google_site_verification`, `bing_site_verification`), then the sitemap is submitted there.
