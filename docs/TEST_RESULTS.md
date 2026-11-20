@@ -1619,3 +1619,11 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - New client test (Arabic, Urdu, English, no icon): passes; client tests 167 pass; build and `check-deploy` 22 ok.
 - Not tried on the owner's phone.
 - Seen while checking: the English machine translation of «بنشر» came out as «Oil diffusion and change» (the word was taken for «spreading»); the other languages are likely as wrong. Left for the owner to decide (rename in Arabic so it translates well, or correct by hand).
+- AYK-345 deployed as 1.1.92 (build 7fe98bc).
+
+## 2026-11-20 — AYK-346: an administration member landed on the guide and «رجوع» went nowhere
+- The owner's screenshot: a member of the administration opened «لوحة الإدارة» and got the illustrated guide, empty, and «رجوع» did not leave it.
+- Cause: the control home needed the figures permission (`dashboard.view`); without it `/admin` sent the member to their first section, or to the guide when they had none, and «رجوع» from there went back to `/admin`, which sent them to the guide again.
+- Now `/admin` opens for every member: with the figures permission, the figures as before; without it, a page of the sections this member may open, one tap each, and the guide; with no section granted yet, a note to ask the site's manager. «رجوع» from any admin page ends there. «العودة للموقع» is now at the top of the admin menu (it was at the bottom, as «الرئيسية»).
+- Browser check (local site, phone size): a member with users only: `/admin` shows «المستخدمون», «رسائل المستخدمين», «دليل الإدارة المصور»; a member with nothing: the note; the full administrator: the figures; for all three, guide → «رجوع» → `/admin`, and the menu starts with «🏠 العودة للموقع»; no page errors. The two test members were removed from the local database afterwards.
+- Client tests 167 pass; build and `check-deploy` 22 ok.

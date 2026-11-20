@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet, NavLink, Link, Navigate, useNavigate, useLocation } from 'react-router-dom';
+import { Outlet, NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 import Avatar from '../components/common/Avatar';
@@ -10,73 +10,7 @@ import { IconMenu, IconClose, IconBell } from '../components/common/Icons';
 import { useNotifications } from '../hooks/useNotifications';
 import { AdminBackProvider, AdminBackButton } from '../components/admin/AdminBackNavigation';
 
-// Each item declares the permission its admin section needs. The sidebar
-// hides items the current admin can't reach (super admin sees them all).
-const NAV_GROUPS = [
-  {
-    label: 'admin.overview',
-    items: [
-      { to: '/admin', icon: '📊', labelKey: 'admin.dashboard', end: true, perm: 'dashboard.view' },
-      { to: '/admin/marketing', icon: '📈', labelKey: 'marketing.title', perm: 'dashboard.view' },
-      { to: '/admin/guide', icon: '📖', labelKey: 'help.admin_book_title', perm: null },
-    ],
-  },
-  {
-    // AYK-271 (the owner's request): one "Reports" section near the top for every report, today
-    // security, backups and the activity log; a future report is one more line here.
-    label: 'admin.reports_group',
-    items: [
-      { to: '/admin/security', icon: '🛡️', labelKey: 'admin.security_report', perm: 'activity_logs.view' },
-      { to: '/admin/reports/backups', icon: '🗄️', labelKey: 'admin.backups_report', perm: 'activity_logs.view' },
-      { to: '/admin/activity-logs', icon: '📜', labelKey: 'admin.activity_logs',  perm: 'activity_logs.view' },
-    ],
-  },
-  {
-    label: 'admin.users',
-    items: [
-      { to: '/admin/users',         icon: '👥', labelKey: 'admin.users',           perm: 'users.manage' },
-      { to: '/admin/countries',     icon: '🌍', labelKey: 'admin.countries',       perm: 'countries.manage' },
-      { to: '/admin/locations',     icon: '🗺️', labelKey: 'admin.locations',       perm: 'locations.manage' },
-      { to: '/admin/verifications', icon: '🛡️', labelKey: 'admin.verifications',   perm: 'verifications.review' },
-    ],
-  },
-  {
-    label: 'admin.requests',
-    items: [
-      { to: '/admin/requests',      icon: '📋', labelKey: 'admin.requests',              perm: 'requests.manage' },
-      { to: '/admin/support', icon: '📨', labelKey: 'support.admin_title', perm: 'users.manage' },
-      { to: '/admin/conversations', icon: '💬', labelKey: 'admin.conversations_monitor', perm: 'conversations.read' },
-      { to: '/admin/calls', icon: '📞', labelKey: 'calls.admin.title', perm: 'conversations.read' },
-      { to: '/admin/wallets', icon: '💰', labelKey: 'wallet.admin.title', perm: 'wallets.manage' },
-      { to: '/admin/reviews',       icon: '⭐', labelKey: 'admin.reviews',               perm: 'reviews.manage' },
-      { to: '/admin/disputes',      icon: '⚖️', labelKey: 'dispute.admin_title',         perm: 'disputes.manage' },
-    ],
-  },
-  {
-    label: 'admin.services',
-    items: [
-      { to: '/admin/categories', icon: '🗂️', labelKey: 'admin.categories', perm: 'categories.manage' },
-      { to: '/admin/services',   icon: '🛠️', labelKey: 'admin.services',   perm: 'services.manage' },
-      { to: '/admin/plans',      icon: '💎', labelKey: 'admin.plans',      perm: 'plans.manage' },
-      { to: '/admin/badges',     icon: '🛡️', labelKey: 'admin.badges',     perm: 'badges.manage' },
-    ],
-  },
-  {
-    label: 'admin.ads',
-    items: [
-      { to: '/admin/ads',           icon: '📣', labelKey: 'admin.ads',            perm: 'ads.manage' },
-    ],
-  },
-  {
-    label: 'admin.settings',
-    items: [
-      { to: '/admin/integrations', icon: '🔌', labelKey: 'admin.integrations', perm: 'integrations.manage' },
-      { to: '/admin/settings',     icon: '⚙️', labelKey: 'admin.settings',     perm: 'settings.manage' },
-      { to: '/admin/texts',        icon: '🔤', labelKey: 'admin.texts.title',  perm: 'texts.manage' },
-      { to: '/admin/form-fields',  icon: '🧩', labelKey: 'admin.form_fields.title', perm: 'settings.manage' },
-    ],
-  },
-];
+import { NAV_GROUPS } from './adminNav';
 
 // The menu item a page belongs to (its longest matching address), or null for pages outside the menu.
 export function findCurrentItem(pathname) {
@@ -152,6 +86,11 @@ function AdminLayoutFrame() {
             {t('brand.your_number')}: <b dir="ltr" className="tracking-wider text-[16px]">{user.referral_code}</b>
           </div>
         )}
+        {/* AYK-346 (the owner): «العودة للموقع» at the top of the menu. */}
+        <Link to="/" onClick={() => setOpen(false)} data-testid="admin-back-to-site"
+          className="mx-3 mt-3 flex items-center gap-3 px-3 py-2.5 rounded-card bg-white/10 hover:bg-white/15 text-white text-[14px] font-bold no-underline transition">
+          <span className="text-[16px] w-5 text-center">🏠</span>العودة للموقع
+        </Link>
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
           {visibleGroups.map((g) => (
             <div key={g.label}>
@@ -192,13 +131,7 @@ function AdminLayoutFrame() {
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-2">
-            <Link
-              to="/"
-              className="px-3 py-2 rounded-pill bg-white/5 hover:bg-white/10 text-white text-[12px] font-semibold text-center no-underline transition"
-            >
-              {t('nav.home')}
-            </Link>
+          <div className="grid grid-cols-1 gap-2">
             <button
               onClick={handleLogout}
               className="px-3 py-2 rounded-pill bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 text-[12px] font-semibold transition"
@@ -251,7 +184,7 @@ function AdminLayoutFrame() {
 
         <main className="admin-workspace flex-1 p-3 md:p-4 lg:p-5 overflow-x-hidden">
           <div className="mb-3"><AdminBackButton /></div>
-          {allowed ? <Outlet /> : location.pathname === '/admin' ? <Navigate to={firstAllowed} replace /> : (
+          {allowed ? <Outlet /> : (
             // A section opened by its address without the permission (AYK-211): nothing of it is shown.
             <div className="bg-surface rounded-card border border-border p-8 text-center" data-testid="admin-no-access">
               <div className="text-5xl mb-3">🔒</div>
