@@ -2912,7 +2912,9 @@
     "whatsapp_hint": "Leave it empty to use your mobile number for WhatsApp.",
     "show_whatsapp": "Show a WhatsApp button",
     "call": "Call",
-    "whatsapp_button": "WhatsApp"
+    "whatsapp_button": "WhatsApp",
+    "mobile": "Mobile",
+    "chat": "Chat"
   },
   "provider_page": {
     "contact": "Contact",

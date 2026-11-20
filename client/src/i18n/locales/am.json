@@ -2912,7 +2912,9 @@
     "whatsapp_hint": "የሞባይል ቁጥርዎን ለዋትስአፕ ለመጠቀም ባዶ ይተዉት።",
     "show_whatsapp": "የዋትስአፕ ቁልፍ አሳይ",
     "call": "ይደውሉ",
-    "whatsapp_button": "ዋትስአፕ"
+    "whatsapp_button": "ዋትስአፕ",
+    "mobile": "ሞባይል",
+    "chat": "ውይይት"
   },
   "provider_page": {
     "contact": "ያግኙ",

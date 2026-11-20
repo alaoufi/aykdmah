@@ -2912,7 +2912,9 @@
     "whatsapp_hint": "WhatsApp için telefon numaranızı kullanmak üzere boş bırakın.",
     "show_whatsapp": "WhatsApp düğmesini göster",
     "call": "Ara",
-    "whatsapp_button": "WhatsApp"
+    "whatsapp_button": "WhatsApp",
+    "mobile": "Cep telefonu",
+    "chat": "Sohbet"
   },
   "provider_page": {
     "contact": "İletişim",

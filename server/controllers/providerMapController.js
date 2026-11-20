@@ -6,6 +6,7 @@ const { COVERAGE_SQL, coverageOf } = require('../utils/providerCoverage');
 const { availability } = require('../utils/providerAvailability');
 const ProviderBadge = require('../models/ProviderBadge');
 const { BIO_SQL, bioFor, readerOf } = require('../utils/providerBio');
+const { publicContact } = require('../utils/providerContact');
 
 const MAX_RADIUS_KM = 200;
 // AYK-370: everyone covering the area is listed (it was cut at 50).
@@ -173,6 +174,7 @@ function coveringProviders({ districtId, cityId, excludeId = 0 }) {
   return query(`
     SELECT u.id, u.full_name, u.avatar, u.is_verified, u.is_online,
            pp.business_name, pp.category_id, pp.service_ids, ${BIO_SQL},
+           u.phone, pp.show_phone, pp.whatsapp, pp.show_whatsapp,
            pp.rating_avg, pp.rating_count, pp.completed_orders,
            cat.name_ar AS category_name_ar, cat.name_en AS category_name_en, cat.name_translations AS category_name_translations,
            dist.name_ar AS district_name_ar, dist.name_en AS district_name_en,
@@ -235,6 +237,8 @@ async function listProviders(rows, { categoryId, serviceId, categoryServices, ci
       is_featured: row.is_featured === true || Number(row.is_featured) === 1,
       category_id: row.category_id, service_ids: services,
       opinion: row.opinion || null, ...bioFor(row, reader),
+      // AYK-379: only the numbers the provider chose to show.
+      ...publicContact(row),
       rating_avg: Number(row.rating_avg) || 0, rating_count: Number(row.rating_count) || 0,
       completed_orders: Number(row.completed_orders) || 0,
       availability: availability(row),

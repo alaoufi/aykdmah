@@ -2912,7 +2912,9 @@
     "whatsapp_hint": "Iwanang blangko para gamitin ang iyong mobile number sa WhatsApp.",
     "show_whatsapp": "Ipakita ang button ng WhatsApp",
     "call": "Tumawag",
-    "whatsapp_button": "WhatsApp"
+    "whatsapp_button": "WhatsApp",
+    "mobile": "Mobile",
+    "chat": "Chat"
   },
   "provider_page": {
     "contact": "Makipag-ugnayan",

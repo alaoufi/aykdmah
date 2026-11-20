@@ -2912,7 +2912,9 @@
     "whatsapp_hint": "واٹس ایپ کے لیے اپنا موبائل نمبر استعمال کرنے کو خالی چھوڑ دیں۔",
     "show_whatsapp": "واٹس ایپ کا بٹن دکھائیں",
     "call": "کال کریں",
-    "whatsapp_button": "واٹس ایپ"
+    "whatsapp_button": "واٹس ایپ",
+    "mobile": "موبائل",
+    "chat": "گفتگو"
   },
   "provider_page": {
     "contact": "رابطہ",

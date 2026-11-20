@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MapContainer, Marker, Circle } from 'react-leaflet';
 import { icon } from 'leaflet';
@@ -7,17 +7,18 @@ import markerImage from 'leaflet/dist/images/marker-icon.png';
 import markerImage2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import 'leaflet/dist/leaflet.css';
-import api from '../services/api';
+import api, { apiError } from '../services/api';
 import BaseTileLayer from '../components/map/BaseTileLayer';
 import Avatar from '../components/common/Avatar';
 import AvailabilityBadge, { PresenceTag, WeekSchedule } from '../components/common/AvailabilityBadge';
-import CallButtons from '../components/calls/CallButtons';
 import ShareProviderLink, { DirectoryButton } from '../components/providers/ShareProviderLink';
 import StarRating from '../components/reviews/StarRating';
 import ReviewCard from '../components/reviews/ReviewCard';
 import TrustSummary from '../components/reviews/TrustSummary';
 import { getUserReviews } from '../services/reviewService';
-import ProviderNumbers from '../components/providers/ProviderNumbers';
+import ContactMenu from '../components/providers/ContactMenu';
+import { contactDirect } from '../services/requestService';
+import { useAuth } from '../hooks/useAuth';
 import { LoadingState, ErrorState } from '../components/common/Spinner';
 import { directionsUrl } from '../utils/directions';
 import { localizedName } from '../utils/localize';
@@ -33,6 +34,18 @@ export default function ProviderProfilePage() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [note, setNote] = useState('');
+  const { user: me } = useAuth();
+  const navigate = useNavigate();
+  const [chatting, setChatting] = useState(false);
+  const self = me && Number(me.id) === Number(id);
+  // «محادثة» (AYK-379): the chat with this provider (the existing one, or a new direct request).
+  const startChat = async () => {
+    if (!me) { navigate('/login', { state: { from: `/providers/${id}` } }); return; }
+    setChatting(true); setNote('');
+    try { const res = await contactDirect(Number(id)); if (res?.conversation_id) navigate(`/chat/${res.conversation_id}`); }
+    catch (err) { if (!err?.cancelled) setNote(apiError(err)); }
+    finally { setChatting(false); }
+  };
   const [reviews, setReviews] = useState(null);
   const mapRef = useRef(null);
 
@@ -67,7 +80,6 @@ export default function ProviderProfilePage() {
   const count = Number(provider.rating_count) || 0;
   const average = Number(provider.rating_avg) || 0;
   const done = Number(provider.completed_orders) || 0;
-  const hasNumbers = Boolean(provider.public_phone || provider.public_whatsapp);
   const name = provider.business_name || user.full_name;
 
   return (
@@ -108,15 +120,9 @@ export default function ProviderProfilePage() {
         </div>
 
         <div className="flex flex-wrap gap-2 items-start">
-          <details className="group" data-testid="provider-contact-menu">
-            <summary className="btn btn-primary btn-sm list-none cursor-pointer select-none">
-              📞 {t('provider_page.contact')} <span className="transition-transform group-open:rotate-180 inline-block">▾</span>
-            </summary>
-            <div className="mt-2 p-3 rounded-card bg-surface border border-border space-y-2 min-w-[240px]">
-              <CallButtons userId={user.id} />
-              {hasNumbers && <ProviderNumbers phone={provider.public_phone} whatsapp={provider.public_whatsapp} />}
-            </div>
-          </details>
+          {/* AYK-379: three ways, the numbers only when the provider shows them. */}
+          {!self && <ContactMenu phone={provider.public_phone} whatsapp={provider.public_whatsapp} busy={chatting} testId="provider-contact-menu"
+            onChat={startChat} />}
           <DirectoryButton providerId={user.id} name={name} onNote={setNote} />
           <details className="group" data-testid="provider-share-menu">
             <summary className="px-3 py-2 rounded-pill text-[13px] bg-surface-alt border border-border font-bold list-none cursor-pointer select-none">

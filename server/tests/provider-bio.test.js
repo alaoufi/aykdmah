@@ -22,6 +22,10 @@ test('right after an edit the old translations are not shown', () => {
   assert.deepEqual(bioFor({ bio: `${ar} وضمان سنة`, bio_translations: map }, 'en'), { bio: `${ar} وضمان سنة` });
 });
 
+test('deleting the end of the text also hides the old translations', () => {
+  assert.deepEqual(bioFor({ bio: 'كهربائي', bio_translations: map }, 'en'), { bio: 'كهربائي' });
+});
+
 test('lists carry a shortened text; the cut text still matches its translations', () => {
   const long = 'أ'.repeat(BIO_LIST_MAX + 200);
   const row = { bio: long.slice(0, BIO_LIST_MAX + 1), bio_translations: { ar: long, en: 'b'.repeat(BIO_LIST_MAX + 200) } };

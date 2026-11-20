@@ -2912,7 +2912,9 @@
     "whatsapp_hint": "Biarkan kosong untuk memakai nomor ponsel Anda untuk WhatsApp.",
     "show_whatsapp": "Tampilkan tombol WhatsApp",
     "call": "Telepon",
-    "whatsapp_button": "WhatsApp"
+    "whatsapp_button": "WhatsApp",
+    "mobile": "Ponsel",
+    "chat": "Obrolan"
   },
   "provider_page": {
     "contact": "Hubungi",

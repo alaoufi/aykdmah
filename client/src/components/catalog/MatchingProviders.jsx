@@ -14,6 +14,7 @@ import { apiError } from '../../services/api';
 import { isPresent, ProviderStatus } from '../common/AvailabilityBadge';
 import { optionLabel } from '../../utils/optionLabel';
 import ExpandableText from '../common/ExpandableText';
+import ContactMenu from '../providers/ContactMenu';
 
 // Providers who serve the signed-in requester's registered district in a profession
 // (AYK-035): every provider covering that district, featured (paid) first, then by
@@ -239,10 +240,11 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
         {/* AYK-377: what they say about their services, opening and closing in place. */}
         <ExpandableText text={p.bio} translated={p.bio_translated} lines={2} className="mt-2" testId="provider-bio" />
         <div className="flex flex-wrap items-center gap-2 mt-2">
-          {onContact && <button type="button" className="btn btn-primary btn-sm" disabled={busy} data-testid="contact-provider"
-            onClick={async () => { setBusy(true); try { await onContact(p); } finally { setBusy(false); } }}>💬 {t('request.contact')}</button>}
-          {requester && <button type="button" className="btn btn-primary btn-sm" disabled={busy} data-testid="direct-contact"
-            onClick={() => run(async () => { const res = await contactDirect(p.id, categoryId); navigate(`/chat/${res.conversation_id}`); })}>💬 {t('requester.contact_direct')}</button>}
+          {/* AYK-379: «تواصل» opens جوال / واتساب (when the provider shows them) / محادثة. */}
+          {onContact && <ContactMenu phone={p.public_phone} whatsapp={p.public_whatsapp} busy={busy} testId="contact-provider"
+            onChat={async () => { setBusy(true); try { await onContact(p); } finally { setBusy(false); } }} />}
+          {requester && <ContactMenu phone={p.public_phone} whatsapp={p.public_whatsapp} busy={busy} testId="direct-contact"
+            onChat={() => run(async () => { const res = await contactDirect(p.id, categoryId); navigate(`/chat/${res.conversation_id}`); })} />}
           {requester && !saved && (<button type="button" className="btn btn-outline btn-sm" disabled={busy} data-testid="save-provider"
               onClick={() => run(() => onToggleSaved(p.id))}>📇 {t('requester.add_directory')}</button>)}
           <Link to={`/providers/${p.id}`} className="btn btn-outline btn-sm">👤 {t('for_you.view_profile')}</Link>

@@ -2912,7 +2912,9 @@
     "whatsapp_hint": "व्हाट्सएपका लागि आफ्नो मोबाइल नम्बर प्रयोग गर्न खाली छोड्नुहोस्।",
     "show_whatsapp": "व्हाट्सएप बटन देखाउनुहोस्",
     "call": "कल",
-    "whatsapp_button": "व्हाट्सएप"
+    "whatsapp_button": "व्हाट्सएप",
+    "mobile": "मोबाइल",
+    "chat": "च्याट"
   },
   "provider_page": {
     "contact": "सम्पर्क",

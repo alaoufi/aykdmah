@@ -3016,7 +3016,9 @@
     "whatsapp_hint": "اتركه فارغًا ليكون واتساب على رقم جوالك.",
     "show_whatsapp": "اعرض زر واتساب",
     "call": "اتصال",
-    "whatsapp_button": "واتساب"
+    "whatsapp_button": "واتساب",
+    "mobile": "جوال",
+    "chat": "محادثة"
   },
   "provider_page": {
     "contact": "تواصل",
