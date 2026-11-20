@@ -14,9 +14,14 @@ export function internalAuthReturn(value) {
   } catch (_) { return null; }
 }
 
+// AYK-370 (the owner: «شو هذه الصفحة في وجه من يدخل… دخلت بسلاسة»): signing in never lands on the
+// general support page or the password pages; those were only on the way to signing in.
+const NOT_A_RETURN = new Set(['/support', '/forgot-password']);
+
 export function authReturnTarget(role, from) {
   const target = internalAuthReturn(from);
-  if (target && target !== '/') return target;
+  const path = target ? new URL(target, 'https://ayk.invalid').pathname.replace(/\/+$/, '') : '';
+  if (target && target !== '/' && !NOT_A_RETURN.has(path)) return target;
   return role === 'admin' ? '/admin' : role === 'provider' ? '/provider' : '/client';
 }
 

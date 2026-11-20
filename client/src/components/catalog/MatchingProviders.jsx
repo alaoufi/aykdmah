@@ -66,7 +66,9 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
   const [categories, setCategories] = useState([]);
-  const [matching, setMatching] = useState(true);
+  // AYK-370 (the owner: «تأكد من عرض جميع مقدمي الخدمة لطالب الخدمة في منطقة تغطيته»): every profession
+  // by default; the professions this person asked for still come first.
+  const [matching, setMatching] = useState(false);
   const [categoryId, setCategoryId] = useState(fixedCategory ? String(fixedCategory) : '');
   const [result, setResult] = useState(null);
   const [browse, setBrowse] = useState(readBrowse);
@@ -103,13 +105,16 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
   // the city with a "not covered" note. On a request page (onContact) the list stays as it was.
   const isAvailable = p => p.availability?.state === 'available';
   const cityList = result?.city_providers || null;
-  const nowInDistrict = (result?.providers || []).filter(isAvailable);
-  const widened = !onContact && cityList !== null && nowInDistrict.length === 0;
+  // AYK-370: everyone covering the district, available first (green), then the others (red, with
+  // their schedule); before, only those available now were listed and the rest disappeared.
+  const availableFirst = rows => [...rows.filter(isAvailable), ...rows.filter(p => !isAvailable(p))];
+  const inDistrict = availableFirst(result?.providers || []);
+  const widened = !onContact && cityList !== null && inDistrict.length === 0;
   // «كل المهن» (AYK-339): the providers of the professions this person asked for come first; the
   // server's own order (featured, then rating) is kept inside each group.
   const asked = new Set((result?.requested_category_ids || []).map(Number));
   const askedFirst = rows => (asked.size ? [...rows.filter(p => asked.has(Number(p.category_id))), ...rows.filter(p => !asked.has(Number(p.category_id)))] : rows);
-  const shown = !matching && !onContact ? askedFirst(result?.providers || []) : onContact || cityList === null ? (result?.providers || []) : widened ? cityList.filter(isAvailable) : nowInDistrict;
+  const shown = onContact ? (result?.providers || []) : askedFirst(widened ? availableFirst(cityList) : inDistrict);
   // AYK-335 (the owner's screenshot): the same provider was on the page as a card and again in
   // the city box under it. The city box leaves out those already shown as cards.
   const listed = onlyPresent ? shown.filter(p => isPresent(p.availability)) : shown;

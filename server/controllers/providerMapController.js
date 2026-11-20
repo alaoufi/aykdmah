@@ -7,7 +7,8 @@ const { availability } = require('../utils/providerAvailability');
 const ProviderBadge = require('../models/ProviderBadge');
 
 const MAX_RADIUS_KM = 200;
-const MAX_RESULTS = 50;
+// AYK-370: everyone covering the area is listed (it was cut at 50).
+const MAX_RESULTS = 300;
 
 function parseServiceIds(value) {
   if (Array.isArray(value)) return value.map(Number);
@@ -200,11 +201,14 @@ const matching = asyncHandler(async (req, res) => {
   const list = async scope => listProviders(await coveringProviders({ ...scope, excludeId: req.user?.id || 0 }),
     { categoryId, serviceId, categoryServices, cityId: where.cityId });
   let requestedCategories = [];
-  if (req.query.matching === '1' && req.user && categoryId === null && serviceId === null) {
+  // The professions this person asked for: always sent (the page lists them first, AYK-339); the
+  // list keeps only them when «المهن التي طلبتها» is chosen (matching=1).
+  if (req.user && categoryId === null && serviceId === null) {
     requestedCategories = (await query('SELECT DISTINCT category_id FROM requests WHERE client_id = ? AND deleted_at IS NULL AND category_id IS NOT NULL', [req.user.id])).map(row => Number(row.category_id));
   }
-  const byService = requestedCategories.length ? await serviceCategories() : null;
-  const inRequested = row => !requestedCategories.length || [...providerCategories(row, byService)].some(id => requestedCategories.includes(id));
+  const onlyRequested = req.query.matching === '1' && requestedCategories.length > 0;
+  const byService = onlyRequested ? await serviceCategories() : null;
+  const inRequested = row => !onlyRequested || [...providerCategories(row, byService)].some(id => requestedCategories.includes(id));
   const providers = (await list(where)).filter(inRequested);
   // With a district: also everyone serving the whole city (AYK-055), for the "widen" step and
   // the small "everyone in your city" box.
