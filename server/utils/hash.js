@@ -4,8 +4,12 @@ const os = require('os');
 const path = require('path');
 const { Worker } = require('worker_threads');
 
-// Cost 12 (AYK-240): about four times the work of 10 for anyone guessing a stolen hash.
-const SALT_ROUNDS = 12;
+// Cost 10 (AYK-327, the owner: sign-in must be instant): a sign-in check takes about 75 ms here
+// instead of about 280 ms at cost 12 (AYK-240). 10 is the lowest cost OWASP accepts for bcrypt.
+// What protects an account from guessing is the lock after 5 wrong passwords, not this number;
+// it only slows someone who already holds a stolen copy of the database. A hash kept at a higher
+// cost is replaced at its owner's next sign-in (needsRehash).
+const SALT_ROUNDS = 10;
 const PREFIX = 'ayk-sha256:';
 const digest = password => crypto.createHash('sha256').update(password, 'utf8').digest('base64');
 
@@ -76,4 +80,18 @@ async function comparePassword(password, hash) {
   return run('compare', password, hash);
 }
 
-module.exports = { hashPassword, comparePassword };
+// True for a stored hash made at a higher cost than today's: it is re-made at the next sign-in.
+function needsRehash(hash) {
+  const match = /^\$2[aby]\$(\d{2})\$/.exec(String(hash || '').replace(PREFIX, ''));
+  return Boolean(match) && Number(match[1]) > SALT_ROUNDS;
+}
+
+// The first sign-in after a restart paid for starting the worker threads (1.9 s measured). They are
+// started and exercised once at boot instead.
+function warm() {
+  if (workersBroken) return Promise.resolve();
+  try { while (pool.length < POOL_SIZE) pool.push(startWorker()); } catch (_) { workersBroken = true; return Promise.resolve(); }
+  return Promise.all(pool.map(() => run('hash', 'warm', 4).catch(() => {})));
+}
+
+module.exports = { hashPassword, comparePassword, needsRehash, warm };

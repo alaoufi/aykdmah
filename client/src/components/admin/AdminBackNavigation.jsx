@@ -26,7 +26,7 @@ export function AdminBackButton() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   if (!context?.handler && pathname === '/admin') return null;
-  const back = context?.handler || (() => navigate(adminBackTarget(window.history.state)));
+  const back = context?.handler || (() => navigate(adminBackTarget(pathname)));
   return <button type="button" onClick={back} aria-label={t('common.back')}
     className="inline-flex items-center gap-1.5 min-h-11 px-3 rounded-pill bg-surface-alt hover:bg-border text-fg-muted text-[13px] font-semibold">
     <span aria-hidden="true">{i18n.dir() === 'rtl' ? '→' : '←'}</span><span>{t('common.back')}</span>

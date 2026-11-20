@@ -1376,3 +1376,58 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - no page errors.
 - Tests: integration 277 pass, 0 fail; server 84; client 166; `i18n:check` 2621 keys; `check-deploy` 22 ok.
 - Not tried: presence on real phones, where Android may keep or drop the connection of an app in the background.
+
+## 2026-11-20 — AYK-327: sign-in reviewed for speed (the owner: «أبيه لحظي»)
+- Measured first (local production build and database, phone-sized Chromium, processor slowed 4×, ~10 Mbit/s with 100 ms delay): from tapping «دخول» to the next page shown, 1065 ms.
+  - The sign-in request took about 300 ms in the server: the password check (bcryptjs at cost 12, 279 ms measured). The first sign-in after a restart took 1.85 s, because the password worker threads started only then.
+  - The account was then asked for twice (`GET /auth/me`).
+  - The page sign-in leads to was fetched only after signing in.
+- Changes:
+  - password cost 10 instead of 12 (76 ms measured). 10 is the lowest cost OWASP accepts for bcrypt; the lock after 5 wrong passwords is unchanged. This reverses the cost chosen in AYK-240 and only matters to someone holding a stolen copy of the database. A hash at the old cost is re-made after its owner's next successful sign-in, after the answer is sent;
+  - the password workers start at boot (`hash.warm()`);
+  - one `auth/me` per sign-in (calls for the same session share one request, and an answer under 2 s old is reused);
+  - the sign-in page fetches the pages it leads to while the person types; a visitor's browser fetches the sign-in and sign-up pages 2.5 s after the first page settles.
+- After, same measurement:
+  - tap to next page: 539 to 550 ms (requester), 709 ms for a provider's first sign-in, which still checked a cost-12 hash;
+  - sign-in request: 92 ms (was 294 to 331 ms). First after a restart: 475 ms, with a cost-12 hash still to check;
+  - the stored hash went from `$2a$12$` to `$2a$10$` after one sign-in; a wrong password still answers 401;
+  - the sign-in page itself was ready after 1.25 s cold (was 2.2 s).
+- Tests: server 86 pass (new `hash-cost.test.js`; `hash-worker.test.js` updated to cost 10); client 166; integration 277 pass, 0 fail, in 81 s; `check-deploy` 22 ok.
+- Not measured: the live server's own sign-in times after this deploy (the slowness report is read below once it has data).
+- Correction: the commit before this one (a8f97aa) was pushed while `hash-worker.test.js` still expected cost 12 (85 pass, 1 fail); its deploy run stops at the checks. This commit fixes that test: server 86 pass, 0 fail.
+- The deploy run of 3439ddf stopped at the checks: `media.integration.js` looked for a chat notification the moment the message was answered, and on the slow CI machine it was not written yet (276 pass, 1 fail there; 277 pass locally). An old test, unrelated to sign-in. It now waits up to 5 s for the notification. Integration here: 277 pass, 0 fail.
+- Sign-in speed deployed as 1.1.75 (run for da550a6: success).
+
+## 2026-11-20 — AYK-328: on opening, the page showed, paused, then showed again
+- Reported by the owner: every opening shows the page, waits under a second, then opens again.
+- Checked on the live site with a browser that keeps the saved copy (three openings, no deploy between): the document is requested once, so there is no reload. The second "navigation" is the router changing the address inside the page.
+- Recorded what is on screen frame by frame (local production build, signed in, processor slowed 4×, ~10 Mbit/s):
+  - requester: the home page showed at 0.80 s, then at 1.09 s an ad was inserted at the top and pushed the page down;
+  - provider: the requesters' home frame at 0.52 s, then the dashboard frame, the page's content, then at 1.04 s the loading sign again, then the content again with the ad pushed in.
+- Fixes:
+  - ads: the last ads of each place are kept on the device (public data) and drawn with the page; the fresh answer replaces them;
+  - provider dashboard: once shown, a refresh keeps the page and only swaps its data;
+  - a provider opening `/` goes straight to the dashboard, without first drawing the requesters' home frame; the dashboard file is fetched at start for a returning provider.
+- After, same recording, second opening:
+  - requester: one loading sign, then the page with its ad already in place at 0.77 s; nothing moves after;
+  - provider: one loading sign, then the dashboard with its ad at 1.09 s; the content is not shown twice. A blank moment of about 0.15 s (at 4× slowdown) remains between two loading signs.
+- Client tests 166, server 86 pass; `i18n:check` 2621 keys; `check-deploy` 22 ok. Integration not re-run: only client files changed since the 277-pass run.
+- Not tried on a real phone.
+- AYK-328 deployed as 1.1.76 (run for fd2b744: success).
+
+## 2026-11-20 — AYK-329: header tint; AYK-330: the admin «رسائل المستخدمين» page
+- Header (the owner): its background is a very light shade of the chosen theme colour (10 % of the theme's main colour over the surface, slightly see-through). Measured in the browser: the default theme gives a warm tint, the Saudi theme a light green. Browsers without `color-mix` keep the plain surface.
+  - A first attempt put a JSX comment before the header element and broke the build; caught by the local build before any commit.
+- Admin messages page (the owner's screenshot):
+  - the back button goes up one level (`/admin/support/7` → `/admin/support` → `/admin`) instead of through the browser history. Before, a message opened from the list and closed again made the button bounce between the two pages for ever;
+  - the title shows once, in the top bar (the page no longer repeats «لوحة الإدارة / رسائل المستخدمين»);
+  - the list is cards: the writer's initial, name, time, a preview, coloured state and topic chips, the unread count; filters are chips, not two drop-downs; links are not underlined;
+  - an opened message has one heading (name, topic, number, phone, state); the writer's name is not repeated on each message;
+  - the reply box is hidden: a «رد» button opens it, and it closes after sending.
+- Browser check (local site, phone size, admin account, two messages sent by a requester):
+  - the list showed 2 cards and the title once;
+  - opening one: no reply box at first, the «رد» button there, the message text once;
+  - reply sent: shown in the thread and the box closed;
+  - back from the message → `/admin/support`; back again → `/admin`; no back button on the admin home;
+  - no page errors.
+- Tests: client 166 (`adminBackTarget.test.mjs` rewritten for the new rule), server 86; `i18n:check` 2621 keys; build and `check-deploy` 22 ok. Integration not re-run: only client files changed since the 277-pass run.

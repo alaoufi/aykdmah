@@ -33,6 +33,8 @@ if (BACKGROUND) {
   require('./config/database').query("UPDATE users SET is_online = 0 WHERE is_online = 1 AND (last_seen_at IS NULL OR last_seen_at < CURRENT_TIMESTAMP - INTERVAL '1 minute')")
     .catch(err => logger.warn('Presence reset failed:', err.message));
 }
+// AYK-327: the password workers are started now, so the first sign-in after a restart is not slow.
+require('./utils/hash').warm().catch(() => {});
 httpServer.listen(PORT, () => {
   logger.info(`Server listening on port ${PORT} (${env.NODE_ENV})${cluster.isWorker ? `, copy ${process.env.APP_WORKER_INDEX}` : ''}`);
   logger.info('Database setup and migrations use npm run seed.');

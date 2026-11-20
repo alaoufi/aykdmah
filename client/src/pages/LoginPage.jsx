@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
@@ -15,6 +15,15 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
   const from = internalAuthReturn(location.state?.from);
+  // AYK-327: while the person types, fetch the pages sign-in leads to, so they open at once.
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      import('./client/MyRequestsPage').catch(() => {});
+      import('./provider/ProviderDashboardPage').catch(() => {});
+      import('./HomePage').catch(() => {});
+    }, 300);
+    return () => clearTimeout(timer);
+  }, []);
 
   const [form, setForm] = useState({ identifier: typeof location.state?.identifier === 'string' ? location.state.identifier : '', password: '' });
   const [error, setError] = useState('');

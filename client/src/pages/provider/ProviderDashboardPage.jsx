@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { listNearbyRequests, listMyOffers } from '../../services/requestService';
@@ -19,12 +19,15 @@ export default function ProviderDashboardPage() {
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const shown = useRef(false);
   // New requests appear on their own (AYK-078).
   const [tick, quiet] = useLiveRefresh(['request:new_nearby', 'notification:new']);
 
   useEffect(() => {
     let current = true;
-    if (!quiet) setLoading(true);
+    // AYK-328: the page showed, then the loading sign came back for a moment and the page showed
+    // again. Once it has been shown, a refresh keeps it on screen and only swaps the data.
+    if (!quiet && !shown.current) setLoading(true);
     setError(false);
     // Requests in the provider's own professions and districts only (AYK-040).
     const params = { limit: 20, matching: '1' };
@@ -34,7 +37,7 @@ export default function ProviderDashboardPage() {
     ])
       .then(([n, o]) => { if (current) { setNearby(n); setOffers(o); } })
       .catch(() => { if (current) setError(true); })
-      .finally(() => { if (current) setLoading(false); });
+      .finally(() => { if (current) { shown.current = true; setLoading(false); } });
     return () => { current = false; };
   }, [tick]);
 

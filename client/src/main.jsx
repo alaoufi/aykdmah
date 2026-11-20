@@ -32,6 +32,12 @@ const render = () => createRoot(document.getElementById('root')).render(
     </ThemeProvider>
   </StrictMode>
 );
+// AYK-328: a service provider's first page is their dashboard, a separate file. It was fetched only
+// after the account was known, leaving the page empty for half a second. Fetch it right away.
+try {
+  if (localStorage.getItem('ayk_last_role') === 'provider') import('./pages/provider/ProviderDashboardPage').catch(() => {});
+} catch (_) { /* private mode */ }
+
 // AYK-323: the version check comes first, so an older saved copy is replaced before anything is
 // drawn (one silent reload) instead of after the page has appeared. It takes 0.8 s at most.
 const fresh = freshStart().catch(() => 'skip');

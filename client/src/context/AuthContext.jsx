@@ -27,6 +27,7 @@ export function AuthProvider({ children }) {
   const refreshVersion = useRef(0);
   const retriesRef = useRef(0);
   const refreshRef = useRef(null);
+  const inflight = useRef(null);
 
   const refresh = useCallback(async () => {
     const token = getToken();
@@ -39,7 +40,16 @@ export function AuthProvider({ children }) {
       return null;
     }
     try {
-      const data = await me();
+      // AYK-327: signing in asked for the account twice at once (the token change and the sign-in
+      // itself each called this). Calls for the same session now share one request.
+      // An answer for this same session from the last 2 seconds is used again as well.
+      if (inflight.current?.token !== token || (inflight.current.doneAt && Date.now() - inflight.current.doneAt > 2000)) {
+        const entry = { token, doneAt: 0, promise: null };
+        entry.promise = me().then(result => { entry.doneAt = Date.now(); return result; },
+          error => { if (inflight.current === entry) inflight.current = null; throw error; });
+        inflight.current = entry;
+      }
+      const data = await inflight.current.promise;
       if (!current()) return null;
       retriesRef.current = 0;
       // An admin account belongs to /admin only (AYK-114): an old site session of one is closed.
@@ -51,6 +61,8 @@ export function AuthProvider({ children }) {
       }
       setUser(data.user);
       setProvider(data.provider || null);
+      // AYK-328: remembered only to fetch this person's first page early at the next opening.
+      try { localStorage.setItem('ayk_last_role', data.user?.role === 'provider' && Number(data.user.also_client) !== 1 ? 'provider' : 'other'); } catch (_) { /* private mode */ }
       return data;
     } catch (err) {
       // A profile endpoint failure does not make a valid login invalid.

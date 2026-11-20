@@ -1,4 +1,4 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import usePublicSettings, { subscriptionsOn } from './hooks/usePublicSettings';
 import MainLayout from './layouts/MainLayout';
@@ -155,11 +155,24 @@ function RoleDashboard() {
 export default function AppRoutes() {
   const { pathname } = useLocation();
   const { user, loading } = useAuth();
+  // AYK-327: a visitor's next step is signing in or signing up; fetch those pages once the first
+  // page has settled, so they open at once when tapped.
+  useEffect(() => {
+    if (loading || user) return undefined;
+    const timer = setTimeout(() => {
+      import('./pages/LoginPage').catch(() => {});
+      import('./pages/RegisterPage').catch(() => {});
+    }, 2500);
+    return () => clearTimeout(timer);
+  }, [loading, user]);
   // AYK-267 (the owner's screen recording): a signed-in person opening the app saw the visitors'
   // home page for half a second, then their own page replaced it (and the header and the bottom
   // bar changed with it). While a saved session is being restored, the loading screen stays until
   // it is known who they are; a visitor without a saved session is not held back at all.
   if (loading && !user && getToken()) return <LoadingState page />;
+  // AYK-328: a service provider opening the app was first given the requesters' home frame, then
+  // sent to their dashboard, so the screen was drawn twice. They go straight to the dashboard.
+  if (pathname === '/' && user?.role === 'provider' && !isBothAccount(user)) return <Navigate to="/provider" replace />;
   return (
     <Suspense fallback={<LoadingState page />}>
       <ErrorBoundary key={pathname}>
