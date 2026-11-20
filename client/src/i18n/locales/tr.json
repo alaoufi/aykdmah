@@ -322,7 +322,9 @@
     "registration_login": "Giriş yapmak için buraya dokunun",
     "password_advice": "Daha güçlü koruma için en az 6 karakter önerilir",
     "provider_extras": "Çalışma saatleri ve hizmet yeri (isteğe bağlı)",
-    "provider_extras_hint": "Değiştirmezseniz: her gün her saatte çalışırsınız ve müşteriye siz gidersiniz. İstediğiniz zaman «{{profile}}» bölümünden değiştirebilirsiniz."
+    "provider_extras_hint": "Değiştirmezseniz: her gün her saatte çalışırsınız ve müşteriye siz gidersiniz. İstediğiniz zaman «{{profile}}» bölümünden değiştirebilirsiniz.",
+    "wrong_password": "Şifre yanlış",
+    "recover_password": "Şifreyi kurtar"
   },
   "request": {
     "create_title": "Yeni talep oluştur",

@@ -322,7 +322,9 @@
     "registration_login": "Pindutin dito para mag-sign in",
     "password_advice": "Para mas ligtas, gumamit ng hindi bababa sa 6 na character",
     "provider_extras": "Oras ng trabaho at lugar ng serbisyo (opsyonal)",
-    "provider_extras_hint": "Kung hindi mo babaguhin: nagtatrabaho ka araw-araw sa anumang oras, at ikaw ang pupunta sa kliyente. Mapapalitan mo ito anumang oras sa «{{profile}}»."
+    "provider_extras_hint": "Kung hindi mo babaguhin: nagtatrabaho ka araw-araw sa anumang oras, at ikaw ang pupunta sa kliyente. Mapapalitan mo ito anumang oras sa «{{profile}}».",
+    "wrong_password": "Mali ang password",
+    "recover_password": "I-recover ang password"
   },
   "request": {
     "create_title": "Gumawa ng bagong kahilingan",

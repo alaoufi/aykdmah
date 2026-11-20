@@ -26,6 +26,7 @@ export default function LoginPage() {
     return () => clearTimeout(timer);
   }, []);
 
+  const [wrongPassword, setWrongPassword] = useState(false);
   const [form, setForm] = useState({ identifier: typeof location.state?.identifier === 'string' ? location.state.identifier : '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -33,7 +34,7 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
+    setLoading(true); setWrongPassword(false);
     try {
       const res = await login(form);
       // The admin signs in at /admin only (AYK-114).
@@ -49,6 +50,8 @@ export default function LoginPage() {
         navigate('/forgot-password', { state: { identifier: form.identifier, notice: apiError(err) } });
         return;
       }
+      // AYK-369 (the owner): a wrong password says only that, with «استعادة كلمة المرور»; no support box.
+      if (err?.response?.status === 401) { setError(''); setWrongPassword(true); return; }
       setError(apiError(err));
     } finally {
       setLoading(false);
@@ -63,6 +66,12 @@ export default function LoginPage() {
 
       {location.state?.notice && !error && <div role="status" className="mb-3 px-3 py-2 rounded-card bg-success-soft text-success text-[13px] font-semibold">✓ {location.state.notice}</div>}
       {error && <ProblemNotice error={error} />}
+      {wrongPassword && !error && (
+        <div role="alert" className="mb-3 px-3 py-2.5 rounded-card bg-danger-soft text-danger text-[14px] font-semibold flex items-center justify-between gap-2 flex-wrap" data-testid="wrong-password">
+          <span>{t('auth.wrong_password')}</span>
+          <Link to="/forgot-password" state={{ identifier: form.identifier }} className="text-primary underline">{t('auth.recover_password')}</Link>
+        </div>
+      )}
 
       <Input
         label={t('auth.identifier')}

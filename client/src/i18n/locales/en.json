@@ -322,7 +322,9 @@
     "registration_login": "Click here to sign in",
     "password_advice": "For better protection, use at least 6 characters",
     "provider_extras": "Working hours and service location (optional)",
-    "provider_extras_hint": "If you do not change them, you work every day at any hour and you go to the client. You can change them any time in «{{profile}}»."
+    "provider_extras_hint": "If you do not change them, you work every day at any hour and you go to the client. You can change them any time in «{{profile}}».",
+    "wrong_password": "Wrong password",
+    "recover_password": "Recover your password"
   },
   "request": {
     "create_title": "Create a new request",

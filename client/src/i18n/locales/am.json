@@ -322,7 +322,9 @@
     "registration_login": "ለመግባት እዚህ ይጫኑ",
     "password_advice": "ለተሻለ ጥበቃ ቢያንስ 6 ቁምፊ ይጠቀሙ",
     "provider_extras": "የሥራ ሰዓትና የሥራ ቦታ (አማራጭ)",
-    "provider_extras_hint": "ካልቀየሯቸው፦ በየቀኑ በማንኛውም ሰዓት ይሠራሉ፣ እርስዎም ወደ ደንበኛው ይሄዳሉ። በማንኛውም ጊዜ በ«{{profile}}» ማስተካከል ይችላሉ።"
+    "provider_extras_hint": "ካልቀየሯቸው፦ በየቀኑ በማንኛውም ሰዓት ይሠራሉ፣ እርስዎም ወደ ደንበኛው ይሄዳሉ። በማንኛውም ጊዜ በ«{{profile}}» ማስተካከል ይችላሉ።",
+    "wrong_password": "የይለፍ ቃሉ ስህተት ነው",
+    "recover_password": "የይለፍ ቃል መልስ"
   },
   "request": {
     "create_title": "አዲስ ጥያቄ ይፍጠሩ",
