@@ -1522,3 +1522,11 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - each ended on the new version with one reload.
 - AYK-337 on the live site (1.1.84): the electricity page carries its own search words; the key file is served; `scripts/indexnow.js` sent the 1030 sitemap pages: the first try was refused (403, the key had just been published), the second answered 200. Bing and Yandex each answered a single-page notice with 200 and 202.
 - Not verified: whether and when each engine lists the pages; that is theirs to decide and takes days.
+
+## 2026-11-20 — AYK-338: the Android app waited at every launch before opening the site
+- The owner: «أنت تجرب على المتصفح وأنا أقصد التطبيق».
+- Found by reading the app's launcher (`android/native/LauncherActivity.java`): an app installed from Google Play asked Play about an update at EVERY launch and showed an empty screen until Play answered, up to 2 s, before the site was even asked for. This wait is outside the site, so no browser measurement shows it.
+- Now the site opens at once and Play is asked meanwhile. Only when Play said, at the launch before, that a newer version is there does the launch wait for Play's update screen. A required update is therefore shown one launch later than before; the site's own required-update screen (the minimum version in the admin settings) is unchanged.
+- App version 1.3.10 (code 20).
+- Not tested here: the Java was not compiled or run on this machine (no Android tools here); the build on the server through GitHub is the first compile. Not tried on a phone.
+- The iPhone app has no such wait: it loads the site at once (read in `apple-apps/aykhidmah`, not changed).

@@ -27,6 +27,10 @@ import com.google.firebase.messaging.FirebaseMessaging;
  * before the app opens (Play's own full-screen update; cancelling it closes the app). The site
  * is told where the app came from (?src=play or apk): an app from aykdmh.com/dl is stopped by the
  * site itself until the newer download is installed.
+ * AYK-338 (the owner: «أول فتح يأخذ وقت طويل» in the app): an app from Google Play asked Play
+ * about an update on EVERY launch and showed an empty screen until Play answered, up to 2 s,
+ * before the site was even asked for. Now the site opens at once and Play is asked meanwhile; only
+ * when Play said last time that a newer version is there does the launch wait for Play's update.
  */
 public class LauncherActivity
         extends com.google.androidbrowserhelper.trusted.LauncherActivity {
@@ -37,6 +41,7 @@ public class LauncherActivity
     private static final long TOKEN_WAIT_MS = 1500;
     private static final long UPDATE_WAIT_MS = 2000;
     private static final String NO_FCM = "fcm_unavailable";
+    private static final String UPDATE_PENDING = "play_update_pending";
     private static final int UPDATE_REQUEST = 41;
     private static final String PLAY_STORE = "com.android.vending";
     private boolean launched;
@@ -62,7 +67,9 @@ public class LauncherActivity
         }
         boolean waiting = FcmService.token(this) == null && fcmExpected();
         tokenReady = !waiting;
-        updateChecked = !fromPlay();
+        boolean fromPlay = fromPlay();
+        // Wait for Play only when it said last time that a newer version is there (AYK-338).
+        updateChecked = !(fromPlay && updatePending());
         Handler handler = new Handler(Looper.getMainLooper());
         try {
             FirebaseMessaging.getInstance().getToken()
@@ -73,16 +80,38 @@ public class LauncherActivity
         if (!updateChecked) {
             checkPlayUpdate();
             handler.postDelayed(() -> { if (!updating) updateDone(); }, UPDATE_WAIT_MS);
+        } else if (fromPlay) {
+            askPlayQuietly();
         }
     }
 
+    private boolean updatePending() {
+        return getSharedPreferences(FcmService.PREFS, MODE_PRIVATE).getBoolean(UPDATE_PENDING, false);
+    }
+
+    private static void rememberUpdate(android.content.Context context, boolean pending) {
+        context.getSharedPreferences(FcmService.PREFS, MODE_PRIVATE).edit().putBoolean(UPDATE_PENDING, pending).apply();
+    }
+
+    /** Asks Play while the site opens; the answer only decides whether the NEXT launch waits. */
+    private void askPlayQuietly() {
+        final android.content.Context app = getApplicationContext();
+        try {
+            AppUpdateManagerFactory.create(app).getAppUpdateInfo()
+                    .addOnSuccessListener(info -> rememberUpdate(app,
+                            (info.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
+                                    && info.isUpdateTypeAllowed(AppUpdateType.IMMEDIATE))
+                            || info.updateAvailability() == UpdateAvailability.DEVELOPER_TRIGGERED_UPDATE_IN_PROGRESS));
+        } catch (RuntimeException ignored) { /* Play unavailable: nothing to remember */ }
+    }
+
     /**
-     * Opens the site immediately when the token is known and no Play update needs checking;
-     * otherwise once both are settled (the token waits up to 3 s, the update check up to 4 s).
+     * Opens the site immediately when the token is known and Play did not report a newer version
+     * last time; otherwise once both are settled (the token waits up to 1.5 s, the update up to 2 s).
      */
     @Override
     protected boolean shouldLaunchImmediately() {
-        return (FcmService.token(this) != null || !fcmExpected()) && !fromPlay();
+        return (FcmService.token(this) != null || !fcmExpected()) && !(fromPlay() && updatePending());
     }
 
     /** False on a phone without Google services, or where getting a token failed last time. */
@@ -134,6 +163,8 @@ public class LauncherActivity
                                         AppUpdateOptions.newBuilder(AppUpdateType.IMMEDIATE).build(), UPDATE_REQUEST);
                             } catch (IntentSender.SendIntentException | RuntimeException ignored) { updating = false; }
                         }
+                        // Nothing newer after all (installed meanwhile): the next launch does not wait.
+                        if (!available && !resuming) rememberUpdate(getApplicationContext(), false);
                         if (!updating) updateDone();
                     })
                     .addOnFailureListener(error -> updateDone());
