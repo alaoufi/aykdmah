@@ -1580,4 +1580,4 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Now a signed-in person is placed by the city saved on their account, and a city is compared in all its names. A visitor not signed in is still placed by the address.
 - New integration test (English city name matches an ad saved with the Arabic name, in both forms of the request; with no place, hidden; signed in, shown): passes. Server unit tests 86 and the finance integration file 278 pass.
 - Not verified: which ad the owner saw and its targeting (the live database is not reachable from here).
-- Saved without deploying: deploying waits for the owner's word.
+- Deployed on the owner's word («أنشر»).
