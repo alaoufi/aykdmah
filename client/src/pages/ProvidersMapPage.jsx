@@ -12,7 +12,7 @@ import LocationPickerMap from '../components/common/LocationPickerMap';
 import Avatar from '../components/common/Avatar';
 import { useAuth } from '../hooks/useAuth';
 import { listCategories, listNearbyProviders } from '../services/serviceService';
-import AvailabilityBadge from '../components/common/AvailabilityBadge';
+import AvailabilityBadge, { ProviderStatus } from '../components/common/AvailabilityBadge';
 import { getCurrentPosition, isValidCoordinates } from '../utils/geolocation.mjs';
 import { directionsUrl, formatDistanceKm } from '../utils/directions';
 import { localizedName } from '../utils/localize';
@@ -151,7 +151,7 @@ export default function ProvidersMapPage() {
                 ⭐ {p.rating_avg.toFixed(1)} ({p.rating_count}) · {formatDistanceKm(p.distance_km, t)}
                 {p.location_precision === 'city' && ` · ${t('map.city_precision')}`}
               </div>
-              <AvailabilityBadge availability={p.availability} className="mt-1" />
+              <ProviderStatus availability={p.availability} coverage={p.coverage} name={p.business_name || p.full_name} className="mt-1" />
             </div>
             {p.location_precision === 'exact' && (
               <a href={directionsUrl(p.latitude, p.longitude)} target="_blank" rel="noopener noreferrer"

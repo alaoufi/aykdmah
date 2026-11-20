@@ -2318,10 +2318,10 @@
     "manage": "Müsaitliği yönet",
     "state": {
       "available": "Şu an müsait",
-      "paused": "Geçici olarak durduruldu",
+      "paused": "Şimdilik hizmet dışı",
       "vacation": "Tatilde",
-      "off_day": "Çalışma günü değil",
-      "off_hours": "Çalışma saatleri dışında",
+      "off_day": "Bugün müsait değil",
+      "off_hours": "Şu an müsait değil (çalışma saatleri dışında)",
       "offline": "Şu anda bağlı değil"
     },
     "vacation_until": "{{date}} tarihine kadar izinde",
@@ -2347,7 +2347,23 @@
     "vacation_both": "İznin başlangıç ve bitiş tarihini belirleyin.",
     "hours_both": "Başlangıç ve bitiş saatini birlikte seçin ya da ikisini de boş bırakın.",
     "days_required": "En az bir çalışma günü seçin.",
-    "hours_24": "24 saat"
+    "hours_24": "24 saat",
+    "schedule_link": "Çalışma programı",
+    "schedule_title": "Çalışma programı",
+    "day_off": "İzin günü",
+    "all_hours": "Her gün 24 saat müsait",
+    "present": "Şu an uygulamada",
+    "not_present": "Şu an uygulamada değil",
+    "present_hint": "Uygulamada: uygulaması şu an açık. Müsait: programına göre iş alıyor.",
+    "mode_24h": "24 saat müsait",
+    "mode_schedule": "Haftalık program",
+    "add_period": "Zaman aralığı ekle",
+    "remove_period": "Bu aralığı kaldır",
+    "copy_all": "Bu günü tüm günlere kopyala",
+    "day_works": "Bu gün çalışıyor",
+    "schedule_hint": "Her gün için bir veya daha fazla aralık belirleyin; örneğin 08:00–12:00 ve 16:00–22:00. Aralık gece yarısını geçebilir.",
+    "schedule_required": "En az bir çalışma aralığı belirleyin veya «24 saat müsait» seçin.",
+    "midnight": "Gece yarısı"
   },
   "brand": {
     "branch_of": "Ay Khidma sitesi şu sitenin bir şubesidir:",
@@ -2873,5 +2889,10 @@
     "contact": "İletişim",
     "rating_count": "Değerlendirme sayısı: {{count}}",
     "completed": "Tamamlanan talepler: {{count}}"
+  },
+  "coverage": {
+    "covers": "Hizmet bölgesi: {{city}}",
+    "all_districts": "Tüm mahalleler",
+    "more_districts": "ve {{count}} tane daha"
   }
 }

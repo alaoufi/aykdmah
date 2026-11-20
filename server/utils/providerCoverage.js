@@ -40,4 +40,28 @@ async function coverageDistricts(userId) {
     JOIN districts d ON d.id = pc.district_id WHERE pc.user_id = ? ORDER BY d.name_ar`, [userId]);
 }
 
-module.exports = { validateCoverage, saveCoverage, coverageDistricts };
+// AYK-366 (the owner: «في عرض مقدمي الخدمة وضّح تغطيته»): where a provider works, for the cards.
+// The coverage city is the one they chose, else their home city; an explicit list of districts
+// narrows it (none = the whole city). `u` is the provider's users row and `pp` their profile.
+const COVERAGE_SQL = `
+  (SELECT jsonb_build_object('ar', cov_city.name_ar, 'en', cov_city.name_en, 'tr', cov_city.name_translations)
+     FROM cities cov_city WHERE cov_city.id = COALESCE(pp.coverage_city_id, u.city_id)) AS coverage_city,
+  (SELECT COUNT(*) FROM provider_coverage_districts cov_count WHERE cov_count.user_id = u.id) AS coverage_districts_count,
+  (SELECT jsonb_agg(jsonb_build_object('ar', picked.name_ar, 'en', picked.name_en) ORDER BY picked.name_ar)
+     FROM (SELECT cov_d.name_ar, cov_d.name_en FROM provider_coverage_districts cov_pick
+           JOIN districts cov_d ON cov_d.id = cov_pick.district_id WHERE cov_pick.user_id = u.id
+           ORDER BY cov_d.name_ar LIMIT 6) picked) AS coverage_districts_list`;
+
+const parse = value => {
+  if (typeof value === 'string') { try { return JSON.parse(value); } catch (_) { return null; } }
+  return value ?? null;
+};
+
+// The shape the cards read: { city: {ar,en,tr}, districts: [{ar,en}] (up to 6), districts_count }.
+function coverageOf(row) {
+  const city = parse(row.coverage_city);
+  const districts = parse(row.coverage_districts_list) || [];
+  return { city: city || null, districts, districts_count: Number(row.coverage_districts_count) || 0 };
+}
+
+module.exports = { validateCoverage, saveCoverage, coverageDistricts, COVERAGE_SQL, coverageOf };

@@ -2,6 +2,7 @@ const { query } = require('../config/database');
 const { success, error } = require('../utils/apiResponse');
 const asyncHandler = require('../utils/asyncHandler');
 const { distanceKm, isValidLatLng } = require('../services/geoService');
+const { COVERAGE_SQL, coverageOf } = require('../utils/providerCoverage');
 const { availability } = require('../utils/providerAvailability');
 const ProviderBadge = require('../models/ProviderBadge');
 
@@ -49,6 +50,7 @@ const nearby = asyncHandler(async (req, res) => {
            to_jsonb(pp)->>'availability_status' AS availability_status, to_jsonb(pp)->>'vacation_from' AS vacation_from,
            to_jsonb(pp)->>'vacation_to' AS vacation_to, to_jsonb(pp)->>'work_days' AS work_days,
            to_jsonb(pp)->>'work_from' AS work_from, to_jsonb(pp)->>'work_to' AS work_to,
+           to_jsonb(pp)->'work_schedule' AS work_schedule, ${COVERAGE_SQL},
            c.latitude AS city_latitude, c.longitude AS city_longitude,
            c.name_ar AS city_name_ar, c.name_en AS city_name_en
     FROM users u
@@ -93,6 +95,7 @@ const nearby = asyncHandler(async (req, res) => {
       rating_count: Number(row.rating_count) || 0,
       completed_orders: Number(row.completed_orders) || 0,
       service_radius_km: Number(row.service_radius_km) || null,
+      coverage: coverageOf(row),
       city_name_ar: row.city_name_ar,
       city_name_en: row.city_name_en,
       latitude: point.latitude,
@@ -174,6 +177,7 @@ function coveringProviders({ districtId, cityId, excludeId = 0 }) {
            to_jsonb(pp)->>'availability_status' AS availability_status, to_jsonb(pp)->>'vacation_from' AS vacation_from,
            to_jsonb(pp)->>'vacation_to' AS vacation_to, to_jsonb(pp)->>'work_days' AS work_days,
            to_jsonb(pp)->>'work_from' AS work_from, to_jsonb(pp)->>'work_to' AS work_to,
+           to_jsonb(pp)->'work_schedule' AS work_schedule, ${COVERAGE_SQL},
            EXISTS (SELECT 1 FROM provider_badges pb WHERE pb.user_id = u.id AND pb.badge_type = 'featured' AND pb.status = 'active'
                    AND pb.ends_at > CURRENT_TIMESTAMP AND ${ProviderBadge.verifiedPaymentSql('pb')}) AS is_featured
     FROM users u
@@ -229,6 +233,7 @@ async function listProviders(rows, { categoryId, serviceId, categoryServices, ci
       rating_avg: Number(row.rating_avg) || 0, rating_count: Number(row.rating_count) || 0,
       completed_orders: Number(row.completed_orders) || 0,
       availability: availability(row),
+      coverage: coverageOf(row),
       // Shown on the card: profession and district (AYK-041).
       category_name_ar: row.category_name_ar, category_name_en: row.category_name_en, category_name_translations: row.category_name_translations,
       district_name_ar: row.district_name_ar, district_name_en: row.district_name_en,

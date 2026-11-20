@@ -2318,10 +2318,10 @@
     "manage": "Pamahalaan ang availability",
     "state": {
       "available": "Available ngayon",
-      "paused": "Pansamantalang nakahinto",
+      "paused": "Wala munang serbisyo",
       "vacation": "Naka-bakasyon",
-      "off_day": "Hindi araw ng trabaho",
-      "off_hours": "Labas sa oras ng trabaho",
+      "off_day": "Hindi available ngayong araw",
+      "off_hours": "Hindi available ngayon (labas sa oras ng trabaho)",
       "offline": "Hindi konektado ngayon"
     },
     "vacation_until": "Naka-bakasyon hanggang {{date}}",
@@ -2347,7 +2347,23 @@
     "vacation_both": "Itakda ang petsa ng simula at pagtatapos ng bakasyon.",
     "hours_both": "Ilagay ang oras ng simula at pagtatapos, o iwanang blangko pareho.",
     "days_required": "Pumili ng kahit isang araw ng trabaho.",
-    "hours_24": "24 oras"
+    "hours_24": "24 oras",
+    "schedule_link": "Iskedyul ng trabaho",
+    "schedule_title": "Iskedyul ng trabaho",
+    "day_off": "Day off",
+    "all_hours": "Available 24 oras, araw-araw",
+    "present": "Nasa app ngayon",
+    "not_present": "Wala sa app ngayon",
+    "present_hint": "Nasa app: bukas ang app niya ngayon. Available: tumatanggap ng trabaho ayon sa iskedyul niya.",
+    "mode_24h": "Available 24 oras",
+    "mode_schedule": "Lingguhang iskedyul",
+    "add_period": "Magdagdag ng oras",
+    "remove_period": "Alisin ang oras na ito",
+    "copy_all": "Kopyahin ang araw na ito sa lahat ng araw",
+    "day_works": "May trabaho sa araw na ito",
+    "schedule_hint": "Maglagay ng isa o higit pang oras bawat araw, gaya ng 8 am hanggang 12 tanghali at 4 pm hanggang 10 pm. Puwedeng lumampas ng hatinggabi.",
+    "schedule_required": "Maglagay ng kahit isang oras ng trabaho, o piliin ang «Available 24 oras».",
+    "midnight": "Hatinggabi"
   },
   "brand": {
     "branch_of": "Ang Ay Khidma ay sangay ng",
@@ -2873,5 +2889,10 @@
     "contact": "Makipag-ugnayan",
     "rating_count": "Mga rating: {{count}}",
     "completed": "Natapos na kahilingan: {{count}}"
+  },
+  "coverage": {
+    "covers": "Sakop: {{city}}",
+    "all_districts": "Lahat ng kapitbahayan",
+    "more_districts": "at {{count}} pa"
   }
 }

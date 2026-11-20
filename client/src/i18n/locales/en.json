@@ -2318,10 +2318,10 @@
     "manage": "Manage availability",
     "state": {
       "available": "Available now",
-      "paused": "Paused",
+      "paused": "Out of service for now",
       "vacation": "On vacation",
-      "off_day": "Not a working day",
-      "off_hours": "Outside working hours",
+      "off_day": "Not available today",
+      "off_hours": "Not available now (outside working hours)",
       "offline": "Not connected now"
     },
     "vacation_until": "On vacation until {{date}}",
@@ -2347,7 +2347,23 @@
     "vacation_both": "Set both the start and end of the vacation.",
     "hours_both": "Set both start and end hours, or leave both empty.",
     "days_required": "Choose at least one working day.",
-    "hours_24": "24 hours"
+    "hours_24": "24 hours",
+    "schedule_link": "Work schedule",
+    "schedule_title": "Work schedule",
+    "day_off": "Day off",
+    "all_hours": "Available 24 hours, every day",
+    "present": "In the app now",
+    "not_present": "Not in the app now",
+    "present_hint": "In the app: has the app open now. Available: takes work by their schedule.",
+    "mode_24h": "Available 24 hours",
+    "mode_schedule": "Weekly schedule",
+    "add_period": "Add a period",
+    "remove_period": "Remove the period",
+    "copy_all": "Copy this day to every day",
+    "day_works": "Works this day",
+    "schedule_hint": "Set one or more periods for each day, such as 8 am to 12 noon and 4 pm to 10 pm. A period may run past midnight.",
+    "schedule_required": "Set at least one working period, or choose “Available 24 hours”.",
+    "midnight": "Midnight"
   },
   "brand": {
     "branch_of": "Ay Khidma is a branch of",
@@ -2873,5 +2889,10 @@
     "contact": "Contact",
     "rating_count": "Ratings: {{count}}",
     "completed": "Completed requests: {{count}}"
+  },
+  "coverage": {
+    "covers": "Covers: {{city}}",
+    "all_districts": "All neighborhoods",
+    "more_districts": "and {{count}} more"
   }
 }

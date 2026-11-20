@@ -11,7 +11,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { canRequestService } from '../../utils/canRequest';
 import { listDirectoryIds, saveToDirectory, contactDirect } from '../../services/requestService';
 import { apiError } from '../../services/api';
-import { isPresent } from '../common/AvailabilityBadge';
+import { isPresent, ProviderStatus } from '../common/AvailabilityBadge';
 import { optionLabel } from '../../utils/optionLabel';
 
 // Providers who serve the signed-in requester's registered district in a profession
@@ -211,7 +211,6 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
   const lang = i18n.resolvedLanguage || 'ar';
   const navigate = useNavigate();
   const run = async action => { setBusy(true); setProblem(''); try { await action(); } catch (err) { !err?.cancelled && setProblem(apiError(err)); } finally { setBusy(false); } };
-  const state = p.availability?.state;
   return (
     // Providers are blue, requests orange, as in the logo (AYK-099).
     <li className={`card tone-provider p-3 flex gap-3 items-start ${p.is_featured ? 'ring-2 ring-amber-400' : ''}`} data-testid="provider-card">
@@ -228,8 +227,9 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
           {p.district_name_ar && <span>📍 {localizedName({ name_ar: p.district_name_ar, name_en: p.district_name_en }, lang)}</span>}
           <TrustSummary userId={p.id} average={p.rating_avg} count={p.rating_count} opinion={p.opinion} />
           {p.completed_orders > 0 && <span>✅ {t('for_you.completed', { count: p.completed_orders })}</span>}
-          <span className={isPresent(p.availability) ? 'text-success' : 'text-danger'}>{isPresent(p.availability) ? '🟢' : '🔴'} {t(isPresent(p.availability) ? 'for_you.available' : state === 'available' ? 'availability.state.offline' : 'for_you.unavailable')}</span>
         </div>
+        {/* AYK-366: available (their schedule) and present (app open) apart, and where they work. */}
+        <ProviderStatus availability={p.availability} coverage={p.coverage} name={p.business_name || p.full_name} className="mt-1.5" />
         <div className="flex flex-wrap items-center gap-2 mt-2">
           {onContact && <button type="button" className="btn btn-primary btn-sm" disabled={busy} data-testid="contact-provider"
             onClick={async () => { setBusy(true); try { await onContact(p); } finally { setBusy(false); } }}>💬 {t('request.contact')}</button>}

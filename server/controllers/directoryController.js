@@ -2,6 +2,7 @@ const { query, queryOne } = require('../config/database');
 const { success, error, notFound } = require('../utils/apiResponse');
 const asyncHandler = require('../utils/asyncHandler');
 const { availability } = require('../utils/providerAvailability');
+const { COVERAGE_SQL, coverageOf } = require('../utils/providerCoverage');
 
 // "My directory" (AYK-041): providers a requester keeps to contact again without
 // posting a request. Contacting one opens a direct request (requestController.direct).
@@ -18,7 +19,8 @@ const list = asyncHandler(async (req, res) => {
       dist.name_ar AS district_name_ar, dist.name_en AS district_name_en,
       to_jsonb(pp)->>'availability_status' AS availability_status, to_jsonb(pp)->>'vacation_from' AS vacation_from,
       to_jsonb(pp)->>'vacation_to' AS vacation_to, to_jsonb(pp)->>'work_days' AS work_days,
-      to_jsonb(pp)->>'work_from' AS work_from, to_jsonb(pp)->>'work_to' AS work_to
+      to_jsonb(pp)->>'work_from' AS work_from, to_jsonb(pp)->>'work_to' AS work_to,
+      to_jsonb(pp)->'work_schedule' AS work_schedule, ${COVERAGE_SQL}
       , sp.nickname, u.referral_code, u.role, u.is_online, u.phone, pp.show_phone, pp.whatsapp, pp.show_whatsapp,
       (SELECT c.id FROM conversations c
         JOIN conversation_participants mine ON mine.conversation_id = c.id AND mine.user_id = sp.user_id
@@ -56,6 +58,7 @@ const list = asyncHandler(async (req, res) => {
     opinion: row.opinion || null,
     rating_avg: Number(row.rating_avg) || 0, rating_count: Number(row.rating_count) || 0,
     completed_orders: Number(row.completed_orders) || 0, availability: row.role === 'provider' ? availability(row) : null,
+    coverage: row.role === 'provider' ? coverageOf(row) : null,
     nickname: row.nickname || null, referral_code: row.referral_code || null, is_provider: row.role === 'provider',
     conversation_id: row.conversation_id ? Number(row.conversation_id) : null, can_message: row.can_message,
     // The numbers a provider chose to show (AYK-314); never a requester's.

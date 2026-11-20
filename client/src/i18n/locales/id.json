@@ -2318,10 +2318,10 @@
     "manage": "Kelola ketersediaan",
     "state": {
       "available": "Tersedia sekarang",
-      "paused": "Dijeda",
+      "paused": "Sedang tidak melayani",
       "vacation": "Sedang cuti",
-      "off_day": "Bukan hari kerja",
-      "off_hours": "Di luar jam kerja",
+      "off_day": "Tidak tersedia hari ini",
+      "off_hours": "Tidak tersedia sekarang (di luar jam kerja)",
       "offline": "Sedang tidak terhubung"
     },
     "vacation_until": "Cuti sampai {{date}}",
@@ -2347,7 +2347,23 @@
     "vacation_both": "Tentukan tanggal mulai dan selesai cuti.",
     "hours_both": "Isi jam mulai dan jam selesai, atau kosongkan keduanya.",
     "days_required": "Pilih minimal satu hari kerja.",
-    "hours_24": "24 jam"
+    "hours_24": "24 jam",
+    "schedule_link": "Jadwal kerja",
+    "schedule_title": "Jadwal kerja",
+    "day_off": "Libur",
+    "all_hours": "Tersedia 24 jam setiap hari",
+    "present": "Sedang di aplikasi",
+    "not_present": "Tidak sedang di aplikasi",
+    "present_hint": "Di aplikasi: aplikasinya sedang terbuka. Tersedia: menerima pekerjaan sesuai jadwalnya.",
+    "mode_24h": "Tersedia 24 jam",
+    "mode_schedule": "Jadwal mingguan",
+    "add_period": "Tambah waktu",
+    "remove_period": "Hapus waktu ini",
+    "copy_all": "Salin hari ini ke semua hari",
+    "day_works": "Bekerja hari ini",
+    "schedule_hint": "Atur satu atau lebih waktu untuk setiap hari, misalnya pukul 8 pagi sampai 12 siang dan 4 sore sampai 10 malam. Waktu boleh melewati tengah malam.",
+    "schedule_required": "Atur setidaknya satu waktu kerja, atau pilih «Tersedia 24 jam».",
+    "midnight": "Tengah malam"
   },
   "brand": {
     "branch_of": "Ay Khidma adalah cabang dari",
@@ -2873,5 +2889,10 @@
     "contact": "Hubungi",
     "rating_count": "Jumlah penilaian: {{count}}",
     "completed": "Permintaan selesai: {{count}}"
+  },
+  "coverage": {
+    "covers": "Wilayah: {{city}}",
+    "all_districts": "Semua lingkungan",
+    "more_districts": "dan {{count}} lainnya"
   }
 }

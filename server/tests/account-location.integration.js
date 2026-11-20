@@ -476,3 +476,22 @@ test('AYK-365: one chat per two people: one row, one timeline across their conve
   const stranger = await register();
   await api(`/chat/conversations/${first}/messages`, { token: stranger.token, expected: 403 });
 });
+
+test('AYK-366: a provider saves a weekly schedule; the profile shows it, availability apart from presence', async () => {
+  const provider = await register({ role: 'provider' });
+  const schedule = { 0: [['08:00', '12:00'], ['16:00', '22:00']], 5: [['16:00', '22:00']] };
+  await api('/users/me/provider', { token: provider.token, method: 'PUT', body: { work_schedule: schedule } });
+  const stored = await db.queryOne('SELECT work_schedule, work_days, work_from, work_to FROM provider_profiles WHERE user_id = ?', [provider.user.id]);
+  assert.deepEqual(typeof stored.work_schedule === 'string' ? JSON.parse(stored.work_schedule) : stored.work_schedule, schedule);
+  assert.equal(stored.work_days, null);
+  const me = await api('/auth/me', { token: provider.token });
+  const shown = me.provider.availability;
+  assert.deepEqual(shown.schedule[0], schedule[0]);
+  assert.deepEqual(shown.schedule[1], [], 'Monday off');
+  assert.ok(['available', 'off_hours', 'off_day'].includes(shown.state));
+  assert.equal(typeof shown.present, 'boolean', 'presence is reported on its own');
+  await api('/users/me/provider', { token: provider.token, method: 'PUT', body: { work_schedule: { 9: [['08:00', '12:00']] } }, expected: 400 });
+  await api('/users/me/provider', { token: provider.token, method: 'PUT', body: { work_schedule: null } });
+  const allDay = (await api('/auth/me', { token: provider.token })).provider.availability;
+  assert.equal(allDay.all_hours, true); assert.equal(allDay.state, 'available');
+});

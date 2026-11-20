@@ -159,8 +159,17 @@ const listProvidersAdmin = asyncHandler(async (req, res) => {
     WHERE ${where.join(' AND ')}`;
   const items = await query(`SELECT u.id, u.full_name, u.username, u.phone, u.referral_code, u.is_active, u.is_blocked, u.also_client,
       u.created_at, u.last_seen_at, pp.business_name, pp.rating_avg, pp.rating_count, pp.completed_orders, pp.hidden_at,
-      pp.category_id, cat.name_ar AS category_name, c.name_ar AS city_name, rg.name_ar AS region_name, d.name_ar AS district_name
+      pp.category_id, cat.name_ar AS category_name, c.name_ar AS city_name, rg.name_ar AS region_name, d.name_ar AS district_name,
+      u.is_online, pp.availability_status, pp.vacation_from, pp.vacation_to, pp.work_days, pp.work_from, pp.work_to, pp.work_schedule,
+      ${COVERAGE_SQL}
     ${from} ORDER BY u.created_at DESC, u.id DESC LIMIT ? OFFSET ?`, [...params, limit, (page - 1) * limit]);
+  // AYK-366: available (by their schedule) and present (app open) apart, and where they work.
+  for (const row of items) {
+    row.availability = availability(row);
+    row.coverage = coverageOf(row);
+    for (const key of ['availability_status', 'vacation_from', 'vacation_to', 'work_days', 'work_from', 'work_to', 'work_schedule',
+      'coverage_city', 'coverage_districts_count', 'coverage_districts_list']) delete row[key];
+  }
   const [{ total }] = await query(`SELECT COUNT(*) AS total ${from}`, params);
   return paginate(res, items, total, page, limit);
 });
@@ -781,6 +790,8 @@ const liveLocationsAdmin = asyncHandler(async (req, res) => {
 
 // ─── Admin permission editor ────────────────────────────────────────────
 const { PERMISSIONS } = require('../config/permissions');
+const { availability } = require('../utils/providerAvailability');
+const { COVERAGE_SQL, coverageOf } = require('../utils/providerCoverage');
 
 // Lists every permission key the UI can grant (for the dropdown / checkbox
 // grid). Plain JSON; cached client-side.

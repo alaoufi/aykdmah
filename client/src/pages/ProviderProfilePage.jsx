@@ -10,7 +10,7 @@ import 'leaflet/dist/leaflet.css';
 import api from '../services/api';
 import BaseTileLayer from '../components/map/BaseTileLayer';
 import Avatar from '../components/common/Avatar';
-import AvailabilityBadge, { workingSummary } from '../components/common/AvailabilityBadge';
+import AvailabilityBadge, { PresenceTag, WeekSchedule } from '../components/common/AvailabilityBadge';
 import CallButtons from '../components/calls/CallButtons';
 import ShareProviderLink, { DirectoryButton } from '../components/providers/ShareProviderLink';
 import StarRating from '../components/reviews/StarRating';
@@ -84,8 +84,13 @@ export default function ProviderProfilePage() {
               {city || ''}
             </div>
             {provider.availability && <div className="mt-1 space-y-0.5">
-              <AvailabilityBadge availability={provider.availability} />
-              <div className="text-[12px] text-fg-muted">🗓️ {workingSummary(provider.availability, t, i18n.resolvedLanguage || 'ar')}</div>
+              <span className="flex items-center gap-2 flex-wrap">
+                <AvailabilityBadge availability={provider.availability} name={name} />
+                <PresenceTag present={provider.availability.present} />
+              </span>
+              {/* AYK-366: the whole week on the provider's page. */}
+              <details className="text-[12.5px]"><summary className="cursor-pointer font-semibold text-primary">🗓️ {t('availability.schedule_title')}</summary>
+                <div className="mt-1"><WeekSchedule availability={provider.availability} /></div></details>
             </div>}
           </div>
         </div>

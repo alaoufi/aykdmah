@@ -6725,6 +6725,10 @@ ALTER TABLE requests ADD COLUMN IF NOT EXISTS hidden_at TIMESTAMP NULL DEFAULT N
 ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS hidden_at TIMESTAMP NULL DEFAULT NULL;
 INSERT INTO schema_migrations(name) VALUES ('099_admin_hide.sql');
 
+-- migrations/100_work_schedule.sql
+ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS work_schedule JSONB DEFAULT NULL;
+INSERT INTO schema_migrations(name) VALUES ('100_work_schedule.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;
