@@ -414,6 +414,9 @@ const markRead = asyncHandler(async (req, res) => {
   const isParticipant = await Conversation.isParticipant(conversationId, req.user.id);
   if (!isParticipant) return forbidden(res, req.t('deny_chat_participant'));
   await Conversation.updateLastRead(conversationId, req.user.id);
+  // AYK-363: the conversation's notifications are read with it.
+  await query("UPDATE notifications SET is_read = 1, read_at = CURRENT_TIMESTAMP WHERE user_id = ? AND is_read = 0 AND link = ?",
+    [req.user.id, `/chat/${Number(conversationId)}`]).catch(() => {});
   const io = req.app.get('io');
   await emitConversation(io, conversationId, 'chat:read', { conversationId, userId: req.user.id });
   return success(res, null, req.t('read_marked'));

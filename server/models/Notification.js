@@ -10,35 +10,45 @@ async function create({ user_id, type, title, body, data, link, channel = 'in_ap
   return result[0] || queryOne('SELECT * FROM notifications WHERE id = ?', [result.insertId]);
 }
 
+// AYK-363 (the owner: «كل رسالة تتحول وكأنها محادثة… الصحيح كل الرسائل داخل محادثة واحدة بين طرفين
+// مثل الواتساب تمامًا حتى لو قديمة»). Notifications that open the same conversation are one entry:
+// the newest of them, with how many there are and how many are unread. Nothing is deleted; reading
+// the entry reads all of them. Other notifications stay one entry each.
+const GROUP_KEY = "CASE WHEN link LIKE '/chat/%' THEN link ELSE CONCAT('n:', id) END";
+
 async function listForUser(userId, { unreadOnly = false, page = 1, limit = 20 } = {}) {
   page = Math.max(1, Math.min(100000, Number.parseInt(page, 10) || 1));
   limit = Math.max(1, Math.min(100, Number.parseInt(limit, 10) || 20));
   const offset = (page - 1) * limit;
-  const where = ['user_id = ?'];
-  const params = [userId];
-  if (unreadOnly) where.push('is_read = 0');
-  const whereSql = where.join(' AND ');
+  const scope = `SELECT notifications.*, ${GROUP_KEY} AS group_key FROM notifications WHERE user_id = ?`;
+  const groups = `WITH g AS (${scope}),
+    s AS (SELECT group_key, COUNT(*) AS group_count, SUM(CASE WHEN is_read = 0 THEN 1 ELSE 0 END) AS group_unread FROM g GROUP BY group_key),
+    latest AS (SELECT DISTINCT ON (group_key) * FROM g ORDER BY group_key, (type = 'new_message') DESC, created_at DESC, id DESC)
+    SELECT latest.*, s.group_count, s.group_unread FROM latest JOIN s ON s.group_key = latest.group_key
+    ${unreadOnly ? 'WHERE s.group_unread > 0' : ''}`;
 
-  const items = await query(
-    `SELECT * FROM notifications WHERE ${whereSql}
-     ORDER BY created_at DESC LIMIT ? OFFSET ?`,
-    [...params, Number(limit), Number(offset)]
-  );
-  const [{ total }] = await query(
-    `SELECT COUNT(*) AS total FROM notifications WHERE ${whereSql}`,
-    params
-  );
+  const rows = await query(`${groups} ORDER BY created_at DESC, id DESC LIMIT ? OFFSET ?`, [userId, Number(limit), Number(offset)]);
+  const items = rows.map(({ group_key, ...row }) => ({
+    ...row,
+    group_count: Number(row.group_count) || 1,
+    group_unread: Number(row.group_unread) || 0,
+    // The entry is unread while any message in it is.
+    is_read: Number(row.group_unread) > 0 ? 0 : 1,
+  }));
+  const [{ total }] = await query(`SELECT COUNT(*) AS total FROM (${groups}) t`, [userId]);
   const [{ unread }] = await query(
-    'SELECT COUNT(*) AS unread FROM notifications WHERE user_id = ? AND is_read = 0',
+    `SELECT COUNT(DISTINCT ${GROUP_KEY}) AS unread FROM notifications WHERE user_id = ? AND is_read = 0`,
     [userId]
   );
-  return { items, total, unread };
+  return { items, total: Number(total), unread: Number(unread) };
 }
 
 async function markRead(id, userId) {
+  // Reading a conversation's entry reads every notification of that conversation.
   await query(
-    'UPDATE notifications SET is_read = 1, read_at = CURRENT_TIMESTAMP WHERE id = ? AND user_id = ?',
-    [id, userId]
+    `UPDATE notifications SET is_read = 1, read_at = CURRENT_TIMESTAMP
+     WHERE user_id = ? AND is_read = 0 AND (id = ? OR (link LIKE '/chat/%' AND link = (SELECT link FROM notifications WHERE id = ? AND user_id = ?)))`,
+    [userId, id, id, userId]
   );
 }
 

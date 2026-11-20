@@ -388,3 +388,32 @@ test('AYK-361: the administration lists requests and providers by area and profe
   await admin(`/admin/providers/${second.user.id}/hide`, { method: 'PUT', body: { hidden: false } });
   await admin('/admin/providers/1/hide', { method: 'PUT', body: { hidden: 'yes' }, expected: 400 });
 });
+
+test('AYK-363: notifications of one conversation are one entry, like WhatsApp, old ones included', async () => {
+  const Notification = require('../models/Notification');
+  const session = await register();
+  const uid = session.user.id;
+  for (const [i, body] of ['السلام عليكم', 'هلا', 'ويش عندك', 'ر'].entries()) {
+    await db.query("INSERT INTO notifications (user_id, type, title, body, link, created_at) VALUES (?, 'new_message', 'مقدم', ?, '/chat/901', CURRENT_TIMESTAMP + (? * INTERVAL '1 second'))", [uid, body, i]);
+  }
+  await db.query("INSERT INTO notifications (user_id, type, title, body, link) VALUES (?, 'new_message', 'آخر', 'من محادثة أخرى', '/chat/902')", [uid]);
+  // A «contact about a request» notice of the same conversation joins it; the entry still shows the sender's last message.
+  await db.query("INSERT INTO notifications (user_id, type, title, body, link, created_at) VALUES (?, 'request_contact', 'تواصل بخصوص طلب', 'يتواصل معك', '/chat/901', CURRENT_TIMESTAMP + INTERVAL '10 seconds')", [uid]);
+  await db.query("INSERT INTO notifications (user_id, type, title, body, link) VALUES (?, 'offer', 'عرض', 'عرض جديد', '/requests/5')", [uid]);
+  await db.query("INSERT INTO notifications (user_id, type, title, body, link) VALUES (?, 'offer', 'عرض', 'عرض ثان', '/requests/5')", [uid]);
+  let list = await Notification.listForUser(uid, { limit: 50 });
+  const chat = list.items.filter(n => n.link === '/chat/901');
+  assert.equal(chat.length, 1, 'one entry for the conversation');
+  assert.equal(chat[0].body, 'ر', 'its newest message');
+  assert.equal(chat[0].group_count, 5);
+  assert.equal(chat[0].group_unread, 5);
+  assert.equal(list.items.filter(n => n.link === '/requests/5').length, 2, 'other notifications stay one entry each');
+  assert.equal(list.unread, 4, 'two conversations and two other notifications');
+  await Notification.markRead(chat[0].id, uid);
+  list = await Notification.listForUser(uid, { limit: 50 });
+  assert.equal(list.items.find(n => n.link === '/chat/901').is_read, 1, 'reading the entry reads all its messages');
+  assert.equal(list.unread, 3);
+  assert.equal(Number((await db.queryOne("SELECT COUNT(*) AS n FROM notifications WHERE user_id = ? AND link = '/chat/901'", [uid])).n), 5, 'nothing deleted');
+  const api_ = await api('/notifications?limit=50', { token: session.token });
+  assert.equal((Array.isArray(api_) ? api_ : api_.items || []).filter(n => n.link === '/chat/902').length, 1);
+});
