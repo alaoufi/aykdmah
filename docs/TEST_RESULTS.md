@@ -1634,3 +1634,13 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Now an administration account sees «لوحة الإدارة» in the site's menu, and can open the admin area (from the menu or its own sign-in page), only when it is a full administrator or has at least one section granted. An administration account with none behaves as an ordinary member: no link, the server refuses the admin session (403), and the admin sign-in page refuses it. Ordinary members never saw it and still do not.
 - Browser check (local site): a member with one section: link shown, admin session 200, admin sign-in opens `/admin`; a member with none: no link, 403, stays on the admin sign-in page; an ordinary requester: no link, 403; no page errors. Test members removed afterwards.
 - The existing test «site and admin sessions of one account are separate» used an administration account with no section and expected it to open the area; it now checks it is refused, then grants one section and checks it opens. Full integration 285 pass, 0 fail; server unit 86, client 167 pass; build and `check-deploy` 22 ok.
+- AYK-347 deployed as 1.1.94 (build b18767d).
+
+## 2026-11-20 — AYK-348: are phone notifications ready? (report added)
+- The owner asks whether notifications reach Android and iPhone, i.e. whether the server is set up for them. That cannot be seen from here, so the read-only server report (`deploy/slow-requests.sh`, run by `[server-report]`) now also says, yes or no only (no key is printed): the Android (Firebase) key, the iPhone (Apple) key, the web push key, how many phones and browsers are registered, and the sending failures logged in the period. Deployed as 1.1.95 (build 2105fa9). The result is recorded below when the report has run.
+
+## 2026-11-20 — AYK-349: a dead gap above the footer
+- The owner's screenshot: a large empty area between the last card and the footer on the phone.
+- Cause: on phones every page's main area kept 108 px clear of the bottom bar, and so did the footer under it; the home page had its own main area inside, with another 108 px and 96 px more. The footer alone keeps clear of the bar now; the home page's inner area is a plain block.
+- Browser check (local site, phone size, signed in): the gap between the last content and the footer is 0 px on `/`, `/profile`, `/services` and `/directory`; the footer still ends 108 px above the bottom of the page so the bar covers nothing; screenshot reviewed; no page errors.
+- Client tests 167 pass; build and `check-deploy` 22 ok.

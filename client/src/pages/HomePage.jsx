@@ -21,7 +21,7 @@ export default function HomePage() {
   // card nor the requests in its own profession and area.
   if (user?.role === 'client' || (user?.role === 'provider' && Number(user.also_client) === 1)) {
     return (
-      <main className="pb-24 md:pb-0">
+      <div>
         <div className="container max-w-5xl mx-auto px-4 pt-4"><AdSlot placement="home_top" /></div>
         <RequesterHome />
         {/* The other home placements show to signed-in requesters too (AYK-159). */}
@@ -30,12 +30,12 @@ export default function HomePage() {
           <AdSlot placement="home_middle" />
           <AdSlot placement="home_bottom" />
         </div>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="pb-24 md:pb-0">
+    <div>
       <div className="container max-w-5xl mx-auto px-4 pt-4">
         <AdSlot placement="home_top" />
       </div>
@@ -60,6 +60,6 @@ export default function HomePage() {
       <div className="container max-w-5xl mx-auto px-4 mt-4">
         <AdSlot placement="home_bottom" />
       </div>
-    </main>
+    </div>
   );
 }

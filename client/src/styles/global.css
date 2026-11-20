@@ -379,7 +379,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* Reserve the whole navigation, its raised action button, and the safe area. */
 @media (max-width: 767.98px) {
-  main { padding-bottom: var(--mobile-nav-clearance); }
+  /* AYK-349 (the owner: «منطقة ميتة»): the site's pages end in the footer, which keeps clear of the
+     bar; their main area added the same gap again (twice on the home page, which had its own). */
+  main:not(.site-main) { padding-bottom: var(--mobile-nav-clearance); }
   .site-footer { padding-bottom: var(--mobile-nav-clearance); }
 }
 
