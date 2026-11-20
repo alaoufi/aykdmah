@@ -63,11 +63,11 @@ const getMessages = asyncHandler(async (req, res) => {
   const validId = value => value == null || /^[1-9][0-9]{0,9}$/.test(String(value));
   if (!validId(before) || !validId(after)) return error(res, req.t('invalid_data'), 400);
   // AYK-365: one chat per two people: the messages of all their conversations, as one timeline.
-  const messages = await Message.listByConversation(await Conversation.pairIds(conversationId, req.user.id), { beforeId: before, afterId: after, limit });
+  const messages = await Message.listByConversation(await Conversation.pairIds(conversationId, req.user.id), { beforeId: before, afterId: after, limit, viewerId: req.user.id });
   await hideMessageNames(req, messages);
   // Each message already in the reader's language when it was translated before (AYK-231).
   const lang = String(req.query.lang || req.lang || '').toLowerCase();
-  await chatTranslation.attachTranslations(messages.filter(m => Number(m.sender_id) !== Number(req.user.id)), lang);
+  await chatTranslation.attachTranslations(messages.filter(m => !m.deleted && Number(m.sender_id) !== Number(req.user.id)), lang);
   return success(res, messages);
 });
 
@@ -394,6 +394,17 @@ const nudge = asyncHandler(async (req, res) => {
 
 const deleteMessage = asyncHandler(async (req, res) => {
   const messageId = req.params.messageId;
+  if (!/^[1-9][0-9]{0,9}$/.test(String(messageId))) return error(res, req.t('invalid_data'), 400);
+  // AYK-381 «حذف لدي»: any message in one's own chat with that person, off one's own screen only.
+  // Nothing changes for the other person, and the administration still sees it in a dispute.
+  if ((req.query.scope || req.body?.scope) === 'me') {
+    const meta = await Message.getMeta(messageId);
+    if (!meta || !await samePerson(req.params.id, meta.conversation_id, req.user.id)
+        || !await Conversation.isParticipant(meta.conversation_id, req.user.id)) return notFound(res);
+    await Message.hideFor(Number(messageId), req.user.id);
+    return success(res, { hidden: true }, req.t('deleted'));
+  }
+  // «حذف لدى الجميع»: one's own message; it stays in its place as «حُذفت هذه الرسالة».
   const row = await Message.getSenderId(messageId);
   if (!row) return notFound(res);
   if (Number(row.sender_id) !== Number(req.user.id) || !await samePerson(req.params.id, row.conversation_id, req.user.id)

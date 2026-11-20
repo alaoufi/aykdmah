@@ -653,7 +653,13 @@
     "offline_hint": "No internet connection",
     "media_limits_hint": "Video up to {{video_min}} min or {{video_mb}} MB · audio up to {{voice_min}} min · image up to {{image_mb}} MB · file up to {{file_mb}} MB",
     "media_file_too_large": "This file is larger than {{size}} MB.",
-    "uploading_percent": "Uploading {{percent}}%"
+    "uploading_percent": "Uploading {{percent}}%",
+    "delete_for_everyone": "Delete for everyone",
+    "delete_for_me": "Delete for me",
+    "delete_for_me_body": "The message is removed from your screen only. The other person still sees it, and the administration keeps it in case of a dispute.",
+    "message_was_deleted": "This message was deleted",
+    "you_deleted_message": "You deleted this message",
+    "delete_choice_body": "“Delete for everyone”: removed for you and the other person, leaving “This message was deleted”.\n“Delete for me”: from your screen only.\nEither way, the administration keeps it in case of a dispute."
   },
   "tracking": {
     "title": "Live tracking",

@@ -653,7 +653,13 @@
     "offline_hint": "የበይነመረብ ግንኙነት የለም",
     "media_limits_hint": "ቪዲዮ እስከ {{video_min}} ደቂቃ ወይም {{video_mb}} ሜባ · ድምፅ እስከ {{voice_min}} ደቂቃ · ምስል እስከ {{image_mb}} ሜባ · ፋይል እስከ {{file_mb}} ሜባ",
     "media_file_too_large": "የዚህ ፋይል መጠን ከ{{size}} ሜባ ይበልጣል።",
-    "uploading_percent": "በመስቀል ላይ {{percent}}%"
+    "uploading_percent": "በመስቀል ላይ {{percent}}%",
+    "delete_for_everyone": "ለሁሉም ሰርዝ",
+    "delete_for_me": "ለእኔ ሰርዝ",
+    "delete_for_me_body": "መልእክቱ ከእርስዎ ማያ ገጽ ብቻ ይወገዳል፤ ሌላኛው ወገን ያየዋል፣ አስተዳደሩም ለክርክር ያስቀምጠዋል።",
+    "message_was_deleted": "ይህ መልእክት ተሰርዟል",
+    "you_deleted_message": "ይህን መልእክት ሰርዘዋል",
+    "delete_choice_body": "«ለሁሉም ሰርዝ»፦ ከእርስዎም ከሌላኛውም ወገን ይወገዳል፤ በቦታው «ይህ መልእክት ተሰርዟል» ይቀራል።\n«ለእኔ ሰርዝ»፦ ከእርስዎ ማያ ገጽ ብቻ።\nበሁለቱም መንገድ አስተዳደሩ ለክርክር ያስቀምጠዋል።"
   },
   "tracking": {
     "title": "የቀጥታ ክትትል",

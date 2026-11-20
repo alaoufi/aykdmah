@@ -653,7 +653,13 @@
     "offline_hint": "Tidak ada koneksi internet",
     "media_limits_hint": "Video hingga {{video_min}} menit atau {{video_mb}} MB · audio hingga {{voice_min}} menit · gambar hingga {{image_mb}} MB · file hingga {{file_mb}} MB",
     "media_file_too_large": "File ini lebih besar dari {{size}} MB.",
-    "uploading_percent": "Mengunggah {{percent}}%"
+    "uploading_percent": "Mengunggah {{percent}}%",
+    "delete_for_everyone": "Hapus untuk semua",
+    "delete_for_me": "Hapus untuk saya",
+    "delete_for_me_body": "Pesan hanya dihapus dari layar Anda. Pihak lain tetap melihatnya, dan administrasi menyimpannya jika terjadi sengketa.",
+    "message_was_deleted": "Pesan ini telah dihapus",
+    "you_deleted_message": "Anda menghapus pesan ini",
+    "delete_choice_body": "“Hapus untuk semua”: dihapus untuk Anda dan pihak lain, tersisa “Pesan ini telah dihapus”.\n“Hapus untuk saya”: hanya dari layar Anda.\nKeduanya tetap disimpan administrasi jika terjadi sengketa."
   },
   "tracking": {
     "title": "Pelacakan langsung",

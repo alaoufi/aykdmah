@@ -117,11 +117,23 @@ if (!databaseName) {
     const extra = (await api(`/chat/conversations/${conversationId}/messages`, { method: 'POST', token: provider.token, expected: 201, body: { content: 'رسالة ستحذف' } })).data;
     await api(`/chat/conversations/${conversationId}/messages/${extra.id}`, { method: 'DELETE', token: customer.token, expected: 403 });
     await api(`/chat/conversations/${conversationId}/messages/${extra.id}`, { method: 'DELETE', token: provider.token });
+    // AYK-381, as in WhatsApp: it keeps its place as «حُذفت هذه الرسالة», with nothing of what it said.
     for (const token of [customer.token, provider.token]) {
-      assert.ok(!(await api(`/chat/conversations/${conversationId}/messages`, { token })).data.some(m => m.id === extra.id), 'gone for both participants');
+      const shown = (await api(`/chat/conversations/${conversationId}/messages`, { token })).data.find(m => m.id === extra.id);
+      assert.ok(shown?.deleted === true && shown.content === null && shown.files.length === 0, 'a deleted placeholder for both participants');
+      assert.ok(!JSON.stringify(shown).includes('رسالة ستحذف'), 'its words never reach the participants');
     }
     const kept = (await Message.listByConversation(conversationId, { includeDeleted: true })).find(m => m.id === extra.id);
     assert.ok(kept?.deleted_at && kept.content === 'رسالة ستحذف', 'kept for administrators with its deletion time');
+    // «حذف لدي»: any participant removes any message from their own screen only.
+    const mine = (await api(`/chat/conversations/${conversationId}/messages`, { method: 'POST', token: provider.token, expected: 201, body: { content: 'تبقى عند المزود' } })).data;
+    await api(`/chat/conversations/${conversationId}/messages/${mine.id}?scope=me`, { method: 'DELETE', token: customer.token });
+    assert.ok(!(await api(`/chat/conversations/${conversationId}/messages`, { token: customer.token })).data.some(m => m.id === mine.id), 'gone for the one who deleted it');
+    assert.equal((await api(`/chat/conversations/${conversationId}/messages`, { token: provider.token })).data.find(m => m.id === mine.id)?.content, 'تبقى عند المزود', 'still there for the other');
+    assert.equal((await Message.listByConversation(conversationId, { includeDeleted: true })).find(m => m.id === mine.id)?.content, 'تبقى عند المزود', 'and for administrators');
+    const outsiderName = `outsider_${crypto.randomBytes(4).toString('hex')}`;
+    const outsider = (await api('/auth/register', { method: 'POST', expected: 201, body: { full_name: 'outsider test', username: outsiderName, password: `Outsider-${outsiderName}`, role: 'client' } })).data;
+    await api(`/chat/conversations/${conversationId}/messages/${mine.id}?scope=me`, { method: 'DELETE', token: outsider.token, expected: 404 });
     await api(`/requests/${request.id}/status`, { method: 'PUT', token: provider.token, body: { status: 'in_progress' } });
     await api(`/requests/${request.id}/status`, { method: 'PUT', token: customer.token, body: { status: 'completed' } });
     assert.equal((await api(`/requests/${request.id}`, { token: customer.token })).data.status, 'completed');

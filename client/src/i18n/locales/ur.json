@@ -653,7 +653,13 @@
     "offline_hint": "انٹرنیٹ کنکشن نہیں ہے",
     "media_limits_hint": "ویڈیو {{video_min}} منٹ یا {{video_mb}} MB تک · آڈیو {{voice_min}} منٹ تک · تصویر {{image_mb}} MB تک · فائل {{file_mb}} MB تک",
     "media_file_too_large": "یہ فائل {{size}} MB سے بڑی ہے۔",
-    "uploading_percent": "اپ لوڈ ہو رہا ہے {{percent}}٪"
+    "uploading_percent": "اپ لوڈ ہو رہا ہے {{percent}}٪",
+    "delete_for_everyone": "سب کے لیے حذف کریں",
+    "delete_for_me": "میرے لیے حذف کریں",
+    "delete_for_me_body": "پیغام صرف آپ کی اسکرین سے ہٹے گا، دوسرے فریق کے پاس رہے گا، اور انتظامیہ تنازع کی صورت میں اسے محفوظ رکھتی ہے۔",
+    "message_was_deleted": "یہ پیغام حذف کر دیا گیا",
+    "you_deleted_message": "آپ نے یہ پیغام حذف کیا",
+    "delete_choice_body": "«سب کے لیے حذف»: آپ اور دوسرے فریق دونوں سے ہٹے گا اور جگہ پر «یہ پیغام حذف کر دیا گیا» رہے گا۔\n«میرے لیے حذف»: صرف آپ کی اسکرین سے۔\nدونوں صورتوں میں انتظامیہ تنازع کے لیے اسے محفوظ رکھتی ہے۔"
   },
   "tracking": {
     "title": "براہ راست ٹریکنگ",

@@ -653,7 +653,13 @@
     "offline_hint": "Walang koneksyon sa internet",
     "media_limits_hint": "Video hanggang {{video_min}} min o {{video_mb}} MB · audio hanggang {{voice_min}} min · larawan hanggang {{image_mb}} MB · file hanggang {{file_mb}} MB",
     "media_file_too_large": "Mas malaki sa {{size}} MB ang file na ito.",
-    "uploading_percent": "Ina-upload {{percent}}%"
+    "uploading_percent": "Ina-upload {{percent}}%",
+    "delete_for_everyone": "Burahin para sa lahat",
+    "delete_for_me": "Burahin para sa akin",
+    "delete_for_me_body": "Sa screen mo lang aalisin ang mensahe. Makikita pa rin ito ng kabilang panig, at itinatago ito ng administrasyon kung may alitan.",
+    "message_was_deleted": "Binura ang mensaheng ito",
+    "you_deleted_message": "Binura mo ang mensaheng ito",
+    "delete_choice_body": "“Burahin para sa lahat”: aalisin sa iyo at sa kabilang panig, at “Binura ang mensaheng ito” ang matitira.\n“Burahin para sa akin”: sa screen mo lang.\nSa parehong paraan, itinatago ito ng administrasyon kung may alitan."
   },
   "tracking": {
     "title": "Live tracking",

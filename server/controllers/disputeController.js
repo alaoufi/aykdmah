@@ -142,7 +142,8 @@ const getDisputeConversation = asyncHandler(async (req, res) => {
 
   const conv = await Conversation.findById(dispute.conversation_id);
   const participants = await Conversation.getParticipants(dispute.conversation_id);
-  const messages = await Message.listByConversation(dispute.conversation_id, { limit: 500, includeDeleted: true });
+  // AYK-381: the whole chat of the two people (one chat since AYK-365), deleted messages included.
+  const messages = await Message.listByConversation(await Conversation.pairIds(dispute.conversation_id, request.client_id), { limit: 2000, includeDeleted: true });
   const locations = await LocationShare.getLatestForConversation(dispute.conversation_id);
 
   await Dispute.logAccess({

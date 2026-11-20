@@ -653,7 +653,13 @@
     "offline_hint": "İnternet bağlantısı yok",
     "media_limits_hint": "Video en fazla {{video_min}} dk veya {{video_mb}} MB · ses en fazla {{voice_min}} dk · fotoğraf en fazla {{image_mb}} MB · dosya en fazla {{file_mb}} MB",
     "media_file_too_large": "Bu dosya {{size}} MB'tan büyük.",
-    "uploading_percent": "Yükleniyor: %{{percent}}"
+    "uploading_percent": "Yükleniyor: %{{percent}}",
+    "delete_for_everyone": "Herkesten sil",
+    "delete_for_me": "Benden sil",
+    "delete_for_me_body": "Mesaj yalnızca sizin ekranınızdan kaldırılır. Karşı taraf görmeye devam eder ve yönetim anlaşmazlık durumu için saklar.",
+    "message_was_deleted": "Bu mesaj silindi",
+    "you_deleted_message": "Bu mesajı sildiniz",
+    "delete_choice_body": "“Herkesten sil”: sizden ve karşı taraftan kaldırılır, yerinde “Bu mesaj silindi” kalır.\n“Benden sil”: yalnızca sizin ekranınızdan.\nHer iki durumda da yönetim anlaşmazlık için saklar."
   },
   "tracking": {
     "title": "Canlı izleme",

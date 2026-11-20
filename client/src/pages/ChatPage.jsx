@@ -22,14 +22,13 @@ import ChatHeaderMenu from '../components/chat/ChatHeaderMenu';
 import { useChatPrefs } from '../utils/chatPrefs';
 import RequestBrief from '../components/chat/RequestBrief';
 import Avatar from '../components/common/Avatar';
-import ConfirmDialog from '../components/common/ConfirmDialog';
 import { LoadingState, EmptyState } from '../components/common/Spinner';
 import { formatRelativeTime, formatTime, truncate, dayLabel, isSameDay } from '../utils/formatters';
 import { getCurrentPosition } from '../utils/geo';
 import { sentTone } from '../utils/ringtone';
 import { createPollingLoop } from '../utils/polling';
 import { agreeRequest, saveToDirectory, contactDirectFresh } from '../services/requestService';
-import { askConfirm, askText, showAlert, showProblem } from '../components/common/AppDialog';
+import { askChoice, askConfirm, askText, showAlert, showProblem } from '../components/common/AppDialog';
 import AdSlot from '../components/ads/AdSlot';
 import BottomNav from '../components/layout/BottomNav';
 import useChatViewport from '../hooks/useChatViewport';
@@ -45,6 +44,10 @@ function BackArrow() {
     </svg>
   );
 }
+
+// A message deleted for everyone (AYK-381): its place, sender and time, nothing of what it said.
+const deletedPlaceholder = m => ({ ...m, deleted: true, deleted_at: m.deleted_at || new Date().toISOString(), content: null, files: [],
+  latitude: null, longitude: null, reply_to_id: null, reply_content: null, translated_text: null, translation: null });
 
 export default function ChatPage() {
   const viewportRef = useChatViewport();
@@ -92,7 +95,6 @@ export default function ChatPage() {
   const [loadingMsgs, setLoadingMsgs] = useState(false);
   const [typingUserId, setTypingUserId] = useState(null);
   const [replyTo, setReplyTo] = useState(null);
-  const [deleteCandidate, setDeleteCandidate] = useState(null);
   const [sharingLocation, setSharingLocation] = useState(false);
   const endRef = useRef(null);
   const listPollRef = useRef(null);
@@ -180,7 +182,6 @@ export default function ChatPage() {
     setReplyTo(null);
     setSelectedMessages([]);
     forwardOwner.current.close();setForwarding(null);
-    setDeleteCandidate(null);
     setSharingLocation(false);
     setTypingUserId(null);
     setMessageError(false);
@@ -290,7 +291,8 @@ export default function ChatPage() {
     const onDeleted = (payload) => {
       if (scopeRef.current !== scope) return;
       if (Number(payload.conversationId) === Number(activeId) || pairRef.current.has(Number(payload.conversationId))) {
-        setMessages(prev => prev.filter(m => m.id !== payload.messageId));
+        // AYK-381: as in WhatsApp, the message keeps its place as «حُذفت هذه الرسالة».
+        setMessages(prev => prev.map(m => (m.id === payload.messageId ? deletedPlaceholder(m) : m)));
       }
     };
     const onRead = (payload) => {
@@ -443,15 +445,27 @@ export default function ChatPage() {
     }
   };
 
-  const confirmDelete = async () => {
-    if (!deleteCandidate || !activeReady) return;
+  // AYK-381 (the owner: «يستطيع حذف الرسالة وتبقى للإدارة عند النزاع»), as in WhatsApp: «حذف لدي» for any
+  // message, «حذف لدى الجميع» for one's own. Either way the administration keeps it for a dispute.
+  const askDelete = async message => {
+    if (!message || !activeReady) return;
     const scope = scopeRef.current;
+    const mine = Number(message.sender_id) === Number(user.id) && !message.deleted;
+    const choice = await askChoice({
+      title: t('chat.delete_message_title'),
+      message: mine ? t('chat.delete_choice_body') : t('chat.delete_for_me_body'),
+      tone: 'danger',
+      choices: [
+        ...(mine ? [{ value: 'all', label: `🗑 ${t('chat.delete_for_everyone')}` }] : []),
+        { value: 'me', label: t('chat.delete_for_me') },
+      ],
+    });
+    if (!choice || scopeRef.current !== scope) return;
     try {
-      await deleteMessage(activeId, deleteCandidate.id);
+      await deleteMessage(activeId, message.id, choice);
       if (scopeRef.current !== scope) return;
-      setMessages(prev => prev.filter(m => m.id !== deleteCandidate.id));
-    } catch (_) {}
-    if (scopeRef.current === scope) setDeleteCandidate(null);
+      setMessages(prev => (choice === 'me' ? prev.filter(m => m.id !== message.id) : prev.map(m => (m.id === message.id ? deletedPlaceholder(m) : m))));
+    } catch (_) { /* the refusal is shown by the save announcement */ }
   };
 
   // Render with date separators
@@ -687,7 +701,7 @@ export default function ChatPage() {
                       firstInRun={index === 0 || renderedMessages[index - 1].__type === 'separator' || renderedMessages[index - 1].sender_id !== item.sender_id}
                       onReply={canSend ? setReplyTo : undefined}
                       onForward={item.sender_id === user.id && !['system','location'].includes(item.message_type) ? message => { setForwardNote(''); openForward([message.id]); } : undefined}
-                      onDelete={setDeleteCandidate}
+                      onDelete={askDelete}
                       onCallBack={canSend ? kind => startCall(Number(activeId), kind) : undefined}
                       onRetry={retrySend}
                       onDiscard={discardFailed}
@@ -769,15 +783,6 @@ export default function ChatPage() {
         )}
       </section>
 
-      <ConfirmDialog
-        open={activeReady && !!deleteCandidate}
-        title={t('chat.delete_message_title')}
-        body={t('chat.delete_message_body')}
-        confirmLabel={t('chat.delete_message')}
-        tone="danger"
-        onConfirm={confirmDelete}
-        onCancel={() => setDeleteCandidate(null)}
-      />
 
       <style>{`
         .chat-page {
