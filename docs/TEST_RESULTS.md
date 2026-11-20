@@ -1394,3 +1394,4 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - the sign-in page itself was ready after 1.25 s cold (was 2.2 s).
 - Tests: server 86 pass (new `hash-cost.test.js`; `hash-worker.test.js` updated to cost 10); client 166; integration 277 pass, 0 fail, in 81 s; `check-deploy` 22 ok.
 - Not measured: the live server's own sign-in times after this deploy (the slowness report is read below once it has data).
+- Correction: the commit before this one (a8f97aa) was pushed while `hash-worker.test.js` still expected cost 12 (85 pass, 1 fail); its deploy run stops at the checks. This commit fixes that test: server 86 pass, 0 fail.
