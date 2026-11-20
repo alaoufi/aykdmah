@@ -80,38 +80,46 @@ export function WeekSchedule({ availability }) {
   );
 }
 
-// 🟢 «متاح الآن», or 🔴 why not, with «جدول العمل» next to the red one.
+// AYK-368 (the owner: «متاح للعمل: فقط أمامه دائرة خضراء أو حمراء. متواجد على التطبيق: فقط أمامه دائرة
+// خضراء أو حمراء»). The words never change; the circle says yes or no. Red «متاح للعمل» has «جدول
+// العمل» next to it, and the reason (leave, stopped, outside hours) is inside that schedule.
+const Dot = ({ on }) => (
+  <span aria-hidden="true" className={`inline-block w-2.5 h-2.5 rounded-full shrink-0 ${on ? 'bg-emerald-500' : 'bg-rose-500'}`}
+    style={{ boxShadow: `0 0 0 2px ${on ? 'rgba(16,185,129,.2)' : 'rgba(244,63,94,.2)'}` }} />
+);
+
 export default function AvailabilityBadge({ availability, className = '', name = '' }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   if (!availability?.state) return null;
   const available = isAvailable(availability);
   return (
-    <span className={`inline-flex items-center gap-1.5 flex-wrap ${className}`} data-availability={availability.state}>
-      <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-pill border text-[11.5px] font-semibold ${available ? STYLES.available : STYLES.off}`}>
-        <span aria-hidden="true">{available ? '🟢' : '🔴'}</span>{available ? t('availability.state.available') : reasonOf(availability, t)}
+    <span className={`inline-flex items-center gap-1.5 flex-wrap ${className}`} data-availability={availability.state}
+      title={available ? undefined : reasonOf(availability, t)}>
+      <span className={`inline-flex items-center gap-1.5 text-[12px] font-semibold ${available ? 'text-emerald-700' : 'text-rose-700'}`}>
+        <Dot on={available} />{t('availability.label_available')}
       </span>
       {!available && (
         <button type="button" className="text-[11.5px] font-semibold text-primary underline bg-transparent border-0 p-0 cursor-pointer"
           onClick={event => { event.preventDefault(); event.stopPropagation(); setOpen(true); }} data-testid="schedule-link">
-          🗓️ {t('availability.schedule_link')}
+          {t('availability.schedule_link')}
         </button>
       )}
-      <Modal open={open} onClose={() => setOpen(false)} title={`🗓️ ${t('availability.schedule_title')}${name ? ` — ${name}` : ''}`}>
+      <Modal open={open} onClose={() => setOpen(false)} title={`${t('availability.schedule_title')}${name ? ` — ${name}` : ''}`}>
         <WeekSchedule availability={availability} />
       </Modal>
     </span>
   );
 }
 
-// 📱 «متواجد الآن» (app open now) — separate from being available. Nothing when unknown.
+// «متواجد على التطبيق» with a green or red circle: the app open now. Nothing when unknown.
 export function PresenceTag({ present, className = '' }) {
   const { t } = useTranslation();
   if (present === undefined || present === null) return null;
   return (
-    <span className={`inline-flex items-center gap-1 text-[11.5px] font-semibold ${present ? 'text-success' : 'text-fg-muted'} ${className}`}
+    <span className={`inline-flex items-center gap-1.5 text-[12px] font-semibold ${present ? 'text-emerald-700' : 'text-rose-700'} ${className}`}
       title={t('availability.present_hint')} data-presence={present ? 'present' : 'absent'}>
-      📱 {t(present ? 'availability.present' : 'availability.not_present')}
+      <Dot on={Boolean(present)} />{t('availability.label_present')}
     </span>
   );
 }

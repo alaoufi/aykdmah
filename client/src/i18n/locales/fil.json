@@ -2363,7 +2363,9 @@
     "day_works": "May trabaho sa araw na ito",
     "schedule_hint": "Maglagay ng isa o higit pang oras bawat araw, gaya ng 8 am hanggang 12 tanghali at 4 pm hanggang 10 pm. Puwedeng lumampas ng hatinggabi.",
     "schedule_required": "Maglagay ng kahit isang oras ng trabaho, o piliin ang «Available 24 oras».",
-    "midnight": "Hatinggabi"
+    "midnight": "Hatinggabi",
+    "label_available": "Available sa trabaho",
+    "label_present": "Nasa app"
   },
   "brand": {
     "branch_of": "Ang Ay Khidma ay sangay ng",

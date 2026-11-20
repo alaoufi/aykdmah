@@ -2363,7 +2363,9 @@
     "day_works": "Bekerja hari ini",
     "schedule_hint": "Atur satu atau lebih waktu untuk setiap hari, misalnya pukul 8 pagi sampai 12 siang dan 4 sore sampai 10 malam. Waktu boleh melewati tengah malam.",
     "schedule_required": "Atur setidaknya satu waktu kerja, atau pilih «Tersedia 24 jam».",
-    "midnight": "Tengah malam"
+    "midnight": "Tengah malam",
+    "label_available": "Siap bekerja",
+    "label_present": "Ada di aplikasi"
   },
   "brand": {
     "branch_of": "Ay Khidma adalah cabang dari",

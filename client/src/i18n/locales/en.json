@@ -2363,7 +2363,9 @@
     "day_works": "Works this day",
     "schedule_hint": "Set one or more periods for each day, such as 8 am to 12 noon and 4 pm to 10 pm. A period may run past midnight.",
     "schedule_required": "Set at least one working period, or choose “Available 24 hours”.",
-    "midnight": "Midnight"
+    "midnight": "Midnight",
+    "label_available": "Available for work",
+    "label_present": "On the app"
   },
   "brand": {
     "branch_of": "Ay Khidma is a branch of",

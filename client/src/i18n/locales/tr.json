@@ -2363,7 +2363,9 @@
     "day_works": "Bu gün çalışıyor",
     "schedule_hint": "Her gün için bir veya daha fazla aralık belirleyin; örneğin 08:00–12:00 ve 16:00–22:00. Aralık gece yarısını geçebilir.",
     "schedule_required": "En az bir çalışma aralığı belirleyin veya «24 saat müsait» seçin.",
-    "midnight": "Gece yarısı"
+    "midnight": "Gece yarısı",
+    "label_available": "İş için müsait",
+    "label_present": "Uygulamada"
   },
   "brand": {
     "branch_of": "Ay Khidma sitesi şu sitenin bir şubesidir:",
