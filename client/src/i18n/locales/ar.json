@@ -2325,8 +2325,11 @@
     },
     "invite_title": "رابط دعوتك",
     "invite_hint": "انسخه وشاركه. من يفتحه ثم يسجّل يُحسب لك تلقائيًا.",
-    "invite_nav": "دعوة",
-    "invite_send": "إرسال بالواتساب"
+    "invite_nav": "دعوة للانضمام",
+    "invite_send": "إرسال بالواتساب",
+    "invite_copy": "نسخ",
+    "invite_send_short": "إرسال",
+    "invite_copied": "تم النسخ"
   },
   "test_checkout": {
     "banner": "دفع تجريبي — لن يُخصم أي مبلغ",

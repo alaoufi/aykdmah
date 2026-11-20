@@ -2296,8 +2296,11 @@
     },
     "invite_title": "Your invite link",
     "invite_hint": "Copy and share it. Whoever opens it and signs up is counted for you automatically.",
-    "invite_nav": "Invite",
-    "invite_send": "Send on WhatsApp"
+    "invite_nav": "Invite to join",
+    "invite_send": "Send on WhatsApp",
+    "invite_copy": "Copy",
+    "invite_send_short": "Send",
+    "invite_copied": "Copied"
   },
   "test_checkout": {
     "banner": "Test payment — no money will be charged",

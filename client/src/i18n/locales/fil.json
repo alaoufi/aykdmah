@@ -2296,8 +2296,11 @@
     },
     "invite_title": "Ang iyong invite link",
     "invite_hint": "Kopyahin at ibahagi ito. Ang magbubukas nito at magre-register ay awtomatikong mabibilang para sa iyo.",
-    "invite_nav": "Mag-imbita",
-    "invite_send": "Ipadala sa WhatsApp"
+    "invite_nav": "Imbitahang sumali",
+    "invite_send": "Ipadala sa WhatsApp",
+    "invite_copy": "Kopyahin",
+    "invite_send_short": "Ipadala",
+    "invite_copied": "Nakopya"
   },
   "test_checkout": {
     "banner": "Test na bayad — walang perang ibabawas",

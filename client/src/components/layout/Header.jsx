@@ -11,7 +11,7 @@ import ThemeSwitcher from '../common/ThemeSwitcher';
 import BrandLogo from '../common/BrandLogo';
 import { IconMenu, IconBell, IconClose } from '../common/Icons';
 import AdminPanelLink from './AdminPanelLink';
-import InviteSheet from '../common/InviteSheet';
+import InviteButton from '../common/InviteButton';
 
 export default function Header() {
   const { t } = useTranslation();
@@ -19,7 +19,6 @@ export default function Header() {
   const { unread, chatUnread, supportCount } = useNotifications();
   const navigate = useNavigate();
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [inviteOpen, setInviteOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const mobileButton = useRef(null);
   const mobilePanel = useRef(null);
@@ -281,8 +280,8 @@ export default function Header() {
                     <div className="flex flex-wrap gap-1.5 mt-2">
                       {g.extra.map(x => (x.invite && user.referral_code ? (
                         // AYK-355: «دعوة» opens copy / send at once, here.
-                        <button key={x.to} type="button" data-testid={x.testid} onClick={() => { setMobileOpen(false); setInviteOpen(true); }}
-                          className="px-3 py-1.5 rounded-pill border-2 border-primary text-[13px] font-bold text-fg bg-surface hover:bg-surface-alt">{x.label}</button>
+                        <InviteButton key={x.to} code={user.referral_code} testid={x.testid}
+                          className="px-3 py-1.5 rounded-pill border-2 border-primary text-[13px] font-bold text-fg bg-surface hover:bg-surface-alt" />
                       ) : (
                         <Link key={x.to} to={x.to} onClick={() => setMobileOpen(false)} data-testid={x.testid}
                           className="px-3 py-1.5 rounded-pill border border-border text-[13px] font-semibold text-fg no-underline hover:bg-surface-alt">{x.label}</Link>
@@ -380,7 +379,6 @@ export default function Header() {
           </div>
         </div>, document.body
       )}
-      {inviteOpen && user?.referral_code && <InviteSheet code={user.referral_code} onClose={() => setInviteOpen(false)} />}
     </header>
   );
 }

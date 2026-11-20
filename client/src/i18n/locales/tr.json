@@ -2296,8 +2296,11 @@
     },
     "invite_title": "Davet bağlantınız",
     "invite_hint": "Kopyalayıp paylaşın. Bağlantıyı açıp kaydolan herkes otomatik olarak sizin adınıza sayılır.",
-    "invite_nav": "Davet et",
-    "invite_send": "WhatsApp ile gönder"
+    "invite_nav": "Katılmaya davet et",
+    "invite_send": "WhatsApp ile gönder",
+    "invite_copy": "Kopyala",
+    "invite_send_short": "Gönder",
+    "invite_copied": "Kopyalandı"
   },
   "test_checkout": {
     "banner": "Deneme ödemesi — hiçbir tutar çekilmeyecek",
