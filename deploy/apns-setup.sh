@@ -40,8 +40,9 @@ fi
 copy="${BACKUP_DIR:-/root/backups}/env-before-apns-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$(dirname "$copy")"; install -m 600 "$ENV_FILE" "$copy"
 tmp="$(mktemp "$ENV_FILE.XXXXXX")"
-grep -vE '^APNS_(KEY_ID|TEAM_ID|KEY)=' "$ENV_FILE" > "$tmp" || true
-printf 'APNS_KEY_ID=%s\nAPNS_TEAM_ID=%s\nAPNS_KEY=%s\n' "$keyid" "$team" "$escaped" >> "$tmp"
+# AYK-348: the bundle id is written too; the app sends nothing without it (it was only checked).
+grep -vE '^APNS_(KEY_ID|TEAM_ID|KEY|BUNDLE_ID)=' "$ENV_FILE" > "$tmp" || true
+printf 'APNS_KEY_ID=%s\nAPNS_TEAM_ID=%s\nAPNS_BUNDLE_ID=%s\nAPNS_KEY=%s\n' "$keyid" "$team" "$bundle" "$escaped" >> "$tmp"
 chmod --reference="$ENV_FILE" "$tmp" 2>/dev/null || chmod 600 "$tmp"
 mv "$tmp" "$ENV_FILE"
 unset escaped

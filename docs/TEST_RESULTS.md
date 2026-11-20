@@ -1653,3 +1653,9 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Before: each visitor counted once a day. Now each entry to the site or the app counts: the page says it is an entry once per opening (a tab or an app session); moving between pages, reloading and the 2-minute «still here» reports do not count again. The same visitor entering again within one minute is one entry, so a reload loop cannot inflate the counter. Crawlers are still not counted. «Online now» unchanged. Earlier days keep the counts made the old way.
 - Integration test: an entry counts, a «still here» report does not, a second entry within a minute is one, another visitor counts, a crawler does not; the older once-a-day case still passes. Full integration 285 pass, 0 fail; server unit 86, client 167 pass; build and `check-deploy` 22 ok.
 - Browser check (local site): first opening sent `entry: true`, then another page and a reload sent only `entry: false`; a new tab sent `entry: true` again.
+
+## 2026-11-20 — AYK-348: the iPhone notifications key (owner's step)
+- In the owner's Apple account: one APNs key from 2023 (its file is lost, left untouched; probably used by Trbhh), and a new key created now by the owner for «أي خدمة» (key id `6WWKPH6Q4U`; team `F6RN596WCX`). Only the ids are recorded; the key itself never comes here.
+- Found while preparing: `deploy/apns-setup.sh` checked the key with the bundle id but did not write `APNS_BUNDLE_ID` into `.env`; the app sends nothing without it. Now it is written too.
+  - Checked on a temporary `.env` with a locally generated P-256 key (Apple's check skipped): the file ends with `APNS_KEY_ID`, `APNS_TEAM_ID`, `APNS_BUNDLE_ID` and `APNS_KEY` once each, the old `APNS_KEY_ID` replaced, a copy of the previous file kept, the `.p8` copy deleted.
+- Not done yet: the owner copies the file to the server and runs the script; then a release so the app reads it; then the server report must say «iPhone key: yes».
