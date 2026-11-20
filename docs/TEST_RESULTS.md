@@ -1530,3 +1530,4 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - App version 1.3.10 (code 20).
 - Not tested here: the Java was not compiled or run on this machine (no Android tools here); the build on the server through GitHub is the first compile. Not tried on a phone.
 - The iPhone app has no such wait: it loads the site at once (read in `apple-apps/aykhidmah`, not changed).
+- AYK-338: Android 1.3.10 (20) built on the server and uploaded to the internal testing track through GitHub (run for 6b6a73e: success), so the changed launcher compiles. Not on the production track: that needs the owner's approval. Not tried on a phone.
