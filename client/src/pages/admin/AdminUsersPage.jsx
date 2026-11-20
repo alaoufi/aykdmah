@@ -134,18 +134,25 @@ export default function AdminUsersPage() {
     setFormError('');
     setFieldErrors({});
     try {
+      // AYK-356 (the owner: a member made «إدارة» could not get in): an administration account
+      // enters only the sections ticked for it, and ticking them was a second step that was easy to
+      // miss. Once an account becomes administration, its sections open at once.
+      let newAdmin = null;
       if (editing) {
         // Only what changed (AYK-237); nothing changed closes the form.
         const before = original.current || {};
         const payload = Object.fromEntries(Object.entries(form).filter(([key, value]) => key !== 'password' && value !== before[key]));
         if (form.password) payload.password = form.password;
         if (Object.keys(payload).length) await updateUser(editing.id, payload);
+        if (payload.role === 'admin') newAdmin = { id: editing.id, name: editing.full_name };
       } else {
-        await createUser(form);
+        const made = await createUser(form);
+        if (form.role === 'admin' && made?.id) newAdmin = { id: made.id, name: form.full_name };
       }
       if (version !== editVersion.current) return;
       closeEdit();
       load();
+      if (newAdmin && canEditPerms) setPermsTarget(newAdmin);
     } catch (err) {
       if (version === editVersion.current) {
         const body = err?.response?.data || {};
