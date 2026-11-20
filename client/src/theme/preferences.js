@@ -148,8 +148,22 @@ export function resolveTheme(prefs, systemDark) {
   const base = darkMode ? dark : defaultTheme;
   const tone = darkMode ? 'dark' : 'light';
   const palette = PALETTES[prefs.palette]?.[tone] || {};
-  return {
-    ...base,
-    color: { ...base.color, ...palette, ...(prefs.contrast ? CONTRAST[tone] : {}) },
-  };
+  const color = { ...base.color, ...palette, ...(prefs.contrast ? CONTRAST[tone] : {}) };
+  // AYK-332 (the owner): high contrast was flat white everywhere. Its grounds now take a faint
+  // shade of the chosen colour (boxes 5 %, the page 9 %, quiet areas 14 %), so every page of the
+  // app carries the colour while text stays black on near-white (white on near-black in the dark).
+  if (prefs.contrast && /^#[0-9a-f]{6}$/i.test(color['primary-from'] || '')) {
+    const tint = (ground, share) => mixHex(color['primary-from'], ground, share);
+    color.surface = tint(CONTRAST[tone].surface, 0.05);
+    color.bg = tint(CONTRAST[tone].bg, 0.09);
+    color['surface-alt'] = tint(CONTRAST[tone]['surface-alt'], 0.14);
+  }
+  return { ...base, color };
+}
+
+// `share` of one hex colour over another, as a hex colour.
+function mixHex(top, ground, share) {
+  const parts = hex => [1, 3, 5].map(i => parseInt(hex.slice(i, i + 2), 16));
+  const a = parts(top), b = parts(ground);
+  return '#' + a.map((value, i) => Math.round(value * share + b[i] * (1 - share)).toString(16).padStart(2, '0')).join('').toUpperCase();
 }

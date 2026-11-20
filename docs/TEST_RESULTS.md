@@ -1431,3 +1431,24 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - back from the message → `/admin/support`; back again → `/admin`; no back button on the admin home;
   - no page errors.
 - Tests: client 166 (`adminBackTarget.test.mjs` rewritten for the new rule), server 86; `i18n:check` 2621 keys; build and `check-deploy` 22 ok. Integration not re-run: only client files changed since the 277-pass run.
+- AYK-329 and AYK-330 deployed as 1.1.77 (run for 00193fc: success) and merged to `main` (pull request #6).
+
+## 2026-11-20 — AYK-331: the permissions bar showed at every opening
+- Reported by the owner: «السماح بالإشعارات يظهر كل مرة، المفروض مرة واحدة».
+- Cause: «لاحقًا» hid the bar for one day only, and the bar stayed for good whenever one permission was refused or could not be read (it showed until location, microphone, camera and notifications were all on).
+- Now: once the person answers the bar on a device, with «اسمح بالكل» or «لاحقًا», it does not come back. The result of «اسمح بالكل» still shows at that moment. The same buttons remain in «ملفي».
+- Browser check (local site, phone size, two fresh browsers):
+  - «لاحقًا»: the bar showed at first, then not after reopening nor on another page;
+  - «اسمح بالكل» (the test browser refuses permissions): the result showed, then the bar did not come back after reopening nor on another page.
+- Client tests 166 pass; build and `check-deploy` 22 ok.
+- Consequence to know: someone who answered «لاحقًا» is not reminded again, so their calls will not ring until they turn notifications on from «ملفي».
+
+## 2026-11-20 — AYK-332: break the white with shades of the chosen colour, across the app
+- The owner's screenshot: pages flat white with black outlines. That is the «تباين عالٍ» choice, which kept every ground pure white on purpose; the ordinary look already had gradients.
+- Now, with high contrast on:
+  - the grounds take a faint shade of the chosen colour: boxes 5 %, the page 9 %, quiet areas 14 % (computed in `resolveTheme`, so every page that uses the theme's grounds follows);
+  - the page carries a gradient of that colour, cards a light gradient, the top bar a stronger shade;
+  - text stays black on near-white (white on near-black in the dark look).
+- Browser check (local build, phone size): high contrast with the default, desert and dark Saudi looks; the page, the cards and the bar were tinted in each, body text `rgb(0, 0, 0)` in light and `rgb(255, 255, 255)` in dark; screenshots reviewed.
+- Client tests 166 pass; build and `check-deploy` 22 ok.
+- Not changed: places that set plain white themselves instead of the theme's ground (some admin pages).

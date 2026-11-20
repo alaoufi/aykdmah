@@ -5,9 +5,12 @@ import { useAuth } from '../../hooks/useAuth';
 import { sendDeviceReport } from '../../utils/deviceReport';
 
 const LATER_KEY = 'ayk_permissions_later';
-// "Later" hides the bar for a day, not for good: without notifications calls never ring (AYK-092).
-const DAY = 24 * 60 * 60 * 1000;
-const later = () => { try { return Date.now() - Number(localStorage.getItem(LATER_KEY) || 0) < DAY; } catch (_) { return false; } };
+// AYK-331 (the owner: «السماح بالإشعارات يظهر كل مرة، المفروض مرة واحدة»): the bar is shown once on
+// a device. After the person answers it, with «اسمح بالكل» or «لاحقًا», it does not come back; before,
+// «لاحقًا» hid it for a day only, and it stayed for good whenever one permission was refused or
+// could not be read. The same buttons remain in «ملفي» for whoever wants to turn something on later.
+const later = () => { try { return Number(localStorage.getItem(LATER_KEY) || 0) > 0; } catch (_) { return false; } };
+const answered = () => { try { localStorage.setItem(LATER_KEY, String(Date.now())); } catch (_) { /* private mode */ } };
 
 // The site's permissions (AYK-047): location, microphone and camera, notifications.
 // Each one is a button: a tap asks for it, shows that it is working, then turns into
@@ -86,6 +89,8 @@ export default function DevicePermissions({ variant = 'card' }) {
     }
     setResult({ enabled, failed, value: last, nothing: !enabled.length && !failed.length });
     setBusy('');
+    // Answered: the bar shows its result now and is not shown again at the next opening.
+    if (variant === 'bar') answered();
     sendDeviceReport({ force: true }).catch(() => {});
   };
 
@@ -121,7 +126,7 @@ export default function DevicePermissions({ variant = 'card' }) {
       return (
         <div className="bg-amber-100 text-amber-950 border-b border-amber-300 px-4 py-2 flex flex-wrap items-center justify-center gap-2 text-[13px] font-semibold" data-testid="ios-install-bar">
           <span>📲 {t('permissions.ios_install')}</span>
-          <button type="button" className="text-amber-900 underline" onClick={() => { try { localStorage.setItem(LATER_KEY, String(Date.now())); } catch (_) { /* private mode */ } setHidden(true); }}>{t('push.later')}</button>
+          <button type="button" className="text-amber-900 underline" onClick={() => { answered(); setHidden(true); }}>{t('push.later')}</button>
         </div>
       );
     }
@@ -131,7 +136,7 @@ export default function DevicePermissions({ variant = 'card' }) {
         <span>📍🎤📷🔔 {t(ok(state.push) || state.push === 'unsupported' ? 'permissions.bar' : 'permissions.bar_no_ring')}</span>
         <button type="button" className="btn btn-primary btn-sm" disabled={busy !== ''} onClick={allowAll} data-testid="bar-allow-all">{busy ? '⏳' : `✅ ${t('permissions.allow')}`}</button>
         {outcome && <div className="w-full">{outcome}</div>}
-        <button type="button" className="text-fg-muted underline" onClick={() => { try { localStorage.setItem(LATER_KEY, String(Date.now())); } catch (_) { /* private mode */ } setHidden(true); }}>{t('push.later')}</button>
+        <button type="button" className="text-fg-muted underline" onClick={() => { answered(); setHidden(true); }}>{t('push.later')}</button>
       </div>
     );
   }
