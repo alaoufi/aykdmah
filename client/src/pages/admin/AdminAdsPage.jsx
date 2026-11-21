@@ -216,6 +216,37 @@ export default function AdminAdsPage() {
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [statusFilter]);
 
+  // AYK-395 (the owner: «ما فيه موافقة عرضه، والإعفاء من الرسوم، وإيقافه»): the ad's actions by its
+  // status, on its card and at the top of its edit window (which closes after the action).
+  const statusActions = (a, after = null) => {
+    const run = async (handler, ad) => { await handler(ad); after?.(); };
+    return (
+      <>
+                  {a.status === 'requested' && (
+                    <>
+                      <button onClick={() => run(onApprove, a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition disabled:opacity-60">✓ {t('badge.approve')}</button>
+                      <button onClick={() => run(onReject, a)}  disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition disabled:opacity-60">✗ {t('badge.reject')}</button>
+                    </>
+                  )}
+                  {(a.status === 'awaiting_payment' || (Number(a.fee_waived) === 1 && ['requested', 'approved'].includes(a.status))) && (
+                    <button onClick={() => run(onActivate, a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition disabled:opacity-60">▶ {t('promote.activate')}</button>
+                  )}
+                  {a.status === 'active' && (
+                    <button onClick={() => run(onPause, a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-amber-50 text-amber-700 hover:bg-amber-100 transition disabled:opacity-60">⏸ {t('promote.pause')}</button>
+                  )}
+                  {a.status === 'expired' && (
+                    <button onClick={() => run(onReactivate, a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition disabled:opacity-60">🔄 {t('promote.reactivate')}</button>
+                  )}
+                  {a.status === 'paused' && (
+                    <button onClick={() => run(onResume, a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition disabled:opacity-60">▶ {t('promote.resume')}</button>
+                  )}
+                  {['requested', 'approved', 'awaiting_payment'].includes(a.status) && Number(a.fee_waived) !== 1 && !a.payment_id && (
+                    <button onClick={() => run(onWaive, a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition disabled:opacity-60">🎁 {t('promote.waive_fee')}</button>
+                  )}
+      </>
+    );
+  };
+
   const closeEdit = () => {
     ++editVersion.current; ++uploadVersion.current;
     setUploading(false); setEditOpen(false); setEditing(null); setForm(EMPTY); setFormError('');
@@ -589,29 +620,9 @@ export default function AdminAdsPage() {
                   <div className="mt-1 mb-2 p-2 rounded bg-rose-50 text-[12px] text-rose-700">{t('badge.reason')}: {a.rejection_reason}</div>
                 )}
                 <div className="flex flex-wrap gap-1.5">
-                  {a.status === 'requested' && (
-                    <>
-                      <button onClick={() => onApprove(a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition disabled:opacity-60">✓ {t('badge.approve')}</button>
-                      <button onClick={() => onReject(a)}  disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition disabled:opacity-60">✗ {t('badge.reject')}</button>
-                    </>
-                  )}
-                  {(a.status === 'awaiting_payment' || (Number(a.fee_waived) === 1 && ['requested', 'approved'].includes(a.status))) && (
-                    <button onClick={() => onActivate(a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition disabled:opacity-60">▶ {t('promote.activate')}</button>
-                  )}
-                  {a.status === 'active' && (
-                    <button onClick={() => onPause(a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-amber-50 text-amber-700 hover:bg-amber-100 transition disabled:opacity-60">⏸ {t('promote.pause')}</button>
-                  )}
-                  {a.status === 'expired' && (
-                    <button onClick={() => onReactivate(a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition disabled:opacity-60">🔄 {t('promote.reactivate')}</button>
-                  )}
-                  {a.status === 'paused' && (
-                    <button onClick={() => onResume(a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition disabled:opacity-60">▶ {t('promote.resume')}</button>
-                  )}
+                  {statusActions(a)}
                   {(a.status === 'active' || a.status === 'paused' || a.status === 'expired') && (
                     <button onClick={() => toggleStats(a)} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">📊 {openStats[a.id] ? t('promote.hide_stats') : t('promote.show_stats')}</button>
-                  )}
-                  {['requested', 'approved', 'awaiting_payment'].includes(a.status) && Number(a.fee_waived) !== 1 && !a.payment_id && (
-                    <button onClick={() => onWaive(a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition disabled:opacity-60">🎁 {t('promote.waive_fee')}</button>
                   )}
                   {a.user_id && (
                     <button onClick={() => setReply({ ad: a, category: 'administrative', message: '' })} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-sky-50 text-sky-700 hover:bg-sky-100 transition">✉️ {t('promote.reply_advertiser')}</button>
@@ -687,6 +698,12 @@ export default function AdminAdsPage() {
       >
         <form id="AdminAdsPage-form" onSubmit={onSave} className="space-y-3">
           {formError && <div role="alert" className="px-3 py-2 rounded bg-rose-50 border border-rose-200 text-rose-700 text-[13px] font-semibold">⚠️ {formError}</div>}
+          {editing && (
+            <div className="rounded-card border border-slate-200 bg-slate-50 p-2.5" data-testid="ad-edit-actions">
+              <div className="text-[12px] font-bold text-ink mb-1.5">الحالة: {t(`promote.status_${editing.status}`, editing.status)}{Number(editing.fee_waived) === 1 ? ' · 🎁 معفى من الرسوم' : ''}</div>
+              <div className="flex flex-wrap gap-1.5">{statusActions(editing, closeEdit)}</div>
+            </div>
+          )}
           {paidBoundsLocked(editing) && (
             <div className="px-3 py-2.5 rounded-card bg-amber-50 border border-amber-200 text-amber-800 text-[12.5px] leading-relaxed">
               🔒 إعلان مدفوع: مكانه ومدته ومشاهداته مرتبطة بالمبلغ الذي دُفع، فلا تُعدَّل إلا بإعفائه من الرسوم. ويُعدَّل هنا محتواه (الصورة والنصوص والرابط) ومناطق عرضه.

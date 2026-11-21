@@ -39,17 +39,24 @@ export default function AppDialogHost() {
   const inputRef = useRef(null);
   const okRef = useRef(null);
 
+  // AYK-395: the next dialog is taken from the queue here, once, never inside a state updater: React
+  // may run an updater twice (development), and the second run found the queue empty, so a dialog
+  // asked right after another (confirm, then «سبب الإعفاء») never appeared.
+  const currentRef = useRef(null);
   useEffect(() => {
-    open = () => setCurrent(c => {
-      if (c && (!c.isCurrent || c.isCurrent())) return c;
+    open = () => {
+      const c = currentRef.current;
+      if (c && (!c.isCurrent || c.isCurrent())) return;
       if (c) c.resolve(null);
+      let next = null;
       while (queue.length) {
-        const next=queue.shift();
-        if (!next.isCurrent || next.isCurrent()) return next;
-        next.resolve(null);
+        const candidate = queue.shift();
+        if (!candidate.isCurrent || candidate.isCurrent()) { next = candidate; break; }
+        candidate.resolve(null);
       }
-      return null;
-    });
+      currentRef.current = next;
+      setCurrent(next);
+    };
     open();
     return () => { open = null; };
   }, []);
@@ -82,7 +89,8 @@ export default function AppDialogHost() {
 
   const finish = (result) => {
     current.resolve(current.isCurrent && !current.isCurrent() ? null : result);
-    setCurrent(queue.shift() || null);
+    currentRef.current = null;
+    open?.();
   };
   const confirm = () => {
     if (kind === 'prompt') {
