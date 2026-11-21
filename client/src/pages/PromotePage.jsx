@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next';
 import { getMyAds, previewQuote, submitAdRequest, payAd, cancelAd, getAdStats, pauseAd, resumeAd, getMyGeo, uploadMyAdMedia } from '../services/adService';
 import { listCities, listRegions } from '../services/serviceService';
 import AdSparkline from '../components/ads/AdSparkline';
+import AdImageFit from '../components/ads/AdImageFit';
+import { sizeForPlacements } from '../utils/adImageSize';
 import { formatCurrency, formatRelativeTime } from '../utils/formatters';
 import { LoadingState } from '../components/common/Spinner';
 import ConfirmDialog from '../components/common/ConfirmDialog';
@@ -149,7 +151,9 @@ export default function PromotePage() {
     });
   };
 
-  const onPickFile = async (file) => {
+  // AYK-408: the picture is checked against its place's frame before it is sent.
+  const [fitting, setFitting] = useState(null);
+  const onPickFile = async (file, checked = false) => {
     if (!file) return;
     setMsg(null);
     setMediaError('');
@@ -161,6 +165,7 @@ export default function PromotePage() {
       setMediaError(t('promote.media_too_big', { size: (file.size / 1048576).toFixed(1) }));
       return;
     }
+    if (!checked) { setFitting({ file, size: sizeForPlacements(form.placements) }); return; }
     setUploading(true);
     try {
       const res = await uploadMyAdMedia(file);
@@ -315,6 +320,7 @@ export default function PromotePage() {
               <div className="text-3xl mb-1">{uploading ? '⏳' : '📁'}</div>
               <div className="font-bold text-[13.5px] text-ink">{uploading ? t('admin.uploading') : t('admin.ad_pick_file_primary')}</div>
               <div className="text-[11.5px] text-slate-500 mt-1">{t('admin.ad_media_hint')}</div>
+              <div className="text-[12px] font-semibold text-slate-700 mt-1" data-testid="ad-size-hint">📐 {t('ad_image.hint', { w: sizeForPlacements(form.placements).width, h: sizeForPlacements(form.placements).height })}</div>
             </div>
             <input type="file" hidden
               accept="image/jpeg,image/png,image/webp,image/gif,image/apng,video/mp4,video/webm,video/ogg"
@@ -626,6 +632,8 @@ export default function PromotePage() {
       </div>
 
       <ConfirmDialog {...confirm} onCancel={() => setConfirm({ open: false })} />
+      {fitting && <AdImageFit file={fitting.file} size={fitting.size}
+        onUse={(file) => { setFitting(null); onPickFile(file, true); }} onCancel={() => setFitting(null)} />}
     </div>
   );
 }

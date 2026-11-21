@@ -2968,5 +2968,26 @@
   },
   "ads": {
     "hide": "Itago ang ad"
+  },
+  "ad_image": {
+    "hint": "Angkop na laki ng larawan: {{w}}×{{h}} pixel.",
+    "title": "Hindi bagay ang laki ng larawan sa lugar ng ad",
+    "body": "Ang tamang laki ay {{w}}×{{h}} pixel ({{ratio}}); ang larawan mo ay {{ow}}×{{oh}}. Kung ipapakita nang ganoon, masisira ang lugar, kaya inayos namin ito nang hindi binabanat. Ayos ba ito sa iyo?",
+    "ratio_wide": "ang lapad ay tatlong beses ng taas",
+    "ratio_narrow": "ang lapad ay isang-katlo na mas malaki sa taas",
+    "small": "Mas maliit ang larawan mo sa tamang laki at maaaring lumabo. Mas mainam ang mas malaking larawan.",
+    "original": "Ang larawan mo",
+    "adjusted": "Inayos, gaya ng lalabas",
+    "which_part": "Aling bahagi ng larawan ang lalabas?",
+    "pos_left": "Kaliwa",
+    "pos_right": "Kanan",
+    "pos_center": "Gitna",
+    "pos_top": "Itaas",
+    "pos_bottom": "Ibaba",
+    "accept": "OK, gamitin ang inayos na larawan",
+    "reject": "Hindi, ako na ang mag-aayos ng larawan",
+    "redo": "Ayusin ang larawan sa {{w}}×{{h}} pixel ({{ratio}}), saka i-upload muli.",
+    "animated": "Hindi awtomatikong naaayos ang gumagalaw na larawan. Gawin itong {{w}}×{{h}} pixel ({{ratio}}), saka i-upload.",
+    "close": "Isara"
   }
 }

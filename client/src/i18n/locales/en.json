@@ -2968,5 +2968,26 @@
   },
   "ads": {
     "hide": "Hide ad"
+  },
+  "ad_image": {
+    "hint": "Best picture size: {{w}}×{{h}} pixels.",
+    "title": "The picture size does not fit the ad place",
+    "body": "The right size is {{w}}×{{h}} pixels ({{ratio}}); your picture is {{ow}}×{{oh}}. Shown as is, it would distort the place, so we adjusted it to fit without stretching. Does it suit you?",
+    "ratio_wide": "width three times the height",
+    "ratio_narrow": "width a third more than the height",
+    "small": "Your picture is smaller than the right size and may look blurry. A bigger picture is better.",
+    "original": "Your picture",
+    "adjusted": "Adjusted, as it will show",
+    "which_part": "Which part of the picture shows?",
+    "pos_left": "Left",
+    "pos_right": "Right",
+    "pos_center": "Middle",
+    "pos_top": "Top",
+    "pos_bottom": "Bottom",
+    "accept": "OK, use the adjusted picture",
+    "reject": "No, I will edit the picture myself",
+    "redo": "Edit your picture to {{w}}×{{h}} pixels ({{ratio}}), then upload it again.",
+    "animated": "An animated picture is not adjusted automatically. Edit it to {{w}}×{{h}} pixels ({{ratio}}), then upload it.",
+    "close": "Close"
   }
 }
