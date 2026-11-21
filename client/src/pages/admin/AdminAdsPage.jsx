@@ -824,32 +824,9 @@ export default function AdminAdsPage() {
                 })}
               </div>
             </div>
-            <div>
-              <div className="text-[11px] font-semibold text-slate-600 mb-1">{t('promote.target_regions')}</div>
-              <div className="flex flex-wrap gap-1.5">
-                {regions.map((r) => {
-                  const on = form.target_regions.includes(r.id);
-                  return (
-                    <button key={r.id} type="button"
-                      onClick={() => setForm((f) => {
-                        const target_regions = on ? f.target_regions.filter((x) => x !== r.id) : [...f.target_regions, r.id];
-                        // AYK-393: a region taken off takes its chosen cities with it (as on the advertiser's page).
-                        if (!on || !target_regions.length) return { ...f, target_regions };
-                        const keep = new Set(cities.filter(c => target_regions.includes(Number(c.in_region_id ?? c.region_id))).map(c => c.name_ar || c.name_en || c.name));
-                        return { ...f, target_regions, target_cities: f.target_cities.filter(name => keep.has(name)) };
-                      })}
-                      className={`px-2.5 py-1 rounded-pill border text-[11px] font-semibold transition ${
-                        on ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
-                      }`}>{on ? '✓ ' : ''}{localizedName(r, i18n.resolvedLanguage)}</button>
-                  );
-                })}
-              </div>
-            </div>
-            <div>
-              <div className="text-[11px] font-semibold text-slate-600 mb-1">{t('promote.target_cities')}</div>
-              <AdminCityPicker cities={cities} selected={form.target_cities} regionIds={form.target_regions}
-                onChange={(next) => setForm({ ...form, target_cities: next })} />
-            </div>
+            {/* AYK-394 (the owner: «اختيار منطقة العرض المفروض يكون في نفس اختيار المناطق»): a region ticked
+                opens its cities right under it; none chosen = the whole region. */}
+            <RegionCityPicker regions={regions} cities={cities} form={form} setForm={setForm} />
           </div>
         </form>
       </Modal>
@@ -945,53 +922,71 @@ export default function AdminAdsPage() {
   );
 }
 
-// AYK-393 (the owner: «إذا اختار المنطقة تظهر مدنها، الآن كل مدن المملكة»): with regions chosen,
-// only their cities are offered.
-function AdminCityPicker({ cities, selected, onChange, regionIds = [] }) {
-  const { t, i18n } = useTranslation();
-  const cityValue = city => city.name_ar || city.name_en || city.name || '';
-  const cityLabel = value => {
-    const row = (cities || []).find(city => cityValue(city) === value);
-    return row ? localizedName(row, i18n.resolvedLanguage) : value;
-  };
-  const [q, setQ] = useState('');
-  const inRegions = regionIds.length ? new Set(regionIds.map(Number)) : null;
-  const regionOf = c => Number(c.in_region_id ?? c.region_id);
-  const filtered = (cities || []).filter((c) => {
-    if (inRegions && !inRegions.has(regionOf(c))) return false;
-    const name = [localizedName(c, i18n.resolvedLanguage), c.name_ar, c.name_en, ...Object.values(c.name_translations || {})].filter(Boolean).join(' ').toLowerCase();
-    return !q.trim() || name.includes(q.trim().toLowerCase());
-  }).slice(0, inRegions ? 400 : 80);
-  const toggle = (name) => {
-    if (selected.includes(name)) onChange(selected.filter((x) => x !== name));
-    else onChange([...selected, name]);
-  };
+const cityKey = c => c.name_ar || c.name_en || c.name || '';
+const regionOfCity = c => Number(c.in_region_id ?? c.region_id);
+
+function RegionCityPicker({ regions, cities, form, setForm }) {
+  const { i18n } = useTranslation();
+  const lang = i18n.resolvedLanguage;
+  const [q, setQ] = useState({});
+  const chosen = form.target_regions.map(Number);
+  const toggleRegion = id => setForm(f => {
+    const on = f.target_regions.map(Number).includes(id);
+    if (!on) return { ...f, target_regions: [...f.target_regions, id] };
+    const drop = new Set(cities.filter(c => regionOfCity(c) === id).map(cityKey));
+    return { ...f, target_regions: f.target_regions.filter(x => Number(x) !== id), target_cities: f.target_cities.filter(n => !drop.has(n)) };
+  });
+  const toggleCity = name => setForm(f => ({ ...f, target_cities: f.target_cities.includes(name) ? f.target_cities.filter(x => x !== name) : [...f.target_cities, name] }));
+  const chip = on => `px-2.5 py-1 rounded-pill border text-[11.5px] font-semibold transition ${on ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'}`;
   return (
-    <div>
-      <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`🔍 ${t('admin.search_city')}`} aria-label={t('admin.search_city')}
-        className="w-full mb-2 px-3 py-1.5 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[12.5px]" />
-      {selected.length > 0 && (
-        <div className="flex flex-wrap gap-1 mb-2">
-          {selected.map((s) => (
-            <span key={s} className="px-2 py-0.5 rounded-pill bg-brand-50 text-brand-700 text-[11px] font-semibold flex items-center gap-1">
-              {cityLabel(s)}
-              <button type="button" onClick={() => toggle(s)} className="opacity-70 hover:opacity-100">✕</button>
-            </span>
-          ))}
+    <div data-testid="region-city-picker">
+      <div className="text-[11px] font-semibold text-slate-600 mb-1">المناطق والمدن</div>
+      <p className="text-[11px] text-slate-500 mt-0 mb-2">اختر منطقة فتظهر مدنها تحتها. بلا اختيار مدينة يُعرض في كل المنطقة، ومع اختيار مدن يُعرض فيها فقط. وتحديد منطقة يجعل الدولة لا تُحسب.</p>
+      {chosen.length > 0 && (
+        <div className="space-y-2 mb-2">
+          {regions.filter(r => chosen.includes(Number(r.id))).map(r => {
+            const all = cities.filter(c => regionOfCity(c) === Number(r.id));
+            const picked = all.filter(c => form.target_cities.includes(cityKey(c)));
+            const term = (q[r.id] || '').trim().toLowerCase();
+            const shown = all.filter(c => !term || [localizedName(c, lang), c.name_ar, c.name_en].filter(Boolean).join(' ').toLowerCase().includes(term));
+            return (
+              <div key={r.id} className="rounded-card border-2 border-brand-200 bg-brand-50/40 p-2" data-testid={`region-${r.id}`}>
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <button type="button" className={chip(true)} onClick={() => toggleRegion(Number(r.id))}>✓ {localizedName(r, lang)} ✕</button>
+                  <span className="text-[11px] font-bold text-brand-700">{picked.length ? `${picked.length} من ${all.length} مدينة` : `كل المنطقة (${all.length} مدينة)`}</span>
+                </div>
+                {all.length > 8 && (
+                  <input value={q[r.id] || ''} onChange={e => setQ(prev => ({ ...prev, [r.id]: e.target.value }))} placeholder="🔍 ابحث عن مدينة في هذه المنطقة"
+                    className="w-full mt-2 px-3 py-1.5 rounded-card border border-slate-200 bg-white outline-none text-[12px]" />
+                )}
+                <div className="flex flex-wrap gap-1 mt-2 max-h-40 overflow-y-auto">
+                  {shown.map(c => {
+                    const on = form.target_cities.includes(cityKey(c));
+                    return <button key={c.id} type="button" onClick={() => toggleCity(cityKey(c))} className={`px-2 py-0.5 rounded text-[11px] font-semibold transition ${on ? 'bg-brand-500 text-white' : 'bg-white text-slate-600 border border-slate-200'}`}>{on ? '✓ ' : ''}{localizedName(c, lang)}</button>;
+                  })}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
-      {inRegions && <p className="text-[11px] text-slate-500 mb-1">مدن المناطق المختارة فقط ({filtered.length}).</p>}
-      <div className="flex flex-wrap gap-1 max-h-48 overflow-y-auto p-1 border border-slate-100 rounded" data-testid="ad-city-options">
-        {filtered.map((c) => {
-          const name = cityValue(c);
-          const on = selected.includes(name);
-          return (
-            <button key={c.id || name} type="button" onClick={() => toggle(name)}
-              className={`px-2 py-0.5 rounded text-[11px] font-semibold transition ${
-                on ? 'bg-brand-500 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
-              }`}>{localizedName(c, i18n.resolvedLanguage)}</button>
-          );
-        })}
+      {/* Cities chosen earlier without their region (older ads): shown so they can be removed. */}
+      {(() => {
+        const loose = form.target_cities.filter(name => {
+          const c = cities.find(x => cityKey(x) === name);
+          return !c || !chosen.includes(regionOfCity(c));
+        });
+        return loose.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-2" data-testid="loose-cities">
+            <span className="text-[11px] text-slate-500">مدن مختارة:</span>
+            {loose.map(name => <button key={name} type="button" onClick={() => toggleCity(name)} className="px-2 py-0.5 rounded bg-brand-500 text-white text-[11px] font-semibold">✓ {name} ✕</button>)}
+          </div>
+        );
+      })()}
+      <div className="flex flex-wrap gap-1.5">
+        {regions.filter(r => !chosen.includes(Number(r.id))).map(r => (
+          <button key={r.id} type="button" className={chip(false)} onClick={() => toggleRegion(Number(r.id))}>＋ {localizedName(r, lang)}</button>
+        ))}
       </div>
     </div>
   );

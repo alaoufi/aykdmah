@@ -33,7 +33,26 @@ function financeHandler(handler) {
   });
 }
 
-function matchesGeo(ad, geo) {
+// AYK-394 (the owner: «اختيار منطقة العرض المفروض يكون في نفس اختيار المناطق»): the narrowest choice
+// wins. It was «any axis»: with «السعودية» ticked an ad aimed at «منطقة الرياض» showed in the whole
+// kingdom, and cities chosen inside a region did not narrow it.
+//   - cities chosen in a region → only those cities of it;
+//   - a region chosen without any of its cities → the whole region;
+//   - a country counts only when no region or city is chosen.
+const norm = value => String(value || '').trim().toLowerCase();
+let cityRegionCache = { at: 0, map: new Map() };
+async function cityRegions() {
+  if (Date.now() - cityRegionCache.at < 10 * 60 * 1000) return cityRegionCache.map;
+  const map = new Map();
+  try {
+    const rows = await query('SELECT c.name_ar, c.name_en, COALESCE(c.region_id, g.region_id) AS region_id FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id');
+    for (const row of rows) for (const name of [row.name_ar, row.name_en]) if (name && row.region_id) map.set(norm(name), Number(row.region_id));
+  } catch (_) { /* without the map every chosen region counts whole */ }
+  cityRegionCache = { at: Date.now(), map };
+  return map;
+}
+
+function matchesGeo(ad, geo, cityRegion = new Map()) {
   // No geo restriction set → always match.
   const countries = Array.isArray(ad.target_countries) ? ad.target_countries : [];
   const cities    = Array.isArray(ad.target_cities)    ? ad.target_cities    : [];
@@ -41,12 +60,14 @@ function matchesGeo(ad, geo) {
   if (countries.length === 0 && cities.length === 0 && regions.length === 0) return true;
   // A targeted placement needs a known matching location.
   if (!geo) return false;
-  const known = geo.city_names || (geo.city ? [String(geo.city).trim().toLowerCase()] : []);
-  const cityMatch    = cities.length    > 0 && known.length > 0 && cities.some((c) => known.includes(String(c).trim().toLowerCase()));
-  const countryMatch = countries.length > 0 && geo.country && countries.some((c) => String(c).toUpperCase() === String(geo.country).toUpperCase());
-  const regionMatch  = regions.length   > 0 && geo.region_id && regions.some((r) => Number(r) === Number(geo.region_id));
-  // Any axis match wins so an advertiser can mix region+country+city.
-  return cityMatch || countryMatch || regionMatch;
+  const known = geo.city_names || (geo.city ? [norm(geo.city)] : []);
+  const cityMatch = cities.length > 0 && known.length > 0 && cities.some((c) => known.includes(norm(c)));
+  const narrowed = new Set(cities.map(c => cityRegion.get(norm(c))).filter(Boolean));
+  const wholeRegions = regions.map(Number).filter(r => !narrowed.has(r));
+  const regionMatch = wholeRegions.length > 0 && geo.region_id && wholeRegions.includes(Number(geo.region_id));
+  const countryMatch = cities.length === 0 && regions.length === 0 && countries.length > 0 && geo.country
+    && countries.some((c) => String(c).toUpperCase() === String(geo.country).toUpperCase());
+  return cityMatch || regionMatch || countryMatch;
 }
 
 // --- Public (visitors / authed users) ---
@@ -63,12 +84,13 @@ async function liveMany(req, res) {
     || (Array.isArray(a.target_cities) && a.target_cities.length)
     || (Array.isArray(a.target_regions) && a.target_regions.length);
   let geo = null;
+  const cityRegion = all.some(targeted) ? await cityRegions() : new Map();
   if (all.some(targeted)) {
     try { geo = await withCityNames(await ipGeo.resolveVisitorGeo(req)); } catch (_) { /* targeted ads stay hidden */ }
   }
   const result = {};
   for (const placement of wanted) {
-    const here = all.filter(a => (a.placement === placement || (Array.isArray(a.placements) && a.placements.includes(placement))) && matchesGeo(a, geo));
+    const here = all.filter(a => (a.placement === placement || (Array.isArray(a.placements) && a.placements.includes(placement))) && matchesGeo(a, geo, cityRegion));
     const exclusives = here.filter(a => a.exclusive);
     result[placement] = exclusives.length ? exclusives : here;
   }
@@ -87,10 +109,11 @@ const live = financeHandler(async (req, res) => {
     (Array.isArray(a.target_cities)    && a.target_cities.length)    ||
     (Array.isArray(a.target_regions)   && a.target_regions.length));
   let geo = null;
+  const cityRegion = needsGeo ? await cityRegions() : new Map();
   if (needsGeo) {
     try { geo = await withCityNames(await ipGeo.resolveVisitorGeo(req)); } catch (_) { /* targeted ads stay hidden */ }
   }
-  const filtered = items.filter((a) => matchesGeo(a, geo));
+  const filtered = items.filter((a) => matchesGeo(a, geo, cityRegion));
   const exclusives = filtered.filter(a => a.exclusive);
   return success(res, exclusives.length ? exclusives : filtered);
 });
@@ -356,7 +379,7 @@ const adminDiagnose = financeHandler(async (req, res) => {
   });
   checks.push({
     name: 'geo_match',
-    pass: matchesGeo(ad, geo),
+    pass: matchesGeo(ad, geo, await cityRegions()),
     actual: {
       visitor_country: geo?.country || null,
       visitor_region:  geo?.region  || null,
@@ -493,7 +516,7 @@ const adminMessage = financeHandler(async (req, res) => {
   return success(res, withMessages, req.t('updated'));
 });
 
-module.exports = {
+module.exports = { matchesGeo,
   adminGetFees, adminSaveFees, adminWaive, adminMessage, adminReactivate,
   live, trackView, trackClick,
   myAds, previewQuote, placementPricing, myGeo, submit, pay, cancel,
