@@ -249,8 +249,14 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
     // Profession and area; a request sent straight to this provider skips both (AYK-079).
     const fit = []; const fitParams = [];
     const match = [];
-    if (services.length) { match.push(`r.service_id IN (${services.map(() => '?').join(', ')})`); fitParams.push(...services); }
-    if (categories.length) { match.push(`(r.service_id IS NULL AND r.category_id IN (${categories.map(() => '?').join(', ')}))`); fitParams.push(...categories); }
+    // AYK-391 (the owner: «طالب سباك لم يظهر مع طالبي خدمة السباكة»): the profession decides, as the
+    // owner's rule says (same profession, same coverage). A request for one service of a profession
+    // (e.g. «تسليك مجاري» in plumbing) used to reach only the plumbers who ticked that very service.
+    const sameProfession = categories.length
+      ? (await query(`SELECT id FROM services WHERE category_id IN (${categories.map(() => '?').join(', ')})`, categories)).map(row => Number(row.id)) : [];
+    const anyService = [...new Set([...services, ...sameProfession])];
+    if (anyService.length) { match.push(`r.service_id IN (${anyService.map(() => '?').join(', ')})`); fitParams.push(...anyService); }
+    if (categories.length) { match.push(`r.category_id IN (${categories.map(() => '?').join(', ')})`); fitParams.push(...categories); }
     if (match.length) fit.push(`(${match.join(' OR ')})`);
     const covered = await query('SELECT district_id FROM provider_coverage_districts WHERE user_id = ?', [providerId]);
     if (covered.length) {
