@@ -63,6 +63,7 @@ const AdminDisputesPage = lazy(() => import('./pages/admin/AdminDisputesPage'));
 const AdminIntegrationsPage = lazy(() => import('./pages/admin/AdminIntegrationsPage'));
 const AdminSettingsPage = lazy(() => import('./pages/admin/AdminSettingsPage'));
 const AdminMenuLayoutPage = lazy(() => import('./pages/admin/AdminMenuLayoutPage'));
+const AdminDialectPage = lazy(() => import('./pages/admin/AdminDialectPage'));
 const AdminTextsPage = lazy(() => import('./pages/admin/AdminTextsPage'));
 const AdminFormFieldsPage = lazy(() => import('./pages/admin/AdminFormFieldsPage'));
 const AdminBadgesPage = lazy(() => import('./pages/admin/AdminBadgesPage'));
@@ -269,6 +270,7 @@ export default function AppRoutes() {
           <Route path="/admin/integrations" element={<AdminIntegrationsPage />} />
           <Route path="/admin/settings" element={<AdminSettingsPage />} />
           <Route path="/admin/menu-layout" element={<AdminMenuLayoutPage />} />
+          <Route path="/admin/dialect" element={<AdminDialectPage />} />
           <Route path="/admin/texts" element={<AdminTextsPage />} />
           <Route path="/admin/form-fields" element={<AdminFormFieldsPage />} />
           <Route path="/admin/badges" element={<AdminBadgesPage />} />

@@ -14,6 +14,30 @@ export const sizeForPlacements = (placements = []) => {
   return list.length && list.every(p => NARROW.has(p)) ? AD_SIZES.narrow : AD_SIZES.wide;
 };
 
+// AYK-421 (the owner: «الأهم اختبار حجم ومناسبة الصورة أو المقطع لمكان الإعلان، ما يكون حجمه يشوّه
+// الموقع»): every frame the ad will show in (a wide and a side place together are two frames), so the
+// advertiser sees each before uploading.
+export const sizesForPlacements = (placements = []) => {
+  const list = (Array.isArray(placements) ? placements : [placements]).filter(Boolean);
+  if (!list.length) return [AD_SIZES.wide];
+  const out = [];
+  if (list.some(p => !NARROW.has(p))) out.push(AD_SIZES.wide);
+  if (list.some(p => NARROW.has(p))) out.push(AD_SIZES.narrow);
+  return out;
+};
+// A clip in an ad: short, so it does not weigh on the page.
+export const MAX_AD_VIDEO_SECONDS = 30;
+export function readVideo(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const video = document.createElement('video');
+    video.preload = 'metadata'; video.muted = true;
+    video.onloadedmetadata = () => resolve({ url, width: video.videoWidth, height: video.videoHeight, duration: video.duration });
+    video.onerror = () => { URL.revokeObjectURL(url); reject(new Error('video')); };
+    video.src = url;
+  });
+}
+
 export function readImage(file) {
   return new Promise((resolve, reject) => {
     const url = URL.createObjectURL(file);

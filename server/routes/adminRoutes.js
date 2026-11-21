@@ -41,6 +41,9 @@ router.put('/providers/:id/hide',       requirePermission('users.manage'), c.hid
 // Settings
 router.get('/settings', requirePermission('settings.manage'), c.getSettings);
 // AYK-410: the menu's own order — read by every administrator's menu, changed with the settings right.
+// AYK-420: words the site learned from its people's requests.
+router.get('/dialect-terms', requirePermission('services.manage'), require('../controllers/dialectController').list);
+router.put('/dialect-terms/:term', requirePermission('services.manage'), require('../controllers/dialectController').flag);
 router.get('/menu-layout', require('../controllers/menuLayoutController').get);
 router.put('/menu-layout', requirePermission('settings.manage'), require('../controllers/menuLayoutController').save);
 router.put('/settings', requirePermission('settings.manage'), c.updateSettings);

@@ -91,9 +91,13 @@ const hits = (words, list) => words.filter(w => list.some(x => sameRoot(w, x))).
 
 // The site's link to its catalogue. `categories` and `services` are the lists the site already
 // loads (each with id, slug/category_id and its names in every language).
-export function understandRequest(text, { categories = [], services = [] } = {}) {
+// `learned` (AYK-420): the roots the site learned from its people's requests, each with the
+// profession (and service) it was mostly published under — [{ term, category_id, service_id }].
+export function understandRequest(text, { categories = [], services = [], learned = [] } = {}) {
   const intent = parseIntent(text);
   const words = intent.words.filter(w => w.length >= 2);
+  const roots = new Set(words.map(stem));
+  const known = learned.filter(row => row && roots.has(row.term));
   const phrase = ` ${intent.text} `;
   const scored = categories.map(category => {
     const lexicon = SERVICE_LEXICON.find(entry => entry.slug === category.slug);
@@ -102,6 +106,7 @@ export function understandRequest(text, { categories = [], services = [] } = {})
     if (lexicon) score += 2 * hits(key, lexicon.words.filter(w => !w.includes(' '))) + lexicon.words.filter(w => w.includes(' ') && phrase.includes(` ${w} `)).length * 2;
     const own = services.filter(s => Number(s.category_id) === Number(category.id));
     score += own.reduce((sum, s) => sum + hits(key, nameWords(s)), 0);
+    score += 2 * known.filter(row => Number(row.category_id) === Number(category.id)).length;
     return { category, score, lexicon, own };
   }).filter(row => row.score > 0).sort((a, b) => b.score - a.score);
   const best = scored[0] || null;
@@ -110,7 +115,8 @@ export function understandRequest(text, { categories = [], services = [] } = {})
     const hints = best.lexicon ? words.map(w => Object.entries(best.lexicon.service).find(([k]) => sameRoot(w, k))?.[1]).filter(Boolean) : [];
     const ranked = best.own.map(s => {
       const names = nameWords(s);
-      return { s, score: 2 * hits(words, names) + hits(hints, names) };
+      const taught = known.filter(row => Number(row.service_id) === Number(s.id)).length;
+      return { s, score: 2 * hits(words, names) + hits(hints, names) + 2 * taught };
     }).filter(row => row.score > 0).sort((a, b) => b.score - a.score);
     service = ranked[0]?.s || null;
   }

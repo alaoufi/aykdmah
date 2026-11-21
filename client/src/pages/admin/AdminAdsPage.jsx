@@ -27,7 +27,7 @@ import AdPlacementMap from '../../components/ads/AdPlacementMap';
 import AdImageFit from '../../components/ads/AdImageFit';
 import { CampaignsPanel, ReportsPanel, FieldHelp } from '../../components/admin/AdCampaigns';
 import { listAdCampaigns } from '../../services/adminService';
-import { sizeForPlacements } from '../../utils/adImageSize';
+import { sizeForPlacements, sizesForPlacements } from '../../utils/adImageSize';
 
 // All 15 placements supported by the renderer. Keep in sync with
 // server/services/adRequestService.js ALLOWED_PLACEMENTS.
@@ -226,7 +226,7 @@ export default function AdminAdsPage() {
   const [fitting, setFitting] = useState(null);
   const onPickFile = async (file, checked = false) => {
     if (!file) return;
-    if (!checked) { setFitting({ file, size: sizeForPlacements(form.placements) }); return; }
+    if (!checked) { setFitting({ file, size: sizeForPlacements(form.placements), sizes: sizesForPlacements(form.placements) }); return; }
     const version = ++uploadVersion.current;
     setUploading(true);
     setFormError('');
@@ -1126,7 +1126,7 @@ export default function AdminAdsPage() {
       )}
       <ConfirmDialog {...confirm} onCancel={() => setConfirm({ open: false })} />
       <AdminFab onClick={openCreate} ariaLabel={t('admin.new')} />
-      {fitting && <AdImageFit file={fitting.file} size={fitting.size}
+      {fitting && <AdImageFit file={fitting.file} size={fitting.size} sizes={fitting.sizes}
         onUse={(file) => { setFitting(null); onPickFile(file, true); }} onCancel={() => setFitting(null)} />}
     </div>
   );

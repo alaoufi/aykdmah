@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { listServices } from '../../services/serviceService';
+import api from '../../services/api';
 import { understandRequest } from '../../utils/requestIntent.mjs';
 import { localizedName } from '../../utils/localize';
 
-// AYK-419 (the owner): «اكتب طلبك بكلامك». The requester writes what they need in their own words;
+// AYK-419 (the owner): «اكتب طلبك بلهجتك» (renamed by the owner). The requester writes what they need in their own words;
 // the page picks the profession and the service and writes the title and the details, then says
 // what it understood so it can be changed. Free, on the device, no outside service.
 export default function UnderstandRequest({ categories, onApply }) {
@@ -13,9 +14,14 @@ export default function UnderstandRequest({ categories, onApply }) {
   const [text, setText] = useState('');
   const [services, setServices] = useState([]);
   const [result, setResult] = useState(null);
-  useEffect(() => { listServices().then(rows => setServices(rows || [])).catch(() => {}); }, []);
+  // AYK-420: the words the site learned from its people's requests.
+  const [learned, setLearned] = useState([]);
+  useEffect(() => {
+    listServices().then(rows => setServices(rows || [])).catch(() => {});
+    api.get('/requests/learned-terms').then(({ data }) => setLearned(Array.isArray(data?.data) ? data.data : [])).catch(() => {});
+  }, []);
   const understand = () => {
-    const found = understandRequest(text, { categories, services });
+    const found = understandRequest(text, { categories, services, learned });
     setResult(found);
     onApply({
       category_id: found.category ? String(found.category.id) : '',

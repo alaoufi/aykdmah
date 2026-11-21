@@ -1135,6 +1135,48 @@ if (!databasePrefix) {
     await db.query('DELETE FROM requests WHERE id = ?', [id]);
   });
 
+  test('AYK-420: published requests teach the site dialect words; the administration approves or blocks them', async () => {
+    const area = await simpleArea();
+    const cats = await db.query('SELECT id FROM categories WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 2');
+    const [first, second] = cats.map(row => Number(row.id));
+    const client = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await db.query('UPDATE users SET role = ?, is_super_admin = 1 WHERE id = ?', ['admin', owner.user.id]);
+    const account = await db.queryOne('SELECT auth_version FROM users WHERE id = ?', [owner.user.id]);
+    const admin = require('../utils/jwt').sign({ id: owner.user.id, role: 'admin', auth_version: Number(account.auth_version || 0) });
+    const learned = async () => (await fetch(`${base}/requests/learned-terms`).then(r => r.json())).data;
+    const made = [];
+    const post = async (title, categoryId) => {
+      const res = await api('/requests', { method: 'POST', token: client.token, expected: 201, body: {
+        title, description: title, category_id: categoryId, city_id: area.city_id, district_id: area.district_id, latitude: 24.7136, longitude: 46.6753 } });
+      made.push(Number(res.id || res.request?.id));
+      await new Promise(r => setTimeout(r, 150)); // learning runs right after the reply
+    };
+    await post('الزرنيخ خربان عندي', first);
+    await post('أبي أحد يصلح الزرنيخ', first);
+    require('../services/dialectLearning').forget();
+    assert.ok(!(await learned()).some(row => row.term === 'زرنيخ'), 'two requests are not enough');
+    await post('الزرنيخ يطلع صوت', first);
+    require('../services/dialectLearning').forget();
+    const word = (await learned()).find(row => row.term === 'زرنيخ');
+    assert.ok(word, 'three requests for one profession teach the word');
+    assert.equal(Number(word.category_id), first);
+    assert.ok(!(await learned()).some(row => ['ابي', 'عندي', 'احد'].includes(row.term)), 'request words are never learned');
+    const noRaw = await db.queryOne("SELECT COUNT(*) AS n FROM dialect_terms WHERE term LIKE '%عندي%' OR term ~ '[0-9]'");
+    assert.equal(Number(noRaw.n), 0);
+
+    const list = await api('/admin/dialect-terms', { token: admin });
+    assert.equal(list.terms.find(row => row.term === 'زرنيخ').status, 'learned');
+    await api(`/admin/dialect-terms/${encodeURIComponent('الزرنيخ')}`, { method: 'PUT', token: admin, body: { status: 'blocked' } });
+    assert.ok(!(await learned()).some(row => row.term === 'زرنيخ'), 'blocked: not used');
+    await api(`/admin/dialect-terms/${encodeURIComponent('زرنيخ')}`, { method: 'PUT', token: admin, body: { status: 'approved', category_id: second } });
+    assert.equal(Number((await learned()).find(row => row.term === 'زرنيخ').category_id), second, 'approved for another profession');
+    await api(`/admin/dialect-terms/${encodeURIComponent('زرنيخ')}`, { method: 'PUT', token: admin, body: { status: 'nonsense' }, expected: 400 });
+    await api(`/admin/dialect-terms/${encodeURIComponent('زرنيخ')}`, { method: 'PUT', token: client.token, body: { status: 'blocked' }, expected: 403 });
+    await api(`/admin/dialect-terms/${encodeURIComponent('زرنيخ')}`, { method: 'PUT', token: admin, body: { status: 'clear' } });
+    for (const id of made) await db.query('DELETE FROM requests WHERE id = ?', [id]);
+  });
+
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');

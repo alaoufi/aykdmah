@@ -6,7 +6,7 @@ import { getMyAds, previewQuote, submitAdRequest, payAd, cancelAd, getAdStats, p
 import { listCities, listRegions } from '../services/serviceService';
 import AdSparkline from '../components/ads/AdSparkline';
 import AdImageFit from '../components/ads/AdImageFit';
-import { sizeForPlacements } from '../utils/adImageSize';
+import { sizeForPlacements, sizesForPlacements } from '../utils/adImageSize';
 import { formatCurrency, formatRelativeTime } from '../utils/formatters';
 import { LoadingState } from '../components/common/Spinner';
 import ConfirmDialog from '../components/common/ConfirmDialog';
@@ -165,7 +165,7 @@ export default function PromotePage() {
       setMediaError(t('promote.media_too_big', { size: (file.size / 1048576).toFixed(1) }));
       return;
     }
-    if (!checked) { setFitting({ file, size: sizeForPlacements(form.placements) }); return; }
+    if (!checked) { setFitting({ file, size: sizeForPlacements(form.placements), sizes: sizesForPlacements(form.placements) }); return; }
     setUploading(true);
     try {
       const res = await uploadMyAdMedia(file);
@@ -644,7 +644,7 @@ export default function PromotePage() {
       </div>
 
       <ConfirmDialog {...confirm} onCancel={() => setConfirm({ open: false })} />
-      {fitting && <AdImageFit file={fitting.file} size={fitting.size}
+      {fitting && <AdImageFit file={fitting.file} size={fitting.size} sizes={fitting.sizes}
         onUse={(file) => { setFitting(null); onPickFile(file, true); }} onCancel={() => setFitting(null)} />}
     </div>
   );

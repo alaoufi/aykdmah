@@ -1382,6 +1382,9 @@
     "ad_tab_reports": "التقارير",
     "menu_layout": {
       "title": "ترتيب القوائم"
+    },
+    "dialect": {
+      "title": "Kata dialek"
     }
   },
   "errors": {
@@ -3009,7 +3012,19 @@
     "reject": "Tidak, saya akan mengubah gambarnya sendiri",
     "redo": "Ubah gambar Anda ke {{w}}×{{h}} piksel ({{ratio}}), lalu unggah lagi.",
     "animated": "Gambar bergerak tidak disesuaikan otomatis. Ubah ke {{w}}×{{h}} piksel ({{ratio}}), lalu unggah.",
-    "close": "Tutup"
+    "close": "Tutup",
+    "video_title": "Bentuk klip tidak cocok dengan tempat iklan",
+    "video_body": "Ukuran yang tepat {{w}}×{{h}} ({{ratio}}); klip Anda {{ow}}×{{oh}}. Klip tidak pernah ditarik: tampil dalam bingkai dengan tepi terpotong, seperti di bawah. Setuju?",
+    "video_long": "Klip Anda {{seconds}} detik; klip iklan maksimal {{max}} detik. Potong lalu unggah lagi.",
+    "video_small": "Klip Anda lebih kecil dari ukuran yang tepat, mungkin kurang jelas.",
+    "video_accept": "Oke, pakai klip seperti yang terlihat",
+    "video_reject": "Tidak, saya ubah klipnya sendiri",
+    "video_redo": "Ubah klip menjadi {{w}}×{{h}} ({{ratio}}), maksimal {{max}} detik, lalu unggah lagi.",
+    "in_place": "Seperti yang tampil di {{place}} ({{w}}×{{h}})",
+    "place_wide": "tempat lebar",
+    "place_narrow": "tempat samping",
+    "mixed": "Anda memilih tempat berbentuk berbeda; lihat tampilan iklan di masing-masing.",
+    "video_long_title": "Klip terlalu panjang"
   },
   "contact_privacy": {
     "title": "Menghubungi Anda",
@@ -3025,7 +3040,7 @@
     "marketing_hint": "Kami kirimkan info baru dan penawaran yang sesuai kebutuhan Anda. Bisa dihentikan kapan saja."
   },
   "understand": {
-    "title": "Tulis permintaan dengan kata-kata sendiri",
+    "title": "Tulis permintaan dengan logat Anda sendiri",
     "hint": "Tulis kebutuhan Anda seperti biasa; kami pilihkan profesi dan layanan lalu mengisi permintaan.",
     "placeholder": "Contoh: AC saya tidak dingin",
     "button": "Pahami permintaan saya",

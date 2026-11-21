@@ -1382,6 +1382,9 @@
     "ad_tab_reports": "Reports",
     "menu_layout": {
       "title": "Menu order"
+    },
+    "dialect": {
+      "title": "Dialect words"
     }
   },
   "errors": {
@@ -3009,7 +3012,19 @@
     "reject": "No, I will edit the picture myself",
     "redo": "Edit your picture to {{w}}×{{h}} pixels ({{ratio}}), then upload it again.",
     "animated": "An animated picture is not adjusted automatically. Edit it to {{w}}×{{h}} pixels ({{ratio}}), then upload it.",
-    "close": "Close"
+    "close": "Close",
+    "video_title": "The clip's shape does not fit the ad place",
+    "video_body": "The right size is {{w}}×{{h}} ({{ratio}}); your clip is {{ow}}×{{oh}}. It is never stretched: it shows in the place's frame with its edges cut, as below. Is that fine?",
+    "video_long": "Your clip is {{seconds}} seconds; an ad clip can be at most {{max}} seconds so the site stays light. Trim it, then upload again.",
+    "video_small": "Your clip is smaller than the right size, so it may look unclear.",
+    "video_accept": "OK, use the clip as shown",
+    "video_reject": "No, I will edit the clip myself",
+    "video_redo": "Edit your clip to {{w}}×{{h}} ({{ratio}}), at most {{max}} seconds, then upload it again.",
+    "in_place": "As it will show in {{place}} ({{w}}×{{h}})",
+    "place_wide": "wide places",
+    "place_narrow": "side places",
+    "mixed": "You chose places of different shapes; see how your ad shows in each.",
+    "video_long_title": "The clip is too long"
   },
   "contact_privacy": {
     "title": "Contacting you",
@@ -3025,7 +3040,7 @@
     "marketing_hint": "We send you what is new and offers that suit what you ask for. You can stop any time."
   },
   "understand": {
-    "title": "Describe your request in your own words",
+    "title": "Write your request in your own dialect",
     "hint": "Write what you need as you would say it; we pick the profession and service and fill in the request.",
     "placeholder": "Example: my AC is not cooling and it is noisy",
     "button": "Understand my request",

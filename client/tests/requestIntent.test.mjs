@@ -19,6 +19,9 @@ test('reads count, budget, time and urgency', () => {
   const b = parseIntent('تركيب ثلاث إنارات ضروري اليوم');
   assert.equal(b.count, 3); assert.equal(b.urgent, true); assert.equal(b.when, 'today');
   assert.equal(parseIntent('غسيل سجاد ٣ قطع').count, 3);
+  // From «أكلات جدتنا» (server-edge #29): Arabic-Indic digits survive removing the diacritics.
+  const c = parseIntent('أبي ٣ كيلو بميزانية ٢٥٠');
+  assert.equal(c.count, 3); assert.equal(c.budget, 250);
 });
 
 test('everyday sentences find the right profession and service', () => {

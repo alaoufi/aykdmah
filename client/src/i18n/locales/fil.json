@@ -1382,6 +1382,9 @@
     "ad_tab_reports": "التقارير",
     "menu_layout": {
       "title": "ترتيب القوائم"
+    },
+    "dialect": {
+      "title": "Mga salita ng diyalekto"
     }
   },
   "errors": {
@@ -3009,7 +3012,19 @@
     "reject": "Hindi, ako na ang mag-aayos ng larawan",
     "redo": "Ayusin ang larawan sa {{w}}×{{h}} pixel ({{ratio}}), saka i-upload muli.",
     "animated": "Hindi awtomatikong naaayos ang gumagalaw na larawan. Gawin itong {{w}}×{{h}} pixel ({{ratio}}), saka i-upload.",
-    "close": "Isara"
+    "close": "Isara",
+    "video_title": "Hindi akma ang hugis ng clip sa lugar ng ad",
+    "video_body": "Ang tamang laki ay {{w}}×{{h}} ({{ratio}}); ang clip mo ay {{ow}}×{{oh}}. Hindi ito kailanman binabanat: lalabas ito sa frame na putol ang gilid, gaya sa ibaba. Ayos ba?",
+    "video_long": "Ang clip mo ay {{seconds}} segundo; hanggang {{max}} segundo lang ang ad clip. Paikliin at i-upload muli.",
+    "video_small": "Mas maliit ang clip mo sa tamang laki, baka malabo.",
+    "video_accept": "Sige, gamitin ang clip gaya ng nakikita",
+    "video_reject": "Hindi, ako na ang mag-aayos ng clip",
+    "video_redo": "Gawing {{w}}×{{h}} ({{ratio}}) at hanggang {{max}} segundo ang clip, saka i-upload muli.",
+    "in_place": "Gaya ng lalabas sa {{place}} ({{w}}×{{h}})",
+    "place_wide": "malalapad na lugar",
+    "place_narrow": "mga lugar sa gilid",
+    "mixed": "Pumili ka ng mga lugar na iba-iba ang hugis; tingnan kung paano lalabas ang ad sa bawat isa.",
+    "video_long_title": "Masyadong mahaba ang clip"
   },
   "contact_privacy": {
     "title": "Pakikipag-ugnayan sa iyo",
@@ -3025,7 +3040,7 @@
     "marketing_hint": "Magpapadala kami ng mga bago at alok na bagay sa hinihingi mo. Puwede mong ihinto anumang oras."
   },
   "understand": {
-    "title": "Isulat ang kahilingan sa sarili mong salita",
+    "title": "Isulat ang kahilingan sa sarili mong salita at punto",
     "hint": "Isulat ang kailangan mo gaya ng pagsasabi mo; pipiliin namin ang propesyon at serbisyo at pupunan ang kahilingan.",
     "placeholder": "Halimbawa: hindi lumalamig ang aircon ko",
     "button": "Unawain ang kahilingan ko",
