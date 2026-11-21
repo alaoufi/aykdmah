@@ -170,7 +170,21 @@
     "mode_provider": "አገልግሎት ሰጪ ነኝ",
     "mode_provider_hint": "በሙያዬና በአካባቢዬ ያሉ ጥያቄዎች",
     "mode_client": "አገልግሎት ጠያቂ ነኝ",
-    "mode_client_hint": "በአካባቢዬ ያሉ አገልግሎት ሰጪዎች እና አዲስ ጥያቄ"
+    "mode_client_hint": "በአካባቢዬ ያሉ አገልግሎት ሰጪዎች እና አዲስ ጥያቄ",
+    "tab_requests": "አገልግሎት ጠያቂዎች",
+    "tab_requests_hint": "አገልግሎት የሚፈልጉ ሰዎች ጥያቄዎች",
+    "tab_requests_hint_provider": "በሙያዬ ያሉ ጥያቄዎች",
+    "tab_providers": "አገልግሎት ሰጪዎች",
+    "tab_providers_hint": "አገልግሎቱን ማን ይሰጣል፣ እና አገልግሎት ይጠይቁ",
+    "scope_label": "ክልል፦",
+    "scope_district": "ሰፈሬ",
+    "scope_coverage": "የምሸፍነው",
+    "scope_city": "ከተማዬ",
+    "scope_region": "ክልሌ",
+    "scope_all": "ሁሉም ቦታ",
+    "requests_around_title": "የአገልግሎት ጠያቂዎች ጥያቄዎች",
+    "no_requests_widen": "በዚህ ክልል አሁን ጥያቄ የለም። ተጨማሪ ለማየት ክልሉን ያስፉ።",
+    "no_requests_anywhere": "አሁን ክፍት ጥያቄ የለም።"
   },
   "location": {
     "country": "ሀገር",
@@ -332,7 +346,11 @@
     "phone_not_registered": "ይህ የሞባይል ቁጥር አልተመዘገበም",
     "account_not_registered": "ይህ መለያ አልተመዘገበም",
     "register_here": "እዚህ ይመዝገቡ",
-    "recover_here": "እዚህ ያስመልሱ"
+    "recover_here": "እዚህ ያስመልሱ",
+    "offer_service_title": "አገልግሎት ይሰጣሉ?",
+    "offer_service_hint": "ሙያዎንና የሚሸፍኑትን ሰፈሮች ይምረጡ፤ አገልግሎት ጠያቂዎች እንዲያዩዎትና ጥያቄዎቻቸው እንዲደርሱዎት። አማራጭ ነው፤ በኋላም ከ«መለያዬ» ማድረግ ይችላሉ።",
+    "offer_service_button": "ሙያዬንና አካባቢዬን ምረጥ",
+    "continue_as_client": "እንደ አገልግሎት ጠያቂ ቀጥል"
   },
   "request": {
     "create_title": "አዲስ ጥያቄ ይፍጠሩ",
@@ -521,7 +539,9 @@
     "missing_region": "ክልሉን ይምረጡ",
     "missing_city": "ከተማውን ይምረጡ",
     "missing_district": "ሰፈሩን ይምረጡ",
-    "not_saved": "አልተቀመጠም"
+    "not_saved": "አልተቀመጠም",
+    "area_first_hint": "መጀመሪያ ክልልዎንና ከተማዎን ይምረጡ፤ ሰፈሮቹ እንዲታዩና ከነሱ የሚሸፍኑትን እንዲመርጡ።",
+    "area_first_save": "ክልሌንና ከተማዬን አስቀምጥ"
   },
   "chat": {
     "title": "መልዕክቶች",
@@ -974,7 +994,7 @@
     "country_currency_code": "የገንዘብ ኮድ",
     "country_currency_symbol": "የሚታየው የገንዘብ ምልክት",
     "country_languages": "በዚህ አገር የሚገኙ ቋንቋዎች",
-    "ads": "ማስታወቂያዎች",
+    "ads": "የሚከፈልባቸው ማስታወቂያዎች",
     "reviews": "ደረጃዎችን ማስተዳደር",
     "activity_logs": "የእንቅስቃሴ መዝገብ",
     "integrations": "የኤፒአይ ውህደቶች",
@@ -1326,7 +1346,11 @@
     "visitors_title": "የጎብኚ ቆጣሪ",
     "visitors_hint": "በቅንብሮች ውስጥ ባለው «የጎብኚ ቆጣሪውንና እይታዎችን ለሁሉም ያሳዩ» ቅንብር መሠረት በጣቢያውና በመተግበሪያዎቹ ግርጌ ለሁሉም ወይም ለአስተዳደሩ ብቻ ይታያል። እያንዳንዱ ጎብኚ በቀን አንድ ጊዜ ይቆጠራል።",
     "reports_group": "ሪፖርቶች",
-    "backups_report": "የመጠባበቂያ ሪፖርት"
+    "backups_report": "የመጠባበቂያ ሪፖርት",
+    "nav_work": "ጥያቄዎችና ግንኙነት",
+    "nav_catalog": "ሙያዎችና አገልግሎቶች",
+    "nav_money": "ክፍያዎችና ገቢ",
+    "nav_places": "ቦታዎች"
   },
   "errors": {
     "generic": "ስህተት ተፈጥሯል",
@@ -2881,7 +2905,7 @@
       },
       "account": {
         "title": "የሞባይል ቁጥርና የይለፍ ቃል",
-        "body": "የሳውዲ ሞባይል ቁጥርዎን ይጻፉ፣ ለምሳሌ 05XXXXXXXX፤ ከዚያም ቢያንስ 4 ቁምፊ ያለው የይለፍ ቃል፦ ቁጥሮች፣ ፊደላት ወይም ምልክቶች። ስም አማራጭ ነው። ቁጥርዎ ቀድሞ ተመዝግቦ ከሆነ እንደገና ከመመዝገብ ይልቅ «{{signin}}» እና «{{forgot}}» ቁልፎች ይታዩዎታል።"
+        "body": "የሳዑዲ ሞባይል ቁጥርዎን እንደ 05XXXXXXXX ያስገቡ፣ ከዚያ ቢያንስ 4 ቁምፊ ያለው የይለፍ ቃል። ሌላ ምንም አይጠየቅም፦ ክልልዎና ከተማዎ በራስ-ሰር ይታወቃሉ፣ መቀየርም ይችላሉ፤ አገልግሎት የሚሰጡ ከሆነ ሙያዎንና ሰፈሮችዎን የመምረጥ ዕድል ከምዝገባ በኋላ ይቀርብልዎታል፣ ይህም አማራጭ ነው። ቁጥርዎ አስቀድሞ ከተመዘገበ «{{signin}}» እና «{{forgot}}» ቁልፎች ይታያሉ።"
       },
       "location": {
         "title": "ቦታዎ",

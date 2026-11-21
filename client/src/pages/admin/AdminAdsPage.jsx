@@ -216,6 +216,37 @@ export default function AdminAdsPage() {
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [statusFilter]);
 
+  // AYK-395 (the owner: «ما فيه موافقة عرضه، والإعفاء من الرسوم، وإيقافه»): the ad's actions by its
+  // status, on its card and at the top of its edit window (which closes after the action).
+  const statusActions = (a, after = null) => {
+    const run = async (handler, ad) => { await handler(ad); after?.(); };
+    return (
+      <>
+                  {a.status === 'requested' && (
+                    <>
+                      <button onClick={() => run(onApprove, a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition disabled:opacity-60">✓ {t('badge.approve')}</button>
+                      <button onClick={() => run(onReject, a)}  disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition disabled:opacity-60">✗ {t('badge.reject')}</button>
+                    </>
+                  )}
+                  {(a.status === 'awaiting_payment' || (Number(a.fee_waived) === 1 && ['requested', 'approved'].includes(a.status))) && (
+                    <button onClick={() => run(onActivate, a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition disabled:opacity-60">▶ {t('promote.activate')}</button>
+                  )}
+                  {a.status === 'active' && (
+                    <button onClick={() => run(onPause, a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-amber-50 text-amber-700 hover:bg-amber-100 transition disabled:opacity-60">⏸ {t('promote.pause')}</button>
+                  )}
+                  {a.status === 'expired' && (
+                    <button onClick={() => run(onReactivate, a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition disabled:opacity-60">🔄 {t('promote.reactivate')}</button>
+                  )}
+                  {a.status === 'paused' && (
+                    <button onClick={() => run(onResume, a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition disabled:opacity-60">▶ {t('promote.resume')}</button>
+                  )}
+                  {['requested', 'approved', 'awaiting_payment'].includes(a.status) && Number(a.fee_waived) !== 1 && !a.payment_id && (
+                    <button onClick={() => run(onWaive, a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition disabled:opacity-60">🎁 {t('promote.waive_fee')}</button>
+                  )}
+      </>
+    );
+  };
+
   const closeEdit = () => {
     ++editVersion.current; ++uploadVersion.current;
     setUploading(false); setEditOpen(false); setEditing(null); setForm(EMPTY); setFormError('');
@@ -589,29 +620,9 @@ export default function AdminAdsPage() {
                   <div className="mt-1 mb-2 p-2 rounded bg-rose-50 text-[12px] text-rose-700">{t('badge.reason')}: {a.rejection_reason}</div>
                 )}
                 <div className="flex flex-wrap gap-1.5">
-                  {a.status === 'requested' && (
-                    <>
-                      <button onClick={() => onApprove(a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition disabled:opacity-60">✓ {t('badge.approve')}</button>
-                      <button onClick={() => onReject(a)}  disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition disabled:opacity-60">✗ {t('badge.reject')}</button>
-                    </>
-                  )}
-                  {(a.status === 'awaiting_payment' || (Number(a.fee_waived) === 1 && ['requested', 'approved'].includes(a.status))) && (
-                    <button onClick={() => onActivate(a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition disabled:opacity-60">▶ {t('promote.activate')}</button>
-                  )}
-                  {a.status === 'active' && (
-                    <button onClick={() => onPause(a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-amber-50 text-amber-700 hover:bg-amber-100 transition disabled:opacity-60">⏸ {t('promote.pause')}</button>
-                  )}
-                  {a.status === 'expired' && (
-                    <button onClick={() => onReactivate(a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition disabled:opacity-60">🔄 {t('promote.reactivate')}</button>
-                  )}
-                  {a.status === 'paused' && (
-                    <button onClick={() => onResume(a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition disabled:opacity-60">▶ {t('promote.resume')}</button>
-                  )}
+                  {statusActions(a)}
                   {(a.status === 'active' || a.status === 'paused' || a.status === 'expired') && (
                     <button onClick={() => toggleStats(a)} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition">📊 {openStats[a.id] ? t('promote.hide_stats') : t('promote.show_stats')}</button>
-                  )}
-                  {['requested', 'approved', 'awaiting_payment'].includes(a.status) && Number(a.fee_waived) !== 1 && !a.payment_id && (
-                    <button onClick={() => onWaive(a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition disabled:opacity-60">🎁 {t('promote.waive_fee')}</button>
                   )}
                   {a.user_id && (
                     <button onClick={() => setReply({ ad: a, category: 'administrative', message: '' })} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-sky-50 text-sky-700 hover:bg-sky-100 transition">✉️ {t('promote.reply_advertiser')}</button>
@@ -687,6 +698,12 @@ export default function AdminAdsPage() {
       >
         <form id="AdminAdsPage-form" onSubmit={onSave} className="space-y-3">
           {formError && <div role="alert" className="px-3 py-2 rounded bg-rose-50 border border-rose-200 text-rose-700 text-[13px] font-semibold">⚠️ {formError}</div>}
+          {editing && (
+            <div className="rounded-card border border-slate-200 bg-slate-50 p-2.5" data-testid="ad-edit-actions">
+              <div className="text-[12px] font-bold text-ink mb-1.5">الحالة: {t(`promote.status_${editing.status}`, editing.status)}{Number(editing.fee_waived) === 1 ? ' · 🎁 معفى من الرسوم' : ''}</div>
+              <div className="flex flex-wrap gap-1.5">{statusActions(editing, closeEdit)}</div>
+            </div>
+          )}
           {paidBoundsLocked(editing) && (
             <div className="px-3 py-2.5 rounded-card bg-amber-50 border border-amber-200 text-amber-800 text-[12.5px] leading-relaxed">
               🔒 إعلان مدفوع: مكانه ومدته ومشاهداته مرتبطة بالمبلغ الذي دُفع، فلا تُعدَّل إلا بإعفائه من الرسوم. ويُعدَّل هنا محتواه (الصورة والنصوص والرابط) ومناطق عرضه.
@@ -824,31 +841,9 @@ export default function AdminAdsPage() {
                 })}
               </div>
             </div>
-            <div>
-              <div className="text-[11px] font-semibold text-slate-600 mb-1">{t('promote.target_regions')}</div>
-              <div className="flex flex-wrap gap-1.5">
-                {regions.map((r) => {
-                  const on = form.target_regions.includes(r.id);
-                  return (
-                    <button key={r.id} type="button"
-                      onClick={() => setForm((f) => ({
-                        ...f,
-                        target_regions: on
-                          ? f.target_regions.filter((x) => x !== r.id)
-                          : [...f.target_regions, r.id],
-                      }))}
-                      className={`px-2.5 py-1 rounded-pill border text-[11px] font-semibold transition ${
-                        on ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
-                      }`}>{on ? '✓ ' : ''}{localizedName(r, i18n.resolvedLanguage)}</button>
-                  );
-                })}
-              </div>
-            </div>
-            <div>
-              <div className="text-[11px] font-semibold text-slate-600 mb-1">{t('promote.target_cities')}</div>
-              <AdminCityPicker cities={cities} selected={form.target_cities}
-                onChange={(next) => setForm({ ...form, target_cities: next })} />
-            </div>
+            {/* AYK-394 (the owner: «اختيار منطقة العرض المفروض يكون في نفس اختيار المناطق»): a region ticked
+                opens its cities right under it; none chosen = the whole region. */}
+            <RegionCityPicker regions={regions} cities={cities} form={form} setForm={setForm} />
           </div>
         </form>
       </Modal>
@@ -944,47 +939,71 @@ export default function AdminAdsPage() {
   );
 }
 
-function AdminCityPicker({ cities, selected, onChange }) {
-  const { t, i18n } = useTranslation();
-  const cityValue = city => city.name_ar || city.name_en || city.name || '';
-  const cityLabel = value => {
-    const row = (cities || []).find(city => cityValue(city) === value);
-    return row ? localizedName(row, i18n.resolvedLanguage) : value;
-  };
-  const [q, setQ] = useState('');
-  const filtered = (cities || []).filter((c) => {
-    const name = [localizedName(c, i18n.resolvedLanguage), c.name_ar, c.name_en, ...Object.values(c.name_translations || {})].filter(Boolean).join(' ').toLowerCase();
-    return !q.trim() || name.includes(q.trim().toLowerCase());
-  }).slice(0, 80);
-  const toggle = (name) => {
-    if (selected.includes(name)) onChange(selected.filter((x) => x !== name));
-    else onChange([...selected, name]);
-  };
+const cityKey = c => c.name_ar || c.name_en || c.name || '';
+const regionOfCity = c => Number(c.in_region_id ?? c.region_id);
+
+function RegionCityPicker({ regions, cities, form, setForm }) {
+  const { i18n } = useTranslation();
+  const lang = i18n.resolvedLanguage;
+  const [q, setQ] = useState({});
+  const chosen = form.target_regions.map(Number);
+  const toggleRegion = id => setForm(f => {
+    const on = f.target_regions.map(Number).includes(id);
+    if (!on) return { ...f, target_regions: [...f.target_regions, id] };
+    const drop = new Set(cities.filter(c => regionOfCity(c) === id).map(cityKey));
+    return { ...f, target_regions: f.target_regions.filter(x => Number(x) !== id), target_cities: f.target_cities.filter(n => !drop.has(n)) };
+  });
+  const toggleCity = name => setForm(f => ({ ...f, target_cities: f.target_cities.includes(name) ? f.target_cities.filter(x => x !== name) : [...f.target_cities, name] }));
+  const chip = on => `px-2.5 py-1 rounded-pill border text-[11.5px] font-semibold transition ${on ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'}`;
   return (
-    <div>
-      <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={`🔍 ${t('admin.search_city')}`} aria-label={t('admin.search_city')}
-        className="w-full mb-2 px-3 py-1.5 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[12.5px]" />
-      {selected.length > 0 && (
-        <div className="flex flex-wrap gap-1 mb-2">
-          {selected.map((s) => (
-            <span key={s} className="px-2 py-0.5 rounded-pill bg-brand-50 text-brand-700 text-[11px] font-semibold flex items-center gap-1">
-              {cityLabel(s)}
-              <button type="button" onClick={() => toggle(s)} className="opacity-70 hover:opacity-100">✕</button>
-            </span>
-          ))}
+    <div data-testid="region-city-picker">
+      <div className="text-[11px] font-semibold text-slate-600 mb-1">المناطق والمدن</div>
+      <p className="text-[11px] text-slate-500 mt-0 mb-2">اختر منطقة فتظهر مدنها تحتها. بلا اختيار مدينة يُعرض في كل المنطقة، ومع اختيار مدن يُعرض فيها فقط. وتحديد منطقة يجعل الدولة لا تُحسب.</p>
+      {chosen.length > 0 && (
+        <div className="space-y-2 mb-2">
+          {regions.filter(r => chosen.includes(Number(r.id))).map(r => {
+            const all = cities.filter(c => regionOfCity(c) === Number(r.id));
+            const picked = all.filter(c => form.target_cities.includes(cityKey(c)));
+            const term = (q[r.id] || '').trim().toLowerCase();
+            const shown = all.filter(c => !term || [localizedName(c, lang), c.name_ar, c.name_en].filter(Boolean).join(' ').toLowerCase().includes(term));
+            return (
+              <div key={r.id} className="rounded-card border-2 border-brand-200 bg-brand-50/40 p-2" data-testid={`region-${r.id}`}>
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <button type="button" className={chip(true)} onClick={() => toggleRegion(Number(r.id))}>✓ {localizedName(r, lang)} ✕</button>
+                  <span className="text-[11px] font-bold text-brand-700">{picked.length ? `${picked.length} من ${all.length} مدينة` : `كل المنطقة (${all.length} مدينة)`}</span>
+                </div>
+                {all.length > 8 && (
+                  <input value={q[r.id] || ''} onChange={e => setQ(prev => ({ ...prev, [r.id]: e.target.value }))} placeholder="🔍 ابحث عن مدينة في هذه المنطقة"
+                    className="w-full mt-2 px-3 py-1.5 rounded-card border border-slate-200 bg-white outline-none text-[12px]" />
+                )}
+                <div className="flex flex-wrap gap-1 mt-2 max-h-40 overflow-y-auto">
+                  {shown.map(c => {
+                    const on = form.target_cities.includes(cityKey(c));
+                    return <button key={c.id} type="button" onClick={() => toggleCity(cityKey(c))} className={`px-2 py-0.5 rounded text-[11px] font-semibold transition ${on ? 'bg-brand-500 text-white' : 'bg-white text-slate-600 border border-slate-200'}`}>{on ? '✓ ' : ''}{localizedName(c, lang)}</button>;
+                  })}
+                </div>
+              </div>
+            );
+          })}
         </div>
       )}
-      <div className="flex flex-wrap gap-1 max-h-32 overflow-y-auto p-1 border border-slate-100 rounded">
-        {filtered.map((c) => {
-          const name = cityValue(c);
-          const on = selected.includes(name);
-          return (
-            <button key={c.id || name} type="button" onClick={() => toggle(name)}
-              className={`px-2 py-0.5 rounded text-[11px] font-semibold transition ${
-                on ? 'bg-brand-500 text-white' : 'bg-slate-50 text-slate-600 hover:bg-slate-100'
-              }`}>{localizedName(c, i18n.resolvedLanguage)}</button>
-          );
-        })}
+      {/* Cities chosen earlier without their region (older ads): shown so they can be removed. */}
+      {(() => {
+        const loose = form.target_cities.filter(name => {
+          const c = cities.find(x => cityKey(x) === name);
+          return !c || !chosen.includes(regionOfCity(c));
+        });
+        return loose.length > 0 && (
+          <div className="flex flex-wrap gap-1 mb-2" data-testid="loose-cities">
+            <span className="text-[11px] text-slate-500">مدن مختارة:</span>
+            {loose.map(name => <button key={name} type="button" onClick={() => toggleCity(name)} className="px-2 py-0.5 rounded bg-brand-500 text-white text-[11px] font-semibold">✓ {name} ✕</button>)}
+          </div>
+        );
+      })()}
+      <div className="flex flex-wrap gap-1.5">
+        {regions.filter(r => !chosen.includes(Number(r.id))).map(r => (
+          <button key={r.id} type="button" className={chip(false)} onClick={() => toggleRegion(Number(r.id))}>＋ {localizedName(r, lang)}</button>
+        ))}
       </div>
     </div>
   );

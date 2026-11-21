@@ -170,7 +170,21 @@
     "mode_provider": "I'm a provider",
     "mode_provider_hint": "Requests in my profession and area",
     "mode_client": "I'm a requester",
-    "mode_client_hint": "Providers in my area, and new request"
+    "mode_client_hint": "Providers in my area, and new request",
+    "tab_requests": "Service requesters",
+    "tab_requests_hint": "Requests from people who need a service",
+    "tab_requests_hint_provider": "Requests in my profession",
+    "tab_providers": "Service providers",
+    "tab_providers_hint": "Who provides the service, and request one",
+    "scope_label": "Circle:",
+    "scope_district": "My district",
+    "scope_coverage": "My coverage",
+    "scope_city": "My city",
+    "scope_region": "My region",
+    "scope_all": "Everywhere",
+    "requests_around_title": "Requests from service requesters",
+    "no_requests_widen": "No requests in this circle right now. Widen the circle to see more.",
+    "no_requests_anywhere": "No open requests right now."
   },
   "location": {
     "country": "Country",
@@ -332,7 +346,11 @@
     "phone_not_registered": "This mobile number is not registered",
     "account_not_registered": "This account is not registered",
     "register_here": "Register here",
-    "recover_here": "Recover it here"
+    "recover_here": "Recover it here",
+    "offer_service_title": "Do you offer a service?",
+    "offer_service_hint": "Choose your profession and the districts you cover, so requesters see you and their requests reach you. Optional; you can do it later from «My account».",
+    "offer_service_button": "Choose my profession and area",
+    "continue_as_client": "Continue as a requester"
   },
   "request": {
     "create_title": "Create a new request",
@@ -521,7 +539,9 @@
     "missing_region": "Choose the region",
     "missing_city": "Choose the city",
     "missing_district": "Choose the neighborhood",
-    "not_saved": "Not saved"
+    "not_saved": "Not saved",
+    "area_first_hint": "Choose your region and city first, so their districts appear and you pick your coverage from them.",
+    "area_first_save": "Save my region and city"
   },
   "chat": {
     "title": "Messages",
@@ -974,7 +994,7 @@
     "country_currency_code": "Currency code",
     "country_currency_symbol": "Currency symbol",
     "country_languages": "Languages enabled in this country",
-    "ads": "Ads",
+    "ads": "Paid ads",
     "reviews": "Review moderation",
     "activity_logs": "Activity Logs",
     "integrations": "API Integrations",
@@ -1326,7 +1346,11 @@
     "visitors_title": "Visitor counter",
     "visitors_hint": "Shown to everyone at the bottom of the site and apps, or to admins only, by the setting «Show the visitor counter and views to everyone». Each visitor counts once a day.",
     "reports_group": "Reports",
-    "backups_report": "Backups report"
+    "backups_report": "Backups report",
+    "nav_work": "Requests and contact",
+    "nav_catalog": "Professions and services",
+    "nav_money": "Payments and revenue",
+    "nav_places": "Places"
   },
   "errors": {
     "generic": "Something went wrong",
@@ -2881,7 +2905,7 @@
       },
       "account": {
         "title": "Phone number and password",
-        "body": "Enter your Saudi mobile number, such as 05XXXXXXXX, then a password of at least 4 characters: digits, letters or symbols. The name is optional. If your number is already registered, you get a «{{signin}}» button and a «{{forgot}}» button instead of signing up again."
+        "body": "Enter your Saudi mobile number like 05XXXXXXXX, then a password of at least 4 characters. Nothing else is asked: your region and city are detected automatically and you can change them, and if you offer a service, choosing your profession and districts is offered after sign-up, and it is optional. If your number is already registered, «{{signin}}» and «{{forgot}}» buttons appear."
       },
       "location": {
         "title": "Your location",

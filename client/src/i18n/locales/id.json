@@ -170,7 +170,21 @@
     "mode_provider": "Saya penyedia layanan",
     "mode_provider_hint": "Permintaan di profesi dan area saya",
     "mode_client": "Saya pencari layanan",
-    "mode_client_hint": "Penyedia di area saya, dan permintaan baru"
+    "mode_client_hint": "Penyedia di area saya, dan permintaan baru",
+    "tab_requests": "Pencari layanan",
+    "tab_requests_hint": "Permintaan dari yang butuh layanan",
+    "tab_requests_hint_provider": "Permintaan di profesi saya",
+    "tab_providers": "Penyedia layanan",
+    "tab_providers_hint": "Siapa yang menyediakan layanan, dan minta layanan",
+    "scope_label": "Cakupan:",
+    "scope_district": "Distrik saya",
+    "scope_coverage": "Cakupan saya",
+    "scope_city": "Kota saya",
+    "scope_region": "Wilayah saya",
+    "scope_all": "Semua",
+    "requests_around_title": "Permintaan para pencari layanan",
+    "no_requests_widen": "Belum ada permintaan di cakupan ini. Perluas cakupan untuk melihat lebih banyak.",
+    "no_requests_anywhere": "Belum ada permintaan terbuka saat ini."
   },
   "location": {
     "country": "Negara",
@@ -332,7 +346,11 @@
     "phone_not_registered": "Nomor ponsel ini belum terdaftar",
     "account_not_registered": "Akun ini belum terdaftar",
     "register_here": "Daftar di sini",
-    "recover_here": "Pulihkan di sini"
+    "recover_here": "Pulihkan di sini",
+    "offer_service_title": "Apakah Anda menawarkan layanan?",
+    "offer_service_hint": "Pilih profesi Anda dan wilayah yang Anda layani, agar pencari layanan melihat Anda dan permintaan mereka sampai ke Anda. Opsional; bisa juga nanti dari «Akun saya».",
+    "offer_service_button": "Pilih profesi dan wilayah saya",
+    "continue_as_client": "Lanjutkan sebagai pencari layanan"
   },
   "request": {
     "create_title": "Buat permintaan baru",
@@ -521,7 +539,9 @@
     "missing_region": "Pilih wilayah",
     "missing_city": "Pilih kota",
     "missing_district": "Pilih lingkungan",
-    "not_saved": "Tidak tersimpan"
+    "not_saved": "Tidak tersimpan",
+    "area_first_hint": "Pilih dulu wilayah dan kota Anda, agar distriknya muncul dan Anda memilih cakupan dari situ.",
+    "area_first_save": "Simpan wilayah dan kota saya"
   },
   "chat": {
     "title": "Pesan",
@@ -974,7 +994,7 @@
     "country_currency_code": "Kode mata uang",
     "country_currency_symbol": "Simbol mata uang",
     "country_languages": "Bahasa yang diaktifkan di negara ini",
-    "ads": "Iklan",
+    "ads": "Iklan berbayar",
     "reviews": "Kelola penilaian",
     "activity_logs": "Log aktivitas",
     "integrations": "Integrasi API",
@@ -1326,7 +1346,11 @@
     "visitors_title": "Penghitung pengunjung",
     "visitors_hint": "Ditampilkan untuk semua di bagian bawah situs dan aplikasi, atau hanya untuk admin, sesuai pengaturan «Tampilkan penghitung pengunjung dan tayangan untuk semua». Setiap pengunjung dihitung sekali sehari.",
     "reports_group": "Laporan",
-    "backups_report": "Laporan cadangan"
+    "backups_report": "Laporan cadangan",
+    "nav_work": "Permintaan dan kontak",
+    "nav_catalog": "Profesi dan layanan",
+    "nav_money": "Pembayaran dan pendapatan",
+    "nav_places": "Tempat"
   },
   "errors": {
     "generic": "Terjadi kesalahan",
@@ -2881,7 +2905,7 @@
       },
       "account": {
         "title": "Nomor ponsel dan kata sandi",
-        "body": "Masukkan nomor ponsel Saudi Anda, misalnya 05XXXXXXXX, lalu kata sandi minimal 4 karakter: angka, huruf, atau simbol. Nama boleh dikosongkan. Jika nomor Anda sudah terdaftar, akan muncul tombol «{{signin}}» dan «{{forgot}}» alih-alih mendaftar lagi."
+        "body": "Masukkan nomor ponsel Saudi Anda seperti 05XXXXXXXX, lalu kata sandi minimal 4 karakter. Tidak ada yang lain: wilayah dan kota Anda terdeteksi otomatis dan bisa Anda ubah, dan jika Anda menawarkan layanan, pilihan profesi dan wilayah ditawarkan setelah mendaftar, dan itu opsional. Jika nomor Anda sudah terdaftar, tombol «{{signin}}» dan «{{forgot}}» akan muncul."
       },
       "location": {
         "title": "Lokasi Anda",

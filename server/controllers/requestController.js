@@ -110,6 +110,9 @@ const getNearby = asyncHandler(async (req, res) => {
     status: status || 'open',
     page, limit,
     providerId: req.query.matching === '1' && req.user?.role === 'provider' ? req.user.id : null,
+    // AYK-397: the home's «وسّع الدائرة».
+    scope: req.query.scope ? String(req.query.scope) : null,
+    viewerId: req.query.scope && !(req.query.matching === '1' && req.user?.role === 'provider') ? req.user?.id || null : null,
   });
   // Each request already in the reader's language when it was translated (AYK-231).
   const shown = await requestTranslation.attachTranslations(items.map(Request.publicView), readerLang(req));

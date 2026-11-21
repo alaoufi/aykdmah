@@ -1,7 +1,10 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
-import { changeAccountType } from '../../services/authService';
+import { changeAccountType, updateProfile } from '../../services/authService';
+import useRequestLocation from '../../hooks/useRequestLocation';
+import RequestLocationFields from '../common/RequestLocationFields';
+import { REQUEST_LOCATION_LEVELS } from '../../utils/requestLocation';
 import Button from '../common/Button';
 import ProblemNotice from '../common/ProblemNotice';
 import ProfessionsPicker from '../common/ProfessionsPicker';
@@ -23,7 +26,12 @@ export default function AccountTypeSection({ onSaved, onError }) {
   const { t } = useTranslation();
   const { user, refresh } = useAuth();
   const current = user?.role === 'client' ? 'client' : Number(user?.also_client) === 1 ? 'both' : 'provider';
-  const [target, setTarget] = useState(current);
+  // AYK-396: arriving from sign-up's «اختر مهنتي» (?become=provider), the work details open at once.
+  const becoming = current === 'client' && typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('become') === 'provider';
+  const [target, setTarget] = useState(becoming ? 'both' : current);
+  useEffect(() => {
+    if (becoming) setTimeout(() => document.getElementById('account-type')?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 600);
+  }, [becoming]);
   const [serviceIds, setServiceIds] = useState([]);
   const [coverage, setCoverage] = useState([]);
   const [coverageCount, setCoverageCount] = useState(null);
@@ -92,6 +100,7 @@ export default function AccountTypeSection({ onSaved, onError }) {
         <div className="space-y-3 mt-3">
           <p className="text-[12.5px] text-fg-muted m-0">{t('profile.account_type_work_hint')}</p>
           <ProfessionsPicker serviceIds={serviceIds} onChange={setServiceIds} disabled={saving} />
+          {!hidden.has('coverage') && !user.city_id && <AccountAreaFirst user={user} onSaved={refresh} disabled={saving} />}
           {!hidden.has('coverage') && <CoverageDistrictsPicker cityId={user.city_id} value={coverage} onChange={setCoverage} disabled={saving} required={coverageRequired}
             onDistrictsLoaded={setCoverageCount} />}
           {!hidden.has('location_mode') && <ServiceVenuePicker value={mode} onChange={setMode} disabled={saving} />}
@@ -124,6 +133,31 @@ export default function AccountTypeSection({ onSaved, onError }) {
       <LocationPickerMap open={mapOpen} initialLat={venue?.lat ?? user.latitude} initialLon={venue?.lon ?? user.longitude}
         initialPointSelected={!!venue} onClose={() => setMapOpen(false)}
         onConfirm={result => setVenue({ lat: result.lat, lon: result.lon })} />
+    </div>
+  );
+}
+
+// AYK-396: the coverage districts are those of the account's city. When the connection did not tell
+// the city, the person picks region and city here first (saved to the account), then the districts.
+function AccountAreaFirst({ user, onSaved, disabled }) {
+  const { t } = useTranslation();
+  const control = useRequestLocation({ user });
+  const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(null);
+  const save = async () => {
+    setBusy(true); setFailed(null);
+    try {
+      await updateProfile(Object.fromEntries(REQUEST_LOCATION_LEVELS.map(key => [key, control.location[key] || null])));
+      await onSaved();
+    } catch (err) { setFailed(err); } finally { setBusy(false); }
+  };
+  return (
+    <div className="rounded-card border border-border p-3 space-y-2" data-testid="account-area-first">
+      <p className="text-[12.5px] text-fg-muted m-0">📍 {t('profile.area_first_hint')}</p>
+      <RequestLocationFields control={control} prefix="account-area" disabled={disabled || busy} />
+      <Button type="button" variant="primary" block loading={busy} disabled={disabled || !control.location.city_id} onClick={save}
+        data-testid="account-area-save">{t('profile.area_first_save')}</Button>
+      {failed && <ProblemNotice error={failed} onClose={() => setFailed(null)} />}
     </div>
   );
 }

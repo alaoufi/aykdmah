@@ -170,7 +170,21 @@
     "mode_provider": "Hizmet verenim",
     "mode_provider_hint": "Mesleğimdeki ve bölgemdeki talepler",
     "mode_client": "Hizmet talep edenim",
-    "mode_client_hint": "Bölgemdeki hizmet verenler ve yeni talep"
+    "mode_client_hint": "Bölgemdeki hizmet verenler ve yeni talep",
+    "tab_requests": "Hizmet talep edenler",
+    "tab_requests_hint": "Hizmete ihtiyacı olanların talepleri",
+    "tab_requests_hint_provider": "Mesleğimdeki talepler",
+    "tab_providers": "Hizmet verenler",
+    "tab_providers_hint": "Kim hizmet veriyor ve hizmet iste",
+    "scope_label": "Çevre:",
+    "scope_district": "Mahallem",
+    "scope_coverage": "Hizmet alanım",
+    "scope_city": "Şehrim",
+    "scope_region": "Bölgem",
+    "scope_all": "Her yer",
+    "requests_around_title": "Hizmet talep edenlerin talepleri",
+    "no_requests_widen": "Bu çevrede şu an talep yok. Daha fazlası için çevreyi genişletin.",
+    "no_requests_anywhere": "Şu an açık talep yok."
   },
   "location": {
     "country": "Ülke",
@@ -332,7 +346,11 @@
     "phone_not_registered": "Bu cep telefonu kayıtlı değil",
     "account_not_registered": "Bu hesap kayıtlı değil",
     "register_here": "Buradan kaydolun",
-    "recover_here": "Buradan kurtarın"
+    "recover_here": "Buradan kurtarın",
+    "offer_service_title": "Hizmet veriyor musunuz?",
+    "offer_service_hint": "Mesleğinizi ve hizmet verdiğiniz mahalleleri seçin; talep edenler sizi görsün, talepleri size ulaşsın. İsteğe bağlı; daha sonra «Hesabım»dan da yapabilirsiniz.",
+    "offer_service_button": "Mesleğimi ve bölgemi seç",
+    "continue_as_client": "Hizmet talep eden olarak devam et"
   },
   "request": {
     "create_title": "Yeni talep oluştur",
@@ -521,7 +539,9 @@
     "missing_region": "Bölgeyi seçin",
     "missing_city": "Şehri seçin",
     "missing_district": "Mahalleyi seçin",
-    "not_saved": "Kaydedilmedi"
+    "not_saved": "Kaydedilmedi",
+    "area_first_hint": "Önce bölgenizi ve şehrinizi seçin; mahalleleri görünsün ve hizmet alanınızı onlardan seçin.",
+    "area_first_save": "Bölgemi ve şehrimi kaydet"
   },
   "chat": {
     "title": "Sohbetler",
@@ -974,7 +994,7 @@
     "country_currency_code": "Para birimi kodu",
     "country_currency_symbol": "Görünen para simgesi",
     "country_languages": "Bu ülkede kullanılabilen diller",
-    "ads": "Reklamlar",
+    "ads": "Ücretli reklamlar",
     "reviews": "Değerlendirme yönetimi",
     "activity_logs": "Etkinlik kaydı",
     "integrations": "API entegrasyonları",
@@ -1326,7 +1346,11 @@
     "visitors_title": "Ziyaretçi sayacı",
     "visitors_hint": "Ayarlardaki «Ziyaretçi sayacını ve görüntülenmeleri herkese göster» seçeneğine göre sitenin ve uygulamaların altında herkese ya da yalnızca yöneticilere görünür. Her ziyaretçi günde bir kez sayılır.",
     "reports_group": "Raporlar",
-    "backups_report": "Yedekleme raporu"
+    "backups_report": "Yedekleme raporu",
+    "nav_work": "Talepler ve iletişim",
+    "nav_catalog": "Meslekler ve hizmetler",
+    "nav_money": "Ödemeler ve gelir",
+    "nav_places": "Yerler"
   },
   "errors": {
     "generic": "Bir hata oluştu",
@@ -2881,7 +2905,7 @@
       },
       "account": {
         "title": "Telefon numarası ve şifre",
-        "body": "Suudi telefon numaranızı 05XXXXXXXX gibi yazın, ardından rakam, harf veya sembollerden oluşan en az 4 karakterlik bir şifre yazın. Ad isteğe bağlıdır. Numaranız daha önce kayıtlıysa yeniden kaydolmak yerine «{{signin}}» ve «{{forgot}}» düğmeleri görünür."
+        "body": "05XXXXXXXX gibi Suudi cep telefonu numaranızı, ardından en az 4 karakterlik bir şifre girin. Başka bir şey istenmez: bölgeniz ve şehriniz otomatik belirlenir ve değiştirebilirsiniz; hizmet veriyorsanız mesleğinizi ve mahallelerinizi seçmeniz kayıttan sonra size sunulur ve isteğe bağlıdır. Numaranız zaten kayıtlıysa «{{signin}}» ve «{{forgot}}» düğmeleri görünür."
       },
       "location": {
         "title": "Konumunuz",

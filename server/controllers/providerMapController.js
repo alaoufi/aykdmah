@@ -162,15 +162,23 @@ const providerCategories = (row, byService) => new Set([
 
 // Active providers serving a district (or a whole city). Everyone, because the counts and the
 // notifications need them all; the written opinion is read later for the listed ones only (AYK-256).
-function coveringProviders({ districtId, cityId, excludeId = 0 }) {
+// AYK-397: the cities of a region (cities.region_id, else their governorate's region).
+const REGION_CITIES = `SELECT c.id FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id WHERE COALESCE(c.region_id, g.region_id) = ?`;
+function coveringProviders({ districtId, cityId, regionId = null, everywhere = false, excludeId = 0 }) {
   // Coverage: an explicit district list wins; without one the coverage city, else the home city.
-  const coverage = districtId
+  // AYK-397 «وسّع الدائرة»: a whole region, or everywhere.
+  const wide = everywhere ? 'TRUE' : regionId
+    ? `(EXISTS (SELECT 1 FROM provider_coverage_districts pcd JOIN districts d ON d.id = pcd.district_id WHERE pcd.user_id = u.id AND d.city_id IN (${REGION_CITIES}))
+        OR (NOT EXISTS (SELECT 1 FROM provider_coverage_districts pcd WHERE pcd.user_id = u.id)
+            AND COALESCE(pp.coverage_city_id, u.city_id) IN (${REGION_CITIES})))` : null;
+  const coverage = wide || (districtId
     ? `(EXISTS (SELECT 1 FROM provider_coverage_districts pcd WHERE pcd.user_id = u.id AND pcd.district_id = ?)
         OR (NOT EXISTS (SELECT 1 FROM provider_coverage_districts pcd WHERE pcd.user_id = u.id)
             AND COALESCE(pp.coverage_city_id, u.city_id) = ?))`
     : `(EXISTS (SELECT 1 FROM provider_coverage_districts pcd JOIN districts d ON d.id = pcd.district_id WHERE pcd.user_id = u.id AND d.city_id = ?)
         OR (NOT EXISTS (SELECT 1 FROM provider_coverage_districts pcd WHERE pcd.user_id = u.id)
-            AND COALESCE(pp.coverage_city_id, u.city_id) = ?))`;
+            AND COALESCE(pp.coverage_city_id, u.city_id) = ?))`);
+  const coverageParams = everywhere ? [] : regionId ? [regionId, regionId] : [districtId || cityId, cityId];
   return query(`
     SELECT u.id, u.full_name, u.avatar, u.is_verified, u.is_online,
            pp.business_name, pp.category_id, pp.service_ids, ${BIO_SQL},
@@ -190,15 +198,17 @@ function coveringProviders({ districtId, cityId, excludeId = 0 }) {
     LEFT JOIN districts dist ON dist.id = u.district_id
     WHERE u.role = 'provider' AND u.is_active = 1 AND u.is_blocked = 0 AND u.deleted_at IS NULL
       AND pp.hidden_at IS NULL -- AYK-361: hidden by the administration
-      AND u.id <> ? AND ${coverage}`,
-  [excludeId, districtId || cityId, cityId]);
+      AND u.id <> ? AND ${coverage}${everywhere ? ' LIMIT 2000' : ''}`,
+  [excludeId, ...coverageParams]);
 }
 
 const matching = asyncHandler(async (req, res) => {
   const categoryId = optionalId(req.query.category_id), serviceId = optionalId(req.query.service_id);
   const where = await resolveArea(req);
+  // AYK-397 (the owner: «الافتراضي منطقتك وله يوسّع الدائرة»): area (the district, as before), city, region or all.
+  const scope = ['area', 'city', 'region', 'all'].includes(req.query.scope) ? req.query.scope : 'area';
   if (where.invalid || !validIds([categoryId, serviceId])) return error(res, req.t ? req.t('invalid_data') : 'Invalid filter', 400);
-  if (!where.cityId) return success(res, { area: null, providers: [] });
+  if (!where.cityId && scope !== 'all') return success(res, { area: null, scope, providers: [] });
   const categoryServices = categoryId !== null
     ? new Set((await query('SELECT id FROM services WHERE category_id = ?', [categoryId])).map(row => Number(row.id))) : null;
   const list = async scope => listProviders(await coveringProviders({ ...scope, excludeId: req.user?.id || 0 }),
@@ -212,12 +222,16 @@ const matching = asyncHandler(async (req, res) => {
   const onlyRequested = req.query.matching === '1' && requestedCategories.length > 0;
   const byService = onlyRequested ? await serviceCategories() : null;
   const inRequested = row => !onlyRequested || [...providerCategories(row, byService)].some(id => requestedCategories.includes(id));
-  const providers = (await list(where)).filter(inRequested);
+  const regionId = scope === 'region'
+    ? Number((await query(`SELECT COALESCE(c.region_id, g.region_id) AS region_id FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id WHERE c.id = ?`, [where.cityId]))[0]?.region_id) || null : null;
+  const looked = scope === 'all' ? { everywhere: true } : scope === 'region' && regionId ? { regionId }
+    : scope === 'city' ? { districtId: null, cityId: where.cityId } : where;
+  const providers = (await list(looked)).filter(inRequested);
   // With a district: also everyone serving the whole city (AYK-055), for the "widen" step and
   // the small "everyone in your city" box.
-  const cityProviders = where.districtId ? (await list({ districtId: null, cityId: where.cityId })).filter(inRequested) : null;
+  const cityProviders = scope === 'area' && where.districtId ? (await list({ districtId: null, cityId: where.cityId })).filter(inRequested) : null;
   return success(res, {
-    area: where.area, requested_category_ids: requestedCategories,
+    area: where.area, scope, requested_category_ids: requestedCategories,
     providers: await withOpinions(providers.slice(0, MAX_RESULTS)),
     ...(cityProviders ? { city_providers: await withOpinions(cityProviders.slice(0, MAX_RESULTS)) } : {}),
   });

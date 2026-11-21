@@ -43,12 +43,16 @@ export default function RegisterPage() {
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const from = internalAuthReturn(location.state?.from);
+  // From «سجّل كمقدم خدمة» links: the profession step is offered first after sign-up.
+  const [wantsProvider] = useState(() => ['provider', 'both'].includes(params.get('role')) || location.state?.wantsProvider === true);
   const { settings } = usePublicSettings();
   const termsHtml = localizedTerms(settings, lang, t);
 
   const [intro, setIntro] = useState(() => (signupIntroSeen() ? null : 'language'));
   const [form, setForm] = useState({
-    role: ['provider', 'both'].includes(params.get('role')) ? params.get('role') : 'client',
+    // AYK-396 (the owner: «سهّل التسجيل: فقط رقم الجوال… يحدد مهنته اختياري، وإن لم يختر يبقى طالب خدمة»):
+    // every account starts as a requester; the profession and coverage come right after, if wanted.
+    role: 'client',
     // AYK-372: from «للتسجيل من هنا» on the sign-in page, the number already typed there.
     phone: typeof location.state?.identifier === 'string' && /^[\d+\s()-]{8,}$/.test(location.state.identifier.trim()) ? cleanTyped(location.state.identifier.trim()) : '', password: '', full_name: '',
     service_ids: [], coverage: [], location_mode: 'mobile',
@@ -137,7 +141,9 @@ export default function RegisterPage() {
   }, [applyGeo]);
 
   // The location is taken automatically when the page opens.
-  useEffect(() => { locate(); return () => locationController.current?.abort(); }, [locate]);
+  // AYK-396: no location prompt here: the account's area comes from its connection (server side),
+  // and a provider's coverage is chosen right after sign-up.
+  useEffect(() => () => locationController.current?.abort(), []);
 
   // A provider's own neighbourhood is a sensible first coverage choice.
   useEffect(() => {
@@ -240,7 +246,7 @@ export default function RegisterPage() {
       });
       if (!res?.user?.role) throw new Error('Invalid registration response');
       forgetInvite(); // used: the next sign-up on this device starts clean
-      navigate('/register', { replace: true, state: { from, registrationResult: { userId: res.user.id, code: res.referral_code, role: res.user.role } } });
+      navigate('/register', { replace: true, state: { from, wantsProvider, registrationResult: { userId: res.user.id, code: res.referral_code, role: res.user.role } } });
     } catch (err) {
       setError(err.response?.data?.message === 'coupon_not_found' ? t('auth.invite_not_found') : apiError(err));
       if (err.response?.status === 409) setFieldErrors({ phone: apiError(err) });
@@ -267,10 +273,16 @@ export default function RegisterPage() {
         </>}
         {/* Microphone/camera and notifications are asked for here, once (AYK-047). */}
         <DevicePermissions />
-        <div className="flex gap-2">
-          {welcome.code && <Button type="button" variant="outline" block onClick={copy}>{copied ? `✓ ${t('auth.copied')}` : `📋 ${t('auth.copy')}`}</Button>}
-          <Button type="button" variant="primary" block onClick={() => navigate(authReturnTarget(welcome.role, from), { replace: true })}>{t('auth.continue')}</Button>
+        {welcome.code && <Button type="button" variant="outline" block onClick={copy}>{copied ? `✓ ${t('auth.copied')}` : `📋 ${t('auth.copy')}`}</Button>}
+        {/* AYK-396: the profession is optional, right here; without it the account stays a requester. */}
+        <div className={`rounded-card p-4 text-start space-y-2 ${wantsProvider ? 'border-2 border-primary bg-primary-soft' : 'border border-border bg-surface-alt'}`} data-testid="register-offer-service">
+          <div className="font-extrabold text-[15px]">🛠️ {t('auth.offer_service_title')}</div>
+          <p className="text-[13px] text-fg-muted m-0">{t('auth.offer_service_hint')}</p>
+          <Button type="button" variant={wantsProvider ? 'primary' : 'outline'} block data-testid="register-become-provider"
+            onClick={() => navigate('/profile?become=provider#account-type', { replace: true })}>{t('auth.offer_service_button')}</Button>
         </div>
+        <Button type="button" variant={wantsProvider ? 'outline' : 'primary'} block data-testid="register-continue-client"
+          onClick={() => navigate(authReturnTarget(welcome.role, from), { replace: true })}>🙋 {t('auth.continue_as_client')}</Button>
       </div>
     );
   }
@@ -287,15 +299,6 @@ export default function RegisterPage() {
 
         {error && <ProblemNotice error={error} />}
 
-        <div className="role-tabs" role="radiogroup" aria-label={t('auth.account_type')}>
-          {ROLES.map(role => (
-            <button key={role.key} type="button" role="radio" aria-checked={form.role === role.key}
-              className={form.role === role.key ? 'active' : ''} onClick={() => update('role', role.key)}>
-              <span className="block text-lg leading-none mb-1">{role.icon}</span>{t(role.label)}
-            </button>
-          ))}
-        </div>
-        {form.role === 'both' && <p className="text-xs text-secondary -mt-1">{t('auth.role_both_hint')}</p>}
 
         <Input id="register-phone" name="phone" label={t('auth.phone')} type="tel" required maxLength={30} dir="ltr"
           value={form.phone} error={fieldErrors.phone} autoComplete="tel" inputMode="tel" placeholder="05XXXXXXXX"
@@ -311,44 +314,6 @@ export default function RegisterPage() {
             (AYK-139; it opened the number pad only). */}
         <PasswordInput label={t('auth.password')} required minLength={4} autoComplete="new-password" adviseLength
           hint={t('auth.password_min')} value={form.password} error={fieldErrors.password} onChange={e => update('password', e.target.value)} />
-        <Input id="register-full_name" name="full_name" label={t('auth.name_optional')} maxLength={150}
-          autoComplete="name" value={form.full_name} error={fieldErrors.full_name} onChange={e => update('full_name', e.target.value)} />
-
-        {/* Location: automatic, with the map as the fallback. */}
-        <div className="rounded-card border border-border px-3 py-2" data-testid="register-location">
-          <div className="flex items-center justify-between gap-2">
-            <div className="text-[13.5px] min-w-0">
-              {locStatus === 'locating' ? <span role="status">⏳ {t('auth.locating')}</span> :
-                locStatus === 'ok' ? <span>📍 {place.label || t('auth.simple_location_set')}</span> :
-                <span className="text-amber-700">📍 {t(locStatus === 'denied' ? 'auth.location_denied' : 'auth.simple_location_pick')}</span>}
-            </div>
-            <div className="flex gap-1 shrink-0">
-              {locStatus !== 'locating' && locStatus !== 'ok' && <button type="button" onClick={locate}
-                className="px-2.5 py-1 rounded-pill text-[12px] font-semibold bg-surface-alt">{t('auth.retry')}</button>}
-              <button type="button" onClick={() => { locationController.current?.abort(); setMapOpen(true); }}
-                className="px-2.5 py-1 rounded-pill text-[12px] font-semibold bg-surface-alt">🗺️ {locStatus === 'ok' ? t('auth.location_change') : t('auth.pick_on_map')}</button>
-            </div>
-          </div>
-          {place.lat && !place.city_id && <div className="grid grid-cols-2 gap-2 mt-2">
-            <select className="select" aria-label={t('location.region')} value={place.region_id}
-              onChange={e => setPlace(previous => ({ ...previous, region_id: e.target.value, city_id: '', district_id: '' }))}>
-              <option value="">{t('location.region')}</option>
-              {regions.map(row => <option key={row.id} value={row.id}>{localizedName(row, lang)}</option>)}
-            </select>
-            <select className="select" aria-label={t('location.city')} value={place.city_id} disabled={!place.region_id}
-              onChange={e => setPlace(previous => ({ ...previous, city_id: e.target.value, district_id: '' }))}>
-              <option value="">{t('location.city')}</option>
-              {cities.map(row => <option key={row.id} value={row.id}>{localizedName(row, lang)}</option>)}
-            </select>
-          </div>}
-          {districtMissing && <select className="select mt-2" aria-label={t('location.district')} value={place.district_id}
-            onChange={e => setPlace(previous => ({ ...previous, district_id: e.target.value }))}>
-            <option value="">{t('auth.simple_choose_district')}</option>
-            {districts.map(row => <option key={row.id} value={row.id}>{localizedName(row, lang)}</option>)}
-          </select>}
-          {fieldErrors.location && <p role="alert" className="form-error mt-1">{fieldErrors.location}</p>}
-          {!isProvider && locStatus !== 'ok' && locStatus !== 'locating' && <p className="text-[12px] text-fg-muted mt-1 mb-0" data-testid="register-location-later">{t('auth.location_later')}</p>}
-        </div>
 
         {isProvider && <>
           <ProfessionsPicker serviceIds={form.service_ids} onChange={ids => update('service_ids', ids)} error={fieldErrors.service_ids} />
