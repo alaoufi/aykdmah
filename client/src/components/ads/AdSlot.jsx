@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { safeUrl } from '../../utils/urlSafety';
 import { useEffect, useState } from 'react';
 import { getLiveAds, trackAdView, trackAdClick } from '../../services/adService';
+import { sizeForPlacement } from '../../utils/adImageSize';
 
 // Renders the live ads currently configured for a given placement.
 // Tracks views once per (placement,ad) per page-load so refreshes
@@ -74,6 +75,7 @@ export default function AdSlot({ placement, className = '', maxAds = 1 }) {
   }, [ads]);
 
   if (!loaded || !ads.length) return null;
+  const frame = sizeForPlacement(placement);
 
   const onClick = (ad, e) => {
     const link = safeUrl(ad.link);
@@ -94,8 +96,13 @@ export default function AdSlot({ placement, className = '', maxAds = 1 }) {
             rel="noopener noreferrer"
             className="block relative rounded-card overflow-hidden bg-slate-100 shadow-soft hover:shadow-lift transition group"
           >
-            <AdMedia url={ad.image} type={ad.media_type}
-              className="w-full max-h-72 object-cover" />
+            {/* AYK-408: each place shows its ad in a fixed frame (the size asked at upload), so a
+                picture never stretches the place; one of another shape is cut, never deformed. */}
+            {ad.image && (
+              <div className="w-full overflow-hidden" style={{ aspectRatio: `${frame.width} / ${frame.height}`, maxHeight: frame.key === 'wide' ? 400 : undefined }}>
+                <AdMedia url={ad.image} type={ad.media_type} className="w-full h-full object-cover" />
+              </div>
+            )}
             {(copy.title || copy.description) && (
               <div className={ad.image
                 ? 'absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent p-3 text-white'

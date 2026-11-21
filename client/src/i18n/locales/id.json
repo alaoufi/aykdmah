@@ -2968,5 +2968,26 @@
   },
   "ads": {
     "hide": "Sembunyikan iklan"
+  },
+  "ad_image": {
+    "hint": "Ukuran gambar yang pas: {{w}}×{{h}} piksel.",
+    "title": "Ukuran gambar tidak sesuai tempat iklan",
+    "body": "Ukuran yang pas {{w}}×{{h}} piksel ({{ratio}}); gambar Anda {{ow}}×{{oh}}. Jika ditampilkan apa adanya, tempatnya rusak, jadi kami menyesuaikannya tanpa meregangkan. Apakah cocok untuk Anda?",
+    "ratio_wide": "lebar tiga kali tinggi",
+    "ratio_narrow": "lebar sepertiga lebih besar dari tinggi",
+    "small": "Gambar Anda lebih kecil dari ukuran yang pas dan bisa tampak buram. Gambar yang lebih besar lebih baik.",
+    "original": "Gambar Anda",
+    "adjusted": "Setelah disesuaikan, seperti tampilannya",
+    "which_part": "Bagian gambar mana yang tampil?",
+    "pos_left": "Kiri",
+    "pos_right": "Kanan",
+    "pos_center": "Tengah",
+    "pos_top": "Atas",
+    "pos_bottom": "Bawah",
+    "accept": "Oke, pakai gambar yang disesuaikan",
+    "reject": "Tidak, saya akan mengubah gambarnya sendiri",
+    "redo": "Ubah gambar Anda ke {{w}}×{{h}} piksel ({{ratio}}), lalu unggah lagi.",
+    "animated": "Gambar bergerak tidak disesuaikan otomatis. Ubah ke {{w}}×{{h}} piksel ({{ratio}}), lalu unggah.",
+    "close": "Tutup"
   }
 }

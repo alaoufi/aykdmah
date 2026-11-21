@@ -24,6 +24,8 @@ import { formatRelativeTime } from '../../utils/formatters';
 import { safeUrl } from '../../utils/urlSafety';
 import { askText } from '../../components/common/AppDialog';
 import AdPlacementMap from '../../components/ads/AdPlacementMap';
+import AdImageFit from '../../components/ads/AdImageFit';
+import { sizeForPlacements } from '../../utils/adImageSize';
 
 // All 15 placements supported by the renderer. Keep in sync with
 // server/services/adRequestService.js ALLOWED_PLACEMENTS.
@@ -210,8 +212,11 @@ export default function AdminAdsPage() {
   };
   const closePreview = () => { ++previewVersion.current; setPreview(null); };
 
-  const onPickFile = async (file) => {
+  // AYK-408: the picture is checked against its place's frame before it is sent.
+  const [fitting, setFitting] = useState(null);
+  const onPickFile = async (file, checked = false) => {
     if (!file) return;
+    if (!checked) { setFitting({ file, size: sizeForPlacements(form.placements) }); return; }
     const version = ++uploadVersion.current;
     setUploading(true);
     setFormError('');
@@ -836,10 +841,11 @@ export default function AdminAdsPage() {
                   {uploading ? t('admin.uploading') : t('admin.ad_pick_file_primary')}
                 </div>
                 <div className="text-[11.5px] text-slate-500 mt-1">{t('admin.ad_media_hint')}</div>
+                <div className="text-[12px] font-semibold text-slate-700 mt-1" data-testid="ad-size-hint">📐 {t('ad_image.hint', { w: sizeForPlacements(form.placements).width, h: sizeForPlacements(form.placements).height })}</div>
               </div>
               <input type="file" hidden
                 accept="image/jpeg,image/png,image/webp,image/gif,image/apng,video/mp4,video/webm,video/ogg"
-                onChange={(e) => onPickFile(e.target.files?.[0])} />
+                onChange={(e) => { onPickFile(e.target.files?.[0]); e.target.value = ''; }} />
             </label>
 
             {/* Secondary: paste a URL — collapsible-ish accent line */}
@@ -1059,6 +1065,8 @@ export default function AdminAdsPage() {
       )}
       <ConfirmDialog {...confirm} onCancel={() => setConfirm({ open: false })} />
       <AdminFab onClick={openCreate} ariaLabel={t('admin.new')} />
+      {fitting && <AdImageFit file={fitting.file} size={fitting.size}
+        onUse={(file) => { setFitting(null); onPickFile(file, true); }} onCancel={() => setFitting(null)} />}
     </div>
   );
 }

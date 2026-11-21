@@ -2968,5 +2968,26 @@
   },
   "ads": {
     "hide": "Reklamı gizle"
+  },
+  "ad_image": {
+    "hint": "Uygun görsel boyutu: {{w}}×{{h}} piksel.",
+    "title": "Görsel boyutu reklam alanına uymuyor",
+    "body": "Doğru boyut {{w}}×{{h}} piksel ({{ratio}}); görseliniz {{ow}}×{{oh}}. Olduğu gibi gösterilse alanı bozardı, bu yüzden germeden uyarladık. Size uygun mu?",
+    "ratio_wide": "genişlik yüksekliğin üç katı",
+    "ratio_narrow": "genişlik yükseklikten üçte bir fazla",
+    "small": "Görseliniz doğru boyuttan küçük ve bulanık görünebilir. Daha büyük bir görsel daha iyi olur.",
+    "original": "Görseliniz",
+    "adjusted": "Uyarlanmış, görüneceği gibi",
+    "which_part": "Görselin hangi kısmı görünsün?",
+    "pos_left": "Sol",
+    "pos_right": "Sağ",
+    "pos_center": "Orta",
+    "pos_top": "Üst",
+    "pos_bottom": "Alt",
+    "accept": "Tamam, uyarlanmış görseli kullan",
+    "reject": "Hayır, görseli kendim düzenleyeceğim",
+    "redo": "Görselinizi {{w}}×{{h}} piksel ({{ratio}}) yapın, sonra yeniden yükleyin.",
+    "animated": "Hareketli görsel otomatik uyarlanmaz. {{w}}×{{h}} piksel ({{ratio}}) yapıp yükleyin.",
+    "close": "Kapat"
   }
 }
