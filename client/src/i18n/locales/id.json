@@ -996,7 +996,7 @@
     "country_currency_code": "Kode mata uang",
     "country_currency_symbol": "Simbol mata uang",
     "country_languages": "Bahasa yang diaktifkan di negara ini",
-    "ads": "Iklan berbayar",
+    "ads": "Iklan promosi",
     "reviews": "Kelola penilaian",
     "activity_logs": "Log aktivitas",
     "integrations": "Integrasi API",
@@ -1365,7 +1365,10 @@
     "paid_ads_now_on": "الآن الاشتراك بالإعلان مفعّل",
     "paid_ads_now_off": "الآن الاشتراك بالإعلان موقوف",
     "ad_tab_campaigns": "الحملات",
-    "ad_tab_reports": "التقارير"
+    "ad_tab_reports": "التقارير",
+    "menu_layout": {
+      "title": "ترتيب القوائم"
+    }
   },
   "errors": {
     "generic": "Terjadi kesalahan",

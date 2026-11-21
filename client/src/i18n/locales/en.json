@@ -996,7 +996,7 @@
     "country_currency_code": "Currency code",
     "country_currency_symbol": "Currency symbol",
     "country_languages": "Languages enabled in this country",
-    "ads": "Paid ads",
+    "ads": "Promotional ads",
     "reviews": "Review moderation",
     "activity_logs": "Activity Logs",
     "integrations": "API Integrations",
@@ -1365,7 +1365,10 @@
     "paid_ads_now_on": "Ad subscriptions are now on",
     "paid_ads_now_off": "Ad subscriptions are now off",
     "ad_tab_campaigns": "Campaigns",
-    "ad_tab_reports": "Reports"
+    "ad_tab_reports": "Reports",
+    "menu_layout": {
+      "title": "Menu order"
+    }
   },
   "errors": {
     "generic": "Something went wrong",

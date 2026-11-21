@@ -76,6 +76,7 @@ export const NAV_GROUPS = [
       { to: '/admin/settings',     icon: '⚙️', labelKey: 'admin.settings',     perm: 'settings.manage' },
       { to: '/admin/texts',        icon: '🔤', labelKey: 'admin.texts.title',  perm: 'texts.manage' },
       { to: '/admin/form-fields',  icon: '🧩', labelKey: 'admin.form_fields.title', perm: 'settings.manage' },
+      { to: '/admin/menu-layout',  icon: '🧭', labelKey: 'admin.menu_layout.title', perm: 'settings.manage' }, // AYK-410
       { to: '/admin/integrations', icon: '🔌', labelKey: 'admin.integrations', perm: 'integrations.manage' },
     ],
   },

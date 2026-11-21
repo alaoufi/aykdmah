@@ -996,7 +996,7 @@
     "country_currency_code": "Code ng currency",
     "country_currency_symbol": "Simbolo ng currency",
     "country_languages": "Mga wikang available sa bansang ito",
-    "ads": "Bayad na ads",
+    "ads": "Mga promosyonal na ad",
     "reviews": "Pamamahala ng mga rating",
     "activity_logs": "Record ng aktibidad",
     "integrations": "Mga API integration",
@@ -1365,7 +1365,10 @@
     "paid_ads_now_on": "الآن الاشتراك بالإعلان مفعّل",
     "paid_ads_now_off": "الآن الاشتراك بالإعلان موقوف",
     "ad_tab_campaigns": "الحملات",
-    "ad_tab_reports": "التقارير"
+    "ad_tab_reports": "التقارير",
+    "menu_layout": {
+      "title": "ترتيب القوائم"
+    }
   },
   "errors": {
     "generic": "May nagkamali",

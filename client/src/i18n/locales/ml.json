@@ -996,7 +996,7 @@
     "country_currency_code": "കറൻസി കോഡ്",
     "country_currency_symbol": "കറൻസി ചിഹ്നം",
     "country_languages": "ഈ രാജ്യത്ത് ലഭ്യമായ ഭാഷകൾ",
-    "ads": "പണമടച്ച പരസ്യങ്ങൾ",
+    "ads": "പ്രമോഷണൽ പരസ്യങ്ങൾ",
     "reviews": "റേറ്റിംഗുകൾ നിയന്ത്രിക്കുക",
     "activity_logs": "പ്രവർത്തന രേഖകൾ",
     "integrations": "API ഇന്റഗ്രേഷനുകൾ",
@@ -1365,7 +1365,10 @@
     "paid_ads_now_on": "الآن الاشتراك بالإعلان مفعّل",
     "paid_ads_now_off": "الآن الاشتراك بالإعلان موقوف",
     "ad_tab_campaigns": "الحملات",
-    "ad_tab_reports": "التقارير"
+    "ad_tab_reports": "التقارير",
+    "menu_layout": {
+      "title": "ترتيب القوائم"
+    }
   },
   "errors": {
     "generic": "ഒരു പിശക് സംഭവിച്ചു",

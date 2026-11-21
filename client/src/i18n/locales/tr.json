@@ -996,7 +996,7 @@
     "country_currency_code": "Para birimi kodu",
     "country_currency_symbol": "Görünen para simgesi",
     "country_languages": "Bu ülkede kullanılabilen diller",
-    "ads": "Ücretli reklamlar",
+    "ads": "Tanıtım reklamları",
     "reviews": "Değerlendirme yönetimi",
     "activity_logs": "Etkinlik kaydı",
     "integrations": "API entegrasyonları",
@@ -1365,7 +1365,10 @@
     "paid_ads_now_on": "الآن الاشتراك بالإعلان مفعّل",
     "paid_ads_now_off": "الآن الاشتراك بالإعلان موقوف",
     "ad_tab_campaigns": "الحملات",
-    "ad_tab_reports": "التقارير"
+    "ad_tab_reports": "التقارير",
+    "menu_layout": {
+      "title": "ترتيب القوائم"
+    }
   },
   "errors": {
     "generic": "Bir hata oluştu",
