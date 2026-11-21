@@ -170,7 +170,21 @@
     "mode_provider": "I'm a provider",
     "mode_provider_hint": "Requests in my profession and area",
     "mode_client": "I'm a requester",
-    "mode_client_hint": "Providers in my area, and new request"
+    "mode_client_hint": "Providers in my area, and new request",
+    "tab_requests": "Service requesters",
+    "tab_requests_hint": "Requests from people who need a service",
+    "tab_requests_hint_provider": "Requests in my profession",
+    "tab_providers": "Service providers",
+    "tab_providers_hint": "Who provides the service, and request one",
+    "scope_label": "Circle:",
+    "scope_district": "My district",
+    "scope_coverage": "My coverage",
+    "scope_city": "My city",
+    "scope_region": "My region",
+    "scope_all": "Everywhere",
+    "requests_around_title": "Requests from service requesters",
+    "no_requests_widen": "No requests in this circle right now. Widen the circle to see more.",
+    "no_requests_anywhere": "No open requests right now."
   },
   "location": {
     "country": "Country",

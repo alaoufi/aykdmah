@@ -213,7 +213,17 @@ async function findByClient(clientId, { status, scope, page = 1, limit = 20 } = 
   return { items, total };
 }
 
-async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serviceId, cityId, status = 'open', page = 1, limit = 20, providerId = null } = {}) {
+// AYK-397: the cities of a region (cities.region_id, else their governorate's region).
+const REGION_CITIES = `SELECT c.id FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id WHERE COALESCE(c.region_id, g.region_id) = ?`;
+async function regionOfCity(cityId) {
+  if (!cityId) return null;
+  return Number((await queryOne(`SELECT COALESCE(c.region_id, g.region_id) AS region_id FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id WHERE c.id = ?`, [cityId]))?.region_id) || null;
+}
+// AYK-397 (the owner: «الافتراضي منطقتك وله يوسّع الدائرة»). `scope` widens the area of the board:
+// 'area' (a provider's coverage, a requester's district), 'city', 'region' or 'all'. `viewerId` is a
+// signed-in person who is not looking as a provider: their own district, city or region.
+async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serviceId, cityId, status = 'open', page = 1, limit = 20, providerId = null, scope = null, viewerId = null } = {}) {
+  if (scope && !['area', 'city', 'region', 'all'].includes(scope)) scope = 'area';
   ({ page, limit } = pagination(page, limit));
   const offset = (page - 1) * limit;
   if (status !== 'open') throw new ApiError('invalid_status', 422);
@@ -258,13 +268,30 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
     if (anyService.length) { match.push(`r.service_id IN (${anyService.map(() => '?').join(', ')})`); fitParams.push(...anyService); }
     if (categories.length) { match.push(`r.category_id IN (${categories.map(() => '?').join(', ')})`); fitParams.push(...categories); }
     if (match.length) fit.push(`(${match.join(' OR ')})`);
-    const covered = await query('SELECT district_id FROM provider_coverage_districts WHERE user_id = ?', [providerId]);
-    if (covered.length) {
+    const covered = !scope || scope === 'area' ? await query('SELECT district_id FROM provider_coverage_districts WHERE user_id = ?', [providerId]) : [];
+    const homeCity = profile?.coverage_city_id ? Number(profile.coverage_city_id) : null;
+    const region = scope === 'region' ? await regionOfCity(homeCity) : null;
+    if (scope === 'all') { /* the profession anywhere */ } else if (scope === 'region' && region) {
+      fit.push(`r.city_id IN (${REGION_CITIES})`); fitParams.push(region);
+    } else if (scope === 'city' && homeCity) {
+      fit.push('r.city_id = ?'); fitParams.push(homeCity);
+    } else if (covered.length) {
       fit.push(`r.district_id IN (${covered.map(() => '?').join(', ')})`); fitParams.push(...covered.map(row => Number(row.district_id)));
     } else if (profile?.coverage_city_id) {
       fit.push('r.city_id = ?'); fitParams.push(Number(profile.coverage_city_id));
     }
     if (fit.length) { where.push(`(r.direct_provider_id = ? OR (${fit.join(' AND ')}))`); whereParams.push(providerId, ...fitParams); }
+  } else if (viewerId && scope) {
+    // Others' requests around a requester; their own are in «طلباتي».
+    where.push('r.client_id <> ?'); whereParams.push(viewerId);
+    const me = await queryOne('SELECT city_id, district_id FROM users WHERE id = ?', [viewerId]);
+    const myCity = me?.city_id ? Number(me.city_id) : null;
+    if (scope === 'area' && me?.district_id) { where.push('r.district_id = ?'); whereParams.push(Number(me.district_id)); }
+    else if ((scope === 'area' || scope === 'city') && myCity) { where.push('r.city_id = ?'); whereParams.push(myCity); }
+    else if (scope === 'region') {
+      const region = await regionOfCity(myCity);
+      if (region) { where.push(`r.city_id IN (${REGION_CITIES})`); whereParams.push(region); }
+    }
   }
 
   // AYK-251: the board is every provider's first screen. It used to build the full card (six

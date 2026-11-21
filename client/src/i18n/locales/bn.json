@@ -170,7 +170,21 @@
     "mode_provider": "আমি সেবাদাতা",
     "mode_provider_hint": "আমার পেশা ও এলাকার অনুরোধ",
     "mode_client": "আমি সেবাপ্রার্থী",
-    "mode_client_hint": "আমার এলাকার সেবাদাতা, আর নতুন অনুরোধ"
+    "mode_client_hint": "আমার এলাকার সেবাদাতা, আর নতুন অনুরোধ",
+    "tab_requests": "সেবাপ্রার্থীরা",
+    "tab_requests_hint": "যাদের সেবা দরকার তাদের অনুরোধ",
+    "tab_requests_hint_provider": "আমার পেশার অনুরোধ",
+    "tab_providers": "সেবাদাতারা",
+    "tab_providers_hint": "কে সেবা দেয়, এবং সেবা চান",
+    "scope_label": "পরিধি:",
+    "scope_district": "আমার এলাকা",
+    "scope_coverage": "আমার কভারেজ",
+    "scope_city": "আমার শহর",
+    "scope_region": "আমার অঞ্চল",
+    "scope_all": "সব জায়গা",
+    "requests_around_title": "সেবাপ্রার্থীদের অনুরোধ",
+    "no_requests_widen": "এই পরিধিতে এখন কোনো অনুরোধ নেই। আরও দেখতে পরিধি বাড়ান।",
+    "no_requests_anywhere": "এখন কোনো খোলা অনুরোধ নেই।"
   },
   "location": {
     "country": "দেশ",

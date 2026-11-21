@@ -170,7 +170,21 @@
     "mode_provider": "میں سروس فراہم کنندہ ہوں",
     "mode_provider_hint": "میرے پیشے اور علاقے کی درخواستیں",
     "mode_client": "میں سروس طلب کرنے والا ہوں",
-    "mode_client_hint": "میرے علاقے کے سروس فراہم کنندگان، اور نئی درخواست"
+    "mode_client_hint": "میرے علاقے کے سروس فراہم کنندگان، اور نئی درخواست",
+    "tab_requests": "سروس طلب کرنے والے",
+    "tab_requests_hint": "سروس کے ضرورت مندوں کی درخواستیں",
+    "tab_requests_hint_provider": "میرے پیشے کی درخواستیں",
+    "tab_providers": "سروس فراہم کرنے والے",
+    "tab_providers_hint": "کون سروس دیتا ہے، اور سروس طلب کریں",
+    "scope_label": "دائرہ:",
+    "scope_district": "میرا محلہ",
+    "scope_coverage": "میری کوریج",
+    "scope_city": "میرا شہر",
+    "scope_region": "میرا علاقہ",
+    "scope_all": "سب جگہ",
+    "requests_around_title": "سروس طلب کرنے والوں کی درخواستیں",
+    "no_requests_widen": "اس دائرے میں ابھی کوئی درخواست نہیں۔ مزید دیکھنے کے لیے دائرہ بڑھائیں۔",
+    "no_requests_anywhere": "ابھی کوئی کھلی درخواست نہیں۔"
   },
   "location": {
     "country": "ملک",

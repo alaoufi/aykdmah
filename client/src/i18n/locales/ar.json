@@ -170,7 +170,21 @@
     "mode_provider": "أنا مقدم خدمة",
     "mode_provider_hint": "طلبات طالبي الخدمة في مهنتي وتغطيتي",
     "mode_client": "أنا طالب خدمة",
-    "mode_client_hint": "مقدمو الخدمة في منطقتي، وطلب خدمة"
+    "mode_client_hint": "مقدمو الخدمة في منطقتي، وطلب خدمة",
+    "tab_requests": "طالبو الخدمة",
+    "tab_requests_hint": "طلبات من يحتاجون خدمة",
+    "tab_requests_hint_provider": "طلبات في مهنتي",
+    "tab_providers": "مقدمو الخدمة",
+    "tab_providers_hint": "من يقدّم الخدمة، وطلب خدمة",
+    "scope_label": "الدائرة:",
+    "scope_district": "حيّي",
+    "scope_coverage": "تغطيتي",
+    "scope_city": "مدينتي",
+    "scope_region": "منطقتي",
+    "scope_all": "الكل",
+    "requests_around_title": "طلبات طالبي الخدمة",
+    "no_requests_widen": "لا توجد طلبات في هذه الدائرة الآن. وسّع الدائرة لترى أكثر.",
+    "no_requests_anywhere": "لا توجد طلبات مفتوحة الآن."
   },
   "location": {
     "country": "الدولة",

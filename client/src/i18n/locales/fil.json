@@ -170,7 +170,21 @@
     "mode_provider": "Ako ay provider",
     "mode_provider_hint": "Mga request sa aking propesyon at lugar",
     "mode_client": "Ako ay humihiling ng serbisyo",
-    "mode_client_hint": "Mga provider sa aking lugar, at bagong request"
+    "mode_client_hint": "Mga provider sa aking lugar, at bagong request",
+    "tab_requests": "Mga humihiling ng serbisyo",
+    "tab_requests_hint": "Mga request ng nangangailangan ng serbisyo",
+    "tab_requests_hint_provider": "Mga request sa aking propesyon",
+    "tab_providers": "Mga nagbibigay ng serbisyo",
+    "tab_providers_hint": "Sino ang nagbibigay ng serbisyo, at humiling",
+    "scope_label": "Saklaw:",
+    "scope_district": "Aking distrito",
+    "scope_coverage": "Aking sakop",
+    "scope_city": "Aking lungsod",
+    "scope_region": "Aking rehiyon",
+    "scope_all": "Lahat",
+    "requests_around_title": "Mga request ng mga humihiling",
+    "no_requests_widen": "Walang request sa saklaw na ito ngayon. Palawakin ang saklaw para makakita ng higit pa.",
+    "no_requests_anywhere": "Walang bukas na request ngayon."
   },
   "location": {
     "country": "Bansa",

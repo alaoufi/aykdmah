@@ -170,7 +170,21 @@
     "mode_provider": "Hizmet verenim",
     "mode_provider_hint": "Mesleğimdeki ve bölgemdeki talepler",
     "mode_client": "Hizmet talep edenim",
-    "mode_client_hint": "Bölgemdeki hizmet verenler ve yeni talep"
+    "mode_client_hint": "Bölgemdeki hizmet verenler ve yeni talep",
+    "tab_requests": "Hizmet talep edenler",
+    "tab_requests_hint": "Hizmete ihtiyacı olanların talepleri",
+    "tab_requests_hint_provider": "Mesleğimdeki talepler",
+    "tab_providers": "Hizmet verenler",
+    "tab_providers_hint": "Kim hizmet veriyor ve hizmet iste",
+    "scope_label": "Çevre:",
+    "scope_district": "Mahallem",
+    "scope_coverage": "Hizmet alanım",
+    "scope_city": "Şehrim",
+    "scope_region": "Bölgem",
+    "scope_all": "Her yer",
+    "requests_around_title": "Hizmet talep edenlerin talepleri",
+    "no_requests_widen": "Bu çevrede şu an talep yok. Daha fazlası için çevreyi genişletin.",
+    "no_requests_anywhere": "Şu an açık talep yok."
   },
   "location": {
     "country": "Ülke",

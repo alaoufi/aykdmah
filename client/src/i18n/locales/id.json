@@ -170,7 +170,21 @@
     "mode_provider": "Saya penyedia layanan",
     "mode_provider_hint": "Permintaan di profesi dan area saya",
     "mode_client": "Saya pencari layanan",
-    "mode_client_hint": "Penyedia di area saya, dan permintaan baru"
+    "mode_client_hint": "Penyedia di area saya, dan permintaan baru",
+    "tab_requests": "Pencari layanan",
+    "tab_requests_hint": "Permintaan dari yang butuh layanan",
+    "tab_requests_hint_provider": "Permintaan di profesi saya",
+    "tab_providers": "Penyedia layanan",
+    "tab_providers_hint": "Siapa yang menyediakan layanan, dan minta layanan",
+    "scope_label": "Cakupan:",
+    "scope_district": "Distrik saya",
+    "scope_coverage": "Cakupan saya",
+    "scope_city": "Kota saya",
+    "scope_region": "Wilayah saya",
+    "scope_all": "Semua",
+    "requests_around_title": "Permintaan para pencari layanan",
+    "no_requests_widen": "Belum ada permintaan di cakupan ini. Perluas cakupan untuk melihat lebih banyak.",
+    "no_requests_anywhere": "Belum ada permintaan terbuka saat ini."
   },
   "location": {
     "country": "Negara",

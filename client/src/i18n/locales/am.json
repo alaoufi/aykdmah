@@ -170,7 +170,21 @@
     "mode_provider": "አገልግሎት ሰጪ ነኝ",
     "mode_provider_hint": "በሙያዬና በአካባቢዬ ያሉ ጥያቄዎች",
     "mode_client": "አገልግሎት ጠያቂ ነኝ",
-    "mode_client_hint": "በአካባቢዬ ያሉ አገልግሎት ሰጪዎች እና አዲስ ጥያቄ"
+    "mode_client_hint": "በአካባቢዬ ያሉ አገልግሎት ሰጪዎች እና አዲስ ጥያቄ",
+    "tab_requests": "አገልግሎት ጠያቂዎች",
+    "tab_requests_hint": "አገልግሎት የሚፈልጉ ሰዎች ጥያቄዎች",
+    "tab_requests_hint_provider": "በሙያዬ ያሉ ጥያቄዎች",
+    "tab_providers": "አገልግሎት ሰጪዎች",
+    "tab_providers_hint": "አገልግሎቱን ማን ይሰጣል፣ እና አገልግሎት ይጠይቁ",
+    "scope_label": "ክልል፦",
+    "scope_district": "ሰፈሬ",
+    "scope_coverage": "የምሸፍነው",
+    "scope_city": "ከተማዬ",
+    "scope_region": "ክልሌ",
+    "scope_all": "ሁሉም ቦታ",
+    "requests_around_title": "የአገልግሎት ጠያቂዎች ጥያቄዎች",
+    "no_requests_widen": "በዚህ ክልል አሁን ጥያቄ የለም። ተጨማሪ ለማየት ክልሉን ያስፉ።",
+    "no_requests_anywhere": "አሁን ክፍት ጥያቄ የለም።"
   },
   "location": {
     "country": "ሀገር",

@@ -170,7 +170,21 @@
     "mode_provider": "म सेवा प्रदायक हुँ",
     "mode_provider_hint": "मेरो पेसा र क्षेत्रका अनुरोधहरू",
     "mode_client": "म सेवा खोज्ने हुँ",
-    "mode_client_hint": "मेरो क्षेत्रका सेवा प्रदायक, र नयाँ अनुरोध"
+    "mode_client_hint": "मेरो क्षेत्रका सेवा प्रदायक, र नयाँ अनुरोध",
+    "tab_requests": "सेवा खोज्नेहरू",
+    "tab_requests_hint": "सेवा चाहिनेहरूका अनुरोध",
+    "tab_requests_hint_provider": "मेरो पेसाका अनुरोध",
+    "tab_providers": "सेवा दिनेहरू",
+    "tab_providers_hint": "को सेवा दिन्छ, र सेवा माग्नुहोस्",
+    "scope_label": "दायरा:",
+    "scope_district": "मेरो टोल",
+    "scope_coverage": "मेरो कभरेज",
+    "scope_city": "मेरो सहर",
+    "scope_region": "मेरो क्षेत्र",
+    "scope_all": "सबै ठाउँ",
+    "requests_around_title": "सेवा खोज्नेहरूका अनुरोध",
+    "no_requests_widen": "यो दायरामा अहिले कुनै अनुरोध छैन। थप हेर्न दायरा बढाउनुहोस्।",
+    "no_requests_anywhere": "अहिले कुनै खुला अनुरोध छैन।"
   },
   "location": {
     "country": "देश",
