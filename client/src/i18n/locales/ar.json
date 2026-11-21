@@ -2424,7 +2424,7 @@
     "schedule_required": "حدد فترة عمل واحدة على الأقل، أو اختر «متاح 24 ساعة».",
     "midnight": "منتصف الليل",
     "label_available": "متاح للعمل",
-    "label_present": "متواجد على التطبيق"
+    "label_present": "متواجد"
   },
   "brand": {
     "branch_of": "موقع أي خدمة فرع من موقع",

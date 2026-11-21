@@ -2395,7 +2395,7 @@
     "schedule_required": "অন্তত একটি কাজের সময় দিন, অথবা «২৪ ঘণ্টা পাওয়া যায়» বেছে নিন।",
     "midnight": "মধ্যরাত",
     "label_available": "কাজের জন্য প্রস্তুত",
-    "label_present": "অ্যাপে আছেন"
+    "label_present": "অনলাইনে"
   },
   "brand": {
     "branch_of": "Ay Khidma এই ওয়েবসাইটের একটি শাখা:",

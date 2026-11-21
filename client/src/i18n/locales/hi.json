@@ -2395,7 +2395,7 @@
     "schedule_required": "कम से कम एक काम का समय चुनें, या «24 घंटे उपलब्ध» चुनें।",
     "midnight": "आधी रात",
     "label_available": "काम के लिए उपलब्ध",
-    "label_present": "ऐप पर मौजूद"
+    "label_present": "मौजूद"
   },
   "brand": {
     "branch_of": "Ay Khidma साइट इस साइट की शाखा है:",
