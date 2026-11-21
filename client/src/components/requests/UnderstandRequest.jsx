@@ -4,7 +4,7 @@ import { listServices } from '../../services/serviceService';
 import { understandRequest } from '../../utils/requestIntent.mjs';
 import { localizedName } from '../../utils/localize';
 
-// AYK-419 (the owner): «اكتب طلبك بكلامك». The requester writes what they need in their own words;
+// AYK-419 (the owner): «اكتب طلبك بلهجتك» (renamed by the owner). The requester writes what they need in their own words;
 // the page picks the profession and the service and writes the title and the details, then says
 // what it understood so it can be changed. Free, on the device, no outside service.
 export default function UnderstandRequest({ categories, onApply }) {
