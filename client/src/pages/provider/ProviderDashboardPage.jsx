@@ -50,7 +50,8 @@ export default function ProviderDashboardPage() {
   if (loading) return <LoadingState />;
 
   return (
-    <div>
+    // AYK-422 (the owner: «في لوحة مقدم الخدمة اجعل الخط غامق ليكون أكثر وضوحًا»): bolder, darker text.
+    <div className="provider-strong" data-testid="provider-dashboard">
       {/* A service provider's home is this page, so the top-of-home ads show here too (AYK-157). */}
       <AdSlot placement="home_top" className="mb-4" />
       <AdSlot placement="home_hero" className="mb-4" />

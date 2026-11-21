@@ -535,3 +535,14 @@ select:not([multiple]):not([size]) {
 :where(main) button:where(.text-primary:not(.btn):not([class*="rounded"]):not([class*="border"])) {
   text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1.5px;
 }
+
+/* AYK-422 (the owner: «في لوحة مقدم الخدمة اجعل الخط غامق ليكون أكثر وضوحًا»): in the provider's
+   dashboard every text is bold (700) at least, and the pale grey hints are darkened, so everything
+   reads clearly on a phone in daylight. Headings and bold text keep their own (heavier) weight. */
+.provider-strong { font-weight: 700; color: rgb(var(--color-fg)); }
+.provider-strong :is(.font-normal, .font-medium, .font-semibold, small, input, select, textarea, button) { font-weight: 700; }
+.provider-strong :is(.text-muted, .text-secondary, .text-fg-muted, .text-fg-subtle, .text-slate-400, .text-slate-500, .text-slate-600, .text-gray-500) {
+  color: rgb(var(--color-fg) / 0.82) !important;
+}
+.provider-strong .sidebar a { font-weight: 800; }
+.provider-strong .sidebar a:not(.active) { color: rgb(var(--color-fg)); }

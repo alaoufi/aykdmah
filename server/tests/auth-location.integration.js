@@ -687,6 +687,8 @@ if (!databasePrefix) {
     assert.equal(await Conversation.canSend(direct.conversation_id, provider.user.id), false, 'past the market days without a warranty');
     await db.query("UPDATE requests SET completed_at = CURRENT_TIMESTAMP - INTERVAL '2 days', updated_at = CURRENT_TIMESTAMP - INTERVAL '2 days' WHERE id = ?", [direct.request_id]);
     assert.equal(await Conversation.canSend(direct.conversation_id, provider.user.id), true, 'within the market days');
+    // AYK-423: the chat list shows conversations with messages; a word in this one keeps the check's intent.
+    await db.query('INSERT INTO messages (conversation_id, sender_id, content) VALUES (?, ?, ?)', [direct.conversation_id, client.user.id, 'مرحبا']);
     const providerChatsSoon = await api('/chat/conversations', { token: provider.token });
     assert.ok(providerChatsSoon.some(chat => Number(chat.id) === Number(direct.conversation_id)), 'still in the provider chats');
     // Blocking (AYK-084): refused within the warranty days; otherwise it stops new contact until undone.
@@ -1175,6 +1177,21 @@ if (!databasePrefix) {
     await api(`/admin/dialect-terms/${encodeURIComponent('زرنيخ')}`, { method: 'PUT', token: client.token, body: { status: 'blocked' }, expected: 403 });
     await api(`/admin/dialect-terms/${encodeURIComponent('زرنيخ')}`, { method: 'PUT', token: admin, body: { status: 'clear' } });
     for (const id of made) await db.query('DELETE FROM requests WHERE id = ?', [id]);
+  });
+
+  test('AYK-423: the chat list shows only conversations with messages; an empty one appears after the first message', async () => {
+    const area = await simpleArea();
+    const one = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const two = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const opened = await api('/chat/conversations', { method: 'POST', token: one.token, expected: 201, body: { user_id: two.user.id } });
+    const listed = async token => (await api('/chat/conversations', { token })).map(row => Number(row.id));
+    assert.ok(!(await listed(one.token)).includes(Number(opened.id)), 'empty: not in the opener\'s list');
+    assert.ok(!(await listed(two.token)).includes(Number(opened.id)), 'empty: not in the other\'s list');
+    const conv = await api(`/chat/conversations/${opened.id}`, { token: one.token });
+    assert.equal(Number(conv.id), Number(opened.id), 'it still opens by its link');
+    await api(`/chat/conversations/${opened.id}/messages`, { method: 'POST', token: one.token, expected: 201, body: { content: 'مرحبا' } });
+    assert.ok((await listed(one.token)).includes(Number(opened.id)), 'after the first message it is listed');
+    assert.ok((await listed(two.token)).includes(Number(opened.id)));
   });
 
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {

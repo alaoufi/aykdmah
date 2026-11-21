@@ -220,12 +220,16 @@ async function getContacts(userId) {
       AND ${requestPairSql('self')} AND ${requestPairSql('other')}`, [userId]);
 }
 
-async function listRows(userId, { page = 1, limit = 20, q = '', requestId = null, peerId = null, maxLimit = 100 } = {}) {
+async function listRows(userId, { page = 1, limit = 20, q = '', requestId = null, peerId = null, maxLimit = 100, withMessagesOnly = false } = {}) {
   page = Math.max(1, Math.min(100000, Number.parseInt(page, 10) || 1));
   limit = Math.max(1, Math.min(maxLimit, Number.parseInt(limit, 10) || 20));
   const offset = (page - 1) * limit;
   const extra = [], extraParams = [];
   if (requestId) { extra.push('c.request_id = ?'); extraParams.push(Number(requestId)); }
+  // AYK-423 (the owner: «في المحادثات أسماء بدون محادثات… إذا ما فيه محادثات ما تفتح محادثة فارغة»):
+  // the chat list shows only conversations with at least one message; an opened but empty one
+  // appears once someone writes in it.
+  if (withMessagesOnly) extra.push('EXISTS (SELECT 1 FROM messages any_message WHERE any_message.conversation_id = c.id AND any_message.deleted_at IS NULL)');
   if (peerId) { extra.push('EXISTS (SELECT 1 FROM conversation_participants peer WHERE peer.conversation_id = c.id AND peer.user_id = ?)'); extraParams.push(Number(peerId)); }
   if (q) {
     extra.push(`(r.title ILIKE ? OR EXISTS (SELECT 1 FROM messages matched_message WHERE matched_message.conversation_id = c.id AND matched_message.deleted_at IS NULL AND matched_message.content ILIKE ?) OR EXISTS (SELECT 1 FROM conversation_participants peer JOIN users person ON person.id = peer.user_id
@@ -275,11 +279,11 @@ const otherOf = row => {
   if (typeof other === 'string') { try { other = JSON.parse(other); } catch (_) { other = null; } }
   return other && other.id != null ? Number(other.id) : null;
 };
-async function listForUser(userId, { page = 1, limit = 20, q = '', requestId = null, peerId = null, merge = true } = {}) {
-  if (!merge || requestId) return listRows(userId, { page, limit, q, requestId, peerId });
+async function listForUser(userId, { page = 1, limit = 20, q = '', requestId = null, peerId = null, merge = true, withMessagesOnly = false } = {}) {
+  if (!merge || requestId) return listRows(userId, { page, limit, q, requestId, peerId, withMessagesOnly });
   page = Math.max(1, Math.min(100000, Number.parseInt(page, 10) || 1));
   limit = Math.max(1, Math.min(100, Number.parseInt(limit, 10) || 20));
-  const rows = await listRows(userId, { page: 1, limit: 1000, q, peerId, maxLimit: 1000 });
+  const rows = await listRows(userId, { page: 1, limit: 1000, q, peerId, maxLimit: 1000, withMessagesOnly });
   const groups = new Map();
   for (const row of rows) {
     const key = otherOf(row) ?? `c${row.id}`;
