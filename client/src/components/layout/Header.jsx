@@ -1,3 +1,4 @@
+import usePublicSettings, { paidAdsOn } from '../../hooks/usePublicSettings';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
@@ -15,6 +16,9 @@ import AdminPanelLink from './AdminPanelLink';
 import InviteButton from '../common/InviteButton';
 
 export default function Header() {
+  // AYK-405: «أعلن» in the account menus, only while paid ad subscriptions are on.
+  const { settings: publicSettings } = usePublicSettings();
+  const canAdvertise = paidAdsOn(publicSettings);
   const { t } = useTranslation();
   const { user, logout } = useAuth();
   const { unread, chatUnread, supportCount } = useNotifications();
@@ -183,6 +187,11 @@ export default function Header() {
                         🔁 {t('profile.change_account_type')}
                       </Link>
                     )}
+                    {canAdvertise && ['client', 'provider'].includes(user.role) && (
+                      <Link to="/promote" className="block px-3 py-2 rounded text-sm font-semibold text-fg hover:bg-surface-alt no-underline" onClick={() => setMenuOpen(false)} data-testid="menu-promote">
+                        📣 {t('nav.promote')}
+                      </Link>
+                    )}
                     <AdminPanelLink className="w-full text-right px-3 py-2 rounded text-sm font-bold text-primary hover:bg-surface-alt" onDone={() => setMenuOpen(false)} />
                     <Link to="/disputes" className="block px-3 py-2 rounded text-sm font-semibold text-fg hover:bg-surface-alt no-underline" onClick={() => setMenuOpen(false)}>
                       ⚖️ {t('dispute.my_disputes')}
@@ -327,6 +336,11 @@ export default function Header() {
                 {['client', 'provider'].includes(user.role) && (
                   <Link to="/profile#account-type" onClick={() => setMobileOpen(false)} className="text-right px-3 py-3 rounded-card font-semibold no-underline text-fg-muted hover:bg-surface-alt" data-testid="mobile-account-type">
                     🔁 {t('profile.change_account_type')}
+                  </Link>
+                )}
+                {canAdvertise && ['client', 'provider'].includes(user.role) && (
+                  <Link to="/promote" onClick={() => setMobileOpen(false)} className="text-right px-3 py-3 rounded-card font-semibold no-underline text-fg-muted hover:bg-surface-alt" data-testid="mobile-promote">
+                    📣 {t('nav.promote')}
                   </Link>
                 )}
                 {/* Writing to the administration (AYK-046), with the count of unread replies. */}

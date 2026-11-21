@@ -235,7 +235,10 @@ export default function AdminAdsPage() {
       const row = list.find(r => (r.setting_key || r.key) === 'ads_user_requests_enabled');
       const value = row ? (row.parsed_value ?? row.setting_value ?? row.value) : true;
       setPaidOn(![false, 'false', 0, '0'].includes(value));
-    }).catch(() => setPaidOn(null));
+    }).catch(() => {
+      // Without the settings permission, the public value still shows the state (AYK-405).
+      import('../../hooks/usePublicSettings').then(({ fetchPublicSettings, paidAdsOn }) => fetchPublicSettings().then(s => setPaidOn(paidAdsOn(s)))).catch(() => setPaidOn(null));
+    });
   }, []);
   const togglePaid = async () => {
     if (!(await confirmAdminChange(t))) return;
@@ -469,9 +472,9 @@ export default function AdminAdsPage() {
       </AdminPageHeader>
 
       {paidOn !== null && (
-        <div className={`rounded-card border px-4 py-3 flex flex-wrap items-center justify-between gap-2 ${paidOn ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'}`} data-testid="paid-ads-switch">
+        <div className={`rounded-card border-2 px-4 py-4 flex flex-wrap items-center justify-between gap-3 ${paidOn ? 'bg-emerald-50 border-emerald-300' : 'bg-rose-50 border-rose-300'}`} data-testid="paid-ads-switch">
           <div className="min-w-0">
-            <b className="block text-[14px]">{paidOn ? '🟢' : '⚪'} {t('admin.paid_ads_switch')}: {t(paidOn ? 'admin.paid_ads_on' : 'admin.paid_ads_off')}</b>
+            <b className="block text-[15px]">{paidOn ? '🟢' : '🔴'} {t('admin.paid_ads_switch')}: {t(paidOn ? 'admin.paid_ads_on' : 'admin.paid_ads_off')}</b>
             <span className="text-[12px] text-slate-600">{t('admin.paid_ads_switch_hint')}</span>
           </div>
           <AdminButton variant={paidOn ? 'secondary' : 'primary'} onClick={togglePaid} data-testid="paid-ads-toggle">{t(paidOn ? 'admin.paid_ads_turn_off' : 'admin.paid_ads_turn_on')}</AdminButton>
