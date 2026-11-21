@@ -166,7 +166,11 @@
     "get_app": "«Ay Khidma» ऐप डाउनलोड करें",
     "get_it_on": "यहाँ से पाएँ",
     "download_on": "यहाँ से डाउनलोड करें",
-    "coming_soon": "जल्द आ रहा है"
+    "coming_soon": "जल्द आ रहा है",
+    "mode_provider": "मैं सेवा प्रदाता हूँ",
+    "mode_provider_hint": "मेरे पेशे और क्षेत्र के अनुरोध",
+    "mode_client": "मैं सेवा चाहने वाला हूँ",
+    "mode_client_hint": "मेरे क्षेत्र के सेवा प्रदाता, और नया अनुरोध"
   },
   "location": {
     "country": "देश",

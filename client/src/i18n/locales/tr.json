@@ -166,7 +166,11 @@
     "get_app": "«Ay Khidma» uygulamasını indirin",
     "get_it_on": "Şuradan edinin",
     "download_on": "Şuradan indirin",
-    "coming_soon": "Yakında:"
+    "coming_soon": "Yakında:",
+    "mode_provider": "Hizmet verenim",
+    "mode_provider_hint": "Mesleğimdeki ve bölgemdeki talepler",
+    "mode_client": "Hizmet talep edenim",
+    "mode_client_hint": "Bölgemdeki hizmet verenler ve yeni talep"
   },
   "location": {
     "country": "Ülke",

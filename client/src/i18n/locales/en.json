@@ -166,7 +166,11 @@
     "get_app": "Get the Ay Khidma app",
     "get_it_on": "GET IT ON",
     "download_on": "Download on the",
-    "coming_soon": "Coming soon to"
+    "coming_soon": "Coming soon to",
+    "mode_provider": "I'm a provider",
+    "mode_provider_hint": "Requests in my profession and area",
+    "mode_client": "I'm a requester",
+    "mode_client_hint": "Providers in my area, and new request"
   },
   "location": {
     "country": "Country",

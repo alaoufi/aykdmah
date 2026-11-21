@@ -166,7 +166,11 @@
     "get_app": "የ«Ay Khidma» መተግበሪያን ያግኙ",
     "get_it_on": "ከዚህ ያግኙ",
     "download_on": "ከዚህ ያውርዱ",
-    "coming_soon": "በቅርቡ የሚገኝበት"
+    "coming_soon": "በቅርቡ የሚገኝበት",
+    "mode_provider": "አገልግሎት ሰጪ ነኝ",
+    "mode_provider_hint": "በሙያዬና በአካባቢዬ ያሉ ጥያቄዎች",
+    "mode_client": "አገልግሎት ጠያቂ ነኝ",
+    "mode_client_hint": "በአካባቢዬ ያሉ አገልግሎት ሰጪዎች እና አዲስ ጥያቄ"
   },
   "location": {
     "country": "ሀገር",

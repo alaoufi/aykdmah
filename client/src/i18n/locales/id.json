@@ -166,7 +166,11 @@
     "get_app": "Dapatkan aplikasi Ay Khidma",
     "get_it_on": "DAPATKAN DI",
     "download_on": "Unduh di",
-    "coming_soon": "Segera hadir di"
+    "coming_soon": "Segera hadir di",
+    "mode_provider": "Saya penyedia layanan",
+    "mode_provider_hint": "Permintaan di profesi dan area saya",
+    "mode_client": "Saya pencari layanan",
+    "mode_client_hint": "Penyedia di area saya, dan permintaan baru"
   },
   "location": {
     "country": "Negara",

@@ -166,7 +166,11 @@
     "get_app": "حمّل تطبيق «أي خدمة»",
     "get_it_on": "احصل عليه من",
     "download_on": "حمّله من",
-    "coming_soon": "قريبًا على"
+    "coming_soon": "قريبًا على",
+    "mode_provider": "أنا مقدم خدمة",
+    "mode_provider_hint": "طلبات طالبي الخدمة في مهنتي وتغطيتي",
+    "mode_client": "أنا طالب خدمة",
+    "mode_client_hint": "مقدمو الخدمة في منطقتي، وطلب خدمة"
   },
   "location": {
     "country": "الدولة",
