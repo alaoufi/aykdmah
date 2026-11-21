@@ -8,6 +8,7 @@ import { listCountries, listRegions, listCities, listCategories } from '../../se
 import { apiError } from '../../services/api';
 import { localizedName } from '../../utils/localize';
 import { optionLabel } from '../../utils/optionLabel';
+import { FieldHelp } from './AdCampaigns';
 
 const EMPTY = { region_id: '', city_id: '', category_id: '', is_free: false, note: '' };
 
@@ -53,32 +54,50 @@ export default function SubscriptionRules() {
           <h2 className="font-extrabold text-ink text-[16px] m-0">🗺️ {t('subrules.title')}</h2>
           <p className="text-[12.5px] text-slate-500 mt-1 mb-0">{t('subrules.hint')}</p>
         </div>
-        <label className="flex items-center gap-2 text-[13px] font-bold cursor-pointer">
-          <input type="checkbox" className="w-4 h-4 accent-brand-600" checked={data.enabled} disabled={busy} data-testid="subscriptions-enabled"
-            onChange={e => run(() => setSubscriptionsEnabled(e.target.checked))} />
-          {data.enabled ? t('subrules.enabled') : t('subrules.disabled')}
-        </label>
+        <div className="max-w-full sm:max-w-[320px] text-[13px] font-bold">
+          <FieldHelp label={data.enabled ? t('subrules.enabled') : t('subrules.disabled')}
+            short="المفتاح العام: عند إيقافه التسجيل والعمل مجانيان للجميع وتُهمل القواعد."
+            check={<input type="checkbox" className="w-4 h-4 accent-brand-600" checked={data.enabled} disabled={busy} data-testid="subscriptions-enabled"
+              onChange={e => run(() => setSubscriptionsEnabled(e.target.checked))} />}
+            info={'عند الإيقاف تختفي صفحات الاشتراك وروابطها من الموقع، ولا يُطلب اشتراك من أحد. عند التشغيل يحتاج مقدم الخدمة اشتراكًا فعّالًا ليبدأ التواصل على طلب أو ليظهر في قائمة مقدمي الخدمة، وذلك فقط في المناطق والمهن التي تغطيها قاعدة «اشتراك مطلوب» بالأسفل. طالب الخدمة لا يدفع أبدًا. يُطبَّق فور التأكيد.'} />
+        </div>
       </div>
 
       {error && <div role="alert" className="text-rose-700 text-[13px]">{error}</div>}
 
-      <form className="flex flex-wrap gap-2 items-center" onSubmit={e => { e.preventDefault(); run(async () => { await createSubscriptionRule({ ...form, is_free: form.is_free }); setForm(EMPTY); }); }}>
-        <select className={sel} aria-label={t('location.region')} value={form.region_id} onChange={e => setForm(f => ({ ...f, region_id: e.target.value, city_id: '' }))}>
+      <form className="flex flex-wrap gap-3 items-end" onSubmit={e => { e.preventDefault(); run(async () => { await createSubscriptionRule({ ...form, is_free: form.is_free }); setForm(EMPTY); }); }}>
+        <div className="min-w-0">
+        <FieldHelp htmlFor="subrule-region" label={t('location.region')} short="المنطقة التي تشملها القاعدة. «كل المناطق» = الدولة كلها."
+          info={'تُطبَّق القاعدة على الطلبات ومقدمي الخدمة في هذه المنطقة. اختيار منطقة يفتح خانة المدينة لتضييقها أكثر. اتركها «كل المناطق» لتشمل الجميع.'} />
+        <select id="subrule-region" className={sel} value={form.region_id} onChange={e => setForm(f => ({ ...f, region_id: e.target.value, city_id: '' }))}>
           <option value="">{t('subrules.all_regions')}</option>
           {regions.map(r => <option key={r.id} value={r.id}>{localizedName(r, lang)}</option>)}
         </select>
-        <select className={sel} aria-label={t('location.city')} value={form.city_id} disabled={!form.region_id} onChange={e => setForm(f => ({ ...f, city_id: e.target.value }))}>
+        </div>
+        <div className="min-w-0">
+        <FieldHelp htmlFor="subrule-city" label={t('location.city')} short="مدينة واحدة داخل المنطقة. «كل المدن» = المنطقة كلها."
+          info={'تُفتح بعد اختيار المنطقة. اختيار مدينة يجعل القاعدة تخصها وحدها. اتركها «كل المدن» لتشمل كل مدن المنطقة المختارة.'} />
+        <select id="subrule-city" className={sel} value={form.city_id} disabled={!form.region_id} onChange={e => setForm(f => ({ ...f, city_id: e.target.value }))}>
           <option value="">{t('subrules.all_cities')}</option>
           {cities.map(c => <option key={c.id} value={c.id}>{localizedName(c, lang)}</option>)}
         </select>
-        <select className={sel} aria-label={t('requester.profession')} value={form.category_id} onChange={e => setForm(f => ({ ...f, category_id: e.target.value }))}>
+        </div>
+        <div className="min-w-0">
+        <FieldHelp htmlFor="subrule-category" label={t('requester.profession')} short="المهنة التي تشملها القاعدة. «كل المهن» = كل مقدمي الخدمة."
+          info={'القاعدة تُطبَّق على من يعمل في هذه المهنة داخل المكان المختار. مثال: «سباكة» في «الرياض» = يحتاج السبّاك في الرياض إلى اشتراك. اتركها «كل المهن» لتشمل الجميع.'} />
+        <select id="subrule-category" className={sel} value={form.category_id} onChange={e => setForm(f => ({ ...f, category_id: e.target.value }))}>
           <option value="">{t('requester.all_professions')}</option>
           {categories.map(c => <option key={c.id} value={c.id}>{optionLabel(c.icon, localizedName(c, lang), lang)}</option>)}
         </select>
-        <select className={sel} aria-label={t('subrules.kind')} value={form.is_free ? '1' : '0'} onChange={e => setForm(f => ({ ...f, is_free: e.target.value === '1' }))}>
+        </div>
+        <div className="min-w-0">
+        <FieldHelp htmlFor="subrule-kind" label={t('subrules.kind')} short="«اشتراك مطلوب» يُلزم بالاشتراك، و«مجانية» تستثني وتغلب دائمًا."
+          info={'«اشتراك مطلوب»: من يعمل في المكان والمهنة المختارين يحتاج اشتراكًا فعّالًا. «مجانية»: تُبقي هذا المكان والمهنة مجانيين حتى لو شملتهما قاعدة أخرى تطلب الاشتراك، وتفيد للمهن النادرة. مثال: «اشتراك مطلوب» لكل المهن + «مجانية» لمهنة نادرة.'} />
+        <select id="subrule-kind" className={sel} value={form.is_free ? '1' : '0'} onChange={e => setForm(f => ({ ...f, is_free: e.target.value === '1' }))}>
           <option value="0">💳 {t('subrules.paid')}</option>
           <option value="1">🎁 {t('subrules.free')}</option>
         </select>
+        </div>
         <button type="submit" disabled={busy} className="px-4 py-2 rounded-pill bg-brand-600 text-white text-[13px] font-bold">+ {t('subrules.add')}</button>
       </form>
 
