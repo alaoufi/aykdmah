@@ -180,7 +180,14 @@
     "scope_all": "Lahat",
     "requests_around_title": "Mga request ng mga humihiling",
     "no_requests_widen": "Walang request sa saklaw na ito ngayon. Palawakin ang saklaw para makakita ng higit pa.",
-    "no_requests_anywhere": "Walang bukas na request ngayon."
+    "no_requests_anywhere": "Walang bukas na request ngayon.",
+    "guest_chat_note": "Malayang mag-browse; mag-sign up para makipag-chat",
+    "guest_register": "Mag-sign up",
+    "guest_professions": "Mga propesyon",
+    "guest_services": "Mga kategorya ng propesyon",
+    "guest_requests": "Mga kahilingan sa serbisyo",
+    "guest_providers": "Mga nagbibigay ng serbisyo",
+    "guest_more": "Ipakita pa"
   },
   "location": {
     "country": "Bansa",

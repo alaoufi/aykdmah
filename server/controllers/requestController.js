@@ -115,7 +115,7 @@ const getNearby = asyncHandler(async (req, res) => {
     viewerId: req.query.scope && !(req.query.matching === '1' && req.user?.role === 'provider') ? req.user?.id || null : null,
   });
   // Each request already in the reader's language when it was translated (AYK-231).
-  const shown = await requestTranslation.attachTranslations(items.map(Request.publicView), readerLang(req));
+  const shown = await requestTranslation.attachTranslations(items.map(Request.publicView).map(row => guestView(req, row)), readerLang(req));
   return paginate(res, shown, total, page, limit);
 });
 
@@ -159,6 +159,10 @@ const update = asyncHandler(async (req, res) => {
   return success(res, updated, req.t('updated'));
 });
 
+// AYK-413: a visitor who is not signed in sees a request without its owner's photo (no name,
+// number or exact place is sent to anyone outside it already).
+const guestView = (req, row) => (req.user ? row : { ...row, client_avatar: null });
+
 const getOne = asyncHandler(async (req, res) => {
   if (!validId(req.params.id)) return notFound(res);
   const request = await Request.findById(req.params.id);
@@ -171,7 +175,7 @@ const getOne = asyncHandler(async (req, res) => {
   if (!allowed && req.user?.role === 'provider' && await queryOne('SELECT 1 AS ok FROM offers WHERE request_id = ? AND provider_id = ?', [request.id, req.user.id])) {
     return success(res, (await requestTranslation.attachTranslations([{ ...Request.publicView(request), files: request.files }], readerLang(req)))[0]);
   }
-  if (!allowed) return success(res, (await requestTranslation.attachTranslations([Request.publicView(request)], readerLang(req)))[0]);
+  if (!allowed) return success(res, (await requestTranslation.attachTranslations([guestView(req, Request.publicView(request))], readerLang(req)))[0]);
   // How long the two sides can still write after it ends (AYK-081).
   const contactInfo = await queryOne(`SELECT ${contactWindow.DONE_DAYS_SQL} AS days,
       CASE WHEN ${contactWindow.FINISHED_SQL} THEN ${contactWindow.UNTIL_SQL} END AS until

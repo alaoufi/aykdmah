@@ -180,7 +180,14 @@
     "scope_all": "সব জায়গা",
     "requests_around_title": "সেবাপ্রার্থীদের অনুরোধ",
     "no_requests_widen": "এই পরিধিতে এখন কোনো অনুরোধ নেই। আরও দেখতে পরিধি বাড়ান।",
-    "no_requests_anywhere": "এখন কোনো খোলা অনুরোধ নেই।"
+    "no_requests_anywhere": "এখন কোনো খোলা অনুরোধ নেই।",
+    "guest_chat_note": "অবাধে দেখুন; কথা বলতে অ্যাকাউন্ট খুলুন",
+    "guest_register": "নিবন্ধন",
+    "guest_professions": "পেশা",
+    "guest_services": "পেশার শ্রেণি",
+    "guest_requests": "সেবার অনুরোধ",
+    "guest_providers": "সেবা প্রদানকারী",
+    "guest_more": "আরও দেখুন"
   },
   "location": {
     "country": "দেশ",

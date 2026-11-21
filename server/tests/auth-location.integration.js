@@ -1070,6 +1070,31 @@ if (!databasePrefix) {
     assert.equal(Number((await db.queryOne('SELECT referred_by FROM users WHERE id = ?', [third.user.id])).referred_by), Number(first.user.id));
   });
 
+  test('AYK-413: a visitor sees open requests without the owner photo and every provider; chatting needs an account', async () => {
+    const area = await simpleArea();
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await db.query("UPDATE users SET avatar = '/uploads/avatars/test.webp' WHERE id = ?", [owner.user.id]);
+    const made = await api('/requests', { method: 'POST', token: owner.token, expected: 201, body: {
+      title: 'أحتاج كهربائي للمجلس', description: 'تركيب إنارة في المجلس', city_id: area.city_id, district_id: area.district_id, latitude: 24.7136, longitude: 46.6753 } });
+    const id = Number(made.id || made.request?.id);
+    const guestList = await fetch(`${base}/requests/nearby?limit=50`).then(r => r.json());
+    const seen = guestList.data.find(row => Number(row.id) === id);
+    assert.ok(seen, 'the visitor sees the open request');
+    assert.equal(seen.client_avatar, null);
+    for (const key of ['client_name', 'client_phone', 'latitude', 'longitude', 'address']) assert.ok(!seen[key], `no ${key} for a visitor`);
+    const guestOne = await fetch(`${base}/requests/${id}`).then(r => r.json());
+    assert.equal(guestOne.data.client_avatar, null);
+    assert.ok(!guestOne.data.client_name);
+    const signedIn = (await api('/requests/nearby?limit=50', { token: owner.token })).find(row => Number(row.id) === id);
+    assert.equal(signedIn.client_avatar, '/uploads/avatars/test.webp');
+    const everyone = await fetch(`${base}/providers/matching?scope=all`).then(r => r.json());
+    assert.equal(everyone.success, true);
+    assert.ok(Array.isArray(everyone.data.providers));
+    const chat = await fetch(`${base}/chat/conversations`).then(r => r.status);
+    assert.equal(chat, 401);
+    await db.query('DELETE FROM requests WHERE id = ?', [id]);
+  });
+
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');

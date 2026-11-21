@@ -180,7 +180,14 @@
     "scope_all": "Semua",
     "requests_around_title": "Permintaan para pencari layanan",
     "no_requests_widen": "Belum ada permintaan di cakupan ini. Perluas cakupan untuk melihat lebih banyak.",
-    "no_requests_anywhere": "Belum ada permintaan terbuka saat ini."
+    "no_requests_anywhere": "Belum ada permintaan terbuka saat ini.",
+    "guest_chat_note": "Jelajahi bebas; daftar untuk mengobrol",
+    "guest_register": "Daftar",
+    "guest_professions": "Profesi",
+    "guest_services": "Kategori profesi",
+    "guest_requests": "Permintaan layanan",
+    "guest_providers": "Penyedia layanan",
+    "guest_more": "Tampilkan lagi"
   },
   "location": {
     "country": "Negara",

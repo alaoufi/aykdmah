@@ -180,7 +180,14 @@
     "scope_all": "सबै ठाउँ",
     "requests_around_title": "सेवा खोज्नेहरूका अनुरोध",
     "no_requests_widen": "यो दायरामा अहिले कुनै अनुरोध छैन। थप हेर्न दायरा बढाउनुहोस्।",
-    "no_requests_anywhere": "अहिले कुनै खुला अनुरोध छैन।"
+    "no_requests_anywhere": "अहिले कुनै खुला अनुरोध छैन।",
+    "guest_chat_note": "स्वतन्त्र रूपमा हेर्नुहोस्; कुराकानीका लागि खाता खोल्नुहोस्",
+    "guest_register": "दर्ता गर्नुहोस्",
+    "guest_professions": "पेशाहरू",
+    "guest_services": "पेशाका वर्गहरू",
+    "guest_requests": "सेवा अनुरोधहरू",
+    "guest_providers": "सेवा प्रदायकहरू",
+    "guest_more": "थप देखाउनुहोस्"
   },
   "location": {
     "country": "देश",

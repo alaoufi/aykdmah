@@ -180,7 +180,14 @@
     "scope_all": "الكل",
     "requests_around_title": "طلبات طالبي الخدمة",
     "no_requests_widen": "لا توجد طلبات في هذه الدائرة الآن. وسّع الدائرة لترى أكثر.",
-    "no_requests_anywhere": "لا توجد طلبات مفتوحة الآن."
+    "no_requests_anywhere": "لا توجد طلبات مفتوحة الآن.",
+    "guest_chat_note": "تصفّح بحرية، وللمحادثة سجّل حسابًا",
+    "guest_register": "سجّل",
+    "guest_professions": "المهن",
+    "guest_services": "تصنيفات المهن",
+    "guest_requests": "طلبات الخدمة",
+    "guest_providers": "مقدمو الخدمة",
+    "guest_more": "عرض المزيد"
   },
   "location": {
     "country": "الدولة",

@@ -180,7 +180,14 @@
     "scope_all": "ሁሉም ቦታ",
     "requests_around_title": "የአገልግሎት ጠያቂዎች ጥያቄዎች",
     "no_requests_widen": "በዚህ ክልል አሁን ጥያቄ የለም። ተጨማሪ ለማየት ክልሉን ያስፉ።",
-    "no_requests_anywhere": "አሁን ክፍት ጥያቄ የለም።"
+    "no_requests_anywhere": "አሁን ክፍት ጥያቄ የለም።",
+    "guest_chat_note": "በነፃ ያስሱ፤ ለመወያየት ይመዝገቡ",
+    "guest_register": "ይመዝገቡ",
+    "guest_professions": "ሙያዎች",
+    "guest_services": "የሙያ ምድቦች",
+    "guest_requests": "የአገልግሎት ጥያቄዎች",
+    "guest_providers": "አገልግሎት ሰጪዎች",
+    "guest_more": "ተጨማሪ አሳይ"
   },
   "location": {
     "country": "ሀገር",

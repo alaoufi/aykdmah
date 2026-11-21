@@ -180,7 +180,14 @@
     "scope_all": "Her yer",
     "requests_around_title": "Hizmet talep edenlerin talepleri",
     "no_requests_widen": "Bu çevrede şu an talep yok. Daha fazlası için çevreyi genişletin.",
-    "no_requests_anywhere": "Şu an açık talep yok."
+    "no_requests_anywhere": "Şu an açık talep yok.",
+    "guest_chat_note": "Serbestçe gezinin; sohbet için kaydolun",
+    "guest_register": "Kaydol",
+    "guest_professions": "Meslekler",
+    "guest_services": "Meslek kategorileri",
+    "guest_requests": "Hizmet talepleri",
+    "guest_providers": "Hizmet verenler",
+    "guest_more": "Daha fazla göster"
   },
   "location": {
     "country": "Ülke",

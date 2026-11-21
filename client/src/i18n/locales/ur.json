@@ -180,7 +180,14 @@
     "scope_all": "سب جگہ",
     "requests_around_title": "سروس طلب کرنے والوں کی درخواستیں",
     "no_requests_widen": "اس دائرے میں ابھی کوئی درخواست نہیں۔ مزید دیکھنے کے لیے دائرہ بڑھائیں۔",
-    "no_requests_anywhere": "ابھی کوئی کھلی درخواست نہیں۔"
+    "no_requests_anywhere": "ابھی کوئی کھلی درخواست نہیں۔",
+    "guest_chat_note": "آزادی سے دیکھیں؛ بات چیت کے لیے اکاؤنٹ بنائیں",
+    "guest_register": "رجسٹر کریں",
+    "guest_professions": "پیشے",
+    "guest_services": "پیشوں کی اقسام",
+    "guest_requests": "سروس کی درخواستیں",
+    "guest_providers": "سروس فراہم کرنے والے",
+    "guest_more": "مزید دکھائیں"
   },
   "location": {
     "country": "ملک",

@@ -180,7 +180,14 @@
     "scope_all": "Everywhere",
     "requests_around_title": "Requests from service requesters",
     "no_requests_widen": "No requests in this circle right now. Widen the circle to see more.",
-    "no_requests_anywhere": "No open requests right now."
+    "no_requests_anywhere": "No open requests right now.",
+    "guest_chat_note": "Browse freely; sign up to chat",
+    "guest_register": "Sign up",
+    "guest_professions": "Professions",
+    "guest_services": "Profession categories",
+    "guest_requests": "Service requests",
+    "guest_providers": "Service providers",
+    "guest_more": "Show more"
   },
   "location": {
     "country": "Country",
