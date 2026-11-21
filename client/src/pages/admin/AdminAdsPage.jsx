@@ -831,12 +831,13 @@ export default function AdminAdsPage() {
                   const on = form.target_regions.includes(r.id);
                   return (
                     <button key={r.id} type="button"
-                      onClick={() => setForm((f) => ({
-                        ...f,
-                        target_regions: on
-                          ? f.target_regions.filter((x) => x !== r.id)
-                          : [...f.target_regions, r.id],
-                      }))}
+                      onClick={() => setForm((f) => {
+                        const target_regions = on ? f.target_regions.filter((x) => x !== r.id) : [...f.target_regions, r.id];
+                        // AYK-393: a region taken off takes its chosen cities with it (as on the advertiser's page).
+                        if (!on || !target_regions.length) return { ...f, target_regions };
+                        const keep = new Set(cities.filter(c => target_regions.includes(Number(c.in_region_id ?? c.region_id))).map(c => c.name_ar || c.name_en || c.name));
+                        return { ...f, target_regions, target_cities: f.target_cities.filter(name => keep.has(name)) };
+                      })}
                       className={`px-2.5 py-1 rounded-pill border text-[11px] font-semibold transition ${
                         on ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
                       }`}>{on ? '✓ ' : ''}{localizedName(r, i18n.resolvedLanguage)}</button>
@@ -846,7 +847,7 @@ export default function AdminAdsPage() {
             </div>
             <div>
               <div className="text-[11px] font-semibold text-slate-600 mb-1">{t('promote.target_cities')}</div>
-              <AdminCityPicker cities={cities} selected={form.target_cities}
+              <AdminCityPicker cities={cities} selected={form.target_cities} regionIds={form.target_regions}
                 onChange={(next) => setForm({ ...form, target_cities: next })} />
             </div>
           </div>
@@ -944,7 +945,9 @@ export default function AdminAdsPage() {
   );
 }
 
-function AdminCityPicker({ cities, selected, onChange }) {
+// AYK-393 (the owner: «إذا اختار المنطقة تظهر مدنها، الآن كل مدن المملكة»): with regions chosen,
+// only their cities are offered.
+function AdminCityPicker({ cities, selected, onChange, regionIds = [] }) {
   const { t, i18n } = useTranslation();
   const cityValue = city => city.name_ar || city.name_en || city.name || '';
   const cityLabel = value => {
@@ -952,10 +955,13 @@ function AdminCityPicker({ cities, selected, onChange }) {
     return row ? localizedName(row, i18n.resolvedLanguage) : value;
   };
   const [q, setQ] = useState('');
+  const inRegions = regionIds.length ? new Set(regionIds.map(Number)) : null;
+  const regionOf = c => Number(c.in_region_id ?? c.region_id);
   const filtered = (cities || []).filter((c) => {
+    if (inRegions && !inRegions.has(regionOf(c))) return false;
     const name = [localizedName(c, i18n.resolvedLanguage), c.name_ar, c.name_en, ...Object.values(c.name_translations || {})].filter(Boolean).join(' ').toLowerCase();
     return !q.trim() || name.includes(q.trim().toLowerCase());
-  }).slice(0, 80);
+  }).slice(0, inRegions ? 400 : 80);
   const toggle = (name) => {
     if (selected.includes(name)) onChange(selected.filter((x) => x !== name));
     else onChange([...selected, name]);
@@ -974,7 +980,8 @@ function AdminCityPicker({ cities, selected, onChange }) {
           ))}
         </div>
       )}
-      <div className="flex flex-wrap gap-1 max-h-32 overflow-y-auto p-1 border border-slate-100 rounded">
+      {inRegions && <p className="text-[11px] text-slate-500 mb-1">مدن المناطق المختارة فقط ({filtered.length}).</p>}
+      <div className="flex flex-wrap gap-1 max-h-48 overflow-y-auto p-1 border border-slate-100 rounded" data-testid="ad-city-options">
         {filtered.map((c) => {
           const name = cityValue(c);
           const on = selected.includes(name);
