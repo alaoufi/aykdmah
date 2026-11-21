@@ -7,15 +7,20 @@ import Sidebar from '../components/layout/Sidebar';
 import BottomNav from '../components/layout/BottomNav';
 import Footer from '../components/layout/Footer';
 import BackButton from '../components/common/BackButton';
+import { useAuth } from '../hooks/useAuth';
 
 export default function DashboardLayout({ sidebarItems }) {
+  const { user } = useAuth();
+  // AYK-422 (the owner: «في لوحة مقدم الخدمة اجعل الخط غامق ليكون أكثر وضوحًا»): the provider's
+  // dashboard — its tabs and every page in it — is in bold, darker text.
+  const strong = user?.role === 'provider' ? ' provider-strong' : '';
   return (
     <>
       <Header />
       <UpdateBar />
       <AppUpdateGate />
       <DevicePermissions variant="bar" />
-      <div className="dashboard-wrap">
+      <div className={`dashboard-wrap${strong}`}>
         <Sidebar items={sidebarItems} />
         <main className="dashboard-main">
           <div className="container">
