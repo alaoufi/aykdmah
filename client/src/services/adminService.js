@@ -533,3 +533,14 @@ export async function hideProvider(id, hidden) {
   const { data } = await api.put(`/admin/providers/${id}/hide`, { hidden });
   return data.data;
 }
+
+// AYK-409: ad campaigns and reports.
+export async function listAdCampaigns() { const { data } = await api.get('/admin/ad-campaigns'); return data.data || []; }
+export async function createAdCampaign(payload) { const { data } = await api.post('/admin/ad-campaigns', payload); return data.data; }
+export async function updateAdCampaign(id, payload) { const { data } = await api.put(`/admin/ad-campaigns/${id}`, payload); return data.data; }
+export async function deleteAdCampaign(id) { const { data } = await api.delete(`/admin/ad-campaigns/${id}`); return data.data; }
+export async function getAdReport(params = {}) { const { data } = await api.get('/admin/ad-reports', { params }); return data.data; }
+export async function downloadAdReportCsv(params = {}) {
+  const res = await api.get('/admin/ad-reports.csv', { params, responseType: 'blob' });
+  return res.data;
+}

@@ -1363,7 +1363,9 @@
     "paid_ads_turned_on": "Turned on: signed-in users see «Advertise» and can create a new ad.",
     "paid_ads_turned_off": "Turned off: nobody sees «Advertise» or can create a new ad. Existing ads are not affected.",
     "paid_ads_now_on": "Ad subscriptions are now on",
-    "paid_ads_now_off": "Ad subscriptions are now off"
+    "paid_ads_now_off": "Ad subscriptions are now off",
+    "ad_tab_campaigns": "Campaigns",
+    "ad_tab_reports": "Reports"
   },
   "errors": {
     "generic": "Something went wrong",
@@ -1643,7 +1645,9 @@
     "page_search": "Search & requests",
     "page_profile": "My Profile",
     "page_chat": "Chats",
-    "page_dashboard": "Dashboard"
+    "page_dashboard": "Dashboard",
+    "ctr": "Click rate",
+    "download_report": "Download report (Excel)"
   },
   "badge": {
     "page_title": "My badges",

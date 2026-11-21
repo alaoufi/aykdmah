@@ -2,7 +2,7 @@ import { localizedName } from '../utils/localize';
 import { safeUrl } from '../utils/urlSafety';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getMyAds, previewQuote, submitAdRequest, payAd, cancelAd, getAdStats, pauseAd, resumeAd, getMyGeo, uploadMyAdMedia } from '../services/adService';
+import { getMyAds, previewQuote, submitAdRequest, payAd, cancelAd, getAdStats, pauseAd, resumeAd, getMyGeo, uploadMyAdMedia, downloadMyAdReport } from '../services/adService';
 import { listCities, listRegions } from '../services/serviceService';
 import AdSparkline from '../components/ads/AdSparkline';
 import AdImageFit from '../components/ads/AdImageFit';
@@ -622,6 +622,18 @@ export default function PromotePage() {
                       ) : (
                         <AdSparkline daily={openStats[ad.id].daily} />
                       )}
+                      {/* AYK-409: click rate, and the report as a file. */}
+                      <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-[12.5px]">
+                        <span>📈 {t('promote.ctr')}: <b>{Number(ad.views_count) > 0 ? Math.round((Number(ad.clicks_count || 0) / Number(ad.views_count)) * 10000) / 100 : 0}%</b></span>
+                        <button type="button" data-testid="my-ad-csv" className="px-3 py-1.5 rounded-pill bg-slate-100 hover:bg-slate-200 font-semibold"
+                          onClick={async () => {
+                            try {
+                              const blob = await downloadMyAdReport(ad.id);
+                              const url = URL.createObjectURL(blob); const a = document.createElement('a');
+                              a.href = url; a.download = `ad-${ad.id}-report.csv`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 2000);
+                            } catch (e) { setMsg({ type: 'error', text: apiError(e) }); }
+                          }}>⬇️ {t('promote.download_report')}</button>
+                      </div>
                     </div>
                   )}
                 </li>

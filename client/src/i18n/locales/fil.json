@@ -1363,7 +1363,9 @@
     "paid_ads_turned_on": "تم التفعيل: تظهر «أعلن» للمستخدمين المسجّلين ويستطيعون إنشاء إعلان جديد.",
     "paid_ads_turned_off": "تم الإيقاف: لا تظهر «أعلن» لأحد ولا يستطيع أحد إنشاء إعلان جديد. الإعلانات المسجّلة لا تتأثر.",
     "paid_ads_now_on": "الآن الاشتراك بالإعلان مفعّل",
-    "paid_ads_now_off": "الآن الاشتراك بالإعلان موقوف"
+    "paid_ads_now_off": "الآن الاشتراك بالإعلان موقوف",
+    "ad_tab_campaigns": "الحملات",
+    "ad_tab_reports": "التقارير"
   },
   "errors": {
     "generic": "May nagkamali",
@@ -1643,7 +1645,9 @@
     "page_search": "Paghahanap at kahilingan",
     "page_profile": "Aking profile",
     "page_chat": "Mga chat",
-    "page_dashboard": "Dashboard ng account"
+    "page_dashboard": "Dashboard ng account",
+    "ctr": "Click rate",
+    "download_report": "I-download ang ulat (Excel)"
   },
   "badge": {
     "page_title": "Aking mga badge",

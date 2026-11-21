@@ -28,7 +28,7 @@ const FROM = `
 
 function parseRow(row) {
   if (!row) return null;
-  for (const col of ['placements', 'target_countries', 'target_cities', 'target_regions', 'title_translations', 'description_translations']) {
+  for (const col of ['placements', 'target_countries', 'target_cities', 'target_regions', 'title_translations', 'description_translations', 'schedule', 'target_devices', 'target_langs', 'target_audience']) {
     if (row[col] && typeof row[col] === 'string') {
       try { row[col] = JSON.parse(row[col]); } catch (_) { row[col] = null; }
     }
@@ -84,6 +84,16 @@ async function listLive({ placement, applyExclusivity = true } = {}) {
     AND (a.ends_at   IS NULL OR a.ends_at   >  CURRENT_TIMESTAMP)
     AND (a.max_views IS NULL OR a.views_count < a.max_views)
     AND ${paymentGuard('a')}
+    -- AYK-409: the ad's daily cap, its even pacing over its period, and its campaign's limits.
+    AND (a.daily_max_views IS NULL OR COALESCE(td.views_count, 0) < a.daily_max_views)
+    AND (a.pacing <> 'even' OR a.max_views IS NULL OR a.ends_at IS NULL
+         OR COALESCE(td.views_count, 0) < CEIL((a.max_views - a.views_count + COALESCE(td.views_count, 0))::numeric
+              / GREATEST(1, CEIL(EXTRACT(EPOCH FROM (a.ends_at - date_trunc('day', CURRENT_TIMESTAMP))) / 86400.0))))
+    AND (a.campaign_id IS NULL OR (c.status = 'active'
+         AND (c.starts_at IS NULL OR c.starts_at <= CURRENT_TIMESTAMP) AND (c.ends_at IS NULL OR c.ends_at > CURRENT_TIMESTAMP)
+         AND (c.max_views IS NULL OR (SELECT COALESCE(SUM(x.views_count), 0) FROM ads x WHERE x.campaign_id = c.id) < c.max_views)
+         AND (c.daily_max_views IS NULL OR (SELECT COALESCE(SUM(s.views_count), 0) FROM ad_stats_daily s JOIN ads x ON x.id = s.ad_id
+              WHERE x.campaign_id = c.id AND s.day = CURRENT_DATE) < c.daily_max_views)))
   `;
   if (placement) {
     // Migration 016 stores a JSONB string array. Exact membership also
@@ -95,8 +105,12 @@ async function listLive({ placement, applyExclusivity = true } = {}) {
     `SELECT a.id, a.title, a.description, a.title_translations, a.description_translations, a.image, a.media_type, a.link, a.placement, a.placements,
        a.exclusive, a.target_countries, a.target_cities, a.target_regions, a.starts_at, a.ends_at,
        -- AYK-404: the administration's own (promotional) ads carry no «إعلان» mark on the site.
-       (a.user_id IS NULL) AS promo
-       FROM ads a WHERE ${where} ORDER BY a.sort_order ASC, RAND()`,
+       (a.user_id IS NULL) AS promo,
+       a.priority, a.weight, a.freq_cap_per_day, a.schedule, a.target_devices, a.target_langs, a.target_audience, a.campaign_id
+       FROM ads a
+       LEFT JOIN ad_stats_daily td ON td.ad_id = a.id AND td.day = CURRENT_DATE
+       LEFT JOIN ad_campaigns c ON c.id = a.campaign_id
+       WHERE ${where} ORDER BY a.sort_order ASC, RAND()`,
     params
   );
   const parsed = rows.map(parseRow);

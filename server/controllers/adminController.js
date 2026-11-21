@@ -31,8 +31,33 @@ function validAdInput(data, creating = false) {
   for (const field of ['starts_at', 'ends_at']) if (data[field] !== undefined && data[field] !== null && data[field] !== '' && (typeof data[field] !== 'string' || !Number.isFinite(Date.parse(data[field])))) return false;
   if (data.starts_at && data.ends_at && Date.parse(data.ends_at) <= Date.parse(data.starts_at)) return false;
   for (const field of ['target_countries', 'target_cities', 'target_regions']) if (data[field] !== undefined && data[field] !== null && (!Array.isArray(data[field]) || data[field].length > 500 || data[field].some(value => field === 'target_regions' ? !Number.isSafeInteger(Number(value)) || Number(value) <= 0 : typeof value !== 'string' || value.length > 120))) return false;
+  return validAdProInput(data);
+}
+
+// AYK-409: the professional delivery settings of an ad.
+const AD_PRO_FIELDS = ['campaign_id', 'priority', 'weight', 'freq_cap_per_day', 'daily_max_views', 'pacing', 'schedule', 'target_devices', 'target_langs', 'target_audience'];
+const AD_PRO_JSON = new Set(['schedule', 'target_devices', 'target_langs', 'target_audience']);
+const AD_LANGS = ['ar', 'en', 'ur', 'hi', 'bn', 'ml', 'fil', 'id', 'ne', 'am', 'tr'];
+const intIn = (v, lo, hi) => v === null || v === '' || (Number.isSafeInteger(Number(v)) && Number(v) >= lo && Number(v) <= hi);
+const listOf = (v, allowed) => v === null || (Array.isArray(v) && v.length <= allowed.length && v.every(x => allowed.includes(x)));
+function validAdProInput(d) {
+  if (d.campaign_id !== undefined && !intIn(d.campaign_id, 1, 2147483647)) return false;
+  if (d.priority !== undefined && ![1, 2, 3, '1', '2', '3'].includes(d.priority)) return false;
+  if (d.weight !== undefined && !intIn(d.weight, 1, 10)) return false;
+  for (const f of ['freq_cap_per_day', 'daily_max_views']) if (d[f] !== undefined && !intIn(d[f], 1, 100000000)) return false;
+  if (d.pacing !== undefined && !['asap', 'even'].includes(d.pacing)) return false;
+  if (d.target_devices !== undefined && !listOf(d.target_devices, ['mobile', 'desktop'])) return false;
+  if (d.target_langs !== undefined && !listOf(d.target_langs, AD_LANGS)) return false;
+  if (d.target_audience !== undefined && !listOf(d.target_audience, ['guest', 'client', 'provider'])) return false;
+  if (d.schedule !== undefined && d.schedule !== null) {
+    const sc = d.schedule, hhmm = /^([01]\d|2[0-3]):[0-5]\d$/;
+    if (typeof sc !== 'object' || Array.isArray(sc) || !listOf(sc.days ?? [], [0, 1, 2, 3, 4, 5, 6])
+      || (sc.from && !hhmm.test(sc.from)) || (sc.to && !hhmm.test(sc.to)) || Boolean(sc.from) !== Boolean(sc.to)) return false;
+  }
   return true;
 }
+const proValue = (f, v) => (AD_PRO_JSON.has(f) ? (v && (!Array.isArray(v) || v.length) ? JSON.stringify(v) : null)
+  : v === '' || v === null ? (['priority', 'weight'].includes(f) ? (f === 'priority' ? 2 : 1) : f === 'pacing' ? 'asap' : null) : f === 'pacing' ? v : Number(v));
 
 const dashboard = asyncHandler(async (req, res) => {
   // Fetch every counter in parallel — cuts dashboard load from ~150 round
@@ -282,6 +307,7 @@ const createAd = asyncHandler(async (req, res) => {
     ['target_countries', req.body.target_countries ? JSON.stringify(req.body.target_countries) : null],
     ['target_cities',    req.body.target_cities    ? JSON.stringify(req.body.target_cities)    : null],
     ['target_regions',   req.body.target_regions   ? JSON.stringify(req.body.target_regions)   : null],
+    ...AD_PRO_FIELDS.filter(f => req.body[f] !== undefined).map(f => [f, proValue(f, req.body[f])]),
   ];
   for (const [col, val] of optional) {
     if (await tableHasColumn('ads', col)) {
@@ -296,7 +322,8 @@ const createAd = asyncHandler(async (req, res) => {
   );
   // AYK-343: the ad's title and text in the 11 languages.
   require('../services/contentTranslation').later('ads', inserted?.insertId);
-  return success(res, null, req.t('ad_created'));
+  // The new ad's id, so the page can check right away whether it will show (AYK-407).
+  return success(res, { id: inserted?.insertId || null }, req.t('ad_created'));
 });
 
 const updateAd = asyncHandler(async (req, res) => {
@@ -322,6 +349,12 @@ const updateAd = asyncHandler(async (req, res) => {
     if (!(await tableHasColumn('ads', k))) continue;
     fields.push(`${k} = ?`);
     values.push(req.body[k]);
+  }
+  // AYK-409: delivery settings (priority, weight, caps, pacing, schedule, targeting, campaign).
+  for (const f of AD_PRO_FIELDS) {
+    if (req.body[f] === undefined || !(await tableHasColumn('ads', f))) continue;
+    fields.push(`${f} = ?`);
+    values.push(proValue(f, req.body[f]));
   }
   // JSON columns — serialize when present + present in schema.
   for (const json of ['placements', 'target_countries', 'target_cities', 'target_regions']) {

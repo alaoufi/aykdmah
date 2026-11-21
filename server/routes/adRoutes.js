@@ -24,6 +24,7 @@ router.post('/request',     authenticate, c.submit);
 // AYK-404: an ad's picture, while «الاشتراك بالإعلانات المدفوعة» is on (the administration always).
 router.post('/upload',      authenticate, (req, res, next) => c.paidAdsClosed(req, res).then(closed => { if (!closed) next(); }, next), uploadLimiter, uploadAd.single('file'), uploadAdMedia);
 router.get('/:id/stats',    authenticate, c.stats);
+router.get('/:id/report.csv', authenticate, require('../controllers/adCampaignController').myReportCsv); // AYK-409
 router.post('/:id/pay',     authenticate, c.pay);
 router.post('/:id/pause',   authenticate, c.pauseMine);
 router.post('/:id/resume',  authenticate, c.resumeMine);

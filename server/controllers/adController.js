@@ -8,6 +8,7 @@ const { validId, invalid } = require('../models/Payment');
 const { hasPermission } = require('../middleware/roleCheck');
 const { query } = require('../config/database');
 const contentTranslation = require('../services/contentTranslation');
+const { deliver } = require('../services/adDelivery'); // AYK-409
 
 // AYK-342 (the owner: «الإعلان الذي في الويب لا يظهر في التطبيق»): an ad's cities are saved by
 // their Arabic names, while a location found from the connection's address names the city in
@@ -90,7 +91,7 @@ async function liveMany(req, res) {
   }
   const result = {};
   for (const placement of wanted) {
-    const here = all.filter(a => (a.placement === placement || (Array.isArray(a.placements) && a.placements.includes(placement))) && matchesGeo(a, geo, cityRegion));
+    const here = deliver(all.filter(a => (a.placement === placement || (Array.isArray(a.placements) && a.placements.includes(placement))) && matchesGeo(a, geo, cityRegion)), req);
     const exclusives = here.filter(a => a.exclusive);
     result[placement] = exclusives.length ? exclusives : here;
   }
@@ -113,7 +114,7 @@ const live = financeHandler(async (req, res) => {
   if (needsGeo) {
     try { geo = await withCityNames(await ipGeo.resolveVisitorGeo(req)); } catch (_) { /* targeted ads stay hidden */ }
   }
-  const filtered = items.filter((a) => matchesGeo(a, geo, cityRegion));
+  const filtered = deliver(items.filter((a) => matchesGeo(a, geo, cityRegion)), req);
   const exclusives = filtered.filter(a => a.exclusive);
   return success(res, exclusives.length ? exclusives : filtered);
 });
@@ -415,6 +416,25 @@ const adminDiagnose = financeHandler(async (req, res) => {
       cities:    ad.target_cities    || null,
     },
   });
+  // AYK-409: the professional limits, in the same order the delivery applies them.
+  const today = Number((await query('SELECT views_count FROM ad_stats_daily WHERE ad_id = ? AND day = CURRENT_DATE', [ad.id]))[0]?.views_count) || 0;
+  if (ad.daily_max_views) checks.push({ name: 'daily_cap', pass: today < Number(ad.daily_max_views), actual: `${today} / ${ad.daily_max_views}` });
+  if (ad.pacing === 'even' && ad.max_views && ad.ends_at) {
+    const daysLeft = Math.max(1, Math.ceil((new Date(ad.ends_at) - new Date(new Date().toISOString().slice(0, 10))) / 86400000));
+    const allowance = Math.ceil((Number(ad.max_views) - Number(ad.views_count || 0) + today) / daysLeft);
+    checks.push({ name: 'pacing', pass: today < allowance, actual: `${today} / ${allowance}` });
+  }
+  if (ad.campaign_id) {
+    const c = (await query(`SELECT c.*, (SELECT COALESCE(SUM(x.views_count), 0) FROM ads x WHERE x.campaign_id = c.id) AS total,
+        (SELECT COALESCE(SUM(s.views_count), 0) FROM ad_stats_daily s JOIN ads x ON x.id = s.ad_id WHERE x.campaign_id = c.id AND s.day = CURRENT_DATE) AS today
+      FROM ad_campaigns c WHERE c.id = ?`, [ad.campaign_id]))[0];
+    const why = !c ? 'missing' : c.status !== 'active' ? `status:${c.status}`
+      : c.starts_at && new Date(c.starts_at) > now ? 'not_started' : c.ends_at && new Date(c.ends_at) <= now ? 'ended'
+        : c.max_views && Number(c.total) >= Number(c.max_views) ? 'views_done' : c.daily_max_views && Number(c.today) >= Number(c.daily_max_views) ? 'daily_done' : null;
+    checks.push({ name: 'campaign', pass: !why, actual: { name: c?.name || null, reason: why } });
+  }
+  const schedule = typeof ad.schedule === 'string' ? (() => { try { return JSON.parse(ad.schedule); } catch (_) { return null; } })() : ad.schedule;
+  if (schedule) checks.push({ name: 'schedule', pass: require('../services/adDelivery').inSchedule(schedule, now), actual: schedule });
   // Also include exclusivity context — admin can see whether another
   // exclusive ad is overshadowing this one in the same placement.
   const competing = await Ad.listLive({ placement });

@@ -446,3 +446,44 @@ test('paid ad subscriptions follow the administration switch; administration ads
   assert.ok(row && (row.promo === true || Number(row.promo) === 1), 'an administration ad is promotional');
   assert.equal(Object.hasOwn(row, 'user_id'), false);
 });
+
+// AYK-409: the professional delivery settings — targeting, daily cap, campaign, and the reports.
+test('pro ads: device targeting, daily cap, campaign state, priority order and reports', async () => {
+  const placement = 'search';
+  const created = await api('/admin/ads', { user: users.adsAdmin, method: 'POST', body: {
+    title: 'Pro desktop ad', image: 'https://example.invalid/pro.png', placement, placements: [placement],
+    priority: 1, weight: 3, daily_max_views: 1, target_devices: ['desktop'], schedule: null,
+  } });
+  const id = created.id;
+  assert.ok(id, 'the new ad id comes back');
+  const shown = async device => (await api(`/ads/live?placement=${placement}&device=${device}`)).some(row => row.id === id);
+  assert.equal(await shown('mobile'), false, 'desktop only');
+  assert.equal(await shown('desktop'), true);
+  await api('/admin/ads', { user: users.adsAdmin, method: 'POST', body: { title: 'Bad pro', placement, placements: [placement], weight: 50 }, expected: 400 });
+  // Priority: the high-priority ad comes before a normal one.
+  const normal = await Ad.create({ title: 'Normal search ad', image: 'https://example.invalid/n.png', placement, status: 'active', is_active: true });
+  const order = (await api(`/ads/live?placement=${placement}&device=desktop`)).map(row => row.id);
+  assert.ok(order.indexOf(id) < order.indexOf(normal.id), 'priority 1 first');
+  // Daily cap of 1: after one view, not served again today.
+  assert.equal(await Ad.bumpViews(id), true);
+  assert.equal(await shown('desktop'), false, 'daily cap reached');
+  // A paused campaign holds its ads.
+  const camp = await api('/admin/ad-campaigns', { user: users.adsAdmin, method: 'POST', body: { name: 'Launch week', status: 'paused' } });
+  await api('/admin/ad-campaigns', { user: users.provider, method: 'POST', body: { name: 'x' }, expected: 403 });
+  await api(`/admin/ads/${normal.id}`, { user: users.adsAdmin, method: 'PUT', body: { campaign_id: camp.id } });
+  const normalShown = async () => (await api(`/ads/live?placement=${placement}&device=desktop`)).some(row => row.id === normal.id);
+  assert.equal(await normalShown(), false, 'paused campaign');
+  await api(`/admin/ad-campaigns/${camp.id}`, { user: users.adsAdmin, method: 'PUT', body: { status: 'active' } });
+  assert.equal(await normalShown(), true, 'active campaign');
+  const listed = (await api('/admin/ad-campaigns', { user: users.adsAdmin })).find(c => c.id === camp.id);
+  assert.equal(listed.ads_count, 1);
+  // Reports: totals with click rate, and a CSV file.
+  const report = await api(`/admin/ad-reports?ad_id=${id}`, { user: users.adsAdmin });
+  assert.equal(report.total.views, 1);
+  const csv = await fetch(`${base}/admin/ad-reports.csv?ad_id=${id}`, { headers: { Authorization: `Bearer ${users.adsAdmin.token}` } });
+  assert.equal(csv.status, 200);
+  assert.match(csv.headers.get('content-type'), /text\/csv/);
+  assert.match(await csv.text(), /Pro desktop ad/);
+  await api(`/admin/ad-campaigns/${camp.id}`, { user: users.adsAdmin, method: 'DELETE' });
+  assert.equal((await Ad.findById(normal.id)).campaign_id, null, 'its ads leave the campaign');
+});
