@@ -7,7 +7,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   listCategoriesAdmin, createCategory, updateCategory, deleteCategory,
-  listServicesAdmin, deleteService,
+  listServicesAdmin, deleteService, updateService,
 } from '../../services/adminService';
 import { apiError } from '../../services/api';
 import Modal from '../../components/admin/AdminModal';
@@ -17,6 +17,7 @@ import AdminButton from '../../components/admin/AdminButton';
 import EmptyState from '../../components/admin/EmptyState';
 import AdminFab from '../../components/admin/AdminFab';
 import { formatCurrency } from '../../utils/formatters';
+import RowMenu from '../../components/admin/RowMenu';
 
 // Admin form is intentionally minimal: name_en + slug are derived
 // server-side from the Arabic name (auto-translation + transliteration).
@@ -43,6 +44,9 @@ export default function AdminCategoriesPage() {
   const [confirm, setConfirm] = useState({ open: false });
   const [error, setError] = useState('');
   const loadVersion = useRef(0);
+  // AYK-416: alphabetical, most active (requests then providers), or the set order.
+  const [sortBy, setSortBy] = useState(() => { try { return localStorage.getItem('ayk_admin_cat_sort') || 'name'; } catch (_) { return 'name'; } });
+  const chooseSort = value => { setSortBy(value); try { localStorage.setItem('ayk_admin_cat_sort', value); } catch (_) { /* private mode */ } };
 
   const toggleExpand = async (id) => {
     if (expandedId === id) {
@@ -122,6 +126,24 @@ export default function AdminCategoriesPage() {
     } finally { setSaving(false); }
   };
 
+  // AYK-416: show or hide a profession / service straight from its ⋮ menu.
+  const toggleCategory = async c => {
+    setError('');
+    try { await updateCategory(c.id, { is_active: c.is_active ? 0 : 1 }); load(); } catch (err) { setError(apiError(err)); }
+  };
+  const toggleService = async (s, c) => {
+    setError('');
+    try { await updateService(s.id, { is_active: s.is_active ? 0 : 1 }); await refreshServices(c.id); } catch (err) { setError(apiError(err)); }
+  };
+  const lang = i18n.resolvedLanguage;
+  const sorted = [...items].sort((a, b) => {
+    if (sortBy === 'activity') return (Number(b.requests_count) || 0) - (Number(a.requests_count) || 0)
+      || (Number(b.providers_count) || 0) - (Number(a.providers_count) || 0)
+      || localizedName(a, lang).localeCompare(localizedName(b, lang), lang);
+    if (sortBy === 'order') return (Number(a.sort_order) || 0) - (Number(b.sort_order) || 0) || Number(a.id) - Number(b.id);
+    return localizedName(a, lang).localeCompare(localizedName(b, lang), lang);
+  });
+
   const askDelete = (c) => {
     setConfirm({
       open: true,
@@ -157,102 +179,80 @@ export default function AdminCategoriesPage() {
           <EmptyState icon="🗂️" title={t('admin.no_results')} />
         </div>
       ) : (
-        <div className="space-y-3">
-          {items.map((c) => {
+        <>
+        <div className="flex items-center gap-2 text-[12.5px]" data-testid="category-sort">
+          <span className="text-slate-500">ترتيب:</span>
+          {[['name', 'أبجدي'], ['activity', 'الأكثر نشاطًا'], ['order', 'الترتيب المحدد']].map(([value, text]) => (
+            <button key={value} type="button" onClick={() => chooseSort(value)} aria-pressed={sortBy === value}
+              className={`px-2.5 py-1 rounded-pill border font-semibold ${sortBy === value ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 bg-white text-slate-600'}`}>{text}</button>
+          ))}
+        </div>
+        <div className="bg-white rounded-card border border-slate-100 shadow-soft divide-y divide-slate-100" data-testid="category-list">
+          {sorted.map((c) => {
             const expanded = expandedId === c.id;
             const services = servicesByCat[c.id];
             const color = /^#[0-9a-f]{6}$/i.test(c.color || '') ? c.color : '';
             return (
-            <div key={c.id} className={`bg-white rounded-card border shadow-soft transition ${expanded ? 'border-brand-300 shadow-card' : 'border-slate-100 hover:shadow-card hover:border-brand-200'}`}>
-              <div className="p-3">
-                {/* Tap the top area to expand the category */}
-                <button
-                  type="button"
-                  onClick={() => toggleExpand(c.id)}
-                  className="w-full text-start flex items-start gap-3 group"
-                  aria-expanded={expanded}
-                >
-                  <span
-                    className="w-12 h-12 rounded-card grid place-items-center text-xl shrink-0"
-                    style={{ background: color ? `${color}22` : '#f1f5f9', color: color || '#475569' }}
-                  >
-                    {c.icon || '🗂️'}
+            <div key={c.id} className={expanded ? 'bg-brand-50/40' : ''} data-testid="category-row">
+              <div className="flex items-center gap-2 px-2.5 py-1.5">
+                <button type="button" onClick={() => toggleExpand(c.id)} aria-expanded={expanded}
+                  className="flex-1 min-w-0 text-start flex items-center gap-2.5 group">
+                  <span className="w-9 h-9 rounded-card grid place-items-center text-lg shrink-0"
+                    style={{ background: color ? `${color}22` : '#f1f5f9', color: color || '#475569' }}>{c.icon || '🗂️'}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className={`block font-bold text-[14px] truncate ${c.is_active ? 'text-ink' : 'text-slate-400 line-through'}`}>{localizedName(c, lang)}</span>
+                    <span className="block text-[11px] text-slate-500 truncate">
+                      {[
+                        t('admin.category_count_services', { count: Number(c.services_count) || 0 }),
+                        c.requests_count != null ? `${c.requests_count} طلب` : null,
+                        c.providers_count != null ? `${c.providers_count} مقدم خدمة` : null,
+                        c.is_active ? null : t('admin.inactive'),
+                      ].filter(Boolean).join(' · ')}
+                    </span>
                   </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="cat-name-track">
-                      <div className="cat-name-inner font-bold text-ink text-[14.5px] group-hover:text-brand-700">{localizedName(c, i18n.resolvedLanguage)}</div>
-                    </div>
-                    <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      <span className="text-[11px] text-slate-400">#{c.id}</span>
-                      {c.services_count != null && (
-                        <span className="px-2 py-0.5 rounded-pill bg-brand-50 text-brand-700 text-[10.5px] font-bold">
-                          🛠️ {t('admin.category_count_services', { count: c.services_count })}
-                        </span>
-                      )}
-                      {c.is_active ? (
-                        <span className="px-2 py-0.5 rounded-pill bg-emerald-50 text-emerald-600 text-[10.5px] font-bold">{t('admin.active')}</span>
-                      ) : (
-                        <span className="px-2 py-0.5 rounded-pill bg-slate-100 text-slate-500 text-[10.5px] font-bold">{t('admin.inactive')}</span>
-                      )}
-                    </div>
-                  </div>
-                  <span
-                    className="text-slate-400 group-hover:text-brand-500 shrink-0 self-center text-lg transition-transform duration-200"
-                    style={{ transform: expanded ? 'rotate(90deg)' : 'rotate(0)' }}
-                    aria-hidden="true"
-                  >›</span>
+                  <span className="text-slate-400 shrink-0 text-lg transition-transform duration-200"
+                    style={{ transform: expanded ? 'rotate(90deg)' : 'rotate(0)' }} aria-hidden="true">›</span>
                 </button>
+                <RowMenu label={`خيارات ${localizedName(c, lang)}`} items={[
+                  { label: t('admin.edit'), icon: '✏️', onClick: () => openEdit(c) },
+                  { label: c.is_active ? 'إخفاء' : 'تنشيط', icon: c.is_active ? '🙈' : '✅', onClick: () => toggleCategory(c) },
+                  { label: t('admin.delete'), icon: '🗑️', danger: true, onClick: () => askDelete(c) },
+                ]} />
+              </div>
 
-                {/* Inline services list — slides open when category is tapped */}
-                {expanded && (
-                  <div className="mt-3 pt-3 border-t border-slate-100 animate-[slideDown_.18s_ease]">
-                    {canManageServices && <button type="button" onClick={() => setServiceEditor({ category: c, service: null })}
-                      className="btn btn-primary btn-sm mb-2">+ {t('admin.services')}</button>}
-                    {loadingCat === c.id ? (
-                      <div className="space-y-2">
-                        {Array.from({ length: 3 }).map((_, i) => (
-                          <div key={i} className="h-10 rounded-card bg-slate-50 animate-pulse" />
-                        ))}
-                      </div>
-                    ) : !services || services.length === 0 ? (
-                      <div className="text-center py-4 text-slate-400 text-[12.5px]">
-                        {t('admin.no_results')}
-                      </div>
-                    ) : (
-                      <div className="space-y-1.5">
-                        {services.map((s) => (
-                          <div key={s.id} className="flex items-center gap-2 px-3 py-2 rounded-card bg-slate-50">
-                            <span className="text-base shrink-0">{s.icon || '🛠️'}</span>
-                            <div className="min-w-0 flex-1">
-                              <div className="font-semibold text-ink text-[13px] truncate">{localizedName(s, i18n.resolvedLanguage)}</div>
-                              {s.base_price && (
-                                <div className="text-[10.5px] text-slate-500">{formatCurrency(s.base_price)}</div>
-                              )}
-                            </div>
-                            {s.is_active ? (
-                              <span className="px-1.5 py-0.5 rounded-pill bg-emerald-50 text-emerald-600 text-[10px] font-bold shrink-0">✓</span>
-                            ) : (
-                              <span className="px-1.5 py-0.5 rounded-pill bg-slate-200 text-slate-500 text-[10px] font-bold shrink-0">⏸</span>
-                            )}
-                            {canManageServices && <span className="flex gap-1 shrink-0">
-                              <button type="button" className="btn btn-ghost btn-sm" aria-label={t('admin.edit') + ' ' + localizedName(s, i18n.resolvedLanguage)} onClick={() => setServiceEditor({ category: c, service: s })}>{t('admin.edit')}</button>
-                              <button type="button" className="btn btn-ghost btn-sm text-rose-700" aria-label={t('admin.delete') + ' ' + localizedName(s, i18n.resolvedLanguage)} onClick={() => askDeleteService(s, c)}>{t('admin.delete')}</button>
-                            </span>}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
-              <div className="flex gap-1.5 px-3 pb-3 pt-2 border-t border-slate-100">
-                <button onClick={() => openEdit(c)} className="flex-1 px-3 py-1.5 rounded-pill text-[11.5px] font-semibold bg-brand-50 text-brand-700 hover:bg-brand-100 transition">{t('admin.edit')}</button>
-                <button onClick={() => askDelete(c)} className="flex-1 px-3 py-1.5 rounded-pill text-[11.5px] font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition">{t('admin.delete')}</button>
-              </div>
+              {expanded && (
+                <div className="px-3 pb-2.5 animate-[slideDown_.18s_ease]">
+                  {canManageServices && <button type="button" onClick={() => setServiceEditor({ category: c, service: null })}
+                    className="btn btn-primary btn-sm mb-1.5">+ {t('admin.services')}</button>}
+                  {loadingCat === c.id ? (
+                    <div className="space-y-1">{Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-8 rounded-card bg-slate-50 animate-pulse" />)}</div>
+                  ) : !services || services.length === 0 ? (
+                    <div className="text-center py-3 text-slate-400 text-[12.5px]">{t('admin.no_results')}</div>
+                  ) : (
+                    <div className="rounded-card bg-slate-50 divide-y divide-slate-100">
+                      {[...services].sort((a, b) => localizedName(a, lang).localeCompare(localizedName(b, lang), lang)).map((s) => (
+                        <div key={s.id} className="flex items-center gap-2 ps-3 pe-1 py-1" data-testid="service-row">
+                          <span className="text-base shrink-0">{s.icon || '🛠️'}</span>
+                          <span className="min-w-0 flex-1">
+                            <span className={`block font-semibold text-[13px] truncate ${s.is_active ? 'text-ink' : 'text-slate-400 line-through'}`}>{localizedName(s, lang)}</span>
+                            {(s.base_price || !s.is_active) && <span className="block text-[10.5px] text-slate-500">{[s.base_price ? formatCurrency(s.base_price) : null, s.is_active ? null : t('admin.inactive')].filter(Boolean).join(' · ')}</span>}
+                          </span>
+                          {canManageServices && <RowMenu label={`خيارات ${localizedName(s, lang)}`} testId="service-menu" items={[
+                            { label: t('admin.edit'), icon: '✏️', onClick: () => setServiceEditor({ category: c, service: s }) },
+                            { label: s.is_active ? 'إخفاء' : 'تنشيط', icon: s.is_active ? '🙈' : '✅', onClick: () => toggleService(s, c) },
+                            { label: t('admin.delete'), icon: '🗑️', danger: true, onClick: () => askDeleteService(s, c) },
+                          ]} />}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
             );
           })}
         </div>
+        </>
       )}
 
       <Modal

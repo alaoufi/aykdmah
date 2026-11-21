@@ -36,7 +36,8 @@
     "meter_short": "م",
     "kilometer_short": "كم",
     "scroll_left": "مرّر لليسار",
-    "scroll_right": "مرّر لليمين"
+    "scroll_right": "مرّر لليمين",
+    "more_info": "توضيح"
   },
   "nav": {
     "home": "الرئيسية",
@@ -180,7 +181,14 @@
     "scope_all": "الكل",
     "requests_around_title": "طلبات طالبي الخدمة",
     "no_requests_widen": "لا توجد طلبات في هذه الدائرة الآن. وسّع الدائرة لترى أكثر.",
-    "no_requests_anywhere": "لا توجد طلبات مفتوحة الآن."
+    "no_requests_anywhere": "لا توجد طلبات مفتوحة الآن.",
+    "guest_chat_note": "تصفّح بحرية، وللمحادثة سجّل حسابًا",
+    "guest_register": "سجّل",
+    "guest_professions": "المهن",
+    "guest_services": "تصنيفات المهن",
+    "guest_requests": "طلبات الخدمة",
+    "guest_providers": "مقدمو الخدمة",
+    "guest_more": "عرض المزيد"
   },
   "location": {
     "country": "الدولة",
@@ -346,7 +354,13 @@
     "offer_service_title": "تقدّم خدمة؟",
     "offer_service_hint": "اختر مهنتك والأحياء التي تغطيها، فتظهر لطالبي الخدمة وتصلك طلباتهم. اختياري، ويمكنك ذلك لاحقًا من «حسابي».",
     "offer_service_button": "اختر مهنتي ومنطقة تغطيتي",
-    "continue_as_client": "متابعة كطالب خدمة"
+    "continue_as_client": "متابعة كطالب خدمة",
+    "send_code_button": "أرسل رمز التحقق على الجوال",
+    "code_confirm": "تأكيد الرمز",
+    "who_are_you": "هل أنت طالب خدمة أم مقدم خدمة؟",
+    "own_profession_label": "لم أجد مهنتي، اكتبها هنا",
+    "own_profession_send": "أرسل",
+    "own_profession_message": "مهنتي غير موجودة في القائمة، أرجو إضافتها: {{name}}"
   },
   "request": {
     "create_title": "إنشاء طلب جديد",

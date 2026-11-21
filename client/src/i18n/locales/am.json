@@ -36,7 +36,8 @@
     "meter_short": "ሜ",
     "kilometer_short": "ኪሜ",
     "scroll_left": "ወደ ግራ ያንሸራትቱ",
-    "scroll_right": "ወደ ቀኝ ያንሸራትቱ"
+    "scroll_right": "ወደ ቀኝ ያንሸራትቱ",
+    "more_info": "ማብራሪያ"
   },
   "nav": {
     "home": "መነሻ",
@@ -180,7 +181,14 @@
     "scope_all": "ሁሉም ቦታ",
     "requests_around_title": "የአገልግሎት ጠያቂዎች ጥያቄዎች",
     "no_requests_widen": "በዚህ ክልል አሁን ጥያቄ የለም። ተጨማሪ ለማየት ክልሉን ያስፉ።",
-    "no_requests_anywhere": "አሁን ክፍት ጥያቄ የለም።"
+    "no_requests_anywhere": "አሁን ክፍት ጥያቄ የለም።",
+    "guest_chat_note": "በነፃ ያስሱ፤ ለመወያየት ይመዝገቡ",
+    "guest_register": "ይመዝገቡ",
+    "guest_professions": "ሙያዎች",
+    "guest_services": "የሙያ ምድቦች",
+    "guest_requests": "የአገልግሎት ጥያቄዎች",
+    "guest_providers": "አገልግሎት ሰጪዎች",
+    "guest_more": "ተጨማሪ አሳይ"
   },
   "location": {
     "country": "ሀገር",
@@ -346,7 +354,13 @@
     "offer_service_title": "አገልግሎት ይሰጣሉ?",
     "offer_service_hint": "ሙያዎንና የሚሸፍኑትን ሰፈሮች ይምረጡ፤ አገልግሎት ጠያቂዎች እንዲያዩዎትና ጥያቄዎቻቸው እንዲደርሱዎት። አማራጭ ነው፤ በኋላም ከ«መለያዬ» ማድረግ ይችላሉ።",
     "offer_service_button": "ሙያዬንና አካባቢዬን ምረጥ",
-    "continue_as_client": "እንደ አገልግሎት ጠያቂ ቀጥል"
+    "continue_as_client": "እንደ አገልግሎት ጠያቂ ቀጥል",
+    "send_code_button": "የማረጋገጫ ኮድ ወደ ስልኬ ላክ",
+    "code_confirm": "ኮዱን አረጋግጥ",
+    "who_are_you": "አገልግሎት ጠያቂ ነዎት ወይስ አገልግሎት ሰጪ?",
+    "own_profession_label": "ሙያዬን አላገኘሁም? እዚህ ይጻፉ",
+    "own_profession_send": "ላክ",
+    "own_profession_message": "ሙያዬ በዝርዝሩ ውስጥ የለም፣ እባክዎ ያክሉት፦ {{name}}"
   },
   "request": {
     "create_title": "አዲስ ጥያቄ ይፍጠሩ",

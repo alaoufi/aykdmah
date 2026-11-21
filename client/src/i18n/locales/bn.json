@@ -36,7 +36,8 @@
     "meter_short": "মিটার",
     "kilometer_short": "কিমি",
     "scroll_left": "বামে স্ক্রল করুন",
-    "scroll_right": "ডানে স্ক্রল করুন"
+    "scroll_right": "ডানে স্ক্রল করুন",
+    "more_info": "বিস্তারিত"
   },
   "nav": {
     "home": "হোম",
@@ -180,7 +181,14 @@
     "scope_all": "সব জায়গা",
     "requests_around_title": "সেবাপ্রার্থীদের অনুরোধ",
     "no_requests_widen": "এই পরিধিতে এখন কোনো অনুরোধ নেই। আরও দেখতে পরিধি বাড়ান।",
-    "no_requests_anywhere": "এখন কোনো খোলা অনুরোধ নেই।"
+    "no_requests_anywhere": "এখন কোনো খোলা অনুরোধ নেই।",
+    "guest_chat_note": "অবাধে দেখুন; কথা বলতে অ্যাকাউন্ট খুলুন",
+    "guest_register": "নিবন্ধন",
+    "guest_professions": "পেশা",
+    "guest_services": "পেশার শ্রেণি",
+    "guest_requests": "সেবার অনুরোধ",
+    "guest_providers": "সেবা প্রদানকারী",
+    "guest_more": "আরও দেখুন"
   },
   "location": {
     "country": "দেশ",
@@ -346,7 +354,13 @@
     "offer_service_title": "আপনি কি কোনো সেবা দেন?",
     "offer_service_hint": "আপনার পেশা ও যে এলাকাগুলোতে কাজ করেন বেছে নিন, যাতে সেবাপ্রার্থীরা আপনাকে দেখে এবং তাদের অনুরোধ আপনার কাছে আসে। ঐচ্ছিক; পরে «আমার অ্যাকাউন্ট» থেকেও করতে পারবেন।",
     "offer_service_button": "আমার পেশা ও এলাকা বেছে নিন",
-    "continue_as_client": "সেবাপ্রার্থী হিসেবে চালিয়ে যান"
+    "continue_as_client": "সেবাপ্রার্থী হিসেবে চালিয়ে যান",
+    "send_code_button": "আমার মোবাইলে যাচাই কোড পাঠান",
+    "code_confirm": "কোড নিশ্চিত করুন",
+    "who_are_you": "আপনি কি সেবা প্রার্থী নাকি সেবা প্রদানকারী?",
+    "own_profession_label": "আমার পেশা পাইনি? এখানে লিখুন",
+    "own_profession_send": "পাঠান",
+    "own_profession_message": "আমার পেশা তালিকায় নেই, অনুগ্রহ করে যোগ করুন: {{name}}"
   },
   "request": {
     "create_title": "একটি নতুন অনুরোধ তৈরি করুন",

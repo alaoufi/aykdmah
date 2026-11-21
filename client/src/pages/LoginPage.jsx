@@ -99,15 +99,16 @@ export default function LoginPage() {
         value={form.password}
         onChange={(e) => setForm({ ...form, password: e.target.value })}
       />
-      <div className="text-end -mt-1 mb-3">
-        <Link to="/forgot-password" state={{ identifier: form.identifier }} className="text-[13px] font-semibold">{t('auth.forgot_password')}</Link>
-      </div>
-
       <Button type="submit" block loading={loading} variant="primary">{t('auth.login_button')}</Button>
 
-      <div className="text-center mt-4 text-sm text-secondary">
-        {t('auth.no_account')} <Link to="/register" state={{ from }}>{t('auth.create_account')}</Link>
+      {/* AYK-411: «نسيت كلمة المرور» in the middle, and creating an account plainly under it. */}
+      <div className="text-center mt-3">
+        <Link to="/forgot-password" state={{ identifier: form.identifier }} className="text-[14px] font-semibold">{t('auth.forgot_password')}</Link>
       </div>
+      <Link to="/register" state={{ from }} data-testid="login-create-account"
+        className="mt-3 flex items-center justify-center min-h-[48px] rounded-card border-2 border-primary text-primary font-extrabold text-[15px] no-underline">
+        {t('auth.create_account')}
+      </Link>
     </form>
   );
 }

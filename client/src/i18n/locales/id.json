@@ -36,7 +36,8 @@
     "meter_short": "m",
     "kilometer_short": "km",
     "scroll_left": "Gulir ke kiri",
-    "scroll_right": "Gulir ke kanan"
+    "scroll_right": "Gulir ke kanan",
+    "more_info": "Penjelasan"
   },
   "nav": {
     "home": "Beranda",
@@ -180,7 +181,14 @@
     "scope_all": "Semua",
     "requests_around_title": "Permintaan para pencari layanan",
     "no_requests_widen": "Belum ada permintaan di cakupan ini. Perluas cakupan untuk melihat lebih banyak.",
-    "no_requests_anywhere": "Belum ada permintaan terbuka saat ini."
+    "no_requests_anywhere": "Belum ada permintaan terbuka saat ini.",
+    "guest_chat_note": "Jelajahi bebas; daftar untuk mengobrol",
+    "guest_register": "Daftar",
+    "guest_professions": "Profesi",
+    "guest_services": "Kategori profesi",
+    "guest_requests": "Permintaan layanan",
+    "guest_providers": "Penyedia layanan",
+    "guest_more": "Tampilkan lagi"
   },
   "location": {
     "country": "Negara",
@@ -346,7 +354,13 @@
     "offer_service_title": "Apakah Anda menawarkan layanan?",
     "offer_service_hint": "Pilih profesi Anda dan wilayah yang Anda layani, agar pencari layanan melihat Anda dan permintaan mereka sampai ke Anda. Opsional; bisa juga nanti dari «Akun saya».",
     "offer_service_button": "Pilih profesi dan wilayah saya",
-    "continue_as_client": "Lanjutkan sebagai pencari layanan"
+    "continue_as_client": "Lanjutkan sebagai pencari layanan",
+    "send_code_button": "Kirim kode verifikasi ke ponsel saya",
+    "code_confirm": "Konfirmasi kode",
+    "who_are_you": "Apakah Anda pencari layanan atau penyedia layanan?",
+    "own_profession_label": "Profesi saya tidak ada? Tulis di sini",
+    "own_profession_send": "Kirim",
+    "own_profession_message": "Profesi saya tidak ada di daftar, mohon ditambahkan: {{name}}"
   },
   "request": {
     "create_title": "Buat permintaan baru",

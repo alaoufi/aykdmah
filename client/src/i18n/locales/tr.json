@@ -36,7 +36,8 @@
     "meter_short": "m",
     "kilometer_short": "km",
     "scroll_left": "Sola kaydır",
-    "scroll_right": "Sağa kaydır"
+    "scroll_right": "Sağa kaydır",
+    "more_info": "Açıklama"
   },
   "nav": {
     "home": "Ana sayfa",
@@ -180,7 +181,14 @@
     "scope_all": "Her yer",
     "requests_around_title": "Hizmet talep edenlerin talepleri",
     "no_requests_widen": "Bu çevrede şu an talep yok. Daha fazlası için çevreyi genişletin.",
-    "no_requests_anywhere": "Şu an açık talep yok."
+    "no_requests_anywhere": "Şu an açık talep yok.",
+    "guest_chat_note": "Serbestçe gezinin; sohbet için kaydolun",
+    "guest_register": "Kaydol",
+    "guest_professions": "Meslekler",
+    "guest_services": "Meslek kategorileri",
+    "guest_requests": "Hizmet talepleri",
+    "guest_providers": "Hizmet verenler",
+    "guest_more": "Daha fazla göster"
   },
   "location": {
     "country": "Ülke",
@@ -346,7 +354,13 @@
     "offer_service_title": "Hizmet veriyor musunuz?",
     "offer_service_hint": "Mesleğinizi ve hizmet verdiğiniz mahalleleri seçin; talep edenler sizi görsün, talepleri size ulaşsın. İsteğe bağlı; daha sonra «Hesabım»dan da yapabilirsiniz.",
     "offer_service_button": "Mesleğimi ve bölgemi seç",
-    "continue_as_client": "Hizmet talep eden olarak devam et"
+    "continue_as_client": "Hizmet talep eden olarak devam et",
+    "send_code_button": "Doğrulama kodunu telefonuma gönder",
+    "code_confirm": "Kodu onayla",
+    "who_are_you": "Hizmet arayan mısınız, hizmet veren mi?",
+    "own_profession_label": "Mesleğimi bulamadım? Buraya yazın",
+    "own_profession_send": "Gönder",
+    "own_profession_message": "Mesleğim listede yok, lütfen ekleyin: {{name}}"
   },
   "request": {
     "create_title": "Yeni talep oluştur",

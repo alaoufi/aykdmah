@@ -1044,6 +1044,57 @@ if (!databasePrefix) {
     assert.equal(Number(provider.also_client), 0);
   });
 
+  test('AYK-411: right after sign-up a requester becomes a provider with a profession only, or with one written in', async () => {
+    const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    // A new account with no area at all, as the simple sign-up makes it.
+    const first = await simpleRegister({ role: 'client', latitude: undefined, longitude: undefined });
+    const change = (token, body, expected = 200) => api('/users/me/role', { method: 'PUT', token, body, expected });
+    await change(first.token, { role: 'provider', quick: true }, 400); // nothing chosen, nothing written
+    await change(first.token, { role: 'provider', quick: true, suggested_profession: 'x' }, 400); // too short
+    await change(first.token, { role: 'provider', service_ids: [Number(service.id)] }, 400); // the full change still needs the area
+    const picked = await change(first.token, { role: 'provider', quick: true, service_ids: [Number(service.id)] });
+    assert.equal(picked.role, 'provider');
+    assert.deepEqual((await db.queryOne('SELECT service_ids FROM provider_profiles WHERE user_id = ?', [first.user.id])).service_ids, [Number(service.id)]);
+
+    const second = await simpleRegister({ role: 'client', latitude: undefined, longitude: undefined });
+    const wrote = await change(second.token, { role: 'provider', quick: true, service_ids: [], suggested_profession: 'مصلح ساعات' });
+    assert.equal(wrote.role, 'provider');
+    assert.deepEqual((await db.queryOne('SELECT service_ids FROM provider_profiles WHERE user_id = ?', [second.user.id])).service_ids, []);
+
+    // AYK-412: signed up without an invitation link, the invitation number typed after the professions links the account.
+    const code = first.referral_code || (await db.queryOne('SELECT referral_code FROM users WHERE id = ?', [first.user.id])).referral_code;
+    const third = await simpleRegister({ role: 'client', latitude: undefined, longitude: undefined });
+    await api('/wallet/coupon', { method: 'POST', token: third.token, body: { code: 'ZZZZ9999' }, expected: 404 });
+    await api('/wallet/coupon', { method: 'POST', token: third.token, body: { code } });
+    await change(third.token, { role: 'provider', quick: true, service_ids: [Number(service.id)] });
+    assert.equal(Number((await db.queryOne('SELECT referred_by FROM users WHERE id = ?', [third.user.id])).referred_by), Number(first.user.id));
+  });
+
+  test('AYK-413: a visitor sees open requests without the owner photo and every provider; chatting needs an account', async () => {
+    const area = await simpleArea();
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await db.query("UPDATE users SET avatar = '/uploads/avatars/test.webp' WHERE id = ?", [owner.user.id]);
+    const made = await api('/requests', { method: 'POST', token: owner.token, expected: 201, body: {
+      title: 'أحتاج كهربائي للمجلس', description: 'تركيب إنارة في المجلس', city_id: area.city_id, district_id: area.district_id, latitude: 24.7136, longitude: 46.6753 } });
+    const id = Number(made.id || made.request?.id);
+    const guestList = await fetch(`${base}/requests/nearby?limit=50`).then(r => r.json());
+    const seen = guestList.data.find(row => Number(row.id) === id);
+    assert.ok(seen, 'the visitor sees the open request');
+    assert.equal(seen.client_avatar, null);
+    for (const key of ['client_name', 'client_phone', 'latitude', 'longitude', 'address']) assert.ok(!seen[key], `no ${key} for a visitor`);
+    const guestOne = await fetch(`${base}/requests/${id}`).then(r => r.json());
+    assert.equal(guestOne.data.client_avatar, null);
+    assert.ok(!guestOne.data.client_name);
+    const signedIn = (await api('/requests/nearby?limit=50', { token: owner.token })).find(row => Number(row.id) === id);
+    assert.equal(signedIn.client_avatar, '/uploads/avatars/test.webp');
+    const everyone = await fetch(`${base}/providers/matching?scope=all`).then(r => r.json());
+    assert.equal(everyone.success, true);
+    assert.ok(Array.isArray(everyone.data.providers));
+    const chat = await fetch(`${base}/chat/conversations`).then(r => r.status);
+    assert.equal(chat, 401);
+    await db.query('DELETE FROM requests WHERE id = ?', [id]);
+  });
+
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');

@@ -1,4 +1,6 @@
 import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
+import { InfoButton, InfoPanel } from '../../components/common/InfoTip';
+import { settingHelp } from '../../data/settingHelp';
 import { Link } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -441,15 +443,26 @@ function SettingGroupCard({ icon, title, items, update, t }) {
 
 function SettingRow({ it, update, t }) {
   const { i18n } = useTranslation();
+  // AYK-415: a short line under the name, and (i) for the full explanation; the technical name
+  // moves inside the explanation, for whoever needs it.
+  const help = settingHelp(it.setting_key);
+  const [infoOpen, setInfoOpen] = useState(false);
+  const infoId = `setting-info-${it.setting_key}`;
+  const label = localizedSettingLabel(it, i18n.resolvedLanguage);
   const isBool = it.setting_type === 'boolean';
   const isLong = it.setting_type === 'text' || String(it.setting_value || '').length > 80;
   return (
     <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] items-start md:items-center gap-2 md:gap-4 pb-4 border-b border-slate-50 last:border-0 last:pb-0">
       <div>
-        <label className="text-[13.5px] font-bold text-ink block">
-          {localizedSettingLabel(it, i18n.resolvedLanguage)}
-        </label>
-        <div className="text-[11px] text-slate-400 font-mono mt-0.5">{it.setting_key}</div>
+        <span className="flex items-center gap-1.5">
+          <label className="text-[13.5px] font-bold text-ink block">{label}</label>
+          <InfoButton open={infoOpen} onToggle={() => setInfoOpen(v => !v)} controls={infoId} label={label} />
+        </span>
+        {help?.short && <div className="text-[12px] text-slate-500 mt-0.5 leading-snug" data-testid="setting-short">{help.short}</div>}
+        <InfoPanel id={infoId} open={infoOpen}>
+          {help?.details || help?.short || label}
+          <span className="block mt-1 text-[10.5px] text-slate-400 font-mono" dir="ltr">{it.setting_key}</span>
+        </InfoPanel>
       </div>
       <div>
         {isBool ? (

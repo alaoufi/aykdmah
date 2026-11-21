@@ -36,7 +36,8 @@
     "meter_short": "m",
     "kilometer_short": "km",
     "scroll_left": "Mag-scroll pakaliwa",
-    "scroll_right": "Mag-scroll pakanan"
+    "scroll_right": "Mag-scroll pakanan",
+    "more_info": "Paliwanag"
   },
   "nav": {
     "home": "Home",
@@ -180,7 +181,14 @@
     "scope_all": "Lahat",
     "requests_around_title": "Mga request ng mga humihiling",
     "no_requests_widen": "Walang request sa saklaw na ito ngayon. Palawakin ang saklaw para makakita ng higit pa.",
-    "no_requests_anywhere": "Walang bukas na request ngayon."
+    "no_requests_anywhere": "Walang bukas na request ngayon.",
+    "guest_chat_note": "Malayang mag-browse; mag-sign up para makipag-chat",
+    "guest_register": "Mag-sign up",
+    "guest_professions": "Mga propesyon",
+    "guest_services": "Mga kategorya ng propesyon",
+    "guest_requests": "Mga kahilingan sa serbisyo",
+    "guest_providers": "Mga nagbibigay ng serbisyo",
+    "guest_more": "Ipakita pa"
   },
   "location": {
     "country": "Bansa",
@@ -346,7 +354,13 @@
     "offer_service_title": "Nag-aalok ka ba ng serbisyo?",
     "offer_service_hint": "Piliin ang iyong propesyon at ang mga lugar na sakop mo, para makita ka ng mga humihiling at makarating sa iyo ang kanilang mga request. Opsyonal; magagawa mo rin ito mamaya sa «Aking account».",
     "offer_service_button": "Piliin ang aking propesyon at lugar",
-    "continue_as_client": "Magpatuloy bilang humihiling"
+    "continue_as_client": "Magpatuloy bilang humihiling",
+    "send_code_button": "Ipadala ang verification code sa aking mobile",
+    "code_confirm": "Kumpirmahin ang code",
+    "who_are_you": "Ikaw ba ay humihingi ng serbisyo o nagbibigay ng serbisyo?",
+    "own_profession_label": "Hindi nakita ang aking propesyon? Isulat dito",
+    "own_profession_send": "Ipadala",
+    "own_profession_message": "Wala sa listahan ang aking propesyon, pakidagdag: {{name}}"
   },
   "request": {
     "create_title": "Gumawa ng bagong kahilingan",

@@ -36,7 +36,8 @@
     "meter_short": "मीटर",
     "kilometer_short": "किमी",
     "scroll_left": "बाएँ स्क्रॉल करें",
-    "scroll_right": "दाएँ स्क्रॉल करें"
+    "scroll_right": "दाएँ स्क्रॉल करें",
+    "more_info": "विवरण"
   },
   "nav": {
     "home": "होम",
@@ -180,7 +181,14 @@
     "scope_all": "हर जगह",
     "requests_around_title": "सेवा चाहने वालों के अनुरोध",
     "no_requests_widen": "इस दायरे में अभी कोई अनुरोध नहीं। और देखने के लिए दायरा बढ़ाएँ।",
-    "no_requests_anywhere": "अभी कोई खुला अनुरोध नहीं।"
+    "no_requests_anywhere": "अभी कोई खुला अनुरोध नहीं।",
+    "guest_chat_note": "आराम से देखें; बातचीत के लिए खाता बनाएँ",
+    "guest_register": "रजिस्टर करें",
+    "guest_professions": "पेशे",
+    "guest_services": "पेशों की श्रेणियाँ",
+    "guest_requests": "सेवा अनुरोध",
+    "guest_providers": "सेवा प्रदाता",
+    "guest_more": "और दिखाएँ"
   },
   "location": {
     "country": "देश",
@@ -346,7 +354,13 @@
     "offer_service_title": "क्या आप कोई सेवा देते हैं?",
     "offer_service_hint": "अपना पेशा और जिन इलाकों में काम करते हैं चुनें, ताकि सेवा चाहने वाले आपको देखें और उनके अनुरोध आप तक पहुँचें। वैकल्पिक; बाद में «मेरा खाता» से भी कर सकते हैं।",
     "offer_service_button": "मेरा पेशा और क्षेत्र चुनें",
-    "continue_as_client": "सेवा चाहने वाले के रूप में जारी रखें"
+    "continue_as_client": "सेवा चाहने वाले के रूप में जारी रखें",
+    "send_code_button": "मेरे मोबाइल पर सत्यापन कोड भेजें",
+    "code_confirm": "कोड की पुष्टि करें",
+    "who_are_you": "क्या आप सेवा चाहने वाले हैं या सेवा प्रदाता?",
+    "own_profession_label": "मेरा पेशा नहीं मिला? यहाँ लिखें",
+    "own_profession_send": "भेजें",
+    "own_profession_message": "मेरा पेशा सूची में नहीं है, कृपया जोड़ें: {{name}}"
   },
   "request": {
     "create_title": "नया अनुरोध बनाएं",

@@ -36,7 +36,8 @@
     "meter_short": "میٹر",
     "kilometer_short": "کلومیٹر",
     "scroll_left": "بائیں سکرول کریں",
-    "scroll_right": "دائیں سکرول کریں"
+    "scroll_right": "دائیں سکرول کریں",
+    "more_info": "وضاحت"
   },
   "nav": {
     "home": "ہوم",
@@ -180,7 +181,14 @@
     "scope_all": "سب جگہ",
     "requests_around_title": "سروس طلب کرنے والوں کی درخواستیں",
     "no_requests_widen": "اس دائرے میں ابھی کوئی درخواست نہیں۔ مزید دیکھنے کے لیے دائرہ بڑھائیں۔",
-    "no_requests_anywhere": "ابھی کوئی کھلی درخواست نہیں۔"
+    "no_requests_anywhere": "ابھی کوئی کھلی درخواست نہیں۔",
+    "guest_chat_note": "آزادی سے دیکھیں؛ بات چیت کے لیے اکاؤنٹ بنائیں",
+    "guest_register": "رجسٹر کریں",
+    "guest_professions": "پیشے",
+    "guest_services": "پیشوں کی اقسام",
+    "guest_requests": "سروس کی درخواستیں",
+    "guest_providers": "سروس فراہم کرنے والے",
+    "guest_more": "مزید دکھائیں"
   },
   "location": {
     "country": "ملک",
@@ -346,7 +354,13 @@
     "offer_service_title": "کیا آپ کوئی سروس فراہم کرتے ہیں؟",
     "offer_service_hint": "اپنا پیشہ اور جن محلوں میں کام کرتے ہیں چنیں، تاکہ سروس طلب کرنے والے آپ کو دیکھیں اور ان کی درخواستیں آپ تک پہنچیں۔ اختیاری، بعد میں «میرا اکاؤنٹ» سے بھی کر سکتے ہیں۔",
     "offer_service_button": "میرا پیشہ اور علاقہ چنیں",
-    "continue_as_client": "سروس طلب کرنے والے کے طور پر جاری رکھیں"
+    "continue_as_client": "سروس طلب کرنے والے کے طور پر جاری رکھیں",
+    "send_code_button": "میرے موبائل پر تصدیقی کوڈ بھیجیں",
+    "code_confirm": "کوڈ کی تصدیق کریں",
+    "who_are_you": "کیا آپ سروس کے طلبگار ہیں یا سروس فراہم کرنے والے؟",
+    "own_profession_label": "میرا پیشہ نہیں ملا؟ یہاں لکھیں",
+    "own_profession_send": "بھیجیں",
+    "own_profession_message": "میرا پیشہ فہرست میں نہیں ہے، براہ کرم شامل کریں: {{name}}"
   },
   "request": {
     "create_title": "نئی درخواست بنائیں",

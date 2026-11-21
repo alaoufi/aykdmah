@@ -17,12 +17,17 @@ async function findAll(activeOnly = true) {
   if (activeOnly) where.push('c.is_active = 1');
   // LEFT JOIN counts active sub-services per category in one query —
   // avoids an N+1 from the client.
+  // AYK-416: the full list (the administration's) also counts requests and providers, to sort
+  // the professions by activity.
+  const activity = activeOnly ? '' : `,
+            (SELECT COUNT(*) FROM requests r WHERE r.category_id = c.id AND r.deleted_at IS NULL) AS requests_count,
+            (SELECT COUNT(*) FROM provider_profiles pp WHERE pp.category_id = c.id) AS providers_count`;
   const rows = await query(
     `SELECT c.*,
             (SELECT COUNT(*) FROM services s
              WHERE s.category_id = c.id
                AND s.deleted_at IS NULL
-               AND s.is_active = 1) AS services_count
+               AND s.is_active = 1) AS services_count${activity}
      FROM categories c
      WHERE ${where.join(' AND ')}
      ORDER BY c.sort_order ASC, c.name_ar ASC`
