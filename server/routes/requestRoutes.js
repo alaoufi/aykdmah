@@ -17,6 +17,7 @@ const { requireMarketplaceWrite, requireMarketplaceBrowse } = require('../middle
 
 router.get('/nearby', optionalAuth, requireMarketplaceBrowse, c.getNearby);
 router.get('/my', authenticate, c.getMy);
+router.get('/previous-clients', authenticate, c.getPreviousClients); // AYK-398
 router.post('/', authenticate, requireMarketplaceWrite, uploadLimiter, uploadRequest.array('files', 8), [
   // Short or empty texts are accepted: the model fills a sensible title and description.
   body('title').optional({ checkFalsy: true }).isString().trim().isLength({ max: 200 }),
@@ -28,6 +29,8 @@ router.post('/', authenticate, requireMarketplaceWrite, uploadLimiter, uploadReq
 router.post('/direct', authenticate, requireMarketplaceWrite, c.direct);
 router.get('/:id', optionalAuth, requireMarketplaceBrowse, c.getOne);
 router.get('/:id/translation', optionalAuth, requireMarketplaceBrowse, c.getTranslation);
+router.get('/:id/reach', authenticate, c.getReach); // AYK-399
+router.put('/:id', authenticate, requireMarketplaceWrite, c.update); // AYK-402
 router.put('/:id/status', authenticate, c.updateStatus);
 router.put('/:id/reminders', authenticate, c.setReminders);
 router.put('/:id/warranty', authenticate, c.proposeWarranty);

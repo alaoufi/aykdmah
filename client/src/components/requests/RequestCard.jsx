@@ -31,6 +31,8 @@ export default function RequestCard({ request }) {
       {/* Compact (AYK-099): whose, urgency, status and age on one line. */}
       <div className="flex items-center gap-1.5 flex-wrap">
         <OwnerBadge mine={mine(request)} forService={forMyService(request)} />
+        {/* AYK-398: someone this provider already worked for. */}
+        {request.previous_client ? <span className="badge badge-success" data-testid="badge-previous-client">⭐ {t('work.previous_client')}</span> : null}
         {request.is_urgent ? <span className="badge badge-urgent">⚡ {t('request.urgent')}</span> : null}
         <span className={`badge ${status.color}`}>{statusLabel}</span>
         <span className="ms-auto text-[11.5px] text-muted">{formatRelativeTime(request.created_at)}</span>

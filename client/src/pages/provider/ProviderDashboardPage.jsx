@@ -11,10 +11,16 @@ import useLiveRefresh from '../../hooks/useLiveRefresh';
 import AdSlot from '../../components/ads/AdSlot';
 import ProblemNotice from '../../components/common/ProblemNotice';
 import ShareProviderLink from '../../components/providers/ShareProviderLink';
+import { ProviderSection } from '../ProfilePage';
 
 export default function ProviderDashboardPage() {
   const { t } = useTranslation();
-  const { user, provider } = useAuth();
+  const { user, provider, refresh } = useAuth();
+  // AYK-400 «فك القيود»: every open request, whatever the profession or area. Asked for, never the default.
+  const [unrestricted, setUnrestricted] = useState(false);
+  // AYK-401: the provider's own details edited here, in the dashboard.
+  const [infoMsg, setInfoMsg] = useState('');
+  const [infoErr, setInfoErr] = useState('');
   const [nearby, setNearby] = useState([]);
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +36,7 @@ export default function ProviderDashboardPage() {
     if (!quiet && !shown.current) setLoading(true);
     setError(false);
     // Requests in the provider's own professions and districts only (AYK-040).
-    const params = { limit: 20, matching: '1' };
+    const params = { limit: unrestricted ? 50 : 20, matching: '1', ...(unrestricted ? { scope: 'open' } : {}) };
     Promise.all([
       listNearbyRequests(params).then(r => r.data || []),
       listMyOffers({ limit: 5 }).then(r => r.data || []),
@@ -39,7 +45,7 @@ export default function ProviderDashboardPage() {
       .catch(() => { if (current) setError(true); })
       .finally(() => { if (current) { shown.current = true; setLoading(false); } });
     return () => { current = false; };
-  }, [tick]);
+  }, [tick, unrestricted]);
 
   if (loading) return <LoadingState />;
 
@@ -59,14 +65,43 @@ export default function ProviderDashboardPage() {
 
       <div className="card mb-4" data-testid="work-requests">
         <div className="flex justify-between items-center gap-2 flex-wrap mb-3">
-          <h3 style={{ margin: 0 }}>📨 {t('work.requests_title')}</h3>
+          <h3 style={{ margin: 0 }}>📨 {t(unrestricted ? 'work.all_open_title' : 'work.requests_title')}</h3>
           <Link to="/opportunities" className="text-[13px] font-semibold">{t('work.see_all')}</Link>
         </div>
+        <label className="flex items-start gap-2 text-[13px] mb-3 cursor-pointer rounded-card border border-border px-3 py-2" data-testid="unrestricted-toggle">
+          <input type="checkbox" className="mt-0.5 w-4 h-4 accent-primary" checked={unrestricted} onChange={e => setUnrestricted(e.target.checked)} />
+          <span><b>🔓 {t('work.unrestricted_label')}</b><span className="block text-fg-muted text-[12px]">{t('work.unrestricted_hint')}</span></span>
+        </label>
         {nearby.length === 0
-          ? <EmptyState title={t('work.no_requests')} />
+          ? <EmptyState title={t(unrestricted ? 'home.no_requests_anywhere' : 'work.no_requests')} />
           : <div className="grid grid-2">{nearby.map(r => <RequestCard key={r.id} request={r} />)}</div>}
       </div>
 
+
+      {/* AYK-401 (the owner: «في لوحة مقدم الخدمة ما فيه إمكانية تعديل معلوماته والوصف وإضافة الجوال والواتس»). */}
+      <details className="card mb-4 group" data-testid="dashboard-my-info" open={Boolean(infoMsg || infoErr) || undefined}>
+        <summary className="cursor-pointer list-none flex items-center justify-between gap-2">
+          <span className="min-w-0">
+            <b className="block">✏️ {t('work.my_info_title')}</b>
+            <span className="text-[12.5px] text-fg-muted">{t('work.my_info_hint')}</span>
+          </span>
+          <span className="btn btn-outline btn-sm shrink-0">{t('work.my_info_edit')}</span>
+        </summary>
+        <div className="mt-3">
+          {infoMsg && <p className="mb-2 p-2 rounded-card bg-success-soft text-success text-[13px]" role="status">✅ {infoMsg}</p>}
+          {infoErr && <ProblemNotice error={infoErr} />}
+          <ProviderSection onSaved={setInfoMsg} onError={setInfoErr} t={t} refresh={refresh} />
+        </div>
+      </details>
+
+      {/* AYK-398: the former requesters, to look up. */}
+      <Link to="/provider/clients" className="card mb-4 flex items-center justify-between gap-2 no-underline text-fg" data-testid="previous-clients-link">
+        <span className="min-w-0">
+          <b className="block">⭐ {t('work.previous_clients_title')}</b>
+          <span className="text-[12.5px] text-fg-muted">{t('work.previous_clients_hint')}</span>
+        </span>
+        <span className="btn btn-outline btn-sm shrink-0">{t('work.see_all')}</span>
+      </Link>
 
       <div className="card">
         <div className="flex items-center justify-between gap-2">

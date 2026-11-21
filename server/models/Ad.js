@@ -93,7 +93,9 @@ async function listLive({ placement, applyExclusivity = true } = {}) {
   }
   const rows = await query(
     `SELECT a.id, a.title, a.description, a.title_translations, a.description_translations, a.image, a.media_type, a.link, a.placement, a.placements,
-       a.exclusive, a.target_countries, a.target_cities, a.target_regions, a.starts_at, a.ends_at
+       a.exclusive, a.target_countries, a.target_cities, a.target_regions, a.starts_at, a.ends_at,
+       -- AYK-404: the administration's own (promotional) ads carry no «إعلان» mark on the site.
+       (a.user_id IS NULL) AS promo
        FROM ads a WHERE ${where} ORDER BY a.sort_order ASC, RAND()`,
     params
   );
@@ -283,6 +285,14 @@ async function cancel(id) {
   return result.affectedRows ? findById(id) : null;
 }
 
+// AYK-403 (the owner: «الإعلان المدفوع يجب تنشيطه وإلغاء الخدمة من التحكم، وإذا الخدمة ملغاة لا تُعرض
+// للآخرين»): the administration cancels an ad in any state; a cancelled ad is never served (live
+// shows status 'active' only).
+async function adminCancel(id) {
+  const result = await query("UPDATE ads SET status = 'cancelled', cancelled_at = CURRENT_TIMESTAMP, is_active = 0 WHERE id = ? AND status NOT IN ('cancelled', 'rejected')", [id]);
+  return result.affectedRows ? findById(id) : null;
+}
+
 async function remove(id) {
   await query('DELETE FROM ads WHERE id = ?', [id]);
 }
@@ -401,6 +411,7 @@ async function expireOverdue() {
 }
 
 module.exports = {
+  adminCancel,
   findById, listForUser, listPaginated, listLive,
   create, update,
   approve, reject, activate, markAwaitingPayment, cancel, remove,

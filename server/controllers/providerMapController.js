@@ -370,4 +370,22 @@ const myMarket = asyncHandler(async (req, res) => {
   return success(res, { areas: areas.length, requesters_in_area: residents, categories });
 });
 
-module.exports = { nearby, matching, areaStats, myMarket, publicPoint, availableForRequest };
+// AYK-399 (the owner: «يعرض طلبه ولا يظهر لمقدمي الخدمة»). How many providers see this request on
+// their board, by the same rule as the board (Request.findNearby): covering its district (else its
+// city) and in its profession; a provider who chose no profession sees every request in the area.
+async function reachOfRequest({ districtId, cityId, categoryId, serviceId, excludeId = 0 }) {
+  if (!cityId) return { providers: 0, in_profession_anywhere: 0 };
+  let category = categoryId ? Number(categoryId) : null;
+  if (!category && serviceId) category = Number((await query('SELECT category_id FROM services WHERE id = ?', [serviceId]))[0]?.category_id) || null;
+  const rows = await coveringProviders({ districtId: districtId || null, cityId, excludeId });
+  const byService = await serviceCategories();
+  const fits = row => { const mine = providerCategories(row, byService); return !category || mine.size === 0 || mine.has(category); };
+  const providers = rows.filter(fits).length;
+  // Providers of that profession anywhere (to say whether the profession is on the site at all).
+  const anywhere = category ? (await query(`SELECT pp.service_ids, pp.category_id FROM provider_profiles pp JOIN users u ON u.id = pp.user_id
+    WHERE u.role = 'provider' AND u.is_active = 1 AND u.is_blocked = 0 AND u.deleted_at IS NULL AND pp.hidden_at IS NULL AND u.id <> ?`, [excludeId]))
+    .filter(row => providerCategories(row, byService).has(category)).length : null;
+  return { providers, in_profession_anywhere: anywhere };
+}
+
+module.exports = { nearby, matching, areaStats, myMarket, publicPoint, availableForRequest, reachOfRequest };

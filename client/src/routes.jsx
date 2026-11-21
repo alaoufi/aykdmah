@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import usePublicSettings, { subscriptionsOn } from './hooks/usePublicSettings';
+import usePublicSettings, { subscriptionsOn, paidAdsOn } from './hooks/usePublicSettings';
 import MainLayout from './layouts/MainLayout';
 import DashboardLayout from './layouts/DashboardLayout';
 import AuthLayout from './layouts/AuthLayout';
@@ -41,6 +41,7 @@ const MyRequestsPage = lazy(() => import('./pages/client/MyRequestsPage'));
 const DirectoryPage = lazy(() => import('./pages/client/DirectoryPage'));
 const ProviderDashboardPage = lazy(() => import('./pages/provider/ProviderDashboardPage'));
 const MyTasksPage = lazy(() => import('./pages/provider/MyTasksPage'));
+const PreviousClientsPage = lazy(() => import('./pages/provider/PreviousClientsPage'));
 const ProviderServicesPage = lazy(() => import('./pages/provider/ProviderServicesPage'));
 const SubscriptionPage = lazy(() => import('./pages/provider/SubscriptionPage'));
 const ProviderBadgesPage = lazy(() => import('./pages/provider/ProviderBadgesPage'));
@@ -127,6 +128,7 @@ const CLIENT_SIDEBAR = [
 const PROVIDER_SIDEBAR = [
   { to: '/provider', icon: '📊', labelKey: 'nav.home', end: true },
   { to: '/provider/tasks', icon: '🧰', labelKey: 'work.tasks_title' },
+  { to: '/provider/clients', icon: '⭐', labelKey: 'work.previous_clients_title' },
   { to: '/opportunities', icon: '🔍', labelKey: 'work.requests_nav' },
   { to: '/provider/subscription', icon: '⭐', labelKey: 'nav.subscription' },
   { to: '/provider/wallet', icon: '💰', labelKey: 'wallet.nav' },
@@ -151,7 +153,8 @@ function RoleDashboard() {
   const { settings } = usePublicSettings();
   const all = isBothAccount(user) ? BOTH_SIDEBAR : user?.role === 'provider' ? PROVIDER_SIDEBAR : CLIENT_SIDEBAR;
   // "Subscription" only while subscriptions are on (AYK-147).
-  const items = subscriptionsOn(settings) ? all : all.filter(item => item.to !== '/provider/subscription');
+  // «أعلن» only while the administration has paid ad subscriptions on (AYK-404).
+  const items = all.filter(item => (item.to !== '/provider/subscription' || subscriptionsOn(settings)) && (item.to !== '/promote' || paidAdsOn(settings)));
   return <DashboardLayout sidebarItems={items} />;
 }
 
@@ -238,6 +241,7 @@ export default function AppRoutes() {
         <Route element={<Protected roles={['provider']}><RoleDashboard /></Protected>}>
           <Route path="/provider" element={<ProviderDashboardPage />} />
           <Route path="/provider/tasks" element={<MyTasksPage />} />
+          <Route path="/provider/clients" element={<PreviousClientsPage />} />
           <Route path="/provider/services" element={<ProviderServicesPage />} />
           <Route path="/provider/subscription" element={<SubscriptionPage />} />
           <Route path="/provider/wallet" element={<WalletPage />} />

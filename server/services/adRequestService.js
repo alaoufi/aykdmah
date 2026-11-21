@@ -86,7 +86,8 @@ async function getConfig() {
     };
   }
   return {
-    enabled: s.ads_user_requests_enabled !== false,
+    // AYK-404: the administration's «الاشتراك بالإعلانات المدفوعة» switch (text or boolean).
+    enabled: ![false, 'false', 0, '0'].includes(s.ads_user_requests_enabled),
     price_per_day:      fallbackDay,         // legacy / fallback
     price_per_1k_views: fallbackView,        // legacy / fallback
     min_duration_days: minDays,

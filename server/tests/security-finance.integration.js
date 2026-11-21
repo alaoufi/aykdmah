@@ -415,3 +415,34 @@ test('a city-targeted ad matches the city in any of its names, and a signed-in p
     assert.ok((await api('/ads/live?placements=category_top', { user: users.provider })).category_top.some(row => row.id === ad.id), 'signed in');
   } finally { geo.resolveVisitorGeo = original; }
 });
+
+// AYK-403: the administration cancels an ad in any state, and a cancelled ad is never served.
+test('the administration cancels a running ad and it stops showing at once', async () => {
+  const ad = await Ad.create({ title: 'Cancel me banner', image: 'https://example.invalid/c.png', placement: 'home_top', status: 'active', is_active: true });
+  assert.ok((await api('/ads/live?placement=home_top')).some(row => row.id === ad.id));
+  await api(`/admin/ads/${ad.id}/cancel`, { user: users.provider, method: 'POST', body: {}, expected: 403 });
+  const cancelled = await api(`/admin/ads/${ad.id}/cancel`, { user: users.adsAdmin, method: 'POST', body: {} });
+  assert.equal(cancelled.status, 'cancelled');
+  assert.ok(!(await api('/ads/live?placement=home_top')).some(row => row.id === ad.id));
+  await api(`/admin/ads/${ad.id}/cancel`, { user: users.adsAdmin, method: 'POST', body: {}, expected: 409 });
+  assert.ok((await db.queryOne("SELECT 1 AS ok FROM activity_logs WHERE action = 'admin.ad.cancel' AND entity_id = ?", [ad.id]))?.ok, 'logged');
+});
+
+// AYK-404: «الاشتراك بالإعلانات المدفوعة» off: people can neither price, submit, pay nor upload an
+// ad's picture; the administration still adds its own; and its own ads carry the promo flag.
+test('paid ad subscriptions follow the administration switch; administration ads are promotional', async () => {
+  const body = { title: 'Switch ad', image: 'https://example.invalid/s.png', duration_days: 2, max_views: 500, placements: ['home_top'], exclusive: false };
+  await Setting.set('ads_user_requests_enabled', false, 'boolean', 'auth', 1);
+  try {
+    await api('/ads/quote', { user: users.provider, method: 'POST', body, expected: 403 });
+    await api('/ads/request', { user: users.provider, method: 'POST', body, expected: 403 });
+    const ad = await userAd();
+    await api(`/ads/${ad.id}/pay`, { user: users.provider, method: 'POST', body: {}, expected: 403 });
+    await api('/ads/quote', { user: users.adsAdmin, method: 'POST', body });
+  } finally { await Setting.set('ads_user_requests_enabled', true, 'boolean', 'auth', 1); }
+  await api('/ads/quote', { user: users.provider, method: 'POST', body });
+  const promo = await Ad.create({ title: 'Promo banner', image: 'https://example.invalid/p.png', placement: 'home_top', status: 'active', is_active: true });
+  const row = (await api('/ads/live?placement=home_top')).find(item => item.id === promo.id);
+  assert.ok(row && (row.promo === true || Number(row.promo) === 1), 'an administration ad is promotional');
+  assert.equal(Object.hasOwn(row, 'user_id'), false);
+});

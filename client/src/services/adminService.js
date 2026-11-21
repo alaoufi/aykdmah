@@ -163,6 +163,12 @@ export async function pauseAdAdmin(id) {
   return data.data;
 }
 
+// AYK-403: the administration cancels an ad in any state; it stops showing at once.
+export async function cancelAdAdmin(id) {
+  const { data } = await api.post(`/admin/ads/${id}/cancel`);
+  return data.data;
+}
+
 export async function resumeAdAdmin(id) {
   const { data } = await api.post(`/admin/ads/${id}/resume`);
   return data.data;

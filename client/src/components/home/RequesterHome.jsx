@@ -60,6 +60,14 @@ export default function RequesterHome() {
               {scopeLabel(value)}
             </button>
           ))}
+          {/* AYK-400 «فك القيود»: every open request, any profession or area. Never the default. */}
+          {tab === 'requests' && (
+            <button type="button" role="radio" aria-checked={scope === 'open'} onClick={() => setScope(scope === 'open' ? 'area' : 'open')} data-testid="home-scope-open"
+              className={`shrink-0 rounded-full px-3 py-1 text-[12.5px] font-semibold border transition ${scope === 'open'
+                ? 'bg-primary text-white border-primary' : 'bg-surface text-fg border-dashed border-primary/60 hover:bg-surface-alt'}`}>
+              🔓 {t('work.unrestricted_label')}
+            </button>
+          )}
         </div>
       </div>
       {tab === 'requests' ? <WorkRequests scope={scope} asProvider={isProvider} /> : (
@@ -76,7 +84,7 @@ export default function RequesterHome() {
               </div>
             </div>
           )}
-          <MatchingProviders scope={scope} />
+          <MatchingProviders scope={scope === 'open' ? 'all' : scope} />
         </>
       )}
     </section>

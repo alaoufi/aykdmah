@@ -25,11 +25,11 @@ export default function WorkRequests({ className = '', scope = 'area', asProvide
   return (
     <div className={`card tone-provider p-4 ${className}`} data-testid="work-requests">
       <div className="flex justify-between items-center gap-2 flex-wrap mb-3">
-        <h2 className="text-lg font-extrabold text-fg m-0">📨 {t(asProvider ? 'work.requests_title' : 'home.requests_around_title')}</h2>
+        <h2 className="text-lg font-extrabold text-fg m-0">📨 {t(scope === 'open' ? 'work.all_open_title' : asProvider ? 'work.requests_title' : 'home.requests_around_title')}</h2>
         {asProvider && <Link to="/opportunities" className="text-[13px] font-semibold">{t('work.see_all')}</Link>}
       </div>
       {rows.length === 0
-        ? <p className="text-[13.5px] text-fg-muted m-0">{t(scope === 'all' ? 'home.no_requests_anywhere' : scope === 'area' && asProvider ? 'work.no_requests' : 'home.no_requests_widen')}</p>
+        ? <p className="text-[13.5px] text-fg-muted m-0">{t(scope === 'all' || scope === 'open' ? 'home.no_requests_anywhere' : scope === 'area' && asProvider ? 'work.no_requests' : 'home.no_requests_widen')}</p>
         : <div className="grid grid-2">{rows.map(request => <RequestCard key={request.id} request={request} />)}</div>}
     </div>
   );

@@ -173,6 +173,26 @@ async function create(data) {
   });
 }
 
+// AYK-402: the owner edits an open request nobody is assigned to yet (before an agreement).
+const EDITABLE = ['title', 'description', 'category_id', 'service_id', 'city_id', 'district_id', 'is_urgent'];
+async function updateByOwner(id, clientId, input) {
+  const current = await queryOne('SELECT * FROM requests WHERE id = ? AND deleted_at IS NULL', [id]);
+  if (!current || Number(current.client_id) !== Number(clientId)) throw new ApiError('request_not_found', 404);
+  if (current.status !== 'open' || current.assigned_provider_id) throw new ApiError('request_edit_after_agreement', 409);
+  const changes = Object.fromEntries(EDITABLE.filter(key => Object.prototype.hasOwnProperty.call(input, key)).map(key => [key, input[key]]));
+  // A new profession without a service clears the old service; a new city without a district clears the old district.
+  if ('category_id' in changes && !('service_id' in changes)) changes.service_id = null;
+  if ('city_id' in changes && !('district_id' in changes)) changes.district_id = null;
+  const merged = await validateCreate({ ...current, ...changes, client_id: current.client_id, latitude: current.latitude, longitude: current.longitude,
+    budget_min: current.budget_min, budget_max: current.budget_max, preferred_date: current.preferred_date ? new Date(current.preferred_date).toISOString() : null });
+  if (!merged.city_id) throw new ApiError('invalid_city', 422);
+  await query(`UPDATE requests SET title = ?, description = ?, category_id = ?, service_id = ?, city_id = ?, district_id = ?, is_urgent = ?,
+      updated_at = CURRENT_TIMESTAMP WHERE id = ? AND status = 'open' AND assigned_provider_id IS NULL`,
+    [merged.title, merged.description, merged.category_id || null, merged.service_id || null, merged.city_id, merged.district_id || null,
+      merged.is_urgent ? 1 : 0, id]);
+  return findById(id);
+}
+
 async function findById(id) {
   id = optionalNumber(id, 1, 2147483647, true);
   if (id == null) throw new ApiError('invalid_id', 422);
@@ -213,6 +233,29 @@ async function findByClient(clientId, { status, scope, page = 1, limit = 20 } = 
   return { items, total };
 }
 
+// AYK-398: a request in one of these states means the provider worked (or works) for that requester.
+const PREVIOUS_CLIENT_STATUSES = `'assigned', 'in_progress', 'completed', 'closed'`;
+
+// AYK-398: the requesters this provider worked for, newest first, to look up (read only).
+async function previousClients(providerId, { limit = 200 } = {}) {
+  return query(`
+    SELECT u.id, u.role, u.full_name, u.referral_code,
+           c.name_ar AS city_name_ar, c.name_en AS city_name_en, d.name_ar AS district_name_ar, d.name_en AS district_name_en,
+           COUNT(p.id) AS jobs, MAX(COALESCE(p.completed_at, p.updated_at)) AS last_at,
+           (ARRAY_AGG(p.id ORDER BY p.id DESC))[1] AS last_request_id,
+           (ARRAY_AGG(p.title ORDER BY p.id DESC))[1] AS last_request_title,
+           (SELECT o.id FROM requests o WHERE o.client_id = u.id AND o.status = 'open' AND o.deleted_at IS NULL AND o.hidden_at IS NULL
+              AND (o.direct_provider_id IS NULL OR o.direct_provider_id = ?) ORDER BY o.id DESC LIMIT 1) AS open_request_id
+      FROM requests p
+      JOIN users u ON u.id = p.client_id AND u.deleted_at IS NULL
+      LEFT JOIN cities c ON c.id = u.city_id
+      LEFT JOIN districts d ON d.id = u.district_id
+     WHERE p.assigned_provider_id = ? AND p.status IN (${PREVIOUS_CLIENT_STATUSES}) AND p.deleted_at IS NULL
+     GROUP BY u.id, u.role, u.full_name, u.referral_code, c.name_ar, c.name_en, d.name_ar, d.name_en
+     ORDER BY last_at DESC NULLS LAST, u.id DESC
+     LIMIT ?`, [providerId, providerId, Number(limit)]);
+}
+
 // AYK-397: the cities of a region (cities.region_id, else their governorate's region).
 const REGION_CITIES = `SELECT c.id FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id WHERE COALESCE(c.region_id, g.region_id) = ?`;
 async function regionOfCity(cityId) {
@@ -223,7 +266,8 @@ async function regionOfCity(cityId) {
 // 'area' (a provider's coverage, a requester's district), 'city', 'region' or 'all'. `viewerId` is a
 // signed-in person who is not looking as a provider: their own district, city or region.
 async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serviceId, cityId, status = 'open', page = 1, limit = 20, providerId = null, scope = null, viewerId = null } = {}) {
-  if (scope && !['area', 'city', 'region', 'all'].includes(scope)) scope = 'area';
+  // AYK-400 «فك القيود»: 'open' = every open request, whatever the profession or the area (asked for, never the default).
+  if (scope && !['area', 'city', 'region', 'all', 'open'].includes(scope)) scope = 'area';
   ({ page, limit } = pagination(page, limit));
   const offset = (page - 1) * limit;
   if (status !== 'open') throw new ApiError('invalid_status', 422);
@@ -280,7 +324,7 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
     } else if (profile?.coverage_city_id) {
       fit.push('r.city_id = ?'); fitParams.push(Number(profile.coverage_city_id));
     }
-    if (fit.length) { where.push(`(r.direct_provider_id = ? OR (${fit.join(' AND ')}))`); whereParams.push(providerId, ...fitParams); }
+    if (fit.length && scope !== 'open') { where.push(`(r.direct_provider_id = ? OR (${fit.join(' AND ')}))`); whereParams.push(providerId, ...fitParams); }
   } else if (viewerId && scope) {
     // Others' requests around a requester; their own are in «طلباتي».
     where.push('r.client_id <> ?'); whereParams.push(viewerId);
@@ -317,15 +361,21 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
   // OFFSET 0 keeps the distance in its own step, so it is worked out once per request (it was
   // three times: twice to filter, once to sort), and the total comes from the same pass instead
   // of a second identical scan.
+  // AYK-398 (the owner: «عميل سابق طالب خدمة، يعطي الأولوية للعملاء السابقين»): for a provider, a
+  // request from someone they already worked for is marked and comes first.
+  const PREVIOUS = providerId
+    ? `EXISTS (SELECT 1 FROM requests p WHERE p.client_id = r.client_id AND p.assigned_provider_id = ? AND p.id <> r.id
+         AND p.status IN (${PREVIOUS_CLIENT_STATUSES}) AND p.deleted_at IS NULL)` : 'FALSE';
+  const previousParams = providerId ? [providerId] : [];
   const candidates = hasGeo
-    ? `SELECT r.id, r.is_urgent, r.created_at, ${DISTANCE} AS distance_km FROM requests r WHERE ${boxWhere.join(' AND ')} OFFSET 0`
-    : `SELECT r.id, r.is_urgent, r.created_at FROM requests r WHERE ${boxWhere.join(' AND ')}`;
-  const candidateParams = hasGeo ? [latitude, longitude, latitude, ...boxParams] : boxParams;
+    ? `SELECT r.id, r.is_urgent, r.created_at, ${PREVIOUS} AS previous_client, ${DISTANCE} AS distance_km FROM requests r WHERE ${boxWhere.join(' AND ')} OFFSET 0`
+    : `SELECT r.id, r.is_urgent, r.created_at, ${PREVIOUS} AS previous_client FROM requests r WHERE ${boxWhere.join(' AND ')}`;
+  const candidateParams = hasGeo ? [...previousParams, latitude, longitude, latitude, ...boxParams] : [...previousParams, ...boxParams];
   const within = hasGeo ? 'WHERE distance_km IS NULL OR distance_km <= ?' : '';
   const withinParams = hasGeo ? [radiusKm] : [];
-  const order = `${hasGeo ? 'distance_km ASC, ' : ''}is_urgent DESC, created_at DESC, id DESC`;
+  const order = `${providerId ? 'previous_client DESC, ' : ''}${hasGeo ? 'distance_km ASC, ' : ''}is_urgent DESC, created_at DESC, id DESC`;
 
-  const page_ = await query(`SELECT id${hasGeo ? ', distance_km' : ''}, COUNT(*) OVER () AS total FROM (${candidates}) nearby ${within} ORDER BY ${order} LIMIT ? OFFSET ?`,
+  const page_ = await query(`SELECT id, previous_client${hasGeo ? ', distance_km' : ''}, COUNT(*) OVER () AS total FROM (${candidates}) nearby ${within} ORDER BY ${order} LIMIT ? OFFSET ?`,
     [...candidateParams, ...withinParams, Number(limit), Number(offset)]);
   let items = [];
   if (page_.length) {
@@ -333,7 +383,8 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
     const rows = await query(`SELECT ${BASE_SELECT} FROM requests r ${BASE_JOINS} WHERE r.id IN (${ids.map(() => '?').join(', ')})`, ids);
     const byId = new Map(rows.map(row => [Number(row.id), row]));
     items = page_.filter(row => byId.has(Number(row.id)))
-      .map(row => (hasGeo ? { ...byId.get(Number(row.id)), distance_km: row.distance_km } : byId.get(Number(row.id))));
+      .map(row => ({ ...byId.get(Number(row.id)), ...(hasGeo ? { distance_km: row.distance_km } : {}),
+        ...(providerId ? { previous_client: row.previous_client === true || Number(row.previous_client) === 1 } : {}) }));
   }
   // A page past the end has no row to carry the total: count it then (rare).
   const total = page_.length ? page_[0].total
@@ -457,4 +508,4 @@ async function setHidden(id, hidden) {
   return queryOne('SELECT id, hidden_at FROM requests WHERE id = ? AND deleted_at IS NULL', [id]);
 }
 
-module.exports = { create, findById, incrementViews, findByClient, findNearby, updateStatus, setRemindersOff, softDelete, listAll, setHidden, pagination, optionalNumber, publicView, validateInput: validateCreate };
+module.exports = { create, updateByOwner, findById, incrementViews, findByClient, findNearby, previousClients, updateStatus, setRemindersOff, softDelete, listAll, setHidden, pagination, optionalNumber, publicView, validateInput: validateCreate };

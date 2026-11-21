@@ -21,7 +21,8 @@ router.post('/quote',       authenticate, c.previewQuote);
 router.post('/request',     authenticate, c.submit);
 // The ad's image or video (AYK-149): was the administrators' upload only, so everyone else's
 // picture was refused. The ad itself still waits for the administration's approval.
-router.post('/upload',      authenticate, uploadLimiter, uploadAd.single('file'), uploadAdMedia);
+// AYK-404: an ad's picture, while «الاشتراك بالإعلانات المدفوعة» is on (the administration always).
+router.post('/upload',      authenticate, (req, res, next) => c.paidAdsClosed(req, res).then(closed => { if (!closed) next(); }, next), uploadLimiter, uploadAd.single('file'), uploadAdMedia);
 router.get('/:id/stats',    authenticate, c.stats);
 router.post('/:id/pay',     authenticate, c.pay);
 router.post('/:id/pause',   authenticate, c.pauseMine);

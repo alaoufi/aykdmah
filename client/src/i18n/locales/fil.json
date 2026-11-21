@@ -167,10 +167,6 @@
     "get_it_on": "KUNIN SA",
     "download_on": "I-download sa",
     "coming_soon": "Malapit na sa",
-    "mode_provider": "Ako ay provider",
-    "mode_provider_hint": "Mga request sa aking propesyon at lugar",
-    "mode_client": "Ako ay humihiling ng serbisyo",
-    "mode_client_hint": "Mga provider sa aking lugar, at bagong request",
     "tab_requests": "Mga humihiling ng serbisyo",
     "tab_requests_hint": "Mga request ng nangangailangan ng serbisyo",
     "tab_requests_hint_provider": "Mga request sa aking propesyon",
@@ -426,7 +422,13 @@
     "warranty_accept": "Sang-ayon",
     "auto_translated": "Awtomatikong isinalin",
     "show_original": "Ipakita ang orihinal",
-    "show_translation": "Ipakita ang salin"
+    "show_translation": "Ipakita ang salin",
+    "edit": "I-edit ang request",
+    "edit_hint": "Maaari mong i-edit ang iyong request habang bukas pa ito at wala ka pang nakakasundo. Pagkatapos i-save, isasalin itong muli at ipapakita sa mga provider ng bagong propesyon at lugar nito.",
+    "reach_count": "Nakikita na ngayon ng {{count}} provider sa propesyon at lugar nito ang iyong request.",
+    "reach_none": "Wala pang provider sa propesyong ito na sumasakop sa lugar ng iyong request.",
+    "reach_none_profession": "Wala pang provider na nakarehistro sa propesyong ito. Mananatiling bukas ang iyong request at makikita ito ng mga pumili ng «Lahat ng bukas na request»; maaari mong palitan ang propesyon kung mas bagay ang iba.",
+    "reach_none_area": "May mga provider sa propesyong ito pero hindi pa nila sakop ang iyong distrito. Mananatiling bukas ang iyong request at makikita ng mga nagpapalawak ng saklaw o pumipili ng «Lahat ng bukas na request»."
   },
   "offer": {
     "submit_title": "Mag-alok ng presyo",
@@ -516,7 +518,7 @@
     "private_account_address": "Mananatiling pribado ang address ng account mo. Itakda nang hiwalay ang lokasyon ng iyong puwesto na makikita ng iba sa detalye ng negosyo sa ibaba.",
     "must_change_password": "Para sa seguridad ng iyong account, palitan ang pansamantalang password ngayon bago ituloy (hindi bababa sa 4 character).",
     "account_type": "Uri ng account",
-    "account_type_hint": "Maling uri ang napili mo noong nag-sign up? Palitan ito dito anumang oras.",
+    "account_type_hint": "Nag-aalok ng serbisyo, o kailangan mo? Piliin dito ang uri ng iyong account kahit kailan.",
     "account_type_current": "Kasalukuyan",
     "account_type_work_hint": "Para makapagbigay ng serbisyo, pumili ng kahit isang trabaho, ang mga distritong sakop mo at kung saan mo ibinibigay ang serbisyo.",
     "account_type_to_client_note": "Hindi ka na lalabas bilang provider at babawiin ang mga naghihintay mong alok. Mananatiling naka-save ang detalye ng trabaho mo kung babalik ka.",
@@ -1350,7 +1352,18 @@
     "nav_work": "Mga request at ugnayan",
     "nav_catalog": "Mga propesyon at serbisyo",
     "nav_money": "Mga bayad at kita",
-    "nav_places": "Mga lugar"
+    "nav_places": "Mga lugar",
+    "ad_activate_unpaid": "هذا الإعلان لم يُدفع. بالتنشيط يُعفى من الرسوم ويبدأ عرضه الآن. اكتب سبب الإعفاء (يُحفظ في سجله).",
+    "ad_cancel_service": "إلغاء الخدمة",
+    "ad_cancelled": "أُلغي الإعلان ولن يظهر لأحد.",
+    "paid_ads_switch": "الاشتراك بالإعلانات المدفوعة",
+    "paid_ads_on": "مفعّل",
+    "paid_ads_off": "غير مفعّل",
+    "paid_ads_turn_on": "تفعيل",
+    "paid_ads_turn_off": "إلغاء التفعيل",
+    "paid_ads_switch_hint": "عند التفعيل يظهر للمستخدمين «أعلن» ويستطيعون طلب إعلان مدفوع. عند إلغائه تختفي كلمة الاشتراك والإعلان المدفوع من الموقع، وتبقى إعلانات الإدارة والإعلانات الجارية تُعرض.",
+    "paid_ads_turned_on": "فُعّل الاشتراك بالإعلانات المدفوعة.",
+    "paid_ads_turned_off": "أُلغي تفعيل الاشتراك بالإعلانات المدفوعة."
   },
   "errors": {
     "generic": "May nagkamali",
@@ -1742,7 +1755,7 @@
     "client_steps": {
       "browse": {
         "title": "Mag-sign up gamit ang mobile number at simpleng password",
-        "body": "Mag-sign up gamit ang iyong mobile number at simpleng password na kahit 4 na numero para walang ibang makapasok gamit ang pangalan mo; opsyonal ang pangalan, at awtomatikong natutukoy ang iyong distrito at mababago mo ito. Sa Home, pumili ng trabaho sa listahan para makita kung ilan ang provider sa iyong distrito at ilan ang available ngayon. Kapag nakumpirma ang paggawa ng account, lalabas ang mensahe ng tagumpay at link sa pag-sign in. Lalabas lang ang mensahe ng pag-delete ng account kapag nakumpirma na ito ng server."
+        "body": "Mag-sign up gamit ang iyong mobile number at simpleng password na hindi bababa sa 4 na character, para walang ibang makapasok sa pangalan mo. Awtomatikong natutukoy ang iyong rehiyon at lungsod at mapapalitan mo ang mga ito. Sa itaas ng home page ay ang «Mga humihiling ng serbisyo» at «Mga nagbibigay ng serbisyo», at sa ilalim nila ang «Saklaw»: una ang iyong distrito, saka palawakin sa iyong lungsod, rehiyon o lahat. Kapag nakumpirma ang paggawa ng account, lalabas ang mensahe ng tagumpay at link sa pag-sign in. Lalabas lang ang mensahe ng pagbura ng account kapag kinumpirma ito ng server."
       },
       "details": {
         "title": "Piliin ang trabaho, at i-record ang kailangan mo gamit ang boses",
@@ -1788,7 +1801,7 @@
       }
     },
     "venue_title": "Sino ang pupunta kanino?",
-    "venue_intro": "Sa pag-register, pumipili ang provider ng isa sa tatlong paraan, at puwede niya itong palitan anumang oras sa «Aking profile». Sa una at ikatlong paraan, itinatakda niya sa mapa ang lokasyon ng kanyang lugar.",
+    "venue_intro": "Sa pagpili ng propesyon, pumipili ang provider ng isa sa tatlong paraan, at mapapalitan ito kahit kailan sa «Aking account». Sa una at ikatlo, pinipili nila ang kanilang lugar sa mapa.",
     "faq_title": "Mga madalas itanong",
     "faq": {
       "price": {
@@ -1869,33 +1882,9 @@
     "signup_intro": "Isang minuto lang ang pag-register, at mapapalitan mo ang lahat ng pipiliin mo mamaya sa «Aking profile».",
     "account_completion": "Kapag natapos ang pag-register, lalabas ang mensahe ng tagumpay at link sa page ng pag-sign in. At kapag nakumpirma ang pag-delete ng account, lalabas ang mensahe ng tagumpay at link sa Home.",
     "signup_points": {
-      "types": {
-        "title": "Piliin ang uri ng iyong account",
-        "body": "«Kliyente» para sa nagre-request ng serbisyo, «Provider» para sa nagbibigay nito, at «Pareho» para sa nagbibigay ng serbisyo at nangangailangan din ng iba, gaya ng driver na nangangailangan ng electrician."
-      },
-      "basics": {
-        "title": "Mobile number at password",
-        "body": "Sapat na ang mobile number mo at password na 4 na character; opsyonal ang pangalan. Darating sa SMS ang 4-digit na verification code para kumpirmahin ang numero mo. Kung nakalimutan mo ang password, pindutin ang «Nakalimutan ang password?» sa page ng pag-sign in para makatanggap ng code, saka pumili ng bagong password."
-      },
-      "location": {
-        "title": "Awtomatikong lokasyon",
-        "body": "Payagan ang app na hanapin ang lokasyon mo para awtomatikong matukoy ang iyong lungsod at distrito. Kung hindi ito magawa, piliin ang lokasyon mo sa mapa. Hihingin lang ang distrito kung hindi ito natukoy."
-      },
-      "professions": {
-        "title": "Mga trabaho (para sa provider)",
-        "body": "Pumili ng kahit isang trabaho; puwede kang pumili ng higit sa isa, gaya ng tubero at electrician. Awtomatikong mapipili ang mga serbisyo ng bawat trabaho, at aalisin mo ang hindi mo ginagawa. Ang kliyente ay hindi pumipili ng trabaho."
-      },
-      "coverage": {
-        "title": "Mga distritong sakop mo",
-        "body": "Pumili sa iyong lungsod ng isa o ilang distritong sineserbisyuhan mo, o pindutin ang «Lahat ng distrito». Awtomatikong napipili ang sarili mong distrito bilang simula."
-      },
-      "coupon": {
-        "title": "Iyong numero at numero ng imbitasyon",
-        "body": "Bawat account ay may permanenteng numero na binubuo lamang ng mga digit (gaya ng 27) na makikita sa itaas ng site at sa menu ng account mo, at puwede kang mag-sign in gamit ito, ang iyong mobile o email. Ang numero ng provider ay siya ring numero ng imbitasyon niya: kung inimbita ka ng isang provider, isulat ang numero niya sa field na «Numero ng imbitasyon» habang nagre-register. Hindi gagana ang button na «Gumawa ng account» hangga't hindi kumpleto at tama ang mga kailangang field, hindi ka pa sumasang-ayon sa mga tuntunin, at hindi pa naisusulat ang verification code."
-      },
       "matching": {
         "title": "Ano ang makikita mo sa Home",
-        "body": "Nakikita ng provider ang mga bukas na kahilingan sa mga distritong sakop niya at sa kanyang mga trabaho. Nakikita naman ng kliyente ang mga provider na sakop ang kanyang lugar sa trabahong pinili niya: una ang featured (may bayad na badge), saka ang may pinakamataas na rating. Palitan ang lugar mo sa «I-edit ang iyong lugar» sa itaas ng site. Kung higit sa isang bahay ang inaasikaso mo, pindutin ang «Ibang distrito» para makita ang mga provider doon nang hindi binabago ang naka-register mong distrito."
+        "body": "Sa itaas ng home page ay may dalawang button: ang «Mga humihiling ng serbisyo» ay nagpapakita ng mga request, at ang «Mga nagbibigay ng serbisyo» ay nagpapakita kung sino ang nagbibigay ng serbisyo. Sa ilalim nila ang «Saklaw»: nagsisimula ito sa iyong distrito (o sa mga distritong sakop mo kung provider ka), at pinapalawak mo ito sa iyong lungsod, rehiyon o lahat. Sa bawat hakbang, mga request lang sa kanyang propesyon ang nakikita ng provider, at nauuna ang mga request ng kanyang mga dating kliyente na may markang «⭐ Dating kliyente». Nakikita ng humihiling ang mga provider, nauuna ang featured (bayad na badge), saka ang may pinakamataas na rating. Ang namamahala ng higit sa isang bahay ay pipindot ng «Ibang distrito» para makita ang mga provider doon nang hindi binabago ang nakarehistrong distrito."
       },
       "edit": {
         "title": "Pagbabago mamaya",
@@ -1903,7 +1892,7 @@
       },
       "change_type": {
         "title": "Pagbabago ng uri ng account",
-        "body": "Kung maling uri ang napili mo sa pag-register, buksan ang «Aking profile» ← «Uri ng account» at piliin: kliyente, provider o pareho. Para maging provider, pipili ka ng kahit isang trabaho, mga distrito at lugar ng serbisyo. Hindi ka puwedeng tumigil sa pagbibigay ng serbisyo habang may trabahong ginagawa, at hindi ka puwedeng maging «provider lang» habang may bukas kang kahilingan (piliin ang «Pareho»). Kapag lumipat ka sa kliyente, mananatiling naka-save ang detalye ng trabaho mo para sa susunod."
+        "body": "Nagsisimula ang bawat bagong account bilang humihiling. Para mag-alok ng serbisyo, pindutin ang «Piliin ang aking propesyon at lugar» pagkatapos mag-sign up, o buksan ang «Aking account» → «Uri ng account» at pumili: humihiling, provider o pareho. Para maging provider, pumili ng kahit isang propesyon, ng mga distrito at kung saan ka nagseserbisyo. Hindi ka maaaring huminto sa pagbibigay ng serbisyo habang may trabahong tumatakbo, o maging «provider lang» habang may bukas kang request (piliin ang «Pareho»). Kapag lumipat ka sa humihiling, naitatabi ang iyong mga detalye sa trabaho para sa susunod."
       },
       "stats": {
         "title": "Mga numerong makakatulong sa iyo",
@@ -2586,7 +2575,22 @@
     "tasks_title": "Mga trabaho ko",
     "tasks_hint": "Mga request na kinontak mo o itinalaga sa iyo. Kailangan ka ngayon ng «Mga aktibo kong trabaho»; nasa «Archive ng mga trabaho ko» ang natapos o kinansela.",
     "task_waiting": "Naghihintay ng sagot ng may-ari ng kahilingan",
-    "professions_areas": "Aking mga trabaho at lugar"
+    "professions_areas": "Aking mga trabaho at lugar",
+    "previous_client": "Dating kliyente",
+    "previous_clients_title": "Aking mga dating kliyente",
+    "previous_clients_hint": "Mga pinagtrabahuhan mo dati. Una mong makikita ang kanilang mga bagong request.",
+    "previous_clients_page_hint": "Para sa pagtingin lamang: mga nakasundo o pinagtrabahuhan mo. Lalabas lang ang pangalan ng humihiling kung na-save mo ito sa «Aking direktoryo».",
+    "previous_clients_search": "Maghanap ayon sa pangalan, numero ng account o distrito",
+    "previous_clients_empty": "Wala pang dating kliyente. Lalabas dito ang bawat makakasundo mo sa trabaho.",
+    "previous_clients_jobs": "Mga trabaho: {{count}}",
+    "previous_clients_last": "Huling trabaho",
+    "previous_clients_open_request": "May bukas na request ngayon",
+    "all_open_title": "Lahat ng bukas na request",
+    "unrestricted_label": "Lahat ng bukas na request",
+    "unrestricted_hint": "Alisin ang limitasyon: ipakita ang lahat ng bukas na request sa anumang propesyon at lugar, hindi lang sa aking propesyon at sakop.",
+    "my_info_title": "Aking mga detalye",
+    "my_info_hint": "Pangalan, paglalarawan ng aking serbisyo, ang telepono at WhatsApp na ipinapakita sa mga tao, aking mga propesyon at distrito.",
+    "my_info_edit": "I-edit"
   },
   "requester": {
     "all_professions": "Lahat ng trabaho",
@@ -2899,25 +2903,9 @@
     "reopen": "Gabay sa pag-register, hakbang-hakbang",
     "image_note": "Larawan ng mismong page ng pag-register.",
     "steps": {
-      "types": {
-        "title": "Piliin ang uri ng account",
-        "body": "May tatlong button sa itaas ng page: «{{client}}» kung naghahanap ka ng magbibigay sa iyo ng serbisyo, «{{provider}}» kung nagbibigay ka ng serbisyo sa mga tao, at «{{both}}» kung nagbibigay ka ng serbisyo at minsan kailangan mo rin ang serbisyo ng iba. Mapapalitan mo ito mamaya sa «{{profile}}»."
-      },
       "account": {
         "title": "Mobile number at password",
         "body": "Ilagay ang iyong Saudi mobile number tulad ng 05XXXXXXXX, pagkatapos ay password na hindi bababa sa 4 na character. Wala nang iba pang hinihingi: awtomatikong natutukoy ang iyong rehiyon at lungsod at mapapalitan mo ang mga ito, at kung nag-aalok ka ng serbisyo, iaalok sa iyo pagkatapos mag-sign up ang pagpili ng propesyon at mga lugar, at opsyonal ito. Kung nakarehistro na ang numero mo, lalabas ang mga button na «{{signin}}» at «{{forgot}}»."
-      },
-      "location": {
-        "title": "Ang iyong lokasyon",
-        "body": "Payagan ang lokasyon kapag nagtanong ang phone, at kusang malalaman ang iyong lungsod at distrito. Kung tumanggi ka o hindi ito matukoy, pindutin ang «{{map}}» at piliin ang lugar mo. Hihingin lang ang distrito kung hindi ito awtomatikong natukoy. Puwede ring itakda ng kliyente ang lokasyon niya mamaya."
-      },
-      "work": {
-        "title": "Provider: ang iyong trabaho at mga distrito",
-        "body": "Pumili ng isa o higit pang trabaho, gaya ng tubero o electrician. Awtomatikong napipili ang lahat ng serbisyo ng trabaho, kaya alisin ang hindi mo ginagawa. Saka piliin ang mga distrito sa iyong lungsod na sineserbisyuhan mo, o pindutin ang «{{all}}». Hindi nakikita ng kliyente ang hakbang na ito."
-      },
-      "schedule": {
-        "title": "Provider: oras mo at lugar ng serbisyo (opsyonal)",
-        "body": "Opsyonal ang hakbang na ito. Kung hindi mo ito bubuksan, ituturing kang available araw-araw sa anumang oras, at ikaw ang pupunta sa kliyente. Para baguhin, pindutin ang «{{extras}}» at piliin ang iyong mga araw at oras, saka piliin kung ikaw ang pupunta sa kliyente, siya ang pupunta sa iyo, o pareho; kung siya ang pupunta sa iyo, markahan ang lugar mo sa mapa. Mapapalitan mo ito mamaya sa «{{profile}}»."
       },
       "finish": {
         "title": "Gumawa ng account",
@@ -2977,5 +2965,8 @@
     "qr": "QR code",
     "qr_hint": "I-scan ang code gamit ang camera ng telepono para buksan ang link",
     "qr_save": "I-save ang larawan"
+  },
+  "ads": {
+    "hide": "Itago ang ad"
   }
 }

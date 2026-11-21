@@ -6,9 +6,9 @@ import { useTranslation } from 'react-i18next';
 import {
   listAds, createAd, updateAd, deleteAd, uploadAdMedia,
   approveAdAdmin, rejectAdAdmin, activateAdAdmin,
-  pauseAdAdmin, resumeAdAdmin, getAdStatsAdmin,
+  pauseAdAdmin, resumeAdAdmin, cancelAdAdmin, getAdStatsAdmin,
   getAdsPlacementPricing, saveAdsPlacementPricing, adminPreviewLiveAds, diagnoseAd,
-  waiveAdFee, messageAdvertiser, reactivateAdAdmin,
+  waiveAdFee, messageAdvertiser, reactivateAdAdmin, getSettings, updateSettings,
 } from '../../services/adminService';
 import AdFeesExtras from '../../components/admin/AdFeesExtras';
 import AdSparkline from '../../components/ads/AdSparkline';
@@ -120,6 +120,15 @@ export default function AdminAdsPage() {
     finally { setBusy(null); }
   };
 
+  // AYK-403: «إلغاء الخدمة» from the control; a cancelled ad is never shown to anyone.
+  const onCancelAd = async (a) => {
+    if (!(await confirmAdminChange(t))) return;
+    setBusy(a.id);
+    try { await cancelAdAdmin(a.id); setMsg({ type: 'success', text: t('admin.ad_cancelled') }); load(); }
+    catch (e) { setMsg({ type: 'error', text: apiError(e) }); }
+    finally { setBusy(null); }
+  };
+
   const onResume = async (a) => {
     if (!(await confirmAdminChange(t))) return;
     setBusy(a.id);
@@ -216,6 +225,25 @@ export default function AdminAdsPage() {
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [statusFilter]);
 
+  // AYK-404 (the owner: «أريد تفعيل الإعلانات المدفوعة وإلغاء التفعيل»): people may subscribe to paid
+  // ads (the «أعلن» page and its links) only while this is on. The ads already running, and the
+  // administration's own, show either way.
+  const [paidOn, setPaidOn] = useState(null);
+  useEffect(() => {
+    getSettings().then(rows => {
+      const list = Array.isArray(rows) ? rows : Object.entries(rows || {}).map(([setting_key, setting_value]) => ({ setting_key, setting_value }));
+      const row = list.find(r => (r.setting_key || r.key) === 'ads_user_requests_enabled');
+      const value = row ? (row.parsed_value ?? row.setting_value ?? row.value) : true;
+      setPaidOn(![false, 'false', 0, '0'].includes(value));
+    }).catch(() => setPaidOn(null));
+  }, []);
+  const togglePaid = async () => {
+    if (!(await confirmAdminChange(t))) return;
+    const next = !paidOn;
+    try { await updateSettings([{ key: 'ads_user_requests_enabled', value: next }]); setPaidOn(next); setMsg({ type: 'success', text: t(next ? 'admin.paid_ads_turned_on' : 'admin.paid_ads_turned_off') }); }
+    catch (e) { setMsg({ type: 'error', text: apiError(e) }); }
+  };
+
   // AYK-395 (the owner: «ما فيه موافقة عرضه، والإعفاء من الرسوم، وإيقافه»): the ad's actions by its
   // status, on its card and at the top of its edit window (which closes after the action).
   const statusActions = (a, after = null) => {
@@ -228,7 +256,7 @@ export default function AdminAdsPage() {
                       <button onClick={() => run(onReject, a)}  disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition disabled:opacity-60">✗ {t('badge.reject')}</button>
                     </>
                   )}
-                  {(a.status === 'awaiting_payment' || (Number(a.fee_waived) === 1 && ['requested', 'approved'].includes(a.status))) && (
+                  {(['approved', 'awaiting_payment'].includes(a.status) || (Number(a.fee_waived) === 1 && a.status === 'requested')) && (
                     <button onClick={() => run(onActivate, a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition disabled:opacity-60">▶ {t('promote.activate')}</button>
                   )}
                   {a.status === 'active' && (
@@ -239,6 +267,9 @@ export default function AdminAdsPage() {
                   )}
                   {a.status === 'paused' && (
                     <button onClick={() => run(onResume, a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition disabled:opacity-60">▶ {t('promote.resume')}</button>
+                  )}
+                  {!['cancelled', 'rejected'].includes(a.status) && (
+                    <button onClick={() => run(onCancelAd, a)} disabled={busy === a.id} data-testid="ad-admin-cancel" className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition disabled:opacity-60">⛔ {t('admin.ad_cancel_service')}</button>
                   )}
                   {['requested', 'approved', 'awaiting_payment'].includes(a.status) && Number(a.fee_waived) !== 1 && !a.payment_id && (
                     <button onClick={() => run(onWaive, a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition disabled:opacity-60">🎁 {t('promote.waive_fee')}</button>
@@ -389,10 +420,21 @@ export default function AdminAdsPage() {
     } catch (e) { setReply((r) => ({ ...r, sending: false, error: apiError(e) })); }
   };
 
+  // AYK-403 (the owner's screenshot: an «approved» ad with no way to start it). An ad that is neither
+  // paid nor waived is waived first (the reason is asked and kept), then activated, in one step.
   const onActivate = async (a) => {
+    const unpaid = Number(a.fee_waived) !== 1 && !a.payment_id && ['requested', 'approved', 'awaiting_payment'].includes(a.status);
     if (!(await confirmAdminChange(t))) return;
+    let reason = null;
+    if (unpaid) {
+      reason = await askText({ title: `▶ ${t('promote.activate')}`, message: t('admin.ad_activate_unpaid'), multiline: true, maxLength: 500, confirmText: t('promote.activate') });
+      if (reason === null) return;
+    }
     setBusy(a.id);
-    try { await activateAdAdmin(a.id); setMsg({ type: 'success', text: t('promote.admin_activated') }); load(); }
+    try {
+      if (unpaid) await waiveAdFee(a.id, reason);
+      await activateAdAdmin(a.id); setMsg({ type: 'success', text: t('promote.admin_activated') }); load();
+    }
     catch (e) { setMsg({ type: 'error', text: apiError(e) }); }
     finally { setBusy(null); }
   };
@@ -405,6 +447,8 @@ export default function AdminAdsPage() {
     { value: 'active',            label: t('promote.status_active') },
     { value: 'rejected',          label: t('promote.status_rejected') },
     { value: 'expired',           label: t('promote.status_expired') },
+    { value: 'paused',            label: t('promote.status_paused') },
+    { value: 'cancelled',         label: t('promote.status_cancelled') },
   ];
 
   const STATUS_COLOR = {
@@ -423,6 +467,16 @@ export default function AdminAdsPage() {
       <AdminPageHeader title={t('admin.ads')} count={meta?.pagination?.total ?? items.length}>
         {section === 'manage' && <AdminButton variant="primary" icon="+" onClick={openCreate}>{t('admin.new')}</AdminButton>}
       </AdminPageHeader>
+
+      {paidOn !== null && (
+        <div className={`rounded-card border px-4 py-3 flex flex-wrap items-center justify-between gap-2 ${paidOn ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'}`} data-testid="paid-ads-switch">
+          <div className="min-w-0">
+            <b className="block text-[14px]">{paidOn ? '🟢' : '⚪'} {t('admin.paid_ads_switch')}: {t(paidOn ? 'admin.paid_ads_on' : 'admin.paid_ads_off')}</b>
+            <span className="text-[12px] text-slate-600">{t('admin.paid_ads_switch_hint')}</span>
+          </div>
+          <AdminButton variant={paidOn ? 'secondary' : 'primary'} onClick={togglePaid} data-testid="paid-ads-toggle">{t(paidOn ? 'admin.paid_ads_turn_off' : 'admin.paid_ads_turn_on')}</AdminButton>
+        </div>
+      )}
 
       {/* Two parts (AYK-153): what ads cost, and managing each ad. */}
       <div className="flex gap-2" role="tablist">

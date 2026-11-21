@@ -119,6 +119,46 @@ const getNearby = asyncHandler(async (req, res) => {
   return paginate(res, shown, total, page, limit);
 });
 
+// GET /api/requests/previous-clients  (AYK-398, the owner: «في اللوحة يمكن استعراض العملاء السابقين
+// فقط للاستعلام»). A provider's former requesters, read only. A requester's name stays hidden
+// (AYK-142): the name the provider saved them under, else «طالب الخدمة», with the account number.
+const getPreviousClients = asyncHandler(async (req, res) => {
+  if (req.user?.role !== 'provider') return forbidden(res);
+  const rows = await Request.previousClients(req.user.id);
+  const people = rows.map(row => ({ id: row.id, role: row.role, full_name: row.full_name }));
+  await require('../utils/requesterPrivacy').hideRequesterNames(req.user.id, people, req.t('requester_label'));
+  const translated = await requestTranslation.attachTranslations(rows.map(row => ({ id: row.last_request_id, title: row.last_request_title })), readerLang(req));
+  return success(res, rows.map((row, index) => ({
+    id: Number(row.id), name: people[index].full_name, account_number: row.referral_code || null,
+    city_name_ar: row.city_name_ar, city_name_en: row.city_name_en, district_name_ar: row.district_name_ar, district_name_en: row.district_name_en,
+    jobs: Number(row.jobs) || 0, last_at: row.last_at,
+    last_request: { id: Number(row.last_request_id), title: row.last_request_title, translation: translated[index].translation || null },
+    open_request_id: row.open_request_id ? Number(row.open_request_id) : null,
+  })));
+});
+
+// GET /api/requests/:id/reach  (AYK-399): for its owner, how many providers see the open request.
+const getReach = asyncHandler(async (req, res) => {
+  if (!validId(req.params.id)) return notFound(res);
+  const request = await Request.findById(req.params.id);
+  if (!request || Number(request.client_id) !== Number(req.user.id)) return notFound(res);
+  if (request.status !== 'open' || request.direct_provider_id) return success(res, null);
+  return success(res, await require('./providerMapController').reachOfRequest({
+    districtId: request.district_id, cityId: request.city_id, categoryId: request.category_id, serviceId: request.service_id, excludeId: req.user.id,
+  }));
+});
+
+// PUT /api/requests/:id  (AYK-402, the owner: «طالب الخدمة إمكانية تعديل طلبه قبل الاتفاق»). While the
+// request is open and nobody is assigned: its text, profession, service, place and urgency.
+const update = asyncHandler(async (req, res) => {
+  if (!validId(req.params.id)) return notFound(res);
+  const updated = await Request.updateByOwner(Number(req.params.id), req.user.id, req.body || {});
+  // Translations of the old text are dropped and made again for the providers (AYK-231).
+  await query('DELETE FROM request_translations WHERE request_id = ?', [updated.id]).catch(() => {});
+  requestTranslation.translateForProviders(updated).catch(() => {});
+  return success(res, updated, req.t('updated'));
+});
+
 const getOne = asyncHandler(async (req, res) => {
   if (!validId(req.params.id)) return notFound(res);
   const request = await Request.findById(req.params.id);
@@ -372,4 +412,5 @@ const acceptWarranty = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+  getPreviousClients, getReach, update,
   getTranslation, create, getMy, getNearby, getOne, updateStatus, setReminders, contact, agree, direct, remove, startChat, proposeWarranty, acceptWarranty };

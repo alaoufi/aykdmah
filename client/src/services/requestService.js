@@ -166,6 +166,24 @@ export async function getOffersForRequest(requestId) {
   return data.data;
 }
 
+// AYK-399: for its owner, how many providers see the open request.
+export async function getRequestReach(id) {
+  const { data } = await api.get(`/requests/${id}/reach`);
+  return data.data;
+}
+
+// AYK-402: the owner edits an open request before any agreement.
+export async function updateRequest(id, payload) {
+  const { data } = await api.put(`/requests/${id}`, payload);
+  return data.data;
+}
+
+// AYK-398: the provider's former requesters, read only.
+export async function listPreviousClients() {
+  const { data } = await api.get('/requests/previous-clients');
+  return data.data || [];
+}
+
 export async function listMyOffers(params = {}) {
   const { data } = await api.get('/offers/my', { params });
   return data;

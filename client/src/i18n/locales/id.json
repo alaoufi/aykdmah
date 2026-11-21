@@ -167,10 +167,6 @@
     "get_it_on": "DAPATKAN DI",
     "download_on": "Unduh di",
     "coming_soon": "Segera hadir di",
-    "mode_provider": "Saya penyedia layanan",
-    "mode_provider_hint": "Permintaan di profesi dan area saya",
-    "mode_client": "Saya pencari layanan",
-    "mode_client_hint": "Penyedia di area saya, dan permintaan baru",
     "tab_requests": "Pencari layanan",
     "tab_requests_hint": "Permintaan dari yang butuh layanan",
     "tab_requests_hint_provider": "Permintaan di profesi saya",
@@ -426,7 +422,13 @@
     "warranty_accept": "Setuju",
     "auto_translated": "Diterjemahkan otomatis",
     "show_original": "Lihat asli",
-    "show_translation": "Lihat terjemahan"
+    "show_translation": "Lihat terjemahan",
+    "edit": "Ubah permintaan",
+    "edit_hint": "Anda bisa mengubah permintaan selama masih terbuka dan belum sepakat dengan siapa pun. Setelah disimpan, permintaan diterjemahkan ulang dan ditampilkan ke penyedia di profesi dan wilayah barunya.",
+    "reach_count": "Permintaan Anda kini tampil untuk {{count}} penyedia di profesi dan wilayahnya.",
+    "reach_none": "Belum ada penyedia di profesi ini yang mencakup lokasi permintaan Anda.",
+    "reach_none_profession": "Belum ada penyedia yang terdaftar di profesi ini. Permintaan Anda tetap terbuka dan dilihat oleh yang memilih «Semua permintaan terbuka»; Anda bisa mengganti profesi jika ada yang lebih cocok.",
+    "reach_none_area": "Penyedia di profesi ini ada, tetapi belum mencakup distrik Anda. Permintaan Anda tetap terbuka dan dilihat oleh yang memperluas cakupan atau memilih «Semua permintaan terbuka»."
   },
   "offer": {
     "submit_title": "Kirim penawaran harga",
@@ -516,7 +518,7 @@
     "private_account_address": "Alamat akun Anda tetap pribadi. Tentukan lokasi tempat usaha Anda yang terlihat oleh orang lain secara terpisah di data usaha di bawah.",
     "must_change_password": "Untuk keamanan akun Anda, ganti kata sandi sementara sekarang sebelum melanjutkan (setidaknya 4 karakter).",
     "account_type": "Jenis akun",
-    "account_type_hint": "Salah memilih jenis akun saat mendaftar? Ubah di sini kapan saja.",
+    "account_type_hint": "Menawarkan layanan, atau membutuhkannya? Pilih jenis akun Anda di sini kapan saja.",
     "account_type_current": "Saat ini",
     "account_type_work_hint": "Untuk memberikan layanan, pilih minimal satu profesi, lingkungan yang Anda layani, dan tempat Anda memberikan layanan.",
     "account_type_to_client_note": "Anda tidak akan tampil lagi sebagai penyedia layanan, dan penawaran Anda yang masih menunggu akan ditarik. Data pekerjaan Anda tetap tersimpan jika Anda kembali nanti.",
@@ -1350,7 +1352,18 @@
     "nav_work": "Permintaan dan kontak",
     "nav_catalog": "Profesi dan layanan",
     "nav_money": "Pembayaran dan pendapatan",
-    "nav_places": "Tempat"
+    "nav_places": "Tempat",
+    "ad_activate_unpaid": "هذا الإعلان لم يُدفع. بالتنشيط يُعفى من الرسوم ويبدأ عرضه الآن. اكتب سبب الإعفاء (يُحفظ في سجله).",
+    "ad_cancel_service": "إلغاء الخدمة",
+    "ad_cancelled": "أُلغي الإعلان ولن يظهر لأحد.",
+    "paid_ads_switch": "الاشتراك بالإعلانات المدفوعة",
+    "paid_ads_on": "مفعّل",
+    "paid_ads_off": "غير مفعّل",
+    "paid_ads_turn_on": "تفعيل",
+    "paid_ads_turn_off": "إلغاء التفعيل",
+    "paid_ads_switch_hint": "عند التفعيل يظهر للمستخدمين «أعلن» ويستطيعون طلب إعلان مدفوع. عند إلغائه تختفي كلمة الاشتراك والإعلان المدفوع من الموقع، وتبقى إعلانات الإدارة والإعلانات الجارية تُعرض.",
+    "paid_ads_turned_on": "فُعّل الاشتراك بالإعلانات المدفوعة.",
+    "paid_ads_turned_off": "أُلغي تفعيل الاشتراك بالإعلانات المدفوعة."
   },
   "errors": {
     "generic": "Terjadi kesalahan",
@@ -1742,7 +1755,7 @@
     "client_steps": {
       "browse": {
         "title": "Daftar dengan ponsel dan kata sandi sederhana",
-        "body": "Daftar dengan nomor ponsel dan kata sandi sederhana minimal 4 angka agar tidak ada orang lain yang masuk atas nama Anda. Nama bersifat opsional, dan lingkungan Anda terdeteksi otomatis serta bisa diubah. Di beranda, pilih profesi dari daftar untuk melihat jumlah penyedia layanan di lingkungan Anda dan yang tersedia sekarang. Setelah pembuatan akun dikonfirmasi, muncul pesan berhasil dan tautan untuk masuk. Pesan penghapusan akun hanya muncul setelah server mengonfirmasinya."
+        "body": "Daftar dengan nomor ponsel dan kata sandi sederhana minimal 4 karakter, agar tidak ada orang lain yang masuk atas nama Anda. Wilayah dan kota Anda terdeteksi otomatis dan bisa diubah. Di bagian atas beranda ada «Pencari layanan» dan «Penyedia layanan», dan di bawahnya «Cakupan»: distrik Anda dulu, lalu perluas ke kota, wilayah, atau semua. Setelah pembuatan akun dikonfirmasi, muncul pesan berhasil dan tautan masuk. Pesan penghapusan akun hanya muncul setelah server mengonfirmasinya."
       },
       "details": {
         "title": "Pilih profesi, lalu rekam kebutuhan Anda dengan suara",
@@ -1788,7 +1801,7 @@
       }
     },
     "venue_title": "Siapa yang datang ke siapa?",
-    "venue_intro": "Saat mendaftar, penyedia layanan memilih salah satu dari tiga cara, dan bisa mengubahnya kapan saja dari «Profil saya». Pada cara pertama dan ketiga, ia menentukan lokasi tempatnya di peta.",
+    "venue_intro": "Saat memilih profesinya, penyedia memilih salah satu dari tiga cara, dan bisa mengubahnya kapan saja dari «Akun saya». Pada cara pertama dan ketiga, ia memilih tempatnya di peta.",
     "faq_title": "Pertanyaan yang sering diajukan",
     "faq": {
       "price": {
@@ -1869,33 +1882,9 @@
     "signup_intro": "Mendaftar hanya butuh satu menit, dan semua pilihan Anda bisa diubah nanti dari «Profil saya».",
     "account_completion": "Setelah pendaftaran selesai, muncul pesan berhasil dan tautan ke halaman masuk. Setelah penghapusan akun dikonfirmasi, muncul pesan berhasil dan tautan ke beranda.",
     "signup_points": {
-      "types": {
-        "title": "Pilih jenis akun Anda",
-        "body": "«Pencari layanan» untuk yang meminta layanan, «Penyedia layanan» untuk yang memberikannya, dan «Keduanya» untuk yang memberikan layanan dan juga butuh layanan lain, misalnya sopir yang butuh tukang listrik."
-      },
-      "basics": {
-        "title": "Nomor ponsel dan kata sandi",
-        "body": "Cukup nomor ponsel dan kata sandi 4 karakter; nama bersifat opsional. Kode verifikasi 4 angka dikirim lewat SMS untuk mengonfirmasi nomor Anda. Jika lupa kata sandi, ketuk «Lupa kata sandi?» di halaman masuk, lalu Anda menerima kode dan bisa memilih kata sandi baru."
-      },
-      "location": {
-        "title": "Lokasi Anda, otomatis",
-        "body": "Izinkan aplikasi menentukan lokasi Anda, maka kota dan lingkungan Anda terdeteksi otomatis. Jika tidak bisa, pilih lokasi Anda di peta. Lingkungan hanya ditanyakan jika tidak terdeteksi."
-      },
-      "professions": {
-        "title": "Profesi (untuk penyedia layanan)",
-        "body": "Pilih minimal satu profesi; Anda bisa memilih lebih dari satu, misalnya tukang ledeng dan tukang listrik. Layanan setiap profesi dipilih otomatis, dan Anda menghapus centang yang tidak Anda tawarkan. Pencari layanan tidak memilih profesi."
-      },
-      "coverage": {
-        "title": "Lingkungan yang Anda layani",
-        "body": "Pilih satu atau beberapa lingkungan di kota Anda yang Anda layani, atau ketuk «Semua lingkungan». Lingkungan Anda sendiri sudah dipilih sebagai awal."
-      },
-      "coupon": {
-        "title": "Nomor Anda dan nomor undangan",
-        "body": "Setiap akun punya nomor tetap berisi angka saja (misalnya 27) yang tampil di bagian atas situs dan di menu akun Anda; Anda bisa masuk dengan nomor ini, nomor ponsel, atau email. Nomor penyedia layanan juga merupakan nomor undangannya: orang yang diundang oleh penyedia layanan menulis nomornya di kolom «Nomor undangan» saat mendaftar. Tombol «Buat akun» tidak aktif sampai kolom wajib terisi lengkap dan benar, syarat disetujui, dan kode verifikasi diisi."
-      },
       "matching": {
         "title": "Apa yang tampil di beranda Anda",
-        "body": "Penyedia layanan melihat permintaan terbuka di lingkungan yang dilayaninya dan di profesinya. Pencari layanan melihat penyedia layanan yang melayani wilayahnya di profesi yang dipilihnya: yang unggulan (lencana berbayar) lebih dulu, lalu yang penilaiannya tertinggi. Ubah wilayah Anda lewat «Ubah wilayah Anda» di bagian atas situs. Jika Anda mengurus lebih dari satu rumah, ketuk «Lingkungan lain» untuk melihat penyedia layanan di sana tanpa mengubah lingkungan terdaftar Anda."
+        "body": "Di bagian atas beranda ada dua tombol: «Pencari layanan» menampilkan permintaan, dan «Penyedia layanan» menampilkan siapa yang menyediakan layanan. Di bawahnya ada «Cakupan»: dimulai dari distrik Anda (atau distrik cakupan Anda jika Anda penyedia), lalu Anda perluas ke kota, wilayah, atau semua. Di setiap tingkat, penyedia hanya melihat permintaan di profesinya, dengan permintaan klien sebelumnya tampil lebih dulu bertanda «⭐ Klien sebelumnya». Pencari layanan melihat para penyedia, yang unggulan (lencana berbayar) lebih dulu, lalu yang berperingkat tertinggi. Yang mengurus lebih dari satu rumah menekan «Distrik lain» untuk melihat penyedia di distrik itu tanpa mengubah distrik terdaftarnya."
       },
       "edit": {
         "title": "Mengubah data nanti",
@@ -1903,7 +1892,7 @@
       },
       "change_type": {
         "title": "Mengubah jenis akun",
-        "body": "Jika Anda salah memilih jenis akun saat mendaftar, buka «Profil saya» ← «Jenis akun» lalu pilih: pencari layanan, penyedia layanan, atau keduanya. Untuk menjadi penyedia layanan, pilih minimal satu profesi, lingkungan, dan tempat layanan. Anda tidak bisa berhenti menjadi penyedia layanan selama masih ada pekerjaan berjalan, dan tidak bisa menjadi «hanya penyedia layanan» selama masih ada permintaan terbuka (pilih «Keduanya»). Saat beralih menjadi pencari layanan, data pekerjaan Anda tetap disimpan untuk nanti."
+        "body": "Setiap akun baru dimulai sebagai pencari layanan. Untuk menawarkan layanan, tekan «Pilih profesi dan wilayah saya» setelah mendaftar, atau buka «Akun saya» → «Jenis akun» dan pilih: pencari layanan, penyedia layanan, atau keduanya. Untuk menjadi penyedia, pilih minimal satu profesi, distrik, dan tempat layanan. Anda tidak bisa berhenti menyediakan layanan selama ada pekerjaan berjalan, atau menjadi «hanya penyedia» selama punya permintaan terbuka (pilih «Keduanya»). Saat beralih menjadi pencari layanan, detail pekerjaan Anda disimpan untuk nanti."
       },
       "stats": {
         "title": "Angka yang membantu Anda",
@@ -2586,7 +2575,22 @@
     "tasks_title": "Pekerjaan saya",
     "tasks_hint": "Permintaan yang Anda hubungi atau ditugaskan kepada Anda. «Pekerjaan aktif saya» membutuhkan Anda sekarang; «Arsip pekerjaan saya» menyimpan yang selesai atau dibatalkan.",
     "task_waiting": "Menunggu balasan pemilik permintaan",
-    "professions_areas": "Profesi & wilayah saya"
+    "professions_areas": "Profesi & wilayah saya",
+    "previous_client": "Klien sebelumnya",
+    "previous_clients_title": "Klien saya sebelumnya",
+    "previous_clients_hint": "Orang yang pernah Anda layani. Permintaan baru mereka tampil lebih dulu untuk Anda.",
+    "previous_clients_page_hint": "Hanya untuk dilihat: orang yang pernah sepakat atau Anda layani. Nama pencari layanan hanya tampil jika Anda menyimpannya di «Direktori saya».",
+    "previous_clients_search": "Cari dengan nama, nomor akun, atau distrik",
+    "previous_clients_empty": "Belum ada klien sebelumnya. Setiap orang yang sepakat dengan Anda untuk pekerjaan akan muncul di sini.",
+    "previous_clients_jobs": "Pekerjaan bersama: {{count}}",
+    "previous_clients_last": "Pekerjaan terakhir",
+    "previous_clients_open_request": "Sedang punya permintaan terbuka",
+    "all_open_title": "Semua permintaan terbuka",
+    "unrestricted_label": "Semua permintaan terbuka",
+    "unrestricted_hint": "Lepas batasan: tampilkan semua permintaan terbuka di profesi dan wilayah mana pun, bukan hanya profesi dan cakupan saya.",
+    "my_info_title": "Data saya",
+    "my_info_hint": "Nama, deskripsi layanan saya, telepon dan WhatsApp yang ditampilkan, profesi dan distrik saya.",
+    "my_info_edit": "Ubah"
   },
   "requester": {
     "all_professions": "Semua profesi",
@@ -2899,25 +2903,9 @@
     "reopen": "Panduan pendaftaran langkah demi langkah",
     "image_note": "Gambar dari halaman pendaftaran itu sendiri.",
     "steps": {
-      "types": {
-        "title": "Pilih jenis akun",
-        "body": "Di bagian atas halaman ada tiga tombol: «{{client}}» jika Anda mencari orang yang memberi layanan, «{{provider}}» jika Anda memberi layanan kepada orang lain, dan «{{both}}» jika Anda memberi layanan dan kadang membutuhkan layanan orang lain. Anda bisa mengubahnya nanti di «{{profile}}»."
-      },
       "account": {
         "title": "Nomor ponsel dan kata sandi",
         "body": "Masukkan nomor ponsel Saudi Anda seperti 05XXXXXXXX, lalu kata sandi minimal 4 karakter. Tidak ada yang lain: wilayah dan kota Anda terdeteksi otomatis dan bisa Anda ubah, dan jika Anda menawarkan layanan, pilihan profesi dan wilayah ditawarkan setelah mendaftar, dan itu opsional. Jika nomor Anda sudah terdaftar, tombol «{{signin}}» dan «{{forgot}}» akan muncul."
-      },
-      "location": {
-        "title": "Lokasi Anda",
-        "body": "Izinkan lokasi saat ponsel bertanya, maka kota dan lingkungan Anda ditemukan otomatis. Jika Anda menolak atau gagal, ketuk «{{map}}» dan pilih tempat Anda. Lingkungan hanya ditanyakan jika tidak ditemukan otomatis. Pencari layanan juga bisa menentukan lokasinya nanti."
-      },
-      "work": {
-        "title": "Penyedia layanan: profesi dan lingkungan Anda",
-        "body": "Pilih satu atau lebih profesi, misalnya tukang ledeng atau tukang listrik. Semua layanan profesi itu terpilih otomatis; hapus yang tidak Anda tawarkan. Lalu pilih lingkungan di kota Anda yang Anda layani, atau ketuk «{{all}}». Pencari layanan tidak melihat langkah ini."
-      },
-      "schedule": {
-        "title": "Penyedia layanan: jam dan tempat kerja (opsional)",
-        "body": "Langkah ini opsional. Jika dilewati, Anda dianggap tersedia setiap hari kapan saja dan Anda yang datang ke pelanggan. Untuk mengubahnya, ketuk «{{extras}}», pilih hari dan jam Anda, lalu tentukan apakah Anda datang ke pelanggan, pelanggan datang ke Anda, atau keduanya; jika pelanggan datang ke Anda, tandai tempat Anda di peta. Anda bisa mengubahnya nanti di «{{profile}}»."
       },
       "finish": {
         "title": "Buat akun",
@@ -2977,5 +2965,8 @@
     "qr": "Kode QR",
     "qr_hint": "Pindai kode dengan kamera ponsel untuk membuka tautan",
     "qr_save": "Simpan gambar"
+  },
+  "ads": {
+    "hide": "Sembunyikan iklan"
   }
 }
