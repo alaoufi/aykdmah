@@ -92,6 +92,10 @@ export default function AdminSecurityReportPage() {
         <button type="button" onClick={() => setTick((n) => n + 1)} className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600">
           ↻ {t('admin.sec_refresh')}
         </button>
+        {/* AYK-415: a short line for the filters (they only change what this report shows). */}
+        <div className="w-full text-[12px] text-slate-500 leading-snug" data-testid="field-short">
+          اختر مدة جاهزة أو «من» و«إلى» معًا. المصدر: الخادم لمحاولات دخوله، والموقع لتسجيل الدخول.
+        </div>
       </div>
 
       {error && <div role="alert" className="text-rose-700 text-[13px]">{error}</div>}

@@ -1,5 +1,5 @@
 import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   listIntegrations, getIntegrationProviders, createIntegration,
@@ -14,6 +14,61 @@ import EmptyState from '../../components/admin/EmptyState';
 import AdminFab from '../../components/admin/AdminFab';
 import { formatRelativeTime } from '../../utils/formatters';
 import { localizedIntegrationText } from '../../data/referenceIntegrationLabels';
+import { InfoButton, InfoPanel } from '../../components/common/InfoTip';
+
+// AYK-415: a field's name with (i) beside it, a short line under it, and the full explanation in
+// place. `label` may hold the field itself (a checkbox) when there is no `htmlFor`.
+function HelpLabel({ htmlFor, label, short, info, className = 'block text-[12px] font-bold text-fg' }) {
+  const [open, setOpen] = useState(false);
+  const panelId = useId();
+  return (
+    <div className="mb-1">
+      <span className="flex items-center gap-1.5">
+        <label htmlFor={htmlFor} className={className}>{label}</label>
+        {info && <InfoButton open={open} onToggle={() => setOpen(v => !v)} controls={panelId} label={typeof label === 'string' ? label : ''} />}
+      </span>
+      {short && <div className="text-[12px] text-slate-500 mt-0.5 leading-snug" data-testid="field-short">{short}</div>}
+      <InfoPanel id={panelId} open={open}>{info}</InfoPanel>
+    </div>
+  );
+}
+
+// The provider's own fields (server/services/integrations/*.js), explained by what the sending code
+// does with each one. Secret values are never shown back; an empty box keeps the saved one.
+const KEEP = 'عند التعديل: اترك الخانة فارغة لتبقى القيمة المحفوظة، أو اكتب قيمة جديدة لتستبدلها.';
+function providerFieldHelp(type, key, sensitive) {
+  if (sensitive) {
+    return {
+      short: 'مفتاح سري تأخذه من لوحة حسابك لدى المزوّد. يُحفظ مشفّرًا ولا يُعرض.',
+      info: `انسخه من لوحة حسابك لدى المزوّد والصقه كما هو، دون مسافات، وهو المفتاح نفسه وليس رابطًا.\nيُحفظ مشفّرًا ولا يظهر بعد الحفظ إلا مختصرًا في البطاقة.\nبدونه لا يستطيع الموقع الإرسال عبر هذا المزوّد.\n${KEEP}`,
+    };
+  }
+  const help = {
+    account_sid: ['رقم تعريف حسابك لدى Twilio، يبدأ بحرفي AC.', 'تجده في الصفحة الرئيسية للوحة Twilio.\nيُرسل مع المفتاح السري لكل رسالة.'],
+    from: type === 'email'
+      ? ['البريد الذي تصل منه الرسائل، ويجب أن يكون موثّقًا لدى المزوّد.', 'مثال: no-reply@aykdmh.com.\nإن لم يكن موثّقًا لدى المزوّد يرفض الإرسال.']
+      : ['رقم الإرسال الذي اشتريته لدى المزوّد، بالصيغة الدولية.', 'تصل رسائل الرموز من هذا الرقم.\nمثال: +15550000000.'],
+    sender_name: ['اسم المرسل الذي يراه المستلم بدل الرقم، معتمد لدى المزوّد.', 'يجب أن يكون اسمًا معتمدًا في حسابك لدى المزوّد، وإلا تُرفض الرسائل.\nإن تركته فارغًا يُستخدم الاسم في «إعدادات إضافية»، ثم الاسم الافتراضي AyKhidma.'],
+    sender: ['اسم المرسل الذي يراه المستلم، كما هو معتمد لدى المزوّد. مطلوب.', 'يجب أن يطابق اسم مرسل معتمدًا في حسابك لدى المزوّد حرفًا بحرف، وإلا تُرفض الرسائل.\nمثال: AyKhidma.'],
+    api_url: ['اختياري: اتركه فارغًا ليُستخدم عنوان المزوّد المعتاد.', 'لا تملأه إلا إذا طلب منك المزوّد عنوانًا آخر.\nيُقبل فقط عنوان يبدأ بـ https ويكون على موقع المزوّد نفسه، وإلا يُرفض الحفظ.'],
+    phone_number_id: ['رقم تعريف رقم الواتساب في حسابك لدى Meta (ليس رقم الجوال نفسه).', 'تجده في لوحة واتساب للأعمال لدى Meta، بجانب رقم الجوال المربوط.\nتُرسل منه رسائل الرموز.'],
+    base_url: ['عنوان خدمة نفاذ لدى الجهة المزوّدة، يبدأ بـ https.', 'تعطيك إياه الجهة التي تربطك بنفاذ.\nيُقبل فقط عنوان آمن يبدأ بـ https من العناوين المسموح بها، وإلا يُرفض الحفظ.'],
+    client_id: ['رقم تعريف حسابك لدى الجهة المزوّدة لنفاذ.', 'تعطيك إياه الجهة المزوّدة مع المفتاح السري.\nيُرسل مع كل طلب تحقق عبر نفاذ.'],
+  }[key];
+  if (!help) return { short: 'قيمة يطلبها هذا المزوّد؛ انسخها من لوحة حسابك لديه.', info: `انسخها كما هي من لوحة حسابك لدى المزوّد.\n${KEEP}` };
+  return { short: help[0], info: `${help[1]}\n${KEEP}` };
+}
+function configFieldHelp(key) {
+  const help = {
+    sender_name: ['اسم مرسل احتياطي، يُستخدم إذا تُرك «Sender name» فارغًا.', 'إن تُرك الاثنان فارغين يُستخدم الاسم AyKhidma.\nيجب أن يكون معتمدًا لدى المزوّد.'],
+    from_name: ['الاسم الذي يظهر للمستلم بجانب بريد المرسل.', 'مثال: «أي خدمة».\nإن تركته فارغًا يظهر AY KHIDMA.'],
+    base_url: ['عنوان احتياطي لخدمة نفاذ، يُستخدم إذا تُرك «Base URL» فارغًا.', 'يُقبل فقط عنوان آمن يبدأ بـ https من العناوين المسموح بها.'],
+    template_name: ['يُحفظ فقط؛ الإرسال الحالي لا يستخدمه ويرسل الرموز نصًا عاديًا.', 'هذا اسم قالب رسالة معتمد لدى Meta.\nالكود الحالي يحفظه ولا يقرؤه عند الإرسال، فلا يتغير شيء بملئه أو تركه.'],
+    template_lang: ['يُحفظ فقط؛ الإرسال الحالي لا يستخدمه.', 'لغة قالب الرسالة لدى Meta (مثل ar أو en).\nالكود الحالي يحفظها ولا يقرؤها عند الإرسال.'],
+  }[key];
+  if (!help) return { short: 'إعداد يخص هذا المزوّد، ليس سرًّا.', info: 'يُحفظ كما تكتبه ويظهر عند التعديل.\nاتركه فارغًا إن لم يطلبه المزوّد.' };
+  return { short: help[0], info: help[1] };
+}
 
 const TYPE_META = {
   sms:      { icon: '📱', labelKey: 'admin.verify_method_sms' },
@@ -243,8 +298,11 @@ export default function AdminIntegrationsPage() {
       )}
 
       <div className="bg-surface border border-border rounded-card p-4">
-        <div className="text-[12.5px] font-bold text-fg mb-1">{t('integration.test_send_to')}</div>
+        <HelpLabel htmlFor="integration-test-to" className="text-[12.5px] font-bold text-fg" label={t('integration.test_send_to')}
+          short="الجوال أو البريد الذي تصله رسالة الاختبار عند الضغط على «اختبار»."
+          info={'للرسائل النصية والواتساب: رقم جوال بالصيغة الدولية مثل +966500000000. للبريد: عنوان بريد.\nإن تركته فارغًا تُرسل إلى جوالك أو بريدك المسجّل في حسابك.\nاختبار نفاذ لا يستعمل هذه الخانة.\nالنتيجة تظهر فوقها، وتُحفظ مع الربط كـ«آخر اختبار».'} />
         <input
+          id="integration-test-to"
           value={testTarget}
           onChange={(e) => setTestTarget(e.target.value)}
           placeholder="+9665XXXXXXXX / you@example.com"
@@ -270,8 +328,10 @@ export default function AdminIntegrationsPage() {
         <div className="space-y-3">
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[12px] font-bold text-fg mb-1">{t('integration.type')}</label>
-              <select value={form.type} disabled={!!editing}
+              <HelpLabel htmlFor="integration-type" label={t('integration.type')}
+                short="القناة التي يخدمها هذا الربط: رسائل نصية، واتساب، بريد، أو نفاذ."
+                info={'يحدد الغرض: الرسائل النصية لرموز الدخول والتسجيل والتحقق من الجوال، والواتساب والبريد لرموز التحقق، ونفاذ للتحقق من الهوية.\nتغيير النوع يمسح الخانات التي كتبتها تحته.\nلا يمكن تغييره بعد الحفظ؛ احذف الربط وأنشئ غيره.'} />
+              <select id="integration-type" value={form.type} disabled={!!editing}
                 onChange={(e) => {
                   const t = e.target.value;
                   const firstP = providers[t]?.[0]?.provider || '';
@@ -282,8 +342,10 @@ export default function AdminIntegrationsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-[12px] font-bold text-fg mb-1">{t('integration.provider')}</label>
-              <select value={form.provider} disabled={!!editing}
+              <HelpLabel htmlFor="integration-provider" label={t('integration.provider')}
+                short="الشركة التي ترسل عبرها، ولك حساب لديها."
+                info={'كل شركة تطلب خانات مختلفة تظهر أسفل بعد اختيارها.\nالخيارات المكتوب بجانبها dev only للتجارب فقط ولا تظهر في الموقع الحقيقي.\nلا يمكن تغييرها بعد الحفظ.'} />
+              <select id="integration-provider" value={form.provider} disabled={!!editing}
                 onChange={(e) => setForm({ ...form, provider: e.target.value, config: {}, credentials: {} })}
                 className="w-full px-3 py-2 rounded-card border border-border bg-surface-alt text-[14px]">
                 <option value="">—</option>
@@ -298,13 +360,17 @@ export default function AdminIntegrationsPage() {
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-[12px] font-bold text-fg mb-1">{t('integration.label')}</label>
-              <input value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })}
+              <HelpLabel htmlFor="integration-label" label={t('integration.label')}
+                short="اسم تعرف به هذا الربط في القائمة. اختياري، لا يراه الزوار."
+                info={'يظهر عنوانًا للبطاقة في هذه الصفحة فقط.\nمثال: «رسائل الرموز - الحساب الرئيسي».\nإن تركته فارغًا يظهر اسم المزوّد.'} />
+              <input id="integration-label" value={form.label} onChange={(e) => setForm({ ...form, label: e.target.value })}
                 className="w-full px-3 py-2 rounded-card border border-border bg-surface-alt text-[14px]" />
             </div>
             <div>
-              <label className="block text-[12px] font-bold text-fg mb-1">{t('integration.mode')}</label>
-              <select value={form.mode} onChange={(e) => setForm({ ...form, mode: e.target.value })}
+              <HelpLabel htmlFor="integration-mode" label={t('integration.mode')}
+                short="علامة للتذكير فقط: تجريبي أم فعلي. لا تغيّر طريقة الإرسال."
+                info={'تظهر شارة على البطاقة لتعرف هل المفاتيح تجريبية أم حقيقية.\nالموقع لا يغيّر شيئًا في الإرسال بحسبها: الرسائل تُرسل فعلًا متى كان الربط «مفعّلًا» ومفاتيحه صحيحة.\nالقيمة الافتراضية «تجريبي».'} />
+              <select id="integration-mode" value={form.mode} onChange={(e) => setForm({ ...form, mode: e.target.value })}
                 className="w-full px-3 py-2 rounded-card border border-border bg-surface-alt text-[14px]">
                 <option value="sandbox">{t('integration.mode_sandbox')}</option>
                 <option value="live">{t('integration.mode_live')}</option>
@@ -319,10 +385,15 @@ export default function AdminIntegrationsPage() {
                 <p className="text-[11px] text-fg-subtle mb-2">{t('integration.credentials_hint')}</p>
               )}
               <div className="space-y-2">
-                {adapter.fields.map(f => (
+                {adapter.fields.map(f => {
+                  const help = providerFieldHelp(form.type, f.key, f.sensitive);
+                  return (
                   <div key={f.key}>
-                    <label className="block text-[12px] text-fg mb-0.5">{localizedIntegrationText(f.label, lang)}{f.required && <span className="text-danger ms-1">*</span>}</label>
+                    <HelpLabel htmlFor={`integration-cred-${f.key}`} className="block text-[12px] text-fg"
+                      label={<>{localizedIntegrationText(f.label, lang)}{f.required && <span className="text-danger ms-1">*</span>}</>}
+                      short={help.short} info={help.info} />
                     <input
+                      id={`integration-cred-${f.key}`}
                       type={f.sensitive ? 'password' : 'text'}
                       autoComplete={f.sensitive ? 'new-password' : 'off'}
                       value={form.credentials[f.key] || ''}
@@ -331,7 +402,8 @@ export default function AdminIntegrationsPage() {
                       className="w-full px-3 py-2 rounded border border-border bg-surface text-[13.5px] font-mono"
                     />
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
@@ -340,38 +412,51 @@ export default function AdminIntegrationsPage() {
             <div>
               <div className="text-[11.5px] font-bold text-fg-muted uppercase tracking-wider mb-2">{t('integration.config')}</div>
               <div className="space-y-2">
-                {adapter.config_fields.map(f => (
+                {adapter.config_fields.map(f => {
+                  const help = configFieldHelp(f.key);
+                  return (
                   <div key={f.key}>
-                    <label className="block text-[12px] text-fg mb-0.5">{localizedIntegrationText(f.label, lang)}</label>
+                    <HelpLabel htmlFor={`integration-config-${f.key}`} className="block text-[12px] text-fg"
+                      label={localizedIntegrationText(f.label, lang)} short={help.short} info={help.info} />
                     <input
+                      id={`integration-config-${f.key}`}
                       value={form.config[f.key] || ''}
                       onChange={(e) => setForm({ ...form, config: { ...form.config, [f.key]: e.target.value } })}
                       className="w-full px-3 py-2 rounded border border-border bg-surface-alt text-[14px]"
                     />
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
 
           <div>
-            <label className="block text-[12px] font-bold text-fg mb-1">{t('integration.webhook')}</label>
-            <input value={form.webhook_url} onChange={(e) => setForm({ ...form, webhook_url: e.target.value })}
+            <HelpLabel htmlFor="integration-webhook" label="عنوان استقبال التنبيهات من المزوّد"
+              short="يُحفظ فقط؛ الموقع لا يستعمله حاليًا. يمكن تركه فارغًا."
+              info={'هو عنوان صفحة يرسل إليها المزوّد أخبارًا مثل «وصلت الرسالة».\nالكود الحالي يحفظه مع الربط ولا يستعمله في الإرسال ولا في الاستقبال، فملؤه أو تركه لا يغيّر شيئًا.\nإن ملأته فيبدأ بـ https.'} />
+            <input id="integration-webhook" value={form.webhook_url} onChange={(e) => setForm({ ...form, webhook_url: e.target.value })}
               placeholder="https://…"
               className="w-full px-3 py-2 rounded-card border border-border bg-surface-alt text-[14px] font-mono" />
           </div>
 
           <div className="flex flex-wrap gap-4">
-            <label className="inline-flex items-center gap-2 text-[13px]">
-              <input type="checkbox" checked={form.is_enabled}
-                onChange={(e) => setForm({ ...form, is_enabled: e.target.checked })} />
-              <span>{t('integration.enabled')}</span>
-            </label>
-            <label className="inline-flex items-center gap-2 text-[13px]">
-              <input type="checkbox" checked={form.is_primary}
-                onChange={(e) => setForm({ ...form, is_primary: e.target.checked })} />
-              <span>★ {t('integration.primary')}</span>
-            </label>
+            <div className="flex-1 min-w-[220px]">
+              <HelpLabel className="inline-flex items-center gap-2 text-[13px]"
+                label={<><input type="checkbox" checked={form.is_enabled}
+                  onChange={(e) => setForm({ ...form, is_enabled: e.target.checked })} />
+                  <span>{t('integration.enabled')}</span></>}
+                short="لا يُرسل الموقع عبر هذا الربط إلا وهو مفعّل."
+                info={'مفعّل: يستعمله الموقع لإرسال الرموز من نوعه.\nموقوف: يبقى محفوظًا ولا يُستعمل، وزر «اختبار» يبقى يعمل.\nإن لم يكن هناك ربط مفعّل من نوع ما، تتوقف رسائل ذلك النوع وتظهر للمستخدم رسالة أن الخدمة غير مهيأة.'} />
+            </div>
+            <div className="flex-1 min-w-[220px]">
+              <HelpLabel className="inline-flex items-center gap-2 text-[13px]"
+                label={<><input type="checkbox" checked={form.is_primary}
+                  onChange={(e) => setForm({ ...form, is_primary: e.target.checked })} />
+                  <span>★ {t('integration.primary')}</span></>}
+                short="إن كان لديك أكثر من ربط مفعّل من النوع نفسه، يُقدَّم هذا."
+                info={'يُستعمل ربط واحد فقط لكل نوع: الرئيسي المفعّل أولًا، وإلا الأقدم بين المفعّلة.\nتأشيره هنا يزيل «رئيسي» عن غيره من النوع نفسه تلقائيًا.\nالرئيسي الموقوف لا يُستعمل.'} />
+            </div>
           </div>
         </div>
       </Modal>

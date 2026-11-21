@@ -7,6 +7,36 @@ import {
 import { apiError } from '../../services/api';
 import { useAuth } from '../../hooks/useAuth';
 import Modal from '../common/Modal';
+import { InfoButton, InfoPanel } from '../common/InfoTip';
+
+// AYK-415: one choice (its box and name), a short line under the name, and (i) beside it that
+// opens the full explanation in place. The (i) stays outside the <label> so it never ticks the box.
+function HelpChoice({ className, control, title, short, info, infoId, infoLabel }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className={className}>
+      <div className="flex items-start gap-2">
+        <label className="flex items-start gap-3 flex-1 min-w-0 cursor-[inherit]">
+          {control}
+          <span className="flex-1">
+            {title}
+            {short && <span className="block text-[12px] text-slate-500 leading-snug mt-0.5" data-testid="field-short">{short}</span>}
+          </span>
+        </label>
+        {info && <InfoButton open={open} onToggle={() => setOpen(v => !v)} controls={infoId} label={infoLabel} />}
+      </div>
+      <InfoPanel id={infoId} open={open}>{info}</InfoPanel>
+    </div>
+  );
+}
+
+// The full explanation of each way of granting access (server: User.updateAdminPermissions, roleCheck).
+const MODE_INFO = {
+  super: 'يدخل كل أقسام الإدارة وتبويباتها، الحالية والتي تُضاف لاحقًا، ويدير حسابات الإدارة الأخرى وصلاحياتها كلها.\nلا يمنحها إلا من عنده «إدارة عامة».\nاستعملها لصاحب الموقع أو من تثق به تمامًا.',
+  all: 'يدخل كل الأقسام الحالية، وأي قسم جديد يُضاف للوحة لاحقًا يصله تلقائيًا.\nلا يشمل إدارة حسابات الإدارة الأخرى؛ ذلك في الخانة الحمراء أسفل.\nمناسب لمن يعمل على كل شيء عدا الصلاحيات.',
+  sections: 'اختر من القائمة الأقسام التي يدخلها كاملة، بكل تبويباتها.\nأي تبويب يُضاف لاحقًا إلى قسم اخترته يصله تلقائيًا، ولا يرى الأقسام غير المختارة.\nمثال: قسم المالية فقط لموظف الحسابات.',
+  tabs: 'اختر تبويبات بعينها من كل قسم، ولا يرى غيرها.\nالتبويبات الجديدة لا تصله تلقائيًا؛ تحتاج أن تؤشرها له.\nالتبويبات المعلَّمة «حساسة» تفتح بيانات أو عمليات مهمة، فامنحها بحذر.',
+};
 
 // Permission picker for one admin user (AYK-359, the owner: «إدارة عامة / إدارة مخصصة، وفيها كل
 // الأقسام أو تحديد أقسام أو تحديد تبويبات»):
@@ -113,14 +143,12 @@ export default function AdminPermissionsEditor({ open, userId, userName, onClose
   const groupName = (group) => t(`admin.perm_group.${group}`, group);
 
   const choice = (value, title, hint, disabled = false) => (
-    <label className={`flex items-start gap-3 p-3 rounded-card border-2 transition ${mode === value ? 'border-primary bg-primary-soft' : 'border-border bg-surface'} ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}>
-      <input type="radio" name="admin-mode" value={value} checked={mode === value} disabled={disabled}
-        onChange={() => { setMode(value); setError(''); }} className="w-5 h-5 mt-0.5 accent-primary" data-testid={`mode-${value}`} />
-      <span className="flex-1">
-        <span className="block font-extrabold text-ink text-[14px]">{title}</span>
-        <span className="block text-[11.5px] text-fg-muted leading-relaxed mt-0.5">{hint}</span>
-      </span>
-    </label>
+    <HelpChoice
+      className={`p-3 rounded-card border-2 transition ${mode === value ? 'border-primary bg-primary-soft' : 'border-border bg-surface'} ${disabled ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer'}`}
+      control={<input type="radio" name="admin-mode" value={value} checked={mode === value} disabled={disabled}
+        onChange={() => { setMode(value); setError(''); }} className="w-5 h-5 mt-0.5 accent-primary" data-testid={`mode-${value}`} />}
+      title={<span className="block font-extrabold text-ink text-[14px]">{title}</span>}
+      short={hint} info={MODE_INFO[value]} infoId={`perm-mode-info-${value}`} infoLabel={title} />
   );
 
   return (
@@ -155,6 +183,9 @@ export default function AdminPermissionsEditor({ open, userId, userName, onClose
             {choice('tabs', '📑 تحديد تبويبات', 'يدخل التبويبات التي تختارها فقط.')}
 
             {mode === 'sections' && (
+              <div className="text-[12px] text-slate-500 leading-snug pt-1" data-testid="field-short">أشّر كل قسم يدخله؛ الرقم بجانبه عدد تبويباته اليوم.</div>
+            )}
+            {mode === 'sections' && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1" data-testid="sections-list">
                 {Object.entries(groups).map(([group, perms]) => (
                   <label key={group} className="flex items-center gap-2 p-2.5 rounded bg-surface-alt hover:bg-primary-soft transition cursor-pointer">
@@ -166,6 +197,9 @@ export default function AdminPermissionsEditor({ open, userId, userName, onClose
               </div>
             )}
 
+            {mode === 'tabs' && (
+              <div className="text-[12px] text-slate-500 leading-snug pt-1" data-testid="field-short">أشّر التبويبات التي يدخلها، أو «تحديد الكل» لقسم كامل في وقته.</div>
+            )}
             {mode === 'tabs' && Object.entries(groups).map(([group, perms]) => {
               const list = perms.filter(p => p.key !== ADMINS_KEY);
               if (!list.length) return null;
@@ -192,11 +226,13 @@ export default function AdminPermissionsEditor({ open, userId, userName, onClose
             })}
 
             {mode !== 'super' && (
-              <label className="flex items-center gap-2 p-2.5 rounded border border-rose-200 bg-rose-50 cursor-pointer">
-                <input type="checkbox" checked={admins} onChange={(e) => setAdmins(e.target.checked)} className="w-4 h-4 accent-rose-600" />
-                <span className="text-[12.5px] text-ink flex-1">👥 إدارة حسابات الإدارة الأخرى وصلاحياتها</span>
-                <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 font-bold">{t('admin.perm_sensitive')}</span>
-              </label>
+              <HelpChoice className="p-2.5 rounded border border-rose-200 bg-rose-50 cursor-pointer"
+                control={<input type="checkbox" checked={admins} onChange={(e) => setAdmins(e.target.checked)} className="w-4 h-4 mt-0.5 accent-rose-600" />}
+                title={<span className="flex items-center gap-2"><span className="text-[12.5px] text-ink flex-1">👥 إدارة حسابات الإدارة الأخرى وصلاحياتها</span>
+                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 font-bold">{t('admin.perm_sensitive')}</span></span>}
+                short="يسمح له بتعديل حسابات الإدارة الأخرى وتحديد أقسامها."
+                info={'يمنحه تعديل حسابات الإدارة وحظرها وحذفها، وجعل أي حساب إداريًا وتحديد أقسامه.\nلا يستطيع تعديل صاحب «إدارة عامة»، ولا حسابًا عنده صلاحيات أكثر منه.\nلا تأتي مع أي اختيار آخر تلقائيًا، فأشّرها فقط لمن يحتاجها.'}
+                infoId="perm-admins-info" infoLabel="إدارة حسابات الإدارة الأخرى" />
             )}
           </div>
 

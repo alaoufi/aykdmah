@@ -140,6 +140,10 @@ export default function AdminMarketingPage() {
         </label>
         <button type="submit" className="btn btn-primary">{t('marketing.apply')}</button>
         {(filters.from || filters.to) && <button type="button" className="btn btn-ghost" onClick={() => { setFilters({ from: '', to: '' }); load({}); }}>{t('marketing.all_time')}</button>}
+        {/* AYK-415: what the period changes, traced to server/services/marketingStats.js. */}
+        <div className="w-full text-[12px] text-slate-500 leading-snug" data-testid="field-short">
+          يحصر الأرقام فيمن سجّلوا بين التاريخين، ولا يغيّر الرسم اليومي ولا المستفيدين ولا الميزانية.
+        </div>
       </form>
 
       <Section title={t('marketing.registered')} hint={t('marketing.registered_hint')}>
