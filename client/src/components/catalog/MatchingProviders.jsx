@@ -223,7 +223,9 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
   const run = async action => { setBusy(true); setProblem(''); try { await action(); } catch (err) { !err?.cancelled && setProblem(apiError(err)); } finally { setBusy(false); } };
   return (
     // Providers are blue, requests orange, as in the logo (AYK-099).
-    <li className={`card tone-provider p-3 flex gap-3 items-start ${p.is_featured ? 'ring-2 ring-amber-400' : ''}`} data-testid="provider-card">
+    <li className={`card tone-provider p-3 ${p.is_featured ? 'ring-2 ring-amber-400' : ''}`} data-testid="provider-card">
+      {/* AYK-414 (the owner): the photo sits beside the name only; everything below uses the card's full width. */}
+      <div className="flex gap-3 items-center" data-testid="provider-card-head">
       <Avatar src={p.avatar} name={p.business_name || p.full_name} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 flex-wrap">
@@ -235,6 +237,11 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
         <div className="text-[13px] text-fg-muted mt-1 flex flex-wrap gap-x-3 gap-y-1">
           {p.category_name_ar && <span>🛠️ {localizedName({ name_ar: p.category_name_ar, name_en: p.category_name_en, name_translations: p.category_name_translations }, lang)}</span>}
           {p.district_name_ar && <span>📍 {localizedName({ name_ar: p.district_name_ar, name_en: p.district_name_en }, lang)}</span>}
+        </div>
+      </div>
+      </div>
+      <div className="min-w-0">
+        <div className="text-[13px] text-fg-muted mt-1.5 flex flex-wrap gap-x-3 gap-y-1">
           <TrustSummary userId={p.id} average={p.rating_avg} count={p.rating_count} opinion={p.opinion} />
           {p.completed_orders > 0 && <span>✅ {t('for_you.completed', { count: p.completed_orders })}</span>}
         </div>
@@ -251,7 +258,7 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
           {requester && !saved && (<button type="button" className="btn btn-outline btn-sm" disabled={busy} data-testid="save-provider"
               onClick={() => run(() => onToggleSaved(p.id))}>📇 {t('requester.add_directory')}</button>)}
           <Link to={`/providers/${p.id}`} className="btn btn-outline btn-sm">👤 {t('for_you.view_profile')}</Link>
-          <ShareMenu url={providerLink(p.id)} title={p.business_name || p.full_name} text={t('share_provider.message', { name: p.business_name || p.full_name })} testId="card-share" />
+          <ShareMenu variant="icon" url={providerLink(p.id)} title={p.business_name || p.full_name} text={t('share_provider.message', { name: p.business_name || p.full_name })} testId="card-share" />
         </div>
         <BlockedNotice message={problem} otherId={p.id} onUnblocked={() => setProblem('')} />
       </div>
