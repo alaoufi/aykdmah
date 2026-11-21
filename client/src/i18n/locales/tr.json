@@ -332,7 +332,11 @@
     "phone_not_registered": "Bu cep telefonu kayıtlı değil",
     "account_not_registered": "Bu hesap kayıtlı değil",
     "register_here": "Buradan kaydolun",
-    "recover_here": "Buradan kurtarın"
+    "recover_here": "Buradan kurtarın",
+    "offer_service_title": "Hizmet veriyor musunuz?",
+    "offer_service_hint": "Mesleğinizi ve hizmet verdiğiniz mahalleleri seçin; talep edenler sizi görsün, talepleri size ulaşsın. İsteğe bağlı; daha sonra «Hesabım»dan da yapabilirsiniz.",
+    "offer_service_button": "Mesleğimi ve bölgemi seç",
+    "continue_as_client": "Hizmet talep eden olarak devam et"
   },
   "request": {
     "create_title": "Yeni talep oluştur",
@@ -521,7 +525,9 @@
     "missing_region": "Bölgeyi seçin",
     "missing_city": "Şehri seçin",
     "missing_district": "Mahalleyi seçin",
-    "not_saved": "Kaydedilmedi"
+    "not_saved": "Kaydedilmedi",
+    "area_first_hint": "Önce bölgenizi ve şehrinizi seçin; mahalleleri görünsün ve hizmet alanınızı onlardan seçin.",
+    "area_first_save": "Bölgemi ve şehrimi kaydet"
   },
   "chat": {
     "title": "Sohbetler",
@@ -2885,7 +2891,7 @@
       },
       "account": {
         "title": "Telefon numarası ve şifre",
-        "body": "Suudi telefon numaranızı 05XXXXXXXX gibi yazın, ardından rakam, harf veya sembollerden oluşan en az 4 karakterlik bir şifre yazın. Ad isteğe bağlıdır. Numaranız daha önce kayıtlıysa yeniden kaydolmak yerine «{{signin}}» ve «{{forgot}}» düğmeleri görünür."
+        "body": "05XXXXXXXX gibi Suudi cep telefonu numaranızı, ardından en az 4 karakterlik bir şifre girin. Başka bir şey istenmez: bölgeniz ve şehriniz otomatik belirlenir ve değiştirebilirsiniz; hizmet veriyorsanız mesleğinizi ve mahallelerinizi seçmeniz kayıttan sonra size sunulur ve isteğe bağlıdır. Numaranız zaten kayıtlıysa «{{signin}}» ve «{{forgot}}» düğmeleri görünür."
       },
       "location": {
         "title": "Konumunuz",

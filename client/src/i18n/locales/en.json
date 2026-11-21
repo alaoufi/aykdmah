@@ -332,7 +332,11 @@
     "phone_not_registered": "This mobile number is not registered",
     "account_not_registered": "This account is not registered",
     "register_here": "Register here",
-    "recover_here": "Recover it here"
+    "recover_here": "Recover it here",
+    "offer_service_title": "Do you offer a service?",
+    "offer_service_hint": "Choose your profession and the districts you cover, so requesters see you and their requests reach you. Optional; you can do it later from «My account».",
+    "offer_service_button": "Choose my profession and area",
+    "continue_as_client": "Continue as a requester"
   },
   "request": {
     "create_title": "Create a new request",
@@ -521,7 +525,9 @@
     "missing_region": "Choose the region",
     "missing_city": "Choose the city",
     "missing_district": "Choose the neighborhood",
-    "not_saved": "Not saved"
+    "not_saved": "Not saved",
+    "area_first_hint": "Choose your region and city first, so their districts appear and you pick your coverage from them.",
+    "area_first_save": "Save my region and city"
   },
   "chat": {
     "title": "Messages",
@@ -2885,7 +2891,7 @@
       },
       "account": {
         "title": "Phone number and password",
-        "body": "Enter your Saudi mobile number, such as 05XXXXXXXX, then a password of at least 4 characters: digits, letters or symbols. The name is optional. If your number is already registered, you get a «{{signin}}» button and a «{{forgot}}» button instead of signing up again."
+        "body": "Enter your Saudi mobile number like 05XXXXXXXX, then a password of at least 4 characters. Nothing else is asked: your region and city are detected automatically and you can change them, and if you offer a service, choosing your profession and districts is offered after sign-up, and it is optional. If your number is already registered, «{{signin}}» and «{{forgot}}» buttons appear."
       },
       "location": {
         "title": "Your location",

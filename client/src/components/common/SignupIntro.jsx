@@ -7,7 +7,9 @@ import useCountry from '../../hooks/useCountry';
 // The sign-up guide (owner's request, AYK-296). The first time someone opens the sign-up page, they
 // choose their language, then a book shows how to sign up, step by step, with pictures of the page
 // itself in that language. «Start signing up» closes it; the button on the page opens it again.
-export const SIGNUP_STEPS = ['types', 'account', 'location', 'work', 'schedule', 'finish'];
+// AYK-396: sign-up is the phone and a password only; the area comes from the connection and the
+// profession is offered after the account is created (optional), so the guide has those two steps.
+export const SIGNUP_STEPS = ['account', 'finish'];
 const SEEN = 'ayk_signup_intro_seen';
 
 export function signupIntroSeen() {

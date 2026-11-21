@@ -5,7 +5,7 @@ import { readFileSync, existsSync } from 'node:fs';
 // AYK-296: the sign-up guide is complete in every language, quotes the page's own labels through
 // the same placeholders as Arabic, and has a picture of every step in every language.
 const LANGS = ['ar', 'en', 'ur', 'hi', 'bn', 'ml', 'fil', 'id', 'ne', 'am', 'tr'];
-const STEPS = ['types', 'account', 'location', 'work', 'schedule', 'finish'];
+const STEPS = ['account', 'finish']; // AYK-396: sign-up is the phone and a password only.
 const load = lang => JSON.parse(readFileSync(new URL(`../src/i18n/locales/${lang}.json`, import.meta.url), 'utf8'));
 const vars = text => [...String(text).matchAll(/\{\{(\w+)\}\}/g)].map(m => m[1]).sort();
 

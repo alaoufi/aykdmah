@@ -332,7 +332,11 @@
     "phone_not_registered": "Hindi rehistrado ang numerong ito",
     "account_not_registered": "Hindi rehistrado ang account na ito",
     "register_here": "Magrehistro dito",
-    "recover_here": "I-recover dito"
+    "recover_here": "I-recover dito",
+    "offer_service_title": "Nag-aalok ka ba ng serbisyo?",
+    "offer_service_hint": "Piliin ang iyong propesyon at ang mga lugar na sakop mo, para makita ka ng mga humihiling at makarating sa iyo ang kanilang mga request. Opsyonal; magagawa mo rin ito mamaya sa «Aking account».",
+    "offer_service_button": "Piliin ang aking propesyon at lugar",
+    "continue_as_client": "Magpatuloy bilang humihiling"
   },
   "request": {
     "create_title": "Gumawa ng bagong kahilingan",
@@ -521,7 +525,9 @@
     "missing_region": "Piliin ang rehiyon",
     "missing_city": "Piliin ang lungsod",
     "missing_district": "Piliin ang kapitbahayan",
-    "not_saved": "Hindi na-save"
+    "not_saved": "Hindi na-save",
+    "area_first_hint": "Piliin muna ang iyong rehiyon at lungsod, para lumabas ang mga distrito nito at mapili mo roon ang iyong sakop.",
+    "area_first_save": "I-save ang aking rehiyon at lungsod"
   },
   "chat": {
     "title": "Mga Mensahe",
@@ -2885,7 +2891,7 @@
       },
       "account": {
         "title": "Mobile number at password",
-        "body": "Isulat ang iyong Saudi mobile number gaya ng 05XXXXXXXX, saka password na kahit 4 na character: numero, letra o simbolo. Opsyonal ang pangalan. Kung naka-register na ang numero mo, lalabas ang button na «{{signin}}» at «{{forgot}}» sa halip na mag-register ulit."
+        "body": "Ilagay ang iyong Saudi mobile number tulad ng 05XXXXXXXX, pagkatapos ay password na hindi bababa sa 4 na character. Wala nang iba pang hinihingi: awtomatikong natutukoy ang iyong rehiyon at lungsod at mapapalitan mo ang mga ito, at kung nag-aalok ka ng serbisyo, iaalok sa iyo pagkatapos mag-sign up ang pagpili ng propesyon at mga lugar, at opsyonal ito. Kung nakarehistro na ang numero mo, lalabas ang mga button na «{{signin}}» at «{{forgot}}»."
       },
       "location": {
         "title": "Ang iyong lokasyon",

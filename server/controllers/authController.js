@@ -233,6 +233,8 @@ const register = asyncHandler(async (req, res) => {
     } catch (_) { /* column may not exist on older schemas */ }
   }
 
+  // AYK-396: an account without an area gets its region and city from its connection, no prompt.
+  await require('../services/accountAreaFromIp').fillAccountAreaFromIp(req, userId);
   const user = await User.findById(userId);
   const raw = await User.findByIdRaw(user.id);
   const token = await issueSession(req, res, raw);
@@ -345,6 +347,8 @@ const login = asyncHandler(async (req, res) => {
   if (user.is_blocked) return error(res, req.t('account_blocked'), 403);
   if (!user.is_active) return error(res, req.t('account_inactive'), 403);
 
+  // AYK-396: the first sign-in of an account that still has no area takes it from the connection.
+  if (requestScope(req) === 'site' && !user.city_id) await require('../services/accountAreaFromIp').fillAccountAreaFromIp(req, user.id);
   const token = await issueSession(req, res, user);
   // In the site and the app an admin account is an ordinary user (AYK-151).
   const found = await User.findById(user.id);
