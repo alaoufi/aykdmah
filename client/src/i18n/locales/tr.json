@@ -36,7 +36,8 @@
     "meter_short": "m",
     "kilometer_short": "km",
     "scroll_left": "Sola kaydır",
-    "scroll_right": "Sağa kaydır"
+    "scroll_right": "Sağa kaydır",
+    "more_info": "Açıklama"
   },
   "nav": {
     "home": "Ana sayfa",

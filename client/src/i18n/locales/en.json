@@ -36,7 +36,8 @@
     "meter_short": "m",
     "kilometer_short": "km",
     "scroll_left": "Scroll left",
-    "scroll_right": "Scroll right"
+    "scroll_right": "Scroll right",
+    "more_info": "More info"
   },
   "nav": {
     "home": "Home",

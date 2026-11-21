@@ -36,7 +36,8 @@
     "meter_short": "m",
     "kilometer_short": "km",
     "scroll_left": "Gulir ke kiri",
-    "scroll_right": "Gulir ke kanan"
+    "scroll_right": "Gulir ke kanan",
+    "more_info": "Penjelasan"
   },
   "nav": {
     "home": "Beranda",
