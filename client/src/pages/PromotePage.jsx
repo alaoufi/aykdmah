@@ -2,8 +2,6 @@ import { localizedName } from '../utils/localize';
 import { safeUrl } from '../utils/urlSafety';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Link } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
 import { getMyAds, previewQuote, submitAdRequest, payAd, cancelAd, getAdStats, pauseAd, resumeAd, getMyGeo, uploadMyAdMedia } from '../services/adService';
 import { listCities, listRegions } from '../services/serviceService';
 import AdSparkline from '../components/ads/AdSparkline';
@@ -56,9 +54,6 @@ const COUNTRY_OPTIONS = ['SA', 'AE', 'KW', 'QA', 'BH', 'OM', 'EG', 'JO', 'YE', '
 export default function PromotePage() {
   const { t, i18n } = useTranslation();
   const { country } = useCountry();
-  // AYK-403: an account with the administration's rights adds ads from the administration.
-  const { user } = useAuth();
-  const canManageAds = Number(user?.is_admin) === 1 || user?.role === 'admin';
   const [data, setData] = useState(null);
   const [cities, setCities] = useState([]);
   const [regions, setRegions] = useState([]);
@@ -301,14 +296,201 @@ export default function PromotePage() {
         }`}>{msg.text}</div>
       )}
 
-      {/* AYK-403 (the owner: «ويبقى إضافة الإعلانات من الإدارة فقط»): no new ad from here; the ads one
-          already has stay below, to follow, pause or stop. */}
-      {canManageAds ? null : (
-        <div className="bg-amber-50 border border-amber-200 text-amber-900 px-4 py-3 rounded-card text-[14px]" data-testid="promote-admin-only">
-          📣 {t('promote.admin_only')} <Link to="/support" className="font-semibold underline">{t('promote.admin_only_contact')}</Link>
+      {/* New request form */}
+      <form onSubmit={onSubmit} className="bg-white rounded-card border border-slate-100 shadow-soft p-5 space-y-4">
+        <h2 className="font-extrabold text-ink text-[16px]">{t('promote.new_request')}</h2>
+
+        <Field id="title" error={errors.title} label={t('promote.title')} required value={form.title} onChange={(v) => setValue('title', v)} />
+        <Field id="description" error={errors.description} label={t('promote.description')} value={form.description} onChange={(v) => setValue('description', v)} multiline />
+
+        {/* Media — upload-from-device primary */}
+        <div id="promote-image">
+          <label className={`block text-[12px] font-bold mb-1 ${mediaError ? 'text-rose-600' : 'text-ink'}`}>{t('promote.media')}</label>
+          <label className="block cursor-pointer">
+            <div className={`rounded-card border-2 border-dashed p-5 text-center transition ${
+              uploading ? 'border-brand-400 bg-brand-50'
+                : mediaError ? 'border-rose-500 bg-rose-50'
+                  : 'border-slate-300 bg-slate-50 hover:border-brand-400 hover:bg-brand-50'
+            }`}>
+              <div className="text-3xl mb-1">{uploading ? '⏳' : '📁'}</div>
+              <div className="font-bold text-[13.5px] text-ink">{uploading ? t('admin.uploading') : t('admin.ad_pick_file_primary')}</div>
+              <div className="text-[11.5px] text-slate-500 mt-1">{t('admin.ad_media_hint')}</div>
+            </div>
+            <input type="file" hidden
+              accept="image/jpeg,image/png,image/webp,image/gif,image/apng,video/mp4,video/webm,video/ogg"
+              aria-invalid={Boolean(mediaError)} aria-describedby={mediaError ? 'promote-media-error' : undefined}
+              onChange={(e) => { onPickFile(e.target.files?.[0]); e.target.value = ''; }} />
+          </label>
+          {mediaError && (
+            <p id="promote-media-error" role="alert" className="mt-1.5 mb-0 text-[12.5px] font-bold text-rose-600">⚠️ {mediaError}</p>
+          )}
+          {form.image && (
+            <div className="mt-2 p-2 rounded-card bg-slate-50 border border-slate-200">
+              <AdMedia url={form.image} type={form.media_type} className="max-h-40 w-auto mx-auto rounded object-contain" />
+            </div>
+          )}
         </div>
-      )}
-      {canManageAds && <Link to="/admin/ads" className="btn btn-primary w-fit">📣 {t('promote.admin_only_manage')}</Link>}
+
+        <Field id="link" error={errors.link} label={t('admin.ad_link')} value={form.link} onChange={(v) => setValue('link', v)} placeholder="https://…" hint={t('admin.ad_link_hint')} />
+
+        {/* Placements — multi-select */}
+        <div id="promote-placements" className={errors.placements ? 'rounded-card border-2 border-rose-500 bg-rose-50 p-2' : ''}>
+          <label className={`block text-[12px] font-bold mb-2 ${errors.placements ? 'text-rose-600' : 'text-ink'}`}>{t('promote.placements')}</label>
+          <div className="flex flex-wrap gap-2">
+            {PLACEMENTS.map((p) => {
+              const active = form.placements.includes(p);
+              const price  = config.pricing?.[p];
+              return (
+                <button key={p} type="button" onClick={() => togglePlacement(p)}
+                  className={`px-3 py-2 rounded-card border-2 text-[12.5px] font-semibold transition ${
+                    active ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                  }`}
+                >
+                  <div className="flex items-center gap-1">
+                    {active && <span>✓</span>}
+                    <span>{t(`admin.ad_placement_${p}`)}</span>
+                  </div>
+                  {price && (
+                    <div className="text-[10.5px] text-slate-400 font-normal mt-0.5">
+                      {price.price_per_day}/d · {price.price_per_1k_views}/1k
+                    </div>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+          <FieldError id="placements" text={errors.placements} />
+          {/* Where the chosen places appear (AYK-159); tapping a place chooses it too. */}
+          <div className="mt-3"><AdPlacementMap selected={form.placements} onToggle={togglePlacement} /></div>
+        </div>
+
+        {/* Date + duration + max views */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <Field id="starts_at" error={errors.starts_at} label={t('promote.starts_at')} type="datetime-local" value={form.starts_at} onChange={(v) => setValue('starts_at', v)} hint={t('promote.starts_at_hint')} />
+          <Field id="duration_days" error={errors.duration_days} label={t('promote.duration_days')} type="number" required value={form.duration_days} onChange={(v) => setValue('duration_days', Number(v) || 0)} hint={`${config.min_duration_days}–${config.max_duration_days}`} />
+          <Field id="max_views" error={errors.max_views} label={t('promote.max_views')} type="number" required value={form.max_views} onChange={(v) => setValue('max_views', Number(v) || 0)} hint={`${config.min_views.toLocaleString(i18n.resolvedLanguage)}–${config.max_views.toLocaleString(i18n.resolvedLanguage)}`} />
+        </div>
+        <p className="text-[12px] text-slate-500 -mt-2">⏱ {t('promote.end_condition_hint')}</p>
+
+        {/* Geo targeting — optional. Leave both empty to serve everywhere. */}
+        <div id="promote-targeting" className={`rounded-card border p-3 space-y-3 ${errors.targeting ? 'border-2 border-rose-500 bg-rose-50' : 'border-slate-200'}`}>
+          <FieldError id="targeting" text={errors.targeting} />
+          <div className="flex items-center justify-between gap-2">
+            <div>
+              <div className="text-[13px] font-bold text-ink">🌍 {t('promote.geo_targeting')}</div>
+              <p className="text-[11.5px] text-slate-500 mt-0.5">{t('promote.geo_targeting_hint')}</p>
+            </div>
+            {myGeo && (
+              <div className="text-[11px] text-slate-400 text-end shrink-0">
+                <div>{t('promote.your_location')}:</div>
+                <div className="font-semibold text-slate-600">{myGeo.city || '—'} • {myGeo.country || '—'}</div>
+              </div>
+            )}
+          </div>
+          <div>
+            <div className="text-[11.5px] font-semibold text-slate-600 mb-1">{t('promote.target_countries')}</div>
+            <div className="flex flex-wrap gap-1.5">
+              {COUNTRY_OPTIONS.map((c) => {
+                const on = form.target_countries.includes(c.code);
+                return (
+                  <button key={c.code} type="button"
+                    onClick={() => setForm((f) => ({
+                      ...f,
+                      target_countries: on
+                        ? f.target_countries.filter((x) => x !== c.code)
+                        : [...f.target_countries, c.code],
+                    }))}
+                    className={`px-2.5 py-1 rounded-pill border text-[11.5px] font-semibold transition ${
+                      on ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
+                    }`}>{on ? '✓ ' : ''}{t(`geo.country_names.${c.code}`)}</button>
+                );
+              })}
+            </div>
+          </div>
+          <div>
+            <div className="text-[11.5px] font-semibold text-slate-600 mb-1">{t('promote.target_regions')}</div>
+            <div className="flex flex-wrap gap-1.5">
+              {regions.map((r) => {
+                const on = form.target_regions.includes(r.id);
+                return (
+                  <button key={r.id} type="button"
+                    onClick={() => setForm((f) => {
+                      const target_regions = on ? f.target_regions.filter((x) => x !== r.id) : [...f.target_regions, r.id];
+                      // A city stays chosen only while its region is (or when no region is chosen).
+                      const keep = cityNamesIn(cities, target_regions.length ? target_regions : regions.map((x) => x.id));
+                      return { ...f, target_regions, target_cities: f.target_cities.filter((name) => keep.has(name)) };
+                    })}
+                    className={`px-2.5 py-1 rounded-pill border text-[11.5px] font-semibold transition ${
+                      on ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'
+                    }`}>{on ? '✓ ' : ''}{localizedName(r, i18n.resolvedLanguage)}</button>
+                );
+              })}
+            </div>
+          </div>
+          <div>
+            <div className="text-[11.5px] font-semibold text-slate-600 mb-1">{t('promote.target_cities')}</div>
+            <CityPicker cities={regionCities} selected={form.target_cities}
+              onChange={(next) => setForm({ ...form, target_cities: next })} />
+          </div>
+        </div>
+
+        {/* Exclusive vs shared toggle */}
+        <div className="rounded-card border border-slate-200 p-3 flex items-start gap-3">
+          <span className="text-2xl">{form.exclusive ? '🔒' : '🔀'}</span>
+          <div className="flex-1 min-w-0">
+            <div className="font-bold text-[13.5px] text-ink">{t(form.exclusive ? 'promote.exclusive_mode' : 'promote.shared_mode')}</div>
+            <p className="text-[12px] text-slate-500 mt-0.5">{t(form.exclusive ? 'promote.exclusive_desc' : 'promote.shared_desc')}</p>
+          </div>
+          <button type="button" onClick={() => setForm({ ...form, exclusive: !form.exclusive })}
+            role="switch" aria-checked={form.exclusive}
+            className={`relative w-14 h-8 rounded-full transition shrink-0 ${form.exclusive ? 'bg-amber-500' : 'bg-slate-300'}`}>
+            <span className="absolute top-1 w-6 h-6 rounded-full bg-white shadow transition-all"
+              style={{ insetInlineStart: form.exclusive ? 'calc(100% - 1.75rem)' : '0.25rem' }} />
+          </button>
+        </div>
+
+        {/* Live quote — per-placement breakdown */}
+        {quote && (
+          <div className="rounded-card border border-brand-200 bg-brand-50 p-4 space-y-2">
+            <div className="text-[12px] font-bold text-ink mb-1">{t('promote.cost_breakdown')}</div>
+            {(quote.breakdown || []).map((b) => (
+              <div key={b.placement} className="flex items-center justify-between text-[12.5px]">
+                <span className="flex items-center gap-1 truncate">
+                  <span className="text-slate-600 truncate">{t(`admin.ad_placement_${b.placement}`)}</span>
+                  {b.multiplier !== 1 && <span className="text-amber-600">×{b.multiplier}</span>}
+                </span>
+                <span className="font-bold tabular-nums">{formatCurrency(b.subtotal)}</span>
+              </div>
+            ))}
+            <div className="border-t border-brand-200 pt-2 flex items-center justify-between">
+              <div className="text-[12px] text-slate-600">
+                {t('promote.day_cost')}: <b>{formatCurrency(quote.day_cost)}</b>
+                <span className="mx-2">·</span>
+                {t('promote.view_cost')}: <b>{formatCurrency(quote.view_cost)}</b>
+                {quote.coverage && quote.coverage !== 1 && <><span className="mx-2">·</span>{t('promote.coverage_factor')}: <b>×{quote.coverage}</b></>}
+              </div>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-[14px] font-bold text-ink">{t('promote.total')}</span>
+              <span className="text-[20px] font-extrabold text-brand-700">{formatCurrency(quote.total)}</span>
+            </div>
+          </div>
+        )}
+
+        <Field id="notes" error={errors.notes} label={t('promote.notes')} value={form.notes} onChange={(v) => setValue('notes', v)} multiline placeholder={t('promote.notes_placeholder')} />
+
+        {Object.values(errors).some(Boolean) && (
+          <p role="alert" className="m-0 rounded-card border border-rose-200 bg-rose-50 px-3 py-2 text-[13px] font-bold text-rose-700">
+            ⚠️ {t('promote.err.fix_marked')}
+          </p>
+        )}
+        <button type="submit" disabled={Boolean(busy) || uploading}
+          className="w-full px-6 py-3 rounded-pill text-white text-[14.5px] font-bold shadow-soft hover:shadow-lift disabled:opacity-60 transition"
+          style={{ background: 'linear-gradient(135deg, rgb(var(--color-primary-from)), rgb(var(--color-primary-to)))' }}>
+          {busy === 'submit' ? t('admin.saving') : `✨ ${t('promote.submit_button')}`}
+        </button>
+        <p className="text-[12px] text-slate-500 text-center">{t('promote.workflow_hint')}</p>
+      </form>
 
       {/* My ads */}
       <div className="bg-white rounded-card border border-slate-100 shadow-soft overflow-hidden">

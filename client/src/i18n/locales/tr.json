@@ -1355,7 +1355,15 @@
     "nav_places": "Yerler",
     "ad_activate_unpaid": "هذا الإعلان لم يُدفع. بالتنشيط يُعفى من الرسوم ويبدأ عرضه الآن. اكتب سبب الإعفاء (يُحفظ في سجله).",
     "ad_cancel_service": "إلغاء الخدمة",
-    "ad_cancelled": "أُلغي الإعلان ولن يظهر لأحد."
+    "ad_cancelled": "أُلغي الإعلان ولن يظهر لأحد.",
+    "paid_ads_switch": "الاشتراك بالإعلانات المدفوعة",
+    "paid_ads_on": "مفعّل",
+    "paid_ads_off": "غير مفعّل",
+    "paid_ads_turn_on": "تفعيل",
+    "paid_ads_turn_off": "إلغاء التفعيل",
+    "paid_ads_switch_hint": "عند التفعيل يظهر للمستخدمين «أعلن» ويستطيعون طلب إعلان مدفوع. عند إلغائه تختفي كلمة الاشتراك والإعلان المدفوع من الموقع، وتبقى إعلانات الإدارة والإعلانات الجارية تُعرض.",
+    "paid_ads_turned_on": "فُعّل الاشتراك بالإعلانات المدفوعة.",
+    "paid_ads_turned_off": "أُلغي تفعيل الاشتراك بالإعلانات المدفوعة."
   },
   "errors": {
     "generic": "Bir hata oluştu",
@@ -1492,7 +1500,7 @@
   },
   "promote": {
     "page_title": "Hizmetinizin reklamını yapın",
-    "page_hint": "Ücretli reklamlarınız: görüntülenmelerini izleyin, duraklatın veya iptal edin. Yeni reklamı yönetim ekler.",
+    "page_hint": "Bir reklam talebi gönderin; yerini, süresini ve görüntülenme sayısını seçin. Yönetim onayından ve ödemeden sonra yayına girer.",
     "disabled": "Reklam talebi hizmeti şu anda kapalı",
     "new_request": "Yeni reklam talebi",
     "title": "Reklam başlığı",
@@ -1635,10 +1643,7 @@
     "page_search": "Arama ve talepler",
     "page_profile": "Profilim",
     "page_chat": "Sohbetler",
-    "page_dashboard": "Hesap paneli",
-    "admin_only": "Reklamlar yalnızca yönetim tarafından eklenir.",
-    "admin_only_contact": "Reklamınızı eklemek için bize ulaşın",
-    "admin_only_manage": "Ücretli reklamları yönet"
+    "page_dashboard": "Hesap paneli"
   },
   "badge": {
     "page_title": "Rozetlerim",
@@ -2960,5 +2965,8 @@
     "qr": "QR kodu",
     "qr_hint": "Bağlantıyı açmak için kodu telefon kamerasıyla okutun",
     "qr_save": "Görseli kaydet"
+  },
+  "ads": {
+    "hide": "Reklamı gizle"
   }
 }

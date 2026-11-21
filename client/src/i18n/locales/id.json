@@ -1355,7 +1355,15 @@
     "nav_places": "Tempat",
     "ad_activate_unpaid": "هذا الإعلان لم يُدفع. بالتنشيط يُعفى من الرسوم ويبدأ عرضه الآن. اكتب سبب الإعفاء (يُحفظ في سجله).",
     "ad_cancel_service": "إلغاء الخدمة",
-    "ad_cancelled": "أُلغي الإعلان ولن يظهر لأحد."
+    "ad_cancelled": "أُلغي الإعلان ولن يظهر لأحد.",
+    "paid_ads_switch": "الاشتراك بالإعلانات المدفوعة",
+    "paid_ads_on": "مفعّل",
+    "paid_ads_off": "غير مفعّل",
+    "paid_ads_turn_on": "تفعيل",
+    "paid_ads_turn_off": "إلغاء التفعيل",
+    "paid_ads_switch_hint": "عند التفعيل يظهر للمستخدمين «أعلن» ويستطيعون طلب إعلان مدفوع. عند إلغائه تختفي كلمة الاشتراك والإعلان المدفوع من الموقع، وتبقى إعلانات الإدارة والإعلانات الجارية تُعرض.",
+    "paid_ads_turned_on": "فُعّل الاشتراك بالإعلانات المدفوعة.",
+    "paid_ads_turned_off": "أُلغي تفعيل الاشتراك بالإعلانات المدفوعة."
   },
   "errors": {
     "generic": "Terjadi kesalahan",
@@ -1492,7 +1500,7 @@
   },
   "promote": {
     "page_title": "Iklankan layanan Anda",
-    "page_hint": "Iklan berbayar Anda: pantau tayangan, jeda, atau batalkan. Iklan baru ditambahkan oleh admin.",
+    "page_hint": "Kirim permintaan iklan, lalu pilih tempat, durasi, dan jumlah tayangan. Iklan aktif setelah disetujui admin dan dibayar.",
     "disabled": "Layanan permintaan iklan saat ini dinonaktifkan",
     "new_request": "Permintaan iklan baru",
     "title": "Judul iklan",
@@ -1635,10 +1643,7 @@
     "page_search": "Pencarian & permintaan",
     "page_profile": "Profil saya",
     "page_chat": "Percakapan",
-    "page_dashboard": "Dasbor akun",
-    "admin_only": "Iklan hanya ditambahkan oleh admin.",
-    "admin_only_contact": "Hubungi kami untuk menambahkan iklan Anda",
-    "admin_only_manage": "Kelola iklan berbayar"
+    "page_dashboard": "Dasbor akun"
   },
   "badge": {
     "page_title": "Lencana saya",
@@ -2960,5 +2965,8 @@
     "qr": "Kode QR",
     "qr_hint": "Pindai kode dengan kamera ponsel untuk membuka tautan",
     "qr_save": "Simpan gambar"
+  },
+  "ads": {
+    "hide": "Sembunyikan iklan"
   }
 }

@@ -31,6 +31,10 @@ export default function usePublicSettings() {
 // link is hidden (AYK-147).
 export const subscriptionsOn = settings => [true, 1, '1', 'true'].includes(settings?.subscriptions_enabled);
 
+// AYK-404: «الاشتراك بالإعلانات المدفوعة» is switched on from the administration; while off, no
+// «أعلن» link nor ad request is offered (the ads themselves keep showing).
+export const paidAdsOn = settings => ![false, 'false', 0, '0'].includes(settings?.ads_user_requests_enabled ?? true);
+
 // CSV setting → array of trimmed non-empty strings
 export function csvToList(value, fallback = '') {
   return String(value ?? fallback).split(',').map((s) => s.trim()).filter(Boolean);

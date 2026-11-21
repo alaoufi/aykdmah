@@ -1355,7 +1355,15 @@
     "nav_places": "Places",
     "ad_activate_unpaid": "This ad is unpaid. Activating waives its fee and starts it now. Write the reason for the waiver (kept in its record).",
     "ad_cancel_service": "Cancel service",
-    "ad_cancelled": "The ad is cancelled and will not show to anyone."
+    "ad_cancelled": "The ad is cancelled and will not show to anyone.",
+    "paid_ads_switch": "Paid ad subscriptions",
+    "paid_ads_on": "On",
+    "paid_ads_off": "Off",
+    "paid_ads_turn_on": "Turn on",
+    "paid_ads_turn_off": "Turn off",
+    "paid_ads_switch_hint": "When on, users see «Advertise» and can request a paid ad. When off, subscribing and paid ads disappear from the site; the administration's ads and running ads keep showing.",
+    "paid_ads_turned_on": "Paid ad subscriptions are on.",
+    "paid_ads_turned_off": "Paid ad subscriptions are off."
   },
   "errors": {
     "generic": "Something went wrong",
@@ -1492,7 +1500,7 @@
   },
   "promote": {
     "page_title": "Advertise your service",
-    "page_hint": "Your paid ads: follow their views, pause or cancel them. New ads are added by the administration.",
+    "page_hint": "Send an ad request and choose where it shows, for how long and how many views. It goes live after admin approval and payment.",
     "disabled": "Ad requests are currently disabled",
     "new_request": "New ad request",
     "title": "Ad title",
@@ -1635,10 +1643,7 @@
     "page_search": "Search & requests",
     "page_profile": "My Profile",
     "page_chat": "Chats",
-    "page_dashboard": "Dashboard",
-    "admin_only": "Ads are added by the administration only.",
-    "admin_only_contact": "Contact us to add your ad",
-    "admin_only_manage": "Manage paid ads"
+    "page_dashboard": "Dashboard"
   },
   "badge": {
     "page_title": "My badges",
@@ -2960,5 +2965,8 @@
     "qr": "QR code",
     "qr_hint": "Scan the code with a phone camera to open the link",
     "qr_save": "Save image"
+  },
+  "ads": {
+    "hide": "Hide ad"
   }
 }

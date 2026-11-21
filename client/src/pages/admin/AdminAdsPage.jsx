@@ -8,7 +8,7 @@ import {
   approveAdAdmin, rejectAdAdmin, activateAdAdmin,
   pauseAdAdmin, resumeAdAdmin, cancelAdAdmin, getAdStatsAdmin,
   getAdsPlacementPricing, saveAdsPlacementPricing, adminPreviewLiveAds, diagnoseAd,
-  waiveAdFee, messageAdvertiser, reactivateAdAdmin,
+  waiveAdFee, messageAdvertiser, reactivateAdAdmin, getSettings, updateSettings,
 } from '../../services/adminService';
 import AdFeesExtras from '../../components/admin/AdFeesExtras';
 import AdSparkline from '../../components/ads/AdSparkline';
@@ -224,6 +224,25 @@ export default function AdminAdsPage() {
   };
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [statusFilter]);
+
+  // AYK-404 (the owner: «أريد تفعيل الإعلانات المدفوعة وإلغاء التفعيل»): people may subscribe to paid
+  // ads (the «أعلن» page and its links) only while this is on. The ads already running, and the
+  // administration's own, show either way.
+  const [paidOn, setPaidOn] = useState(null);
+  useEffect(() => {
+    getSettings().then(rows => {
+      const list = Array.isArray(rows) ? rows : Object.entries(rows || {}).map(([setting_key, setting_value]) => ({ setting_key, setting_value }));
+      const row = list.find(r => (r.setting_key || r.key) === 'ads_user_requests_enabled');
+      const value = row ? (row.parsed_value ?? row.setting_value ?? row.value) : true;
+      setPaidOn(![false, 'false', 0, '0'].includes(value));
+    }).catch(() => setPaidOn(null));
+  }, []);
+  const togglePaid = async () => {
+    if (!(await confirmAdminChange(t))) return;
+    const next = !paidOn;
+    try { await updateSettings([{ key: 'ads_user_requests_enabled', value: next }]); setPaidOn(next); setMsg({ type: 'success', text: t(next ? 'admin.paid_ads_turned_on' : 'admin.paid_ads_turned_off') }); }
+    catch (e) { setMsg({ type: 'error', text: apiError(e) }); }
+  };
 
   // AYK-395 (the owner: «ما فيه موافقة عرضه، والإعفاء من الرسوم، وإيقافه»): the ad's actions by its
   // status, on its card and at the top of its edit window (which closes after the action).
@@ -448,6 +467,16 @@ export default function AdminAdsPage() {
       <AdminPageHeader title={t('admin.ads')} count={meta?.pagination?.total ?? items.length}>
         {section === 'manage' && <AdminButton variant="primary" icon="+" onClick={openCreate}>{t('admin.new')}</AdminButton>}
       </AdminPageHeader>
+
+      {paidOn !== null && (
+        <div className={`rounded-card border px-4 py-3 flex flex-wrap items-center justify-between gap-2 ${paidOn ? 'bg-emerald-50 border-emerald-200' : 'bg-slate-50 border-slate-200'}`} data-testid="paid-ads-switch">
+          <div className="min-w-0">
+            <b className="block text-[14px]">{paidOn ? '🟢' : '⚪'} {t('admin.paid_ads_switch')}: {t(paidOn ? 'admin.paid_ads_on' : 'admin.paid_ads_off')}</b>
+            <span className="text-[12px] text-slate-600">{t('admin.paid_ads_switch_hint')}</span>
+          </div>
+          <AdminButton variant={paidOn ? 'secondary' : 'primary'} onClick={togglePaid} data-testid="paid-ads-toggle">{t(paidOn ? 'admin.paid_ads_turn_off' : 'admin.paid_ads_turn_on')}</AdminButton>
+        </div>
+      )}
 
       {/* Two parts (AYK-153): what ads cost, and managing each ad. */}
       <div className="flex gap-2" role="tablist">

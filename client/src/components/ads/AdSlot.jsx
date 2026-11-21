@@ -42,18 +42,28 @@ function rememberAds(placement, rows) {
   try { localStorage.setItem(CACHE_PREFIX + placement, JSON.stringify(rows)); } catch (_) { /* private mode */ }
 }
 
+// AYK-404 (the owner: «للعميل الحرية في قبول عرض الإعلان من عدمه، زر صغير إخفاء الإعلان بدون سبب»):
+// an ad the viewer hid stays hidden on this device.
+const HIDDEN_KEY = 'ayk_hidden_ads';
+function hiddenAds() {
+  try { const ids = JSON.parse(localStorage.getItem(HIDDEN_KEY) || '[]'); return new Set(Array.isArray(ids) ? ids.map(Number) : []); } catch (_) { return new Set(); }
+}
+function hideAd(id) {
+  try { const ids = [...hiddenAds(), Number(id)].slice(-300); localStorage.setItem(HIDDEN_KEY, JSON.stringify(ids)); } catch (_) { /* private mode: this visit only */ }
+}
+const visible = rows => { const hidden = hiddenAds(); return (rows || []).filter(ad => !hidden.has(Number(ad.id))); };
+
 export default function AdSlot({ placement, className = '', maxAds = 1 }) {
   const { t, i18n } = useTranslation();
-  const [ads, setAds] = useState(() => (cachedAds(placement) || []).slice(0, maxAds));
+  const [ads, setAds] = useState(() => visible(cachedAds(placement)).slice(0, maxAds));
   const [loaded, setLoaded] = useState(() => cachedAds(placement) !== null);
 
   useEffect(() => {
     let alive = true;
     getLiveAds(placement)
       .then((data) => {
-        const rows = (data || []).slice(0, maxAds);
-        rememberAds(placement, rows);
-        if (alive) { setAds(rows); setLoaded(true); }
+        rememberAds(placement, (data || []).slice(0, maxAds + 5));
+        if (alive) { setAds(visible(data).slice(0, maxAds)); setLoaded(true); }
       })
       .catch(() => { if (alive) setLoaded(true); });
     return () => { alive = false; };
@@ -94,10 +104,17 @@ export default function AdSlot({ placement, className = '', maxAds = 1 }) {
                 {copy.description && <div className="text-[12px] opacity-90 line-clamp-2">{copy.description}</div>}
               </div>
             )}
-            <span className="absolute top-2 inset-inline-end-2 px-2 py-0.5 rounded-pill bg-black/40 text-white text-[10px] font-semibold backdrop-blur"
-              style={{ insetInlineEnd: 8, top: 8 }}>
-              {t('common.advertisement')}
-            </span>
+            {/* AYK-404: the administration's own (promotional) ads carry no «إعلان» mark; paid ads do. */}
+            {!(ad.promo === true || Number(ad.promo) === 1) && (
+              <span className="absolute top-2 px-2 py-0.5 rounded-pill bg-black/40 text-white text-[10px] font-semibold backdrop-blur"
+                style={{ insetInlineEnd: 40, top: 8 }}>
+                {t('common.advertisement')}
+              </span>
+            )}
+            <button type="button" aria-label={t('ads.hide')} title={t('ads.hide')} data-testid="ad-hide"
+              onClick={(e) => { e.preventDefault(); e.stopPropagation(); hideAd(ad.id); setAds(previous => previous.filter(row => row.id !== ad.id)); }}
+              className="absolute w-7 h-7 rounded-full bg-black/45 text-white text-[14px] leading-none grid place-items-center backdrop-blur hover:bg-black/65"
+              style={{ insetInlineEnd: 8, top: 6 }}>✕</button>
           </a>
         );
       })}

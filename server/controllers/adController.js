@@ -162,12 +162,17 @@ const myAds = financeHandler(async (req, res) => {
 });
 
 // POST /api/ads/quote — preview total cost without saving anything
-// AYK-403 (the owner: «ويبقى إضافة الإعلانات من الإدارة فقط»): a new ad, its price and its payment
-// are the administration's; people keep seeing, pausing and stopping the ads they already have.
-const adminOnly = (req, res) => (hasPermission(req.user, 'ads.manage') ? false : (forbidden(res, req.t('ads_admin_only')), true));
+// AYK-404 (the owner: «ظهور إنشاء إعلان (الاشتراك) يشترط أن يكون مفعّلًا من الإدارة»): people price,
+// submit and pay for an ad only while «الاشتراك بالإعلانات المدفوعة» is on; the administration always
+// can. People keep seeing, pausing and stopping the ads they already have.
+async function paidAdsClosed(req, res) {
+  if (hasPermission(req.user, 'ads.manage') || (await adRequestService.getConfig()).enabled) return false;
+  forbidden(res, req.t('ads_admin_only'));
+  return true;
+}
 
 const previewQuote = financeHandler(async (req, res) => {
-  if (adminOnly(req, res)) return;
+  if (await paidAdsClosed(req, res)) return;
   const config = await adRequestService.getConfig();
   const covered = await adRequestService.coverageFor(config, req.body || {});
   return success(res, {
@@ -198,7 +203,7 @@ const myGeo = financeHandler(async (req, res) => {
 
 // POST /api/ads/request — submit a new ad request
 const submit = financeHandler(async (req, res) => {
-  if (adminOnly(req, res)) return;
+  if (await paidAdsClosed(req, res)) return;
   const result = await adRequestService.submit({ user: req.user, payload: req.body });
   if (!result.ok) {
     if (result.error === 'disabled')         return error(res, req.t('ads_user_requests_disabled'), 403);
@@ -214,7 +219,7 @@ const submit = financeHandler(async (req, res) => {
 
 // POST /api/ads/:id/pay — user pays for an approved ad
 const pay = financeHandler(async (req, res) => {
-  if (adminOnly(req, res)) return;
+  if (await paidAdsClosed(req, res)) return;
   const result = await adRequestService.pay({ user: req.user, adId: Number(req.params.id) });
   if (!result.ok) {
     if (result.error === 'not_found')   return notFound(res);
@@ -535,6 +540,7 @@ const adminMessage = financeHandler(async (req, res) => {
 });
 
 module.exports = {
+  paidAdsClosed,
   adminCancel, matchesGeo,
   adminGetFees, adminSaveFees, adminWaive, adminMessage, adminReactivate,
   live, trackView, trackClick,

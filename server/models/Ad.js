@@ -93,7 +93,9 @@ async function listLive({ placement, applyExclusivity = true } = {}) {
   }
   const rows = await query(
     `SELECT a.id, a.title, a.description, a.title_translations, a.description_translations, a.image, a.media_type, a.link, a.placement, a.placements,
-       a.exclusive, a.target_countries, a.target_cities, a.target_regions, a.starts_at, a.ends_at
+       a.exclusive, a.target_countries, a.target_cities, a.target_regions, a.starts_at, a.ends_at,
+       -- AYK-404: the administration's own (promotional) ads carry no «إعلان» mark on the site.
+       (a.user_id IS NULL) AS promo
        FROM ads a WHERE ${where} ORDER BY a.sort_order ASC, RAND()`,
     params
   );

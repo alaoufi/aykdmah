@@ -1355,7 +1355,15 @@
     "nav_places": "Mga lugar",
     "ad_activate_unpaid": "هذا الإعلان لم يُدفع. بالتنشيط يُعفى من الرسوم ويبدأ عرضه الآن. اكتب سبب الإعفاء (يُحفظ في سجله).",
     "ad_cancel_service": "إلغاء الخدمة",
-    "ad_cancelled": "أُلغي الإعلان ولن يظهر لأحد."
+    "ad_cancelled": "أُلغي الإعلان ولن يظهر لأحد.",
+    "paid_ads_switch": "الاشتراك بالإعلانات المدفوعة",
+    "paid_ads_on": "مفعّل",
+    "paid_ads_off": "غير مفعّل",
+    "paid_ads_turn_on": "تفعيل",
+    "paid_ads_turn_off": "إلغاء التفعيل",
+    "paid_ads_switch_hint": "عند التفعيل يظهر للمستخدمين «أعلن» ويستطيعون طلب إعلان مدفوع. عند إلغائه تختفي كلمة الاشتراك والإعلان المدفوع من الموقع، وتبقى إعلانات الإدارة والإعلانات الجارية تُعرض.",
+    "paid_ads_turned_on": "فُعّل الاشتراك بالإعلانات المدفوعة.",
+    "paid_ads_turned_off": "أُلغي تفعيل الاشتراك بالإعلانات المدفوعة."
   },
   "errors": {
     "generic": "May nagkamali",
@@ -1492,7 +1500,7 @@
   },
   "promote": {
     "page_title": "I-advertise ang iyong serbisyo",
-    "page_hint": "Ang iyong mga bayad na ad: subaybayan ang views, i-pause o kanselahin. Ang administrasyon ang nagdadagdag ng bagong ad.",
+    "page_hint": "Magpadala ng hiling na ad at piliin ang puwesto, tagal at bilang ng view. Magiging aktibo ito pagkatapos ng pag-apruba ng admin at ng bayad.",
     "disabled": "Naka-off ngayon ang serbisyo ng hiling na ad",
     "new_request": "Bagong hiling na ad",
     "title": "Pamagat ng ad",
@@ -1635,10 +1643,7 @@
     "page_search": "Paghahanap at kahilingan",
     "page_profile": "Aking profile",
     "page_chat": "Mga chat",
-    "page_dashboard": "Dashboard ng account",
-    "admin_only": "Ang administrasyon lang ang nagdadagdag ng mga ad.",
-    "admin_only_contact": "Makipag-ugnayan sa amin para idagdag ang iyong ad",
-    "admin_only_manage": "Pamahalaan ang mga bayad na ad"
+    "page_dashboard": "Dashboard ng account"
   },
   "badge": {
     "page_title": "Aking mga badge",
@@ -2960,5 +2965,8 @@
     "qr": "QR code",
     "qr_hint": "I-scan ang code gamit ang camera ng telepono para buksan ang link",
     "qr_save": "I-save ang larawan"
+  },
+  "ads": {
+    "hide": "Itago ang ad"
   }
 }

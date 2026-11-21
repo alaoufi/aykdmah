@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
-import usePublicSettings, { subscriptionsOn } from './hooks/usePublicSettings';
+import usePublicSettings, { subscriptionsOn, paidAdsOn } from './hooks/usePublicSettings';
 import MainLayout from './layouts/MainLayout';
 import DashboardLayout from './layouts/DashboardLayout';
 import AuthLayout from './layouts/AuthLayout';
@@ -121,6 +121,7 @@ const CLIENT_SIDEBAR = [
   { to: '/chat', icon: '💬', labelKey: 'nav.chat' },
   { to: '/notifications', icon: '🔔', labelKey: 'nav.notifications' },
   { to: '/wallet', icon: '💰', labelKey: 'wallet.nav' },
+  { to: '/promote', icon: '📣', labelKey: 'nav.promote' },
   { to: '/profile', icon: '👤', labelKey: 'nav.profile' },
 ];
 
@@ -132,6 +133,7 @@ const PROVIDER_SIDEBAR = [
   { to: '/provider/subscription', icon: '⭐', labelKey: 'nav.subscription' },
   { to: '/provider/wallet', icon: '💰', labelKey: 'wallet.nav' },
   { to: '/provider/badges', icon: '🛡️', labelKey: 'nav.badges' },
+  { to: '/promote', icon: '📣', labelKey: 'nav.promote' },
   { to: '/chat', icon: '💬', labelKey: 'nav.chat' },
   { to: '/notifications', icon: '🔔', labelKey: 'nav.notifications' },
   { to: '/profile', icon: '👤', labelKey: 'nav.profile' },
@@ -151,7 +153,8 @@ function RoleDashboard() {
   const { settings } = usePublicSettings();
   const all = isBothAccount(user) ? BOTH_SIDEBAR : user?.role === 'provider' ? PROVIDER_SIDEBAR : CLIENT_SIDEBAR;
   // "Subscription" only while subscriptions are on (AYK-147).
-  const items = subscriptionsOn(settings) ? all : all.filter(item => item.to !== '/provider/subscription');
+  // «أعلن» only while the administration has paid ad subscriptions on (AYK-404).
+  const items = all.filter(item => (item.to !== '/provider/subscription' || subscriptionsOn(settings)) && (item.to !== '/promote' || paidAdsOn(settings)));
   return <DashboardLayout sidebarItems={items} />;
 }
 
