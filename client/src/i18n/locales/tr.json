@@ -1541,7 +1541,7 @@
     "diagnose_live": "Bu reklam aktif ve gösterilebilir",
     "diagnose_blocked": "En az bir koşul sağlanmadı — reklam şu anda gösterilmiyor",
     "check_status": "Reklam durumu (aktif)",
-    "check_is_active": "Etkin (is_active = 1)",
+    "check_is_active": "Etkin",
     "check_starts_at": "Başlangıç tarihi geldi",
     "check_ends_at": "Bitiş tarihine henüz gelinmedi",
     "check_view_cap": "Görüntülenme sınırına ulaşılmadı",

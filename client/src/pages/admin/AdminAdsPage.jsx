@@ -1046,8 +1046,8 @@ export default function AdminAdsPage() {
                     <div className="rounded-card bg-slate-50 border border-slate-100 p-3 text-[12.5px]">
                       <div className="font-bold text-ink mb-1">🌍 {t('promote.visitor_geo')}</div>
                       <div className="text-slate-600">
-                        {diag.geo.city || '—'} • {diag.geo.region || '—'} • {diag.geo.country || '—'}
-                        {' '}<span className="text-slate-400">({diag.geo.source})</span>
+                        {diag.geo.city || '—'} • {diag.geo.region || '—'} • {diag.geo.country ? t(`geo.country_names.${diag.geo.country}`, diag.geo.country) : '—'}
+
                       </div>
                     </div>
                   )}

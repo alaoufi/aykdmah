@@ -1541,7 +1541,7 @@
     "diagnose_live": "Iklan ini aktif dan dapat ditampilkan",
     "diagnose_blocked": "Ada minimal satu syarat yang tidak terpenuhi — iklan tidak tampil sekarang",
     "check_status": "Status iklan (aktif)",
-    "check_is_active": "Diaktifkan (is_active = 1)",
+    "check_is_active": "Diaktifkan",
     "check_starts_at": "Tanggal mulai sudah tiba",
     "check_ends_at": "Tanggal berakhir belum tiba",
     "check_view_cap": "Belum mencapai batas tayangan",
