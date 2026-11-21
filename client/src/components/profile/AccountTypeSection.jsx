@@ -41,16 +41,8 @@ export default function AccountTypeSection({ onSaved, onError }) {
   const coverageRequired = requiredFields(settings.form_fields_required, settings.form_fields_hidden, 'account_type').has('coverage');
 
   if (!user || !['client', 'provider'].includes(user.role)) return null;
-  // An account with admin rights is the administration's own account: its type does not change
-  // (the server refuses it), so it is said here instead of offering buttons that fail (AYK-218).
-  if (Number(user.admin_account)) {
-    return (
-      <div className="card mb-4" id="account-type" data-testid="account-type-admin">
-        <h3 className="mb-1">{t('profile.account_type')}</h3>
-        <p className="text-[13px] text-fg-muted m-0">{t('profile.account_type_admin')}</p>
-      </div>
-    );
-  }
+  // AYK-383: an account with the administration's rights is, on the site, a user like any other:
+  // its type changes here as anyone's (the rights stay apart, used in /admin only).
   const needsWork = current === 'client' && target !== 'client';
   const missing = !needsWork ? null
     : !serviceIds.length ? t('provider.professions_required')

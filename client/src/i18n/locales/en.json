@@ -512,7 +512,6 @@
     "forgot_current_password": "Forgot the current password? Recover it with a code to your phone",
     "change_password_save": "Save the new password",
     "password_changed_here": "Password changed. You stay signed in on this device; other devices were signed out.",
-    "account_type_admin": "This is an admin account: it requests services and manages the platform, and its type does not change. To try a service provider, register another account with a different phone number.",
     "saved_toast": "Saved",
     "missing_title": "Please complete the following",
     "missing_region": "Choose the region",

@@ -512,7 +512,6 @@
     "forgot_current_password": "Lupa kata sandi saat ini? Pulihkan dengan kode ke ponsel Anda",
     "change_password_save": "Simpan kata sandi baru",
     "password_changed_here": "Kata sandi diubah. Anda tetap masuk di perangkat ini; perangkat lain telah keluar.",
-    "account_type_admin": "Ini akun admin: akun ini meminta layanan dan mengelola platform, dan jenisnya tidak berubah. Untuk mencoba sebagai penyedia layanan, daftarkan akun lain dengan nomor ponsel berbeda.",
     "saved_toast": "Tersimpan",
     "missing_title": "Lengkapi yang berikut",
     "missing_region": "Pilih wilayah",
