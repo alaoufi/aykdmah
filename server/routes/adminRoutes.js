@@ -40,6 +40,9 @@ router.put('/providers/:id/hide',       requirePermission('users.manage'), c.hid
 
 // Settings
 router.get('/settings', requirePermission('settings.manage'), c.getSettings);
+// AYK-410: the menu's own order — read by every administrator's menu, changed with the settings right.
+router.get('/menu-layout', require('../controllers/menuLayoutController').get);
+router.put('/menu-layout', requirePermission('settings.manage'), require('../controllers/menuLayoutController').save);
 router.put('/settings', requirePermission('settings.manage'), c.updateSettings);
 
 // Interface texts (AYK-210)
@@ -63,6 +66,14 @@ router.post('/ads/:id/activate', requirePermission('ads.manage'), adC.adminActiv
 router.post('/ads/:id/pause',    requirePermission('ads.manage'), adC.adminPause);
 router.post('/ads/:id/resume',   requirePermission('ads.manage'), adC.adminResume);
 router.post('/ads/:id/cancel',   requirePermission('ads.manage'), adC.adminCancel); // AYK-403
+// AYK-409: campaigns and reports.
+const campC = require('../controllers/adCampaignController');
+router.get('/ad-campaigns',        requirePermission('ads.manage'), campC.list);
+router.post('/ad-campaigns',       requirePermission('ads.manage'), campC.create);
+router.put('/ad-campaigns/:id',    requirePermission('ads.manage'), campC.update);
+router.delete('/ad-campaigns/:id', requirePermission('ads.manage'), campC.remove);
+router.get('/ad-reports',          requirePermission('ads.manage'), campC.report);
+router.get('/ad-reports.csv',      requirePermission('ads.manage'), campC.reportCsv);
 router.get('/ads/:id/stats',     requirePermission('ads.manage'), adC.adminStats);
 // Fee waiver and messages to the advertiser (AYK-153).
 router.post('/ads/:id/waive',    requirePermission('ads.manage'), adC.adminWaive);

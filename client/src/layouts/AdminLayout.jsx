@@ -11,6 +11,7 @@ import { useNotifications } from '../hooks/useNotifications';
 import { AdminBackProvider, AdminBackButton } from '../components/admin/AdminBackNavigation';
 
 import { NAV_GROUPS } from './adminNav';
+import { applyMenuLayout, useMenuLayout } from './menuLayout';
 
 // The menu item a page belongs to (its longest matching address), or null for pages outside the menu.
 export function findCurrentItem(pathname) {
@@ -39,7 +40,9 @@ function AdminLayoutFrame() {
 
   // Filter nav: super admin sees everything; specialized admins only see
   // groups that have at least one item they can access.
-  const visibleGroups = NAV_GROUPS
+  // AYK-410: the order the administration set in «ترتيب القوائم».
+  const menuLayout = useMenuLayout();
+  const visibleGroups = applyMenuLayout(NAV_GROUPS, menuLayout)
     .map((g) => ({ ...g, items: g.items.filter((it) => !it.perm || hasPermission(it.perm)) }))
     .filter((g) => g.items.length > 0);
   // Each admin sees only the sections granted to them (AYK-211), also when a section is opened by its
@@ -93,9 +96,9 @@ function AdminLayoutFrame() {
         </Link>
         <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-4">
           {visibleGroups.map((g) => (
-            <div key={g.label}>
+            <div key={g.key || g.label}>
               <div className="px-3 mb-1 text-[10px] font-bold text-white/55 uppercase tracking-wider">
-                {t(g.label)}
+                {g.title || t(g.label)}
               </div>
               <div className="space-y-0.5">
                 {g.items.map((it) => (

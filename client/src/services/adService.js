@@ -58,8 +58,14 @@ export async function getMyGeo() {
 // page made six). Slots that ask within the same moment share it; a server without the batch
 // form answers with a list, and then each slot asks on its own as before.
 let pending = null;
+// AYK-409: the visitor's device and language, for ads targeted at them.
+const viewer = () => {
+  let device = 'desktop';
+  try { device = window.matchMedia('(max-width: 767px)').matches ? 'mobile' : 'desktop'; } catch (_) { /* old browser */ }
+  return { device, lang: (document.documentElement.lang || 'ar').split('-')[0] };
+};
 async function askOne(placement) {
-  const { data } = await api.get('/ads/live', { params: { placement } });
+  const { data } = await api.get('/ads/live', { params: { placement, ...viewer() } });
   return data.data;
 }
 export function getLiveAds(placement) {
@@ -69,7 +75,7 @@ export function getLiveAds(placement) {
     setTimeout(() => {
       if (pending === batch) pending = null;
       const names = [...batch.slots.keys()];
-      api.get('/ads/live', { params: { placements: names.join(',') } })
+      api.get('/ads/live', { params: { placements: names.join(','), ...viewer() } })
         .then(({ data }) => {
           const map = data?.data;
           for (const [name, waiters] of batch.slots) {
@@ -101,4 +107,10 @@ export async function uploadMyAdMedia(file) {
   fd.append('file', file);
   const { data } = await api.post('/ads/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
   return data.data;
+}
+
+// AYK-409: the advertiser's report of one ad, as a CSV file (opens in Excel).
+export async function downloadMyAdReport(id) {
+  const res = await api.get(`/ads/${id}/report.csv`, { responseType: 'blob' });
+  return res.data;
 }

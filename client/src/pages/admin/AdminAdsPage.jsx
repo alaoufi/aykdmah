@@ -25,6 +25,8 @@ import { safeUrl } from '../../utils/urlSafety';
 import { askText } from '../../components/common/AppDialog';
 import AdPlacementMap from '../../components/ads/AdPlacementMap';
 import AdImageFit from '../../components/ads/AdImageFit';
+import { CampaignsPanel, ReportsPanel } from '../../components/admin/AdCampaigns';
+import { listAdCampaigns } from '../../services/adminService';
 import { sizeForPlacements } from '../../utils/adImageSize';
 
 // All 15 placements supported by the renderer. Keep in sync with
@@ -44,7 +46,12 @@ const EMPTY = {
   starts_at: '', ends_at: '', max_views: '', sort_order: 0,
   is_active: true, exclusive: false,
   target_countries: [], target_regions: [], target_cities: [],
+  // AYK-409: professional delivery settings.
+  campaign_id: '', priority: 2, weight: 1, daily_max_views: '', freq_cap_per_day: '', pacing: 'asap',
+  schedule_days: [], schedule_from: '', schedule_to: '', target_devices: [], target_langs: [], target_audience: [],
 };
+const AD_LANGS = [['ar', 'العربية'], ['en', 'English'], ['ur', 'اردو'], ['hi', 'हिन्दी'], ['bn', 'বাংলা'], ['ml', 'മലയാളം'], ['fil', 'Filipino'], ['id', 'Indonesia'], ['ne', 'नेपाली'], ['am', 'አማርኛ'], ['tr', 'Türkçe']];
+const WEEK_DAYS = [[0, 'الأحد'], [1, 'الاثنين'], [2, 'الثلاثاء'], [3, 'الأربعاء'], [4, 'الخميس'], [5, 'الجمعة'], [6, 'السبت']];
 
 const COUNTRY_OPTIONS = ['SA', 'AE', 'KW', 'QA', 'BH', 'OM', 'EG', 'JO', 'YE', 'IQ'].map(code => ({ code }));
 
@@ -103,6 +110,9 @@ export default function AdminAdsPage() {
   const [openStats, setOpenStats] = useState({});
   // Two parts (AYK-153): "Ad fees" and "Ad management".
   const [section, setSection] = useState('manage');
+  // AYK-409: the campaigns, for the ad's «الحملة» choice.
+  const [campaigns, setCampaigns] = useState([]);
+  useEffect(() => { listAdCampaigns().then(setCampaigns).catch(() => {}); }, []);
   const [reply, setReply] = useState(null); // { ad, category, message, sending, error }
   const editVersion = useRef(0);
   const uploadVersion = useRef(0);
@@ -329,6 +339,11 @@ export default function AdminAdsPage() {
       target_countries: Array.isArray(a.target_countries) ? a.target_countries : [],
       target_regions:   Array.isArray(a.target_regions)   ? a.target_regions   : [],
       target_cities:    Array.isArray(a.target_cities)    ? a.target_cities    : [],
+      campaign_id: a.campaign_id ? String(a.campaign_id) : '', priority: Number(a.priority) || 2, weight: Number(a.weight) || 1,
+      daily_max_views: a.daily_max_views || '', freq_cap_per_day: a.freq_cap_per_day || '', pacing: a.pacing || 'asap',
+      schedule_days: Array.isArray(a.schedule?.days) ? a.schedule.days.map(Number) : [], schedule_from: a.schedule?.from || '', schedule_to: a.schedule?.to || '',
+      target_devices: Array.isArray(a.target_devices) ? a.target_devices : [], target_langs: Array.isArray(a.target_langs) ? a.target_langs : [],
+      target_audience: Array.isArray(a.target_audience) ? a.target_audience : [],
     });
     setFormError('');
     setEditOpen(true);
@@ -344,6 +359,7 @@ export default function AdminAdsPage() {
     // AYK-407: what would stop the save, at its field.
     const blocking = {};
     if (!String(form.title || '').trim()) blocking.title = 'اكتب عنوان الإعلان.';
+    if (Boolean(form.schedule_from) !== Boolean(form.schedule_to)) blocking.schedule = 'اكتب ساعة البداية والنهاية معًا، أو اتركهما فارغتين.';
     if (!paidBoundsLocked(editing) && form.starts_at && form.ends_at && new Date(form.ends_at) <= new Date(form.starts_at)) blocking.ends_at = 'تاريخ الانتهاء يجب أن يكون بعد تاريخ البدء.';
     if (Object.keys(blocking).length) { setFormError('لم يُحفظ: صحّح الخانة المعلّمة بالأحمر.'); markFields(blocking); return; }
     setFieldErr({});
@@ -373,9 +389,18 @@ export default function AdminAdsPage() {
         target_countries: form.target_countries?.length ? form.target_countries : null,
         target_regions:   form.target_regions?.length   ? form.target_regions   : null,
         target_cities:    form.target_cities?.length    ? form.target_cities    : null,
+        // AYK-409
+        campaign_id: form.campaign_id ? Number(form.campaign_id) : null, priority: Number(form.priority) || 2, weight: Number(form.weight) || 1,
+        daily_max_views: form.daily_max_views ? Number(form.daily_max_views) : null, freq_cap_per_day: form.freq_cap_per_day ? Number(form.freq_cap_per_day) : null,
+        pacing: form.pacing === 'even' ? 'even' : 'asap',
+        schedule: form.schedule_days.length || (form.schedule_from && form.schedule_to) ? { days: form.schedule_days, ...(form.schedule_from && form.schedule_to ? { from: form.schedule_from, to: form.schedule_to } : {}) } : null,
+        target_devices: form.target_devices.length ? form.target_devices : null, target_langs: form.target_langs.length ? form.target_langs : null,
+        target_audience: form.target_audience.length ? form.target_audience : null,
       };
+      for (const k of ['schedule_days', 'schedule_from', 'schedule_to']) delete full[k];
       const payload = contentOnly
-        ? Object.fromEntries(['title', 'description', 'image', 'media_type', 'link', 'sort_order', 'target_countries', 'target_regions', 'target_cities'].map((k) => [k, full[k]]))
+        ? Object.fromEntries(['title', 'description', 'image', 'media_type', 'link', 'sort_order', 'target_countries', 'target_regions', 'target_cities',
+          'campaign_id', 'priority', 'weight', 'daily_max_views', 'freq_cap_per_day', 'pacing', 'schedule', 'target_devices', 'target_langs', 'target_audience'].map((k) => [k, full[k]]))
         : full;
       const saved = editing ? await updateAd(editing.id, payload) : await createAd(payload);
       if (version !== editVersion.current) return;
@@ -542,7 +567,7 @@ export default function AdminAdsPage() {
 
       {/* Two parts (AYK-153): what ads cost, and managing each ad. */}
       <div className="flex gap-2" role="tablist">
-        {[['manage', '🗂️', 'promote.section_manage'], ['fees', '💰', 'promote.section_fees']].map(([key, icon, label]) => (
+        {[['manage', '🗂️', 'promote.section_manage'], ['campaigns', '📁', 'admin.ad_tab_campaigns'], ['reports', '📈', 'admin.ad_tab_reports'], ['fees', '💰', 'promote.section_fees']].map(([key, icon, label]) => (
           <button key={key} type="button" role="tab" aria-selected={section === key} onClick={() => setSection(key)}
             className={`flex-1 md:flex-none px-4 py-2.5 rounded-card text-[13.5px] font-extrabold border-2 transition ${
               section === key ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
@@ -555,6 +580,10 @@ export default function AdminAdsPage() {
           msg.type === 'success' ? 'bg-emerald-50 border border-emerald-200 text-emerald-700' : 'bg-rose-50 border border-rose-200 text-rose-700'
         }`}>{msg.text}</div>
       )}
+
+      {/* AYK-409 */}
+      {section === 'campaigns' && <CampaignsPanel onChanged={() => listAdCampaigns().then(setCampaigns).catch(() => {})} />}
+      {section === 'reports' && <ReportsPanel />}
 
       {section === 'manage' && (<>
       {/* Live placement breakdown — counts ACTIVE ads in each zone so
@@ -937,6 +966,7 @@ export default function AdminAdsPage() {
 
           {/* Geo targeting. AYK-388 (the owner: «إعلان منشّط لكن ما أستطيع تحديد مناطق عرضه»): open for
               a paid ad too; its price stays what was paid. */}
+          <AdProSettings form={form} setForm={setForm} campaigns={campaigns} redBox={redBox} redNote={redNote} />
           <div id="ad-field-targeting" className={`rounded-card border border-slate-200 p-3 space-y-3 ${fieldErr.targeting ? 'ring-2 ring-rose-500 bg-rose-50/70' : ''}`} data-testid="ad-geo">
             {redNote('targeting')}
             <div className="text-[12.5px] font-bold text-ink">🌍 {t('promote.geo_targeting')}</div>
@@ -1157,7 +1187,8 @@ function FieldA({ label, value, onChange, type = 'text', required = false, place
 
 // AYK-407: each check of «لماذا الإعلان يظهر أو لا يظهر», its field in the edit window, and the
 // reason in plain words (the administration is in Arabic).
-const CHECK_FIELD = { status: 'status', is_active: 'is_active', starts_at: 'starts_at', ends_at: 'ends_at', view_cap: 'max_views', placement_match: 'placements', geo_match: 'targeting' };
+const CHECK_FIELD = { status: 'status', is_active: 'is_active', starts_at: 'starts_at', ends_at: 'ends_at', view_cap: 'max_views', placement_match: 'placements', geo_match: 'targeting',
+  daily_cap: 'daily_max_views', pacing: 'pacing', campaign: 'campaign_id', schedule: 'schedule' };
 const when = value => { try { return new Date(value).toLocaleString('ar-SA-u-nu-latn', { dateStyle: 'medium', timeStyle: 'short' }); } catch (_) { return String(value); } };
 function explainCheck(c, ad, t, placement) {
   switch (c.name) {
@@ -1180,6 +1211,84 @@ function explainCheck(c, ad, t, placement) {
       const where = [v.visitor_city, v.visitor_region, v.visitor_country].filter(Boolean).join('، ') || 'غير معروف';
       return `مكان الزائر (${where}) خارج مناطق عرض الإعلان. وسّع مناطق العرض أو اتركها فارغة ليُعرض للجميع. (الفحص بمكانك أنت، والزوار في مناطق العرض يرونه.)`;
     }
+    case 'daily_cap': return `بلغ حد مشاهدات اليوم (${c.actual}). يعود غدًا، أو ارفع الحد اليومي.`;
+    case 'pacing': return `التوزيع المتساوي: بلغ نصيب اليوم من المشاهدات (${c.actual}) حتى لا تنفد قبل نهاية مدته. يعود غدًا، أو اختر «بأسرع وقت».`;
+    case 'campaign': {
+      const r = c.actual?.reason || '';
+      const name = c.actual?.name ? `«${c.actual.name}»` : '';
+      if (r.startsWith('status:')) return `حملته ${name} ليست نشطة. نشّطها من تبويب «الحملات».`;
+      return { missing: 'حملته غير موجودة. اختر حملة أخرى أو «بلا حملة».', not_started: `حملته ${name} لم تبدأ بعد.`, ended: `انتهت مدة حملته ${name}.`,
+        views_done: `حملته ${name} بلغت حد مشاهداتها الكلي.`, daily_done: `حملته ${name} بلغت حد مشاهدات اليوم.` }[r] || `حملته ${name} لا تسمح بعرضه الآن.`;
+    }
+    case 'schedule': return 'ليس الآن ضمن أيام وساعات عرضه (بتوقيت السعودية). عدّل الجدولة أو انتظر موعدها.';
     default: return 'شرط لم يتحقق.';
   }
+}
+
+// AYK-409: the professional delivery settings of an ad, in plain words.
+function AdProSettings({ form, setForm, campaigns, redBox, redNote }) {
+  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
+  const toggle = (k, v) => setForm(f => ({ ...f, [k]: f[k].includes(v) ? f[k].filter(x => x !== v) : [...f[k], v] }));
+  const chip = (on) => `px-2.5 py-1 rounded-pill border text-[11.5px] font-semibold transition ${on ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 bg-white text-slate-500'}`;
+  const input = 'w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white text-[14px]';
+  return (
+    <details className="rounded-card border border-slate-200 p-3 group" data-testid="ad-pro" open={Boolean(form.campaign_id || form.priority !== 2 || form.weight !== 1 || form.daily_max_views || form.freq_cap_per_day || form.pacing === 'even' || form.schedule_days.length || form.schedule_from || form.target_devices.length || form.target_langs.length || form.target_audience.length) || undefined}>
+      <summary className="cursor-pointer text-[13px] font-bold text-ink">⚙️ إعدادات العرض: الحملة، والأولوية، والحدود، والجدولة، والجمهور</summary>
+      <div className="space-y-3 mt-3">
+        <div id="ad-field-campaign_id" className={redBox('campaign_id')}>
+          <label className="block text-[12px] font-bold">📁 الحملة
+            <select className={input} value={form.campaign_id} onChange={e => set('campaign_id', e.target.value)} data-testid="ad-campaign">
+              <option value="">بلا حملة</option>
+              {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}{c.status !== 'active' ? ' (موقوفة)' : ''}</option>)}
+            </select>
+          </label>{redNote('campaign_id')}
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <label className="block text-[12px] font-bold">⭐ الأولوية
+            <select className={input} value={form.priority} onChange={e => set('priority', Number(e.target.value))} data-testid="ad-priority">
+              <option value={1}>عالية: تظهر قبل غيرها</option><option value={2}>عادية</option><option value={3}>احتياطية: تظهر إن لم يوجد غيرها</option>
+            </select>
+          </label>
+          <label className="block text-[12px] font-bold">⚖️ الوزن (1–10): كم مرة يظهر مقارنة بغيره في نفس الأولوية
+            <input type="number" min="1" max="10" className={input} value={form.weight} onChange={e => set('weight', Math.min(10, Math.max(1, Number(e.target.value) || 1)))} data-testid="ad-weight" />
+          </label>
+          <div id="ad-field-daily_max_views" className={redBox('daily_max_views')}>
+            <label className="block text-[12px] font-bold">📅 حد المشاهدات في اليوم (اختياري)
+              <input type="number" min="1" className={input} value={form.daily_max_views} onChange={e => set('daily_max_views', e.target.value)} placeholder="—" />
+            </label>{redNote('daily_max_views')}
+          </div>
+          <label className="block text-[12px] font-bold">👤 حد المرات للزائر الواحد في اليوم (اختياري)
+            <input type="number" min="1" className={input} value={form.freq_cap_per_day} onChange={e => set('freq_cap_per_day', e.target.value)} placeholder="—" data-testid="ad-freq" />
+          </label>
+        </div>
+        <div id="ad-field-pacing" className={redBox('pacing')}>
+          <div className="text-[12px] font-bold mb-1">⏱ توزيع المشاهدات</div>
+          <div className="flex gap-1.5 flex-wrap">
+            <button type="button" className={chip(form.pacing !== 'even')} onClick={() => set('pacing', 'asap')}>بأسرع وقت</button>
+            <button type="button" className={chip(form.pacing === 'even')} onClick={() => set('pacing', 'even')}>متساوية على المدة</button>
+          </div>
+          <p className="text-[11.5px] text-slate-500 m-0 mt-1">«متساوية» توزّع حد المشاهدات على الأيام حتى تاريخ الانتهاء، فلا تنفد في يوم واحد.</p>{redNote('pacing')}
+        </div>
+        <div id="ad-field-schedule" className={redBox('schedule')}>
+          <div className="text-[12px] font-bold mb-1">🗓 الجدولة بتوقيت السعودية (اختياري): أيام وساعات العرض</div>
+          <div className="flex gap-1.5 flex-wrap">{WEEK_DAYS.map(([d, l]) => <button key={d} type="button" className={chip(form.schedule_days.includes(d))} onClick={() => toggle('schedule_days', d)}>{l}</button>)}</div>
+          <div className="grid grid-cols-2 gap-2 mt-2">
+            <label className="block text-[12px] font-bold">من الساعة<input type="time" className={input} value={form.schedule_from} onChange={e => set('schedule_from', e.target.value)} /></label>
+            <label className="block text-[12px] font-bold">إلى الساعة<input type="time" className={input} value={form.schedule_to} onChange={e => set('schedule_to', e.target.value)} /></label>
+          </div>
+          <p className="text-[11.5px] text-slate-500 m-0 mt-1">بلا أيام: كل الأيام. بلا ساعات: كل اليوم.</p>{redNote('schedule')}
+        </div>
+        <div>
+          <div className="text-[12px] font-bold mb-1">👥 الجمهور (اختياري، بلا اختيار = الجميع)</div>
+          <div className="flex gap-1.5 flex-wrap mb-2">
+            {[['mobile', '📱 الجوال'], ['desktop', '💻 الكمبيوتر']].map(([v, l]) => <button key={v} type="button" className={chip(form.target_devices.includes(v))} onClick={() => toggle('target_devices', v)}>{l}</button>)}
+          </div>
+          <div className="flex gap-1.5 flex-wrap mb-2">
+            {[['guest', 'الزوار غير المسجلين'], ['client', 'طالبو الخدمة'], ['provider', 'مقدمو الخدمة']].map(([v, l]) => <button key={v} type="button" className={chip(form.target_audience.includes(v))} onClick={() => toggle('target_audience', v)}>{l}</button>)}
+          </div>
+          <div className="flex gap-1.5 flex-wrap">{AD_LANGS.map(([v, l]) => <button key={v} type="button" className={chip(form.target_langs.includes(v))} onClick={() => toggle('target_langs', v)}>{l}</button>)}</div>
+        </div>
+      </div>
+    </details>
+  );
 }

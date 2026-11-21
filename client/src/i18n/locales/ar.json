@@ -996,7 +996,7 @@
     "country_currency_code": "رمز العملة",
     "country_currency_symbol": "رمز العملة المعروض",
     "country_languages": "اللغات المتاحة في هذه الدولة",
-    "ads": "الإعلانات المدفوعة",
+    "ads": "الإعلانات الترويجية",
     "reviews": "إدارة التقييمات",
     "activity_logs": "سجل النشاطات",
     "integrations": "تكاملات API",
@@ -1363,7 +1363,12 @@
     "paid_ads_turned_on": "تم التفعيل: تظهر «أعلن» للمستخدمين المسجّلين ويستطيعون إنشاء إعلان جديد.",
     "paid_ads_turned_off": "تم الإيقاف: لا تظهر «أعلن» لأحد ولا يستطيع أحد إنشاء إعلان جديد. الإعلانات المسجّلة لا تتأثر.",
     "paid_ads_now_on": "الآن الاشتراك بالإعلان مفعّل",
-    "paid_ads_now_off": "الآن الاشتراك بالإعلان موقوف"
+    "paid_ads_now_off": "الآن الاشتراك بالإعلان موقوف",
+    "ad_tab_campaigns": "الحملات",
+    "ad_tab_reports": "التقارير",
+    "menu_layout": {
+      "title": "ترتيب القوائم"
+    }
   },
   "errors": {
     "generic": "حدث خطأ",
@@ -1660,7 +1665,9 @@
     "page_search": "البحث والطلبات",
     "page_profile": "حسابي",
     "page_chat": "المحادثات",
-    "page_dashboard": "لوحة الحساب"
+    "page_dashboard": "لوحة الحساب",
+    "ctr": "نسبة النقر",
+    "download_report": "تنزيل التقرير (Excel)"
   },
   "badge": {
     "page_title": "شاراتي",

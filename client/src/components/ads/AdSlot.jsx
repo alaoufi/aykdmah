@@ -52,7 +52,19 @@ function hiddenAds() {
 function hideAd(id) {
   try { const ids = [...hiddenAds(), Number(id)].slice(-300); localStorage.setItem(HIDDEN_KEY, JSON.stringify(ids)); } catch (_) { /* private mode: this visit only */ }
 }
-const visible = rows => { const hidden = hiddenAds(); return (rows || []).filter(ad => !hidden.has(Number(ad.id))); };
+// AYK-409: an ad with a per-visitor daily cap stops showing on this device once reached today.
+const FREQ_KEY = 'ayk_ad_freq';
+const today = () => new Date().toISOString().slice(0, 10);
+function freqCounts() {
+  try { const v = JSON.parse(localStorage.getItem(FREQ_KEY) || 'null'); return v && v.day === today() ? v : { day: today(), n: {} }; } catch (_) { return { day: today(), n: {} }; }
+}
+function countShown(id) {
+  try { const v = freqCounts(); v.n[id] = (v.n[id] || 0) + 1; localStorage.setItem(FREQ_KEY, JSON.stringify(v)); } catch (_) { /* private mode */ }
+}
+const visible = rows => {
+  const hidden = hiddenAds(); const { n } = freqCounts();
+  return (rows || []).filter(ad => !hidden.has(Number(ad.id)) && !(Number(ad.freq_cap_per_day) > 0 && (n[ad.id] || 0) >= Number(ad.freq_cap_per_day)));
+};
 
 export default function AdSlot({ placement, className = '', maxAds = 1 }) {
   const { t, i18n } = useTranslation();
@@ -71,7 +83,7 @@ export default function AdSlot({ placement, className = '', maxAds = 1 }) {
   }, [placement, maxAds]);
 
   useEffect(() => {
-    for (const ad of ads) if (!alreadySeen(ad.id)) trackAdView(ad.id);
+    for (const ad of ads) if (!alreadySeen(ad.id)) { trackAdView(ad.id); countShown(ad.id); }
   }, [ads]);
 
   if (!loaded || !ads.length) return null;

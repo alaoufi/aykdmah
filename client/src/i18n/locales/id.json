@@ -996,7 +996,7 @@
     "country_currency_code": "Kode mata uang",
     "country_currency_symbol": "Simbol mata uang",
     "country_languages": "Bahasa yang diaktifkan di negara ini",
-    "ads": "Iklan berbayar",
+    "ads": "Iklan promosi",
     "reviews": "Kelola penilaian",
     "activity_logs": "Log aktivitas",
     "integrations": "Integrasi API",
@@ -1363,7 +1363,12 @@
     "paid_ads_turned_on": "تم التفعيل: تظهر «أعلن» للمستخدمين المسجّلين ويستطيعون إنشاء إعلان جديد.",
     "paid_ads_turned_off": "تم الإيقاف: لا تظهر «أعلن» لأحد ولا يستطيع أحد إنشاء إعلان جديد. الإعلانات المسجّلة لا تتأثر.",
     "paid_ads_now_on": "الآن الاشتراك بالإعلان مفعّل",
-    "paid_ads_now_off": "الآن الاشتراك بالإعلان موقوف"
+    "paid_ads_now_off": "الآن الاشتراك بالإعلان موقوف",
+    "ad_tab_campaigns": "الحملات",
+    "ad_tab_reports": "التقارير",
+    "menu_layout": {
+      "title": "ترتيب القوائم"
+    }
   },
   "errors": {
     "generic": "Terjadi kesalahan",
@@ -1643,7 +1648,9 @@
     "page_search": "Pencarian & permintaan",
     "page_profile": "Profil saya",
     "page_chat": "Percakapan",
-    "page_dashboard": "Dasbor akun"
+    "page_dashboard": "Dasbor akun",
+    "ctr": "Rasio klik",
+    "download_report": "Unduh laporan (Excel)"
   },
   "badge": {
     "page_title": "Lencana saya",
