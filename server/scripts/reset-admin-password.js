@@ -22,7 +22,7 @@ async function main() {
   const { hashPassword } = require('../utils/hash');
   try {
     const admin = await db.queryOne(
-      "SELECT id, username FROM users WHERE (username = ? OR email = ? OR phone = ?) AND role = 'admin' AND deleted_at IS NULL",
+      "SELECT id, username FROM users WHERE (username = ? OR email = ? OR phone = ?) AND (is_admin = 1 OR role = 'admin') AND deleted_at IS NULL",
       [identifier, identifier, identifier],
     );
     if (!admin) throw new Error(`No administrator "${identifier}".`);

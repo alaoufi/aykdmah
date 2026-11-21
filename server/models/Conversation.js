@@ -220,9 +220,9 @@ async function getContacts(userId) {
       AND ${requestPairSql('self')} AND ${requestPairSql('other')}`, [userId]);
 }
 
-async function listForUser(userId, { page = 1, limit = 20, q = '', requestId = null, peerId = null } = {}) {
+async function listRows(userId, { page = 1, limit = 20, q = '', requestId = null, peerId = null, maxLimit = 100 } = {}) {
   page = Math.max(1, Math.min(100000, Number.parseInt(page, 10) || 1));
-  limit = Math.max(1, Math.min(100, Number.parseInt(limit, 10) || 20));
+  limit = Math.max(1, Math.min(maxLimit, Number.parseInt(limit, 10) || 20));
   const offset = (page - 1) * limit;
   const extra = [], extraParams = [];
   if (requestId) { extra.push('c.request_id = ?'); extraParams.push(Number(requestId)); }
@@ -266,6 +266,64 @@ async function listForUser(userId, { page = 1, limit = 20, q = '', requestId = n
   );
 }
 
+// AYK-365 (the owner: «ادمجها محادثة واحدة لكل شخصين»): the chat list shows one row per person,
+// like WhatsApp. The conversations stay as they are (each tied to its request, its rights, reviews
+// and disputes); the row stands for all of them: the newest message, the unread count of all, and
+// `pair_ids`. Its id is the conversation one writes to: the newest that can still be written to.
+const otherOf = row => {
+  let other = row.other_user;
+  if (typeof other === 'string') { try { other = JSON.parse(other); } catch (_) { other = null; } }
+  return other && other.id != null ? Number(other.id) : null;
+};
+async function listForUser(userId, { page = 1, limit = 20, q = '', requestId = null, peerId = null, merge = true } = {}) {
+  if (!merge || requestId) return listRows(userId, { page, limit, q, requestId, peerId });
+  page = Math.max(1, Math.min(100000, Number.parseInt(page, 10) || 1));
+  limit = Math.max(1, Math.min(100, Number.parseInt(limit, 10) || 20));
+  const rows = await listRows(userId, { page: 1, limit: 1000, q, peerId, maxLimit: 1000 });
+  const groups = new Map();
+  for (const row of rows) {
+    const key = otherOf(row) ?? `c${row.id}`;
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key).push(row);
+  }
+  const merged = [...groups.values()].map(list => {
+    const newest = [...list].sort((a, b) => new Date(b.last_message_at || 0) - new Date(a.last_message_at || 0))[0];
+    const writable = row => Number(row.can_send) === 1 || row.can_send === true;
+    // The chat list's archive (finished or closed requests): the person's row is archived only
+    // when every conversation with them is.
+    const archived = row => Boolean(row.request_id) && (!writable(row) || ['completed', 'closed', 'cancelled'].includes(row.request_status));
+    const target = list.find(row => writable(row) && !archived(row)) || list.find(writable) || newest;
+    return {
+      ...target,
+      archived: list.every(archived),
+      last_message: newest.last_message,
+      last_message_at: newest.last_message_at,
+      unread_count: list.reduce((sum, row) => sum + (Number(row.unread_count) || 0), 0),
+      is_favorite: list.some(row => Number(row.is_favorite) === 1) ? 1 : 0,
+      pair_ids: list.map(row => Number(row.id)),
+      requests_count: list.filter(row => row.request_id).length,
+    };
+  });
+  merged.sort((a, b) => (b.is_favorite - a.is_favorite) || (new Date(b.last_message_at || 0) - new Date(a.last_message_at || 0)) || (b.id - a.id));
+  return merged.slice((page - 1) * limit, page * limit);
+}
+
+// AYK-365: every conversation this user can open with the other person of `conversationId`
+// (`conversationId` itself first), so one chat shows all their messages.
+async function pairIds(conversationId, userId) {
+  const id = Number(conversationId);
+  const rows = await query(`SELECT DISTINCT mine.conversation_id AS id FROM conversation_participants mine
+    JOIN conversation_participants theirs ON theirs.conversation_id = mine.conversation_id AND theirs.user_id <> mine.user_id
+    WHERE mine.user_id = ? AND theirs.user_id = (SELECT MIN(p.user_id) FROM conversation_participants p WHERE p.conversation_id = ? AND p.user_id <> ?)`,
+  [userId, id, userId]);
+  const ids = [id];
+  for (const row of rows) {
+    const other = Number(row.id);
+    if (other !== id && await isParticipant(other, userId)) ids.push(other);
+  }
+  return ids;
+}
+
 // Unread messages in the chats the user can see, for the chat badge (the
 // notification count belongs to the bell, not to "Chats").
 async function unreadTotal(userId) {
@@ -275,7 +333,7 @@ async function unreadTotal(userId) {
     JOIN messages m ON m.conversation_id = cp.conversation_id
     WHERE cp.user_id = ? AND m.is_read = 0 AND m.sender_id != ? AND m.deleted_at IS NULL LIMIT 1`, [userId, userId]);
   if (!any) return 0;
-  const rows = await listForUser(userId, { page: 1, limit: 100 });
+  const rows = await listRows(userId, { page: 1, limit: 1000, maxLimit: 1000 });
   return rows.reduce((sum, row) => sum + (Number(row.unread_count) || 0), 0);
 }
 
@@ -299,5 +357,5 @@ async function updateLastRead(conversationId, userId) {
 module.exports = {
   unreadTotal,
   findOrCreateBetween, findById, getParticipants, isParticipant, canSend, assertCanSend, assertCanRead,
-  canShareLocation, assertCanShareLocation, getContacts, listForUser, updateLastRead, setFavorite,
+  canShareLocation, assertCanShareLocation, getContacts, listForUser, listRows, pairIds, updateLastRead, setFavorite,
 };

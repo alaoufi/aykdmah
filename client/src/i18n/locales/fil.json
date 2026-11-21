@@ -45,17 +45,18 @@
     "login": "Mag-sign in",
     "register": "Gumawa ng account",
     "logout": "Mag-sign out",
-    "profile": "Aking profile",
+    "profile": "Aking account",
     "my_requests": "Aking mga kahilingan",
     "my_offers": "Aking mga alok",
     "notifications": "Mga notification",
     "chat": "Mga Mensahe",
-    "dashboard": "Dashboard",
+    "dashboard": "Admin panel",
     "admin": "Admin panel",
     "settings": "Mga setting",
     "subscription": "Subscription",
     "badges": "Mga badge",
-    "promote": "Mag-advertise"
+    "promote": "Mag-advertise",
+    "my_account": "Aking account"
   },
   "theme": {
     "label": "Itsura",
@@ -130,7 +131,7 @@
       "urgent_open": "Mga urgent na kahilingan na naghihintay ng alok",
       "updated_at": "Huling update: {{time}}"
     },
-    "browse_by_category": "Mag-browse ayon sa kategorya",
+    "browse_by_category": "Mag-browse ayon sa propesyon",
     "what_do_you_need": "Ano ang kailangan mo ngayon?",
     "how_it_works": "Paano gumagana ang platform?",
     "step_1_title": "Mag-request ng serbisyo",
@@ -202,7 +203,7 @@
     "email": "Email",
     "username": "Username",
     "identifier": "Phone, iyong numero o email",
-    "identifier_hint": "Mag-sign in gamit ang iyong phone number, ang iyong numero na nasa itaas ng site (hal. AB12), o ang iyong email.",
+    "identifier_hint": "Mag-sign in gamit ang iyong phone number, ang iyong numero na nasa itaas ng site (hal. 27), o ang iyong email.",
     "identifiers_hint": "Maglagay ng kahit isang paraan ng pag-sign in (username / email / phone)",
     "password": "Password",
     "show_password": "Ipakita ang password",
@@ -255,7 +256,7 @@
     "admin_identifier": "Username o email",
     "admin_login_hint": "Mag-sign in gamit ang admin account para buksan ang dashboard.",
     "account_details_hint": "Kumpletuhin ang iyong detalye nang isang beses. Gagamitin ang naka-save mong address at lokasyon sa mga susunod na kahilingan, at mae-edit mo ang mga ito sa iyong profile.",
-    "account_address_hint": "Kalye, numero ng gusali o villa, at anumang direksyon para madali kang mahanap.",
+    "account_address_hint": "Opsyonal: Kalye, numero ng gusali o villa, at anumang direksyon para madali kang mahanap.",
     "account_address_required": "Ilagay ang buo mong address.",
     "account_phone_required": "Maglagay ng tamang mobile number para makontak ka.",
     "account_name_required": "Ilagay ang buo mong pangalan, kahit dalawang letra man lang.",
@@ -305,7 +306,7 @@
     "phone_registered": "Naka-register na ang numerong ito. Mag-sign in, o gamitin ang «Nakalimutan ang password?».",
     "phone_available": "✓ Tamang numero, hindi pa naka-register",
     "invite_label": "Numero ng imbitasyon (opsyonal)",
-    "invite_hint": "Kung may nag-imbita sa iyo, isulat dito ang kanyang numero ng imbitasyon (mga titik at numero). Iwanang blangko kung wala.",
+    "invite_hint": "Kung may nag-imbita sa iyo, isulat dito ang kanyang numero ng imbitasyon (mga digit lamang). Iwanang blangko kung wala.",
     "invite_not_found": "Hindi tama ang numero ng imbitasyon. Suriin ito o iwanang blangko.",
     "complete_to_enable": "Para gumana ang button: {{item}}",
     "welcome_number_hint_client": "Ito ang permanente mong numero at makikita ito sa itaas ng site. Puwede kang mag-sign in gamit ito o ang iyong mobile number, kasama ang password.",
@@ -321,7 +322,13 @@
     "registration_login": "Pindutin dito para mag-sign in",
     "password_advice": "Para mas ligtas, gumamit ng hindi bababa sa 6 na character",
     "provider_extras": "Oras ng trabaho at lugar ng serbisyo (opsyonal)",
-    "provider_extras_hint": "Kung hindi mo babaguhin: nagtatrabaho ka araw-araw sa anumang oras, at ikaw ang pupunta sa kliyente. Mapapalitan mo ito anumang oras sa «{{profile}}»."
+    "provider_extras_hint": "Kung hindi mo babaguhin: nagtatrabaho ka araw-araw sa anumang oras, at ikaw ang pupunta sa kliyente. Mapapalitan mo ito anumang oras sa «{{profile}}».",
+    "wrong_password": "Mali ang password",
+    "recover_password": "I-recover ang password",
+    "phone_not_registered": "Hindi rehistrado ang numerong ito",
+    "account_not_registered": "Hindi rehistrado ang account na ito",
+    "register_here": "Magrehistro dito",
+    "recover_here": "I-recover dito"
   },
   "request": {
     "create_title": "Gumawa ng bagong kahilingan",
@@ -329,7 +336,7 @@
     "title_ph": "Hal.: Maintenance ng split na aircon",
     "description": "Paglalarawan",
     "description_ph": "Isulat nang malinaw ang serbisyong kailangan mo",
-    "category": "Kategorya",
+    "category": "Trabaho",
     "service": "Serbisyo",
     "subservice": "Sub-service",
     "address_ph": "Hal.: Distrito ng Al Olaya, Prince Sultan St.",
@@ -424,7 +431,7 @@
   "status": {
     "request": {
       "open": "Bukas",
-      "assigned": "Naitalaga",
+      "assigned": "Napili na ang provider",
       "in_progress": "Ginagawa",
       "completed": "Tapos na",
       "cancelled": "Na-cancel",
@@ -469,7 +476,7 @@
     "home": "Serbisyo sa bahay"
   },
   "profile": {
-    "title": "Aking profile",
+    "title": "Aking account",
     "update_profile": "Na-update ang profile",
     "update_provider": "Na-update ang profile ng serbisyo",
     "business_name": "Pangalan ng negosyo",
@@ -505,7 +512,13 @@
     "forgot_current_password": "Nakalimutan ang kasalukuyang password? Bawiin ito gamit ang code sa iyong mobile",
     "change_password_save": "I-save ang bagong password",
     "password_changed_here": "Napalitan ang password. Naka-sign in ka pa rin sa device na ito; na-sign out ang ibang device.",
-    "account_type_admin": "Admin account ito: nagre-request ito ng serbisyo at namamahala sa platform, at hindi nagbabago ang uri nito. Para subukan bilang provider, mag-register ng ibang account gamit ang ibang mobile number."
+    "account_type_admin": "Admin account ito: nagre-request ito ng serbisyo at namamahala sa platform, at hindi nagbabago ang uri nito. Para subukan bilang provider, mag-register ng ibang account gamit ang ibang mobile number.",
+    "saved_toast": "Na-save",
+    "missing_title": "Pakikumpleto ang mga ito",
+    "missing_region": "Piliin ang rehiyon",
+    "missing_city": "Piliin ang lungsod",
+    "missing_district": "Piliin ang kapitbahayan",
+    "not_saved": "Hindi na-save"
   },
   "chat": {
     "title": "Mga Mensahe",
@@ -640,7 +653,13 @@
     "offline_hint": "Walang koneksyon sa internet",
     "media_limits_hint": "Video hanggang {{video_min}} min o {{video_mb}} MB · audio hanggang {{voice_min}} min · larawan hanggang {{image_mb}} MB · file hanggang {{file_mb}} MB",
     "media_file_too_large": "Mas malaki sa {{size}} MB ang file na ito.",
-    "uploading_percent": "Ina-upload {{percent}}%"
+    "uploading_percent": "Ina-upload {{percent}}%",
+    "delete_for_everyone": "Burahin para sa lahat",
+    "delete_for_me": "Burahin para sa akin",
+    "delete_for_me_body": "Sa screen mo lang aalisin ang mensahe. Makikita pa rin ito ng kabilang panig, at itinatago ito ng administrasyon kung may alitan.",
+    "message_was_deleted": "Binura ang mensaheng ito",
+    "you_deleted_message": "Binura mo ang mensaheng ito",
+    "delete_choice_body": "“Burahin para sa lahat”: aalisin sa iyo at sa kabilang panig, at “Binura ang mensaheng ito” ang matitira.\n“Burahin para sa akin”: sa screen mo lang.\nSa parehong paraan, itinatago ito ng administrasyon kung may alitan."
   },
   "tracking": {
     "title": "Live tracking",
@@ -759,7 +778,13 @@
     "coverage_all": "Lahat ng distrito",
     "coverage_clear": "Alisin lahat",
     "coverage_count": "Napiling distrito: {{count}}",
-    "coverage_required": "Pumili ng kahit isang distrito."
+    "coverage_required": "Pumili ng kahit isang distrito.",
+    "services_description": "Paglalarawan ng mga serbisyo",
+    "services_description_mine": "Paglalarawan ng aking mga serbisyo",
+    "services_description_hint": "Isulat ang iyong inaalok, karanasan at kalakasan, hal.: electrical wiring, maintenance ng aircon, garantiya sa trabaho…",
+    "show_more": "Ipakita pa",
+    "show_less": "Ipakita nang mas kaunti",
+    "show_translation": "Ipakita ang salin"
   },
   "review": {
     "rate_provider": "I-rate ang provider",
@@ -884,6 +909,7 @@
     "created_complete_payment": "Nagawa na ang subscription. Kumpletuhin ang bayad."
   },
   "notification": {
+    "messages_from": "💬 Mga mensahe mula kay {{name}}",
     "title": "Mga notification",
     "no_notifications": "Walang notification",
     "mark_all_read": "I-mark ang lahat bilang nabasa",
@@ -1338,7 +1364,7 @@
     "browse_services": "Tingnan ang mga serbisyo",
     "categories_title": "Mga kategorya ng serbisyo",
     "popular_title": "Mga uri ng serbisyo",
-    "featured_categories": "Mga tampok na kategorya",
+    "featured_categories": "Mga nangungunang propesyon",
     "services_available": "{{count}} uri ng serbisyo",
     "price_from": "Tinatayang presyo mula",
     "duration": "Tagal ng trabaho",
@@ -1498,7 +1524,7 @@
     "workflow_hint": "Kapag inaprubahan ng admin, lalabas ang page ng bayad. Magsisimula ang ad pagkatapos mong magbayad at i-activate ito ng admin.",
     "my_ads": "Aking mga ad",
     "no_ads": "Wala pang ad",
-    "status_requested": "Sinusuri",
+    "status_requested": "Hinihintay ang pag-apruba ng administrasyon (wala pang bayad)",
     "status_approved": "Aprubado — naghihintay ng bayad",
     "status_awaiting_payment": "Bayad na — naghihintay ng pag-activate",
     "status_active": "Aktibo",
@@ -1600,7 +1626,7 @@
     "workflow_hint": "Pagkatapos ipadala: susuriin ng admin → magbabayad ka → agad na maa-activate ang badge.",
     "request_sent": "Naipadala ang hiling. Aabisuhan ka pagkatapos ng pagsusuri.",
     "current_status": "Kasalukuyang status",
-    "status_requested": "Sinusuri",
+    "status_requested": "Hinihintay ang pag-apruba ng administrasyon",
     "status_approved": "Aprubado — naghihintay ng bayad",
     "status_awaiting_payment": "Naghihintay ng bayad",
     "status_active": "Aktibo",
@@ -1765,6 +1791,10 @@
       "contact": {
         "question": "Paano ako makikipag-ugnayan sa support o magrereklamo?",
         "answer": "Mula sa menu na ☰ o sa ibaba ng page, piliin ang «Suporta at reklamo». Puwede kang mag-message sa amin nang direkta sa WhatsApp, o magpadala ng mensahe sa admin matapos pumili ng paksa: technical support, reklamo, mungkahi o mensahe sa admin. Darating ang sagot ng admin sa parehong page kasama ang notification, at may numero sa menu na nagpapakita ng bilang ng mga bagong sagot."
+      },
+      "rating": {
+        "question": "Paano ko ire-rate ang service provider?",
+        "answer": "Pagkatapos ng serbisyo, pumili mula isa hanggang limang bituin at isulat ang opinyon mo. Agad na mapa-publish ang rating mo at makikita ng lahat sa page ng service provider."
       }
     },
     "start_title": "Handa ka na bang magsimula?",
@@ -1772,12 +1802,12 @@
     "browse_services": "Tingnan ang mga serbisyo",
     "provider_signup": "Mag-sign up bilang provider",
     "account_note": "Puwede mong basahin ang gabay na ito kahit hindi naka-sign in.",
-    "wallet_title": "Coupon at wallet para sa mga provider",
-    "wallet_intro": "Bawat provider ay nakakakuha ng sariling coupon pag-register, at kumikita siya ng porsyento kapag may nag-register gamit ito at nagbayad. Makikita ito sa «Wallet at coupon» sa panel ng provider.",
+    "wallet_title": "Coupon at wallet",
+    "wallet_intro": "Bawat account, kliyente man o service provider, ay may sariling coupon. Kapag in-activate ng admin ang marketing na may komisyon, kikita ka kapag may mga service provider na nag-register gamit ang coupon mo. Makikita ito sa «Wallet at coupon».",
     "wallet_points": {
       "coupon": {
         "title": "Iyong coupon",
-        "body": "Permanenteng code na may dalawang letra at dalawang numero gaya ng KD27, at awtomatiko itong humahaba kung kailangan. Hindi ito nagbabago at hindi ito ibibigay sa iba."
+        "body": "Permanenteng numero na may dalawang digit gaya ng 27, at awtomatiko itong humahaba sa tatlo at pagkatapos ay apat na digit kung kailangan. Hindi ito nagbabago at hindi ito ibibigay sa iba."
       },
       "invite": {
         "title": "Pag-imbita",
@@ -1785,7 +1815,7 @@
       },
       "commission": {
         "title": "Komisyon",
-        "body": "Kapag nakumpleto ang unang online na bayad ng bagong user, awtomatikong madadagdag sa balanse mo ang porsyentong itinakda ng admin, isang beses lang. Walang komisyon ang bayad na galing sa balanse."
+        "body": "Pumipili ang admin ng isang paraan: porsyento ng unang nakumpletong online na bayad ng bagong user; o nakapirming halaga para sa bawat service provider na nag-register gamit ang coupon mo kapag naabot na ang minimum na bilang (kung kulang sa minimum, walang makukuha); o nakapirming halaga para sa bawat service provider na nagbayad ng subscription at na-activate, isang beses lang sa bawat tao. Makikita sa wallet mo ang kasalukuyang paraan at ang mga numero nito, at maaaring ihinto ng admin ang marketing na may komisyon."
       },
       "balance": {
         "title": "Balanse",
@@ -1834,7 +1864,7 @@
       },
       "coupon": {
         "title": "Iyong numero at numero ng imbitasyon",
-        "body": "Bawat account ay may permanenteng numero na binubuo ng mga letra at numero (gaya ng AB12) na makikita sa itaas ng site at sa menu ng account mo, at puwede kang mag-sign in gamit ito, ang iyong mobile o email. Ang numero ng provider ay siya ring numero ng imbitasyon niya: kung inimbita ka ng isang provider, isulat ang numero niya sa field na «Numero ng imbitasyon» habang nagre-register. Hindi gagana ang button na «Gumawa ng account» hangga't hindi kumpleto at tama ang mga kailangang field, hindi ka pa sumasang-ayon sa mga tuntunin, at hindi pa naisusulat ang verification code."
+        "body": "Bawat account ay may permanenteng numero na binubuo lamang ng mga digit (gaya ng 27) na makikita sa itaas ng site at sa menu ng account mo, at puwede kang mag-sign in gamit ito, ang iyong mobile o email. Ang numero ng provider ay siya ring numero ng imbitasyon niya: kung inimbita ka ng isang provider, isulat ang numero niya sa field na «Numero ng imbitasyon» habang nagre-register. Hindi gagana ang button na «Gumawa ng account» hangga't hindi kumpleto at tama ang mga kailangang field, hindi ka pa sumasang-ayon sa mga tuntunin, at hindi pa naisusulat ang verification code."
       },
       "matching": {
         "title": "Ano ang makikita mo sa Home",
@@ -1875,6 +1905,10 @@
       "search": {
         "title": "Paglabas sa paghahanap",
         "body": "Makikita ng kliyente ang status mo: available ngayon, naka-bakasyon hanggang sa isang petsa, o labas sa oras ng trabaho. Unang lumalabas ang mga available, at puwedeng piliin ng kliyente na «Available ngayon» lang ang makita."
+      },
+      "present": {
+        "title": "Ang berde at pulang bilog",
+        "body": "🟢 «Available ngayon»: tumatanggap ng trabaho ngayon ang provider ayon sa sarili niyang iskedyul, hindi naka-leave at hindi wala sa serbisyo. 🔴 «Hindi available» kasama ang dahilan, at may link na «Iskedyul ng trabaho» na nagpapakita ng lahat ng oras niya. Iba ang «📱 Nasa app ngayon»: bukas ang app niya ngayon."
       }
     },
     "appearance_title": "Itsura at mga tema",
@@ -1970,8 +2004,8 @@
     "distance_km": "{{value}} km",
     "providers_title": "Mga provider na malapit",
     "providers_subtitle": "Tantiyang tuwid na layo ang distansya, hindi layo sa daan.",
-    "filter_category": "Kategorya",
-    "all_categories": "Lahat ng kategorya",
+    "filter_category": "Trabaho",
+    "all_categories": "Lahat ng trabaho",
     "filter_radius": "Saklaw ng layo",
     "within_km": "Sa loob ng {{value}} km",
     "choose_origin": "Itakda ang lokasyon mo o pumili ng punto sa mapa para makita ang mga provider na malapit.",
@@ -2281,7 +2315,14 @@
       "counted": "Nabilang",
       "not_counted": "Hindi pa pumipili ng mga serbisyo",
       "commission": "Komisyon SAR {{amount}}"
-    }
+    },
+    "invite_title": "Ang iyong invite link",
+    "invite_hint": "Kopyahin at ibahagi ito. Ang magbubukas nito at magre-register ay awtomatikong mabibilang para sa iyo.",
+    "invite_nav": "Imbitahang sumali",
+    "invite_send": "Ipadala sa WhatsApp",
+    "invite_copy": "Kopyahin",
+    "invite_send_short": "Ipadala",
+    "invite_copied": "Nakopya"
   },
   "test_checkout": {
     "banner": "Test na bayad — walang perang ibabawas",
@@ -2304,10 +2345,10 @@
     "manage": "Pamahalaan ang availability",
     "state": {
       "available": "Available ngayon",
-      "paused": "Pansamantalang nakahinto",
+      "paused": "Wala munang serbisyo",
       "vacation": "Naka-bakasyon",
-      "off_day": "Hindi araw ng trabaho",
-      "off_hours": "Labas sa oras ng trabaho",
+      "off_day": "Hindi available ngayong araw",
+      "off_hours": "Hindi available ngayon (labas sa oras ng trabaho)",
       "offline": "Hindi konektado ngayon"
     },
     "vacation_until": "Naka-bakasyon hanggang {{date}}",
@@ -2333,7 +2374,25 @@
     "vacation_both": "Itakda ang petsa ng simula at pagtatapos ng bakasyon.",
     "hours_both": "Ilagay ang oras ng simula at pagtatapos, o iwanang blangko pareho.",
     "days_required": "Pumili ng kahit isang araw ng trabaho.",
-    "hours_24": "24 oras"
+    "hours_24": "24 oras",
+    "schedule_link": "Iskedyul ng trabaho",
+    "schedule_title": "Iskedyul ng trabaho",
+    "day_off": "Day off",
+    "all_hours": "Available 24 oras, araw-araw",
+    "present": "Nasa app ngayon",
+    "not_present": "Wala sa app ngayon",
+    "present_hint": "Nasa app: bukas ang app niya ngayon. Available: tumatanggap ng trabaho ayon sa iskedyul niya.",
+    "mode_24h": "Available 24 oras",
+    "mode_schedule": "Lingguhang iskedyul",
+    "add_period": "Magdagdag ng oras",
+    "remove_period": "Alisin ang oras na ito",
+    "copy_all": "Kopyahin ang araw na ito sa lahat ng araw",
+    "day_works": "May trabaho sa araw na ito",
+    "schedule_hint": "Maglagay ng isa o higit pang oras bawat araw, gaya ng 8 am hanggang 12 tanghali at 4 pm hanggang 10 pm. Puwedeng lumampas ng hatinggabi.",
+    "schedule_required": "Maglagay ng kahit isang oras ng trabaho, o piliin ang «Available 24 oras».",
+    "midnight": "Hatinggabi",
+    "label_available": "Available sa trabaho",
+    "label_present": "Nasa app"
   },
   "brand": {
     "branch_of": "Ang Ay Khidma ay sangay ng",
@@ -2472,7 +2531,7 @@
     "requesters_note": "Bilang ng mga kliyenteng naka-register sa mga distritong sakop mo. Hindi namin ipinapakita ang kanilang pangalan para sa kanilang privacy, at darating sa iyo ang kanilang kahilingan sa «Mga trabaho para sa akin» kapag na-post nila ito."
   },
   "work": {
-    "title": "Trabaho ko",
+    "title": "Mga setting ng trabaho ko",
     "hint": "Ito ang nakikita ng mga kliyente tungkol sa iyo: ang iyong mga trabaho, mga distritong sakop mo at oras ng trabaho mo. Awtomatiko kang lumalabas sa kanila habang available ka.",
     "professions": "Aking mga trabaho",
     "no_professions": "Wala ka pang napiling trabaho",
@@ -2497,8 +2556,8 @@
     "resume_in_profile": "Ituloy sa aking profile",
     "my_contacts_title": "Mga kahilingang kinontak mo",
     "assigned_to_you": "Nakatalaga sa iyo: buksan para tapusin o umatras",
-    "tasks_title": "Aking mga gawain sa trabaho",
-    "tasks_hint": "Mga kahilingang kinontak mo o itinalaga sa iyo. Ang mga aktibo ay kailangan ka ngayon, at nasa archive ang mga tapos o na-cancel.",
+    "tasks_title": "Mga trabaho ko",
+    "tasks_hint": "Mga request na kinontak mo o itinalaga sa iyo. Kailangan ka ngayon ng «Mga aktibo kong trabaho»; nasa «Archive ng mga trabaho ko» ang natapos o kinansela.",
     "task_waiting": "Naghihintay ng sagot ng may-ari ng kahilingan",
     "professions_areas": "Aking mga trabaho at lugar"
   },
@@ -2653,7 +2712,11 @@
   "manage": {
     "title": "Pamahalaan",
     "active": "Aktibo",
-    "archive": "Archive"
+    "archive": "Archive",
+    "active_requests": "Mga aktibo kong request",
+    "archive_requests": "Archive ng mga request ko",
+    "active_tasks": "Mga aktibo kong trabaho",
+    "archive_tasks": "Archive ng mga trabaho ko"
   },
   "directory": {
     "save": "I-save sa Aking direktoryo",
@@ -2697,7 +2760,9 @@
     "cancel": "I-cancel",
     "delete": "I-delete",
     "required": "Kailangan ang field na ito",
-    "min_length": "Sumulat ng kahit {{count}} character"
+    "min_length": "Sumulat ng kahit {{count}} character",
+    "done": "Sige",
+    "deleted": "Natanggal na"
   },
   "join": {
     "title_request": "Mag-request ng serbisyo sa loob ng isang minuto",
@@ -2853,11 +2918,37 @@
     "whatsapp_hint": "Iwanang blangko para gamitin ang iyong mobile number sa WhatsApp.",
     "show_whatsapp": "Ipakita ang button ng WhatsApp",
     "call": "Tumawag",
-    "whatsapp_button": "WhatsApp"
+    "whatsapp_button": "WhatsApp",
+    "mobile": "Mobile",
+    "chat": "Chat",
+    "opening": "Binubuksan ang chat…"
   },
   "provider_page": {
     "contact": "Makipag-ugnayan",
     "rating_count": "Mga rating: {{count}}",
     "completed": "Natapos na kahilingan: {{count}}"
+  },
+  "coverage": {
+    "covers": "Sakop: {{city}}",
+    "all_districts": "Lahat ng kapitbahayan",
+    "more_districts": "at {{count}} pa"
+  },
+  "share": {
+    "title": "Ibahagi",
+    "site": "Ibahagi ang site",
+    "site_text": "Ay Khidma: humiling ng anumang serbisyo malapit sa iyo at madaling makipag-ugnayan sa mga provider sa inyong lugar.",
+    "native": "Ibahagi (larawan, link)",
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram",
+    "facebook": "Facebook",
+    "x": "X / Twitter",
+    "tiktok": "TikTok",
+    "tiktok_hint": "(kokopyahin ang link)",
+    "tiktok_copied": "Nakopya ang link, i-paste ito sa TikTok",
+    "copy": "Kopyahin ang link",
+    "copied": "Nakopya ang link",
+    "qr": "QR code",
+    "qr_hint": "I-scan ang code gamit ang camera ng telepono para buksan ang link",
+    "qr_save": "I-save ang larawan"
   }
 }

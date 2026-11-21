@@ -9,6 +9,7 @@ import { apiError } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 import { LoadingState } from '../components/common/Spinner';
 import Avatar from '../components/common/Avatar';
+import TranslatedText from '../components/common/TranslatedText';
 import { formatTime } from '../utils/formatters';
 import ProblemNotice from '../components/common/ProblemNotice';
 
@@ -99,7 +100,7 @@ export default function DisputeDetailsPage() {
 
         {isTerminal && dispute.resolution && (
           <div className="mt-3 p-3 rounded-card bg-success-soft border border-success/30 text-success text-[13px]">
-            <strong>{t('dispute.resolution')}:</strong> {dispute.resolution}
+            <strong>{t('dispute.resolution')}:</strong> <TranslatedText text={dispute.resolution} translated={dispute.resolution_translated} />
           </div>
         )}
       </div>
@@ -134,7 +135,7 @@ export default function DisputeDetailsPage() {
                     <div className="text-[10.5px] opacity-80 mb-1">
                       {it.author_name} · {it.author_role}{it.is_internal ? ' · 🔒 ' + t('dispute.internal_note') : ''}
                     </div>
-                    <div className="whitespace-pre-wrap">{it.body}</div>
+                    <div className="whitespace-pre-wrap"><TranslatedText text={it.body} translated={it.body_translated} /></div>
                     <div className="text-[10px] opacity-70 mt-1 text-end">{formatTime(it.at)}</div>
                   </div>
                 </div>

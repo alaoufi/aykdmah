@@ -8,7 +8,7 @@ async function findAll({ cityId, activeOnly = true } = {}) {
   if (activeOnly) where.push('is_active = 1');
   const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
   return query(
-    `SELECT id, city_id, name_ar, name_en, latitude, longitude, is_active
+    `SELECT id, city_id, name_ar, name_en, name_translations, latitude, longitude, is_active
      FROM districts ${whereSql} ORDER BY name_ar ASC`,
     params
   );

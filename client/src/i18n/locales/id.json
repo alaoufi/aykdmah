@@ -45,17 +45,18 @@
     "login": "Masuk",
     "register": "Daftar",
     "logout": "Keluar",
-    "profile": "Profil saya",
+    "profile": "Akun saya",
     "my_requests": "Permintaan saya",
     "my_offers": "Penawaran saya",
     "notifications": "Pemberitahuan",
     "chat": "Pesan",
-    "dashboard": "Dasbor",
+    "dashboard": "Panel Admin",
     "admin": "Panel Admin",
     "settings": "Pengaturan",
     "subscription": "Langganan",
     "badges": "Lencana",
-    "promote": "Pasang iklan"
+    "promote": "Pasang iklan",
+    "my_account": "Akun saya"
   },
   "theme": {
     "label": "Penampilan",
@@ -130,7 +131,7 @@
       "urgent_open": "Permintaan mendesak menunggu penawaran",
       "updated_at": "Pembaruan terakhir: {{time}}"
     },
-    "browse_by_category": "Telusuri menurut kategori",
+    "browse_by_category": "Telusuri menurut profesi",
     "what_do_you_need": "Apa yang Anda butuhkan hari ini?",
     "how_it_works": "Cara kerjanya",
     "step_1_title": "Kirim permintaan Anda",
@@ -202,7 +203,7 @@
     "email": "Email",
     "username": "Nama pengguna",
     "identifier": "Telepon, nomor pelanggan atau email",
-    "identifier_hint": "Masuk dengan nomor telepon Anda, nomor pelanggan yang ditampilkan di bagian atas situs (misalnya AB12), atau email Anda.",
+    "identifier_hint": "Masuk dengan nomor telepon Anda, nomor pelanggan yang ditampilkan di bagian atas situs (misalnya 27), atau email Anda.",
     "identifiers_hint": "Tambahkan setidaknya satu metode masuk (nama pengguna / email / telepon)",
     "password": "Kata sandi",
     "show_password": "Tampilkan kata sandi",
@@ -255,7 +256,7 @@
     "admin_identifier": "Nama pengguna atau email",
     "admin_login_hint": "Masuk dengan akun administrator Anda untuk membuka dasbor.",
     "account_details_hint": "Lengkapi data Anda sekali saja. Alamat dan lokasi yang Anda simpan akan dipakai untuk permintaan berikutnya, dan Anda bisa mengubahnya di profil Anda.",
-    "account_address_hint": "Jalan, nomor gedung atau vila, dan petunjuk untuk menemukan Anda.",
+    "account_address_hint": "Opsional: Jalan, nomor gedung atau vila, dan petunjuk untuk menemukan Anda.",
     "account_address_required": "Masukkan alamat lengkap Anda.",
     "account_phone_required": "Masukkan nomor telepon kontak yang valid.",
     "account_name_required": "Tulis nama lengkap Anda, minimal dua huruf.",
@@ -305,7 +306,7 @@
     "phone_registered": "Nomor ini sudah terdaftar. Silakan masuk, atau gunakan “Lupa kata sandi”.",
     "phone_available": "✓ Nomor valid dan belum terdaftar",
     "invite_label": "Nomor undangan (opsional)",
-    "invite_hint": "Jika seseorang mengundang Anda, tulis nomor undangannya di sini (huruf dan angka). Kosongkan jika tidak ada.",
+    "invite_hint": "Jika seseorang mengundang Anda, tulis nomor undangannya di sini (hanya angka). Kosongkan jika tidak ada.",
     "invite_not_found": "Nomor undangan tidak valid. Periksa atau kosongkan.",
     "complete_to_enable": "Agar tombol aktif: {{item}}",
     "welcome_number_hint_client": "Ini nomor permanen Anda dan ditampilkan di bagian atas situs. Anda bisa masuk dengan nomor ini atau nomor ponsel, beserta kata sandi.",
@@ -321,7 +322,13 @@
     "registration_login": "Ketuk di sini untuk masuk",
     "password_advice": "Agar lebih aman, gunakan minimal 6 karakter",
     "provider_extras": "Jam kerja dan tempat kerja (opsional)",
-    "provider_extras_hint": "Jika tidak diubah: Anda bekerja setiap hari kapan saja, dan Anda yang datang ke pelanggan. Anda bisa mengubahnya kapan saja di «{{profile}}»."
+    "provider_extras_hint": "Jika tidak diubah: Anda bekerja setiap hari kapan saja, dan Anda yang datang ke pelanggan. Anda bisa mengubahnya kapan saja di «{{profile}}».",
+    "wrong_password": "Kata sandi tidak benar",
+    "recover_password": "Pulihkan kata sandi",
+    "phone_not_registered": "Nomor ponsel ini belum terdaftar",
+    "account_not_registered": "Akun ini belum terdaftar",
+    "register_here": "Daftar di sini",
+    "recover_here": "Pulihkan di sini"
   },
   "request": {
     "create_title": "Buat permintaan baru",
@@ -329,7 +336,7 @@
     "title_ph": "Contoh: servis AC split",
     "description": "Deskripsi",
     "description_ph": "Tuliskan deskripsi yang jelas tentang layanan yang Anda butuhkan",
-    "category": "Kategori",
+    "category": "Profesi",
     "service": "Layanan",
     "subservice": "Sub-layanan",
     "address_ph": "Contoh: lingkungan Al Olaya, Jalan Pangeran Sultan",
@@ -424,7 +431,7 @@
   "status": {
     "request": {
       "open": "Terbuka",
-      "assigned": "Ditugaskan",
+      "assigned": "Penyedia jasa sudah dipilih",
       "in_progress": "Dalam proses",
       "completed": "Selesai",
       "cancelled": "Dibatalkan",
@@ -469,7 +476,7 @@
     "home": "Layanan rumah tangga"
   },
   "profile": {
-    "title": "Profil saya",
+    "title": "Akun saya",
     "update_profile": "Profil diperbarui",
     "update_provider": "Profil layanan diperbarui",
     "business_name": "Nama usaha",
@@ -505,7 +512,13 @@
     "forgot_current_password": "Lupa kata sandi saat ini? Pulihkan dengan kode ke ponsel Anda",
     "change_password_save": "Simpan kata sandi baru",
     "password_changed_here": "Kata sandi diubah. Anda tetap masuk di perangkat ini; perangkat lain telah keluar.",
-    "account_type_admin": "Ini akun admin: akun ini meminta layanan dan mengelola platform, dan jenisnya tidak berubah. Untuk mencoba sebagai penyedia layanan, daftarkan akun lain dengan nomor ponsel berbeda."
+    "account_type_admin": "Ini akun admin: akun ini meminta layanan dan mengelola platform, dan jenisnya tidak berubah. Untuk mencoba sebagai penyedia layanan, daftarkan akun lain dengan nomor ponsel berbeda.",
+    "saved_toast": "Tersimpan",
+    "missing_title": "Lengkapi yang berikut",
+    "missing_region": "Pilih wilayah",
+    "missing_city": "Pilih kota",
+    "missing_district": "Pilih lingkungan",
+    "not_saved": "Tidak tersimpan"
   },
   "chat": {
     "title": "Pesan",
@@ -640,7 +653,13 @@
     "offline_hint": "Tidak ada koneksi internet",
     "media_limits_hint": "Video hingga {{video_min}} menit atau {{video_mb}} MB · audio hingga {{voice_min}} menit · gambar hingga {{image_mb}} MB · file hingga {{file_mb}} MB",
     "media_file_too_large": "File ini lebih besar dari {{size}} MB.",
-    "uploading_percent": "Mengunggah {{percent}}%"
+    "uploading_percent": "Mengunggah {{percent}}%",
+    "delete_for_everyone": "Hapus untuk semua",
+    "delete_for_me": "Hapus untuk saya",
+    "delete_for_me_body": "Pesan hanya dihapus dari layar Anda. Pihak lain tetap melihatnya, dan administrasi menyimpannya jika terjadi sengketa.",
+    "message_was_deleted": "Pesan ini telah dihapus",
+    "you_deleted_message": "Anda menghapus pesan ini",
+    "delete_choice_body": "“Hapus untuk semua”: dihapus untuk Anda dan pihak lain, tersisa “Pesan ini telah dihapus”.\n“Hapus untuk saya”: hanya dari layar Anda.\nKeduanya tetap disimpan administrasi jika terjadi sengketa."
   },
   "tracking": {
     "title": "Pelacakan langsung",
@@ -759,7 +778,13 @@
     "coverage_all": "Semua lingkungan",
     "coverage_clear": "Hapus semua",
     "coverage_count": "Lingkungan dipilih: {{count}}",
-    "coverage_required": "Pilih minimal satu lingkungan."
+    "coverage_required": "Pilih minimal satu lingkungan.",
+    "services_description": "Deskripsi layanan",
+    "services_description_mine": "Deskripsi layanan saya",
+    "services_description_hint": "Tulis apa yang Anda tawarkan, pengalaman dan keunggulan Anda, mis.: instalasi listrik, perawatan AC, garansi pekerjaan…",
+    "show_more": "Tampilkan lebih",
+    "show_less": "Tampilkan lebih sedikit",
+    "show_translation": "Tampilkan terjemahan"
   },
   "review": {
     "rate_provider": "Beri penilaian penyedia layanan",
@@ -884,6 +909,7 @@
     "created_complete_payment": "Langganan dibuat. Selesaikan pembayaran."
   },
   "notification": {
+    "messages_from": "💬 Pesan dari {{name}}",
     "title": "Pemberitahuan",
     "no_notifications": "Tidak ada pemberitahuan",
     "mark_all_read": "Tandai semua sudah dibaca",
@@ -1338,7 +1364,7 @@
     "browse_services": "Lihat layanan",
     "categories_title": "Kategori layanan",
     "popular_title": "Jenis layanan",
-    "featured_categories": "Kategori utama",
+    "featured_categories": "Profesi unggulan",
     "services_available": "{{count}} jenis layanan",
     "price_from": "Perkiraan harga dari",
     "duration": "Lama pengerjaan",
@@ -1498,7 +1524,7 @@
     "workflow_hint": "Setelah disetujui admin, halaman pembayaran akan muncul. Iklan dimulai setelah Anda membayar dan admin mengaktifkannya.",
     "my_ads": "Iklan saya",
     "no_ads": "Belum ada iklan",
-    "status_requested": "Sedang ditinjau",
+    "status_requested": "Menunggu persetujuan pengelola (belum ada pembayaran)",
     "status_approved": "Disetujui — menunggu pembayaran",
     "status_awaiting_payment": "Dibayar — menunggu aktivasi",
     "status_active": "Aktif",
@@ -1600,7 +1626,7 @@
     "workflow_hint": "Setelah permintaan dikirim: admin meninjau, lalu Anda membayar biaya, dan lencana langsung aktif.",
     "request_sent": "Permintaan terkirim. Anda akan diberi tahu setelah ditinjau.",
     "current_status": "Status saat ini",
-    "status_requested": "Sedang ditinjau",
+    "status_requested": "Menunggu persetujuan pengelola",
     "status_approved": "Disetujui — menunggu pembayaran",
     "status_awaiting_payment": "Menunggu pembayaran",
     "status_active": "Aktif",
@@ -1765,6 +1791,10 @@
       "contact": {
         "question": "Bagaimana cara menghubungi dukungan atau mengajukan pengaduan?",
         "answer": "Dari menu ☰ atau bagian bawah halaman, pilih «Dukungan dan pengaduan». Anda bisa langsung mengirim pesan ke kami di WhatsApp, atau mengirim pesan ke admin setelah memilih topik: dukungan teknis, pengaduan, saran, atau pesan ke admin. Balasan admin muncul di halaman yang sama dengan notifikasi, dan angka di menu menunjukkan jumlah balasan baru."
+      },
+      "rating": {
+        "question": "Bagaimana cara menilai penyedia layanan?",
+        "answer": "Setelah layanan selesai, pilih satu sampai lima bintang dan tulis pendapat Anda. Penilaian Anda langsung diterbitkan dan terlihat oleh semua orang di halaman penyedia layanan."
       }
     },
     "start_title": "Siap untuk memulai?",
@@ -1772,12 +1802,12 @@
     "browse_services": "Telusuri layanan",
     "provider_signup": "Daftar sebagai penyedia layanan",
     "account_note": "Anda bisa membaca panduan ini tanpa masuk.",
-    "wallet_title": "Kupon dan dompet untuk penyedia layanan",
-    "wallet_intro": "Setiap penyedia layanan mendapat kupon pribadi saat mendaftar, dan mendapat bagian ketika orang lain mendaftar dengan kupon itu lalu membayar. Kupon ada di «Dompet & Kupon» di dalam dasbor penyedia layanan.",
+    "wallet_title": "Kupon dan dompet",
+    "wallet_intro": "Setiap akun, pencari layanan maupun penyedia layanan, punya kupon sendiri. Jika admin mengaktifkan pemasaran dengan komisi, Anda mendapat penghasilan ketika penyedia layanan mendaftar dengan kupon Anda. Kupon ada di «Dompet & Kupon».",
     "wallet_points": {
       "coupon": {
         "title": "Kupon Anda",
-        "body": "Kode tetap berisi dua huruf dan dua angka, seperti KD27, dan otomatis lebih panjang jika perlu. Kode ini tidak berubah dan tidak dipakai orang lain."
+        "body": "Nomor tetap berisi dua angka, seperti 27, dan otomatis bertambah menjadi tiga lalu empat angka jika perlu. Nomor ini tidak berubah dan tidak dipakai orang lain."
       },
       "invite": {
         "title": "Mengundang",
@@ -1785,7 +1815,7 @@
       },
       "commission": {
         "title": "Komisi",
-        "body": "Saat pembayaran online pertama pendaftar baru selesai, persentase yang ditetapkan admin otomatis ditambahkan ke saldo Anda, hanya sekali. Pembayaran dari saldo tidak menghasilkan komisi."
+        "body": "Admin memilih satu cara: persentase dari pembayaran online pertama yang selesai dari pendaftar baru; atau jumlah tetap untuk setiap penyedia layanan yang mendaftar dengan kupon Anda setelah batas minimum jumlah tercapai (kurang dari batas minimum tidak mendapat apa-apa); atau jumlah tetap untuk setiap penyedia layanan yang membayar langganannya dan aktif, sekali untuk setiap orang. Cara yang berlaku saat ini beserta angkanya terlihat di dompet Anda, dan admin dapat menghentikan pemasaran dengan komisi."
       },
       "balance": {
         "title": "Saldo",
@@ -1834,7 +1864,7 @@
       },
       "coupon": {
         "title": "Nomor Anda dan nomor undangan",
-        "body": "Setiap akun punya nomor tetap berisi huruf dan angka (misalnya AB12) yang tampil di bagian atas situs dan di menu akun Anda; Anda bisa masuk dengan nomor ini, nomor ponsel, atau email. Nomor penyedia layanan juga merupakan nomor undangannya: orang yang diundang oleh penyedia layanan menulis nomornya di kolom «Nomor undangan» saat mendaftar. Tombol «Buat akun» tidak aktif sampai kolom wajib terisi lengkap dan benar, syarat disetujui, dan kode verifikasi diisi."
+        "body": "Setiap akun punya nomor tetap berisi angka saja (misalnya 27) yang tampil di bagian atas situs dan di menu akun Anda; Anda bisa masuk dengan nomor ini, nomor ponsel, atau email. Nomor penyedia layanan juga merupakan nomor undangannya: orang yang diundang oleh penyedia layanan menulis nomornya di kolom «Nomor undangan» saat mendaftar. Tombol «Buat akun» tidak aktif sampai kolom wajib terisi lengkap dan benar, syarat disetujui, dan kode verifikasi diisi."
       },
       "matching": {
         "title": "Apa yang tampil di beranda Anda",
@@ -1875,6 +1905,10 @@
       "search": {
         "title": "Tampil di pencarian",
         "body": "Pencari layanan melihat status Anda: tersedia sekarang, sedang cuti sampai tanggal tertentu, atau di luar jam kerja. Yang tersedia tampil lebih dulu, dan pencari layanan bisa memilih hanya «Tersedia sekarang»."
+      },
+      "present": {
+        "title": "Lingkaran hijau dan merah",
+        "body": "🟢 «Tersedia sekarang»: penyedia jasa menerima pekerjaan sekarang sesuai jadwalnya sendiri, tidak sedang cuti dan tidak berhenti melayani. 🔴 «Tidak tersedia» beserta alasannya, dan di sebelahnya tautan «Jadwal kerja» yang menunjukkan semua jam kerjanya. «📱 Sedang di aplikasi» hal yang berbeda: aplikasinya sedang terbuka."
       }
     },
     "appearance_title": "Penampilan dan tema",
@@ -1970,8 +2004,8 @@
     "distance_km": "{{value}} km",
     "providers_title": "Penyedia layanan terdekat",
     "providers_subtitle": "Jarak dihitung kira-kira dalam garis lurus, bukan jarak jalan.",
-    "filter_category": "Kategori",
-    "all_categories": "Semua kategori",
+    "filter_category": "Profesi",
+    "all_categories": "Semua profesi",
     "filter_radius": "Jangkauan jarak",
     "within_km": "Dalam {{value}} km",
     "choose_origin": "Tentukan lokasi Anda atau pilih titik di peta untuk melihat penyedia layanan terdekat.",
@@ -2281,7 +2315,14 @@
       "counted": "Dihitung",
       "not_counted": "Belum memilih layanan",
       "commission": "Komisi SAR {{amount}}"
-    }
+    },
+    "invite_title": "Tautan undangan Anda",
+    "invite_hint": "Salin dan bagikan. Siapa pun yang membukanya lalu mendaftar otomatis dihitung untuk Anda.",
+    "invite_nav": "Undang bergabung",
+    "invite_send": "Kirim lewat WhatsApp",
+    "invite_copy": "Salin",
+    "invite_send_short": "Kirim",
+    "invite_copied": "Tersalin"
   },
   "test_checkout": {
     "banner": "Pembayaran uji coba — tidak ada uang yang dipotong",
@@ -2304,10 +2345,10 @@
     "manage": "Kelola ketersediaan",
     "state": {
       "available": "Tersedia sekarang",
-      "paused": "Dijeda",
+      "paused": "Sedang tidak melayani",
       "vacation": "Sedang cuti",
-      "off_day": "Bukan hari kerja",
-      "off_hours": "Di luar jam kerja",
+      "off_day": "Tidak tersedia hari ini",
+      "off_hours": "Tidak tersedia sekarang (di luar jam kerja)",
       "offline": "Sedang tidak terhubung"
     },
     "vacation_until": "Cuti sampai {{date}}",
@@ -2333,7 +2374,25 @@
     "vacation_both": "Tentukan tanggal mulai dan selesai cuti.",
     "hours_both": "Isi jam mulai dan jam selesai, atau kosongkan keduanya.",
     "days_required": "Pilih minimal satu hari kerja.",
-    "hours_24": "24 jam"
+    "hours_24": "24 jam",
+    "schedule_link": "Jadwal kerja",
+    "schedule_title": "Jadwal kerja",
+    "day_off": "Libur",
+    "all_hours": "Tersedia 24 jam setiap hari",
+    "present": "Sedang di aplikasi",
+    "not_present": "Tidak sedang di aplikasi",
+    "present_hint": "Di aplikasi: aplikasinya sedang terbuka. Tersedia: menerima pekerjaan sesuai jadwalnya.",
+    "mode_24h": "Tersedia 24 jam",
+    "mode_schedule": "Jadwal mingguan",
+    "add_period": "Tambah waktu",
+    "remove_period": "Hapus waktu ini",
+    "copy_all": "Salin hari ini ke semua hari",
+    "day_works": "Bekerja hari ini",
+    "schedule_hint": "Atur satu atau lebih waktu untuk setiap hari, misalnya pukul 8 pagi sampai 12 siang dan 4 sore sampai 10 malam. Waktu boleh melewati tengah malam.",
+    "schedule_required": "Atur setidaknya satu waktu kerja, atau pilih «Tersedia 24 jam».",
+    "midnight": "Tengah malam",
+    "label_available": "Siap bekerja",
+    "label_present": "Ada di aplikasi"
   },
   "brand": {
     "branch_of": "Ay Khidma adalah cabang dari",
@@ -2472,7 +2531,7 @@
     "requesters_note": "Jumlah pencari layanan yang terdaftar di lingkungan yang Anda layani. Nama mereka tidak ditampilkan demi privasi, dan permintaan mereka langsung sampai ke Anda di «Permintaan profesi saya» begitu dipasang."
   },
   "work": {
-    "title": "Pekerjaan saya",
+    "title": "Pengaturan kerja saya",
     "hint": "Inilah yang dilihat pencari layanan tentang Anda: profesi, lingkungan yang Anda layani, dan jam kerja. Anda otomatis tampil bagi mereka selama Anda tersedia.",
     "professions": "Profesi saya",
     "no_professions": "Belum ada profesi yang dipilih",
@@ -2497,8 +2556,8 @@
     "resume_in_profile": "Aktifkan lagi dari Profil saya",
     "my_contacts_title": "Permintaan yang sudah Anda hubungi",
     "assigned_to_you": "Ditugaskan kepada Anda: buka untuk menyelesaikan atau mundur",
-    "tasks_title": "Tugas kerja saya",
-    "tasks_hint": "Permintaan yang Anda hubungi atau ditugaskan kepada Anda. Yang aktif membutuhkan Anda sekarang; arsip menyimpan yang selesai atau dibatalkan.",
+    "tasks_title": "Pekerjaan saya",
+    "tasks_hint": "Permintaan yang Anda hubungi atau ditugaskan kepada Anda. «Pekerjaan aktif saya» membutuhkan Anda sekarang; «Arsip pekerjaan saya» menyimpan yang selesai atau dibatalkan.",
     "task_waiting": "Menunggu balasan pemilik permintaan",
     "professions_areas": "Profesi & wilayah saya"
   },
@@ -2653,7 +2712,11 @@
   "manage": {
     "title": "Kelola",
     "active": "Aktif",
-    "archive": "Arsip"
+    "archive": "Arsip",
+    "active_requests": "Permintaan aktif saya",
+    "archive_requests": "Arsip permintaan saya",
+    "active_tasks": "Pekerjaan aktif saya",
+    "archive_tasks": "Arsip pekerjaan saya"
   },
   "directory": {
     "save": "Simpan ke Direktori saya",
@@ -2697,7 +2760,9 @@
     "cancel": "Batal",
     "delete": "Hapus",
     "required": "Kolom ini wajib diisi",
-    "min_length": "Tulis minimal {{count}} karakter"
+    "min_length": "Tulis minimal {{count}} karakter",
+    "done": "Selesai",
+    "deleted": "Terhapus"
   },
   "join": {
     "title_request": "Minta layanan dalam satu menit",
@@ -2853,11 +2918,37 @@
     "whatsapp_hint": "Biarkan kosong untuk memakai nomor ponsel Anda untuk WhatsApp.",
     "show_whatsapp": "Tampilkan tombol WhatsApp",
     "call": "Telepon",
-    "whatsapp_button": "WhatsApp"
+    "whatsapp_button": "WhatsApp",
+    "mobile": "Ponsel",
+    "chat": "Obrolan",
+    "opening": "Membuka obrolan…"
   },
   "provider_page": {
     "contact": "Hubungi",
     "rating_count": "Jumlah penilaian: {{count}}",
     "completed": "Permintaan selesai: {{count}}"
+  },
+  "coverage": {
+    "covers": "Wilayah: {{city}}",
+    "all_districts": "Semua lingkungan",
+    "more_districts": "dan {{count}} lainnya"
+  },
+  "share": {
+    "title": "Bagikan",
+    "site": "Bagikan situs",
+    "site_text": "Ay Khidma: minta layanan apa pun di dekat Anda dan hubungi penyedia di lingkungan Anda dengan mudah.",
+    "native": "Bagikan (gambar, tautan)",
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram",
+    "facebook": "Facebook",
+    "x": "X / Twitter",
+    "tiktok": "TikTok",
+    "tiktok_hint": "(tautan disalin)",
+    "tiktok_copied": "Tautan disalin, tempel di TikTok",
+    "copy": "Salin tautan",
+    "copied": "Tautan disalin",
+    "qr": "Kode QR",
+    "qr_hint": "Pindai kode dengan kamera ponsel untuk membuka tautan",
+    "qr_save": "Simpan gambar"
   }
 }

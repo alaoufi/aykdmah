@@ -132,8 +132,10 @@ test('complete signup saves each role’s private address and actual point throu
 test('new onboarding rejects missing confirmation or incomplete location without creating accounts', async () => {
   const home = await location();
   for (const changes of [
-    { location_confirmed: false }, { phone: null }, { address: '' }, { address: {} },
-    { city_id: null, district_id: null }, { district_id: null }, { latitude: null, longitude: null },
+    // AYK-360: an empty address and no confirmation tick are accepted now (tested below).
+    { phone: null }, { address: {} },
+    // AYK-375: the map point is optional (the city and district are enough).
+    { city_id: null, district_id: null }, { district_id: null },
     { address: 'ع'.repeat(501) }, { region_id: 1 }, { city_id: 2147483648 },
   ]) {
     const username = identity();
@@ -142,6 +144,18 @@ test('new onboarding rejects missing confirmation or incomplete location without
       onboarding_version: 1, location_confirmed: true, ...home, ...changes,
     } });
     assert.equal(await db.queryOne('SELECT id FROM users WHERE username = ?', [username]), null);
+  }
+});
+
+test('AYK-360: sign-up needs no written address and no confirmation tick', async () => {
+  const home = await location();
+  for (const changes of [{ address: '' }, { location_confirmed: false }]) {
+    const username = identity();
+    await api('/auth/register', { method: 'POST', expected: 201, body: {
+      full_name: 'تسجيل بلا عنوان', username, phone: phone(), password, role: 'client',
+      onboarding_version: 1, location_confirmed: true, ...home, ...changes,
+    } });
+    assert.ok(await db.queryOne('SELECT id FROM users WHERE username = ?', [username]));
   }
 });
 
@@ -219,8 +233,7 @@ test('failed or incomplete remembered requests leave both account and request ro
   const count = Number((await db.queryOne('SELECT COUNT(*) AS total FROM requests WHERE client_id = ?', [session.user.id])).total);
   const other = await location(88);
   for (const body of [
-    { city_id: other.city_id, district_id: other.district_id, address: other.address },
-    { ...other, district_id: null }, { ...other, address: '' },
+    { ...other, district_id: null },
     { ...other, title: 'ط'.repeat(201) }, { ...other, service_id: 2147483647 }, { ...other, budget_min: 20, budget_max: 10 },
   ]) {
     await createRequest(session.token, { ...body, remember_location: true }, 422);
@@ -258,8 +271,8 @@ test('complete profile updates cannot lose the address or point and explicit com
   const before = await accountLocation(session.user.id);
   const other = await location(88);
   for (const body of [
-    { address: 'عنوان جديد دون تأكيد النقطة' }, { city_id: other.city_id, district_id: other.district_id },
-    { latitude: null, longitude: null }, { ...other, complete_profile: true, location_confirmed: false },
+    // AYK-375: a move without a point, a new address alone or clearing the point are all allowed now
+    // (the point is optional); what is still refused is tested in the AYK-375 test below.
   ]) {
     await api('/users/me', { token: session.token, method: 'PUT', expected: 400, body });
     assert.deepEqual(await accountLocation(session.user.id), before);
@@ -269,6 +282,10 @@ test('complete profile updates cannot lose the address or point and explicit com
   } });
   assert.equal(saved.address, other.address);
   assert.equal(Number(saved.latitude), other.latitude);
+  // AYK-360: the address may be cleared and completion needs no confirmation tick.
+  const blank = await api('/users/me', { token: session.token, method: 'PUT', body: { ...other, address: '', complete_profile: true, location_confirmed: false } });
+  assert.equal(blank.address || null, null);
+  await api('/users/me', { token: session.token, method: 'PUT', body: { address: other.address, latitude: other.latitude, longitude: other.longitude } });
   await api('/users/me', { token: session.token, method: 'PUT', body: { full_name: 'اسم بعد التعديل فقط' } });
   assert.equal((await api('/auth/me', { token: session.token })).user.address, other.address);
 });
@@ -319,4 +336,184 @@ test('concurrent request snapshots complete with a single database pool connecti
   const requests = await Promise.all([1, 2, 3].map(() => createRequest(session.token)));
   assert.equal(new Set(requests.map(request => request.id)).size, 3);
   for (const request of requests) assert.equal(request.address, session.user.address);
+});
+
+test('AYK-361: the administration lists requests and providers by area and profession, newest first, and hides them', async () => {
+  const adminSession = await register();
+  await db.query("UPDATE users SET role = 'admin', is_super_admin = 1 WHERE id = ?", [adminSession.user.id]);
+  const adminLogin = await fetch(base + '/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Ayk-Scope': 'admin' },
+    body: JSON.stringify({ identifier: adminSession.user.username, password }) });
+  const adminToken = (await adminLogin.json()).data.token;
+  const admin = async (route, { method = 'GET', body, expected = 200 } = {}) => {
+    const response = await fetch(base + route, { method, headers: { Authorization: `Bearer ${adminToken}`, 'X-Ayk-Scope': 'admin',
+      ...(body ? { 'Content-Type': 'application/json' } : {}) }, body: body ? JSON.stringify(body) : undefined });
+    const result = await response.json();
+    assert.equal(response.status, expected, `${method} ${route}: ${result.message}`);
+    return result;
+  };
+  const service = await db.queryOne('SELECT id, category_id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+  const client = await register();
+  const older = await createRequest(client.token, { category_id: service.category_id, service_id: service.id });
+  const newer = await createRequest(client.token, { category_id: service.category_id, service_id: service.id, title: 'طلب أحدث للتحقق من الترتيب' });
+  const city = await db.queryOne('SELECT region_id FROM cities WHERE id = 9');
+
+  let list = await admin(`/admin/requests?city_id=9&region_id=${city.region_id}&category_id=${service.category_id}&limit=100`);
+  const ids = list.data.map(row => Number(row.id));
+  assert.ok(ids.indexOf(Number(newer.id)) > -1 && ids.indexOf(Number(newer.id)) < ids.indexOf(Number(older.id)), 'newest first');
+  assert.equal((await admin('/admin/requests?city_id=16&limit=100')).data.some(row => Number(row.id) === Number(newer.id)), false);
+  assert.ok((await admin(`/admin/requests?search=${newer.id}`)).data.some(row => Number(row.id) === Number(newer.id)), 'search by request number');
+
+  // Hidden: out of the providers' view, still the requester's.
+  const provider = await register({ role: 'provider' });
+  await api(`/requests/${newer.id}`, { token: provider.token });
+  await admin(`/admin/requests/${newer.id}/hide`, { method: 'PUT', body: { hidden: true } });
+  await api(`/requests/${newer.id}`, { token: provider.token, expected: 404 });
+  await api(`/requests/${newer.id}`, { token: client.token });
+  list = await admin('/admin/requests?visibility=hidden&limit=100');
+  assert.ok(list.data.some(row => Number(row.id) === Number(newer.id)));
+  await admin(`/admin/requests/${newer.id}/hide`, { method: 'PUT', body: { hidden: false } });
+  await api(`/requests/${newer.id}`, { token: provider.token });
+
+  // Providers: by area and profession, newest first, hidden and shown again.
+  const second = await register({ role: 'provider' });
+  list = await admin(`/admin/providers?city_id=9&category_id=${service.category_id}&limit=100`);
+  const pids = list.data.map(row => Number(row.id));
+  assert.ok(pids.indexOf(Number(second.user.id)) > -1 && pids.indexOf(Number(second.user.id)) < pids.indexOf(Number(provider.user.id)), 'newest provider first');
+  assert.equal((await admin('/admin/providers?city_id=16&limit=100')).data.some(row => Number(row.id) === Number(second.user.id)), false);
+  await admin(`/admin/providers/${second.user.id}/hide`, { method: 'PUT', body: { hidden: true } });
+  assert.ok((await db.queryOne('SELECT hidden_at FROM provider_profiles WHERE user_id = ?', [second.user.id])).hidden_at);
+  assert.ok((await admin('/admin/providers?visibility=hidden&limit=100')).data.some(row => Number(row.id) === Number(second.user.id)));
+  assert.equal((await admin('/admin/providers?visibility=shown&limit=100')).data.some(row => Number(row.id) === Number(second.user.id)), false);
+  await api('/auth/me', { token: second.token }); // the account still works
+  await admin(`/admin/providers/${second.user.id}/hide`, { method: 'PUT', body: { hidden: false } });
+  await admin('/admin/providers/1/hide', { method: 'PUT', body: { hidden: 'yes' }, expected: 400 });
+});
+
+test('AYK-363: notifications of one conversation are one entry, like WhatsApp, old ones included', async () => {
+  const Notification = require('../models/Notification');
+  const session = await register();
+  const uid = session.user.id;
+  for (const [i, body] of ['السلام عليكم', 'هلا', 'ويش عندك', 'ر'].entries()) {
+    await db.query("INSERT INTO notifications (user_id, type, title, body, link, created_at) VALUES (?, 'new_message', 'مقدم', ?, '/chat/901', CURRENT_TIMESTAMP + (? * INTERVAL '1 second'))", [uid, body, i]);
+  }
+  await db.query("INSERT INTO notifications (user_id, type, title, body, link) VALUES (?, 'new_message', 'آخر', 'من محادثة أخرى', '/chat/902')", [uid]);
+  // A «contact about a request» notice of the same conversation joins it; the entry still shows the sender's last message.
+  await db.query("INSERT INTO notifications (user_id, type, title, body, link, created_at) VALUES (?, 'request_contact', 'تواصل بخصوص طلب', 'يتواصل معك', '/chat/901', CURRENT_TIMESTAMP + INTERVAL '10 seconds')", [uid]);
+  await db.query("INSERT INTO notifications (user_id, type, title, body, link) VALUES (?, 'offer', 'عرض', 'عرض جديد', '/requests/5')", [uid]);
+  await db.query("INSERT INTO notifications (user_id, type, title, body, link) VALUES (?, 'offer', 'عرض', 'عرض ثان', '/requests/5')", [uid]);
+  let list = await Notification.listForUser(uid, { limit: 50 });
+  const chat = list.items.filter(n => n.link === '/chat/901');
+  assert.equal(chat.length, 1, 'one entry for the conversation');
+  assert.equal(chat[0].body, 'ر', 'its newest message');
+  assert.equal(chat[0].group_count, 5);
+  assert.equal(chat[0].group_unread, 5);
+  assert.equal(list.items.filter(n => n.link === '/requests/5').length, 2, 'other notifications stay one entry each');
+  assert.equal(list.unread, 4, 'two conversations and two other notifications');
+  await Notification.markRead(chat[0].id, uid);
+  list = await Notification.listForUser(uid, { limit: 50 });
+  assert.equal(list.items.find(n => n.link === '/chat/901').is_read, 1, 'reading the entry reads all its messages');
+  assert.equal(list.unread, 3);
+  assert.equal(Number((await db.queryOne("SELECT COUNT(*) AS n FROM notifications WHERE user_id = ? AND link = '/chat/901'", [uid])).n), 5, 'nothing deleted');
+  const api_ = await api('/notifications?limit=50', { token: session.token });
+  assert.equal((Array.isArray(api_) ? api_ : api_.items || []).filter(n => n.link === '/chat/902').length, 1);
+});
+
+test('AYK-364: one person\'s messages are one entry even across conversations; opening one reads them all', async () => {
+  const Notification = require('../models/Notification');
+  const me = await register();
+  const peer = await register();
+  const other = await register();
+  const conv = async (a, b) => {
+    const row = await db.queryOne('INSERT INTO conversations (request_id) VALUES (NULL) RETURNING id');
+    await db.query('INSERT INTO conversation_participants (conversation_id, user_id) VALUES (?, ?), (?, ?)', [row.id, a, row.id, b]);
+    return Number(row.id);
+  };
+  const c1 = await conv(me.user.id, peer.user.id), c2 = await conv(me.user.id, peer.user.id), c3 = await conv(me.user.id, other.user.id);
+  const add = (link, body) => db.query("INSERT INTO notifications (user_id, type, title, body, link) VALUES (?, 'new_message', 'شخص', ?, ?)", [me.user.id, body, link]);
+  await add(`/chat/${c1}`, 'أولى'); await add(`/chat/${c2}`, 'ثانية'); await add(`/chat/${c2}`, 'ثالثة'); await add(`/chat/${c3}`, 'من غيره');
+  let list = await Notification.listForUser(me.user.id, { limit: 50 });
+  const fromPeer = list.items.filter(n => [`/chat/${c1}`, `/chat/${c2}`].includes(n.link));
+  assert.equal(fromPeer.length, 1, 'one entry for the person');
+  assert.equal(fromPeer[0].group_unread, 3);
+  assert.equal(list.items.filter(n => n.link === `/chat/${c3}`).length, 1);
+  assert.equal(list.unread, 2);
+  await Notification.markConversationRead(me.user.id, c1);
+  list = await Notification.listForUser(me.user.id, { limit: 50 });
+  assert.equal(list.unread, 1, 'opening one conversation with the person read all of theirs');
+});
+
+test('AYK-365: one chat per two people: one row, one timeline across their conversations, read together', async () => {
+  const me = await register();
+  const peer = await register();
+  const conv = async () => {
+    const row = await db.queryOne('INSERT INTO conversations (request_id) VALUES (NULL) RETURNING id');
+    await db.query('INSERT INTO conversation_participants (conversation_id, user_id) VALUES (?, ?), (?, ?)', [row.id, me.user.id, row.id, peer.user.id]);
+    return Number(row.id);
+  };
+  const first = await conv(), second = await conv();
+  const say = async (conversationId, sender, content) => {
+    const m = await db.queryOne("INSERT INTO messages (conversation_id, sender_id, content, message_type) VALUES (?, ?, ?, 'text') RETURNING id", [conversationId, sender, content]);
+    await db.query('UPDATE conversations SET last_message_id = ?, last_message_at = CURRENT_TIMESTAMP WHERE id = ?', [m.id, conversationId]);
+  };
+  await say(first, peer.user.id, 'رسالة قديمة');
+  await say(second, peer.user.id, 'رسالة أحدث');
+  await say(first, peer.user.id, 'الأحدث من الأولى');
+
+  const list = await api('/chat/conversations', { token: me.token });
+  const rows = (Array.isArray(list) ? list : list.items || []).filter(row => (row.pair_ids || [row.id]).some(id => [first, second].includes(Number(id))));
+  assert.equal(rows.length, 1, 'one row for the person');
+  assert.deepEqual([...rows[0].pair_ids].map(Number).sort((a, b) => a - b), [first, second]);
+  assert.equal(Number(rows[0].unread_count), 3);
+
+  const messages = await api(`/chat/conversations/${second}/messages`, { token: me.token });
+  assert.deepEqual(messages.map(m => m.content), ['رسالة قديمة', 'رسالة أحدث', 'الأحدث من الأولى'], 'one timeline, oldest first');
+  const info = await api(`/chat/conversations/${first}`, { token: me.token });
+  assert.deepEqual([...info.pair_ids].map(Number).sort((a, b) => a - b), [first, second]);
+
+  await api(`/chat/conversations/${second}/read`, { token: me.token, method: 'PUT' });
+  assert.equal(Number((await db.queryOne('SELECT COUNT(*) AS n FROM messages WHERE conversation_id IN (?, ?) AND is_read = 0', [first, second])).n), 0, 'read together');
+  // Another person's chat is not mixed in.
+  const stranger = await register();
+  await api(`/chat/conversations/${first}/messages`, { token: stranger.token, expected: 403 });
+});
+
+test('AYK-366: a provider saves a weekly schedule; the profile shows it, availability apart from presence', async () => {
+  const provider = await register({ role: 'provider' });
+  const schedule = { 0: [['08:00', '12:00'], ['16:00', '22:00']], 5: [['16:00', '22:00']] };
+  await api('/users/me/provider', { token: provider.token, method: 'PUT', body: { work_schedule: schedule } });
+  const stored = await db.queryOne('SELECT work_schedule, work_days, work_from, work_to FROM provider_profiles WHERE user_id = ?', [provider.user.id]);
+  assert.deepEqual(typeof stored.work_schedule === 'string' ? JSON.parse(stored.work_schedule) : stored.work_schedule, schedule);
+  assert.equal(stored.work_days, null);
+  const me = await api('/auth/me', { token: provider.token });
+  const shown = me.provider.availability;
+  assert.deepEqual(shown.schedule[0], schedule[0]);
+  assert.deepEqual(shown.schedule[1], [], 'Monday off');
+  assert.ok(['available', 'off_hours', 'off_day'].includes(shown.state));
+  assert.equal(typeof shown.present, 'boolean', 'presence is reported on its own');
+  await api('/users/me/provider', { token: provider.token, method: 'PUT', body: { work_schedule: { 9: [['08:00', '12:00']] } }, expected: 400 });
+  await api('/users/me/provider', { token: provider.token, method: 'PUT', body: { work_schedule: null } });
+  const allDay = (await api('/auth/me', { token: provider.token })).provider.availability;
+  assert.equal(allDay.all_hours, true); assert.equal(allDay.state, 'available');
+});
+
+test('AYK-372: sign-in says whether the number is not registered or the password is wrong', async () => {
+  const session = await register();
+  const answer = async identifier => {
+    const r = await fetch(base + '/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ identifier, password: 'not-the-password' }) });
+    return { status: r.status, code: (await r.json()).code };
+  };
+  assert.deepEqual(await answer('0599999991'), { status: 401, code: 'account_not_found' });
+  assert.deepEqual(await answer(session.user.phone), { status: 401, code: 'wrong_password' });
+});
+
+test('AYK-375: the account location needs the city and district only; the map point is optional', async () => {
+  const session = await register();
+  const other = await location(88);
+  const saved = await api('/users/me', { token: session.token, method: 'PUT', body: { city_id: other.city_id, district_id: other.district_id, latitude: null, longitude: null, complete_profile: true } });
+  assert.equal(Number(saved.city_id), other.city_id); assert.equal(saved.latitude, null);
+  await api('/users/me', { token: session.token, method: 'PUT', expected: 400, body: { city_id: other.city_id, district_id: other.district_id, latitude: 25.9, longitude: null } });
+  const home = await location();
+  const username = identity();
+  await api('/auth/register', { method: 'POST', expected: 201, body: { full_name: 'تسجيل بلا نقطة', username, phone: phone(), password, role: 'client',
+    onboarding_version: 1, ...home, latitude: null, longitude: null } });
 });

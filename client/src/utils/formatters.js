@@ -39,7 +39,12 @@ export function dayLabel(date, t) {
   const yesterday = new Date(); yesterday.setDate(today.getDate() - 1);
   if (isSameDay(d, today)) return (t || i18n.t.bind(i18n))('chat.today');
   if (isSameDay(d, yesterday)) return (t || i18n.t.bind(i18n))('chat.yesterday');
-  return d.toLocaleDateString(activeLocale(), { day: '2-digit', month: 'short', year: 'numeric' });
+  // AYK-381, as in WhatsApp: the day's name within the last week, then the date (the year only
+  // when it is not this year).
+  const startOfToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const days = Math.round((startOfToday - new Date(d.getFullYear(), d.getMonth(), d.getDate())) / 86400000);
+  if (days > 1 && days < 7) return d.toLocaleDateString(activeLocale(), { weekday: 'long' });
+  return d.toLocaleDateString(activeLocale(), { day: 'numeric', month: 'long', ...(d.getFullYear() === today.getFullYear() ? {} : { year: 'numeric' }) });
 }
 
 export function formatRelativeTime(date) {

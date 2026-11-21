@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import usePublicSettings from '../../hooks/usePublicSettings';
-import { nativeAppVersion } from '../../utils/nativeApp';
+import { nativeAppVersion, playStoreAppLink } from '../../utils/nativeApp';
 
 const safeStoreUrl = (value, hosts) => {
   try {
@@ -26,11 +26,15 @@ const AppleIcon = () => (
 // «حمّل التطبيق» (AYK-227): the Google Play and App Store pages, from the admin settings. Shown on
 // the website only: inside the apps it is pointless, and Apple refuses an iPhone app that links to
 // Google Play. A store without a link yet shows «قريبًا».
-export default function StoreBadges({ className = '' }) {
+// footer (AYK-341, the owner): the badges in the site's footer, on the dark ground, instead of a
+// box on the home page.
+export default function StoreBadges({ className = '', footer = false, playApp = typeof navigator !== 'undefined' && /Android/i.test(navigator.userAgent || '') }) {
   const { t } = useTranslation();
   const { settings } = usePublicSettings();
   if (nativeAppVersion()) return null;
-  const play = safeStoreUrl(settings.google_play_url, ['play.google.com']);
+  const playWeb = safeStoreUrl(settings.google_play_url, ['play.google.com']);
+  // AYK-351: on an Android phone the badge opens the Play Store app, not its web page.
+  const play = playApp && playWeb ? playStoreAppLink(playWeb) : playWeb;
   const apple = safeStoreUrl(settings.app_store_url, ['apps.apple.com']);
   const badge = (href, icon, small, big, testId) => {
     const body = (
@@ -42,11 +46,22 @@ export default function StoreBadges({ className = '' }) {
         </span>
       </>
     );
-    const base = 'inline-flex items-center gap-2.5 min-w-[170px] px-4 py-2 rounded-xl bg-black text-white no-underline shadow-soft transition';
+    const base = `inline-flex items-center gap-2.5 ${footer ? 'min-w-[150px] border border-white/25' : 'min-w-[170px]'} px-4 py-2 rounded-xl bg-black text-white no-underline shadow-soft transition`;
     return href
-      ? <a href={href} target="_blank" rel="noopener noreferrer" className={`${base} hover:-translate-y-0.5 hover:shadow-lift`} data-testid={testId}>{body}</a>
+      ? <a href={href} target={href.startsWith('intent:') ? undefined : '_blank'} rel="noopener noreferrer" className={`${base} hover:-translate-y-0.5 hover:shadow-lift`} data-testid={testId}>{body}</a>
       : <span className={`${base} opacity-60 cursor-default`} data-testid={testId} aria-disabled="true">{body}</span>;
   };
+  if (footer) {
+    return (
+      <div className={className} data-testid="store-badges">
+        <div className="text-white font-bold text-[14px] mb-2">📲 {t('home.get_app')}</div>
+        <div className="flex flex-wrap gap-2">
+          {badge(play, <PlayIcon />, t('home.get_it_on'), 'Google Play', 'badge-google-play')}
+          {badge(apple, <AppleIcon />, apple ? t('home.download_on') : t('home.coming_soon'), 'App Store', 'badge-app-store')}
+        </div>
+      </div>
+    );
+  }
   return (
     <section className={`container max-w-5xl mx-auto px-4 ${className}`} data-testid="store-badges">
       <div className="rounded-card border border-border bg-surface px-4 py-4 flex flex-wrap items-center justify-center gap-3 text-center">

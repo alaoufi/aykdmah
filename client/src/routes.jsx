@@ -29,6 +29,8 @@ const ProviderProfilePage = lazy(() => import('./pages/ProviderProfilePage'));
 const GuidePage = lazy(() => import('./pages/GuidePage'));
 const AdminGuidePage = lazy(() => import('./pages/admin/AdminGuidePage'));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage'));
+const AppLinksPage = lazy(() => import('./pages/AppLinksPage'));
+const InviteLinkPage = lazy(() => import('./pages/InviteLinkPage'));
 
 // AYK services catalog
 const ServicesCatalogPage = lazy(() => import('./pages/services/ServicesCatalogPage'));
@@ -46,6 +48,7 @@ const AdminLoginPage = lazy(() => import('./pages/admin/AdminLoginPage'));
 const AdminDashboardPage = lazy(() => import('./pages/admin/AdminDashboardPage'));
 const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage'));
 const AdminRequestsPage = lazy(() => import('./pages/admin/AdminRequestsPage'));
+const AdminProvidersPage = lazy(() => import('./pages/admin/AdminProvidersPage'));
 const AdminCategoriesPage = lazy(() => import('./pages/admin/AdminCategoriesPage'));
 const AdminServicesPage = lazy(() => import('./pages/admin/AdminServicesPage'));
 const AdminPlansPage = lazy(() => import('./pages/admin/AdminPlansPage'));
@@ -122,7 +125,7 @@ const CLIENT_SIDEBAR = [
 ];
 
 const PROVIDER_SIDEBAR = [
-  { to: '/provider', icon: '📊', labelKey: 'nav.dashboard', end: true },
+  { to: '/provider', icon: '📊', labelKey: 'nav.home', end: true },
   { to: '/provider/tasks', icon: '🧰', labelKey: 'work.tasks_title' },
   { to: '/opportunities', icon: '🔍', labelKey: 'work.requests_nav' },
   { to: '/provider/subscription', icon: '⭐', labelKey: 'nav.subscription' },
@@ -247,6 +250,7 @@ export default function AppRoutes() {
           <Route path="/admin/guide" element={<AdminGuidePage />} />
           <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/admin/requests" element={<AdminRequestsPage />} />
+          <Route path="/admin/providers" element={<AdminProvidersPage />} />
           <Route path="/admin/categories" element={<AdminCategoriesPage />} />
           <Route path="/admin/services" element={<AdminServicesPage />} />
           <Route path="/admin/plans" element={<AdminPlansPage />} />
@@ -272,6 +276,11 @@ export default function AppRoutes() {
           <Route path="/admin/marketing" element={<AdminMarketingPage />} />
         </Route>
 
+        {/* AYK-351: short addresses for the apps; phones leave for their store before this. */}
+        <Route path="/i/:code" element={<InviteLinkPage />} />
+        <Route path="/app" element={<AppLinksPage />} />
+        <Route path="/gl" element={<AppLinksPage />} />
+        <Route path="/ios" element={<AppLinksPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
       </ErrorBoundary>

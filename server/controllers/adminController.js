@@ -1,4 +1,5 @@
 const { query, queryOne, transaction, tableHasColumn } = require('../config/database');
+const { canManageAdmin } = require('../middleware/roleCheck');
 const Setting = require('../models/Setting');
 const Request = require('../models/Request');
 const Subscription = require('../models/Subscription');
@@ -126,9 +127,75 @@ const dashboard = asyncHandler(async (req, res) => {
 });
 
 const listAllRequests = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 20, status, search } = req.query;
-  const { items, total } = await Request.listAll({ page, limit, status, search });
+  const { page = 1, limit = 20, status, search, region_id, city_id, category_id, visibility } = req.query;
+  const { items, total } = await Request.listAll({ page, limit, status, search, region_id, city_id, category_id, visibility });
   return paginate(res, items, total, page, limit);
+});
+
+// AYK-361: service providers for the administration: newest first, by region, city, profession and
+// shown/hidden, with a search over the name, number, phone and business name.
+const listProvidersAdmin = asyncHandler(async (req, res) => {
+  const { page, limit } = Request.pagination(req.query.page, req.query.limit);
+  const id = value => { const n = Number(value); return Number.isSafeInteger(n) && n > 0 && n <= 2147483647 ? n : null; };
+  const where = ["u.role = 'provider'", 'u.deleted_at IS NULL'];
+  const params = [];
+  if (id(req.query.region_id)) { where.push('c.region_id = ?'); params.push(id(req.query.region_id)); }
+  if (id(req.query.city_id)) { where.push('u.city_id = ?'); params.push(id(req.query.city_id)); }
+  if (id(req.query.category_id)) {
+    where.push(`(pp.category_id = ? OR EXISTS (SELECT 1 FROM services sv WHERE sv.category_id = ? AND pp.service_ids @> to_jsonb(sv.id)))`);
+    params.push(id(req.query.category_id), id(req.query.category_id));
+  }
+  if (req.query.visibility === 'hidden') where.push('pp.hidden_at IS NOT NULL');
+  else if (req.query.visibility === 'shown') where.push('pp.hidden_at IS NULL');
+  const text = typeof req.query.search === 'string' ? req.query.search.trim().slice(0, 100) : '';
+  if (text) {
+    const like = `%${text}%`;
+    where.push('(u.full_name ILIKE ? OR pp.business_name ILIKE ? OR u.phone LIKE ? OR u.referral_code = ? OR u.username ILIKE ?)');
+    params.push(like, like, like, text, like);
+  }
+  const from = `FROM users u JOIN provider_profiles pp ON pp.user_id = u.id
+    LEFT JOIN cities c ON c.id = u.city_id LEFT JOIN regions rg ON rg.id = c.region_id
+    LEFT JOIN districts d ON d.id = u.district_id LEFT JOIN categories cat ON cat.id = pp.category_id
+    WHERE ${where.join(' AND ')}`;
+  const items = await query(`SELECT u.id, u.full_name, u.username, u.phone, u.referral_code, u.is_active, u.is_blocked, u.also_client,
+      u.created_at, u.last_seen_at, pp.business_name, pp.rating_avg, pp.rating_count, pp.completed_orders, pp.hidden_at,
+      pp.category_id, cat.name_ar AS category_name, c.name_ar AS city_name, rg.name_ar AS region_name, d.name_ar AS district_name,
+      u.is_online, pp.availability_status, pp.vacation_from, pp.vacation_to, pp.work_days, pp.work_from, pp.work_to, pp.work_schedule,
+      ${COVERAGE_SQL}
+    ${from} ORDER BY u.created_at DESC, u.id DESC LIMIT ? OFFSET ?`, [...params, limit, (page - 1) * limit]);
+  // AYK-366: available (by their schedule) and present (app open) apart, and where they work.
+  for (const row of items) {
+    row.availability = availability(row);
+    row.coverage = coverageOf(row);
+    for (const key of ['availability_status', 'vacation_from', 'vacation_to', 'work_days', 'work_from', 'work_to', 'work_schedule',
+      'coverage_city', 'coverage_districts_count', 'coverage_districts_list']) delete row[key];
+  }
+  const [{ total }] = await query(`SELECT COUNT(*) AS total ${from}`, params);
+  return paginate(res, items, total, page, limit);
+});
+
+// AYK-361: hide a provider from the lists people see, or show them again. The account still works.
+const hideProvider = asyncHandler(async (req, res) => {
+  const providerId = Number(req.params.id);
+  if (!Number.isSafeInteger(providerId) || providerId < 1 || ![true, false].includes(req.body?.hidden)) return error(res, req.t('invalid_data'), 400);
+  const found = await queryOne(`SELECT pp.user_id FROM provider_profiles pp JOIN users u ON u.id = pp.user_id
+    WHERE pp.user_id = ? AND u.deleted_at IS NULL`, [providerId]);
+  if (!found) return notFound(res);
+  await query(`UPDATE provider_profiles SET hidden_at = ${req.body.hidden ? 'COALESCE(hidden_at, CURRENT_TIMESTAMP)' : 'NULL'} WHERE user_id = ?`, [providerId]);
+  const rows = [await queryOne('SELECT hidden_at FROM provider_profiles WHERE user_id = ?', [providerId])];
+  await query(`INSERT INTO activity_logs (user_id, action, entity_type, entity_id, description) VALUES (?, ?, 'user', ?, ?)`,
+    [req.user.id, req.body.hidden ? 'admin.provider.hide' : 'admin.provider.show', providerId, null]).catch(() => {});
+  return success(res, { id: providerId, hidden: !!rows[0].hidden_at });
+});
+
+// AYK-361: hide a request from providers or show it again.
+const hideRequest = asyncHandler(async (req, res) => {
+  if (![true, false].includes(req.body?.hidden)) return error(res, req.t('invalid_data'), 400);
+  const row = await Request.setHidden(req.params.id, req.body.hidden);
+  if (!row) return notFound(res);
+  await query(`INSERT INTO activity_logs (user_id, action, entity_type, entity_id, description) VALUES (?, ?, 'request', ?, ?)`,
+    [req.user.id, req.body.hidden ? 'admin.request.hide' : 'admin.request.show', row.id, null]).catch(() => {});
+  return success(res, { id: row.id, hidden: !!row.hidden_at });
 });
 
 const getSettings = asyncHandler(async (req, res) => {
@@ -223,10 +290,12 @@ const createAd = asyncHandler(async (req, res) => {
     }
   }
   const placeholders = cols.map(() => '?').join(', ');
-  await query(
+  const inserted = await query(
     `INSERT INTO ads (${cols.join(', ')}) VALUES (${placeholders})`,
     values
   );
+  // AYK-343: the ad's title and text in the 11 languages.
+  require('../services/contentTranslation').later('ads', inserted?.insertId);
   return success(res, null, req.t('ad_created'));
 });
 
@@ -261,6 +330,7 @@ const updateAd = asyncHandler(async (req, res) => {
   if (!fields.length) return success(res, null, req.t('no_updates'));
   values.push(req.params.id);
   await query(`UPDATE ads SET ${fields.join(', ')} WHERE id = ?`, values);
+  require('../services/contentTranslation').later('ads', req.params.id); // AYK-343
   return success(res, null, req.t('updated'));
 });
 
@@ -493,12 +563,14 @@ const listPlans = asyncHandler(async (req, res) => {
 
 const createPlan = asyncHandler(async (req, res) => {
   const plan = await Subscription.createPlan(req.body);
+  require('../services/contentTranslation').later('subscription_plans', plan?.id); // AYK-343
   return created(res, plan, req.t('updated'));
 });
 
 const updatePlan = asyncHandler(async (req, res) => {
   const plan = await Subscription.updatePlan(req.params.id, req.body);
   if (!plan) return notFound(res, req.t('plan_not_found'));
+  require('../services/contentTranslation').later('subscription_plans', plan.id); // AYK-343
   return success(res, plan, req.t('updated'));
 });
 
@@ -718,6 +790,8 @@ const liveLocationsAdmin = asyncHandler(async (req, res) => {
 
 // ─── Admin permission editor ────────────────────────────────────────────
 const { PERMISSIONS } = require('../config/permissions');
+const { availability } = require('../utils/providerAvailability');
+const { COVERAGE_SQL, coverageOf } = require('../utils/providerCoverage');
 
 // Lists every permission key the UI can grant (for the dropdown / checkbox
 // grid). Plain JSON; cached client-side.
@@ -777,14 +851,51 @@ const marketing = asyncHandler(async (req, res) => {
   return success(res, stats);
 });
 
+// AYK-357 (the owner): special numbers, one repeated digit (11, 22 … 99, 111 … 999). Never given
+// automatically; the administration moves an account to a free one («44 بدل 145»). Only special
+// numbers can be given this way; any other number stays as the site gave it.
+const SPECIALS = [...Array.from({ length: 9 }, (_, i) => String(i + 1).repeat(2)), ...Array.from({ length: 9 }, (_, i) => String(i + 1).repeat(3))];
+const specialNumbers = asyncHandler(async (req, res) => {
+  const rows = await query(`SELECT id, full_name, referral_code FROM users WHERE referral_code IN (${SPECIALS.map(() => '?').join(',')}) AND deleted_at IS NULL`, SPECIALS);
+  const taken = new Map(rows.map(r => [r.referral_code, { user_id: r.id, full_name: r.full_name }]));
+  return success(res, { numbers: SPECIALS.map(code => ({ code, ...(taken.get(code) || {}), free: !taken.has(code) })) });
+});
+const assignSpecialNumber = asyncHandler(async (req, res) => {
+  const id = Number(req.params.id);
+  const code = String(req.body?.number || '').trim();
+  if (!Number.isSafeInteger(id) || id <= 0 || !SPECIALS.includes(code)) return error(res, 'رقم غير مسموح: الأرقام المميزة فقط (مثل 11 و22 و111)', 400);
+  const result = await transaction(async conn => {
+    const [targets] = await conn.execute('SELECT id, role, is_admin, is_super_admin, permissions, referral_code FROM users WHERE id = ? AND deleted_at IS NULL FOR UPDATE', [id]);
+    const target = targets[0];
+    if (!target) return { status: 404 };
+    if ((target.role === 'admin' || Number(target.is_admin) === 1) && !canManageAdmin(req.user, target)) return { status: 403 };
+    if (target.referral_code === code) return { status: 200, code };
+    const [holders] = await conn.execute('SELECT id FROM users WHERE referral_code = ? AND id <> ? FOR UPDATE', [code, id]);
+    if (holders.length) return { status: 409 };
+    // The owner's rule: the previous number is freed, back in the pool for new accounts, with no tie
+    // to this account (its chats, requests and wallet belong to the account, not to the number).
+    const previous = target.referral_code;
+    await conn.execute('DELETE FROM account_number_aliases WHERE code = ? OR user_id = ?', [code, id]);
+    await conn.execute('UPDATE users SET referral_code = ? WHERE id = ?', [code, id]);
+    await conn.execute(`INSERT INTO activity_logs (user_id, action, entity_type, entity_id, description) VALUES (?, 'admin.number.assign', 'user', ?, ?)`,
+      [req.user.id, id, `${previous || '-'} -> ${code}`]);
+    return { status: 200, code, previous };
+  });
+  if (result.status === 404) return notFound(res);
+  if (result.status === 403) return error(res, req.t('forbidden'), 403);
+  if (result.status === 409) return error(res, 'هذا الرقم المميز مستخدم لحساب آخر', 409);
+  return success(res, { id, referral_code: result.code, previous: result.previous || null }, req.t('updated'));
+});
+
 module.exports = {
+  specialNumbers, assignSpecialNumber,
   marketing,
   dashboard, listAllRequests, getSettings, updateSettings,
   applyMigrations,
   listVerifications, reviewVerification,
   listAds, createAd, updateAd, deleteAd, uploadAdMedia,
   activityLogs, securityReport,
-  updateRequest, assignRequest, cancelRequest, deleteRequest,
+  updateRequest, assignRequest, cancelRequest, deleteRequest, hideRequest, listProvidersAdmin, hideProvider,
   listPlans, createPlan, updatePlan, deletePlan,
   listReviewsAdmin, hideReview, showReview, removeReview,
   listArchives, archiveConversation, getArchive, purgeArchives, restoreArchive, deleteArchive,

@@ -11,37 +11,36 @@ import StatsStrip from '../components/home/StatsStrip';
 import AdSlot from '../components/ads/AdSlot';
 import RequesterHome from '../components/home/RequesterHome';
 import GuestShowcase from '../components/home/GuestShowcase';
-import StoreBadges from '../components/home/StoreBadges';
 
 export default function HomePage() {
   const { position } = useGeolocation();
   const { user } = useAuth();
 
-  // A signed-in requester sees only what they need (AYK-041).
-  if (user?.role === 'client') {
+  // A signed-in requester sees only what they need (AYK-041). So does an account that is both
+  // requester and provider (AYK-333): it was given the visitors' page, with neither the request
+  // card nor the requests in its own profession and area.
+  if (user?.role === 'client' || (user?.role === 'provider' && Number(user.also_client) === 1)) {
     return (
-      <main className="pb-24 md:pb-0">
+      <div>
         <div className="container max-w-5xl mx-auto px-4 pt-4"><AdSlot placement="home_top" /></div>
         <RequesterHome />
-        <StoreBadges className="mt-4" />
         {/* The other home placements show to signed-in requesters too (AYK-159). */}
         <div className="container max-w-5xl mx-auto px-4 space-y-4">
           <AdSlot placement="home_hero" />
           <AdSlot placement="home_middle" />
           <AdSlot placement="home_bottom" />
         </div>
-      </main>
+      </div>
     );
   }
 
   return (
-    <main className="pb-24 md:pb-0">
+    <div>
       <div className="container max-w-5xl mx-auto px-4 pt-4">
         <AdSlot placement="home_top" />
       </div>
       <Hero />
       {/* The apps in Google Play and the App Store (AYK-227), on the website only. */}
-      <StoreBadges className="mt-4" />
       {/* Visitors see what each side gains and can look around first (AYK-158). */}
       {!user && <GuestShowcase />}
       {/* Signed in: what matters is what is in your own area and profession (AYK-035). */}
@@ -61,6 +60,6 @@ export default function HomePage() {
       <div className="container max-w-5xl mx-auto px-4 mt-4">
         <AdSlot placement="home_bottom" />
       </div>
-    </main>
+    </div>
   );
 }

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import BrandLogo from '../common/BrandLogo';
+import StoreBadges from '../home/StoreBadges';
 import usePublicSettings, { subscriptionsOn } from '../../hooks/usePublicSettings';
 import AdSlot from '../ads/AdSlot';
 import AdminPanelLink from './AdminPanelLink';
@@ -47,26 +47,19 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="site-footer text-white/75 pt-14 md:pb-12">
+    <footer className="site-footer text-white/75 pt-8 md:pt-14 md:pb-12">
       <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8">
         <AdSlot placement="footer" className="mb-8" />
-        <div className="grid grid-cols-2 md:grid-cols-12 gap-8 md:gap-10">
-          <div className="col-span-2 md:col-span-4">
-            <div className="mb-4">
-              <BrandLogo width={190} tone="mono-light" tagline taglineText={t('common.tagline')} />
-            </div>
-            <p className="text-white/70 text-[13.5px] leading-relaxed">
-              {t('footer.tagline')}
-            </p>
-          </div>
-
+        {/* AYK-341 (the owner): no logo here (it is in the bar at the top), the app downloads instead,
+            and the links in columns side by side with the lines close together. */}
+        <div className="grid grid-cols-3 md:grid-cols-12 gap-x-4 gap-y-6 md:gap-10">
           {cols.map((c, i) => (
-            <div key={i} className="md:col-span-2">
-              <div className="text-white font-bold text-[14px] mb-3">{c.title}</div>
-              <ul className="flex flex-col gap-2">
+            <div key={i} className="md:col-span-2 min-w-0">
+              <div className="text-white font-bold text-[14px] mb-2">{c.title}</div>
+              <ul className="flex flex-col gap-1">
                 {c.links.map((l) => (
                   <li key={l.to}>
-                    <Link to={l.to} className="text-white/70 hover:text-white text-[13px] transition no-underline">
+                    <Link to={l.to} className="inline-block py-0.5 text-white/75 hover:text-white text-[13px] leading-snug transition no-underline">
                       {l.label}
                     </Link>
                   </li>
@@ -75,8 +68,8 @@ export default function Footer() {
             </div>
           ))}
 
-          {(contacts.length > 0 || inquiry) && <div className="col-span-2 md:col-span-2">
-            <div className="text-white font-bold text-[14px] mb-3">{t('footer.contact')}</div>
+          {(contacts.length > 0 || inquiry) && <div className="col-span-3 md:col-span-2">
+            <div className="text-white font-bold text-[14px] mb-2">{t('footer.contact')}</div>
             <ul className="flex flex-col gap-2 text-[13px] text-white/70">
               {inquiry && (
                 <li data-testid="footer-inquiry">
@@ -89,9 +82,10 @@ export default function Footer() {
               {contacts.map((contact) => <li key={contact}>{contact}</li>)}
             </ul>
           </div>}
+          <StoreBadges footer className="col-span-3 md:col-span-4" />
         </div>
 
-        <div className="mt-10 pt-6 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-3 text-[12px] text-white/55">
+        <div className="mt-6 pt-4 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-3 text-[12px] text-white/55">
           <div>
             <div className="mb-1">
               {t('footer.branch_of_before')} <a href="https://trbhh.sa" target="_blank" rel="noopener" className="text-white/80 hover:text-white underline font-bold">{t('footer.parent_site')}</a>
@@ -109,8 +103,6 @@ export default function Footer() {
             )}
           </div>
           <div className="flex items-center gap-4">
-            <Link to="/terms" className="text-white/75 hover:text-white transition no-underline">{t('footer.terms')}</Link>
-            <Link to="/privacy" className="text-white/75 hover:text-white transition no-underline">{t('footer.privacy')}</Link>
             {/* Only accounts with admin rights see the admin link (AYK-210); /admin/login stays reachable by its address. */}
             <AdminPanelLink className="text-white/75 hover:text-white transition bg-transparent border-0 p-0 cursor-pointer" />
           </div>

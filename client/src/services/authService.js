@@ -41,6 +41,24 @@ export async function me() {
   return data.data;
 }
 
+// AYK-334: the account was asked for only after the first drawing, so a signed-in person watched
+// the loading sign for that long. main.jsx now asks at the first line and the app uses that answer.
+let early = null;
+export function startEarlyMe(token) {
+  if (!token || early) return;
+  // theme-init.js may have asked already, before this file was read; a missing or refused answer
+  // from it is asked again here, so refusals are handled as everywhere else.
+  const first = typeof window !== 'undefined' && window.__aykMe;
+  if (first) window.__aykMe = null;
+  early = { token, promise: first && first.token === token ? first.promise.then(data => data || me()) : me() };
+  early.promise.catch(() => {}); // the app reads the failure when it takes the answer
+}
+export function takeEarlyMe(token) {
+  const taken = early;
+  early = null;
+  return taken && taken.token === token ? taken.promise : null;
+}
+
 // Other devices are signed out; this one keeps going with the new session (AYK-216).
 export async function changePassword(payload) {
   const token = getToken();

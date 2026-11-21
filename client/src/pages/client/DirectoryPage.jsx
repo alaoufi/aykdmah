@@ -14,7 +14,8 @@ import BlockedNotice from '../../components/common/BlockedNotice';
 import ProblemNotice from '../../components/common/ProblemNotice';
 import DirectoryContacts from '../../components/directory/DirectoryContacts';
 import ProviderNumbers from '../../components/providers/ProviderNumbers';
-import { isPresent } from '../../components/common/AvailabilityBadge';
+import { ProviderStatus } from '../../components/common/AvailabilityBadge';
+import ExpandableText from '../../components/common/ExpandableText';
 
 // "My directory" (AYK-041): providers the requester kept, to contact again directly
 // without posting a request. Each contact is still recorded as a request.
@@ -72,7 +73,7 @@ export default function DirectoryPage({ compact = false }) {
           handlers={{ start_new: () => run(problemWith, async () => { const kept = items.find(row => row.id === problemWith); navigate(`/chat/${(kept?.is_provider === false ? await directoryChat(problemWith) : await contactDirectFresh(problemWith)).conversation_id}`); }) }} />}
       {items.length === 0
         ? <p className="card text-fg-muted text-[14px] m-0">{t('requester.directory_empty')}</p>
-        : <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 list-none p-0 m-0">
+        : <ol className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 list-none p-0 m-0">
           {shown.map(p => (
             <li key={p.id} className={`card ${p.is_provider === false ? 'tone-request' : 'tone-provider'} p-3 flex gap-3 items-start`} data-testid="directory-item">
               <Avatar src={p.avatar} name={p.nickname || p.business_name || p.full_name} />
@@ -85,8 +86,9 @@ export default function DirectoryPage({ compact = false }) {
                   {p.category_name && <span>🛠️ {localizedJoinedName(p, 'category', lang)}</span>}
                   {p.district_name_ar && <span>📍 {localizedName({ name_ar: p.district_name_ar, name_en: p.district_name_en }, lang)}</span>}
                   <TrustSummary userId={p.id} type={p.is_provider === false ? 'on_requester' : 'on_provider'} average={p.rating_avg} count={p.rating_count} opinion={p.opinion} />
-                  {p.availability && <span className={isPresent(p.availability) ? 'text-success' : 'text-danger'}>{isPresent(p.availability) ? '🟢' : '🔴'} {t(isPresent(p.availability) ? 'for_you.available' : p.availability.state === 'available' ? 'availability.state.offline' : 'for_you.unavailable')}</span>}
                 </div>
+                {p.availability && <ProviderStatus availability={p.availability} coverage={p.coverage} name={p.nickname || p.business_name || p.full_name} className="mt-1.5" />}
+                <ExpandableText text={p.bio} translated={p.bio_translated} lines={2} className="mt-2" testId="provider-bio" />
                 <ProviderNumbers phone={p.public_phone} whatsapp={p.public_whatsapp} className="mt-2" />
                 <div className="flex items-center gap-3 mt-2">
                   <button type="button" className="btn btn-primary btn-sm" disabled={busy === p.id} onClick={() => contact(p)} data-testid="directory-contact">💬 {t('directory.message')}</button>

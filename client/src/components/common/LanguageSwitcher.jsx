@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { SUPPORTED_LANGUAGES } from '../../i18n';
 import SmartDropdown from './SmartDropdown';
 import useCountry from '../../hooks/useCountry';
+import api, { getToken, isAdminScope } from '../../services/api';
 
 export default function LanguageSwitcher({ className = '', variant = 'default' }) {
   const { t, i18n } = useTranslation();
@@ -24,6 +25,8 @@ export default function LanguageSwitcher({ className = '', variant = 'default' }
   const choose = (code) => {
     i18n.changeLanguage(code);
     setOpen(false);
+    // AYK-344: a signed-in person's choice becomes their account's language on every device.
+    if (getToken() && !isAdminScope()) api.put('/users/me/language', { lang: code }).catch(() => {});
   };
 
   const buttonClass = variant === 'light'

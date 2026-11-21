@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MapContainer, Marker, Circle } from 'react-leaflet';
 import { icon } from 'leaflet';
@@ -7,20 +7,23 @@ import markerImage from 'leaflet/dist/images/marker-icon.png';
 import markerImage2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import 'leaflet/dist/leaflet.css';
-import api from '../services/api';
+import api, { apiError } from '../services/api';
 import BaseTileLayer from '../components/map/BaseTileLayer';
 import Avatar from '../components/common/Avatar';
-import AvailabilityBadge, { workingSummary } from '../components/common/AvailabilityBadge';
-import CallButtons from '../components/calls/CallButtons';
-import ShareProviderLink, { DirectoryButton } from '../components/providers/ShareProviderLink';
+import AvailabilityBadge, { PresenceTag, WeekSchedule } from '../components/common/AvailabilityBadge';
+import { DirectoryButton, providerLink } from '../components/providers/ShareProviderLink';
+import ShareMenu from '../components/common/ShareMenu';
 import StarRating from '../components/reviews/StarRating';
 import ReviewCard from '../components/reviews/ReviewCard';
 import TrustSummary from '../components/reviews/TrustSummary';
 import { getUserReviews } from '../services/reviewService';
-import ProviderNumbers from '../components/providers/ProviderNumbers';
+import ContactMenu from '../components/providers/ContactMenu';
+import { contactDirect } from '../services/requestService';
+import { useAuth } from '../hooks/useAuth';
 import { LoadingState, ErrorState } from '../components/common/Spinner';
 import { directionsUrl } from '../utils/directions';
 import { localizedName } from '../utils/localize';
+import ExpandableText from '../components/common/ExpandableText';
 
 const pinIcon = icon({ iconUrl: markerImage, iconRetinaUrl: markerImage2x, shadowUrl: markerShadow,
   iconSize: [25, 41], iconAnchor: [12, 41], shadowSize: [41, 41] });
@@ -32,6 +35,18 @@ export default function ProviderProfilePage() {
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
   const [note, setNote] = useState('');
+  const { user: me } = useAuth();
+  const navigate = useNavigate();
+  const [chatting, setChatting] = useState(false);
+  const self = me && Number(me.id) === Number(id);
+  // «محادثة» (AYK-379): the chat with this provider (the existing one, or a new direct request).
+  const startChat = async () => {
+    if (!me) { navigate('/login', { state: { from: `/providers/${id}` } }); return; }
+    setChatting(true); setNote('');
+    try { const res = await contactDirect(Number(id)); if (res?.conversation_id) navigate(`/chat/${res.conversation_id}`); }
+    catch (err) { if (!err?.cancelled) setNote(apiError(err)); }
+    finally { setChatting(false); }
+  };
   const [reviews, setReviews] = useState(null);
   const mapRef = useRef(null);
 
@@ -66,7 +81,6 @@ export default function ProviderProfilePage() {
   const count = Number(provider.rating_count) || 0;
   const average = Number(provider.rating_avg) || 0;
   const done = Number(provider.completed_orders) || 0;
-  const hasNumbers = Boolean(provider.public_phone || provider.public_whatsapp);
   const name = provider.business_name || user.full_name;
 
   return (
@@ -84,8 +98,13 @@ export default function ProviderProfilePage() {
               {city || ''}
             </div>
             {provider.availability && <div className="mt-1 space-y-0.5">
-              <AvailabilityBadge availability={provider.availability} />
-              <div className="text-[12px] text-fg-muted">🗓️ {workingSummary(provider.availability, t, i18n.resolvedLanguage || 'ar')}</div>
+              <span className="flex items-center gap-2 flex-wrap">
+                <AvailabilityBadge availability={provider.availability} name={name} />
+                <PresenceTag present={provider.availability.present} />
+              </span>
+              {/* AYK-366: the whole week on the provider's page. */}
+              <details className="text-[12.5px]"><summary className="cursor-pointer font-semibold text-primary">🗓️ {t('availability.schedule_title')}</summary>
+                <div className="mt-1"><WeekSchedule availability={provider.availability} /></div></details>
             </div>}
           </div>
         </div>
@@ -102,24 +121,12 @@ export default function ProviderProfilePage() {
         </div>
 
         <div className="flex flex-wrap gap-2 items-start">
-          <details className="group" data-testid="provider-contact-menu">
-            <summary className="btn btn-primary btn-sm list-none cursor-pointer select-none">
-              📞 {t('provider_page.contact')} <span className="transition-transform group-open:rotate-180 inline-block">▾</span>
-            </summary>
-            <div className="mt-2 p-3 rounded-card bg-surface border border-border space-y-2 min-w-[240px]">
-              <CallButtons userId={user.id} />
-              {hasNumbers && <ProviderNumbers phone={provider.public_phone} whatsapp={provider.public_whatsapp} />}
-            </div>
-          </details>
+          {/* AYK-379: three ways, the numbers only when the provider shows them. */}
+          {!self && <ContactMenu phone={provider.public_phone} whatsapp={provider.public_whatsapp} busy={chatting} testId="provider-contact-menu"
+            onChat={startChat} />}
           <DirectoryButton providerId={user.id} name={name} onNote={setNote} />
-          <details className="group" data-testid="provider-share-menu">
-            <summary className="px-3 py-2 rounded-pill text-[13px] bg-surface-alt border border-border font-bold list-none cursor-pointer select-none">
-              🔗 {t('share_provider.share')} <span className="transition-transform group-open:rotate-180 inline-block">▾</span>
-            </summary>
-            <div className="mt-2 p-3 rounded-card bg-surface border border-border min-w-[240px]">
-              <ShareProviderLink providerId={user.id} name={name} bare />
-            </div>
-          </details>
+          {/* AYK-382: share this provider: WhatsApp, Telegram, Facebook, X, TikTok, link, QR. */}
+          <ShareMenu url={providerLink(user.id)} title={name} text={t('share_provider.message', { name })} testId="provider-share-menu" />
         </div>
         {note && <p role="status" className="text-[12.5px] text-fg-muted m-0">{note}</p>}
       </section>
@@ -132,7 +139,8 @@ export default function ProviderProfilePage() {
         {count > reviews?.length && <TrustSummary userId={user.id} average={average} count={count} />}
       </section>
 
-      {provider.bio && <div className="card p-4 text-[13.5px] text-fg whitespace-pre-line">{provider.bio}</div>}
+      {/* AYK-377: «وصف الخدمات», a few lines that open in place, in the reader's language. */}
+      {provider.bio && <ExpandableText text={provider.bio} translated={provider.bio_translated} lines={4} title={t('provider.services_description')} testId="provider-bio" />}
 
       <div className="card p-4 space-y-2">
         <h2 className="font-bold text-fg">{t('map.service_area')}</h2>

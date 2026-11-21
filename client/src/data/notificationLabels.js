@@ -46,7 +46,7 @@ const labels = {
       "tr": "Teklifiniz kabul edildi"
     },
     "body": {
-      "ar": "قبل العميل عرضك على: {{title}}",
+      "ar": "قبل طالب الخدمة عرضك على: {{title}}",
       "en": "The client accepted your offer on: {{title}}",
       "ur": "گاہک نے آپ کی پیشکش قبول کر لی: {{title}}",
       "bn": "সেবাপ্রার্থী আপনার অফার গ্রহণ করেছেন: {{title}}",

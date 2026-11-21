@@ -25,3 +25,12 @@ test('a URL value within an internal query does not become the return destinatio
   const destination = '/requests/new?note=https%3A%2F%2Fexample.com%2Ftest#part';
   assert.equal(internalAuthReturn(destination), destination);
 });
+
+test('AYK-370: signing in does not land on the general support page or the password page', async () => {
+  const { authReturnTarget } = await import('../src/utils/authReturn.js');
+  assert.equal(authReturnTarget('client', '/support'), '/client');
+  assert.equal(authReturnTarget('provider', '/support/'), '/provider');
+  assert.equal(authReturnTarget('client', '/forgot-password'), '/client');
+  assert.equal(authReturnTarget('client', '/support/12'), '/support/12', 'a specific message stays');
+  assert.equal(authReturnTarget('client', '/requests/new'), '/requests/new');
+});

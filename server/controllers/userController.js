@@ -15,6 +15,7 @@ const { queryOne, query } = require('../config/database');
 const { withUploadedFiles } = require('../utils/uploadPersistence');
 const pick = (object, fields) => Object.fromEntries(fields.filter(key => object[key] !== undefined).map(key => [key, object[key]]));
 const PUBLIC_USER_FIELDS = ['id', 'full_name', 'role', 'avatar', 'is_verified', 'is_online', 'city_id', 'district_id', 'country_id', 'region_id', 'governorate_id', 'city_name', 'city_name_ar', 'city_name_en', 'district_name', 'district_name_ar', 'district_name_en', 'governorate_name', 'governorate_name_ar', 'governorate_name_en', 'region_name', 'region_name_ar', 'region_name_en', 'country_name', 'country_name_ar', 'country_name_en'];
+const { BIO_MAX, bioFor, readerOf } = require('../utils/providerBio');
 const PUBLIC_PROVIDER_FIELDS = ['id', 'user_id', 'business_name', 'bio', 'experience_years', 'category_id', 'service_ids', 'service_radius_km', 'hourly_rate', 'cover_image', 'gallery', 'rating_avg', 'rating_count', 'completed_orders', 'is_trusted', 'is_featured_badge', 'location_mode', 'fixed_address', 'show_location_on_map', 'coverage_city_id', 'coverage_districts', 'availability'];
 const validImageUrl = value => value === null || value === '' || (typeof value === 'string' && value.length <= 255 && /^(?:https?:\/\/|\/(?!\/))/i.test(value) && !/[\u0000-\u0020]/.test(value));
 
@@ -56,7 +57,18 @@ const getOne = asyncHandler(async (req, res) => {
   }
   // The numbers the provider chose to show to everyone (AYK-314).
   if (provider) Object.assign(provider, publicContact(rawProvider));
+  // AYK-377: the description in the reader's language too (the whole text on this page).
+  if (provider && rawProvider) { const { bio_translated } = bioFor(rawProvider, readerOf(req), BIO_MAX); if (bio_translated) provider.bio_translated = bio_translated; else delete provider.bio_translated; }
   return success(res, { user, provider });
+});
+
+// AYK-344: the person chose another language; it becomes the account's language on every device.
+const SITE_LANGS = new Set(['ar', 'en', 'ur', 'bn', 'hi', 'ml', 'fil', 'id', 'ne', 'am', 'tr']);
+const setLanguage = asyncHandler(async (req, res) => {
+  const lang = String(req.body?.lang || '').toLowerCase();
+  if (!SITE_LANGS.has(lang)) return error(res, req.t('invalid_data'), 400);
+  await query('UPDATE users SET ui_lang = ? WHERE id = ?', [lang, req.user.id]);
+  return success(res, { ui_lang: lang });
 });
 
 const updateMe = asyncHandler(async (req, res) => {
@@ -66,14 +78,14 @@ const updateMe = asyncHandler(async (req, res) => {
   if (payload.phone !== undefined) {
     if (payload.phone !== null && typeof payload.phone !== 'string') return error(res, req.t('invalid_data'), 400);
     payload.phone = String(payload.phone || '').trim().replace(/[\s()-]/g, '') || null;
-    if (payload.phone && (payload.phone.length > 30 || !/^[+\d\s()-]+$/.test(payload.phone))) return error(res, req.t('invalid_data'), 400);
+    if (payload.phone && (payload.phone.length > 30 || !/^[+\d\s()-]+$/.test(payload.phone))) return error(res, req.t('phone_invalid'), 400);
     const other = payload.phone && await User.findByPhone(payload.phone);
     if (other && Number(other.id) !== Number(req.user.id)) return error(res, req.t('phone_taken'), 409);
   }
   if (payload.full_name !== undefined) {
     if (typeof payload.full_name !== 'string') return error(res, req.t('invalid_data'), 400);
     payload.full_name = payload.full_name.trim();
-    if (payload.full_name.length < 2 || payload.full_name.length > 150) return error(res, req.t('invalid_data'), 400);
+    if (payload.full_name.length < 2 || payload.full_name.length > 150) return error(res, req.t('name_length'), 400);
   }
   const location = await validateUserLocation(req.body, current, req.t('invalid_data'));
   Object.assign(payload, location);
@@ -97,6 +109,8 @@ const updateProvider = asyncHandler(async (req, res) => {
     return forbidden(res);
   }
   if (req.user.role === 'admin' && !hasPermission(req.user, 'users.manage')) return forbidden(res);
+  // AYK-383: in the administration an account manages others' work pages, never its own site self.
+  if (req.user.role === 'admin' && !req.body.user_id) return forbidden(res);
   const userId = req.user.role === 'admin' && req.body.user_id ? req.body.user_id : req.user.id;
   if (!Number.isSafeInteger(Number(userId)) || Number(userId) <= 0) return error(res, req.t('invalid_data'), 400);
   const target = await User.findById(userId);
@@ -123,7 +137,7 @@ const updateProvider = asyncHandler(async (req, res) => {
   }
   if (payload.location_mode !== undefined && !['fixed', 'mobile', 'both'].includes(payload.location_mode)) return error(res, req.t('invalid_data'), 400);
   if (payload.service_radius_km !== undefined && (!Number.isFinite(Number(payload.service_radius_km)) || Number(payload.service_radius_km) < 1 || Number(payload.service_radius_km) > 200)) return error(res, req.t('invalid_data'), 400);
-  for (const [field, max] of [['business_name', 200], ['bio', 10000], ['fixed_address', 255], ['cover_image', 255]]) {
+  for (const [field, max] of [['business_name', 200], ['bio', BIO_MAX], ['fixed_address', 255], ['cover_image', 255]]) {
     if (payload[field] !== undefined && payload[field] !== null && (typeof payload[field] !== 'string' || payload[field].length > max)) return error(res, req.t('invalid_data'), 400);
   }
   for (const [field, max] of [['experience_years', 100], ['hourly_rate', 10000000]]) {
@@ -150,6 +164,8 @@ const updateProvider = asyncHandler(async (req, res) => {
   if (coverage) await saveCoverage(query, userId, coverage);
   if (payload.also_client !== undefined) await query('UPDATE users SET also_client = ? WHERE id = ?', [[true, 1, '1'].includes(payload.also_client) ? 1 : 0, userId]);
   const profile = await User.updateProviderProfile(userId, payload);
+  // AYK-377: the description in the 11 languages, without waiting.
+  if (payload.bio !== undefined && profile?.id) require('../services/contentTranslation').later('provider_profiles', profile.id);
   // AYK-322: an invited provider starts to count for their marketer once they have services.
   require('../services/walletService').settleCountRewardsForInvited(userId).catch(() => {});
   return success(res, profile, req.t('provider_updated'));
@@ -189,7 +205,9 @@ const createByAdmin = asyncHandler(async (req, res) => {
   const { full_name, username, email, phone, facebook_id, password, role } = req.body;
   if (!full_name || !password || !role) return error(res, req.t('invalid_data'));
   if (!['client', 'provider', 'admin'].includes(role)) return error(res, req.t('invalid_data'), 400);
-  if (role === 'admin' && !hasPermission(req.user, 'admins.manage')) return forbidden(res);
+  // AYK-383: the administration's rights are a separate mark (is_admin); role is the site role.
+  const makeAdmin = role === 'admin' || req.body.is_admin === true || Number(req.body.is_admin) === 1;
+  if (makeAdmin && !hasPermission(req.user, 'admins.manage')) return forbidden(res);
   // Need at least one identifier
   if (!username && !email && !phone && !facebook_id) return error(res, req.t('need_one_identifier'));
 
@@ -211,6 +229,7 @@ const createByAdmin = asyncHandler(async (req, res) => {
     if (duplicateError(req, res, err)) return undefined;
     throw err;
   }
+  if (makeAdmin && role !== 'admin') await query('UPDATE users SET is_admin = 1 WHERE id = ?', [id]);
   const user = await User.findById(id);
   return created(res, user, req.t('account_created'));
 });
@@ -346,6 +365,6 @@ const uploadAvatar = asyncHandler(async (req, res) => {
 module.exports = {
   uploadAvatar,
   changeRole,
-  list, getOne, updateMe, updateProvider, getProviderReviews,
+  list, getOne, updateMe, setLanguage, updateProvider, getProviderReviews,
   block, unblock, remove, createByAdmin, updateByAdmin,
 };

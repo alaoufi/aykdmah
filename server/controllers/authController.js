@@ -1,4 +1,6 @@
 const User = require('../models/User');
+const { query, queryOne } = require('../config/database');
+const SITE_LANGS = new Set(['ar', 'en', 'ur', 'bn', 'hi', 'ml', 'fil', 'id', 'ne', 'am', 'tr']);
 const { logSecurityEvent } = require('../utils/securityLog');
 const Setting = require('../models/Setting');
 const { hashPassword, comparePassword, needsRehash } = require('../utils/hash');
@@ -15,7 +17,7 @@ const env = require('../config/env');
 const cookieOptions = () => ({ httpOnly: true, secure: env.NODE_ENV === 'production', sameSite: 'lax', path: '/' });
 // The admin area (/admin) and the site or app are separate sessions (AYK-114, AYK-151): each has
 // its own cookie, so signing in at /admin in the browser never touches the app on the same phone.
-const { sessionCookieName, requestScope, asSiteUser } = require('../middleware/auth');
+const { sessionCookieName, requestScope, asSiteUser, asAdminUser, isAdminAccount } = require('../middleware/auth');
 
 // A token for the area this request comes from (AYK-151): the same account can be signed in to
 // both, and each signs out on its own.
@@ -213,6 +215,8 @@ const register = asyncHandler(async (req, res) => {
   }
 
   if (Object.keys(workHours).length) await User.updateProviderProfile(userId, workHours);
+  // AYK-344: the language chosen at the start of sign-up becomes the account's language.
+  if (SITE_LANGS.has(req.lang)) await query('UPDATE users SET ui_lang = ? WHERE id = ?', [req.lang, userId]).catch(() => {});
   if (phoneVerified) await markPhoneVerified(userId, filtered.phone);
   if (couponCode) await wallet.applyReferralCode(userId, couponCode).catch(() => {});
   const referralCode = await wallet.ensureReferralCode(userId).catch(() => null);
@@ -303,7 +307,9 @@ const login = asyncHandler(async (req, res) => {
   let user = await User.findByIdentifier(id);
   if (!user) {
     await logSecurityEvent(req, 'login_failed', { description: 'unknown account' });
-    return unauthorized(res, req.t('invalid_credentials'));
+    // AYK-372 (the owner: «إذا الجوال ليس مسجلًا تكتب الجوال غير مسجل، للتسجيل من هنا؛ وإذا كلمة المرور خطأ،
+    // كلمة المرور غير صحيحة، لاستعادتها من هنا»): the two answers say which one it is.
+    return res.status(401).json({ success: false, message: req.t('invalid_credentials'), code: 'account_not_found' });
   }
   // AYK-208: locked after 5 wrong passwords until an SMS-code password reset.
   if (user.login_locked_at) {
@@ -323,7 +329,7 @@ const login = asyncHandler(async (req, res) => {
       const locked = await User.recordFailedLogin(user);
       await logSecurityEvent(req, locked ? 'login_locked' : 'login_failed', { userId: user.id, description: 'password' });
       if (locked) return error(res, req.t('account_locked_reset'), 423);
-      return unauthorized(res, req.t('invalid_credentials'));
+      return res.status(401).json({ success: false, message: req.t('invalid_credentials'), code: 'wrong_password' });
     }
   }
   if (user.failed_logins) await User.clearFailedLogins(user.id);
@@ -342,7 +348,10 @@ const login = asyncHandler(async (req, res) => {
   const token = await issueSession(req, res, user);
   // In the site and the app an admin account is an ordinary user (AYK-151).
   const found = await User.findById(user.id);
-  const safe = requestScope(req) === 'site' ? asSiteUser(found) : found;
+  // AYK-383: the site gets the person as a user; the administration gets the administration only.
+  const safe = requestScope(req) === 'site' ? asSiteUser(found) : asAdminUser(found);
+  // AYK-344: the account's language comes with the sign-in itself, so the page switches at once.
+  if (safe) safe.ui_lang = (await queryOne('SELECT ui_lang FROM users WHERE id = ?', [user.id]).catch(() => null))?.ui_lang || null;
   return success(res, { user: safe, token }, req.t('logged_in'));
 });
 
@@ -357,7 +366,7 @@ const logout = asyncHandler(async (req, res) => {
 
 const me = asyncHandler(async (req, res) => {
   const found = await User.findById(req.user.id);
-  const user = req.user.admin_account ? asSiteUser(found) : found;
+  const user = req.user.session_scope === 'admin' ? asAdminUser(found) : asSiteUser(found);
   // Accounts created before every account had a customer number get one here.
   if (user && !user.referral_code) {
     user.referral_code = await require('../services/walletService').ensureReferralCode(user.id).catch(() => null);
@@ -373,6 +382,8 @@ const me = asyncHandler(async (req, res) => {
   if (user.role === 'provider') {
     provider = await User.getProviderProfile(user.id);
   }
+  // AYK-344: the account's language, applied by the app at every sign-in on any device.
+  if (user) user.ui_lang = (await queryOne('SELECT ui_lang FROM users WHERE id = ?', [user.id]).catch(() => null))?.ui_lang || null;
   return success(res, { user, provider });
 });
 
@@ -396,7 +407,9 @@ const changePassword = asyncHandler(async (req, res) => {
 const adminSession = asyncHandler(async (req, res) => {
   if (!req.user.admin_account || requestScope(req) !== 'admin') return error(res, req.t('forbidden'), 403);
   const raw = await User.findByIdRaw(req.user.id);
-  if (!raw || raw.role !== 'admin') return error(res, req.t('forbidden'), 403);
+  if (!raw || !isAdminAccount(raw)) return error(res, req.t('forbidden'), 403);
+  // AYK-347: an administration account with no section granted does not enter.
+  if (!require('../middleware/auth').adminAccess(raw)) return error(res, req.t('forbidden'), 403);
   const token = await issueSession(req, res, raw);
   return success(res, { token });
 });

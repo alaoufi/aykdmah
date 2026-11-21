@@ -96,6 +96,25 @@ export default function AdminTextsPage() {
 
   const editedCount = Object.keys(langOverrides).length;
 
+  const [replacing, setReplacing] = useState(false);
+  // Replaces a unified term in every Arabic text that uses it (AYK-374).
+  const replaceTerm = async (term, word) => {
+    const targets = all.filter(([key, original]) => (langOverrides[key] ?? original).includes(term));
+    if (!targets.length || !(await confirmAdminChange(t, `«${term}» ← «${word}» في ${targets.length} من النصوص`))) return false;
+    setReplacing(true);
+    const done = {};
+    let failed = 0;
+    for (const [key, original] of targets) {
+      const text = (langOverrides[key] ?? original).split(term).join(word);
+      try { await adminSaveText(lang, key, text, false); done[key] = text; } catch (_) { failed += 1; }
+    }
+    applyChanges({ [lang]: done });
+    setReplacing(false);
+    setSearch(word);
+    setMsg({ type: failed ? 'warning' : 'success', text: `استُبدل «${term}» بـ«${word}» في ${Object.keys(done).length} من النصوص${failed ? `، وتعذّر ${failed}` : ''}.` });
+    return true;
+  };
+
   return (
     <div className="space-y-4">
       <AdminPageHeader title={t('admin.texts.title')} subtitle={t('admin.texts.subtitle')} />
@@ -106,6 +125,8 @@ export default function AdminTextsPage() {
             : msg.type === 'warning' ? 'bg-amber-50 border border-amber-200 text-amber-800' : 'bg-rose-50 border border-rose-200 text-rose-700'
         }`}>{msg.text}</div>
       )}
+
+      <TermsBlock all={all} overrides={langOverrides} onShow={setSearch} onReplace={replaceTerm} busy={replacing} />
 
       <div className="bg-surface rounded-card border border-border p-3 flex flex-wrap items-center gap-2">
         <input type="search" value={search} onChange={e => setSearch(e.target.value)}
@@ -183,6 +204,39 @@ function TextRow({ lang, textKey, original, edited, onSave, onReset }) {
       </div>
       {!partsOk && <p className="text-[11.5px] text-rose-700 mt-1 mb-0">{t('admin.texts.placeholders', { parts: textPlaceholders(original).join(' ') })}</p>}
       {empty && <p className="text-[11.5px] text-rose-700 mt-1 mb-0">{t('admin.texts.empty_value')}</p>}
+    </div>
+  );
+}
+
+// AYK-374 (the owner: «أضفها في نصوص الموقع: طالب الخدمة، مقدم الخدمة، المهنة، حسابي، طلباتي وأعمالي»).
+// The site's unified terms (docs/TERMS.md) in one place: how many texts use each, «عرض» lists them
+// below, and a new word replaces it in every Arabic text at once (each saved like a single edit).
+const TERMS = ['طالب الخدمة', 'مقدم الخدمة', 'المهنة', 'حسابي', 'طلباتي', 'أعمالي'];
+
+function TermsBlock({ all, overrides, onShow, onReplace, busy }) {
+  const [drafts, setDrafts] = useState({});
+  const current = ([key, original]) => overrides[key] ?? original;
+  return (
+    <div className="bg-surface rounded-card border-2 border-primary/40 p-3 space-y-2" data-testid="terms-block">
+      <div className="font-extrabold text-[15px]">📘 المصطلحات الموحّدة</div>
+      <p className="m-0 text-[12px] text-fg-muted">كل مصطلح بمعنى واحد في الموقع والتطبيق والإدارة. «عرض» يُظهر النصوص التي فيها المصطلح. والاستبدال يغيّر هذه الصيغة في كل النصوص العربية دفعة واحدة؛ صيغ الجمع (مثل «طالبو الخدمة») تظهر بالبحث وتُعدّل من سطرها.</p>
+      <div className="divide-y divide-border">
+        {TERMS.map(term => {
+          const uses = all.filter(entry => current(entry).includes(term)).length;
+          const next = drafts[term] ?? '';
+          return (
+            <div key={term} className="py-2 flex flex-wrap items-center gap-2" data-testid={`term-${term}`}>
+              <span className="font-bold min-w-[110px]">{term}</span>
+              <span className="text-[12px] text-fg-muted">يظهر في {uses} من النصوص</span>
+              <button type="button" className="text-[12.5px] font-semibold text-primary underline bg-transparent border-0 p-0" onClick={() => onShow(term)}>عرض</button>
+              <input className="input py-1 text-[13px] flex-1 min-w-[140px]" placeholder="المصطلح الجديد" value={next}
+                onChange={e => setDrafts(d => ({ ...d, [term]: e.target.value }))} />
+              <AdminButton variant="secondary" disabled={busy || !next.trim() || next.trim() === term || !uses}
+                onClick={async () => { if (await onReplace(term, next.trim())) setDrafts(d => ({ ...d, [term]: '' })); }}>استبدال في الكل</AdminButton>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }

@@ -2,7 +2,7 @@ import api from './api';
 import i18n from '../i18n';
 import { withContactIntent } from '../utils/contactIntent';
 import { askChoice } from '../components/common/AppDialog';
-async function contactChoice(params,intent) {
+async function contactChoice(params,intent,{ask=true}={}) {
   const { data } = await api.get('/chat/conversations', { ...intent.config(), params: { ...params, limit: 1 } });
   intent.assertCurrent();
   const previous = data.data?.[0];
@@ -10,6 +10,9 @@ async function contactChoice(params,intent) {
   // A conversation that can no longer be written in (its contact time ended) is never offered:
   // a new one starts straight away (AYK-221).
   if (previous.can_send === false) return {fresh:true};
+  // AYK-380 (the owner: «التحويل للمحادثة يتأخر كثيرًا»): one chat for two people (AYK-365), so
+  // «تواصل ← محادثة» opens it straight away instead of asking first.
+  if (!ask) return {previous};
   const choice = await askChoice({isCurrent:intent.isCurrent,title:i18n.t('chat.previous_title'),message:i18n.t('chat.previous_hint'),choices:[{value:'open',label:i18n.t('chat.open_previous')},{value:'new',label:i18n.t('chat.new_conversation')}]});
   intent.assertCurrent();
   if (choice === null) throw Object.assign(new Error('Cancelled'), {cancelled:true});
@@ -145,7 +148,7 @@ export async function directoryChat(userId) {
 
 export async function contactDirect(providerId, categoryId) {
   return withContactIntent(async intent => {
-  const choice = await contactChoice({user_id:providerId},intent);
+  const choice = await contactChoice({user_id:providerId},intent,{ask:false});
   if (choice.previous) return {conversation_id:choice.previous.id,request_id:choice.previous.request_id};
   const { data } = await api.post('/requests/direct', { fresh:choice.fresh, provider_id: providerId, ...(categoryId ? { category_id: categoryId } : {}) },intent.config());
   return data.data;

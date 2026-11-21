@@ -11,7 +11,8 @@ export default function AdminPanelLink({ className = '', onDone }) {
   const { t } = useTranslation();
   const { user } = useAuth();
   const [busy, setBusy] = useState(false);
-  if (!Number(user?.admin_account)) return null;
+  // AYK-347: only an account allowed into a section of the administration sees the link.
+  if (!Number(user?.admin_account) || Number(user?.admin_access) !== 1) return null;
 
   const open = async () => {
     if (busy) return;

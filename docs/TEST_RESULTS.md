@@ -1452,3 +1452,590 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
 - Browser check (local build, phone size): high contrast with the default, desert and dark Saudi looks; the page, the cards and the bar were tinted in each, body text `rgb(0, 0, 0)` in light and `rgb(255, 255, 255)` in dark; screenshots reviewed.
 - Client tests 166 pass; build and `check-deploy` 22 ok.
 - Not changed: places that set plain white themselves instead of the theme's ground (some admin pages).
+- AYK-331 and AYK-332 deployed as 1.1.79 (run for 0a843cd: success) and merged to `main` (pull request #7).
+- **AYK-332, the owner's correction («لا يكون متدرج»):** no gradients in the high-contrast look. The page is one flat shade of the chosen colour (12 %), boxes a lighter flat one (3 %), the top bar a flat shade (14 %). The gradients added for 1.1.79 are removed.
+  - Browser check (local build, phone size): body background is a plain colour with no image in the default, desert and dark Saudi looks (`rgb(242, 232, 229)`, `rgb(240, 234, 228)`, `rgb(0, 10, 5)`); cards have no gradient; text black in light, white in dark. Screenshot reviewed.
+  - Client tests 166 pass; build and `check-deploy` 22 ok.
+  - Not changed: the ordinary (not high-contrast) look keeps its existing gradient, and the visitors' home banner keeps its own.
+
+## 2026-11-20 — AYK-333: the home page by the kind of account
+- The owner: «اطلب خدمة وماذا تحتاج اليوم إذا مسجل طالب خدمة، وإذا مقدم خدمة يظهر له طالبو الخدمة بنفس المهنة ومنطقة التغطية».
+- Already so: a requester sees the «ماذا تحتاج اليوم؟» card; a provider-only account opens on its dashboard, which lists «طلبات في مهنتك ونطاقك».
+- The gap found: an account that is both requester and provider was given the visitors' home, with neither the card nor the requests.
+- Now: that account gets the signed-in home with the request card and, under it, the requests in its own profession and coverage area (`WorkRequests`, the same matching list the dashboard uses).
+- Browser check (local site, phone size):
+  - requester (`clienttest`) at `/`: request card shown, no requests list;
+  - both account (`saadtech` with `also_client = 1`) at `/`: request card shown and «طلبات في مهنتك ونطاقك» shown (empty text, no matching request in the test data);
+  - no page errors.
+- Client tests 166 pass; `i18n:check` 2621 keys; build and `check-deploy` ok. Server not changed, integration not re-run.
+- Not tested: the list with real matching requests on the home page (the same list was tested on the dashboard earlier), and a real phone.
+
+## 2026-11-20 — AYK-334: the first opening still took long
+- The owner: «لا زال أول فتح ياخذ وقت طويل».
+- Measured on the live site (1.1.80), phone size, with the saved copy present, a 4× slower processor and a slow connection: the page's own files were ready at 0.28 s, the bar at 1.27 s, the content at 1.85 s. The page then waited for two answers from the server, each asked late: the version check (asked only after the main file had been read, about 0.6 s in) and, for a signed-in person, the account (asked only after the first drawing).
+- Now both are asked at the first line of the page (`theme-init.js`), while the main file is still being read; the app uses those answers. A missing or refused account answer is asked again in the usual way, so sign-out is handled as before.
+- Measured before and after (local builds of both, same machine, saved copy present, 4× slower processor, 300 ms each way, five openings each, the middle one):
+  - visitor: bar 1297 → 1245 ms, content 1462 → 1420 ms (first run: 1355 → 1077 and 1528 → 1269);
+  - signed-in requester: bar 1571 → 1119 ms, own page 1743 → 1423 ms;
+  - signed-in provider: bar 1409 → 1158 ms, own page 1656 → 1432 ms.
+  The numbers vary between runs by about 0.2 s; the gain for a signed-in person is about 0.25–0.45 s.
+- Browser check: a good session asks for the account once and the version once; a made-up session is signed out and lands on the sign-in page as before; no page errors.
+- What remains is the phone's own work reading and drawing the app (about 0.7 s on a fast processor, more on a weak one); not changed here.
+- Not tested: a real phone, and the store apps.
+
+## 2026-11-20 — AYK-335: the same provider three times on the home page
+- The owner's screenshot: one provider as a card under «مقدمو الخدمة في منطقتك», again in «كل من يخدم في المجمعة», and again in «دليلي».
+- Now each person is listed once on the home page:
+  - the city box leaves out those already shown as cards (and is not shown when nobody else remains);
+  - «دليلي» on the home page leaves out those already listed above; its title and «عرض الكل» stay, and the directory page itself lists everyone;
+  - a card of someone kept in the directory carries «📇 في دليلي».
+- Browser check (local site, phone size, requester and a provider serving the same district and kept in the directory): one card with the «في دليلي» mark, no city box, nothing repeated under «دليلي», «عرض الكل» present, the directory page lists 1; no page errors. Screenshot reviewed.
+- Client tests 166 pass; `i18n:check` 2621 keys; build and `check-deploy` 22 ok. Server not changed.
+- Not tested: a city box with other providers left in it after the change (the test data has one provider).
+
+## 2026-11-20 — AYK-336: the first opening after a release took very long
+- The owner: «الدخول بطيء مرة، راجعه بعمق».
+- Found by opening the live site with the saved copy of 1.1.81 right after 1.1.82 was released (phone size, 4 Mbit, 150 ms, 3× slower processor, from the test machine): **17.6 s** of a turning ring before the page showed, then one reload. Cause: an older saved copy waited until the whole new copy (113 files, 620 KB compressed) was saved, and only then reloaded. Releases happen several times a day, so this is met often.
+- Now an older saved copy is dropped at once and the page reloads straight from the server, which needs only the first page's files; the full copy is saved again afterwards, out of sight.
+- Rehearsed locally (a release switched under a saved copy, both ways twice): one reload, the new version shown, the saved copy present again afterwards, the next opening normal (0.8–1.0 s), no page errors. The local rehearsal cannot show the time gained (3.0 s before, 3.2 s after): the saving of the copy is not slowed down there as it is over a real connection.
+- To be measured on the live site at the next release: a copy saved from this release against a copy saved from 1.1.81.
+- The change only works for copies saved from this release on: phones still holding an older copy take the old, slow path one last time.
+
+## 2026-11-20 — the guide brought up to date (11 languages)
+- The owner: «تأكد من تحديث الأدلة واللغات والترجمة الفورية».
+- The guide still described the coupon as for providers only with a percentage only, and said nothing of the green and red circles nor of the rating. Updated in the 11 languages: the coupon is for every account; the three ways of commission and that the administrators may stop it; «الدائرة الخضراء والحمراء» (really connected, not the schedule alone); «كيف أقيّم مقدم الخدمة؟» (one to five stars and an opinion, published at once, seen by everyone).
+- `i18n:check`: 11 locales share 2625 keys. Client tests 166 pass; build and `check-deploy` 22 ok.
+- Not checked by a native speaker of each language; the terms follow each language's existing texts.
+
+## 2026-11-20 — AYK-337: search engines, every profession and its words
+- The owner: «نشره على قوقل والمتصفحات الأخرى بكل الكلمات الموجودة هنا والتخصصات».
+- Already on the live site: a sitemap of 1030 pages named in `robots.txt` (the 8 professions, 104 services, and every profession in every city with its neighbourhoods), each with its own title, description and readable text.
+- Added:
+  - every page now carries its own search words (the profession as people write it, its other phrasings, its services, its city and neighbourhoods) instead of one fixed list on all pages. Checked locally on `/`, `/services`, a profession, a service and a profession-in-a-city page;
+  - IndexNow: a public key file at the site's root and `scripts/indexnow.js`, which sends every sitemap page to Bing (and through it DuckDuckGo and Yahoo), Yandex, Naver and Seznam.
+- Server unit tests 86 pass. Integration: the first full run had 4 failures in the wallet tests (not touched by this change); the second full run, unchanged, passed 277 of 277. The cause of the first run's failures was not found; the browser measurements were running on the same machine at the time.
+- `check-deploy` 22 ok.
+- Not done here, the owner's own step: Google takes no IndexNow. The site must be added in Google Search Console (and Bing Webmaster Tools) with the owner's account; the ownership code goes in the admin settings (`google_site_verification`, `bing_site_verification`), then the sitemap is submitted there.
+- AYK-336 measured on the live site at the release of 1.1.84 (phone size, 4 Mbit, 150 ms, 3× slower processor, from the test machine):
+  - a copy saved from 1.1.81 (the old way): the page showed after **15.4 s**;
+  - a copy saved from 1.1.83 (the new way): **9.0 s** in the first minute after the release, while the server was still restarting, and **2.4 s** a minute later (a second, separate copy);
+  - each ended on the new version with one reload.
+- AYK-337 on the live site (1.1.84): the electricity page carries its own search words; the key file is served; `scripts/indexnow.js` sent the 1030 sitemap pages: the first try was refused (403, the key had just been published), the second answered 200. Bing and Yandex each answered a single-page notice with 200 and 202.
+- Not verified: whether and when each engine lists the pages; that is theirs to decide and takes days.
+
+## 2026-11-20 — AYK-338: the Android app waited at every launch before opening the site
+- The owner: «أنت تجرب على المتصفح وأنا أقصد التطبيق».
+- Found by reading the app's launcher (`android/native/LauncherActivity.java`): an app installed from Google Play asked Play about an update at EVERY launch and showed an empty screen until Play answered, up to 2 s, before the site was even asked for. This wait is outside the site, so no browser measurement shows it.
+- Now the site opens at once and Play is asked meanwhile. Only when Play said, at the launch before, that a newer version is there does the launch wait for Play's update screen. A required update is therefore shown one launch later than before; the site's own required-update screen (the minimum version in the admin settings) is unchanged.
+- App version 1.3.10 (code 20).
+- Not tested here: the Java was not compiled or run on this machine (no Android tools here); the build on the server through GitHub is the first compile. Not tried on a phone.
+- The iPhone app has no such wait: it loads the site at once (read in `apple-apps/aykhidmah`, not changed).
+- AYK-338: Android 1.3.10 (20) built on the server and uploaded to the internal testing track through GitHub (run for 6b6a73e: success), so the changed launcher compiles. Not on the production track: that needs the owner's approval. Not tried on a phone.
+
+## 2026-11-20 — AYK-339: the home page by who entered; «دليلي» from the menu only
+- The owner: «دليلي يكون بالقائمة، لا داعي بنشر أسماء الدليل ولا «أرقام حفظتها بنفسي» آخر الصفحة… التركيز في الرئيسية على حسب الداخل».
+- Now:
+  - «دليلي» and «أرقام حفظتها بنفسي» are no longer on the home page; the directory opens from the menu and the bottom bar, with its names, the saved numbers and «إضافة رقم»;
+  - a requester: the request card, then the providers of their area;
+  - a provider only: their dashboard with the requests in their profession and area (as before);
+  - an account that is both: first the requests in their profession and area, then the request card, then the providers; under «كل المهن» the providers of the professions they asked for come first.
+- Browser check (local site, phone size):
+  - requester at `/`: request card → providers; no «دليلي», no saved numbers;
+  - provider only: lands on `/provider` with the requests list;
+  - both at `/`: requests in the profession and area → request card → providers; no «دليلي»;
+  - the directory page: the kept provider listed (requester), the saved-numbers part and «إضافة رقم» present;
+  - no page errors.
+- Client tests 166 pass; `i18n:check` 2625 keys; build and `check-deploy` 22 ok. Server not changed.
+- Not tested: the order under «كل المهن» with providers of several professions (the test data has one provider); a real phone.
+- AYK-338: the owner approved production («ارفع», 2026-11-20). Android 1.3.10 (20) sent to the production track of Google Play through GitHub; the result of that run is recorded below.
+- The publishing run for bda5e24 ended in success: Google Play accepted 1.3.10 (20) on the production track. Not verified: when Google's review ends and the version reaches phones.
+
+## 2026-11-20 — AYK-340: every control looks like what it is
+- The owner's screenshot and words: «كل المهن وضّح أنها قائمة منسدلة، وضّح السهم. المربعات مثل المهن التي طلبتها وكل المهن اجعلها أزرارًا… وكذلك مقدم خدمة قريب منك. كل الروابط تكون زرًّا واضحًا أو رابطًا».
+- Now, on every page:
+  - every drop-down list has a clear arrow on its closing side (left in Arabic and Urdu, right in the others);
+  - a choice drawn as buttons (role «tab»): the chosen one filled with the chosen colour and a ✓, the others outlined;
+  - words that can be tapped inside a page are underlined.
+- On the providers part of the home page:
+  - «حي آخر», «العودة لحيي» and «تعديل منطقتك» are buttons;
+  - «N مقدم خدمة قريب منك» and «N متواجد الآن» are now real buttons: everyone, or only those connected now;
+  - on each card «عرض الملف والتواصل» and «أضف إلى دليلي» are buttons; «في دليلي» is a plain note, no longer shaped like a button.
+- Browser check (local site, phone size, normal and high contrast): the arrow drawn on the home list and on the six lists of the services page (English, left-to-right); tapping «كل المهن» moves the fill to it; «متواجد الآن» shows 0 cards and the note, «مقدم خدمة قريب منك» brings the card back; on `/profile`, `/client`, `/requests/new`, `/providers/1` and `/directory` only true text links are underlined (one rating link); no page errors. Screenshots reviewed.
+- Client tests 166 pass; `i18n:check` 2625 keys; build and `check-deploy` 22 ok.
+- Not checked: every admin page; a real phone.
+- AYK-340 deployed as 1.1.86 (build 3527cf5).
+
+## 2026-11-20 — AYK-341: the site's footer
+- The owner's screenshot: «في الويب احذف الشعار من الفوتر وأضف تحميل التطبيقات، ورتّب الروابط وقرّب الأسطر، واجعلها أكثر من عمود».
+- Now: no logo in the footer (it stays in the top bar); the Google Play and App Store badges are in the footer (on the website only, as before not inside the apps), and the separate box on the home page is gone so they are not shown twice; the three link groups stand side by side on the phone too, with the lines closer; «الشروط والأحكام» and «سياسة الخصوصية», listed twice, now once.
+- Browser check (local site): phone 390 px and desktop 1280 px: no image in the footer, the badges in it, three columns side by side; opened as the Android app (`?app=1.3.10&src=play`): no badges anywhere; no page errors. Screenshots reviewed.
+- Client tests 166 pass; build and `check-deploy` 22 ok.
+- AYK-341 deployed as 1.1.87 (build e0b74a3).
+
+## 2026-11-20 — AYK-342: an ad seen in the browser did not show in the app (not deployed yet)
+- The owner: «الإعلان الذي في الويب لا يظهر في التطبيق».
+- From the test machine (outside the Kingdom) the live site serves no ad on the home page, so the ad in question is aimed at a place. Two causes found in the code:
+  - the place of whoever asked was found from the connection's address only, even for a signed-in person: the same phone on Wi-Fi in the browser and on mobile data in the app can be placed in different cities, or in none;
+  - an ad's cities are saved by their Arabic names, while a place found from the address names the city in English: a city-targeted ad never matched it.
+- Now a signed-in person is placed by the city saved on their account, and a city is compared in all its names. A visitor not signed in is still placed by the address.
+- New integration test (English city name matches an ad saved with the Arabic name, in both forms of the request; with no place, hidden; signed in, shown): passes. Server unit tests 86 and the finance integration file 278 pass.
+- Not verified: which ad the owner saw and its targeting (the live database is not reachable from here).
+- Deployed on the owner's word («أنشر»).
+
+## 2026-11-20 — AYK-343: whatever is added is translated into every language
+- The owner: «أي إضافة في أي مكان مثل إضافة قسم أو رسائل تُترجم مباشرة لكل اللغات».
+- Before: only professions and services were translated when added, and a language whose translation failed got the Arabic name, shown as if it were the translation and never tried again (the seeded professions still have 5 of the 11 languages). Places, subscription plans and ads added by the administration were not translated; messages with the administration were not translated at all.
+- Now (`server/services/contentTranslation.js`, migration 095):
+  - professions, services, countries, regions, governorates, cities, districts, subscription plans and ads are translated into the 11 languages as soon as they are added or renamed; an ad from the language it was written in;
+  - a language that fails is left out and tried again by a sweep every 6 hours (60 names a run, the translators' free allowances being limited), until all 11 are there; the professions and services seeded with 5 languages are completed the same way;
+  - places seeded with the site keep their names from the site's reference list and are not machine-translated;
+  - the place lists and the live ads carry the translations, and the ad banner shows the reader's language;
+  - messages with the administration: support tickets (both ways: the administration reads Arabic, the user the language of their account), disputes (messages and the decision), and the administration's messages about an ad reach each reader translated, with «🌐 مترجم تلقائيًا · عرض الأصل»; translated in advance when sent.
+- Tests: new integration files `content-translation` (a new district in 11 languages; a failed language left out then filled by the sweep; renaming replaces; a seeded place left alone; a new profession keeps no Arabic in place of a failed language; an English ad translated from English and served with its translations) and `support-translation` (an Urdu account receives the admin's Arabic reply in Urdu, the admin the user's message in Arabic, in the thread and the list; with the translator failing nothing is added and every request succeeds). Full integration run: 284 pass, 0 fail. Server unit 86, client 166 pass; `i18n:check` 2625 keys; build and `check-deploy` ok.
+- Not covered:
+  - a place added by the administration is translated in the place lists, but where a page shows a place's name joined from another row (e.g. the district on a provider card), a new place still shows in Arabic or English;
+  - disputes and ad messages have no integration test of their own (code read and loaded; the existing tests pass);
+  - reading a long support thread while the translators are down can wait a few seconds;
+  - not tried with the real translators or on a phone.
+- AYK-343 deployed as 1.1.89 (build 1fc3fce); the live place list carries `name_translations`.
+
+## 2026-11-20 — AYK-344: the account's language, from sign-up to every sign-in
+- The owner's rule: «أي إضافة تظهر للمتصفح تُترجم. أول دخول على التسجيل يسأله عن لغته، ثم تُعتمد في أي دخول له ما لم يعدّل». Written into `CLAUDE.md` as a standing rule.
+- Before: sign-up already asked the language first (AYK-296), but the account's language was overwritten by whatever language the device showed at each request, and signing in on another device did not bring the account's language.
+- Now: the language chosen at the start of sign-up is the account's language; signing in on any device switches the site to it; a device showing another language no longer changes it; choosing another language from the language menu while signed in changes the account's language (`PUT /api/users/me/language`). The admin area stays Arabic.
+- Integration test: the first language kept; a request in another language does not change it, and `/auth/me` returns the account language; an explicit change is saved; an unknown language refused. Full integration run 285 pass, 0 fail; server unit 86, client 166 pass; build and `check-deploy` ok.
+- Browser check (local site, two fresh browsers set to Arabic): an account in Urdu opens in Urdu after sign-in and after reloading; after the account's language was changed to English, a new browser opens in English; no page errors.
+- Not tested: the apps on a phone; the sign-up form itself end to end (its language step is unchanged).
+- AYK-344 deployed as 1.1.90 (build f67c4d0).
+- The owner, to avoid any slowness: «اعتمد اللغة على هذا الحساب وهذا الجهاز ما لم يعدّل». Now the sign-in's own answer carries the account's language, so the page switches at the moment of signing in instead of after a second request; the language is kept on the device, so later openings start in it without waiting for the server.
+  - Browser check (local site, a fresh browser set to Arabic, the account in Urdu): switched to Urdu 272 ms after tapping «تسجيل الدخول»; the next opening, with the server's account answer held back 3 s on purpose, drew the page in Urdu at once (`lsm_lang` = ur); no page errors.
+  - Client tests 166, server unit 86 pass; build and `check-deploy` 22 ok.
+- AYK-344 (account and device) deployed as 1.1.91 (build 69289a0).
+
+## 2026-11-20 — AYK-345: a new profession's emoji on the wrong side in the phone's list
+- The owner's screenshot (Android, the professions list): the new profession «بنشر وتغيير زيوت» showed its 🛞 after the name, the others before.
+- Cause: the phone draws each line of its own list in the direction of the line's first letter. 🛞 is a newer emoji (2021) the phone's text library does not know, and an unknown character counts as a left-to-right letter, so that line was laid out left to right. The data is right (live `/api/categories`: icon `🛞` alone, name in Arabic).
+- Now every profession line in the four lists that show an icon starts with an invisible direction mark of the page's language, so the line follows the language whatever the emoji.
+- New client test (Arabic, Urdu, English, no icon): passes; client tests 167 pass; build and `check-deploy` 22 ok.
+- Not tried on the owner's phone.
+- Seen while checking: the English machine translation of «بنشر» came out as «Oil diffusion and change» (the word was taken for «spreading»); the other languages are likely as wrong. Left for the owner to decide (rename in Arabic so it translates well, or correct by hand).
+- AYK-345 deployed as 1.1.92 (build 7fe98bc).
+
+## 2026-11-20 — AYK-346: an administration member landed on the guide and «رجوع» went nowhere
+- The owner's screenshot: a member of the administration opened «لوحة الإدارة» and got the illustrated guide, empty, and «رجوع» did not leave it.
+- Cause: the control home needed the figures permission (`dashboard.view`); without it `/admin` sent the member to their first section, or to the guide when they had none, and «رجوع» from there went back to `/admin`, which sent them to the guide again.
+- Now `/admin` opens for every member: with the figures permission, the figures as before; without it, a page of the sections this member may open, one tap each, and the guide; with no section granted yet, a note to ask the site's manager. «رجوع» from any admin page ends there. «العودة للموقع» is now at the top of the admin menu (it was at the bottom, as «الرئيسية»).
+- Browser check (local site, phone size): a member with users only: `/admin` shows «المستخدمون», «رسائل المستخدمين», «دليل الإدارة المصور»; a member with nothing: the note; the full administrator: the figures; for all three, guide → «رجوع» → `/admin`, and the menu starts with «🏠 العودة للموقع»; no page errors. The two test members were removed from the local database afterwards.
+- Client tests 167 pass; build and `check-deploy` 22 ok.
+- AYK-346 deployed as 1.1.93 (build c5af2fe).
+
+## 2026-11-20 — AYK-347: «لوحة الإدارة» only for those allowed in
+- The owner: «فقط للمصرّح له بدخول الإدارة، الأعضاء العاديون لا تظهر لهم».
+- Now an administration account sees «لوحة الإدارة» in the site's menu, and can open the admin area (from the menu or its own sign-in page), only when it is a full administrator or has at least one section granted. An administration account with none behaves as an ordinary member: no link, the server refuses the admin session (403), and the admin sign-in page refuses it. Ordinary members never saw it and still do not.
+- Browser check (local site): a member with one section: link shown, admin session 200, admin sign-in opens `/admin`; a member with none: no link, 403, stays on the admin sign-in page; an ordinary requester: no link, 403; no page errors. Test members removed afterwards.
+- The existing test «site and admin sessions of one account are separate» used an administration account with no section and expected it to open the area; it now checks it is refused, then grants one section and checks it opens. Full integration 285 pass, 0 fail; server unit 86, client 167 pass; build and `check-deploy` 22 ok.
+- AYK-347 deployed as 1.1.94 (build b18767d).
+
+## 2026-11-20 — AYK-348: are phone notifications ready? (report added)
+- The owner asks whether notifications reach Android and iPhone, i.e. whether the server is set up for them. That cannot be seen from here, so the read-only server report (`deploy/slow-requests.sh`, run by `[server-report]`) now also says, yes or no only (no key is printed): the Android (Firebase) key, the iPhone (Apple) key, the web push key, how many phones and browsers are registered, and the sending failures logged in the period. Deployed as 1.1.95 (build 2105fa9). The result is recorded below when the report has run.
+
+## 2026-11-20 — AYK-349: a dead gap above the footer
+- The owner's screenshot: a large empty area between the last card and the footer on the phone.
+- Cause: on phones every page's main area kept 108 px clear of the bottom bar, and so did the footer under it; the home page had its own main area inside, with another 108 px and 96 px more. The footer alone keeps clear of the bar now; the home page's inner area is a plain block.
+- Browser check (local site, phone size, signed in): the gap between the last content and the footer is 0 px on `/`, `/profile`, `/services` and `/directory`; the footer still ends 108 px above the bottom of the page so the bar covers nothing; screenshot reviewed; no page errors.
+- Client tests 167 pass; build and `check-deploy` 22 ok.
+- AYK-349 deployed with commit ead1974.
+- AYK-348 report (run for ead1974, 2026-11-20 12:50 UTC): Android (Firebase) key **yes**; iPhone (Apple APNs) key **NO**; web push key yes; phones registered: 4 iPhone, 17 Android (19 updated in the last 7 days); 10 browsers for web push; no sending failure logged in the last 3 hours. So Android apps receive notifications with the app closed; the iPhone app does not until the Apple key is on the server (`deploy/apns-setup.sh`, AYK-269).
+- AYK-349 deployed as 1.1.96 (build ead1974).
+
+## 2026-11-20 — AYK-350: every entry is a visit
+- The owner: «إذا دخل أكثر من مرة في كل مرة تُحسب مشاهدة (زائر)، لو تكرر دخوله 10 مرات تُضاف عشر زيارات».
+- Before: each visitor counted once a day. Now each entry to the site or the app counts: the page says it is an entry once per opening (a tab or an app session); moving between pages, reloading and the 2-minute «still here» reports do not count again. The same visitor entering again within one minute is one entry, so a reload loop cannot inflate the counter. Crawlers are still not counted. «Online now» unchanged. Earlier days keep the counts made the old way.
+- Integration test: an entry counts, a «still here» report does not, a second entry within a minute is one, another visitor counts, a crawler does not; the older once-a-day case still passes. Full integration 285 pass, 0 fail; server unit 86, client 167 pass; build and `check-deploy` 22 ok.
+- Browser check (local site): first opening sent `entry: true`, then another page and a reload sent only `entry: false`; a new tab sent `entry: true` again.
+
+## 2026-11-20 — AYK-348: the iPhone notifications key (owner's step)
+- In the owner's Apple account: one APNs key from 2023 (its file is lost, left untouched; probably used by Trbhh), and a new key created now by the owner for «أي خدمة» (key id `6WWKPH6Q4U`; team `F6RN596WCX`). Only the ids are recorded; the key itself never comes here.
+- Found while preparing: `deploy/apns-setup.sh` checked the key with the bundle id but did not write `APNS_BUNDLE_ID` into `.env`; the app sends nothing without it. Now it is written too.
+  - Checked on a temporary `.env` with a locally generated P-256 key (Apple's check skipped): the file ends with `APNS_KEY_ID`, `APNS_TEAM_ID`, `APNS_BUNDLE_ID` and `APNS_KEY` once each, the old `APNS_KEY_ID` replaced, a copy of the previous file kept, the `.p8` copy deleted.
+- Not done yet: the owner copies the file to the server and runs the script; then a release so the app reads it; then the server report must say «iPhone key: yes».
+- The owner ran `deploy/apns-setup.sh` on the server (2026-11-20): Apple's check answered «OK Apple accepts this key, key id and team id»; saved in `/opt/aykdmh/.env` (previous copy kept in `/root/backups/env-before-apns-20261120-143844`); the `.p8` copy on the server deleted. A release follows so the app reads it.
+- Released as 1.1.98 (build 89b1d89). Server report after it (run for bd7a8fe, 13:47 UTC): Android key yes, **iPhone key yes**, web push yes; 4 iPhones and 17 Android phones registered; no sending failure logged. Not yet seen: a notification arriving on a closed iPhone (the owner's test).
+
+## 2026-11-20 — AYK-351: short addresses for the apps
+- The owner: «أبي روابط مختصرة للتطبيقات مثل aykdmh.com/app و aykdmh.com/gl».
+- Now: `aykdmh.com/app` sends an iPhone to the App Store and an Android phone straight into the Play Store app (web page as fallback), and shows a computer a page with both stores; `aykdmh.com/gl` is Google Play and `aykdmh.com/ios` the App Store on any device. The store links come from the admin settings (only `play.google.com` / `apps.apple.com` addresses are followed); on a phone nothing of the site is drawn before leaving.
+- New client test (iPhone, Android, computer, the three addresses, a setting pointing elsewhere ignored): passes; client tests 168 pass; build and `check-deploy` 22 ok.
+- Browser check (local site): iPhone `/app` → `apps.apple.com/app/id6829494773`; Android `/app` → `intent://details?id=sa.aykdmh.app…`; computer `/app` → the page with both; computer `/gl` → Google Play; computer `/ios` → App Store; no page errors.
+- Not tried on a real phone; a link preview in WhatsApp for these addresses shows the site's usual preview.
+- AYK-351 deployed as 1.1.99 (build 9441233); checked on the live site with the same script (iPhone → App Store, Android → intent, computer → page / Google Play / App Store).
+- The owner's screenshot (Huawei phone, `aykdmh.com/app`): Chrome showed Google Play's web page («التثبيت على أجهزة أخرى»), whose «الفتح في تطبيق متجر Play» did nothing. Two causes:
+  - Chrome on Android opens the Play Store app only from a tap, not from a page that sends itself there, so the automatic sending fell back to the web page;
+  - this phone is a Huawei without Google services: there is no Play Store app to open at all.
+- Changed for phones that have Google Play: on Android, `/app` and `/gl` show our page with the store badges, and the Google Play badge (also in the site's footer on Android) opens the Play Store app on a tap. iPhone and computers unchanged.
+  - Client test updated; client tests 168 pass; build and `check-deploy` 22 ok. Local browser: Android `/app` shows the page, its Google Play badge links `intent://details?id=sa.aykdmh.app…` without a new tab; iPhone and computer as before.
+  - Not tried on a phone with Google Play.
+- Not solved, the owner's decision: a Huawei phone has no Google Play, so no store link can install the app there (the direct download was retired in AYK-292; Huawei AppGallery is postponed).
+- Deployed as 1.1.100 (build 60ed9c4).
+
+## 2026-11-20 — AYK-352: «نسبة العمولة %» in the settings
+- The owner's screenshot (Settings → payments) and question: «ماذا تقصد في نسبة العمولة».
+- Found: `commission_percent` there is an old setting from the first version; no code reads it (the marketing percentage is `referral_commission_percent`, set on «المحافظ والتسويق»). The marketing settings were also listed there a second time, raw (their keys and old wording, e.g. «المبلغ لكل مجموعة», from before the owner's rule of a minimum then an amount per person).
+- Now the settings page no longer lists `commission_percent` nor the marketing settings; the payments tab starts with a link to «المحافظ والتسويق», where marketing is set with its own explanation and example. Nothing is deleted from the database.
+- Client tests 168 pass; build and `check-deploy` 22 ok. Not checked in the browser (admin settings page only).
+- AYK-352 deployed as 1.1.101 (build a7cdcae).
+
+## 2026-11-20 — AYK-353: account numbers in digits only
+- The owner: «أرقام فقط بلا حروف، الحروف صعوبة إدخال، وعدّل الحاليين بأرقام»; starting with two digits, then three, then four.
+- Now:
+  - a new account's number is digits only: two digits (10-99) first, then three, four, and more if ever needed; never a leading zero;
+  - migration 096 gives every existing account a number of digits, in a random order inside each length, and keeps its old code in `legacy_referral_code`;
+  - the old code still signs in and still works as an invite code and as a gift recipient, so nothing already shared stops working;
+  - sign-in, invite and gift fields accept the two-digit numbers (the gift field required 3 characters);
+  - the four texts that described letters (sign-in hint, invite hint, two guide paragraphs) say digits only, example 27, in the 11 languages.
+- Migration checked on a copy of the local test database: the 3 accounts with letter codes (WX76, TQ71, TD30) got 56, 87, 99 with their old codes kept; numbers unique, none left with letters; running it again changes nothing.
+- Tests: integration adds an old letter code signing in (any case) and an old invite code registering; expectations for the new shape updated. Full integration 285 pass, 0 fail; server unit 86, client 168 pass; `i18n:check` 2625 keys; build and `check-deploy` 22 ok.
+- Consequence to know: every user's number shown at the top changes once, at this release; their old one keeps working.
+- AYK-353 deployed as 1.1.102 (build 6cc630f).
+
+## 2026-11-20 — AYK-354: a short invite link
+- The owner: «أبي رابط دعوة واضح في لوحة المستخدم «دعوة»، ينسخ الرابط، وإذا فتحه الآخر وسجّل بنفس الرابط يُسجَّل رقمه ويُضاف له، ويكون الرابط مختصرًا».
+- Now:
+  - each account has a short invite link `aykdmh.com/i/<its number>`;
+  - «🎁 دعوة» is in the menu of every signed-in account and opens the wallet page at a framed «رابط دعوتك» box, first on the page, with the link, «نسخ الرابط», «مشاركة» and «واتساب»; the WhatsApp message carries the short link too;
+  - opening the link keeps the inviter's number on that device for 30 days and opens the sign-up with the number filled in; if the person looks around the site first and signs up later on the same device, the number is still filled in; after a sign-up the device forgets it; someone already signed in just lands on the home page;
+  - the sign-up then links the new account to the inviter as before (the existing registration rule).
+- New texts (box title and hint, menu item) in the 11 languages; `i18n:check` 2628 keys.
+- Browser check (local site, phone size): the menu shows «🎁 دعوة» for a requester and a provider and opens their wallet at the box, in view; the link shown and copied was `https://aykdmh.com/i/32`; another browser opening `/i/32` went to `/register?ref=32`; after visiting another page, a plain `/register` still had 32 in the invite field; no page errors. (The local test database needed migrations 095 and 096 applied by hand first.)
+- First push: one client test failed (`accountSuccess.test.mjs`: its harness runs the sign-up code without the new `forgetInvite`), so the release stopped at the checks and nothing was deployed. The harness now provides it. Client tests 168 pass; build and `check-deploy` 22 ok. The server is unchanged: registration with an invite number is covered by the existing integration tests.
+- Not tried: a real phone, and the link opened inside the installed app.
+- AYK-354 deployed as 1.1.103 (build 085e7c0).
+
+## 2026-11-20 — AYK-355: «دعوة» opens copy / send at once
+- The owner: «إذا ضغط على دعوة يظهر له نسخ / إرسال، والإرسال على الواتساب».
+- Now «🎁 دعوة» in the menu opens a sheet over the current page (no page change): the short link, «نسخ الرابط» and «إرسال بالواتساب» (WhatsApp with the invite message and link). The wallet page keeps its own invite box. One new text («إرسال بالواتساب») in the 11 languages; `i18n:check` 2629 keys.
+- Browser check (local site, phone size): requester and provider: the sheet showed `https://aykdmh.com/i/32` and `/i/74`, copying put the link on the clipboard, the page stayed where it was, and the WhatsApp button's message was «سجّل في «أي خدمة» بكوبوني 32: https://aykdmh.com/i/32»; no page errors; screenshot reviewed.
+- Client tests 168 pass; build and `check-deploy` 22 ok.
+- AYK-355 deployed as 1.1.104 (build 4e59ad7).
+
+## 2026-11-20 — AYK-356: «حسابي» in the member's menu; an administration member who cannot get in
+- The owner's screenshot: a member (number 54) given administration rights sees no «لوحة الإدارة» and cannot get in; and «في لوحة العضو يكون حسابي بدل لوحة التحكم (ويدخل على حسابه)».
+- «حسابي»: the member's menu (phone and computer) shows «👤 حسابي», opening their own account (`/profile`), instead of «لوحة التحكم»; the computer's drop-down no longer lists the account twice. New text in the 11 languages; `i18n:check` 2630 keys.
+- The member who cannot get in: since AYK-347 the link and the entry need the account to be an administration account with at least one section. Two ways the member can end with none, found in the code: changing an account's type to administration empties its sections (if sections were ticked first and the type changed after, they were lost); and each change of rights signs the member out, so the member must sign in again. The live database is not reachable from here, so the server report now lists the administration accounts by number only (type, full or not, how many sections, active, blocked; no names), to see which case it is.
+- Client tests 168 pass; build and `check-deploy` 22 ok.
+- Deployed as 1.1.105 (build bcdcdc9). Server report (run for d1157ea, 17:11 UTC), administration accounts by number: 85 and 34 full administrators; **54: administration, not full, no sections saved (none at all)**; 86: administration, not full, 0 sections. So member 54 is an administration account to which no section was ever given: it could not get in before AYK-347 either (every section refused it); since AYK-347 it no longer sees the link.
+- Cause in the admin page: giving sections was a second step («🔑 إدارة الصلاحيات», shown only when re-opening an account already saved as administration), easy to miss. Now, when an account is saved as administration (changed or created), the sections editor opens at once.
+  - Client tests 168 pass; build and `check-deploy` 22 ok. Not tried in the browser.
+- The owner's step for member 54 (and 86): open the account in «المستخدمون», «🔑 إدارة الصلاحيات», tick the sections, save; the member then signs in again.
+- AYK-356 (sections editor) deployed as 1.1.106 (build 1ea933a).
+
+## 2026-11-20 — AYK-357: special numbers
+- The owner: «عدّل الأرقام: الإدارة 11، سعود 22، مكتب أوتاد سدير 33، واحجب الأرقام المتشابهة مثل 44 إلى 99… الإدارة توجهها لمن تراه، مثلًا 44 بدل 145 وينتقل الرقم، ويمنع أي تعديل غير المتشابه».
+- Now:
+  - numbers of one repeated digit (11 … 99, 111 … 999, and longer) are special: never given automatically;
+  - in «المستخدمون», editing an account shows «🔢 الرقم المميز»: its number and a list of the free special numbers, «نقل إليه»; only special numbers can be given; one held by another account is refused; the account's previous number keeps reaching it (sign-in, invitations, gifts), a previous special number is freed instead; each move is written in the activity log;
+  - migration 097: special numbers given automatically before this rule go back (those accounts get a new ordinary number; their letter code still works); account 54 (سعود, confirmed from the owner's screenshot) becomes 22, and 54 keeps reaching it.
+- Not done by me: «الإدارة» → 11 and «مكتب أوتاد سدير» → 33; which accounts these are is not visible from here; the owner gives them from the new control (or tells their current numbers).
+- Tests: integration (special numbers never automatic; only special numbers can be given; a non-admin refused; taken refused; the list shows it taken; the previous number still invites to the account): full integration 286 pass, 0 fail; server unit 86, client 168 pass; build and `check-deploy` 22 ok. Migration checked on a copy of the local test database (an account holding 44 got 31; an administration account holding 54 got 22 with 54 kept as its alias). The admin control itself was not tried in the browser.
+- Deployed as 1.1.107 (build da30f98). Server report after it (run for eb663d4): the administration account that was 54 (old VR77) is now **22**; it still has no section (the owner ticks them).
+- The owner's correction: «والثلاث المتشابهة 111 إلى 999 (محجوزة أيضًا)، وبعد تبديل رقمه يكون رقمه القديم محرّرًا ويدخل في طابور التسجيل التلقائي، محرّرًا من أي تبعات؛ المحادثات والطلبات كلها تنتقل للجديد».
+  - 111 … 999 were already special (any number of one repeated digit). Now a previous number is freed when an account moves: it no longer reaches the account and can be given to a new account; migration 098 frees the one kept so far (54). Chats, requests, wallet, directory entries and invitations belong to the account, not to its number, so they stay with it under the new number.
+  - Integration test updated (after the move the previous number no longer invites, no alias kept): full integration 286 pass, 0 fail; client 168 pass; build and `check-deploy` 22 ok.
+
+## AYK-358 — لصق رقم الجوال في الدخول، وحساب إدارة بلا أقسام (2026-11-20)
+
+- المالك: «ما يقبل اللصق في رقم الجوال في الدخول». الرقم المنسوخ من الواتساب أو جهات الاتصال يأتي مثل «‪+966 50 123 4567‬» بعلامات اتجاه مخفية و+966، والمحفوظ «05…» فلم يتطابقا.
+  - الخادم (`User.findByIdentifier`، `phoneCodeService.normalizePhone`) يحذف العلامات المخفية، ويحوّل الأرقام العربية، ويقبل ‎+9665… و009665… و9665… و5… على أنها 05….
+  - الواجهة (`cleanTyped` في الدخول ونسيت كلمة المرور والتسجيل) تنظّف الحقل عند اللصق.
+  - اختبار متكامل: الدخول بخمس صيغ ملصوقة يصل للحساب نفسه. في المتصفح (390px): لصق «‪+966 50 000 9922‬» ظهر «+966 50 000 9922» ودخل.
+- المالك: «هذا حسابه في صلاحية الإدارة» (الدور «لوحة الإدارة») ولا تظهر له لوحة الإدارة. التقرير: الحساب 22 بلا أقسام محفوظة.
+  - قائمة المستخدمين تُظهر «⚠️ بلا أقسام، لا يدخل الإدارة» بجانب حساب الإدارة الذي لا قسم له (الخادم يرسل عدد الأقسام `admin_sections` لا الصلاحيات نفسها).
+  - نموذج التعديل يُظهر تحت «الدور» مباشرة تنبيهًا وزر «🔑 تحديد الأقسام الآن»، وبعد الحفظ تفتح نافذة الأقسام تلقائيًا لحساب إدارة بلا أقسام.
+  - جُرّب محليًا: حفظ الأقسام ثم «نعم، متابعة» → PUT 200، ثم ظهر للعضو «لوحة الإدارة» وفتح /admin (حاسب وجوال).
+- الاختبارات: متكاملة 286 ناجح، الواجهة 168، الخادم 86، الترجمة 2630 مفتاحًا، فحص النشر سليم، البناء سليم.
+
+## AYK-359 — إدارة عامة / إدارة مخصصة (كل الأقسام، تحديد أقسام، تحديد تبويبات) (2026-11-20)
+
+- المالك: «لو أضفت أقسامًا جديدة لازم أضيف القسم… إدارة عامة، إدارة مخصصة وفيها كل الأقسام أو تحديد أقسام أو تحديد تبويبات».
+- `server/config/permissions.js`: يُحفظ مع التبويبات المنفردة `'*'` (كل الأقسام، ومنها ما يُضاف مستقبلًا) و`'group:<القسم>'` (قسم كامل، ومنه ما يُضاف له مستقبلًا). `expandPermissions` يحوّلها لتبويبات اليوم، ولا تشمل أيٌّ منهما «إدارة حسابات الإدارة» (`admins.manage`)، فهي مربع مستقل أو ضمن «إدارة عامة».
+- عضو يدير حسابات الإدارة لا يمنح إلا ما عنده (`grantCovers`): لا يمنح «كل الأقسام» إلا من عنده «كل الأقسام».
+- نافذة الصلاحيات: 👑 إدارة عامة، و🧩 إدارة مخصصة بثلاثة خيارات، ومربع «إدارة حسابات الإدارة الأخرى»، ولا تحفظ بلا اختيار.
+- اختبار متكامل: قسم «المستخدمون» كاملًا يفتح قائمة المستخدمين ولا يفتح لوحة النظرة العامة ولا الصلاحيات؛ «كل الأقسام» يفتح اللوحة ولا يفتح الصلاحيات؛ عضو عنده قسم «المواقع» وإدارة الحسابات يمنح «المواقع» ويُرفض له منح «كل الأقسام» وقسم «المستخدمون».
+- في المتصفح (390px): تحديد قسم «المستخدمون» → PUT 200 `["group:users"]` وأُعيد فتحها على «تحديد أقسام»؛ ثم «كل الأقسام» → `["*"]`؛ ثم دخل العضو «لوحة الإدارة» وفتحت /admin.
+- الاختبارات: متكاملة 286 ناجح، الواجهة 168، الخادم 86، الترجمة سليمة، البناء سليم.
+
+## AYK-360 — العنوان اختياري ولا مربع «أؤكد…» (2026-11-20)
+
+- المالك (صورة صفحة الملف): «العنوان اختياري، وتأكيد العنوان ليس ضروريًا، أريد تسهيل التسجيل والطلب».
+- الخادم (`server/utils/userLocation.js`): العنوان المكتوب لم يعد شرطًا لاكتمال الموقع (إن كُتب يُفحص طوله ومحتواه كما كان)، ولم يعد مربع التأكيد مطلوبًا. ما زال المطلوب: المدينة، والحي إن كان للمدينة أحياء، ونقطة الموقع.
+- رسالتا «أكمل الاسم…» و«لحفظ الموقع الافتراضي…» حُدّثتا في اللغات الإحدى عشرة دون ذكر العنوان والتأكيد. وتلميح العنوان يبدأ بـ«اختياري:» في اللغات الإحدى عشرة.
+- صفحة الملف: حُذف مربع «أؤكد أن هذه النقطة…» وشرط العنوان. في المتصفح (390px): لا مربع، والعنوان غير مطلوب، والحفظ بعنوان فارغ أعاد 200 «تم تحديث الملف الشخصي».
+- لأن الحساب بلا عنوان صار مكتملًا: نقل الحساب لمدينة أخرى يحتاج نقطته الجديدة (حتى لا يبقى بلا نقطة)، وعُدّل الاختبار على ذلك.
+- اختبارات متكاملة: التسجيل بلا عنوان وبلا تأكيد يُنشئ الحساب (201)؛ مسح العنوان في الملف يُقبل؛ طلب «تذكّر موقعي» بلا عنوان يُقبل. المجموع 287 ناجح، الواجهة 168، الخادم 86، الترجمة سليمة، البناء سليم.
+
+## AYK-361 — الطلبات ومقدمو الخدمة في الإدارة: الأحدث أولًا، بحث، فلتر المنطقة والمدينة والمهنة، إخفاء وحذف (2026-11-20)
+
+- ترحيل 099: `requests.hidden_at` و`provider_profiles.hidden_at`.
+- الطلبات (`GET /admin/requests`): الأحدث أولًا، وفلاتر `region_id` و`city_id` و`category_id` (المهنة مباشرة أو عبر الخدمة) و`visibility` (الكل/الظاهرة/المخفية)، والبحث في العنوان والوصف ورقم الطلب واسم الطالب وجواله ورقم حسابه. `PUT /admin/requests/:id/hide`.
+  - الطلب المخفي لا يُعرض لمقدمي الخدمة (قائمة الطلبات القريبة، وصفحة الطلب 404، وأعداد الطلبات المفتوحة في السوق)، ويبقى لصاحبه.
+- مقدمو الخدمة: صفحة جديدة «🧰 مقدمو الخدمة» (`/admin/providers`، صلاحية `users.manage`)، الأحدث أولًا، بحث (الاسم، الرقم، الجوال، اسم النشاط، اسم المستخدم)، والفلاتر نفسها، و«إخفاء/إظهار» و«حذف» (حذف الحساب كما في «المستخدمون»).
+  - مقدم الخدمة المخفي لا يظهر في الخريطة ولا في قوائم مقدمي الخدمة المطابقين؛ حسابه يعمل، وصفحته تفتح لمن عنده الرابط.
+- اختبار متكامل: الترتيب الأحدث أولًا، فلتر المدينة والمنطقة والمهنة، البحث برقم الطلب، الإخفاء يمنع مقدم الخدمة من فتح الطلب ويبقيه لصاحبه، الإظهار يعيده؛ مقدمو الخدمة: الترتيب والفلاتر والإخفاء والإظهار وبقاء الحساب يعمل، وقيمة غير صالحة تُرفض 400.
+- المتصفح (390px): الفلاتر تظهر في الصفحتين، 14 منطقة، اختيار منطقة يملأ المدن، الإخفاء يُظهر شارة «🙈 مخفي» ثم الإظهار يزيلها.
+- الاختبارات: متكاملة 288 ناجح، الواجهة 168، الخادم 86، الترجمة سليمة، فحص النشر سليم، البناء سليم.
+
+## AYK-362 — «تم التعيين» صارت «تم اختيار مقدم خدمة» (2026-11-20)
+
+- المالك وافق على تغيير اسم حالة الطلب `assigned` لأنها غير واضحة. النص الجديد في اللغات الإحدى عشرة (`status.request.assigned`): «تم اختيار مقدم خدمة»، Provider chosen، … ويظهر في الإدارة وصفحات المستخدمين.
+- زر الإدارة «تعيين مقدم خدمة» صار «اختيار مقدم خدمة للطلب» (الإدارة بالعربية فقط).
+- فحص الترجمة سليم (2630 مفتاحًا في 11 لغة)، اختبارات الواجهة 168 ناجح (0 فشل)، البناء سليم.
+
+## AYK-363 — إشعارات المحادثة الواحدة في سطر واحد مثل الواتساب (2026-11-20)
+
+- المالك (صورة صفحة الإشعارات): «كل رسالة تتحول وكأنها محادثة… الصحيح كل الرسائل داخل محادثة واحدة بين طرفين مثل الواتساب تمامًا حتى لو قديمة».
+- `Notification.listForUser`: الإشعارات التي تفتح المحادثة نفسها (`/chat/<رقم>`) تُعرض سطرًا واحدًا: آخر رسالة من المرسل (يُفضَّل إشعار الرسالة على «تواصل بخصوص طلب»)، مع عدد غير المقروء. يشمل ذلك الإشعارات القديمة، دون حذف شيء من قاعدة البيانات. باقي الإشعارات كما هي.
+- عدّاد الجرس يعدّ المحادثة مرة واحدة. قراءة السطر تقرأ كل رسائله، وفتح المحادثة (`PUT /chat/:id/read`) يقرأ إشعاراتها.
+- اختبار متكامل: 4 رسائل وإشعار «تواصل» في محادثة واحدة = سطر واحد بآخر رسالة و5 غير مقروءة؛ إشعاران من نوع آخر يبقيان سطرين؛ القراءة تقرأ الكل؛ لا حذف.
+- المتصفح (390px): 6 إشعارات لمحادثة واحدة ظهرت سطرًا واحدًا عليه الرقم 6.
+- الاختبارات: متكاملة 289 ناجح، الواجهة 168، الخادم 86، البناء سليم.
+
+## AYK-364 — إشعارات الشخص الواحد في سطر واحد، وعنوان «💬 رسائل من …» (2026-11-20)
+
+- المالك: «اكتب عنوان الإشعارات، وإذا كانت من شخص واحد تكون داخل محادثة واحدة مثل الرسائل».
+- `Notification.listForUser`: إشعارات الرسائل تُجمع حسب الشخص الآخر في المحادثة (لا حسب المحادثة)، فرسائل شخص واحد عبر أكثر من محادثة (طلبات مختلفة) سطر واحد. فتح أي محادثة معه أو الضغط على السطر يقرأ رسائله كلها (`markConversationRead`).
+- عنوان السطر «💬 رسائل من {{name}}» بمفتاح جديد `notification.messages_from` في اللغات الإحدى عشرة (2631 مفتاحًا).
+- اختبار متكامل: محادثتان مع الشخص نفسه (3 رسائل) ومحادثة مع شخص آخر = سطران، عدد غير المقروء 2، وقراءة محادثة واحدة مع الشخص تقرأ رسائله كلها. المجموع 290 ناجح، الواجهة 168، الخادم 86، البناء سليم.
+- لم يُختبر في المتصفح هذه المرة (التغيير في استعلام الخادم وعنوان السطر).
+
+## AYK-365 — محادثة واحدة لكل شخصين مثل الواتساب، والقديمة معها (2026-11-20)
+
+- المالك: «نعم ادمجها محادثة واحدة لكل شخصين».
+- الدمج في العرض لا في البيانات: تبقى كل محادثة مرتبطة بطلبها (صلاحية الكتابة، مشاركة الموقع، التقييم، النزاعات، الأرشيف)، ولا يُحذف أو يُنقل شيء.
+  - `Conversation.listForUser`: سطر واحد لكل شخص: آخر رسالة، ومجموع غير المقروء، و`pair_ids`، ورقم السطر هو المحادثة المفتوحة للكتابة (الأحدث غير المنتهية). السطر في الأرشيف فقط إذا كانت كل محادثات الشخص في الأرشيف. `?separate=1` يعرض كل محادثة وحدها (لفحوص البحث القديمة).
+  - `Conversation.pairIds`: محادثات المستخدم مع الشخص نفسه التي يحق له فتحها.
+  - الرسائل والبحث داخل المحادثة يشملان كل محادثات الشخصين بترتيب زمني واحد، وكل رسالة تحمل `request_title`. القراءة تقرأ الكل، والترجمة والحذف يقبلان رسالة من أي محادثة مع الشخص نفسه.
+  - فتح محادثة قديمة مغلقة مع الشخص ينقل للمحادثة المفتوحة (`write_id`).
+  - الواجهة: الأحداث الحية (رسالة، يكتب، قُرئت، وصلت، حُذفت) من أي محادثة مع الشخص تظهر في المحادثة الواحدة، وتظهر «📋 عنوان الطلب» حيث ينتقل الحديث لطلب آخر.
+- اختبار متكامل جديد: محادثتان مع الشخص نفسه = سطر واحد (pair_ids، 3 غير مقروءة)، ورسائلهما خط زمني واحد، والقراءة تقرأ الكل، وشخص غريب يُرفض 403. عُدّلت ثلاثة اختبارات قديمة لتطلب `separate=1` حيث تفحص كل محادثة وحدها، واختبار تاريخ «مرفوض/مسحوب» صار يتحقق أن التاريخ موجود في المحادثة الواحدة.
+- المتصفح (390px): محادثتان (إحداهما عن طلب «تمديد إنارة») ظهرتا سطرًا واحدًا في القائمة، وداخلها الرسائل الأربع بالترتيب مع «📋 تمديد إنارة» مرة واحدة.
+- الاختبارات: متكاملة 291 ناجح، الواجهة 168، الخادم 86، الترجمة سليمة، فحص النشر سليم، البناء سليم.
+
+## AYK-366 — «متاح» غير «متواجد»، جدول عمل أسبوعي بفترات، وتغطية مقدم الخدمة في العرض (2026-11-20)
+
+- المالك: «في عرض مقدمي الخدمة وضّح تغطيته وهل هو متاح أو لا… متواجد يعني فاتح التطبيق، أما متاح يعني لم يعتذر عن العمل: إجازة، خارج الخدمة حاليًا، خارج الخدمة المجدول (من … إلى … ومن … إلى …، الجمعة من … إلى …) أو متاح 24 ساعة. دائرة خضراء للمتاح، وإذا حمراء يكون رابط جدول العمل».
+- قبل هذا: الشارة الخضراء كانت تجمع الأمرين («متواجد الآن» = داخل الجدول + التطبيق مفتوح)، وكانت تقول «غير متصل» لمقدم متاح تطبيقه مغلق.
+- ترحيل 100: `provider_profiles.work_schedule` (JSONB): لكل يوم قائمة فترات، يوم غير مذكور = لا يعمل، فترة يمكن أن تمتد بعد منتصف الليل، و«24:00» = حتى منتصف الليل. NULL = الإعداد القديم (أيام + فترة واحدة)، ومع فراغه = 24 ساعة.
+- `utils/providerAvailability.js`: «متاح» = غير موقوف، وليس في إجازة، وداخل فترة من فترات اليوم (أو فترة الأمس الممتدة بعد منتصف الليل). يُرسل `schedule` (الأسبوع كاملًا) و`all_hours`، و`present` (التطبيق مفتوح) منفصلًا لا يؤثر في «متاح». حفظ الجدول يُفحص (7 أيام، حتى 4 فترات، صيغة الوقت) ويُرتب ويمسح الإعداد القديم.
+- التغطية (`COVERAGE_SQL`، `coverageOf`): مدينة التغطية (أو مدينة السكن) والأحياء المختارة (حتى 6 بالاسم والباقي عددًا) أو «كل الأحياء»؛ تُرسل في قوائم المطابقة والخريطة ودليلي وقائمة الإدارة.
+- الواجهة: 🟢 «متاح الآن» أو 🔴 السبب (خارج وقت العمل، غير متاح اليوم، خارج الخدمة حاليًا، في إجازة حتى …) ومعه رابط «🗓️ جدول العمل» يفتح الأسبوع كاملًا؛ «📱 متواجد الآن / غير متواجد الآن» منفصلة؛ «🗺️ يغطي: …». في بطاقات مقدمي الخدمة، ودليلي، والخريطة، وصفحة مقدم الخدمة، وصفحة الإدارة. محرر مقدم الخدمة: «متاح 24 ساعة» أو «جدول أسبوعي» بفترات لكل يوم، «إضافة فترة»، «نسخ هذا اليوم لكل الأيام». 20 مفتاحًا جديدًا/معدّلًا في اللغات الإحدى عشرة (2650).
+- اختبارات وحدة جديدة (4): فترتان في اليوم، يوم عطلة، فترة الجمعة الممتدة إلى السبت، فترة حتى منتصف الليل، 24 ساعة، الإيقاف، الإجازة، الإعداد القديم، «متاح» مع تطبيق مغلق و«موقوف» مع تطبيق مفتوح، وفحص الحفظ. اختبار متكامل: حفظ الجدول عبر `PUT /users/me/provider` وقراءته من `/auth/me`، ورفض يوم غير صحيح، و`null` = 24 ساعة.
+- المتصفح (390px): مقدم الخدمة جعل الاثنين «لا يعمل» وأضاف فترة ثانية للجمعة وحفظ (200)؛ طالب الخدمة رأى في صفحته «🔴 غير متاح الآن (خارج وقت العمل)» مع «🗓️ جدول العمل» و«📱 متواجد الآن» منفصلة، والأسبوع: الجمعة «8:00 ص – 5:00 م، 4:00 م – 10:00 م» والاثنين «لا يعمل». بطاقات الصفحة الرئيسية لم تظهر في قاعدة التجربة المحلية فلم تُرَ في المتصفح (البناء والاختبارات سليمة).
+- الاختبارات: متكاملة 292 ناجح، الخادم 90، الواجهة 168، الترجمة 2650، فحص النشر سليم، البناء سليم.
+
+## AYK-367 — مقطعا تسويق (طالب الخدمة / مقدم الخدمة) من صفحات التطبيق، وتصحيح «متواجد» إلى «متاح» (2026-11-20)
+
+- المالك: «أريد اثنين ومميزات كل واحد، لمقدم الخدمة وآخر لطالب الخدمة، عرض من صفحات التطبيق، عرض حي».
+- صُوّرا من نسخة محلية من التطبيق نفسه بقاعدة عرض مستقلة (`aykdemo`، بيانات عرض: 5 مقدمي خدمة و3 طالبين وطلبات ومحادثة)، لا من بيانات العملاء. التسجيل بلقطات المتصفح بدقة الجوال (780×1688)، صوت سعودي مولَّد (Microsoft ar-SA-HamedNeural)، تعليق مكتوب على الشاشة، وموسيقى خلفية مُولَّدة محليًا. الملفات خارج المستودع (لم تُرفع).
+- ظهر أثناء التصوير أن العربية ما زالت تقول «متواجد الآن» بمعنى «متاح» في `for_you.available` و`for_you.stat_available` و`requester.stat_available` (زر التصفية «🟢 1 متواجد الآن»): صُحّحت إلى «متاح الآن» (اللغات الأخرى كانت صحيحة). وشرح الدليل `help.availability_points.present.body` أعيدت كتابته في اللغات الإحدى عشرة على المعنى الجديد (متاح = جدوله، متواجد = التطبيق مفتوح).
+- فحص الترجمة سليم (2650 مفتاحًا).
+
+## AYK-368 — «متاح للعمل» و«متواجد على التطبيق» بدائرة فقط (2026-11-20)
+
+- المالك: «متاح للعمل (فقط أمامه دائرة خضراء أو حمراء)، متواجد على التطبيق (فقط أمامه دائرة خضراء أو حمراء)».
+- `AvailabilityBadge`: النص ثابت «متاح للعمل» وأمامه دائرة خضراء أو حمراء (بلا أسباب ولا رموز أخرى)، ومع الحمراء رابط «جدول العمل» الذي يبيّن السبب والأوقات. `PresenceTag`: «متواجد على التطبيق» بدائرة خضراء أو حمراء (بدل 📱). مفتاحان جديدان `availability.label_available` و`label_present` في اللغات الإحدى عشرة (2652).
+- رُئيت في المتصفح ضمن تسجيل المقطع التجريبي: بطاقة الرئيسية «🟢 متاح للعمل · 🔴 متواجد على التطبيق»، ودليلي «🔴 متاح للعمل · جدول العمل».
+- مقطع طالب الخدمة التجريبي (67 ث) سُجّل متصلًا بلا قص من نسخة محلية ببيانات عرض، بدائرة لمس عند كل ضغطة وصوت مرافق؛ خارج المستودع.
+- اختبارات الواجهة 168 ناجح، الترجمة سليمة، البناء سليم.
+
+## AYK-369 — كلمة مرور خطأ: رسالة واحدة ورابط الاستعادة (2026-11-20)
+
+- المالك: «كلمة المرور خطأ، فقط رسالة (كلمة المرور خطأ، استعادة كلمة المرور) بدون راسل الدعم الفني».
+- `LoginPage`: عند رد 401 تظهر سطرًا واحدًا «كلمة المرور خطأ» ورابط «استعادة كلمة المرور» (إلى `/forgot-password` مع المعرّف)، بدل بطاقة المشكلة التي فيها «راسل الدعم الفني». الحساب المقفل (423) يبقى كما هو ينقل لاستعادة كلمة المرور. مفتاحان جديدان `auth.wrong_password` و`auth.recover_password` في اللغات الإحدى عشرة (2654).
+- اختبارات الواجهة 168 ناجح، الترجمة سليمة، البناء سليم. لم تُرَ الرسالة في المتصفح بعد.
+
+## AYK-370 — كل مقدمي الخدمة في منطقة طالب الخدمة، والدخول لا يفتح صفحة الدعم (2026-11-21)
+
+- المالك: «تأكد من عرض جميع مقدمي الخدمة لطالب الخدمة في منطقة تغطيته، الآن بعضهم ما يظهر». الأسباب في `MatchingProviders`:
+  1. التبويب الافتراضي كان «المهن التي طلبتها» (يخفي باقي المهن) → صار «كل المهن»، والمهن التي طلبها تبقى أولًا.
+  2. قائمة الحي كانت تعرض **المتاحين الآن فقط**، فيختفي من في إجازة أو خارج وقته → تعرض الجميع، المتاح أولًا ثم غير المتاح بدائرة حمراء ورابط جدول العمل.
+  3. قائمة المدينة البديلة (لا أحد يغطي الحي) كانت مصفّاة بالمتاحين أيضًا → الجميع.
+  - الخادم (`providerMapController.matching`): المهن المطلوبة تُرسل دائمًا للترتيب، وتُستعمل للتصفية فقط مع «المهن التي طلبتها»؛ حد القائمة رُفع من 50 إلى 300.
+  - ما زال يُستبعد عمدًا: من أخفته الإدارة، والموقوف/المحظور/المحذوف، ومن يحتاج اشتراكًا في مهنته ومدينته ولا اشتراك له إذا كانت الاشتراكات مفعّلة (`subscriptions_enabled`).
+- المالك (صورة): بعد الدخول فُتحت صفحة «الدعم الفني والشكاوى» دون خطأ. السبب: صفحة الدعم تطلب الدخول وتحفظ الرجوع إليها (`from: '/support'`)، وكان زر «راسل الدعم» في بطاقة خطأ الدخول القديمة يوصل إليها. `authReturnTarget` لم يعد يعيد إلى `/support` العامة ولا `/forgot-password` (رسالة دعم محددة `/support/:id` تبقى).
+- المتصفح (قاعدة العرض): طالب الخدمة رأى 5 من 5 (3 متاح، و«خارج وقت العمل»، و«إجازة»)؛ كلمة مرور خطأ → «كلمة المرور خطأ | استعادة كلمة المرور» بلا بطاقة دعم؛ الدخول من صفحة الدعم → `/client`.
+- الاختبارات: متكاملة 292، الخادم 90، الواجهة 169 (اختبار جديد للرجوع بعد الدخول)، البناء سليم.
+
+## AYK-371 — «دعوة للانضمام» وفوقها سطران: نسخ، إرسال (2026-11-21)
+
+- المالك: «دعوة عدّلها إلى دعوة للانضمام، وإذا ضغط عليها يظهر فوقها سطرين: نسخ، إرسال».
+- `InviteButton` (جديد) في قائمة «إدارة» لطالب الخدمة ومقدم الخدمة: الضغط يُظهر فوق الزر مباشرة «📋 نسخ» (ينسخ الرابط المختصر ثم «تم النسخ») و«💬 إرسال» (واتساب برسالة الدعوة)، والضغط خارجه يغلقه. أزيلت نافذة `InviteSheet` من القائمة. مفاتيح: `wallet.invite_nav` = «دعوة للانضمام» و`invite_copy` و`invite_send_short` و`invite_copied` في اللغات الإحدى عشرة (2657).
+- المتصفح (390px، قاعدة العرض): الزر «🎁 دعوة للانضمام»، والقائمة «📋 نسخ | 💬 إرسال» فوقه، النسخ وضع `https://aykdmh.com/i/60` في الحافظة، والإرسال يفتح `wa.me` بالرسالة.
+- الواجهة 169 ناجح، الترجمة سليمة، البناء سليم.
+
+## AYK-372 — الدخول: «الجوال غير مسجل» أو «كلمة المرور غير صحيحة» (2026-11-21)
+
+- المالك (صورة البطاقة القديمة «لم يكتمل الإجراء… راسل الدعم الفني»): «فقط رسالة: إذا الجوال ليس مسجلًا تكتب الجوال غير مسجل، للتسجيل من هنا؛ وإذا كلمة المرور خطأ، كلمة المرور غير صحيحة، لاستعادتها من هنا».
+- الخادم (`authController.login`): 401 مع `code: 'account_not_found'` لحساب غير موجود، و`code: 'wrong_password'` لكلمة مرور خطأ (الرسالة النصية كما هي لتطبيقات قديمة).
+- الواجهة: «الجوال غير مسجل» (أو «الحساب غير مسجل» لاسم مستخدم/بريد) ورابط «للتسجيل من هنا» يفتح التسجيل والرقم معبأ؛ «كلمة المرور غير صحيحة» ورابط «لاستعادتها من هنا». بلا بطاقة دعم. خمسة مفاتيح في اللغات الإحدى عشرة (2661).
+- ملاحظة: صورة المالك كانت من النسخة السابقة لنشر AYK-369.
+- اختبار متكامل جديد للرمزين؛ متكاملة 293، الواجهة 169، البناء سليم.
+
+## AYK-373 — توحيد المصطلحات في كل التطبيق والإدارة (2026-11-21)
+
+- المالك (صورة تبويب «النشطة»): «وضّح، مثلًا طلباتي النشطة… وحّد المصطلح في كل التطبيق حتى الإدارة، وحّد جميع المصطلحات».
+- الجدول المرجعي في `docs/TERMS.md`. طُبّق على العربية في الواجهة والإدارة (`ar.json`) ورسائل الخادم (`server/utils/i18n.js`، القيمة العربية فقط) ونصوص الإشعارات (`notificationLabels.js`):
+  - العميل/عميل/العملاء/صاحب الطلب → طالب الخدمة (بإعرابها: طالبو/طالبي)؛ «رقم العميل» → «رقم الحساب».
+  - التصنيف/التصنيفات → المهنة/المهن (ومنها صفحات الإدارة).
+  - ملفي/ملفي الشخصي → حسابي؛ لوحة التحكم → لوحة الإدارة؛ عنوان صفحة مقدم الخدمة الرئيسية «الرئيسية».
+  - «فني» بمعنى مقدم الخدمة → مقدم الخدمة («الدعم الفني» اسم القسم يبقى).
+  - التبويبات: «طلباتي النشطة / أرشيف طلباتي» لطالب الخدمة، و«أعمالي النشطة / أرشيف أعمالي» لمقدم الخدمة، في القائمة والصفحتين (4 مفاتيح جديدة في 11 لغة، وشرح صفحة الأعمال).
+  - اللغات الأخرى: العناوين نفسها (حسابي، المهنة، كل المهن، تصفح حسب المهنة، أبرز المهن، لوحة الإدارة) والتبويبات مترجمة؛ جمل الشرح بقيت (معناها صحيح).
+- المتصفح (قاعدة العرض): تبويبات «🟢 طلباتي النشطة | 🗄️ أرشيف طلباتي» و«🟢 أعمالي النشطة | 🗄️ أرشيف أعمالي»، القائمة «طلباتي النشطة | أرشيف طلباتي»، صفحة الطلب «المهنة: كهرباء» و«تواصل مع طالب الخدمة».
+- الاختبارات: متكاملة 293، الخادم 90، الواجهة 169، الترجمة 2665، البناء سليم.
+- لم يُغيَّر: «المحفظة والكوبون» و«الكوبون» (ينتظر قرار المالك بين «الكوبون» و«رقم الدعوة»).
+
+## AYK-374 — المصطلحات في «نصوص الموقع»، وبقية الأسماء المزدوجة (2026-11-21)
+
+- المالك: «أضفها في نصوص الموقع: طالب الخدمة، مقدم الخدمة، المهنة، حسابي، طلباتي وأعمالي… المشكلة إذا نفس الإجراء واحد عميل وآخر مستخدم، أو طلبات مفتوحة ونشطة لنفس الشيء؛ فروقات اللفظ (العملاء، للعملاء، عميل) عادية».
+- الإدارة ← النصوص: قسم «📘 المصطلحات الموحّدة» بالستة، وعدد النصوص التي يظهر فيها كل مصطلح، و«عرض» يصفّي القائمة عليها، و«استبدال في الكل» يغيّر الصيغة في كل النصوص العربية بعد تأكيد (يُحفظ كل نص كتعديل عادي ويُسترجع من سطره).
+- أسماء مزدوجة لنفس الشيء وُحّدت: «مهامي المهنية» → «أعمالي» (عنوان صفحة أعمال مقدم الخدمة)، و«شغلي» → «إعدادات عملي» (لوحة المهن والتغطية والأوقات، حتى لا تُخلط بـ«أعمالي»)، و«الملف الشخصي» المتبقية → «حسابي»، و«لديك طلبات خدمة مفتوحة» (بمعنى غير منتهية) → «لديك طلبات نشطة»، و«إشعار المستخدم» في الشارات → «إشعار مقدم الخدمة». «الطلبات المفتوحة» بمعنى حالة «مفتوح» (تنتظر مقدم خدمة) تبقى. العنوانان الجديدان مترجمان في اللغات الإحدى عشرة.
+- المتصفح (قاعدة العرض، حساب إدارة تجريبي): القسم يعدّ «طالب الخدمة 37، مقدم الخدمة 50، المهنة 31، حسابي 26…»؛ «عرض» أظهر 5 نصوص لـ«أعمالي»؛ الاستبدال التجريبي حفظ الخمسة في قاعدة العرض فقط.
+- الاختبارات: الواجهة 169، الخادم 90، الترجمة سليمة، البناء سليم.
+
+## AYK-375 — حفظ «حسابي»: رسالة «تم الحفظ» أو نافذة النواقص مرقّمة، والنقطة على الخريطة اختيارية (2026-11-21)
+
+- المالك (صورتان): «ضغطت حفظ في تعديل منطقتي وكأني لم أعمل شيئًا، وفوق خالص لم يكتمل الإجراء (استخدم موقع جهازك أو اختر نقطة على الخريطة… راسل الدعم الفني). الصحيح رسالة منبثقة: تم الحفظ وتختفي، أو هناك نواقص وتذكر 1، 2، 3، تم. اخترت يعتمدها كما هي، ليس بالضرورة اختيار من الخريطة».
+- الخادم (`requireCompleteLocation`): المدينة (والحي إن كان للمدينة أحياء) تكفي؛ النقطة اختيارية، وإن أُرسلت تُفحص (نصف نقطة أو خارج الحدود يُرفض).
+- `ProfilePage`: لا شرط للنقطة؛ النواقص تُجمع وتظهر في نافذة واحدة «أكمل ما يلي» مرقّمة مع زر «تم» (الاسم، الجوال، المنطقة، المدينة، الحي)؛ خطأ الخادم في نافذة «لم يُحفظ» بلا «راسل الدعم»؛ النجاح «✅ تم الحفظ» في وسط الشاشة يختفي وحده (`components/common/Flash.jsx`، `flash()` متاحة لأي صفحة). تحقق المتصفح الإنجليزي («Please select an item») أُوقف في النموذج (`noValidate`) لتتولاه النافذة العربية.
+- الإعلانات والشارات: «قيد المراجعة» → «بانتظار موافقة الإدارة (لم يُدفع شيء بعد)» للإعلان، و«بانتظار موافقة الإدارة» للشارة (صورة المالك لإعلان سعود 102 ر.س). 9 مفاتيح جديدة/معدلة في 11 لغة (2672).
+- الاختبارات: عُدّلت 5 اختبارات كانت تتوقع رفض الحفظ بلا نقطة، واختبار جديد (حفظ وتسجيل بلا نقطة، ورفض نصف نقطة). متكاملة 294، الخادم 90، الواجهة 169، البناء سليم.
+- المتصفح (قاعدة العرض، 390px): تغيير الحي فقط → PUT 200 بلا نقطة و«✅ تم الحفظ» اختفت قبل 3 ثوانٍ؛ تغيير المنطقة دون مدينة → نافذة «أكمل ما يلي — 1. اختر المدينة — تم».
+
+## AYK-376 — كل حفظ: «✅ تم الحفظ» مع زر «تم» أو أسباب الرفض مرقّمة؛ كل تحديث للصفحة زيارة (2026-11-21)
+
+ما اختُبر فعلًا (محليًا على بيانات تجريبية aykdemo، لا بيانات عملاء):
+- فحص الترجمات: 11 لغة تشترك في 2673 مفتاحًا (أُضيف `dialog.deleted`). وفي الخادم أُضيف النص `name_length` باللغات الإحدى عشرة.
+- اختبارات الواجهة: 169 نجاح، 0 فشل. اختبارات الخادم: 90 نجاح، 0 فشل. اختبارات التكامل: 294 نجاح، 0 فشل.
+- اختبار الزيارات: تحديث الصفحة بعد 3 ثوانٍ يُحسب زيارة جديدة، ودخول زائر آخر يُحسب، وزاحف Googlebot لا يُحسب.
+- بناء الواجهة (vite build) نجح، وفحص النشر (check-deploy) نجح.
+- في المتصفح (Playwright):
+  - حفظ «حسابي» أظهر «✅ تم الحفظ» مع زر «تم»، والضغط على «تم» أخفاها.
+  - حفظ مرفوض (جوال غير صحيح) أظهر نافذة «لم يُحفظ» وفيها السبب: «رقم الجوال غير صحيح…» وزر «تم».
+  - حفظ «الإعدادات» في لوحة الإدارة بعد التأكيد أظهر «✅ تم الحفظ»، والحفظ المرفوض فيها أظهر «لم يُحفظ».
+  - طلبات الخلفية (قراءة المحادثة، قراءة الإشعارات) لم تُظهر أي رسالة.
+
+ما لم يُختبر:
+- لم تُجرَّب كل صفحات الحفظ صفحةً صفحة؛ الرسالة عامة من طبقة الاتصال لكل PUT/PATCH/DELETE ولكل POST داخل الإدارة.
+- بعض صفحات الإدارة تعرض أيضًا شريط «تم الحفظ» داخل الصفحة، فتظهر الرسالتان معًا.
+- لم يُختبر على الموقع الحي قبل النشر.
+
+## AYK-377 — «وصف خدماتي» لمقدم الخدمة: يظهر في بطاقته وصفحته، يتمدد وينكمش، وبلغة القارئ (2026-11-21)
+
+ما اختُبر فعلًا (محليًا على بيانات تجريبية aykdemo، لا بيانات عملاء):
+- الترحيل 101 (`provider_profiles.bio_translations`) طُبّق على قاعدتي التجربة.
+- فحص الترجمات: 11 لغة تشترك في 2679 مفتاحًا.
+- اختبارات الخادم: 94 نجاح، 0 فشل (منها 4 جديدة لـ `providerBio`). الواجهة: 169 نجاح. التكامل: 294 نجاح. البناء وفحص النشر نجحا.
+- في المتصفح (Playwright):
+  - حقل «وصف خدماتي» في «حسابي» مع عدّاد حتى 2000 حرف، والحفظ أظهر «✅ تم الحفظ».
+  - صفحة مقدم الخدمة: «📝 وصف الخدمات» على 4 أسطر، و«عرض المزيد ▾» فتحها (89→156 بكسل) و«عرض أقل» أغلقها.
+  - بطاقات مقدمي الخدمة في الرئيسية: الوصف على سطرين، والفتح والإغلاق يعملان.
+  - زائر بالإنجليزية رأى الوصف مترجمًا، و«عرض الأصل» أظهر العربي.
+  - بعد تعديل الوصف لا تظهر الترجمة القديمة؛ تظهر الجديدة بعد ثوانٍ (جُرّبت فعلًا محليًا).
+
+ما لم يُختبر:
+- عرض الوصف في «دليلي» وفي قائمة الخريطة لم يُفتح في المتصفح (الكود نفسه والبيانات تصل من الخادم).
+- لم يُختبر على الموقع الحي قبل النشر.
+
+## AYK-378 — بطاقات مقدمي الخدمة تخرج يمين الشاشة؛ و«وصف خدماتي» أعلى قسم العمل (2026-11-21)
+
+- السبب: كلمة أو سطر طويل بلا مسافات (مثل قائمة أحياء أو رقم) يوسّع عمود الشبكة فتخرج البطاقة عن الشاشة. أُعيد إنتاجه محليًا بنص طويل في سطر «يغطي».
+- الإصلاح: `.card` صارت `min-width: 0` و`overflow-wrap: anywhere`، والشبكات ذات عمود واحد على الجوال صارت `grid-cols-1` (7 أماكن).
+- بعد الإصلاح: النص نفسه لم يُخرج أي عنصر عن الشاشة. ومسح 17 صفحة بعرض 360 (طالب خدمة ومقدم خدمة، بيانات تجريبية) لم يجد عنصرًا خارج الشاشة.
+- «وصف خدماتي» واسم النشاط نُقلا إلى أول قسم العمل في «حسابي» بدل أسفل قائمة الأحياء.
+- البناء نجح، واختبارات الواجهة 169 نجاح. لم يُختبر على جهاز أندرويد حقيقي ولا على بيانات الموقع الحي.
+
+## AYK-379 — «تواصل» بثلاث حالات: جوال (إن أظهره) / واتساب (إن أظهره) / محادثة (2026-11-21)
+
+ما اختُبر فعلًا (محليًا، بيانات تجريبية aykdemo):
+- اختبارات الخادم 95 نجاح (منها اختبار جديد: حذف آخر الوصف يُخفي الترجمة القديمة)، الواجهة 169، التكامل 294، الترجمات 2681 مفتاحًا في 11 لغة، البناء وفحص النشر نجحا.
+- في المتصفح بعرض 390:
+  - بطاقة مقدم خدمة أظهر رقمه وواتسابه: القائمة «📞 جوال 05… | واتساب 05… | 💬 محادثة».
+  - بطاقة مقدم خدمة لم يُظهرهما: «💬 محادثة» فقط.
+  - فتح قائمة يغلق الأخرى. صفحة مقدم الخدمة فيها القائمة نفسها.
+  - «محادثة» في صفحته أظهرت سؤال «توجد محادثة سابقة» كما في زر التواصل السابق.
+- الأرقام تُرسل في البطاقات فقط إن فعّلها مقدم الخدمة (`publicContact`).
+
+ما لم يُختبر: فتح الاتصال وواتساب فعليًا على جوال، والموقع الحي.
+
+## AYK-380 — «تواصل ← محادثة» يفتح المحادثة فورًا (2026-11-21)
+
+- الأسباب: الضغطة بلا أي علامة، ثم نافذة «توجد محادثة سابقة» (مع أن المحادثة واحدة لكل شخصين منذ AYK-365)، ثم تحميل صفحة المحادثة بعد الضغط.
+- الإصلاح: التواصل مع مقدم خدمة يفتح المحادثة الموجودة مباشرة بلا سؤال (طلبات العمل المحددة كما كانت). الزر يتحول فورًا إلى «⏳ جارٍ فتح المحادثة…». صفحة المحادثة تُحمَّل عند فتح القائمة.
+- القياس محليًا (Playwright، بيانات تجريبية): من الضغط إلى رابط المحادثة 42–47 ملّي ثانية، وجاهزية خانة الكتابة 130–159 ملّي ثانية، بلا نافذة سؤال، من صفحة مقدم الخدمة ومن بطاقته.
+- اختبارات الواجهة: 170 نجاح (منها اختبار جديد: لا سؤال ولا كتابة عند وجود محادثة). البناء نجح.
+- لم يُقس على الموقع الحي ولا على شبكة جوال.
+
+## AYK-381 — المحادثة كما في واتساب: «حذف لدي» و«حذف لدى الجميع»، ومكان الرسالة المحذوفة، وفواصل الأيام (2026-11-21)
+
+ما اختُبر فعلًا (محليًا، بيانات تجريبية aykdemo؛ لم يُنشر بعد بقرار المالك جمع النشر):
+- الترحيل 102 (`message_hidden`) طُبّق على قاعدتي التجربة.
+- التكامل 294 نجاح، ويتحقق الآن من:
+  - «حذف لدى الجميع»: الرسالة تبقى مكانها للطرفين `deleted: true` بلا محتوى ولا مرفقات، ونصها لا يصل لأي منهما، وتبقى كاملة للإدارة.
+  - «حذف لدي»: تختفي عند من حذفها فقط، وتبقى عند الطرف الآخر وعند الإدارة. وشخص من خارج المحادثة يُرفض (404).
+- الخادم 95، الواجهة 171، الترجمات 2688 مفتاحًا، البناء وفحص النشر نجحت.
+- في المتصفح بحسابين (طالب خدمة ومقدم خدمة):
+  - نافذة الحذف لرسالتي: «🗑 حذف لدى الجميع» و«حذف لدي» و«إلغاء» مع الشرح.
+  - بعد «حذف لدى الجميع» صار مكانها «🚫 حذفتَ هذه الرسالة» عندي و«🚫 حُذفت هذه الرسالة» عند الطرف الآخر.
+  - بعد «حذف لدي» اختفت عندي، وبقيت عند الطرف الآخر، وبقي ذلك بعد إعادة تحميل الصفحة.
+  - فواصل التاريخ: «اليوم»، واسم اليوم لرسالة قبل 3 أيام («الثلاثاء»)، والتاريخ لرسالة أقدم («11 أكتوبر»).
+- النزاع: الإدارة صارت ترى كل رسائل الشخصين (المحادثة الواحدة) حتى 2000 رسالة، وكانت تُقطع عند 100. لم تُفتح صفحة النزاع في المتصفح.
+
+## AYK-382 — قائمة مشاركة: الموقع من أيقونة أعلى الصفحة، ومقدم الخدمة من بطاقته وصفحته ولوحته (2026-11-21)
+
+ما اختُبر فعلًا (محليًا، بيانات تجريبية؛ لم يُنشر بعد بقرار جمع النشر):
+- مكوّن واحد `ShareMenu`: مشاركة الجوال (تظهر حيث يدعمها الجهاز)، واتساب، تيليجرام، فيسبوك، X / تويتر، تيك توك (يُنسخ الرابط لأن تيك توك لا يقبل مشاركة رابط من الويب)، نسخ الرابط، رمز QR.
+- رمز QR يُرسم على الجهاز بمكتبة `qrcode@1.5.4` (أُضيفت)، ولا يُرسل الرابط لأي خدمة خارجية. وفي نافذته زر «حفظ الصورة».
+- في المتصفح بعرض 390:
+  - أيقونة المشاركة في أعلى الصفحة فتحت القائمة داخل الشاشة.
+  - «نسخ الرابط» نسخ رابط الموقع وأظهر «✅ تم نسخ الرابط».
+  - «رمز QR» أظهر الصورة.
+  - زر «مشاركة» في بطاقة مقدم الخدمة فتح القائمة نفسها برابط صفحته ونص «… على أي خدمة».
+  - صفحة مقدم الخدمة فيها القائمة نفسها.
+- خيار «مشاركة (صورة، رابط)» لم يظهر في متصفح الاختبار لأنه لا يدعم مشاركة الجوال. لم يُجرَّب على جوال حقيقي ولا داخل التطبيق.
+- الواجهة 171 نجاح (منها فحص الكلمات الإنجليزية المتروكة)، الترجمات 2704 مفتاحًا، والبناء نجح.
+
+## AYK-383 — فصل الإدارة عن الحساب الشخصي: يمكن أن يكون الشخص مقدم خدمة ومسؤولًا إداريًا (2026-11-21)
+
+التغيير: صلاحية الإدارة صارت علامة مستقلة `users.is_admin` (مع `is_super_admin` و`permissions` كما هي)، و`users.role` صار دائمًا نوع الحساب في الموقع (طالب خدمة أو مقدم خدمة). الترحيل 103 ينقل كل حساب `role = 'admin'` إلى `is_admin = 1` و`role = 'client'`، ولا يحذف شيئًا. ملف مقدم الخدمة القديم لأي منهم يبقى، ويعود إليه إن اختار «مقدم خدمة» من حسابه.
+- جلسة الموقع: الشخص كمستخدم بنوعه، بلا أي صلاحية إدارية، ومعه رابط «لوحة الإدارة» إن كانت له أقسام.
+- جلسة الإدارة: الإدارة فقط. ولا تعدّل ملف عمله الشخصي، بل ملفات الآخرين عند إدارتها فقط.
+- الرموز القديمة بلا منطقة (قبل AYK-151) تبقى كما كانت.
+
+ما اختُبر فعلًا (محليًا):
+- الترحيل 103 على قاعدتي التجربة: الحساب demoadmin صار `role = client, is_admin = 1`.
+- التكامل 295 نجاح، منها اختبار جديد: مقدم خدمة له علامة الإدارة.
+  - دخول الموقع: `role = provider`، و`admin_access = 1`، بلا صلاحيات. يحفظ إعدادات عمله، ويُمنع من `/admin/dashboard` و`/users` (403).
+  - دخول الإدارة: `role = admin` ويدير المستخدمين. ويُمنع من تعديل ملف عمله الشخصي من الإدارة (403).
+  - صفحته العامة تُظهره مقدم خدمة، دون أي حقل صلاحيات.
+- عُدّلت 4 اختبارات قديمة كانت تفترض `role = 'admin'` في قاعدة البيانات، لتفحص العلامة بدلها والقصد نفسه. وكشف أحدها أن قراءة الحساب لا تجلب العلامة، فأُصلح ذلك قبل الحفظ.
+- الخادم 95، الواجهة 171، البناء وفحص النشر نجحت.
+- في المتصفح:
+  - demoadmin في الموقع حساب عادي مع `admin_access = 1`.
+  - في «المستخدمون» بلوحة الإدارة تظهر شارة «🛡️ إداري».
+  - نموذج التعديل فيه «نوع الحساب في الموقع» مستقلًا عن مربع «🛡️ صلاحية إدارية».
+  - تفعيل المربع لمقدم خدمة أبقاه `provider` مع `is_admin = 1`، وفتح نافذة الأقسام مباشرة.
+
+ما لم يُختبر: على الموقع الحي، والحسابات الإدارية الحقيقية (مثل 22 و33) بعد الترحيل.
+
+### AYK-383 — تجربة نهائية قبل النشر: حساب واحد للإدارة والموقع (2026-11-21)
+
+بحساب واحد (demoadmin، بيانات تجريبية) في متصفح واحد:
+1. دخول الموقع: `role = client`، و`admin_access = 1`، بلا صلاحيات.
+2. صار مقدم خدمة من حسابه كأي مستخدم («تم تغيير نوع الحساب»)، فصار `role = provider`.
+3. عدّل حالته: «متوقف» فظهرت `paused`، ثم «نشط» فظهرت `available` في صفحته العامة.
+4. جلسة الموقع على `/admin/dashboard`: 403.
+5. دخول الإدارة بالحساب نفسه: `role = admin`، `/admin/dashboard` 200.
+6. جلسة الإدارة على ملف عمله الشخصي: 403.
+7. الخروج من الإدارة: جلسة الإدارة 401، وجلسة الموقع ما زالت 200.
+8. صفحته العامة: مقدم خدمة.
+ثم: التكامل 295، الخادم 95، الواجهة 171، والبناء. كل نشر يأخذ نسخة كاملة من قاعدة البيانات قبل الترحيلات (`deploy/release-app.sh`).

@@ -1,6 +1,7 @@
 const { validateCatalog, catalogId, reorderIds } = require('../utils/catalogValidation');
 const Country = require('../models/Country');
 const { success, created, notFound } = require('../utils/apiResponse');
+const contentTranslation = require('../services/contentTranslation');
 const asyncHandler = require('../utils/asyncHandler');
 
 // Public — only enabled countries
@@ -18,6 +19,7 @@ const listAll = asyncHandler(async (req, res) => {
 const create = asyncHandler(async (req, res) => {
   const data = await validateCatalog('country', req.body, { create: true });
   const item = await Country.create(data);
+  contentTranslation.later('countries', item?.id); // AYK-343: its name in the 11 languages
   return created(res, item);
 });
 
@@ -25,6 +27,7 @@ const update = asyncHandler(async (req, res) => {
   const data = await validateCatalog('country', req.body);
   const item = await Country.update(catalogId(req.params.id), data);
   if (!item) return notFound(res);
+  if (data.name_ar !== undefined) contentTranslation.later('countries', item.id);
   return success(res, item, req.t('updated'));
 });
 

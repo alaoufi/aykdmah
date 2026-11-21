@@ -10,6 +10,7 @@ import Avatar from '../../components/common/Avatar';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import AdminButton from '../../components/admin/AdminButton';
 import { useAuth } from '../../hooks/useAuth';
+import { allowedSections } from '../../layouts/adminNav';
 
 const STATUS_BADGE = {
   'badge-primary': 'bg-brand-50 text-brand-700',
@@ -71,7 +72,44 @@ function TranslationMeter({ usage }) {
   );
 }
 
+// AYK-346 (the owner): every member of the administration lands on the control home. Without the
+// figures permission it lists the sections this member may open, one tap each.
+function MySections() {
+  const { t } = useTranslation();
+  const { hasPermission } = useAuth();
+  const sections = allowedSections(hasPermission);
+  return (
+    <div className="space-y-4" data-testid="admin-my-sections">
+      <AdminPageHeader title={t('admin.dashboard')} />
+      {sections.length ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {sections.map(it => (
+            <Link key={it.to} to={it.to} className="bg-surface border border-border rounded-card p-4 flex flex-col items-center gap-2 text-center no-underline text-fg font-bold hover:shadow-lift transition">
+              <span className="text-3xl" aria-hidden="true">{it.icon}</span>
+              <span className="text-[14px]">{t(it.labelKey)}</span>
+            </Link>
+          ))}
+          <Link to="/admin/guide" className="bg-surface border border-border rounded-card p-4 flex flex-col items-center gap-2 text-center no-underline text-fg font-bold hover:shadow-lift transition">
+            <span className="text-3xl" aria-hidden="true">📖</span>
+            <span className="text-[14px]">{t('help.admin_book_title')}</span>
+          </Link>
+        </div>
+      ) : (
+        <div className="bg-surface rounded-card border border-border p-8 text-center">
+          <div className="text-5xl mb-3">🔒</div>
+          <p className="font-bold text-fg m-0">لم تُمنح صلاحيات على أي قسم بعد. اطلبها من مدير الموقع.</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function AdminDashboardPage() {
+  const { hasPermission } = useAuth();
+  return hasPermission('dashboard.view') ? <Dashboard /> : <MySections />;
+}
+
+function Dashboard() {
   const { t } = useTranslation();
   const { hasPermission } = useAuth();
   const [data, setData] = useState(null);

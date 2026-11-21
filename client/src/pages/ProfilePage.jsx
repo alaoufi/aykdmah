@@ -28,6 +28,8 @@ import AdSlot from '../components/ads/AdSlot';
 import AvatarPicker from '../components/profile/AvatarPicker';
 import AdminPanelLink from '../components/layout/AdminPanelLink';
 import ProblemNotice from '../components/common/ProblemNotice';
+import { showAlert } from '../components/common/AppDialog';
+
 
 const LOCATION_LEVELS = ['country_id', 'region_id', 'governorate_id', 'city_id', 'district_id'];
 const formFromUser = (user) => ({
@@ -56,7 +58,7 @@ export default function ProfilePage() {
   const [entryUser, setEntryUser] = useState(user);
   const [completeOnEntry, setCompleteOnEntry] = useState(false);
   const [locationEdited, setLocationEdited] = useState(false);
-  const [pointConfirmed, setPointConfirmed] = useState(() => isValidCoordinates(Number(user?.latitude), Number(user?.longitude)) && user?.latitude != null && user?.longitude != null);
+  const [, setPointConfirmed] = useState(() => isValidCoordinates(Number(user?.latitude), Number(user?.longitude)) && user?.latitude != null && user?.longitude != null);
   const dirty = useRef(false);
   const dirtyScalarKeys = useRef(new Set());
   const entryCompleteResolved = useRef(false);
@@ -213,25 +215,29 @@ export default function ProfilePage() {
     } finally { if (request === locationRequest.current) setLocating(false); }
   };
 
+  // AYK-375 (the owner: «ضغطت حفظ وكأني لم أعمل شيئًا، وفوق خالص لم يكتمل الإجراء. الصحيح رسالة منبثقة:
+  // تم الحفظ وتختفي، أو هناك نواقص وتذكر 1، 2، 3، تم»). Saved: a short message that goes by itself.
+  // Missing: one window listing each missing thing, numbered, with «تم». The map point is optional.
   const saveProfile = async (e) => {
     e.preventDefault();
     cancelLocation();
     setErr(''); setMsg('');
-    let validationError = '';
-    if ((locationEdited || dirtyScalarKeys.current.has('full_name')) && form.full_name.trim().length < 2) validationError = t('auth.account_name_required');
-    else if ((locationEdited || dirtyScalarKeys.current.has('phone')) && !/^\+?\d{8,15}$/.test(form.phone.trim().replace(/[\s()-]/g, ''))) validationError = t('auth.account_phone_required');
-    if (!validationError && locationEdited) {
-      if (form.address.trim().length < 5) validationError = t('auth.account_address_required');
-      else if (countriesLoading || regionsLoading || citiesLoading || districtsLoading) validationError = t('common.loading');
-      else if (countriesError || regionsError || citiesError || districtsError) validationError = t('location.options_unavailable');
-      else if (!countries.some(row => Number(row.id) === Number(form.country_id)) ||
-          !regions.some(row => Number(row.id) === Number(form.region_id)) ||
-          !cities.some(row => Number(row.id) === Number(form.city_id)) ||
-          (districts.length > 0 && !districts.some(row => Number(row.id) === Number(form.district_id)))) validationError = t('auth.account_area_required');
-      else if (!hasPoint) validationError = t('auth.location_point_required');
-      else if (!pointConfirmed) validationError = t('auth.location_confirmation_required');
+    const missing = [];
+    if ((locationEdited || dirtyScalarKeys.current.has('full_name')) && form.full_name.trim().length < 2) missing.push(t('auth.account_name_required'));
+    if ((locationEdited || dirtyScalarKeys.current.has('phone')) && !/^\+?\d{8,15}$/.test(form.phone.trim().replace(/[\s()-]/g, ''))) missing.push(t('auth.account_phone_required'));
+    if (locationEdited) {
+      if (countriesLoading || regionsLoading || citiesLoading || districtsLoading) missing.push(t('common.loading'));
+      else if (countriesError || regionsError || citiesError || districtsError) missing.push(t('location.options_unavailable'));
+      else {
+        if (!regions.some(row => Number(row.id) === Number(form.region_id))) missing.push(t('profile.missing_region'));
+        if (!cities.some(row => Number(row.id) === Number(form.city_id))) missing.push(t('profile.missing_city'));
+        else if (districts.length > 0 && !districts.some(row => Number(row.id) === Number(form.district_id))) missing.push(t('profile.missing_district'));
+      }
     }
-    if (validationError) { setErr(validationError); return; }
+    if (missing.length) {
+      showAlert({ title: t('profile.missing_title'), message: missing.map((item, i) => `${i + 1}. ${item}`).join('\n'), tone: 'danger', confirmText: t('dialog.done') });
+      return;
+    }
     const revision = formRevision.current;
     setSaving(true);
     try {
@@ -239,9 +245,9 @@ export default function ProfilePage() {
         ...Object.fromEntries([...dirtyScalarKeys.current].map(key => [key, form[key].trim()])),
         ...(locationEdited ? {
           ...Object.fromEntries(LOCATION_LEVELS.map(key => [key, form[key] || null])),
-          address: form.address.trim() || null, latitude: form.latitude, longitude: form.longitude,
+          address: form.address.trim() || null, latitude: hasPoint ? form.latitude : null, longitude: hasPoint ? form.longitude : null,
         } : {}),
-        ...(requiresComplete ? { complete_profile: true, location_confirmed: pointConfirmed } : {}),
+        ...(requiresComplete ? { complete_profile: true, location_confirmed: true } : {}),
       });
       if (revision === formRevision.current) {
         setForm(formFromUser(saved));
@@ -252,8 +258,7 @@ export default function ProfilePage() {
         setPointConfirmed(isValidCoordinates(Number(saved?.latitude), Number(saved?.longitude)) && saved?.latitude != null && saved?.longitude != null);
       }
       await refresh();
-      setMsg(t('profile.update_profile'));
-    } catch (e2) { setErr(apiError(e2)); }
+    } catch (_) { /* the reasons are shown by the save message (services/api.js, AYK-376) */ }
     finally { setSaving(false); }
   };
   const savePassword = async (e) => {
@@ -297,7 +302,7 @@ export default function ProfilePage() {
       <div className="card mb-4" id="my-area">
         {/* Add, change or remove the photo (AYK-161). */}
         <div className="mb-3"><AvatarPicker user={user} onChanged={refresh} /></div>
-        <form onSubmit={saveProfile} data-testid="profile-form">
+        <form noValidate onSubmit={saveProfile} data-testid="profile-form">
           <fieldset disabled={saving} className="min-w-0 border-0 p-0 m-0">
           {(countriesError || regionsError || governoratesError || citiesError || districtsError) && <div role="alert" className="form-error mb-3">{t('location.options_unavailable')}</div>}
           <Input id="profile-full_name" name="full_name" label={t('auth.full_name')} required minLength={2} maxLength={150}
@@ -312,7 +317,7 @@ export default function ProfilePage() {
             {selectLevel('district_id', districts, districtsLoading, !form.city_id, districtsError)}
           </div>
           <Input id="profile-address" name="address" label={t('location.address')} as="textarea" rows={3}
-            required={locationEdited} minLength={locationEdited ? 5 : undefined} maxLength={500} autoComplete="street-address" value={form.address}
+            maxLength={500} autoComplete="street-address" value={form.address}
             onChange={e => updateField('address', e.target.value)} hint={t('auth.account_address_hint')} />
           <div className="flex gap-2 flex-wrap mb-3">
             <Button type="button" variant="ghost" data-testid="profile-use-location" onClick={useMyLocation} loading={locating}>{t('auth.use_my_location')}</Button>
@@ -321,11 +326,6 @@ export default function ProfilePage() {
           </div>
           {hasPoint && <div className="text-sm text-muted mb-3" data-testid="profile-coordinates" dir="ltr">{form.latitude.toFixed(6)}, {form.longitude.toFixed(6)}</div>}
           {locationMsg && <div role="status" className="text-sm text-muted mb-3">{locationMsg}</div>}
-          {requiresComplete && <label className="flex items-start gap-2 text-sm mb-3">
-            <input id="profile-location-confirmation" name="location_confirmed" type="checkbox" checked={pointConfirmed}
-              disabled={!hasPoint || locating} onChange={e => setPointConfirmed(e.target.checked)} className="mt-1 w-4 h-4 accent-primary shrink-0" />
-            <span>{t('auth.location_confirmation')}</span>
-          </label>}
           <p className="text-xs text-muted mb-3">{t('profile.saved_location_hint')}</p>
           {user?.role === 'provider' && <p className="text-xs text-muted mb-3">{t('profile.private_account_address')}</p>}
           <Button type="submit" data-testid="profile-submit" variant="primary" loading={saving} disabled={locating}>{t('common.save')}</Button>
@@ -373,7 +373,7 @@ export default function ProfilePage() {
         )}
       </div>
       {/* Google Play: deleting the account from the app (AYK-116). */}
-      {user?.role !== 'admin' && <Link to="/delete-account" className="block text-center text-[13px] font-semibold text-danger mt-6 mb-2" data-testid="profile-delete-account">🗑️ {t('account_delete.title')}</Link>}
+      {user?.role !== 'admin' && !user?.admin_account && <Link to="/delete-account" className="block text-center text-[13px] font-semibold text-danger mt-6 mb-2" data-testid="profile-delete-account">🗑️ {t('account_delete.title')}</Link>}
     </div>
   );
 }
@@ -489,6 +489,17 @@ function ProviderSection({ onSaved, onError, t, refresh }) {
           of under every chat. */}
       <p className="mb-3 p-2.5 rounded-card bg-surface-alt text-[13px] text-fg-muted" data-testid="provider-agree-hint">🤝 {t('chat.agreed_hint')}</p>
       <form onSubmit={save} className="space-y-3">
+        {/* AYK-377: the name and «وصف خدماتي» first, where the provider sees them at once. */}
+        <Input label={t('profile.business_name')} value={provider.business_name}
+          onChange={(e) => setProvider({ ...provider, business_name: e.target.value })} />
+
+        {/* AYK-377: «وصف خدماتي», shown on the provider's card and page in every language. */}
+        <div>
+          <Input as="textarea" label={t('provider.services_description_mine')} value={provider.bio} rows={5} maxLength={2000}
+            placeholder={t('provider.services_description_hint')} data-testid="provider-bio-input"
+            onChange={(e) => setProvider({ ...provider, bio: e.target.value })} />
+          <div className="text-[11.5px] text-fg-muted text-end mt-0.5" dir="ltr">{(provider.bio || '').length} / 2000</div>
+        </div>
         <ProfessionsPicker serviceIds={provider.service_ids} disabled={saving}
           onChange={ids => setProvider(previous => ({ ...previous, service_ids: ids }))} />
         <CoverageDistrictsPicker cityId={provider.coverage_city_id || user?.city_id} value={provider.coverage} disabled={saving}
@@ -498,11 +509,6 @@ function ProviderSection({ onSaved, onError, t, refresh }) {
             onChange={e => setProvider(previous => ({ ...previous, also_client: e.target.checked }))} />
           <span><b>{t('auth.role_both')}</b> — {t('auth.role_both_hint')}</span>
         </label>
-        <Input label={t('profile.business_name')} value={provider.business_name}
-          onChange={(e) => setProvider({ ...provider, business_name: e.target.value })} />
-
-        <Input as="textarea" label={t('profile.bio')} value={provider.bio}
-          onChange={(e) => setProvider({ ...provider, bio: e.target.value })} />
         <Input label={t('profile.experience_years')} type="number" min="0" max="100" value={provider.experience_years}
           onChange={event => setProvider(previous => ({ ...previous, experience_years: event.target.value }))} />
 

@@ -15,6 +15,7 @@ import AdminButton from '../../components/admin/AdminButton';
 import EmptyState from '../../components/admin/EmptyState';
 import AdminFab from '../../components/admin/AdminFab';
 import AdminPermissionsEditor from '../../components/admin/AdminPermissionsEditor';
+import SpecialNumberPicker from '../../components/admin/SpecialNumberPicker';
 import { useAuth } from '../../hooks/useAuth';
 import { formatRelativeTime } from '../../utils/formatters';
 import { IconSearch } from '../../components/common/Icons';
@@ -25,7 +26,12 @@ const ROLE_BADGE = {
   client: 'bg-brand-50 text-brand-700',
 };
 
-const EMPTY_FORM = { full_name: '', username: '', email: '', phone: '', facebook_id: '', password: '', role: 'client', is_active: true };
+function NoSections() {
+  return <span className="px-2 py-0.5 rounded-pill bg-amber-100 text-amber-900 text-[10.5px] font-bold" data-testid="no-sections">⚠️ بلا أقسام، لا يدخل الإدارة</span>;
+}
+
+// AYK-383: role is what the person is on the site; is_admin is the administration's rights, apart.
+const EMPTY_FORM = { full_name: '', username: '', email: '', phone: '', facebook_id: '', password: '', role: 'client', is_admin: false, is_active: true };
 
 export default function AdminUsersPage() {
   const { t, i18n } = useTranslation();
@@ -96,7 +102,7 @@ export default function AdminUsersPage() {
   };
 
   const openEdit = (u) => {
-    if (u.role === 'admin' && !canEditPerms) { setError(t('errors.forbidden')); return; }
+    if (u.is_admin && !canEditPerms) { setError(t('errors.forbidden')); return; }
     ++editVersion.current;
     setEditing(u);
     const opened = {
@@ -106,7 +112,8 @@ export default function AdminUsersPage() {
       phone: u.phone || '',
       facebook_id: u.facebook_id || '',
       password: '',
-      role: u.role,
+      role: u.role === 'admin' ? 'client' : u.role,
+      is_admin: !!u.is_admin,
       is_active: !!u.is_active,
     };
     original.current = opened;
@@ -127,25 +134,33 @@ export default function AdminUsersPage() {
     e.preventDefault();
     if (editing && !(await confirmAdminChange(t, editing.name_ar || editing.full_name || editing.title || editing.provider || ''))) return;
     if (saveInFlight.current) return;
-    if (form.role === 'admin' && !canEditPerms) { setFormError(t('errors.forbidden')); return; }
+    if (form.is_admin && !(editing?.is_admin) && !canEditPerms) { setFormError(t('errors.forbidden')); return; }
     const version = editVersion.current;
     saveInFlight.current = true;
     setSaving(true);
     setFormError('');
     setFieldErrors({});
     try {
+      // AYK-356 (the owner: a member made «إدارة» could not get in): an administration account
+      // enters only the sections ticked for it, and ticking them was a second step that was easy to
+      // miss. Once an account becomes administration, its sections open at once.
+      let newAdmin = null;
       if (editing) {
         // Only what changed (AYK-237); nothing changed closes the form.
         const before = original.current || {};
         const payload = Object.fromEntries(Object.entries(form).filter(([key, value]) => key !== 'password' && value !== before[key]));
         if (form.password) payload.password = form.password;
         if (Object.keys(payload).length) await updateUser(editing.id, payload);
+        // Also when it was already administration but has no section yet (AYK-358).
+        if (payload.is_admin === true || (form.is_admin && editing.admin_sections === 0)) newAdmin = { id: editing.id, name: editing.full_name };
       } else {
-        await createUser(form);
+        const made = await createUser(form);
+        if (form.is_admin && made?.id) newAdmin = { id: made.id, name: form.full_name };
       }
       if (version !== editVersion.current) return;
       closeEdit();
       load();
+      if (newAdmin && canEditPerms) setPermsTarget(newAdmin);
     } catch (err) {
       if (version === editVersion.current) {
         const body = err?.response?.data || {};
@@ -165,7 +180,7 @@ export default function AdminUsersPage() {
   const fieldError = key => fieldErrors[key] ? <p className="text-[12px] text-rose-700 mt-1 mb-0" data-testid={`field-error-${key}`}>⚠️ {fieldErrors[key]}</p> : null;
 
   const askBlock = async (u) => {
-    if (u.role === 'admin' && !canEditPerms) { setError(t('errors.forbidden')); return; }
+    if (u.is_admin && !canEditPerms) { setError(t('errors.forbidden')); return; }
     if (u.is_blocked) {
       if (!(await confirmAdminChange(t, u.full_name))) return;
       unblockUser(u.id).then(load).catch((e) => setError(apiError(e)));
@@ -185,7 +200,7 @@ export default function AdminUsersPage() {
   };
 
   const askDelete = (u) => {
-    if (u.role === 'admin' && !canEditPerms) { setError(t('errors.forbidden')); return; }
+    if (u.is_admin && !canEditPerms) { setError(t('errors.forbidden')); return; }
     setConfirm({
       open: true,
       title: t('admin.confirm_delete_title'),
@@ -263,6 +278,8 @@ export default function AdminUsersPage() {
                     <span className={`px-2 py-0.5 rounded-pill text-[10.5px] font-bold ${ROLE_BADGE[u.role] || 'bg-slate-100 text-slate-600'}`}>
                       {ROLE_LABEL[u.role] || u.role}
                     </span>
+                    {!!u.is_admin && <span className="px-2 py-0.5 rounded-pill bg-indigo-50 text-indigo-700 text-[10.5px] font-bold" data-testid="admin-mark">🛡️ إداري</span>}
+                    {!!u.is_admin && u.admin_sections === 0 && <NoSections />}
                     {u.is_blocked ? (
                       <span className="px-2 py-0.5 rounded-pill bg-rose-50 text-rose-600 text-[10.5px] font-bold">{t('admin.is_blocked')}</span>
                     ) : u.is_active ? (
@@ -328,6 +345,8 @@ export default function AdminUsersPage() {
                       <span className={`inline-flex px-2.5 py-0.5 rounded-pill text-[11px] font-bold ${ROLE_BADGE[u.role] || 'bg-slate-100 text-slate-600'}`}>
                         {ROLE_LABEL[u.role] || u.role}
                       </span>
+                      {!!u.is_admin && <span className="ms-1 inline-flex px-2 py-0.5 rounded-pill bg-indigo-50 text-indigo-700 text-[11px] font-bold" data-testid="admin-mark">🛡️ إداري</span>}
+                      {!!u.is_admin && u.admin_sections === 0 && <div className="mt-1"><NoSections /></div>}
                     </td>
                     <td className="py-2 text-[12.5px] text-slate-600">{localizedJoinedName(u, 'city', i18n.resolvedLanguage) || '—'}</td>
                     <td className="py-2">
@@ -478,28 +497,48 @@ export default function AdminUsersPage() {
               {fieldError('password')}
             </div>
             <div>
-              <label className="block text-[12px] font-bold text-ink mb-1">{t('admin.field_role')}</label>
+              <label className="block text-[12px] font-bold text-ink mb-1">نوع الحساب في الموقع</label>
               <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}
                 className="w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]">
                 <option value="client">{t('auth.role_client')}</option>
                 <option value="provider">{t('auth.role_provider')}</option>
-                {canEditPerms && <option value="admin">{t('nav.admin')}</option>}
               </select>
+              <p className="text-[11.5px] text-slate-500 mt-1 mb-0">نوعه في الموقع والتطبيق، منفصل عن الإدارة.</p>
             </div>
           </div>
+          {/* AYK-383 (the owner: «ممكن أكون مقدم خدمة ومسؤولًا إداريًا»): the administration's rights are
+              apart from the site role; in the administration the account is the administration only. */}
+          {canEditPerms && (
+            <label className="flex items-start gap-2 rounded-card border border-indigo-200 bg-indigo-50 p-3 cursor-pointer" data-testid="admin-flag">
+              <input type="checkbox" className="mt-1 w-4 h-4" checked={!!form.is_admin} onChange={e => setForm({ ...form, is_admin: e.target.checked })} />
+              <span className="text-[13px] text-indigo-900"><b>🛡️ صلاحية إدارية</b> — يدخل «لوحة الإدارة» بالأقسام التي تحددها له، ويبقى في الموقع {form.role === 'provider' ? 'مقدم خدمة' : 'طالب خدمة'} كما هو.</span>
+            </label>
+          )}
+          {form.is_admin && canEditPerms && (
+            // AYK-358 (the owner: «هذا حسابه في صلاحية الإدارة» and still no «لوحة الإدارة»): the role
+            // alone opens nothing; the sections ticked for the account do. Said here, beside the role.
+            <div className="rounded-card bg-amber-50 border-2 border-amber-300 p-3 space-y-2" data-testid="admin-sections-box">
+              <p className="text-[13px] font-bold text-amber-900">
+                {editing && editing.admin_sections === -1 ? '✅ إدارة كاملة: يدخل كل الأقسام.'
+                  : editing && editing.admin_sections > 0 ? `✅ يدخل ${editing.admin_sections} من أقسام الإدارة.`
+                    : '⚠️ لن تظهر له «لوحة الإدارة» حتى تحدد له الأقسام التي يدخلها.'}
+              </p>
+              {editing ? (
+                <button type="button"
+                  onClick={() => { setPermsTarget({ id: editing.id, name: editing.full_name }); closeEdit(); }}
+                  className="w-full px-4 py-2.5 rounded-card bg-white border-2 border-amber-300 text-amber-900 text-[13px] font-bold hover:bg-amber-100 transition">
+                  🔑 تحديد الأقسام الآن
+                </button>
+              ) : <p className="text-[12px] text-amber-800">بعد الحفظ تفتح لك نافذة الأقسام مباشرة.</p>}
+            </div>
+          )}
           {editing && (
             <label className="inline-flex items-center gap-2 text-[13px] cursor-pointer">
               <input type="checkbox" checked={!!form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />
               <span>{t('admin.is_active')}</span>
             </label>
           )}
-          {editing && form.role === 'admin' && canEditPerms && (
-            <button type="button"
-              onClick={() => { setPermsTarget({ id: editing.id, name: editing.full_name }); closeEdit(); }}
-              className="w-full mt-2 px-4 py-2.5 rounded-card bg-amber-50 border-2 border-amber-200 text-amber-800 text-[13px] font-bold hover:bg-amber-100 transition">
-              🔑 {t('admin.manage_permissions')}
-            </button>
-          )}
+          {editing && <SpecialNumberPicker user={editing} onChanged={load} />}
         </form>
       </Modal>
 

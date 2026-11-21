@@ -9,6 +9,7 @@ import * as walletApi from '../../services/walletService';
 import { formatRelativeTime } from '../../utils/formatters';
 import { localizedName } from '../../utils/localize';
 import { useAuth } from '../../hooks/useAuth';
+import { inviteLink } from '../../utils/invite';
 
 const sar = (value, t) => t('wallet.amount', { value: Number(value || 0).toFixed(2) });
 
@@ -35,6 +36,7 @@ export default function WalletPage() {
   const [gift, setGift] = useState({ recipient: '', plan_id: '', password: '' });
   const [giftPreview, setGiftPreview] = useState(null);
   const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
 
   const load = useCallback(() => {
     setLoadError(null);
@@ -55,10 +57,24 @@ export default function WalletPage() {
     } finally { setBusy(false); }
   };
 
+  // «🎁 دعوة» in the menu opens this page at the invite link (AYK-354).
+  const hasData = Boolean(data);
+  useEffect(() => {
+    if (hasData && window.location.hash === '#invite') document.getElementById('invite')?.scrollIntoView({ block: 'start' });
+  }, [hasData]);
   if (loadError) return <ErrorState message={t(loadError)} />;
   if (!data) return <LoadingState />;
 
-  const shareText = t('wallet.share_text', { code: data.referral_code, url: `https://aykdmh.com/register?role=provider&ref=${data.referral_code}` });
+  // AYK-354: the short invite link, aykdmh.com/i/<number>.
+  const link = inviteLink(data.referral_code);
+  const shareText = t('wallet.share_text', { code: data.referral_code, url: link });
+  const copyLink = async () => {
+    try { await navigator.clipboard.writeText(link); setLinkCopied(true); setTimeout(() => setLinkCopied(false), 2000); } catch (_) { /* clipboard blocked */ }
+  };
+  const shareLink = async () => {
+    if (navigator.share) { try { await navigator.share({ text: shareText }); return; } catch (err) { if (err?.name === 'AbortError') return; } }
+    copyLink();
+  };
   const copy = async () => {
     try { await navigator.clipboard.writeText(data.referral_code); setCopied(true); setTimeout(() => setCopied(false), 2000); } catch (_) { /* clipboard blocked */ }
   };
@@ -79,6 +95,18 @@ export default function WalletPage() {
         <div role="note" className="px-3 py-2 rounded-card bg-amber-100 text-amber-900 text-[13px]">🧪 {t('wallet.test_mode')}</div>
       )}
       {notice && <div role="status" className={`px-3 py-2 rounded-card text-[13px] ${notice.ok ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'}`}>{notice.text}</div>}
+
+      {/* AYK-354 (the owner): the invite link, clear and first: copy it, share it. */}
+      <div id="invite" className="card p-4 space-y-2 border-2 border-primary scroll-mt-24" data-testid="invite-link">
+        <h2 className="font-extrabold text-fg text-lg m-0">🎁 {t('wallet.invite_title')}</h2>
+        <p className="text-[12.5px] text-fg-muted m-0">{t('wallet.invite_hint')}</p>
+        <div dir="ltr" className="text-[15px] font-bold text-fg bg-surface-alt border border-border rounded-card px-3 py-2 break-all select-all" data-testid="invite-url">{link}</div>
+        <div className="flex flex-wrap gap-2">
+          <button type="button" className="btn btn-primary btn-sm" onClick={copyLink} data-testid="invite-copy">📋 {linkCopied ? t('share_provider.copied') : t('share_provider.copy')}</button>
+          <button type="button" className="btn btn-outline btn-sm" onClick={shareLink}>🔗 {t('share_provider.share')}</button>
+          <a className="btn btn-outline btn-sm" target="_blank" rel="noopener noreferrer" href={`https://wa.me/?text=${encodeURIComponent(shareText)}`}>💬 {t('share_provider.whatsapp')}</a>
+        </div>
+      </div>
 
       <div className="card p-4 space-y-2">
         <div className="text-[13px] text-fg-muted">{t('wallet.your_coupon')}</div>
@@ -134,7 +162,7 @@ export default function WalletPage() {
           <p className="text-[12.5px] text-fg-muted">{t('wallet.apply_coupon_hint')}</p>
           <div className="flex gap-2">
             <input className="input flex-1" dir="ltr" value={coupon} maxLength={12} onChange={e => setCoupon(e.target.value)}
-              placeholder="AB12" aria-label={t('wallet.coupon_code')} />
+              placeholder="27" aria-label={t('wallet.coupon_code')} />
             <Button type="submit" loading={busy} disabled={coupon.trim().length < 4}>{t('wallet.apply')}</Button>
           </div>
         </form>

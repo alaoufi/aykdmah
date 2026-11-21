@@ -11,7 +11,7 @@ async function findAll({ activeOnly = true, countryId } = {}) {
   const whereSql = wheres.length ? `WHERE ${wheres.join(' AND ')}` : '';
   const extra = hasCountry ? ', country_id' : '';
   return query(
-    `SELECT id, code, name_ar, name_en, capital_ar, capital_en,
+    `SELECT id, code, name_ar, name_en, name_translations, capital_ar, capital_en,
             latitude, longitude, is_active, sort_order${extra}
      FROM regions ${whereSql}
      ORDER BY sort_order ASC, name_ar ASC`,

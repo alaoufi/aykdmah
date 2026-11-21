@@ -134,6 +134,27 @@ function MessageBubble({ message, isMine, onReply, onDelete, onForward, renderTr
     );
   }
 
+  // AYK-381, as in WhatsApp: a message deleted for everyone keeps its place. Its menu only removes
+  // the line from my own screen.
+  if (message.deleted) {
+    return (
+      <div ref={rowRef} className={`bubble-row ${isMine ? 'mine' : 'theirs'} ${firstInRun ? 'first' : ''}`} data-testid="message-deleted">
+        <div className={`bubble ${isMine ? 'mine' : 'theirs'} ${firstInRun ? 'tail' : ''}`}>
+          <div className="content italic text-fg-muted" style={{ opacity: 0.85 }}>
+            🚫 {t(isMine ? 'chat.you_deleted_message' : 'chat.message_was_deleted')}<span className="meta-spacer" aria-hidden="true" />
+          </div>
+          <div className="meta"><span>{formatTime(message.created_at)}</span></div>
+          {onDelete && <button className="msg-action" onClick={() => setShowMenu(v => !v)} aria-label={t('common.more')}>⌄</button>}
+          {showMenu && onDelete && (
+            <div className="menu" onMouseLeave={() => setShowMenu(false)}>
+              <button className="danger" onClick={() => { setShowMenu(false); onDelete(message); }}>🗑 {t('chat.delete_for_me')}</button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div ref={rowRef} className={`bubble-row ${isMine ? 'mine' : 'theirs'} ${firstInRun ? 'first' : ''}`} onDoubleClick={() => setShowMenu(true)}>
       <div className={`bubble ${isMine ? 'mine' : 'theirs'} ${isLocation ? 'has-location' : ''} ${mediaOnly ? 'media-only' : ''} ${firstInRun ? 'tail' : ''}`}>
@@ -221,8 +242,9 @@ function MessageBubble({ message, isMine, onReply, onDelete, onForward, renderTr
             {message.content && navigator.clipboard && (
               <button onClick={() => { setShowMenu(false); navigator.clipboard.writeText(message.content).catch(() => {}); }}>📋 {t('chat.copy')}</button>
             )}
-            {isMine && onDelete && (
-              <button className="danger" onClick={() => { setShowMenu(false); onDelete(message); }}>🗑 {t('chat.delete_message')}</button>
+            {/* AYK-381: anyone can delete a message from their own screen; their own also for everyone. */}
+            {onDelete && (
+              <button className="danger" onClick={() => { setShowMenu(false); onDelete(message); }} data-testid="menu-delete">🗑 {t('chat.delete_message')}</button>
             )}
           </div>
         )}

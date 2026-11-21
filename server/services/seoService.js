@@ -88,6 +88,7 @@ function homePage({ categories, services, regions, cities = [] }) {
     title: `${NAME} | صيانة منزلية وكهرباء وسباكة ونظافة في السعودية`,
     description: `${NAME}: اكتب طلبك مجانًا واستقبل عروض أسعار من فنيين ومقدمي خدمة قريبين منك في جميع مناطق المملكة — صيانة كهرباء، سباكة، تكييف، نظافة، نقل وغيرها. قارن وتواصل واختر الأنسب.`,
     path: '/',
+    keywords: [...categories.flatMap(c => [wordsFor(c).person, c.name_ar, ...wordsFor(c).alt]), ...services.map(s => s.name_ar)],
     ld: [{ '@context': 'https://schema.org', '@type': 'WebSite', name: NAME, url: SITE, inLanguage: 'ar' }, { '@context': 'https://schema.org', ...ORG }],
     body: `<h1>${NAME} — اطلب أي خدمة منزلية وقارن عروض الأسعار</h1>
 <p>منصة سعودية تربطك بمقدمي الخدمة القريبين منك: اكتب ما تحتاجه، وتصلك العروض، وتتواصل بالمحادثة والمكالمة داخل الموقع دون كشف رقمك. متاحة في: ${esc(regions.join('، '))}.</p>
@@ -102,6 +103,7 @@ function servicesPage({ categories, services }) {
     title: `جميع الخدمات المنزلية والصيانة | ${NAME}`,
     description: `قائمة خدمات ${NAME}: ${services.slice(0, 12).map(s => s.name_ar).join('، ')} وغيرها، في جميع مناطق السعودية.`,
     path: '/services',
+    keywords: [...categories.map(c => c.name_ar), ...services.map(s => s.name_ar)],
     ld: [breadcrumbs([{ name: NAME, path: '/' }, { name: 'الخدمات', path: '/services' }])],
     body: `<h1>جميع الخدمات</h1>${categories.map(c => `<h2>${link(`/services/category/${c.slug}`, c.name_ar)}</h2>`
       + list(services.filter(s => Number(s.category_id) === Number(c.id)).map(s => link(`/services/${s.id}`, s.name_ar)))).join('\n')}`,
@@ -119,6 +121,7 @@ function categoryPage({ categories, services, regions, cities = [] }, slug) {
     title: `${words.person} في السعودية | ${category.name_ar} — اطلب عروض أسعار | ${NAME}`,
     description: `${words.person} و${words.alt.slice(0, 2).join(' و') || category.name_ar} قريب منك: ${items.slice(0, 6).map(s => s.name_ar).join('، ')}. اطلب مجانًا واستقبل عروضًا في ${topCities.slice(0, 5).map(c => c.name_ar).join('، ') || regions.slice(0, 5).join('، ')} وبقية المدن.`,
     path,
+    keywords: [words.person, category.name_ar, ...words.alt, ...items.map(s => s.name_ar), ...topCities.slice(0, 10).map(c => `${words.person} في ${c.name_ar}`)],
     ld: [breadcrumbs([{ name: NAME, path: '/' }, { name: 'الخدمات', path: '/services' }, { name: category.name_ar, path }]),
       { '@context': 'https://schema.org', '@type': 'ItemList', name: category.name_ar,
         itemListElement: items.map((s, i) => ({ '@type': 'ListItem', position: i + 1, url: `${SITE}/services/${s.id}`, name: s.name_ar })) }],
@@ -146,6 +149,7 @@ function cityCategoryPage({ categories, services, cities }, slug, cityPart) {
     title: `${words.person} في ${city.name_ar} | ${[words.alt[0], words.alt[2]].filter(Boolean).join(' و') || category.name_ar} — ${NAME}`,
     description: `تحتاج ${words.person} في ${city.name_ar}؟ اكتب طلبك مجانًا في ${NAME} وتصلك عروض أسعار من مقدمي ${category.name_ar} القريبين منك في أحياء ${city.name_ar}: ${city.districts.slice(0, 4).join('، ')} وغيرها.${words.alt.length ? ` ${words.alt.join('، ')}.` : ''}`,
     path,
+    keywords: [...[words.person, ...words.alt, category.name_ar].map(w => `${w} في ${city.name_ar}`), ...items.map(s => `${s.name_ar} في ${city.name_ar}`), ...city.districts.slice(0, 8).map(d => `${words.person} ${d}`)],
     ld: [breadcrumbs([{ name: NAME, path: '/' }, { name: category.name_ar, path: base }, { name: `${words.person} في ${city.name_ar}`, path }]),
       { '@context': 'https://schema.org', '@type': 'Service', name: `${words.person} في ${city.name_ar}`, serviceType: category.name_ar,
         provider: ORG, url: `${SITE}${path}`,
@@ -170,6 +174,7 @@ function servicePage({ services, regions }, id) {
     title: `${service.name_ar} — فنيون قريبون منك في السعودية | ${NAME}`,
     description: `اطلب ${service.name_ar} من ${NAME}: اكتب طلبك مجانًا واستقبل عروض أسعار من مقدمي خدمة قريبين منك، قارن التقييمات وتواصل واختر الأنسب. متاح في ${regions.slice(0, 6).join('، ')} وغيرها.`,
     path,
+    keywords: [service.name_ar, `${service.name_ar} في السعودية`, service.category_name, ...related.map(s => s.name_ar), ...regions.slice(0, 6).map(r => `${service.name_ar} ${r}`)].filter(Boolean),
     ld: [breadcrumbs([{ name: NAME, path: '/' }, { name: service.category_name || 'الخدمات', path: service.category_slug ? `/services/category/${service.category_slug}` : '/services' }, { name: service.name_ar, path }]),
       { '@context': 'https://schema.org', '@type': 'Service', name: service.name_ar, serviceType: service.name_ar,
         category: service.category_name || undefined, provider: ORG, url: `${SITE}${path}`,
@@ -258,6 +263,10 @@ function render(page) {
   html = html
     .replace(/<title>[\s\S]*?<\/title>/, `<title>${esc(page.title)}</title>`)
     .replace(/<meta name="description" content="[^"]*"\s*\/?>/, `<meta name="description" content="${esc(page.description)}" />`)
+    // The page's own search words (AYK-337): the profession as people write it, its services and
+    // its city, after the site's name in its usual spellings.
+    .replace(/<meta name="keywords" content="[^"]*"\s*\/?>/, found => (page.keywords?.length
+      ? `<meta name="keywords" content="${esc([...new Set(['أي خدمة', 'اي خدمة', 'aykdmh', ...page.keywords.map(w => String(w).trim()).filter(Boolean)])].slice(0, 60).join(', '))}" />` : found))
     .replace(/<meta property="og:title" content="[^"]*"\s*\/?>/, `<meta property="og:title" content="${esc(page.title)}" />`)
     .replace(/<meta property="og:description" content="[^"]*"\s*\/?>/, `<meta property="og:description" content="${esc(page.description)}" />`)
     .replace('</head>', `${page.noindex ? '    <meta name="robots" content="noindex" />\n' : ''}${verificationTags(page.verification)}    <link rel="canonical" href="${esc(url)}" />\n    <meta property="og:url" content="${esc(url)}" />\n    ${page.ld.map(jsonLd).join('\n    ')}\n  </head>`)

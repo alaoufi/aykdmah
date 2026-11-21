@@ -12,6 +12,7 @@ import { apiError } from '../services/api';
 import useCountry from '../hooks/useCountry';
 import AdPlacementMap from '../components/ads/AdPlacementMap';
 import ProblemNotice from '../components/common/ProblemNotice';
+import TranslatedText from '../components/common/TranslatedText';
 
 // What the ad's file may be (the server checks the same): its type and at most 3.75 MiB.
 const MEDIA_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/apng', 'video/mp4', 'video/webm', 'video/ogg'];
@@ -569,7 +570,7 @@ export default function PromotePage() {
                   {/* The administration's messages about this ad (AYK-153). */}
                   {(ad.admin_messages || []).map((m) => (
                     <div key={m.id} className="mt-2 text-[12px] bg-sky-50 text-sky-900 rounded p-2">
-                      ✉️ <b>{t(`promote.message_${m.category}`)}</b>: {m.message}
+                      ✉️ <b>{t(`promote.message_${m.category}`)}</b>: <TranslatedText text={m.message} translated={m.message_translated} />
                     </div>
                   ))}
 

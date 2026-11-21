@@ -25,7 +25,7 @@ async function findAll({ governorateId, regionId, activeOnly = true } = {}) {
   const regionSql = hasCityRegion ? 'COALESCE(c.region_id, g.region_id)' : 'g.region_id';
   const selectExtra = hasCityRegion ? ', c.region_id' : '';
   return query(
-    `SELECT c.id, c.governorate_id, c.name_ar, c.name_en, c.latitude, c.longitude,
+    `SELECT c.id, c.governorate_id, c.name_ar, c.name_en, c.name_translations, c.latitude, c.longitude,
             c.is_active, c.sort_order${selectExtra}, ${regionSql} AS in_region_id
      FROM cities c
      LEFT JOIN governorates g ON g.id = c.governorate_id

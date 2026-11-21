@@ -8,9 +8,9 @@
 // page is drawn (main.jsx waits for it), so the person never sees the page and then a reload.
 // - The server answers within 0.8 s that the copy is current, or does not answer: draw at once.
 //   A late answer never reloads a page already on screen; UpdateBar switches while out of sight.
-// - The copy is older: nothing of the old copy is drawn. The new copy is fetched (up to 6 s; if it
-//   is not ready by then the saved copy is dropped so the reload comes straight from the server),
-//   then one reload. A second reload only if that one still showed the old copy.
+// - The copy is older: nothing of the old copy is drawn. The saved copy is dropped and the page
+//   reloads straight from the server (AYK-336), once. A second reload only if that one still
+//   showed the old copy.
 
 const CURRENT = import.meta.env.VITE_APP_VERSION || '';
 const TRIES = 'ayk_fresh_tries';
@@ -23,6 +23,13 @@ const withTimeout = (promise, ms) => Promise.race([promise, new Promise(resolve 
 let asked = null;
 export function serverVersion() {
   if (asked && Date.now() - asked.at < 10000) return asked.promise;
+  // AYK-334: the first question was already sent by theme-init.js, before this file was read.
+  const early = typeof window !== 'undefined' && window.__aykVersion;
+  if (early) {
+    window.__aykVersion = null;
+    asked = { at: Date.now(), promise: withTimeout(early, 4000).then(v => v || null) };
+    return asked.promise;
+  }
   const promise = withTimeout(fetch('/version.json', { cache: 'no-store' }), 4000)
     .then(res => (res?.ok ? res.json() : null)).then(v => v?.version || null).catch(() => null);
   asked = { at: Date.now(), promise };
@@ -35,17 +42,6 @@ function busy() {
   // A required-update screen is not something to lose: it must never hold back the site's own
   // update (AYK-292: an old copy's update screen kept the new copy, which removes it, from loading).
   return Boolean(typing || document.querySelector('[role="dialog"][aria-modal="true"]:not([data-testid="app-update-gate"])'));
-}
-
-async function newCopySaved(registration) {
-  await registration.update().catch(() => {});
-  const worker = registration.installing || registration.waiting;
-  if (!worker) return;
-  await new Promise(resolve => {
-    const check = () => { if (['activated', 'redundant'].includes(worker.state)) resolve(); };
-    worker.addEventListener('statechange', check);
-    check();
-  });
 }
 
 async function dropSavedCopy() {
@@ -73,9 +69,12 @@ export async function freshStart({ now = () => Date.now(), reload = () => window
   }
   if (tries >= 2) return 'gave-up';
 
-  const registration = await navigator.serviceWorker?.getRegistration?.().catch(() => null);
-  if (tries === 1 || !registration) await dropSavedCopy();
-  else if (!await withTimeout(newCopySaved(registration).then(() => true), 6000)) await dropSavedCopy();
+  // AYK-336: this used to wait until the whole new copy (113 files) was saved, and only then
+  // reload. Measured on the live site right after a release: 17.6 s of a turning ring before the
+  // page showed. The saved copy is now dropped at once and the page reloads straight from the
+  // server, which needs only the few files of the first page; the rest is saved again afterwards,
+  // out of sight.
+  await withTimeout(dropSavedCopy(), 1500);
 
   if (now() - started > WINDOW_MS || busy()) return 'later';
   try { sessionStorage.setItem(TRIES, String(tries + 1)); } catch (_) { return 'skip'; }

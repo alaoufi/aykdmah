@@ -14,7 +14,8 @@ export default function MainLayout() {
       <UpdateBar />
       <AppUpdateGate />
       <DevicePermissions variant="bar" />
-      <main>
+      {/* AYK-349: the footer under it already keeps clear of the bottom bar; no second gap here. */}
+      <main className="site-main">
         <div className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pt-3">
           <BackButton />
         </div>

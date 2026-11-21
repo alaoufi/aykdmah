@@ -93,16 +93,16 @@ if (!databasePrefix) {
     }
   });
 
-  test('every provider gets one permanent coupon code: 2 letters + 2 digits, no I or O', async () => {
+  test('every provider gets one permanent account number: digits only, two first (AYK-353)', async () => {
     const first = await api('/wallet', { user: users.referrer });
     assert.equal(first.status, 200, first.body?.message);
     const code = first.body.data.referral_code;
-    assert.match(code, /^[A-HJ-NP-Z]{2}\d{2}$/);
+    assert.match(code, /^[1-9]\d$/);
     assert.equal((await api('/wallet', { user: users.referrer })).body.data.referral_code, code);
     // AYK-322: every account has a marketing code and a wallet, a requester too.
     const asClient = await api('/wallet', { user: users.customer });
     assert.equal(asClient.status, 200);
-    assert.match(asClient.body.data.referral_code, /^[A-HJ-NP-Z]{2}\d{2}$/);
+    assert.match(asClient.body.data.referral_code, /^[1-9]\d$/, 'two digits first, no letters (AYK-353)');
     assert.equal(asClient.body.data.marketing.enabled, false, 'marketing is off until the administration turns it on');
     const codes = new Set();
     for (let i = 0; i < 40; i += 1) {
@@ -123,6 +123,11 @@ if (!databasePrefix) {
     assert.equal(good.status, 201, good.body?.message);
     const row = await db.queryOne('SELECT referred_by FROM users WHERE username = ?', ['couponuser']);
     assert.equal(Number(row.referred_by), users.referrer.id);
+    // AYK-353: an invite code shared before the change (letters) still works.
+    await db.query('UPDATE users SET legacy_referral_code = ? WHERE id = ?', ['KD27', users.referrer.id]);
+    const old = await api('/auth/register', { method: 'POST', body: { full_name: 'Old Code User', username: 'oldcodeuser', password: 'abcd', role: 'client', referral_code: 'kd27' } });
+    assert.equal(old.status, 201, old.body?.message);
+    assert.equal(Number((await db.queryOne('SELECT referred_by FROM users WHERE username = ?', ['oldcodeuser'])).referred_by), users.referrer.id);
   });
 
   test('a coupon can be applied once, not to oneself, and not after paying', async () => {
@@ -248,6 +253,29 @@ if (!databasePrefix) {
       user: giver, method: 'POST', body: { recipient, plan_id: planId, password: PASSWORD } })));
     assert.equal(results.filter(r => r.status === 200).length, 1);
     assert.equal(await balance(giver), 0);
+  });
+
+  // AYK-357: special numbers (one repeated digit) are given only by the administration; the account's
+  // previous number is freed; nothing else can be given this way.
+  test('special numbers: never automatic, given by the administration, the previous number freed', async () => {
+    assert.ok(!wallet.isSpecialNumber('27') && wallet.isSpecialNumber('44') && wallet.isSpecialNumber('777'));
+    const a = await makeUser('specialone', 'client');
+    const b = await makeUser('specialtwo', 'client');
+    const before = await wallet.ensureReferralCode(a.id);
+    assert.ok(!wallet.isSpecialNumber(before), 'never given automatically');
+    await wallet.ensureReferralCode(b.id);
+    assert.equal((await api(`/admin/users/${a.id}/number`, { user: users.boss, method: 'PUT', body: { number: '145' } })).status, 400, 'only special numbers');
+    assert.equal((await api(`/admin/users/${a.id}/number`, { user: users.customer, method: 'PUT', body: { number: '44' } })).status, 403);
+    const moved = await api(`/admin/users/${a.id}/number`, { user: users.boss, method: 'PUT', body: { number: '44' } });
+    assert.equal(moved.status, 200, moved.body?.message);
+    assert.equal((await db.queryOne('SELECT referral_code FROM users WHERE id = ?', [a.id])).referral_code, '44');
+    assert.equal((await api(`/admin/users/${b.id}/number`, { user: users.boss, method: 'PUT', body: { number: '44' } })).status, 409, 'taken');
+    const list = (await api('/admin/special-numbers', { user: users.boss })).body.data.numbers;
+    assert.equal(list.find(n => n.code === '44').free, false);
+    // The owner's rule: the previous number is freed: it no longer reaches this account.
+    const reg = await api('/auth/register', { method: 'POST', body: { full_name: 'Via Old Number', username: 'viaoldnumber', password: 'abcd', role: 'client', referral_code: before } });
+    assert.equal(reg.body.message, 'coupon_not_found');
+    assert.equal(Number((await db.queryOne('SELECT COUNT(*) AS n FROM account_number_aliases')).n), 0);
   });
 
   test('admin controls need the wallets permission; adjustments need a reason and cannot overdraw', async () => {

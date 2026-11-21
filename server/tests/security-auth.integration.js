@@ -151,7 +151,13 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     await db.query('UPDATE users SET email = ?, phone = ?, facebook_id = ?, latitude = 26.35, longitude = 43.97 WHERE id = ?', ['local@example.invalid', '0501111111', '999888777', fixtures.client.id]);
     const data = (await api(`/users/${fixtures.client.id}`)).data;
     for (const field of ['email', 'phone', 'facebook_id', 'username', 'latitude', 'longitude', 'is_super_admin', 'permissions', 'is_active', 'is_blocked']) assert.equal(data.user[field], undefined, field);
-    await api(`/users/${fixtures.superA.id}`, { expected: 404 });
+    // AYK-383: an administration account is an ordinary person on the site; its rights never show.
+    const both = await createUser('provider');
+    await db.query(`UPDATE users SET is_admin = 1, permissions = '["users.manage"]' WHERE id = ?`, [both.id]);
+    const adminPublic = (await api(`/users/${both.id}`)).data.user;
+    assert.equal(adminPublic.role, 'provider', 'a provider who is also in the administration is a provider on the site');
+    for (const field of ['is_admin', 'is_super_admin', 'permissions', 'permission_grants', 'admin_account', 'email', 'phone']) assert.equal(adminPublic[field], undefined, field);
+    assert.notEqual(adminPublic.role, 'admin');
     const own = (await api(`/users/${fixtures.client.id}`, { token: tokenFor(fixtures.client) })).data;
     assert.equal(own.user.phone, '0501111111');
     const provider = (await api(`/users/${fixtures.provider.id}`)).data.provider;
@@ -168,7 +174,7 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     await api('/users', { token, method: 'POST', body: { full_name: 'Forbidden Admin', username: identity(), password, role: 'admin' }, expected: 403 });
     const saved = await User.findByIdRaw(fixtures.superA.id);
     assert.equal(await comparePassword(password, saved.password_hash), true);
-    assert.equal(saved.role, 'admin');
+    assert.equal(Number(saved.is_admin), 1, 'still an administration account (AYK-383: the mark, not the role)');
     assert.equal(saved.is_active, 1);
   });
 
@@ -310,8 +316,41 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     // AYK-202: one sign-in; the site session of an admin account opens the admin area.
     const fresh = (await api('/auth/login', { method: 'POST', body })).data;
     assert.equal(fresh.user.admin_account, 1);
+    // AYK-347: an administration account with no section granted neither sees nor opens it.
+    assert.equal(fresh.user.admin_access, 0);
+    await api('/auth/admin-session', { token: fresh.token, method: 'POST', headers: { 'X-Ayk-Scope': 'admin' }, expected: 403 });
+    await db.query("UPDATE users SET permissions = '[\"users.manage\"]' WHERE id = ?", [user.id]);
+    assert.equal((await api('/auth/me', { token: fresh.token })).data.user.admin_access, 1);
     const opened = (await api('/auth/admin-session', { token: fresh.token, method: 'POST', headers: { 'X-Ayk-Scope': 'admin' } })).data;
     assert.equal((await api('/auth/me', { token: opened.token, headers: { 'X-Ayk-Scope': 'admin' } })).data.user.role, 'admin');
+    // AYK-358: the users list says how many sections each administration account enters, and never
+    // sends the permissions themselves.
+    const listed = (await api('/users?role=admin&limit=100', { token: opened.token, headers: { 'X-Ayk-Scope': 'admin' } })).data;
+    const row = (listed.items || listed).find(item => Number(item.id) === Number(user.id));
+    assert.ok(row, 'the account is in the administration list');
+    assert.equal(row.admin_sections, 1);
+    assert.equal(row.permissions, undefined);
+    // AYK-359: a whole section opens its tabs (and tabs added later); every section opens all of
+    // them; neither opens managing other administration accounts.
+    const adminHeaders = { 'X-Ayk-Scope': 'admin' };
+    await db.query("UPDATE users SET permissions = '[\"group:users\"]' WHERE id = ?", [user.id]);
+    await api('/users?limit=1', { token: opened.token, headers: adminHeaders });
+    await api('/admin/dashboard', { token: opened.token, headers: adminHeaders, expected: 403 });
+    await api('/admin/permissions', { token: opened.token, headers: adminHeaders, expected: 403 });
+    await db.query("UPDATE users SET permissions = '[\"*\"]' WHERE id = ?", [user.id]);
+    await api('/admin/dashboard', { token: opened.token, headers: adminHeaders });
+    await api('/admin/permissions', { token: opened.token, headers: adminHeaders, expected: 403 });
+    const me = (await api('/auth/me', { token: opened.token, headers: adminHeaders })).data.user;
+    assert.ok(me.permissions.includes('locations.manage') && !me.permissions.includes('admins.manage'), 'the tabs that «every section» opens today');
+    // A member who manages administration accounts hands on only what is theirs.
+    await db.query("UPDATE users SET permissions = '[\"group:geo\", \"admins.manage\"]' WHERE id = ?", [user.id]);
+    const other = await db.query("INSERT INTO users (username, full_name, password_hash, role, permissions, is_active) VALUES (?, 'x', 'x', 'admin', '[]', 1) RETURNING id", [`perm${Date.now()}`]);
+    const otherId = (other.rows || other)[0].id;
+    await api(`/admin/users/${otherId}/permissions`, { token: opened.token, method: 'PUT', headers: adminHeaders, body: { permissions: ['*'] }, expected: 403 });
+    await api(`/admin/users/${otherId}/permissions`, { token: opened.token, method: 'PUT', headers: adminHeaders, body: { permissions: ['group:geo'] } });
+    await api(`/admin/users/${otherId}/permissions`, { token: opened.token, method: 'PUT', headers: adminHeaders, body: { permissions: ['group:users'] }, expected: 403 });
+    await db.query('DELETE FROM users WHERE id = ?', [otherId]);
+    await db.query("UPDATE users SET permissions = '[\"users.manage\"]' WHERE id = ?", [user.id]);
     // The admin session reaches admin routes (this test account has no extra permissions, so a
     // permission-gated page like the dashboard correctly stays closed).
     await api('/admin/dashboard', { token: opened.token, headers: { 'X-Ayk-Scope': 'admin' }, expected: 403 });
@@ -440,6 +479,20 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
       const response = await fetch(base + '/visits', { method: 'POST', headers: { 'User-Agent': ua, ...(token ? { Authorization: `Bearer ${token}` } : {}), ...headers } });
       return (await response.json()).data;
     };
+    // AYK-350: every entry counts; «still here» reports do not; a second entry within a minute is one.
+    const enter = async (ua, entry) => {
+      const response = await fetch(base + '/visits', { method: 'POST', headers: { 'User-Agent': ua, 'Content-Type': 'application/json' }, body: JSON.stringify({ entry }) });
+      return (await response.json()).data;
+    };
+    const start = (await enter('Mozilla/5.0 Entry-A', false)).today;
+    assert.equal((await enter('Mozilla/5.0 Entry-A', true)).today, start + 1, 'an entry counts');
+    assert.equal((await enter('Mozilla/5.0 Entry-A', false)).today, start + 1, 'a still-here report does not');
+    assert.equal((await enter('Mozilla/5.0 Entry-A', true)).today, start + 1, 'a doubled report of the same opening is one entry');
+    // AYK-376: a reload a few seconds later is a new visit.
+    await new Promise(resolve => setTimeout(resolve, 3100));
+    assert.equal((await enter('Mozilla/5.0 Entry-A', true)).today, start + 2, 'a reload counts');
+    assert.equal((await enter('Mozilla/5.0 Entry-B', true)).today, start + 3);
+    assert.equal((await enter('Googlebot/2.1', true)).today, start + 3, 'crawlers are not counted');
     const before = (await visit('Mozilla/5.0 Visitor-A')).today;
     assert.equal((await visit('Mozilla/5.0 Visitor-A')).today, before, 'the same visitor again is not counted');
     assert.equal((await visit('Mozilla/5.0 Visitor-B')).today, before + 1);
@@ -558,15 +611,45 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     for (let index = 0; index < 21; index++) await api('/auth/login', { method: 'POST', expected: index < 20 ? 401 : 429, body: { identifier: 'missing_local_account', password } });
   });
 
+  test('AYK-383: a provider who is also in the administration is a provider on the site and the administration only in /admin', async () => {
+    await authLimiter.resetKey('127.0.0.1');
+    const user = await createUser('provider');
+    await db.query(`UPDATE users SET is_admin = 1, permissions = '["users.manage"]' WHERE id = ?`, [user.id]);
+    const body = { identifier: user.username, password };
+    const site = (await api('/auth/login', { method: 'POST', body })).data;
+    assert.equal(site.user.role, 'provider', 'on the site: a provider');
+    assert.equal(site.user.admin_access, 1, 'with the way into the administration');
+    assert.equal(site.user.is_super_admin, 0);
+    assert.deepEqual(site.user.permissions, []);
+    // As a provider, freely: the work settings (here the business name) are saved.
+    await api('/users/me/provider', { token: site.token, method: 'PUT', body: { business_name: 'Both At Once' } });
+    assert.equal((await User.getProviderProfile(user.id)).business_name, 'Both At Once');
+    // No administration from the site session.
+    await api('/admin/dashboard', { token: site.token, expected: 403 });
+    await api('/users?limit=5', { token: site.token, expected: 403 });
+    // In the administration: the administration only, with its own sections.
+    const admin = (await api('/auth/login', { method: 'POST', body, headers: { 'X-Ayk-Scope': 'admin' } })).data;
+    assert.equal(admin.user.role, 'admin');
+    await api('/users?limit=5', { token: admin.token, headers: { 'X-Ayk-Scope': 'admin' } });
+    // The admin session never edits its own site self as a provider.
+    await api('/users/me/provider', { token: admin.token, method: 'PUT', headers: { 'X-Ayk-Scope': 'admin' }, body: { business_name: 'From Admin' }, expected: 403 });
+    assert.equal((await User.getProviderProfile(user.id)).business_name, 'Both At Once');
+    // On the site it is still listed among providers in public.
+    assert.equal((await api(`/users/${user.id}`)).data.user.role, 'provider');
+    // Changing the site role does not touch the administration's rights.
+    const raw = await User.findByIdRaw(user.id);
+    assert.equal(Number(raw.is_admin), 1);
+  });
+
   test('concurrent super-admin demotions preserve one active super administrator', async () => {
-    const users = await db.query("SELECT id FROM users WHERE role='admin' AND is_super_admin=1 AND is_active=1 AND is_blocked=0 AND deleted_at IS NULL");
+    const users = await db.query("SELECT id FROM users WHERE (role='admin' OR is_admin=1) AND is_super_admin=1 AND is_active=1 AND is_blocked=0 AND deleted_at IS NULL");
     assert.equal(users.length, 2);
     const attempts = await Promise.all([fixtures.superA, fixtures.superB].map(async user => {
       const response = await fetch(`${base}/admin/users/${user.id}/permissions`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${tokenFor(user)}` }, body: JSON.stringify({ is_super_admin: false, permissions: [] }) });
       await response.json(); return response.status;
     }));
     assert.deepEqual(attempts.sort((a, b) => a - b), [200, 400]);
-    const row = await db.queryOne("SELECT COUNT(*) AS total FROM users WHERE role='admin' AND is_super_admin=1 AND is_active=1 AND is_blocked=0 AND deleted_at IS NULL");
+    const row = await db.queryOne("SELECT COUNT(*) AS total FROM users WHERE (role='admin' OR is_admin=1) AND is_super_admin=1 AND is_active=1 AND is_blocked=0 AND deleted_at IS NULL");
     assert.equal(Number(row.total), 1);
   });
 }

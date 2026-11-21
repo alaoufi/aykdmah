@@ -9,6 +9,7 @@ const { success, created, error, notFound, forbidden, paginate } = require('../u
 const asyncHandler = require('../utils/asyncHandler');
 const { withUploadedFiles } = require('../utils/uploadPersistence');
 const { hasPermission } = require('../middleware/roleCheck');
+const contentTranslation = require('../services/contentTranslation');
 
 const isDisputeAdmin = user => hasPermission(user, 'disputes.manage');
 
@@ -141,7 +142,8 @@ const getDisputeConversation = asyncHandler(async (req, res) => {
 
   const conv = await Conversation.findById(dispute.conversation_id);
   const participants = await Conversation.getParticipants(dispute.conversation_id);
-  const messages = await Message.listByConversation(dispute.conversation_id, { limit: 500, includeDeleted: true });
+  // AYK-381: the whole chat of the two people (one chat since AYK-365), deleted messages included.
+  const messages = await Message.listByConversation(await Conversation.pairIds(dispute.conversation_id, request.client_id), { limit: 2000, includeDeleted: true });
   const locations = await LocationShare.getLatestForConversation(dispute.conversation_id);
 
   await Dispute.logAccess({
@@ -226,6 +228,12 @@ const timeline = asyncHandler(async (req, res) => {
     Dispute.listMessages(req.params.id, { includeInternal: isAdmin }),
     Dispute.listEvidence(req.params.id),
   ]);
+  // Each reader reads the others' messages in their own language: the administration in Arabic,
+  // a party in their account's language. `body` stays the original; only the rows this reader
+  // already receives are translated (internal notes reach admins only, exactly as before).
+  const lang = isAdmin ? 'ar' : await contentTranslation.readerLang(req.user.id, req.lang);
+  await contentTranslation.rowsForReader(messages.filter(m => Number(m.author_id) !== Number(req.user.id)), 'body', lang);
+  if (!isAdmin && dispute.resolution) await contentTranslation.rowsForReader([dispute], 'resolution', lang);
   return success(res, { dispute, statusLogs, messages, evidence });
 });
 
@@ -248,6 +256,11 @@ const postMessage = asyncHandler(async (req, res) => {
     body, is_internal,
   });
   if (!is_internal) {
+    // Translated now for the other readers, so it is ready when they open the dispute.
+    if (!isDisputeAdmin(req.user)) contentTranslation.prepare(body, 'ar');
+    for (const uid of [request?.client_id, request?.assigned_provider_id]) {
+      if (uid && Number(uid) !== Number(req.user.id)) contentTranslation.readerLang(uid, 'ar').then(lang => contentTranslation.prepare(body, lang)).catch(() => {});
+    }
     await notifyParties(dispute, {
       type: 'dispute_message',
       title: req.t('dispute_new_message'),

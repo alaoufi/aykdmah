@@ -7,10 +7,12 @@ import { canRequestService } from '../../utils/canRequest';
 import { useNotifications } from '../../hooks/useNotifications';
 import Avatar from '../common/Avatar';
 import LanguageSwitcher from '../common/LanguageSwitcher';
+import ShareMenu from '../common/ShareMenu';
 import ThemeSwitcher from '../common/ThemeSwitcher';
 import BrandLogo from '../common/BrandLogo';
 import { IconMenu, IconBell, IconClose } from '../common/Icons';
 import AdminPanelLink from './AdminPanelLink';
+import InviteButton from '../common/InviteButton';
 
 export default function Header() {
   const { t } = useTranslation();
@@ -86,6 +88,9 @@ export default function Header() {
         <div className="flex-1 max-xl:order-4" />
 
         {/* Mobile controls cluster — sits on the END edge */}
+        {/* AYK-382: share the site (WhatsApp, Telegram, Facebook, X, TikTok, link, QR). */}
+        <ShareMenu variant="icon" url={`${window.location.origin}/`} title={t('common.brand')} text={t('share.site_text')}
+          label={t('share.site')} className="max-xl:order-3" testId="share-site" />
         <ThemeSwitcher variant="compact" className="md:hidden max-xl:order-3" />
         <LanguageSwitcher variant="compact" className="md:hidden max-xl:order-3" />
         {/* The notifications bell on phones too: its count is not the chats count. */}
@@ -169,11 +174,9 @@ export default function Header() {
                     {user.referral_code && <div className="text-xs text-fg-muted mt-0.5">{t('brand.your_number')}: <b dir="ltr">{user.referral_code}</b></div>}
                   </div>
                   <div className="p-1.5">
-                    <Link to={dashLink} className="block px-3 py-2 rounded text-sm font-semibold text-fg hover:bg-surface-alt no-underline" onClick={() => setMenuOpen(false)}>
-                      {t('nav.dashboard')}
-                    </Link>
-                    <Link to="/profile" className="block px-3 py-2 rounded text-sm font-semibold text-fg hover:bg-surface-alt no-underline" onClick={() => setMenuOpen(false)}>
-                      {t('nav.profile')}
+                    {/* AYK-356 (the owner): «حسابي», the member's own account, instead of «لوحة التحكم». */}
+                    <Link to={user.role === 'admin' ? dashLink : '/profile'} className="block px-3 py-2 rounded text-sm font-semibold text-fg hover:bg-surface-alt no-underline" onClick={() => setMenuOpen(false)} data-testid="menu-my-account">
+                      👤 {t(user.role === 'admin' ? 'nav.dashboard' : 'nav.my_account')}
                     </Link>
                     {['client', 'provider'].includes(user.role) && (
                       <Link to="/profile#account-type" className="block px-3 py-2 rounded text-sm font-semibold text-fg hover:bg-surface-alt no-underline" onClick={() => setMenuOpen(false)} data-testid="menu-account-type">
@@ -262,25 +265,31 @@ export default function Header() {
                     { to: '/requests/new', label: `➕ ${t('request.create_title')}` },
                     { to: '/directory', label: `📒 ${t('requester.directory_title')}`, testid: 'menu-directory' },
                     user.role !== 'provider' && { to: '/wallet', label: `💰 ${t('wallet.nav')}` },
+                    user.role !== 'provider' && { to: '/wallet#invite', label: `🎁 ${t('wallet.invite_nav')}`, testid: 'menu-invite', invite: true },
                   ].filter(Boolean) },
                   user.role === 'provider' && { key: 'tasks', icon: '🧰', label: t('work.tasks_title'), to: '/provider/tasks', extra: [
                     { to: '/opportunities', label: `🔍 ${t('work.requests_nav')}` },
                     { to: '/profile#work', label: `🛠️ ${t('work.professions_areas')}` },
                     { to: '/provider/wallet', label: `💰 ${t('wallet.nav')}` },
+                    { to: '/provider/wallet#invite', label: `🎁 ${t('wallet.invite_nav')}`, testid: 'menu-invite', invite: true },
                     { to: '/directory', label: `📒 ${t('requester.directory_title')}` },
                   ] },
                 ].filter(Boolean).map(g => (
                   <div key={g.key} className="mb-1.5 last:mb-0 p-2 rounded-card bg-surface" data-testid={`menu-manage-${g.key}`}>
                     <div className="flex items-center gap-2">
                       <span className="font-bold text-fg flex-1 text-[15px]">{g.icon} {g.label}</span>
-                      <Link to={g.to} onClick={() => setMobileOpen(false)} className="px-3 py-1.5 rounded-pill bg-primary text-white text-[13px] font-semibold no-underline">{t('manage.active')}</Link>
-                      <Link to={`${g.to}?tab=archive`} onClick={() => setMobileOpen(false)} className="px-3 py-1.5 rounded-pill bg-surface-alt text-[13px] font-semibold text-fg no-underline">🗄️ {t('manage.archive')}</Link>
+                      <Link to={g.to} onClick={() => setMobileOpen(false)} className="px-3 py-1.5 rounded-pill bg-primary text-white text-[13px] font-semibold no-underline">{t(g.key === 'requests' ? 'manage.active_requests' : 'manage.active_tasks')}</Link>
+                      <Link to={`${g.to}?tab=archive`} onClick={() => setMobileOpen(false)} className="px-3 py-1.5 rounded-pill bg-surface-alt text-[13px] font-semibold text-fg no-underline">🗄️ {t(g.key === 'requests' ? 'manage.archive_requests' : 'manage.archive_tasks')}</Link>
                     </div>
                     <div className="flex flex-wrap gap-1.5 mt-2">
-                      {g.extra.map(x => (
+                      {g.extra.map(x => (x.invite && user.referral_code ? (
+                        // AYK-355: «دعوة» opens copy / send at once, here.
+                        <InviteButton key={x.to} code={user.referral_code} testid={x.testid}
+                          className="px-3 py-1.5 rounded-pill border-2 border-primary text-[13px] font-bold text-fg bg-surface hover:bg-surface-alt" />
+                      ) : (
                         <Link key={x.to} to={x.to} onClick={() => setMobileOpen(false)} data-testid={x.testid}
                           className="px-3 py-1.5 rounded-pill border border-border text-[13px] font-semibold text-fg no-underline hover:bg-surface-alt">{x.label}</Link>
-                      ))}
+                      )))}
                     </div>
                   </div>
                 ))}
@@ -339,11 +348,12 @@ export default function Header() {
             {user ? (
               <div className="grid grid-cols-2 gap-2">
                 <Link
-                  to={dashLink}
+                  to={user.role === 'admin' ? dashLink : '/profile'}
                   onClick={() => setMobileOpen(false)}
                   className="px-4 py-2.5 rounded-pill font-semibold bg-surface-alt text-fg text-center no-underline"
+                  data-testid="mobile-my-account"
                 >
-                  {t('nav.dashboard')}
+                  👤 {t(user.role === 'admin' ? 'nav.dashboard' : 'nav.my_account')}
                 </Link>
                 <button
                   onClick={() => { setMobileOpen(false); handleLogout(); }}

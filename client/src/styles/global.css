@@ -103,6 +103,10 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* Cards */
 .card {
+  /* AYK-378: a long word (districts, a number, a link) breaks inside its card instead of pushing
+     the card, and the page, past the right side of the screen. */
+  min-width: 0;
+  overflow-wrap: anywhere;
   background: var(--bg-card);
   border-radius: var(--radius-lg);
   padding: var(--space-5);
@@ -379,7 +383,9 @@ button, input, select, textarea { font: inherit; color: inherit; }
 
 /* Reserve the whole navigation, its raised action button, and the safe area. */
 @media (max-width: 767.98px) {
-  main { padding-bottom: var(--mobile-nav-clearance); }
+  /* AYK-349 (the owner: «منطقة ميتة»): the site's pages end in the footer, which keeps clear of the
+     bar; their main area added the same gap again (twice on the home page, which had its own). */
+  main:not(.site-main) { padding-bottom: var(--mobile-nav-clearance); }
   .site-footer { padding-bottom: var(--mobile-nav-clearance); }
 }
 
@@ -501,26 +507,31 @@ html[data-contrast="high"] .tone-request, html[data-contrast="high"] .tone-provi
   .site-header { background: color-mix(in srgb, rgb(var(--color-primary-from)) 10%, rgb(var(--color-surface) / 0.92)); }
 }
 
-/* AYK-332 (the owner: «الصفحة بيضاء، اكسر البياض بتدرجات اللون المختار في كامل التطبيق»): the
-   high-contrast choice kept every page flat white. It now carries light shades of the chosen
-   colour too: the page a gradient, cards and boxes a faint tint. Text stays black on a near-white
-   ground (dark: white on near-black), so the strong contrast that choice is for is kept. */
-@supports (color: color-mix(in srgb, red, white)) {
-  html[data-contrast="high"] body {
-    background: linear-gradient(160deg,
-      color-mix(in srgb, rgb(var(--color-primary-from)) 14%, rgb(var(--color-bg))) 0%,
-      color-mix(in srgb, rgb(var(--color-primary-from)) 6%, rgb(var(--color-bg))) 45%,
-      color-mix(in srgb, rgb(var(--color-primary-to)) 12%, rgb(var(--color-bg))) 100%) fixed;
-  }
-  html[data-contrast="high"] .card,
-  html[data-contrast="high"] .stat-card,
-  html[data-contrast="high"] .tone-request,
-  html[data-contrast="high"] .tone-provider {
-    background: linear-gradient(135deg,
-      color-mix(in srgb, rgb(var(--color-primary-from)) 7%, rgb(var(--color-surface))),
-      color-mix(in srgb, rgb(var(--color-primary-from)) 2%, rgb(var(--color-surface)))) !important;
-  }
-  html[data-contrast="high"] .site-header {
-    background: color-mix(in srgb, rgb(var(--color-primary-from)) 16%, rgb(var(--color-surface)));
-  }
+/* AYK-332 (the owner): the high-contrast choice was flat white. Its grounds now take a light shade
+   of the chosen colour (set in resolveTheme). The owner then asked for NO gradients here («لا يكون
+   متدرج»): the page is one flat shade and boxes a lighter flat one, as in a phone app. */
+html[data-contrast="high"] body { background: rgb(var(--color-bg)); }
+html[data-contrast="high"] .site-header { background: rgb(var(--color-surface-alt)); }
+
+
+/* AYK-340 (the owner): every control looks like what it is, on every page.
+   A drop-down list shows a clear arrow on its closing side. */
+select:not([multiple]):not([size]) {
+  appearance: none; -webkit-appearance: none;
+  padding-inline-end: 2.6rem !important;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-size: .5rem .5rem, .5rem .5rem;
+  background-repeat: no-repeat;
+  background-position: calc(100% - 1.4rem) 55%, calc(100% - .9rem) 55%;
+  cursor: pointer;
+}
+[dir="rtl"] select:not([multiple]):not([size]) { background-position: .9rem 55%, 1.4rem 55%; }
+/* A choice between tabs drawn as buttons: the chosen one filled, with a tick. */
+.btn[role="tab"] { border-width: 2px; }
+.btn-outline[role="tab"][aria-selected="true"] { background: var(--primary); color: var(--primary-fg); border-color: var(--primary); }
+.btn-outline[role="tab"][aria-selected="true"]::before { content: "✓"; }
+/* Words that can be tapped inside a page are underlined, so they read as links. */
+:where(main) a:where(:not(.btn):not(.card):not([class*="rounded"]):not([class*="flex"]):not([class*="grid"]):not([class*="block"])),
+:where(main) button:where(.text-primary:not(.btn):not([class*="rounded"]):not([class*="border"])) {
+  text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1.5px;
 }

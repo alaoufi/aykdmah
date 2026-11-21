@@ -215,6 +215,7 @@ async function submit({ user, payload }) {
     is_active: false,
     status: 'requested',
   });
+  require('./contentTranslation').later('ads', ad?.id); // AYK-343: in the 11 languages
   return { ok: true, ad, quote: q };
 }
 

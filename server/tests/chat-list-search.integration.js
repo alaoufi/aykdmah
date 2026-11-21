@@ -31,7 +31,7 @@ async function conversation(members, content, requestId = null) {
   return id;
 }
 async function search(q, { user = users.owner, suffix = '', status = 200 } = {}) {
-  const response = await nativeFetch(`${base}/api/chat/conversations?q=${encodeURIComponent(q)}${suffix}`, {
+  const response = await nativeFetch(`${base}/api/chat/conversations?separate=1&q=${encodeURIComponent(q)}${suffix}`, {
     headers: { ...(user ? { Authorization: `Bearer ${user.token}` } : {}), 'Accept-Language': 'en' },
   });
   const body = await response.json();
@@ -94,9 +94,9 @@ test('counterfactual query without the added message predicate misses the histor
   const context = { module: { exports: {} }, require: createRequire(filename) };
   vm.runInNewContext(source.replace(clause, '').replace('Array(5).fill', 'Array(4).fill'), context);
   const before = context.module.exports;
-  assert.deepEqual(ids(await before.listForUser(users.owner.id, { q: 'سباك' })), []);
-  assert.deepEqual(ids(await before.listForUser(users.owner.id, { q: 'صيانة المكيف' })), [fixtures.title]);
-  assert.deepEqual(ids(await Conversation.listForUser(users.owner.id, { q: 'سباك' })), [fixtures.arabic]);
+  assert.deepEqual(ids(await before.listForUser(users.owner.id, { q: 'سباك', merge: false })), []);
+  assert.deepEqual(ids(await before.listForUser(users.owner.id, { q: 'صيانة المكيف', merge: false })), [fixtures.title]);
+  assert.deepEqual(ids(await Conversation.listForUser(users.owner.id, { q: 'سباك', merge: false })), [fixtures.arabic]);
 });
 test('deleted messages, foreign membership and request filters do not leak search matches', async () => {
   assert.deepEqual(ids(await search('deleted-only-needle')), []);
@@ -117,7 +117,7 @@ test('PostgreSQL search filters before pagination and bounds limit/page', async 
   assert.equal(new Set([...first, ...second]).size, 105);
   assert.deepEqual([...first, ...second].sort((a,b) => a-b), [...fixtures.pages].sort((a,b) => a-b));
   assert.deepEqual(ids(await search('pagination-only-needle', { suffix: '&limit=100&page=3' })), []);
-  assert.equal((await Conversation.listForUser(users.owner.id, { q: 'pagination-only-needle', page: -5, limit: -1 })).length, 1);
+  assert.equal((await Conversation.listForUser(users.owner.id, { q: 'pagination-only-needle', page: -5, limit: -1, merge: false })).length, 1);
 });
 test('HTTP rejects invalid query shape/length, invalid filters and missing authentication', async () => {
   await search('x'.repeat(201), { status: 400 });

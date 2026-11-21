@@ -104,9 +104,15 @@ async function getSenderId(id) {
 }
 
 // includeDeleted: administrators reviewing a dispute also see messages their author deleted.
-async function listByConversation(conversationId, { beforeId = null, afterId = null, limit = 50, includeDeleted = false } = {}) {
-  limit = Math.max(1, Math.min(100, Number.parseInt(limit, 10) || 50));
-  const params = [conversationId];
+// One conversation, or (AYK-365) all the conversations of two people, as one timeline by message id.
+// viewerId (AYK-381, as in WhatsApp): a message its author deleted for everyone stays in its place as
+// «حُذفت هذه الرسالة», with nothing of what it said; one the viewer deleted for themselves is left out.
+async function listByConversation(conversationId, { beforeId = null, afterId = null, limit = 50, includeDeleted = false, viewerId = null } = {}) {
+  // A dispute is read whole (AYK-381: it was cut at 100 messages although 500 were asked for).
+  limit = Math.max(1, Math.min(includeDeleted ? 2000 : 100, Number.parseInt(limit, 10) || 50));
+  const viewer = Number.isSafeInteger(Number(viewerId)) && Number(viewerId) > 0 ? Number(viewerId) : null;
+  const conversationIds = (Array.isArray(conversationId) ? conversationId : [conversationId]).map(Number).filter(Number.isSafeInteger);
+  const params = [...conversationIds];
   let beforeSql = '';
   if (beforeId) {
     beforeSql = 'AND m.id < ?';
@@ -122,12 +128,18 @@ async function listByConversation(conversationId, { beforeId = null, afterId = n
   const messages = await query(
     `SELECT m.*, u.full_name AS sender_name, u.avatar AS sender_avatar, u.role AS sender_role,
             ru.full_name AS reply_sender_name, ru.id AS reply_sender_id, ru.role AS reply_sender_role,
-            rm.content AS reply_content, rm.message_type AS reply_type
+            rm.content AS reply_content, rm.message_type AS reply_type,
+            mc.request_id AS request_id, mr.title AS request_title
      FROM messages m
      JOIN users u ON m.sender_id = u.id
       LEFT JOIN messages rm ON m.reply_to_id = rm.id AND rm.conversation_id = m.conversation_id AND rm.deleted_at IS NULL
      LEFT JOIN users ru ON rm.sender_id = ru.id
-     WHERE m.conversation_id = ? ${includeDeleted ? '' : 'AND m.deleted_at IS NULL'} ${beforeSql}
+     LEFT JOIN conversations mc ON mc.id = m.conversation_id
+     LEFT JOIN requests mr ON mr.id = mc.request_id
+     WHERE m.conversation_id IN (${conversationIds.map(() => '?').join(', ')})
+       ${includeDeleted || viewer ? '' : 'AND m.deleted_at IS NULL'}
+       ${viewer ? `AND NOT EXISTS (SELECT 1 FROM message_hidden mh WHERE mh.message_id = m.id AND mh.user_id = ${viewer})` : ''}
+       ${beforeSql}
      ORDER BY m.id DESC LIMIT ?`,
     params
   );
@@ -144,7 +156,28 @@ async function listByConversation(conversationId, { beforeId = null, afterId = n
     byMsg[f.message_id].push(f);
   }
   for (const m of messages) m.files = byMsg[m.id] || [];
+  // For the two people, a deleted message keeps only its place, sender and time.
+  if (viewer && !includeDeleted) for (const m of messages) if (m.deleted_at) blankDeleted(m);
   return messages.reverse();
+}
+
+function blankDeleted(m) {
+  Object.assign(m, {
+    deleted: true, content: null, latitude: null, longitude: null, accuracy_m: null, files: [],
+    reply_to_id: null, reply_content: null, reply_type: null, reply_sender_name: null, reply_sender_id: null, reply_sender_role: null,
+    is_edited: 0, edited_at: null,
+  });
+  return m;
+}
+
+// The sender and conversation of a message, deleted or not (to hide it for oneself).
+async function getMeta(id) {
+  return (await queryOne('SELECT id, sender_id, conversation_id, deleted_at FROM messages WHERE id = ?', [id])) || null;
+}
+
+// «حذف لدي» (AYK-381): off this person's screen only.
+async function hideFor(messageId, userId) {
+  await query('INSERT INTO message_hidden (message_id, user_id) VALUES (?, ?) ON CONFLICT DO NOTHING', [messageId, userId]);
 }
 
 async function markRead(messageId) {
@@ -156,14 +189,15 @@ async function softDelete(id) {
 }
 
 async function searchInConversation(conversationId, q, { limit = 30, beforeId = null } = {}) {
+  const ids = (Array.isArray(conversationId) ? conversationId : [conversationId]).map(Number).filter(Number.isSafeInteger);
   return query(
-    `SELECT m.id, m.content, m.message_type, m.created_at, m.sender_id,
+    `SELECT m.id, m.conversation_id, m.content, m.message_type, m.created_at, m.sender_id,
             u.full_name AS sender_name, u.role AS sender_role
      FROM messages m JOIN users u ON m.sender_id = u.id
-     WHERE m.conversation_id = ? AND m.deleted_at IS NULL
+     WHERE m.conversation_id IN (${ids.map(() => '?').join(', ')}) AND m.deleted_at IS NULL
        AND m.content LIKE ? AND (?::bigint IS NULL OR m.id < ?)
      ORDER BY m.id DESC LIMIT ?`,
-    [conversationId, `%${q}%`, beforeId, beforeId, Number(limit)]
+    [...ids, `%${q}%`, beforeId, beforeId, Number(limit)]
   );
 }
 
@@ -188,5 +222,5 @@ async function markDelivered(io, readerId, conversationId = null) {
 }
 
 module.exports = {
-  create, forwardToTarget, getForwardReceipt, findById, listByConversation, markRead, softDelete,
+  create, forwardToTarget, getForwardReceipt, findById, listByConversation, markRead, softDelete, getMeta, hideFor, blankDeleted,
   getSenderId, searchInConversation, markDelivered };

@@ -507,7 +507,7 @@ async function setupFromEnv() {
     }
     await installUpdatedAtTrigger(client);
     await syncSequences(client);
-    const r = await client.query("SELECT COUNT(*)::int AS admins FROM users WHERE role = 'admin'");
+    const r = await client.query("SELECT COUNT(*)::int AS admins FROM users WHERE role = 'admin' OR is_admin = 1");
     await client.end();
     return { admins: r.rows[0] ? r.rows[0].admins : 0, migrations: migrations.applied };
   } catch (err) {

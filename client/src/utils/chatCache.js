@@ -58,11 +58,13 @@ export function appendMessages(onScreen, incoming) {
 
 // A conversation row moved to the top with its new last message (no new request for the list).
 export function updateConversationList(rows, message, { activeId, myId }) {
-  const at = (rows || []).findIndex(row => Number(row.id) === Number(message.conversation_id));
+  // AYK-365: a row stands for all the conversations with one person (pair_ids).
+  const inRow = row => Number(row.id) === Number(message.conversation_id) || (row.pair_ids || []).map(Number).includes(Number(message.conversation_id));
+  const at = (rows || []).findIndex(inRow);
   if (at < 0) return null;
   const row = rows[at];
   const mine = Number(message.sender_id) === Number(myId);
-  const open = Number(activeId) === Number(message.conversation_id);
+  const open = Number(activeId) === Number(message.conversation_id) || (row.pair_ids || []).map(Number).includes(Number(activeId));
   let previous = row.last_message;
   if (typeof previous === 'string') { try { previous = JSON.parse(previous); } catch (_) { previous = null; } }
   const updated = {

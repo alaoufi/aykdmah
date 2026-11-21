@@ -12,10 +12,11 @@ import LocationPickerMap from '../components/common/LocationPickerMap';
 import Avatar from '../components/common/Avatar';
 import { useAuth } from '../hooks/useAuth';
 import { listCategories, listNearbyProviders } from '../services/serviceService';
-import AvailabilityBadge from '../components/common/AvailabilityBadge';
+import AvailabilityBadge, { ProviderStatus } from '../components/common/AvailabilityBadge';
 import { getCurrentPosition, isValidCoordinates } from '../utils/geolocation.mjs';
 import { directionsUrl, formatDistanceKm } from '../utils/directions';
 import { localizedName } from '../utils/localize';
+import ExpandableText from '../components/common/ExpandableText';
 
 const pinIcon = icon({ iconUrl: markerImage, iconRetinaUrl: markerImage2x, shadowUrl: markerShadow,
   iconSize: [25, 41], iconAnchor: [12, 41], shadowSize: [41, 41] });
@@ -141,7 +142,7 @@ export default function ProvidersMapPage() {
       {origin && !loading && providers.length === 0 && !error && (
         <div className="text-[13px] text-fg-muted">{t('map.no_providers')}</div>
       )}
-      <ul className="grid gap-2 sm:grid-cols-2">
+      <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {providers.map(p => (
           <li key={p.id} className="card p-3 flex gap-3 items-center">
             <Avatar src={p.avatar} name={p.full_name} />
@@ -151,7 +152,8 @@ export default function ProvidersMapPage() {
                 ⭐ {p.rating_avg.toFixed(1)} ({p.rating_count}) · {formatDistanceKm(p.distance_km, t)}
                 {p.location_precision === 'city' && ` · ${t('map.city_precision')}`}
               </div>
-              <AvailabilityBadge availability={p.availability} className="mt-1" />
+              <ProviderStatus availability={p.availability} coverage={p.coverage} name={p.business_name || p.full_name} className="mt-1" />
+              <ExpandableText text={p.bio} translated={p.bio_translated} lines={2} className="mt-1.5" testId="provider-bio" />
             </div>
             {p.location_precision === 'exact' && (
               <a href={directionsUrl(p.latitude, p.longitude)} target="_blank" rel="noopener noreferrer"

@@ -33,6 +33,10 @@ router.put('/requests/:id',             requirePermission('requests.manage'), c.
 router.post('/requests/:id/assign',     requirePermission('requests.manage'), c.assignRequest);
 router.put('/requests/:id/cancel',      requirePermission('requests.manage'), c.cancelRequest);
 router.delete('/requests/:id',          requirePermission('requests.manage'), c.deleteRequest);
+router.put('/requests/:id/hide',        requirePermission('requests.manage'), c.hideRequest);
+// Service providers (AYK-361)
+router.get('/providers',                requirePermission('users.manage'), c.listProvidersAdmin);
+router.put('/providers/:id/hide',       requirePermission('users.manage'), c.hideProvider);
 
 // Settings
 router.get('/settings', requirePermission('settings.manage'), c.getSettings);
@@ -130,5 +134,8 @@ router.get('/live-locations',    requirePermission('conversations.read'), c.live
 router.get('/permissions',       requirePermission('admins.manage'), c.listPermissionRegistry);
 router.get('/users/:id/permissions', requirePermission('admins.manage'), c.getUserPermissions);
 router.put('/users/:id/permissions', requirePermission('admins.manage'), c.updateUserPermissions);
+// AYK-357: special numbers (11, 22 … 999), given by the administration.
+router.get('/special-numbers', requirePermission('users.manage'), c.specialNumbers);
+router.put('/users/:id/number', requirePermission('users.manage'), c.assignSpecialNumber);
 
 module.exports = router;

@@ -45,17 +45,18 @@
     "login": "Giriş",
     "register": "Hesap oluştur",
     "logout": "Çıkış",
-    "profile": "Profilim",
+    "profile": "Hesabım",
     "my_requests": "Taleplerim",
     "my_offers": "Tekliflerim",
     "notifications": "Bildirimler",
     "chat": "Sohbetler",
-    "dashboard": "Kontrol paneli",
+    "dashboard": "Yönetim paneli",
     "admin": "Yönetim paneli",
     "settings": "Ayarlar",
     "subscription": "Abonelik",
     "badges": "Rozetler",
-    "promote": "Reklam ver"
+    "promote": "Reklam ver",
+    "my_account": "Hesabım"
   },
   "theme": {
     "label": "Görünüm",
@@ -130,7 +131,7 @@
       "urgent_open": "Teklif bekleyen acil talep",
       "updated_at": "Son güncelleme: {{time}}"
     },
-    "browse_by_category": "Kategoriye göre göz atın",
+    "browse_by_category": "Mesleğe göre göz atın",
     "what_do_you_need": "Bugün neye ihtiyacınız var?",
     "how_it_works": "Platform nasıl çalışır?",
     "step_1_title": "Hizmet talep edin",
@@ -202,7 +203,7 @@
     "email": "E-posta",
     "username": "Kullanıcı adı",
     "identifier": "Telefon, numaranız veya e-posta",
-    "identifier_hint": "Telefon numaranız, sitenin üstünde görünen numaranız (örneğin AB12) veya e-postanızla giriş yapın.",
+    "identifier_hint": "Telefon numaranız, sitenin üstünde görünen numaranız (örneğin 27) veya e-postanızla giriş yapın.",
     "identifiers_hint": "En az bir giriş yöntemi ekleyin (kullanıcı adı / e-posta / telefon)",
     "password": "Şifre",
     "show_password": "Şifreyi göster",
@@ -255,7 +256,7 @@
     "admin_identifier": "Kullanıcı adı veya e-posta",
     "admin_login_hint": "Kontrol panelini açmak için yönetici hesabıyla giriş yapın.",
     "account_details_hint": "Bilgilerinizi bir kez tamamlayın. Kayıtlı adresiniz ve konumunuz sonraki taleplerde kullanılır; bunları profilinizden düzenleyebilirsiniz.",
-    "account_address_hint": "Sokak, bina veya villa numarası ve size ulaşmayı kolaylaştıracak tarifler.",
+    "account_address_hint": "İsteğe bağlı: Sokak, bina veya villa numarası ve size ulaşmayı kolaylaştıracak tarifler.",
     "account_address_required": "Tam adresinizi girin.",
     "account_phone_required": "İletişim için geçerli bir telefon numarası girin.",
     "account_name_required": "En az iki harften oluşan ad soyadınızı girin.",
@@ -305,7 +306,7 @@
     "phone_registered": "Bu numara zaten kayıtlı. Giriş yapın veya «Şifrenizi mi unuttunuz?» seçeneğini kullanın.",
     "phone_available": "✓ Numara geçerli, henüz kayıtlı değil",
     "invite_label": "Davet numarası (isteğe bağlı)",
-    "invite_hint": "Sizi biri davet ettiyse davet numarasını buraya yazın (harf ve rakam). Yoksa boş bırakın.",
+    "invite_hint": "Sizi biri davet ettiyse davet numarasını buraya yazın (yalnızca rakam). Yoksa boş bırakın.",
     "invite_not_found": "Davet numarası geçersiz. Kontrol edin ya da boş bırakın.",
     "complete_to_enable": "Düğmeyi etkinleştirmek için: {{item}}",
     "welcome_number_hint_client": "Bu sizin sabit numaranızdır ve sitenin üstünde görünür. Şifrenizle birlikte bununla veya telefonunuzla giriş yapabilirsiniz.",
@@ -321,7 +322,13 @@
     "registration_login": "Giriş yapmak için buraya dokunun",
     "password_advice": "Daha güçlü koruma için en az 6 karakter önerilir",
     "provider_extras": "Çalışma saatleri ve hizmet yeri (isteğe bağlı)",
-    "provider_extras_hint": "Değiştirmezseniz: her gün her saatte çalışırsınız ve müşteriye siz gidersiniz. İstediğiniz zaman «{{profile}}» bölümünden değiştirebilirsiniz."
+    "provider_extras_hint": "Değiştirmezseniz: her gün her saatte çalışırsınız ve müşteriye siz gidersiniz. İstediğiniz zaman «{{profile}}» bölümünden değiştirebilirsiniz.",
+    "wrong_password": "Şifre yanlış",
+    "recover_password": "Şifreyi kurtar",
+    "phone_not_registered": "Bu cep telefonu kayıtlı değil",
+    "account_not_registered": "Bu hesap kayıtlı değil",
+    "register_here": "Buradan kaydolun",
+    "recover_here": "Buradan kurtarın"
   },
   "request": {
     "create_title": "Yeni talep oluştur",
@@ -329,7 +336,7 @@
     "title_ph": "Örnek: Split klima bakımı",
     "description": "Açıklama",
     "description_ph": "İstediğiniz hizmeti açıkça anlatın",
-    "category": "Kategori",
+    "category": "Meslek",
     "service": "Hizmet",
     "subservice": "Alt hizmet",
     "address_ph": "Örnek: Olaya Mahallesi, Emir Sultan Caddesi",
@@ -424,7 +431,7 @@
   "status": {
     "request": {
       "open": "Açık",
-      "assigned": "Atandı",
+      "assigned": "Hizmet veren seçildi",
       "in_progress": "Devam ediyor",
       "completed": "Tamamlandı",
       "cancelled": "İptal edildi",
@@ -469,7 +476,7 @@
     "home": "Ev hizmetleri"
   },
   "profile": {
-    "title": "Profilim",
+    "title": "Hesabım",
     "update_profile": "Profil güncellendi",
     "update_provider": "Hizmet profili güncellendi",
     "business_name": "İşletme adı",
@@ -505,7 +512,13 @@
     "forgot_current_password": "Mevcut şifrenizi mi unuttunuz? Telefonunuza gelen kodla kurtarın",
     "change_password_save": "Yeni şifreyi kaydet",
     "password_changed_here": "Şifre değiştirildi. Bu cihazda oturumunuz açık kaldı; diğer cihazlarda oturum kapandı.",
-    "account_type_admin": "Bu bir yönetici hesabı: hizmet ister ve platformu yönetir, türü değişmez. Hizmet veren olarak denemek için farklı bir telefon numarasıyla başka bir hesap açın."
+    "account_type_admin": "Bu bir yönetici hesabı: hizmet ister ve platformu yönetir, türü değişmez. Hizmet veren olarak denemek için farklı bir telefon numarasıyla başka bir hesap açın.",
+    "saved_toast": "Kaydedildi",
+    "missing_title": "Lütfen şunları tamamlayın",
+    "missing_region": "Bölgeyi seçin",
+    "missing_city": "Şehri seçin",
+    "missing_district": "Mahalleyi seçin",
+    "not_saved": "Kaydedilmedi"
   },
   "chat": {
     "title": "Sohbetler",
@@ -640,7 +653,13 @@
     "offline_hint": "İnternet bağlantısı yok",
     "media_limits_hint": "Video en fazla {{video_min}} dk veya {{video_mb}} MB · ses en fazla {{voice_min}} dk · fotoğraf en fazla {{image_mb}} MB · dosya en fazla {{file_mb}} MB",
     "media_file_too_large": "Bu dosya {{size}} MB'tan büyük.",
-    "uploading_percent": "Yükleniyor: %{{percent}}"
+    "uploading_percent": "Yükleniyor: %{{percent}}",
+    "delete_for_everyone": "Herkesten sil",
+    "delete_for_me": "Benden sil",
+    "delete_for_me_body": "Mesaj yalnızca sizin ekranınızdan kaldırılır. Karşı taraf görmeye devam eder ve yönetim anlaşmazlık durumu için saklar.",
+    "message_was_deleted": "Bu mesaj silindi",
+    "you_deleted_message": "Bu mesajı sildiniz",
+    "delete_choice_body": "“Herkesten sil”: sizden ve karşı taraftan kaldırılır, yerinde “Bu mesaj silindi” kalır.\n“Benden sil”: yalnızca sizin ekranınızdan.\nHer iki durumda da yönetim anlaşmazlık için saklar."
   },
   "tracking": {
     "title": "Canlı izleme",
@@ -759,7 +778,13 @@
     "coverage_all": "Tüm mahalleler",
     "coverage_clear": "Tümünü kaldır",
     "coverage_count": "Seçilen mahalleler: {{count}}",
-    "coverage_required": "En az bir mahalle seçin."
+    "coverage_required": "En az bir mahalle seçin.",
+    "services_description": "Hizmetlerin açıklaması",
+    "services_description_mine": "Hizmetlerimin açıklaması",
+    "services_description_hint": "Ne sunduğunuzu, deneyiminizi ve güçlü yönlerinizi yazın; örn. elektrik tesisatı, klima bakımı, işçilik garantisi…",
+    "show_more": "Daha fazla göster",
+    "show_less": "Daha az göster",
+    "show_translation": "Çeviriyi göster"
   },
   "review": {
     "rate_provider": "Hizmet vereni değerlendir",
@@ -884,6 +909,7 @@
     "created_complete_payment": "Abonelik oluşturuldu. Ödemeyi tamamlayın."
   },
   "notification": {
+    "messages_from": "💬 {{name}} adlı kişiden mesajlar",
     "title": "Bildirimler",
     "no_notifications": "Bildirim yok",
     "mark_all_read": "Tümünü okundu işaretle",
@@ -1338,7 +1364,7 @@
     "browse_services": "Hizmetlere göz atın",
     "categories_title": "Hizmet kategorileri",
     "popular_title": "Hizmet türleri",
-    "featured_categories": "Öne çıkan kategoriler",
+    "featured_categories": "Öne çıkan meslekler",
     "services_available": "{{count}} hizmet türü",
     "price_from": "Tahmini fiyat, başlangıç:",
     "duration": "İş süresi",
@@ -1498,7 +1524,7 @@
     "workflow_hint": "Yönetim onayladıktan sonra ödeme sayfası görünür. Reklam, ödemenizden ve yönetim tarafından etkinleştirilmesinden sonra başlar.",
     "my_ads": "Reklamlarım",
     "no_ads": "Henüz reklam yok",
-    "status_requested": "İnceleniyor",
+    "status_requested": "Yönetimin onayı bekleniyor (henüz ödeme yok)",
     "status_approved": "Onaylandı — ödeme bekleniyor",
     "status_awaiting_payment": "Ödendi — etkinleştirme bekleniyor",
     "status_active": "Aktif",
@@ -1600,7 +1626,7 @@
     "workflow_hint": "Talebi gönderdikten sonra: yönetim inceler, ardından ücreti ödersiniz ve rozet hemen etkinleşir.",
     "request_sent": "Talep gönderildi. İncelemeden sonra size bildirilecek.",
     "current_status": "Mevcut durum",
-    "status_requested": "İnceleniyor",
+    "status_requested": "Yönetimin onayı bekleniyor",
     "status_approved": "Onaylandı — ödeme bekleniyor",
     "status_awaiting_payment": "Ödeme bekleniyor",
     "status_active": "Aktif",
@@ -1765,6 +1791,10 @@
       "contact": {
         "question": "Teknik destekle nasıl iletişim kurarım veya şikâyette bulunurum?",
         "answer": "☰ menüsünden veya sayfanın altından «Teknik destek ve şikâyetler»i seçin. Bize doğrudan WhatsApp'tan yazabilir ya da bir konu seçip yönetime mesaj gönderebilirsiniz: teknik destek, şikâyet, öneri veya yönetimle yazışma. Yönetimin yanıtı aynı sayfaya bildirimle gelir ve menüde yeni yanıtların sayısı görünür."
+      },
+      "rating": {
+        "question": "Hizmet vereni nasıl değerlendiririm?",
+        "answer": "Hizmet tamamlandıktan sonra bir ile beş yıldız arasında seçim yapın ve görüşünüzü yazın. Değerlendirmeniz hemen yayımlanır ve hizmet verenin sayfasında herkese görünür."
       }
     },
     "start_title": "Başlamaya hazır mısınız?",
@@ -1772,12 +1802,12 @@
     "browse_services": "Hizmetlere göz at",
     "provider_signup": "Hizmet veren olarak kaydol",
     "account_note": "Bu kılavuzu giriş yapmadan okuyabilirsiniz.",
-    "wallet_title": "Hizmet verenler için kupon ve cüzdan",
-    "wallet_intro": "Her hizmet veren kaydolduğunda kendine özel bir kupon alır; başkası bu kuponla kaydolup ödeme yaptığında pay kazanır. Kuponu hizmet veren panelindeki «Cüzdan ve kupon» bölümünde bulursunuz.",
+    "wallet_title": "Kupon ve cüzdan",
+    "wallet_intro": "Hizmet alan olsun hizmet veren olsun, her hesabın kendine özel bir kuponu vardır. Yönetim komisyonlu pazarlamayı etkinleştirirse, hizmet verenler kuponunuzla kaydolduğunda kazanırsınız. Kuponu «Cüzdan ve kupon» bölümünde bulursunuz.",
     "wallet_points": {
       "coupon": {
         "title": "Kuponunuz",
-        "body": "KD27 gibi iki harf ve iki rakamdan oluşan sabit bir kod; gerektiğinde otomatik uzar. Değişmez ve başkasına tekrar verilmez."
+        "body": "27 gibi iki rakamdan oluşan sabit bir numara; gerektiğinde otomatik olarak üç, ardından dört rakama uzar. Değişmez ve başkasına tekrar verilmez."
       },
       "invite": {
         "title": "Davet",
@@ -1785,7 +1815,7 @@
       },
       "commission": {
         "title": "Komisyon",
-        "body": "Yeni kullanıcının ilk tamamlanan elektronik ödemesinde, yönetimin belirlediği bir oran bakiyenize otomatik olarak yalnızca bir kez eklenir. Bakiyeden yapılan ödemeler komisyon getirmez."
+        "body": "Yönetim tek bir yöntem seçer: yeni kullanıcının ilk tamamlanan elektronik ödemesinden bir oran; veya alt sınıra ulaşıldıktan sonra kuponunuzla kaydolan her hizmet veren için sabit bir tutar (alt sınırın altında bir şey kazanılmaz); veya aboneliğini ödeyen ve aboneliği etkinleşen her hizmet veren için sabit bir tutar, kişi başına yalnızca bir kez. Geçerli yöntem ve rakamları cüzdanınızda görünür; yönetim komisyonlu pazarlamayı durdurabilir."
       },
       "balance": {
         "title": "Bakiye",
@@ -1834,7 +1864,7 @@
       },
       "coupon": {
         "title": "Numaranız ve davet numarası",
-        "body": "Her hesabın, sitenin üstünde ve hesap menünüzde görünen, harf ve rakamlardan oluşan sabit bir numarası vardır (örneğin AB12); bununla, telefonunuzla veya e-postanızla giriş yapabilirsiniz. Hizmet verenin numarası aynı zamanda davet numarasıdır: bir hizmet veren tarafından davet edilen kişi, kayıt sırasında bu numarayı «Davet numarası» alanına yazar. «Hesap oluştur» düğmesi; zorunlu alanlar eksiksiz ve doğru doldurulmadan, şartlar kabul edilmeden ve doğrulama kodu yazılmadan çalışmaz."
+        "body": "Her hesabın, sitenin üstünde ve hesap menünüzde görünen, yalnızca rakamlardan oluşan sabit bir numarası vardır (örneğin 27); bununla, telefonunuzla veya e-postanızla giriş yapabilirsiniz. Hizmet verenin numarası aynı zamanda davet numarasıdır: bir hizmet veren tarafından davet edilen kişi, kayıt sırasında bu numarayı «Davet numarası» alanına yazar. «Hesap oluştur» düğmesi; zorunlu alanlar eksiksiz ve doğru doldurulmadan, şartlar kabul edilmeden ve doğrulama kodu yazılmadan çalışmaz."
       },
       "matching": {
         "title": "Ana sayfada neler görürsünüz",
@@ -1875,6 +1905,10 @@
       "search": {
         "title": "Aramada görünme",
         "body": "Hizmet alan durumunuzu görür: şu an müsait, bir tarihe kadar izinde veya çalışma saatleri dışında. Müsait olanlar önce görünür ve yalnızca «Şu an müsait olanlar»ı seçebilir."
+      },
+      "present": {
+        "title": "Yeşil ve kırmızı daire",
+        "body": "🟢 «Şu an müsait»: hizmet veren kendi programına göre şu an iş alıyor; izinde veya hizmet dışı değil. 🔴 «Müsait değil» nedeniyle birlikte, yanında tüm saatlerini gösteren «Çalışma programı» bağlantısı. «📱 Şu an uygulamada» başka bir şey: uygulaması şu an açık."
       }
     },
     "appearance_title": "Görünüm ve temalar",
@@ -1970,8 +2004,8 @@
     "distance_km": "{{value}} km",
     "providers_title": "Yakındaki hizmet verenler",
     "providers_subtitle": "Mesafeler yaklaşık kuş uçuşudur, yol mesafesi değildir.",
-    "filter_category": "Kategori",
-    "all_categories": "Tüm kategoriler",
+    "filter_category": "Meslek",
+    "all_categories": "Tüm meslekler",
     "filter_radius": "Mesafe aralığı",
     "within_km": "{{value}} km içinde",
     "choose_origin": "Yakındaki hizmet verenleri görmek için konumunuzu belirleyin veya haritada bir nokta seçin.",
@@ -2281,7 +2315,14 @@
       "counted": "Sayıldı",
       "not_counted": "Henüz hizmet seçmedi",
       "commission": "Komisyon {{amount}} SAR"
-    }
+    },
+    "invite_title": "Davet bağlantınız",
+    "invite_hint": "Kopyalayıp paylaşın. Bağlantıyı açıp kaydolan herkes otomatik olarak sizin adınıza sayılır.",
+    "invite_nav": "Katılmaya davet et",
+    "invite_send": "WhatsApp ile gönder",
+    "invite_copy": "Kopyala",
+    "invite_send_short": "Gönder",
+    "invite_copied": "Kopyalandı"
   },
   "test_checkout": {
     "banner": "Deneme ödemesi — hiçbir tutar çekilmeyecek",
@@ -2304,10 +2345,10 @@
     "manage": "Müsaitliği yönet",
     "state": {
       "available": "Şu an müsait",
-      "paused": "Geçici olarak durduruldu",
+      "paused": "Şimdilik hizmet dışı",
       "vacation": "Tatilde",
-      "off_day": "Çalışma günü değil",
-      "off_hours": "Çalışma saatleri dışında",
+      "off_day": "Bugün müsait değil",
+      "off_hours": "Şu an müsait değil (çalışma saatleri dışında)",
       "offline": "Şu anda bağlı değil"
     },
     "vacation_until": "{{date}} tarihine kadar izinde",
@@ -2333,7 +2374,25 @@
     "vacation_both": "İznin başlangıç ve bitiş tarihini belirleyin.",
     "hours_both": "Başlangıç ve bitiş saatini birlikte seçin ya da ikisini de boş bırakın.",
     "days_required": "En az bir çalışma günü seçin.",
-    "hours_24": "24 saat"
+    "hours_24": "24 saat",
+    "schedule_link": "Çalışma programı",
+    "schedule_title": "Çalışma programı",
+    "day_off": "İzin günü",
+    "all_hours": "Her gün 24 saat müsait",
+    "present": "Şu an uygulamada",
+    "not_present": "Şu an uygulamada değil",
+    "present_hint": "Uygulamada: uygulaması şu an açık. Müsait: programına göre iş alıyor.",
+    "mode_24h": "24 saat müsait",
+    "mode_schedule": "Haftalık program",
+    "add_period": "Zaman aralığı ekle",
+    "remove_period": "Bu aralığı kaldır",
+    "copy_all": "Bu günü tüm günlere kopyala",
+    "day_works": "Bu gün çalışıyor",
+    "schedule_hint": "Her gün için bir veya daha fazla aralık belirleyin; örneğin 08:00–12:00 ve 16:00–22:00. Aralık gece yarısını geçebilir.",
+    "schedule_required": "En az bir çalışma aralığı belirleyin veya «24 saat müsait» seçin.",
+    "midnight": "Gece yarısı",
+    "label_available": "İş için müsait",
+    "label_present": "Uygulamada"
   },
   "brand": {
     "branch_of": "Ay Khidma sitesi şu sitenin bir şubesidir:",
@@ -2472,7 +2531,7 @@
     "requesters_note": "Hizmet verdiğiniz mahallelerde kayıtlı müşteri sayısı. Gizlilikleri için adlarını göstermeyiz; talepleri yayınlanır yayınlanmaz «Mesleğimin talepleri» bölümüne gelir."
   },
   "work": {
-    "title": "İşim",
+    "title": "İş ayarlarım",
     "hint": "Müşteriler sizinle ilgili bunu görür: meslekleriniz, hizmet verdiğiniz mahalleler ve çalışma saatleriniz. Müsait olduğunuz sürece onlara otomatik görünürsünüz.",
     "professions": "Mesleklerim",
     "no_professions": "Henüz meslek seçmediniz",
@@ -2497,8 +2556,8 @@
     "resume_in_profile": "Profilimden devam et",
     "my_contacts_title": "İletişime geçtiğiniz talepler",
     "assigned_to_you": "Size atandı: bitirmek ya da çekilmek için açın",
-    "tasks_title": "Mesleki işlerim",
-    "tasks_hint": "İletişime geçtiğiniz veya size atanan talepler. Aktif olanlar şimdi sizi bekliyor; arşivde biten ya da iptal edilenler var.",
+    "tasks_title": "İşlerim",
+    "tasks_hint": "İletişime geçtiğiniz veya size atanan talepler. «Aktif işlerim» şimdi sizi bekliyor; «İş arşivim» biten ya da iptal edilenleri tutar.",
     "task_waiting": "Talep sahibinin yanıtı bekleniyor",
     "professions_areas": "Mesleklerim ve bölgelerim"
   },
@@ -2653,7 +2712,11 @@
   "manage": {
     "title": "Yönetim",
     "active": "Aktif",
-    "archive": "Arşiv"
+    "archive": "Arşiv",
+    "active_requests": "Aktif taleplerim",
+    "archive_requests": "Talep arşivim",
+    "active_tasks": "Aktif işlerim",
+    "archive_tasks": "İş arşivim"
   },
   "directory": {
     "save": "Rehberime kaydet",
@@ -2697,7 +2760,9 @@
     "cancel": "İptal",
     "delete": "Sil",
     "required": "Bu alan zorunlu",
-    "min_length": "En az {{count}} karakter yazın"
+    "min_length": "En az {{count}} karakter yazın",
+    "done": "Tamam",
+    "deleted": "Silindi"
   },
   "join": {
     "title_request": "Hizmetinizi bir dakikada isteyin",
@@ -2853,11 +2918,37 @@
     "whatsapp_hint": "WhatsApp için telefon numaranızı kullanmak üzere boş bırakın.",
     "show_whatsapp": "WhatsApp düğmesini göster",
     "call": "Ara",
-    "whatsapp_button": "WhatsApp"
+    "whatsapp_button": "WhatsApp",
+    "mobile": "Cep telefonu",
+    "chat": "Sohbet",
+    "opening": "Sohbet açılıyor…"
   },
   "provider_page": {
     "contact": "İletişim",
     "rating_count": "Değerlendirme sayısı: {{count}}",
     "completed": "Tamamlanan talepler: {{count}}"
+  },
+  "coverage": {
+    "covers": "Hizmet bölgesi: {{city}}",
+    "all_districts": "Tüm mahalleler",
+    "more_districts": "ve {{count}} tane daha"
+  },
+  "share": {
+    "title": "Paylaş",
+    "site": "Siteyi paylaş",
+    "site_text": "Ay Khidma: yakınınızdaki her hizmeti isteyin, mahallenizdeki hizmet verenlere kolayca ulaşın.",
+    "native": "Paylaş (görsel, bağlantı)",
+    "whatsapp": "WhatsApp",
+    "telegram": "Telegram",
+    "facebook": "Facebook",
+    "x": "X / Twitter",
+    "tiktok": "TikTok",
+    "tiktok_hint": "(bağlantı kopyalanır)",
+    "tiktok_copied": "Bağlantı kopyalandı, TikTok’a yapıştırın",
+    "copy": "Bağlantıyı kopyala",
+    "copied": "Bağlantı kopyalandı",
+    "qr": "QR kodu",
+    "qr_hint": "Bağlantıyı açmak için kodu telefon kamerasıyla okutun",
+    "qr_save": "Görseli kaydet"
   }
 }

@@ -2,11 +2,15 @@ const { query } = require('../config/database');
 const { success, error } = require('../utils/apiResponse');
 const asyncHandler = require('../utils/asyncHandler');
 const { distanceKm, isValidLatLng } = require('../services/geoService');
+const { COVERAGE_SQL, coverageOf } = require('../utils/providerCoverage');
 const { availability } = require('../utils/providerAvailability');
 const ProviderBadge = require('../models/ProviderBadge');
+const { BIO_SQL, bioFor, readerOf } = require('../utils/providerBio');
+const { publicContact } = require('../utils/providerContact');
 
 const MAX_RADIUS_KM = 200;
-const MAX_RESULTS = 50;
+// AYK-370: everyone covering the area is listed (it was cut at 50).
+const MAX_RESULTS = 300;
 
 function parseServiceIds(value) {
   if (Array.isArray(value)) return value.map(Number);
@@ -42,19 +46,21 @@ const nearby = asyncHandler(async (req, res) => {
 
   const rows = await query(`
     SELECT u.id, u.full_name, u.avatar, u.is_verified, u.is_online,
-           pp.business_name, pp.category_id, pp.service_ids, pp.service_radius_km,
+           pp.business_name, pp.category_id, pp.service_ids, pp.service_radius_km, ${BIO_SQL},
            pp.rating_avg, pp.rating_count, pp.completed_orders,
            pp.location_mode,
            pp.show_location_on_map, pp.fixed_latitude, pp.fixed_longitude,
            to_jsonb(pp)->>'availability_status' AS availability_status, to_jsonb(pp)->>'vacation_from' AS vacation_from,
            to_jsonb(pp)->>'vacation_to' AS vacation_to, to_jsonb(pp)->>'work_days' AS work_days,
            to_jsonb(pp)->>'work_from' AS work_from, to_jsonb(pp)->>'work_to' AS work_to,
+           to_jsonb(pp)->'work_schedule' AS work_schedule, ${COVERAGE_SQL},
            c.latitude AS city_latitude, c.longitude AS city_longitude,
            c.name_ar AS city_name_ar, c.name_en AS city_name_en
     FROM users u
     JOIN provider_profiles pp ON pp.user_id = u.id
     LEFT JOIN cities c ON c.id = u.city_id
     WHERE u.role = 'provider' AND u.is_active = 1 AND u.is_blocked = 0 AND u.deleted_at IS NULL
+      AND pp.hidden_at IS NULL -- AYK-361: hidden by the administration
       -- AYK-254: only providers whose shown point (their own, or their city's) can lie inside the
       -- circle are read; this used to read every provider in the country on each map view.
       AND ((pp.fixed_latitude BETWEEN ? AND ? AND pp.fixed_longitude BETWEEN ? AND ?)
@@ -87,11 +93,12 @@ const nearby = asyncHandler(async (req, res) => {
       is_verified: Number(row.is_verified) === 1,
       is_online: Number(row.is_online) === 1,
       category_id: row.category_id,
-      opinion: row.opinion || null,
+      opinion: row.opinion || null, ...bioFor(row, readerOf(req)),
       rating_avg: Number(row.rating_avg) || 0,
       rating_count: Number(row.rating_count) || 0,
       completed_orders: Number(row.completed_orders) || 0,
       service_radius_km: Number(row.service_radius_km) || null,
+      coverage: coverageOf(row),
       city_name_ar: row.city_name_ar,
       city_name_en: row.city_name_en,
       latitude: point.latitude,
@@ -166,13 +173,15 @@ function coveringProviders({ districtId, cityId, excludeId = 0 }) {
             AND COALESCE(pp.coverage_city_id, u.city_id) = ?))`;
   return query(`
     SELECT u.id, u.full_name, u.avatar, u.is_verified, u.is_online,
-           pp.business_name, pp.category_id, pp.service_ids,
+           pp.business_name, pp.category_id, pp.service_ids, ${BIO_SQL},
+           u.phone, pp.show_phone, pp.whatsapp, pp.show_whatsapp,
            pp.rating_avg, pp.rating_count, pp.completed_orders,
            cat.name_ar AS category_name_ar, cat.name_en AS category_name_en, cat.name_translations AS category_name_translations,
            dist.name_ar AS district_name_ar, dist.name_en AS district_name_en,
            to_jsonb(pp)->>'availability_status' AS availability_status, to_jsonb(pp)->>'vacation_from' AS vacation_from,
            to_jsonb(pp)->>'vacation_to' AS vacation_to, to_jsonb(pp)->>'work_days' AS work_days,
            to_jsonb(pp)->>'work_from' AS work_from, to_jsonb(pp)->>'work_to' AS work_to,
+           to_jsonb(pp)->'work_schedule' AS work_schedule, ${COVERAGE_SQL},
            EXISTS (SELECT 1 FROM provider_badges pb WHERE pb.user_id = u.id AND pb.badge_type = 'featured' AND pb.status = 'active'
                    AND pb.ends_at > CURRENT_TIMESTAMP AND ${ProviderBadge.verifiedPaymentSql('pb')}) AS is_featured
     FROM users u
@@ -180,6 +189,7 @@ function coveringProviders({ districtId, cityId, excludeId = 0 }) {
     LEFT JOIN categories cat ON cat.id = pp.category_id
     LEFT JOIN districts dist ON dist.id = u.district_id
     WHERE u.role = 'provider' AND u.is_active = 1 AND u.is_blocked = 0 AND u.deleted_at IS NULL
+      AND pp.hidden_at IS NULL -- AYK-361: hidden by the administration
       AND u.id <> ? AND ${coverage}`,
   [excludeId, districtId || cityId, cityId]);
 }
@@ -192,13 +202,16 @@ const matching = asyncHandler(async (req, res) => {
   const categoryServices = categoryId !== null
     ? new Set((await query('SELECT id FROM services WHERE category_id = ?', [categoryId])).map(row => Number(row.id))) : null;
   const list = async scope => listProviders(await coveringProviders({ ...scope, excludeId: req.user?.id || 0 }),
-    { categoryId, serviceId, categoryServices, cityId: where.cityId });
+    { categoryId, serviceId, categoryServices, cityId: where.cityId, reader: readerOf(req) });
   let requestedCategories = [];
-  if (req.query.matching === '1' && req.user && categoryId === null && serviceId === null) {
+  // The professions this person asked for: always sent (the page lists them first, AYK-339); the
+  // list keeps only them when «المهن التي طلبتها» is chosen (matching=1).
+  if (req.user && categoryId === null && serviceId === null) {
     requestedCategories = (await query('SELECT DISTINCT category_id FROM requests WHERE client_id = ? AND deleted_at IS NULL AND category_id IS NOT NULL', [req.user.id])).map(row => Number(row.category_id));
   }
-  const byService = requestedCategories.length ? await serviceCategories() : null;
-  const inRequested = row => !requestedCategories.length || [...providerCategories(row, byService)].some(id => requestedCategories.includes(id));
+  const onlyRequested = req.query.matching === '1' && requestedCategories.length > 0;
+  const byService = onlyRequested ? await serviceCategories() : null;
+  const inRequested = row => !onlyRequested || [...providerCategories(row, byService)].some(id => requestedCategories.includes(id));
   const providers = (await list(where)).filter(inRequested);
   // With a district: also everyone serving the whole city (AYK-055), for the "widen" step and
   // the small "everyone in your city" box.
@@ -212,7 +225,7 @@ const matching = asyncHandler(async (req, res) => {
 
 // Filters covering providers by profession, drops those whose required subscription is
 // missing (AYK-042), and ranks them: available now first, then featured, then rating.
-async function listProviders(rows, { categoryId, serviceId, categoryServices, cityId }) {
+async function listProviders(rows, { categoryId, serviceId, categoryServices, cityId, reader = 'ar' }) {
   const providers = [];
   for (const row of rows) {
     const services = parseServiceIds(row.service_ids);
@@ -223,10 +236,13 @@ async function listProviders(rows, { categoryId, serviceId, categoryServices, ci
       is_verified: Number(row.is_verified) === 1, is_online: Number(row.is_online) === 1,
       is_featured: row.is_featured === true || Number(row.is_featured) === 1,
       category_id: row.category_id, service_ids: services,
-      opinion: row.opinion || null,
+      opinion: row.opinion || null, ...bioFor(row, reader),
+      // AYK-379: only the numbers the provider chose to show.
+      ...publicContact(row),
       rating_avg: Number(row.rating_avg) || 0, rating_count: Number(row.rating_count) || 0,
       completed_orders: Number(row.completed_orders) || 0,
       availability: availability(row),
+      coverage: coverageOf(row),
       // Shown on the card: profession and district (AYK-041).
       category_name_ar: row.category_name_ar, category_name_en: row.category_name_en, category_name_translations: row.category_name_translations,
       district_name_ar: row.district_name_ar, district_name_en: row.district_name_en,
@@ -283,7 +299,7 @@ const areaStats = asyncHandler(async (req, res) => {
   }
   const open = await query(`SELECT COALESCE(r.category_id, s.category_id) AS category_id, COUNT(*) AS n
     FROM requests r LEFT JOIN services s ON s.id = r.service_id
-    WHERE r.status = 'open' AND r.deleted_at IS NULL AND ${where.districtId ? 'r.district_id = ?' : 'r.city_id = ?'}
+    WHERE r.status = 'open' AND r.deleted_at IS NULL AND r.hidden_at IS NULL AND ${where.districtId ? 'r.district_id = ?' : 'r.city_id = ?'}
     GROUP BY COALESCE(r.category_id, s.category_id)`, [where.districtId || where.cityId]);
   for (const row of open) if (row.category_id) entry(Number(row.category_id)).open_requests = Number(row.n);
   const categories = [...stats.values()].map(({ rated, rating_sum, ...e }) => ({ ...e, rating_avg: rated ? Math.round((rating_sum / rated) * 10) / 10 : null }));
@@ -326,7 +342,7 @@ const myMarket = asyncHandler(async (req, res) => {
       COUNT(DISTINCT CASE WHEN r.created_at > CURRENT_TIMESTAMP - INTERVAL '30 days' THEN r.client_id END) AS requesters_30d,
       SUM(CASE WHEN r.created_at > CURRENT_TIMESTAMP - INTERVAL '30 days' THEN 1 ELSE 0 END) AS requests_30d
     FROM requests r LEFT JOIN services s ON s.id = r.service_id
-    WHERE r.deleted_at IS NULL AND r.client_id <> ? AND ${areaSql} AND COALESCE(r.category_id, s.category_id) IN (${catSql})
+    WHERE r.deleted_at IS NULL AND r.hidden_at IS NULL AND r.client_id <> ? AND ${areaSql} AND COALESCE(r.category_id, s.category_id) IN (${catSql})
     GROUP BY COALESCE(r.category_id, s.category_id)`, [req.user.id, ...areaParams, ...mine]);
   const userAreaSql = covered.length ? `u.district_id IN (${covered.map(() => '?').join(', ')})` : 'u.city_id = ?';
   const residents = Number((await query(`SELECT COUNT(*) AS n FROM users u WHERE u.deleted_at IS NULL AND u.is_active = 1

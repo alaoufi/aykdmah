@@ -1,6 +1,7 @@
 const { validateCatalog, catalogId, reorderIds } = require('../utils/catalogValidation');
 const City = require('../models/City');
 const { success, created, notFound } = require('../utils/apiResponse');
+const contentTranslation = require('../services/contentTranslation');
 const asyncHandler = require('../utils/asyncHandler');
 
 const list = asyncHandler(async (req, res) => {
@@ -23,6 +24,7 @@ const getOne = asyncHandler(async (req, res) => {
 const create = asyncHandler(async (req, res) => {
   const data = await validateCatalog('city', req.body, { create: true });
   const item = await City.create(data);
+  contentTranslation.later('cities', item?.id); // AYK-343: its name in the 11 languages
   return created(res, item);
 });
 
@@ -32,6 +34,7 @@ const update = asyncHandler(async (req, res) => {
   if (!existing) return notFound(res);
   const data = await validateCatalog('city', req.body, { existing });
   const item = await City.update(id, data);
+  if (data.name_ar !== undefined && data.name_ar !== existing.name_ar) contentTranslation.later('cities', id);
   return success(res, item, 'تم التحديث');
 });
 

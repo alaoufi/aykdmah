@@ -11,7 +11,12 @@ import { useAuth } from '../../hooks/useAuth';
 import { canRequestService } from '../../utils/canRequest';
 import { listDirectoryIds, saveToDirectory, contactDirect } from '../../services/requestService';
 import { apiError } from '../../services/api';
-import { isPresent } from '../common/AvailabilityBadge';
+import { isPresent, ProviderStatus } from '../common/AvailabilityBadge';
+import { optionLabel } from '../../utils/optionLabel';
+import ExpandableText from '../common/ExpandableText';
+import ContactMenu from '../providers/ContactMenu';
+import ShareMenu from '../common/ShareMenu';
+import { providerLink } from '../providers/ShareProviderLink';
 
 // Providers who serve the signed-in requester's registered district in a profession
 // (AYK-035): every provider covering that district, featured (paid) first, then by
@@ -35,12 +40,13 @@ export function AreaLine({ area, browsing, onPick }) {
   const sel = 'px-3 py-2 rounded-card border border-border bg-surface text-[13px] text-fg min-w-0';
   return (
     <div className="text-[13px] text-fg-muted">
-      <p className="m-0">
-        📍 {name ? t(browsing ? 'for_you.browsing_area' : 'for_you.your_area', { area: name }) : t('for_you.no_area')}{' '}
-        {onPick && <button type="button" className="font-semibold text-primary me-2" onClick={() => setOpen(v => !v)} aria-expanded={open}>🏠 {t('for_you.other_district')}</button>}
-        {browsing && onPick && <button type="button" className="font-semibold text-primary me-2" onClick={() => onPick(null)}>↩ {t('for_you.back_to_mine')}</button>}
-        <Link to="/profile#my-area" className="font-semibold text-primary">{t('for_you.edit_area')}</Link>
-      </p>
+      <p className="m-0">📍 {name ? t(browsing ? 'for_you.browsing_area' : 'for_you.your_area', { area: name }) : t('for_you.no_area')}</p>
+      {/* AYK-340 (the owner): each of these is a clear button, not words that happen to be tappable. */}
+      <div className="flex flex-wrap gap-2 mt-2">
+        {onPick && <button type="button" className="btn btn-outline btn-sm" onClick={() => setOpen(v => !v)} aria-expanded={open}>🏠 {t('for_you.other_district')}</button>}
+        {browsing && onPick && <button type="button" className="btn btn-outline btn-sm" onClick={() => onPick(null)}>↩ {t('for_you.back_to_mine')}</button>}
+        <Link to="/profile#my-area" className="btn btn-outline btn-sm">✏️ {t('for_you.edit_area')}</Link>
+      </div>
       {open && onPick && (
         <div className="flex flex-wrap gap-2 mt-2" data-testid="other-district">
           <select aria-label={t('location.city')} className={sel} value={cityId} onChange={e => setCityId(e.target.value)}>
@@ -64,10 +70,14 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
   const [categories, setCategories] = useState([]);
-  const [matching, setMatching] = useState(true);
+  // AYK-370 (the owner: «تأكد من عرض جميع مقدمي الخدمة لطالب الخدمة في منطقة تغطيته»): every profession
+  // by default; the professions this person asked for still come first.
+  const [matching, setMatching] = useState(false);
   const [categoryId, setCategoryId] = useState(fixedCategory ? String(fixedCategory) : '');
   const [result, setResult] = useState(null);
   const [browse, setBrowse] = useState(readBrowse);
+  // AYK-340: the two counts are buttons: everyone, or only those connected now.
+  const [onlyPresent, setOnlyPresent] = useState(false);
   const pick = value => { writeBrowse(value); setBrowse(value); };
 
   useEffect(() => { if (showChips) listCategories().then(setCategories).catch(() => {}); }, [showChips]);
@@ -99,9 +109,21 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
   // the city with a "not covered" note. On a request page (onContact) the list stays as it was.
   const isAvailable = p => p.availability?.state === 'available';
   const cityList = result?.city_providers || null;
-  const nowInDistrict = (result?.providers || []).filter(isAvailable);
-  const widened = !onContact && cityList !== null && nowInDistrict.length === 0;
-  const shown = !matching && !onContact ? (result?.providers || []) : onContact || cityList === null ? (result?.providers || []) : widened ? cityList.filter(isAvailable) : nowInDistrict;
+  // AYK-370: everyone covering the district, available first (green), then the others (red, with
+  // their schedule); before, only those available now were listed and the rest disappeared.
+  const availableFirst = rows => [...rows.filter(isAvailable), ...rows.filter(p => !isAvailable(p))];
+  const inDistrict = availableFirst(result?.providers || []);
+  const widened = !onContact && cityList !== null && inDistrict.length === 0;
+  // «كل المهن» (AYK-339): the providers of the professions this person asked for come first; the
+  // server's own order (featured, then rating) is kept inside each group.
+  const asked = new Set((result?.requested_category_ids || []).map(Number));
+  const askedFirst = rows => (asked.size ? [...rows.filter(p => asked.has(Number(p.category_id))), ...rows.filter(p => !asked.has(Number(p.category_id)))] : rows);
+  const shown = onContact ? (result?.providers || []) : askedFirst(widened ? availableFirst(cityList) : inDistrict);
+  // AYK-335 (the owner's screenshot): the same provider was on the page as a card and again in
+  // the city box under it. The city box leaves out those already shown as cards.
+  const listed = onlyPresent ? shown.filter(p => isPresent(p.availability)) : shown;
+  const cardIds = new Set(shown.map(p => Number(p.id)));
+  const cityRest = (cityList || []).filter(p => !cardIds.has(Number(p.id)));
   const districtName = result?.area ? localizedName({ name_ar: result.area.district_name_ar, name_en: result.area.district_name_en }, lang) : '';
   const cityName = result?.area ? localizedName({ name_ar: result.area.city_name_ar, name_en: result.area.city_name_en }, lang) : '';
   return (
@@ -113,14 +135,16 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
       {!onContact && showChips && <div className="flex gap-2 my-2" role="tablist">{[[true,'chat.requested_professions'],[false,'requester.all_professions']].map(([value,key]) => <button key={key} data-testid={value ? 'requested-professions' : 'all-professions'} type="button" role="tab" aria-selected={matching === value} className="btn btn-outline btn-sm" onClick={() => {setMatching(value);setCategoryId('');}}>{t(key)}</button>)}</div>}
       {!onContact && matching && result?.requested_category_ids?.length === 0 && <p className="text-[12px] text-fg-muted">{t('chat.requested_professions_empty')}</p>}
       {/* The professions as a drop-down list (AYK-041). */}
-      {showChips && <select className="select mb-3 max-w-md" aria-label={t('for_you.profession')} data-testid="profession-select"
+      {showChips && <select className="select mb-3 max-w-md font-semibold" aria-label={t('for_you.profession')} data-testid="profession-select"
         value={categoryId} onChange={e => setCategoryId(e.target.value)}>
         <option value="">{t('requester.all_professions')}</option>
-        {categories.map(c => <option key={c.id} value={c.id}>{c.icon} {localizedName(c, lang)}</option>)}
+        {categories.map(c => <option key={c.id} value={c.id}>{optionLabel(c.icon, localizedName(c, lang), lang)}</option>)}
       </select>}
-      {result?.area && result.providers.length > 0 && <div className="flex flex-wrap gap-2 mb-3 text-[13px]" data-testid="providers-stats">
-        <span className="px-3 py-1 rounded-pill bg-surface-alt font-semibold">👷 {t('requester.stat_total', { count: result.providers.length })}</span>
-        <span className="px-3 py-1 rounded-pill bg-success-soft text-success font-semibold">🟢 {t('requester.stat_available', { count: availableCount })}</span>
+      {result?.area && result.providers.length > 0 && <div className="flex flex-wrap gap-2 mb-3" role="tablist" data-testid="providers-stats">
+        <button type="button" role="tab" aria-selected={!onlyPresent} className="btn btn-outline btn-sm" data-testid="show-all-providers"
+          onClick={() => setOnlyPresent(false)}>👷 {t('requester.stat_total', { count: result.providers.length })}</button>
+        <button type="button" role="tab" aria-selected={onlyPresent} className="btn btn-outline btn-sm" data-testid="show-present-providers"
+          onClick={() => setOnlyPresent(true)}>🟢 {t('requester.stat_available', { count: availableCount })}</button>
       </div>}
       {result === null ? <p className="text-fg-muted">{t('common.loading')}</p>
         : !result.area ? <p className="card text-fg-muted text-[14px]">{t('for_you.no_area_hint')} <Link to="/profile#my-area" className="font-semibold text-primary">{t('for_you.edit_area')}</Link></p>
@@ -131,19 +155,19 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
                   ⚠️ {t(shown.length ? 'for_you.district_not_covered' : 'for_you.city_none_now', { district: districtName, city: cityName })}
                 </p>
               )}
-              {shown.length === 0 ? (
+              {listed.length === 0 ? (
                 <div className="card text-[14px]">
                   <p className="text-fg-muted m-0 mb-3">{t(cityList === null ? 'for_you.providers_empty' : 'for_you.request_and_we_alert')}</p>
                   {!onContact && <Link to="/requests/new" className="btn btn-primary">{t('home.new_request')}</Link>}
                 </div>
               ) : (
-                <ol className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 list-none p-0 m-0">
-                  {shown.map(p => <ProviderCard key={p.id} provider={p} onContact={onContact}
+                <ol className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 list-none p-0 m-0">
+                  {listed.map(p => <ProviderCard key={p.id} provider={p} onContact={onContact}
                     requester={requester} saved={saved.has(p.id)} onToggleSaved={toggleSaved} categoryId={categoryId} />)}
                 </ol>
               )}
-              {!onContact && cityList?.length > 0 && (
-                <CityBox providers={cityList} cityName={cityName} requester={requester} categoryId={categoryId} />
+              {!onContact && cityRest.length > 0 && (
+                <CityBox providers={cityRest} cityName={cityName} requester={requester} categoryId={categoryId} />
               )}
             </>
           )}
@@ -196,7 +220,6 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
   const lang = i18n.resolvedLanguage || 'ar';
   const navigate = useNavigate();
   const run = async action => { setBusy(true); setProblem(''); try { await action(); } catch (err) { !err?.cancelled && setProblem(apiError(err)); } finally { setBusy(false); } };
-  const state = p.availability?.state;
   return (
     // Providers are blue, requests orange, as in the logo (AYK-099).
     <li className={`card tone-provider p-3 flex gap-3 items-start ${p.is_featured ? 'ring-2 ring-amber-400' : ''}`} data-testid="provider-card">
@@ -206,22 +229,28 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
           <Link to={`/providers/${p.id}`} className="font-bold text-fg truncate">{p.business_name || p.full_name}</Link>
           {p.is_featured && <span className="px-2 py-0.5 rounded-pill bg-amber-100 text-amber-800 text-[11px] font-bold">👑 {t('for_you.featured')}</span>}
           {p.is_verified && <span className="text-[11px] text-success font-semibold">✓ {t('for_you.verified')}</span>}
+          {requester && saved && <span className="text-[12px] text-fg-muted font-semibold" data-testid="in-directory">📇 {t('requester.in_directory')}</span>}
         </div>
         <div className="text-[13px] text-fg-muted mt-1 flex flex-wrap gap-x-3 gap-y-1">
           {p.category_name_ar && <span>🛠️ {localizedName({ name_ar: p.category_name_ar, name_en: p.category_name_en, name_translations: p.category_name_translations }, lang)}</span>}
           {p.district_name_ar && <span>📍 {localizedName({ name_ar: p.district_name_ar, name_en: p.district_name_en }, lang)}</span>}
           <TrustSummary userId={p.id} average={p.rating_avg} count={p.rating_count} opinion={p.opinion} />
           {p.completed_orders > 0 && <span>✅ {t('for_you.completed', { count: p.completed_orders })}</span>}
-          <span className={isPresent(p.availability) ? 'text-success' : 'text-danger'}>{isPresent(p.availability) ? '🟢' : '🔴'} {t(isPresent(p.availability) ? 'for_you.available' : state === 'available' ? 'availability.state.offline' : 'for_you.unavailable')}</span>
         </div>
-        <div className="flex items-center gap-3 mt-2">
-          {onContact && <button type="button" className="btn btn-primary btn-sm" disabled={busy} data-testid="contact-provider"
-            onClick={async () => { setBusy(true); try { await onContact(p); } finally { setBusy(false); } }}>💬 {t('request.contact')}</button>}
-          {requester && <button type="button" className="btn btn-primary btn-sm" disabled={busy} data-testid="direct-contact"
-            onClick={() => run(async () => { const res = await contactDirect(p.id, categoryId); navigate(`/chat/${res.conversation_id}`); })}>💬 {t('requester.contact_direct')}</button>}
-          {requester && !saved && (<button type="button" className="text-[13px] font-semibold text-primary" disabled={busy} data-testid="save-provider"
+        {/* AYK-366: available (their schedule) and present (app open) apart, and where they work. */}
+        <ProviderStatus availability={p.availability} coverage={p.coverage} name={p.business_name || p.full_name} className="mt-1.5" />
+        {/* AYK-377: what they say about their services, opening and closing in place. */}
+        <ExpandableText text={p.bio} translated={p.bio_translated} lines={2} className="mt-2" testId="provider-bio" />
+        <div className="flex flex-wrap items-center gap-2 mt-2">
+          {/* AYK-379: «تواصل» opens جوال / واتساب (when the provider shows them) / محادثة. */}
+          {onContact && <ContactMenu phone={p.public_phone} whatsapp={p.public_whatsapp} busy={busy} testId="contact-provider"
+            onChat={async () => { setBusy(true); try { await onContact(p); } finally { setBusy(false); } }} />}
+          {requester && <ContactMenu phone={p.public_phone} whatsapp={p.public_whatsapp} busy={busy} testId="direct-contact"
+            onChat={() => run(async () => { const res = await contactDirect(p.id, categoryId); navigate(`/chat/${res.conversation_id}`); })} />}
+          {requester && !saved && (<button type="button" className="btn btn-outline btn-sm" disabled={busy} data-testid="save-provider"
               onClick={() => run(() => onToggleSaved(p.id))}>📇 {t('requester.add_directory')}</button>)}
-          <Link to={`/providers/${p.id}`} className="text-[13px] font-semibold text-primary">{t('for_you.view_profile')}</Link>
+          <Link to={`/providers/${p.id}`} className="btn btn-outline btn-sm">👤 {t('for_you.view_profile')}</Link>
+          <ShareMenu url={providerLink(p.id)} title={p.business_name || p.full_name} text={t('share_provider.message', { name: p.business_name || p.full_name })} testId="card-share" />
         </div>
         <BlockedNotice message={problem} otherId={p.id} onUnblocked={() => setProblem('')} />
       </div>

@@ -122,7 +122,7 @@ test('pending offers permit only owner and that bidder to create, read and send 
     await api(`/chat/conversations/${id}`, { user: unauthorized, expected: 403 });
     await api(`/chat/conversations/${id}/messages`, { user: unauthorized, expected: 403 });
     await send(id, unauthorized, 'Private pair bypass', 403);
-    assert.ok(!(await api('/chat/conversations', { user: unauthorized })).some(item => item.id === id));
+    assert.ok(!(await api('/chat/conversations', { user: unauthorized })).some(item => item.id === id || (item.pair_ids || []).includes(id)));
   }
   assert.ok((await Conversation.getContacts(firstProvider.user.id)).some(item => item.id === customer.user.id));
 });
@@ -141,10 +141,11 @@ test('rejected and withdrawn offers keep existing private history but cannot sta
     await checkReadOnly(id, customer);
     await checkReadOnly(id, firstProvider);
     assert.equal((await negotiate(request, firstProvider, customer)).id, id);
-    assert.equal((await api(`/chat/conversations/${id}/messages`, { user: customer }))[0].content, `History before ${status}`);
+    // AYK-365: the chat shows all the messages of the two people; the history is kept in it.
+    assert.ok((await api(`/chat/conversations/${id}/messages`, { user: customer })).some(m => m.content === `History before ${status}`));
     await db.query("UPDATE offers SET status = ? WHERE id = ?", [status, offers[1].id]);
     await negotiate(request, customer, secondProvider, 403);
-    assert.equal((await api('/chat/conversations', { user: firstProvider })).find(item => item.id === id).can_send, false);
+    assert.equal((await api('/chat/conversations?separate=1', { user: firstProvider })).find(item => item.id === id).can_send, false);
   }
 });
 
@@ -218,8 +219,8 @@ test('live location is unavailable while negotiating and permitted only in the s
     await api(`/chat/conversations/${selected.id}/location`, { user, method: 'POST', body: location });
   }
   assert.equal((await api(`/chat/conversations/${selected.id}/location/latest`, { user: customer })).length, 2);
-  assert.equal((await api('/chat/conversations', { user: customer })).find(item => item.id === selected.id).can_share_location, true);
-  assert.equal((await api('/chat/conversations', { user: firstProvider })).find(item => item.id === pending.id).can_share_location, false);
+  assert.equal((await api('/chat/conversations?separate=1', { user: customer })).find(item => item.id === selected.id).can_share_location, true);
+  assert.equal((await api('/chat/conversations?separate=1', { user: firstProvider })).find(item => item.id === pending.id).can_share_location, false);
   await api(`/chat/conversations/${pending.id}/location`, { user: customer, method: 'POST', body: location, expected: 403 });
   await api(`/chat/conversations/${pending.id}/location/latest`, { user: firstProvider });
   await api(`/chat/conversations/${selected.id}/location/latest`, { user: firstProvider, expected: 403 });

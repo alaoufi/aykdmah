@@ -8,6 +8,7 @@ import Button from '../components/common/Button';
 import { apiError } from '../services/api';
 import { internalAuthReturn, authReturnTarget, isRequestAuthReturn } from '../utils/authReturn';
 import ProblemNotice from '../components/common/ProblemNotice';
+import { cleanTyped } from '../utils/saudiPhone';
 
 export default function LoginPage() {
   const { t } = useTranslation();
@@ -25,6 +26,7 @@ export default function LoginPage() {
     return () => clearTimeout(timer);
   }, []);
 
+  const [wrongPassword, setWrongPassword] = useState(false);
   const [form, setForm] = useState({ identifier: typeof location.state?.identifier === 'string' ? location.state.identifier : '', password: '' });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -32,7 +34,7 @@ export default function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-    setLoading(true);
+    setLoading(true); setWrongPassword(false);
     try {
       const res = await login(form);
       // The admin signs in at /admin only (AYK-114).
@@ -48,6 +50,11 @@ export default function LoginPage() {
         navigate('/forgot-password', { state: { identifier: form.identifier, notice: apiError(err) } });
         return;
       }
+      // AYK-369 (the owner): a wrong password says only that, with «استعادة كلمة المرور»; no support box.
+      // AYK-372: not registered → «للتسجيل من هنا»; a wrong password → «لاستعادتها من هنا».
+      if (err?.response?.status === 401 && !form.phone_code) {
+        setError(''); setWrongPassword(err.response.data?.code === 'account_not_found' ? 'unknown' : 'password'); return;
+      }
       setError(apiError(err));
     } finally {
       setLoading(false);
@@ -62,6 +69,17 @@ export default function LoginPage() {
 
       {location.state?.notice && !error && <div role="status" className="mb-3 px-3 py-2 rounded-card bg-success-soft text-success text-[13px] font-semibold">✓ {location.state.notice}</div>}
       {error && <ProblemNotice error={error} />}
+      {wrongPassword && !error && (
+        <div role="alert" className="mb-3 px-3 py-2.5 rounded-card bg-danger-soft text-danger text-[14px] font-semibold flex items-center justify-between gap-2 flex-wrap" data-testid="wrong-password">
+          {wrongPassword === 'unknown' ? (<>
+            <span>{t(/^[\d+\s()-]+$/.test(form.identifier.trim()) ? 'auth.phone_not_registered' : 'auth.account_not_registered')}</span>
+            <Link to="/register" state={{ from, identifier: form.identifier }} className="text-primary underline" data-testid="register-here">{t('auth.register_here')}</Link>
+          </>) : (<>
+            <span>{t('auth.wrong_password')}</span>
+            <Link to="/forgot-password" state={{ identifier: form.identifier }} className="text-primary underline" data-testid="recover-here">{t('auth.recover_here')}</Link>
+          </>)}
+        </div>
+      )}
 
       <Input
         label={t('auth.identifier')}
@@ -72,7 +90,7 @@ export default function LoginPage() {
         autoCorrect="off"
         spellCheck={false}
         value={form.identifier}
-        onChange={(e) => setForm({ ...form, identifier: e.target.value })}
+        onChange={(e) => setForm({ ...form, identifier: cleanTyped(e.target.value) })}
       />
       <PasswordInput
         label={t('auth.password')}

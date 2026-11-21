@@ -6,6 +6,7 @@ import { useNotifications } from '../hooks/useNotifications';
 import { apiError } from '../services/api';
 import { formatDate, truncate } from '../utils/formatters';
 import SupportThread from '../components/support/SupportThread';
+import TranslatedText from '../components/common/TranslatedText';
 import { LoadingState } from '../components/common/Spinner';
 import { useAuth } from '../hooks/useAuth';
 import usePublicSettings from '../hooks/usePublicSettings';
@@ -122,7 +123,7 @@ export default function SupportPage() {
                 <span className="text-xl">{ICONS[row.topic]}</span>
                 <div className="flex-1 min-w-0">
                   <div className="font-bold text-[14px]">{t(`support.topic_${row.topic}`)} · <span className="text-fg-muted font-normal text-[12px]">{t(`support.status_${row.status}`)}</span></div>
-                  <div className="text-[13px] text-fg-muted truncate">{truncate(row.last_body || '', 90)}</div>
+                  <div className="text-[13px] text-fg-muted truncate"><TranslatedText compact text={truncate(row.last_body || '', 90)} translated={row.last_body_translated && truncate(row.last_body_translated, 90)} /></div>
                   <div className="text-[11px] text-fg-muted">{formatDate(row.updated_at, true)}</div>
                 </div>
                 {Number(row.user_unread) > 0 && <span className="badge badge-primary">{row.user_unread}</span>}

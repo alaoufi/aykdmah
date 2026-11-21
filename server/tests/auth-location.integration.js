@@ -208,15 +208,20 @@ if (!databasePrefix) {
     assert.equal(Number(saved.district_id), Number(district.id));
     await api('/users/me', { token, method: 'PUT', expected: 400, body: { city_id: 9, district_id: unaizahDistrict.id } });
     await api('/users/me', { token, method: 'PUT', expected: 400, body: { region_id: 1, city_id: 9 } });
-    saved = await api('/users/me', { token, method: 'PUT', body: { city_id: 16, district_id: unaizahDistrict.id } });
+    // AYK-360: with the address optional this account is complete, so a move to another city
+    // without its new point is refused instead of leaving the account without a point.
+    // AYK-375: the point is optional, so a move without one is saved (the old point is cleared).
+    const moved = await api('/users/me', { token, method: 'PUT', body: { city_id: 16, district_id: unaizahDistrict.id } });
+    assert.equal(moved.latitude, null);
+    saved = await api('/users/me', { token, method: 'PUT', body: { city_id: 16, district_id: unaizahDistrict.id, latitude: 26.08, longitude: 43.99 } });
     assert.equal(Number(saved.region_id), 4);
     assert.equal(Number(saved.governorate_id), 47);
-    assert.equal(saved.latitude, null);
-    assert.equal(saved.longitude, null);
+    assert.equal(Number(saved.latitude), 26.08);
     const qibah = (await api('/cities?region_id=4')).find(city => city.name_ar === 'قبة');
-    saved = await api('/users/me', { token, method: 'PUT', body: { city_id: qibah.id } });
+    const [qibahDistrict] = await api(`/districts?city_id=${qibah.id}`);
+    saved = await api('/users/me', { token, method: 'PUT', body: { city_id: qibah.id, district_id: qibahDistrict?.id ?? null, latitude: 27.4, longitude: 44.33 } });
     assert.equal(saved.governorate_id, null);
-    assert.equal(saved.district_id, null);
+    assert.equal(saved.district_id == null ? null : Number(saved.district_id), qibahDistrict ? Number(qibahDistrict.id) : null);
     assert.equal(Number(saved.region_id), 4);
     assert.equal(Number(saved.country_id), 1);
     const other = await register({ phone: '0502222222' });
@@ -472,11 +477,12 @@ if (!databasePrefix) {
     assert.equal(session.user.role, 'client');
     assert.ok(session.user.address && session.user.address.length >= 2);
     // Every account gets a permanent customer number, clients included.
-    assert.match(session.referral_code, /^[A-Z]{2,4}\d{2,4}$/);
+    assert.match(session.referral_code, /^\d{2,6}$/, 'digits only (AYK-353)');
     assert.equal(session.user.referral_code, session.referral_code);
     const named = await simpleRegister({ role: 'client', full_name: 'سارة', city_id: area.city_id, district_id: area.district_id });
     assert.equal(named.user.full_name, 'سارة');
-    await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id, latitude: undefined, longitude: undefined }, 400);
+    // AYK-375: no point on the map is fine; the city and district are enough.
+    await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id, latitude: undefined, longitude: undefined });
     await simpleRegister({ role: 'client', full_name: 'س', city_id: area.city_id, district_id: area.district_id }, 400);
     await simpleRegister({ role: 'both', city_id: area.city_id, district_id: area.district_id }, 400);
   });
@@ -491,7 +497,7 @@ if (!databasePrefix) {
       service_ids: serviceIds, coverage_district_ids: area.districts.slice(0, 2), location_mode: 'mobile' });
     assert.equal(session.user.role, 'provider');
     assert.equal(Number(session.user.also_client), 1);
-    assert.match(session.referral_code, /^[A-Z0-9]{4,12}$/);
+    assert.match(session.referral_code, /^\d{2,6}$/);
     const profile = await db.queryOne('SELECT category_id, service_ids, coverage_city_id FROM provider_profiles WHERE user_id = ?', [session.user.id]);
     assert.deepEqual(profile.service_ids, serviceIds);
     assert.equal(Number(profile.category_id), Number(services[0].category_id));
@@ -1151,10 +1157,23 @@ if (!databasePrefix) {
       await api('/auth/reset-password', { method: 'POST', body: { phone, code, password: '9876' } });
       await api('/auth/me', { token: session.token, expected: 401 });
       await api('/auth/login', { method: 'POST', body: { identifier: phone, password: '9876' } });
+      // AYK-358: a number pasted from WhatsApp or the contacts («\u202A+966 5x xxx xxxx\u202C»,
+      // Arabic digits, 5xxxxxxxx) signs in to the same account.
+      const intl = `+966 ${phone.slice(1, 3)} ${phone.slice(3, 6)} ${phone.slice(6)}`;
+      const arabic = phone.replace(/\d/g, d => String.fromCharCode(0x0660 + Number(d)));
+      for (const pasted of [`\u202A${intl}\u202C`, `\u200E${phone}`, arabic, phone.slice(1), `00966${phone.slice(1)}`]) {
+        await db.query('DELETE FROM auth_rate_limits');
+        const signed = await api('/auth/login', { method: 'POST', body: { identifier: pasted, password: '9876' } });
+        assert.equal(Number(signed.user.id), Number(session.user.id), `pasted form ${JSON.stringify(pasted)}`);
+      }
       // A client also gets a permanent customer number, accepted at sign-in in any letter case.
-      assert.match(session.user.referral_code, /^[A-Z]{2,4}\d{2,4}$/);
-      const byNumber = await api('/auth/login', { method: 'POST', body: { identifier: session.user.referral_code.toLowerCase(), password: '9876' } });
+      assert.match(session.user.referral_code, /^\d{2,6}$/);
+      const byNumber = await api('/auth/login', { method: 'POST', body: { identifier: session.user.referral_code, password: '9876' } });
       assert.equal(Number(byNumber.user.id), Number(session.user.id));
+      // AYK-353: an account's old letter code still signs in, in any letter case.
+      await db.query('UPDATE users SET legacy_referral_code = ? WHERE id = ?', ['QX77', session.user.id]);
+      const byOld = await api('/auth/login', { method: 'POST', body: { identifier: 'qx77', password: '9876' } });
+      assert.equal(Number(byOld.user.id), Number(session.user.id));
       await api('/auth/reset-password', { method: 'POST', body: { phone, code, password: '5555' }, expected: 400 });
 
       // A requester signs up with a password and the phone code; a code sent by SMS also signs in.

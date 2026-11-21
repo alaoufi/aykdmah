@@ -8,7 +8,7 @@ DO $ayk_fresh$ BEGIN
   IF EXISTS (
     SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
     WHERE n.nspname = current_schema() AND c.relkind IN ('r','p','v','m','f')
-      AND c.relname IN ('activity_logs','ad_admin_messages','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_diagnostics','call_reports','calls','categories','chat_forward_receipts','cities','conversation_archives','conversation_participants','conversations','countries','device_reports','directory_contacts','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','district_name_cleanup_','districts','entity_views','governorates','install_lock','ip_geo_cache','location_shares','message_files','message_translations','messages','native_push_tokens','notifications','offers','payments','phone_codes','provider_badges','provider_coverage_districts','provider_profiles','push_subscriptions','referral_count_rewards','referral_rewards','regions','request_files','request_translations','requests','review_reports','review_translations','review_votes','reviews','roles','saved_providers','schema_migrations','security_events','services','settings','subscription_plans','subscription_rules','subscriptions','support_messages','support_tickets','translation_memory','translation_usage','ui_text_overrides','uploaded_media','user_blocks','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','visit_days','wallet_transactions','withdrawal_requests')
+      AND c.relname IN ('account_number_aliases','activity_logs','ad_admin_messages','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_diagnostics','call_reports','calls','categories','chat_forward_receipts','cities','conversation_archives','conversation_participants','conversations','countries','device_reports','directory_contacts','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','district_name_cleanup_','districts','entity_views','governorates','install_lock','ip_geo_cache','location_shares','message_files','message_hidden','message_translations','messages','native_push_tokens','notifications','offers','payments','phone_codes','provider_badges','provider_coverage_districts','provider_profiles','push_subscriptions','referral_count_rewards','referral_rewards','regions','request_files','request_translations','requests','review_reports','review_translations','review_votes','reviews','roles','saved_providers','schema_migrations','security_events','services','settings','subscription_plans','subscription_rules','subscriptions','support_messages','support_tickets','translation_memory','translation_usage','ui_text_overrides','uploaded_media','user_blocks','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','visit_days','wallet_transactions','withdrawal_requests')
   ) THEN
     RAISE EXCEPTION 'AY KHIDMA bootstrap requires a fresh database schema; use journaled migrations for an existing installation';
   END IF;
@@ -6659,6 +6659,96 @@ INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, i
 VALUES ('marketing_subscription_amount', '0', 'number', 'payments', 0, 'طريقة الاشتراك: المبلغ عن كل مقدم خدمة دفع اشتراكه وتفعّل (ريال)')
 ON CONFLICT (setting_key) DO NOTHING;
 INSERT INTO schema_migrations(name) VALUES ('094_marketing_commission.sql');
+
+-- migrations/095_content_translations.sql
+ALTER TABLE countries ADD COLUMN IF NOT EXISTS name_translations JSONB DEFAULT NULL;
+ALTER TABLE regions ADD COLUMN IF NOT EXISTS name_translations JSONB DEFAULT NULL;
+ALTER TABLE governorates ADD COLUMN IF NOT EXISTS name_translations JSONB DEFAULT NULL;
+ALTER TABLE cities ADD COLUMN IF NOT EXISTS name_translations JSONB DEFAULT NULL;
+ALTER TABLE districts ADD COLUMN IF NOT EXISTS name_translations JSONB DEFAULT NULL;
+ALTER TABLE subscription_plans ADD COLUMN IF NOT EXISTS name_translations JSONB DEFAULT NULL;
+ALTER TABLE subscription_plans ADD COLUMN IF NOT EXISTS description_translations JSONB DEFAULT NULL;
+ALTER TABLE ads ADD COLUMN IF NOT EXISTS title_translations JSONB DEFAULT NULL;
+ALTER TABLE ads ADD COLUMN IF NOT EXISTS description_translations JSONB DEFAULT NULL;
+INSERT INTO schema_migrations(name) VALUES ('095_content_translations.sql');
+
+-- migrations/096_numeric_account_numbers.sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS legacy_referral_code VARCHAR(12) DEFAULT NULL;
+CREATE UNIQUE INDEX IF NOT EXISTS idx_users_legacy_referral_code ON users (legacy_referral_code);
+WITH pool AS (
+  SELECT n::text AS code, row_number() OVER (ORDER BY length(n::text), random()) AS rn
+    FROM generate_series(10, 99999) AS n
+   WHERE NOT EXISTS (SELECT 1 FROM users x WHERE x.referral_code = n::text)
+), pending AS (
+  SELECT id, row_number() OVER (ORDER BY id) AS rn
+    FROM users
+   WHERE referral_code IS NOT NULL AND referral_code !~ '^[0-9]+$'
+)
+UPDATE users u
+   SET legacy_referral_code = u.referral_code, referral_code = p.code
+  FROM pending t JOIN pool p ON p.rn = t.rn
+ WHERE u.id = t.id;
+INSERT INTO schema_migrations(name) VALUES ('096_numeric_account_numbers.sql');
+
+-- migrations/097_special_numbers.sql
+CREATE TABLE IF NOT EXISTS account_number_aliases (
+  code VARCHAR(12) PRIMARY KEY,
+  user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_account_number_aliases_user ON account_number_aliases (user_id);
+WITH pool AS (
+  SELECT n::text AS code, row_number() OVER (ORDER BY length(n::text), random()) AS rn
+    FROM generate_series(10, 99999) AS n
+   WHERE n::text !~ '^(\d)\1+$'
+     AND NOT EXISTS (SELECT 1 FROM users x WHERE x.referral_code = n::text OR x.legacy_referral_code = n::text)
+), pending AS (
+  SELECT id, row_number() OVER (ORDER BY id) AS rn FROM users WHERE referral_code ~ '^(\d)\1+$'
+)
+UPDATE users u SET referral_code = p.code
+  FROM pending t JOIN pool p ON p.rn = t.rn
+ WHERE u.id = t.id;
+INSERT INTO account_number_aliases (code, user_id)
+SELECT referral_code, id FROM users
+ WHERE referral_code = '54' AND role = 'admin' AND NOT EXISTS (SELECT 1 FROM users WHERE referral_code = '22')
+ON CONFLICT (code) DO NOTHING;
+UPDATE users SET referral_code = '22'
+ WHERE referral_code = '54' AND role = 'admin' AND NOT EXISTS (SELECT 1 FROM users WHERE referral_code = '22');
+INSERT INTO schema_migrations(name) VALUES ('097_special_numbers.sql');
+
+-- migrations/098_free_previous_numbers.sql
+DELETE FROM account_number_aliases;
+INSERT INTO schema_migrations(name) VALUES ('098_free_previous_numbers.sql');
+
+-- migrations/099_admin_hide.sql
+ALTER TABLE requests ADD COLUMN IF NOT EXISTS hidden_at TIMESTAMP NULL DEFAULT NULL;
+ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS hidden_at TIMESTAMP NULL DEFAULT NULL;
+INSERT INTO schema_migrations(name) VALUES ('099_admin_hide.sql');
+
+-- migrations/100_work_schedule.sql
+ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS work_schedule JSONB DEFAULT NULL;
+INSERT INTO schema_migrations(name) VALUES ('100_work_schedule.sql');
+
+-- migrations/101_provider_bio_translations.sql
+ALTER TABLE provider_profiles ADD COLUMN IF NOT EXISTS bio_translations JSONB DEFAULT NULL;
+INSERT INTO schema_migrations(name) VALUES ('101_provider_bio_translations.sql');
+
+-- migrations/102_message_hidden.sql
+CREATE TABLE IF NOT EXISTS message_hidden (
+  message_id INT NOT NULL REFERENCES messages(id) ON DELETE CASCADE,
+  user_id INT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (message_id, user_id)
+);
+INSERT INTO schema_migrations(name) VALUES ('102_message_hidden.sql');
+
+-- migrations/103_admin_flag.sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin SMALLINT NOT NULL DEFAULT 0;
+UPDATE users SET is_admin = 1 WHERE role = 'admin';
+UPDATE users SET role = 'client' WHERE role = 'admin';
+INSERT INTO user_profiles (user_id) SELECT id FROM users WHERE is_admin = 1 ON CONFLICT (user_id) DO NOTHING;
+CREATE INDEX IF NOT EXISTS idx_users_is_admin ON users (is_admin) WHERE is_admin = 1;
+INSERT INTO schema_migrations(name) VALUES ('103_admin_flag.sql');
 
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$

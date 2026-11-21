@@ -6,7 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import usePublicSettings from '../hooks/usePublicSettings';
 import { reverseGeocode, listCountries } from '../services/serviceService';
 import { sendPhoneCode, checkPhone } from '../services/authService';
-import { cleanPhone, isSaudiMobile } from '../utils/saudiPhone';
+import { cleanPhone, cleanTyped, isSaudiMobile } from '../utils/saudiPhone';
 import useLocationOptions from '../hooks/useLocationOptions';
 import Input from '../components/common/Input';
 import PasswordInput from '../components/common/PasswordInput';
@@ -25,6 +25,7 @@ import { localizedName } from '../utils/localize';
 import { getCurrentPosition, isValidCoordinates, geoSelection } from '../utils/geolocation.mjs';
 import { internalAuthReturn, authReturnTarget } from '../utils/authReturn';
 import ProblemNotice from '../components/common/ProblemNotice';
+import { keptInvite, forgetInvite } from '../utils/invite';
 
 const ROLES = [
   { key: 'client', icon: '🙋', label: 'auth.role_client' },
@@ -48,18 +49,20 @@ export default function RegisterPage() {
   const [intro, setIntro] = useState(() => (signupIntroSeen() ? null : 'language'));
   const [form, setForm] = useState({
     role: ['provider', 'both'].includes(params.get('role')) ? params.get('role') : 'client',
-    phone: '', password: '', full_name: '',
+    // AYK-372: from «للتسجيل من هنا» on the sign-in page, the number already typed there.
+    phone: typeof location.state?.identifier === 'string' && /^[\d+\s()-]{8,}$/.test(location.state.identifier.trim()) ? cleanTyped(location.state.identifier.trim()) : '', password: '', full_name: '',
     service_ids: [], coverage: [], location_mode: 'mobile',
     work_days: [0, 1, 2, 3, 4, 5, 6], work_from: '', work_to: '',
-    // A shared invitation link (?ref=CODE) pre-fills the coupon.
-    referral_code: (params.get('ref') || '').trim().toUpperCase().slice(0, 12),
+    // A shared invitation link (?ref=CODE, or the short aykdmh.com/i/CODE kept on this device,
+    // AYK-354) pre-fills the coupon.
+    referral_code: (params.get('ref') || keptInvite() || '').trim().toUpperCase().slice(0, 12),
   });
   const [place, setPlace] = useState({ lat: null, lon: null, region_id: '', governorate_id: '', city_id: '', district_id: '', label: '' });
   const [locStatus, setLocStatus] = useState('idle');
   const [mapOpen, setMapOpen] = useState(false);
   const [venuePoint, setVenuePoint] = useState(null);
   const [venueMapOpen, setVenueMapOpen] = useState(false);
-  const [couponOpen, setCouponOpen] = useState(Boolean(params.get('ref')));
+  const [couponOpen, setCouponOpen] = useState(Boolean(params.get('ref') || keptInvite()));
   const [termsOpen, setTermsOpen] = useState(false);
   const [coverageCount, setCoverageCount] = useState(null);
   // Working days, hours and where the work is done are optional at sign-up (AYK-298): the defaults
@@ -236,6 +239,7 @@ export default function RegisterPage() {
         ...(form.referral_code.trim() ? { referral_code: form.referral_code.trim() } : {}),
       });
       if (!res?.user?.role) throw new Error('Invalid registration response');
+      forgetInvite(); // used: the next sign-up on this device starts clean
       navigate('/register', { replace: true, state: { from, registrationResult: { userId: res.user.id, code: res.referral_code, role: res.user.role } } });
     } catch (err) {
       setError(err.response?.data?.message === 'coupon_not_found' ? t('auth.invite_not_found') : apiError(err));
@@ -296,7 +300,7 @@ export default function RegisterPage() {
         <Input id="register-phone" name="phone" label={t('auth.phone')} type="tel" required maxLength={30} dir="ltr"
           value={form.phone} error={fieldErrors.phone} autoComplete="tel" inputMode="tel" placeholder="05XXXXXXXX"
           hint={phoneStatus === 'available' ? t('auth.phone_available') : phoneStatus === 'checking' ? '…' : undefined}
-          onBlur={verifyPhone} onChange={e => update('phone', e.target.value)} />
+          onBlur={verifyPhone} onChange={e => update('phone', cleanTyped(e.target.value))} />
         {phoneStatus === 'taken' && (
           <div className="flex gap-4 text-[13px] -mt-2">
             <Link to="/login" state={{ identifier: cleanPhone(form.phone) }} className="text-primary font-semibold">{t('auth.login_button')}</Link>
@@ -386,7 +390,7 @@ export default function RegisterPage() {
         </>}
 
         {couponOpen ? <Input label={t('auth.invite_label')} hint={t('auth.invite_hint')} dir="ltr" maxLength={12}
-          value={form.referral_code} onChange={e => update('referral_code', e.target.value.toUpperCase())} placeholder="AB12" /> :
+          value={form.referral_code} onChange={e => update('referral_code', e.target.value.toUpperCase())} placeholder="27" /> :
           <button type="button" className="text-[13px] text-primary font-semibold" onClick={() => setCouponOpen(true)}>🎟️ {t('auth.have_coupon')}</button>}
 
         {/* No checkbox to tick: creating the account accepts the terms (AYK-044). */}

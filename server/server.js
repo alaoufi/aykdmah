@@ -25,6 +25,8 @@ app.set('io', io);
 notificationService.setIo(io);
 require('./services/callService').attach(io, { background: BACKGROUND });
 if (BACKGROUND) require('./services/requestReminderService').start();
+// AYK-343: names whose translation failed are tried again every few hours.
+if (BACKGROUND) require('./services/contentTranslation').start();
 
 const PORT = env.APP_PORT;
 // AYK-325: «متواجد الآن» follows the live connection. A restart drops every connection without

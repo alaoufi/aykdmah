@@ -41,8 +41,8 @@ export default function MyRequestsPage() {
   }, [scope, reload, tick]);
 
   const tabs = [
-    { value: 'active', label: `🟢 ${t('manage.active')}` },
-    { value: 'archive', label: `🗄️ ${t('manage.archive')}` },
+    { value: 'active', label: `🟢 ${t('manage.active_requests')}` },
+    { value: 'archive', label: `🗄️ ${t('manage.archive_requests')}` },
   ];
 
   return (

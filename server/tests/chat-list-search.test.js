@@ -13,7 +13,7 @@ function capture() {
 for (const term of ['needle', '\u0633\u0628\u0627\u0643', "' OR 1=1 --"]) {
   test(`conversation search binds all searchable fields: ${term}`, async () => {
     const { model, calls } = capture();
-    await model.listForUser(17, { q: term, page: 3, limit: 20 });
+    await model.listRows(17, { q: term, page: 3, limit: 20 }); // AYK-365: the SQL of one conversation per row
     const { sql, params } = calls[0];
     assert.deepEqual(params, [17,17,17,17,17,...Array(5).fill(`%${term}%`),20,40]);
     assert.equal(sql.includes(term), false);

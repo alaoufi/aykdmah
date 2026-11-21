@@ -10,6 +10,9 @@ import './styles/global.css';
 import 'leaflet/dist/leaflet.css';
 import { installChunkRecovery } from './utils/chunkRecovery';
 import { freshStart } from './utils/freshStart';
+import { followShortLink } from './utils/shortLinks';
+import { getToken } from './services/api';
+import { startEarlyMe } from './services/authService';
 
 // Apply theme synchronously before mounting React so Tailwind CSS
 // variables are populated for the very first render.
@@ -32,6 +35,12 @@ const render = () => createRoot(document.getElementById('root')).render(
     </ThemeProvider>
   </StrictMode>
 );
+// AYK-351: aykdmh.com/app, /gl, /ios on a phone go straight to the store, nothing is drawn.
+const leaving = followShortLink();
+
+// AYK-334: a signed-in person's account is asked for now, not after the first drawing.
+try { startEarlyMe(getToken()); } catch (_) { /* private mode */ }
+
 // AYK-328: a service provider's first page is their dashboard, a separate file. It was fetched only
 // after the account was known, leaving the page empty for half a second. Fetch it right away.
 try {
@@ -48,6 +57,7 @@ const waiting = setTimeout(() => {
 }, 1200);
 Promise.all([fresh, i18nReady.catch(() => {})]).then(([state]) => {
   clearTimeout(waiting);
+  if (leaving) return; // on the way to the store
   if (state === 'reloaded') return; // the new copy is loading: do not draw the old one
   const root = document.getElementById('root');
   // The spinner goes; server-written text for search engines stays for React to replace as before.

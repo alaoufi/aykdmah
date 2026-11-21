@@ -17,8 +17,19 @@ const DEFAULT_COPY = {
 
 // Only the unchanged, text-only platform welcome banner uses translated copy.
 // Advertiser text, custom media, links and analytics records remain unchanged.
+const fromMap = (map, code) => {
+  let value = map;
+  if (typeof value === 'string') { try { value = JSON.parse(value); } catch (_) { value = null; } }
+  return value && typeof value === 'object' && typeof value[code] === 'string' && value[code].trim() ? value[code] : '';
+};
+
 export function localizedDefaultAdCopy(ad, lang) {
-  const copy = { title: ad?.title, description: ad?.description };
+  // AYK-343: every ad's title and text are translated into the 11 languages on the server.
+  const wanted = (lang || 'ar').toLowerCase().split(/[-_]/)[0];
+  const copy = {
+    title: fromMap(ad?.title_translations, wanted) || ad?.title,
+    description: fromMap(ad?.description_translations, wanted) || ad?.description,
+  };
   if (!ad || Number(ad.id) !== 1 || ad.placement !== 'home_top'
       || ad.title !== DEFAULT_TITLE || ad.description !== DEFAULT_DESCRIPTION
       || ad.image || ad.link) return copy;

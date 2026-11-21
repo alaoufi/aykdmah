@@ -53,9 +53,36 @@ api.interceptors.request.use((config) => {
   return config;
 }, undefined, { synchronous: true });
 
+// AYK-376 (the owner: «أي حفظ لا بد من رسالة جميلة: تم الحفظ، تم، أو ذكر أسباب الرفض»). Every save
+// (a change sent with PUT/PATCH/DELETE, and the administration's additions) shows «✅ تم الحفظ» with
+// «تم»; a refused save shows its reasons, numbered. Background traffic (reading marks, presence,
+// chat, calls, sign-in…) stays quiet, and a request can opt out with { quiet: true }.
+const QUIET = /\/(read|favorite|visits|push|presence|typing|translations?|nudge|location|language|heartbeat|devices|seen)(\/|\?|$)|^\/(auth|chat|notifications|calls|media|tracking)\b/;
+const isSave = cfg => {
+  if (!cfg || cfg.quiet) return false;
+  const method = String(cfg.method || 'get').toLowerCase();
+  const url = String(cfg.url || '');
+  if (QUIET.test(url)) return false;
+  return ['put', 'patch', 'delete'].includes(method) || (method === 'post' && isAdminScope());
+};
+const announceSaved = cfg => {
+  import('../components/common/Flash').then(({ flash }) => flash(`✅ ${i18n.t(String(cfg.method).toLowerCase() === 'delete' ? 'dialog.deleted' : 'profile.saved_toast')}`)).catch(() => {});
+};
+const announceRefused = err => {
+  const body = err.response?.data || {};
+  const list = (Array.isArray(body.errors) ? body.errors : body.errors?.message ? [body.errors] : [])
+    .map(item => (typeof item === 'string' ? item : item?.message)).filter(Boolean);
+  const reasons = [...new Set(list.length ? list : [apiError(err)])].filter(Boolean);
+  import('../components/common/AppDialog').then(({ showAlert }) => showAlert({
+    title: i18n.t('profile.not_saved'), tone: 'danger', confirmText: i18n.t('dialog.done'),
+    message: reasons.length > 1 ? reasons.map((r, i) => `${i + 1}. ${r}`).join('\n') : reasons[0] || '',
+  })).catch(() => {});
+};
+
 api.interceptors.response.use(
-  (res) => res,
+  (res) => { if (isSave(res.config)) announceSaved(res.config); return res; },
   (err) => {
+    if (isSave(err.config) && [400, 403, 409, 422].includes(err.response?.status)) announceRefused(err);
     // AYK-272: the server's waiting room was full ("busy_queue", 503 with Retry-After). A read is
     // asked again by itself after the given pause (with a little spread, so a crowd does not come
     // back all at once), up to three times; only then is the person told it is busy.

@@ -6,6 +6,23 @@ const { success, created, error, notFound, paginate, forbidden } = require('../u
 const asyncHandler = require('../utils/asyncHandler');
 const { validId, invalid } = require('../models/Payment');
 const { hasPermission } = require('../middleware/roleCheck');
+const { query } = require('../config/database');
+const contentTranslation = require('../services/contentTranslation');
+
+// AYK-342 (the owner: «الإعلان الذي في الويب لا يظهر في التطبيق»): an ad's cities are saved by
+// their Arabic names, while a location found from the connection's address names the city in
+// English («Riyadh»), so a city-targeted ad never matched such a visitor. The visitor's city is
+// widened to all its names before comparing.
+async function withCityNames(geo) {
+  if (!geo?.city) return geo;
+  const names = new Set([String(geo.city).trim().toLowerCase()]);
+  try {
+    const rows = await query(
+      'SELECT name_ar, name_en FROM cities WHERE name_ar = ? OR LOWER(name_en) = LOWER(?) LIMIT 5', [geo.city, geo.city]);
+    for (const row of rows) for (const name of [row.name_ar, row.name_en]) if (name) names.add(String(name).trim().toLowerCase());
+  } catch (_) { /* compare by the name as given */ }
+  return { ...geo, city_names: [...names] };
+}
 
 function financeHandler(handler) {
   return asyncHandler(async (req, res) => {
@@ -24,7 +41,8 @@ function matchesGeo(ad, geo) {
   if (countries.length === 0 && cities.length === 0 && regions.length === 0) return true;
   // A targeted placement needs a known matching location.
   if (!geo) return false;
-  const cityMatch    = cities.length    > 0 && geo.city    && cities.some((c) => String(c).toLowerCase() === String(geo.city).toLowerCase());
+  const known = geo.city_names || (geo.city ? [String(geo.city).trim().toLowerCase()] : []);
+  const cityMatch    = cities.length    > 0 && known.length > 0 && cities.some((c) => known.includes(String(c).trim().toLowerCase()));
   const countryMatch = countries.length > 0 && geo.country && countries.some((c) => String(c).toUpperCase() === String(geo.country).toUpperCase());
   const regionMatch  = regions.length   > 0 && geo.region_id && regions.some((r) => Number(r) === Number(geo.region_id));
   // Any axis match wins so an advertiser can mix region+country+city.
@@ -46,7 +64,7 @@ async function liveMany(req, res) {
     || (Array.isArray(a.target_regions) && a.target_regions.length);
   let geo = null;
   if (all.some(targeted)) {
-    try { geo = await ipGeo.resolveVisitorGeo(req); } catch (_) { /* targeted ads stay hidden */ }
+    try { geo = await withCityNames(await ipGeo.resolveVisitorGeo(req)); } catch (_) { /* targeted ads stay hidden */ }
   }
   const result = {};
   for (const placement of wanted) {
@@ -70,7 +88,7 @@ const live = financeHandler(async (req, res) => {
     (Array.isArray(a.target_regions)   && a.target_regions.length));
   let geo = null;
   if (needsGeo) {
-    try { geo = await ipGeo.resolveVisitorGeo(req); } catch (_) { /* targeted ads stay hidden */ }
+    try { geo = await withCityNames(await ipGeo.resolveVisitorGeo(req)); } catch (_) { /* targeted ads stay hidden */ }
   }
   const filtered = items.filter((a) => matchesGeo(a, geo));
   const exclusives = filtered.filter(a => a.exclusive);
@@ -112,8 +130,12 @@ const myAds = financeHandler(async (req, res) => {
     adRequestService.getConfig(),
     Ad.listForUser(req.user.id),
   ]);
-  // The administration's messages about each ad (AYK-153).
-  return success(res, { config, ads: await Ad.withAdminMessages(ads) });
+  // The administration's messages about each ad (AYK-153), in the advertiser's language
+  // (`message` stays the Arabic original; `message_translated` is added when a translation worked).
+  const withMessages = await Ad.withAdminMessages(ads);
+  const lang = await contentTranslation.readerLang(req.user.id, req.lang);
+  await contentTranslation.rowsForReader(withMessages.flatMap(ad => ad.admin_messages || []), 'message', lang);
+  return success(res, { config, ads: withMessages });
 });
 
 // POST /api/ads/quote — preview total cost without saving anything
@@ -460,6 +482,7 @@ const adminMessage = financeHandler(async (req, res) => {
   const message = typeof req.body?.message === 'string' ? req.body.message.trim() : '';
   if (!Ad.MESSAGE_CATEGORIES.includes(category) || !message || message.length > 2000) return error(res, req.t('invalid_data'), 400);
   await Ad.addAdminMessage(ad.id, req.user.id, category, message);
+  if (ad.user_id) contentTranslation.readerLang(ad.user_id, 'ar').then(lang => contentTranslation.prepare(message, lang)).catch(() => {});
   const titles = { financial: 'ملاحظة مالية على إعلانك', administrative: 'ملاحظة إدارية على إعلانك', legal: 'ملاحظة قانونية على إعلانك' };
   if (ad.user_id) {
     require('../services/notificationService').notifyUser(ad.user_id, {

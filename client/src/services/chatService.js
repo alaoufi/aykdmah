@@ -76,8 +76,9 @@ export async function createConversation(payload) {
   });
 }
 
-export async function deleteMessage(conversationId, messageId) {
-  await api.delete(`/chat/conversations/${conversationId}/messages/${messageId}`);
+// AYK-381: scope 'me' (off my screen only) or 'all' (my message, for both; the administration keeps it).
+export async function deleteMessage(conversationId, messageId, scope = 'all') {
+  await api.delete(`/chat/conversations/${conversationId}/messages/${messageId}`, scope === 'me' ? { params: { scope: 'me' } } : undefined);
 }
 
 export async function searchMessages(conversationId, q, before) {

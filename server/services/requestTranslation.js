@@ -72,7 +72,7 @@ async function translateForProviders(request) {
   if (!request?.id) return;
   const { title, description, sameText } = texts(request);
   const script = await detectLanguageFallback(`${title} ${sameText ? '' : description}`);
-  const rows = await query(`SELECT DISTINCT ui_lang FROM users WHERE role IN ('provider', 'admin') AND ui_lang IS NOT NULL
+  const rows = await query(`SELECT DISTINCT ui_lang FROM users WHERE (role IN ('provider', 'admin') OR is_admin = 1) AND ui_lang IS NOT NULL
     AND deleted_at IS NULL`).catch(() => []);
   const langs = rows.map(row => row.ui_lang).filter(lang => SUPPORTED.includes(lang) && !(lang === script && UNIQUE_SCRIPT.has(lang)));
   for (const lang of langs) await translationFor(request, lang).catch(err => logger.warn('Request translation failed:', err.message));

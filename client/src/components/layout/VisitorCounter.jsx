@@ -13,9 +13,13 @@ export default function VisitorCounter({ className = '' }) {
 
   useEffect(() => {
     let active = true;
+    // AYK-350: each entry to the site is a visit. AYK-376 (the owner: «لو عملت تحديث المفروض يعتبرها
+    // زيارة»): a reload is an entry too; only moving between pages inside one loading is not.
     const ping = () => {
       if (document.visibilityState === 'hidden') return;
-      api.post('/visits').then((res) => { if (active) setData(res.data?.data || null); }).catch(() => {});
+      const entry = !window.__aykEntryCounted;
+      window.__aykEntryCounted = true;
+      api.post('/visits', { entry }).then((res) => { if (active) setData(res.data?.data || null); }).catch(() => {});
     };
     ping();
     const timer = setInterval(ping, PING_MS);

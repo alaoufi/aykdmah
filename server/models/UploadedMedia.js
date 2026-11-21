@@ -1,4 +1,5 @@
 const { randomUUID } = require('crypto');
+const { hasPermission } = require('../middleware/roleCheck');
 const { query, queryOne, transaction } = require('../config/database');
 const { validateUpload } = require('../utils/uploadValidation');
 const Conversation = require('./Conversation');
@@ -56,7 +57,7 @@ async function canRead(file, user = null) {
   if (file.scope === 'avatars' && await queryOne('SELECT id FROM users WHERE avatar = ? AND deleted_at IS NULL AND is_active = 1 AND is_blocked = 0', [url])) return true;
   if (file.scope === 'reviews' && await queryOne('SELECT id FROM reviews WHERE is_visible = 1 AND images @> ?::jsonb', [JSON.stringify([url])])) return true;
   if (!user) return false;
-  const admin = permission => user.role === 'admin' && (user.is_super_admin || (Array.isArray(user.permissions) && user.permissions.includes(permission)));
+  const admin = permission => hasPermission(user, permission);
   if (file.scope === 'chat') {
     // A deleted message or removed participant must not keep attachment access.
     // One attachment may be sent to several chats at once ("to everyone", AYK-043).

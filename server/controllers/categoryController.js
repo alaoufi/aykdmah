@@ -1,7 +1,8 @@
 const { validateCatalog, catalogId } = require('../utils/catalogValidation');
 const Category = require('../models/Category');
 const { slugify, uniqueSlug } = require('../utils/slugify');
-const { translateAllLanguages, mergeTranslations } = require('../services/entityTranslator');
+const { translateAllLanguages } = require('../services/entityTranslator');
+const contentTranslation = require('../services/contentTranslation');
 const { success, created, notFound } = require('../utils/apiResponse');
 const asyncHandler = require('../utils/asyncHandler');
 
@@ -47,6 +48,7 @@ const create = asyncHandler(async (req, res) => {
     name_translations,
     description_translations,
   });
+  contentTranslation.later('categories', cat?.id); // languages that failed now are tried again
   return created(res, cat);
 });
 
@@ -62,7 +64,7 @@ const update = asyncHandler(async (req, res) => {
   // translation calls.
   if (data.name_ar && data.name_ar !== existing.name_ar) {
     const name_translations = await translateAllLanguages(String(data.name_ar).trim(), 'ar');
-    data.name_translations = mergeTranslations(existing.name_translations, name_translations);
+    data.name_translations = name_translations;
     data.name_en = name_translations.en || existing.name_en;
     const slugBase = slugify(name_translations.en || data.name_ar, 'category');
     data.slug = await uniqueSlug(slugBase, (s, ig) => Category.slugExists(s, ig), { ignoreId: existing.id });
@@ -71,13 +73,14 @@ const update = asyncHandler(async (req, res) => {
   if (data.description !== undefined && data.description !== existing.description) {
     if (data.description) {
       const dt = await translateAllLanguages(String(data.description).trim(), 'ar');
-      data.description_translations = mergeTranslations(existing.description_translations, dt);
+      data.description_translations = dt;
     } else {
       data.description_translations = null;
     }
   }
 
   const cat = await Category.update(id, data);
+  contentTranslation.later('categories', id);
   return success(res, cat, req.t('updated'));
 });
 

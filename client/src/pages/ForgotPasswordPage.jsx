@@ -6,7 +6,7 @@ import PasswordInput from '../components/common/PasswordInput';
 import Button from '../components/common/Button';
 import { sendPhoneCode, resetPassword } from '../services/authService';
 import { apiError } from '../services/api';
-import { cleanPhone, isSaudiMobile } from '../utils/saudiPhone';
+import { cleanPhone, cleanTyped, isSaudiMobile } from '../utils/saudiPhone';
 import ProblemNotice from '../components/common/ProblemNotice';
 
 // "Forgot password": a code to the registered phone, then a new password (AYK-016).
@@ -64,7 +64,7 @@ export default function ForgotPasswordPage() {
       {error && <ProblemNotice error={error} />}
 
       <Input id="forgot-phone" label={t('auth.phone')} type="tel" dir="ltr" inputMode="tel" autoComplete="tel" placeholder="05XXXXXXXX"
-        value={phone} disabled={step === 'code'} onChange={e => { setPhone(e.target.value); setError(''); }} />
+        value={phone} disabled={step === 'code'} onChange={e => { setPhone(cleanTyped(e.target.value)); setError(''); }} />
 
       {step === 'code' && <>
         <Input id="forgot-code" label={t('auth.verification_code')} dir="ltr" inputMode="numeric" autoComplete="one-time-code"

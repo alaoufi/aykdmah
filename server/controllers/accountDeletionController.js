@@ -9,9 +9,10 @@ const logger = require('../utils/logger');
 // (/delete-account). Identity data is erased and the account closed at once; past messages stay
 // in the other side's chats as "Deleted user", and payment records are kept as the law requires.
 const deleteMe = asyncHandler(async (req, res) => {
-  const user = await queryOne('SELECT id, role, password_hash FROM users WHERE id = ? AND deleted_at IS NULL', [req.user.id]);
+  const user = await queryOne(`SELECT id, role, password_hash, to_jsonb(users)->>'is_admin' AS is_admin FROM users WHERE id = ? AND deleted_at IS NULL`, [req.user.id]);
   if (!user) return error(res, req.t('account_not_found'), 404);
-  if (user.role === 'admin') return error(res, req.t('account_delete_admin'), 403);
+  // AYK-383: an account with the administration's rights keeps them until the administration removes them.
+  if (user.role === 'admin' || Number(user.is_admin) === 1) return error(res, req.t('account_delete_admin'), 403);
   if (!await comparePassword(String(req.body?.password || ''), user.password_hash || '')) return error(res, req.t('account_delete_wrong_password'), 400);
   // Not while work is under way: name the jobs so they can be finished or left first.
   const jobs = await query(`SELECT id, title, status FROM requests WHERE deleted_at IS NULL AND status IN ('assigned', 'in_progress')

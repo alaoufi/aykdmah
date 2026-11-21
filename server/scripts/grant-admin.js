@@ -20,7 +20,7 @@ async function main() {
     const user = rows[0];
     console.log(`Account ${user.id}: role ${user.role}, super admin ${Number(user.is_super_admin) ? 'yes' : 'no'}.`);
     if (!args.includes('--apply')) { console.log('Dry run: add --apply to give it full admin rights.'); return; }
-    await db.query("UPDATE users SET role = 'admin', is_super_admin = 1, is_active = 1, is_blocked = 0 WHERE id = ?", [user.id]);
+    await db.query("UPDATE users SET is_admin = 1, role = CASE WHEN role = 'admin' THEN 'client' ELSE role END, is_super_admin = 1, is_active = 1, is_blocked = 0 WHERE id = ?", [user.id]);
     await db.query("INSERT INTO activity_logs (user_id, action, entity_type, entity_id, details) VALUES (?, 'grant_admin', 'user', ?, ?)",
       [user.id, user.id, JSON.stringify({ from_role: user.role, by: 'server script AYK-203' })]).catch(() => {});
     console.log(`Done: account ${user.id} now has full admin rights (was ${user.role}).`);

@@ -61,7 +61,9 @@ export default function AdminLoginPage() {
     try {
       const res = await login(form);
       setForm((current) => ({ ...current, password: '' }));
-      if (res.user.role !== 'admin') {
+      // AYK-347: an administration account with no section granted is not let in either.
+      const perms = Array.isArray(res.user.permissions) ? res.user.permissions : [];
+      if (res.user.role !== 'admin' || (!Number(res.user.is_super_admin) && perms.length === 0)) {
         await logout();
         setError(t('errors.forbidden'));
         return;
