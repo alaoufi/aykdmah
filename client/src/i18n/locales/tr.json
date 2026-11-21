@@ -3023,5 +3023,29 @@
     "whatsapp_number_hint": "Telefon numaranızla aynıysa boş bırakın.",
     "marketing": "Sitenin benimle iletişime geçmesine izin ver",
     "marketing_hint": "Yenilikleri ve isteklerinize uygun teklifleri göndeririz. İstediğiniz zaman durdurabilirsiniz."
+  },
+  "understand": {
+    "title": "Talebinizi kendi sözlerinizle yazın",
+    "hint": "İhtiyacınızı söylediğiniz gibi yazın; mesleği ve hizmeti seçip talebi doldururuz.",
+    "placeholder": "Örnek: klimam soğutmuyor ve ses yapıyor",
+    "button": "Talebimi anla",
+    "got": "Anladığımız:",
+    "check": "Aşağıdaki alanları kontrol edin, değiştirin, sonra yayınlayın.",
+    "check_unsure": "Tam emin değiliz: yayınlamadan önce mesleği kontrol edin.",
+    "not_found": "Mesleği anlayamadık. Aşağıdan seçin; açıklamanız eklendi.",
+    "count": "Adet {{count}}",
+    "when": {
+      "today": "bugün",
+      "now": "şimdi",
+      "tomorrow": "yarın",
+      "after_tomorrow": "öbür gün",
+      "morning": "sabah",
+      "afternoon": "öğleden sonra",
+      "evening": "akşam",
+      "night": "gece",
+      "thursday": "Perşembe",
+      "friday": "Cuma",
+      "saturday": "Cumartesi"
+    }
   }
 }

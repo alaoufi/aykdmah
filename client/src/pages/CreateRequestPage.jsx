@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import UnderstandRequest from '../components/requests/UnderstandRequest';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 import { canRequestService } from '../utils/canRequest';
 import { useTranslation } from 'react-i18next';
@@ -20,7 +21,7 @@ import VoiceNote from '../components/chat/VoiceNote';
 import ProblemNotice from '../components/common/ProblemNotice';
 import { optionLabel } from '../utils/optionLabel';
 
-const EMPTY_FORM = { category_id: '', service_id: '', title: '', description: '' };
+const EMPTY_FORM = { category_id: '', service_id: '', title: '', description: '', is_urgent: '' };
 
 export default function CreateRequestPage() {
   const { t, i18n } = useTranslation();
@@ -214,6 +215,15 @@ export default function CreateRequestPage() {
       {error && <ProblemNotice error={error} onClose={() => setError('')} />}
 
       <form onSubmit={submit} className="card" style={{ padding: 24 }}>
+        {/* AYK-419: the request in the requester's own words fills the fields below. */}
+        <UnderstandRequest categories={categories}
+          onApply={found => setForm(f => ({
+            ...f,
+            ...(found.category_id ? { category_id: found.category_id, service_id: found.service_id } : {}),
+            title: f.title.trim() ? f.title : found.title,
+            description: f.description.trim() ? f.description : found.description,
+            is_urgent: found.urgent ? 1 : f.is_urgent,
+          }))} />
         {/* Required first, then «نشر» right under them; optional fields below with «نشر» again
             (AYK-222). The area comes from the account as one line, with «تغيير الموقع». */}
         <div className="form-group">

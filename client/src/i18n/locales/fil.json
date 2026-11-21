@@ -3023,5 +3023,29 @@
     "whatsapp_number_hint": "Iwanang blangko kung pareho sa mobile number mo.",
     "marketing": "Payagan ang site na kontakin ako",
     "marketing_hint": "Magpapadala kami ng mga bago at alok na bagay sa hinihingi mo. Puwede mong ihinto anumang oras."
+  },
+  "understand": {
+    "title": "Isulat ang kahilingan sa sarili mong salita",
+    "hint": "Isulat ang kailangan mo gaya ng pagsasabi mo; pipiliin namin ang propesyon at serbisyo at pupunan ang kahilingan.",
+    "placeholder": "Halimbawa: hindi lumalamig ang aircon ko",
+    "button": "Unawain ang kahilingan ko",
+    "got": "Naintindihan namin:",
+    "check": "Tingnan ang mga field sa ibaba, baguhin kung gusto, saka i-publish.",
+    "check_unsure": "Hindi kami lubos na sigurado: tingnan ang propesyon bago i-publish.",
+    "not_found": "Hindi namin natukoy ang propesyon. Piliin sa ibaba; nailagay ang paglalarawan mo.",
+    "count": "Bilang {{count}}",
+    "when": {
+      "today": "ngayon",
+      "now": "ngayon din",
+      "tomorrow": "bukas",
+      "after_tomorrow": "sa makalawa",
+      "morning": "umaga",
+      "afternoon": "hapon",
+      "evening": "gabi",
+      "night": "gabi",
+      "thursday": "Huwebes",
+      "friday": "Biyernes",
+      "saturday": "Sabado"
+    }
   }
 }

@@ -3023,5 +3023,29 @@
     "whatsapp_number_hint": "Kosongkan jika sama dengan nomor ponsel Anda.",
     "marketing": "Izinkan situs menghubungi saya",
     "marketing_hint": "Kami kirimkan info baru dan penawaran yang sesuai kebutuhan Anda. Bisa dihentikan kapan saja."
+  },
+  "understand": {
+    "title": "Tulis permintaan dengan kata-kata sendiri",
+    "hint": "Tulis kebutuhan Anda seperti biasa; kami pilihkan profesi dan layanan lalu mengisi permintaan.",
+    "placeholder": "Contoh: AC saya tidak dingin",
+    "button": "Pahami permintaan saya",
+    "got": "Kami memahami:",
+    "check": "Periksa kolom di bawah, ubah sesuka Anda, lalu terbitkan.",
+    "check_unsure": "Kami belum yakin: periksa profesi sebelum menerbitkan.",
+    "not_found": "Profesi tidak dikenali. Pilih di bawah; deskripsi Anda sudah diisi.",
+    "count": "Jumlah {{count}}",
+    "when": {
+      "today": "hari ini",
+      "now": "sekarang",
+      "tomorrow": "besok",
+      "after_tomorrow": "lusa",
+      "morning": "pagi",
+      "afternoon": "sore",
+      "evening": "petang",
+      "night": "malam",
+      "thursday": "Kamis",
+      "friday": "Jumat",
+      "saturday": "Sabtu"
+    }
   }
 }

@@ -41,7 +41,7 @@ const create = asyncHandler(async (req, res) => {
     budget_min: req.body.budget_min,
     budget_max: req.body.budget_max,
     preferred_date: req.body.preferred_date,
-    is_urgent: req.body.is_urgent === true || req.body.is_urgent === 'true',
+    is_urgent: [true, 1, 'true', '1'].includes(req.body.is_urgent), // AYK-419: a form sends «1»
   };
   // Fields the owner made required in «حقول النماذج» (AYK-218); the uploads are removed on refusal.
   const required = await requiredFields('request');
