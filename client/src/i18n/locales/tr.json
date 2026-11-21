@@ -2586,7 +2586,16 @@
     "tasks_title": "İşlerim",
     "tasks_hint": "İletişime geçtiğiniz veya size atanan talepler. «Aktif işlerim» şimdi sizi bekliyor; «İş arşivim» biten ya da iptal edilenleri tutar.",
     "task_waiting": "Talep sahibinin yanıtı bekleniyor",
-    "professions_areas": "Mesleklerim ve bölgelerim"
+    "professions_areas": "Mesleklerim ve bölgelerim",
+    "previous_client": "Önceki müşteri",
+    "previous_clients_title": "Önceki müşterilerim",
+    "previous_clients_hint": "Daha önce iş yaptığınız kişiler. Yeni talepleri size önce görünür.",
+    "previous_clients_page_hint": "Yalnızca bilgi için: anlaştığınız veya iş yaptığınız kişiler. Talep edenin adı yalnızca «Rehberim»e kaydettiyseniz görünür.",
+    "previous_clients_search": "Ad, hesap numarası veya mahalleye göre ara",
+    "previous_clients_empty": "Henüz önceki müşteri yok. İş üzerinde anlaştığınız herkes burada görünür.",
+    "previous_clients_jobs": "Birlikte yapılan işler: {{count}}",
+    "previous_clients_last": "Son iş",
+    "previous_clients_open_request": "Şu an açık bir talebi var"
   },
   "requester": {
     "all_professions": "Tüm meslekler",

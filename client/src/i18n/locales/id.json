@@ -2586,7 +2586,16 @@
     "tasks_title": "Pekerjaan saya",
     "tasks_hint": "Permintaan yang Anda hubungi atau ditugaskan kepada Anda. «Pekerjaan aktif saya» membutuhkan Anda sekarang; «Arsip pekerjaan saya» menyimpan yang selesai atau dibatalkan.",
     "task_waiting": "Menunggu balasan pemilik permintaan",
-    "professions_areas": "Profesi & wilayah saya"
+    "professions_areas": "Profesi & wilayah saya",
+    "previous_client": "Klien sebelumnya",
+    "previous_clients_title": "Klien saya sebelumnya",
+    "previous_clients_hint": "Orang yang pernah Anda layani. Permintaan baru mereka tampil lebih dulu untuk Anda.",
+    "previous_clients_page_hint": "Hanya untuk dilihat: orang yang pernah sepakat atau Anda layani. Nama pencari layanan hanya tampil jika Anda menyimpannya di «Direktori saya».",
+    "previous_clients_search": "Cari dengan nama, nomor akun, atau distrik",
+    "previous_clients_empty": "Belum ada klien sebelumnya. Setiap orang yang sepakat dengan Anda untuk pekerjaan akan muncul di sini.",
+    "previous_clients_jobs": "Pekerjaan bersama: {{count}}",
+    "previous_clients_last": "Pekerjaan terakhir",
+    "previous_clients_open_request": "Sedang punya permintaan terbuka"
   },
   "requester": {
     "all_professions": "Semua profesi",

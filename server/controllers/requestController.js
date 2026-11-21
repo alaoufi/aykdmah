@@ -119,6 +119,24 @@ const getNearby = asyncHandler(async (req, res) => {
   return paginate(res, shown, total, page, limit);
 });
 
+// GET /api/requests/previous-clients  (AYK-398, the owner: «في اللوحة يمكن استعراض العملاء السابقين
+// فقط للاستعلام»). A provider's former requesters, read only. A requester's name stays hidden
+// (AYK-142): the name the provider saved them under, else «طالب الخدمة», with the account number.
+const getPreviousClients = asyncHandler(async (req, res) => {
+  if (req.user?.role !== 'provider') return forbidden(res);
+  const rows = await Request.previousClients(req.user.id);
+  const people = rows.map(row => ({ id: row.id, role: row.role, full_name: row.full_name }));
+  await require('../utils/requesterPrivacy').hideRequesterNames(req.user.id, people, req.t('requester_label'));
+  const translated = await requestTranslation.attachTranslations(rows.map(row => ({ id: row.last_request_id, title: row.last_request_title })), readerLang(req));
+  return success(res, rows.map((row, index) => ({
+    id: Number(row.id), name: people[index].full_name, account_number: row.referral_code || null,
+    city_name_ar: row.city_name_ar, city_name_en: row.city_name_en, district_name_ar: row.district_name_ar, district_name_en: row.district_name_en,
+    jobs: Number(row.jobs) || 0, last_at: row.last_at,
+    last_request: { id: Number(row.last_request_id), title: row.last_request_title, translation: translated[index].translation || null },
+    open_request_id: row.open_request_id ? Number(row.open_request_id) : null,
+  })));
+});
+
 const getOne = asyncHandler(async (req, res) => {
   if (!validId(req.params.id)) return notFound(res);
   const request = await Request.findById(req.params.id);
@@ -372,4 +390,5 @@ const acceptWarranty = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+  getPreviousClients,
   getTranslation, create, getMy, getNearby, getOne, updateStatus, setReminders, contact, agree, direct, remove, startChat, proposeWarranty, acceptWarranty };

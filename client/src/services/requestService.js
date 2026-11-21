@@ -166,6 +166,12 @@ export async function getOffersForRequest(requestId) {
   return data.data;
 }
 
+// AYK-398: the provider's former requesters, read only.
+export async function listPreviousClients() {
+  const { data } = await api.get('/requests/previous-clients');
+  return data.data || [];
+}
+
 export async function listMyOffers(params = {}) {
   const { data } = await api.get('/offers/my', { params });
   return data;

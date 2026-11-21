@@ -2586,7 +2586,16 @@
     "tasks_title": "Mga trabaho ko",
     "tasks_hint": "Mga request na kinontak mo o itinalaga sa iyo. Kailangan ka ngayon ng «Mga aktibo kong trabaho»; nasa «Archive ng mga trabaho ko» ang natapos o kinansela.",
     "task_waiting": "Naghihintay ng sagot ng may-ari ng kahilingan",
-    "professions_areas": "Aking mga trabaho at lugar"
+    "professions_areas": "Aking mga trabaho at lugar",
+    "previous_client": "Dating kliyente",
+    "previous_clients_title": "Aking mga dating kliyente",
+    "previous_clients_hint": "Mga pinagtrabahuhan mo dati. Una mong makikita ang kanilang mga bagong request.",
+    "previous_clients_page_hint": "Para sa pagtingin lamang: mga nakasundo o pinagtrabahuhan mo. Lalabas lang ang pangalan ng humihiling kung na-save mo ito sa «Aking direktoryo».",
+    "previous_clients_search": "Maghanap ayon sa pangalan, numero ng account o distrito",
+    "previous_clients_empty": "Wala pang dating kliyente. Lalabas dito ang bawat makakasundo mo sa trabaho.",
+    "previous_clients_jobs": "Mga trabaho: {{count}}",
+    "previous_clients_last": "Huling trabaho",
+    "previous_clients_open_request": "May bukas na request ngayon"
   },
   "requester": {
     "all_professions": "Lahat ng trabaho",

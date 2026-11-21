@@ -2586,7 +2586,16 @@
     "tasks_title": "My jobs",
     "tasks_hint": "Requests you contacted or were assigned. “My active jobs” need you now; “My jobs archive” keeps what ended or was cancelled.",
     "task_waiting": "Waiting for the requester",
-    "professions_areas": "My professions & areas"
+    "professions_areas": "My professions & areas",
+    "previous_client": "Previous client",
+    "previous_clients_title": "My previous clients",
+    "previous_clients_hint": "People you worked for before. Their new requests show to you first.",
+    "previous_clients_page_hint": "For reference only: people you agreed with or did work for. A requester's name shows only if you saved it in «My directory».",
+    "previous_clients_search": "Search by name, account number or district",
+    "previous_clients_empty": "No previous clients yet. Everyone you agree a job with appears here.",
+    "previous_clients_jobs": "Jobs together: {{count}}",
+    "previous_clients_last": "Last job",
+    "previous_clients_open_request": "Has an open request now"
   },
   "requester": {
     "all_professions": "All professions",

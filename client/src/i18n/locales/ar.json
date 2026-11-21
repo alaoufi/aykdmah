@@ -2615,7 +2615,16 @@
     "tasks_title": "أعمالي",
     "tasks_hint": "الطلبات التي تواصلت معها أو أُسندت إليك. «أعمالي النشطة» تحتاجك الآن، و«أرشيف أعمالي» لما انتهى أو أُلغي.",
     "task_waiting": "بانتظار رد طالب الخدمة",
-    "professions_areas": "مهني ومناطقي"
+    "professions_areas": "مهني ومناطقي",
+    "previous_client": "عميل سابق",
+    "previous_clients_title": "عملائي السابقون",
+    "previous_clients_hint": "من عملت لهم من قبل. طلباتهم الجديدة تظهر لك أولًا.",
+    "previous_clients_page_hint": "للاطلاع فقط: من اتفقت معهم أو أنجزت لهم عملًا. اسم طالب الخدمة لا يظهر إلا إن حفظته في «دليلي».",
+    "previous_clients_search": "ابحث بالاسم أو رقم الحساب أو الحي",
+    "previous_clients_empty": "لا يوجد عملاء سابقون بعد. يظهر هنا كل من تتفق معه على عمل.",
+    "previous_clients_jobs": "الأعمال معه: {{count}}",
+    "previous_clients_last": "آخر عمل",
+    "previous_clients_open_request": "لديه طلب مفتوح الآن"
   },
   "requester": {
     "all_professions": "كل المهن",

@@ -68,6 +68,15 @@ export default function ProviderDashboardPage() {
       </div>
 
 
+      {/* AYK-398: the former requesters, to look up. */}
+      <Link to="/provider/clients" className="card mb-4 flex items-center justify-between gap-2 no-underline text-fg" data-testid="previous-clients-link">
+        <span className="min-w-0">
+          <b className="block">⭐ {t('work.previous_clients_title')}</b>
+          <span className="text-[12.5px] text-fg-muted">{t('work.previous_clients_hint')}</span>
+        </span>
+        <span className="btn btn-outline btn-sm shrink-0">{t('work.see_all')}</span>
+      </Link>
+
       <div className="card">
         <div className="flex items-center justify-between gap-2">
           <h3>{t('work.my_contacts_title')}</h3>

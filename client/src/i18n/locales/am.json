@@ -2586,7 +2586,16 @@
     "tasks_title": "ሥራዎቼ",
     "tasks_hint": "ያገኟቸው ወይም የተመደቡልዎ ጥያቄዎች። «ንቁ ሥራዎቼ» አሁን ይፈልጉዎታል፤ «የሥራዎቼ ማህደር» ያለቁትን ወይም የተሰረዙትን ይይዛል።",
     "task_waiting": "የጥያቄውን ባለቤት ምላሽ በመጠበቅ ላይ",
-    "professions_areas": "ሙያዎቼ እና አካባቢዎቼ"
+    "professions_areas": "ሙያዎቼ እና አካባቢዎቼ",
+    "previous_client": "የቀድሞ ደንበኛ",
+    "previous_clients_title": "የቀድሞ ደንበኞቼ",
+    "previous_clients_hint": "ከዚህ በፊት የሠሩላቸው። አዲስ ጥያቄዎቻቸው መጀመሪያ ይታዩዎታል።",
+    "previous_clients_page_hint": "ለማየት ብቻ፦ የተስማሙዋቸው ወይም የሠሩላቸው። የአገልግሎት ጠያቂው ስም የሚታየው በ«ማውጫዬ» ካስቀመጡት ብቻ ነው።",
+    "previous_clients_search": "በስም፣ በመለያ ቁጥር ወይም በሰፈር ይፈልጉ",
+    "previous_clients_empty": "እስካሁን የቀድሞ ደንበኛ የለም። ሥራ የሚስማሙት ሁሉ እዚህ ይታያል።",
+    "previous_clients_jobs": "አብረው የሠሯቸው ሥራዎች፦ {{count}}",
+    "previous_clients_last": "የመጨረሻ ሥራ",
+    "previous_clients_open_request": "አሁን ክፍት ጥያቄ አለው"
   },
   "requester": {
     "all_professions": "ሁሉም ሙያዎች",

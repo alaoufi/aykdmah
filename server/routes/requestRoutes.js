@@ -17,6 +17,7 @@ const { requireMarketplaceWrite, requireMarketplaceBrowse } = require('../middle
 
 router.get('/nearby', optionalAuth, requireMarketplaceBrowse, c.getNearby);
 router.get('/my', authenticate, c.getMy);
+router.get('/previous-clients', authenticate, c.getPreviousClients); // AYK-398
 router.post('/', authenticate, requireMarketplaceWrite, uploadLimiter, uploadRequest.array('files', 8), [
   // Short or empty texts are accepted: the model fills a sensible title and description.
   body('title').optional({ checkFalsy: true }).isString().trim().isLength({ max: 200 }),
