@@ -8,6 +8,7 @@ export function InfoButton({ open, onToggle, controls, label }) {
   return (
     <button type="button" onClick={onToggle} aria-expanded={open} aria-controls={controls}
       aria-label={`${t('common.more_info')}${label ? `: ${label}` : ''}`} title={t('common.more_info')} data-testid="info-button"
+      style={{ width: 20, height: 20, minWidth: 20, minHeight: 0, padding: 0, borderRadius: 9999 }}
       className={`inline-grid place-items-center w-5 h-5 rounded-full border text-[11px] font-extrabold leading-none align-middle shrink-0 ${open ? 'bg-primary text-primary-fg border-primary' : 'border-primary/60 text-primary bg-transparent'}`}>
       i
     </button>
