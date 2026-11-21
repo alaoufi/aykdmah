@@ -11,7 +11,7 @@ import LanguageSwitcher from '../common/LanguageSwitcher';
 import ShareMenu from '../common/ShareMenu';
 import ThemeSwitcher from '../common/ThemeSwitcher';
 import BrandLogo from '../common/BrandLogo';
-import { IconMenu, IconBell, IconClose } from '../common/Icons';
+import { IconMenu, IconBell, IconClose, IconChat } from '../common/Icons';
 import AdminPanelLink from './AdminPanelLink';
 import InviteButton from '../common/InviteButton';
 
@@ -97,9 +97,16 @@ export default function Header() {
           label={t('share.site')} className="max-xl:order-3" testId="share-site" />
         <ThemeSwitcher variant="compact" className="md:hidden max-xl:order-3" />
         <LanguageSwitcher variant="compact" className="md:hidden max-xl:order-3" />
-        {/* The notifications bell on phones too: its count is not the chats count. */}
+        {/* AYK-424 (the owner: «اعمل شعار المحادثات في الهيدر للدخول على المحادثات»): the chats icon beside the bell, with the unread chats count. */}
+        {user && <Link to="/chat" data-testid="mobile-header-chat"
+          className="md:hidden max-xl:order-2 relative w-10 h-10 inline-grid place-items-center rounded-pill text-fg-muted hover:bg-surface-alt no-underline" aria-label={t('nav.chat')} title={t('nav.chat')}>
+          <IconChat size={18} />
+          {chatUnread > 0 && <span className="absolute -top-0.5 -left-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-danger text-white text-[10px] font-bold grid place-items-center">{chatUnread > 9 ? '9+' : chatUnread}</span>}
+        </Link>}
+        {/* The notifications bell on phones too: its count is not the chats count. `inline-grid`, not `grid`:
+            the site's own `.grid` rule (global.css) beat `md:hidden`, so these showed twice on wide screens. */}
         {user && <Link to="/notifications" data-testid="mobile-bell"
-          className="md:hidden max-xl:order-2 relative w-10 h-10 grid place-items-center rounded-pill text-fg-muted hover:bg-surface-alt no-underline" aria-label={t('notification.title')}>
+          className="md:hidden max-xl:order-2 relative w-10 h-10 inline-grid place-items-center rounded-pill text-fg-muted hover:bg-surface-alt no-underline" aria-label={t('notification.title')}>
           <IconBell size={18} />
           {unread > 0 && <span className="absolute -top-0.5 -left-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-danger text-white text-[10px] font-bold grid place-items-center">{unread > 9 ? '9+' : unread}</span>}
         </Link>}
@@ -121,7 +128,8 @@ export default function Header() {
 
         {/* Desktop nav */}
         <nav className="hidden xl:flex items-center gap-1 mx-4">
-          {visibleLinks.map((l) => (
+          {/* AYK-424: the chats have their icon beside the bell, so not a second time as a word here. */}
+          {visibleLinks.filter((l) => l.to !== '/chat').map((l) => (
             <NavLink
               key={l.to}
               to={l.to}
@@ -149,6 +157,11 @@ export default function Header() {
 
         {user ? (
           <div className="hidden md:flex items-center gap-2 relative">
+            <Link to="/chat" data-testid="header-chat" aria-label={t('nav.chat')} title={t('nav.chat')}
+              className="relative w-10 h-10 grid place-items-center rounded-pill text-fg-muted hover:bg-surface-alt no-underline">
+              <IconChat size={18} />
+              {chatUnread > 0 && <span className="absolute -top-0.5 -left-0.5 min-w-[18px] h-[18px] px-1 rounded-full bg-danger text-white text-[10px] font-bold grid place-items-center">{chatUnread > 9 ? '9+' : chatUnread}</span>}
+            </Link>
             <Link
               to="/notifications"
               className="relative w-10 h-10 grid place-items-center rounded-pill text-fg-muted hover:bg-surface-alt no-underline"
