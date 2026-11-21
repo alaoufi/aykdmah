@@ -1060,6 +1060,14 @@ if (!databasePrefix) {
     const wrote = await change(second.token, { role: 'provider', quick: true, service_ids: [], suggested_profession: 'مصلح ساعات' });
     assert.equal(wrote.role, 'provider');
     assert.deepEqual((await db.queryOne('SELECT service_ids FROM provider_profiles WHERE user_id = ?', [second.user.id])).service_ids, []);
+
+    // AYK-412: signed up without an invitation link, the invitation number typed after the professions links the account.
+    const code = first.referral_code || (await db.queryOne('SELECT referral_code FROM users WHERE id = ?', [first.user.id])).referral_code;
+    const third = await simpleRegister({ role: 'client', latitude: undefined, longitude: undefined });
+    await api('/wallet/coupon', { method: 'POST', token: third.token, body: { code: 'ZZZZ9999' }, expected: 404 });
+    await api('/wallet/coupon', { method: 'POST', token: third.token, body: { code } });
+    await change(third.token, { role: 'provider', quick: true, service_ids: [Number(service.id)] });
+    assert.equal(Number((await db.queryOne('SELECT referred_by FROM users WHERE id = ?', [third.user.id])).referred_by), Number(first.user.id));
   });
 
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {

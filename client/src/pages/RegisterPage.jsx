@@ -6,6 +6,7 @@ import { useAuth } from '../hooks/useAuth';
 import usePublicSettings from '../hooks/usePublicSettings';
 import { sendPhoneCode, checkPhone, changeAccountType } from '../services/authService';
 import { createSupport } from '../services/supportService';
+import { applyCoupon, walletError } from '../services/walletService';
 import { cleanPhone, cleanTyped, isSaudiMobile } from '../utils/saudiPhone';
 import Input from '../components/common/Input';
 import PasswordInput from '../components/common/PasswordInput';
@@ -69,6 +70,8 @@ export default function RegisterPage() {
   const [choice, setChoice] = useState(() => (wantsProvider ? 'provider' : ''));
   const [serviceIds, setServiceIds] = useState([]);
   const [ownProfession, setOwnProfession] = useState('');
+  // AYK-412: no invitation link → an optional invitation number, once the professions are chosen.
+  const [inviteCode, setInviteCode] = useState('');
   const [saving, setSaving] = useState(false);
   const [providerError, setProviderError] = useState('');
 
@@ -145,7 +148,7 @@ export default function RegisterPage() {
       });
       if (!res?.user?.role) throw new Error('Invalid registration response');
       forgetInvite(); // used: the next sign-up on this device starts clean
-      navigate('/register', { replace: true, state: { from, wantsProvider, registrationResult: { userId: res.user.id, role: res.user.role } } });
+      navigate('/register', { replace: true, state: { from, wantsProvider, registrationResult: { userId: res.user.id, role: res.user.role, invited: Boolean(referralCode) } } });
     } catch (err) {
       setError(err.response?.data?.message === 'coupon_not_found' ? t('auth.invite_not_found') : apiError(err));
       if (err.response?.status === 409) setFieldErrors({ phone: apiError(err) });
@@ -158,6 +161,18 @@ export default function RegisterPage() {
     const finishProvider = async () => {
       if (!canFinish || saving) return;
       setSaving(true); setProviderError('');
+      const code = inviteCode.trim();
+      if (code && !welcome.invited) {
+        try { await applyCoupon(code); } catch (err) {
+          const reason = err.response?.data?.message;
+          // Already linked (a second press after a failed step) is not an error.
+          if (reason !== 'coupon_already_used') {
+            setProviderError(reason === 'coupon_not_found' ? t('auth.invite_not_found') : walletError(err, t));
+            setSaving(false);
+            return;
+          }
+        }
+      }
       try {
         await changeAccountType({ role: 'provider', quick: true, service_ids: serviceIds, ...(own.length >= 2 ? { suggested_profession: own } : {}) });
         if (own.length >= 2) await createSupport('suggestion', t('auth.own_profession_message', { name: own })).catch(() => {});
@@ -186,6 +201,8 @@ export default function RegisterPage() {
           <ProfessionsPicker serviceIds={serviceIds} onChange={ids => { setServiceIds(ids); setProviderError(''); }} />
           <Input id="register-own-profession" label={t('auth.own_profession_label')} maxLength={80}
             value={ownProfession} onChange={e => { setOwnProfession(e.target.value); setProviderError(''); }} data-testid="register-own-profession" />
+          {!welcome.invited && (serviceIds.length > 0 || own.length >= 2) && <Input id="register-invite" label={t('auth.invite_label')} dir="ltr" inputMode="numeric" maxLength={12}
+            value={inviteCode} onChange={e => { setInviteCode(e.target.value.toUpperCase()); setProviderError(''); }} data-testid="register-invite" />}
           {providerError && <ProblemNotice error={providerError} />}
           <Button type="button" block variant="primary" loading={saving} disabled={!canFinish} onClick={finishProvider} data-testid="register-provider-send">
             {t('auth.own_profession_send')}

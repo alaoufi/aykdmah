@@ -356,6 +356,8 @@ const changeRole = asyncHandler(async (req, res) => {
     }
     if (profile.coverage) await saveCoverage((sql, params) => conn.execute(sql, params), user.id, profile.coverage);
   });
+  // AYK-412: an invited account counts for whoever invited it once it is a provider with professions.
+  if (target !== 'client') require('../services/walletService').settleCountRewardsForInvited(user.id).catch(() => {});
   return success(res, await User.findById(user.id), req.t('account_type_changed'));
 });
 
