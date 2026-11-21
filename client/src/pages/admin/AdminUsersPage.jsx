@@ -1,7 +1,7 @@
 import ScrollStrip from '../../components/common/ScrollStrip';
 import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
 import { localizedJoinedName } from '../../utils/localizeJoined';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   listUsers, blockUser, unblockUser, deleteUser, createUser, updateUser,
@@ -19,6 +19,24 @@ import SpecialNumberPicker from '../../components/admin/SpecialNumberPicker';
 import { useAuth } from '../../hooks/useAuth';
 import { formatRelativeTime } from '../../utils/formatters';
 import { IconSearch } from '../../components/common/Icons';
+import { InfoButton, InfoPanel } from '../../components/common/InfoTip';
+
+// AYK-415: a field's name with (i) beside it, a short line under it, and the full explanation in
+// place. `label` may hold the field itself (a checkbox) when there is no `htmlFor`.
+function HelpLabel({ htmlFor, label, short, info, className = 'block text-[12px] font-bold text-ink' }) {
+  const [open, setOpen] = useState(false);
+  const panelId = useId();
+  return (
+    <div className="mb-1">
+      <span className="flex items-center gap-1.5">
+        <label htmlFor={htmlFor} className={className}>{label}</label>
+        {info && <InfoButton open={open} onToggle={() => setOpen(v => !v)} controls={panelId} label={typeof label === 'string' ? label : ''} />}
+      </span>
+      {short && <div className="text-[12px] text-slate-500 mt-0.5 leading-snug" data-testid="field-short">{short}</div>}
+      <InfoPanel id={panelId} open={open}>{info}</InfoPanel>
+    </div>
+  );
+}
 
 const ROLE_BADGE = {
   admin: 'bg-rose-50 text-rose-600',
@@ -435,8 +453,10 @@ export default function AdminUsersPage() {
             <div className="px-3 py-2 rounded bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">{formError}</div>
           )}
           <div>
-            <label className="block text-[12px] font-bold text-ink mb-1">{t('admin.field_full_name')}</label>
-            <input required value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} autoComplete="off"
+            <HelpLabel htmlFor="user-full-name" label={t('admin.field_full_name')}
+              short="الاسم الذي يظهر للناس في الموقع والتطبيق والمحادثات."
+              info={'مطلوب، من حرفين إلى 150 حرفًا.\nيظهر في ملفه وفي المحادثات والطلبات والعروض، وفي قوائم الإدارة.\nمثال: «أحمد محمد العتيبي».'} />
+            <input id="user-full-name" required value={form.full_name} onChange={(e) => setForm({ ...form, full_name: e.target.value })} autoComplete="off"
               className={fieldClass('full_name')} />
             {fieldError('full_name')}
           </div>
@@ -445,39 +465,48 @@ export default function AdminUsersPage() {
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[12px] font-bold text-ink mb-1">{t('auth.username')}</label>
-              <input value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })}
+              <HelpLabel htmlFor="user-username" label={t('auth.username')}
+                short="اسم قصير يدخل به بدل الجوال أو البريد. اختياري."
+                info={'حروف وأرقام فقط، ويُسمح بالنقطة والشرطة والشرطة السفلية، دون مسافات، حتى 60 حرفًا.\nلا يتكرر: إن كان لحساب آخر يُرفض الحفظ.\nيكتبه في خانة الدخول مع كلمة المرور. مثال: ahmad95.\nيلزم واحد على الأقل من: اسم المستخدم أو البريد أو الجوال أو معرّف فيسبوك.'} />
+              <input id="user-username" value={form.username} onChange={(e) => setForm({ ...form, username: e.target.value })}
                 placeholder="ahmad95" autoComplete="off" name="ayk-admin-username"
                 className={fieldClass('username')} />
               {fieldError('username')}
             </div>
             <div>
-              <label className="block text-[12px] font-bold text-ink mb-1">{t('admin.field_email')}</label>
-              <input type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} autoComplete="off" name="ayk-admin-email"
+              <HelpLabel htmlFor="user-email" label={t('admin.field_email')}
+                short="بريده الإلكتروني، ويمكنه الدخول به. اختياري."
+                info={'يجب أن يكون بريدًا صحيحًا مثل name@example.com، ولا يتكرر بين الحسابات.\nيكتبه في خانة الدخول مع كلمة المرور.\nتغييره يُخرجه من الاتصال المفتوح فيعيد الدخول.\nإن تركته فارغًا فلا بد من طريقة دخول أخرى.'} />
+              <input id="user-email" type="email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} autoComplete="off" name="ayk-admin-email"
                 className={fieldClass('email')} />
               {fieldError('email')}
             </div>
             <div>
-              <label className="block text-[12px] font-bold text-ink mb-1">{t('admin.field_phone')}</label>
-              <input value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })}
+              <HelpLabel htmlFor="user-phone" label={t('admin.field_phone')}
+                short="رقم جواله بالصيغة الدولية، ويمكنه الدخول به. اختياري."
+                info={'أرقام فقط مع علامة + في أوله، حتى 30 خانة، وتُحذف المسافات والأقواس تلقائيًا.\nلا يتكرر بين الحسابات.\nيدخل به مع كلمة المرور أو برمز يصله برسالة نصية.\nمثال: +966500000000.'} />
+              <input id="user-phone" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })}
                 placeholder="+9665XXXXXXXX" autoComplete="off" name="ayk-admin-phone"
                 className={fieldClass('phone')} />
               {fieldError('phone')}
             </div>
             <div>
-              <label className="block text-[12px] font-bold text-ink mb-1">{t('auth.facebook_id')}</label>
-              <input value={form.facebook_id} onChange={(e) => setForm({ ...form, facebook_id: e.target.value })} autoComplete="off" name="ayk-admin-facebook"
+              <HelpLabel htmlFor="user-facebook" label={t('auth.facebook_id')}
+                short="معرّف حسابه في فيسبوك، ويمكنه كتابته في خانة الدخول. اختياري."
+                info={'نص حتى 120 حرفًا، ولا يتكرر بين الحسابات.\nهو طريقة دخول مثل اسم المستخدم: يكتبه في خانة الدخول مع كلمة المرور.\nلا يربط الحساب بفيسبوك ولا ينشر فيه شيئًا.\nاتركه فارغًا إن لم تحتجه.'} />
+              <input id="user-facebook" value={form.facebook_id} onChange={(e) => setForm({ ...form, facebook_id: e.target.value })} autoComplete="off" name="ayk-admin-facebook"
                 className={fieldClass('facebook_id')} />
               {fieldError('facebook_id')}
             </div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="block text-[12px] font-bold text-ink mb-1">
-                {editing ? t('admin.field_password_optional') : t('admin.field_password')}
-              </label>
+              <HelpLabel htmlFor="user-password" label={editing ? t('admin.field_password_optional') : t('admin.field_password')}
+                short={editing ? 'اكتب كلمة جديدة لتغييرها، أو اتركها فارغة لتبقى كما هي.' : 'كلمة المرور التي يدخل بها صاحب الحساب. أربعة أحرف على الأقل.'}
+                info={'من 4 إلى 100 حرف. تُحفظ مشفّرة ولا يراها أحد بعد الحفظ، حتى الإدارة.\nزر العين يُظهر ما كتبته للتأكد منه.\nعند التعديل: الفراغ يُبقي كلمته الحالية، وكتابة كلمة جديدة تستبدلها وتُخرجه من الاتصال المفتوح ليدخل بها.\nأبلغ صاحب الحساب بها بطريقة آمنة.'} />
               <div className="relative">
                 <input
+                  id="user-password"
                   type={showPw ? 'text' : 'password'}
                   required={!editing}
                   autoComplete="new-password"
@@ -497,22 +526,26 @@ export default function AdminUsersPage() {
               {fieldError('password')}
             </div>
             <div>
-              <label className="block text-[12px] font-bold text-ink mb-1">نوع الحساب في الموقع</label>
-              <select value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}
+              <HelpLabel htmlFor="user-role" label="نوع الحساب في الموقع"
+                short="نوعه في الموقع والتطبيق، منفصل عن الإدارة."
+                info={'طالب خدمة: ينشر طلبات ويستقبل عروضًا.\nمقدم خدمة: يظهر في قوائم مقدمي الخدمة ويقدّم عروضًا على الطلبات.\nهذا لا يمنح أي دخول إلى لوحة الإدارة؛ ذلك في خانة «صلاحية إدارية».\nتغييره يُخرجه من الاتصال المفتوح فيعيد التحميل.'} />
+              <select id="user-role" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}
                 className="w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]">
                 <option value="client">{t('auth.role_client')}</option>
                 <option value="provider">{t('auth.role_provider')}</option>
               </select>
-              <p className="text-[11.5px] text-slate-500 mt-1 mb-0">نوعه في الموقع والتطبيق، منفصل عن الإدارة.</p>
             </div>
           </div>
           {/* AYK-383 (the owner: «ممكن أكون مقدم خدمة ومسؤولًا إداريًا»): the administration's rights are
               apart from the site role; in the administration the account is the administration only. */}
           {canEditPerms && (
-            <label className="flex items-start gap-2 rounded-card border border-indigo-200 bg-indigo-50 p-3 cursor-pointer" data-testid="admin-flag">
-              <input type="checkbox" className="mt-1 w-4 h-4" checked={!!form.is_admin} onChange={e => setForm({ ...form, is_admin: e.target.checked })} />
-              <span className="text-[13px] text-indigo-900"><b>🛡️ صلاحية إدارية</b> — يدخل «لوحة الإدارة» بالأقسام التي تحددها له، ويبقى في الموقع {form.role === 'provider' ? 'مقدم خدمة' : 'طالب خدمة'} كما هو.</span>
-            </label>
+            <div className="rounded-card border border-indigo-200 bg-indigo-50 p-3" data-testid="admin-flag">
+              <HelpLabel className="flex items-start gap-2 cursor-pointer"
+                label={<><input type="checkbox" className="mt-1 w-4 h-4" checked={!!form.is_admin} onChange={e => setForm({ ...form, is_admin: e.target.checked })} />
+                  <span className="text-[13px] text-indigo-900"><b>🛡️ صلاحية إدارية</b> — يدخل «لوحة الإدارة» بالأقسام التي تحددها له، ويبقى في الموقع {form.role === 'provider' ? 'مقدم خدمة' : 'طالب خدمة'} كما هو.</span></>}
+                short="يفتح له لوحة الإدارة، بعد أن تحدد له الأقسام التي يدخلها."
+                info={'التأشير وحده لا يفتح شيئًا: بعد الحفظ تظهر نافذة لتحديد الأقسام أو التبويبات التي يدخلها.\nيبقى نوع حسابه في الموقع كما هو، ويستخدم الموقع كالمعتاد.\nإزالة التأشير تمنعه من دخول لوحة الإدارة.\nتظهر هذه الخانة لمن يملك صلاحية إدارة حسابات الإدارة فقط.'} />
+            </div>
           )}
           {form.is_admin && canEditPerms && (
             // AYK-358 (the owner: «هذا حسابه في صلاحية الإدارة» and still no «لوحة الإدارة»): the role
@@ -533,10 +566,11 @@ export default function AdminUsersPage() {
             </div>
           )}
           {editing && (
-            <label className="inline-flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="checkbox" checked={!!form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />
-              <span>{t('admin.is_active')}</span>
-            </label>
+            <HelpLabel className="inline-flex items-center gap-2 text-[13px] cursor-pointer"
+              label={<><input type="checkbox" checked={!!form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />
+                <span>{t('admin.is_active')}</span></>}
+              short="إزالة التأشير توقف الحساب: لا يستطيع الدخول ولا الاستخدام."
+              info={'مؤشَّر: الحساب يعمل عاديًا.\nغير مؤشَّر: يُرفض دخوله وتظهر له رسالة أن حسابه غير مفعّل، ويُقطع اتصاله المفتوح. بياناته تبقى كما هي.\nيختلف عن «حظر» في القائمة، وعن الحذف الذي يزيل الحساب.\nأعد التأشير لإرجاعه.'} />
           )}
           {editing && <SpecialNumberPicker user={editing} onChanged={load} />}
         </form>

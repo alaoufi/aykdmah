@@ -4,6 +4,19 @@ import { useTranslation } from 'react-i18next';
 import { getAdsFees, saveAdsFees } from '../../services/adminService';
 import { apiError } from '../../services/api';
 import { localizedName } from '../../utils/localize';
+import { FieldHelp } from './AdCampaigns';
+
+// AYK-415: what each limit means, in plain words.
+const LIMIT_HELP = {
+  min_duration_days: ['أقصر مدة يستطيع المعلن اختيارها لإعلانه في صفحة «أعلن».',
+    'عدد أيام صحيح من 1 فأكثر. لا يُقبل طلب إعلان مدته أقل من هذا الرقم. مثال: 3 تعني أن أقل إعلان يُطلب لثلاثة أيام. يجب ألا يزيد على «أطول مدة».'],
+  max_duration_days: ['أطول مدة يستطيع المعلن طلبها لإعلان واحد.',
+    'عدد أيام صحيح، لا يقل عن «أقل مدة» ولا يزيد على 3650 (عشر سنوات). لا يُقبل طلب إعلان أطول منها. مثال: 90.'],
+  min_views: ['أقل عدد مشاهدات يستطيع المعلن شراءه لإعلانه.',
+    'عدد صحيح من 1 فأكثر. سعر المشاهدات يُحسب لكل 1000 مشاهدة، فلا يُقبل طلب بعدد أقل من هذا. مثال: 500. يجب ألا يزيد على «أكثر مشاهدات».'],
+  max_views: ['أكبر عدد مشاهدات يُسمح بطلبه لإعلان واحد.',
+    'عدد صحيح، لا يقل عن «أقل مشاهدات» ولا يزيد على 100 مليون. لا يُقبل طلب يتجاوزه. مثال: 100000. ينتهي الإعلان المدفوع حين يبلغ مشاهداته أو مدته، أيهما أسبق.'],
+};
 
 const input = 'w-24 px-2 py-1.5 rounded border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-end';
 
@@ -54,10 +67,14 @@ export default function AdFeesExtras({ regions, onMessage }) {
         </div>
         <div className="p-4 space-y-3">
           <p className="m-0 text-[12px] text-slate-500">{t('promote.coverage_hint')}</p>
-          <label className="flex items-center justify-between gap-3 p-2 rounded bg-brand-50">
-            <span className="font-bold text-[13px] text-ink">🌍 {t('promote.coverage_all')}</span>
-            <span className="flex items-center gap-1">× <input type="number" step="0.1" min="0.1" value={fees.coverage.all} onChange={(e) => setAll(e.target.value)} className={input} /></span>
-          </label>
+          <div className="flex items-center justify-between gap-3 p-2 rounded bg-brand-50">
+            <FieldHelp htmlFor="ad-coverage-all" label={`🌍 ${t('promote.coverage_all')}`} className="font-bold text-[13px] text-ink"
+              short="مضاعف سعر الإعلان الذي يُعرض في كل الدولة دون تحديد مناطق."
+              info={'يُضرب سعر الإعلان المدفوع (الأيام والمشاهدات) في هذا الرقم إذا لم يحدد المعلن أي منطقة أو مدينة. 1 = السعر كما هو، و1.5 = أغلى بالنصف، و0.8 = أرخص بالخُمس. المسموح من 0.1 إلى 100.'} />
+            <span className="flex items-center gap-1">× <input id="ad-coverage-all" type="number" step="0.1" min="0.1" value={fees.coverage.all} onChange={(e) => setAll(e.target.value)} className={input} /></span>
+          </div>
+          <FieldHelp label="عامل كل منطقة" short="مضاعف سعر الإعلان الموجّه لهذه المنطقة. الفارغ يُحسب 1."
+            info={'إذا حدد المعلن مناطق أو مدنًا، يُجمع عامل كل منطقة اختارها (المدينة تُحسب بمنطقتها)، ثم يُضرب السعر في المجموع. مثال: منطقتان عاملهما 1 و0.5 = السعر × 1.5. المسموح من 0.1 إلى 100، والخانة الفارغة تُحسب 1.'} />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {regions.map((r) => (
               <label key={r.id} className="flex items-center justify-between gap-3 px-2 py-1.5 rounded border border-slate-100">
@@ -77,11 +94,11 @@ export default function AdFeesExtras({ regions, onMessage }) {
         </div>
         <div className="p-4 grid grid-cols-2 md:grid-cols-4 gap-3">
           {['min_duration_days', 'max_duration_days', 'min_views', 'max_views'].map((key) => (
-            <label key={key} className="block">
-              <span className="block text-[12px] font-bold text-ink mb-1">{t(`promote.limit_${key}`)}</span>
-              <input type="number" min="1" value={fees.limits[key]} onChange={(e) => setLimit(key, e.target.value)}
+            <div key={key}>
+              <FieldHelp htmlFor={`ad-limit-${key}`} label={t(`promote.limit_${key}`)} short={LIMIT_HELP[key][0]} info={LIMIT_HELP[key][1]} />
+              <input id={`ad-limit-${key}`} type="number" min="1" value={fees.limits[key]} onChange={(e) => setLimit(key, e.target.value)}
                 className="w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]" />
-            </label>
+            </div>
           ))}
         </div>
       </div>

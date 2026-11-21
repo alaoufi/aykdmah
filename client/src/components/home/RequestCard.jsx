@@ -5,6 +5,7 @@ import { IconClock, IconPin, IconArrow } from '../common/Icons';
 import { formatRelativeTime, truncate } from '../../utils/formatters';
 import useOpenRequest from '../../hooks/useOpenRequest';
 import { OwnerBadge } from '../requests/RequestCard';
+import ContactMenu from '../providers/ContactMenu';
 import useRequestTranslation from '../../hooks/useRequestTranslation';
 import TranslatedNote from '../requests/TranslatedNote';
 
@@ -32,7 +33,9 @@ export default function RequestCard({ item, urgent = false }) {
           {tag}
         </span>
         <TrustSummary userId={item.client_id} type="on_requester" average={item.client_rating_avg} count={item.client_rating_count} opinion={item.client_opinion} />
-        <OwnerBadge mine={mine(item)} forService={forMyService(item)} />
+        {forMyService(item)
+          ? <ContactMenu compact quick phone={item.client_contact_phone} whatsapp={item.client_contact_whatsapp} busy={opening === item.id} onChat={() => open(item)} testId="request-contact" />
+          : <OwnerBadge mine={mine(item)} forService={false} />}
         {/* AYK-244: present only when views are public (admin setting) or the viewer is an admin. */}
         {item.views_count != null && <span className="ms-auto text-[11px] text-slate-500 font-medium">👁 {item.views_count}</span>}
         <span className={`${item.views_count != null ? '' : 'ms-auto '}inline-flex items-center gap-1 text-[11px] text-slate-500 font-medium`}>

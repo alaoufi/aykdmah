@@ -8,6 +8,7 @@ import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import EmptyState from '../../components/admin/EmptyState';
 import { formatRelativeTime } from '../../utils/formatters';
 import { apiError } from '../../services/api';
+import { InfoButton, InfoPanel } from '../../components/common/InfoTip';
 
 export default function AdminVerificationsPage() {
   const { t } = useTranslation();
@@ -21,6 +22,7 @@ export default function AdminVerificationsPage() {
   const [items, setItems] = useState([]);
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [reasonInfoOpen, setReasonInfoOpen] = useState(false);
   const [confirm, setConfirm] = useState({ open: false });
   const [statusTab, setStatusTab] = useState('pending');
   const [page, setPage] = useState(1);
@@ -147,8 +149,17 @@ export default function AdminVerificationsPage() {
       >
         <div className="space-y-2">
           {error && <div role="alert" className="text-rose-700 text-[13px]">{error}</div>}
-          <label className="block text-[12px] font-bold text-ink">{t('admin.rejection_reason')}</label>
-          <textarea rows={3} value={reason} onChange={(e) => setReason(e.target.value)}
+          <div>
+            <span className="flex items-center gap-1.5">
+              <label htmlFor="verification-reject-reason" className="block text-[12px] font-bold text-ink">{t('admin.rejection_reason')}</label>
+              <InfoButton open={reasonInfoOpen} onToggle={() => setReasonInfoOpen(v => !v)} controls="verification-reject-reason-info" label={t('admin.rejection_reason')} />
+            </span>
+            <div className="text-[12px] text-slate-500 mt-0.5 leading-snug" data-testid="field-short">ملاحظة داخلية عن سبب الرفض، تظهر في تبويب «مرفوض» هنا.</div>
+            <InfoPanel id="verification-reject-reason-info" open={reasonInfoOpen}>
+              {'يُحفظ السبب مع طلب التوثيق ويظهر تحت صاحبه في تبويب «مرفوض» في هذه الصفحة. لا يُرسل لصاحب الطلب ولا يظهر له حاليًا.\nبعد الرفض لا يظهر الحساب موثَّقًا، ما لم يكن له توثيق آخر مقبول.\nاختياري، حتى 2000 حرف. مثال: صورة الهوية غير واضحة.'}
+            </InfoPanel>
+          </div>
+          <textarea id="verification-reject-reason" rows={3} value={reason} onChange={(e) => setReason(e.target.value)}
             className="w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]" />
         </div>
       </Modal>

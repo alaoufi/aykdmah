@@ -3010,5 +3010,42 @@
     "redo": "Ayusin ang larawan sa {{w}}×{{h}} pixel ({{ratio}}), saka i-upload muli.",
     "animated": "Hindi awtomatikong naaayos ang gumagalaw na larawan. Gawin itong {{w}}×{{h}} pixel ({{ratio}}), saka i-upload.",
     "close": "Isara"
+  },
+  "contact_privacy": {
+    "title": "Pakikipag-ugnayan sa iyo",
+    "hint": "Piliin kung sino at paano ka makokontak. Lahat ay naka-off hangga't hindi mo binubuksan, at puwede mong isara anumang oras.",
+    "share_phone": "Ipakita ang mobile ko sa mga nagbibigay ng serbisyo",
+    "share_phone_hint": "Ang mga provider lang sa propesyon ng bukas mong kahilingan ang makakakita, para matawagan ka nila.",
+    "no_phone": "Idagdag muna ang mobile number mo sa itaas.",
+    "share_whatsapp": "Ipakita ang WhatsApp ko sa mga nagbibigay ng serbisyo",
+    "share_whatsapp_hint": "Makakapag-message sa WhatsApp ang mga provider sa propesyon ng bukas mong kahilingan.",
+    "whatsapp_number": "WhatsApp number (opsyonal)",
+    "whatsapp_number_hint": "Iwanang blangko kung pareho sa mobile number mo.",
+    "marketing": "Payagan ang site na kontakin ako",
+    "marketing_hint": "Magpapadala kami ng mga bago at alok na bagay sa hinihingi mo. Puwede mong ihinto anumang oras."
+  },
+  "understand": {
+    "title": "Isulat ang kahilingan sa sarili mong salita",
+    "hint": "Isulat ang kailangan mo gaya ng pagsasabi mo; pipiliin namin ang propesyon at serbisyo at pupunan ang kahilingan.",
+    "placeholder": "Halimbawa: hindi lumalamig ang aircon ko",
+    "button": "Unawain ang kahilingan ko",
+    "got": "Naintindihan namin:",
+    "check": "Tingnan ang mga field sa ibaba, baguhin kung gusto, saka i-publish.",
+    "check_unsure": "Hindi kami lubos na sigurado: tingnan ang propesyon bago i-publish.",
+    "not_found": "Hindi namin natukoy ang propesyon. Piliin sa ibaba; nailagay ang paglalarawan mo.",
+    "count": "Bilang {{count}}",
+    "when": {
+      "today": "ngayon",
+      "now": "ngayon din",
+      "tomorrow": "bukas",
+      "after_tomorrow": "sa makalawa",
+      "morning": "umaga",
+      "afternoon": "hapon",
+      "evening": "gabi",
+      "night": "gabi",
+      "thursday": "Huwebes",
+      "friday": "Biyernes",
+      "saturday": "Sabado"
+    }
   }
 }

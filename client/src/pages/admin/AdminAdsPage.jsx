@@ -1,7 +1,7 @@
 import ScrollStrip from '../../components/common/ScrollStrip';
 import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
 import { localizedName } from '../../utils/localize';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   listAds, createAd, updateAd, deleteAd, uploadAdMedia,
@@ -25,7 +25,7 @@ import { safeUrl } from '../../utils/urlSafety';
 import { askText } from '../../components/common/AppDialog';
 import AdPlacementMap from '../../components/ads/AdPlacementMap';
 import AdImageFit from '../../components/ads/AdImageFit';
-import { CampaignsPanel, ReportsPanel } from '../../components/admin/AdCampaigns';
+import { CampaignsPanel, ReportsPanel, FieldHelp } from '../../components/admin/AdCampaigns';
 import { listAdCampaigns } from '../../services/adminService';
 import { sizeForPlacements } from '../../utils/adImageSize';
 
@@ -554,7 +554,8 @@ export default function AdminAdsPage() {
       {paidOn !== null && (
         <div className={`rounded-card border-2 px-4 py-4 flex flex-wrap items-center justify-between gap-3 ${paidOn ? 'bg-emerald-50 border-emerald-300' : 'bg-rose-50 border-rose-300'}`} data-testid="paid-ads-switch">
           <div className="min-w-0">
-            <span className="block text-[12.5px] text-slate-600">{t('admin.paid_ads_switch')}</span>
+            <FieldHelp label={t('admin.paid_ads_switch')} className="block text-[12.5px] text-slate-600"
+              info="يفتح أو يغلق صفحة «أعلن» وروابطها في الموقع والتطبيق للجميع. عند الإغلاق لا يستطيع أي مستخدم طلب إعلان مدفوع جديد. الإعلانات التي تعمل الآن وإعلانات الإدارة تبقى كما هي، ويتحكم فيها زر كل إعلان بالأسفل. يُطبَّق فور الضغط بعد التأكيد." />
             <b className={`block text-[17px] mt-0.5 ${paidOn ? 'text-emerald-800' : 'text-rose-800'}`} data-testid="paid-ads-state" role="status">
               {paidOn ? '✅' : '⏸'} {t(paidOn ? 'admin.paid_ads_now_on' : 'admin.paid_ads_now_off')}
             </b>
@@ -634,11 +635,23 @@ export default function AdminAdsPage() {
           <table className="w-full min-w-[640px] text-[13px]">
             <thead className="bg-slate-50 text-[11.5px] font-bold text-slate-500 uppercase">
               <tr>
-                <th className="text-start px-4 py-2">{t('promote.placement')}</th>
-                <th className="text-end px-3 py-2">{t('promote.price_per_day_short')}</th>
-                <th className="text-end px-3 py-2">{t('promote.price_per_1k_views_short')}</th>
-                <th className="text-end px-3 py-2">🔒 ×</th>
-                <th className="text-center px-3 py-2">{t('admin.active')}</th>
+                <th className="text-start px-4 py-2 align-top">{t('promote.placement')}</th>
+                <th className="text-end px-3 py-2 align-top normal-case font-normal">
+                  <FieldHelp label={t('promote.price_per_day_short')} className="text-[11.5px] font-bold text-slate-500" short="سعر كل يوم عرض في هذا المكان."
+                    info={'المبلغ بالريال عن كل يوم يُعرض فيه الإعلان المدفوع في هذا المكان. يُضرب في عدد الأيام التي يختارها المعلن، ثم يُضاف إليه سعر المشاهدات. مثال: 5 لإعلان 10 أيام = 50 ريالًا. صفر = الأيام مجانية في هذا المكان.'} />
+                </th>
+                <th className="text-end px-3 py-2 align-top normal-case font-normal">
+                  <FieldHelp label={t('promote.price_per_1k_views_short')} className="text-[11.5px] font-bold text-slate-500" short="سعر كل 1000 مشاهدة في هذا المكان."
+                    info={'المبلغ بالريال عن كل 1000 مشاهدة يطلبها المعلن في هذا المكان، ويُضاف إلى سعر الأيام. مثال: 10 لطلب 5000 مشاهدة = 50 ريالًا. السعر النهائي للإعلان هو مجموع أسعار كل الأماكن التي اختارها.'} />
+                </th>
+                <th className="text-end px-3 py-2 align-top normal-case font-normal">
+                  <FieldHelp label="🔒 ×" className="text-[11.5px] font-bold text-slate-500" short="مضاعف السعر إذا طلب المعلن العرض الحصري."
+                    info={'إذا اختار المعلن «حصري» يُضرب سعر هذا المكان (الأيام والمشاهدات) في هذا الرقم، لأن إعلانه يظهر وحده فيه. 1 = بلا زيادة، و2 = ضعف السعر. المسموح من 1 إلى 99.99.'} />
+                </th>
+                <th className="text-center px-3 py-2 align-top normal-case font-normal">
+                  <FieldHelp label={t('admin.active')} className="text-[11.5px] font-bold text-slate-500" short="متاح للمعلنين أم لا."
+                    info={'إذا أزلت العلامة لا يستطيع المعلن اختيار هذا المكان عند طلب إعلان مدفوع. لا يؤثر في إعلانات الإدارة ولا في الإعلانات المدفوعة التي تعمل فيه الآن.'} />
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -813,6 +826,8 @@ export default function AdminAdsPage() {
         {reply && (
           <div className="space-y-3">
             <div className="text-[13px] text-slate-600">📣 <b>{reply.ad.title}</b>{reply.ad.user_name ? <> · 👤 {reply.ad.user_name}</> : null}</div>
+            <FieldHelp label="نوع الملاحظة" short="يحدد عنوان التنبيه الذي يصل لصاحب الإعلان."
+              info={'يصل لصاحب الإعلان تنبيه عنوانه «ملاحظة مالية» أو «إدارية» أو «قانونية على إعلانك» بحسب اختيارك، وتظهر الملاحظة مع إعلانه في صفحة إعلاناته. اختر «مالية» لأمور الدفع والمبالغ، و«قانونية» لمخالفة الشروط، و«إدارية» لغير ذلك.'} />
             <div className="flex flex-wrap gap-2">
               {['financial', 'administrative', 'legal'].map((c) => (
                 <button key={c} type="button" onClick={() => setReply((r) => ({ ...r, category: c }))}
@@ -821,7 +836,9 @@ export default function AdminAdsPage() {
                 </button>
               ))}
             </div>
-            <textarea rows={4} value={reply.message} maxLength={2000} onChange={(e) => setReply((r) => ({ ...r, message: e.target.value, error: '' }))}
+            <FieldHelp htmlFor="ad-reply-message" label="نص الرسالة" short="يصل لصاحب الإعلان في تنبيه، ويقرؤه بلغته."
+              info={'اكتب ما يلزمه معرفته أو تصحيحه. تُحفظ الرسالة مع الإعلان وتظهر لك على بطاقته هنا، ويصله تنبيه بها، وتُعرض عليه مترجمة إلى لغة حسابه. الخانة مطلوبة، حتى 2000 حرف.'} />
+            <textarea id="ad-reply-message" rows={4} value={reply.message} maxLength={2000} onChange={(e) => setReply((r) => ({ ...r, message: e.target.value, error: '' }))}
               placeholder={t('promote.message_placeholder')}
               className={`w-full px-3 py-2 rounded-card border outline-none text-[14px] ${reply.error ? 'border-2 border-rose-500 bg-rose-50' : 'border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500'}`} />
             {reply.error && <p role="alert" className="m-0 text-[12.5px] font-bold text-rose-600">⚠️ {reply.error}</p>}
@@ -855,10 +872,15 @@ export default function AdminAdsPage() {
               🔒 إعلان مدفوع: مكانه ومدته ومشاهداته مرتبطة بالمبلغ الذي دُفع، فلا تُعدَّل إلا بإعفائه من الرسوم. ويُعدَّل هنا محتواه (الصورة والنصوص والرابط) ومناطق عرضه.
             </div>
           )}
-          <div id="ad-field-title" className={redBox('title')}><FieldA label={t('admin.ad_title')} value={form.title} onChange={(v) => setForm({ ...form, title: v })} required />{redNote('title')}</div>
-          <FieldA label={t('admin.ad_description')} value={form.description} onChange={(v) => setForm({ ...form, description: v })} multiline />
+          <div id="ad-field-title" className={redBox('title')}><FieldA label={t('admin.ad_title')} value={form.title} onChange={(v) => setForm({ ...form, title: v })} required
+            hint="يظهر على الإعلان للزوار، وفي قائمة الإعلانات هنا. مطلوب."
+            info={'يُكتب العنوان فوق صورة الإعلان في الموقع والتطبيق، ويُترجم تلقائيًا إلى لغات الموقع بعد الحفظ، فيقرؤه كل زائر بلغته. لا يُحفظ الإعلان بدونه. مثال: «خصم 20% على صيانة المكيفات».'} />{redNote('title')}</div>
+          <FieldA label={t('admin.ad_description')} value={form.description} onChange={(v) => setForm({ ...form, description: v })} multiline
+            hint="سطر يظهر تحت العنوان على الإعلان. اختياري."
+            info={'نص قصير يوضح العرض، يظهر تحت العنوان على الإعلان ويُترجم تلقائيًا إلى لغات الموقع. مثال: «احجز اليوم واحصل على فحص مجاني». إن تُرك فارغًا يظهر العنوان وحده.'} />
           <div>
-            <label className="block text-[12px] font-bold text-ink mb-1">{t('admin.ad_media')}</label>
+            <FieldHelp label={t('admin.ad_media')} short="الصورة أو الفيديو الذي يراه الزائر. اختياري."
+              info={'ارفع صورة أو صورة متحركة أو فيديو قصيرًا من جهازك. يُعرض في إطار ثابت المقاس بحسب المكان المختار، والمقاس المناسب مكتوب داخل المربع، وما يخرج عن الإطار يُقص ولا يتمدد. إن لم تضع صورة يظهر العنوان والوصف فقط.'} />
 
             {/* Primary: device upload — big drop zone */}
             <label className="block cursor-pointer">
@@ -883,11 +905,14 @@ export default function AdminAdsPage() {
                 🔗 {t('admin.ad_use_url_instead')}
               </summary>
               <div className="mt-2 grid grid-cols-1 md:grid-cols-[1fr_140px] gap-2">
-                <input value={form.image}
+                <FieldHelp htmlFor="ad-media-url" label="رابط الصورة أو الفيديو" short="عنوان ملف منشور على الإنترنت، بدل الرفع من الجهاز."
+                  info={'الصق عنوانًا يبدأ بـ https لصورة أو فيديو منشور في موقع آخر، فيُعرض في الإعلان كما لو رفعته. إذا انتهى العنوان بامتداد فيديو مثل mp4 يُختار «فيديو» تلقائيًا. إن حُذف الملف من مصدره يختفي من الإعلان.'} />
+                <FieldHelp htmlFor="ad-media-type" label="نوع الملف" short="صورة أو فيديو، ليُعرض بالطريقة الصحيحة." />
+                <input id="ad-media-url" value={form.image}
                   onChange={(e) => setForm({ ...form, image: e.target.value, media_type: guessMediaTypeFromUrl(e.target.value) })}
                   placeholder="https://…"
                   className="w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]" />
-                <select value={form.media_type}
+                <select id="ad-media-type" value={form.media_type}
                   onChange={(e) => setForm({ ...form, media_type: e.target.value })}
                   className="w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]">
                   <option value="image">🖼️ {t('admin.ad_media_image')}</option>
@@ -911,16 +936,17 @@ export default function AdminAdsPage() {
             )}
           </div>
           <div>
-            <label className="block text-[12px] font-bold text-ink mb-1">{t('admin.ad_link')}</label>
-            <input value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })}
+            <FieldHelp htmlFor="ad-link" label={t('admin.ad_link')} short={t('admin.ad_link_hint')}
+              info={'عنوان يبدأ بـ https، أو صفحة في موقعنا تبدأ بـ / مثل /services. يُفتح في نافذة جديدة عند الضغط على الإعلان، وتُحسب كل ضغطة في «النقرات». إن تُرك فارغًا لا يحدث شيء عند الضغط.'} />
+            <input id="ad-link" value={form.link} onChange={(e) => setForm({ ...form, link: e.target.value })}
               placeholder="https://…"
               className="w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]" />
-            <p className="text-[11.5px] text-slate-500 mt-1">{t('admin.ad_link_hint')}</p>
           </div>
           {!paidBoundsLocked(editing) && (<>
           <div id="ad-field-placements" className={redBox('placements')}>
             {redNote('placements')}
-            <label className="block text-[12px] font-bold text-ink mb-2">{t('promote.placements')}</label>
+            <FieldHelp label={t('promote.placements')} short={t('promote.placements_admin_hint')}
+              info={'كل زر مكان في الموقع والتطبيق، مثل أعلى الصفحة الرئيسية أو صفحة الخدمات، والخريطة تحت الأزرار توضح موضعه. الإعلان يظهر في كل الأماكن المؤشَّر عليها، ولا بد من مكان واحد على الأقل. مقاس الصورة المناسب يتغير بحسب الأماكن المختارة.'} />
             <div className="flex flex-wrap gap-2">
               {PLACEMENTS.map((p) => {
                 const active = form.placements.includes(p);
@@ -939,29 +965,33 @@ export default function AdminAdsPage() {
                 );
               })}
             </div>
-            <p className="text-[11.5px] text-slate-500 mt-2">{t('promote.placements_admin_hint')}</p>
             <div className="mt-2"><AdPlacementMap selected={form.placements} /></div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div id="ad-field-starts_at" className={redBox('starts_at')}><FieldA label={t('admin.ad_starts_at')} type="datetime-local" value={form.starts_at} onChange={(v) => setForm({ ...form, starts_at: v })} />{redNote('starts_at')}</div>
-            <div id="ad-field-ends_at" className={redBox('ends_at')}><FieldA label={t('admin.ad_ends_at')} type="datetime-local" value={form.ends_at} onChange={(v) => setForm({ ...form, ends_at: v })} />{redNote('ends_at')}</div>
-            <div id="ad-field-max_views" className={redBox('max_views')}><FieldA label={t('promote.max_views')} type="number" value={form.max_views} onChange={(v) => setForm({ ...form, max_views: v })} placeholder="—" />{redNote('max_views')}</div>
+            <div id="ad-field-starts_at" className={redBox('starts_at')}><FieldA label={t('admin.ad_starts_at')} type="datetime-local" value={form.starts_at} onChange={(v) => setForm({ ...form, starts_at: v })}
+              hint="لا يظهر الإعلان قبل هذا الموعد. فارغ = من الآن."
+              info={'تاريخ وساعة بداية العرض. قبلها لا يراه الزوار حتى لو كان نشطًا. إن تُرك فارغًا يبدأ العرض فور تنشيطه.'} />{redNote('starts_at')}</div>
+            <div id="ad-field-ends_at" className={redBox('ends_at')}><FieldA label={t('admin.ad_ends_at')} type="datetime-local" value={form.ends_at} onChange={(v) => setForm({ ...form, ends_at: v })}
+              hint="بعد هذا الموعد يتوقف الإعلان ويصير «منتهيًا». فارغ = بلا نهاية."
+              info={'تاريخ وساعة نهاية العرض، ويجب أن يكون بعد تاريخ البدء. عند بلوغه يختفي الإعلان وتتغير حالته إلى «منتهي»، ويمكن إعادة تنشيطه بعد تمديد التاريخ. إن تُرك فارغًا يستمر حتى توقفه.'} />{redNote('ends_at')}</div>
+            <div id="ad-field-max_views" className={redBox('max_views')}><FieldA label={t('promote.max_views')} type="number" value={form.max_views} onChange={(v) => setForm({ ...form, max_views: v })} placeholder="—"
+              hint="إذا بلغ الإعلان هذا العدد من المشاهدات توقف. فارغ = بلا حد."
+              info={'عدد صحيح. تُحسب المشاهدة مرة واحدة في اليوم لكل زائر. عند بلوغ العدد ينتهي الإعلان، ويمكن رفع الحد وإعادة تنشيطه. مثال: 10000. إن تُرك فارغًا يُعرض بلا حد للمشاهدات.'} />{redNote('max_views')}</div>
           </div>
           </>)}
-          <FieldA label={t('admin.ad_sort_order')} type="number" value={form.sort_order} onChange={(v) => setForm({ ...form, sort_order: Number(v) || 0 })} />
+          <FieldA label={t('admin.ad_sort_order')} type="number" value={form.sort_order} onChange={(v) => setForm({ ...form, sort_order: Number(v) || 0 })}
+            hint="ترتيب الإعلان في قائمة هذه الصفحة: الرقم الأصغر أولًا."
+            info={'عدد صحيح من 0 فأكثر، يرتّب الإعلانات في قائمة الإدارة هنا فقط. أما أيّ إعلان يظهر للزائر أولًا فتحدده «الأولوية» و«الوزن» في «إعدادات العرض». مثال: 0 للأهم ثم 1 ثم 2. الافتراضي 0.'} />
           {!paidBoundsLocked(editing) && (<>
           <div id="ad-field-is_active" className={`flex flex-wrap gap-4 ${redBox('is_active')}`}>
             {redNote('is_active')}
-            <label className="inline-flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="checkbox" checked={!!form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />
-              <span>{t('admin.is_active')}</span>
-            </label>
-            <label className="inline-flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="checkbox" checked={!!form.exclusive} onChange={(e) => setForm({ ...form, exclusive: e.target.checked })} />
-              <span>🔒 {t('promote.exclusive_mode')}</span>
-            </label>
+            <FieldHelp label={t('admin.is_active')} short="بدون هذه العلامة لا يظهر الإعلان لأحد."
+              check={<input type="checkbox" checked={!!form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />}
+              info={'مفتاح تشغيل الإعلان. إذا أزلت العلامة اختفى الإعلان من كل الأماكن حتى لو كانت مدته سارية، ويبقى محفوظًا لتعيده متى شئت. الإعلان يحتاج أيضًا أن تكون حالته «نشط».'} />
+            <FieldHelp label={`🔒 ${t('promote.exclusive_mode')}`} short={t('promote.exclusive_hint')}
+              check={<input type="checkbox" checked={!!form.exclusive} onChange={(e) => setForm({ ...form, exclusive: e.target.checked })} />}
+              info={'إذا كان في المكان إعلان حصري يعمل الآن، لا تظهر بقية الإعلانات العادية فيه. إذا وُجد أكثر من إعلان حصري في المكان نفسه تتناوب فيما بينها. بدون العلامة يتشارك الإعلان المكان مع غيره.'} />
           </div>
-          <p className="text-[11.5px] text-slate-500 -mt-2">{t('promote.exclusive_hint')}</p>
           </>)}
 
           {/* Geo targeting. AYK-388 (the owner: «إعلان منشّط لكن ما أستطيع تحديد مناطق عرضه»): open for
@@ -973,7 +1003,8 @@ export default function AdminAdsPage() {
             <p className="text-[11.5px] text-slate-500 -mt-1">{t('promote.geo_targeting_hint')}</p>
             {paidBoundsLocked(editing) && <p className="text-[11.5px] text-amber-800 bg-amber-50 rounded px-2 py-1.5 m-0">💡 إعلان مدفوع: تحديد مناطق عرضه هنا لا يغيّر المبلغ الذي دُفع.</p>}
             <div>
-              <div className="text-[11px] font-semibold text-slate-600 mb-1">{t('promote.target_countries')}</div>
+              <FieldHelp label={t('promote.target_countries')} className="text-[11px] font-semibold text-slate-600" short="يظهر الإعلان فقط لزوار الدول المختارة. بلا اختيار = كل الدول."
+                info={'يُعرف بلد الزائر من حسابه أو من موقع اتصاله. اختيار الدول يُهمل إذا اخترت منطقة أو مدينة بالأسفل. إذا لم يُعرف مكان الزائر لا يُعرض له الإعلان الموجَّه. اتركها كلها بلا اختيار ليظهر للجميع.'} />
               <div className="flex flex-wrap gap-1.5">
                 {COUNTRY_OPTIONS.map((c) => {
                   const on = form.target_countries.includes(c.code);
@@ -1119,8 +1150,8 @@ function RegionCityPicker({ regions, cities, form, setForm }) {
   const chip = on => `px-2.5 py-1 rounded-pill border text-[11.5px] font-semibold transition ${on ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 bg-white text-slate-500 hover:border-slate-300'}`;
   return (
     <div data-testid="region-city-picker">
-      <div className="text-[11px] font-semibold text-slate-600 mb-1">المناطق والمدن</div>
-      <p className="text-[11px] text-slate-500 mt-0 mb-2">اختر منطقة فتظهر مدنها تحتها. بلا اختيار مدينة يُعرض في كل المنطقة، ومع اختيار مدن يُعرض فيها فقط. وتحديد منطقة يجعل الدولة لا تُحسب.</p>
+      <FieldHelp label="المناطق والمدن" className="text-[11px] font-semibold text-slate-600" short="اختر منطقة فتظهر مدنها تحتها. بلا اختيار = كل المناطق."
+        info={'اضغط «＋» على منطقة لإضافتها فتظهر مدنها تحتها. بلا اختيار مدينة يُعرض الإعلان في كل المنطقة، ومع اختيار مدن يُعرض فيها فقط. تحديد منطقة أو مدينة يجعل اختيار الدول لا يُحسب. لإزالة منطقة اضغط عليها في أعلى القائمة.'} />
       {chosen.length > 0 && (
         <div className="space-y-2 mb-2">
           {regions.filter(r => chosen.includes(Number(r.id))).map(r => {
@@ -1171,15 +1202,17 @@ function RegionCityPicker({ regions, cities, form, setForm }) {
   );
 }
 
-function FieldA({ label, value, onChange, type = 'text', required = false, placeholder = '', multiline = false }) {
+// AYK-415: `hint` is the short line under the name, `info` the full explanation behind (i).
+function FieldA({ label, value, onChange, type = 'text', required = false, placeholder = '', multiline = false, hint = '', info = '' }) {
   const cls = 'w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]';
+  const id = useId();
   return (
     <div>
-      <label className="block text-[12px] font-bold text-ink mb-1">{label}</label>
+      <FieldHelp htmlFor={id} label={label} short={hint} info={info} />
       {multiline ? (
-        <textarea rows={2} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={cls} />
+        <textarea id={id} rows={2} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={cls} />
       ) : (
-        <input type={type} required={required} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={cls} />
+        <input id={id} type={type} required={required} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={cls} />
       )}
     </div>
   );
@@ -1236,50 +1269,66 @@ function AdProSettings({ form, setForm, campaigns, redBox, redNote }) {
       <summary className="cursor-pointer text-[13px] font-bold text-ink">⚙️ إعدادات العرض: الحملة، والأولوية، والحدود، والجدولة، والجمهور</summary>
       <div className="space-y-3 mt-3">
         <div id="ad-field-campaign_id" className={redBox('campaign_id')}>
-          <label className="block text-[12px] font-bold">📁 الحملة
-            <select className={input} value={form.campaign_id} onChange={e => set('campaign_id', e.target.value)} data-testid="ad-campaign">
-              <option value="">بلا حملة</option>
-              {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}{c.status !== 'active' ? ' (موقوفة)' : ''}</option>)}
-            </select>
-          </label>{redNote('campaign_id')}
+          <FieldHelp htmlFor="ad-campaign" label="📁 الحملة" short="يخضع الإعلان لمدة الحملة وحدود مشاهداتها. «بلا حملة» = مستقل."
+            info={'الحملة مجموعة إعلانات لمعلن واحد تُنشأ في تبويب «الحملات». إذا وضعت الإعلان فيها لا يظهر إلا والحملة نشطة وضمن تاريخيها، وتتوقف إعلاناتها كلها إذا بلغت حد مشاهداتها الكلي أو اليومي. «بلا حملة»: الإعلان يتبع إعداداته وحده.'} />
+          <select id="ad-campaign" className={input} value={form.campaign_id} onChange={e => set('campaign_id', e.target.value)} data-testid="ad-campaign">
+            <option value="">بلا حملة</option>
+            {campaigns.map(c => <option key={c.id} value={c.id}>{c.name}{c.status !== 'active' ? ' (موقوفة)' : ''}</option>)}
+          </select>{redNote('campaign_id')}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <label className="block text-[12px] font-bold">⭐ الأولوية
-            <select className={input} value={form.priority} onChange={e => set('priority', Number(e.target.value))} data-testid="ad-priority">
+          <div>
+            <FieldHelp htmlFor="ad-priority" label="⭐ الأولوية" short="أيّ الإعلانات يُقدَّم للزائر أولًا في المكان نفسه."
+              info={'«عالية»: يُقدَّم قبل الإعلانات العادية والاحتياطية. «عادية»: الوضع المعتاد. «احتياطية»: لا يظهر غالبًا إلا إذا لم يوجد إعلان أعلى منه في المكان. بين الإعلانات المتساوية في الأولوية يحدد «الوزن» من يظهر أكثر.'} />
+            <select id="ad-priority" className={input} value={form.priority} onChange={e => set('priority', Number(e.target.value))} data-testid="ad-priority">
               <option value={1}>عالية: تظهر قبل غيرها</option><option value={2}>عادية</option><option value={3}>احتياطية: تظهر إن لم يوجد غيرها</option>
             </select>
-          </label>
-          <label className="block text-[12px] font-bold">⚖️ الوزن (1–10): كم مرة يظهر مقارنة بغيره في نفس الأولوية
-            <input type="number" min="1" max="10" className={input} value={form.weight} onChange={e => set('weight', Math.min(10, Math.max(1, Number(e.target.value) || 1)))} data-testid="ad-weight" />
-          </label>
-          <div id="ad-field-daily_max_views" className={redBox('daily_max_views')}>
-            <label className="block text-[12px] font-bold">📅 حد المشاهدات في اليوم (اختياري)
-              <input type="number" min="1" className={input} value={form.daily_max_views} onChange={e => set('daily_max_views', e.target.value)} placeholder="—" />
-            </label>{redNote('daily_max_views')}
           </div>
-          <label className="block text-[12px] font-bold">👤 حد المرات للزائر الواحد في اليوم (اختياري)
-            <input type="number" min="1" className={input} value={form.freq_cap_per_day} onChange={e => set('freq_cap_per_day', e.target.value)} placeholder="—" data-testid="ad-freq" />
-          </label>
+          <div>
+            <FieldHelp htmlFor="ad-weight" label="⚖️ الوزن (1–10)" short="كم مرة يظهر مقارنة بغيره في نفس الأولوية."
+              info={'رقم من 1 إلى 10. الإعلانات المتساوية في الأولوية تتناوب عشوائيًا، والوزن الأكبر يظهر أكثر: إعلان وزنه 3 يظهر أولًا قرابة ثلاثة أضعاف إعلان وزنه 1. مفيد لتجربة إعلانين ومعرفة الأفضل. الافتراضي 1.'} />
+            <input id="ad-weight" type="number" min="1" max="10" className={input} value={form.weight} onChange={e => set('weight', Math.min(10, Math.max(1, Number(e.target.value) || 1)))} data-testid="ad-weight" />
+          </div>
+          <div id="ad-field-daily_max_views" className={redBox('daily_max_views')}>
+            <FieldHelp htmlFor="ad-daily-max" label="📅 حد المشاهدات في اليوم (اختياري)" short="إذا بلغ الإعلان هذا العدد اليوم اختفى حتى الغد. فارغ = بلا حد."
+              info={'عدد صحيح من 1 فأكثر، لمجموع مشاهدات كل الزوار في اليوم. عند بلوغه يتوقف الإعلان بقية اليوم ويعود تلقائيًا في اليوم التالي. مثال: 1000. إن تُرك فارغًا فلا حد يومي.'} />
+            <input id="ad-daily-max" type="number" min="1" className={input} value={form.daily_max_views} onChange={e => set('daily_max_views', e.target.value)} placeholder="—" />
+            {redNote('daily_max_views')}
+          </div>
+          <div>
+            <FieldHelp htmlFor="ad-freq" label="👤 حد المرات للزائر الواحد في اليوم (اختياري)" short="أقصى عدد مرات يرى فيها الزائر نفسه الإعلان في اليوم. فارغ = بلا حد."
+              info={'عدد صحيح من 1 فأكثر. يُحسب على جهاز الزائر، فإذا رأى الإعلان هذا العدد من المرات اليوم لا يظهر له حتى الغد، ويظهر لغيره عاديًا. مثال: 3 حتى لا يملّ الزائر من تكراره. إن تُرك فارغًا فلا حد.'} />
+            <input id="ad-freq" type="number" min="1" className={input} value={form.freq_cap_per_day} onChange={e => set('freq_cap_per_day', e.target.value)} placeholder="—" data-testid="ad-freq" />
+          </div>
         </div>
         <div id="ad-field-pacing" className={redBox('pacing')}>
-          <div className="text-[12px] font-bold mb-1">⏱ توزيع المشاهدات</div>
+          <FieldHelp label="⏱ توزيع المشاهدات" short="«متساوية» توزّع حد المشاهدات على الأيام حتى تاريخ الانتهاء، فلا تنفد في يوم واحد."
+            info={'«بأسرع وقت»: يُعرض الإعلان كلما أمكن حتى يبلغ حد مشاهداته. «متساوية على المدة»: يُقسم ما بقي من المشاهدات على الأيام الباقية، فإذا بلغ نصيب اليوم توقف حتى الغد. «متساوية» تعمل فقط إذا حددت «أقصى عدد للمشاهدات» و«تاريخ الانتهاء» معًا، وإلا يُعرض كأنه «بأسرع وقت».'} />
           <div className="flex gap-1.5 flex-wrap">
             <button type="button" className={chip(form.pacing !== 'even')} onClick={() => set('pacing', 'asap')}>بأسرع وقت</button>
             <button type="button" className={chip(form.pacing === 'even')} onClick={() => set('pacing', 'even')}>متساوية على المدة</button>
           </div>
-          <p className="text-[11.5px] text-slate-500 m-0 mt-1">«متساوية» توزّع حد المشاهدات على الأيام حتى تاريخ الانتهاء، فلا تنفد في يوم واحد.</p>{redNote('pacing')}
+          {redNote('pacing')}
         </div>
         <div id="ad-field-schedule" className={redBox('schedule')}>
-          <div className="text-[12px] font-bold mb-1">🗓 الجدولة بتوقيت السعودية (اختياري): أيام وساعات العرض</div>
+          <FieldHelp label="🗓 الجدولة بتوقيت السعودية (اختياري): أيام وساعات العرض" short="بلا أيام: كل الأيام. بلا ساعات: كل اليوم."
+            info={'اختر الأيام التي يُعرض فيها الإعلان، ثم ساعة البداية والنهاية، وكلها بتوقيت السعودية. خارج هذه الأيام والساعات يختفي الإعلان ويعود في موعده. يمكن أن تمتد الساعات بعد منتصف الليل، مثل من 20:00 إلى 02:00. اكتب الساعتين معًا أو اتركهما فارغتين.'} />
           <div className="flex gap-1.5 flex-wrap">{WEEK_DAYS.map(([d, l]) => <button key={d} type="button" className={chip(form.schedule_days.includes(d))} onClick={() => toggle('schedule_days', d)}>{l}</button>)}</div>
           <div className="grid grid-cols-2 gap-2 mt-2">
-            <label className="block text-[12px] font-bold">من الساعة<input type="time" className={input} value={form.schedule_from} onChange={e => set('schedule_from', e.target.value)} /></label>
-            <label className="block text-[12px] font-bold">إلى الساعة<input type="time" className={input} value={form.schedule_to} onChange={e => set('schedule_to', e.target.value)} /></label>
+            <div>
+              <FieldHelp htmlFor="ad-schedule-from" label="من الساعة" short="يبدأ الظهور يوميًا من هذه الساعة." />
+              <input id="ad-schedule-from" type="time" className={input} value={form.schedule_from} onChange={e => set('schedule_from', e.target.value)} />
+            </div>
+            <div>
+              <FieldHelp htmlFor="ad-schedule-to" label="إلى الساعة" short="ويتوقف يوميًا عند هذه الساعة." />
+              <input id="ad-schedule-to" type="time" className={input} value={form.schedule_to} onChange={e => set('schedule_to', e.target.value)} />
+            </div>
           </div>
-          <p className="text-[11.5px] text-slate-500 m-0 mt-1">بلا أيام: كل الأيام. بلا ساعات: كل اليوم.</p>{redNote('schedule')}
+          {redNote('schedule')}
         </div>
         <div>
-          <div className="text-[12px] font-bold mb-1">👥 الجمهور (اختياري، بلا اختيار = الجميع)</div>
+          <FieldHelp label="👥 الجمهور (اختياري، بلا اختيار = الجميع)" short="لمن يظهر الإعلان: نوع الجهاز، ونوع المستخدم، ولغة الموقع."
+            info={'في كل صف اختر ما تريد، والصف الذي لا تختار منه شيئًا يشمل الجميع. الصف الأول: الجوال أو الكمبيوتر. الثاني: الزوار غير المسجلين، أو طالبو الخدمة، أو مقدموها. الثالث: اللغة التي يتصفح بها الزائر الموقع. مثال: «مقدمو الخدمة» + «العربية» = يظهر فقط لمقدمي الخدمة الذين يتصفحون بالعربية.'} />
           <div className="flex gap-1.5 flex-wrap mb-2">
             {[['mobile', '📱 الجوال'], ['desktop', '💻 الكمبيوتر']].map(([v, l]) => <button key={v} type="button" className={chip(form.target_devices.includes(v))} onClick={() => toggle('target_devices', v)}>{l}</button>)}
           </div>

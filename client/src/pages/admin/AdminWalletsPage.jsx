@@ -1,12 +1,37 @@
 import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useId, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LoadingState, ErrorState } from '../../components/common/Spinner';
 import * as walletApi from '../../services/walletService';
 import { formatRelativeTime } from '../../utils/formatters';
 import { askText } from '../../components/common/AppDialog';
+import { InfoButton, InfoPanel } from '../../components/common/InfoTip';
 
 const money = value => Number(value || 0).toFixed(2);
+
+// AYK-415: a field's name with (i) beside it, a short line under it, and the full explanation
+// in place. `label` may hold the field itself (a checkbox) when there is no `htmlFor`.
+function HelpLabel({ htmlFor, label, short, info, className = 'text-[12.5px] font-semibold text-fg' }) {
+  const [open, setOpen] = useState(false);
+  const panelId = useId();
+  return (
+    <div>
+      <span className="flex items-center gap-1.5">
+        <label htmlFor={htmlFor} className={className}>{label}</label>
+        {info && <InfoButton open={open} onToggle={() => setOpen(v => !v)} controls={panelId} label={typeof label === 'string' ? label : ''} />}
+      </span>
+      {short && <div className="text-[12px] text-slate-500 mt-0.5 leading-snug" data-testid="field-short">{short}</div>}
+      <InfoPanel id={panelId} open={open}>{info}</InfoPanel>
+    </div>
+  );
+}
+
+// What each choice and number on this page does (traced to server/services/walletService.js).
+const MODE_HELP = {
+  count: 'يستحق المسوّق مبلغًا ثابتًا عن كل مقدم خدمة سجّل بكوده، بعد بلوغ الحد الأدنى.',
+  subscription: 'يستحق المسوّق مبلغًا ثابتًا مرة واحدة عن كل من سجّل بكوده ثم دفع اشتراكًا وتفعّل.',
+  percent: 'يستحق المسوّق نسبة من أول دفعة إلكترونية يدفعها من سجّل بكوده.',
+};
 
 export default function AdminWalletsPage() {
   const { t } = useTranslation();
@@ -72,48 +97,65 @@ export default function AdminWalletsPage() {
           commission_percent: settings.commission_percent }), 'wallet.admin_marketing.saved');
       }}>
         <h2 className="font-bold text-fg">📣 {t('wallet.admin_marketing.title')}</h2>
-        <label className="flex items-center gap-2 text-[14px] font-bold cursor-pointer">
-          <input type="checkbox" checked={marketing.enabled} data-testid="marketing-enabled"
+        <HelpLabel className="flex items-center gap-2 text-[14px] font-bold cursor-pointer"
+          label={<><input type="checkbox" checked={marketing.enabled} data-testid="marketing-enabled"
             onChange={e => setMarketing({ ...marketing, enabled: e.target.checked })} />
-          {t('wallet.admin_marketing.enabled')}
-        </label>
+          {t('wallet.admin_marketing.enabled')}</>}
+          short="يشغّل احتساب مكافآت المسوّقين أو يوقفه، ولا يمس الأرصدة السابقة."
+          info={'عند التشغيل تُضاف مكافأة إلى رصيد صاحب الكود كلما تحقق شرط الطريقة المختارة أدناه.\nعند الإيقاف لا تُحسب أي مكافأة جديدة، وما في أرصدة المسوّقين يبقى لهم كما هو.\nالحفظ يتم بزر «حفظ» أسفل هذا القسم.'} />
         {!marketing.enabled && <p className="text-[12.5px] text-amber-800 bg-amber-50 rounded-card px-3 py-2 m-0">{t('wallet.admin_marketing.disabled_note')}</p>}
         <fieldset className="space-y-2">
-          <legend className="text-[13px] font-bold text-fg mb-1">{t('wallet.admin_marketing.mode')}</legend>
+          <legend className="sr-only">{t('wallet.admin_marketing.mode')}</legend>
+          <HelpLabel className="text-[13px] font-bold text-fg" label={t('wallet.admin_marketing.mode')}
+            short="اختر طريقة واحدة يكسب بها صاحب الكود؛ تعمل الطريقة المختارة وحدها."
+            info={'تعمل طريقة واحدة فقط في كل وقت، والمكافأة تُضاف إلى رصيد صاحب الكود (المسوّق).\n• بالعدد: مبلغ ثابت عن كل مقدم خدمة سجّل بكوده واختار خدماته، بعد بلوغ الحد الأدنى. لا علاقة لها بالدفع.\n• بالاشتراك: مبلغ ثابت مرة واحدة عن كل من سجّل بكوده ودفع اشتراكًا وتفعّل، لا عن التجديد.\n• بالنسبة: نسبة من أول دفعة إلكترونية فقط للمسجَّل بكوده، ولا تتكرر.\nالدفع من رصيد المحفظة لا يمنح أي عمولة.'} />
           {['count', 'subscription', 'percent'].map(mode => (
-            <label key={mode} className="flex items-start gap-2 text-[13px] cursor-pointer">
-              <input type="radio" name="marketing-mode" className="mt-1" checked={marketing.mode === mode} data-testid={`marketing-mode-${mode}`}
+            <div key={mode} className="flex items-start gap-2 text-[13px]">
+              <input type="radio" id={`marketing-mode-${mode}`} name="marketing-mode" className="mt-1" checked={marketing.mode === mode} data-testid={`marketing-mode-${mode}`}
                 onChange={() => setMarketing({ ...marketing, mode })} />
-              <span className="flex-1">
-                {t(`wallet.admin_marketing.mode_${mode}`)}
+              <div className="flex-1">
+                <label htmlFor={`marketing-mode-${mode}`} className="cursor-pointer">{t(`wallet.admin_marketing.mode_${mode}`)}</label>
+                <div className="text-[12px] text-slate-500 mt-0.5 leading-snug" data-testid="field-short">{MODE_HELP[mode]}</div>
                 {marketing.mode === mode && (
-                  <span className="flex flex-wrap gap-3 mt-1">
+                  <div className="flex flex-wrap gap-3 mt-1">
                     {mode === 'count' && <>
-                      <label className="text-[12.5px]">{t('wallet.admin_marketing.count_every')}
-                        <input className="input w-28 block" type="number" min="1" max="10000" step="1" required value={marketing.count_every}
+                      <div className="text-[12.5px] max-w-[260px]">
+                        <HelpLabel htmlFor="marketing-count-every" label={t('wallet.admin_marketing.count_every')}
+                          short="أقل عدد مقدمي خدمة يسجّلون بكوده قبل أن يستحق أي مبلغ."
+                          info={'عدد صحيح من 1 إلى 10000.\nقبل بلوغه لا يستحق المسوّق شيئًا، وعند بلوغه يستحق المبلغ عن كل واحد منهم دفعة واحدة، ثم عن كل من يأتي بعدهم.\nمثال: الحد 10 والمبلغ 5 ريالات: عند العاشر يُضاف 50 ريالًا، والحادي عشر يضيف 5.\nيُحسب مقدم الخدمة الذي حسابه نشط وغير محظور واختار خدماته.'} />
+                        <input id="marketing-count-every" className="input w-28 block" type="number" min="1" max="10000" step="1" required value={marketing.count_every}
                           onChange={e => setMarketing({ ...marketing, count_every: e.target.value })} />
-                      </label>
-                      <label className="text-[12.5px]">{t('wallet.admin_marketing.count_amount')}
-                        <input className="input w-28 block" type="number" min="0" step="0.01" required value={marketing.count_amount}
+                      </div>
+                      <div className="text-[12.5px] max-w-[260px]">
+                        <HelpLabel htmlFor="marketing-count-amount" label={t('wallet.admin_marketing.count_amount')}
+                          short="ما يُضاف لرصيد المسوّق عن كل مقدم خدمة محسوب، بالريال."
+                          info={'بالريال، من 0 إلى 100000، ويقبل هللات (مثل 2.50).\nيُضاف إلى رصيد المسوّق ويظهر في «كشف المسوّقين»، ويُسلَّم نقدًا أو بتحويل.\nإن تركته صفرًا فلن يُحسب شيء في هذه الطريقة.'} />
+                        <input id="marketing-count-amount" className="input w-28 block" type="number" min="0" step="0.01" required value={marketing.count_amount}
                           onChange={e => setMarketing({ ...marketing, count_amount: e.target.value })} />
-                      </label>
+                      </div>
                     </>}
                     {mode === 'subscription' && (
-                      <label className="text-[12.5px]">{t('wallet.admin_marketing.subscription_amount')}
-                        <input className="input w-28 block" type="number" min="0" step="0.01" required value={marketing.subscription_amount}
+                      <div className="text-[12.5px] max-w-[260px]">
+                        <HelpLabel htmlFor="marketing-subscription-amount" label={t('wallet.admin_marketing.subscription_amount')}
+                          short="مبلغ ثابت مرة واحدة عن كل من دفع اشتراكه وتفعّل، بالريال."
+                          info={'بالريال، من 0 إلى 100000.\nيُضاف إلى رصيد صاحب الكود بعد اكتمال الدفع الإلكتروني وتفعيل الاشتراك، مرة واحدة فقط عن كل مشترك، ولا يتكرر مع التجديد.\nمثال: 20 تعني 20 ريالًا عن كل مشترك جديد.\nإن تركته صفرًا فلن يُحسب شيء.'} />
+                        <input id="marketing-subscription-amount" className="input w-28 block" type="number" min="0" step="0.01" required value={marketing.subscription_amount}
                           onChange={e => setMarketing({ ...marketing, subscription_amount: e.target.value })} />
-                      </label>
+                      </div>
                     )}
                     {mode === 'percent' && (
-                      <label className="text-[12.5px]">{t('wallet.admin.commission_percent')}
-                        <input className="input w-28 block" type="number" min="0" max="100" step="0.01" required value={settings.commission_percent}
+                      <div className="text-[12.5px] max-w-[260px]">
+                        <HelpLabel htmlFor="marketing-commission-percent" label={t('wallet.admin.commission_percent')}
+                          short="النسبة المئوية من أول دفعة للمسجَّل بكوده، من 0 إلى 100."
+                          info={'نسبة مئوية من 0 إلى 100، وتقبل كسورًا (مثل 7.5).\nتُحسب على أول دفعة إلكترونية مكتملة للمسجَّل الجديد فقط، مرة واحدة، وتُضاف لرصيد صاحب الكود.\nمثال: 10 ودفعة 200 ريال تعني 20 ريالًا.\nصفر يعني لا عمولة.'} />
+                        <input id="marketing-commission-percent" className="input w-28 block" type="number" min="0" max="100" step="0.01" required value={settings.commission_percent}
                           onChange={e => setSettings({ ...settings, commission_percent: e.target.value })} />
-                      </label>
+                      </div>
                     )}
-                  </span>
+                  </div>
                 )}
-              </span>
-            </label>
+              </div>
+            </div>
           ))}
         </fieldset>
         <button type="submit" className="btn btn-primary">{t('common.save')}</button>
@@ -152,13 +194,19 @@ export default function AdminWalletsPage() {
             act(() => walletApi.adminCashPayout(cash.user.id, { amount: cash.amount, note: cash.note }), 'wallet.admin_marketing.cash_done').then(ok => ok && setCash(null));
           }}>
             <div className="w-full font-bold text-[13px]">{t('wallet.admin_marketing.cash_title')}: {cash.user.full_name}</div>
-            <label className="text-[12.5px]">{t('wallet.admin_marketing.cash_amount')}
-              <input className="input w-32 block" dir="ltr" type="number" min="0.01" step="0.01" max={cash.user.balance} required value={cash.amount}
+            <div className="text-[12.5px] max-w-[260px]">
+              <HelpLabel htmlFor="cash-amount" label={t('wallet.admin_marketing.cash_amount')}
+                short="ما سلّمته له يدًا بيد، ويُخصم من رصيده. لا يزيد عن رصيده."
+                info={'بالريال، أكبر من صفر ولا يزيد عن رصيد المسوّق الحالي.\nلا يحوّل أي مال، بل يسجّل أنك سلّمته المبلغ نقدًا ويخصمه من رصيده، ويصله إشعار بذلك.\nمثال: رصيده 50 وسلّمته 30، فيبقى له 20.'} />
+              <input id="cash-amount" className="input w-32 block" dir="ltr" type="number" min="0.01" step="0.01" max={cash.user.balance} required value={cash.amount}
                 onChange={e => setCash({ ...cash, amount: e.target.value })} />
-            </label>
-            <label className="text-[12.5px] flex-1 min-w-[200px]">{t('wallet.admin_marketing.cash_note')}
-              <input className="input block w-full" required minLength={5} maxLength={500} value={cash.note} onChange={e => setCash({ ...cash, note: e.target.value })} />
-            </label>
+            </div>
+            <div className="text-[12.5px] flex-1 min-w-[200px]">
+              <HelpLabel htmlFor="cash-note" label={t('wallet.admin_marketing.cash_note')}
+                short="سطر يشرح التسليم، يُحفظ في سجل رصيده. خمسة أحرف على الأقل."
+                info={'مطلوب، من 5 إلى 500 حرف.\nيُحفظ مع العملية في سجل رصيد المسوّق ليُعرف لاحقًا متى وأين ومن سلّم.\nمثال: «سُلّم في المكتب يوم الأحد، استلمه بنفسه».'} />
+              <input id="cash-note" className="input block w-full" required minLength={5} maxLength={500} value={cash.note} onChange={e => setCash({ ...cash, note: e.target.value })} />
+            </div>
             <button type="submit" className="btn btn-primary btn-sm">{t('common.save')}</button>
             <button type="button" className="btn btn-outline btn-sm" onClick={() => setCash(null)}>{t('common.cancel')}</button>
           </form>
@@ -169,10 +217,13 @@ export default function AdminWalletsPage() {
         e.preventDefault();
         act(() => walletApi.adminWalletSettings({ min_withdrawal: settings.min_withdrawal }), 'wallet.admin.settings_saved');
       }}>
-        <label className="text-[13px]">{t('wallet.admin.min_withdrawal')}
-          <input className="input w-28 block" type="number" min="0" step="0.01" required value={settings.min_withdrawal}
+        <div className="text-[13px] max-w-[320px]">
+          <HelpLabel htmlFor="min-withdrawal" className="text-[13px] font-semibold text-fg" label={t('wallet.admin.min_withdrawal')}
+            short="أقل مبلغ يقبل طلب سحبه من الرصيد إلى حساب بنكي، بالريال."
+            info={'بالريال، صفر أو أكثر.\nإذا طلب صاحب رصيد سحب مبلغ أقل من هذا يُرفض طلبه وتظهر له رسالة، ويُعرض له هذا الحد في صفحة محفظته.\nمثال: 50 تعني لا سحب لأقل من 50 ريالًا.\nصفر يعني بلا حد أدنى.'} />
+          <input id="min-withdrawal" className="input w-28 block" type="number" min="0" step="0.01" required value={settings.min_withdrawal}
             onChange={e => setSettings({ ...settings, min_withdrawal: e.target.value })} />
-        </label>
+        </div>
         <button type="submit" className="btn btn-primary">{t('common.save')}</button>
       </form>
 
@@ -256,12 +307,18 @@ export default function AdminWalletsPage() {
             e.preventDefault();
             act(() => walletApi.adminAdjust(ledger.user.id, adjust), 'wallet.admin.adjusted').then(ok => ok && setAdjust({ amount: '', note: '' }));
           }}>
-            <label className="text-[12.5px]">{t('wallet.admin.adjust_amount')}
-              <input className="input w-32 block" dir="ltr" required value={adjust.amount} placeholder="-10.00 / 10.00" onChange={e => setAdjust({ ...adjust, amount: e.target.value })} />
-            </label>
-            <label className="text-[12.5px] flex-1 min-w-[180px]">{t('wallet.admin.adjust_note')}
-              <input className="input block w-full" required minLength={5} maxLength={500} value={adjust.note} onChange={e => setAdjust({ ...adjust, note: e.target.value })} />
-            </label>
+            <div className="text-[12.5px] max-w-[260px]">
+              <HelpLabel htmlFor="adjust-amount" label={t('wallet.admin.adjust_amount')}
+                short="رقم موجب يضيف إلى الرصيد، وسالب (بعلامة -) يخصم منه."
+                info={'بالريال، بحد أقصى خانتين بعد الفاصلة، ولا يقبل صفرًا.\nيُسجَّل سطرًا جديدًا في سجل رصيده ولا يعدّل أي عملية سابقة.\nمثال: 10 يضيف عشرة ريالات، و-10 يخصمها.\nلا يُقبل خصم يجعل الرصيد أقل من صفر.'} />
+              <input id="adjust-amount" className="input w-32 block" dir="ltr" required value={adjust.amount} placeholder="-10.00 / 10.00" onChange={e => setAdjust({ ...adjust, amount: e.target.value })} />
+            </div>
+            <div className="text-[12.5px] flex-1 min-w-[180px]">
+              <HelpLabel htmlFor="adjust-note" label={t('wallet.admin.adjust_note')}
+                short="لماذا عدّلت الرصيد؛ يُحفظ مع التسوية. خمسة أحرف على الأقل."
+                info={'مطلوب، من 5 إلى 500 حرف.\nيُحفظ مع التسوية في سجل الرصيد ويظهر في هذه القائمة لمن يراجعها لاحقًا.\nمثال: «تعويض عن خطأ في عمولة شهر مارس».'} />
+              <input id="adjust-note" className="input block w-full" required minLength={5} maxLength={500} value={adjust.note} onChange={e => setAdjust({ ...adjust, note: e.target.value })} />
+            </div>
             <button type="submit" className="btn btn-primary btn-sm">{t('wallet.admin.adjust')}</button>
           </form>
         </div>

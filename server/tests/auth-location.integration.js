@@ -1095,6 +1095,46 @@ if (!databasePrefix) {
     await db.query('DELETE FROM requests WHERE id = ?', [id]);
   });
 
+  test('AYK-418: a requester shows phone/WhatsApp only to providers of the request profession, after turning it on', async () => {
+    const area = await simpleArea();
+    const svc = await db.queryOne('SELECT s.id, s.category_id FROM services s WHERE s.is_active = 1 AND s.deleted_at IS NULL ORDER BY s.id LIMIT 1');
+    const otherSvc = await db.queryOne('SELECT s.id FROM services s WHERE s.is_active = 1 AND s.deleted_at IS NULL AND s.category_id <> ? ORDER BY s.id LIMIT 1', [svc.category_id]);
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const made = await api('/requests', { method: 'POST', token: owner.token, expected: 201, body: {
+      title: 'طلب للتواصل', description: 'تجربة إظهار الرقم', category_id: Number(svc.category_id), city_id: area.city_id, district_id: area.district_id, latitude: 24.7136, longitude: 46.6753 } });
+    const id = Number(made.id || made.request?.id);
+    const makeProvider = async serviceId => {
+      const session = await simpleRegister({ role: 'client', latitude: undefined, longitude: undefined });
+      await api('/users/me/role', { method: 'PUT', token: session.token, body: { role: 'provider', quick: true, service_ids: [Number(serviceId)] } });
+      return session;
+    };
+    const same = await makeProvider(svc.id);
+    const other = await makeProvider(otherSvc.id);
+    const seenBy = async token => {
+      const one = token ? await api(`/requests/${id}`, { token }) : (await fetch(`${base}/requests/${id}`).then(r => r.json())).data;
+      return { phone: one.client_contact_phone || null, whatsapp: one.client_contact_whatsapp || null };
+    };
+    assert.deepEqual(await seenBy(same.token), { phone: null, whatsapp: null }, 'off until the requester turns it on');
+    await api('/users/me', { method: 'PUT', token: owner.token, body: { share_phone: 1, share_whatsapp: 1, marketing_opt_in: 1 } });
+    const me = await api('/auth/me', { token: owner.token });
+    const meUser = me.user || me;
+    assert.equal(Number(meUser.share_phone), 1);
+    assert.equal(Number(meUser.marketing_opt_in), 1);
+    const shown = await seenBy(same.token);
+    assert.equal(shown.phone, owner.user.phone);
+    assert.equal(shown.whatsapp, owner.user.phone, 'WhatsApp defaults to the phone');
+    const listed = (await api('/requests/nearby?limit=100&scope=all', { token: same.token })).find(row => Number(row.id) === id);
+    if (listed) assert.equal(listed.client_contact_phone, owner.user.phone);
+    assert.deepEqual(await seenBy(other.token), { phone: null, whatsapp: null }, 'another profession sees nothing');
+    assert.deepEqual(await seenBy(null), { phone: null, whatsapp: null }, 'a visitor sees nothing');
+    await api('/users/me', { method: 'PUT', token: owner.token, body: { whatsapp_number: '0555000111' } });
+    assert.equal((await seenBy(same.token)).whatsapp.replace(/\D/g, '').slice(-9), '555000111');
+    await api('/users/me', { method: 'PUT', token: owner.token, body: { share_phone: 'yes' }, expected: 400 });
+    await api('/users/me', { method: 'PUT', token: owner.token, body: { share_phone: 0, share_whatsapp: 0 } });
+    assert.deepEqual(await seenBy(same.token), { phone: null, whatsapp: null }, 'turned off again');
+    await db.query('DELETE FROM requests WHERE id = ?', [id]);
+  });
+
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');

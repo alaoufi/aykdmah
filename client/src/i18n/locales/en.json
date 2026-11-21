@@ -3010,5 +3010,42 @@
     "redo": "Edit your picture to {{w}}×{{h}} pixels ({{ratio}}), then upload it again.",
     "animated": "An animated picture is not adjusted automatically. Edit it to {{w}}×{{h}} pixels ({{ratio}}), then upload it.",
     "close": "Close"
+  },
+  "contact_privacy": {
+    "title": "Contacting you",
+    "hint": "Choose who can contact you and how. All are off until you turn them on, and you can turn them off any time.",
+    "share_phone": "Show my phone to service providers",
+    "share_phone_hint": "Only providers in your open request's profession see it, so they can call you directly.",
+    "no_phone": "Add your phone number above first.",
+    "share_whatsapp": "Show my WhatsApp to service providers",
+    "share_whatsapp_hint": "Providers in your open request's profession can message you on WhatsApp.",
+    "whatsapp_number": "WhatsApp number (optional)",
+    "whatsapp_number_hint": "Leave empty if it is your phone number.",
+    "marketing": "Allow the site to contact me",
+    "marketing_hint": "We send you what is new and offers that suit what you ask for. You can stop any time."
+  },
+  "understand": {
+    "title": "Describe your request in your own words",
+    "hint": "Write what you need as you would say it; we pick the profession and service and fill in the request.",
+    "placeholder": "Example: my AC is not cooling and it is noisy",
+    "button": "Understand my request",
+    "got": "We understood:",
+    "check": "Check the fields below, change anything, then publish.",
+    "check_unsure": "We are not fully sure: check the profession below before publishing.",
+    "not_found": "We could not tell the profession. Choose it below; your description is in the details.",
+    "count": "Quantity {{count}}",
+    "when": {
+      "today": "today",
+      "now": "now",
+      "tomorrow": "tomorrow",
+      "after_tomorrow": "after tomorrow",
+      "morning": "morning",
+      "afternoon": "afternoon",
+      "evening": "evening",
+      "night": "night",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday"
+    }
   }
 }

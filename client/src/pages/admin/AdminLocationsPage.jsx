@@ -29,6 +29,7 @@ import AdminButton from '../../components/admin/AdminButton';
 import EmptyState from '../../components/admin/EmptyState';
 import ConfirmDialog from '../../components/admin/AdminConfirmDialog';
 import Modal from '../../components/admin/AdminModal';
+import { InfoButton, InfoPanel } from '../../components/common/InfoTip';
 
 // Drill-down: country -> region -> city. Drag-and-drop reorders each
 // level. Tap a row to drill in; the back arrow returns one level up.
@@ -217,6 +218,30 @@ function CountryPicker({ countries, loading, onPick }) {
 // Regions panel
 // ─────────────────────────────────────────────────────────────────────
 
+// AYK-415: a short line under each field's name, and (i) for the full explanation.
+// `place` is the kind of place in Arabic (المنطقة، المدينة، الحي).
+const nameArHelp = (place, example) => ({
+  short: `اسم ${place} كما يراه الزوار، ويُترجم تلقائيًا إلى لغات الموقع.`,
+  info: `الاسم الأساسي لـ${place}، ويظهر للزوار عند اختيار الموقع في الطلبات والحسابات. بعد الحفظ يترجمه الموقع تلقائيًا إلى لغاته الإحدى عشرة، وتُعاد الترجمة كلما غيّرته.\nحقل إلزامي، حتى 120 حرفًا. مثال: ${example}.`,
+});
+const nameEnHelp = (place, example, extra = '') => ({
+  short: 'الاسم بالإنجليزية، يساعد على التعرف على المكان تلقائيًا من الخريطة.',
+  info: `عندما يحدد الشخص موقعه على الخريطة يقارن الموقع اسم المكان بالاسم العربي وبهذا الاسم ليختار ${place} تلقائيًا. ويظهر أيضًا احتياطًا إذا لم تتوفر ترجمة بلغة الزائر.${extra}\nاختياري، حتى 120 حرفًا. مثال: ${example}.`,
+});
+const REGION_HELP = {
+  name_ar: nameArHelp('المنطقة', 'منطقة الرياض'),
+  name_en: nameEnHelp('المنطقة', 'Riyadh Region'),
+  code: {
+    short: 'رمز مختصر اختياري للمنطقة يظهر تحت اسمها في هذه القائمة.',
+    info: 'رمز قصير لتمييز المنطقة، يظهر تحت اسمها في قائمة المناطق هنا فقط ولا يراه الزوار.\nحتى 20 حرفًا أو رقمًا. مثال: RIY.\nيمكن تركه فارغًا.',
+  },
+};
+const CITY_HELP = { name_ar: nameArHelp('المدينة', 'الرياض'), name_en: nameEnHelp('المدينة', 'Riyadh') };
+const DISTRICT_HELP = {
+  name_ar: nameArHelp('الحي', 'حي النرجس'),
+  name_en: nameEnHelp('الحي', 'Al Narjis', ' تُحذف كلمة Dist المختصرة من آخر الاسم تلقائيًا.'),
+};
+
 function RegionsPanel({ country, onPick, onMsg, onReady }) {
   const { t, i18n } = useTranslation();
   const confirmAdminChange = useAdminConfirmation();
@@ -358,9 +383,9 @@ function RegionEditModal({ open, editing, form, setForm, saving, onClose, onSave
         </>
       }>
       <form noValidate id="admin-region-form" onSubmit={onSave} className="space-y-3">
-        <Field label={t('admin.country_name_ar')} required error={errors.name_ar} value={form.name_ar} onChange={(v) => setForm({ ...form, name_ar: v })} />
-        <Field label={t('admin.country_name_en')} error={errors.name_en} value={form.name_en} onChange={(v) => setForm({ ...form, name_en: v })} />
-        <Field label={t('admin.country_code')} error={errors.code} value={form.code} onChange={(v) => setForm({ ...form, code: v })} placeholder="RIY" />
+        <Field label={t('admin.country_name_ar')} hint={REGION_HELP.name_ar.short} info={REGION_HELP.name_ar.info} required error={errors.name_ar} value={form.name_ar} onChange={(v) => setForm({ ...form, name_ar: v })} />
+        <Field label={t('admin.country_name_en')} hint={REGION_HELP.name_en.short} info={REGION_HELP.name_en.info} error={errors.name_en} value={form.name_en} onChange={(v) => setForm({ ...form, name_en: v })} />
+        <Field label={t('admin.country_code')} hint={REGION_HELP.code.short} info={REGION_HELP.code.info} error={errors.code} value={form.code} onChange={(v) => setForm({ ...form, code: v })} placeholder="RIY" />
       </form>
     </Modal>
   );
@@ -494,8 +519,8 @@ function CitiesPanel({ country, region, onPick, onMsg, onReady }) {
           </>
         }>
         <form noValidate id="admin-city-form" onSubmit={onSave} className="space-y-3">
-          <Field label={t('admin.country_name_ar')} required error={fieldErrors.name_ar} value={form.name_ar} onChange={(v) => updateForm({ ...form, name_ar: v })} />
-          <Field label={t('admin.country_name_en')} error={fieldErrors.name_en} value={form.name_en} onChange={(v) => updateForm({ ...form, name_en: v })} />
+          <Field label={t('admin.country_name_ar')} hint={CITY_HELP.name_ar.short} info={CITY_HELP.name_ar.info} required error={fieldErrors.name_ar} value={form.name_ar} onChange={(v) => updateForm({ ...form, name_ar: v })} />
+          <Field label={t('admin.country_name_en')} hint={CITY_HELP.name_en.short} info={CITY_HELP.name_en.info} error={fieldErrors.name_en} value={form.name_en} onChange={(v) => updateForm({ ...form, name_en: v })} />
         </form>
       </Modal>
 
@@ -606,8 +631,8 @@ function DistrictsPanel({ city, onMsg, onReady, initialSearch, onSearchChange })
           </>
         }>
         <form noValidate id="admin-district-form" onSubmit={onSave} className="space-y-3">
-          <Field label={t('admin.country_name_ar')} required error={fieldErrors.name_ar} value={form.name_ar} onChange={(v) => updateForm({ ...form, name_ar: v })} />
-          <Field label={t('admin.country_name_en')} error={fieldErrors.name_en} value={form.name_en} onChange={(v) => updateForm({ ...form, name_en: v })} />
+          <Field label={t('admin.country_name_ar')} hint={DISTRICT_HELP.name_ar.short} info={DISTRICT_HELP.name_ar.info} required error={fieldErrors.name_ar} value={form.name_ar} onChange={(v) => updateForm({ ...form, name_ar: v })} />
+          <Field label={t('admin.country_name_en')} hint={DISTRICT_HELP.name_en.short} info={DISTRICT_HELP.name_en.info} error={fieldErrors.name_en} value={form.name_en} onChange={(v) => updateForm({ ...form, name_en: v })} />
         </form>
       </Modal>
       <ConfirmDialog {...confirm} onCancel={() => setConfirm({ open: false })} />
@@ -699,12 +724,21 @@ function LocationRow({ item, subtitle, onTap, onEdit, onDelete, onToggleActive, 
   );
 }
 
-function Field({ label, value, onChange, type = 'text', required = false, placeholder = '', error }) {
+function Field({ label, hint, info, value, onChange, type = 'text', required = false, placeholder = '', error }) {
   const id = useId();
+  const [infoOpen, setInfoOpen] = useState(false);
+  const describedBy = [error ? `${id}-error` : null, hint ? `${id}-hint` : null].filter(Boolean).join(' ') || undefined;
   return (
     <div>
-      <label htmlFor={id} className={`block text-[12px] font-bold mb-1 ${error ? 'text-rose-600' : 'text-ink'}`}>{label}</label>
-      <input id={id} aria-invalid={Boolean(error)} aria-describedby={error ? `${id}-error` : undefined} type={type} required={required} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
+      <div className="mb-1">
+        <span className="flex items-center gap-1.5">
+          <label htmlFor={id} className={`block text-[12px] font-bold ${error ? 'text-rose-600' : 'text-ink'}`}>{label}</label>
+          {info && <InfoButton open={infoOpen} onToggle={() => setInfoOpen(v => !v)} controls={`${id}-info`} label={label} />}
+        </span>
+        {hint && <div id={`${id}-hint`} className="text-[12px] text-slate-500 mt-0.5 leading-snug" data-testid="field-short">{hint}</div>}
+        {info && <InfoPanel id={`${id}-info`} open={infoOpen}>{info}</InfoPanel>}
+      </div>
+      <input id={id} aria-invalid={Boolean(error)} aria-describedby={describedBy} type={type} required={required} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
         className={`w-full px-3 py-2 rounded-card border outline-none text-[14px] ${error ? 'border-2 border-rose-500 bg-rose-50' : 'border-border bg-surface-alt focus:bg-surface focus:border-primary'}`} />
       {error && <span id={`${id}-error`} role="alert" className="block mt-1 text-[12px] font-bold text-rose-600">{error}</span>}
     </div>

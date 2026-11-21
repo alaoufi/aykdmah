@@ -3010,5 +3010,42 @@
     "redo": "Görselinizi {{w}}×{{h}} piksel ({{ratio}}) yapın, sonra yeniden yükleyin.",
     "animated": "Hareketli görsel otomatik uyarlanmaz. {{w}}×{{h}} piksel ({{ratio}}) yapıp yükleyin.",
     "close": "Kapat"
+  },
+  "contact_privacy": {
+    "title": "Sizinle iletişim",
+    "hint": "Kimin ve nasıl iletişime geçeceğini seçin. Siz açana kadar hepsi kapalıdır, istediğiniz zaman kapatabilirsiniz.",
+    "share_phone": "Telefonumu hizmet verenlere göster",
+    "share_phone_hint": "Yalnızca açık talebinizin mesleğindeki hizmet verenler görür ve sizi doğrudan arar.",
+    "no_phone": "Önce yukarıya telefon numaranızı ekleyin.",
+    "share_whatsapp": "WhatsApp'ımı hizmet verenlere göster",
+    "share_whatsapp_hint": "Açık talebinizin mesleğindeki hizmet verenler size WhatsApp'tan yazabilir.",
+    "whatsapp_number": "WhatsApp numarası (isteğe bağlı)",
+    "whatsapp_number_hint": "Telefon numaranızla aynıysa boş bırakın.",
+    "marketing": "Sitenin benimle iletişime geçmesine izin ver",
+    "marketing_hint": "Yenilikleri ve isteklerinize uygun teklifleri göndeririz. İstediğiniz zaman durdurabilirsiniz."
+  },
+  "understand": {
+    "title": "Talebinizi kendi sözlerinizle yazın",
+    "hint": "İhtiyacınızı söylediğiniz gibi yazın; mesleği ve hizmeti seçip talebi doldururuz.",
+    "placeholder": "Örnek: klimam soğutmuyor ve ses yapıyor",
+    "button": "Talebimi anla",
+    "got": "Anladığımız:",
+    "check": "Aşağıdaki alanları kontrol edin, değiştirin, sonra yayınlayın.",
+    "check_unsure": "Tam emin değiliz: yayınlamadan önce mesleği kontrol edin.",
+    "not_found": "Mesleği anlayamadık. Aşağıdan seçin; açıklamanız eklendi.",
+    "count": "Adet {{count}}",
+    "when": {
+      "today": "bugün",
+      "now": "şimdi",
+      "tomorrow": "yarın",
+      "after_tomorrow": "öbür gün",
+      "morning": "sabah",
+      "afternoon": "öğleden sonra",
+      "evening": "akşam",
+      "night": "gece",
+      "thursday": "Perşembe",
+      "friday": "Cuma",
+      "saturday": "Cumartesi"
+    }
   }
 }

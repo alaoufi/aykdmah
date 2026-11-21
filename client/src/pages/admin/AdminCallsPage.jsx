@@ -44,9 +44,13 @@ export default function AdminCallsPage() {
     <div className="space-y-4">
       <div className="flex items-center justify-between flex-wrap gap-2">
         <h1 className="text-xl font-extrabold text-fg">{t('calls.admin.title')}</h1>
-        <select className="input w-auto text-sm" value={days} onChange={e => setDays(Number(e.target.value))} aria-label={t('calls.admin.period')}>
-          {[1, 7, 30, 90].map(d => <option key={d} value={d}>{t('calls.admin.last_days', { count: d })}</option>)}
-        </select>
+        <div>
+          <select className="input w-auto text-sm" value={days} onChange={e => setDays(Number(e.target.value))} aria-label={t('calls.admin.period')}>
+            {[1, 7, 30, 90].map(d => <option key={d} value={d}>{t('calls.admin.last_days', { count: d })}</option>)}
+          </select>
+          {/* AYK-415: a filter only, so a short line is enough. */}
+          <div className="text-[12px] text-slate-500 mt-1 leading-snug" data-testid="field-short">المدة التي تُحسب لها أرقام المكالمات أدناه.</div>
+        </div>
       </div>
       {!data.configured && <div className="px-3 py-2 rounded-card bg-amber-50 text-amber-800 text-[13px]">{t('calls.admin.not_configured')}</div>}
       <p className="text-[12.5px] text-fg-subtle">{t('calls.admin.privacy_note')}</p>

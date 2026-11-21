@@ -18,9 +18,38 @@ import EmptyState from '../../components/admin/EmptyState';
 import AdminFab from '../../components/admin/AdminFab';
 import { formatCurrency } from '../../utils/formatters';
 import RowMenu from '../../components/admin/RowMenu';
+import { InfoButton, InfoPanel } from '../../components/common/InfoTip';
 
 // Admin form is intentionally minimal: name_en + slug are derived
 // server-side from the Arabic name (auto-translation + transliteration).
+// AYK-415: a short line under each field of the profession form, and (i) for the full explanation.
+const HELP = {
+  name_ar: {
+    short: 'اسم المهنة كما يراه الزوار، ويُترجم تلقائيًا إلى لغات الموقع.',
+    info: 'الاسم الذي يظهر للزوار في قوائم المهن وعند طلب خدمة أو اختيار مهنة مقدم الخدمة.\nبعد الحفظ يترجمه الموقع تلقائيًا إلى لغاته الإحدى عشرة. تغيير الاسم لاحقًا يعيد الترجمة وقد يغيّر رابط صفحة المهنة.\nحقل إلزامي، حتى 150 حرفًا. مثال: سباكة.',
+  },
+  icon: {
+    short: 'رمز تعبيري (إيموجي) يظهر بجانب اسم المهنة، مثل 🔧.',
+    info: 'يظهر بجانب اسم المهنة في قوائم المهن واختيارها في الموقع وفي هذه القائمة.\nالصق رمزًا تعبيريًا واحدًا، مثل 🔧 أو 🏠.\nإن تُرك فارغًا يظهر الرمز 🗂️ في لوحة الإدارة ولا يظهر رمز للزوار.',
+  },
+  color: {
+    short: 'لون خلفية أيقونة المهنة في قائمة المهن هنا، مثل ‎#0ea5e9.',
+    info: 'يلوّن المربع الذي خلف أيقونة المهنة في قائمة المهن بلوحة الإدارة.\nاكتبه بصيغة # وبعدها 6 خانات من أرقام وحروف إنجليزية، مثل ‎#0ea5e9 للأزرق. الصيغ الأخرى تُحفظ لكن لا تُلوِّن.\nإن تُرك فارغًا تظهر الخلفية رمادية.',
+  },
+  sort_order: {
+    short: 'مكان المهنة في القوائم: الرقم الأصغر يظهر أولًا.',
+    info: 'تُرتب المهن في الموقع تصاعديًا حسب هذا الرقم، ثم أبجديًا عند التساوي. ويُستعمل هنا عند اختيار «الترتيب المحدد».\nرقم صحيح، مثال: 1 لأول مهنة. إن تُرك فارغًا يُحفظ 0.',
+  },
+  description: {
+    short: 'وصف مختصر للمهنة، يُحفظ ويُترجم تلقائيًا إلى لغات الموقع.',
+    info: 'نص يشرح المهنة وما تشمله. يترجمه الموقع تلقائيًا إلى لغاته الإحدى عشرة عند الحفظ.\nلا يظهر حاليًا للزوار في صفحات الموقع.\nاختياري. مثال: إصلاح تسربات المياه وتركيب الأدوات الصحية.',
+  },
+  is_active: {
+    short: 'عند إلغائه تختفي المهنة عن الزوار، وتبقى محفوظة هنا.',
+    info: 'المهنة النشطة فقط تظهر للزوار ويمكن اختيارها. إلغاء التفعيل لا يحذف المهنة ولا خدماتها، ويمكن إعادتها في أي وقت.\nيمكن أيضًا الإخفاء والتنشيط من قائمة الخيارات ⋮ بجانب المهنة.',
+  },
+};
+
 const EMPTY = { name_ar: '', icon: '', color: '', description: '', sort_order: 0, is_active: true };
 
 export default function AdminCategoriesPage() {
@@ -268,21 +297,23 @@ export default function AdminCategoriesPage() {
       >
         <form noValidate id="AdminCategoriesPage-form" onSubmit={onSave} className="space-y-3">
           {formError && <div className="px-3 py-2 rounded bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">{formError}</div>}
-          <Field label={t('admin.category_name_ar')} error={fieldErrors.name_ar} value={form.name_ar} onChange={(v) => updateForm({ ...form, name_ar: v })} required />
+          <Field label={t('admin.category_name_ar')} hint={HELP.name_ar.short} info={HELP.name_ar.info} error={fieldErrors.name_ar} value={form.name_ar} onChange={(v) => updateForm({ ...form, name_ar: v })} required />
           <div className="px-3 py-2 rounded-card bg-info-soft text-info text-[12px]">
-            🌐 {t('admin.auto_translate_hint')}
+            🌐 سيُترجم الاسم والوصف تلقائيًا إلى كل لغات الموقع عند الحفظ.
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <Field label={t('admin.category_icon')} error={fieldErrors.icon} value={form.icon} onChange={(v) => updateForm({ ...form, icon: v })} placeholder="🏠" />
-            <Field label={t('admin.category_color')} error={fieldErrors.color} value={form.color} onChange={(v) => updateForm({ ...form, color: v })} placeholder="#0ea5e9" />
-            <Field label={t('admin.category_sort_order')} type="number" error={fieldErrors.sort_order} value={form.sort_order} onChange={(v) => updateForm({ ...form, sort_order: Number(v) || 0 })} />
+            <Field label={t('admin.category_icon')} hint={HELP.icon.short} info={HELP.icon.info} error={fieldErrors.icon} value={form.icon} onChange={(v) => updateForm({ ...form, icon: v })} placeholder="🏠" />
+            <Field label={t('admin.category_color')} hint={HELP.color.short} info={HELP.color.info} error={fieldErrors.color} value={form.color} onChange={(v) => updateForm({ ...form, color: v })} placeholder="#0ea5e9" />
+            <Field label={t('admin.category_sort_order')} hint={HELP.sort_order.short} info={HELP.sort_order.info} type="number" error={fieldErrors.sort_order} value={form.sort_order} onChange={(v) => updateForm({ ...form, sort_order: Number(v) || 0 })} />
           </div>
-          <Field label={t('admin.category_description')} error={fieldErrors.description} value={form.description} onChange={(v) => updateForm({ ...form, description: v })} multiline />
+          <Field label={t('admin.category_description')} hint={HELP.description.short} info={HELP.description.info} error={fieldErrors.description} value={form.description} onChange={(v) => updateForm({ ...form, description: v })} multiline />
           {editing && (
-            <label className="inline-flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="checkbox" checked={!!form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked ? 1 : 0 })} />
-              <span>{t('admin.is_active')}</span>
-            </label>
+            <CheckHelp label={t('admin.is_active')} hint={HELP.is_active.short} info={HELP.is_active.info}>
+              <label className="inline-flex items-center gap-2 text-[13px] cursor-pointer">
+                <input type="checkbox" checked={!!form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked ? 1 : 0 })} />
+                <span>{t('admin.is_active')}</span>
+              </label>
+            </CheckHelp>
           )}
         </form>
       </Modal>
@@ -294,13 +325,37 @@ export default function AdminCategoriesPage() {
   );
 }
 
-function Field({ label, value, onChange, type = 'text', required = false, placeholder = '', multiline = false, error }) {
-  const id = useId();
-  const cls = `w-full px-3 py-2 rounded-card border outline-none text-[14px] ${error ? 'border-2 border-rose-500 bg-rose-50' : 'border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500'}`;
-  const a11y = { id, 'aria-invalid': Boolean(error), 'aria-describedby': error ? `${id}-error` : undefined };
+// A checkbox with its (i), the short line under it, and the opened explanation.
+function CheckHelp({ label, hint, info, children }) {
+  const [open, setOpen] = useState(false);
+  const panelId = useId();
   return (
     <div>
-      <label htmlFor={id} className={`block text-[12px] font-bold mb-1 ${error ? 'text-rose-600' : 'text-ink'}`}>{label}</label>
+      <span className="flex items-center gap-1.5">
+        {children}
+        {info && <InfoButton open={open} onToggle={() => setOpen(v => !v)} controls={panelId} label={label} />}
+      </span>
+      {hint && <div className="text-[12px] text-slate-500 mt-0.5 leading-snug" data-testid="field-short">{hint}</div>}
+      {info && <InfoPanel id={panelId} open={open}>{info}</InfoPanel>}
+    </div>
+  );
+}
+
+function Field({ label, hint, info, value, onChange, type = 'text', required = false, placeholder = '', multiline = false, error }) {
+  const id = useId();
+  const [infoOpen, setInfoOpen] = useState(false);
+  const cls = `w-full px-3 py-2 rounded-card border outline-none text-[14px] ${error ? 'border-2 border-rose-500 bg-rose-50' : 'border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500'}`;
+  const a11y = { id, 'aria-invalid': Boolean(error), 'aria-describedby': [error ? `${id}-error` : null, hint ? `${id}-hint` : null].filter(Boolean).join(' ') || undefined };
+  return (
+    <div>
+      <div className="mb-1">
+        <span className="flex items-center gap-1.5">
+          <label htmlFor={id} className={`block text-[12px] font-bold ${error ? 'text-rose-600' : 'text-ink'}`}>{label}</label>
+          {info && <InfoButton open={infoOpen} onToggle={() => setInfoOpen(v => !v)} controls={`${id}-info`} label={label} />}
+        </span>
+        {hint && <div id={`${id}-hint`} className="text-[12px] text-slate-500 mt-0.5 leading-snug" data-testid="field-short">{hint}</div>}
+        {info && <InfoPanel id={`${id}-info`} open={infoOpen}>{info}</InfoPanel>}
+      </div>
       {multiline ? (
         <textarea {...a11y} rows={3} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={cls} />
       ) : (

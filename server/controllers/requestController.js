@@ -41,7 +41,7 @@ const create = asyncHandler(async (req, res) => {
     budget_min: req.body.budget_min,
     budget_max: req.body.budget_max,
     preferred_date: req.body.preferred_date,
-    is_urgent: req.body.is_urgent === true || req.body.is_urgent === 'true',
+    is_urgent: [true, 1, 'true', '1'].includes(req.body.is_urgent), // AYK-419: a form sends «1»
   };
   // Fields the owner made required in «حقول النماذج» (AYK-218); the uploads are removed on refusal.
   const required = await requiredFields('request');
@@ -115,7 +115,8 @@ const getNearby = asyncHandler(async (req, res) => {
     viewerId: req.query.scope && !(req.query.matching === '1' && req.user?.role === 'provider') ? req.user?.id || null : null,
   });
   // Each request already in the reader's language when it was translated (AYK-231).
-  const shown = await requestTranslation.attachTranslations(items.map(Request.publicView).map(row => guestView(req, row)), readerLang(req));
+  const categories = await providerCategoryIds(req);
+  const shown = await requestTranslation.attachTranslations(items.map(raw => withContact(req, raw, guestView(req, Request.publicView(raw)), categories)), readerLang(req));
   return paginate(res, shown, total, page, limit);
 });
 
@@ -163,6 +164,30 @@ const update = asyncHandler(async (req, res) => {
 // number or exact place is sent to anyone outside it already).
 const guestView = (req, row) => (req.user ? row : { ...row, client_avatar: null });
 
+// AYK-418: the phone and WhatsApp a requester chose to show reach only a signed-in provider of the
+// request's profession, on an open request (not the requester themself).
+async function providerCategoryIds(req) {
+  const user = req.user;
+  if (!user || user.role !== 'provider') return null;
+  const profile = await queryOne('SELECT category_id, service_ids FROM provider_profiles WHERE user_id = ?', [user.id]);
+  if (!profile) return new Set();
+  let ids = profile.service_ids;
+  if (typeof ids === 'string') { try { ids = JSON.parse(ids); } catch (_) { ids = []; } }
+  ids = Array.isArray(ids) ? ids.map(Number).filter(Number.isSafeInteger) : [];
+  const cats = new Set(profile.category_id ? [Number(profile.category_id)] : []);
+  if (ids.length) {
+    const rows = await query(`SELECT DISTINCT category_id FROM services WHERE id IN (${ids.map(() => '?').join(', ')})`, ids);
+    for (const row of rows) if (row.category_id) cats.add(Number(row.category_id));
+  }
+  return cats;
+}
+function withContact(req, raw, view, categories) {
+  if (!categories || !raw || raw.status !== 'open' || Number(raw.client_id) === Number(req.user?.id)) return view;
+  if (!categories.has(Number(raw.category_id))) return view;
+  if (!raw.client_contact_phone && !raw.client_contact_whatsapp) return view;
+  return { ...view, client_contact_phone: raw.client_contact_phone || null, client_contact_whatsapp: raw.client_contact_whatsapp || null };
+}
+
 const getOne = asyncHandler(async (req, res) => {
   if (!validId(req.params.id)) return notFound(res);
   const request = await Request.findById(req.params.id);
@@ -173,9 +198,9 @@ const getOne = asyncHandler(async (req, res) => {
   await require('../services/visitors').recordRequestView(req, request).catch(() => {});
   // A provider already in contact about the request also gets its voice note and photos.
   if (!allowed && req.user?.role === 'provider' && await queryOne('SELECT 1 AS ok FROM offers WHERE request_id = ? AND provider_id = ?', [request.id, req.user.id])) {
-    return success(res, (await requestTranslation.attachTranslations([{ ...Request.publicView(request), files: request.files }], readerLang(req)))[0]);
+    return success(res, (await requestTranslation.attachTranslations([withContact(req, request, { ...Request.publicView(request), files: request.files }, await providerCategoryIds(req))], readerLang(req)))[0]);
   }
-  if (!allowed) return success(res, (await requestTranslation.attachTranslations([guestView(req, Request.publicView(request))], readerLang(req)))[0]);
+  if (!allowed) return success(res, (await requestTranslation.attachTranslations([withContact(req, request, guestView(req, Request.publicView(request)), await providerCategoryIds(req))], readerLang(req)))[0]);
   // How long the two sides can still write after it ends (AYK-081).
   const contactInfo = await queryOne(`SELECT ${contactWindow.DONE_DAYS_SQL} AS days,
       CASE WHEN ${contactWindow.FINISHED_SQL} THEN ${contactWindow.UNTIL_SQL} END AS until

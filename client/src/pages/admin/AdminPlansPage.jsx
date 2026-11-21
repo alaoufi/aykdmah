@@ -1,6 +1,6 @@
 import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
 import { localizedName, localizedPlatformText } from '../../utils/localize';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   listPlansAdmin, createPlan, updatePlan, deletePlan,
@@ -13,6 +13,7 @@ import AdminButton from '../../components/admin/AdminButton';
 import EmptyState from '../../components/admin/EmptyState';
 import AdminFab from '../../components/admin/AdminFab';
 import SubscriptionRules from '../../components/admin/SubscriptionRules';
+import { FieldHelp } from '../../components/admin/AdCampaigns';
 import { formatCurrency } from '../../utils/formatters';
 
 const EMPTY = {
@@ -193,31 +194,50 @@ export default function AdminPlansPage() {
         <form id="AdminPlansPage-form" onSubmit={onSave} className="space-y-3">
           {formError && <div className="px-3 py-2 rounded bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">{formError}</div>}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <FieldP label={t('admin.plan_name_ar')} value={form.name_ar} onChange={(v) => setForm({ ...form, name_ar: v })} required />
-            <FieldP label={t('admin.plan_name_en')} value={form.name_en} onChange={(v) => setForm({ ...form, name_en: v })} />
+            <FieldP label={t('admin.plan_name_ar')} value={form.name_ar} onChange={(v) => setForm({ ...form, name_ar: v })} required
+              hint="اسم الباقة الذي يراه مقدم الخدمة في صفحة الاشتراك. مطلوب."
+              info={'يظهر عنوانًا لبطاقة الباقة في صفحة الاشتراك، وفي قائمة الباقات عند إهداء اشتراك من المحفظة. يُترجم تلقائيًا إلى لغات الموقع بعد الحفظ. مثال: «الباقة الذهبية».'} />
+            <FieldP label={t('admin.plan_name_en')} value={form.name_en} onChange={(v) => setForm({ ...form, name_en: v })}
+              hint="اسم بالإنجليزية يُستعمل إذا لم تتوفر الترجمة التلقائية. اختياري."
+              info={'الاسم العربي يُترجم تلقائيًا إلى كل اللغات، والترجمة تتقدم على هذه الخانة. يُستعمل هذا الاسم احتياطًا إذا تأخرت الترجمة، وفي قائمة إهداء الاشتراك من المحفظة لمن يتصفح بالإنجليزية. مثال: Gold. إن تُرك فارغًا يظهر الاسم العربي.'} />
           </div>
-          <FieldP label={t('admin.plan_slug')} value={form.slug} onChange={(v) => setForm({ ...form, slug: v })} required />
+          <FieldP label={t('admin.plan_slug')} value={form.slug} onChange={(v) => setForm({ ...form, slug: v })} required
+            hint="اسم قصير بحروف إنجليزية صغيرة يميّز الباقة. مطلوب ولا يتكرر."
+            info={'لا يراه مقدمو الخدمة، ويظهر تحت اسم الباقة في هذه الصفحة فقط. يُكتب بحروف إنجليزية صغيرة وأرقام، ويُسمح بالشَّرطة - والشَّرطة السفلية _، دون مسافات. لا يمكن أن تشترك فيه باقتان. مثال: gold أو pro-monthly.'} />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <FieldP label={t('admin.plan_price')} type="number" value={form.price} onChange={(v) => setForm({ ...form, price: v })} required />
-            <FieldP label={t('admin.plan_duration_days')} type="number" value={form.duration_days} onChange={(v) => setForm({ ...form, duration_days: v })} required />
-            <FieldP label={t('admin.plan_max_offers')} type="number" value={form.max_offers_per_month} onChange={(v) => setForm({ ...form, max_offers_per_month: v })} />
+            <FieldP label={t('admin.plan_price')} type="number" value={form.price} onChange={(v) => setForm({ ...form, price: v })} required
+              hint="المبلغ بالريال الذي يدفعه مقدم الخدمة لكل مدة. صفر = مجانية."
+              info={'يُدفع مرة واحدة لكل اشتراك، ويغطي المدة المكتوبة في «المدة». إذا كان صفرًا تظهر الباقة «مجانية» ويُفعَّل الاشتراك دون دفع، ولا تظهر في قائمة إهداء الاشتراك من المحفظة. مثال: 99.'} />
+            <FieldP label={t('admin.plan_duration_days')} type="number" value={form.duration_days} onChange={(v) => setForm({ ...form, duration_days: v })} required
+              hint="كم يومًا يبقى الاشتراك فعّالًا بعد الدفع."
+              info={'عدد أيام صحيح من 1 إلى 3650. يظهر بجانب السعر في صفحة الاشتراك (مثل «لكل 30 يومًا»)، وبعد انقضائه ينتهي الاشتراك ويحتاج مقدم الخدمة لتجديده. مثال: 30 لشهر، 365 لسنة. الافتراضي 30.'} />
+            <FieldP label={t('admin.plan_max_offers')} type="number" value={form.max_offers_per_month} onChange={(v) => setForm({ ...form, max_offers_per_month: v })}
+              hint="أقصى عدد عروض يقدمها المشترك في الشهر. فارغ = بلا حد."
+              info={'عدد صحيح من 0 فأكثر. تُعد كل العروض التي قدمها المشترك منذ أول الشهر، حتى المسحوبة والمرفوضة، فإذا بلغ الحد ظهرت له رسالة «تم بلوغ الحد الشهري للعروض في باقتك» حتى الشهر التالي. مثال: 50. إن تُرك فارغًا فالعروض بلا حد.'} />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <FieldP label={t('admin.plan_badge')} value={form.badge} onChange={(v) => setForm({ ...form, badge: v })} />
-            <FieldP label={t('admin.category_sort_order')} type="number" value={form.sort_order} onChange={(v) => setForm({ ...form, sort_order: v })} />
-            <FieldP label={t('admin.plan_search_priority')} type="number" value={form.search_priority} onChange={(v) => setForm({ ...form, search_priority: v })} hint={t('admin.plan_search_priority_hint')} />
+            <FieldP label={t('admin.plan_badge')} value={form.badge} onChange={(v) => setForm({ ...form, badge: v })}
+              hint="كلمة قصيرة تظهر أعلى بطاقة الباقة، مثل «الأكثر طلبًا». اختياري."
+              info={'تظهر في شريط صغير أعلى بطاقة الباقة في صفحة الاشتراك لجذب الانتباه. حتى 50 حرفًا. مثال: «الأوفر» أو «جديد». إن تُركت فارغة لا يظهر شيء.'} />
+            <FieldP label={t('admin.category_sort_order')} type="number" value={form.sort_order} onChange={(v) => setForm({ ...form, sort_order: v })}
+              hint="ترتيب الباقة في صفحة الاشتراك: الرقم الأصغر أولًا."
+              info={'عدد صحيح من 0 فأكثر. ترتَّب الباقات في صفحة الاشتراك من الأصغر رقمًا، وعند التساوي من الأرخص. مثال: 1 للباقة الأولى، 2 للثانية. الافتراضي 0.'} />
+            <FieldP label={t('admin.plan_search_priority')} type="number" value={form.search_priority} onChange={(v) => setForm({ ...form, search_priority: v })} hint={t('admin.plan_search_priority_hint')}
+              info={'عدد صحيح من 0 فأكثر. عروض المشتركين في هذه الباقة ترتفع في قائمة العروض التي يراها طالب الخدمة على طلبه: الرقم الأعلى قبل الأقل. أصحاب الشارات المدفوعة (موثوق أو مميز) يبقون في المقدمة قبل الجميع، ثم يأتي هذا الرقم، ثم التقييم. 0 = بلا أولوية.'} />
           </div>
-          <FieldP label={t('admin.plan_description')} value={form.description} onChange={(v) => setForm({ ...form, description: v })} multiline />
-          <FieldP label={t('admin.plan_features')} value={form.features_text} onChange={(v) => setForm({ ...form, features_text: v })} placeholder={t('admin.plan_features_placeholder')} />
+          <FieldP label={t('admin.plan_description')} value={form.description} onChange={(v) => setForm({ ...form, description: v })} multiline
+            hint="وصف مختصر يظهر على بطاقة الباقة في هذه الصفحة. اختياري."
+            info={'يُكتب ليوضح للإدارة الغرض من الباقة، ويظهر على بطاقتها هنا ويُترجم تلقائيًا. صفحة الاشتراك عند مقدمي الخدمة لا تعرض الوصف حاليًا، بل تعرض «المميزات». يمكن تركه فارغًا.'} />
+          <FieldP label={t('admin.plan_features')} value={form.features_text} onChange={(v) => setForm({ ...form, features_text: v })} placeholder={t('admin.plan_features_placeholder')}
+            hint="ما يحصل عليه المشترك، كل ميزة سطر ✓ في بطاقة الباقة. افصل بينها بفاصلة."
+            info={'اكتب المميزات وافصل بينها بفاصلة إنجليزية (,) فتظهر كل واحدة سطرًا مستقلًا بعلامة ✓ في بطاقة الباقة بصفحة الاشتراك. مثال: ظهور أعلى في العروض, شارة مميزة, دعم سريع. هذه نصوص للعرض فقط ولا تغيّر ما تتيحه الباقة فعلًا. إن تُركت فارغة لا تظهر قائمة.'} />
           <div className="flex flex-wrap gap-4">
-            <label className="inline-flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="checkbox" checked={!!form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />
-              <span>{t('admin.is_active')}</span>
-            </label>
-            <label className="inline-flex items-center gap-2 text-[13px] cursor-pointer">
-              <input type="checkbox" checked={!!form.is_featured} onChange={(e) => setForm({ ...form, is_featured: e.target.checked })} />
-              <span>{t('admin.plan_is_featured')}</span>
-            </label>
+            <FieldHelp label={t('admin.is_active')} short="بدون العلامة تختفي الباقة من صفحة الاشتراك."
+              check={<input type="checkbox" checked={!!form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />}
+              info={'الباقة غير النشطة لا تظهر لمقدمي الخدمة ولا يمكن الاشتراك فيها من جديد، وتبقى هنا لتعيد تنشيطها. لا يُلغى بإيقافها اشتراك قائم فيها.'} />
+            <FieldHelp label={t('admin.plan_is_featured')} short="تُبرز الباقة، وتظهر عروض مشتركيها بعلامة «مميز»."
+              check={<input type="checkbox" checked={!!form.is_featured} onChange={(e) => setForm({ ...form, is_featured: e.target.checked })} />}
+              info={'تظهر بطاقة الباقة بلون بارز في صفحة الاشتراك. ومن يشترك فيها تظهر عروضه على طلبات العملاء بعلامة «مميز». لا تغيّر ترتيب العروض، فالترتيب تحدده «أولوية الظهور بالبحث».'} />
           </div>
         </form>
       </Modal>
@@ -228,17 +248,18 @@ export default function AdminPlansPage() {
   );
 }
 
-function FieldP({ label, value, onChange, type = 'text', required = false, placeholder = '', multiline = false, hint = '' }) {
+// AYK-415: `hint` is the short line under the name, `info` the full explanation behind (i).
+function FieldP({ label, value, onChange, type = 'text', required = false, placeholder = '', multiline = false, hint = '', info = '' }) {
   const cls = 'w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]';
+  const id = useId();
   return (
     <div>
-      <label className="block text-[12px] font-bold text-ink mb-1">{label}</label>
+      <FieldHelp htmlFor={id} label={label} short={hint} info={info} />
       {multiline ? (
-        <textarea rows={3} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={cls} />
+        <textarea id={id} rows={3} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={cls} />
       ) : (
-        <input type={type} required={required} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={cls} />
+        <input id={id} type={type} required={required} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className={cls} />
       )}
-      {hint && <div className="text-[11px] text-slate-400 mt-1">{hint}</div>}
     </div>
   );
 }

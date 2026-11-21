@@ -15,6 +15,7 @@ import ConfirmDialog from '../../components/admin/AdminConfirmDialog';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import EmptyState from '../../components/admin/EmptyState';
 import { apiError } from '../../services/api';
+import { InfoButton, InfoPanel } from '../../components/common/InfoTip';
 
 const STATUS_BADGE = {
   'badge-primary': 'bg-brand-50 text-brand-700',
@@ -88,6 +89,7 @@ export default function AdminRequestsPage() {
     finally { if (version === assignVersion.current) setProvidersLoading(false); }
   };
 
+  const [assignInfoOpen, setAssignInfoOpen] = useState(false);
   const closeAssign = () => { ++assignVersion.current; setAssignFor(null); setSelectedProvider(''); setProviders([]); };
 
   const submitAssign = async () => {
@@ -304,8 +306,18 @@ export default function AdminRequestsPage() {
           <div className="space-y-3">
             {error && <div role="alert" className="text-rose-700 text-[13px]">{error}</div>}
             <div className="text-[13px] text-slate-600">{assignFor.title}</div>
-            <label className="block text-[12px] font-bold text-ink">{t('admin.select_provider')}</label>
+            <div>
+              <span className="flex items-center gap-1.5">
+                <label htmlFor="admin-assign-provider" className="block text-[12px] font-bold text-ink">{t('admin.select_provider')}</label>
+                <InfoButton open={assignInfoOpen} onToggle={() => setAssignInfoOpen(v => !v)} controls="admin-assign-provider-info" label={t('admin.select_provider')} />
+              </span>
+              <div className="text-[12px] text-slate-500 mt-0.5 leading-snug" data-testid="field-short">مقدم الخدمة الذي سيتولى هذا الطلب.</div>
+              <InfoPanel id="admin-assign-provider-info" open={assignInfoOpen}>
+                {'عند التأكيد يُربط الطلب بمقدم الخدمة المختار وتصبح حالته «تم اختيار مقدم خدمة»، ويصله إشعار فيه رابط الطلب.\nتظهر هنا حتى 100 حساب مقدم خدمة، بالاسم والبريد. لا يُقبل حساب موقوف أو محظور.'}
+              </InfoPanel>
+            </div>
             <select
+              id="admin-assign-provider"
               disabled={providersLoading || busy}
               value={selectedProvider}
               onChange={(e) => setSelectedProvider(e.target.value)}

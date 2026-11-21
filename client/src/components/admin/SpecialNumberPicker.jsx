@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { adminSpecialNumbers, adminAssignSpecialNumber } from '../../services/adminService';
 import { apiError } from '../../services/api';
+import { InfoButton, InfoPanel } from '../common/InfoTip';
 
 // AYK-357 (the owner: «الإدارة توجهها لمن تراه، مثلًا رقم 44 بدل 145 وينتقل الرقم، ويمنع أي تعديل
 // غير المتشابه»): give an account one of the special numbers (11, 22 … 99, 111 … 999). Only these
@@ -11,6 +12,7 @@ export default function SpecialNumberPicker({ user, onChanged }) {
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState('');
   const [current, setCurrent] = useState(user?.referral_code || '');
+  const [infoOpen, setInfoOpen] = useState(false);
   useEffect(() => { adminSpecialNumbers().then(setNumbers).catch(() => setNumbers([])); }, []);
   if (!user?.id) return null;
   const free = (numbers || []).filter(n => n.free);
@@ -28,10 +30,18 @@ export default function SpecialNumberPicker({ user, onChanged }) {
   };
   return (
     <div className="mt-3 p-3 rounded-card border border-slate-200 bg-slate-50" data-testid="special-number">
-      <div className="text-[13px] font-bold text-ink mb-1">🔢 الرقم المميز</div>
+      {/* AYK-415: a short line under the name, and (i) for the full explanation. */}
+      <span className="flex items-center gap-1.5">
+        <label htmlFor="special-number-choice" className="text-[13px] font-bold text-ink">🔢 الرقم المميز</label>
+        <InfoButton open={infoOpen} onToggle={() => setInfoOpen(v => !v)} controls="special-number-info" label="الرقم المميز" />
+      </span>
+      <div className="text-[12px] text-slate-500 mt-0.5 mb-1 leading-snug" data-testid="field-short">يغيّر رقم الحساب لهذا الحساب إلى رقم مميز متاح، فور الضغط على «نقل إليه».</div>
+      <InfoPanel id="special-number-info" open={infoOpen}>
+        {'رقم الحساب يظهر في حسابه، ويدخل به، وهو نفسه كود الدعوة (الكوبون) الذي يسجّل به الآخرون.\nالمسموح فقط الأرقام المميزة: رقمان متشابهان (11 إلى 99) أو ثلاثة (111 إلى 999)، وتظهر في القائمة المتاحة منها فقط.\nالنقل يتم مباشرة عند الضغط على «نقل إليه» دون انتظار زر الحفظ، ويُسجَّل في سجل النشاط.\nرقمه السابق يتحرر لحسابات جديدة، ومحادثاته وطلباته ومحفظته تبقى معه.'}
+      </InfoPanel>
       <div className="text-[12.5px] text-slate-600 mb-2">رقمه الحالي: <b dir="ltr">{current || '-'}</b>. يمكن نقله إلى رقم مميز فقط (رقمان متشابهان من 11 إلى 99، أو ثلاثة من 111 إلى 999). رقمه الحالي يتحرر بعد النقل.</div>
       <div className="flex gap-2">
-        <select className="flex-1" value={choice} onChange={e => setChoice(e.target.value)} disabled={busy || numbers === null} aria-label="رقم مميز">
+        <select id="special-number-choice" className="flex-1" value={choice} onChange={e => setChoice(e.target.value)} disabled={busy || numbers === null} aria-label="رقم مميز">
           <option value="">{numbers === null ? 'جارٍ التحميل…' : free.length ? 'اختر رقمًا متاحًا' : 'لا توجد أرقام مميزة متاحة'}</option>
           {free.map(n => <option key={n.code} value={n.code}>{n.code}</option>)}
         </select>
