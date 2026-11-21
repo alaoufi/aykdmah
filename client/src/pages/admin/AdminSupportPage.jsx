@@ -6,6 +6,7 @@ import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { adminListSupport, adminGetSupport, adminReplySupport, adminSupportStatus } from '../../services/supportService';
 import { apiError } from '../../services/api';
+import { InfoButton, InfoPanel } from '../../components/common/InfoTip';
 import { formatRelativeTime, truncate } from '../../utils/formatters';
 import SupportThread from '../../components/support/SupportThread';
 import TranslatedText from '../../components/common/TranslatedText';
@@ -32,6 +33,7 @@ export default function AdminSupportPage() {
     adminListSupport(Object.fromEntries(Object.entries(filter).filter(([, v]) => v))).then(setItems).catch(err => { setItems([]); setProblem(apiError(err)); });
   }, [id, filter.status, filter.topic]);
 
+  const [statusInfoOpen, setStatusInfoOpen] = useState(false);
   const setStatus = async status => {
     if (!(await confirmAdminChange(t))) return;
     try { await adminSupportStatus(ticket.id, status); setTicket({ ...ticket, status }); } catch (err) { setProblem(apiError(err)); }
@@ -59,9 +61,19 @@ export default function AdminSupportPage() {
                   {ticket.phone && <a href={`tel:${ticket.phone}`} dir="ltr" className="no-underline text-slate-500">{ticket.phone}</a>}
                 </div>
               </div>
-              <select className={sel} value={ticket.status} onChange={e => setStatus(e.target.value)} aria-label={t('support.status')}>
-                {STATUSES.map(s => <option key={s} value={s}>{t(`support.status_${s}`)}</option>)}
-              </select>
+              <div className="w-full sm:w-auto sm:max-w-[280px]">
+                <span className="flex items-center gap-1.5 mb-0.5">
+                  <label htmlFor="support-ticket-status" className="text-[12px] font-bold text-ink">{t('support.status')}</label>
+                  <InfoButton open={statusInfoOpen} onToggle={() => setStatusInfoOpen(v => !v)} controls="support-ticket-status-info" label={t('support.status')} />
+                </span>
+                <select id="support-ticket-status" className={sel} value={ticket.status} onChange={e => setStatus(e.target.value)}>
+                  {STATUSES.map(s => <option key={s} value={s}>{t(`support.status_${s}`)}</option>)}
+                </select>
+                <div className="text-[12px] text-slate-500 mt-0.5 leading-snug" data-testid="field-short">«مغلقة» تمنع صاحب الرسالة من الرد عليها.</div>
+                <InfoPanel id="support-ticket-status-info" open={statusInfoOpen}>
+                  {'تتغير الحالة تلقائيًا: ردّك يجعلها «تم الرد»، ورد صاحب الرسالة يجعلها «بانتظار الرد».\nاختر «مغلقة» عند انتهاء الموضوع: يرى صاحبها أنها أُغلقت ولا يستطيع الرد عليها، ويكتب رسالة جديدة إن احتاج. يمكنك إعادة فتحها بتغيير الحالة.'}
+                </InfoPanel>
+              </div>
             </div>
             <div className="p-4">
               <SupportThread ticket={ticket} asAdmin collapsedReply onReply={async text => setTicket(await adminReplySupport(ticket.id, text))} />

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import AdminButton from '../../components/admin/AdminButton';
@@ -8,6 +8,38 @@ import { adminListTexts, adminSaveText, adminResetText } from '../../services/ad
 import { apiError } from '../../services/api';
 import { SUPPORTED_LANGUAGES, DEFAULT_TEXTS, applyTextOverrides, getLanguageDir } from '../../i18n';
 import { flattenTexts, matchesText, samePlaceholders, textPlaceholders } from '../../utils/uiTexts';
+import { InfoButton, InfoPanel } from '../../components/common/InfoTip';
+
+// AYK-415: a short line, and (i) for the full explanation, for the text boxes and the new-term box
+// (said once above their list, since every row is the same kind of box).
+const HELP = {
+  text: {
+    name: 'نص الواجهة',
+    short: 'غيّر النص العربي ثم «حفظ»؛ يُترجم تلقائيًا إلى باقي لغات الموقع.',
+    info: 'كل مربع نصٌّ يظهر للزوار في الموقع والتطبيق، وفوقه اسمه الداخلي بالإنجليزية لتمييزه فقط.\nعند «حفظ» يظهر النص الجديد فورًا، ويُترجم تلقائيًا إلى اللغات العشر الأخرى. «استرجاع» يعيد النص الأصلي في كل اللغات.\nالأجزاء بين قوسين مزدوجين مثل {{count}} يضع الموقع مكانها رقمًا أو اسمًا، فأبقِها كما هي. لا يُقبل نص فارغ، وحتى 5000 حرف.',
+  },
+  term: {
+    name: 'المصطلح الجديد',
+    short: 'اكتب الكلمة البديلة ثم «استبدال في الكل» لتغييرها في كل النصوص العربية.',
+    info: 'يستبدل الصيغة المكتوبة يمينه بالكلمة التي تكتبها، في كل نص عربي يحتويها، دفعة واحدة.\nيغيّر النصوص العربية فقط ولا يترجمها إلى اللغات الأخرى. مثال: استبدال «طالب الخدمة» بـ«العميل».\nإن تُرك فارغًا لا يعمل الزر.',
+  },
+};
+
+// The name of a box with its (i), the short line under it, and the opened explanation.
+function HelpHead({ help }) {
+  const [open, setOpen] = useState(false);
+  const panelId = useId();
+  return (
+    <div>
+      <span className="flex items-center gap-1.5">
+        <span className="text-[12px] font-bold text-ink">{help.name}</span>
+        <InfoButton open={open} onToggle={() => setOpen(v => !v)} controls={panelId} label={help.name} />
+      </span>
+      <div className="text-[12px] text-slate-500 mt-0.5 leading-snug" data-testid="field-short">{help.short}</div>
+      <InfoPanel id={panelId} open={open}>{help.info}</InfoPanel>
+    </div>
+  );
+}
 
 const PAGE = 30;
 
@@ -149,6 +181,7 @@ export default function AdminTextsPage() {
         <div className="bg-surface rounded-card border border-border"><EmptyState icon="🔤" title={t('admin.texts.no_results')} /></div>
       ) : (
         <>
+          <HelpHead help={HELP.text} />
           <div className="text-[12.5px] text-fg-muted">{t('admin.texts.count', { shown: Math.min(limit, matches.length), total: matches.length })}</div>
           <div className="bg-surface rounded-card border border-border divide-y divide-border overflow-hidden">
             {matches.slice(0, limit).map(([key, original]) => (
@@ -223,6 +256,7 @@ function TermsBlock({ all, overrides, onShow, onReplace, busy }) {
     <details className="bg-surface rounded-card border border-border p-3 space-y-2" data-testid="terms-block">
       <summary className="font-extrabold text-[15px] cursor-pointer">📘 المصطلحات الموحّدة ({TERMS.length})</summary>
       <p className="m-0 text-[12px] text-fg-muted">كل مصطلح بمعنى واحد في الموقع والتطبيق والإدارة. «عرض» يُظهر النصوص التي فيها المصطلح. والاستبدال يغيّر هذه الصيغة في كل النصوص العربية دفعة واحدة؛ صيغ الجمع (مثل «طالبو الخدمة») تظهر بالبحث وتُعدّل من سطرها.</p>
+      <HelpHead help={HELP.term} />
       <div className="divide-y divide-border">
         {TERMS.map(term => {
           const uses = all.filter(entry => current(entry).includes(term)).length;

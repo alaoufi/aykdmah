@@ -33,14 +33,18 @@ export default function AdminActivityLogsPage() {
       <AdminPageHeader title={t('admin.activity_logs')} count={meta?.pagination?.total} />
 
       {/* AYK-240: security events (failed sign-ins and lockouts) can be shown on their own. */}
-      <label className="flex items-center gap-2 text-[13px] text-slate-600">
-        {t('admin.log_filter_label')}
-        <select value={action} onChange={(e) => { setPage(1); setAction(e.target.value); }}
-          className="border border-slate-200 rounded-lg px-3 py-1.5 bg-white text-ink">
-          <option value="">{t('admin.log_filter_all')}</option>
-          {AUTH_ACTIONS.map((a) => <option key={a} value={a}>{t(`admin.log_${a}`)}</option>)}
-        </select>
-      </label>
+      <div>
+        <label className="flex items-center gap-2 text-[13px] text-slate-600">
+          {t('admin.log_filter_label')}
+          <select value={action} onChange={(e) => { setPage(1); setAction(e.target.value); }}
+            className="border border-slate-200 rounded-lg px-3 py-1.5 bg-white text-ink">
+            <option value="">{t('admin.log_filter_all')}</option>
+            {AUTH_ACTIONS.map((a) => <option key={a} value={a}>{t(`admin.log_${a}`)}</option>)}
+          </select>
+        </label>
+        {/* AYK-415: a filter only, so a short line is enough. */}
+        <div className="text-[12px] text-slate-500 mt-1 leading-snug" data-testid="field-short">يعرض نوعًا واحدًا من أحداث الدخول والأمان فقط، أو «كل الأحداث».</div>
+      </div>
 
       {error && <div role="alert" className="text-rose-700 text-[13px]">{error}</div>}
 

@@ -1,5 +1,5 @@
 import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
@@ -14,6 +14,39 @@ import EmptyState from '../../components/admin/EmptyState';
 import Avatar from '../../components/common/Avatar';
 import { formatRelativeTime, formatTime } from '../../utils/formatters';
 import { safeUrl } from '../../utils/urlSafety';
+import { InfoButton, InfoPanel } from '../../components/common/InfoTip';
+
+// AYK-415: a short line under each field's name, and (i) for the full explanation.
+const HELP = {
+  access_reason: {
+    short: 'لماذا تحتاج قراءة المحادثة؟ يُسجَّل السبب باسمك قبل فتحها.',
+    info: 'المحادثة خاصة بين الطرفين، فلا تُفتح إلا بسبب مكتوب. يُحفظ السبب في سجل الاطلاع مع اسمك والوقت وعنوان اتصالك، ويظهر في سجل هذه القضية.\nمن 5 أحرف إلى 255 حرفًا. مثال: شكوى من طالب الخدمة بتأخر التنفيذ.\nإذا لم تكن القضية مسندة لأحد تُسند إليك عند فتح المحادثة.',
+  },
+  resolution: {
+    short: 'ملخص القرار، يصل إلى الطرفين بإشعار وكلٌّ يقرؤه بلغته.',
+    info: 'يُحفظ مع القضية ويُرسل إشعارًا إلى طالب الخدمة ومقدم الخدمة، ويُعرض لكل منهما مترجمًا إلى لغته مع إمكان رؤية الأصل.\nحقل إلزامي، حتى 10000 حرف. مثال: ثبت التأخير، واتفق الطرفان على إكمال العمل خلال يومين.',
+  },
+  ratings: {
+    short: 'من يُسمح له بتقييم الآخر في هذا الطلب بعد حل القضية.',
+    info: 'يحدد من يستطيع كتابة تقييم على هذا الطلب بعد الحل: الطرفان، أو طالب الخدمة وحده، أو مقدم الخدمة وحده، أو لا أحد.\nمثال: اختر «التقييم معطّل» إذا كان الخلاف سيؤثر على التقييم ظلمًا.\nالاختيار الافتراضي: التقييم مسموح للطرفين.',
+  },
+};
+
+// The field's name (children) with its (i), the short line under it, and the opened explanation.
+function FieldHelp({ name, help, children }) {
+  const [open, setOpen] = useState(false);
+  const panelId = useId();
+  return (
+    <div className="mb-1.5">
+      <span className="flex items-center gap-1.5">
+        {children}
+        <InfoButton open={open} onToggle={() => setOpen(v => !v)} controls={panelId} label={name} />
+      </span>
+      <div className="text-[12px] text-slate-500 mt-0.5 leading-snug" data-testid="field-short">{help.short}</div>
+      <InfoPanel id={panelId} open={open}>{help.info}</InfoPanel>
+    </div>
+  );
+}
 
 const STATUS_BADGE = {
   open:          'bg-amber-50 text-amber-700',
@@ -229,8 +262,11 @@ export default function AdminDisputesPage() {
               <p className="leading-relaxed">{t('dispute.privacy_warning_body')}</p>
             </div>
             <div>
-              <label className="block text-[12.5px] font-bold text-ink mb-1">{t('dispute.access_reason')}</label>
+              <FieldHelp name={t('dispute.access_reason')} help={HELP.access_reason}>
+                <label htmlFor="dispute-access-reason" className="block text-[12.5px] font-bold text-ink">{t('dispute.access_reason')}</label>
+              </FieldHelp>
               <textarea
+                id="dispute-access-reason"
                 rows={3}
                 value={reason}
                 onChange={(e) => setReason(e.target.value)}
@@ -362,7 +398,11 @@ export default function AdminDisputesPage() {
             </>
           }
         >
+          <FieldHelp name="ملخص القرار" help={HELP.resolution}>
+            <label htmlFor="dispute-resolution" className="block text-[12.5px] font-bold text-ink">ملخص القرار</label>
+          </FieldHelp>
           <textarea
+            id="dispute-resolution"
             rows={4}
             value={resolutionBox}
             onChange={(e) => setResolutionBox(e.target.value)}
@@ -370,7 +410,9 @@ export default function AdminDisputesPage() {
             className="w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px] mb-3"
           />
           <div>
-            <label className="block text-[12.5px] font-bold text-ink mb-1.5">{t('dispute.ratings_decision')}</label>
+            <FieldHelp name={t('dispute.ratings_decision')} help={HELP.ratings}>
+              <span className="block text-[12.5px] font-bold text-ink">{t('dispute.ratings_decision')}</span>
+            </FieldHelp>
             <div className="grid grid-cols-2 gap-2">
               {['both', 'client_only', 'provider_only', 'none'].map((opt) => (
                 <button

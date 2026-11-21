@@ -1,6 +1,6 @@
 import { useAdminConfirmation } from '../../components/admin/confirmAdminChange';
 import { localizedName } from '../../utils/localize';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   adminListCountries, adminCreateCountry, adminUpdateCountry, adminDeleteCountry,
@@ -12,6 +12,7 @@ import EmptyState from '../../components/admin/EmptyState';
 import ConfirmDialog from '../../components/admin/AdminConfirmDialog';
 import Modal from '../../components/common/Modal';
 import AdminFab from '../../components/admin/AdminFab';
+import { InfoButton, InfoPanel } from '../../components/common/InfoTip';
 
 const SUPPORTED_LANGS = [
   { code: 'ar', label: 'العربية' },
@@ -26,6 +27,50 @@ const SUPPORTED_LANGS = [
   { code: 'am', label: 'አማርኛ' },
   { code: 'tr', label: 'Türkçe' },
 ];
+
+// AYK-415: a short line under each field's name, and (i) for the full explanation.
+const HELP = {
+  code: {
+    short: 'حرفان إنجليزيان بالترميز الدولي يميّزان الدولة، مثل SA للسعودية.',
+    info: 'رمز الدولة الدولي من حرفين إنجليزيين. يستعمله الموقع ليتعرّف على دولة الزائر من موقعه أو من اتصاله بالإنترنت ويربطه بمناطقها.\nيُكتب بحروف كبيرة تلقائيًا، ولا يُقبل إلا حرفان. مثال: SA للسعودية، AE للإمارات.\nحقل إلزامي، ولا يتكرر لدولتين.',
+  },
+  flag: {
+    short: 'رمز علم الدولة (إيموجي) يظهر بجانب اسمها، مثل 🇸🇦.',
+    info: 'يظهر بجانب اسم الدولة في بطاقتها هنا وعند تحديد الموقع على الخريطة.\nانسخ رمز العلم والصقه هنا، مثل 🇸🇦.\nإن تُرك فارغًا يظهر علم أبيض في بطاقة الدولة.',
+  },
+  name_ar: {
+    short: 'اسم الدولة كما يراه الزوار، ويُترجم تلقائيًا إلى لغات الموقع.',
+    info: 'الاسم الأساسي للدولة. بعد الحفظ يترجمه الموقع تلقائيًا إلى لغاته الإحدى عشرة، وتُعاد الترجمة كلما غيّرته.\nحقل إلزامي، حتى 80 حرفًا. مثال: المملكة العربية السعودية.',
+  },
+  name_en: {
+    short: 'الاسم بالإنجليزية، احتياطي يظهر إذا لم تتوفر ترجمة بلغة الزائر.',
+    info: 'الترجمة التلقائية من الاسم العربي تتقدم عادة على هذا الاسم، فيُستعمل هو حين لا تتوفر ترجمة بلغة الزائر.\nحقل إلزامي، حتى 80 حرفًا. مثال: Saudi Arabia.',
+  },
+  dial: {
+    short: 'مفتاح الاتصال الدولي للدولة، مثل ‎+966.',
+    info: 'يُحفظ مع بيانات الدولة ويظهر في بطاقتها في هذه الصفحة بجانب رمز الهاتف.\nلا يغيّر حاليًا طريقة كتابة أرقام الجوال في الموقع.\nحتى 8 خانات، مثال: ‎+966. يمكن تركه فارغًا.',
+  },
+  currency_code: {
+    short: 'رمز العملة الدولي من 3 أحرف إنجليزية، مثل SAR.',
+    info: 'تظهر الأسعار في الموقع باسم عملة دولة الزائر. لمن يتصفح بغير العربية يظهر هذا الرمز بجانب السعر (والريال السعودي يظهر باسمه المترجم).\nلا يحوّل المبالغ بين العملات، بل يغيّر اسم العملة الظاهر فقط.\nحقل إلزامي، 3 أحرف تُكتب كبيرة تلقائيًا. مثال: SAR، AED.',
+  },
+  currency_symbol: {
+    short: 'الرمز المختصر للعملة بجانب الأسعار بالعربية، مثل ر.س.',
+    info: 'يظهر بجانب كل سعر لمن يتصفح الموقع بالعربية من هذه الدولة.\nإن تُرك فارغًا يستعمل الموقع الرمز المعروف لعملات المنطقة (مثل ر.س، د.إ)، وإلا يظهر رمز العملة الإنجليزي.\nحتى 16 حرفًا.',
+  },
+  languages: {
+    short: 'اللغات التي يراها زوار هذه الدولة في قائمة اختيار اللغة.',
+    info: 'قائمة تغيير اللغة، وشاشة اختيار اللغة أول التسجيل، تعرضان لزوار هذه الدولة اللغات المختارة هنا فقط.\nاضغط على اللغة لاختيارها، واضغط مرة أخرى لإلغائها.\nإن لم تختر أي لغة تظهر كل لغات الموقع.',
+  },
+  sort_order: {
+    short: 'مكان الدولة في القوائم: الرقم الأصغر يظهر أولًا.',
+    info: 'تُرتب الدول تصاعديًا حسب هذا الرقم، ثم أبجديًا عند التساوي.\nأول دولة مفعّلة في الترتيب هي الدولة التي يبدأ بها الزائر الذي لم يحدد دولته.\nمثال: 1 للدولة الرئيسية. إن تُرك فارغًا أو كان صفرًا يُحفظ 99.',
+  },
+  is_active: {
+    short: 'عند إلغائه تختفي الدولة عن الزوار، وتبقى محفوظة هنا.',
+    info: 'الدولة المفعّلة فقط تظهر للزوار ويمكن اختيارها والتعرف عليها من موقع الزائر.\nإلغاء التفعيل لا يحذف الدولة ولا مناطقها، ويمكن إعادتها في أي وقت، أيضًا من المفتاح في بطاقتها.',
+  },
+};
 
 const EMPTY = {
   code: '', name_ar: '', name_en: '', flag_emoji: '',
@@ -193,20 +238,24 @@ export default function AdminCountriesPage() {
         <form id="AdminCountriesPage-form" onSubmit={onSave} className="space-y-3">
           {formError && <div className="px-3 py-2 rounded bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">{formError}</div>}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <Field label={t('admin.country_code')} value={form.code} onChange={(v) => setForm({ ...form, code: v.toUpperCase().slice(0, 2) })} required placeholder="SA" />
-            <Field label={t('admin.country_flag')} value={form.flag_emoji} onChange={(v) => setForm({ ...form, flag_emoji: v })} placeholder="🇸🇦" />
+            <Field label={t('admin.country_code')} hint={HELP.code.short} info={HELP.code.info} value={form.code} onChange={(v) => setForm({ ...form, code: v.toUpperCase().slice(0, 2) })} required placeholder="SA" />
+            <Field label={t('admin.country_flag')} hint={HELP.flag.short} info={HELP.flag.info} value={form.flag_emoji} onChange={(v) => setForm({ ...form, flag_emoji: v })} placeholder="🇸🇦" />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <Field label={t('admin.country_name_ar')} value={form.name_ar} onChange={(v) => setForm({ ...form, name_ar: v })} required />
-            <Field label={t('admin.country_name_en')} value={form.name_en} onChange={(v) => setForm({ ...form, name_en: v })} required />
+            <Field label={t('admin.country_name_ar')} hint={HELP.name_ar.short} info={HELP.name_ar.info} value={form.name_ar} onChange={(v) => setForm({ ...form, name_ar: v })} required />
+            <Field label={t('admin.country_name_en')} hint={HELP.name_en.short} info={HELP.name_en.info} value={form.name_en} onChange={(v) => setForm({ ...form, name_en: v })} required />
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <Field label={t('admin.country_dial')} value={form.dial_code} onChange={(v) => setForm({ ...form, dial_code: v })} placeholder="+966" />
-            <Field label={t('admin.country_currency_code')} value={form.currency_code} onChange={(v) => setForm({ ...form, currency_code: v.toUpperCase() })} required placeholder="SAR" />
-            <Field label={t('admin.country_currency_symbol')} value={form.currency_symbol} onChange={(v) => setForm({ ...form, currency_symbol: v })} placeholder="ر.س" />
+            <Field label={t('admin.country_dial')} hint={HELP.dial.short} info={HELP.dial.info} value={form.dial_code} onChange={(v) => setForm({ ...form, dial_code: v })} placeholder="+966" />
+            <Field label={t('admin.country_currency_code')} hint={HELP.currency_code.short} info={HELP.currency_code.info} value={form.currency_code} onChange={(v) => setForm({ ...form, currency_code: v.toUpperCase() })} required placeholder="SAR" />
+            <Field label={t('admin.country_currency_symbol')} hint={HELP.currency_symbol.short} info={HELP.currency_symbol.info} value={form.currency_symbol} onChange={(v) => setForm({ ...form, currency_symbol: v })} placeholder="ر.س" />
           </div>
           <div>
-            <label className="block text-[12px] font-bold text-ink mb-2">{t('admin.country_languages')}</label>
+            <div className="mb-2">
+              <FieldHelp name={t('admin.country_languages')} hint={HELP.languages.short} info={HELP.languages.info}>
+                <span className="block text-[12px] font-bold text-ink">{t('admin.country_languages')}</span>
+              </FieldHelp>
+            </div>
             <div className="flex flex-wrap gap-2">
               {SUPPORTED_LANGS.map((l) => {
                 const on = form.languages_enabled.includes(l.code);
@@ -221,11 +270,15 @@ export default function AdminCountriesPage() {
               })}
             </div>
           </div>
-          <Field label={t('admin.category_sort_order')} type="number" value={form.sort_order} onChange={(v) => setForm({ ...form, sort_order: v })} />
-          <label className="inline-flex items-center gap-2 text-[13px] cursor-pointer">
-            <input type="checkbox" checked={!!form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />
-            <span>{t('admin.is_active')}</span>
-          </label>
+          <Field label={t('admin.category_sort_order')} hint={HELP.sort_order.short} info={HELP.sort_order.info} type="number" value={form.sort_order} onChange={(v) => setForm({ ...form, sort_order: v })} />
+          <div>
+            <FieldHelp name={t('admin.is_active')} hint={HELP.is_active.short} info={HELP.is_active.info}>
+              <label className="inline-flex items-center gap-2 text-[13px] cursor-pointer">
+                <input type="checkbox" checked={!!form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />
+                <span>{t('admin.is_active')}</span>
+              </label>
+            </FieldHelp>
+          </div>
         </form>
       </Modal>
 
@@ -235,11 +288,32 @@ export default function AdminCountriesPage() {
   );
 }
 
-function Field({ label, value, onChange, type = 'text', required = false, placeholder = '' }) {
+// The field's name (children) with its (i), the short line under it, and the opened explanation.
+function FieldHelp({ name, hint, info, children }) {
+  const [open, setOpen] = useState(false);
+  const panelId = useId();
+  return (
+    <>
+      <span className="flex items-center gap-1.5">
+        {children}
+        {info && <InfoButton open={open} onToggle={() => setOpen(v => !v)} controls={panelId} label={typeof name === 'string' ? name : ''} />}
+      </span>
+      {hint && <div className="text-[12px] text-slate-500 mt-0.5 leading-snug" data-testid="field-short">{hint}</div>}
+      {info && <InfoPanel id={panelId} open={open}>{info}</InfoPanel>}
+    </>
+  );
+}
+
+function Field({ label, hint, info, value, onChange, type = 'text', required = false, placeholder = '' }) {
+  const id = useId();
   return (
     <div>
-      <label className="block text-[12px] font-bold text-ink mb-1">{label}</label>
-      <input type={type} required={required} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
+      <div className="mb-1">
+        <FieldHelp name={label} hint={hint} info={info}>
+          <label htmlFor={id} className="block text-[12px] font-bold text-ink">{label}</label>
+        </FieldHelp>
+      </div>
+      <input id={id} type={type} required={required} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder}
         className="w-full px-3 py-2 rounded-card border border-border bg-surface-alt focus:bg-surface focus:border-primary outline-none text-[14px]" />
     </div>
   );
