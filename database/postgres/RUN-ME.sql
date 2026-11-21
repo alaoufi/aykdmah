@@ -8,7 +8,7 @@ DO $ayk_fresh$ BEGIN
   IF EXISTS (
     SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
     WHERE n.nspname = current_schema() AND c.relkind IN ('r','p','v','m','f')
-      AND c.relname IN ('account_number_aliases','activity_logs','ad_admin_messages','ad_campaigns','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_diagnostics','call_reports','calls','categories','chat_forward_receipts','cities','conversation_archives','conversation_participants','conversations','countries','device_reports','directory_contacts','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','district_name_cleanup_','districts','entity_views','governorates','install_lock','ip_geo_cache','location_shares','message_files','message_hidden','message_translations','messages','native_push_tokens','notifications','offers','payments','phone_codes','provider_badges','provider_coverage_districts','provider_profiles','push_subscriptions','referral_count_rewards','referral_rewards','regions','request_files','request_translations','requests','review_reports','review_translations','review_votes','reviews','roles','saved_providers','schema_migrations','security_events','services','settings','subscription_plans','subscription_rules','subscriptions','support_messages','support_tickets','translation_memory','translation_usage','ui_text_overrides','uploaded_media','user_blocks','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','visit_days','wallet_transactions','withdrawal_requests')
+      AND c.relname IN ('account_number_aliases','activity_logs','ad_admin_messages','ad_campaigns','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_diagnostics','call_reports','calls','categories','chat_forward_receipts','cities','conversation_archives','conversation_participants','conversations','countries','device_reports','dialect_term_flags','dialect_terms','directory_contacts','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','district_name_cleanup_','districts','entity_views','governorates','install_lock','ip_geo_cache','location_shares','message_files','message_hidden','message_translations','messages','native_push_tokens','notifications','offers','payments','phone_codes','provider_badges','provider_coverage_districts','provider_profiles','push_subscriptions','referral_count_rewards','referral_rewards','regions','request_files','request_translations','requests','review_reports','review_translations','review_votes','reviews','roles','saved_providers','schema_migrations','security_events','services','settings','subscription_plans','subscription_rules','subscriptions','support_messages','support_tickets','translation_memory','translation_usage','ui_text_overrides','uploaded_media','user_blocks','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','visit_days','wallet_transactions','withdrawal_requests')
   ) THEN
     RAISE EXCEPTION 'AY KHIDMA bootstrap requires a fresh database schema; use journaled migrations for an existing installation';
   END IF;
@@ -6785,6 +6785,26 @@ ALTER TABLE users ADD COLUMN IF NOT EXISTS whatsapp_number VARCHAR(30) NULL;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS marketing_opt_in SMALLINT NOT NULL DEFAULT 0;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS marketing_opt_in_at TIMESTAMP NULL;
 INSERT INTO schema_migrations(name) VALUES ('105_requester_contact.sql');
+
+-- migrations/106_dialect_terms.sql
+CREATE TABLE IF NOT EXISTS dialect_terms (
+  term VARCHAR(40) NOT NULL,
+  category_id INT NOT NULL,
+  service_id INT NOT NULL DEFAULT 0,
+  hits INT NOT NULL DEFAULT 0,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (term, category_id, service_id)
+);
+CREATE INDEX IF NOT EXISTS dialect_terms_term ON dialect_terms (term);
+CREATE TABLE IF NOT EXISTS dialect_term_flags (
+  term VARCHAR(40) PRIMARY KEY,
+  status VARCHAR(10) NOT NULL,
+  category_id INT NULL,
+  service_id INT NULL,
+  updated_by INT NULL,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+INSERT INTO schema_migrations(name) VALUES ('106_dialect_terms.sql');
 
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$

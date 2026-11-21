@@ -1382,6 +1382,9 @@
     "ad_tab_reports": "Reports",
     "menu_layout": {
       "title": "Menu order"
+    },
+    "dialect": {
+      "title": "Dialect words"
     }
   },
   "errors": {

@@ -68,6 +68,8 @@ const create = asyncHandler(async (req, res) => {
   if (io) io.emit('request:new_nearby', Request.publicView(request));
   await announceToProviders(req, request);
   created(res, request, req.t('request_created'));
+  // AYK-420: the words of the request teach the site its people's dialect (roots and counts only).
+  require('../services/dialectLearning').learnFromRequest(request).catch(() => {});
   // Into the providers' languages right away, so they read it in theirs at once (AYK-231).
   requestTranslation.translateForProviders(request).catch(() => {});
 });
@@ -443,3 +445,6 @@ const acceptWarranty = asyncHandler(async (req, res) => {
 module.exports = {
   getPreviousClients, getReach, update,
   getTranslation, create, getMy, getNearby, getOne, updateStatus, setReminders, contact, agree, direct, remove, startChat, proposeWarranty, acceptWarranty };
+
+// AYK-420: the words «اكتب طلبك بلهجتك» learned from published requests (public; roots only).
+module.exports.learnedTerms = asyncHandler(async (req, res) => success(res, await require('../services/dialectLearning').learnedTerms()));

@@ -50,6 +50,7 @@ export const NAV_GROUPS = [
     items: [
       { to: '/admin/categories', icon: '🗂️', labelKey: 'admin.categories', perm: 'categories.manage' },
       { to: '/admin/services',   icon: '🛠️', labelKey: 'admin.services',   perm: 'services.manage' },
+      { to: '/admin/dialect',    icon: '🗣️', labelKey: 'admin.dialect.title', perm: 'services.manage' },
     ],
   },
   {

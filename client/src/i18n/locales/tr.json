@@ -1382,6 +1382,9 @@
     "ad_tab_reports": "التقارير",
     "menu_layout": {
       "title": "ترتيب القوائم"
+    },
+    "dialect": {
+      "title": "Lehçe kelimeleri"
     }
   },
   "errors": {
