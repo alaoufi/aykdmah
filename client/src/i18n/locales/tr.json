@@ -3012,7 +3012,19 @@
     "reject": "Hayır, görseli kendim düzenleyeceğim",
     "redo": "Görselinizi {{w}}×{{h}} piksel ({{ratio}}) yapın, sonra yeniden yükleyin.",
     "animated": "Hareketli görsel otomatik uyarlanmaz. {{w}}×{{h}} piksel ({{ratio}}) yapıp yükleyin.",
-    "close": "Kapat"
+    "close": "Kapat",
+    "video_title": "Videonun şekli reklam alanına uymuyor",
+    "video_body": "Doğru boyut {{w}}×{{h}} ({{ratio}}); videonuz {{ow}}×{{oh}}. Asla gerilmez: alanın çerçevesinde kenarları kırpılarak aşağıdaki gibi görünür. Uygun mu?",
+    "video_long": "Videonuz {{seconds}} saniye; reklam videosu en fazla {{max}} saniye olabilir. Kısaltıp yeniden yükleyin.",
+    "video_small": "Videonuz doğru boyuttan küçük, net görünmeyebilir.",
+    "video_accept": "Tamam, göründüğü gibi kullan",
+    "video_reject": "Hayır, videoyu kendim düzenleyeceğim",
+    "video_redo": "Videonuzu {{w}}×{{h}} ({{ratio}}) ve en fazla {{max}} saniye yapın, sonra yeniden yükleyin.",
+    "in_place": "{{place}} içinde görüneceği gibi ({{w}}×{{h}})",
+    "place_wide": "geniş alanlar",
+    "place_narrow": "yan alanlar",
+    "mixed": "Farklı şekilli alanlar seçtiniz; reklamın her birinde nasıl göründüğüne bakın.",
+    "video_long_title": "Video izin verilenden uzun"
   },
   "contact_privacy": {
     "title": "Sizinle iletişim",
