@@ -25,7 +25,7 @@ import Avatar from '../components/common/Avatar';
 import { LoadingState, EmptyState } from '../components/common/Spinner';
 import { formatRelativeTime, formatTime, truncate, dayLabel, isSameDay } from '../utils/formatters';
 import { getCurrentPosition } from '../utils/geo';
-import { sentTone } from '../utils/ringtone';
+import { chime, sentTone } from '../utils/ringtone';
 import { createPollingLoop } from '../utils/polling';
 import { agreeRequest, saveToDirectory, contactDirectFresh } from '../services/requestService';
 import { askChoice, askConfirm, askText, showAlert, showProblem } from '../components/common/AppDialog';
@@ -254,7 +254,12 @@ export default function ChatPage() {
       if (scopeRef.current !== scope) return;
       if (Number(msg.conversation_id) === Number(activeId) || pairRef.current.has(Number(msg.conversation_id))) {
         setMessages(prev => appendMessages(prev, [msg]));
-        if (Number(msg.sender_id) !== Number(user?.id)) markReadSoon(activeId);
+        if (Number(msg.sender_id) !== Number(user?.id)) {
+          markReadSoon(activeId);
+          // AYK-385 (the owner: «الطرف المرسَل إليه يجيه إشعار صوتي بالرسالة»): in the chat open on
+          // screen the bell stays quiet (no banner over the chat), so the tone is played here.
+          if (document.visibilityState === 'visible' && window.location.pathname === `/chat/${msg.conversation_id}`) chime();
+        }
       }
       // The list row moves up in place; the whole list is asked for only for a new chat.
       setConversations(rows => {

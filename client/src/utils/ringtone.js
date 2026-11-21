@@ -97,3 +97,16 @@ export function stopTone() {
   for (const osc of nodes) { try { osc.stop(); } catch (_) { /* already stopped */ } }
   nodes = [];
 }
+
+// AYK-385: browsers keep a page silent until its first tap. The tone of a message that arrives
+// later (not from a tap) would then be silent, so the sound is made ready at the first tap or
+// key press anywhere in the site.
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+  const ready = () => {
+    primeAudio();
+    window.removeEventListener('pointerdown', ready, true);
+    window.removeEventListener('keydown', ready, true);
+  };
+  window.addEventListener('pointerdown', ready, true);
+  window.addEventListener('keydown', ready, true);
+}
