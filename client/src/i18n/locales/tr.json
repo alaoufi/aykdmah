@@ -346,7 +346,13 @@
     "offer_service_title": "Hizmet veriyor musunuz?",
     "offer_service_hint": "Mesleğinizi ve hizmet verdiğiniz mahalleleri seçin; talep edenler sizi görsün, talepleri size ulaşsın. İsteğe bağlı; daha sonra «Hesabım»dan da yapabilirsiniz.",
     "offer_service_button": "Mesleğimi ve bölgemi seç",
-    "continue_as_client": "Hizmet talep eden olarak devam et"
+    "continue_as_client": "Hizmet talep eden olarak devam et",
+    "send_code_button": "Doğrulama kodunu telefonuma gönder",
+    "code_confirm": "Kodu onayla",
+    "who_are_you": "Hizmet arayan mısınız, hizmet veren mi?",
+    "own_profession_label": "Mesleğimi bulamadım? Buraya yazın",
+    "own_profession_send": "Gönder",
+    "own_profession_message": "Mesleğim listede yok, lütfen ekleyin: {{name}}"
   },
   "request": {
     "create_title": "Yeni talep oluştur",

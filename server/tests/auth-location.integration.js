@@ -1044,6 +1044,24 @@ if (!databasePrefix) {
     assert.equal(Number(provider.also_client), 0);
   });
 
+  test('AYK-411: right after sign-up a requester becomes a provider with a profession only, or with one written in', async () => {
+    const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    // A new account with no area at all, as the simple sign-up makes it.
+    const first = await simpleRegister({ role: 'client', latitude: undefined, longitude: undefined });
+    const change = (token, body, expected = 200) => api('/users/me/role', { method: 'PUT', token, body, expected });
+    await change(first.token, { role: 'provider', quick: true }, 400); // nothing chosen, nothing written
+    await change(first.token, { role: 'provider', quick: true, suggested_profession: 'x' }, 400); // too short
+    await change(first.token, { role: 'provider', service_ids: [Number(service.id)] }, 400); // the full change still needs the area
+    const picked = await change(first.token, { role: 'provider', quick: true, service_ids: [Number(service.id)] });
+    assert.equal(picked.role, 'provider');
+    assert.deepEqual((await db.queryOne('SELECT service_ids FROM provider_profiles WHERE user_id = ?', [first.user.id])).service_ids, [Number(service.id)]);
+
+    const second = await simpleRegister({ role: 'client', latitude: undefined, longitude: undefined });
+    const wrote = await change(second.token, { role: 'provider', quick: true, service_ids: [], suggested_profession: 'مصلح ساعات' });
+    assert.equal(wrote.role, 'provider');
+    assert.deepEqual((await db.queryOne('SELECT service_ids FROM provider_profiles WHERE user_id = ?', [second.user.id])).service_ids, []);
+  });
+
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');

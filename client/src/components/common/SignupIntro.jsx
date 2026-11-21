@@ -26,7 +26,7 @@ export function signupLabels(t) {
   };
 }
 
-export default function SignupIntro({ open, startWithLanguage = true, onClose }) {
+export default function SignupIntro({ open, startWithLanguage = true, languageOnly = false, onClose }) {
   const { t, i18n } = useTranslation();
   const { country } = useCountry();
   const [stage, setStage] = useState(startWithLanguage ? 'language' : 'book');
@@ -63,7 +63,7 @@ export default function SignupIntro({ open, startWithLanguage = true, onClose })
               <div className="grid grid-cols-2 gap-2.5">
                 {languages.map(l => (
                   <button key={l.code} type="button" lang={l.code} dir={l.dir}
-                    onClick={() => i18n.changeLanguage(l.code).finally(() => setStage('book'))}
+                    onClick={() => i18n.changeLanguage(l.code).finally(() => (languageOnly ? close() : setStage('book')))}
                     className={`flex items-center justify-center gap-2 min-h-[52px] px-3 rounded-card border-2 text-[15px] font-bold transition ${l.code === lang ? 'border-primary bg-primary-soft text-primary' : 'border-border bg-surface text-fg hover:border-primary'}`}
                     data-testid={`signup-intro-lang-${l.code}`}>
                     <span aria-hidden="true">{l.flag}</span>{l.label}

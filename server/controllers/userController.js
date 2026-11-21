@@ -318,14 +318,21 @@ const changeRole = asyncHandler(async (req, res) => {
         profile.fixed_latitude = point.latitude;
         profile.fixed_longitude = point.longitude;
       }
-      Object.assign(profile, await validateProviderServices({ service_ids: req.body.service_ids, any_category: true }, {}, {
-        required: true, message: req.t('provider_services_required'),
+      // AYK-411 (the owner: simple sign-up): right after sign-up the provider only picks professions,
+      // or writes one that is missing (sent to the administration); the area comes later from «ملفي».
+      const quick = req.body.quick === true;
+      const wroteOwn = quick && typeof req.body.suggested_profession === 'string'
+        && req.body.suggested_profession.trim().length >= 2 && req.body.suggested_profession.trim().length <= 80;
+      Object.assign(profile, await validateProviderServices({ service_ids: req.body.service_ids ?? [], any_category: true }, {}, {
+        required: !wroteOwn, message: req.t('provider_services_required'),
       }));
       // Coverage made optional in «حقول النماذج» (AYK-218): left empty, it is the account's own district.
       const chosen = Array.isArray(req.body.coverage_district_ids) && req.body.coverage_district_ids.length > 0;
       const coverageInput = !chosen && user.district_id && !(await requiredFields('account_type')).has('coverage')
         ? { ...req.body, coverage_district_ids: [Number(user.district_id)] } : req.body;
-      profile.coverage = await validateCoverage(coverageInput, { cityId: user.city_id, required: true, message: req.t('provider_area_required') });
+      profile.coverage = quick
+        ? await validateCoverage(coverageInput, { cityId: user.city_id, required: true, message: req.t('provider_area_required') }).catch(() => null)
+        : await validateCoverage(coverageInput, { cityId: user.city_id, required: true, message: req.t('provider_area_required') });
     }
   }
 

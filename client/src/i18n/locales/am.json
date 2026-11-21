@@ -346,7 +346,13 @@
     "offer_service_title": "አገልግሎት ይሰጣሉ?",
     "offer_service_hint": "ሙያዎንና የሚሸፍኑትን ሰፈሮች ይምረጡ፤ አገልግሎት ጠያቂዎች እንዲያዩዎትና ጥያቄዎቻቸው እንዲደርሱዎት። አማራጭ ነው፤ በኋላም ከ«መለያዬ» ማድረግ ይችላሉ።",
     "offer_service_button": "ሙያዬንና አካባቢዬን ምረጥ",
-    "continue_as_client": "እንደ አገልግሎት ጠያቂ ቀጥል"
+    "continue_as_client": "እንደ አገልግሎት ጠያቂ ቀጥል",
+    "send_code_button": "የማረጋገጫ ኮድ ወደ ስልኬ ላክ",
+    "code_confirm": "ኮዱን አረጋግጥ",
+    "who_are_you": "አገልግሎት ጠያቂ ነዎት ወይስ አገልግሎት ሰጪ?",
+    "own_profession_label": "ሙያዬን አላገኘሁም? እዚህ ይጻፉ",
+    "own_profession_send": "ላክ",
+    "own_profession_message": "ሙያዬ በዝርዝሩ ውስጥ የለም፣ እባክዎ ያክሉት፦ {{name}}"
   },
   "request": {
     "create_title": "አዲስ ጥያቄ ይፍጠሩ",

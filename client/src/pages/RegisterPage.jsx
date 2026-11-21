@@ -1,77 +1,48 @@
 import { localizedTerms } from '../utils/localizeTerms';
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
 import usePublicSettings from '../hooks/usePublicSettings';
-import { reverseGeocode, listCountries } from '../services/serviceService';
-import { sendPhoneCode, checkPhone } from '../services/authService';
+import { sendPhoneCode, checkPhone, changeAccountType } from '../services/authService';
+import { createSupport } from '../services/supportService';
 import { cleanPhone, cleanTyped, isSaudiMobile } from '../utils/saudiPhone';
-import useLocationOptions from '../hooks/useLocationOptions';
 import Input from '../components/common/Input';
 import PasswordInput from '../components/common/PasswordInput';
 import Button from '../components/common/Button';
-import LocationPickerMap from '../components/common/LocationPickerMap';
-import ServiceVenuePicker from '../components/common/ServiceVenuePicker';
 import ProfessionsPicker from '../components/common/ProfessionsPicker';
-import CoverageDistrictsPicker from '../components/common/CoverageDistrictsPicker';
-import { weekdayName } from '../components/common/AvailabilityBadge';
-import WorkHoursPicker from '../components/common/WorkHoursPicker';
 import DevicePermissions from '../components/common/DevicePermissions';
 import SignupIntro, { signupIntroSeen } from '../components/common/SignupIntro';
 import SafeHtml from '../components/common/SafeHtml';
 import { apiError } from '../services/api';
-import { localizedName } from '../utils/localize';
-import { getCurrentPosition, isValidCoordinates, geoSelection } from '../utils/geolocation.mjs';
 import { internalAuthReturn, authReturnTarget } from '../utils/authReturn';
 import ProblemNotice from '../components/common/ProblemNotice';
 import { keptInvite, forgetInvite } from '../utils/invite';
 
-const ROLES = [
-  { key: 'client', icon: '🙋', label: 'auth.role_client' },
-  { key: 'provider', icon: '🛠️', label: 'auth.role_provider' },
-  { key: 'both', icon: '🔁', label: 'auth.role_both' },
-];
-
-// Simplified sign-up (onboarding version 2): phone, password, an optional
-// name and the device location. Providers add professions and coverage.
 export default function RegisterPage() {
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
-  const { register, user } = useAuth();
+  const { register, user, refresh } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const params = new URLSearchParams(location.search);
   const from = internalAuthReturn(location.state?.from);
-  // From «سجّل كمقدم خدمة» links: the profession step is offered first after sign-up.
+  // From «سجّل كمقدم خدمة» links: «مقدم خدمة» is chosen already after sign-up.
   const [wantsProvider] = useState(() => ['provider', 'both'].includes(params.get('role')) || location.state?.wantsProvider === true);
   const { settings } = usePublicSettings();
   const termsHtml = localizedTerms(settings, lang, t);
 
-  const [intro, setIntro] = useState(() => (signupIntroSeen() ? null : 'language'));
+  // AYK-411 (the owner: «لا تجتهد إلا بتسهيل وتبسيط»): first opening asks the language only;
+  // then the phone and password, a code to the phone, and the account is ready and signed in.
+  const [intro, setIntro] = useState(() => !signupIntroSeen());
   const [form, setForm] = useState({
-    // AYK-396 (the owner: «سهّل التسجيل: فقط رقم الجوال… يحدد مهنته اختياري، وإن لم يختر يبقى طالب خدمة»):
-    // every account starts as a requester; the profession and coverage come right after, if wanted.
-    role: 'client',
     // AYK-372: from «للتسجيل من هنا» on the sign-in page, the number already typed there.
-    phone: typeof location.state?.identifier === 'string' && /^[\d+\s()-]{8,}$/.test(location.state.identifier.trim()) ? cleanTyped(location.state.identifier.trim()) : '', password: '', full_name: '',
-    service_ids: [], coverage: [], location_mode: 'mobile',
-    work_days: [0, 1, 2, 3, 4, 5, 6], work_from: '', work_to: '',
-    // A shared invitation link (?ref=CODE, or the short aykdmh.com/i/CODE kept on this device,
-    // AYK-354) pre-fills the coupon.
-    referral_code: (params.get('ref') || keptInvite() || '').trim().toUpperCase().slice(0, 12),
+    phone: typeof location.state?.identifier === 'string' && /^[\d+\s()-]{8,}$/.test(location.state.identifier.trim()) ? cleanTyped(location.state.identifier.trim()) : '',
+    password: '',
   });
-  const [place, setPlace] = useState({ lat: null, lon: null, region_id: '', governorate_id: '', city_id: '', district_id: '', label: '' });
-  const [locStatus, setLocStatus] = useState('idle');
-  const [mapOpen, setMapOpen] = useState(false);
-  const [venuePoint, setVenuePoint] = useState(null);
-  const [venueMapOpen, setVenueMapOpen] = useState(false);
-  const [couponOpen, setCouponOpen] = useState(Boolean(params.get('ref') || keptInvite()));
+  // A shared invitation link (?ref=CODE, or aykdmh.com/i/CODE kept on this device) still counts, silently.
+  const [referralCode] = useState(() => (params.get('ref') || keptInvite() || '').trim().toUpperCase().slice(0, 12));
   const [termsOpen, setTermsOpen] = useState(false);
-  const [coverageCount, setCoverageCount] = useState(null);
-  // Working days, hours and where the work is done are optional at sign-up (AYK-298): the defaults
-  // (every day, all day, the provider goes to the customer) stand until changed here or in «ملفي».
-  const [extrasOpen, setExtrasOpen] = useState(false);
   const [error, setError] = useState('');
   const [fieldErrors, setFieldErrors] = useState({});
   // '' | 'checking' | 'available' | 'taken' — checked when the phone field loses focus.
@@ -83,7 +54,6 @@ export default function RegisterPage() {
   useEffect(() => {
     if (welcome) window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
   }, [welcome]);
-  const [copied, setCopied] = useState(false);
   // Phone code step: shown only when an SMS provider is active (AYK-016).
   const [codeStep, setCodeStep] = useState(null);
   const [phoneCode, setPhoneCode] = useState('');
@@ -93,17 +63,14 @@ export default function RegisterPage() {
     const timer = setTimeout(() => setWait(value => value - 1), 1000);
     return () => clearTimeout(timer);
   }, [wait]);
-  const locationController = useRef(null);
   const submission = useRef(false);
-  const isProvider = form.role !== 'client';
 
-  // Area lists are only needed when the device location did not resolve them.
-  const [countryId, setCountryId] = useState('');
-  useEffect(() => { listCountries().then(rows => setCountryId(rows?.[0]?.id || '')).catch(() => {}); }, []);
-  const { rows: regions } = useLocationOptions('regions', countryId, Boolean(place.lat) && !place.city_id);
-  const { rows: cities } = useLocationOptions('regionCities', place.region_id, Boolean(place.region_id));
-  const { rows: districts } = useLocationOptions('districts', place.city_id);
-  const districtMissing = place.city_id && !place.district_id && districts.length > 0;
+  // After sign-up: «طالب خدمة» ends here; «مقدم خدمة» picks professions or writes a missing one.
+  const [choice, setChoice] = useState(() => (wantsProvider ? 'provider' : ''));
+  const [serviceIds, setServiceIds] = useState([]);
+  const [ownProfession, setOwnProfession] = useState('');
+  const [saving, setSaving] = useState(false);
+  const [providerError, setProviderError] = useState('');
 
   const update = (key, value) => {
     if (key === 'phone') { setCodeStep(null); setPhoneCode(''); setPhoneStatus(''); }
@@ -111,45 +78,6 @@ export default function RegisterPage() {
     setFieldErrors(previous => { const { [key]: _removed, ...rest } = previous; return rest; });
     setError('');
   };
-
-  const applyGeo = useCallback((res, coords) => {
-    const selection = geoSelection(res);
-    setPlace({
-      lat: coords.lat, lon: coords.lon,
-      region_id: selection.region?.id || '', governorate_id: selection.governorate?.id || '',
-      city_id: selection.city?.id || '', district_id: selection.district?.id || '',
-      label: [selection.district, selection.city].filter(Boolean).map(row => localizedName(row, lang)).join('، '),
-    });
-    setLocStatus('ok');
-    setFieldErrors(previous => { const { location: _removed, ...rest } = previous; return rest; });
-  }, [lang]);
-
-  const locate = useCallback(async () => {
-    if (!navigator.geolocation) { setLocStatus('failed'); return; }
-    locationController.current?.abort();
-    const controller = new AbortController();
-    locationController.current = controller;
-    setLocStatus('locating');
-    try {
-      const pos = await getCurrentPosition({ signal: controller.signal, timeoutMs: 10000 });
-      const coords = { lat: pos.coords.latitude, lon: pos.coords.longitude };
-      const res = await reverseGeocode({ ...coords, signal: controller.signal }).catch(() => null);
-      if (!controller.signal.aborted) applyGeo(res, coords);
-    } catch (err) {
-      if (!controller.signal.aborted) setLocStatus(err?.code === 1 ? 'denied' : 'failed');
-    }
-  }, [applyGeo]);
-
-  // The location is taken automatically when the page opens.
-  // AYK-396: no location prompt here: the account's area comes from its connection (server side),
-  // and a provider's coverage is chosen right after sign-up.
-  useEffect(() => () => locationController.current?.abort(), []);
-
-  // A provider's own neighbourhood is a sensible first coverage choice.
-  useEffect(() => {
-    if (isProvider && place.district_id && form.coverage.length === 0) update('coverage', [Number(place.district_id)]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isProvider, place.district_id]);
 
   const verifyPhone = async () => {
     const value = cleanPhone(form.phone);
@@ -165,30 +93,17 @@ export default function RegisterPage() {
     } catch (_) { setPhoneStatus(''); }
   };
 
-  // Every rule the account needs; the submit button stays off until none is left.
   const formErrors = () => {
     const errors = {};
     const phone = cleanPhone(form.phone);
     if (!isSaudiMobile(phone)) errors.phone = t('auth.phone_invalid');
     else if (phoneStatus === 'taken') errors.phone = t('auth.phone_registered');
     if (form.password.length < 4) errors.password = t('auth.password_min');
-    if (form.full_name.trim() && form.full_name.trim().length < 2) errors.full_name = t('auth.account_name_required');
-    // Only providers must have an area to sign up; a requester's location is taken
-    // automatically when possible and otherwise at the first request (AYK-044).
-    if (isProvider && (!isValidCoordinates(place.lat, place.lon) || !place.city_id)) errors.location = t('auth.simple_location_required');
-    else if (isProvider && districtMissing) errors.location = t('auth.simple_district_required');
-    if (isProvider) {
-      if (!form.service_ids.length) errors.service_ids = t('provider.professions_required');
-      if (coverageCount > 0 && !form.coverage.length) errors.coverage = t('provider.coverage_required');
-      if (form.location_mode !== 'mobile' && !venuePoint) errors.venue_point = t('provider.venue_point_required');
-      if (!form.work_days.length) errors.work_time = t('availability.days_required');
-      else if (Boolean(form.work_from) !== Boolean(form.work_to)) errors.work_time = t('availability.hours_both');
-    }
     if (codeStep && phoneCode.length < codeStep.length) errors.code = t('auth.code_required');
     return errors;
   };
   const pending = Object.values(formErrors());
-  const canSubmit = pending.length === 0 && phoneStatus !== 'checking' && locStatus !== 'locating';
+  const canSubmit = pending.length === 0 && phoneStatus !== 'checking';
 
   const handleSubmit = async event => {
     event.preventDefault();
@@ -220,33 +135,17 @@ export default function RegisterPage() {
         submission.current = false;
         return;
       }
-    } else if (phoneCode.length < codeStep.length) {
-      setError(t('auth.code_required'));
-      setLoading(false);
-      submission.current = false;
-      return;
     }
     try {
       const res = await register({
         ...(codeStep ? { phone_code: phoneCode } : {}),
-        onboarding_version: 2, role: form.role, phone, password: form.password,
-        ...(form.full_name.trim() ? { full_name: form.full_name.trim() } : {}),
-        ...(isValidCoordinates(place.lat, place.lon) && place.city_id ? {
-          latitude: place.lat, longitude: place.lon,
-          region_id: place.region_id || null, governorate_id: place.governorate_id || null,
-          city_id: place.city_id, district_id: place.district_id || null,
-        } : {}),
-        ...(isProvider ? {
-          service_ids: form.service_ids, coverage_district_ids: form.coverage, location_mode: form.location_mode,
-          work_days: form.work_days, ...(form.work_from && form.work_to ? { work_from: form.work_from, work_to: form.work_to } : {}),
-          ...(form.location_mode !== 'mobile' && venuePoint ? { fixed_latitude: venuePoint.lat, fixed_longitude: venuePoint.lon } : {}),
-        } : {}),
+        onboarding_version: 2, role: 'client', phone, password: form.password,
         terms_accepted: true, terms_version: settings.terms_version || '1.0',
-        ...(form.referral_code.trim() ? { referral_code: form.referral_code.trim() } : {}),
+        ...(referralCode ? { referral_code: referralCode } : {}),
       });
       if (!res?.user?.role) throw new Error('Invalid registration response');
       forgetInvite(); // used: the next sign-up on this device starts clean
-      navigate('/register', { replace: true, state: { from, wantsProvider, registrationResult: { userId: res.user.id, code: res.referral_code, role: res.user.role } } });
+      navigate('/register', { replace: true, state: { from, wantsProvider, registrationResult: { userId: res.user.id, role: res.user.role } } });
     } catch (err) {
       setError(err.response?.data?.message === 'coupon_not_found' ? t('auth.invite_not_found') : apiError(err));
       if (err.response?.status === 409) setFieldErrors({ phone: apiError(err) });
@@ -254,35 +153,47 @@ export default function RegisterPage() {
   };
 
   if (welcome) {
-    const copy = async () => {
-      try { await navigator.clipboard.writeText(welcome.code); setCopied(true); } catch (_) { setCopied(false); }
+    const own = ownProfession.trim();
+    const canFinish = serviceIds.length > 0 || own.length >= 2;
+    const finishProvider = async () => {
+      if (!canFinish || saving) return;
+      setSaving(true); setProviderError('');
+      try {
+        await changeAccountType({ role: 'provider', quick: true, service_ids: serviceIds, ...(own.length >= 2 ? { suggested_profession: own } : {}) });
+        if (own.length >= 2) await createSupport('suggestion', t('auth.own_profession_message', { name: own })).catch(() => {});
+        await refresh();
+        navigate(authReturnTarget('provider', from), { replace: true });
+      } catch (err) {
+        setProviderError(apiError(err));
+      } finally { setSaving(false); }
     };
     return (
-      <div className="text-center space-y-3" data-testid="register-welcome">
-        <div role="status" className="rounded-card border border-success/30 bg-success-soft p-5 text-success">
-          <div aria-hidden="true" className="text-4xl mb-2">✓</div>
-          <h2 className="m-0">{t('auth.registration_success')}</h2>
+      <div className="space-y-3" data-testid="register-welcome">
+        <div role="status" className="rounded-card border border-success/30 bg-success-soft px-4 py-3 text-success text-center font-bold">
+          ✓ {t('auth.registration_success')}
         </div>
-        <Link to="/login" state={{ from, identifier: form.phone }} className="block font-bold underline py-2">{t('auth.registration_login')}</Link>
-        {welcome.code && <>
-        <p className="text-sm text-secondary">{t(welcome.role === 'client' ? 'auth.welcome_number_hint_client' : 'auth.welcome_coupon_hint')}</p>
-        <div className="rounded-card border-2 border-dashed border-primary bg-primary-soft py-4">
-          <div className="text-xs text-secondary mb-1">{t('auth.welcome_coupon_title')}</div>
-          <div className="text-3xl font-extrabold tracking-[.2em]" dir="ltr">{welcome.code}</div>
+        <h2 className="m-0 text-center">{t('auth.who_are_you')}</h2>
+        <div className="grid grid-cols-2 gap-2" role="radiogroup" aria-label={t('auth.who_are_you')}>
+          <button type="button" role="radio" aria-checked={choice === 'client'} data-testid="register-continue-client"
+            onClick={() => navigate(authReturnTarget('client', from), { replace: true })}
+            className="min-h-[64px] rounded-card border-2 border-border bg-surface font-extrabold text-[16px] hover:border-primary">🙋 {t('auth.role_client')}</button>
+          <button type="button" role="radio" aria-checked={choice === 'provider'} data-testid="register-become-provider"
+            onClick={() => setChoice('provider')}
+            className={`min-h-[64px] rounded-card border-2 font-extrabold text-[16px] ${choice === 'provider' ? 'border-primary bg-primary-soft text-primary' : 'border-border bg-surface hover:border-primary'}`}>🛠️ {t('auth.role_provider')}</button>
         </div>
-        </>}
+
+        {choice === 'provider' && <div className="space-y-3" data-testid="register-provider-step">
+          <ProfessionsPicker serviceIds={serviceIds} onChange={ids => { setServiceIds(ids); setProviderError(''); }} />
+          <Input id="register-own-profession" label={t('auth.own_profession_label')} maxLength={80}
+            value={ownProfession} onChange={e => { setOwnProfession(e.target.value); setProviderError(''); }} data-testid="register-own-profession" />
+          {providerError && <ProblemNotice error={providerError} />}
+          <Button type="button" block variant="primary" loading={saving} disabled={!canFinish} onClick={finishProvider} data-testid="register-provider-send">
+            {t('auth.own_profession_send')}
+          </Button>
+        </div>}
+
         {/* Microphone/camera and notifications are asked for here, once (AYK-047). */}
         <DevicePermissions />
-        {welcome.code && <Button type="button" variant="outline" block onClick={copy}>{copied ? `✓ ${t('auth.copied')}` : `📋 ${t('auth.copy')}`}</Button>}
-        {/* AYK-396: the profession is optional, right here; without it the account stays a requester. */}
-        <div className={`rounded-card p-4 text-start space-y-2 ${wantsProvider ? 'border-2 border-primary bg-primary-soft' : 'border border-border bg-surface-alt'}`} data-testid="register-offer-service">
-          <div className="font-extrabold text-[15px]">🛠️ {t('auth.offer_service_title')}</div>
-          <p className="text-[13px] text-fg-muted m-0">{t('auth.offer_service_hint')}</p>
-          <Button type="button" variant={wantsProvider ? 'primary' : 'outline'} block data-testid="register-become-provider"
-            onClick={() => navigate('/profile?become=provider#account-type', { replace: true })}>{t('auth.offer_service_button')}</Button>
-        </div>
-        <Button type="button" variant={wantsProvider ? 'outline' : 'primary'} block data-testid="register-continue-client"
-          onClick={() => navigate(authReturnTarget(welcome.role, from), { replace: true })}>🙋 {t('auth.continue_as_client')}</Button>
       </div>
     );
   }
@@ -291,14 +202,8 @@ export default function RegisterPage() {
     <form onSubmit={handleSubmit} data-testid="register-form" noValidate>
       <fieldset disabled={loading} className="min-w-0 border-0 p-0 m-0 space-y-3">
         <h2 className="mb-0">{t('auth.register_title')}</h2>
-        {/* The sign-up guide (AYK-296): on first opening, language then the book; again from here. */}
-        <button type="button" onClick={() => setIntro('book')} data-testid="signup-howto"
-          className="w-full flex items-center justify-center gap-2 min-h-[46px] rounded-card border-2 border-primary/50 bg-primary-soft text-primary font-extrabold text-[15px]">
-          📖 {t('signup_guide.reopen')}
-        </button>
 
         {error && <ProblemNotice error={error} />}
-
 
         <Input id="register-phone" name="phone" label={t('auth.phone')} type="tel" required maxLength={30} dir="ltr"
           value={form.phone} error={fieldErrors.phone} autoComplete="tel" inputMode="tel" placeholder="05XXXXXXXX"
@@ -310,59 +215,8 @@ export default function RegisterPage() {
             <Link to="/forgot-password" state={{ identifier: cleanPhone(form.phone) }} className="text-primary font-semibold">{t('auth.forgot_password')}</Link>
           </div>
         )}
-        {/* A simple password, 4 characters at least: digits, letters or symbols, the full keyboard
-            (AYK-139; it opened the number pad only). */}
         <PasswordInput label={t('auth.password')} required minLength={4} autoComplete="new-password" adviseLength
           hint={t('auth.password_min')} value={form.password} error={fieldErrors.password} onChange={e => update('password', e.target.value)} />
-
-        {isProvider && <>
-          <ProfessionsPicker serviceIds={form.service_ids} onChange={ids => update('service_ids', ids)} error={fieldErrors.service_ids} />
-          <CoverageDistrictsPicker cityId={place.city_id} value={form.coverage} onChange={ids => update('coverage', ids)}
-            error={fieldErrors.coverage} onDistrictsLoaded={setCoverageCount} />
-          <button type="button" onClick={() => setExtrasOpen(v => !v)} aria-expanded={extrasOpen || Boolean(fieldErrors.work_time || fieldErrors.venue_point)}
-            className="w-full text-start rounded-card border border-border bg-surface-alt px-3 py-2.5" data-testid="register-extras-toggle">
-            <span className="flex items-center justify-between gap-2 font-semibold text-fg text-[14px]">
-              <span>⚙️ {t('auth.provider_extras')}</span><span aria-hidden="true">{extrasOpen ? '▴' : '▾'}</span>
-            </span>
-            <span className="block text-[12px] text-fg-muted mt-0.5">{t('auth.provider_extras_hint', { profile: t('nav.profile') })}</span>
-          </button>
-          {(extrasOpen || fieldErrors.work_time || fieldErrors.venue_point) && <>
-          <fieldset className="border-0 p-0 m-0 min-w-0" data-testid="register-work-time">
-            <legend className="form-label">🗓️ {t('work.register_title')}</legend>
-            <p className="text-xs text-muted mb-2">{t('work.register_hint')}</p>
-            <div className="flex flex-wrap gap-1.5 mb-2">
-              {[0, 1, 2, 3, 4, 5, 6].map(day => {
-                const active = form.work_days.includes(day);
-                return <button key={day} type="button" aria-pressed={active}
-                  onClick={() => update('work_days', active ? form.work_days.filter(value => value !== day) : [...form.work_days, day].sort())}
-                  className={`px-2.5 py-1 rounded-pill border text-[12.5px] ${active ? 'border-primary bg-primary-soft font-semibold' : 'border-border bg-surface-alt text-fg-muted'}`}>
-                  {weekdayName(day, lang)}</button>;
-              })}
-            </div>
-            <WorkHoursPicker from={form.work_from} to={form.work_to}
-              onChange={hours => { update('work_from', hours.work_from); update('work_to', hours.work_to); }} />
-            {fieldErrors.work_time && <p role="alert" className="form-error mt-1">{fieldErrors.work_time}</p>}
-          </fieldset>
-          <ServiceVenuePicker value={form.location_mode} onChange={mode => update('location_mode', mode)} />
-          {form.location_mode !== 'mobile' && <div>
-            <Button id="register-venue_point" type="button" variant={venuePoint ? 'outline' : 'primary'} onClick={() => setVenueMapOpen(true)}>
-              📍 {venuePoint ? t('provider.venue_point_change') : t('provider.venue_point_pick')}
-            </Button>
-            {venuePoint && <div className="text-[12px] text-fg-muted mt-1">✓ {t('provider.venue_point_set')} <span dir="ltr">{venuePoint.lat.toFixed(5)}, {venuePoint.lon.toFixed(5)}</span></div>}
-            {fieldErrors.venue_point && <div className="form-error">{fieldErrors.venue_point}</div>}
-          </div>}
-          </>}
-        </>}
-
-        {couponOpen ? <Input label={t('auth.invite_label')} hint={t('auth.invite_hint')} dir="ltr" maxLength={12}
-          value={form.referral_code} onChange={e => update('referral_code', e.target.value.toUpperCase())} placeholder="27" /> :
-          <button type="button" className="text-[13px] text-primary font-semibold" onClick={() => setCouponOpen(true)}>🎟️ {t('auth.have_coupon')}</button>}
-
-        {/* No checkbox to tick: creating the account accepts the terms (AYK-044). */}
-        <p className="text-[12.5px] text-fg-muted m-0" data-testid="register-terms">
-          {t('auth.terms_by_signup')}{' '}
-          <button type="button" onClick={() => setTermsOpen(true)} className="text-primary font-semibold underline underline-offset-2">{t('auth.terms_link')}</button>
-        </p>
 
         {codeStep && <div className="rounded-card border-2 border-primary px-3 py-2 space-y-2" data-testid="register-code">
           <p className="text-[13px] m-0">{t('auth.code_sent_to', { phone: form.phone })}</p>
@@ -379,10 +233,14 @@ export default function RegisterPage() {
         </div>}
 
         <Button type="submit" data-testid="register-submit" block loading={loading} variant="primary" disabled={!canSubmit}>
-          {codeStep ? t('auth.confirm_and_register') : t('auth.register_button')}
+          {codeStep ? t('auth.code_confirm') : t('auth.send_code_button')}
         </Button>
-        {!canSubmit && pending.length > 0 && <p className="text-center text-[12px] text-fg-muted -mt-1" data-testid="register-pending">{t('auth.complete_to_enable', { item: pending[0] })}</p>}
-        <p className="text-center text-[11.5px] text-fg-subtle">{t('auth.sms_later_note')}</p>
+
+        {/* No checkbox to tick: creating the account accepts the terms (AYK-044). */}
+        <p className="text-center text-[12px] text-fg-muted m-0" data-testid="register-terms">
+          {t('auth.terms_by_signup')}{' '}
+          <button type="button" onClick={() => setTermsOpen(true)} className="text-primary font-semibold underline underline-offset-2">{t('auth.terms_link')}</button>
+        </p>
 
         <div className="text-center text-sm text-secondary">
           {t('auth.have_account')} <Link to="/login" state={{ from, ...(form.phone ? { identifier: form.phone } : {}) }}>{t('auth.login_title')}</Link>
@@ -397,8 +255,7 @@ export default function RegisterPage() {
               <button type="button" onClick={() => setTermsOpen(false)} className="w-8 h-8 rounded-full hover:bg-surface-alt text-fg-muted text-xl leading-none">×</button>
             </div>
             <SafeHtml className="overflow-y-auto p-4 text-[13.5px] leading-[1.85] text-ink" html={termsHtml || t('auth.terms_fallback')} />
-            <div className="border-t border-border px-4 py-3 flex justify-between gap-2">
-              <button type="button" onClick={() => setTermsOpen(false)} className="px-4 py-2 rounded-pill bg-surface-alt text-fg-muted text-[13px] font-semibold">{t('admin.cancel_btn')}</button>
+            <div className="border-t border-border px-4 py-3 flex justify-end">
               <button type="button" onClick={() => setTermsOpen(false)}
                 className="px-4 py-2 rounded-pill bg-primary text-primary-fg text-[13px] font-bold">✓ {t('auth.terms_accept')}</button>
             </div>
@@ -406,23 +263,7 @@ export default function RegisterPage() {
         </div>
       )}
 
-      <SignupIntro open={Boolean(intro)} startWithLanguage={intro === 'language'} onClose={() => setIntro(null)} />
-
-      <LocationPickerMap open={venueMapOpen} initialLat={venuePoint?.lat ?? place.lat} initialLon={venuePoint?.lon ?? place.lon}
-        initialPointSelected={!!venuePoint} onClose={() => setVenueMapOpen(false)}
-        onConfirm={res => setVenuePoint({ lat: res.lat, lon: res.lon })} />
-      <LocationPickerMap open={mapOpen} initialLat={place.lat} initialLon={place.lon} initialPointSelected={isValidCoordinates(place.lat, place.lon)}
-        onClose={() => setMapOpen(false)} onConfirm={res => applyGeo(res, { lat: res.lat, lon: res.lon })} />
-
-      <style>{`
-        .role-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
-        .role-tabs button {
-          padding: 8px 4px; border: 2px solid var(--border); background: var(--bg-card);
-          border-radius: var(--radius); cursor: pointer; font: inherit; font-size: 13px; transition: var(--transition);
-          font-weight: 600; color: var(--text-secondary);
-        }
-        .role-tabs button.active { border-color: var(--primary); background: rgba(14,165,233,.08); color: var(--primary-dark); }
-      `}</style>
+      <SignupIntro open={intro} startWithLanguage languageOnly onClose={() => setIntro(false)} />
     </form>
   );
 }

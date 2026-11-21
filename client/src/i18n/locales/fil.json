@@ -346,7 +346,13 @@
     "offer_service_title": "Nag-aalok ka ba ng serbisyo?",
     "offer_service_hint": "Piliin ang iyong propesyon at ang mga lugar na sakop mo, para makita ka ng mga humihiling at makarating sa iyo ang kanilang mga request. Opsyonal; magagawa mo rin ito mamaya sa «Aking account».",
     "offer_service_button": "Piliin ang aking propesyon at lugar",
-    "continue_as_client": "Magpatuloy bilang humihiling"
+    "continue_as_client": "Magpatuloy bilang humihiling",
+    "send_code_button": "Ipadala ang verification code sa aking mobile",
+    "code_confirm": "Kumpirmahin ang code",
+    "who_are_you": "Ikaw ba ay humihingi ng serbisyo o nagbibigay ng serbisyo?",
+    "own_profession_label": "Hindi nakita ang aking propesyon? Isulat dito",
+    "own_profession_send": "Ipadala",
+    "own_profession_message": "Wala sa listahan ang aking propesyon, pakidagdag: {{name}}"
   },
   "request": {
     "create_title": "Gumawa ng bagong kahilingan",

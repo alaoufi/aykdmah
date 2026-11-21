@@ -346,7 +346,13 @@
     "offer_service_title": "Do you offer a service?",
     "offer_service_hint": "Choose your profession and the districts you cover, so requesters see you and their requests reach you. Optional; you can do it later from «My account».",
     "offer_service_button": "Choose my profession and area",
-    "continue_as_client": "Continue as a requester"
+    "continue_as_client": "Continue as a requester",
+    "send_code_button": "Send verification code to my phone",
+    "code_confirm": "Confirm code",
+    "who_are_you": "Are you a service requester or a service provider?",
+    "own_profession_label": "Didn't find my profession? Write it here",
+    "own_profession_send": "Send",
+    "own_profession_message": "My profession is not in the list, please add it: {{name}}"
   },
   "request": {
     "create_title": "Create a new request",
