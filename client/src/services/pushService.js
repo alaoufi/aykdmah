@@ -44,11 +44,21 @@ export async function enablePush() {
 }
 
 // After sign-in on a device that already allowed notifications, link it to this account.
-export async function syncPush() {
-  if (!pushSupported() || Notification.permission !== 'granted') return;
-  const reg = await registration();
-  const existing = await reg?.pushManager.getSubscription();
-  if (existing) await api.post('/push/subscribe', { subscription: existing.toJSON() });
+// AYK-386 (the owner: «المفروض مرة واحدة يطلبها؛ أخرج وأدخل يطلب التفعيل، وهذا مزعج»): a new
+// release drops the site's saved copy with its worker, and the device's subscription went with it,
+// although the browser's permission stays. With the permission already given, the subscription is
+// made again here, silently: no prompt (browsers ask only once), no «اضغط للتفعيل».
+let syncing = null;
+export function syncPush() {
+  if (!pushSupported() || Notification.permission !== 'granted') return Promise.resolve('off');
+  syncing ||= (async () => {
+    // Never waits forever (no worker yet, or none at all): after 8 s it stays as it is.
+    const reg = await Promise.race([navigator.serviceWorker.ready, new Promise((_, reject) => setTimeout(() => reject(new Error('no_worker')), 8000))]);
+    const sub = (await reg.pushManager.getSubscription()) || await subscription();
+    await api.post('/push/subscribe', { subscription: sub.toJSON() });
+    return 'on';
+  })().finally(() => { syncing = null; });
+  return syncing;
 }
 
 // The Android app passes its Firebase token in the address it opens (?fcm=), so calls ring the

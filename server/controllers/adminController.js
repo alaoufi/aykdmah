@@ -307,7 +307,10 @@ const updateAd = asyncHandler(async (req, res) => {
   // may edit their content but cannot grant unbilled visibility or duration,
   // unless the administration waived the ad's fees (AYK-153). The refusal says why (AYK-155).
   const waived = Number(ad.fee_waived) === 1;
-  if (ad.user_id && !waived && ['placement', 'placements', 'is_active', 'status', 'exclusive', 'starts_at', 'ends_at', 'max_views', 'target_countries', 'target_cities', 'target_regions'].some(key => req.body[key] !== undefined)) return error(res, req.t('ad_paid_bounds_locked'), 403);
+  // AYK-388 (the owner: «إعلان منشّط لكن ما أستطيع تحديد مناطق عرضه»): where it shows (countries,
+  // regions, cities) is the administration's to set for a paid ad too; its paid amount stays.
+  if (ad.user_id && !waived && ['placement', 'placements', 'is_active', 'status', 'exclusive', 'starts_at', 'ends_at', 'max_views'].some(key => req.body[key] !== undefined)) return error(res, req.t('ad_paid_bounds_locked'), 403);
+  const geoChanged = ad.user_id && !waived && ['target_countries', 'target_cities', 'target_regions'].some(key => req.body[key] !== undefined);
   const allowed = ['title', 'description', 'image', 'media_type', 'link',
                    'placement', 'is_active', 'status', 'exclusive',
                    'starts_at', 'ends_at', 'max_views', 'sort_order'];
@@ -330,6 +333,10 @@ const updateAd = asyncHandler(async (req, res) => {
   if (!fields.length) return success(res, null, req.t('no_updates'));
   values.push(req.params.id);
   await query(`UPDATE ads SET ${fields.join(', ')} WHERE id = ?`, values);
+  if (geoChanged) {
+    await query(`INSERT INTO activity_logs (user_id, action, entity_type, entity_id, description) VALUES (?, 'admin.ad.targeting', 'ad', ?, ?)`,
+      [req.user.id, ad.id, JSON.stringify({ countries: req.body.target_countries ?? null, regions: req.body.target_regions ?? null, cities: req.body.target_cities ?? null }).slice(0, 1000)]).catch(() => {});
+  }
   require('../services/contentTranslation').later('ads', req.params.id); // AYK-343
   return success(res, null, req.t('updated'));
 });

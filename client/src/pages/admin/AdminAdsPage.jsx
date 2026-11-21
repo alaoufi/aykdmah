@@ -285,7 +285,7 @@ export default function AdminAdsPage() {
         target_cities:    form.target_cities?.length    ? form.target_cities    : null,
       };
       const payload = contentOnly
-        ? Object.fromEntries(['title', 'description', 'image', 'media_type', 'link', 'sort_order'].map((k) => [k, full[k]]))
+        ? Object.fromEntries(['title', 'description', 'image', 'media_type', 'link', 'sort_order', 'target_countries', 'target_regions', 'target_cities'].map((k) => [k, full[k]]))
         : full;
       if (editing) await updateAd(editing.id, payload);
       else await createAd(payload);
@@ -689,7 +689,7 @@ export default function AdminAdsPage() {
           {formError && <div role="alert" className="px-3 py-2 rounded bg-rose-50 border border-rose-200 text-rose-700 text-[13px] font-semibold">⚠️ {formError}</div>}
           {paidBoundsLocked(editing) && (
             <div className="px-3 py-2.5 rounded-card bg-amber-50 border border-amber-200 text-amber-800 text-[12.5px] leading-relaxed">
-              🔒 {t('promote.paid_bounds_locked')}
+              🔒 إعلان مدفوع: مكانه ومدته ومشاهداته مرتبطة بالمبلغ الذي دُفع، فلا تُعدَّل إلا بإعفائه من الرسوم. ويُعدَّل هنا محتواه (الصورة والنصوص والرابط) ومناطق عرضه.
             </div>
           )}
           <FieldA label={t('admin.ad_title')} value={form.title} onChange={(v) => setForm({ ...form, title: v })} required />
@@ -796,11 +796,14 @@ export default function AdminAdsPage() {
             </label>
           </div>
           <p className="text-[11.5px] text-slate-500 -mt-2">{t('promote.exclusive_hint')}</p>
+          </>)}
 
-          {/* Geo targeting */}
-          <div className="rounded-card border border-slate-200 p-3 space-y-3">
+          {/* Geo targeting. AYK-388 (the owner: «إعلان منشّط لكن ما أستطيع تحديد مناطق عرضه»): open for
+              a paid ad too; its price stays what was paid. */}
+          <div className="rounded-card border border-slate-200 p-3 space-y-3" data-testid="ad-geo">
             <div className="text-[12.5px] font-bold text-ink">🌍 {t('promote.geo_targeting')}</div>
             <p className="text-[11.5px] text-slate-500 -mt-1">{t('promote.geo_targeting_hint')}</p>
+            {paidBoundsLocked(editing) && <p className="text-[11.5px] text-amber-800 bg-amber-50 rounded px-2 py-1.5 m-0">💡 إعلان مدفوع: تحديد مناطق عرضه هنا لا يغيّر المبلغ الذي دُفع.</p>}
             <div>
               <div className="text-[11px] font-semibold text-slate-600 mb-1">{t('promote.target_countries')}</div>
               <div className="flex flex-wrap gap-1.5">
@@ -847,7 +850,6 @@ export default function AdminAdsPage() {
                 onChange={(next) => setForm({ ...form, target_cities: next })} />
             </div>
           </div>
-          </>)}
         </form>
       </Modal>
 

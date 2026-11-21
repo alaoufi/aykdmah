@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { enablePush, pushState, needsHomeScreen } from '../../services/pushService';
+import { enablePush, pushState, needsHomeScreen, syncPush } from '../../services/pushService';
 import { useAuth } from '../../hooks/useAuth';
 import { sendDeviceReport } from '../../utils/deviceReport';
 
@@ -54,7 +54,11 @@ export default function DevicePermissions({ variant = 'card' }) {
 
   // Read the current state, also when the user comes back to the page (a permission
   // switched off in the browser shows as tappable again).
-  const refresh = useCallback(() => Promise.all([permissionState('geolocation'), permissionState('microphone'), pushState().catch(() => 'unsupported')])
+  // AYK-386: notifications allowed before but this device's subscription lost (a new release)
+  // are switched on again silently, so the card never asks twice.
+  const pushNow = () => pushState().catch(() => 'unsupported').then(value => (value === 'off' && typeof Notification !== 'undefined' && Notification.permission === 'granted'
+    ? syncPush().catch(() => 'off') : value));
+  const refresh = useCallback(() => Promise.all([permissionState('geolocation'), permissionState('microphone'), pushNow()])
     .then(([location, media, push]) => { setState({ location, media, push }); setChecked(true); }), []);
   useEffect(() => {
     refresh();

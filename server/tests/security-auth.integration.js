@@ -243,6 +243,13 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     await api(`/admin/ads/${ad.insertId}`, { token, method: 'PUT', body: { ends_at: '2030-01-01T00:00:00Z' }, expected: 403 });
     await api(`/admin/ads/${ad.insertId}`, { token, method: 'PUT', body: { title: 'Edited Content' } });
     assert.equal((await db.queryOne('SELECT status FROM ads WHERE id = ?', [ad.insertId])).status, 'awaiting_payment');
+    // AYK-388: where a paid ad shows is the administration's to set; it activates nothing and the amount stays.
+    await api(`/admin/ads/${ad.insertId}`, { token, method: 'PUT', body: { target_regions: [1], target_cities: ['الرياض'] } });
+    const targeted = await db.queryOne('SELECT status, is_active, target_regions, target_cities FROM ads WHERE id = ?', [ad.insertId]);
+    assert.deepEqual([targeted.status, Number(targeted.is_active)], ['awaiting_payment', 0]);
+    assert.deepEqual(typeof targeted.target_regions === 'string' ? JSON.parse(targeted.target_regions) : targeted.target_regions, [1]);
+    assert.ok((await db.queryOne("SELECT 1 AS ok FROM activity_logs WHERE action = 'admin.ad.targeting' AND entity_id = ?", [ad.insertId]))?.ok, 'logged');
+    await api(`/admin/ads/${ad.insertId}`, { token, method: 'PUT', body: { target_regions: [2], is_active: true }, expected: 403 });
     await api('/admin/ads', { token, method: 'POST', body: { title: 'Unsafe Link', link: 'javascript:alert(1)' }, expected: 400 });
   });
 

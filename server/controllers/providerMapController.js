@@ -266,7 +266,8 @@ async function availableForRequest({ districtId, cityId, categoryId, serviceId, 
   const categoryServices = categoryId ? new Set((await query('SELECT id FROM services WHERE category_id = ?', [categoryId])).map(row => Number(row.id))) : null;
   const working = rows.filter(row => {
     const services = parseServiceIds(row.service_ids);
-    if (serviceId && !services.includes(Number(serviceId))) return false;
+    // AYK-391: the profession decides; a specific service only when the request has no profession.
+    if (!categoryServices && serviceId && !services.includes(Number(serviceId))) return false;
     if (categoryServices && Number(row.category_id) !== Number(categoryId) && !services.some(s => categoryServices.has(s))) return false;
     return availability(row).state === 'available';
   });

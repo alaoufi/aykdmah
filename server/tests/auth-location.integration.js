@@ -562,6 +562,17 @@ if (!databasePrefix) {
     assert.ok(all.some(row => Number(row.id) === requestId));
     const matching = await api('/requests/nearby?limit=50&matching=1', { token: providerOnly.token });
     assert.ok(!matching.some(row => Number(row.id) === requestId));
+    // AYK-391: the same profession, another of its services (e.g. «تسليك مجاري» for a plumber who
+    // ticked «تمديدات سباكة»), in the provider's coverage: the provider sees it.
+    const [sibling] = await db.query('SELECT id FROM services WHERE category_id = ? AND id <> ? AND is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1', [Number(firstService.category_id), serviceIds[0]]);
+    if (sibling) {
+      const other = await api('/requests', { method: 'POST', token: session.token, expected: 201, body: {
+        title: 'خدمة أخرى من المهنة نفسها', description: 'طلب بخدمة أخرى من المهنة نفسها', service_id: Number(sibling.id),
+        city_id: area.city_id, district_id: area.districts[0] } });
+      const otherId = Number(other.id || other.request?.id);
+      const board = await api('/requests/nearby?limit=50&matching=1', { token: providerOnly.token });
+      assert.ok(board.some(row => Number(row.id) === otherId), 'a request in the provider\'s profession and coverage shows, whichever of its services');
+    }
   });
 
   test('deleting one\'s own account (AYK-116): password required, identity erased, signing in no longer works', async () => {

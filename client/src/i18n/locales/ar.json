@@ -166,7 +166,11 @@
     "get_app": "حمّل تطبيق «أي خدمة»",
     "get_it_on": "احصل عليه من",
     "download_on": "حمّله من",
-    "coming_soon": "قريبًا على"
+    "coming_soon": "قريبًا على",
+    "mode_provider": "أنا مقدم خدمة",
+    "mode_provider_hint": "طلبات طالبي الخدمة في مهنتي وتغطيتي",
+    "mode_client": "أنا طالب خدمة",
+    "mode_client_hint": "مقدمو الخدمة في منطقتي، وطلب خدمة"
   },
   "location": {
     "country": "الدولة",
@@ -2420,7 +2424,7 @@
     "schedule_required": "حدد فترة عمل واحدة على الأقل، أو اختر «متاح 24 ساعة».",
     "midnight": "منتصف الليل",
     "label_available": "متاح للعمل",
-    "label_present": "متواجد على التطبيق"
+    "label_present": "متواجد"
   },
   "brand": {
     "branch_of": "موقع أي خدمة فرع من موقع",

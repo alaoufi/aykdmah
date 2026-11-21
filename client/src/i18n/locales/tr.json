@@ -166,7 +166,11 @@
     "get_app": "«Ay Khidma» uygulamasını indirin",
     "get_it_on": "Şuradan edinin",
     "download_on": "Şuradan indirin",
-    "coming_soon": "Yakında:"
+    "coming_soon": "Yakında:",
+    "mode_provider": "Hizmet verenim",
+    "mode_provider_hint": "Mesleğimdeki ve bölgemdeki talepler",
+    "mode_client": "Hizmet talep edenim",
+    "mode_client_hint": "Bölgemdeki hizmet verenler ve yeni talep"
   },
   "location": {
     "country": "Ülke",
@@ -2391,7 +2395,7 @@
     "schedule_required": "En az bir çalışma aralığı belirleyin veya «24 saat müsait» seçin.",
     "midnight": "Gece yarısı",
     "label_available": "İş için müsait",
-    "label_present": "Uygulamada"
+    "label_present": "Çevrimiçi"
   },
   "brand": {
     "branch_of": "Ay Khidma sitesi şu sitenin bir şubesidir:",

@@ -166,7 +166,11 @@
     "get_app": "«Ay Khidma» অ্যাপ ডাউনলোড করুন",
     "get_it_on": "এখানে পাবেন",
     "download_on": "ডাউনলোড করুন",
-    "coming_soon": "শীঘ্রই আসছে"
+    "coming_soon": "শীঘ্রই আসছে",
+    "mode_provider": "আমি সেবাদাতা",
+    "mode_provider_hint": "আমার পেশা ও এলাকার অনুরোধ",
+    "mode_client": "আমি সেবাপ্রার্থী",
+    "mode_client_hint": "আমার এলাকার সেবাদাতা, আর নতুন অনুরোধ"
   },
   "location": {
     "country": "দেশ",
@@ -2391,7 +2395,7 @@
     "schedule_required": "অন্তত একটি কাজের সময় দিন, অথবা «২৪ ঘণ্টা পাওয়া যায়» বেছে নিন।",
     "midnight": "মধ্যরাত",
     "label_available": "কাজের জন্য প্রস্তুত",
-    "label_present": "অ্যাপে আছেন"
+    "label_present": "অনলাইনে"
   },
   "brand": {
     "branch_of": "Ay Khidma এই ওয়েবসাইটের একটি শাখা:",

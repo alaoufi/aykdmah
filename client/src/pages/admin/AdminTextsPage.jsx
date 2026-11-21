@@ -20,6 +20,7 @@ export default function AdminTextsPage() {
   const lang = 'ar';
   const cascade = true;
   const [search, setSearch] = useState('');
+  const searchRef = useRef(null);
   const [editedOnly, setEditedOnly] = useState(false);
   const [limit, setLimit] = useState(PAGE);
   const [overrides, setOverrides] = useState({});
@@ -126,17 +127,19 @@ export default function AdminTextsPage() {
         }`}>{msg.text}</div>
       )}
 
-      <TermsBlock all={all} overrides={langOverrides} onShow={setSearch} onReplace={replaceTerm} busy={replacing} />
-
-      <div className="bg-surface rounded-card border border-border p-3 flex flex-wrap items-center gap-2">
-        <input type="search" value={search} onChange={e => setSearch(e.target.value)}
-          placeholder={t('admin.texts.search')} className="input py-1.5 text-[13px] flex-1 min-w-[200px]" data-testid="texts-search" />
+      {/* AYK-390 (the owner: «ما فيه بحث»): the search first, at the top; the
+          terms below it, folded until opened. */}
+      <div className="bg-surface rounded-card border-2 border-primary/40 p-3 flex flex-wrap items-center gap-2">
+        <input type="search" value={search} onChange={e => setSearch(e.target.value)} ref={searchRef}
+          placeholder={`🔎 ${t('admin.texts.search')}`} className="input py-2 text-[14px] flex-1 min-w-[200px]" data-testid="texts-search" />
         <label className="flex items-center gap-1.5 text-[13px] text-fg">
           <input type="checkbox" checked={editedOnly} onChange={e => setEditedOnly(e.target.checked)} />
           {t('admin.texts.edited_only')} ({editedCount})
         </label>
         <p className="basis-full m-0 text-[12px] text-fg-muted" data-testid="texts-translate-all">🌐 {t('admin.texts.arabic_only_hint')}</p>
       </div>
+
+      <TermsBlock all={all} overrides={langOverrides} onShow={term => { setSearch(term); searchRef.current?.scrollIntoView({ block: 'center' }); }} onReplace={replaceTerm} busy={replacing} />
 
       {loading ? (
         <div className="space-y-1">
@@ -217,8 +220,8 @@ function TermsBlock({ all, overrides, onShow, onReplace, busy }) {
   const [drafts, setDrafts] = useState({});
   const current = ([key, original]) => overrides[key] ?? original;
   return (
-    <div className="bg-surface rounded-card border-2 border-primary/40 p-3 space-y-2" data-testid="terms-block">
-      <div className="font-extrabold text-[15px]">📘 المصطلحات الموحّدة</div>
+    <details className="bg-surface rounded-card border border-border p-3 space-y-2" data-testid="terms-block">
+      <summary className="font-extrabold text-[15px] cursor-pointer">📘 المصطلحات الموحّدة ({TERMS.length})</summary>
       <p className="m-0 text-[12px] text-fg-muted">كل مصطلح بمعنى واحد في الموقع والتطبيق والإدارة. «عرض» يُظهر النصوص التي فيها المصطلح. والاستبدال يغيّر هذه الصيغة في كل النصوص العربية دفعة واحدة؛ صيغ الجمع (مثل «طالبو الخدمة») تظهر بالبحث وتُعدّل من سطرها.</p>
       <div className="divide-y divide-border">
         {TERMS.map(term => {
@@ -237,6 +240,6 @@ function TermsBlock({ all, overrides, onShow, onReplace, busy }) {
           );
         })}
       </div>
-    </div>
+    </details>
   );
 }

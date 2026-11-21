@@ -166,7 +166,11 @@
     "get_app": "I-download ang «Ay Khidma» app",
     "get_it_on": "KUNIN SA",
     "download_on": "I-download sa",
-    "coming_soon": "Malapit na sa"
+    "coming_soon": "Malapit na sa",
+    "mode_provider": "Ako ay provider",
+    "mode_provider_hint": "Mga request sa aking propesyon at lugar",
+    "mode_client": "Ako ay humihiling ng serbisyo",
+    "mode_client_hint": "Mga provider sa aking lugar, at bagong request"
   },
   "location": {
     "country": "Bansa",
@@ -2391,7 +2395,7 @@
     "schedule_required": "Maglagay ng kahit isang oras ng trabaho, o piliin ang «Available 24 oras».",
     "midnight": "Hatinggabi",
     "label_available": "Available sa trabaho",
-    "label_present": "Nasa app"
+    "label_present": "Online"
   },
   "brand": {
     "branch_of": "Ang Ay Khidma ay sangay ng",
