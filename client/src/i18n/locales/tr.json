@@ -422,7 +422,13 @@
     "warranty_accept": "Kabul ediyorum",
     "auto_translated": "Otomatik çevrildi",
     "show_original": "Aslını göster",
-    "show_translation": "Çeviriyi göster"
+    "show_translation": "Çeviriyi göster",
+    "edit": "Talebi düzenle",
+    "edit_hint": "Talebiniz açık olduğu ve kimseyle anlaşmadığınız sürece düzenleyebilirsiniz. Kaydettikten sonra yeniden çevrilir ve yeni meslek ve bölgesindeki hizmet verenlere gösterilir.",
+    "reach_count": "Talebiniz şu an meslek ve bölgesindeki {{count}} hizmet verene görünüyor.",
+    "reach_none": "Bu meslekte talebinizin yerini kapsayan bir hizmet veren henüz yok.",
+    "reach_none_profession": "Bu meslekte henüz kayıtlı hizmet veren yok. Talebiniz açık kalır ve «Tüm açık talepler»i seçenler görür; başka bir meslek daha uygunsa mesleği değiştirebilirsiniz.",
+    "reach_none_area": "Bu meslekte hizmet verenler var ama henüz mahallenizi kapsamıyorlar. Talebiniz açık kalır; çevresini genişletenler veya «Tüm açık talepler»i seçenler görür."
   },
   "offer": {
     "submit_title": "Fiyat teklifi ver",
@@ -1346,7 +1352,10 @@
     "nav_work": "Talepler ve iletişim",
     "nav_catalog": "Meslekler ve hizmetler",
     "nav_money": "Ödemeler ve gelir",
-    "nav_places": "Yerler"
+    "nav_places": "Yerler",
+    "ad_activate_unpaid": "هذا الإعلان لم يُدفع. بالتنشيط يُعفى من الرسوم ويبدأ عرضه الآن. اكتب سبب الإعفاء (يُحفظ في سجله).",
+    "ad_cancel_service": "إلغاء الخدمة",
+    "ad_cancelled": "أُلغي الإعلان ولن يظهر لأحد."
   },
   "errors": {
     "generic": "Bir hata oluştu",
@@ -1483,7 +1492,7 @@
   },
   "promote": {
     "page_title": "Hizmetinizin reklamını yapın",
-    "page_hint": "Bir reklam talebi gönderin; yerini, süresini ve görüntülenme sayısını seçin. Yönetim onayından ve ödemeden sonra yayına girer.",
+    "page_hint": "Ücretli reklamlarınız: görüntülenmelerini izleyin, duraklatın veya iptal edin. Yeni reklamı yönetim ekler.",
     "disabled": "Reklam talebi hizmeti şu anda kapalı",
     "new_request": "Yeni reklam talebi",
     "title": "Reklam başlığı",
@@ -1626,7 +1635,10 @@
     "page_search": "Arama ve talepler",
     "page_profile": "Profilim",
     "page_chat": "Sohbetler",
-    "page_dashboard": "Hesap paneli"
+    "page_dashboard": "Hesap paneli",
+    "admin_only": "Reklamlar yalnızca yönetim tarafından eklenir.",
+    "admin_only_contact": "Reklamınızı eklemek için bize ulaşın",
+    "admin_only_manage": "Ücretli reklamları yönet"
   },
   "badge": {
     "page_title": "Rozetlerim",
@@ -2567,7 +2579,13 @@
     "previous_clients_empty": "Henüz önceki müşteri yok. İş üzerinde anlaştığınız herkes burada görünür.",
     "previous_clients_jobs": "Birlikte yapılan işler: {{count}}",
     "previous_clients_last": "Son iş",
-    "previous_clients_open_request": "Şu an açık bir talebi var"
+    "previous_clients_open_request": "Şu an açık bir talebi var",
+    "all_open_title": "Tüm açık talepler",
+    "unrestricted_label": "Tüm açık talepler",
+    "unrestricted_hint": "Sınırları kaldır: yalnızca mesleğim ve hizmet alanım değil, her meslek ve bölgedeki tüm açık talepleri göster.",
+    "my_info_title": "Bilgilerim",
+    "my_info_hint": "Ad, hizmet açıklamam, insanlara gösterilen telefon ve WhatsApp, mesleklerim ve mahallelerim.",
+    "my_info_edit": "Düzenle"
   },
   "requester": {
     "all_professions": "Tüm meslekler",

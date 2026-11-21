@@ -121,7 +121,6 @@ const CLIENT_SIDEBAR = [
   { to: '/chat', icon: '💬', labelKey: 'nav.chat' },
   { to: '/notifications', icon: '🔔', labelKey: 'nav.notifications' },
   { to: '/wallet', icon: '💰', labelKey: 'wallet.nav' },
-  { to: '/promote', icon: '📣', labelKey: 'nav.promote' },
   { to: '/profile', icon: '👤', labelKey: 'nav.profile' },
 ];
 
@@ -133,7 +132,6 @@ const PROVIDER_SIDEBAR = [
   { to: '/provider/subscription', icon: '⭐', labelKey: 'nav.subscription' },
   { to: '/provider/wallet', icon: '💰', labelKey: 'wallet.nav' },
   { to: '/provider/badges', icon: '🛡️', labelKey: 'nav.badges' },
-  { to: '/promote', icon: '📣', labelKey: 'nav.promote' },
   { to: '/chat', icon: '💬', labelKey: 'nav.chat' },
   { to: '/notifications', icon: '🔔', labelKey: 'nav.notifications' },
   { to: '/profile', icon: '👤', labelKey: 'nav.profile' },

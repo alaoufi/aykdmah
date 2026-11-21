@@ -28,6 +28,7 @@ import { apiError } from '../services/api';
 import JoinInvite from '../components/common/JoinInvite';
 import { createConversation } from '../services/chatService';
 import AdSlot from '../components/ads/AdSlot';
+import { RequestReach, RequestEdit } from '../components/requests/RequestOwnerTools';
 import useRequestTranslation from '../hooks/useRequestTranslation';
 import TranslatedNote from '../components/requests/TranslatedNote';
 
@@ -232,6 +233,9 @@ export default function RequestDetailsPage() {
       {(isOwner || (user && user.id === request.assigned_provider_id)) && request.assigned_provider_id && ['assigned', 'in_progress', 'completed', 'cancelled', 'closed'].includes(request.status) && (
         <WarrantyBox request={request} userId={user?.id} onChange={load} />
       )}
+      {/* AYK-399/402: who the open request reaches, and editing it before an agreement. */}
+      {isOwner && request.status === 'open' && !request.assigned_provider_id && <RequestReach requestId={request.id} version={request.updated_at} />}
+      {isOwner && request.status === 'open' && !request.assigned_provider_id && <div className="mb-4"><RequestEdit request={request} onSaved={load} /></div>}
       {/* An open request should not hang: the requester closes it once agreed with someone. */}
       {isOwner && request.status === 'open' && (
         <div className="card mb-4" data-testid="request-found-check" style={{ borderInlineStart: '4px solid var(--primary)' }}>

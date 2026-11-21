@@ -173,6 +173,26 @@ async function create(data) {
   });
 }
 
+// AYK-402: the owner edits an open request nobody is assigned to yet (before an agreement).
+const EDITABLE = ['title', 'description', 'category_id', 'service_id', 'city_id', 'district_id', 'is_urgent'];
+async function updateByOwner(id, clientId, input) {
+  const current = await queryOne('SELECT * FROM requests WHERE id = ? AND deleted_at IS NULL', [id]);
+  if (!current || Number(current.client_id) !== Number(clientId)) throw new ApiError('request_not_found', 404);
+  if (current.status !== 'open' || current.assigned_provider_id) throw new ApiError('request_edit_after_agreement', 409);
+  const changes = Object.fromEntries(EDITABLE.filter(key => Object.prototype.hasOwnProperty.call(input, key)).map(key => [key, input[key]]));
+  // A new profession without a service clears the old service; a new city without a district clears the old district.
+  if ('category_id' in changes && !('service_id' in changes)) changes.service_id = null;
+  if ('city_id' in changes && !('district_id' in changes)) changes.district_id = null;
+  const merged = await validateCreate({ ...current, ...changes, client_id: current.client_id, latitude: current.latitude, longitude: current.longitude,
+    budget_min: current.budget_min, budget_max: current.budget_max, preferred_date: current.preferred_date ? new Date(current.preferred_date).toISOString() : null });
+  if (!merged.city_id) throw new ApiError('invalid_city', 422);
+  await query(`UPDATE requests SET title = ?, description = ?, category_id = ?, service_id = ?, city_id = ?, district_id = ?, is_urgent = ?,
+      updated_at = CURRENT_TIMESTAMP WHERE id = ? AND status = 'open' AND assigned_provider_id IS NULL`,
+    [merged.title, merged.description, merged.category_id || null, merged.service_id || null, merged.city_id, merged.district_id || null,
+      merged.is_urgent ? 1 : 0, id]);
+  return findById(id);
+}
+
 async function findById(id) {
   id = optionalNumber(id, 1, 2147483647, true);
   if (id == null) throw new ApiError('invalid_id', 422);
@@ -246,7 +266,8 @@ async function regionOfCity(cityId) {
 // 'area' (a provider's coverage, a requester's district), 'city', 'region' or 'all'. `viewerId` is a
 // signed-in person who is not looking as a provider: their own district, city or region.
 async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serviceId, cityId, status = 'open', page = 1, limit = 20, providerId = null, scope = null, viewerId = null } = {}) {
-  if (scope && !['area', 'city', 'region', 'all'].includes(scope)) scope = 'area';
+  // AYK-400 «فك القيود»: 'open' = every open request, whatever the profession or the area (asked for, never the default).
+  if (scope && !['area', 'city', 'region', 'all', 'open'].includes(scope)) scope = 'area';
   ({ page, limit } = pagination(page, limit));
   const offset = (page - 1) * limit;
   if (status !== 'open') throw new ApiError('invalid_status', 422);
@@ -303,7 +324,7 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
     } else if (profile?.coverage_city_id) {
       fit.push('r.city_id = ?'); fitParams.push(Number(profile.coverage_city_id));
     }
-    if (fit.length) { where.push(`(r.direct_provider_id = ? OR (${fit.join(' AND ')}))`); whereParams.push(providerId, ...fitParams); }
+    if (fit.length && scope !== 'open') { where.push(`(r.direct_provider_id = ? OR (${fit.join(' AND ')}))`); whereParams.push(providerId, ...fitParams); }
   } else if (viewerId && scope) {
     // Others' requests around a requester; their own are in «طلباتي».
     where.push('r.client_id <> ?'); whereParams.push(viewerId);
@@ -487,4 +508,4 @@ async function setHidden(id, hidden) {
   return queryOne('SELECT id, hidden_at FROM requests WHERE id = ? AND deleted_at IS NULL', [id]);
 }
 
-module.exports = { create, findById, incrementViews, findByClient, findNearby, previousClients, updateStatus, setRemindersOff, softDelete, listAll, setHidden, pagination, optionalNumber, publicView, validateInput: validateCreate };
+module.exports = { create, updateByOwner, findById, incrementViews, findByClient, findNearby, previousClients, updateStatus, setRemindersOff, softDelete, listAll, setHidden, pagination, optionalNumber, publicView, validateInput: validateCreate };

@@ -162,7 +162,12 @@ const myAds = financeHandler(async (req, res) => {
 });
 
 // POST /api/ads/quote — preview total cost without saving anything
+// AYK-403 (the owner: «ويبقى إضافة الإعلانات من الإدارة فقط»): a new ad, its price and its payment
+// are the administration's; people keep seeing, pausing and stopping the ads they already have.
+const adminOnly = (req, res) => (hasPermission(req.user, 'ads.manage') ? false : (forbidden(res, req.t('ads_admin_only')), true));
+
 const previewQuote = financeHandler(async (req, res) => {
+  if (adminOnly(req, res)) return;
   const config = await adRequestService.getConfig();
   const covered = await adRequestService.coverageFor(config, req.body || {});
   return success(res, {
@@ -193,6 +198,7 @@ const myGeo = financeHandler(async (req, res) => {
 
 // POST /api/ads/request — submit a new ad request
 const submit = financeHandler(async (req, res) => {
+  if (adminOnly(req, res)) return;
   const result = await adRequestService.submit({ user: req.user, payload: req.body });
   if (!result.ok) {
     if (result.error === 'disabled')         return error(res, req.t('ads_user_requests_disabled'), 403);
@@ -208,6 +214,7 @@ const submit = financeHandler(async (req, res) => {
 
 // POST /api/ads/:id/pay — user pays for an approved ad
 const pay = financeHandler(async (req, res) => {
+  if (adminOnly(req, res)) return;
   const result = await adRequestService.pay({ user: req.user, adId: Number(req.params.id) });
   if (!result.ok) {
     if (result.error === 'not_found')   return notFound(res);
@@ -287,6 +294,17 @@ const adminPause = financeHandler(async (req, res) => {
   const updated = await Ad.pause(ad.id);
   if (!updated) return error(res, req.t('ad_wrong_state'), 409);
   return success(res, updated, req.t('updated'));
+});
+
+// POST /api/admin/ads/:id/cancel  (AYK-403)
+const adminCancel = financeHandler(async (req, res) => {
+  const ad = await Ad.findById(Number(req.params.id));
+  if (!ad) return notFound(res);
+  const updated = await Ad.adminCancel(ad.id);
+  if (!updated) return error(res, req.t('ad_wrong_state'), 409);
+  await query(`INSERT INTO activity_logs (user_id, action, entity_type, entity_id, description) VALUES (?, 'admin.ad.cancel', 'ad', ?, ?)`,
+    [req.user.id, ad.id, `from ${ad.status}`]).catch(() => {});
+  return success(res, updated, req.t('cancelled'));
 });
 
 const adminResume = financeHandler(async (req, res) => {
@@ -516,7 +534,8 @@ const adminMessage = financeHandler(async (req, res) => {
   return success(res, withMessages, req.t('updated'));
 });
 
-module.exports = { matchesGeo,
+module.exports = {
+  adminCancel, matchesGeo,
   adminGetFees, adminSaveFees, adminWaive, adminMessage, adminReactivate,
   live, trackView, trackClick,
   myAds, previewQuote, placementPricing, myGeo, submit, pay, cancel,

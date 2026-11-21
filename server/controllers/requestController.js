@@ -137,6 +137,28 @@ const getPreviousClients = asyncHandler(async (req, res) => {
   })));
 });
 
+// GET /api/requests/:id/reach  (AYK-399): for its owner, how many providers see the open request.
+const getReach = asyncHandler(async (req, res) => {
+  if (!validId(req.params.id)) return notFound(res);
+  const request = await Request.findById(req.params.id);
+  if (!request || Number(request.client_id) !== Number(req.user.id)) return notFound(res);
+  if (request.status !== 'open' || request.direct_provider_id) return success(res, null);
+  return success(res, await require('./providerMapController').reachOfRequest({
+    districtId: request.district_id, cityId: request.city_id, categoryId: request.category_id, serviceId: request.service_id, excludeId: req.user.id,
+  }));
+});
+
+// PUT /api/requests/:id  (AYK-402, the owner: «طالب الخدمة إمكانية تعديل طلبه قبل الاتفاق»). While the
+// request is open and nobody is assigned: its text, profession, service, place and urgency.
+const update = asyncHandler(async (req, res) => {
+  if (!validId(req.params.id)) return notFound(res);
+  const updated = await Request.updateByOwner(Number(req.params.id), req.user.id, req.body || {});
+  // Translations of the old text are dropped and made again for the providers (AYK-231).
+  await query('DELETE FROM request_translations WHERE request_id = ?', [updated.id]).catch(() => {});
+  requestTranslation.translateForProviders(updated).catch(() => {});
+  return success(res, updated, req.t('updated'));
+});
+
 const getOne = asyncHandler(async (req, res) => {
   if (!validId(req.params.id)) return notFound(res);
   const request = await Request.findById(req.params.id);
@@ -390,5 +412,5 @@ const acceptWarranty = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
-  getPreviousClients,
+  getPreviousClients, getReach, update,
   getTranslation, create, getMy, getNearby, getOne, updateStatus, setReminders, contact, agree, direct, remove, startChat, proposeWarranty, acceptWarranty };

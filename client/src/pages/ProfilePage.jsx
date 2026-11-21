@@ -382,7 +382,8 @@ export default function ProfilePage() {
 // Provider-only section: business info + service venue (fixed | mobile | both).
 // Visible only when the logged-in user has role='provider'.
 // ----------------------------------------------------------------------
-function ProviderSection({ onSaved, onError, t, refresh }) {
+// Also shown in the provider's dashboard (AYK-401).
+export function ProviderSection({ onSaved, onError, t, refresh }) {
   const { user } = useAuth();
   const [provider, setProvider] = useState(null);
   const [loading, setLoading] = useState(true);

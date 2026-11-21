@@ -145,14 +145,11 @@ if (!databaseName) {
     assert.equal(await countMedia(), before, 'asset batch rolls back if a later asset is invalid');
   });
 
-  // AYK-149: any signed-in advertiser uploads the ad's picture (it was the administrators' only).
-  test('signed-in users upload ad media; visitors and blocked types are refused', async () => {
-    const media = await call('/ads/upload', { method: 'POST', token: client.token, body: form({}, [['file', png, 'ad.png', 'image/png']]) });
-    assert.match(media.url, /^\/api\/ads\/media\/\d+$/);
-    assert.equal(media.media_type, 'image');
-    assert.deepEqual(Buffer.from(await (await fetch(base + media.url)).arrayBuffer()), png);
+  // AYK-403 (the owner: «إضافة الإعلانات من الإدارة فقط»): an ordinary account no longer uploads an
+  // ad's picture (AYK-149 had opened it to every advertiser); visitors never could.
+  test('ad media upload is the administration\'s: ordinary accounts and visitors are refused', async () => {
+    await call('/ads/upload', { method: 'POST', expected: 403, token: client.token, body: form({}, [['file', png, 'ad.png', 'image/png']]) });
     await call('/ads/upload', { method: 'POST', expected: 401, body: form({}, [['file', png, 'ad.png', 'image/png']]) });
-    await call('/ads/upload', { method: 'POST', expected: 400, token: client.token, body: form({}, [['file', Buffer.from('%PDF-1.4'), 'ad.pdf', 'application/pdf']]) });
   });
   // AYK-161: the person's own photo from "My profile"; public once it is their avatar.
   test('users upload their own photo, shown publicly; other files are refused', async () => {

@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next';
 import {
   listAds, createAd, updateAd, deleteAd, uploadAdMedia,
   approveAdAdmin, rejectAdAdmin, activateAdAdmin,
-  pauseAdAdmin, resumeAdAdmin, getAdStatsAdmin,
+  pauseAdAdmin, resumeAdAdmin, cancelAdAdmin, getAdStatsAdmin,
   getAdsPlacementPricing, saveAdsPlacementPricing, adminPreviewLiveAds, diagnoseAd,
   waiveAdFee, messageAdvertiser, reactivateAdAdmin,
 } from '../../services/adminService';
@@ -120,6 +120,15 @@ export default function AdminAdsPage() {
     finally { setBusy(null); }
   };
 
+  // AYK-403: «إلغاء الخدمة» from the control; a cancelled ad is never shown to anyone.
+  const onCancelAd = async (a) => {
+    if (!(await confirmAdminChange(t))) return;
+    setBusy(a.id);
+    try { await cancelAdAdmin(a.id); setMsg({ type: 'success', text: t('admin.ad_cancelled') }); load(); }
+    catch (e) { setMsg({ type: 'error', text: apiError(e) }); }
+    finally { setBusy(null); }
+  };
+
   const onResume = async (a) => {
     if (!(await confirmAdminChange(t))) return;
     setBusy(a.id);
@@ -228,7 +237,7 @@ export default function AdminAdsPage() {
                       <button onClick={() => run(onReject, a)}  disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition disabled:opacity-60">✗ {t('badge.reject')}</button>
                     </>
                   )}
-                  {(a.status === 'awaiting_payment' || (Number(a.fee_waived) === 1 && ['requested', 'approved'].includes(a.status))) && (
+                  {(['approved', 'awaiting_payment'].includes(a.status) || (Number(a.fee_waived) === 1 && a.status === 'requested')) && (
                     <button onClick={() => run(onActivate, a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 transition disabled:opacity-60">▶ {t('promote.activate')}</button>
                   )}
                   {a.status === 'active' && (
@@ -239,6 +248,9 @@ export default function AdminAdsPage() {
                   )}
                   {a.status === 'paused' && (
                     <button onClick={() => run(onResume, a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition disabled:opacity-60">▶ {t('promote.resume')}</button>
+                  )}
+                  {!['cancelled', 'rejected'].includes(a.status) && (
+                    <button onClick={() => run(onCancelAd, a)} disabled={busy === a.id} data-testid="ad-admin-cancel" className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition disabled:opacity-60">⛔ {t('admin.ad_cancel_service')}</button>
                   )}
                   {['requested', 'approved', 'awaiting_payment'].includes(a.status) && Number(a.fee_waived) !== 1 && !a.payment_id && (
                     <button onClick={() => run(onWaive, a)} disabled={busy === a.id} className="px-3 py-1 rounded-pill text-[11px] font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition disabled:opacity-60">🎁 {t('promote.waive_fee')}</button>
@@ -389,10 +401,21 @@ export default function AdminAdsPage() {
     } catch (e) { setReply((r) => ({ ...r, sending: false, error: apiError(e) })); }
   };
 
+  // AYK-403 (the owner's screenshot: an «approved» ad with no way to start it). An ad that is neither
+  // paid nor waived is waived first (the reason is asked and kept), then activated, in one step.
   const onActivate = async (a) => {
+    const unpaid = Number(a.fee_waived) !== 1 && !a.payment_id && ['requested', 'approved', 'awaiting_payment'].includes(a.status);
     if (!(await confirmAdminChange(t))) return;
+    let reason = null;
+    if (unpaid) {
+      reason = await askText({ title: `▶ ${t('promote.activate')}`, message: t('admin.ad_activate_unpaid'), multiline: true, maxLength: 500, confirmText: t('promote.activate') });
+      if (reason === null) return;
+    }
     setBusy(a.id);
-    try { await activateAdAdmin(a.id); setMsg({ type: 'success', text: t('promote.admin_activated') }); load(); }
+    try {
+      if (unpaid) await waiveAdFee(a.id, reason);
+      await activateAdAdmin(a.id); setMsg({ type: 'success', text: t('promote.admin_activated') }); load();
+    }
     catch (e) { setMsg({ type: 'error', text: apiError(e) }); }
     finally { setBusy(null); }
   };
@@ -405,6 +428,8 @@ export default function AdminAdsPage() {
     { value: 'active',            label: t('promote.status_active') },
     { value: 'rejected',          label: t('promote.status_rejected') },
     { value: 'expired',           label: t('promote.status_expired') },
+    { value: 'paused',            label: t('promote.status_paused') },
+    { value: 'cancelled',         label: t('promote.status_cancelled') },
   ];
 
   const STATUS_COLOR = {

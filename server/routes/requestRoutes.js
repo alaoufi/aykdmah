@@ -29,6 +29,8 @@ router.post('/', authenticate, requireMarketplaceWrite, uploadLimiter, uploadReq
 router.post('/direct', authenticate, requireMarketplaceWrite, c.direct);
 router.get('/:id', optionalAuth, requireMarketplaceBrowse, c.getOne);
 router.get('/:id/translation', optionalAuth, requireMarketplaceBrowse, c.getTranslation);
+router.get('/:id/reach', authenticate, c.getReach); // AYK-399
+router.put('/:id', authenticate, requireMarketplaceWrite, c.update); // AYK-402
 router.put('/:id/status', authenticate, c.updateStatus);
 router.put('/:id/reminders', authenticate, c.setReminders);
 router.put('/:id/warranty', authenticate, c.proposeWarranty);

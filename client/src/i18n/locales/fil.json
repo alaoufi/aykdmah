@@ -422,7 +422,13 @@
     "warranty_accept": "Sang-ayon",
     "auto_translated": "Awtomatikong isinalin",
     "show_original": "Ipakita ang orihinal",
-    "show_translation": "Ipakita ang salin"
+    "show_translation": "Ipakita ang salin",
+    "edit": "I-edit ang request",
+    "edit_hint": "Maaari mong i-edit ang iyong request habang bukas pa ito at wala ka pang nakakasundo. Pagkatapos i-save, isasalin itong muli at ipapakita sa mga provider ng bagong propesyon at lugar nito.",
+    "reach_count": "Nakikita na ngayon ng {{count}} provider sa propesyon at lugar nito ang iyong request.",
+    "reach_none": "Wala pang provider sa propesyong ito na sumasakop sa lugar ng iyong request.",
+    "reach_none_profession": "Wala pang provider na nakarehistro sa propesyong ito. Mananatiling bukas ang iyong request at makikita ito ng mga pumili ng «Lahat ng bukas na request»; maaari mong palitan ang propesyon kung mas bagay ang iba.",
+    "reach_none_area": "May mga provider sa propesyong ito pero hindi pa nila sakop ang iyong distrito. Mananatiling bukas ang iyong request at makikita ng mga nagpapalawak ng saklaw o pumipili ng «Lahat ng bukas na request»."
   },
   "offer": {
     "submit_title": "Mag-alok ng presyo",
@@ -1346,7 +1352,10 @@
     "nav_work": "Mga request at ugnayan",
     "nav_catalog": "Mga propesyon at serbisyo",
     "nav_money": "Mga bayad at kita",
-    "nav_places": "Mga lugar"
+    "nav_places": "Mga lugar",
+    "ad_activate_unpaid": "هذا الإعلان لم يُدفع. بالتنشيط يُعفى من الرسوم ويبدأ عرضه الآن. اكتب سبب الإعفاء (يُحفظ في سجله).",
+    "ad_cancel_service": "إلغاء الخدمة",
+    "ad_cancelled": "أُلغي الإعلان ولن يظهر لأحد."
   },
   "errors": {
     "generic": "May nagkamali",
@@ -1483,7 +1492,7 @@
   },
   "promote": {
     "page_title": "I-advertise ang iyong serbisyo",
-    "page_hint": "Magpadala ng hiling na ad at piliin ang puwesto, tagal at bilang ng view. Magiging aktibo ito pagkatapos ng pag-apruba ng admin at ng bayad.",
+    "page_hint": "Ang iyong mga bayad na ad: subaybayan ang views, i-pause o kanselahin. Ang administrasyon ang nagdadagdag ng bagong ad.",
     "disabled": "Naka-off ngayon ang serbisyo ng hiling na ad",
     "new_request": "Bagong hiling na ad",
     "title": "Pamagat ng ad",
@@ -1626,7 +1635,10 @@
     "page_search": "Paghahanap at kahilingan",
     "page_profile": "Aking profile",
     "page_chat": "Mga chat",
-    "page_dashboard": "Dashboard ng account"
+    "page_dashboard": "Dashboard ng account",
+    "admin_only": "Ang administrasyon lang ang nagdadagdag ng mga ad.",
+    "admin_only_contact": "Makipag-ugnayan sa amin para idagdag ang iyong ad",
+    "admin_only_manage": "Pamahalaan ang mga bayad na ad"
   },
   "badge": {
     "page_title": "Aking mga badge",
@@ -2567,7 +2579,13 @@
     "previous_clients_empty": "Wala pang dating kliyente. Lalabas dito ang bawat makakasundo mo sa trabaho.",
     "previous_clients_jobs": "Mga trabaho: {{count}}",
     "previous_clients_last": "Huling trabaho",
-    "previous_clients_open_request": "May bukas na request ngayon"
+    "previous_clients_open_request": "May bukas na request ngayon",
+    "all_open_title": "Lahat ng bukas na request",
+    "unrestricted_label": "Lahat ng bukas na request",
+    "unrestricted_hint": "Alisin ang limitasyon: ipakita ang lahat ng bukas na request sa anumang propesyon at lugar, hindi lang sa aking propesyon at sakop.",
+    "my_info_title": "Aking mga detalye",
+    "my_info_hint": "Pangalan, paglalarawan ng aking serbisyo, ang telepono at WhatsApp na ipinapakita sa mga tao, aking mga propesyon at distrito.",
+    "my_info_edit": "I-edit"
   },
   "requester": {
     "all_professions": "Lahat ng trabaho",

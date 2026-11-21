@@ -283,6 +283,14 @@ async function cancel(id) {
   return result.affectedRows ? findById(id) : null;
 }
 
+// AYK-403 (the owner: «الإعلان المدفوع يجب تنشيطه وإلغاء الخدمة من التحكم، وإذا الخدمة ملغاة لا تُعرض
+// للآخرين»): the administration cancels an ad in any state; a cancelled ad is never served (live
+// shows status 'active' only).
+async function adminCancel(id) {
+  const result = await query("UPDATE ads SET status = 'cancelled', cancelled_at = CURRENT_TIMESTAMP, is_active = 0 WHERE id = ? AND status NOT IN ('cancelled', 'rejected')", [id]);
+  return result.affectedRows ? findById(id) : null;
+}
+
 async function remove(id) {
   await query('DELETE FROM ads WHERE id = ?', [id]);
 }
@@ -401,6 +409,7 @@ async function expireOverdue() {
 }
 
 module.exports = {
+  adminCancel,
   findById, listForUser, listPaginated, listLive,
   create, update,
   approve, reject, activate, markAwaitingPayment, cancel, remove,

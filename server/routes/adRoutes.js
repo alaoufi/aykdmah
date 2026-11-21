@@ -21,7 +21,8 @@ router.post('/quote',       authenticate, c.previewQuote);
 router.post('/request',     authenticate, c.submit);
 // The ad's image or video (AYK-149): was the administrators' upload only, so everyone else's
 // picture was refused. The ad itself still waits for the administration's approval.
-router.post('/upload',      authenticate, uploadLimiter, uploadAd.single('file'), uploadAdMedia);
+// AYK-403: new ads come from the administration only.
+router.post('/upload',      authenticate, (req, res, next) => (require('../middleware/roleCheck').hasPermission(req.user, 'ads.manage') ? next() : res.status(403).json({ success: false, message: req.t('ads_admin_only') })), uploadLimiter, uploadAd.single('file'), uploadAdMedia);
 router.get('/:id/stats',    authenticate, c.stats);
 router.post('/:id/pay',     authenticate, c.pay);
 router.post('/:id/pause',   authenticate, c.pauseMine);

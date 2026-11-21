@@ -108,7 +108,8 @@ test('no environment or provider name enables mock checkout or forged webhooks',
 test('approved advertisements reject unpaid checkout with no payment or state change', async () => {
   const ad = await userAd();
   const before = Number((await db.queryOne('SELECT COUNT(*) AS n FROM payments')).n);
-  const responses = await Promise.all(Array.from({ length: 8 }, () => api(`/ads/${ad.id}/pay`, { user: users.provider, method: 'POST', body: {}, expected: 503 })));
+  // AYK-403: paying for an ad is no longer an ordinary account's (ads come from the administration).
+  const responses = await Promise.all(Array.from({ length: 8 }, () => api(`/ads/${ad.id}/pay`, { user: users.provider, method: 'POST', body: {}, expected: 403 })));
   assert.equal(responses.length, 8);
   assert.equal((await Ad.findById(ad.id)).status, 'approved');
   assert.equal(Number((await db.queryOne('SELECT COUNT(*) AS n FROM payments')).n), before);
@@ -172,7 +173,7 @@ test('ad quote and submission reject disabled placements, unsafe URLs, malformed
     { duration_days: 1.5 }, { max_views: 500.5 }, { placements: ['__proto__'] }, { placements: ['home_top', 'unknown'] },
     { placements: [] }, { exclusive: 'false' }, { starts_at: 'not-a-date' }, { link: 'javascript:alert(1)' },
     { image: 'data:image/svg+xml,bad' }, { title: {} }, { target_regions: [1.5] }, { target_countries: ['SA', {}] },
-  ]) await api('/ads/request', { user: users.provider, method: 'POST', body: { ...body, ...bad }, expected: 400 });
+  ]) await api('/ads/request', { user: users.adsAdmin, method: 'POST', body: { ...body, ...bad }, expected: 400 });
   // AYK-150: the refusal names the field to correct and why, so the form can mark it in red.
   for (const [bad, field, code] of [
     [{ title: ' ' }, 'title', 'need_title'], [{ image: '' }, 'image', 'need_media'], [{ link: 'javascript:alert(1)' }, 'link', 'invalid_link'],
@@ -180,7 +181,7 @@ test('ad quote and submission reject disabled placements, unsafe URLs, malformed
     [{ placements: [] }, 'placements', 'invalid_placement'], [{ starts_at: '2000-01-01T00:00:00Z' }, 'starts_at', 'invalid_start'],
   ]) {
     const response = await fetch(base + '/ads/request', {
-      method: 'POST', headers: { Authorization: `Bearer ${users.provider.token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, ...bad }),
+      method: 'POST', headers: { Authorization: `Bearer ${users.adsAdmin.token}`, 'Content-Type': 'application/json' }, body: JSON.stringify({ ...body, ...bad }),
     });
     const result = await response.json();
     assert.equal(response.status, 400);
@@ -191,27 +192,30 @@ test('ad quote and submission reject disabled placements, unsafe URLs, malformed
   const single = adService.quote({ ...body, config });
   const duplicate = adService.quote({ ...body, placements: ['home_top', 'home_top'], config });
   assert.equal(duplicate.total, single.total);
-  const saved = await api('/ads/request', { user: users.provider, method: 'POST', body: { ...body, amount: 0, status: 'active', is_active: true }, expected: 201 });
+  const saved = await api('/ads/request', { user: users.adsAdmin, method: 'POST', body: { ...body, amount: 0, status: 'active', is_active: true }, expected: 201 });
   assert.equal(saved.status, 'requested');
   assert.equal(Number(saved.amount), single.total);
   await Pricing.upsert({ placement: 'footer', price_per_day: 1, price_per_1k_views: 1, exclusive_multiplier: 2, is_active: false });
-  await api('/ads/quote', { user: users.provider, method: 'POST', body: { ...body, placements: ['footer'] }, expected: 400 });
+  await api('/ads/quote', { user: users.adsAdmin, method: 'POST', body: { ...body, placements: ['footer'] }, expected: 400 });
   await api('/ads/NaN/stats', { user: users.provider, expected: 400 });
+  // AYK-403: an ordinary account can neither price nor submit an ad.
+  await api('/ads/quote', { user: users.provider, method: 'POST', body, expected: 403 });
+  await api('/ads/request', { user: users.provider, method: 'POST', body, expected: 403 });
   await api('/ads/live?placement[bad]=x', { expected: 400 });
 });
 
 // AYK-153: price by covered area, fee waiver without payment, and messages to the advertiser.
 test('ad fees follow the covered area; a waived ad starts unpaid; the advertiser sees admin messages', async () => {
   const body = { title: 'Local area ad', image: 'https://example.invalid/area.png', duration_days: 2, max_views: 500, placements: ['home_top'], exclusive: false };
-  const base = (await api('/ads/quote', { user: users.provider, method: 'POST', body })).quote.total;
+  const base = (await api('/ads/quote', { user: users.adsAdmin, method: 'POST', body })).quote.total;
   await api('/admin/ads-fees', { user: users.provider, method: 'PUT', body: { coverage: { all: 3 } }, expected: 403 });
   await api('/admin/ads-fees', { user: users.adsAdmin, method: 'PUT', body: { coverage: { all: 0 } }, expected: 400 });
   const saved = await api('/admin/ads-fees', { user: users.adsAdmin, method: 'PUT', body: { coverage: { all: 3, regions: { 1: 2 } } } });
   assert.equal(saved.coverage.all, 3);
   try {
-    assert.equal((await api('/ads/quote', { user: users.provider, method: 'POST', body })).quote.total, Math.round(base * 3 * 100) / 100);
-    assert.equal((await api('/ads/quote', { user: users.provider, method: 'POST', body: { ...body, target_regions: [1] } })).quote.total, Math.round(base * 2 * 100) / 100);
-    const ad = await api('/ads/request', { user: users.provider, method: 'POST', body: { ...body, target_regions: [1] }, expected: 201 });
+    assert.equal((await api('/ads/quote', { user: users.adsAdmin, method: 'POST', body })).quote.total, Math.round(base * 3 * 100) / 100);
+    assert.equal((await api('/ads/quote', { user: users.adsAdmin, method: 'POST', body: { ...body, target_regions: [1] } })).quote.total, Math.round(base * 2 * 100) / 100);
+    const ad = await api('/ads/request', { user: users.adsAdmin, method: 'POST', body: { ...body, target_regions: [1] }, expected: 201 });
     assert.equal(Number(ad.amount), Math.round(base * 2 * 100) / 100);
     await api(`/admin/ads/${ad.id}/activate`, { user: users.adsAdmin, method: 'POST', body: {}, expected: 409 });
     const waived = await api(`/admin/ads/${ad.id}/waive`, { user: users.adsAdmin, method: 'POST', body: { reason: 'Local launch partner' } });
@@ -233,7 +237,7 @@ test('ad fees follow the covered area; a waived ad starts unpaid; the advertiser
     await api(`/admin/ads/${ad.id}/waive`, { user: users.adsAdmin, method: 'POST', body: {}, expected: 409 });
     await api(`/admin/ads/${ad.id}/message`, { user: users.adsAdmin, method: 'POST', body: { category: 'other', message: 'x' }, expected: 400 });
     await api(`/admin/ads/${ad.id}/message`, { user: users.adsAdmin, method: 'POST', body: { category: 'legal', message: 'Add the licence number to the ad text.' } });
-    const mine = (await api('/ads/me', { user: users.provider })).ads.find(a => a.id === ad.id);
+    const mine = (await api('/ads/me', { user: users.adsAdmin })).ads.find(a => a.id === ad.id);
     assert.deepEqual(mine.admin_messages.map(m => [m.category, m.message]), [['legal', 'Add the licence number to the ad text.']]);
   } finally {
     await api('/admin/ads-fees', { user: users.adsAdmin, method: 'PUT', body: { coverage: { all: 1, regions: {} } } });
@@ -414,4 +418,16 @@ test('a city-targeted ad matches the city in any of its names, and a signed-in p
     assert.ok(!(await api('/ads/live?placements=category_top')).category_top.some(row => row.id === ad.id), 'a visitor with no location');
     assert.ok((await api('/ads/live?placements=category_top', { user: users.provider })).category_top.some(row => row.id === ad.id), 'signed in');
   } finally { geo.resolveVisitorGeo = original; }
+});
+
+// AYK-403: the administration cancels an ad in any state, and a cancelled ad is never served.
+test('the administration cancels a running ad and it stops showing at once', async () => {
+  const ad = await Ad.create({ title: 'Cancel me banner', image: 'https://example.invalid/c.png', placement: 'home_top', status: 'active', is_active: true });
+  assert.ok((await api('/ads/live?placement=home_top')).some(row => row.id === ad.id));
+  await api(`/admin/ads/${ad.id}/cancel`, { user: users.provider, method: 'POST', body: {}, expected: 403 });
+  const cancelled = await api(`/admin/ads/${ad.id}/cancel`, { user: users.adsAdmin, method: 'POST', body: {} });
+  assert.equal(cancelled.status, 'cancelled');
+  assert.ok(!(await api('/ads/live?placement=home_top')).some(row => row.id === ad.id));
+  await api(`/admin/ads/${ad.id}/cancel`, { user: users.adsAdmin, method: 'POST', body: {}, expected: 409 });
+  assert.ok((await db.queryOne("SELECT 1 AS ok FROM activity_logs WHERE action = 'admin.ad.cancel' AND entity_id = ?", [ad.id]))?.ok, 'logged');
 });

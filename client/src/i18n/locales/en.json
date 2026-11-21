@@ -422,7 +422,13 @@
     "warranty_accept": "Accept",
     "auto_translated": "Translated automatically",
     "show_original": "Show original",
-    "show_translation": "Show translation"
+    "show_translation": "Show translation",
+    "edit": "Edit request",
+    "edit_hint": "You can edit your request while it is open and you have not agreed with anyone. After saving it is translated again and shown to providers in its new profession and area.",
+    "reach_count": "Your request now shows to {{count}} providers in its profession and area.",
+    "reach_none": "No provider in this profession covers your request's place yet.",
+    "reach_none_profession": "No provider has registered in this profession yet. Your request stays open and is seen by those who choose «All open requests»; you can change the profession if another one fits.",
+    "reach_none_area": "Providers in this profession exist but do not cover your district yet. Your request stays open and is seen by those who widen their circle or choose «All open requests»."
   },
   "offer": {
     "submit_title": "Send a price offer",
@@ -1346,7 +1352,10 @@
     "nav_work": "Requests and contact",
     "nav_catalog": "Professions and services",
     "nav_money": "Payments and revenue",
-    "nav_places": "Places"
+    "nav_places": "Places",
+    "ad_activate_unpaid": "This ad is unpaid. Activating waives its fee and starts it now. Write the reason for the waiver (kept in its record).",
+    "ad_cancel_service": "Cancel service",
+    "ad_cancelled": "The ad is cancelled and will not show to anyone."
   },
   "errors": {
     "generic": "Something went wrong",
@@ -1483,7 +1492,7 @@
   },
   "promote": {
     "page_title": "Advertise your service",
-    "page_hint": "Send an ad request and choose where it shows, for how long and how many views. It goes live after admin approval and payment.",
+    "page_hint": "Your paid ads: follow their views, pause or cancel them. New ads are added by the administration.",
     "disabled": "Ad requests are currently disabled",
     "new_request": "New ad request",
     "title": "Ad title",
@@ -1626,7 +1635,10 @@
     "page_search": "Search & requests",
     "page_profile": "My Profile",
     "page_chat": "Chats",
-    "page_dashboard": "Dashboard"
+    "page_dashboard": "Dashboard",
+    "admin_only": "Ads are added by the administration only.",
+    "admin_only_contact": "Contact us to add your ad",
+    "admin_only_manage": "Manage paid ads"
   },
   "badge": {
     "page_title": "My badges",
@@ -2567,7 +2579,13 @@
     "previous_clients_empty": "No previous clients yet. Everyone you agree a job with appears here.",
     "previous_clients_jobs": "Jobs together: {{count}}",
     "previous_clients_last": "Last job",
-    "previous_clients_open_request": "Has an open request now"
+    "previous_clients_open_request": "Has an open request now",
+    "all_open_title": "All open requests",
+    "unrestricted_label": "All open requests",
+    "unrestricted_hint": "Remove the limits: show every open request in any profession and area, not only my profession and coverage.",
+    "my_info_title": "My details",
+    "my_info_hint": "Name, my services description, the phone and WhatsApp shown to people, my professions and districts.",
+    "my_info_edit": "Edit"
   },
   "requester": {
     "all_professions": "All professions",

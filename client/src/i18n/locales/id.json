@@ -422,7 +422,13 @@
     "warranty_accept": "Setuju",
     "auto_translated": "Diterjemahkan otomatis",
     "show_original": "Lihat asli",
-    "show_translation": "Lihat terjemahan"
+    "show_translation": "Lihat terjemahan",
+    "edit": "Ubah permintaan",
+    "edit_hint": "Anda bisa mengubah permintaan selama masih terbuka dan belum sepakat dengan siapa pun. Setelah disimpan, permintaan diterjemahkan ulang dan ditampilkan ke penyedia di profesi dan wilayah barunya.",
+    "reach_count": "Permintaan Anda kini tampil untuk {{count}} penyedia di profesi dan wilayahnya.",
+    "reach_none": "Belum ada penyedia di profesi ini yang mencakup lokasi permintaan Anda.",
+    "reach_none_profession": "Belum ada penyedia yang terdaftar di profesi ini. Permintaan Anda tetap terbuka dan dilihat oleh yang memilih «Semua permintaan terbuka»; Anda bisa mengganti profesi jika ada yang lebih cocok.",
+    "reach_none_area": "Penyedia di profesi ini ada, tetapi belum mencakup distrik Anda. Permintaan Anda tetap terbuka dan dilihat oleh yang memperluas cakupan atau memilih «Semua permintaan terbuka»."
   },
   "offer": {
     "submit_title": "Kirim penawaran harga",
@@ -1346,7 +1352,10 @@
     "nav_work": "Permintaan dan kontak",
     "nav_catalog": "Profesi dan layanan",
     "nav_money": "Pembayaran dan pendapatan",
-    "nav_places": "Tempat"
+    "nav_places": "Tempat",
+    "ad_activate_unpaid": "هذا الإعلان لم يُدفع. بالتنشيط يُعفى من الرسوم ويبدأ عرضه الآن. اكتب سبب الإعفاء (يُحفظ في سجله).",
+    "ad_cancel_service": "إلغاء الخدمة",
+    "ad_cancelled": "أُلغي الإعلان ولن يظهر لأحد."
   },
   "errors": {
     "generic": "Terjadi kesalahan",
@@ -1483,7 +1492,7 @@
   },
   "promote": {
     "page_title": "Iklankan layanan Anda",
-    "page_hint": "Kirim permintaan iklan, lalu pilih tempat, durasi, dan jumlah tayangan. Iklan aktif setelah disetujui admin dan dibayar.",
+    "page_hint": "Iklan berbayar Anda: pantau tayangan, jeda, atau batalkan. Iklan baru ditambahkan oleh admin.",
     "disabled": "Layanan permintaan iklan saat ini dinonaktifkan",
     "new_request": "Permintaan iklan baru",
     "title": "Judul iklan",
@@ -1626,7 +1635,10 @@
     "page_search": "Pencarian & permintaan",
     "page_profile": "Profil saya",
     "page_chat": "Percakapan",
-    "page_dashboard": "Dasbor akun"
+    "page_dashboard": "Dasbor akun",
+    "admin_only": "Iklan hanya ditambahkan oleh admin.",
+    "admin_only_contact": "Hubungi kami untuk menambahkan iklan Anda",
+    "admin_only_manage": "Kelola iklan berbayar"
   },
   "badge": {
     "page_title": "Lencana saya",
@@ -2567,7 +2579,13 @@
     "previous_clients_empty": "Belum ada klien sebelumnya. Setiap orang yang sepakat dengan Anda untuk pekerjaan akan muncul di sini.",
     "previous_clients_jobs": "Pekerjaan bersama: {{count}}",
     "previous_clients_last": "Pekerjaan terakhir",
-    "previous_clients_open_request": "Sedang punya permintaan terbuka"
+    "previous_clients_open_request": "Sedang punya permintaan terbuka",
+    "all_open_title": "Semua permintaan terbuka",
+    "unrestricted_label": "Semua permintaan terbuka",
+    "unrestricted_hint": "Lepas batasan: tampilkan semua permintaan terbuka di profesi dan wilayah mana pun, bukan hanya profesi dan cakupan saya.",
+    "my_info_title": "Data saya",
+    "my_info_hint": "Nama, deskripsi layanan saya, telepon dan WhatsApp yang ditampilkan, profesi dan distrik saya.",
+    "my_info_edit": "Ubah"
   },
   "requester": {
     "all_professions": "Semua profesi",

@@ -62,6 +62,7 @@ router.post('/ads/:id/reject',   requirePermission('ads.manage'), adC.adminRejec
 router.post('/ads/:id/activate', requirePermission('ads.manage'), adC.adminActivate);
 router.post('/ads/:id/pause',    requirePermission('ads.manage'), adC.adminPause);
 router.post('/ads/:id/resume',   requirePermission('ads.manage'), adC.adminResume);
+router.post('/ads/:id/cancel',   requirePermission('ads.manage'), adC.adminCancel); // AYK-403
 router.get('/ads/:id/stats',     requirePermission('ads.manage'), adC.adminStats);
 // Fee waiver and messages to the advertiser (AYK-153).
 router.post('/ads/:id/waive',    requirePermission('ads.manage'), adC.adminWaive);
