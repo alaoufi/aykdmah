@@ -974,7 +974,7 @@
     "country_currency_code": "የገንዘብ ኮድ",
     "country_currency_symbol": "የሚታየው የገንዘብ ምልክት",
     "country_languages": "በዚህ አገር የሚገኙ ቋንቋዎች",
-    "ads": "ማስታወቂያዎች",
+    "ads": "የሚከፈልባቸው ማስታወቂያዎች",
     "reviews": "ደረጃዎችን ማስተዳደር",
     "activity_logs": "የእንቅስቃሴ መዝገብ",
     "integrations": "የኤፒአይ ውህደቶች",
@@ -1326,7 +1326,11 @@
     "visitors_title": "የጎብኚ ቆጣሪ",
     "visitors_hint": "በቅንብሮች ውስጥ ባለው «የጎብኚ ቆጣሪውንና እይታዎችን ለሁሉም ያሳዩ» ቅንብር መሠረት በጣቢያውና በመተግበሪያዎቹ ግርጌ ለሁሉም ወይም ለአስተዳደሩ ብቻ ይታያል። እያንዳንዱ ጎብኚ በቀን አንድ ጊዜ ይቆጠራል።",
     "reports_group": "ሪፖርቶች",
-    "backups_report": "የመጠባበቂያ ሪፖርት"
+    "backups_report": "የመጠባበቂያ ሪፖርት",
+    "nav_work": "ጥያቄዎችና ግንኙነት",
+    "nav_catalog": "ሙያዎችና አገልግሎቶች",
+    "nav_money": "ክፍያዎችና ገቢ",
+    "nav_places": "ቦታዎች"
   },
   "errors": {
     "generic": "ስህተት ተፈጥሯል",

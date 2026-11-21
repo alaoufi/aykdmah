@@ -974,7 +974,7 @@
     "country_currency_code": "Kode mata uang",
     "country_currency_symbol": "Simbol mata uang",
     "country_languages": "Bahasa yang diaktifkan di negara ini",
-    "ads": "Iklan",
+    "ads": "Iklan berbayar",
     "reviews": "Kelola penilaian",
     "activity_logs": "Log aktivitas",
     "integrations": "Integrasi API",
@@ -1326,7 +1326,11 @@
     "visitors_title": "Penghitung pengunjung",
     "visitors_hint": "Ditampilkan untuk semua di bagian bawah situs dan aplikasi, atau hanya untuk admin, sesuai pengaturan «Tampilkan penghitung pengunjung dan tayangan untuk semua». Setiap pengunjung dihitung sekali sehari.",
     "reports_group": "Laporan",
-    "backups_report": "Laporan cadangan"
+    "backups_report": "Laporan cadangan",
+    "nav_work": "Permintaan dan kontak",
+    "nav_catalog": "Profesi dan layanan",
+    "nav_money": "Pembayaran dan pendapatan",
+    "nav_places": "Tempat"
   },
   "errors": {
     "generic": "Terjadi kesalahan",

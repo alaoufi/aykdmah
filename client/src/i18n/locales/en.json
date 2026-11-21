@@ -974,7 +974,7 @@
     "country_currency_code": "Currency code",
     "country_currency_symbol": "Currency symbol",
     "country_languages": "Languages enabled in this country",
-    "ads": "Ads",
+    "ads": "Paid ads",
     "reviews": "Review moderation",
     "activity_logs": "Activity Logs",
     "integrations": "API Integrations",
@@ -1326,7 +1326,11 @@
     "visitors_title": "Visitor counter",
     "visitors_hint": "Shown to everyone at the bottom of the site and apps, or to admins only, by the setting «Show the visitor counter and views to everyone». Each visitor counts once a day.",
     "reports_group": "Reports",
-    "backups_report": "Backups report"
+    "backups_report": "Backups report",
+    "nav_work": "Requests and contact",
+    "nav_catalog": "Professions and services",
+    "nav_money": "Payments and revenue",
+    "nav_places": "Places"
   },
   "errors": {
     "generic": "Something went wrong",

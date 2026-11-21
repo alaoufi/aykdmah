@@ -974,7 +974,7 @@
     "country_currency_code": "Code ng currency",
     "country_currency_symbol": "Simbolo ng currency",
     "country_languages": "Mga wikang available sa bansang ito",
-    "ads": "Mga ad",
+    "ads": "Bayad na ads",
     "reviews": "Pamamahala ng mga rating",
     "activity_logs": "Record ng aktibidad",
     "integrations": "Mga API integration",
@@ -1326,7 +1326,11 @@
     "visitors_title": "Bilang ng bisita",
     "visitors_hint": "Makikita ng lahat sa ibaba ng site at mga app, o ng admin lang, ayon sa setting na «Ipakita sa lahat ang bilang ng bisita at view». Isang beses lang bawat araw binibilang ang bawat bisita.",
     "reports_group": "Mga ulat",
-    "backups_report": "Ulat ng mga backup"
+    "backups_report": "Ulat ng mga backup",
+    "nav_work": "Mga request at ugnayan",
+    "nav_catalog": "Mga propesyon at serbisyo",
+    "nav_money": "Mga bayad at kita",
+    "nav_places": "Mga lugar"
   },
   "errors": {
     "generic": "May nagkamali",

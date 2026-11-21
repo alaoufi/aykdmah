@@ -974,7 +974,7 @@
     "country_currency_code": "Para birimi kodu",
     "country_currency_symbol": "Görünen para simgesi",
     "country_languages": "Bu ülkede kullanılabilen diller",
-    "ads": "Reklamlar",
+    "ads": "Ücretli reklamlar",
     "reviews": "Değerlendirme yönetimi",
     "activity_logs": "Etkinlik kaydı",
     "integrations": "API entegrasyonları",
@@ -1326,7 +1326,11 @@
     "visitors_title": "Ziyaretçi sayacı",
     "visitors_hint": "Ayarlardaki «Ziyaretçi sayacını ve görüntülenmeleri herkese göster» seçeneğine göre sitenin ve uygulamaların altında herkese ya da yalnızca yöneticilere görünür. Her ziyaretçi günde bir kez sayılır.",
     "reports_group": "Raporlar",
-    "backups_report": "Yedekleme raporu"
+    "backups_report": "Yedekleme raporu",
+    "nav_work": "Talepler ve iletişim",
+    "nav_catalog": "Meslekler ve hizmetler",
+    "nav_money": "Ödemeler ve gelir",
+    "nav_places": "Yerler"
   },
   "errors": {
     "generic": "Bir hata oluştu",
