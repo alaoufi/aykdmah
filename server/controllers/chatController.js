@@ -33,7 +33,9 @@ const listConversations = asyncHandler(async (req, res) => {
   const q = searchQuery(req.query.q);
   for (const id of [request_id, user_id]) if (id != null && !/^[1-9][0-9]{0,9}$/.test(String(id))) return error(res, req.t('invalid_data'), 400);
   // AYK-365: one row per person; `separate=1` lists each conversation on its own (per request).
-  const items = await Conversation.listForUser(req.user.id, { page, limit, q, requestId: request_id, peerId: user_id, merge: req.query.separate !== '1' });
+  // AYK-423: the chat list itself (no request or person asked for) shows only conversations with messages.
+  const items = await Conversation.listForUser(req.user.id, { page, limit, q, requestId: request_id, peerId: user_id, merge: req.query.separate !== '1',
+    withMessagesOnly: !request_id && !user_id && req.query.separate !== '1' });
   // A requester's name stays hidden from the other side (AYK-142).
   for (const item of items) if (typeof item.other_user === 'string') { try { item.other_user = JSON.parse(item.other_user); } catch (_) { item.other_user = null; } }
   await hideRequesterNames(req.user.id, items.map(item => item.other_user), req.t('requester_label'));

@@ -108,9 +108,11 @@ if (!databaseName) {
     assert.equal(assigned.status, 'assigned');
     assert.equal(Number(assigned.assigned_provider_id), Number(provider.user.id));
     const conversationId = await Conversation.findOrCreateBetween(customer.user.id, provider.user.id, request.id);
+    // AYK-423: an empty conversation is not in the chat list; it appears with its first message.
+    assert.ok(!(await api('/chat/conversations', { token: customer.token })).data.some(item => Number(item.id) === Number(conversationId)));
+    await api(`/chat/conversations/${conversationId}/messages`, { method: 'POST', token: provider.token, expected: 201, body: { content: 'موعدنا غدًا بعد العصر' } });
     const conversations = (await api('/chat/conversations', { token: customer.token })).data;
     assert.ok(conversations.some(item => Number(item.id) === Number(conversationId)));
-    await api(`/chat/conversations/${conversationId}/messages`, { method: 'POST', token: provider.token, expected: 201, body: { content: 'موعدنا غدًا بعد العصر' } });
     const messages = (await api(`/chat/conversations/${conversationId}/messages`, { token: customer.token })).data;
     assert.equal(messages[0].content, 'موعدنا غدًا بعد العصر');
     // Only the author deletes a message; it disappears for both, and administrators keep it.
@@ -303,7 +305,9 @@ if (!databaseName) {
     for (let i=0;i<21;i++) await Conversation.findOrCreateBetween(customer.user.id,provider.user.id,null,{fresh:true});
     const page2 = (await api('/chat/conversations?separate=1&page=2&limit=20&q=Workflow', {token:customer.token})).data;
     assert.equal(page2.length,3,'server search finds conversations past the first page');
-    // AYK-365: the chat list itself shows the person once.
+    // AYK-365: the chat list itself shows the person once (AYK-423: once a conversation has a message).
+    assert.equal((await api('/chat/conversations?q=Workflow', {token:customer.token})).data.length,0,'empty conversations are not listed');
+    await db.query('INSERT INTO messages (conversation_id, sender_id, content) VALUES (?, ?, ?)', [source, customer.user.id, 'hello']);
     assert.equal((await api('/chat/conversations?q=Workflow', {token:customer.token})).data.length,1,'one row per person');
     assert.equal((await api('/chat/conversations?q=Private', {token:provider.token})).data.length,0,'hidden requester name is not a search oracle');
     await api('/chat/conversations?q[]=bad',{token:customer.token,expected:400});
