@@ -229,6 +229,8 @@ export default function AdminAdsPage() {
   // ads (the «أعلن» page and its links) only while this is on. The ads already running, and the
   // administration's own, show either way.
   const [paidOn, setPaidOn] = useState(null);
+  // AYK-406 (the owner: «وضّح الحالة بعد الإجراء»): the new state is written in the card itself.
+  const [paidChanged, setPaidChanged] = useState(false);
   useEffect(() => {
     getSettings().then(rows => {
       const list = Array.isArray(rows) ? rows : Object.entries(rows || {}).map(([setting_key, setting_value]) => ({ setting_key, setting_value }));
@@ -243,7 +245,7 @@ export default function AdminAdsPage() {
   const togglePaid = async () => {
     if (!(await confirmAdminChange(t))) return;
     const next = !paidOn;
-    try { await updateSettings([{ key: 'ads_user_requests_enabled', value: next }]); setPaidOn(next); setMsg({ type: 'success', text: t(next ? 'admin.paid_ads_turned_on' : 'admin.paid_ads_turned_off') }); }
+    try { await updateSettings([{ key: 'ads_user_requests_enabled', value: next }]); setPaidOn(next); setPaidChanged(true); }
     catch (e) { setMsg({ type: 'error', text: apiError(e) }); }
   };
 
@@ -474,8 +476,12 @@ export default function AdminAdsPage() {
       {paidOn !== null && (
         <div className={`rounded-card border-2 px-4 py-4 flex flex-wrap items-center justify-between gap-3 ${paidOn ? 'bg-emerald-50 border-emerald-300' : 'bg-rose-50 border-rose-300'}`} data-testid="paid-ads-switch">
           <div className="min-w-0">
-            <b className="block text-[15px]">{paidOn ? '🟢' : '🔴'} {t('admin.paid_ads_switch')}: {t(paidOn ? 'admin.paid_ads_on' : 'admin.paid_ads_off')}</b>
-            <span className="text-[12px] text-slate-600">{t('admin.paid_ads_switch_hint')}</span>
+            <span className="block text-[12.5px] text-slate-600">{t('admin.paid_ads_switch')}</span>
+            <b className={`block text-[17px] mt-0.5 ${paidOn ? 'text-emerald-800' : 'text-rose-800'}`} data-testid="paid-ads-state" role="status">
+              {paidOn ? '✅' : '⏸'} {t(paidOn ? 'admin.paid_ads_now_on' : 'admin.paid_ads_now_off')}
+            </b>
+            {paidChanged && <span className="block text-[12.5px] font-semibold mt-1">{t(paidOn ? 'admin.paid_ads_turned_on' : 'admin.paid_ads_turned_off')}</span>}
+            <span className="block text-[12px] text-slate-600 mt-1">{t('admin.paid_ads_switch_hint')}</span>
           </div>
           <AdminButton variant={paidOn ? 'secondary' : 'primary'} onClick={togglePaid} data-testid="paid-ads-toggle">{t(paidOn ? 'admin.paid_ads_turn_off' : 'admin.paid_ads_turn_on')}</AdminButton>
         </div>

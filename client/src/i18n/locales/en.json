@@ -1356,14 +1356,14 @@
     "ad_activate_unpaid": "This ad is unpaid. Activating waives its fee and starts it now. Write the reason for the waiver (kept in its record).",
     "ad_cancel_service": "Cancel service",
     "ad_cancelled": "The ad is cancelled and will not show to anyone.",
-    "paid_ads_switch": "Ads management: let users advertise («Advertise»)",
-    "paid_ads_on": "On",
-    "paid_ads_off": "Off",
+    "paid_ads_switch": "Control of new ads by signed-in users («Advertise»)",
     "paid_ads_turn_on": "▶ Turn on: users see «Advertise»",
     "paid_ads_turn_off": "⏸ Turn off: nobody advertises",
     "paid_ads_switch_hint": "This switch is for all ads, not one ad. When off, «Advertise» disappears from the site and app and nobody can request a new ad. Administration ads and running ads follow each ad's own buttons below.",
-    "paid_ads_turned_on": "Paid ad subscriptions are on.",
-    "paid_ads_turned_off": "Paid ad subscriptions are off."
+    "paid_ads_turned_on": "Turned on: signed-in users see «Advertise» and can create a new ad.",
+    "paid_ads_turned_off": "Turned off: nobody sees «Advertise» or can create a new ad. Existing ads are not affected.",
+    "paid_ads_now_on": "Ad subscriptions are now on",
+    "paid_ads_now_off": "Ad subscriptions are now off"
   },
   "errors": {
     "generic": "Something went wrong",
