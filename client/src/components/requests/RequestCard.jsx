@@ -6,6 +6,7 @@ import { formatRelativeTime, formatCurrency, truncate, formatDistance } from '..
 import useOpenRequest from '../../hooks/useOpenRequest';
 import useRequestTranslation from '../../hooks/useRequestTranslation';
 import TranslatedNote from './TranslatedNote';
+import ContactMenu from '../providers/ContactMenu';
 
 // Whose request this is (AYK-044): "Your request" (as a requester) or "For your
 // service" (as a provider), in different colours.
@@ -30,7 +31,10 @@ export default function RequestCard({ request }) {
       <TrustSummary userId={request.client_id} type="on_requester" average={request.client_rating_avg} count={request.client_rating_count} opinion={request.client_opinion} />
       {/* Compact (AYK-099): whose, urgency, status and age on one line. */}
       <div className="flex items-center gap-1.5 flex-wrap">
-        <OwnerBadge mine={mine(request)} forService={forMyService(request)} />
+        {/* AYK-418: «لخدمتك» became «تواصل»: phone and WhatsApp when the requester shows them, and chat. */}
+        {forMyService(request)
+          ? <ContactMenu compact quick phone={request.client_contact_phone} whatsapp={request.client_contact_whatsapp} busy={opening === request.id} onChat={() => open(request)} testId="request-contact" />
+          : <OwnerBadge mine={mine(request)} forService={false} />}
         {/* AYK-398: someone this provider already worked for. */}
         {request.previous_client ? <span className="badge badge-success" data-testid="badge-previous-client">⭐ {t('work.previous_client')}</span> : null}
         {request.is_urgent ? <span className="badge badge-urgent">⚡ {t('request.urgent')}</span> : null}
@@ -59,7 +63,6 @@ export default function RequestCard({ request }) {
         .request-card { display: block; text-decoration: none; color: inherit; padding: 12px 14px; cursor: pointer; }
         .request-card .badge { padding: 2px 8px; font-size: 11px; }
       `}</style>
-      {forMyService(request) && <div className="mt-1.5 text-[13px] font-bold text-primary">{opening === request.id ? '…' : `💬 ${t('request.contact_owner')}`}</div>}
     </div>
   );
 }

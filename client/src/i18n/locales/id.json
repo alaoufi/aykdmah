@@ -3010,5 +3010,18 @@
     "redo": "Ubah gambar Anda ke {{w}}×{{h}} piksel ({{ratio}}), lalu unggah lagi.",
     "animated": "Gambar bergerak tidak disesuaikan otomatis. Ubah ke {{w}}×{{h}} piksel ({{ratio}}), lalu unggah.",
     "close": "Tutup"
+  },
+  "contact_privacy": {
+    "title": "Menghubungi Anda",
+    "hint": "Pilih siapa dan bagaimana menghubungi Anda. Semua mati sampai Anda menyalakannya, dan bisa dimatikan kapan saja.",
+    "share_phone": "Tampilkan ponsel saya ke penyedia layanan",
+    "share_phone_hint": "Hanya penyedia di profesi permintaan terbuka Anda yang melihatnya, agar bisa menelepon langsung.",
+    "no_phone": "Tambahkan nomor ponsel Anda di atas dulu.",
+    "share_whatsapp": "Tampilkan WhatsApp saya ke penyedia layanan",
+    "share_whatsapp_hint": "Penyedia di profesi permintaan terbuka Anda bisa mengirim pesan WhatsApp.",
+    "whatsapp_number": "Nomor WhatsApp (opsional)",
+    "whatsapp_number_hint": "Kosongkan jika sama dengan nomor ponsel Anda.",
+    "marketing": "Izinkan situs menghubungi saya",
+    "marketing_hint": "Kami kirimkan info baru dan penawaran yang sesuai kebutuhan Anda. Bisa dihentikan kapan saja."
   }
 }

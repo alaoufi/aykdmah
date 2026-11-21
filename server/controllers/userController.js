@@ -87,6 +87,17 @@ const updateMe = asyncHandler(async (req, res) => {
     payload.full_name = payload.full_name.trim();
     if (payload.full_name.length < 2 || payload.full_name.length > 150) return error(res, req.t('name_length'), 400);
   }
+  // AYK-418: the requester's contact choices, off until turned on.
+  for (const flag of ['share_phone', 'share_whatsapp', 'marketing_opt_in']) {
+    if (payload[flag] === undefined) continue;
+    if (![0, 1, true, false, '0', '1'].includes(payload[flag])) return error(res, req.t('invalid_data'), 400);
+    payload[flag] = [1, true, '1'].includes(payload[flag]) ? 1 : 0;
+  }
+  if (payload.marketing_opt_in !== undefined) payload.marketing_opt_in_at = payload.marketing_opt_in ? new Date() : null;
+  if (payload.whatsapp_number !== undefined) {
+    if (payload.whatsapp_number === null || String(payload.whatsapp_number).trim() === '') payload.whatsapp_number = null;
+    else if (typeof payload.whatsapp_number !== 'string' || !(payload.whatsapp_number = phoneNumber(payload.whatsapp_number))) return error(res, req.t('invalid_data'), 400);
+  }
   const location = await validateUserLocation(req.body, current, req.t('invalid_data'));
   Object.assign(payload, location);
   const completingProfile = booleanIntent(payload.complete_profile, req.t('invalid_data'));

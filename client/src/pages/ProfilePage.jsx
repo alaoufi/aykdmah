@@ -28,6 +28,7 @@ import AdSlot from '../components/ads/AdSlot';
 import AvatarPicker from '../components/profile/AvatarPicker';
 import AdminPanelLink from '../components/layout/AdminPanelLink';
 import ProblemNotice from '../components/common/ProblemNotice';
+import ContactPrivacy from '../components/profile/ContactPrivacy';
 import { showAlert } from '../components/common/AppDialog';
 
 
@@ -336,6 +337,7 @@ export default function ProfilePage() {
         initialLat={mapCenter?.lat} initialLon={mapCenter?.lon}
         initialPointSelected={hasPoint}
         onConfirm={result => { cancelLocation(); applyPoint(result.lat, result.lon, result); setPointConfirmed(true); }} />
+      <ContactPrivacy />
       <CallAlerts />
       <AccountTypeSection onSaved={setMsg} onError={setErr} />
       {user?.role === 'provider' && <AvailabilityEditor onSaved={setMsg} onError={setErr} />}

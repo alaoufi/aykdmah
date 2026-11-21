@@ -6778,6 +6778,14 @@ ALTER TABLE ads ADD COLUMN IF NOT EXISTS target_audience JSONB NULL;
 CREATE INDEX IF NOT EXISTS idx_ads_campaign ON ads (campaign_id);
 INSERT INTO schema_migrations(name) VALUES ('104_ads_pro.sql');
 
+-- migrations/105_requester_contact.sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS share_phone SMALLINT NOT NULL DEFAULT 0;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS share_whatsapp SMALLINT NOT NULL DEFAULT 0;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS whatsapp_number VARCHAR(30) NULL;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS marketing_opt_in SMALLINT NOT NULL DEFAULT 0;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS marketing_opt_in_at TIMESTAMP NULL;
+INSERT INTO schema_migrations(name) VALUES ('105_requester_contact.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

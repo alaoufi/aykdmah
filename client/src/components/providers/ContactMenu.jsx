@@ -5,7 +5,9 @@ import { whatsappLink } from '../../utils/whatsapp';
 // AYK-379 (the owner: «التواصل يعرض ثلاث حالات: جوال إذا متاح، واتساب إذا متاح، محادثة»). The
 // «تواصل» button opens three lines: the mobile number and WhatsApp only when the provider chose to
 // show them (AYK-314), and the chat inside the site always.
-export default function ContactMenu({ phone = null, whatsapp = null, onChat, busy = false, className = '', testId = 'contact-menu' }) {
+// AYK-418: `quick` adds small 📞 and WhatsApp buttons beside it, for one tap; `compact` makes the
+// main button a small chip (inside request cards).
+export default function ContactMenu({ phone = null, whatsapp = null, onChat, busy = false, className = '', testId = 'contact-menu', quick = false, compact = false }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [opening, setOpening] = useState(false);
@@ -26,15 +28,25 @@ export default function ContactMenu({ phone = null, whatsapp = null, onChat, bus
 
   const line = 'w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[14px] font-semibold text-fg no-underline bg-transparent border-0 cursor-pointer text-start hover:bg-surface-alt disabled:opacity-60';
   return (
-    <div ref={box} className={`relative inline-block ${className}`} data-testid={testId}>
-      <button type="button" className="btn btn-primary btn-sm" aria-expanded={open} disabled={busy || opening} aria-busy={opening}
+    <div ref={box} className={`relative inline-flex items-center gap-1.5 ${className}`} data-testid={testId}
+      onClick={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()}>
+      <button type="button" className={compact ? 'inline-flex items-center gap-1 px-2.5 py-1 rounded-pill bg-primary text-primary-fg text-[12px] font-bold' : 'btn btn-primary btn-sm'} aria-expanded={open}
+        style={compact ? { minHeight: 0 } : undefined} disabled={busy || opening} aria-busy={opening}
         onClick={() => setOpen(value => !value)} data-testid={`${testId}-button`}>
         {opening
           ? <><span className="inline-block w-3.5 h-3.5 rounded-full border-2 border-white/40 border-t-white animate-spin" aria-hidden="true" /> {t('provider_contact.opening')}</>
           : <>💬 {t('provider_page.contact')} <span className={`inline-block transition-transform ${open ? 'rotate-180' : ''}`} aria-hidden="true">▾</span></>}
       </button>
+      {quick && phone && (
+        <a href={`tel:${phone}`} aria-label={t('provider_contact.mobile')} title={t('provider_contact.mobile')} data-testid={`${testId}-quick-phone`}
+          className="grid place-items-center w-7 h-7 rounded-full bg-sky-100 text-[14px] no-underline">📞</a>
+      )}
+      {quick && chatLink && (
+        <a href={chatLink} target="_blank" rel="noopener noreferrer" aria-label={t('provider_contact.whatsapp_button')} title={t('provider_contact.whatsapp_button')} data-testid={`${testId}-quick-whatsapp`}
+          className="grid place-items-center w-7 h-7 rounded-full bg-[#25D366] text-white text-[14px] no-underline">✆</a>
+      )}
       {open && (
-        <div role="menu" className="absolute z-30 mt-2 start-0 min-w-[230px] max-w-[85vw] p-1.5 rounded-card bg-surface border border-border shadow-lg">
+        <div role="menu" className="absolute z-30 top-full mt-2 start-0 min-w-[230px] max-w-[85vw] p-1.5 rounded-card bg-surface border border-border shadow-lg">
           {phone && (
             <a role="menuitem" href={`tel:${phone}`} className={line} data-testid={`${testId}-phone`} onClick={() => setOpen(false)}>
               <span aria-hidden="true">📞</span>
