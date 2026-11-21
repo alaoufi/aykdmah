@@ -512,7 +512,6 @@
     "forgot_current_password": "Nakalimutan ang kasalukuyang password? Bawiin ito gamit ang code sa iyong mobile",
     "change_password_save": "I-save ang bagong password",
     "password_changed_here": "Napalitan ang password. Naka-sign in ka pa rin sa device na ito; na-sign out ang ibang device.",
-    "account_type_admin": "Admin account ito: nagre-request ito ng serbisyo at namamahala sa platform, at hindi nagbabago ang uri nito. Para subukan bilang provider, mag-register ng ibang account gamit ang ibang mobile number.",
     "saved_toast": "Na-save",
     "missing_title": "Pakikumpleto ang mga ito",
     "missing_region": "Piliin ang rehiyon",
