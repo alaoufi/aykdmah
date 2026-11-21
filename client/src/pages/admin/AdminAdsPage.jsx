@@ -81,6 +81,16 @@ export default function AdminAdsPage() {
   const [form, setForm] = useState(EMPTY);
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState('');
+  // AYK-407 (the owner: «وضّح الشرط الذي لم يتحقق، وحتى عند الحفظ يوضح الشرط ويحوّل عليه مباشرة
+  // بمربع أحمر»): the fields that stop an ad, marked in red with the reason, scrolled to.
+  const [fieldErr, setFieldErr] = useState({});
+  const markFields = (errs) => {
+    setFieldErr(errs);
+    const first = Object.keys(errs)[0];
+    if (first) setTimeout(() => document.getElementById(`ad-field-${first}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 250);
+  };
+  const redBox = (key) => (fieldErr[key] ? 'rounded-card ring-2 ring-rose-500 bg-rose-50/70 p-2' : '');
+  const redNote = (key) => (fieldErr[key] ? <p className="text-rose-700 text-[12.5px] font-bold mt-1.5 mb-0" role="alert">⚠️ {fieldErr[key]}</p> : null);
   const [confirm, setConfirm] = useState({ open: false });
   const [uploading, setUploading] = useState(false);
   const [statusFilter, setStatusFilter] = useState('');
@@ -182,7 +192,7 @@ export default function AdminAdsPage() {
     try {
       const res = await diagnoseAd(a.id, placement);
       if (version !== diagVersion.current) return;
-      setDiag({ ...res, loading: false });
+      setDiag({ ...res, adId: a.id, ad: a, placement: res?.placement || placement, loading: false });
     } catch (_) { if (version === diagVersion.current) setDiag({ loading: false, error: true, adId: a.id, placement }); }
   };
   const closeDiag = () => { ++diagVersion.current; setDiag(null); };
@@ -285,13 +295,15 @@ export default function AdminAdsPage() {
 
   const closeEdit = () => {
     ++editVersion.current; ++uploadVersion.current;
-    setUploading(false); setEditOpen(false); setEditing(null); setForm(EMPTY); setFormError('');
+    setUploading(false); setEditOpen(false); setEditing(null); setForm(EMPTY); setFormError(''); setFieldErr({});
   };
   const openCreate = () => {
     ++editVersion.current; ++uploadVersion.current;
-    setUploading(false); setEditing(null); setForm(EMPTY); setFormError(''); setEditOpen(true);
+    setUploading(false); setEditing(null); setForm(EMPTY); setFormError(''); setFieldErr({}); setEditOpen(true);
   };
-  const openEdit = (a) => {
+  const openEdit = (a, focus = null) => {
+    setFieldErr({});
+    if (focus) setTimeout(() => markFields(focus), 300);
     ++editVersion.current; ++uploadVersion.current; setUploading(false);
     setEditing(a);
     const placements = Array.isArray(a.placements) && a.placements.length
@@ -324,6 +336,12 @@ export default function AdminAdsPage() {
     if ((form.link && !safeUrl(form.link)) || (form.image && !safeUrl(form.image))) {
       setFormError(t('errors.generic')); return;
     }
+    // AYK-407: what would stop the save, at its field.
+    const blocking = {};
+    if (!String(form.title || '').trim()) blocking.title = 'اكتب عنوان الإعلان.';
+    if (!paidBoundsLocked(editing) && form.starts_at && form.ends_at && new Date(form.ends_at) <= new Date(form.starts_at)) blocking.ends_at = 'تاريخ الانتهاء يجب أن يكون بعد تاريخ البدء.';
+    if (Object.keys(blocking).length) { setFormError('لم يُحفظ: صحّح الخانة المعلّمة بالأحمر.'); markFields(blocking); return; }
+    setFieldErr({});
     const version = editVersion.current;
     saveInFlight.current = true;
     setSaving(true);
@@ -354,11 +372,26 @@ export default function AdminAdsPage() {
       const payload = contentOnly
         ? Object.fromEntries(['title', 'description', 'image', 'media_type', 'link', 'sort_order', 'target_countries', 'target_regions', 'target_cities'].map((k) => [k, full[k]]))
         : full;
-      if (editing) await updateAd(editing.id, payload);
-      else await createAd(payload);
+      const saved = editing ? await updateAd(editing.id, payload) : await createAd(payload);
       if (version !== editVersion.current) return;
-      closeEdit();
       load();
+      // AYK-407: saved, but would it show? If not, the window stays open on the field to fix.
+      const savedId = editing?.id || saved?.data?.id || saved?.id;
+      if (savedId) {
+        try {
+          const res = await diagnoseAd(savedId, primary);
+          const failed = (res?.checks || []).filter(c => !c.pass && c.name !== 'geo_match');
+          if (version === editVersion.current && failed.length) {
+            const savedAd = { ...(editing || {}), ...full, id: savedId, status: (saved?.data || saved)?.status || editing?.status || 'active' };
+            setEditing(savedAd);
+            const errs = Object.fromEntries(failed.map(c => [CHECK_FIELD[c.name] || 'status', explainCheck(c, savedAd, t)]));
+            setFormError('حُفظ الإعلان، لكنه لن يظهر الآن. السبب معلّم بالأحمر.');
+            markFields(errs);
+            return;
+          }
+        } catch (_) { /* the check is a help only */ }
+      }
+      closeEdit();
     } catch (err) {
       if (version === editVersion.current) setFormError(apiError(err) || t('errors.generic'));
     } finally { saveInFlight.current = false; setSaving(false); }
@@ -442,6 +475,21 @@ export default function AdminAdsPage() {
     }
     catch (e) { setMsg({ type: 'error', text: apiError(e) }); }
     finally { setBusy(null); }
+  };
+
+  // AYK-407: the button that fixes a failed check: the status by its own action, the rest in the
+  // edit window, opened on that field in red.
+  const checkFix = (c, ad) => {
+    const reopen = () => setTimeout(() => openDiag(ad), 600);
+    const field = CHECK_FIELD[c.name];
+    if (c.name === 'status') {
+      if (['requested', 'approved', 'awaiting_payment'].includes(ad.status)) return { label: '▶ تنشيط الإعلان الآن', run: async () => { closeDiag(); await onActivate(ad); reopen(); } };
+      if (ad.status === 'paused') return { label: '▶ استئناف الإعلان', run: async () => { closeDiag(); await onResume(ad); reopen(); } };
+      if (ad.status === 'expired') return { label: '🔄 إعادة تنشيط الإعلان', run: async () => { closeDiag(); await onReactivate(ad); reopen(); } };
+      return null;
+    }
+    if (!field || field === 'targeting' && c.name !== 'geo_match') return null;
+    return { label: '✏️ افتح الخانة وصحّحها', run: async () => { closeDiag(); openEdit(ad, { [field]: explainCheck(c, ad, t) }); } };
   };
 
   const STATUS_TABS = [
@@ -762,7 +810,8 @@ export default function AdminAdsPage() {
         <form id="AdminAdsPage-form" onSubmit={onSave} className="space-y-3">
           {formError && <div role="alert" className="px-3 py-2 rounded bg-rose-50 border border-rose-200 text-rose-700 text-[13px] font-semibold">⚠️ {formError}</div>}
           {editing && (
-            <div className="rounded-card border border-slate-200 bg-slate-50 p-2.5" data-testid="ad-edit-actions">
+            <div id="ad-field-status" className={`rounded-card border border-slate-200 bg-slate-50 p-2.5 ${redBox('status')}`} data-testid="ad-edit-actions">
+              {redNote('status')}
               <div className="text-[12px] font-bold text-ink mb-1.5">الحالة: {t(`promote.status_${editing.status}`, editing.status)}{Number(editing.fee_waived) === 1 ? ' · 🎁 معفى من الرسوم' : ''}</div>
               <div className="flex flex-wrap gap-1.5">{statusActions(editing, closeEdit)}</div>
             </div>
@@ -772,7 +821,7 @@ export default function AdminAdsPage() {
               🔒 إعلان مدفوع: مكانه ومدته ومشاهداته مرتبطة بالمبلغ الذي دُفع، فلا تُعدَّل إلا بإعفائه من الرسوم. ويُعدَّل هنا محتواه (الصورة والنصوص والرابط) ومناطق عرضه.
             </div>
           )}
-          <FieldA label={t('admin.ad_title')} value={form.title} onChange={(v) => setForm({ ...form, title: v })} required />
+          <div id="ad-field-title" className={redBox('title')}><FieldA label={t('admin.ad_title')} value={form.title} onChange={(v) => setForm({ ...form, title: v })} required />{redNote('title')}</div>
           <FieldA label={t('admin.ad_description')} value={form.description} onChange={(v) => setForm({ ...form, description: v })} multiline />
           <div>
             <label className="block text-[12px] font-bold text-ink mb-1">{t('admin.ad_media')}</label>
@@ -834,7 +883,8 @@ export default function AdminAdsPage() {
             <p className="text-[11.5px] text-slate-500 mt-1">{t('admin.ad_link_hint')}</p>
           </div>
           {!paidBoundsLocked(editing) && (<>
-          <div>
+          <div id="ad-field-placements" className={redBox('placements')}>
+            {redNote('placements')}
             <label className="block text-[12px] font-bold text-ink mb-2">{t('promote.placements')}</label>
             <div className="flex flex-wrap gap-2">
               {PLACEMENTS.map((p) => {
@@ -858,14 +908,15 @@ export default function AdminAdsPage() {
             <div className="mt-2"><AdPlacementMap selected={form.placements} /></div>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <FieldA label={t('admin.ad_starts_at')} type="datetime-local" value={form.starts_at} onChange={(v) => setForm({ ...form, starts_at: v })} />
-            <FieldA label={t('admin.ad_ends_at')} type="datetime-local" value={form.ends_at} onChange={(v) => setForm({ ...form, ends_at: v })} />
-            <FieldA label={t('promote.max_views')} type="number" value={form.max_views} onChange={(v) => setForm({ ...form, max_views: v })} placeholder="—" />
+            <div id="ad-field-starts_at" className={redBox('starts_at')}><FieldA label={t('admin.ad_starts_at')} type="datetime-local" value={form.starts_at} onChange={(v) => setForm({ ...form, starts_at: v })} />{redNote('starts_at')}</div>
+            <div id="ad-field-ends_at" className={redBox('ends_at')}><FieldA label={t('admin.ad_ends_at')} type="datetime-local" value={form.ends_at} onChange={(v) => setForm({ ...form, ends_at: v })} />{redNote('ends_at')}</div>
+            <div id="ad-field-max_views" className={redBox('max_views')}><FieldA label={t('promote.max_views')} type="number" value={form.max_views} onChange={(v) => setForm({ ...form, max_views: v })} placeholder="—" />{redNote('max_views')}</div>
           </div>
           </>)}
           <FieldA label={t('admin.ad_sort_order')} type="number" value={form.sort_order} onChange={(v) => setForm({ ...form, sort_order: Number(v) || 0 })} />
           {!paidBoundsLocked(editing) && (<>
-          <div className="flex flex-wrap gap-4">
+          <div id="ad-field-is_active" className={`flex flex-wrap gap-4 ${redBox('is_active')}`}>
+            {redNote('is_active')}
             <label className="inline-flex items-center gap-2 text-[13px] cursor-pointer">
               <input type="checkbox" checked={!!form.is_active} onChange={(e) => setForm({ ...form, is_active: e.target.checked })} />
               <span>{t('admin.is_active')}</span>
@@ -880,7 +931,8 @@ export default function AdminAdsPage() {
 
           {/* Geo targeting. AYK-388 (the owner: «إعلان منشّط لكن ما أستطيع تحديد مناطق عرضه»): open for
               a paid ad too; its price stays what was paid. */}
-          <div className="rounded-card border border-slate-200 p-3 space-y-3" data-testid="ad-geo">
+          <div id="ad-field-targeting" className={`rounded-card border border-slate-200 p-3 space-y-3 ${fieldErr.targeting ? 'ring-2 ring-rose-500 bg-rose-50/70' : ''}`} data-testid="ad-geo">
+            {redNote('targeting')}
             <div className="text-[12.5px] font-bold text-ink">🌍 {t('promote.geo_targeting')}</div>
             <p className="text-[11.5px] text-slate-500 -mt-1">{t('promote.geo_targeting_hint')}</p>
             {paidBoundsLocked(editing) && <p className="text-[11.5px] text-amber-800 bg-amber-50 rounded px-2 py-1.5 m-0">💡 إعلان مدفوع: تحديد مناطق عرضه هنا لا يغيّر المبلغ الذي دُفع.</p>}
@@ -975,9 +1027,18 @@ export default function AdminAdsPage() {
                           <span>{c.pass ? '✓' : '✗'}</span>
                           <span>{t(`promote.check_${c.name}`)}</span>
                         </div>
-                        {!c.pass && (
-                          <pre className="text-[11px] text-slate-600 mt-1 whitespace-pre-wrap font-mono">{JSON.stringify({ actual: c.actual, expected: c.expected }, null, 2)}</pre>
-                        )}
+                        {!c.pass && (() => {
+                          // AYK-407: the reason in words, and the way to fix it at once.
+                          const ad = items.find(x => x.id === diag.adId) || diag.ad || { id: diag.adId };
+                          const fix = checkFix(c, ad);
+                          return (
+                            <div className="mt-1.5 space-y-2">
+                              <p className="m-0 text-[13px] text-rose-800 leading-relaxed">{explainCheck(c, ad, t, diag.placement)}</p>
+                              {fix && <button type="button" data-testid={`diag-fix-${c.name}`} onClick={async () => { await fix.run(); }}
+                                className="px-3 py-1.5 rounded-pill text-[12.5px] font-bold bg-rose-600 text-white hover:bg-rose-700">{fix.label}</button>}
+                            </div>
+                          );
+                        })()}
                       </li>
                     ))}
                   </ul>
@@ -1084,4 +1145,33 @@ function FieldA({ label, value, onChange, type = 'text', required = false, place
       )}
     </div>
   );
+}
+
+// AYK-407: each check of «لماذا الإعلان يظهر أو لا يظهر», its field in the edit window, and the
+// reason in plain words (the administration is in Arabic).
+const CHECK_FIELD = { status: 'status', is_active: 'is_active', starts_at: 'starts_at', ends_at: 'ends_at', view_cap: 'max_views', placement_match: 'placements', geo_match: 'targeting' };
+const when = value => { try { return new Date(value).toLocaleString('ar-SA-u-nu-latn', { dateStyle: 'medium', timeStyle: 'short' }); } catch (_) { return String(value); } };
+function explainCheck(c, ad, t, placement) {
+  switch (c.name) {
+    case 'status': {
+      const now = t(`promote.status_${c.actual}`, c.actual);
+      if (['requested', 'approved', 'awaiting_payment'].includes(c.actual)) return `حالة الإعلان «${now}» وليست «نشط». الإعلان لا يُعرض إلا بعد تنشيطه.`;
+      if (c.actual === 'paused') return 'الإعلان موقوف مؤقتًا. استأنفه ليُعرض.';
+      if (c.actual === 'expired') return 'انتهى الإعلان (مدته أو مشاهداته). أعد تنشيطه، أو مدّد تاريخ الانتهاء أو حد المشاهدات.';
+      if (c.actual === 'cancelled') return 'الإعلان ملغى، ولا يُعرض لأحد.';
+      if (c.actual === 'rejected') return 'الإعلان مرفوض، ولا يُعرض.';
+      return `حالة الإعلان «${now}» وليست «نشط».`;
+    }
+    case 'is_active': return 'خانة «مفعّل» في الإعلان غير مؤشَّر عليها. أشّر عليها واحفظ.';
+    case 'starts_at': return `لم يحن موعد بدايته: يبدأ ${when(c.actual)}. قدّم تاريخ البدء إن أردت عرضه الآن.`;
+    case 'ends_at': return `انتهى موعده في ${when(c.actual)}. مدّد تاريخ الانتهاء.`;
+    case 'view_cap': return `بلغ حد المشاهدات (${c.actual}). ارفع الحد أو اتركه فارغًا.`;
+    case 'placement_match': return `الإعلان غير مضاف لمكان «${placement ? t(`admin.ad_placement_${placement}`) : c.expected}». أضِف المكان من «أماكن العرض».`;
+    case 'geo_match': {
+      const v = c.actual || {};
+      const where = [v.visitor_city, v.visitor_region, v.visitor_country].filter(Boolean).join('، ') || 'غير معروف';
+      return `مكان الزائر (${where}) خارج مناطق عرض الإعلان. وسّع مناطق العرض أو اتركها فارغة ليُعرض للجميع. (الفحص بمكانك أنت، والزوار في مناطق العرض يرونه.)`;
+    }
+    default: return 'شرط لم يتحقق.';
+  }
 }
