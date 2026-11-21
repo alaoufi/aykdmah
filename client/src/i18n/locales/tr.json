@@ -167,10 +167,6 @@
     "get_it_on": "Şuradan edinin",
     "download_on": "Şuradan indirin",
     "coming_soon": "Yakında:",
-    "mode_provider": "Hizmet verenim",
-    "mode_provider_hint": "Mesleğimdeki ve bölgemdeki talepler",
-    "mode_client": "Hizmet talep edenim",
-    "mode_client_hint": "Bölgemdeki hizmet verenler ve yeni talep",
     "tab_requests": "Hizmet talep edenler",
     "tab_requests_hint": "Hizmete ihtiyacı olanların talepleri",
     "tab_requests_hint_provider": "Mesleğimdeki talepler",
@@ -516,7 +512,7 @@
     "private_account_address": "Hesap adresiniz gizli kalır. Başkalarına görünen işyerinizin konumunu aşağıdaki işletme bilgilerinde ayrıca belirleyin.",
     "must_change_password": "Hesabınızın güvenliği için siteyi kullanmaya devam etmeden önce geçici şifreyi şimdi değiştirin (en az 4 karakter).",
     "account_type": "Hesap türü",
-    "account_type_hint": "Kayıtta yanlış türü mü seçtiniz? İstediğiniz zaman buradan değiştirin.",
+    "account_type_hint": "Hizmet mi veriyorsunuz, yoksa ihtiyacınız mı var? Hesap türünüzü burada istediğiniz zaman seçin.",
     "account_type_current": "Mevcut",
     "account_type_work_hint": "Hizmet vermek için en az bir meslek, hizmet verdiğiniz mahalleleri ve hizmet yerini seçin.",
     "account_type_to_client_note": "Artık hizmet veren olarak görünmezsiniz ve bekleyen teklifleriniz geri çekilir. Daha sonra geri dönerseniz mesleki bilgileriniz saklı kalır.",
@@ -1742,7 +1738,7 @@
     "client_steps": {
       "browse": {
         "title": "Telefon ve basit bir şifreyle kaydolun",
-        "body": "Kimse sizin adınıza giriş yapamasın diye telefon numaranız ve en az 4 rakamlı basit bir şifreyle kaydolun; ad isteğe bağlıdır, mahalleniz otomatik belirlenir ve değiştirebilirsiniz. Ana sayfada listeden mesleği seçerek mahallenizdeki hizmet verenlerin ve şu an müsait olanların sayısını görün. Hesap oluşturma onaylandıktan sonra başarı mesajı ve giriş bağlantısı görünür. Hesap silme mesajı yalnızca sunucu onayladıktan sonra görünür."
+        "body": "Cep telefonu numaranız ve en az 4 karakterlik basit bir şifreyle kaydolun; böylece kimse sizin adınıza giremez. Bölgeniz ve şehriniz otomatik belirlenir ve değiştirilebilir. Ana sayfanın üstünde «Hizmet talep edenler» ve «Hizmet verenler», altlarında da «Çevre» vardır: önce mahalleniz, sonra şehrinize, bölgenize veya her yere genişletin. Hesap oluşturma onaylanınca başarı mesajı ve giriş bağlantısı görünür. Hesap silme mesajı ancak sunucu onayladıktan sonra görünür."
       },
       "details": {
         "title": "Mesleği seçin, ihtiyacınızı sesle kaydedin",
@@ -1788,7 +1784,7 @@
       }
     },
     "venue_title": "Kim kime gidiyor?",
-    "venue_intro": "Hizmet veren kayıt sırasında üç yoldan birini seçer ve bunu istediği zaman «Profilim» bölümünden değiştirebilir. Birinci ve üçüncü yolda yerinin konumunu haritada belirler.",
+    "venue_intro": "Hizmet veren, mesleğini seçerken üç yoldan birini seçer ve bunu istediği zaman «Hesabım»dan değiştirebilir. Birinci ve üçüncü yolda haritada yerini seçer.",
     "faq_title": "Sık sorulan sorular",
     "faq": {
       "price": {
@@ -1869,33 +1865,9 @@
     "signup_intro": "Kayıt yalnızca bir dakika sürer; seçtiğiniz her şeyi daha sonra «Profilim» bölümünden değiştirebilirsiniz.",
     "account_completion": "Kayıt tamamlandığında başarı mesajı ve giriş bağlantısı gösterilir. Hesabın silindiği onaylandığında başarı mesajı ve ana sayfa bağlantısı gösterilir.",
     "signup_points": {
-      "types": {
-        "title": "Hesap türünüzü seçin",
-        "body": "«Hizmet alan» hizmet isteyenler için, «Hizmet veren» hizmet verenler için, «İkisi de» ise hizmet verip başka hizmetlere de ihtiyaç duyanlar içindir; örneğin elektrikçiye ihtiyacı olan bir şoför."
-      },
-      "basics": {
-        "title": "Telefon ve şifre",
-        "body": "Telefon numaranız ve 4 karakterlik bir şifre yeterlidir; ad isteğe bağlıdır. Numaranızı doğrulamak için SMS ile 4 haneli bir kod gelir. Şifrenizi unutursanız giriş sayfasında «Şifrenizi mi unuttunuz?» seçeneğine dokunun; gelen koddan sonra yeni bir şifre seçersiniz."
-      },
-      "location": {
-        "title": "Konumunuz otomatik",
-        "body": "Uygulamanın konumunuzu belirlemesine izin verin; şehriniz ve mahalleniz otomatik bulunur. Bu olmazsa konumunuzu haritada seçin. Mahalle yalnızca bulunamazsa sorulur."
-      },
-      "professions": {
-        "title": "Meslekler (hizmet veren için)",
-        "body": "En az bir meslek seçin; tesisatçı ve elektrikçi gibi birden fazla meslek seçebilirsiniz. Her mesleğin hizmetleri otomatik seçilir, vermediklerinizi kaldırırsınız. Hizmet alan meslek seçmez."
-      },
-      "coverage": {
-        "title": "Hizmet verdiğiniz mahalleler",
-        "body": "Şehrinizden hizmet verdiğiniz bir veya birkaç mahalleyi seçin ya da «Tüm mahalleler»e dokunun. Başlangıç olarak kendi mahalleniz otomatik seçilir."
-      },
-      "coupon": {
-        "title": "Numaranız ve davet numarası",
-        "body": "Her hesabın, sitenin üstünde ve hesap menünüzde görünen, yalnızca rakamlardan oluşan sabit bir numarası vardır (örneğin 27); bununla, telefonunuzla veya e-postanızla giriş yapabilirsiniz. Hizmet verenin numarası aynı zamanda davet numarasıdır: bir hizmet veren tarafından davet edilen kişi, kayıt sırasında bu numarayı «Davet numarası» alanına yazar. «Hesap oluştur» düğmesi; zorunlu alanlar eksiksiz ve doğru doldurulmadan, şartlar kabul edilmeden ve doğrulama kodu yazılmadan çalışmaz."
-      },
       "matching": {
         "title": "Ana sayfada neler görürsünüz",
-        "body": "Hizmet veren, hizmet verdiği mahallelerdeki ve mesleklerindeki açık talepleri görür. Hizmet alan, seçtiği meslekte kendi bölgesine hizmet veren hizmet verenleri görür: önce seçkinler (ücretli rozet), sonra en yüksek puanlılar. Bölgenizi sitenin üstündeki «Bölgenizi düzenleyin» ile değiştirirsiniz. Birden fazla evi olan kişi, kayıtlı mahallesini değiştirmeden o mahalledeki hizmet verenleri görmek için «Başka bir mahalle»ye dokunur."
+        "body": "Ana sayfanın üstünde iki düğme vardır: «Hizmet talep edenler» talepleri, «Hizmet verenler» ise hizmeti kimin verdiğini gösterir. Altlarında «Çevre» bulunur: mahallenizden başlar (hizmet veriyorsanız hizmet alanınızdaki mahallelerden) ve onu şehrinize, bölgenize veya her yere genişletirsiniz. Hizmet veren her adımda yalnızca kendi mesleğindeki talepleri görür; önceki müşterilerinin talepleri «⭐ Önceki müşteri» işaretiyle önce gelir. Talep eden hizmet verenleri görür: öne çıkanlar (ücretli rozet) önce, sonra en yüksek puanlılar. Birden fazla evi yöneten kişi «Başka mahalle»ye dokunarak kayıtlı mahallesini değiştirmeden o mahallenin hizmet verenlerini görebilir."
       },
       "edit": {
         "title": "Sonradan değiştirme",
@@ -1903,7 +1875,7 @@
       },
       "change_type": {
         "title": "Hesap türünü değiştirme",
-        "body": "Kayıtta yanlış türü seçtiyseniz «Profilim» ← «Hesap türü» bölümünü açıp seçin: hizmet alan, hizmet veren veya ikisi de. Hizmet veren olmak için en az bir meslek, mahalleler ve hizmet yeri seçersiniz. Devam eden bir işiniz varken hizmet vermeyi bırakamazsınız; açık talepleriniz varken «yalnızca hizmet veren» olamazsınız («İkisi de»yi seçin). Hizmet alana geçtiğinizde mesleki bilgileriniz daha sonra dönebilmeniz için saklanır."
+        "body": "Her yeni hesap hizmet talep eden olarak başlar. Hizmet vermek için kayıttan sonra «Mesleğimi ve bölgemi seç»e dokunun ya da «Hesabım» → «Hesap türü»nü açıp seçin: talep eden, hizmet veren veya ikisi. Hizmet veren olmak için en az bir meslek, mahalleler ve hizmet yerini seçersiniz. Devam eden bir iş varken hizmet vermeyi bırakamaz, açık talepleriniz varken «yalnızca hizmet veren» olamazsınız («İkisi»ni seçin). Talep edene geçtiğinizde iş bilgileriniz sonrası için saklanır."
       },
       "stats": {
         "title": "Size yardımcı olacak sayılar",
@@ -2908,25 +2880,9 @@
     "reopen": "Adım adım kayıt rehberi",
     "image_note": "Kayıt sayfasının kendisinden bir görüntü.",
     "steps": {
-      "types": {
-        "title": "Hesap türünü seçin",
-        "body": "Sayfanın üstünde üç düğme vardır: size hizmet verecek birini arıyorsanız «{{client}}», insanlara hizmet veriyorsanız «{{provider}}», hizmet verip bazen başkalarının hizmetine de ihtiyaç duyuyorsanız «{{both}}». Daha sonra «{{profile}}» bölümünden değiştirebilirsiniz."
-      },
       "account": {
         "title": "Telefon numarası ve şifre",
         "body": "05XXXXXXXX gibi Suudi cep telefonu numaranızı, ardından en az 4 karakterlik bir şifre girin. Başka bir şey istenmez: bölgeniz ve şehriniz otomatik belirlenir ve değiştirebilirsiniz; hizmet veriyorsanız mesleğinizi ve mahallelerinizi seçmeniz kayıttan sonra size sunulur ve isteğe bağlıdır. Numaranız zaten kayıtlıysa «{{signin}}» ve «{{forgot}}» düğmeleri görünür."
-      },
-      "location": {
-        "title": "Konumunuz",
-        "body": "Telefon sorduğunda konuma izin verin; şehriniz ve mahalleniz kendiliğinden bulunur. Reddederseniz veya konum belirlenemezse «{{map}}» düğmesine dokunup yerinizi seçin. Mahalle yalnızca otomatik bulunamazsa sorulur. Hizmet alan konumunu daha sonra da belirleyebilir."
-      },
-      "work": {
-        "title": "Hizmet veren: mesleğiniz ve mahalleleriniz",
-        "body": "Tesisatçı veya elektrikçi gibi bir ya da daha fazla meslek seçin. Mesleğin tüm hizmetleri otomatik seçilir; vermediklerinizi kaldırın. Sonra şehrinizde hizmet verdiğiniz mahalleleri seçin ya da «{{all}}» düğmesine dokunun. Hizmet alan bu adımı görmez."
-      },
-      "schedule": {
-        "title": "Hizmet veren: çalışma saatleriniz ve hizmet yeri (isteğe bağlı)",
-        "body": "Bu adım isteğe bağlıdır. Atlarsanız her gün her saatte müsait sayılırsınız ve müşteriye siz gidersiniz. Değiştirmek için «{{extras}}» düğmesine dokunun, günlerinizi ve saatlerinizi seçin, sonra müşteriye sizin mi gittiğinizi, müşterinin mi size geldiğini yoksa ikisi mi olduğunu belirtin; müşteri size geliyorsa yerinizi haritada işaretleyin. Daha sonra «{{profile}}» bölümünden değiştirebilirsiniz."
       },
       "finish": {
         "title": "Hesabı oluşturun",

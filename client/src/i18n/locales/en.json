@@ -167,10 +167,6 @@
     "get_it_on": "GET IT ON",
     "download_on": "Download on the",
     "coming_soon": "Coming soon to",
-    "mode_provider": "I'm a provider",
-    "mode_provider_hint": "Requests in my profession and area",
-    "mode_client": "I'm a requester",
-    "mode_client_hint": "Providers in my area, and new request",
     "tab_requests": "Service requesters",
     "tab_requests_hint": "Requests from people who need a service",
     "tab_requests_hint_provider": "Requests in my profession",
@@ -516,7 +512,7 @@
     "private_account_address": "Your account address stays private. Set your public shop location separately in the business section below.",
     "must_change_password": "For your account's security, replace the temporary password now before continuing (at least 4 characters).",
     "account_type": "Account type",
-    "account_type_hint": "Chose the wrong type when signing up? Change it here at any time.",
+    "account_type_hint": "Offer a service, or need one? Choose your account type here at any time.",
     "account_type_current": "Current",
     "account_type_work_hint": "To provide services, choose at least one profession, the districts you cover and where you serve.",
     "account_type_to_client_note": "You will stop appearing as a provider and your pending offers will be withdrawn. Your work details are kept if you return later.",
@@ -1742,7 +1738,7 @@
     "client_steps": {
       "browse": {
         "title": "Sign up with your phone and a simple password",
-        "body": "Sign up with your phone number and a simple password of at least 4 digits, so no one else signs in as you; the name is optional, and your area is detected automatically and can be changed. On the home page pick a profession from the list to see how many providers serve your area and how many are available now. After account creation is confirmed, a success message and sign-in link appear. Account deletion is confirmed only after the server acknowledges it."
+        "body": "Sign up with your phone number and a simple password of at least 4 characters, so no one else signs in as you. Your region and city are detected automatically and can be changed. At the top of the home page are «Service requesters» and «Service providers», and under them «Circle»: your district first, then widen it to your city, your region or everywhere. After account creation is confirmed, a success message and sign-in link appear. Account deletion is confirmed only after the server acknowledges it."
       },
       "details": {
         "title": "Pick the profession, record what you need",
@@ -1788,7 +1784,7 @@
       }
     },
     "venue_title": "Who travels to whom?",
-    "venue_intro": "At sign-up a provider picks one of three ways, and can change it any time from “Profile”. With the first and third, they pick their place on the map.",
+    "venue_intro": "When choosing their profession, a provider picks one of three ways, and can change it any time from “Profile”. With the first and third, they pick their place on the map.",
     "faq_title": "Frequently asked questions",
     "faq": {
       "price": {
@@ -1869,33 +1865,9 @@
     "signup_intro": "Signing up takes a minute, and everything you choose can be changed later from “Profile”.",
     "account_completion": "After registration completes, a success message links to sign-in. After account deletion is confirmed, a success message links to the home page.",
     "signup_points": {
-      "types": {
-        "title": "Choose your account type",
-        "body": "“Client” requests services, “Provider” offers them, and “Both” offers a service and needs others, like a driver who needs an electrician."
-      },
-      "basics": {
-        "title": "Phone and password",
-        "body": "Your phone number and a 4-character password are enough; the name is optional. A 4-digit code arrives by SMS to confirm your number. If you forget your password, tap “Forgot password?” on the sign-in page to get a code and choose a new one."
-      },
-      "location": {
-        "title": "Your location, automatically",
-        "body": "Allow location access and your city and neighborhood are detected automatically. Otherwise, pick your spot on the map. You are asked for the neighborhood only if it cannot be detected."
-      },
-      "professions": {
-        "title": "Professions (providers)",
-        "body": "Choose at least one profession; you can choose several, like plumber and electrician. Each profession's services are selected for you, and you untick what you do not offer. Clients do not choose professions."
-      },
-      "coverage": {
-        "title": "Neighborhoods you cover",
-        "body": "Choose one or more neighborhoods of your city that you serve, or tap “All”. Your own neighborhood is preselected."
-      },
-      "coupon": {
-        "title": "Customer number and invitation number",
-        "body": "Every account has a permanent customer number of digits only (e.g. 27), shown at the top of the site and in your account menu; you can sign in with it, your phone or your email. A provider's number is also their invitation number: if a provider invited you, type it in the “Invitation number” field while signing up. The “Create Account” button stays off until the required fields are complete and valid, the terms are accepted and the verification code is entered."
-      },
       "matching": {
         "title": "What your home page shows",
-        "body": "Providers see open requests in the neighborhoods they cover and in their professions. Clients see providers who cover their area in the profession they pick: featured (paid badge) first, then the highest rated. Change your area from “Edit your area” at the top. If you manage more than one home, tap “Another neighborhood” to see the providers there without changing your registered one."
+        "body": "At the top of the home page are two buttons: «Service requesters» shows the requests, and «Service providers» shows who provides the service. Under them is «Circle»: it starts at your district (or your coverage districts if you are a provider), and you widen it to your city, your region or everywhere. A provider sees only requests in their profession at every step, with their previous clients' requests first, marked «⭐ Previous client». A requester sees the providers, featured (paid badge) first, then the highest rated. Someone who manages more than one home taps «Other district» to see that district's providers without changing their registered one."
       },
       "edit": {
         "title": "Changing things later",
@@ -1903,7 +1875,7 @@
       },
       "change_type": {
         "title": "Changing the account type",
-        "body": "If you chose the wrong type at sign-up, open “Profile” → “Account type” and pick client, provider or both. Becoming a provider needs at least one profession, your districts and where you serve. You cannot leave providing while a job is in progress, nor become “provider only” with open requests (choose “Both”). Switching to client keeps your work details for later."
+        "body": "Every new account starts as a requester. To offer a service, tap «Choose my profession and area» after signing up, or open «My account» → «Account type» and choose: requester, provider or both. To become a provider you choose at least one profession, the districts and where you serve. You cannot stop providing while a job is in progress, nor become «provider only» while you have open requests (choose «Both»). When you switch to requester, your work details are kept for later."
       },
       "stats": {
         "title": "Numbers that help you",
@@ -2908,25 +2880,9 @@
     "reopen": "Sign-up guide, step by step",
     "image_note": "A picture of the sign-up page itself.",
     "steps": {
-      "types": {
-        "title": "Choose your account type",
-        "body": "At the top of the page there are three buttons: «{{client}}» if you are looking for someone to provide a service, «{{provider}}» if you provide a service to people, and «{{both}}» if you provide a service and sometimes need others' services. You can change it later in «{{profile}}»."
-      },
       "account": {
         "title": "Phone number and password",
         "body": "Enter your Saudi mobile number like 05XXXXXXXX, then a password of at least 4 characters. Nothing else is asked: your region and city are detected automatically and you can change them, and if you offer a service, choosing your profession and districts is offered after sign-up, and it is optional. If your number is already registered, «{{signin}}» and «{{forgot}}» buttons appear."
-      },
-      "location": {
-        "title": "Your location",
-        "body": "Allow location when your phone asks, and your city and district are found on their own. If you refuse or it fails, tap «{{map}}» and choose your place. The district is asked only when it is not found automatically. A client can also set the location later."
-      },
-      "work": {
-        "title": "Service provider: your profession and districts",
-        "body": "Choose one or more professions, such as plumber or electrician. All the services of a profession are selected for you, so untick those you do not offer. Then choose the districts you serve in your city, or tap «{{all}}». Clients do not see this step."
-      },
-      "schedule": {
-        "title": "Service provider: your hours and service location (optional)",
-        "body": "This step is optional. If you skip it, you are available every day at any hour and you go to the client. To change it, tap «{{extras}}», choose your days and hours, then say whether you go to the client, the client comes to you, or both; if clients come to you, mark your place on the map. You can change it later in «{{profile}}»."
       },
       "finish": {
         "title": "Create the account",
