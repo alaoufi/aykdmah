@@ -36,6 +36,7 @@ export default function RequesterHome() {
   // No filter by default (AYK-440); kept for this visit only.
   const [filters, setFilters] = useState({ prof: false, area: false });
   const board = restricted ? { prof: true, area: true } : filters;
+  const [boardMeta, setBoardMeta] = useState(null);
   const choose = next => { setTab(next); try { localStorage.setItem(TAB_KEY, next); } catch (_) { /* private mode */ } };
   const tabButton = (value, icon, label, hint) => (
     <button type="button" role="tab" aria-selected={tab === value} onClick={() => choose(value)} data-testid={`home-tab-${value}`}
@@ -54,9 +55,9 @@ export default function RequesterHome() {
           {tabButton('providers', '🛠️', t('home.tab_providers'), t('home.tab_providers_hint'))}
         </div>
         {/* AYK-440/444: everyone, ranked by my profession (or my requests) and my area; two boxes narrow it. */}
-        <BoardFilters value={filters} onChange={setFilters} asProvider={isProvider} restricted={restricted} />
+        <BoardFilters value={filters} onChange={setFilters} asProvider={isProvider} restricted={restricted} meta={boardMeta} />
       </div>
-      {tab === 'requests' ? <WorkRequests board={board} asProvider={isProvider} /> : (
+      {tab === 'requests' ? <WorkRequests board={board} asProvider={isProvider} onMeta={setBoardMeta} /> : (
         <>
           {canRequest && (
             <div className="card tone-request p-4 flex flex-wrap items-center justify-between gap-2">
@@ -70,7 +71,7 @@ export default function RequesterHome() {
               </div>
             </div>
           )}
-          <MatchingProviders board={board} />
+          <MatchingProviders board={board} onMeta={setBoardMeta} />
         </>
       )}
     </section>

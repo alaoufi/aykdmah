@@ -91,8 +91,7 @@ export default function ProviderDashboardPage() {
           <h3 style={{ margin: 0 }}>📨 {t(unrestricted ? 'work.all_open_title' : 'work.requests_title')}</h3>
           <Link to="/opportunities" className="text-[13px] font-semibold">{t('work.see_all')}</Link>
         </div>
-        <BoardFilters value={filters} onChange={setFilters} asProvider restricted={restricted}
-          hint={boardMeta.has_profession === false ? t('home.filter_need_services') : ''} />
+        <BoardFilters value={filters} onChange={setFilters} asProvider restricted={restricted} meta={boardMeta} />
         <div className="mb-3" />
         <RequestAlertPrompt noneForMe={!nearby.some(r => r.board_profession && r.board_area)} />
         {boardMeta.fallback && <p className="text-[12.5px] rounded-card bg-amber-50 text-amber-900 px-3 py-2 mb-2" role="status" data-testid="board-fallback">💡 {t('home.board_fallback')}</p>}

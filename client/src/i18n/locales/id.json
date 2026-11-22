@@ -193,7 +193,6 @@
     "filter_my_requests": "Permintaan saya",
     "filter_my_area": "Wilayah saya",
     "filter_restricted": "🔒 Dibatasi oleh administrasi",
-    "filter_some": "Yang terdekat dulu",
     "filter_none": "Tidak ada pilihan: semua tampil, yang terdekat dulu",
     "board_none_filtered": "Belum ada yang cocok. Matikan satu filter untuk melihat semua.",
     "board_fallback": "Belum ada yang cocok dengan pilihan Anda, jadi ini permintaan lainnya, dimulai dari yang terdekat.",
@@ -224,7 +223,14 @@
     "recent_agreed": "Sepakat {{when}}",
     "recent_none": "Belum ada kesepakatan dalam periode ini. Coba periode lebih panjang atau semua profesi.",
     "filter_title": "Tampilkan",
-    "filter_need_services": "Tambahkan layanan Anda di «Profil saya» dulu agar «Profesi saya» berfungsi."
+    "filter_need_services": "Tambahkan layanan Anda di «Profil saya» dulu agar «Profesi saya» berfungsi.",
+    "filter_state_prof_provider": "Profesi Anda di semua wilayah, yang terdekat dulu",
+    "filter_state_prof_requester": "Profesi yang Anda minta, di semua wilayah",
+    "filter_state_area": "Semua profesi di wilayah Anda",
+    "filter_state_both_provider": "Profesi Anda di wilayah Anda saja",
+    "filter_state_both_requester": "Profesi yang Anda minta, di wilayah Anda saja",
+    "filter_need_requests": "Kirim permintaan dulu agar «Permintaan saya» berfungsi.",
+    "filter_need_area": "Lengkapi wilayah Anda di «Profil saya» dulu agar «Wilayah saya» berfungsi."
   },
   "location": {
     "country": "Negara",

@@ -72,7 +72,7 @@ export function AreaLine({ area, browsing, onPick }) {
 // AYK-397: `scope` widens the circle from the home's bar: 'area' (default), 'city', 'region', 'all'.
 // AYK-440: `board` ({ prof, area }) — the home board: every provider, ranked by the server (my area and
 // requested professions first), filtered only by the buttons chosen above.
-export default function MatchingProviders({ categoryId: fixedCategory = '', serviceId = '', showChips: showChipsProp = true, title, fixedArea = null, onContact = null, scope = 'area', board = null }) {
+export default function MatchingProviders({ categoryId: fixedCategory = '', serviceId = '', showChips: showChipsProp = true, title, fixedArea = null, onContact = null, scope = 'area', board = null, onMeta = null }) {
   const showChips = showChipsProp && !board;
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
@@ -96,7 +96,7 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
     if (!quiet) setResult(null);
     const area = fixedArea || browse;
     listMatchingProviders({ categoryId, serviceId, matching: !onContact && !board && matching, cityId: area?.city_id, districtId: area?.district_id, scope: onContact || board ? '' : scope, board })
-      .then(data => { if (alive) setResult(onContact ? { ...data, providers: data.providers.filter(p => p.availability?.state === 'available') } : data); })
+      .then(data => { if (alive && board) onMeta?.(data.board || null); if (alive) setResult(onContact ? { ...data, providers: data.providers.filter(p => p.availability?.state === 'available') } : data); })
       .catch(() => { if (alive) setResult({ area: null, providers: [] }); });
     return () => { alive = false; };
   }, [categoryId, serviceId, browse, fixedArea?.city_id, fixedArea?.district_id, Boolean(onContact), tick, matching, scope, board?.prof, board?.area]);

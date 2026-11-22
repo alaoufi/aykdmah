@@ -14,7 +14,7 @@ import RequestAlertPrompt from '../provider/RequestAlertPrompt';
 // AYK-397: `scope` widens the circle; `asProvider` false shows others' requests around a requester.
 // AYK-440: `board` ({ prof, area }) — the home board: every open request ranked by the server (my
 // profession and area first); the two buttons above filter only when chosen.
-export default function WorkRequests({ className = '', scope = 'area', asProvider = true, board = null }) {
+export default function WorkRequests({ className = '', scope = 'area', asProvider = true, board = null, onMeta = null }) {
   const { t } = useTranslation();
   const [rows, setRows] = useState(null);
   const [meta, setMeta] = useState({});
@@ -26,7 +26,7 @@ export default function WorkRequests({ className = '', scope = 'area', asProvide
       ? { limit: 30, board: '1', ...(board.prof ? { f_prof: '1' } : {}), ...(board.area ? { f_area: '1' } : {}), ...(asProvider ? {} : { as: 'requester' }) }
       : { limit: 20, ...(asProvider ? { matching: '1' } : {}), ...(scope !== 'area' || !asProvider ? { scope } : {}) };
     listNearbyRequests(params)
-      .then(result => { if (alive) { shown.current = true; setRows(result.data || []); setMeta(result.meta?.board || {}); } })
+      .then(result => { if (alive) { shown.current = true; setRows(result.data || []); setMeta(result.meta?.board || {}); onMeta?.(result.meta?.board || null); } })
       .catch(() => { if (alive && !shown.current) setRows([]); });
     return () => { alive = false; };
   }, [tick, scope, asProvider, board?.prof, board?.area]);

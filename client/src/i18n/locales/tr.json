@@ -193,7 +193,6 @@
     "filter_my_requests": "Talebim",
     "filter_my_area": "Bölgem",
     "filter_restricted": "🔒 Yönetim tarafından sınırlandı",
-    "filter_some": "Size en yakın önce",
     "filter_none": "Seçim yok: herkes görünür, size en yakın önce",
     "board_none_filtered": "Şu an eşleşen yok. Herkesi görmek için bir filtreyi kapatın.",
     "board_fallback": "Seçiminize uyan henüz bir şey yok; size en yakından başlayarak diğer talepler burada.",
@@ -224,7 +223,14 @@
     "recent_agreed": "Anlaşma: {{when}}",
     "recent_none": "Bu sürede henüz anlaşma yok. Daha uzun bir süre veya tüm meslekleri deneyin.",
     "filter_title": "Bana göster",
-    "filter_need_services": "«Mesleğim»in çalışması için önce «Profilim»de hizmetlerinizi ekleyin."
+    "filter_need_services": "«Mesleğim»in çalışması için önce «Profilim»de hizmetlerinizi ekleyin.",
+    "filter_state_prof_provider": "Mesleğiniz tüm bölgelerde, en yakın önce",
+    "filter_state_prof_requester": "Talep ettiğiniz meslekler, tüm bölgelerde",
+    "filter_state_area": "Bölgenizdeki tüm meslekler",
+    "filter_state_both_provider": "Yalnızca bölgenizdeki mesleğiniz",
+    "filter_state_both_requester": "Yalnızca bölgenizde talep ettiğiniz meslekler",
+    "filter_need_requests": "«Talebim»in çalışması için önce bir talep gönderin.",
+    "filter_need_area": "«Bölgem»in çalışması için önce «Profilim»de bölgenizi tamamlayın."
   },
   "location": {
     "country": "Ülke",

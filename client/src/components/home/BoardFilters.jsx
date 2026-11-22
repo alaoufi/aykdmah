@@ -1,10 +1,12 @@
 import { useTranslation } from 'react-i18next';
+import { stateKey } from '../../utils/boardFilterState.js';
+
 
 // AYK-444 (the owner, with a screenshot he liked: «اعرض لي» and two large boxes): «مهنتي» for a service
 // provider, «طلبي» for a requester, and «منطقتي». Each is a box to tick on or off; there is no «الكل»,
 // because leaving both unticked shows everyone. When the administration restricts views, both are
 // ticked and fixed. `hint` explains a box that cannot work yet (no services / no requests).
-export default function BoardFilters({ value, onChange, asProvider = false, restricted = false, hint = '', size = 'md', testId = 'home-filters' }) {
+export default function BoardFilters({ value, onChange, asProvider = false, restricted = false, hint = '', meta = null, size = 'md', testId = 'home-filters' }) {
   const { t } = useTranslation();
   const on = restricted ? { prof: true, area: true } : value;
   const small = size === 'sm';
@@ -15,7 +17,9 @@ export default function BoardFilters({ value, onChange, asProvider = false, rest
         onClick={() => onChange({ ...value, [key]: !value[key] })} data-testid={`${testId === 'home-filters' ? 'home-filter' : `${testId}-filter`}-${key}`}
         className={`flex-1 min-w-0 inline-flex items-center justify-center gap-1.5 rounded-card font-extrabold transition border-0 ${small ? 'h-9 text-[13px]' : 'h-11 text-[15px]'} ${active
           ? 'bg-primary text-white shadow-sm' : 'bg-transparent text-fg hover:bg-surface'} ${restricted ? 'cursor-default opacity-90' : 'cursor-pointer'}`}>
-        {active && <span aria-hidden="true">✓</span>}{label}
+        {/* AYK-445 (the owner's screenshot): a small square in each box, ticked when chosen. */}
+        <span aria-hidden="true" className={`inline-grid place-items-center shrink-0 rounded-[6px] ${small ? 'w-4 h-4 text-[10px]' : 'w-5 h-5 text-[12px]'} ${active
+          ? 'bg-white text-primary' : 'border-2 border-fg-muted/60 bg-surface'}`}>{active ? '✓' : ''}</span>{label}
       </button>
     );
   };
@@ -29,7 +33,7 @@ export default function BoardFilters({ value, onChange, asProvider = false, rest
         </div>
       </div>
       <p className={`text-fg-muted mt-1 mb-0 ${small ? 'text-[11.5px]' : 'text-[12px]'}`}>
-        {restricted ? t('home.filter_restricted') : hint || t(on.prof || on.area ? 'home.filter_some' : 'home.filter_none')}
+        {restricted ? t('home.filter_restricted') : hint || t(stateKey(on, asProvider, meta))}
       </p>
     </div>
   );
