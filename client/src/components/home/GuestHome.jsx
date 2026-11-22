@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { listCategories, listServices, listMatchingProviders } from '../../services/serviceService';
 import { listNearbyRequests } from '../../services/requestService';
@@ -7,6 +7,10 @@ import { getCategoryIcon } from '../common/Icons';
 import { localizedName } from '../../utils/localize';
 import { localizedJoinedName } from '../../utils/localizeJoined';
 import RequestCard from './RequestCard';
+import RatingInline from '../reviews/RatingInline';
+import ContactButtons from '../providers/ContactButtons';
+import RecentActivity from './RecentActivity';
+import BoardEmpty from './BoardEmpty';
 
 // AYK-413 (the owner): a visitor browses without signing up. The professions come first, then
 // their categories small and close together, then the service requests (no private details are
@@ -14,12 +18,16 @@ import RequestCard from './RequestCard';
 export default function GuestHome() {
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [services, setServices] = useState([]);
   const [category, setCategory] = useState('');
   const [service, setService] = useState('');
   const [requests, setRequests] = useState(null);
   const [providers, setProviders] = useState(null);
+  // AYK-441: a profession with nothing yet shows the rest, saying so.
+  const [requestsWider, setRequestsWider] = useState(false);
+  const [providersWider, setProvidersWider] = useState(false);
   const [allProviders, setAllProviders] = useState(false);
 
   useEffect(() => {
@@ -34,7 +42,14 @@ export default function GuestHome() {
     if (category) params.category_id = category;
     if (service) params.service_id = service;
     listNearbyRequests(params)
-      .then(res => { if (current) setRequests(res.data || []); })
+      .then(async res => {
+        let rows = res.data || []; let wider = false;
+        if (!rows.length && (category || service)) {
+          const all = await listNearbyRequests({ limit: 10, status: 'open' }).catch(() => null);
+          rows = all?.data || []; wider = rows.length > 0;
+        }
+        if (current) { setRequests(rows); setRequestsWider(wider); }
+      })
       .catch(() => { if (current) setRequests([]); });
     return () => { current = false; };
   }, [category, service]);
@@ -43,7 +58,13 @@ export default function GuestHome() {
     let current = true;
     setProviders(null);
     listMatchingProviders({ scope: 'all', categoryId: category || undefined, serviceId: service || undefined })
-      .then(res => { if (current) setProviders(res?.providers || []); })
+      .then(async res => {
+        let rows = res?.providers || []; let wider = false;
+        if (!rows.length && (category || service)) {
+          rows = (await listMatchingProviders({ scope: 'all' }).catch(() => null))?.providers || []; wider = rows.length > 0;
+        }
+        if (current) { setProviders(rows); setProvidersWider(wider); }
+      })
       .catch(() => { if (current) setProviders([]); });
     return () => { current = false; };
   }, [category, service]);
@@ -100,32 +121,39 @@ export default function GuestHome() {
           <h2 className="text-[16px] font-extrabold text-fg m-0">{t('home.guest_requests')}</h2>
           <Link to={category ? `/opportunities?category=${category}` : '/opportunities'} className="text-primary font-semibold text-[13px]">{t('home.view_all')}</Link>
         </div>
+        {requestsWider && <p className="text-[12.5px] rounded-card bg-amber-50 text-amber-900 px-3 py-2 mb-1.5" role="status" data-testid="board-fallback">💡 {t('home.guest_fallback_requests')}</p>}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5" aria-busy={requests === null}>
           {requests === null ? Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-20 rounded-card bg-surface-alt animate-pulse" />)
-            : !requests.length ? <p className="col-span-full text-center py-3 text-fg-muted text-[13px]">{t('common.none')}</p>
+            : !requests.length ? <div className="col-span-full"><BoardEmpty who="guest" /></div>
               : requests.map(item => <RequestCard key={item.id} item={item} />)}
         </div>
+        <RecentActivity className="mt-2" />
       </section>
 
       <section data-testid="guest-providers">
         <h2 className="text-[16px] font-extrabold text-fg mb-1.5">{t('home.guest_providers')}</h2>
+        {providersWider && <p className="text-[12.5px] rounded-card bg-amber-50 text-amber-900 px-3 py-2 mb-1.5" role="status" data-testid="providers-fallback">💡 {t('home.guest_fallback_providers')}</p>}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5" aria-busy={providers === null}>
           {providers === null ? Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-14 rounded-card bg-surface-alt animate-pulse" />)
-            : !providers.length ? <p className="col-span-full text-center py-3 text-fg-muted text-[13px]">{t('common.none')}</p>
+            : !providers.length ? <div className="col-span-full"><BoardEmpty kind="providers" /></div>
               : shownProviders.map(row => (
-                <Link key={row.id} to={`/providers/${row.id}`} data-testid="guest-provider"
-                  className="tone-provider rounded-card px-2.5 py-2 flex items-center gap-2.5 no-underline">
-                  {row.avatar
-                    ? <img src={row.avatar} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" loading="lazy" />
-                    : <span className="w-10 h-10 rounded-full grid place-items-center bg-brand-50 text-[18px] shrink-0" aria-hidden="true">🛠️</span>}
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-[13.5px] font-extrabold text-fg truncate">{row.business_name || row.full_name}</span>
-                    <span className="block text-[11.5px] text-fg-muted truncate">
-                      {[localizedJoinedName(row, 'category', lang), localizedJoinedName(row, 'district', lang)].filter(Boolean).join(' · ')}
+                // AYK-435: a visitor sees the contact icons too; the chat asks them to sign in first.
+                <div key={row.id} className="tone-provider rounded-card px-2.5 py-2 flex items-center gap-2.5" data-testid="guest-provider">
+                  <Link to={`/providers/${row.id}`} className="min-w-0 flex-1 flex items-center gap-2.5 no-underline">
+                    {row.avatar
+                      ? <img src={row.avatar} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" loading="lazy" />
+                      : <span className="w-10 h-10 rounded-full grid place-items-center bg-brand-50 text-[18px] shrink-0" aria-hidden="true">🛠️</span>}
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[13.5px] font-extrabold text-fg truncate">{row.business_name || row.full_name}</span>
+                      <span className="block text-[11.5px] text-fg-muted truncate">
+                        {[localizedJoinedName(row, 'category', lang), localizedJoinedName(row, 'district', lang)].filter(Boolean).join(' · ')}
+                      </span>
+                      {Number(row.rating_count) > 0 && <RatingInline className="text-[11px]" size={11} average={row.rating_avg} count={row.rating_count} showCount={false} />}
                     </span>
-                  </span>
-                  {Number(row.rating_count) > 0 && <span className="text-[12px] font-bold text-amber-600 shrink-0">★ {Number(row.rating_avg).toFixed(1)}</span>}
-                </Link>
+                  </Link>
+                  <ContactButtons size="xs" testId="guest-contact" phone={row.public_phone} whatsapp={row.public_whatsapp}
+                    onChat={() => navigate('/login', { state: { from: `/providers/${row.id}` } })} link={`/providers/${row.id}`} />
+                </div>
               ))}
         </div>
         {providers && providers.length > 8 && !allProviders && (

@@ -1,9 +1,11 @@
-// AYK-354 (the owner): a short invite link, aykdmh.com/i/<number>. Whoever opens it and then signs
+import { SITE_URL } from './site';
+
+// AYK-354 (the owner): a short invite link, aykdmh.sa/i/<number> (AYK-429; was aykdmh.com). Whoever opens it and then signs
 // up is counted for the inviter, also when they look around the site first or sign up a few days
 // later on this device: the number is kept here for 30 days, until a sign-up uses it.
 const KEY = 'ayk_invite';
 const DAYS = 30;
-export const inviteLink = code => `https://aykdmh.com/i/${encodeURIComponent(code)}`;
+export const inviteLink = code => `${SITE_URL}/i/${encodeURIComponent(code)}`;
 const VALID = /^(\d{2,6}|[A-Z]{2,4}\d{2,4})$/;
 export function keepInvite(code) {
   const value = String(code || '').trim().toUpperCase();

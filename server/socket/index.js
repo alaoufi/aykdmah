@@ -25,7 +25,7 @@ function initSocket(httpServer) {
     // the app's own refresh every few seconds (NotificationContext / useLiveRefresh), as offline.
     ...(Number(process.env.APP_WORKERS) > 1 ? { transports: ['websocket'] } : {}),
     // AYK-240: the same origins as the API (never "*"); native apps send no Origin header.
-    cors: { origin: [env.CLIENT_URL, env.APP_URL].filter(Boolean), credentials: true },
+    cors: { origin: [env.CLIENT_URL, env.APP_URL, ...env.SITE_ORIGINS].filter(Boolean), credentials: true },
     pingTimeout: 30000,
     maxHttpBufferSize: 64 * 1024,
   });

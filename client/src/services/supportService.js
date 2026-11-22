@@ -46,3 +46,16 @@ export async function adminSupportStatus(id, status) {
   const { data } = await api.put(`/admin/support/${id}/status`, { status });
   return data.data;
 }
+
+// AYK-437: the support WhatsApp taps (kept for support to review).
+export function logSupportWhatsApp(payload) {
+  return api.post('/support/whatsapp', payload).catch(() => null);
+}
+export async function adminSupportWhatsApp(params = {}) {
+  const { data } = await api.get('/admin/support/whatsapp', { params });
+  return data.data;
+}
+export async function adminSupportWhatsAppHandled(id, handled = true) {
+  const { data } = await api.put(`/admin/support/whatsapp/${id}`, { handled });
+  return data.data;
+}

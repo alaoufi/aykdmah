@@ -14,9 +14,13 @@ import { apiError } from '../../services/api';
 import { isPresent, ProviderStatus } from '../common/AvailabilityBadge';
 import { optionLabel } from '../../utils/optionLabel';
 import ExpandableText from '../common/ExpandableText';
-import ContactMenu from '../providers/ContactMenu';
+import ContactButtons from '../providers/ContactButtons';
+import BoardEmpty from '../home/BoardEmpty';
+import { boardKey, recall, keep, narrow } from '../../utils/boardCache';
 import ShareMenu from '../common/ShareMenu';
 import { providerLink } from '../providers/ShareProviderLink';
+import useContactIntro from '../../hooks/useContactIntro';
+import { localizedJoinedName } from '../../utils/localizeJoined';
 
 // Providers who serve the signed-in requester's registered district in a profession
 // (AYK-035): every provider covering that district, featured (paid) first, then by
@@ -67,7 +71,10 @@ export function AreaLine({ area, browsing, onPick }) {
 // On a request page (fixedArea + onContact) the list is that request's area and profession,
 // only providers working right now, each with a "Contact" button.
 // AYK-397: `scope` widens the circle from the home's bar: 'area' (default), 'city', 'region', 'all'.
-export default function MatchingProviders({ categoryId: fixedCategory = '', serviceId = '', showChips = true, title, fixedArea = null, onContact = null, scope = 'area' }) {
+// AYK-440: `board` ({ prof, area }) — the home board: every provider, ranked by the server (my area and
+// requested professions first), filtered only by the buttons chosen above.
+export default function MatchingProviders({ categoryId: fixedCategory = '', serviceId = '', showChips: showChipsProp = true, title, fixedArea = null, onContact = null, scope = 'area', board = null, onMeta = null }) {
+  const showChips = showChipsProp && !board;
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
   const [categories, setCategories] = useState([]);
@@ -87,13 +94,17 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
   const [tick, quiet] = useLiveRefresh(['providers:changed']);
   useEffect(() => {
     let alive = true;
-    if (!quiet) setResult(null);
+    // AYK-449: on the board, a box ticked shows at once (kept, or the whole list narrowed).
+    const boardKeyNow = board ? boardKey('providers', { prof: Boolean(board.prof), area: Boolean(board.area) }) : null;
+    const quick = board ? (recall(boardKeyNow) || (() => { const wide = recall(boardKey('providers', { prof: false, area: false })); return wide && { ...wide, providers: narrow(wide.providers, board), board: { ...wide.board, fallback: false } }; })()) : null;
+    if (quick) setResult(quick);
+    else if (!quiet) setResult(null);
     const area = fixedArea || browse;
-    listMatchingProviders({ categoryId, serviceId, matching: !onContact && matching, cityId: area?.city_id, districtId: area?.district_id, scope: onContact ? '' : scope })
-      .then(data => { if (alive) setResult(onContact ? { ...data, providers: data.providers.filter(p => p.availability?.state === 'available') } : data); })
+    listMatchingProviders({ categoryId, serviceId, matching: !onContact && !board && matching, cityId: area?.city_id, districtId: area?.district_id, scope: onContact || board ? '' : scope, board })
+      .then(data => { if (board) keep(boardKeyNow, data); if (alive && board) onMeta?.(data.board || null); if (alive) setResult(onContact ? { ...data, providers: data.providers.filter(p => p.availability?.state === 'available') } : data); })
       .catch(() => { if (alive) setResult({ area: null, providers: [] }); });
     return () => { alive = false; };
-  }, [categoryId, serviceId, browse, fixedArea?.city_id, fixedArea?.district_id, Boolean(onContact), tick, matching, scope]);
+  }, [categoryId, serviceId, browse, fixedArea?.city_id, fixedArea?.district_id, Boolean(onContact), tick, matching, scope, board?.prof, board?.area, board?.rev]);
 
   // A requester can keep a provider in "My directory" and contact them directly (AYK-041).
   const { user } = useAuth();
@@ -119,7 +130,7 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
   // server's own order (featured, then rating) is kept inside each group.
   const asked = new Set((result?.requested_category_ids || []).map(Number));
   const askedFirst = rows => (asked.size ? [...rows.filter(p => asked.has(Number(p.category_id))), ...rows.filter(p => !asked.has(Number(p.category_id)))] : rows);
-  const shown = onContact ? (result?.providers || []) : askedFirst(widened ? availableFirst(cityList) : inDistrict);
+  const shown = onContact || board ? (result?.providers || []) : askedFirst(widened ? availableFirst(cityList) : inDistrict);
   // AYK-335 (the owner's screenshot): the same provider was on the page as a card and again in
   // the city box under it. The city box leaves out those already shown as cards.
   const listed = onlyPresent ? shown.filter(p => isPresent(p.availability)) : shown;
@@ -131,7 +142,7 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
     <div data-testid="providers-for-me">
       <div className="mb-3">
         <h2 className="text-xl md:text-2xl font-extrabold text-fg m-0">👷 {title || t('for_you.providers_title')}</h2>
-        {!fixedArea && scope === 'area' && <div className="mt-1"><AreaLine area={result?.area} browsing={Boolean(browse)} onPick={pick} /></div>}
+        {!fixedArea && !board && scope === 'area' && <div className="mt-1"><AreaLine area={result?.area} browsing={Boolean(browse)} onPick={pick} /></div>}
       </div>
       {!onContact && showChips && <div className="flex gap-2 my-2" role="tablist">{[[true,'chat.requested_professions'],[false,'requester.all_professions']].map(([value,key]) => <button key={key} data-testid={value ? 'requested-professions' : 'all-professions'} type="button" role="tab" aria-selected={matching === value} className="btn btn-outline btn-sm" onClick={() => {setMatching(value);setCategoryId('');}}>{t(key)}</button>)}</div>}
       {!onContact && matching && result?.requested_category_ids?.length === 0 && <p className="text-[12px] text-fg-muted">{t('chat.requested_professions_empty')}</p>}
@@ -141,14 +152,14 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
         <option value="">{t('requester.all_professions')}</option>
         {categories.map(c => <option key={c.id} value={c.id}>{optionLabel(c.icon, localizedName(c, lang), lang)}</option>)}
       </select>}
-      {(result?.area || scope === 'all') && result?.providers?.length > 0 && <div className="flex flex-wrap gap-2 mb-3" role="tablist" data-testid="providers-stats">
+      {(result?.area || scope === 'all' || board) && result?.providers?.length > 0 && <div className="flex flex-wrap gap-2 mb-3" role="tablist" data-testid="providers-stats">
         <button type="button" role="tab" aria-selected={!onlyPresent} className="btn btn-outline btn-sm" data-testid="show-all-providers"
           onClick={() => setOnlyPresent(false)}>👷 {t('requester.stat_total', { count: result.providers.length })}</button>
         <button type="button" role="tab" aria-selected={onlyPresent} className="btn btn-outline btn-sm" data-testid="show-present-providers"
           onClick={() => setOnlyPresent(true)}>🟢 {t('requester.stat_available', { count: availableCount })}</button>
       </div>}
       {result === null ? <p className="text-fg-muted">{t('common.loading')}</p>
-        : !result.area && scope !== 'all' ? <p className="card text-fg-muted text-[14px]">{t('for_you.no_area_hint')} <Link to="/profile#my-area" className="font-semibold text-primary">{t('for_you.edit_area')}</Link></p>
+        : !result.area && scope !== 'all' && !board ? <p className="card text-fg-muted text-[14px]">{t('for_you.no_area_hint')} <Link to="/profile#my-area" className="font-semibold text-primary">{t('for_you.edit_area')}</Link></p>
           : (
             <>
               {widened && (
@@ -156,7 +167,8 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
                   ⚠️ {t(shown.length ? 'for_you.district_not_covered' : 'for_you.city_none_now', { district: districtName, city: cityName })}
                 </p>
               )}
-              {listed.length === 0 ? (
+              {board && result?.board?.fallback && <p className="text-[12.5px] rounded-card bg-amber-50 text-amber-900 px-3 py-2 mb-3" role="status" data-testid="board-fallback">💡 {t('home.board_fallback_providers')}</p>}
+              {listed.length === 0 && board && !result?.board?.restricted && !onlyPresent ? <BoardEmpty kind="providers" /> : listed.length === 0 ? (
                 <div className="card text-[14px]">
                   <p className="text-fg-muted m-0 mb-3">{t(cityList === null ? 'for_you.providers_empty' : 'for_you.request_and_we_alert')}</p>
                   {!onContact && <Link to="/requests/new" className="btn btn-primary">{t('home.new_request')}</Link>}
@@ -218,6 +230,7 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState('');
   const { t, i18n } = useTranslation();
+  const intro = useContactIntro();
   const lang = i18n.resolvedLanguage || 'ar';
   const navigate = useNavigate();
   const run = async action => { setBusy(true); setProblem(''); try { await action(); } catch (err) { !err?.cancelled && setProblem(apiError(err)); } finally { setBusy(false); } };
@@ -249,16 +262,22 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
         <ProviderStatus availability={p.availability} coverage={p.coverage} name={p.business_name || p.full_name} className="mt-1.5" />
         {/* AYK-377: what they say about their services, opening and closing in place. */}
         <ExpandableText text={p.bio} translated={p.bio_translated} lines={2} className="mt-2" testId="provider-bio" />
-        <div className="flex flex-wrap items-center gap-2 mt-2">
-          {/* AYK-379: «تواصل» opens جوال / واتساب (when the provider shows them) / محادثة. */}
-          {onContact && <ContactMenu phone={p.public_phone} whatsapp={p.public_whatsapp} busy={busy} testId="contact-provider"
-            onChat={async () => { setBusy(true); try { await onContact(p); } finally { setBusy(false); } }} />}
-          {requester && <ContactMenu phone={p.public_phone} whatsapp={p.public_whatsapp} busy={busy} testId="direct-contact"
-            onChat={() => run(async () => { const res = await contactDirect(p.id, categoryId); navigate(`/chat/${res.conversation_id}`); })} />}
+        {/* AYK-379: جوال / واتساب (when the provider shows them) / محادثة. AYK-427: shown as buttons.
+            AYK-451 (the owner: «المحادثة اجعلها بجنب المشاركة، ووضّح المشاركة، ولا تجعل أسطرًا فارغة»):
+            one row: the profile button, then the contact icons and the share button together at the end. */}
+        <div className="flex flex-wrap items-center gap-2 mt-2" data-testid="provider-card-actions">
           {requester && !saved && (<button type="button" className="btn btn-outline btn-sm" disabled={busy} data-testid="save-provider"
               onClick={() => run(() => onToggleSaved(p.id))}>📇 {t('requester.add_directory')}</button>)}
           <Link to={`/providers/${p.id}`} className="btn btn-outline btn-sm">👤 {t('for_you.view_profile')}</Link>
-          <ShareMenu variant="icon" url={providerLink(p.id)} title={p.business_name || p.full_name} text={t('share_provider.message', { name: p.business_name || p.full_name })} testId="card-share" />
+          <span className="ms-auto inline-flex items-center gap-1.5">
+            {onContact && <ContactButtons size="sm" phone={p.public_phone} whatsapp={p.public_whatsapp} busy={busy} testId="contact-provider"
+              intro={intro({ service: localizedJoinedName(p, 'category', i18n.resolvedLanguage) || null })} link={`/providers/${p.id}`}
+              onChat={async () => { setBusy(true); try { await onContact(p); } finally { setBusy(false); } }} />}
+            {requester && !onContact && <ContactButtons size="sm" phone={p.public_phone} whatsapp={p.public_whatsapp} busy={busy} testId="direct-contact"
+              intro={intro({ service: localizedJoinedName(p, 'category', i18n.resolvedLanguage) || null })} link={`/providers/${p.id}`}
+              onChat={() => run(async () => { const res = await contactDirect(p.id, categoryId); navigate(`/chat/${res.conversation_id}`); })} />}
+            <ShareMenu variant="round" url={providerLink(p.id)} title={p.business_name || p.full_name} text={t('share_provider.message', { name: p.business_name || p.full_name })} testId="card-share" />
+          </span>
         </div>
         <BlockedNotice message={problem} otherId={p.id} onUnblocked={() => setProblem('')} />
       </div>

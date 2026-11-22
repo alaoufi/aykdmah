@@ -1,0 +1,53 @@
+import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import SectionPicker from './SectionPicker';
+import { stateKey, requestsLabel } from '../../utils/boardFilterState.js';
+
+
+// AYK-444 (the owner, with a screenshot he liked: «اعرض لي» and two large boxes): «مهنتي» for a service
+// provider, «طلبي» for a requester, and «منطقتي». Each is a box to tick on or off; there is no «الكل»,
+// because leaving both unticked shows everyone. When the administration restricts views, both are
+// ticked and fixed. `hint` explains a box that cannot work yet (no services / no requests).
+export default function BoardFilters({ value, onChange, asProvider = false, restricted = false, hint = '', meta = null, size = 'md', testId = 'home-filters' }) {
+  const { t } = useTranslation();
+  const [editing, setEditing] = useState(false);
+  const on = restricted ? { prof: true, area: true } : value;
+  const small = size === 'sm';
+  const box = (key, label) => {
+    const active = Boolean(on[key]);
+    return (
+      <button key={key} type="button" role="checkbox" aria-checked={active} disabled={restricted}
+        onClick={() => onChange({ ...value, [key]: !value[key] })} data-testid={`${testId === 'home-filters' ? 'home-filter' : `${testId}-filter`}-${key}`}
+        className={`flex-1 min-w-0 inline-flex items-center justify-center gap-1.5 rounded-card font-extrabold transition border-0 whitespace-nowrap ${small ? 'h-8 text-[12.5px]' : 'h-9 text-[14px]'} ${active
+          ? 'bg-primary text-white shadow-sm' : 'bg-transparent text-fg hover:bg-surface'} ${restricted ? 'cursor-default opacity-90' : 'cursor-pointer'}`}>
+        {/* AYK-445 (the owner's screenshot): a small square in each box, ticked when chosen. */}
+        <span aria-hidden="true" className={`inline-grid place-items-center shrink-0 rounded-[6px] ${small ? 'w-4 h-4 text-[10px]' : 'w-5 h-5 text-[12px]'} ${active
+          ? 'bg-white text-primary' : 'border-2 border-fg-muted/60 bg-surface'}`}>{active ? '✓' : ''}</span>{label}
+      </button>
+    );
+  };
+  return (
+    <div data-testid={testId}>
+      {/* AYK-449 (the owner: «اجعل اعرض لي بنفس سطر الخيارات وقلل الارتفاع»): one low row. */}
+      <div className="flex items-center gap-2 rounded-card border border-border bg-surface p-1" role="group" aria-label={t('home.filter_title')}>
+        <div className={`shrink-0 font-extrabold text-fg ps-1.5 ${small ? 'text-[12px]' : 'text-[13.5px]'}`}>{t('home.filter_title')}</div>
+        <div className="flex-1 min-w-0 flex gap-1 rounded-card bg-surface-alt p-0.5">
+          {box('prof', t(asProvider ? 'home.filter_my_profession' : requestsLabel(meta)))}
+          {box('area', t('home.filter_my_area'))}
+        </div>
+      </div>
+      <p className={`text-fg-muted mt-0.5 mb-0 ${small ? 'text-[11px]' : 'text-[11.5px]'}`}>
+        {restricted ? t('home.filter_restricted') : hint || t(stateKey(on, asProvider, meta))}
+        {/* AYK-447: chosen sections (no request yet) can be changed. */}
+        {!asProvider && !small && Number(meta?.my_requests) === 0 && Number(meta?.my_interests) > 0 && !editing && (
+          <> · <button type="button" className="text-primary font-semibold underline bg-transparent border-0 p-0 cursor-pointer" onClick={() => setEditing(true)} data-testid="sections-edit">{t('home.sections_edit')}</button></>
+        )}
+      </p>
+      {/* AYK-447: no request yet and «مشابه لطلبي» chosen: pick the sections first. */}
+      {!asProvider && !small && !restricted && (editing || (on.prof && meta?.has_profession === false)) && (
+        <SectionPicker onCancel={editing ? () => setEditing(false) : null}
+          onSaved={() => { setEditing(false); onChange({ ...value, prof: true, rev: (value.rev || 0) + 1 }); }} />
+      )}
+    </div>
+  );
+}

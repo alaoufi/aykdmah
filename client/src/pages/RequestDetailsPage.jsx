@@ -1,4 +1,6 @@
 import { localizedJoinedName } from '../utils/localizeJoined';
+import ContactButtons from '../components/providers/ContactButtons';
+import useOpenRequest from '../hooks/useOpenRequest';
 import { safeUrl } from '../utils/urlSafety';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
@@ -13,7 +15,7 @@ import WarrantyBox from '../components/requests/WarrantyBox';
 import BlockedNotice from '../components/common/BlockedNotice';
 import { requestMapsUrl } from '../utils/directions';
 import { useAuth } from '../hooks/useAuth';
-import { REQUEST_STATUS, OFFER_STATUS } from '../utils/constants';
+import { OFFER_STATUS } from '../utils/constants';
 import { formatCurrency, formatRelativeTime } from '../utils/formatters';
 import { LoadingState, EmptyState } from '../components/common/Spinner';
 import Button from '../components/common/Button';
@@ -31,6 +33,11 @@ import AdSlot from '../components/ads/AdSlot';
 import { RequestReach, RequestEdit } from '../components/requests/RequestOwnerTools';
 import useRequestTranslation from '../hooks/useRequestTranslation';
 import TranslatedNote from '../components/requests/TranslatedNote';
+import RatingInline from '../components/reviews/RatingInline';
+import RequestStatusBadge from '../components/requests/RequestStatusBadge';
+import useContactIntro from '../hooks/useContactIntro';
+import ShareMenu from '../components/common/ShareMenu';
+import { SITE_URL } from '../utils/site';
 
 export function canReadRequestOffers(user, request, canManageRequests = false) {
   return Boolean(user && request && (
@@ -43,11 +50,14 @@ export default function RequestDetailsPage() {
   const { t, i18n } = useTranslation();
   const { id } = useParams();
   const { user, hasPermission } = useAuth();
+  // AYK-427: kept above the early returns (AYK-140).
+  const { contact: contactAsRequester } = useOpenRequest();
   const canManageRequests = hasPermission('requests.manage');
   const navigate = useNavigate();
   const [request, setRequest] = useState(null);
   // In the reader's language when the requester wrote in another one (AYK-229).
   const translation = useRequestTranslation(request);
+  const intro = useContactIntro();
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [detailsScope, setDetailsScope] = useState(null);
@@ -106,7 +116,6 @@ export default function RequestDetailsPage() {
   const myOffer = user ? offers.find(offer => Number(offer.provider_id) === Number(user.id)) : null;
   const turnedDown = myOffer?.status === 'rejected';
   const canOffer = user && user.role === 'provider' && !isOwner && request.status === 'open' && !turnedDown;
-  const status = REQUEST_STATUS[request.status] || {};
   const assignedProviderOffer = request.assigned_provider_id
     ? offers.find(offer => Number(offer.provider_id) === Number(request.assigned_provider_id))
     : null;
@@ -147,8 +156,9 @@ export default function RequestDetailsPage() {
   };
 
   const negotiateOffer = async (offer) => {
-    const mayNegotiate = request.status === 'open' && offer.status === 'pending' &&
-      (isOwner || (user?.role === 'provider' && Number(user.id) === Number(offer.provider_id)));
+    // AYK-435: the requester can always reach a provider they talked to; the provider while open.
+    const mayNegotiate = isOwner || (request.status === 'open' && offer.status === 'pending' &&
+      user?.role === 'provider' && Number(user.id) === Number(offer.provider_id));
     if (!mayNegotiate || negotiationRef.current) return;
     const scope = scopeRef.current;
     const pending = { scope, offerId: offer.id };
@@ -270,12 +280,20 @@ export default function RequestDetailsPage() {
         <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
           <div className="flex items-center gap-2">
             {request.is_urgent && <span className="badge badge-urgent">⚡ {t('request.urgent')}</span>}
-            <span className={`badge ${status.color}`}>{status.i18nKey ? t(status.i18nKey) : ''}</span>
           </div>
-          <span className="text-sm text-muted">{formatRelativeTime(request.created_at)}</span>
+          <span className="flex items-center gap-2">
+            <span className="text-sm text-muted">{formatRelativeTime(request.created_at)}</span>
+            {/* AYK-436: share this request (its owner or a provider), on the main address. */}
+            {(isOwner || Number(request.client_allow_share) === 1) && <ShareMenu url={`${SITE_URL}/requests/${request.id}`} title={translation.title}
+              text={t('share.request_text', { title: translation.title })} testId="request-page-share" />}
+          </span>
         </div>
 
-        <h2>{translation.title}</h2>
+        {/* AYK-432: the state beside the title; open reads «متاح» in fixed green. */}
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <h2 className="min-w-0 m-0">{translation.title}</h2>
+          <RequestStatusBadge status={request.status} />
+        </div>
         {translation.description.trim() !== translation.title.trim() && <p className="text-secondary" style={{ whiteSpace: 'pre-wrap' }} data-testid="request-description">{translation.description}</p>}
         <TranslatedNote translation={translation} className="mb-3" />
 
@@ -351,10 +369,35 @@ export default function RequestDetailsPage() {
       {canOffer && (
         <div className="card mb-4" data-testid="provider-contact">
           <p className="text-sm text-muted mb-3">{t('request.contact_hint')}</p>
-          <Button variant="primary" onClick={contactOwner} loading={submitting}>💬 {t('request.contact_owner')}</Button>
+          {/* AYK-427: call, WhatsApp (when the requester shows them) and chat, as clear buttons. */}
+          <ContactButtons title={`💬 ${t('request.contact_owner')}`} phone={request.client_contact_phone} whatsapp={request.client_contact_whatsapp}
+            busy={submitting} onChat={contactOwner} testId="request-owner-contact" intro={intro({ request: translation.title })} link={`/requests/${request.id}`} />
+        </div>
+      )}
+      {/* AYK-427: a signed-in requester sees the same way to contact; it explains that contact is for
+          service providers and offers to become one (AYK-426). */}
+      {user && user.role !== 'provider' && !isOwner && request.status === 'open' && (
+        <div className="card mb-4" data-testid="requester-contact">
+          <ContactButtons title={`💬 ${t('request.contact_owner')}`} onChat={() => contactAsRequester(request)} testId="request-owner-contact" intro={intro({ request: translation.title })} link={`/requests/${request.id}`} />
         </div>
       )}
 
+      {/* AYK-438: the requester sees what of their details shows on this request, and to whom. */}
+      {isOwner && request.status === 'open' && (() => {
+        const lv = key => (Number(user?.[key]) ? 1 : 0);
+        const label = () => t('contact_privacy.level_providers');
+        const rows = [['share_name', 'name_label'], ['share_phone', 'phone_label'], ['share_whatsapp', 'whatsapp_label']].filter(([k]) => lv(k) > 0);
+        return (
+          <div className="card mb-4 text-[13px]" data-testid="my-visible-details">
+            <div className="font-bold mb-1">👁 {t('contact_privacy.my_visible')}</div>
+            {rows.length
+              ? <ul className="m-0 ps-5">{rows.map(([k, l]) => <li key={k}>{t(`contact_privacy.${l}`)}: <b>{label(lv(k))}</b></li>)}</ul>
+              : <p className="m-0 text-fg-muted">{t('contact_privacy.my_visible_none')}</p>}
+            <p className="m-0 mt-1 text-fg-muted">🔗 {t(Number(user?.allow_request_share) === 1 ? 'contact_privacy.share_allowed' : 'contact_privacy.share_not_allowed')}</p>
+            <Link to="/profile#contact-privacy" className="inline-block mt-1.5 font-semibold text-primary">{t('contact_privacy.my_visible_edit')}</Link>
+          </div>
+        );
+      })()}
       {isOwner && request.status === 'open' && request.category_id && (
         <div className="mb-4">
           <MatchingProviders categoryId={request.category_id} showChips={false} title={t('request.matching_title')}
@@ -385,7 +428,7 @@ export default function RequestDetailsPage() {
                         {o.is_featured && !o.badge_featured_active ? <span className="badge badge-warning">{t('offer.featured')}</span> : null}
                       </div>
                       <div className="text-xs text-muted">
-                        ⭐ {Number(o.rating_avg || 0).toFixed(1)} ({o.rating_count || 0} {t('offer.rating_count')}) ·
+                        {Number(o.rating_count) > 0 && <><RatingInline average={o.rating_avg} count={o.rating_count} /> · </>}
                         📦 {o.completed_orders || 0} {t('offer.completed_orders')}
                       </div>
                     </div>
@@ -407,17 +450,15 @@ export default function RequestDetailsPage() {
                       <Button size="sm" variant="outline" onClick={() => onReject(o.id)}>{t('offer.reject')}</Button>
                     </div>
                   )}
-                  {o.status === 'pending' && request.status === 'open' &&
-                    (isOwner || (user?.role === 'provider' && Number(user.id) === Number(o.provider_id))) && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="mt-2"
-                      onClick={() => negotiateOffer(o)}
-                      loading={negotiatingOfferId === o.id}
-                      disabled={negotiatingOfferId != null && negotiatingOfferId !== o.id}
-                      data-negotiate-offer-id={o.id}
-                    >💬 {t('nav.chat')}</Button>
+                  {(isOwner || (o.status === 'pending' && request.status === 'open' &&
+                    user?.role === 'provider' && Number(user.id) === Number(o.provider_id))) && (
+                    // AYK-430: call, WhatsApp (when the provider shows them) and chat as clear buttons.
+                    <div data-negotiate-offer-id={o.id}>
+                      <ContactButtons size="sm" className="mt-2" testId="offer-contact"
+                        phone={isOwner ? o.public_phone : null} whatsapp={isOwner ? o.public_whatsapp : null}
+                        busy={negotiatingOfferId === o.id || (negotiatingOfferId != null && negotiatingOfferId !== o.id)}
+                        onChat={() => negotiateOffer(o)} intro={isOwner ? intro({ myRequest: translation.title }) : intro({ request: translation.title })} link={`/requests/${request.id}`} />
+                    </div>
                   )}
                 </div>
               );

@@ -34,6 +34,7 @@ import BottomNav from '../components/layout/BottomNav';
 import useChatViewport from '../hooks/useChatViewport';
 import { cachedConversation, cacheConversation, mergeMessages, appendMessages, updateConversationList, isTemporary } from '../utils/chatCache';
 import { primeTranslations, receiveTranslation } from '../components/chat/AutoTranslation';
+import { peekChatIntro, forgetChatIntro } from '../hooks/useContactIntro';
 
 // A bold back arrow toward the start side: right in Arabic, left in English (AYK-137).
 function BackArrow() {
@@ -105,6 +106,15 @@ export default function ChatPage() {
   const messagesRef = useRef([]);
   messagesRef.current = messages;
   const sessionKey = `${user?.id}:${activeId || ''}`;
+  // AYK-434: the introduction a contact button kept, taken once for the conversation it opened.
+  const introRef = useRef({});
+  if (activeId && !introRef.current[activeId]) introRef.current[activeId] = peekChatIntro();
+  useEffect(() => {
+    if (!activeId || !introRef.current[activeId]) return undefined;
+    // Forgotten once the composer has had time to start with it.
+    const timer = setTimeout(forgetChatIntro, 3000);
+    return () => clearTimeout(timer);
+  }, [activeId]);
   useEffect(() => {setFocusedMessage(null);setSelectedMessages([]);forwardOwner.current.close();setForwarding(null);setSearchOpen(false);setSelectMode(false);}, [activeId,user?.id]);
   scopeRef.current = sessionKey;
   const activeReady = activeScope === sessionKey && Number(active?.id) === Number(activeId);
@@ -777,6 +787,7 @@ export default function ChatPage() {
             <ChatInput
               key={`composer:${sessionKey}`}
               sessionKey={sessionKey}
+              initialText={introRef.current[activeId] || ''}
               onSend={handleSend}
               onShareLocation={canShareLocation ? handleShareLocation : undefined}
               sharingLocation={sharingLocation}

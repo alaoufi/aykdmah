@@ -11,6 +11,7 @@ import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import EmptyState from '../../components/admin/EmptyState';
 import AdminListFilters, { VISIBILITY_TABS } from '../../components/admin/AdminListFilters';
 import { ProviderStatus } from '../../components/common/AvailabilityBadge';
+import RatingInline from '../../components/reviews/RatingInline';
 
 // AYK-361 (the owner: «عرض مقدمي الخدمة، الأحدث بالأعلى، البحث مع فلتر حسب المنطقة والمدينة والمهنة،
 // وفيه الكل، مع إمكانية إخفاء أو حذف»). A hidden provider is not listed to people asking for a
@@ -108,7 +109,7 @@ export default function AdminProvidersPage() {
               {/* AYK-366: available by their schedule (with the schedule), in the app now, and coverage. */}
               <ProviderStatus availability={p.availability} coverage={p.coverage} name={p.business_name || p.full_name} className="mt-2" />
               <div className="text-[11.5px] text-slate-500 mt-1">
-                ⭐ {Number(p.rating_avg || 0).toFixed(1)} ({Number(p.rating_count || 0)}) · منجز {Number(p.completed_orders || 0)}
+                {Number(p.rating_count) > 0 && <><RatingInline size={12} average={p.rating_avg} count={p.rating_count} /> · </>}منجز {Number(p.completed_orders || 0)}
               </div>
               <div className="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-slate-100">
                 <button type="button" onClick={() => toggleHidden(p)} data-testid="toggle-provider-hidden"

@@ -33,7 +33,7 @@ function cookieMutationAllowed(req) {
   if (['GET', 'HEAD', 'OPTIONS'].includes(req.method)) return true;
   const origin = req.headers.origin;
   if (!origin || typeof origin !== 'string') return false;
-  const allowed = [env.CLIENT_URL, env.APP_URL, `${req.protocol}://${req.get('host')}`];
+  const allowed = [env.CLIENT_URL, env.APP_URL, ...env.SITE_ORIGINS, `${req.protocol}://${req.get('host')}`];
   return allowed.some(value => {
     try { return new URL(value).origin === origin; } catch (_) { return false; }
   });

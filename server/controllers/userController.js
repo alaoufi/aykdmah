@@ -87,11 +87,23 @@ const updateMe = asyncHandler(async (req, res) => {
     payload.full_name = payload.full_name.trim();
     if (payload.full_name.length < 2 || payload.full_name.length > 150) return error(res, req.t('name_length'), 400);
   }
-  // AYK-418: the requester's contact choices, off until turned on.
-  for (const flag of ['share_phone', 'share_whatsapp', 'marketing_opt_in']) {
+  // AYK-418/438/439: the requester's choices, off until turned on: name, phone and WhatsApp shown to
+  // service providers (1) or hidden (0); others may share my requests (allow_request_share).
+  for (const flag of ['share_name', 'share_phone', 'share_whatsapp', 'allow_request_share', 'request_alerts', 'marketing_opt_in']) {
     if (payload[flag] === undefined) continue;
     if (![0, 1, true, false, '0', '1'].includes(payload[flag])) return error(res, req.t('invalid_data'), 400);
     payload[flag] = [1, true, '1'].includes(payload[flag]) ? 1 : 0;
+  }
+  // AYK-447: the sections a requester chose for «مشابه لطلبي» (none to 30 active professions).
+  if (payload.interest_category_ids !== undefined) {
+    const list = payload.interest_category_ids;
+    if (list !== null && (!Array.isArray(list) || list.length > 30 || !list.every(id => /^[1-9][0-9]{0,9}$/.test(String(id))))) return error(res, req.t('invalid_data'), 400);
+    const ids = [...new Set((list || []).map(Number))];
+    if (ids.length) {
+      const found = await query(`SELECT id FROM categories WHERE is_active = 1 AND deleted_at IS NULL AND id IN (${ids.map(() => '?').join(', ')})`, ids);
+      if (found.length !== ids.length) return error(res, req.t('invalid_data'), 400);
+    }
+    payload.interest_category_ids = ids.length ? JSON.stringify(ids) : null;
   }
   if (payload.marketing_opt_in !== undefined) payload.marketing_opt_in_at = payload.marketing_opt_in ? new Date() : null;
   if (payload.whatsapp_number !== undefined) {

@@ -169,10 +169,7 @@
     "download_on": "Download on the",
     "coming_soon": "Coming soon to",
     "tab_requests": "Service requesters",
-    "tab_requests_hint": "Requests from people who need a service",
-    "tab_requests_hint_provider": "Requests in my profession",
     "tab_providers": "Service providers",
-    "tab_providers_hint": "Who provides the service, and request one",
     "scope_label": "Circle:",
     "scope_district": "My district",
     "scope_coverage": "My coverage",
@@ -188,7 +185,56 @@
     "guest_services": "Profession categories",
     "guest_requests": "Service requests",
     "guest_providers": "Service providers",
-    "guest_more": "Show more"
+    "guest_more": "Show more",
+    "filter_my_profession": "My profession",
+    "filter_my_area": "My area",
+    "filter_restricted": "🔒 Limited by the administration",
+    "filter_none": "Nothing chosen: everyone shows, closest to you first",
+    "board_none_filtered": "Nothing matches right now. Turn a filter off to see everyone.",
+    "board_fallback": "Nothing matches your choice yet, so here are the other requests, nearest to you first.",
+    "board_fallback_providers": "Nobody matches your choice yet, so here are the other service providers, nearest to you first.",
+    "guest_fallback_requests": "No requests in this profession yet, so here are the latest in other professions.",
+    "guest_fallback_providers": "No service providers in this profession yet, so here are those in other professions.",
+    "recent_title": "Done lately on «Ay Khidma»",
+    "recent_hint": "Requests where a requester agreed with a service provider",
+    "recent_done": "Done",
+    "recent_working": "In progress",
+    "empty_provider_title": "No open requests right now",
+    "empty_provider_hint": "We will alert you as soon as a request that suits you arrives. Share your link with requesters you know so they can request you here.",
+    "empty_provider_action": "Share my link",
+    "empty_requester_title": "Be the first to ask",
+    "empty_requester_hint": "Send your request now; it reaches the service providers in its profession and area at once.",
+    "empty_requester_action": "Send a request",
+    "empty_guest_title": "Requests start here",
+    "empty_guest_hint": "Sign up and send your request, or sign up as a service provider to get requests as they come.",
+    "empty_guest_action": "Sign up now",
+    "empty_providers_title": "Service providers are joining now",
+    "empty_providers_hint": "Send your request, and we alert every service provider in its profession and area as soon as they sign up.",
+    "empty_providers_action": "Send a request",
+    "recent_period": "Period",
+    "recent_days_1": "Last day",
+    "recent_days_7": "Last 7 days",
+    "recent_days_30": "Last 30 days",
+    "recent_days_90": "Last 90 days",
+    "recent_agreed": "Agreed {{when}}",
+    "recent_none": "No agreements in this period yet. Try a longer period or all professions.",
+    "filter_title": "Show me",
+    "filter_need_services": "Add your services in «My account» first for «My profession» to work.",
+    "filter_state_prof_provider": "Your profession in every area, closest first",
+    "filter_state_area": "Every profession in your area",
+    "filter_state_both_provider": "Your profession in your area only",
+    "filter_need_area": "Complete your area in «My account» first for «My area» to work.",
+    "filter_similar_one": "Similar to my request",
+    "filter_similar_many": "Similar to my requests",
+    "filter_state_prof_request": "Similar to your request, in every area",
+    "filter_state_prof_requests": "Similar to your requests, in every area",
+    "filter_state_both_request": "Similar to your request, in your area only",
+    "filter_state_both_requests": "Similar to your requests, in your area only",
+    "sections_title": "You haven't asked before: choose the professions you need",
+    "sections_hint": "You can choose more than one profession; we show you what is similar.",
+    "sections_save": "Save ({{count}})",
+    "sections_edit": "Change professions",
+    "filter_need_sections": "Choose the professions you need for «Similar to my request» to work."
   },
   "location": {
     "country": "Country",
@@ -442,7 +488,11 @@
     "reach_count": "Your request now shows to {{count}} providers in its profession and area.",
     "reach_none": "No provider in this profession covers your request's place yet.",
     "reach_none_profession": "No provider has registered in this profession yet. Your request stays open and is seen by those who choose «All open requests»; you can change the profession if another one fits.",
-    "reach_none_area": "Providers in this profession exist but do not cover your district yet. Your request stays open and is seen by those who widen their circle or choose «All open requests»."
+    "reach_none_area": "Providers in this profession exist but do not cover your district yet. Your request stays open and is seen by those who widen their circle or choose «All open requests».",
+    "contact_providers_title": "Contact is for service providers",
+    "contact_providers_only": "Contacting service requesters is for service providers. Register as a service provider and choose your profession, then reach the people who need you.",
+    "become_provider": "Become a service provider",
+    "available": "Available"
   },
   "offer": {
     "submit_title": "Send a price offer",
@@ -2614,7 +2664,12 @@
     "unrestricted_hint": "Remove the limits: show every open request in any profession and area, not only my profession and coverage.",
     "my_info_title": "My details",
     "my_info_hint": "Name, my services description, the phone and WhatsApp shown to people, my professions and districts.",
-    "my_info_edit": "Edit"
+    "my_info_edit": "Edit",
+    "alerts_none": "No new requests for your profession in your area",
+    "alerts_ask": "Would you like a reminder when a request that suits you comes in?",
+    "alerts_yes": "Yes, remind me",
+    "alerts_on": "Reminders on: you get a notice as soon as a request arrives in your profession and area, even outside your working hours, with how to reach the requester.",
+    "alerts_stop": "Stop reminders"
   },
   "requester": {
     "all_professions": "All professions",
@@ -2623,7 +2678,7 @@
     "contact_direct": "Contact",
     "in_directory": "In my directory",
     "add_directory": "Add to my directory",
-    "remove_directory": "Remove",
+    "remove_directory": "Remove from my directory",
     "directory_title": "My directory",
     "directory_nav": "Directory",
     "directory_hint": "Providers you added. Contact any of them directly without posting a request.",
@@ -2716,7 +2771,8 @@
     "whatsapp_text": "Hello, I am writing from the Ay Khidma platform about:",
     "form_title": "Or send a message to the administration",
     "login_to_write": "Sign in to send a message to the administration and follow its replies.",
-    "login": "Sign in"
+    "login": "Sign in",
+    "whatsapp_icon": "Contact technical support"
   },
   "permissions": {
     "microphone": "Microphone",
@@ -2988,7 +3044,8 @@
     "copied": "Link copied",
     "qr": "QR code",
     "qr_hint": "Scan the code with a phone camera to open the link",
-    "qr_save": "Save image"
+    "qr_save": "Save image",
+    "request_text": "A service request on Ay Khidma: {{title}}"
   },
   "ads": {
     "hide": "Hide ad"
@@ -3028,16 +3085,30 @@
   },
   "contact_privacy": {
     "title": "Contacting you",
-    "hint": "Choose who can contact you and how. All are off until you turn them on, and you can turn them off any time.",
-    "share_phone": "Show my phone to service providers",
+    "hint": "Choose what of your details shows, and to whom. All hidden until you choose; change it any time.",
+    "share_phone": "My phone",
     "share_phone_hint": "Only providers in your open request's profession see it, so they can call you directly.",
     "no_phone": "Add your phone number above first.",
-    "share_whatsapp": "Show my WhatsApp to service providers",
+    "share_whatsapp": "My WhatsApp",
     "share_whatsapp_hint": "Providers in your open request's profession can message you on WhatsApp.",
     "whatsapp_number": "WhatsApp number (optional)",
     "whatsapp_number_hint": "Leave empty if it is your phone number.",
     "marketing": "Allow the site to contact me",
-    "marketing_hint": "We send you what is new and offers that suit what you ask for. You can stop any time."
+    "marketing_hint": "We send you what is new and offers that suit what you ask for. You can stop any time.",
+    "share_name": "My name",
+    "level_hidden": "Hidden",
+    "level_providers": "Service providers",
+    "levels_hint": "\"Service providers\": every signed-in provider sees it on your open request, and no one else. You do not see it on your own request; your choice shows on the request page.",
+    "my_visible": "Shown from your details on this request",
+    "my_visible_none": "Your details are hidden: providers reach you by chat only.",
+    "my_visible_edit": "Change what shows",
+    "name_label": "Name",
+    "phone_label": "Phone",
+    "whatsapp_label": "WhatsApp",
+    "allow_share": "Allow sharing my requests",
+    "allow_share_hint": "Providers and visitors can share your request's link (WhatsApp and others) so it reaches someone who can help. You can always share it yourself.",
+    "share_allowed": "Others can share your request.",
+    "share_not_allowed": "Only you can share your request. Allow it from \"Change what shows\"."
   },
   "understand": {
     "title": "Write your request in your own dialect",
@@ -3062,5 +3133,18 @@
       "friday": "Friday",
       "saturday": "Saturday"
     }
+  },
+  "contact_intro": {
+    "someone": "A member",
+    "provider": "Service provider",
+    "requester": "Service requester",
+    "about_request": "Hello, I'm {{name}} ({{who}}). I'm contacting you about your request: {{title}}",
+    "about_my_request": "Hello, I'm {{name}} ({{who}}). I'm contacting you about my request: {{title}}",
+    "about_service": "Hello, I'm {{name}} ({{who}}). I'm contacting you about your {{service}} service",
+    "general": "Hello, I'm {{name}} ({{who}}), contacting you through Ay Khidma.",
+    "via_site": "via Ay Khidma: {{url}}",
+    "visitor": "Hello, I found your page on Ay Khidma and would like to get in touch.",
+    "support": "Hello, I'm {{name}} ({{who}}), contacting Ay Khidma technical support.",
+    "support_visitor": "Hello, I am contacting Ay Khidma technical support."
   }
 }

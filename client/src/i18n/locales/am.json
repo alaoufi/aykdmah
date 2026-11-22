@@ -169,10 +169,7 @@
     "download_on": "ከዚህ ያውርዱ",
     "coming_soon": "በቅርቡ የሚገኝበት",
     "tab_requests": "አገልግሎት ጠያቂዎች",
-    "tab_requests_hint": "አገልግሎት የሚፈልጉ ሰዎች ጥያቄዎች",
-    "tab_requests_hint_provider": "በሙያዬ ያሉ ጥያቄዎች",
     "tab_providers": "አገልግሎት ሰጪዎች",
-    "tab_providers_hint": "አገልግሎቱን ማን ይሰጣል፣ እና አገልግሎት ይጠይቁ",
     "scope_label": "ክልል፦",
     "scope_district": "ሰፈሬ",
     "scope_coverage": "የምሸፍነው",
@@ -188,7 +185,56 @@
     "guest_services": "የሙያ ምድቦች",
     "guest_requests": "የአገልግሎት ጥያቄዎች",
     "guest_providers": "አገልግሎት ሰጪዎች",
-    "guest_more": "ተጨማሪ አሳይ"
+    "guest_more": "ተጨማሪ አሳይ",
+    "filter_my_profession": "ሙያዬ",
+    "filter_my_area": "አካባቢዬ",
+    "filter_restricted": "🔒 በአስተዳደሩ የተገደበ",
+    "filter_none": "ምንም አልተመረጠም፦ ሁሉም ይታያሉ፣ ቅርብ ያሉት መጀመሪያ",
+    "board_none_filtered": "አሁን የሚዛመድ የለም። ሁሉንም ለማየት አንድ ማጣሪያ ያጥፉ።",
+    "board_fallback": "ከምርጫዎ ጋር የሚስማማ ገና የለም፣ ስለዚህ ሌሎቹ ጥያቄዎች ከቅርብዎ ጀምሮ እነሆ።",
+    "board_fallback_providers": "ከምርጫዎ ጋር የሚስማማ ገና ማንም የለም፣ ስለዚህ ሌሎቹ አገልግሎት ሰጪዎች ከቅርብዎ ጀምሮ እነሆ።",
+    "guest_fallback_requests": "በዚህ ሙያ ገና ጥያቄ የለም፣ ስለዚህ በሌሎች ሙያዎች ያሉ አዳዲስ ጥያቄዎች እነሆ።",
+    "guest_fallback_providers": "በዚህ ሙያ ገና አገልግሎት ሰጪ የለም፣ ስለዚህ በሌሎች ሙያዎች ያሉት እነሆ።",
+    "recent_title": "በ«Ay Khidma» በቅርቡ የተጠናቀቁ",
+    "recent_hint": "ባለቤቶቻቸው ከአገልግሎት ሰጪ ጋር የተስማሙባቸው ጥያቄዎች",
+    "recent_done": "ተጠናቋል",
+    "recent_working": "በሂደት ላይ",
+    "empty_provider_title": "አሁን ክፍት ጥያቄ የለም",
+    "empty_provider_hint": "የሚስማማዎ ጥያቄ እንደመጣ እናሳውቅዎታለን። ደንበኞችዎ ከዚህ እንዲጠሩዎት ሊንክዎን ያጋሩ።",
+    "empty_provider_action": "ሊንኬን አጋራ",
+    "empty_requester_title": "የመጀመሪያው ጠያቂ ይሁኑ",
+    "empty_requester_hint": "ጥያቄዎን አሁን ይላኩ፤ ወዲያውኑ በሙያውና በአካባቢው ላሉ አገልግሎት ሰጪዎች ይደርሳል።",
+    "empty_requester_action": "ጥያቄ ላክ",
+    "empty_guest_title": "ጥያቄዎች እዚህ ይጀምራሉ",
+    "empty_guest_hint": "ይመዝገቡና ጥያቄዎን ይላኩ፣ ወይም ጥያቄዎች ሲመጡ ወዲያው እንዲደርሱዎ እንደ አገልግሎት ሰጪ ይመዝገቡ።",
+    "empty_guest_action": "አሁን ይመዝገቡ",
+    "empty_providers_title": "አገልግሎት ሰጪዎች አሁን እየተቀላቀሉ ነው",
+    "empty_providers_hint": "ጥያቄዎን ይላኩ፣ በሙያውና በአካባቢው ያለ እያንዳንዱን አገልግሎት ሰጪ ሲመዘገብ እናሳውቃለን።",
+    "empty_providers_action": "ጥያቄ ላክ",
+    "recent_period": "ጊዜ",
+    "recent_days_1": "ያለፈው አንድ ቀን",
+    "recent_days_7": "ያለፉት 7 ቀናት",
+    "recent_days_30": "ያለፉት 30 ቀናት",
+    "recent_days_90": "ያለፉት 90 ቀናት",
+    "recent_agreed": "ስምምነት {{when}}",
+    "recent_none": "በዚህ ጊዜ ገና ስምምነት የለም። ረዘም ያለ ጊዜ ወይም ሁሉንም ሙያዎች ይሞክሩ።",
+    "filter_title": "አሳየኝ",
+    "filter_need_services": "«ሙያዬ» እንዲሠራ መጀመሪያ በ«የእኔ መለያ» አገልግሎቶችዎን ያክሉ።",
+    "filter_state_prof_provider": "ሙያዎ በሁሉም አካባቢዎች፣ ቅርብ ያሉት መጀመሪያ",
+    "filter_state_area": "በአካባቢዎ ያሉ ሁሉም ሙያዎች",
+    "filter_state_both_provider": "ሙያዎ በአካባቢዎ ብቻ",
+    "filter_need_area": "«አካባቢዬ» እንዲሠራ መጀመሪያ በ«የእኔ መለያ» አካባቢዎን ያሟሉ።",
+    "filter_similar_one": "ከጥያቄዬ ጋር የሚመሳሰል",
+    "filter_similar_many": "ከጥያቄዎቼ ጋር የሚመሳሰል",
+    "filter_state_prof_request": "ከጥያቄዎ ጋር የሚመሳሰል፣ በሁሉም አካባቢዎች",
+    "filter_state_prof_requests": "ከጥያቄዎችዎ ጋር የሚመሳሰል፣ በሁሉም አካባቢዎች",
+    "filter_state_both_request": "ከጥያቄዎ ጋር የሚመሳሰል፣ በአካባቢዎ ብቻ",
+    "filter_state_both_requests": "ከጥያቄዎችዎ ጋር የሚመሳሰል፣ በአካባቢዎ ብቻ",
+    "sections_title": "ከዚህ በፊት አልጠየቁም፦ የሚፈልጓቸውን ሙያዎች ይምረጡ",
+    "sections_hint": "ከአንድ በላይ ሙያ መምረጥ ይችላሉ፤ የሚመሳሰሉትን እናሳይዎታለን።",
+    "sections_save": "አስቀምጥ ({{count}})",
+    "sections_edit": "ሙያዎችን ቀይር",
+    "filter_need_sections": "«ከጥያቄዬ ጋር የሚመሳሰል» እንዲሠራ የሚፈልጓቸውን ሙያዎች ይምረጡ።"
   },
   "location": {
     "country": "ሀገር",
@@ -442,7 +488,11 @@
     "reach_count": "ጥያቄዎ አሁን በሙያውና በአካባቢው ላሉ {{count}} አገልግሎት ሰጪዎች ይታያል።",
     "reach_none": "በዚህ ሙያ የጥያቄዎን ቦታ የሚሸፍን አገልግሎት ሰጪ እስካሁን የለም።",
     "reach_none_profession": "በዚህ ሙያ እስካሁን የተመዘገበ አገልግሎት ሰጪ የለም። ጥያቄዎ ክፍት ሆኖ ይቆያል፣ «ሁሉም ክፍት ጥያቄዎች»ን የሚመርጡም ያዩታል፤ ሌላ ሙያ ከተስማማ ሙያውን መቀየር ይችላሉ።",
-    "reach_none_area": "የዚህ ሙያ አገልግሎት ሰጪዎች አሉ፣ ግን ሰፈርዎን እስካሁን አይሸፍኑም። ጥያቄዎ ክፍት ሆኖ ይቆያል፣ ክልላቸውን የሚያሰፉ ወይም «ሁሉም ክፍት ጥያቄዎች»ን የሚመርጡ ያዩታል።"
+    "reach_none_area": "የዚህ ሙያ አገልግሎት ሰጪዎች አሉ፣ ግን ሰፈርዎን እስካሁን አይሸፍኑም። ጥያቄዎ ክፍት ሆኖ ይቆያል፣ ክልላቸውን የሚያሰፉ ወይም «ሁሉም ክፍት ጥያቄዎች»ን የሚመርጡ ያዩታል።",
+    "contact_providers_title": "መገናኘት ለአገልግሎት ሰጪዎች ነው",
+    "contact_providers_only": "ከአገልግሎት ጠያቂዎች ጋር መገናኘት ለአገልግሎት ሰጪዎች ነው። እንደ አገልግሎት ሰጪ ይመዝገቡ እና ሙያዎን ይምረጡ፣ ከዚያ የሚፈልጉዎትን ያግኙ።",
+    "become_provider": "አገልግሎት ሰጪ ይሁኑ",
+    "available": "ክፍት"
   },
   "offer": {
     "submit_title": "የዋጋ ቅናሽ ያቅርቡ",
@@ -2614,7 +2664,12 @@
     "unrestricted_hint": "ገደቡን አንሳ፦ የኔን ሙያና ሽፋን ብቻ ሳይሆን በማንኛውም ሙያና አካባቢ ያሉ ሁሉንም ክፍት ጥያቄዎች አሳይ።",
     "my_info_title": "የኔ መረጃ",
     "my_info_hint": "ስም፣ የአገልግሎቴ መግለጫ፣ ለሰዎች የሚታየው ስልክና ዋትስአፕ፣ ሙያዎቼና ሰፈሮቼ።",
-    "my_info_edit": "አስተካክል"
+    "my_info_edit": "አስተካክል",
+    "alerts_none": "በአካባቢዎ ለሙያዎ አዲስ ጥያቄ የለም",
+    "alerts_ask": "የሚስማማዎ ጥያቄ ሲመጣ እንድናስታውስዎ ይፈልጋሉ?",
+    "alerts_yes": "አዎ፣ አስታውሱኝ",
+    "alerts_on": "ማስታወሻ በርቷል፦ በሙያዎና በአካባቢዎ ጥያቄ እንደመጣ፣ ከሥራ ሰዓት ውጭም ቢሆን፣ ባለቤቱን የሚያገኙበት መንገድ ያለው ማሳወቂያ ይደርስዎታል።",
+    "alerts_stop": "ማስታወሻ አቁም"
   },
   "requester": {
     "all_professions": "ሁሉም ሙያዎች",
@@ -2623,7 +2678,7 @@
     "contact_direct": "ያነጋግሩ",
     "in_directory": "በማውጫዬ ውስጥ",
     "add_directory": "ወደ ማውጫዬ ያክሉ",
-    "remove_directory": "ያስወግዱ",
+    "remove_directory": "ከማውጫዬ አስወግድ",
     "directory_title": "ማውጫዬ",
     "directory_nav": "ማውጫ",
     "directory_hint": "ያከሏቸው አገልግሎት አቅራቢዎች። ጥያቄ ሳይፈጥሩ ማንኛቸውንም በቀጥታ ያነጋግሩ።",
@@ -2716,7 +2771,8 @@
     "whatsapp_text": "ሰላም፣ ከ«Ay Khidma» መድረክ የምጽፍላችሁ ስለሚከተለው ጉዳይ ነው፦",
     "form_title": "ወይም ለአስተዳደሩ መልዕክት ይላኩ",
     "login_to_write": "ለአስተዳደሩ መልዕክት ለመላክና ምላሾቹን ለመከታተል ይግቡ።",
-    "login": "ይግቡ"
+    "login": "ይግቡ",
+    "whatsapp_icon": "የቴክኒክ ድጋፍን ያግኙ"
   },
   "permissions": {
     "microphone": "ማይክሮፎን",
@@ -2988,7 +3044,8 @@
     "copied": "ሊንኩ ተቀድቷል",
     "qr": "QR ኮድ",
     "qr_hint": "ሊንኩን ለመክፈት ኮዱን በስልክ ካሜራ ይቃኙ",
-    "qr_save": "ምስሉን አስቀምጥ"
+    "qr_save": "ምስሉን አስቀምጥ",
+    "request_text": "በ«أي خدمة» ላይ የአገልግሎት ጥያቄ፦ {{title}}"
   },
   "ads": {
     "hide": "ማስታወቂያውን ደብቅ"
@@ -3028,16 +3085,30 @@
   },
   "contact_privacy": {
     "title": "እርስዎን ማግኘት",
-    "hint": "ማን እና እንዴት እንደሚያገኝዎ ይምረጡ። እስኪከፍቱ ድረስ ሁሉም ዝግ ናቸው፤ በማንኛውም ጊዜ መዝጋት ይችላሉ።",
-    "share_phone": "ስልኬን ለአገልግሎት ሰጪዎች አሳይ",
+    "hint": "ከመረጃዎ የትኛው ለማን እንደሚታይ ይምረጡ። እስኪመርጡ ድረስ ሁሉም የተደበቀ ነው።",
+    "share_phone": "ስልኬ",
     "share_phone_hint": "በክፍት ጥያቄዎ ሙያ ያሉ ሰጪዎች ብቻ ያዩታል፤ በቀጥታ ይደውሉልዎታል።",
     "no_phone": "መጀመሪያ ከላይ ስልክ ቁጥርዎን ያክሉ።",
-    "share_whatsapp": "ዋትስአፔን ለአገልግሎት ሰጪዎች አሳይ",
+    "share_whatsapp": "ዋትስአፕዬ",
     "share_whatsapp_hint": "በክፍት ጥያቄዎ ሙያ ያሉ ሰጪዎች በዋትስአፕ መልእክት ሊልኩልዎ ይችላሉ።",
     "whatsapp_number": "የዋትስአፕ ቁጥር (አማራጭ)",
     "whatsapp_number_hint": "ከስልክ ቁጥርዎ ጋር ተመሳሳይ ከሆነ ባዶ ይተዉት።",
     "marketing": "ጣቢያው እንዲያገኘኝ ፍቀድ",
-    "marketing_hint": "አዳዲስ ነገሮችንና ለፍላጎትዎ የሚስማሙ ቅናሾችን እንልካለን። በማንኛውም ጊዜ ማቆም ይችላሉ።"
+    "marketing_hint": "አዳዲስ ነገሮችንና ለፍላጎትዎ የሚስማሙ ቅናሾችን እንልካለን። በማንኛውም ጊዜ ማቆም ይችላሉ።",
+    "share_name": "ስሜ",
+    "level_hidden": "የተደበቀ",
+    "level_providers": "ለአገልግሎት ሰጪዎች",
+    "levels_hint": "«ለአገልግሎት ሰጪዎች»፦ የተመዘገበ እያንዳንዱ አገልግሎት ሰጪ በክፍት ጥያቄዎ ላይ ያየዋል፤ ሌላ ማንም አያየውም። በራስዎ ጥያቄ ላይ አያዩትም።",
+    "my_visible": "በዚህ ጥያቄ ላይ የሚታየው መረጃዎ",
+    "my_visible_none": "መረጃዎ የተደበቀ ነው፤ አገልግሎት ሰጪዎች በውይይት ብቻ ያገኙዎታል።",
+    "my_visible_edit": "የሚታየውን ይቀይሩ",
+    "name_label": "ስም",
+    "phone_label": "ስልክ",
+    "whatsapp_label": "ዋትስአፕ",
+    "allow_share": "ጥያቄዎቼ እንዲጋሩ ፍቀድ",
+    "allow_share_hint": "አገልግሎት ሰጪዎችና ጎብኚዎች የጥያቄዎን አገናኝ ማጋራት ይችላሉ፣ ሊረዳ ለሚችል ሰው እንዲደርስ። እርስዎ ሁልጊዜ ማጋራት ይችላሉ።",
+    "share_allowed": "ሌሎች ጥያቄዎን ማጋራት ይችላሉ።",
+    "share_not_allowed": "ጥያቄዎን የሚያጋሩት እርስዎ ብቻ ነዎት። ከ«የሚታየውን ይቀይሩ» ይፍቀዱ።"
   },
   "understand": {
     "title": "ጥያቄዎን በራስዎ አነጋገር ይጻፉ",
@@ -3062,5 +3133,18 @@
       "friday": "ዓርብ",
       "saturday": "ቅዳሜ"
     }
+  },
+  "contact_intro": {
+    "someone": "አንድ አባል",
+    "provider": "አገልግሎት ሰጪ",
+    "requester": "አገልግሎት ጠያቂ",
+    "about_request": "ሰላም፣ እኔ {{name}} ({{who}}) ነኝ፤ ስለ ጥያቄዎ እያገኘሁዎት ነው፦ {{title}}",
+    "about_my_request": "ሰላም፣ እኔ {{name}} ({{who}}) ነኝ፤ ስለ ጥያቄዬ እያገኘሁዎት ነው፦ {{title}}",
+    "about_service": "ሰላም፣ እኔ {{name}} ({{who}}) ነኝ፤ ስለ {{service}} እያገኘሁዎት ነው",
+    "general": "ሰላም፣ እኔ {{name}} ({{who}}) ነኝ፤ በ«أي خدمة» በኩል እያገኘሁዎት ነው።",
+    "via_site": "በ«أي خدمة» በኩል፦ {{url}}",
+    "visitor": "ሰላም፣ ገጽዎን በ«أي خدمة» ላይ አግኝቼ ልገናኝዎ እፈልጋለሁ።",
+    "support": "ሰላም፣ እኔ {{name}} ({{who}}) ነኝ፤ የ«أي خدمة» ቴክኒክ ድጋፍን እያገኘሁ ነው።",
+    "support_visitor": "ሰላም፣ የ«أي خدمة» ቴክኒክ ድጋፍን እያገኘሁ ነው።"
   }
 }

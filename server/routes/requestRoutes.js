@@ -16,6 +16,7 @@ const { uploadLimiter } = require('../middleware/rateLimiter');
 const { requireMarketplaceWrite, requireMarketplaceBrowse } = require('../middleware/verificationPolicy');
 
 router.get('/nearby', optionalAuth, requireMarketplaceBrowse, c.getNearby);
+router.get('/recent', optionalAuth, requireMarketplaceBrowse, c.getRecent); // AYK-442
 router.get('/learned-terms', c.learnedTerms); // AYK-420
 router.get('/my', authenticate, c.getMy);
 router.get('/previous-clients', authenticate, c.getPreviousClients); // AYK-398

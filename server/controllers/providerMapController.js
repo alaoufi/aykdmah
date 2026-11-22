@@ -50,6 +50,7 @@ const nearby = asyncHandler(async (req, res) => {
            pp.rating_avg, pp.rating_count, pp.completed_orders,
            pp.location_mode,
            pp.show_location_on_map, pp.fixed_latitude, pp.fixed_longitude,
+           u.phone, pp.show_phone, pp.whatsapp, pp.show_whatsapp, -- AYK-427: the numbers each provider chose to show
            to_jsonb(pp)->>'availability_status' AS availability_status, to_jsonb(pp)->>'vacation_from' AS vacation_from,
            to_jsonb(pp)->>'vacation_to' AS vacation_to, to_jsonb(pp)->>'work_days' AS work_days,
            to_jsonb(pp)->>'work_from' AS work_from, to_jsonb(pp)->>'work_to' AS work_to,
@@ -106,6 +107,7 @@ const nearby = asyncHandler(async (req, res) => {
       location_precision: point.precision,
       distance_km: Math.round(distance * 10) / 10,
       availability: status,
+      ...publicContact(row),
     });
   }
   // Providers available now come first, then by distance.
@@ -189,7 +191,7 @@ function coveringProviders({ districtId, cityId, regionId = null, everywhere = f
            to_jsonb(pp)->>'availability_status' AS availability_status, to_jsonb(pp)->>'vacation_from' AS vacation_from,
            to_jsonb(pp)->>'vacation_to' AS vacation_to, to_jsonb(pp)->>'work_days' AS work_days,
            to_jsonb(pp)->>'work_from' AS work_from, to_jsonb(pp)->>'work_to' AS work_to,
-           to_jsonb(pp)->'work_schedule' AS work_schedule, ${COVERAGE_SQL},
+           to_jsonb(pp)->'work_schedule' AS work_schedule, ${COVERAGE_SQL}, to_jsonb(u)->>'request_alerts' AS request_alerts,
            EXISTS (SELECT 1 FROM provider_badges pb WHERE pb.user_id = u.id AND pb.badge_type = 'featured' AND pb.status = 'active'
                    AND pb.ends_at > CURRENT_TIMESTAMP AND ${ProviderBadge.verifiedPaymentSql('pb')}) AS is_featured
     FROM users u
@@ -208,7 +210,7 @@ const matching = asyncHandler(async (req, res) => {
   // AYK-397 (the owner: «الافتراضي منطقتك وله يوسّع الدائرة»): area (the district, as before), city, region or all.
   const scope = ['area', 'city', 'region', 'all'].includes(req.query.scope) ? req.query.scope : 'area';
   if (where.invalid || !validIds([categoryId, serviceId])) return error(res, req.t ? req.t('invalid_data') : 'Invalid filter', 400);
-  if (!where.cityId && scope !== 'all') return success(res, { area: null, scope, providers: [] });
+  if (!where.cityId && scope !== 'all' && req.query.board !== '1') return success(res, { area: null, scope, providers: [] });
   const categoryServices = categoryId !== null
     ? new Set((await query('SELECT id FROM services WHERE category_id = ?', [categoryId])).map(row => Number(row.id))) : null;
   const list = async scope => listProviders(await coveringProviders({ ...scope, excludeId: req.user?.id || 0 }),
@@ -218,6 +220,50 @@ const matching = asyncHandler(async (req, res) => {
   // list keeps only them when «المهن التي طلبتها» is chosen (matching=1).
   if (req.user && categoryId === null && serviceId === null) {
     requestedCategories = (await query('SELECT DISTINCT category_id FROM requests WHERE client_id = ? AND deleted_at IS NULL AND category_id IS NOT NULL', [req.user.id])).map(row => Number(row.category_id));
+    // AYK-447: on the board, the sections he chose before his first request count as well.
+    if (req.query.board === '1') {
+      const chosen = require('../models/Request').interestIds((await query(`SELECT to_jsonb(u)->>'interest_category_ids' AS v FROM users u WHERE id = ?`, [req.user.id]))[0]?.v);
+      for (const id of chosen) if (!requestedCategories.includes(id)) requestedCategories.push(id);
+      req.boardInterests = chosen.length;
+    }
+  }
+  // AYK-440: the home board. Every provider, ranked: in my area AND my requested professions first,
+  // then my area, then my professions, then the rest. «حسب طلبي» / «منطقتي» keep only those when
+  // chosen; the administration's «تقييد العرض» switch fixes both on.
+  if (req.query.board === '1') {
+    const restricted = Boolean(await require('../models/Setting').get('marketplace_restrict_views', false).catch(() => false));
+    let wanted = requestedCategories;
+    // AYK-450: looking for a provider (as=requester, the home's «مقدمو الخدمة» tab, also for an account
+    // that is both) ranks by what I asked for only, not by my own profession.
+    if (req.user?.role === 'provider' && categoryId === null && req.query.as !== 'requester') {
+      const mine = await query('SELECT pp.category_id, pp.service_ids FROM provider_profiles pp WHERE pp.user_id = ?', [req.user.id]);
+      const byServiceAll = await serviceCategories();
+      wanted = [...new Set([...requestedCategories, ...(mine[0] ? [...providerCategories(mine[0], byServiceAll)] : [])])];
+    }
+    const filterProf = restricted || req.query.f_prof === '1';
+    const filterArea = restricted || req.query.f_area === '1';
+    const everyone = await list({ everywhere: true });
+    const areaIds = where.cityId ? new Set((await list({ districtId: null, cityId: where.cityId })).map(row => Number(row.id))) : new Set();
+    const byServiceAll = wanted.length ? await serviceCategories() : null;
+    const scored = everyone.map((row, index) => {
+      const inArea = areaIds.has(Number(row.id));
+      const inProf = wanted.length > 0 && [...providerCategories(row, byServiceAll)].some(id => wanted.includes(id));
+      return { row, inArea, inProf, index };
+    });
+    let kept = scored.filter(item => (!filterArea || item.inArea) && (!filterProf || item.inProf));
+    // AYK-441: nobody for the buttons chosen: everyone else, ranked, with a word saying so.
+    let fallback = false;
+    if (!restricted && (filterArea || filterProf) && kept.length === 0 && scored.length > 0) { kept = scored; fallback = true; }
+    const ranked = kept
+      .sort((a, b) => ((b.inArea && b.inProf) - (a.inArea && a.inProf)) || (b.inArea - a.inArea) || (b.inProf - a.inProf) || (a.index - b.index));
+    const shown = ranked.slice(0, MAX_RESULTS).map(item => ({ ...item.row, board_area: item.inArea, board_profession: item.inProf }));
+    return success(res, {
+      area: where.area, scope: 'board', requested_category_ids: requestedCategories,
+      board: { restricted, fallback, has_profession: wanted.length > 0, has_area: Boolean(where.cityId),
+        my_requests: req.user ? Number((await query('SELECT COUNT(*) AS n FROM requests WHERE client_id = ? AND deleted_at IS NULL', [req.user.id]))[0]?.n || 0) : 0,
+        my_interests: req.boardInterests || 0 },
+      providers: await withOpinions(shown),
+    });
   }
   const onlyRequested = req.query.matching === '1' && requestedCategories.length > 0;
   const byService = onlyRequested ? await serviceCategories() : null;
@@ -283,7 +329,9 @@ async function availableForRequest({ districtId, cityId, categoryId, serviceId, 
     // AYK-391: the profession decides; a specific service only when the request has no profession.
     if (!categoryServices && serviceId && !services.includes(Number(serviceId))) return false;
     if (categoryServices && Number(row.category_id) !== Number(categoryId) && !services.some(s => categoryServices.has(s))) return false;
-    return availability(row).state === 'available';
+    // AYK-443: who asked to be reminded is told even outside his hours; not while paused or away.
+    const state = availability(row).state;
+    return state === 'available' || (Number(row.request_alerts) === 1 && state !== 'paused' && state !== 'vacation');
   });
   // Without a needed subscription, a provider is not told about the request (AYK-042).
   const allowed = await require('../services/subscriptionRules').keepAllowed(working, { cityId, categoryOf: row => categoryId || row.category_id });

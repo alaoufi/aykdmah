@@ -5,7 +5,7 @@ import usePublicSettings, { subscriptionsOn } from '../../hooks/usePublicSetting
 import AdSlot from '../ads/AdSlot';
 import AdminPanelLink from './AdminPanelLink';
 import VisitorCounter from './VisitorCounter';
-import { whatsappLink } from '../../utils/whatsapp';
+import SupportWhatsApp from '../support/SupportWhatsApp';
 
 export default function Footer() {
   const { t } = useTranslation();
@@ -14,7 +14,6 @@ export default function Footer() {
   const contacts = [settings.support_phone, settings.support_email].filter(Boolean);
   // «للاستفسار» with the support WhatsApp number from the admin settings (AYK-214).
   const inquiry = String(settings.support_whatsapp || '').trim();
-  const inquiryLink = whatsappLink(inquiry, t('support.whatsapp_text'));
 
   const cols = [
     {
@@ -72,11 +71,10 @@ export default function Footer() {
             <div className="text-white font-bold text-[14px] mb-2">{t('footer.contact')}</div>
             <ul className="flex flex-col gap-2 text-[13px] text-white/70">
               {inquiry && (
-                <li data-testid="footer-inquiry">
-                  {t('footer.inquiry')}{' '}
-                  {inquiryLink
-                    ? <a href={inquiryLink} target="_blank" rel="noopener noreferrer" dir="ltr" className="text-white font-bold hover:underline no-underline">( {inquiry} )</a>
-                    : <span dir="ltr" className="text-white font-bold">( {inquiry} )</span>}
+                <li data-testid="footer-inquiry" className="flex items-center gap-2">
+                  {/* AYK-437: the WhatsApp icon to support, kept for support to review. */}
+                  <SupportWhatsApp testId="footer-support-whatsapp" />
+                  <span>{t('support.whatsapp_icon')}</span>
                 </li>
               )}
               {contacts.map((contact) => <li key={contact}>{contact}</li>)}

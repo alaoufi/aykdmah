@@ -169,10 +169,7 @@
     "download_on": "Şuradan indirin",
     "coming_soon": "Yakında:",
     "tab_requests": "Hizmet talep edenler",
-    "tab_requests_hint": "Hizmete ihtiyacı olanların talepleri",
-    "tab_requests_hint_provider": "Mesleğimdeki talepler",
     "tab_providers": "Hizmet verenler",
-    "tab_providers_hint": "Kim hizmet veriyor ve hizmet iste",
     "scope_label": "Çevre:",
     "scope_district": "Mahallem",
     "scope_coverage": "Hizmet alanım",
@@ -188,7 +185,56 @@
     "guest_services": "Meslek kategorileri",
     "guest_requests": "Hizmet talepleri",
     "guest_providers": "Hizmet verenler",
-    "guest_more": "Daha fazla göster"
+    "guest_more": "Daha fazla göster",
+    "filter_my_profession": "Mesleğim",
+    "filter_my_area": "Bölgem",
+    "filter_restricted": "🔒 Yönetim tarafından sınırlandı",
+    "filter_none": "Seçim yok: herkes görünür, size en yakın önce",
+    "board_none_filtered": "Şu an eşleşen yok. Herkesi görmek için bir filtreyi kapatın.",
+    "board_fallback": "Seçiminize uyan henüz bir şey yok; size en yakından başlayarak diğer talepler burada.",
+    "board_fallback_providers": "Seçiminize uyan henüz kimse yok; size en yakından başlayarak diğer hizmet sağlayıcılar burada.",
+    "guest_fallback_requests": "Bu meslekte henüz talep yok; diğer mesleklerdeki en yeni talepler burada.",
+    "guest_fallback_providers": "Bu meslekte henüz hizmet sağlayıcı yok; diğer mesleklerdekiler burada.",
+    "recent_title": "«Ay Khidma»'da son yapılanlar",
+    "recent_hint": "Sahibi bir hizmet sağlayıcıyla anlaşan talepler",
+    "recent_done": "Tamamlandı",
+    "recent_working": "Devam ediyor",
+    "empty_provider_title": "Şu anda açık talep yok",
+    "empty_provider_hint": "Size uygun bir talep gelir gelmez bildirim göndereceğiz. Müşterilerinizin sizi buradan istemesi için bağlantınızı paylaşın.",
+    "empty_provider_action": "Bağlantımı paylaş",
+    "empty_requester_title": "İlk talep eden siz olun",
+    "empty_requester_hint": "Talebinizi şimdi gönderin; mesleği ve bölgesindeki hizmet sağlayıcılara hemen ulaşır.",
+    "empty_requester_action": "Talep gönder",
+    "empty_guest_title": "Talepler burada başlar",
+    "empty_guest_hint": "Kaydolun ve talebinizi gönderin ya da talepleri ilk elden almak için hizmet sağlayıcı olarak kaydolun.",
+    "empty_guest_action": "Şimdi kaydol",
+    "empty_providers_title": "Hizmet sağlayıcılar şimdi katılıyor",
+    "empty_providers_hint": "Talebinizi gönderin; mesleği ve bölgesindeki her hizmet sağlayıcıya kaydolur olmaz haber veririz.",
+    "empty_providers_action": "Talep gönder",
+    "recent_period": "Süre",
+    "recent_days_1": "Son gün",
+    "recent_days_7": "Son 7 gün",
+    "recent_days_30": "Son 30 gün",
+    "recent_days_90": "Son 90 gün",
+    "recent_agreed": "Anlaşma: {{when}}",
+    "recent_none": "Bu sürede henüz anlaşma yok. Daha uzun bir süre veya tüm meslekleri deneyin.",
+    "filter_title": "Bana göster",
+    "filter_need_services": "«Mesleğim»in çalışması için önce «Hesabım»da hizmetlerinizi ekleyin.",
+    "filter_state_prof_provider": "Mesleğiniz tüm bölgelerde, en yakın önce",
+    "filter_state_area": "Bölgenizdeki tüm meslekler",
+    "filter_state_both_provider": "Yalnızca bölgenizdeki mesleğiniz",
+    "filter_need_area": "«Bölgem»in çalışması için önce «Hesabım»da bölgenizi tamamlayın.",
+    "filter_similar_one": "Talebime benzer",
+    "filter_similar_many": "Taleplerime benzer",
+    "filter_state_prof_request": "Talebinize benzer, tüm bölgelerde",
+    "filter_state_prof_requests": "Taleplerinize benzer, tüm bölgelerde",
+    "filter_state_both_request": "Talebinize benzer, yalnızca bölgenizde",
+    "filter_state_both_requests": "Taleplerinize benzer, yalnızca bölgenizde",
+    "sections_title": "Daha önce talepte bulunmadınız: ihtiyacınız olan meslekleri seçin",
+    "sections_hint": "Birden fazla meslek seçebilirsiniz; benzerlerini gösteririz.",
+    "sections_save": "Kaydet ({{count}})",
+    "sections_edit": "Meslekleri değiştir",
+    "filter_need_sections": "«Talebime benzer»in çalışması için ihtiyacınız olan meslekleri seçin."
   },
   "location": {
     "country": "Ülke",
@@ -442,7 +488,11 @@
     "reach_count": "Talebiniz şu an meslek ve bölgesindeki {{count}} hizmet verene görünüyor.",
     "reach_none": "Bu meslekte talebinizin yerini kapsayan bir hizmet veren henüz yok.",
     "reach_none_profession": "Bu meslekte henüz kayıtlı hizmet veren yok. Talebiniz açık kalır ve «Tüm açık talepler»i seçenler görür; başka bir meslek daha uygunsa mesleği değiştirebilirsiniz.",
-    "reach_none_area": "Bu meslekte hizmet verenler var ama henüz mahallenizi kapsamıyorlar. Talebiniz açık kalır; çevresini genişletenler veya «Tüm açık talepler»i seçenler görür."
+    "reach_none_area": "Bu meslekte hizmet verenler var ama henüz mahallenizi kapsamıyorlar. Talebiniz açık kalır; çevresini genişletenler veya «Tüm açık talepler»i seçenler görür.",
+    "contact_providers_title": "İletişim hizmet verenler içindir",
+    "contact_providers_only": "Hizmet talep edenlerle iletişim hizmet verenler içindir. Hizmet veren olarak kaydolun ve mesleğinizi seçin, ardından size ihtiyaç duyanlara ulaşın.",
+    "become_provider": "Hizmet veren ol",
+    "available": "Müsait"
   },
   "offer": {
     "submit_title": "Fiyat teklifi ver",
@@ -2614,7 +2664,12 @@
     "unrestricted_hint": "Sınırları kaldır: yalnızca mesleğim ve hizmet alanım değil, her meslek ve bölgedeki tüm açık talepleri göster.",
     "my_info_title": "Bilgilerim",
     "my_info_hint": "Ad, hizmet açıklamam, insanlara gösterilen telefon ve WhatsApp, mesleklerim ve mahallelerim.",
-    "my_info_edit": "Düzenle"
+    "my_info_edit": "Düzenle",
+    "alerts_none": "Bölgenizde mesleğiniz için yeni talep yok",
+    "alerts_ask": "Size uygun bir talep geldiğinde hatırlatılmak ister misiniz?",
+    "alerts_yes": "Evet, hatırlat",
+    "alerts_on": "Hatırlatma açık: mesleğinizde ve bölgenizde bir talep gelir gelmez, çalışma saatleriniz dışında bile, sahibine nasıl ulaşacağınızla birlikte bildirim alırsınız.",
+    "alerts_stop": "Hatırlatmayı durdur"
   },
   "requester": {
     "all_professions": "Tüm meslekler",
@@ -2623,7 +2678,7 @@
     "contact_direct": "İletişime geç",
     "in_directory": "Rehberimde",
     "add_directory": "Rehberime ekle",
-    "remove_directory": "Kaldır",
+    "remove_directory": "Rehberimden kaldır",
     "directory_title": "Rehberim",
     "directory_nav": "Rehberim",
     "directory_hint": "Eklediğiniz hizmet verenler. Talep oluşturmadan herhangi biriyle doğrudan iletişime geçin.",
@@ -2716,7 +2771,8 @@
     "whatsapp_text": "Merhaba, «Ay Khidma» platformundan şu konuda yazıyorum:",
     "form_title": "Ya da yönetime mesaj gönderin",
     "login_to_write": "Yönetime mesaj göndermek ve yanıtları takip etmek için giriş yapın.",
-    "login": "Giriş yap"
+    "login": "Giriş yap",
+    "whatsapp_icon": "Teknik destekle iletişime geç"
   },
   "permissions": {
     "microphone": "Mikrofon",
@@ -2988,7 +3044,8 @@
     "copied": "Bağlantı kopyalandı",
     "qr": "QR kodu",
     "qr_hint": "Bağlantıyı açmak için kodu telefon kamerasıyla okutun",
-    "qr_save": "Görseli kaydet"
+    "qr_save": "Görseli kaydet",
+    "request_text": "Ay Khidma'da bir hizmet talebi: {{title}}"
   },
   "ads": {
     "hide": "Reklamı gizle"
@@ -3028,16 +3085,30 @@
   },
   "contact_privacy": {
     "title": "Sizinle iletişim",
-    "hint": "Kimin ve nasıl iletişime geçeceğini seçin. Siz açana kadar hepsi kapalıdır, istediğiniz zaman kapatabilirsiniz.",
-    "share_phone": "Telefonumu hizmet verenlere göster",
+    "hint": "Hangi bilgilerinizin kime görüneceğini seçin. Siz seçene kadar hepsi gizli.",
+    "share_phone": "Telefonum",
     "share_phone_hint": "Yalnızca açık talebinizin mesleğindeki hizmet verenler görür ve sizi doğrudan arar.",
     "no_phone": "Önce yukarıya telefon numaranızı ekleyin.",
-    "share_whatsapp": "WhatsApp'ımı hizmet verenlere göster",
+    "share_whatsapp": "WhatsApp'ım",
     "share_whatsapp_hint": "Açık talebinizin mesleğindeki hizmet verenler size WhatsApp'tan yazabilir.",
     "whatsapp_number": "WhatsApp numarası (isteğe bağlı)",
     "whatsapp_number_hint": "Telefon numaranızla aynıysa boş bırakın.",
     "marketing": "Sitenin benimle iletişime geçmesine izin ver",
-    "marketing_hint": "Yenilikleri ve isteklerinize uygun teklifleri göndeririz. İstediğiniz zaman durdurabilirsiniz."
+    "marketing_hint": "Yenilikleri ve isteklerinize uygun teklifleri göndeririz. İstediğiniz zaman durdurabilirsiniz.",
+    "share_name": "Adım",
+    "level_hidden": "Gizli",
+    "level_providers": "Hizmet verenler",
+    "levels_hint": "\"Hizmet verenler\": kayıtlı her hizmet veren açık talebinizde görür, başkası görmez. Kendi talebinizde görmezsiniz.",
+    "my_visible": "Bu talepte görünen bilgileriniz",
+    "my_visible_none": "Bilgileriniz gizli: hizmet verenler size yalnızca sohbetle ulaşır.",
+    "my_visible_edit": "Görüneni değiştir",
+    "name_label": "Ad",
+    "phone_label": "Telefon",
+    "whatsapp_label": "WhatsApp",
+    "allow_share": "Taleplerimin paylaşılmasına izin ver",
+    "allow_share_hint": "Hizmet verenler ve ziyaretçiler talebinizin bağlantısını paylaşabilir, böylece yardım edebilecek birine ulaşır. Siz her zaman paylaşabilirsiniz.",
+    "share_allowed": "Başkaları talebinizi paylaşabilir.",
+    "share_not_allowed": "Talebinizi yalnızca siz paylaşabilirsiniz. \"Görüneni değiştir\"den izin verin."
   },
   "understand": {
     "title": "Talebinizi kendi ağzınızla yazın",
@@ -3062,5 +3133,18 @@
       "friday": "Cuma",
       "saturday": "Cumartesi"
     }
+  },
+  "contact_intro": {
+    "someone": "Bir üye",
+    "provider": "Hizmet veren",
+    "requester": "Hizmet talep eden",
+    "about_request": "Merhaba, ben {{name}} ({{who}}). Talebiniz hakkında ulaşıyorum: {{title}}",
+    "about_my_request": "Merhaba, ben {{name}} ({{who}}). Talebim hakkında ulaşıyorum: {{title}}",
+    "about_service": "Merhaba, ben {{name}} ({{who}}). {{service}} hakkında ulaşıyorum",
+    "general": "Merhaba, ben {{name}} ({{who}}), Ay Khidma üzerinden ulaşıyorum.",
+    "via_site": "Ay Khidma üzerinden: {{url}}",
+    "visitor": "Merhaba, sayfanızı Ay Khidma'da buldum ve sizinle iletişime geçmek istiyorum.",
+    "support": "Merhaba, ben {{name}} ({{who}}), Ay Khidma teknik desteğine ulaşıyorum.",
+    "support_visitor": "Merhaba, Ay Khidma teknik desteğine ulaşıyorum."
   }
 }

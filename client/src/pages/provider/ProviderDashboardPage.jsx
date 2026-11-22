@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { listNearbyRequests, listMyOffers } from '../../services/requestService';
+import { listNearbyRequests, listMyOffers, contactRequest } from '../../services/requestService';
+import ContactButtons from '../../components/providers/ContactButtons';
+import useContactIntro from '../../hooks/useContactIntro';
+import { showProblem } from '../../components/common/AppDialog';
 import { useAuth } from '../../hooks/useAuth';
 import RequestCard from '../../components/requests/RequestCard';
 import { LoadingState, EmptyState } from '../../components/common/Spinner';
@@ -12,16 +15,36 @@ import AdSlot from '../../components/ads/AdSlot';
 import ProblemNotice from '../../components/common/ProblemNotice';
 import ShareProviderLink from '../../components/providers/ShareProviderLink';
 import { ProviderSection } from '../ProfilePage';
+import usePublicSettings from '../../hooks/usePublicSettings';
+import RecentActivity from '../../components/home/RecentActivity';
+import BoardEmpty from '../../components/home/BoardEmpty';
+import RequestAlertPrompt from '../../components/provider/RequestAlertPrompt';
+import BoardFilters from '../../components/home/BoardFilters';
+import { boardKey, recall, keep, narrow } from '../../utils/boardCache';
 
 export default function ProviderDashboardPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const intro = useContactIntro();
+  // AYK-435: the requests I contacted have the contact icons too (the chat about that request).
+  const chatAbout = async offer => {
+    try { const { conversation_id } = await contactRequest(offer.request_id); navigate(`/chat/${conversation_id}`); }
+    catch (err) { if (!err?.cancelled) { navigate(`/requests/${offer.request_id}`); showProblem(err); } }
+  };
   const { user, provider, refresh } = useAuth();
-  // AYK-400 «فك القيود»: every open request, whatever the profession or area. Asked for, never the default.
-  const [unrestricted, setUnrestricted] = useState(false);
+  // AYK-440 (the owner): every open request in every profession and area, ranked: my profession in
+  // my area first, then my area, then my profession. «مهنتي» / «منطقتي» filter only when chosen; the
+  // administration's «تقييد العرض» fixes both on. (Replaces AYK-400's «فك القيود».)
+  const { settings } = usePublicSettings();
+  const restricted = settings.marketplace_restrict_views === true || settings.marketplace_restrict_views === 'true';
+  const [filters, setFilters] = useState({ prof: false, area: false });
+  const board = restricted ? { prof: true, area: true } : filters;
+  const unrestricted = !board.prof && !board.area;
   // AYK-401: the provider's own details edited here, in the dashboard.
   const [infoMsg, setInfoMsg] = useState('');
   const [infoErr, setInfoErr] = useState('');
   const [nearby, setNearby] = useState([]);
+  const [boardMeta, setBoardMeta] = useState({});
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -36,16 +59,20 @@ export default function ProviderDashboardPage() {
     if (!quiet && !shown.current) setLoading(true);
     setError(false);
     // Requests in the provider's own professions and districts only (AYK-040).
-    const params = { limit: unrestricted ? 50 : 20, matching: '1', ...(unrestricted ? { scope: 'open' } : {}) };
+    const params = { limit: 50, board: '1', ...(board.prof ? { f_prof: '1' } : {}), ...(board.area ? { f_area: '1' } : {}) };
+    // AYK-449: a box ticked shows at once (this list kept, or the whole board narrowed); the server's follows.
+    const key = boardKey('dashboard', params);
+    const known = recall(key) || (() => { const wide = recall(boardKey('dashboard', { limit: 50, board: '1' })); return wide && { data: narrow(wide.data, board), meta: { ...wide.meta, fallback: false } }; })();
+    if (known && shown.current) { setNearby(known.data); setBoardMeta(known.meta || {}); }
     Promise.all([
-      listNearbyRequests(params).then(r => r.data || []),
+      listNearbyRequests(params).then(r => { keep(key, { data: r.data || [], meta: r.meta?.board || {} }); return r; }),
       listMyOffers({ limit: 5 }).then(r => r.data || []),
     ])
-      .then(([n, o]) => { if (current) { setNearby(n); setOffers(o); } })
+      .then(([n, o]) => { if (current) { setNearby(n.data || []); setBoardMeta(n.meta?.board || {}); setOffers(o); } })
       .catch(() => { if (current) setError(true); })
       .finally(() => { if (current) { shown.current = true; setLoading(false); } });
     return () => { current = false; };
-  }, [tick, unrestricted]);
+  }, [tick, board.prof, board.area]);
 
   if (loading) return <LoadingState />;
 
@@ -69,13 +96,14 @@ export default function ProviderDashboardPage() {
           <h3 style={{ margin: 0 }}>📨 {t(unrestricted ? 'work.all_open_title' : 'work.requests_title')}</h3>
           <Link to="/opportunities" className="text-[13px] font-semibold">{t('work.see_all')}</Link>
         </div>
-        <label className="flex items-start gap-2 text-[13px] mb-3 cursor-pointer rounded-card border border-border px-3 py-2" data-testid="unrestricted-toggle">
-          <input type="checkbox" className="mt-0.5 w-4 h-4 accent-primary" checked={unrestricted} onChange={e => setUnrestricted(e.target.checked)} />
-          <span><b>🔓 {t('work.unrestricted_label')}</b><span className="block text-fg-muted text-[12px]">{t('work.unrestricted_hint')}</span></span>
-        </label>
+        <BoardFilters value={filters} onChange={setFilters} asProvider restricted={restricted} meta={boardMeta} />
+        <div className="mb-3" />
+        <RequestAlertPrompt noneForMe={!nearby.some(r => r.board_profession && r.board_area)} />
+        {boardMeta.fallback && <p className="text-[12.5px] rounded-card bg-amber-50 text-amber-900 px-3 py-2 mb-2" role="status" data-testid="board-fallback">💡 {t('home.board_fallback')}</p>}
         {nearby.length === 0
-          ? <EmptyState title={t(unrestricted ? 'home.no_requests_anywhere' : 'work.no_requests')} />
+          ? (restricted ? <EmptyState title={t('home.board_none_filtered')} /> : <BoardEmpty who="provider" />)
           : <div className="grid grid-2">{nearby.map(r => <RequestCard key={r.id} request={r} />)}</div>}
+        <RecentActivity asProvider className="mt-3" />
       </div>
 
 
@@ -116,13 +144,15 @@ export default function ProviderDashboardPage() {
               {offers.map(o => {
                 const oStatus = OFFER_STATUS[o.status] || {};
                 return (
-                  <Link key={o.id} to={`/requests/${o.request_id}`} className="offer-list-item tone-request">
-                    <div style={{ flex: 1 }}>
-                      <strong>{o.request_title}</strong>
+                  <div key={o.id} className="offer-list-item tone-request">
+                    <div style={{ flex: 1 }} className="min-w-0">
+                      <Link to={`/requests/${o.request_id}`} className="font-bold text-fg no-underline">{o.request_title}</Link>
                       <div className="text-xs text-muted">{o.status === 'accepted' ? <b className="text-primary">📌 {t('work.assigned_to_you')}</b> : (oStatus.i18nKey ? t(oStatus.i18nKey) : o.status)}</div>
                     </div>
                     {Number(o.price) > 0 && <div style={{ fontWeight: 700, color: 'var(--primary)' }}>{formatCurrency(o.price)}</div>}
-                  </Link>
+                    <ContactButtons size="xs" testId="my-contact" onChat={() => chatAbout(o)}
+                      intro={intro({ request: o.request_title })} link={`/requests/${o.request_id}`} />
+                  </div>
                 );
               })}
             </div>
@@ -130,7 +160,7 @@ export default function ProviderDashboardPage() {
       </div>
 
       {/* The provider's own public page link, to share or for others to keep in «دليلي» (AYK-312). */}
-      {user?.id && <div className="mt-4"><ShareProviderLink providerId={user.id} name={provider?.business_name || user.full_name} mine /></div>}
+      {user?.id && <div className="mt-4" id="share-link"><ShareProviderLink providerId={user.id} name={provider?.business_name || user.full_name} mine /></div>}
       <AdSlot placement="home_middle" className="mt-4" />
       <AdSlot placement="home_bottom" className="mt-4" />
       <style>{`

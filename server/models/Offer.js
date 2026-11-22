@@ -162,6 +162,9 @@ async function findByRequest(requestId, { providerId } = {}) {
     `SELECT o.*, u.full_name AS provider_name, u.avatar AS provider_avatar, u.referral_code AS provider_code,
             u.is_verified AS provider_verified,
             pp.rating_avg, pp.rating_count, pp.completed_orders, pp.location_mode, CASE WHEN ${featuredPlanSql} THEN 1 ELSE 0 END AS is_featured,
+            -- AYK-430: only the numbers the provider chose to show on their page (AYK-314).
+            CASE WHEN pp.show_phone = 1 THEN u.phone END AS public_phone,
+            CASE WHEN pp.show_whatsapp = 1 THEN COALESCE(NULLIF(pp.whatsapp, ''), u.phone) END AS public_whatsapp,
             CASE WHEN ${trustedBadgeSql} THEN 1 ELSE 0 END AS badge_trusted_active, pp.badge_trusted_until,
             CASE WHEN ${featuredBadgeSql} THEN 1 ELSE 0 END AS badge_featured_active, pp.badge_featured_until,
             COALESCE(sp.search_priority, 0) AS plan_priority,
@@ -262,7 +265,7 @@ async function transitionOffer(offerId, clientId, status) {
       [offer.request_id, offerId]
     );
     await conn.execute(
-      "UPDATE requests SET status = 'assigned', assigned_provider_id = ?, accepted_offer_id = ? WHERE id = ?",
+      "UPDATE requests SET status = 'assigned', assigned_provider_id = ?, accepted_offer_id = ?, agreed_at = CURRENT_TIMESTAMP WHERE id = ?",
       [offer.provider_id, offerId, offer.request_id]
     );
     return { ...offer, status: 'accepted' };

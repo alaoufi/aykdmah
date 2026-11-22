@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { CATEGORIES, popularServices } from '../../data/servicesCatalog';
 import { tx } from '../../utils/localize';
+import RatingInline from '../reviews/RatingInline';
 
 export default function ServicesHighlight() {
   const { t, i18n } = useTranslation();
@@ -51,7 +52,7 @@ export default function ServicesHighlight() {
               <div className="p-2.5 md:p-3.5 flex flex-col flex-1">
                 <div className="text-[13px] md:text-[14px] font-bold text-ink leading-snug mb-0.5 md:mb-1 line-clamp-1">{tx(s.title, lang)}</div>
                 <div className="flex items-center gap-2 text-[11.5px] text-slate-500 mb-2">
-                  {s.ratingCount > 0 && <span className="text-amber-600 font-bold">★ {s.rating.toFixed(1)}</span>}
+                  {s.ratingCount > 0 && <RatingInline size={11} average={s.rating} count={s.ratingCount} showCount={false} />}
                 </div>
                 <div className="mt-auto text-[13px] font-extrabold text-ink">
                   {Number.isFinite(s.priceFrom) ? <>{t('catalog.price_from')} {s.priceFrom} <span className="text-[11px] text-sand-600 font-semibold">{t('common.currency')}</span></> : t('catalog.offers_price')}

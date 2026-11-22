@@ -1,11 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { listPreviousClients } from '../../services/requestService';
 import { LoadingState, EmptyState } from '../../components/common/Spinner';
 import ProblemNotice from '../../components/common/ProblemNotice';
 import { localizedName } from '../../utils/localize';
 import { formatRelativeTime } from '../../utils/formatters';
+import ContactButtons from '../../components/providers/ContactButtons';
+import useContactIntro from '../../hooks/useContactIntro';
+import { createConversation } from '../../services/chatService';
+import { showProblem } from '../../components/common/AppDialog';
 
 // AYK-398 (the owner: «في اللوحة يمكن استعراض العملاء السابقين فقط للاستعلام»). The requesters this
 // provider worked for, newest first, to look up only: no editing here. A requester's name stays
@@ -13,6 +17,13 @@ import { formatRelativeTime } from '../../utils/formatters';
 export default function PreviousClientsPage() {
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
+  const navigate = useNavigate();
+  const intro = useContactIntro();
+  // AYK-438: every panel with a person has at least the chat.
+  const chatWith = async row => {
+    try { const conv = await createConversation({ user_id: row.id }); navigate(`/chat/${conv.id || conv.conversation_id}`); }
+    catch (err) { if (!err?.cancelled) showProblem(err); }
+  };
   const [rows, setRows] = useState(null);
   const [error, setError] = useState(false);
   const [search, setSearch] = useState('');
@@ -56,6 +67,8 @@ export default function PreviousClientsPage() {
                       🧰 {t('work.previous_clients_jobs', { count: row.jobs })}{row.last_at ? ` · ${formatRelativeTime(row.last_at)}` : ''}
                     </div>
                     {lastTitle && <div className="text-[13px]">{t('work.previous_clients_last')}: <Link to={`/requests/${row.last_request.id}`} className="font-semibold">{lastTitle}</Link></div>}
+                    <ContactButtons size="sm" testId="previous-client-contact" onChat={() => chatWith(row)}
+                      intro={intro({ request: lastTitle || null })} link={row.open_request_id ? `/requests/${row.open_request_id}` : ''} />
                     {row.open_request_id && (
                       <Link to={`/requests/${row.open_request_id}`} className="btn btn-primary btn-sm w-fit" data-testid="previous-client-open-request">
                         📨 {t('work.previous_clients_open_request')}

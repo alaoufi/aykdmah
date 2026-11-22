@@ -8,7 +8,7 @@ DO $ayk_fresh$ BEGIN
   IF EXISTS (
     SELECT 1 FROM pg_class c JOIN pg_namespace n ON n.oid = c.relnamespace
     WHERE n.nspname = current_schema() AND c.relkind IN ('r','p','v','m','f')
-      AND c.relname IN ('account_number_aliases','activity_logs','ad_admin_messages','ad_campaigns','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_diagnostics','call_reports','calls','categories','chat_forward_receipts','cities','conversation_archives','conversation_participants','conversations','countries','device_reports','dialect_term_flags','dialect_terms','directory_contacts','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','district_name_cleanup_','districts','entity_views','governorates','install_lock','ip_geo_cache','location_shares','message_files','message_hidden','message_translations','messages','native_push_tokens','notifications','offers','payments','phone_codes','provider_badges','provider_coverage_districts','provider_profiles','push_subscriptions','referral_count_rewards','referral_rewards','regions','request_files','request_translations','requests','review_reports','review_translations','review_votes','reviews','roles','saved_providers','schema_migrations','security_events','services','settings','subscription_plans','subscription_rules','subscriptions','support_messages','support_tickets','translation_memory','translation_usage','ui_text_overrides','uploaded_media','user_blocks','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','visit_days','wallet_transactions','withdrawal_requests')
+      AND c.relname IN ('account_number_aliases','activity_logs','ad_admin_messages','ad_campaigns','ad_media','ad_placement_pricing','ad_stats_daily','ads','api_integrations','api_usage_logs','auth_rate_limits','call_diagnostics','call_reports','calls','categories','chat_forward_receipts','cities','conversation_archives','conversation_participants','conversations','countries','device_reports','dialect_term_flags','dialect_terms','directory_contacts','dispute_access_logs','dispute_evidence','dispute_messages','dispute_status_logs','disputes','district_name_cleanup_','districts','entity_views','governorates','install_lock','ip_geo_cache','location_shares','message_files','message_hidden','message_translations','messages','native_push_tokens','notifications','offers','payments','phone_codes','provider_badges','provider_coverage_districts','provider_profiles','push_subscriptions','referral_count_rewards','referral_rewards','regions','request_files','request_translations','requests','review_reports','review_translations','review_votes','reviews','roles','saved_providers','schema_migrations','security_events','services','settings','subscription_plans','subscription_rules','subscriptions','support_messages','support_tickets','support_whatsapp_contacts','translation_memory','translation_usage','ui_text_overrides','uploaded_media','user_blocks','user_profiles','user_verifications','users','verification_audit','verification_otps','verification_requests','visit_days','wallet_transactions','withdrawal_requests')
   ) THEN
     RAISE EXCEPTION 'AY KHIDMA bootstrap requires a fresh database schema; use journaled migrations for an existing installation';
   END IF;
@@ -6805,6 +6805,52 @@ CREATE TABLE IF NOT EXISTS dialect_term_flags (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 INSERT INTO schema_migrations(name) VALUES ('106_dialect_terms.sql');
+
+-- migrations/107_support_whatsapp.sql
+CREATE TABLE IF NOT EXISTS support_whatsapp_contacts (
+  id SERIAL PRIMARY KEY,
+  user_id INT NULL,
+  page VARCHAR(300) NULL,
+  message VARCHAR(1000) NULL,
+  lang VARCHAR(10) NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  handled_at TIMESTAMP NULL,
+  handled_by INT NULL
+);
+CREATE INDEX IF NOT EXISTS support_whatsapp_contacts_created ON support_whatsapp_contacts (created_at DESC);
+INSERT INTO schema_migrations(name) VALUES ('107_support_whatsapp.sql');
+
+-- migrations/108_requester_share_name.sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS share_name SMALLINT NOT NULL DEFAULT 0;
+INSERT INTO schema_migrations(name) VALUES ('108_requester_share_name.sql');
+
+-- migrations/109_request_share_permission.sql
+UPDATE users SET share_phone = 1 WHERE share_phone > 1;
+UPDATE users SET share_whatsapp = 1 WHERE share_whatsapp > 1;
+UPDATE users SET share_name = 1 WHERE share_name > 1;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS allow_request_share SMALLINT NOT NULL DEFAULT 0;
+INSERT INTO schema_migrations(name) VALUES ('109_request_share_permission.sql');
+
+-- migrations/110_marketplace_restrict_views.sql
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description)
+VALUES ('marketplace_restrict_views', 'false', 'boolean', 'requests', 1, 'تقييد العرض حسب المهنة والمنطقة')
+ON CONFLICT (setting_key) DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('110_marketplace_restrict_views.sql');
+
+-- migrations/111_request_agreed_at.sql
+ALTER TABLE requests ADD COLUMN IF NOT EXISTS agreed_at TIMESTAMP NULL DEFAULT NULL;
+UPDATE requests r SET agreed_at = COALESCE((SELECT o.accepted_at FROM offers o WHERE o.id = r.accepted_offer_id), r.completed_at, r.updated_at)
+  WHERE r.agreed_at IS NULL AND r.assigned_provider_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_requests_agreed_at ON requests (agreed_at DESC) WHERE agreed_at IS NOT NULL;
+INSERT INTO schema_migrations(name) VALUES ('111_request_agreed_at.sql');
+
+-- migrations/112_request_alerts.sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS request_alerts SMALLINT NOT NULL DEFAULT 0;
+INSERT INTO schema_migrations(name) VALUES ('112_request_alerts.sql');
+
+-- migrations/113_interest_categories.sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS interest_category_ids TEXT NULL DEFAULT NULL;
+INSERT INTO schema_migrations(name) VALUES ('113_interest_categories.sql');
 
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$

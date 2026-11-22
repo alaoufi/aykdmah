@@ -1097,7 +1097,7 @@ if (!databasePrefix) {
     await db.query('DELETE FROM requests WHERE id = ?', [id]);
   });
 
-  test('AYK-418: a requester shows phone/WhatsApp only to providers of the request profession, after turning it on', async () => {
+  test('AYK-418/438/439: a requester shows name/phone/WhatsApp to service providers only, after turning it on; sharing needs their permission', async () => {
     const area = await simpleArea();
     const svc = await db.queryOne('SELECT s.id, s.category_id FROM services s WHERE s.is_active = 1 AND s.deleted_at IS NULL ORDER BY s.id LIMIT 1');
     const otherSvc = await db.queryOne('SELECT s.id FROM services s WHERE s.is_active = 1 AND s.deleted_at IS NULL AND s.category_id <> ? ORDER BY s.id LIMIT 1', [svc.category_id]);
@@ -1114,7 +1114,7 @@ if (!databasePrefix) {
     const other = await makeProvider(otherSvc.id);
     const seenBy = async token => {
       const one = token ? await api(`/requests/${id}`, { token }) : (await fetch(`${base}/requests/${id}`).then(r => r.json())).data;
-      return { phone: one.client_contact_phone || null, whatsapp: one.client_contact_whatsapp || null };
+      return { phone: one.client_contact_phone || null, whatsapp: one.client_contact_whatsapp || null, ...(one.client_contact_name ? { name: one.client_contact_name } : {}) };
     };
     assert.deepEqual(await seenBy(same.token), { phone: null, whatsapp: null }, 'off until the requester turns it on');
     await api('/users/me', { method: 'PUT', token: owner.token, body: { share_phone: 1, share_whatsapp: 1, marketing_opt_in: 1 } });
@@ -1127,8 +1127,22 @@ if (!databasePrefix) {
     assert.equal(shown.whatsapp, owner.user.phone, 'WhatsApp defaults to the phone');
     const listed = (await api('/requests/nearby?limit=100&scope=all', { token: same.token })).find(row => Number(row.id) === id);
     if (listed) assert.equal(listed.client_contact_phone, owner.user.phone);
-    assert.deepEqual(await seenBy(other.token), { phone: null, whatsapp: null }, 'another profession sees nothing');
-    assert.deepEqual(await seenBy(null), { phone: null, whatsapp: null }, 'a visitor sees nothing');
+    // AYK-438: «لمقدمي الخدمة» means every provider (before, only the request's profession saw them).
+    assert.equal((await seenBy(other.token)).phone, owner.user.phone, 'a provider of another profession sees it too');
+    assert.deepEqual(await seenBy(null), { phone: null, whatsapp: null }, 'level 1: a visitor sees nothing');
+    const requester = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    assert.deepEqual(await seenBy(requester.token), { phone: null, whatsapp: null }, 'level 1: another requester sees nothing');
+    // AYK-439: only service providers, never visitors or other requesters; no «everyone» level.
+    await api('/users/me', { method: 'PUT', token: owner.token, body: { share_name: 1 } });
+    assert.ok((await seenBy(other.token)).name, 'the name reaches providers');
+    assert.deepEqual(await seenBy(null), { phone: null, whatsapp: null }, 'never a visitor');
+    await api('/users/me', { method: 'PUT', token: owner.token, body: { share_phone: 2 }, expected: 400 });
+    const flag = async token => Number((token ? await api(`/requests/${id}`, { token }) : (await fetch(`${base}/requests/${id}`).then(r => r.json())).data).client_allow_share);
+    assert.equal(await flag(same.token), 0, 'sharing off until the requester allows it');
+    await api('/users/me', { method: 'PUT', token: owner.token, body: { allow_request_share: 1 } });
+    assert.equal(await flag(same.token), 1);
+    assert.equal(await flag(null), 1, 'the permission is visible to every viewer');
+    await api('/users/me', { method: 'PUT', token: owner.token, body: { share_name: 0, allow_request_share: 0 } });
     await api('/users/me', { method: 'PUT', token: owner.token, body: { whatsapp_number: '0555000111' } });
     assert.equal((await seenBy(same.token)).whatsapp.replace(/\D/g, '').slice(-9), '555000111');
     await api('/users/me', { method: 'PUT', token: owner.token, body: { share_phone: 'yes' }, expected: 400 });
@@ -1192,6 +1206,187 @@ if (!databasePrefix) {
     await api(`/chat/conversations/${opened.id}/messages`, { method: 'POST', token: one.token, expected: 201, body: { content: 'مرحبا' } });
     assert.ok((await listed(one.token)).includes(Number(opened.id)), 'after the first message it is listed');
     assert.ok((await listed(two.token)).includes(Number(opened.id)));
+  });
+
+  test('AYK-437: support WhatsApp taps are kept (signed in or not) and support marks them reviewed', async () => {
+    const area = await simpleArea();
+    const member = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await db.query('UPDATE users SET role = ?, is_super_admin = 1 WHERE id = ?', ['admin', owner.user.id]);
+    const account = await db.queryOne('SELECT auth_version FROM users WHERE id = ?', [owner.user.id]);
+    const admin = require('../utils/jwt').sign({ id: owner.user.id, role: 'admin', auth_version: Number(account.auth_version || 0) });
+    await api('/support/whatsapp', { method: 'POST', expected: 201, body: { page: '/guide', message: 'زائر\u0007 يسأل', lang: 'ar' } });
+    await api('/support/whatsapp', { method: 'POST', token: member.token, expected: 201, body: { page: 'https://evil.example/x', message: 'x'.repeat(2000) } });
+    const list = await api('/admin/support/whatsapp?handled=0', { token: admin });
+    const guest = list.items.find(row => row.page === '/guide' && !row.user_id);
+    const mine = list.items.find(row => Number(row.user_id) === Number(member.user.id));
+    assert.ok(guest && mine, 'both taps listed');
+    assert.equal(guest.message, 'زائر يسأل', 'control characters removed');
+    assert.equal(mine.page, null, 'only a path on the site is kept as the page');
+    assert.equal(mine.message.length, 1000, 'the text is clipped');
+    assert.ok(list.unhandled >= 2);
+    const done = await api(`/admin/support/whatsapp/${mine.id}`, { method: 'PUT', token: admin, body: { handled: true } });
+    assert.ok(done.handled_at);
+    assert.ok(!(await api('/admin/support/whatsapp?handled=0', { token: admin })).items.some(row => row.id === mine.id));
+    assert.ok((await api('/admin/support/whatsapp?handled=1', { token: admin })).items.some(row => row.id === mine.id && row.handled_by_name));
+    await api(`/admin/support/whatsapp/${mine.id}`, { method: 'PUT', token: member.token, body: { handled: true }, expected: 403 });
+    await api('/admin/support/whatsapp', { token: member.token, expected: 403 });
+    await db.query('DELETE FROM support_whatsapp_contacts WHERE id IN (?, ?)', [guest.id, mine.id]);
+  });
+
+  test('AYK-440: the board shows every open request ranked by profession and area; filters and the admin switch narrow it', async () => {
+    const area = await simpleArea();
+    const svc = await db.queryOne('SELECT s.id, s.category_id FROM services s WHERE s.is_active = 1 AND s.deleted_at IS NULL ORDER BY s.id LIMIT 1');
+    const other = await db.queryOne('SELECT c.id FROM categories c WHERE c.is_active = 1 AND c.deleted_at IS NULL AND c.id <> ? ORDER BY c.id LIMIT 1', [svc.category_id]);
+    const farCity = await db.queryOne('SELECT d.id AS district_id, d.city_id FROM districts d WHERE d.city_id <> ? AND d.is_active = 1 ORDER BY d.id LIMIT 1', [area.city_id]);
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const far = await simpleRegister({ role: 'client', city_id: farCity.city_id, district_id: farCity.district_id });
+    const post = async (session, categoryId, city, district) => Number((await api('/requests', { method: 'POST', token: session.token, expected: 201, body: {
+      title: 'طلب للوحة', description: 'تجربة اللوحة', category_id: Number(categoryId), city_id: city, district_id: district, latitude: 24.7136, longitude: 46.6753 } })).id);
+    const both = await post(owner, svc.category_id, area.city_id, area.district_id);
+    const areaOnly = await post(owner, other.id, area.city_id, area.district_id);
+    const profOnly = await post(far, svc.category_id, farCity.city_id, farCity.district_id);
+    const neither = await post(far, other.id, farCity.city_id, farCity.district_id);
+    const provider = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await api('/users/me/role', { method: 'PUT', token: provider.token, body: { role: 'provider', quick: true, service_ids: [Number(svc.id)] } });
+    const ours = [both, areaOnly, profOnly, neither];
+    const board = async (q = '') => (await api(`/requests/nearby?board=1&limit=100${q}`, { token: provider.token })).map(row => Number(row.id)).filter(id => ours.includes(id));
+    await db.query("UPDATE settings SET setting_value = 'false' WHERE setting_key = 'marketplace_restrict_views'");
+    assert.deepEqual(await board(), [both, areaOnly, profOnly, neither], 'everything, ranked: both, area, profession, the rest');
+    assert.deepEqual(await board('&f_prof=1'), [both, profOnly], 'my profession only');
+    assert.deepEqual(await board('&f_area=1'), [both, areaOnly], 'my area only');
+    assert.deepEqual(await board('&f_prof=1&f_area=1'), [both], 'both filters');
+    await db.query("UPDATE settings SET setting_value = 'true' WHERE setting_key = 'marketplace_restrict_views'");
+    assert.deepEqual(await board(), [both], 'restricted by the administration: profession in the area only');
+    await db.query("UPDATE settings SET setting_value = 'false' WHERE setting_key = 'marketplace_restrict_views'");
+    // A requester sees others' requests ranked by their own area and what they asked for.
+    const viewer = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await post(viewer, svc.category_id, area.city_id, area.district_id);
+    const seen = (await api('/requests/nearby?board=1&limit=100&as=requester', { token: viewer.token })).map(row => Number(row.id)).filter(id => ours.includes(id));
+    assert.deepEqual(seen, [both, areaOnly, profOnly, neither]);
+    assert.ok(!(await api('/requests/nearby?board=1&limit=100&as=requester', { token: viewer.token })).some(row => row.client_contact_phone), 'no requester details to a requester');
+    // AYK-446: «مشابه لطلبي» (one request) / «مشابه لطلباتي» (more): the board says how many.
+    const metaOf = async () => (await (await fetch(`${base}/requests/nearby?board=1&limit=1&as=requester`, { headers: { Authorization: `Bearer ${viewer.token}` } })).json()).meta.board.my_requests;
+    assert.equal(await metaOf(), 1);
+    await post(viewer, svc.category_id, area.city_id, area.district_id);
+    assert.equal(await metaOf(), 2);
+    for (const id of ours) await db.query('DELETE FROM requests WHERE id = ?', [id]);
+  });
+
+  test('AYK-441: the board is never blank: nothing for a filter shows the rest, and recent work shows', async () => {
+    const area = await simpleArea();
+    const svc = await db.queryOne('SELECT s.id, s.category_id FROM services s WHERE s.is_active = 1 AND s.deleted_at IS NULL ORDER BY s.id LIMIT 1');
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const helper = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const post = async () => Number((await api('/requests', { method: 'POST', token: owner.token, expected: 201, body: {
+      title: 'طلب نُفّذ', description: 'تجربة النشاط', category_id: Number(svc.category_id), city_id: area.city_id, district_id: area.district_id, latitude: 24.7136, longitude: 46.6753 } })).id);
+    const open = await post();
+    const done = await post();
+    await db.query("UPDATE requests SET status = 'completed', assigned_provider_id = ?, agreed_at = CURRENT_TIMESTAMP, completed_at = CURRENT_TIMESTAMP WHERE id = ?", [helper.user.id, done]);
+    await db.query("UPDATE settings SET setting_value = 'false' WHERE setting_key = 'marketplace_restrict_views'");
+    const raw = async (q, token) => (await (await fetch(`${base}/requests/nearby?${q}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })).json());
+    // A requester who has asked for nothing: «حسب طلبي» matches nothing, so the rest comes, marked.
+    const viewer = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const wide = await raw('board=1&as=requester&f_prof=1&limit=100', viewer.token);
+    assert.equal(wide.meta.board.fallback, true);
+    assert.ok(wide.data.some(row => Number(row.id) === open), 'the rest is shown');
+    // The administration's restriction is kept: no fallback then.
+    await db.query("UPDATE settings SET setting_value = 'true' WHERE setting_key = 'marketplace_restrict_views'");
+    const strict = await raw('board=1&as=requester&limit=100', viewer.token);
+    assert.equal(strict.meta.board.fallback, false);
+    assert.equal(strict.data.length, 0);
+    await db.query("UPDATE settings SET setting_value = 'false' WHERE setting_key = 'marketplace_restrict_views'");
+    // AYK-442: «تم مؤخرًا»: profession, city and the agreement's time only; by period, profession and area.
+    const recent = async (q, token) => ((await (await fetch(`${base}/requests/recent?limit=50&${q}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })).json()).data);
+    const guestRows = await recent('days=30');
+    const row = guestRows.find(item => Number(item.id) === done);
+    assert.ok(row, 'a visitor sees the agreement');
+    assert.equal(row.status, 'done');
+    assert.ok(row.agreed_at && row.category_name && row.city_name, 'profession, city and when');
+    for (const key of ['title', 'description', 'client_id', 'client_name', 'assigned_provider_id', 'assigned_provider_name']) assert.ok(!(key in row), `no ${key}`);
+    assert.ok(!guestRows.some(item => Number(item.id) === open), 'open requests are not agreements');
+    assert.ok(!(await recent('days=30', owner.token)).some(item => Number(item.id) === done), 'not shown to its own requester');
+    await db.query("UPDATE requests SET agreed_at = CURRENT_TIMESTAMP - INTERVAL '10 days' WHERE id = ?", [done]);
+    assert.ok(!(await recent('days=7')).some(item => Number(item.id) === done), 'older than the period chosen');
+    assert.ok((await recent('days=30')).some(item => Number(item.id) === done), 'within the period chosen');
+    // A provider in that profession and area keeps it with both filters; a requester who asked nothing loses it with «حسب طلبي».
+    const pro = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await api('/users/me/role', { method: 'PUT', token: pro.token, body: { role: 'provider', quick: true, service_ids: [Number(svc.id)] } });
+    assert.ok((await recent('days=30&f_prof=1&f_area=1', pro.token)).some(item => Number(item.id) === done), 'my profession in my area');
+    assert.ok((await recent('days=30&as=requester&f_area=1', viewer.token)).some(item => Number(item.id) === done), 'my area');
+    assert.ok(!(await recent('days=30&as=requester&f_prof=1', viewer.token)).some(item => Number(item.id) === done), 'nothing asked: no profession');
+    for (const id of [open, done]) await db.query('DELETE FROM requests WHERE id = ?', [id]);
+  });
+
+  test('AYK-443: a provider who asked to be reminded is told outside his hours, in his language, with how to reach the requester', async () => {
+    const area = await simpleArea();
+    const svc = await db.queryOne('SELECT s.id, s.category_id FROM services s WHERE s.is_active = 1 AND s.deleted_at IS NULL ORDER BY s.id LIMIT 1');
+    const makeProvider = async () => {
+      const session = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id,
+        service_ids: [Number(svc.id)], coverage_district_ids: [area.district_id] });
+      // Off hours now (Saudi time): a one-hour window three hours from now.
+      const hour = (new Date().getUTCHours() + 3 + 3) % 24;
+      const pad = n => String(n).padStart(2, '0');
+      await db.query('UPDATE provider_profiles SET work_from = ?, work_to = ? WHERE user_id = ?', [`${pad(hour)}:00`, `${pad(hour)}:30`, session.user.id]);
+      return session;
+    };
+    const asked = await makeProvider();
+    const quiet = await makeProvider();
+    await db.query("UPDATE users SET ui_lang = 'en' WHERE id = ?", [asked.user.id]);
+    await api('/users/me', { method: 'PUT', token: asked.token, body: { request_alerts: 1 } });
+    assert.equal(Number((await api('/auth/me', { token: asked.token })).user?.request_alerts ?? (await api('/auth/me', { token: asked.token })).request_alerts), 1);
+    await api('/users/me', { method: 'PUT', token: quiet.token, body: { request_alerts: 'x' }, expected: 400 });
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await api('/users/me', { method: 'PUT', token: owner.token, body: { share_whatsapp: 1 } });
+    const id = Number((await api('/requests', { method: 'POST', token: owner.token, expected: 201, body: {
+      title: 'Fix the AC', description: 'تجربة التذكير', category_id: Number(svc.category_id), city_id: area.city_id, district_id: area.district_id, latitude: 24.7136, longitude: 46.6753 } })).id);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const notice = await db.queryOne("SELECT title, body FROM notifications WHERE user_id = ? AND type = 'request_new' ORDER BY id DESC LIMIT 1", [asked.user.id]);
+    assert.ok(notice, 'the provider who asked is told, outside his hours');
+    assert.equal(notice.title, 'New request in your profession');
+    assert.match(notice.body, /Fix the AC/);
+    assert.match(notice.body, /chat or WhatsApp/, 'how to reach the requester: chat and WhatsApp (shown), not a call');
+    assert.ok(!(await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_new'", [quiet.user.id])), 'outside his hours without a reminder: not told');
+    await db.query('DELETE FROM requests WHERE id = ?', [id]);
+  });
+
+  test('AYK-447: a requester with no request picks sections, and «مشابه لطلبي» follows them', async () => {
+    const area = await simpleArea();
+    const cats = await db.query('SELECT id FROM categories WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 2');
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const post = async categoryId => Number((await api('/requests', { method: 'POST', token: owner.token, expected: 201, body: {
+      title: 'طلب أقسام', description: 'تجربة الأقسام', category_id: Number(categoryId), city_id: area.city_id, district_id: area.district_id, latitude: 24.7136, longitude: 46.6753 } })).id);
+    const first = await post(cats[0].id);
+    const second = await post(cats[1].id);
+    await db.query("UPDATE settings SET setting_value = 'false' WHERE setting_key = 'marketplace_restrict_views'");
+    const fresh = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const board = async () => (await (await fetch(`${base}/requests/nearby?board=1&as=requester&f_prof=1&limit=100`, { headers: { Authorization: `Bearer ${fresh.token}` } })).json());
+    let result = await board();
+    assert.equal(result.meta.board.has_profession, false, 'nothing asked yet');
+    await api('/users/me', { method: 'PUT', token: fresh.token, body: { interest_category_ids: [999999999] }, expected: 400 });
+    await api('/users/me', { method: 'PUT', token: fresh.token, body: { interest_category_ids: 'x' }, expected: 400 });
+    await api('/users/me', { method: 'PUT', token: fresh.token, body: { interest_category_ids: [Number(cats[1].id)] } });
+    result = await board();
+    assert.equal(result.meta.board.has_profession, true);
+    assert.equal(result.meta.board.my_interests, 1);
+    assert.equal(result.meta.board.fallback, false);
+    const ids = result.data.map(row => Number(row.id));
+    assert.ok(ids.includes(second) && !ids.includes(first), 'only the chosen section');
+    const providers = await (await fetch(`${base}/providers/matching?board=1&f_prof=1`, { headers: { Authorization: `Bearer ${fresh.token}` } })).json();
+    assert.equal(providers.data.board.my_interests, 1);
+    await api('/users/me', { method: 'PUT', token: fresh.token, body: { interest_category_ids: [] } });
+    assert.equal((await board()).meta.board.has_profession, false, 'cleared');
+    for (const id of [first, second]) await db.query('DELETE FROM requests WHERE id = ?', [id]);
+  });
+
+  test('AYK-450: an account that is both looks for providers by what it asked for, not by its own profession', async () => {
+    const area = await simpleArea();
+    const svc = await db.queryOne('SELECT s.id FROM services s WHERE s.is_active = 1 AND s.deleted_at IS NULL ORDER BY s.id LIMIT 1');
+    const both = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await api('/users/me/role', { method: 'PUT', token: both.token, body: { role: 'both', quick: true, service_ids: [Number(svc.id)] } });
+    const meta = async q => (await (await fetch(`${base}/providers/matching?board=1${q}`, { headers: { Authorization: `Bearer ${both.token}` } })).json()).data.board;
+    assert.equal((await meta('&as=requester')).has_profession, false, 'nothing asked yet: «مشابه لطلبي» needs a choice');
+    assert.equal((await meta('')).has_profession, true, 'without as=requester his own profession still counts (old callers)');
   });
 
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {

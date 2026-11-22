@@ -169,10 +169,7 @@
     "download_on": "I-download sa",
     "coming_soon": "Malapit na sa",
     "tab_requests": "Mga humihiling ng serbisyo",
-    "tab_requests_hint": "Mga request ng nangangailangan ng serbisyo",
-    "tab_requests_hint_provider": "Mga request sa aking propesyon",
     "tab_providers": "Mga nagbibigay ng serbisyo",
-    "tab_providers_hint": "Sino ang nagbibigay ng serbisyo, at humiling",
     "scope_label": "Saklaw:",
     "scope_district": "Aking distrito",
     "scope_coverage": "Aking sakop",
@@ -188,7 +185,56 @@
     "guest_services": "Mga kategorya ng propesyon",
     "guest_requests": "Mga kahilingan sa serbisyo",
     "guest_providers": "Mga nagbibigay ng serbisyo",
-    "guest_more": "Ipakita pa"
+    "guest_more": "Ipakita pa",
+    "filter_my_profession": "Aking propesyon",
+    "filter_my_area": "Aking lugar",
+    "filter_restricted": "🔒 Nilimitahan ng administrasyon",
+    "filter_none": "Walang pinili: lahat ay lalabas, pinakamalapit muna",
+    "board_none_filtered": "Wala pang tugma. Patayin ang isang filter para makita ang lahat.",
+    "board_fallback": "Wala pang tumutugma sa pinili mo, kaya narito ang ibang mga request, simula sa pinakamalapit sa iyo.",
+    "board_fallback_providers": "Wala pang tumutugma sa pinili mo, kaya narito ang ibang service provider, simula sa pinakamalapit sa iyo.",
+    "guest_fallback_requests": "Wala pang request sa propesyong ito, kaya narito ang pinakabago sa ibang propesyon.",
+    "guest_fallback_providers": "Wala pang service provider sa propesyong ito, kaya narito ang mga nasa ibang propesyon.",
+    "recent_title": "Kamakailang natapos sa «Ay Khidma»",
+    "recent_hint": "Mga request na ang may-ari ay nakipagkasundo sa isang service provider",
+    "recent_done": "Tapos na",
+    "recent_working": "Ginagawa",
+    "empty_provider_title": "Walang bukas na request ngayon",
+    "empty_provider_hint": "Aabisuhan ka namin kapag may dumating na request na bagay sa iyo. Ibahagi ang link mo sa mga customer para dito ka nila tawagin.",
+    "empty_provider_action": "Ibahagi ang link ko",
+    "empty_requester_title": "Ikaw ang unang humiling",
+    "empty_requester_hint": "Ipadala ang request mo ngayon; agad itong makakarating sa mga service provider sa propesyon at lugar nito.",
+    "empty_requester_action": "Magpadala ng request",
+    "empty_guest_title": "Dito nagsisimula ang mga request",
+    "empty_guest_hint": "Mag-sign up at ipadala ang request mo, o mag-sign up bilang service provider para matanggap agad ang mga request.",
+    "empty_guest_action": "Mag-sign up ngayon",
+    "empty_providers_title": "Sumasali na ang mga service provider",
+    "empty_providers_hint": "Ipadala ang request mo, at aabisuhan namin ang bawat service provider sa propesyon at lugar nito pagka-sign up nila.",
+    "empty_providers_action": "Magpadala ng request",
+    "recent_period": "Panahon",
+    "recent_days_1": "Huling araw",
+    "recent_days_7": "Huling 7 araw",
+    "recent_days_30": "Huling 30 araw",
+    "recent_days_90": "Huling 90 araw",
+    "recent_agreed": "Nagkasundo {{when}}",
+    "recent_none": "Wala pang kasunduan sa panahong ito. Subukan ang mas mahabang panahon o lahat ng propesyon.",
+    "filter_title": "Ipakita sa akin",
+    "filter_need_services": "Idagdag muna ang mga serbisyo mo sa «Aking account» para gumana ang «Aking propesyon».",
+    "filter_state_prof_provider": "Ang propesyon mo sa lahat ng lugar, pinakamalapit muna",
+    "filter_state_area": "Lahat ng propesyon sa lugar mo",
+    "filter_state_both_provider": "Ang propesyon mo sa lugar mo lang",
+    "filter_need_area": "Kumpletuhin muna ang lugar mo sa «Aking account» para gumana ang «Aking lugar».",
+    "filter_similar_one": "Katulad ng request ko",
+    "filter_similar_many": "Katulad ng mga request ko",
+    "filter_state_prof_request": "Katulad ng request mo, sa lahat ng lugar",
+    "filter_state_prof_requests": "Katulad ng mga request mo, sa lahat ng lugar",
+    "filter_state_both_request": "Katulad ng request mo, sa lugar mo lang",
+    "filter_state_both_requests": "Katulad ng mga request mo, sa lugar mo lang",
+    "sections_title": "Hindi ka pa humiling dati: piliin ang mga propesyong kailangan mo",
+    "sections_hint": "Puwede kang pumili ng higit sa isang propesyon; ipapakita namin ang mga katulad.",
+    "sections_save": "I-save ({{count}})",
+    "sections_edit": "Palitan ang mga propesyon",
+    "filter_need_sections": "Piliin ang mga propesyong kailangan mo para gumana ang «Katulad ng request ko»."
   },
   "location": {
     "country": "Bansa",
@@ -442,7 +488,11 @@
     "reach_count": "Nakikita na ngayon ng {{count}} provider sa propesyon at lugar nito ang iyong request.",
     "reach_none": "Wala pang provider sa propesyong ito na sumasakop sa lugar ng iyong request.",
     "reach_none_profession": "Wala pang provider na nakarehistro sa propesyong ito. Mananatiling bukas ang iyong request at makikita ito ng mga pumili ng «Lahat ng bukas na request»; maaari mong palitan ang propesyon kung mas bagay ang iba.",
-    "reach_none_area": "May mga provider sa propesyong ito pero hindi pa nila sakop ang iyong distrito. Mananatiling bukas ang iyong request at makikita ng mga nagpapalawak ng saklaw o pumipili ng «Lahat ng bukas na request»."
+    "reach_none_area": "May mga provider sa propesyong ito pero hindi pa nila sakop ang iyong distrito. Mananatiling bukas ang iyong request at makikita ng mga nagpapalawak ng saklaw o pumipili ng «Lahat ng bukas na request».",
+    "contact_providers_title": "Ang pakikipag-ugnayan ay para sa mga service provider",
+    "contact_providers_only": "Ang pakikipag-ugnayan sa mga humihiling ng serbisyo ay para sa mga service provider. Magrehistro bilang service provider at piliin ang iyong propesyon, saka kontakin ang mga nangangailangan sa iyo.",
+    "become_provider": "Maging service provider",
+    "available": "Bukas"
   },
   "offer": {
     "submit_title": "Mag-alok ng presyo",
@@ -2614,7 +2664,12 @@
     "unrestricted_hint": "Alisin ang limitasyon: ipakita ang lahat ng bukas na request sa anumang propesyon at lugar, hindi lang sa aking propesyon at sakop.",
     "my_info_title": "Aking mga detalye",
     "my_info_hint": "Pangalan, paglalarawan ng aking serbisyo, ang telepono at WhatsApp na ipinapakita sa mga tao, aking mga propesyon at distrito.",
-    "my_info_edit": "I-edit"
+    "my_info_edit": "I-edit",
+    "alerts_none": "Walang bagong request para sa propesyon mo sa lugar mo",
+    "alerts_ask": "Gusto mo bang paalalahanan kapag may dumating na request na bagay sa iyo?",
+    "alerts_yes": "Oo, paalalahanan mo ako",
+    "alerts_on": "Naka-on ang paalala: makakatanggap ka ng abiso agad kapag may request sa propesyon at lugar mo, kahit labas ng oras ng trabaho, kasama kung paano kontakin ang may-ari.",
+    "alerts_stop": "Itigil ang paalala"
   },
   "requester": {
     "all_professions": "Lahat ng trabaho",
@@ -2623,7 +2678,7 @@
     "contact_direct": "Kontakin",
     "in_directory": "Nasa aking direktoryo",
     "add_directory": "Idagdag sa aking direktoryo",
-    "remove_directory": "Alisin",
+    "remove_directory": "Alisin sa aking direktoryo",
     "directory_title": "Aking direktoryo",
     "directory_nav": "Direktoryo",
     "directory_hint": "Mga provider na idinagdag mo. Kontakin ang sinuman sa kanila nang direkta nang hindi gumagawa ng kahilingan.",
@@ -2716,7 +2771,8 @@
     "whatsapp_text": "Assalamu alaikum, sumusulat ako mula sa platform na «Ay Khidma» tungkol sa:",
     "form_title": "O magpadala ng mensahe sa admin",
     "login_to_write": "Mag-sign in para magpadala ng mensahe sa admin at masubaybayan ang mga sagot.",
-    "login": "Mag-sign in"
+    "login": "Mag-sign in",
+    "whatsapp_icon": "Makipag-ugnayan sa technical support"
   },
   "permissions": {
     "microphone": "Mikropono",
@@ -2988,7 +3044,8 @@
     "copied": "Nakopya ang link",
     "qr": "QR code",
     "qr_hint": "I-scan ang code gamit ang camera ng telepono para buksan ang link",
-    "qr_save": "I-save ang larawan"
+    "qr_save": "I-save ang larawan",
+    "request_text": "Isang kahilingan ng serbisyo sa Ay Khidma: {{title}}"
   },
   "ads": {
     "hide": "Itago ang ad"
@@ -3028,16 +3085,30 @@
   },
   "contact_privacy": {
     "title": "Pakikipag-ugnayan sa iyo",
-    "hint": "Piliin kung sino at paano ka makokontak. Lahat ay naka-off hangga't hindi mo binubuksan, at puwede mong isara anumang oras.",
-    "share_phone": "Ipakita ang mobile ko sa mga nagbibigay ng serbisyo",
+    "hint": "Piliin kung alin sa iyong detalye ang lalabas at para kanino. Nakatago lahat hangga't hindi ka pumipili.",
+    "share_phone": "Telepono ko",
     "share_phone_hint": "Ang mga provider lang sa propesyon ng bukas mong kahilingan ang makakakita, para matawagan ka nila.",
     "no_phone": "Idagdag muna ang mobile number mo sa itaas.",
-    "share_whatsapp": "Ipakita ang WhatsApp ko sa mga nagbibigay ng serbisyo",
+    "share_whatsapp": "WhatsApp ko",
     "share_whatsapp_hint": "Makakapag-message sa WhatsApp ang mga provider sa propesyon ng bukas mong kahilingan.",
     "whatsapp_number": "WhatsApp number (opsyonal)",
     "whatsapp_number_hint": "Iwanang blangko kung pareho sa mobile number mo.",
     "marketing": "Payagan ang site na kontakin ako",
-    "marketing_hint": "Magpapadala kami ng mga bago at alok na bagay sa hinihingi mo. Puwede mong ihinto anumang oras."
+    "marketing_hint": "Magpapadala kami ng mga bago at alok na bagay sa hinihingi mo. Puwede mong ihinto anumang oras.",
+    "share_name": "Pangalan ko",
+    "level_hidden": "Nakatago",
+    "level_providers": "Mga service provider",
+    "levels_hint": "\"Mga service provider\": makikita ng bawat rehistradong provider sa iyong bukas na kahilingan, at wala nang iba. Hindi mo ito makikita sa sarili mong kahilingan.",
+    "my_visible": "Lumalabas mula sa iyong detalye sa kahilingang ito",
+    "my_visible_none": "Nakatago ang iyong detalye: sa chat ka lang makokontak ng mga provider.",
+    "my_visible_edit": "Baguhin ang lumalabas",
+    "name_label": "Pangalan",
+    "phone_label": "Telepono",
+    "whatsapp_label": "WhatsApp",
+    "allow_share": "Payagan ang pagbabahagi ng aking mga kahilingan",
+    "allow_share_hint": "Maaaring ibahagi ng mga provider at bisita ang link ng iyong kahilingan para umabot sa makakatulong. Lagi mo itong maibabahagi.",
+    "share_allowed": "Maaaring ibahagi ng iba ang iyong kahilingan.",
+    "share_not_allowed": "Ikaw lang ang makakapagbahagi ng iyong kahilingan. Payagan sa \"Baguhin ang lumalabas\"."
   },
   "understand": {
     "title": "Isulat ang kahilingan sa sarili mong salita at punto",
@@ -3062,5 +3133,18 @@
       "friday": "Biyernes",
       "saturday": "Sabado"
     }
+  },
+  "contact_intro": {
+    "someone": "Isang miyembro",
+    "provider": "Service provider",
+    "requester": "Humihiling ng serbisyo",
+    "about_request": "Kumusta, ako si {{name}} ({{who}}). Kinokontak kita tungkol sa iyong kahilingan: {{title}}",
+    "about_my_request": "Kumusta, ako si {{name}} ({{who}}). Kinokontak kita tungkol sa aking kahilingan: {{title}}",
+    "about_service": "Kumusta, ako si {{name}} ({{who}}). Kinokontak kita tungkol sa {{service}}",
+    "general": "Kumusta, ako si {{name}} ({{who}}), kinokontak kita sa pamamagitan ng Ay Khidma.",
+    "via_site": "sa pamamagitan ng Ay Khidma: {{url}}",
+    "visitor": "Kumusta, nakita ko ang iyong pahina sa Ay Khidma at nais kitang makausap.",
+    "support": "Kumusta, ako si {{name}} ({{who}}), kinokontak ang technical support ng Ay Khidma.",
+    "support_visitor": "Kumusta, kinokontak ko ang technical support ng Ay Khidma."
   }
 }

@@ -27,6 +27,12 @@ const env = {
   APP_URL: process.env.APP_URL || 'http://localhost:5000',
   APP_PORT: parseInt(process.env.APP_PORT || '5000', 10),
   CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:5173',
+  // AYK-425 (the owner booked aykdmh.sa and made it the main address): the site answers on more
+  // than one address while moving (aykdmh.sa and aykdmh.com). Every address the site's own pages
+  // are served from, comma separated; they may call the API, open its socket and change cookies.
+  SITE_ORIGINS: String(process.env.SITE_ORIGINS || '').split(',').map(value => {
+    try { return new URL(value.trim()).origin; } catch (_) { return ''; }
+  }).filter(Boolean),
   // The server applies pending migrations before its first API request unless disabled.
   AUTO_MIGRATE: process.env.AUTO_MIGRATE == null ? true : process.env.AUTO_MIGRATE === 'true',
 

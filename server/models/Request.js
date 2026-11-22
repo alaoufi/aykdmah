@@ -40,7 +40,7 @@ function publicView(request) {
   if (!request) return request;
   const view = { ...request };
   for (const key of ['address', 'latitude', 'longitude', 'files', 'assigned_provider_id', 'accepted_offer_id', 'assigned_provider_name', 'direct_provider_id',
-    'client_name', 'hidden_at', 'client_contact_phone', 'client_contact_whatsapp']) delete view[key]; // The requester's name stays private (AYK-142).
+    'client_name', 'hidden_at', 'client_contact_phone', 'client_contact_whatsapp', 'client_contact_name']) delete view[key]; // The requester's name stays private (AYK-142).
   // AYK-418: the numbers the requester chose to show are added back only for a provider of the
   // request's profession (requestController.withContact).
   if (view.distance_km != null) view.distance_km = Math.round(Number(view.distance_km));
@@ -102,6 +102,8 @@ const BASE_SELECT = `
   u.full_name AS client_name, u.avatar AS client_avatar,
   CASE WHEN to_jsonb(u)->>'share_phone' = '1' THEN u.phone END AS client_contact_phone,
   CASE WHEN to_jsonb(u)->>'share_whatsapp' = '1' THEN COALESCE(NULLIF(to_jsonb(u)->>'whatsapp_number', ''), u.phone) END AS client_contact_whatsapp,
+  CASE WHEN to_jsonb(u)->>'share_name' = '1' THEN u.full_name END AS client_contact_name,
+  CASE WHEN to_jsonb(u)->>'allow_request_share' = '1' THEN 1 ELSE 0 END AS client_allow_share,
   (SELECT COALESCE(AVG(rv.rating),0) FROM reviews rv WHERE rv.target_user_id = r.client_id AND rv.review_type = 'on_requester' AND rv.is_visible = 1 AND u.deleted_at IS NULL) AS client_rating_avg,
   (SELECT COUNT(*) FROM reviews rv WHERE rv.target_user_id = r.client_id AND rv.review_type = 'on_requester' AND rv.is_visible = 1 AND u.deleted_at IS NULL) AS client_rating_count,
   (SELECT rv.comment FROM reviews rv WHERE rv.target_user_id = r.client_id AND rv.review_type = 'on_requester' AND rv.is_visible = 1 AND u.deleted_at IS NULL AND rv.comment IS NOT NULL AND rv.comment <> '' ORDER BY rv.id DESC LIMIT 1) AS client_opinion,
@@ -431,11 +433,11 @@ async function updateStatus(id, status, extra = {}) {
       const providerId = optionalNumber(extra.assigned_provider_id, 1, 2147483647, true);
       const [[provider]] = await conn.query("SELECT id FROM users WHERE id = ? AND role = 'provider' AND is_active = 1 AND is_blocked = 0 AND deleted_at IS NULL", [providerId]);
       if (!provider || providerId === request.client_id) throw new ApiError('invalid_assignment', 422);
-      fields.push('assigned_provider_id = ?', 'accepted_offer_id = NULL'); values.push(providerId);
+      fields.push('assigned_provider_id = ?', 'accepted_offer_id = NULL', 'agreed_at = CURRENT_TIMESTAMP'); values.push(providerId);
       await conn.execute("UPDATE offers SET status = 'rejected', rejected_at = CURRENT_TIMESTAMP WHERE request_id = ? AND status = 'pending'", [id]);
     }
     if (status === 'completed') fields.push('completed_at = CURRENT_TIMESTAMP');
-    if (status === 'open') fields.push('assigned_provider_id = NULL', 'accepted_offer_id = NULL');
+    if (status === 'open') fields.push('assigned_provider_id = NULL', 'accepted_offer_id = NULL', 'agreed_at = NULL');
     // The withdrawing provider's agreement goes back to a plain contact, so the owner may agree with
     // them again later (AYK-071).
     if (status === 'open') await conn.execute("UPDATE offers SET status = 'pending', accepted_at = NULL WHERE request_id = ? AND provider_id = ? AND status = 'accepted'", [id, request.assigned_provider_id]);
@@ -512,4 +514,126 @@ async function setHidden(id, hidden) {
   return queryOne('SELECT id, hidden_at FROM requests WHERE id = ? AND deleted_at IS NULL', [id]);
 }
 
-module.exports = { create, updateByOwner, findById, incrementViews, findByClient, findNearby, previousClients, updateStatus, setRemindersOff, softDelete, listAll, setHidden, pagination, optionalNumber, publicView, validateInput: validateCreate };
+// AYK-440 (the owner: «بداية التشغيل… لا نريد الآخرين ما يجدون أحدًا»): the home board. Every open
+// request (not the viewer's own, none hidden, none sent straight to another provider), ranked for the
+// viewer: same profession AND same area first, then same area, then same profession, then the rest.
+// `filterProfession` / `filterArea` keep only those (the buttons «مهنتي» / «حسب طلبي» and «منطقتي»;
+// both off = no filter). The profession of a provider: their services' professions; of a requester:
+// the professions they asked for. The area of a provider: their coverage districts (or coverage
+// city); of a requester: their city.
+// AYK-447: the sections a requester chose (users.interest_category_ids, a JSON list).
+function interestIds(raw) {
+  try { const list = Array.isArray(raw) ? raw : JSON.parse(raw || '[]'); return Array.isArray(list) ? [...new Set(list.map(Number).filter(n => Number.isSafeInteger(n) && n > 0))] : []; }
+  catch (_) { return []; }
+}
+
+// AYK-440/442: what «مهنتي / حسب طلبي» and «منطقتي» mean for this person. A provider: the professions
+// of his services and his coverage districts (else his city). A requester: the professions he asked
+// for and his city.
+async function boardViewer(viewerId, asProvider) {
+  let categories = []; let services = []; let districts = []; let cityId = null;
+  if (asProvider) {
+    const profile = await queryOne(`SELECT pp.service_ids, pp.category_id, COALESCE(pp.coverage_city_id, u.city_id) AS city_id
+      FROM provider_profiles pp JOIN users u ON u.id = pp.user_id WHERE pp.user_id = ?`, [viewerId]);
+    const raw = profile?.service_ids;
+    try { services = (Array.isArray(raw) ? raw : JSON.parse(raw || '[]') || []).map(Number).filter(Number.isSafeInteger); } catch (_) { services = []; }
+    categories = services.length
+      ? (await query(`SELECT DISTINCT category_id FROM services WHERE id IN (${services.map(() => '?').join(', ')})`, services)).map(row => Number(row.category_id)).filter(Boolean)
+      : profile?.category_id ? [Number(profile.category_id)] : [];
+    if (profile?.category_id && !categories.includes(Number(profile.category_id))) categories.push(Number(profile.category_id));
+    districts = (await query('SELECT district_id FROM provider_coverage_districts WHERE user_id = ?', [viewerId])).map(row => Number(row.district_id));
+    cityId = profile?.city_id ? Number(profile.city_id) : null;
+  } else {
+    categories = (await query('SELECT DISTINCT category_id FROM requests WHERE client_id = ? AND deleted_at IS NULL AND category_id IS NOT NULL', [viewerId])).map(row => Number(row.category_id));
+    const me = await queryOne(`SELECT city_id, to_jsonb(u)->>'interest_category_ids' AS interests FROM users u WHERE id = ?`, [viewerId]);
+    cityId = me?.city_id ? Number(me.city_id) : null;
+    // AYK-447: the sections he chose before his first request count as what he asks for.
+    for (const id of interestIds(me?.interests)) if (!categories.includes(id)) categories.push(id);
+  }
+  return { categories, services, districts, cityId };
+}
+
+// The SQL for «my profession» and «my area» over requests r.
+function boardMatch({ categories, services, districts, cityId }) {
+  const profParts = []; const profParams = [];
+  if (categories.length) { profParts.push(`r.category_id IN (${categories.map(() => '?').join(', ')})`); profParams.push(...categories); }
+  if (services.length) { profParts.push(`r.service_id IN (${services.map(() => '?').join(', ')})`); profParams.push(...services); }
+  return {
+    prof: profParts.length ? `(${profParts.join(' OR ')})` : 'FALSE', profParams,
+    area: districts.length ? `r.district_id IN (${districts.map(() => '?').join(', ')})` : cityId ? 'r.city_id = ?' : 'FALSE',
+    areaParams: districts.length ? districts : cityId ? [cityId] : [],
+  };
+}
+
+async function findBoard({ viewerId, asProvider = false, filterProfession = false, filterArea = false, page = 1, limit = 20 } = {}) {
+  ({ page, limit } = pagination(page, limit));
+  const offset = (page - 1) * limit;
+  viewerId = Number(viewerId);
+  const where = ['r.deleted_at IS NULL', "r.status = 'open'", 'r.hidden_at IS NULL', 'r.client_id <> ?'];
+  const params = [viewerId];
+  where.push(asProvider ? '(r.direct_provider_id IS NULL OR r.direct_provider_id = ?)' : 'r.direct_provider_id IS NULL');
+  if (asProvider) params.push(viewerId);
+  const viewer = await boardViewer(viewerId, asProvider);
+  const { categories } = viewer;
+  const { prof, profParams, area, areaParams } = boardMatch(viewer);
+  if (filterProfession) { where.push(prof); params.push(...profParams); }
+  if (filterArea) { where.push(area); params.push(...areaParams); }
+  const PREVIOUS = asProvider
+    ? `EXISTS (SELECT 1 FROM requests p WHERE p.client_id = r.client_id AND p.assigned_provider_id = ? AND p.id <> r.id
+         AND p.status IN (${PREVIOUS_CLIENT_STATUSES}) AND p.deleted_at IS NULL)` : 'FALSE';
+  const candidates = `SELECT r.id, r.is_urgent, r.created_at,
+      CASE WHEN ${prof} THEN 1 ELSE 0 END AS prof_match, CASE WHEN ${area} THEN 1 ELSE 0 END AS area_match,
+      CASE WHEN ${PREVIOUS} THEN 1 ELSE 0 END AS previous_client
+    FROM requests r WHERE ${where.join(' AND ')}`;
+  const candidateParams = [...profParams, ...areaParams, ...(asProvider ? [viewerId] : []), ...params];
+  const rows = await query(`SELECT id, prof_match, area_match, previous_client, COUNT(*) OVER () AS total FROM (${candidates}) board
+    ORDER BY (prof_match * area_match) DESC, area_match DESC, prof_match DESC, previous_client DESC, is_urgent DESC, created_at DESC, id DESC
+    LIMIT ? OFFSET ?`, [...candidateParams, Number(limit), Number(offset)]);
+  let items = [];
+  if (rows.length) {
+    const ids = rows.map(row => row.id);
+    const full = await query(`SELECT ${BASE_SELECT} FROM requests r ${BASE_JOINS} WHERE r.id IN (${ids.map(() => '?').join(', ')})`, ids);
+    const byId = new Map(full.map(row => [Number(row.id), row]));
+    items = rows.filter(row => byId.has(Number(row.id))).map(row => ({ ...byId.get(Number(row.id)),
+      board_profession: Number(row.prof_match) === 1, board_area: Number(row.area_match) === 1,
+      ...(asProvider ? { previous_client: Number(row.previous_client) === 1 } : {}) }));
+  }
+  const total = rows.length ? Number(rows[0].total) : offset === 0 ? 0
+    : Number((await query(`SELECT COUNT(*) AS total FROM (${candidates}) board`, candidateParams))[0].total);
+  // AYK-446: «مشابه لطلبي» (one request) or «مشابه لطلباتي» (more): how many requests the requester made.
+  const myRequests = asProvider ? undefined : Number((await queryOne('SELECT COUNT(*) AS n FROM requests WHERE client_id = ? AND deleted_at IS NULL', [viewerId]))?.n || 0);
+  const myInterests = asProvider ? undefined : interestIds((await queryOne(`SELECT to_jsonb(u)->>'interest_category_ids' AS v FROM users u WHERE id = ?`, [viewerId]))?.v).length;
+  return { items, total, has_profession: categories.length > 0, has_area: areaParams.length > 0, my_requests: myRequests, my_interests: myInterests };
+}
+
+// AYK-441/442 (the owner: «إذا دخل العضو ولم يجد أحدًا خرج ولم يعد»؛ «أضف تم مؤخرًا ويختار قبل كم يوم،
+// وكل المهن أو تقييد مهنة / تقييد منطقة؛ تذكر: المهنة، المدينة، وقت الاتفاق»): the requests agreed on
+// lately with a service provider. Only the profession, the city and when the agreement was made: no
+// title, no names, no numbers. Requests sent directly to one provider, hidden ones and the viewer's
+// own are left out. `days`: how far back; «مهنتي» / «منطقتي» as on the board.
+async function recentActivity({ viewerId = 0, asProvider = false, filterProfession = false, filterArea = false, days = 30, limit = 20 } = {}) {
+  limit = Math.min(Math.max(Number(limit) || 20, 1), 50);
+  days = Math.min(Math.max(Math.round(Number(days)) || 30, 1), 365);
+  viewerId = Number(viewerId) || 0;
+  const where = ['r.deleted_at IS NULL', 'r.hidden_at IS NULL', 'r.direct_provider_id IS NULL', 'r.assigned_provider_id IS NOT NULL',
+    "r.status IN ('assigned', 'in_progress', 'completed', 'closed')", 'r.client_id <> ?'];
+  const params = [viewerId];
+  if (viewerId && (filterProfession || filterArea)) {
+    const match = boardMatch(await boardViewer(viewerId, asProvider));
+    if (filterProfession) { where.push(match.prof); params.push(...match.profParams); }
+    if (filterArea) { where.push(match.area); params.push(...match.areaParams); }
+  }
+  const AGREED = 'COALESCE(r.agreed_at, o.accepted_at, r.completed_at, r.updated_at)';
+  const rows = await query(`SELECT r.id, r.status, r.category_id, r.city_id, ${AGREED} AS agreed_at,
+      cat.name_ar AS category_name, cat.name_en AS category_name_en, cat.name_translations AS category_name_translations,
+      cat.icon AS category_icon, city.name_ar AS city_name, city.name_en AS city_name_en
+    FROM requests r
+    LEFT JOIN offers o ON o.id = r.accepted_offer_id
+    LEFT JOIN categories cat ON r.category_id = cat.id
+    LEFT JOIN cities city ON r.city_id = city.id
+    WHERE ${where.join(' AND ')} AND ${AGREED} > CURRENT_TIMESTAMP - (? * INTERVAL '1 day')
+    ORDER BY ${AGREED} DESC, r.id DESC LIMIT ?`, [...params, days, limit]);
+  return rows.map(row => ({ ...row, status: ['completed', 'closed'].includes(row.status) ? 'done' : 'working' }));
+}
+
+module.exports = { interestIds, create, updateByOwner, findById, incrementViews, findByClient, findNearby, findBoard, recentActivity, previousClients, updateStatus, setRemindersOff, softDelete, listAll, setHidden, pagination, optionalNumber, publicView, validateInput: validateCreate };

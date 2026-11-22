@@ -76,19 +76,36 @@ const create = asyncHandler(async (req, res) => {
 
 // Right after posting, providers of that profession covering the request's area who
 // are working now are told, so they can contact the requester (AYK-041).
+// AYK-443 (the owner: «إذا أحد قدّم طلبًا في منطقته ومهنته يرسل له إشعار مع توضيح التواصل»): also
+// those who asked to be reminded, even outside their hours; each in his own language, and the notice
+// says how to reach the requester: the chat always, the phone and WhatsApp when he shows them.
 async function announceToProviders(req, request) {
   try {
     const ids = await require('./providerMapController').availableForRequest({
       districtId: request.district_id, cityId: request.city_id, categoryId: request.category_id,
       serviceId: request.service_id, excludeId: request.client_id,
     });
-    await notificationService.broadcast(ids, {
-      type: 'request_new',
-      title: req.t('request_new_title'),
-      body: req.t('request_new_body', { title: request.title }),
-      link: `/requests/${request.id}`,
-      data: { request_id: request.id },
-    });
+    if (!ids.length) return;
+    const { translate } = require('../utils/i18n');
+    const owner = await queryOne(`SELECT to_jsonb(u)->>'share_phone' AS share_phone, to_jsonb(u)->>'share_whatsapp' AS share_whatsapp FROM users u WHERE u.id = ?`, [request.client_id]).catch(() => null);
+    const ways = owner?.share_phone === '1' && owner?.share_whatsapp === '1' ? 'request_new_contact_all'
+      : owner?.share_phone === '1' ? 'request_new_contact_phone' : owner?.share_whatsapp === '1' ? 'request_new_contact_whatsapp' : 'request_new_contact_chat';
+    const readers = await query(`SELECT id, ui_lang FROM users WHERE id IN (${ids.map(() => '?').join(', ')})`, ids);
+    const langOf = new Map(readers.map(row => [Number(row.id), row.ui_lang || 'ar']));
+    const texts = new Map();
+    for (const id of ids) {
+      const lang = langOf.get(Number(id)) || 'ar';
+      if (!texts.has(lang)) {
+        const city = lang === 'ar' ? request.city_name : request.city_name_en || request.city_name;
+        texts.set(lang, {
+          title: translate(lang, 'request_new_title'),
+          body: `${translate(lang, 'request_new_where', { title: request.title, city: city || '' })} ${translate(lang, ways)}`.trim(),
+        });
+      }
+      await notificationService.notifyUser(id, {
+        type: 'request_new', ...texts.get(lang), link: `/requests/${request.id}`, data: { request_id: request.id },
+      });
+    }
   } catch (_) { /* The request is posted; a failed notice must not undo it. */ }
 }
 
@@ -99,9 +116,35 @@ const getMy = asyncHandler(async (req, res) => {
   return paginate(res, items, total, page, limit);
 });
 
+// AYK-440: the administration's switch «تقييد العرض حسب المهنة والمنطقة» (marketplace_restrict_views).
+// Off (the default at launch): everyone sees everything, ranked by their profession and area, and the
+// buttons filter only if chosen. On: a provider sees their profession in their area, a requester
+// the providers of their area and requested professions (the buttons are then fixed on).
+async function restrictedViews() {
+  return Boolean(await require('../models/Setting').get('marketplace_restrict_views', false).catch(() => false));
+}
+
 const getNearby = asyncHandler(async (req, res) => {
   const { latitude, longitude, radius, category_id, service_id, city_id, status } = req.query;
   const { page, limit } = Request.pagination(req.query.page, req.query.limit);
+  if (req.query.board === '1' && req.user) {
+    const restricted = await restrictedViews();
+    const asProvider = req.user.role === 'provider' && req.query.as !== 'requester';
+    const filterProfession = restricted || req.query.f_prof === '1', filterArea = restricted || req.query.f_area === '1';
+    let board = await Request.findBoard({ viewerId: req.user.id, asProvider, page, limit, filterProfession, filterArea });
+    // AYK-441: never a blank board. Nothing for the buttons chosen: the rest, ranked, with a word
+    // saying so (the administration's restriction is kept as it is).
+    let fallback = false;
+    if (!restricted && (filterProfession || filterArea) && Number(board.total) === 0 && page === 1) {
+      board = await Request.findBoard({ viewerId: req.user.id, asProvider, page, limit });
+      fallback = Number(board.total) > 0;
+    }
+    const categories = await providerCategoryIds(req);
+    const shown = await requestTranslation.attachTranslations(board.items.map(raw => withContact(req, raw, guestView(req, Request.publicView(raw)), categories)), readerLang(req));
+    return success(res, shown, undefined, 200, {
+      pagination: { page, limit, total: Number(board.total), totalPages: Math.ceil(Number(board.total) / limit), hasNext: page * limit < Number(board.total) },
+      board: { restricted, fallback, has_profession: board.has_profession, has_area: board.has_area, my_requests: board.my_requests, my_interests: board.my_interests } });
+  }
   const { items, total } = await Request.findNearby({
     latitude,
     longitude,
@@ -120,6 +163,21 @@ const getNearby = asyncHandler(async (req, res) => {
   const categories = await providerCategoryIds(req);
   const shown = await requestTranslation.attachTranslations(items.map(raw => withContact(req, raw, guestView(req, Request.publicView(raw)), categories)), readerLang(req));
   return paginate(res, shown, total, page, limit);
+});
+
+// GET /api/requests/recent?days=30&f_prof=1&f_area=1[&as=requester]  (AYK-441/442): the requests agreed on
+// lately: profession, city and when. A visitor sees them all; a member filters by «مهنتي / حسب طلبي» and
+// «منطقتي», which the administration's «تقييد العرض» fixes on.
+const getRecent = asyncHandler(async (req, res) => {
+  const restricted = req.user ? await restrictedViews() : false;
+  const rows = await Request.recentActivity({
+    viewerId: req.user?.id || 0, asProvider: req.user?.role === 'provider' && req.query.as !== 'requester',
+    filterProfession: Boolean(req.user) && (restricted || req.query.f_prof === '1'),
+    filterArea: Boolean(req.user) && (restricted || req.query.f_area === '1'),
+    days: req.query.days, limit: req.query.limit,
+  });
+  const myRequests = req.user ? Number((await queryOne('SELECT COUNT(*) AS n FROM requests WHERE client_id = ? AND deleted_at IS NULL', [req.user.id]))?.n || 0) : 0;
+  return success(res, rows, undefined, 200, { restricted, my_requests: myRequests });
 });
 
 // GET /api/requests/previous-clients  (AYK-398, the owner: «في اللوحة يمكن استعراض العملاء السابقين
@@ -166,28 +224,20 @@ const update = asyncHandler(async (req, res) => {
 // number or exact place is sent to anyone outside it already).
 const guestView = (req, row) => (req.user ? row : { ...row, client_avatar: null });
 
-// AYK-418: the phone and WhatsApp a requester chose to show reach only a signed-in provider of the
-// request's profession, on an open request (not the requester themself).
+// AYK-418 / AYK-438 / AYK-439: the name, phone and WhatsApp a requester chose to show reach every
+// signed-in service provider (any profession), and only them (the owner's decision: «بيانات التواصل
+// لطالب الخدمة لا تظهر إلا لمقدم الخدمة»). Only on an open request, never to the requester themself.
+// (AYK-438 fixed: before, only a provider whose profession matched the request saw them.)
 async function providerCategoryIds(req) {
-  const user = req.user;
-  if (!user || user.role !== 'provider') return null;
-  const profile = await queryOne('SELECT category_id, service_ids FROM provider_profiles WHERE user_id = ?', [user.id]);
-  if (!profile) return new Set();
-  let ids = profile.service_ids;
-  if (typeof ids === 'string') { try { ids = JSON.parse(ids); } catch (_) { ids = []; } }
-  ids = Array.isArray(ids) ? ids.map(Number).filter(Number.isSafeInteger) : [];
-  const cats = new Set(profile.category_id ? [Number(profile.category_id)] : []);
-  if (ids.length) {
-    const rows = await query(`SELECT DISTINCT category_id FROM services WHERE id IN (${ids.map(() => '?').join(', ')})`, ids);
-    for (const row of rows) if (row.category_id) cats.add(Number(row.category_id));
-  }
-  return cats;
+  return req.user?.role === 'provider' ? true : null;
 }
-function withContact(req, raw, view, categories) {
-  if (!categories || !raw || raw.status !== 'open' || Number(raw.client_id) === Number(req.user?.id)) return view;
-  if (!categories.has(Number(raw.category_id))) return view;
-  if (!raw.client_contact_phone && !raw.client_contact_whatsapp) return view;
-  return { ...view, client_contact_phone: raw.client_contact_phone || null, client_contact_whatsapp: raw.client_contact_whatsapp || null };
+function withContact(req, raw, view, isProvider) {
+  if (isProvider !== true || !raw || raw.status !== 'open' || Number(raw.client_id) === Number(req.user?.id)) return view;
+  const out = { ...view };
+  if (raw.client_contact_phone) out.client_contact_phone = raw.client_contact_phone;
+  if (raw.client_contact_whatsapp) out.client_contact_whatsapp = raw.client_contact_whatsapp;
+  if (raw.client_contact_name) out.client_contact_name = raw.client_contact_name;
+  return out;
 }
 
 const getOne = asyncHandler(async (req, res) => {
@@ -443,6 +493,7 @@ const acceptWarranty = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+  getRecent,
   getPreviousClients, getReach, update,
   getTranslation, create, getMy, getNearby, getOne, updateStatus, setReminders, contact, agree, direct, remove, startChat, proposeWarranty, acceptWarranty };
 

@@ -9,7 +9,9 @@ const { query } = require('../config/database');
 const Category = require('../models/Category');
 const Service = require('../models/Service');
 
-const SITE = 'https://aykdmh.com';
+// AYK-428: the site's main address, from SITE_URL (deploy/docker-compose.yml). Canonical links and
+// the sitemap follow it, so moving to aykdmh.sa (AYK-425) is one setting.
+const SITE = (() => { try { return new URL(process.env.SITE_URL || 'https://aykdmh.com').origin; } catch (_) { return 'https://aykdmh.com'; } })();
 const NAME = 'أي خدمة';
 const CACHE_MS = 5 * 60 * 1000;
 const indexCandidates = () => [process.env.SEO_INDEX_HTML, '/srv/site/current/index.html', path.join(env.PATHS.CLIENT_DIST || '', 'index.html')].filter(Boolean);

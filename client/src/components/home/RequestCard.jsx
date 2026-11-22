@@ -5,16 +5,21 @@ import { IconClock, IconPin, IconArrow } from '../common/Icons';
 import { formatRelativeTime, truncate } from '../../utils/formatters';
 import useOpenRequest from '../../hooks/useOpenRequest';
 import { OwnerBadge } from '../requests/RequestCard';
-import ContactMenu from '../providers/ContactMenu';
+import ContactButtons from '../providers/ContactButtons';
 import useRequestTranslation from '../../hooks/useRequestTranslation';
 import TranslatedNote from '../requests/TranslatedNote';
+import RequestStatusBadge from '../requests/RequestStatusBadge';
+import useContactIntro from '../../hooks/useContactIntro';
+import ShareMenu from '../common/ShareMenu';
+import { SITE_URL } from '../../utils/site';
 
 export default function RequestCard({ item, urgent = false }) {
   const { t, i18n } = useTranslation();
   const tag = localizedJoinedName(item, 'category', i18n.resolvedLanguage) || localizedJoinedName(item, 'service', i18n.resolvedLanguage) || t('nav.services');
   const cityLine = [localizedJoinedName(item, 'city', i18n.resolvedLanguage), localizedJoinedName(item, 'district', i18n.resolvedLanguage)].filter(Boolean).join(' — ');
-  const { open, opening, mine, forMyService } = useOpenRequest();
+  const { open, opening, mine, forMyService, canContact, contact } = useOpenRequest();
   const translation = useRequestTranslation(item);
+  const intro = useContactIntro();
 
   return (
     <article
@@ -32,10 +37,9 @@ export default function RequestCard({ item, urgent = false }) {
           {urgent && <span className="w-1.5 h-1.5 rounded-full bg-rose-500 pulse-dot" />}
           {tag}
         </span>
+        {item.client_contact_name && <span className="text-[12px] font-bold text-fg" data-testid="request-client-name">👤 {item.client_contact_name}</span>}
         <TrustSummary userId={item.client_id} type="on_requester" average={item.client_rating_avg} count={item.client_rating_count} opinion={item.client_opinion} />
-        {forMyService(item)
-          ? <ContactMenu compact quick phone={item.client_contact_phone} whatsapp={item.client_contact_whatsapp} busy={opening === item.id} onChat={() => open(item)} testId="request-contact" />
-          : <OwnerBadge mine={mine(item)} forService={false} />}
+        {!canContact(item) && <OwnerBadge mine={mine(item)} forService={false} />}
         {/* AYK-244: present only when views are public (admin setting) or the viewer is an admin. */}
         {item.views_count != null && <span className="ms-auto text-[11px] text-slate-500 font-medium">👁 {item.views_count}</span>}
         <span className={`${item.views_count != null ? '' : 'ms-auto '}inline-flex items-center gap-1 text-[11px] text-slate-500 font-medium`}>
@@ -44,9 +48,13 @@ export default function RequestCard({ item, urgent = false }) {
         </span>
       </div>
 
-      <h3 className="text-[14px] md:text-[15px] font-extrabold text-fg leading-snug line-clamp-2 m-0">
-        {translation.title}
-      </h3>
+      {/* AYK-432: «متاح» in fixed green beside the title. */}
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <h3 className="min-w-0 text-[14px] md:text-[15px] font-extrabold text-fg leading-snug line-clamp-2 m-0">
+          {translation.title}
+        </h3>
+        <RequestStatusBadge status={item.status || 'open'} />
+      </div>
 
       {translation.description && translation.description.trim() !== translation.title.trim() && (
         <p className="text-[12px] text-fg-muted leading-snug line-clamp-1 m-0">
@@ -59,12 +67,19 @@ export default function RequestCard({ item, urgent = false }) {
         <span className="min-w-0 flex items-center gap-1 text-[11px] text-fg-muted">
           {cityLine && <><IconPin size={13} className="shrink-0" /><span className="line-clamp-1">{cityLine}</span></>}
         </span>
-        <span
-          className="shrink-0 inline-flex items-center gap-1 text-[12px] font-bold text-primary"
-        >
-          {opening === item.id ? '…' : forMyService(item) ? `💬 ${t('request.contact_owner')}` : t('common.details')}
-          <IconArrow size={14} className="rotate-180" />
-        </span>
+        {/* AYK-431: the contact icons at the card's end (AYK-427, AYK-430); otherwise «details». */}
+        {/* AYK-436/439: share the request: its owner always, others only when the requester allows it. */}
+        {(mine(item) || Number(item.client_allow_share) === 1) && (
+        <span className="shrink-0 inline-flex ms-auto" onClick={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()}>
+          <ShareMenu variant="icon-sm" url={`${SITE_URL}/requests/${item.id}`} title={translation.title}
+            text={t('share.request_text', { title: translation.title })} testId="request-share" />
+        </span>)}
+        {canContact(item)
+          ? <ContactButtons size="xs" phone={item.client_contact_phone} whatsapp={item.client_contact_whatsapp} busy={opening === item.id} onChat={() => contact(item)} testId="request-contact" intro={intro({ request: translation.title })} link={`/requests/${item.id}`} />
+          : <span className="shrink-0 inline-flex items-center gap-1 text-[12px] font-bold text-primary">
+            {t('common.details')}
+            <IconArrow size={14} className="rotate-180" />
+          </span>}
       </div>
     </article>
   );

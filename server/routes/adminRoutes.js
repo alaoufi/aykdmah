@@ -95,6 +95,9 @@ router.get('/ads/:id/diagnose', requirePermission('ads.manage'), adC.adminDiagno
 // Messages to the administration (AYK-046).
 const support = require('../controllers/supportController');
 router.get('/support', requirePermission('users.manage'), support.adminList);
+// AYK-437: the support WhatsApp taps, before /support/:id.
+router.get('/support/whatsapp', requirePermission('users.manage'), support.adminWhatsAppList);
+router.put('/support/whatsapp/:id', requirePermission('users.manage'), support.adminWhatsAppHandled);
 router.get('/support/unread', requirePermission('users.manage'), support.adminUnread);
 router.get('/support/:id', requirePermission('users.manage'), support.adminGet);
 router.post('/support/:id/messages', requirePermission('users.manage'), support.adminReply);

@@ -104,10 +104,22 @@ export default function ShareMenu({ url, title = '', text = '', variant = 'butto
   const buttonLabel = label || t('share.title');
   return (
     <>
-      {variant === 'icon' ? (
+      {variant === 'round' ? (
+        // AYK-451 (the owner: «وضّح المشاركة»): a round button the size of the contact icons beside it,
+        // in its own fixed colour (as they are), so it reads as a button and not as a faint mark.
         <button ref={trigger} type="button" aria-label={buttonLabel} title={buttonLabel} aria-expanded={open} aria-haspopup="menu"
           onClick={() => setOpen(v => !v)} data-testid={testId}
-          className={`w-10 h-10 grid place-items-center rounded-pill text-fg-muted hover:bg-surface-alt bg-transparent border-0 cursor-pointer ${className}`}>
+          className={`inline-grid place-items-center rounded-pill border-0 cursor-pointer shrink-0 shadow-sm ${className}`}
+          style={{ background: '#475569', color: '#ffffff', width: 36, height: 36, minWidth: 36, minHeight: 36, padding: 0 }}>
+          {ICONS.share}
+        </button>
+      ) : variant === 'icon' || variant === 'icon-sm' ? (
+        <button ref={trigger} type="button" aria-label={buttonLabel} title={buttonLabel} aria-expanded={open} aria-haspopup="menu"
+          onClick={() => setOpen(v => !v)} data-testid={testId}
+          // AYK-436: 'icon-sm' sits beside the round contact icons on cards (30 px, fixed slate).
+          // AYK-451: filled in the same fixed slate as the card's round share button, so it is clear.
+          className={`${variant === 'icon-sm' ? 'w-[30px] h-[30px] border-0 shadow-sm' : 'w-10 h-10 bg-transparent border-0 text-fg-muted hover:bg-surface-alt'} grid place-items-center rounded-pill cursor-pointer ${className}`}
+          style={variant === 'icon-sm' ? { minHeight: 0, minWidth: 30, padding: 0, background: '#475569', color: '#ffffff' } : undefined}>
           {ICONS.share}
         </button>
       ) : (

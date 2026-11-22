@@ -27,6 +27,7 @@ export const SETTING_LABELS = Object.freeze({
   map_provider: L('مزود الخرائط osm|google', 'Map provider (osm | google)', 'نقشے فراہم کرنے والا (osm | google)', 'मानचित्र प्रदाता (osm | google)', 'মানচিত্র প্রদানকারী (osm | google)'),
   default_lat: L('خط العرض الافتراضي', 'Default latitude', 'پہلے سے منتخب عرض بلد', 'डिफ़ॉल्ट अक्षांश', 'ডিফল্ট অক্ষাংশ'),
   default_lng: L('خط الطول الافتراضي', 'Default longitude', 'پہلے سے منتخب طول بلد', 'डिफ़ॉल्ट देशांतर', 'ডিফল্ট দ্রাঘিমাংশ'),
+  marketplace_restrict_views: L('تقييد العرض حسب المهنة والمنطقة', 'Limit what people see to their profession and area', 'پیشے اور علاقے کے مطابق دکھانا محدود کریں', 'पेशे और क्षेत्र के अनुसार दिखाना सीमित करें', 'পেশা ও এলাকা অনুযায়ী দেখানো সীমিত করুন'),
   search_radius_km: L('نصف قطر البحث بالكيلومتر', 'Search radius in kilometres', 'تلاش کا دائرہ، کلومیٹر میں', 'खोज का दायरा, किलोमीटर में', 'অনুসন্ধানের ব্যাসার্ধ, কিলোমিটারে'),
   allow_registration: L('السماح بالتسجيل', 'Allow registration', 'رجسٹریشن کی اجازت', 'पंजीकरण की अनुमति', 'নিবন্ধনের অনুমতি'),
   require_email_verification: L('يتطلب توثيق البريد', 'Require email verification', 'ای میل کی تصدیق ضروری ہے', 'ईमेल सत्यापन आवश्यक है', 'ইমেইল যাচাই প্রয়োজন'),

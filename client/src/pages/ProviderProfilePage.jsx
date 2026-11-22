@@ -17,13 +17,14 @@ import StarRating from '../components/reviews/StarRating';
 import ReviewCard from '../components/reviews/ReviewCard';
 import TrustSummary from '../components/reviews/TrustSummary';
 import { getUserReviews } from '../services/reviewService';
-import ContactMenu from '../components/providers/ContactMenu';
+import ContactButtons from '../components/providers/ContactButtons';
 import { contactDirect } from '../services/requestService';
 import { useAuth } from '../hooks/useAuth';
 import { LoadingState, ErrorState } from '../components/common/Spinner';
 import { directionsUrl } from '../utils/directions';
 import { localizedName } from '../utils/localize';
 import ExpandableText from '../components/common/ExpandableText';
+import useContactIntro from '../hooks/useContactIntro';
 
 const pinIcon = icon({ iconUrl: markerImage, iconRetinaUrl: markerImage2x, shadowUrl: markerShadow,
   iconSize: [25, 41], iconAnchor: [12, 41], shadowSize: [41, 41] });
@@ -31,6 +32,7 @@ const pinIcon = icon({ iconUrl: markerImage, iconRetinaUrl: markerImage2x, shado
 export default function ProviderProfilePage() {
   const { id } = useParams();
   const { t, i18n } = useTranslation();
+  const intro = useContactIntro();
   const lang = i18n.resolvedLanguage;
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
@@ -109,21 +111,25 @@ export default function ProviderProfilePage() {
           </div>
         </div>
 
+        {/* AYK-433: the rating panel only when there are ratings; completed jobs alone otherwise. */}
+        {count > 0 ? (
         <div className="rounded-card bg-surface border border-border p-3 flex items-center gap-3 flex-wrap" data-testid="provider-rating">
-          <span className="text-3xl font-extrabold text-fg leading-none">{count ? average.toFixed(1) : '—'}</span>
+          <span className="text-3xl font-extrabold text-fg leading-none">{average.toFixed(1)}</span>
           <div className="min-w-0">
             <StarRating value={average} readOnly size={20} />
             <div className="text-[12.5px] text-fg-muted">
-              {count ? t('provider_page.rating_count', { count }) : t('for_you.no_ratings')}
+              {t('provider_page.rating_count', { count })}
               {done ? ` · ${t('provider_page.completed', { count: done })}` : ''}
             </div>
           </div>
         </div>
+        ) : done ? <p className="m-0 text-[12.5px] text-fg-muted">{t('provider_page.completed', { count: done })}</p> : null}
 
+        {/* AYK-379: three ways, the numbers only when the provider shows them. AYK-427: as clear
+            buttons, one tap each, instead of a menu. */}
+        {!self && <ContactButtons title={`💬 ${t('provider_page.contact')}`} phone={provider.public_phone} whatsapp={provider.public_whatsapp}
+          busy={chatting} onChat={startChat} testId="provider-contact" intro={intro()} link={`/providers/${user.id}`} />}
         <div className="flex flex-wrap gap-2 items-start">
-          {/* AYK-379: three ways, the numbers only when the provider shows them. */}
-          {!self && <ContactMenu phone={provider.public_phone} whatsapp={provider.public_whatsapp} busy={chatting} testId="provider-contact-menu"
-            onChat={startChat} />}
           <DirectoryButton providerId={user.id} name={name} onNote={setNote} />
           {/* AYK-382: share this provider: WhatsApp, Telegram, Facebook, X, TikTok, link, QR. */}
           <ShareMenu url={providerLink(user.id)} title={name} text={t('share_provider.message', { name })} testId="provider-share-menu" />
@@ -131,13 +137,14 @@ export default function ProviderProfilePage() {
         {note && <p role="status" className="text-[12.5px] text-fg-muted m-0">{note}</p>}
       </section>
 
-      <section className="card p-4 space-y-2" data-testid="provider-reviews">
+      {/* AYK-433: the opinions section only when there are opinions. */}
+      {(reviews?.length > 0 || count > 0) && <section className="card p-4 space-y-2" data-testid="provider-reviews">
         <h2 className="font-bold text-fg">⭐ {t('chat.provider_opinions')}</h2>
         {reviews === null ? <p className="text-[13px] text-fg-muted">{t('common.loading')}</p>
-          : !reviews.length ? <p className="text-[13px] text-fg-muted">{t('for_you.no_ratings')}</p>
+          : !reviews.length ? null
           : <div className="space-y-2">{reviews.map(review => <ReviewCard key={review.id} review={review} />)}</div>}
         {count > reviews?.length && <TrustSummary userId={user.id} average={average} count={count} />}
-      </section>
+      </section>}
 
       {/* AYK-377: «وصف الخدمات», a few lines that open in place, in the reader's language. */}
       {provider.bio && <ExpandableText text={provider.bio} translated={provider.bio_translated} lines={4} title={t('provider.services_description')} testId="provider-bio" />}

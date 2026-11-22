@@ -169,10 +169,7 @@
     "download_on": "Unduh di",
     "coming_soon": "Segera hadir di",
     "tab_requests": "Pencari layanan",
-    "tab_requests_hint": "Permintaan dari yang butuh layanan",
-    "tab_requests_hint_provider": "Permintaan di profesi saya",
     "tab_providers": "Penyedia layanan",
-    "tab_providers_hint": "Siapa yang menyediakan layanan, dan minta layanan",
     "scope_label": "Cakupan:",
     "scope_district": "Distrik saya",
     "scope_coverage": "Cakupan saya",
@@ -188,7 +185,56 @@
     "guest_services": "Kategori profesi",
     "guest_requests": "Permintaan layanan",
     "guest_providers": "Penyedia layanan",
-    "guest_more": "Tampilkan lagi"
+    "guest_more": "Tampilkan lagi",
+    "filter_my_profession": "Profesi saya",
+    "filter_my_area": "Wilayah saya",
+    "filter_restricted": "🔒 Dibatasi oleh administrasi",
+    "filter_none": "Tidak ada pilihan: semua tampil, yang terdekat dulu",
+    "board_none_filtered": "Belum ada yang cocok. Matikan satu filter untuk melihat semua.",
+    "board_fallback": "Belum ada yang cocok dengan pilihan Anda, jadi ini permintaan lainnya, dimulai dari yang terdekat.",
+    "board_fallback_providers": "Belum ada yang cocok dengan pilihan Anda, jadi ini penyedia layanan lainnya, dimulai dari yang terdekat.",
+    "guest_fallback_requests": "Belum ada permintaan di profesi ini, jadi ini permintaan terbaru di profesi lain.",
+    "guest_fallback_providers": "Belum ada penyedia layanan di profesi ini, jadi ini yang ada di profesi lain.",
+    "recent_title": "Baru selesai di «Ay Khidma»",
+    "recent_hint": "Permintaan yang pemiliknya sudah sepakat dengan penyedia layanan",
+    "recent_done": "Selesai",
+    "recent_working": "Sedang dikerjakan",
+    "empty_provider_title": "Belum ada permintaan terbuka",
+    "empty_provider_hint": "Kami akan memberi tahu Anda begitu ada permintaan yang cocok untuk Anda. Bagikan tautan Anda kepada pelanggan agar mereka memesan Anda dari sini.",
+    "empty_provider_action": "Bagikan tautan saya",
+    "empty_requester_title": "Jadilah yang pertama meminta",
+    "empty_requester_hint": "Kirim permintaan Anda sekarang; langsung sampai ke penyedia layanan di profesi dan wilayahnya.",
+    "empty_requester_action": "Kirim permintaan",
+    "empty_guest_title": "Permintaan dimulai di sini",
+    "empty_guest_hint": "Daftar dan kirim permintaan Anda, atau daftar sebagai penyedia layanan agar menerima permintaan begitu masuk.",
+    "empty_guest_action": "Daftar sekarang",
+    "empty_providers_title": "Penyedia layanan sedang bergabung",
+    "empty_providers_hint": "Kirim permintaan Anda, dan kami kabari setiap penyedia layanan di profesi dan wilayahnya begitu mereka mendaftar.",
+    "empty_providers_action": "Kirim permintaan",
+    "recent_period": "Periode",
+    "recent_days_1": "Sehari terakhir",
+    "recent_days_7": "7 hari terakhir",
+    "recent_days_30": "30 hari terakhir",
+    "recent_days_90": "90 hari terakhir",
+    "recent_agreed": "Sepakat {{when}}",
+    "recent_none": "Belum ada kesepakatan dalam periode ini. Coba periode lebih panjang atau semua profesi.",
+    "filter_title": "Tampilkan",
+    "filter_need_services": "Tambahkan layanan Anda di «Akun saya» dulu agar «Profesi saya» berfungsi.",
+    "filter_state_prof_provider": "Profesi Anda di semua wilayah, yang terdekat dulu",
+    "filter_state_area": "Semua profesi di wilayah Anda",
+    "filter_state_both_provider": "Profesi Anda di wilayah Anda saja",
+    "filter_need_area": "Lengkapi wilayah Anda di «Akun saya» dulu agar «Wilayah saya» berfungsi.",
+    "filter_similar_one": "Mirip permintaan saya",
+    "filter_similar_many": "Mirip permintaan-permintaan saya",
+    "filter_state_prof_request": "Mirip permintaan Anda, di semua wilayah",
+    "filter_state_prof_requests": "Mirip permintaan-permintaan Anda, di semua wilayah",
+    "filter_state_both_request": "Mirip permintaan Anda, di wilayah Anda saja",
+    "filter_state_both_requests": "Mirip permintaan-permintaan Anda, di wilayah Anda saja",
+    "sections_title": "Anda belum pernah meminta: pilih profesi yang Anda butuhkan",
+    "sections_hint": "Anda bisa memilih lebih dari satu profesi; kami tampilkan yang mirip.",
+    "sections_save": "Simpan ({{count}})",
+    "sections_edit": "Ubah profesi",
+    "filter_need_sections": "Pilih profesi yang Anda butuhkan agar «Mirip permintaan saya» berfungsi."
   },
   "location": {
     "country": "Negara",
@@ -442,7 +488,11 @@
     "reach_count": "Permintaan Anda kini tampil untuk {{count}} penyedia di profesi dan wilayahnya.",
     "reach_none": "Belum ada penyedia di profesi ini yang mencakup lokasi permintaan Anda.",
     "reach_none_profession": "Belum ada penyedia yang terdaftar di profesi ini. Permintaan Anda tetap terbuka dan dilihat oleh yang memilih «Semua permintaan terbuka»; Anda bisa mengganti profesi jika ada yang lebih cocok.",
-    "reach_none_area": "Penyedia di profesi ini ada, tetapi belum mencakup distrik Anda. Permintaan Anda tetap terbuka dan dilihat oleh yang memperluas cakupan atau memilih «Semua permintaan terbuka»."
+    "reach_none_area": "Penyedia di profesi ini ada, tetapi belum mencakup distrik Anda. Permintaan Anda tetap terbuka dan dilihat oleh yang memperluas cakupan atau memilih «Semua permintaan terbuka».",
+    "contact_providers_title": "Kontak untuk penyedia layanan",
+    "contact_providers_only": "Menghubungi peminta layanan hanya untuk penyedia layanan. Daftar sebagai penyedia layanan dan pilih profesi Anda, lalu hubungi orang yang membutuhkan Anda.",
+    "become_provider": "Jadi penyedia layanan",
+    "available": "Tersedia"
   },
   "offer": {
     "submit_title": "Kirim penawaran harga",
@@ -2614,7 +2664,12 @@
     "unrestricted_hint": "Lepas batasan: tampilkan semua permintaan terbuka di profesi dan wilayah mana pun, bukan hanya profesi dan cakupan saya.",
     "my_info_title": "Data saya",
     "my_info_hint": "Nama, deskripsi layanan saya, telepon dan WhatsApp yang ditampilkan, profesi dan distrik saya.",
-    "my_info_edit": "Ubah"
+    "my_info_edit": "Ubah",
+    "alerts_none": "Tidak ada permintaan baru untuk profesi Anda di wilayah Anda",
+    "alerts_ask": "Ingin diingatkan saat ada permintaan yang cocok untuk Anda?",
+    "alerts_yes": "Ya, ingatkan saya",
+    "alerts_on": "Pengingat aktif: Anda mendapat notifikasi begitu ada permintaan di profesi dan wilayah Anda, bahkan di luar jam kerja, beserta cara menghubungi pemiliknya.",
+    "alerts_stop": "Hentikan pengingat"
   },
   "requester": {
     "all_professions": "Semua profesi",
@@ -2623,7 +2678,7 @@
     "contact_direct": "Hubungi",
     "in_directory": "Di direktori saya",
     "add_directory": "Tambah ke direktori saya",
-    "remove_directory": "Hapus",
+    "remove_directory": "Hapus dari direktori saya",
     "directory_title": "Direktori saya",
     "directory_nav": "Direktori",
     "directory_hint": "Penyedia layanan yang Anda tambahkan. Hubungi siapa pun secara langsung tanpa membuat permintaan.",
@@ -2716,7 +2771,8 @@
     "whatsapp_text": "Assalamu'alaikum, saya menulis dari platform Ay Khidma tentang:",
     "form_title": "Atau kirim pesan ke admin",
     "login_to_write": "Masuk untuk mengirim pesan ke admin dan mengikuti balasannya.",
-    "login": "Masuk"
+    "login": "Masuk",
+    "whatsapp_icon": "Hubungi dukungan teknis"
   },
   "permissions": {
     "microphone": "Mikrofon",
@@ -2988,7 +3044,8 @@
     "copied": "Tautan disalin",
     "qr": "Kode QR",
     "qr_hint": "Pindai kode dengan kamera ponsel untuk membuka tautan",
-    "qr_save": "Simpan gambar"
+    "qr_save": "Simpan gambar",
+    "request_text": "Permintaan layanan di Ay Khidma: {{title}}"
   },
   "ads": {
     "hide": "Sembunyikan iklan"
@@ -3028,16 +3085,30 @@
   },
   "contact_privacy": {
     "title": "Menghubungi Anda",
-    "hint": "Pilih siapa dan bagaimana menghubungi Anda. Semua mati sampai Anda menyalakannya, dan bisa dimatikan kapan saja.",
-    "share_phone": "Tampilkan ponsel saya ke penyedia layanan",
+    "hint": "Pilih data mana yang tampil dan untuk siapa. Semua tersembunyi sampai Anda memilih.",
+    "share_phone": "Ponsel saya",
     "share_phone_hint": "Hanya penyedia di profesi permintaan terbuka Anda yang melihatnya, agar bisa menelepon langsung.",
     "no_phone": "Tambahkan nomor ponsel Anda di atas dulu.",
-    "share_whatsapp": "Tampilkan WhatsApp saya ke penyedia layanan",
+    "share_whatsapp": "WhatsApp saya",
     "share_whatsapp_hint": "Penyedia di profesi permintaan terbuka Anda bisa mengirim pesan WhatsApp.",
     "whatsapp_number": "Nomor WhatsApp (opsional)",
     "whatsapp_number_hint": "Kosongkan jika sama dengan nomor ponsel Anda.",
     "marketing": "Izinkan situs menghubungi saya",
-    "marketing_hint": "Kami kirimkan info baru dan penawaran yang sesuai kebutuhan Anda. Bisa dihentikan kapan saja."
+    "marketing_hint": "Kami kirimkan info baru dan penawaran yang sesuai kebutuhan Anda. Bisa dihentikan kapan saja.",
+    "share_name": "Nama saya",
+    "level_hidden": "Tersembunyi",
+    "level_providers": "Penyedia layanan",
+    "levels_hint": "\"Penyedia layanan\": setiap penyedia terdaftar melihatnya di permintaan terbuka Anda, tidak ada orang lain. Anda tidak melihatnya di permintaan sendiri.",
+    "my_visible": "Data Anda yang tampil di permintaan ini",
+    "my_visible_none": "Data Anda tersembunyi: penyedia menghubungi Anda lewat obrolan saja.",
+    "my_visible_edit": "Ubah yang tampil",
+    "name_label": "Nama",
+    "phone_label": "Ponsel",
+    "whatsapp_label": "WhatsApp",
+    "allow_share": "Izinkan permintaan saya dibagikan",
+    "allow_share_hint": "Penyedia dan pengunjung dapat membagikan tautan permintaan Anda agar sampai ke orang yang bisa membantu. Anda selalu bisa membagikannya sendiri.",
+    "share_allowed": "Orang lain dapat membagikan permintaan Anda.",
+    "share_not_allowed": "Hanya Anda yang bisa membagikan permintaan Anda. Izinkan dari \"Ubah yang tampil\"."
   },
   "understand": {
     "title": "Tulis permintaan dengan logat Anda sendiri",
@@ -3062,5 +3133,18 @@
       "friday": "Jumat",
       "saturday": "Sabtu"
     }
+  },
+  "contact_intro": {
+    "someone": "Seorang anggota",
+    "provider": "Penyedia layanan",
+    "requester": "Peminta layanan",
+    "about_request": "Halo, saya {{name}} ({{who}}). Saya menghubungi Anda tentang permintaan Anda: {{title}}",
+    "about_my_request": "Halo, saya {{name}} ({{who}}). Saya menghubungi Anda tentang permintaan saya: {{title}}",
+    "about_service": "Halo, saya {{name}} ({{who}}). Saya menghubungi Anda tentang {{service}}",
+    "general": "Halo, saya {{name}} ({{who}}), menghubungi Anda melalui Ay Khidma.",
+    "via_site": "melalui Ay Khidma: {{url}}",
+    "visitor": "Halo, saya menemukan halaman Anda di Ay Khidma dan ingin menghubungi Anda.",
+    "support": "Halo, saya {{name}} ({{who}}), menghubungi dukungan teknis Ay Khidma.",
+    "support_visitor": "Halo, saya menghubungi dukungan teknis Ay Khidma."
   }
 }
