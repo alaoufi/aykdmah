@@ -27,6 +27,7 @@ import { getCurrentPosition, isValidCoordinates, geoSelection, preserveCoordinat
 import AdSlot from '../components/ads/AdSlot';
 import AvatarPicker from '../components/profile/AvatarPicker';
 import AdminPanelLink from '../components/layout/AdminPanelLink';
+import InviteButton from '../components/common/InviteButton';
 import ProblemNotice from '../components/common/ProblemNotice';
 import ContactPrivacy from '../components/profile/ContactPrivacy';
 import { showAlert } from '../components/common/AppDialog';
@@ -288,7 +289,12 @@ export default function ProfilePage() {
 
   return (
     <div className="container page" style={{ maxWidth: 720 }}>
-      <h2 className="mb-4">{t('profile.title')}</h2>
+      {/* AYK-465 (the owner: «أضف دعوة صديق هنا»): beside «حسابي», the same copy / send as in the menu. */}
+      <div className="flex items-center justify-between gap-2 mb-4">
+        <h2 className="m-0">{t('profile.title')}</h2>
+        {user?.referral_code && <InviteButton code={user.referral_code} below testid="profile-invite" label={t('wallet.invite_friend')}
+          className="px-4 py-2 rounded-pill border-2 border-primary bg-primary-soft text-[14.5px] font-extrabold text-fg cursor-pointer hover:bg-surface-alt" />}
+      </div>
       <AdSlot placement="profile_top" className="mb-4" />
       {/* An account with admin rights opens the admin area from here too (AYK-202). */}
       <AdminPanelLink className="btn btn-outline w-full mb-4" />

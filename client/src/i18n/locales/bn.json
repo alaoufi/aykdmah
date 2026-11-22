@@ -2413,7 +2413,8 @@
     "invite_send": "হোয়াটসঅ্যাপে পাঠান",
     "invite_copy": "কপি",
     "invite_send_short": "পাঠান",
-    "invite_copied": "কপি হয়েছে"
+    "invite_copied": "কপি হয়েছে",
+    "invite_friend": "বন্ধুকে আমন্ত্রণ জানান"
   },
   "test_checkout": {
     "banner": "পরীক্ষামূলক পরিশোধ — কোনো অর্থ কাটা হবে না",

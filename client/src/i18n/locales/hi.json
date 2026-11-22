@@ -2413,7 +2413,8 @@
     "invite_send": "व्हाट्सऐप पर भेजें",
     "invite_copy": "कॉपी",
     "invite_send_short": "भेजें",
-    "invite_copied": "कॉपी हो गया"
+    "invite_copied": "कॉपी हो गया",
+    "invite_friend": "दोस्त को आमंत्रित करें"
   },
   "test_checkout": {
     "banner": "टेस्ट भुगतान — कोई पैसा नहीं कटेगा",

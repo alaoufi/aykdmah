@@ -2413,7 +2413,8 @@
     "invite_send": "ह्वाट्सएपमा पठाउनुहोस्",
     "invite_copy": "प्रतिलिपि",
     "invite_send_short": "पठाउनुहोस्",
-    "invite_copied": "प्रतिलिपि भयो"
+    "invite_copied": "प्रतिलिपि भयो",
+    "invite_friend": "साथीलाई निम्तो दिनुहोस्"
   },
   "test_checkout": {
     "banner": "परीक्षण भुक्तानी — कुनै रकम काटिँदैन",

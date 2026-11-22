@@ -2413,7 +2413,8 @@
     "invite_send": "በዋትስአፕ ይላኩ",
     "invite_copy": "ቅዳ",
     "invite_send_short": "ላክ",
-    "invite_copied": "ተቀድቷል"
+    "invite_copied": "ተቀድቷል",
+    "invite_friend": "ጓደኛ ይጋብዙ"
   },
   "test_checkout": {
     "banner": "የሙከራ ክፍያ — ምንም ገንዘብ አይቀነስም",

@@ -2413,7 +2413,8 @@
     "invite_send": "واٹس ایپ پر بھیجیں",
     "invite_copy": "کاپی",
     "invite_send_short": "بھیجیں",
-    "invite_copied": "کاپی ہو گیا"
+    "invite_copied": "کاپی ہو گیا",
+    "invite_friend": "دوست کو مدعو کریں"
   },
   "test_checkout": {
     "banner": "آزمائشی ادائیگی — کوئی رقم نہیں کٹے گی",

@@ -2413,7 +2413,8 @@
     "invite_send": "വാട്ട്‌സ്ആപ്പിൽ അയയ്ക്കുക",
     "invite_copy": "പകർത്തുക",
     "invite_send_short": "അയയ്ക്കുക",
-    "invite_copied": "പകർത്തി"
+    "invite_copied": "പകർത്തി",
+    "invite_friend": "സുഹൃത്തിനെ ക്ഷണിക്കുക"
   },
   "test_checkout": {
     "banner": "പരീക്ഷണ പേയ്മെന്റ് — പണമൊന്നും ഈടാക്കില്ല",

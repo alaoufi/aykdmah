@@ -2413,7 +2413,8 @@
     "invite_send": "Kirim lewat WhatsApp",
     "invite_copy": "Salin",
     "invite_send_short": "Kirim",
-    "invite_copied": "Tersalin"
+    "invite_copied": "Tersalin",
+    "invite_friend": "Undang teman"
   },
   "test_checkout": {
     "banner": "Pembayaran uji coba — tidak ada uang yang dipotong",

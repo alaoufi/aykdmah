@@ -2442,7 +2442,8 @@
     "invite_send": "إرسال بالواتساب",
     "invite_copy": "نسخ",
     "invite_send_short": "إرسال",
-    "invite_copied": "تم النسخ"
+    "invite_copied": "تم النسخ",
+    "invite_friend": "دعوة صديق"
   },
   "test_checkout": {
     "banner": "دفع تجريبي — لن يُخصم أي مبلغ",

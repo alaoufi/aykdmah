@@ -2413,7 +2413,8 @@
     "invite_send": "Send on WhatsApp",
     "invite_copy": "Copy",
     "invite_send_short": "Send",
-    "invite_copied": "Copied"
+    "invite_copied": "Copied",
+    "invite_friend": "Invite a friend"
   },
   "test_checkout": {
     "banner": "Test payment — no money will be charged",
