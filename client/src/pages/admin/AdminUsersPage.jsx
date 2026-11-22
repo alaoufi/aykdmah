@@ -51,6 +51,16 @@ function NoSections() {
 // AYK-383: role is what the person is on the site; is_admin is the administration's rights, apart.
 const EMPTY_FORM = { full_name: '', username: '', email: '', phone: '', facebook_id: '', password: '', role: 'client', is_admin: false, is_active: true };
 
+// AYK-460 (the owner: «الرقم الذي بجوار المستخدم من أربعة أرقام، ماذا يعني؟ إذا داخلي لا داعي لعرضه»):
+// «مستخدم 8872» is the name the site gives someone who signed up without one (the last four digits of
+// his phone). Here it reads «بلا اسم», muted; the phone shows in full under it. The site keeps the name.
+const AUTO_NAME = /^مستخدم \d{4}$/;
+function UserName({ u }) {
+  const name = String(u.full_name || '').trim();
+  if (!name || AUTO_NAME.test(name)) return <span className="text-slate-400 font-semibold" data-testid="user-no-name">بلا اسم</span>;
+  return <>{name}</>;
+}
+
 export default function AdminUsersPage() {
   const { t, i18n } = useTranslation();
   const confirmAdminChange = useAdminConfirmation();
@@ -297,9 +307,9 @@ export default function AdminUsersPage() {
                 <div className="min-w-0 flex-1">
                   <div className="cat-name-track">
                     {/* AYK-459 (the owner: «قبل الاسم يظهر الرقم بخط واضح وغامق»): the current account number first. */}
-                    <div className="cat-name-inner font-bold text-ink text-[14.5px]">{u.referral_code && <><b dir="ltr" className="inline-block font-extrabold text-[15.5px] text-fg bg-slate-100 border border-slate-300 rounded-md px-1.5 leading-6 me-2 align-middle" data-testid="user-number">{u.referral_code}</b>{'\u00a0\u00a0'}</>}{u.full_name || '—'}</div>
+                    <div className="cat-name-inner font-bold text-ink text-[14.5px]">{u.referral_code && <><b dir="ltr" className="inline-block font-extrabold text-[15.5px] text-fg bg-slate-100 border border-slate-300 rounded-md px-1.5 leading-6 me-2 align-middle" data-testid="user-number">{u.referral_code}</b>{'\u00a0\u00a0'}</>}<UserName u={u} /></div>
                   </div>
-                  <div className="text-[11.5px] text-slate-500 truncate mt-0.5">{u.email}</div>
+                  <div className="text-[11.5px] text-slate-500 truncate mt-0.5" dir="auto">{[u.phone, u.email].filter(Boolean).join(' · ')}</div>
                   <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                     <span className={`px-2 py-0.5 rounded-pill text-[10.5px] font-bold ${ROLE_BADGE[u.role] || 'bg-slate-100 text-slate-600'}`}>
                       {ROLE_LABEL[u.role] || u.role}
@@ -362,8 +372,8 @@ export default function AdminUsersPage() {
                       <div className="flex items-center gap-3">
                         <Avatar src={u.avatar} name={u.full_name} size="sm" />
                         <div className="min-w-0">
-                          <div className="text-[13.5px] font-bold text-ink truncate">{u.referral_code && <><b dir="ltr" className="inline-block font-extrabold text-[15px] text-fg bg-slate-100 border border-slate-300 rounded-md px-1.5 leading-6 me-2 align-middle" data-testid="user-number">{u.referral_code}</b>{'\u00a0\u00a0'}</>}{u.full_name}</div>
-                          <div className="text-[11.5px] text-slate-500 truncate">{u.email}</div>
+                          <div className="text-[13.5px] font-bold text-ink truncate">{u.referral_code && <><b dir="ltr" className="inline-block font-extrabold text-[15px] text-fg bg-slate-100 border border-slate-300 rounded-md px-1.5 leading-6 me-2 align-middle" data-testid="user-number">{u.referral_code}</b>{'\u00a0\u00a0'}</>}<UserName u={u} /></div>
+                          <div className="text-[11.5px] text-slate-500 truncate" dir="auto">{[u.phone, u.email].filter(Boolean).join(' · ')}</div>
                         </div>
                       </div>
                     </td>
