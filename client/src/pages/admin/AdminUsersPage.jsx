@@ -296,7 +296,8 @@ export default function AdminUsersPage() {
                 <Avatar src={u.avatar} name={u.full_name} size="sm" />
                 <div className="min-w-0 flex-1">
                   <div className="cat-name-track">
-                    <div className="cat-name-inner font-bold text-ink text-[14.5px]">{u.full_name || '—'}</div>
+                    {/* AYK-459 (the owner: «قبل الاسم يظهر الرقم بخط واضح وغامق»): the current account number first. */}
+                    <div className="cat-name-inner font-bold text-ink text-[14.5px]">{u.referral_code && <><b dir="ltr" className="inline-block font-extrabold text-[15.5px] text-fg bg-slate-100 border border-slate-300 rounded-md px-1.5 leading-6 me-2 align-middle" data-testid="user-number">{u.referral_code}</b>{'\u00a0\u00a0'}</>}{u.full_name || '—'}</div>
                   </div>
                   <div className="text-[11.5px] text-slate-500 truncate mt-0.5">{u.email}</div>
                   <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
@@ -361,7 +362,7 @@ export default function AdminUsersPage() {
                       <div className="flex items-center gap-3">
                         <Avatar src={u.avatar} name={u.full_name} size="sm" />
                         <div className="min-w-0">
-                          <div className="text-[13.5px] font-bold text-ink truncate">{u.full_name}</div>
+                          <div className="text-[13.5px] font-bold text-ink truncate">{u.referral_code && <><b dir="ltr" className="inline-block font-extrabold text-[15px] text-fg bg-slate-100 border border-slate-300 rounded-md px-1.5 leading-6 me-2 align-middle" data-testid="user-number">{u.referral_code}</b>{'\u00a0\u00a0'}</>}{u.full_name}</div>
                           <div className="text-[11.5px] text-slate-500 truncate">{u.email}</div>
                         </div>
                       </div>
@@ -443,7 +444,7 @@ export default function AdminUsersPage() {
       <Modal
         open={editOpen}
         onClose={closeEdit}
-        title={editing ? t('admin.edit_user') : t('admin.create_user')}
+        title={editing ? `${t('admin.edit_user')}${editing.referral_code ? ` — ${editing.referral_code}` : ''}` : t('admin.create_user')}
         footer={
           <>
             <button onClick={closeEdit} className="px-4 py-2 rounded-pill bg-white hover:bg-slate-100 text-slate-700 text-[13px] font-semibold border border-slate-200 transition">
