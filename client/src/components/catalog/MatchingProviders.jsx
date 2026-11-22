@@ -14,7 +14,7 @@ import { apiError } from '../../services/api';
 import { isPresent, ProviderStatus } from '../common/AvailabilityBadge';
 import { optionLabel } from '../../utils/optionLabel';
 import ExpandableText from '../common/ExpandableText';
-import ContactMenu from '../providers/ContactMenu';
+import ContactButtons from '../providers/ContactButtons';
 import ShareMenu from '../common/ShareMenu';
 import { providerLink } from '../providers/ShareProviderLink';
 
@@ -249,12 +249,12 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
         <ProviderStatus availability={p.availability} coverage={p.coverage} name={p.business_name || p.full_name} className="mt-1.5" />
         {/* AYK-377: what they say about their services, opening and closing in place. */}
         <ExpandableText text={p.bio} translated={p.bio_translated} lines={2} className="mt-2" testId="provider-bio" />
+        {/* AYK-379: جوال / واتساب (when the provider shows them) / محادثة. AYK-427: shown as buttons. */}
+        {onContact && <ContactButtons size="sm" className="mt-2" phone={p.public_phone} whatsapp={p.public_whatsapp} busy={busy} testId="contact-provider"
+          onChat={async () => { setBusy(true); try { await onContact(p); } finally { setBusy(false); } }} />}
+        {requester && <ContactButtons size="sm" className="mt-2" phone={p.public_phone} whatsapp={p.public_whatsapp} busy={busy} testId="direct-contact"
+          onChat={() => run(async () => { const res = await contactDirect(p.id, categoryId); navigate(`/chat/${res.conversation_id}`); })} />}
         <div className="flex flex-wrap items-center gap-2 mt-2">
-          {/* AYK-379: «تواصل» opens جوال / واتساب (when the provider shows them) / محادثة. */}
-          {onContact && <ContactMenu phone={p.public_phone} whatsapp={p.public_whatsapp} busy={busy} testId="contact-provider"
-            onChat={async () => { setBusy(true); try { await onContact(p); } finally { setBusy(false); } }} />}
-          {requester && <ContactMenu phone={p.public_phone} whatsapp={p.public_whatsapp} busy={busy} testId="direct-contact"
-            onChat={() => run(async () => { const res = await contactDirect(p.id, categoryId); navigate(`/chat/${res.conversation_id}`); })} />}
           {requester && !saved && (<button type="button" className="btn btn-outline btn-sm" disabled={busy} data-testid="save-provider"
               onClick={() => run(() => onToggleSaved(p.id))}>📇 {t('requester.add_directory')}</button>)}
           <Link to={`/providers/${p.id}`} className="btn btn-outline btn-sm">👤 {t('for_you.view_profile')}</Link>

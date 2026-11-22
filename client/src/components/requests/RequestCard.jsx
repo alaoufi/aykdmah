@@ -6,7 +6,7 @@ import { formatRelativeTime, formatCurrency, truncate, formatDistance } from '..
 import useOpenRequest from '../../hooks/useOpenRequest';
 import useRequestTranslation from '../../hooks/useRequestTranslation';
 import TranslatedNote from './TranslatedNote';
-import ContactMenu from '../providers/ContactMenu';
+import ContactButtons from '../providers/ContactButtons';
 
 // Whose request this is (AYK-044): "Your request" (as a requester) or "For your
 // service" (as a provider), in different colours.
@@ -33,7 +33,7 @@ export default function RequestCard({ request }) {
       <div className="flex items-center gap-1.5 flex-wrap">
         {/* AYK-418: «لخدمتك» became «تواصل»: phone and WhatsApp when the requester shows them, and chat. */}
         {canContact(request)
-          ? <ContactMenu compact quick phone={request.client_contact_phone} whatsapp={request.client_contact_whatsapp} busy={opening === request.id} onChat={() => contact(request)} testId="request-contact" />
+          ? <ContactButtons size="xs" phone={request.client_contact_phone} whatsapp={request.client_contact_whatsapp} busy={opening === request.id} onChat={() => contact(request)} testId="request-contact" />
           : <OwnerBadge mine={mine(request)} forService={false} />}
         {/* AYK-398: someone this provider already worked for. */}
         {request.previous_client ? <span className="badge badge-success" data-testid="badge-previous-client">⭐ {t('work.previous_client')}</span> : null}

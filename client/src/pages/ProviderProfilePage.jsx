@@ -17,7 +17,7 @@ import StarRating from '../components/reviews/StarRating';
 import ReviewCard from '../components/reviews/ReviewCard';
 import TrustSummary from '../components/reviews/TrustSummary';
 import { getUserReviews } from '../services/reviewService';
-import ContactMenu from '../components/providers/ContactMenu';
+import ContactButtons from '../components/providers/ContactButtons';
 import { contactDirect } from '../services/requestService';
 import { useAuth } from '../hooks/useAuth';
 import { LoadingState, ErrorState } from '../components/common/Spinner';
@@ -120,10 +120,11 @@ export default function ProviderProfilePage() {
           </div>
         </div>
 
+        {/* AYK-379: three ways, the numbers only when the provider shows them. AYK-427: as clear
+            buttons, one tap each, instead of a menu. */}
+        {!self && <ContactButtons title={`💬 ${t('provider_page.contact')}`} phone={provider.public_phone} whatsapp={provider.public_whatsapp}
+          busy={chatting} onChat={startChat} testId="provider-contact" />}
         <div className="flex flex-wrap gap-2 items-start">
-          {/* AYK-379: three ways, the numbers only when the provider shows them. */}
-          {!self && <ContactMenu phone={provider.public_phone} whatsapp={provider.public_whatsapp} busy={chatting} testId="provider-contact-menu"
-            onChat={startChat} />}
           <DirectoryButton providerId={user.id} name={name} onNote={setNote} />
           {/* AYK-382: share this provider: WhatsApp, Telegram, Facebook, X, TikTok, link, QR. */}
           <ShareMenu url={providerLink(user.id)} title={name} text={t('share_provider.message', { name })} testId="provider-share-menu" />

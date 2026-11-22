@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { MapContainer, Marker, Popup, CircleMarker, useMap } from 'react-leaflet';
 import { icon } from 'leaflet';
@@ -17,6 +17,9 @@ import { getCurrentPosition, isValidCoordinates } from '../utils/geolocation.mjs
 import { directionsUrl, formatDistanceKm } from '../utils/directions';
 import { localizedName } from '../utils/localize';
 import ExpandableText from '../components/common/ExpandableText';
+import ContactButtons from '../components/providers/ContactButtons';
+import { contactDirect } from '../services/requestService';
+import { showProblem } from '../components/common/AppDialog';
 
 const pinIcon = icon({ iconUrl: markerImage, iconRetinaUrl: markerImage2x, shadowUrl: markerShadow,
   iconSize: [25, 41], iconAnchor: [12, 41], shadowSize: [41, 41] });
@@ -36,6 +39,13 @@ function FitToResults({ origin, providers }) {
 export default function ProvidersMapPage() {
   const { t, i18n } = useTranslation();
   const { user } = useAuth();
+  const navigate = useNavigate();
+  // AYK-427: chat with a provider from the map's list; a visitor signs in first.
+  const chatWith = async provider => {
+    if (!user) { navigate('/login', { state: { from: `/providers/${provider.id}` } }); return; }
+    try { const res = await contactDirect(provider.id, provider.category_id); navigate(`/chat/${res.conversation_id}`); }
+    catch (err) { if (!err?.cancelled) showProblem(err); }
+  };
   const lang = i18n.resolvedLanguage;
   const saved = user && isValidCoordinates(Number(user.latitude), Number(user.longitude))
     ? { lat: Number(user.latitude), lon: Number(user.longitude) } : null;
@@ -144,7 +154,7 @@ export default function ProvidersMapPage() {
       )}
       <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">
         {providers.map(p => (
-          <li key={p.id} className="card p-3 flex gap-3 items-center">
+          <li key={p.id} className="card p-3 flex gap-3 items-start">
             <Avatar src={p.avatar} name={p.full_name} />
             <div className="min-w-0 flex-1">
               <Link to={`/providers/${p.id}`} className="font-bold text-fg truncate block">{p.business_name || p.full_name}</Link>
@@ -154,6 +164,9 @@ export default function ProvidersMapPage() {
               </div>
               <ProviderStatus availability={p.availability} coverage={p.coverage} name={p.business_name || p.full_name} className="mt-1" />
               <ExpandableText text={p.bio} translated={p.bio_translated} lines={2} className="mt-1.5" testId="provider-bio" />
+              {/* AYK-427 (the owner's rule: every panel shows contact clearly). */}
+              <ContactButtons size="sm" className="mt-2" phone={p.public_phone} whatsapp={p.public_whatsapp} testId="map-contact"
+                onChat={() => chatWith(p)} />
             </div>
             {p.location_precision === 'exact' && (
               <a href={directionsUrl(p.latitude, p.longitude)} target="_blank" rel="noopener noreferrer"

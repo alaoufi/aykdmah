@@ -50,6 +50,7 @@ const nearby = asyncHandler(async (req, res) => {
            pp.rating_avg, pp.rating_count, pp.completed_orders,
            pp.location_mode,
            pp.show_location_on_map, pp.fixed_latitude, pp.fixed_longitude,
+           u.phone, pp.show_phone, pp.whatsapp, pp.show_whatsapp, -- AYK-427: the numbers each provider chose to show
            to_jsonb(pp)->>'availability_status' AS availability_status, to_jsonb(pp)->>'vacation_from' AS vacation_from,
            to_jsonb(pp)->>'vacation_to' AS vacation_to, to_jsonb(pp)->>'work_days' AS work_days,
            to_jsonb(pp)->>'work_from' AS work_from, to_jsonb(pp)->>'work_to' AS work_to,
@@ -106,6 +107,7 @@ const nearby = asyncHandler(async (req, res) => {
       location_precision: point.precision,
       distance_km: Math.round(distance * 10) / 10,
       availability: status,
+      ...publicContact(row),
     });
   }
   // Providers available now come first, then by distance.
