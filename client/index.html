@@ -28,13 +28,15 @@
     <!-- AYK-281: the server puts a text copy of the page in #root for search engines. People saw it
          flash, unstyled, between the app's splash and the page: with scripts on (theme-init.js adds
          "js"), it stays hidden and a ring turns in the middle until the app replaces it. If the app
-         never starts (12 s), the text shows after all, so nobody is left on an empty screen. -->
+         never starts (12 s), the text shows after all, so nobody is left on an empty screen.
+         AYK-463: the text is for search engines only; people see the ring, a «slow connection» line
+         after 8 s, and the reload box after 40 s (app-recovery.js). -->
     <style>html{background:#FAF7F2}html[data-theme="dark"]{background:#12161A}
-html.js .seo-static>*{visibility:hidden;animation:ayk-seo-show 0s 12s forwards}
-html.js .seo-static::before{content:"";position:fixed;inset:0 0 35px 0;margin:auto;width:40px;height:40px;box-sizing:border-box;border-radius:50%;border:4px solid rgba(78,110,93,.2);border-top-color:#4E6E5D;animation:ayk-seo-spin .8s linear infinite,ayk-seo-hide 0s 12s forwards}
+html.js .seo-static>*{display:none}
+html.js .seo-static::before,html.js #root:empty::before{content:"";position:fixed;inset:0 0 35px 0;margin:auto;width:40px;height:40px;box-sizing:border-box;border-radius:50%;border:4px solid rgba(78,110,93,.2);border-top-color:#4E6E5D;animation:ayk-seo-spin .8s linear infinite}
+html.js .seo-static::after,html.js #root:empty::after{content:"الاتصال بطيء، ما زلنا نحمّل الموقع… \A Slow connection, still loading…";white-space:pre;position:fixed;left:0;right:0;top:calc(50% + 20px);text-align:center;font:600 14px/1.7 Tahoma,sans-serif;color:#5b6b63;visibility:hidden;animation:ayk-seo-show 0s 8s forwards}
 @keyframes ayk-seo-spin{to{transform:rotate(360deg)}}
-@keyframes ayk-seo-show{to{visibility:visible}}
-@keyframes ayk-seo-hide{to{visibility:hidden}}</style>
+@keyframes ayk-seo-show{to{visibility:visible}}</style>
     <link id="ayk-fonts" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap" rel="stylesheet" media="print">
     <noscript><link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@600;700;800&family=Inter:wght@400;500;600;700;800&family=Noto+Nastaliq+Urdu:wght@400;500;600;700&display=swap" rel="stylesheet"></noscript>
     <title>أي خدمة — خدمة أسرع، حياة أسهل</title>

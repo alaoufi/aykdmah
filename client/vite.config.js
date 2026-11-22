@@ -18,11 +18,23 @@ export default defineConfig(({ mode }) => {
       {
         name: 'ayk-theme-tokens',
         transformIndexHtml() {
-          return [{
-            tag: 'style', attrs: { id: 'ayk-theme-tokens' }, injectTo: 'head',
-            children: `:root{${themeCss(lightTheme)};color-scheme:light}:root[data-theme="dark"]{${themeCss(darkTheme)};color-scheme:dark}`,
-          }];
+          return [
+            // AYK-463: the two small start-up scripts at the end of the page were fetched behind ~25
+            // module files and held the start back by over a second; they are asked for first.
+            { tag: 'link', attrs: { rel: 'preload', as: 'script', href: '/theme-init.js', fetchpriority: 'high' }, injectTo: 'head-prepend' },
+            { tag: 'link', attrs: { rel: 'preload', as: 'script', href: '/app-recovery.js', fetchpriority: 'high' }, injectTo: 'head-prepend' },
+            {
+              tag: 'style', attrs: { id: 'ayk-theme-tokens' }, injectTo: 'head',
+              children: `:root{${themeCss(lightTheme)};color-scheme:light}:root[data-theme="dark"]{${themeCss(darkTheme)};color-scheme:dark}`,
+            },
+          ];
         },
+      },
+      {
+        // AYK-463: the app's main file goes before the home page's helper files.
+        name: 'ayk-entry-first',
+        apply: 'build',
+        transformIndexHtml: { order: 'post', handler: html => html.replace('<script type="module" crossorigin src="/assets/index-', '<script type="module" crossorigin fetchpriority="high" src="/assets/index-') },
       },
       react(),
       earlyRecoveryPlugin(),
