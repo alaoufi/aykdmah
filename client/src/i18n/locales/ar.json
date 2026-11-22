@@ -188,7 +188,15 @@
     "guest_services": "تصنيفات المهن",
     "guest_requests": "طلبات الخدمة",
     "guest_providers": "مقدمو الخدمة",
-    "guest_more": "عرض المزيد"
+    "guest_more": "عرض المزيد",
+    "filter_label": "عرض",
+    "filter_my_profession": "مهنتي",
+    "filter_my_requests": "حسب طلبي",
+    "filter_my_area": "منطقتي",
+    "filter_restricted": "🔒 العرض مقيّد من الإدارة",
+    "filter_some": "الأقرب لك أولًا",
+    "filter_none": "الكل، والأقرب لك أولًا",
+    "board_none_filtered": "لا شيء مطابق الآن. ألغِ أحد الفلترين لترى الكل."
   },
   "location": {
     "country": "الدولة",

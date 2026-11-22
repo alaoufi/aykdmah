@@ -15,6 +15,7 @@ import AdSlot from '../../components/ads/AdSlot';
 import ProblemNotice from '../../components/common/ProblemNotice';
 import ShareProviderLink from '../../components/providers/ShareProviderLink';
 import { ProviderSection } from '../ProfilePage';
+import usePublicSettings from '../../hooks/usePublicSettings';
 
 export default function ProviderDashboardPage() {
   const { t } = useTranslation();
@@ -26,8 +27,14 @@ export default function ProviderDashboardPage() {
     catch (err) { if (!err?.cancelled) { navigate(`/requests/${offer.request_id}`); showProblem(err); } }
   };
   const { user, provider, refresh } = useAuth();
-  // AYK-400 «فك القيود»: every open request, whatever the profession or area. Asked for, never the default.
-  const [unrestricted, setUnrestricted] = useState(false);
+  // AYK-440 (the owner): every open request in every profession and area, ranked: my profession in
+  // my area first, then my area, then my profession. «مهنتي» / «منطقتي» filter only when chosen; the
+  // administration's «تقييد العرض» fixes both on. (Replaces AYK-400's «فك القيود».)
+  const { settings } = usePublicSettings();
+  const restricted = settings.marketplace_restrict_views === true || settings.marketplace_restrict_views === 'true';
+  const [filters, setFilters] = useState({ prof: false, area: false });
+  const board = restricted ? { prof: true, area: true } : filters;
+  const unrestricted = !board.prof && !board.area;
   // AYK-401: the provider's own details edited here, in the dashboard.
   const [infoMsg, setInfoMsg] = useState('');
   const [infoErr, setInfoErr] = useState('');
@@ -46,7 +53,7 @@ export default function ProviderDashboardPage() {
     if (!quiet && !shown.current) setLoading(true);
     setError(false);
     // Requests in the provider's own professions and districts only (AYK-040).
-    const params = { limit: unrestricted ? 50 : 20, matching: '1', ...(unrestricted ? { scope: 'open' } : {}) };
+    const params = { limit: 50, board: '1', ...(board.prof ? { f_prof: '1' } : {}), ...(board.area ? { f_area: '1' } : {}) };
     Promise.all([
       listNearbyRequests(params).then(r => r.data || []),
       listMyOffers({ limit: 5 }).then(r => r.data || []),
@@ -55,7 +62,7 @@ export default function ProviderDashboardPage() {
       .catch(() => { if (current) setError(true); })
       .finally(() => { if (current) { shown.current = true; setLoading(false); } });
     return () => { current = false; };
-  }, [tick, unrestricted]);
+  }, [tick, board.prof, board.area]);
 
   if (loading) return <LoadingState />;
 
@@ -79,12 +86,23 @@ export default function ProviderDashboardPage() {
           <h3 style={{ margin: 0 }}>📨 {t(unrestricted ? 'work.all_open_title' : 'work.requests_title')}</h3>
           <Link to="/opportunities" className="text-[13px] font-semibold">{t('work.see_all')}</Link>
         </div>
-        <label className="flex items-start gap-2 text-[13px] mb-3 cursor-pointer rounded-card border border-border px-3 py-2" data-testid="unrestricted-toggle">
-          <input type="checkbox" className="mt-0.5 w-4 h-4 accent-primary" checked={unrestricted} onChange={e => setUnrestricted(e.target.checked)} />
-          <span><b>🔓 {t('work.unrestricted_label')}</b><span className="block text-fg-muted text-[12px]">{t('work.unrestricted_hint')}</span></span>
-        </label>
+        <div className="flex items-center gap-1.5 flex-wrap mb-3" role="group" aria-label={t('home.filter_label')} data-testid="home-filters">
+          <span className="text-[12px] text-fg-muted shrink-0">🔎 {t('home.filter_label')}</span>
+          {[['prof', 'home.filter_my_profession'], ['area', 'home.filter_my_area']].map(([key, label]) => {
+            const on = board[key];
+            return (
+              <button key={key} type="button" aria-pressed={on} disabled={restricted} onClick={() => setFilters(f => ({ ...f, [key]: !f[key] }))}
+                data-testid={`home-filter-${key}`}
+                className={`shrink-0 rounded-full px-3 py-1 text-[12.5px] font-semibold border transition ${on
+                  ? 'bg-primary text-white border-primary' : 'bg-surface text-fg border-border hover:bg-surface-alt'} ${restricted ? 'opacity-80 cursor-default' : ''}`}>
+                {on ? '✓ ' : ''}{t(label)}
+              </button>
+            );
+          })}
+          <span className="text-[11.5px] text-fg-muted">{t(restricted ? 'home.filter_restricted' : unrestricted ? 'home.filter_none' : 'home.filter_some')}</span>
+        </div>
         {nearby.length === 0
-          ? <EmptyState title={t(unrestricted ? 'home.no_requests_anywhere' : 'work.no_requests')} />
+          ? <EmptyState title={t(unrestricted ? 'home.no_requests_anywhere' : 'home.board_none_filtered')} />
           : <div className="grid grid-2">{nearby.map(r => <RequestCard key={r.id} request={r} />)}</div>}
       </div>
 

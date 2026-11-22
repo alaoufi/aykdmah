@@ -188,7 +188,15 @@
     "guest_services": "የሙያ ምድቦች",
     "guest_requests": "የአገልግሎት ጥያቄዎች",
     "guest_providers": "አገልግሎት ሰጪዎች",
-    "guest_more": "ተጨማሪ አሳይ"
+    "guest_more": "ተጨማሪ አሳይ",
+    "filter_label": "አሳይ",
+    "filter_my_profession": "ሙያዬ",
+    "filter_my_requests": "በጥያቄዬ መሰረት",
+    "filter_my_area": "አካባቢዬ",
+    "filter_restricted": "🔒 በአስተዳደሩ የተገደበ",
+    "filter_some": "ቅርብዎ መጀመሪያ",
+    "filter_none": "ሁሉም፣ ቅርብዎ መጀመሪያ",
+    "board_none_filtered": "አሁን የሚዛመድ የለም። ሁሉንም ለማየት አንድ ማጣሪያ ያጥፉ።"
   },
   "location": {
     "country": "ሀገር",

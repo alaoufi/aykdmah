@@ -188,7 +188,15 @@
     "guest_services": "Kategori profesi",
     "guest_requests": "Permintaan layanan",
     "guest_providers": "Penyedia layanan",
-    "guest_more": "Tampilkan lagi"
+    "guest_more": "Tampilkan lagi",
+    "filter_label": "Tampilkan",
+    "filter_my_profession": "Profesi saya",
+    "filter_my_requests": "Sesuai permintaan saya",
+    "filter_my_area": "Wilayah saya",
+    "filter_restricted": "🔒 Dibatasi oleh administrasi",
+    "filter_some": "Yang terdekat dulu",
+    "filter_none": "Semua, yang terdekat dulu",
+    "board_none_filtered": "Belum ada yang cocok. Matikan satu filter untuk melihat semua."
   },
   "location": {
     "country": "Negara",

@@ -210,7 +210,7 @@ const matching = asyncHandler(async (req, res) => {
   // AYK-397 (the owner: «الافتراضي منطقتك وله يوسّع الدائرة»): area (the district, as before), city, region or all.
   const scope = ['area', 'city', 'region', 'all'].includes(req.query.scope) ? req.query.scope : 'area';
   if (where.invalid || !validIds([categoryId, serviceId])) return error(res, req.t ? req.t('invalid_data') : 'Invalid filter', 400);
-  if (!where.cityId && scope !== 'all') return success(res, { area: null, scope, providers: [] });
+  if (!where.cityId && scope !== 'all' && req.query.board !== '1') return success(res, { area: null, scope, providers: [] });
   const categoryServices = categoryId !== null
     ? new Set((await query('SELECT id FROM services WHERE category_id = ?', [categoryId])).map(row => Number(row.id))) : null;
   const list = async scope => listProviders(await coveringProviders({ ...scope, excludeId: req.user?.id || 0 }),
@@ -220,6 +220,35 @@ const matching = asyncHandler(async (req, res) => {
   // list keeps only them when «المهن التي طلبتها» is chosen (matching=1).
   if (req.user && categoryId === null && serviceId === null) {
     requestedCategories = (await query('SELECT DISTINCT category_id FROM requests WHERE client_id = ? AND deleted_at IS NULL AND category_id IS NOT NULL', [req.user.id])).map(row => Number(row.category_id));
+  }
+  // AYK-440: the home board. Every provider, ranked: in my area AND my requested professions first,
+  // then my area, then my professions, then the rest. «حسب طلبي» / «منطقتي» keep only those when
+  // chosen; the administration's «تقييد العرض» switch fixes both on.
+  if (req.query.board === '1') {
+    const restricted = Boolean(await require('../models/Setting').get('marketplace_restrict_views', false).catch(() => false));
+    let wanted = requestedCategories;
+    if (req.user?.role === 'provider' && categoryId === null) {
+      const mine = await query('SELECT pp.category_id, pp.service_ids FROM provider_profiles pp WHERE pp.user_id = ?', [req.user.id]);
+      const byServiceAll = await serviceCategories();
+      wanted = [...new Set([...requestedCategories, ...(mine[0] ? [...providerCategories(mine[0], byServiceAll)] : [])])];
+    }
+    const filterProf = restricted || req.query.f_prof === '1';
+    const filterArea = restricted || req.query.f_area === '1';
+    const everyone = await list({ everywhere: true });
+    const areaIds = where.cityId ? new Set((await list({ districtId: null, cityId: where.cityId })).map(row => Number(row.id))) : new Set();
+    const byServiceAll = wanted.length ? await serviceCategories() : null;
+    const ranked = everyone.map((row, index) => {
+      const inArea = areaIds.has(Number(row.id));
+      const inProf = wanted.length > 0 && [...providerCategories(row, byServiceAll)].some(id => wanted.includes(id));
+      return { row, inArea, inProf, index };
+    }).filter(item => (!filterArea || item.inArea) && (!filterProf || item.inProf))
+      .sort((a, b) => ((b.inArea && b.inProf) - (a.inArea && a.inProf)) || (b.inArea - a.inArea) || (b.inProf - a.inProf) || (a.index - b.index));
+    const shown = ranked.slice(0, MAX_RESULTS).map(item => ({ ...item.row, board_area: item.inArea, board_profession: item.inProf }));
+    return success(res, {
+      area: where.area, scope: 'board', requested_category_ids: requestedCategories,
+      board: { restricted, has_profession: wanted.length > 0, has_area: Boolean(where.cityId) },
+      providers: await withOpinions(shown),
+    });
   }
   const onlyRequested = req.query.matching === '1' && requestedCategories.length > 0;
   const byService = onlyRequested ? await serviceCategories() : null;

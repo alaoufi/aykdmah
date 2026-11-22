@@ -188,7 +188,15 @@
     "guest_services": "Meslek kategorileri",
     "guest_requests": "Hizmet talepleri",
     "guest_providers": "Hizmet verenler",
-    "guest_more": "Daha fazla göster"
+    "guest_more": "Daha fazla göster",
+    "filter_label": "Göster",
+    "filter_my_profession": "Mesleğim",
+    "filter_my_requests": "Taleplerime göre",
+    "filter_my_area": "Bölgem",
+    "filter_restricted": "🔒 Yönetim tarafından sınırlandı",
+    "filter_some": "Size en yakın önce",
+    "filter_none": "Herkes, size en yakın önce",
+    "board_none_filtered": "Şu an eşleşen yok. Herkesi görmek için bir filtreyi kapatın."
   },
   "location": {
     "country": "Ülke",

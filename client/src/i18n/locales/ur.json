@@ -188,7 +188,15 @@
     "guest_services": "پیشوں کی اقسام",
     "guest_requests": "سروس کی درخواستیں",
     "guest_providers": "سروس فراہم کرنے والے",
-    "guest_more": "مزید دکھائیں"
+    "guest_more": "مزید دکھائیں",
+    "filter_label": "دکھائیں",
+    "filter_my_profession": "میرا پیشہ",
+    "filter_my_requests": "میری درخواست کے مطابق",
+    "filter_my_area": "میرا علاقہ",
+    "filter_restricted": "🔒 انتظامیہ نے محدود کیا ہے",
+    "filter_some": "آپ کے قریب پہلے",
+    "filter_none": "سب، آپ کے قریب پہلے",
+    "board_none_filtered": "ابھی کچھ نہیں ملا۔ سب دیکھنے کے لیے ایک فلٹر ہٹائیں۔"
   },
   "location": {
     "country": "ملک",

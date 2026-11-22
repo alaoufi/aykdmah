@@ -188,7 +188,15 @@
     "guest_services": "Mga kategorya ng propesyon",
     "guest_requests": "Mga kahilingan sa serbisyo",
     "guest_providers": "Mga nagbibigay ng serbisyo",
-    "guest_more": "Ipakita pa"
+    "guest_more": "Ipakita pa",
+    "filter_label": "Ipakita",
+    "filter_my_profession": "Aking propesyon",
+    "filter_my_requests": "Ayon sa aking kahilingan",
+    "filter_my_area": "Aking lugar",
+    "filter_restricted": "🔒 Nilimitahan ng administrasyon",
+    "filter_some": "Pinakamalapit muna",
+    "filter_none": "Lahat, pinakamalapit muna",
+    "board_none_filtered": "Wala pang tugma. Patayin ang isang filter para makita ang lahat."
   },
   "location": {
     "country": "Bansa",

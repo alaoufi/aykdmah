@@ -5,6 +5,7 @@ import MatchingProviders from '../catalog/MatchingProviders';
 import WorkRequests from './WorkRequests';
 import { useAuth } from '../../hooks/useAuth';
 import { canRequestService } from '../../utils/canRequest';
+import usePublicSettings from '../../hooks/usePublicSettings';
 
 // A signed-in person's home (AYK-339, AYK-387).
 // AYK-397 (the owner: «في الرئيسية في الأعلى: طالبو الخدمة / مقدمو الخدمة. الافتراضي منطقتك وله يوسّع
@@ -22,7 +23,6 @@ const readTab = isProvider => {
   } catch (_) { /* private mode */ }
   return isProvider ? 'requests' : 'providers';
 };
-const SCOPES = ['area', 'city', 'region', 'all'];
 
 export default function RequesterHome() {
   const { t } = useTranslation();
@@ -30,9 +30,12 @@ export default function RequesterHome() {
   const isProvider = user?.role === 'provider';
   const canRequest = canRequestService(user);
   const [tab, setTab] = useState(() => readTab(isProvider));
-  const [scope, setScope] = useState('area');
+  const { settings } = usePublicSettings();
+  const restricted = settings.marketplace_restrict_views === true || settings.marketplace_restrict_views === 'true';
+  // No filter by default (AYK-440); kept for this visit only.
+  const [filters, setFilters] = useState({ prof: false, area: false });
+  const board = restricted ? { prof: true, area: true } : filters;
   const choose = next => { setTab(next); try { localStorage.setItem(TAB_KEY, next); } catch (_) { /* private mode */ } };
-  const asProviderBoard = tab === 'requests' && isProvider;
   const tabButton = (value, icon, label, hint) => (
     <button type="button" role="tab" aria-selected={tab === value} onClick={() => choose(value)} data-testid={`home-tab-${value}`}
       className={`flex-1 min-w-0 rounded-card px-3 py-2.5 text-start border-2 transition cursor-pointer ${tab === value
@@ -42,7 +45,6 @@ export default function RequesterHome() {
       <span className="block text-[12px] text-fg-muted mt-0.5">{hint}</span>
     </button>
   );
-  const scopeLabel = value => (value === 'area' ? t(asProviderBoard ? 'home.scope_coverage' : 'home.scope_district') : t(`home.scope_${value}`));
   return (
     <section className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-8 space-y-4" data-testid="requester-home">
       <div className="sticky top-[var(--header-h,56px)] z-20 bg-bg/90 backdrop-blur py-1 -mx-1 px-1 space-y-2" data-testid="home-tabs">
@@ -50,27 +52,26 @@ export default function RequesterHome() {
           {tabButton('requests', '🙋', t('home.tab_requests'), t(isProvider ? 'home.tab_requests_hint_provider' : 'home.tab_requests_hint'))}
           {tabButton('providers', '🛠️', t('home.tab_providers'), t('home.tab_providers_hint'))}
         </div>
-        {/* The circle: one's own area by default, then wider. */}
-        <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar" role="radiogroup" aria-label={t('home.scope_label')} data-testid="home-scope">
-          <span className="text-[12px] text-fg-muted shrink-0">📍 {t('home.scope_label')}</span>
-          {SCOPES.map(value => (
-            <button key={value} type="button" role="radio" aria-checked={scope === value} onClick={() => setScope(value)} data-testid={`home-scope-${value}`}
-              className={`shrink-0 rounded-full px-3 py-1 text-[12.5px] font-semibold border transition ${scope === value
-                ? 'bg-primary text-white border-primary' : 'bg-surface text-fg border-border hover:bg-surface-alt'}`}>
-              {scopeLabel(value)}
-            </button>
-          ))}
-          {/* AYK-400 «فك القيود»: every open request, any profession or area. Never the default. */}
-          {tab === 'requests' && (
-            <button type="button" role="radio" aria-checked={scope === 'open'} onClick={() => setScope(scope === 'open' ? 'area' : 'open')} data-testid="home-scope-open"
-              className={`shrink-0 rounded-full px-3 py-1 text-[12.5px] font-semibold border transition ${scope === 'open'
-                ? 'bg-primary text-white border-primary' : 'bg-surface text-fg border-dashed border-primary/60 hover:bg-surface-alt'}`}>
-              🔓 {t('work.unrestricted_label')}
-            </button>
-          )}
+        {/* AYK-440 (the owner): the board shows everyone, ranked by my profession (or what I asked for)
+            and my area. Two buttons filter: one, both, or none (none = no filter). When the
+            administration restricts views («تقييد العرض»), both are fixed on. */}
+        <div className="flex items-center gap-1.5 flex-wrap" role="group" aria-label={t('home.filter_label')} data-testid="home-filters">
+          <span className="text-[12px] text-fg-muted shrink-0">🔎 {t('home.filter_label')}</span>
+          {[['prof', isProvider ? 'home.filter_my_profession' : 'home.filter_my_requests'], ['area', 'home.filter_my_area']].map(([key, label]) => {
+            const on = restricted || filters[key];
+            return (
+              <button key={key} type="button" aria-pressed={on} disabled={restricted} onClick={() => setFilters(f => ({ ...f, [key]: !f[key] }))}
+                data-testid={`home-filter-${key}`}
+                className={`shrink-0 rounded-full px-3 py-1 text-[12.5px] font-semibold border transition ${on
+                  ? 'bg-primary text-white border-primary' : 'bg-surface text-fg border-border hover:bg-surface-alt'} ${restricted ? 'opacity-80 cursor-default' : ''}`}>
+                {on ? '✓ ' : ''}{t(label)}
+              </button>
+            );
+          })}
+          <span className="text-[11.5px] text-fg-muted">{t(restricted ? 'home.filter_restricted' : filters.prof || filters.area ? 'home.filter_some' : 'home.filter_none')}</span>
         </div>
       </div>
-      {tab === 'requests' ? <WorkRequests scope={scope} asProvider={isProvider} /> : (
+      {tab === 'requests' ? <WorkRequests board={board} asProvider={isProvider} /> : (
         <>
           {canRequest && (
             <div className="card tone-request p-4 flex flex-wrap items-center justify-between gap-2">
@@ -84,7 +85,7 @@ export default function RequesterHome() {
               </div>
             </div>
           )}
-          <MatchingProviders scope={scope === 'open' ? 'all' : scope} />
+          <MatchingProviders board={board} />
         </>
       )}
     </section>

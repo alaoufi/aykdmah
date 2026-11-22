@@ -188,7 +188,15 @@
     "guest_services": "തൊഴിൽ വിഭാഗങ്ങൾ",
     "guest_requests": "സേവന അഭ്യർത്ഥനകൾ",
     "guest_providers": "സേവനദാതാക്കൾ",
-    "guest_more": "കൂടുതൽ കാണിക്കുക"
+    "guest_more": "കൂടുതൽ കാണിക്കുക",
+    "filter_label": "കാണിക്കുക",
+    "filter_my_profession": "എന്റെ തൊഴിൽ",
+    "filter_my_requests": "എന്റെ അഭ്യർത്ഥന പ്രകാരം",
+    "filter_my_area": "എന്റെ പ്രദേശം",
+    "filter_restricted": "🔒 അഡ്മിനിസ്ട്രേഷൻ പരിമിതപ്പെടുത്തി",
+    "filter_some": "നിങ്ങൾക്ക് അടുത്തത് ആദ്യം",
+    "filter_none": "എല്ലാവരും, അടുത്തത് ആദ്യം",
+    "board_none_filtered": "ഇപ്പോൾ ഒന്നും പൊരുത്തപ്പെടുന്നില്ല. എല്ലാം കാണാൻ ഒരു ഫിൽട്ടർ ഓഫ് ചെയ്യുക."
   },
   "location": {
     "country": "രാജ്യം",

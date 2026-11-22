@@ -188,7 +188,15 @@
     "guest_services": "पेशों की श्रेणियाँ",
     "guest_requests": "सेवा अनुरोध",
     "guest_providers": "सेवा प्रदाता",
-    "guest_more": "और दिखाएँ"
+    "guest_more": "और दिखाएँ",
+    "filter_label": "दिखाएँ",
+    "filter_my_profession": "मेरा पेशा",
+    "filter_my_requests": "मेरे अनुरोध के अनुसार",
+    "filter_my_area": "मेरा क्षेत्र",
+    "filter_restricted": "🔒 प्रशासन द्वारा सीमित",
+    "filter_some": "आपके पास वाले पहले",
+    "filter_none": "सभी, आपके पास वाले पहले",
+    "board_none_filtered": "अभी कुछ मेल नहीं खाता। सभी देखने के लिए एक फ़िल्टर हटाएँ।"
   },
   "location": {
     "country": "देश",

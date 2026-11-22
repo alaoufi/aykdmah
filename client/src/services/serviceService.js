@@ -112,8 +112,10 @@ export async function listNearbyProviders({ lat, lon, radiusKm, categoryId, serv
 
 // Providers serving the signed-in user's area (or the given one) in a profession,
 // featured first, then by rating (AYK-035).
-export async function listMatchingProviders({ categoryId, serviceId, cityId, districtId, matching = false, scope = '' } = {}) {
+export async function listMatchingProviders({ categoryId, serviceId, cityId, districtId, matching = false, scope = '', board = null } = {}) {
   const params = {};
+  // AYK-440: the home board, ranked by the server; `board`: { prof, area } filters.
+  if (board) { params.board = '1'; if (board.prof) params.f_prof = '1'; if (board.area) params.f_area = '1'; }
   if (scope && scope !== 'area') params.scope = scope; // AYK-397
   if (matching) params.matching = '1';
   if (categoryId) params.category_id = categoryId;

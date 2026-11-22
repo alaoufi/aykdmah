@@ -188,7 +188,15 @@
     "guest_services": "Profession categories",
     "guest_requests": "Service requests",
     "guest_providers": "Service providers",
-    "guest_more": "Show more"
+    "guest_more": "Show more",
+    "filter_label": "Show",
+    "filter_my_profession": "My profession",
+    "filter_my_requests": "My requests",
+    "filter_my_area": "My area",
+    "filter_restricted": "🔒 Limited by the administration",
+    "filter_some": "Closest to you first",
+    "filter_none": "Everyone, closest to you first",
+    "board_none_filtered": "Nothing matches right now. Turn a filter off to see everyone."
   },
   "location": {
     "country": "Country",

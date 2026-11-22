@@ -1234,6 +1234,40 @@ if (!databasePrefix) {
     await db.query('DELETE FROM support_whatsapp_contacts WHERE id IN (?, ?)', [guest.id, mine.id]);
   });
 
+  test('AYK-440: the board shows every open request ranked by profession and area; filters and the admin switch narrow it', async () => {
+    const area = await simpleArea();
+    const svc = await db.queryOne('SELECT s.id, s.category_id FROM services s WHERE s.is_active = 1 AND s.deleted_at IS NULL ORDER BY s.id LIMIT 1');
+    const other = await db.queryOne('SELECT c.id FROM categories c WHERE c.is_active = 1 AND c.deleted_at IS NULL AND c.id <> ? ORDER BY c.id LIMIT 1', [svc.category_id]);
+    const farCity = await db.queryOne('SELECT d.id AS district_id, d.city_id FROM districts d WHERE d.city_id <> ? AND d.is_active = 1 ORDER BY d.id LIMIT 1', [area.city_id]);
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const far = await simpleRegister({ role: 'client', city_id: farCity.city_id, district_id: farCity.district_id });
+    const post = async (session, categoryId, city, district) => Number((await api('/requests', { method: 'POST', token: session.token, expected: 201, body: {
+      title: 'طلب للوحة', description: 'تجربة اللوحة', category_id: Number(categoryId), city_id: city, district_id: district, latitude: 24.7136, longitude: 46.6753 } })).id);
+    const both = await post(owner, svc.category_id, area.city_id, area.district_id);
+    const areaOnly = await post(owner, other.id, area.city_id, area.district_id);
+    const profOnly = await post(far, svc.category_id, farCity.city_id, farCity.district_id);
+    const neither = await post(far, other.id, farCity.city_id, farCity.district_id);
+    const provider = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await api('/users/me/role', { method: 'PUT', token: provider.token, body: { role: 'provider', quick: true, service_ids: [Number(svc.id)] } });
+    const ours = [both, areaOnly, profOnly, neither];
+    const board = async (q = '') => (await api(`/requests/nearby?board=1&limit=100${q}`, { token: provider.token })).map(row => Number(row.id)).filter(id => ours.includes(id));
+    await db.query("UPDATE settings SET setting_value = 'false' WHERE setting_key = 'marketplace_restrict_views'");
+    assert.deepEqual(await board(), [both, areaOnly, profOnly, neither], 'everything, ranked: both, area, profession, the rest');
+    assert.deepEqual(await board('&f_prof=1'), [both, profOnly], 'my profession only');
+    assert.deepEqual(await board('&f_area=1'), [both, areaOnly], 'my area only');
+    assert.deepEqual(await board('&f_prof=1&f_area=1'), [both], 'both filters');
+    await db.query("UPDATE settings SET setting_value = 'true' WHERE setting_key = 'marketplace_restrict_views'");
+    assert.deepEqual(await board(), [both], 'restricted by the administration: profession in the area only');
+    await db.query("UPDATE settings SET setting_value = 'false' WHERE setting_key = 'marketplace_restrict_views'");
+    // A requester sees others' requests ranked by their own area and what they asked for.
+    const viewer = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await post(viewer, svc.category_id, area.city_id, area.district_id);
+    const seen = (await api('/requests/nearby?board=1&limit=100&as=requester', { token: viewer.token })).map(row => Number(row.id)).filter(id => ours.includes(id));
+    assert.deepEqual(seen, [both, areaOnly, profOnly, neither]);
+    assert.ok(!(await api('/requests/nearby?board=1&limit=100&as=requester', { token: viewer.token })).some(row => row.client_contact_phone), 'no requester details to a requester');
+    for (const id of ours) await db.query('DELETE FROM requests WHERE id = ?', [id]);
+  });
+
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');

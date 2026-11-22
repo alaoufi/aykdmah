@@ -188,7 +188,15 @@
     "guest_services": "পেশার শ্রেণি",
     "guest_requests": "সেবার অনুরোধ",
     "guest_providers": "সেবা প্রদানকারী",
-    "guest_more": "আরও দেখুন"
+    "guest_more": "আরও দেখুন",
+    "filter_label": "দেখান",
+    "filter_my_profession": "আমার পেশা",
+    "filter_my_requests": "আমার অনুরোধ অনুযায়ী",
+    "filter_my_area": "আমার এলাকা",
+    "filter_restricted": "🔒 প্রশাসন সীমিত করেছে",
+    "filter_some": "আপনার কাছের আগে",
+    "filter_none": "সবাই, আপনার কাছের আগে",
+    "board_none_filtered": "এখন কিছু মেলেনি। সবাইকে দেখতে একটি ফিল্টার বন্ধ করুন।"
   },
   "location": {
     "country": "দেশ",

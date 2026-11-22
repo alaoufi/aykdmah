@@ -99,9 +99,30 @@ const getMy = asyncHandler(async (req, res) => {
   return paginate(res, items, total, page, limit);
 });
 
+// AYK-440: the administration's switch «تقييد العرض حسب المهنة والمنطقة» (marketplace_restrict_views).
+// Off (the default at launch): everyone sees everything, ranked by their profession and area, and the
+// buttons filter only if chosen. On: a provider sees their profession in their area, a requester
+// the providers of their area and requested professions (the buttons are then fixed on).
+async function restrictedViews() {
+  return Boolean(await require('../models/Setting').get('marketplace_restrict_views', false).catch(() => false));
+}
+
 const getNearby = asyncHandler(async (req, res) => {
   const { latitude, longitude, radius, category_id, service_id, city_id, status } = req.query;
   const { page, limit } = Request.pagination(req.query.page, req.query.limit);
+  if (req.query.board === '1' && req.user) {
+    const restricted = await restrictedViews();
+    const asProvider = req.user.role === 'provider' && req.query.as !== 'requester';
+    const board = await Request.findBoard({
+      viewerId: req.user.id, asProvider, page, limit,
+      filterProfession: restricted || req.query.f_prof === '1', filterArea: restricted || req.query.f_area === '1',
+    });
+    const categories = await providerCategoryIds(req);
+    const shown = await requestTranslation.attachTranslations(board.items.map(raw => withContact(req, raw, guestView(req, Request.publicView(raw)), categories)), readerLang(req));
+    return success(res, shown, undefined, 200, {
+      pagination: { page, limit, total: Number(board.total), totalPages: Math.ceil(Number(board.total) / limit), hasNext: page * limit < Number(board.total) },
+      board: { restricted, has_profession: board.has_profession, has_area: board.has_area } });
+  }
   const { items, total } = await Request.findNearby({
     latitude,
     longitude,

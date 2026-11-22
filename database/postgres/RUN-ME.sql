@@ -6831,6 +6831,12 @@ UPDATE users SET share_name = 1 WHERE share_name > 1;
 ALTER TABLE users ADD COLUMN IF NOT EXISTS allow_request_share SMALLINT NOT NULL DEFAULT 0;
 INSERT INTO schema_migrations(name) VALUES ('109_request_share_permission.sql');
 
+-- migrations/110_marketplace_restrict_views.sql
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description)
+VALUES ('marketplace_restrict_views', 'false', 'boolean', 'requests', 1, 'تقييد العرض حسب المهنة والمنطقة')
+ON CONFLICT (setting_key) DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('110_marketplace_restrict_views.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

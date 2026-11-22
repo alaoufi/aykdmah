@@ -15,6 +15,13 @@ export default function useOpenRequest() {
   const mine = request => Boolean(user) && Number(request.client_id) === Number(user.id);
   const forMyService = request => Boolean(user) && user.role === 'provider' && !mine(request) && request.status === 'open';
   const open = async request => {
+    // AYK-440 (the owner: «يشاهد… بشرط لا يراسلهم ولا يدخل على بياناتهم، سواء طالب خدمة أو زائر»): a
+    // visitor or a requester sees others' requests on the board but does not open them; a visitor
+    // is asked to sign in, a requester is offered to become a provider (as «تواصل» does).
+    if (!mine(request) && user?.role !== 'provider') {
+      if (!user) { navigate('/login', { state: { from: '/' } }); return; }
+      await contact(request); return;
+    }
     if (!forMyService(request)) { navigate(`/requests/${request.id}`); return; }
     setOpening(request.id);
     try {

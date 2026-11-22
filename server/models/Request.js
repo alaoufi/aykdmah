@@ -514,4 +514,69 @@ async function setHidden(id, hidden) {
   return queryOne('SELECT id, hidden_at FROM requests WHERE id = ? AND deleted_at IS NULL', [id]);
 }
 
-module.exports = { create, updateByOwner, findById, incrementViews, findByClient, findNearby, previousClients, updateStatus, setRemindersOff, softDelete, listAll, setHidden, pagination, optionalNumber, publicView, validateInput: validateCreate };
+// AYK-440 (the owner: «بداية التشغيل… لا نريد الآخرين ما يجدون أحدًا»): the home board. Every open
+// request (not the viewer's own, none hidden, none sent straight to another provider), ranked for the
+// viewer: same profession AND same area first, then same area, then same profession, then the rest.
+// `filterProfession` / `filterArea` keep only those (the buttons «مهنتي» / «حسب طلبي» and «منطقتي»;
+// both off = no filter). The profession of a provider: their services' professions; of a requester:
+// the professions they asked for. The area of a provider: their coverage districts (or coverage
+// city); of a requester: their city.
+async function findBoard({ viewerId, asProvider = false, filterProfession = false, filterArea = false, page = 1, limit = 20 } = {}) {
+  ({ page, limit } = pagination(page, limit));
+  const offset = (page - 1) * limit;
+  viewerId = Number(viewerId);
+  const where = ['r.deleted_at IS NULL', "r.status = 'open'", 'r.hidden_at IS NULL', 'r.client_id <> ?'];
+  const params = [viewerId];
+  where.push(asProvider ? '(r.direct_provider_id IS NULL OR r.direct_provider_id = ?)' : 'r.direct_provider_id IS NULL');
+  if (asProvider) params.push(viewerId);
+  let categories = []; let services = []; let districts = []; let cityId = null;
+  if (asProvider) {
+    const profile = await queryOne(`SELECT pp.service_ids, pp.category_id, COALESCE(pp.coverage_city_id, u.city_id) AS city_id
+      FROM provider_profiles pp JOIN users u ON u.id = pp.user_id WHERE pp.user_id = ?`, [viewerId]);
+    const raw = profile?.service_ids;
+    try { services = (Array.isArray(raw) ? raw : JSON.parse(raw || '[]') || []).map(Number).filter(Number.isSafeInteger); } catch (_) { services = []; }
+    categories = services.length
+      ? (await query(`SELECT DISTINCT category_id FROM services WHERE id IN (${services.map(() => '?').join(', ')})`, services)).map(row => Number(row.category_id)).filter(Boolean)
+      : profile?.category_id ? [Number(profile.category_id)] : [];
+    if (profile?.category_id && !categories.includes(Number(profile.category_id))) categories.push(Number(profile.category_id));
+    districts = (await query('SELECT district_id FROM provider_coverage_districts WHERE user_id = ?', [viewerId])).map(row => Number(row.district_id));
+    cityId = profile?.city_id ? Number(profile.city_id) : null;
+  } else {
+    categories = (await query('SELECT DISTINCT category_id FROM requests WHERE client_id = ? AND deleted_at IS NULL AND category_id IS NOT NULL', [viewerId])).map(row => Number(row.category_id));
+    const me = await queryOne('SELECT city_id FROM users WHERE id = ?', [viewerId]);
+    cityId = me?.city_id ? Number(me.city_id) : null;
+  }
+  const profParts = []; const profParams = [];
+  if (categories.length) { profParts.push(`r.category_id IN (${categories.map(() => '?').join(', ')})`); profParams.push(...categories); }
+  if (services.length) { profParts.push(`r.service_id IN (${services.map(() => '?').join(', ')})`); profParams.push(...services); }
+  const prof = profParts.length ? `(${profParts.join(' OR ')})` : 'FALSE';
+  const area = districts.length ? `r.district_id IN (${districts.map(() => '?').join(', ')})` : cityId ? 'r.city_id = ?' : 'FALSE';
+  const areaParams = districts.length ? districts : cityId ? [cityId] : [];
+  if (filterProfession) { where.push(prof); params.push(...profParams); }
+  if (filterArea) { where.push(area); params.push(...areaParams); }
+  const PREVIOUS = asProvider
+    ? `EXISTS (SELECT 1 FROM requests p WHERE p.client_id = r.client_id AND p.assigned_provider_id = ? AND p.id <> r.id
+         AND p.status IN (${PREVIOUS_CLIENT_STATUSES}) AND p.deleted_at IS NULL)` : 'FALSE';
+  const candidates = `SELECT r.id, r.is_urgent, r.created_at,
+      CASE WHEN ${prof} THEN 1 ELSE 0 END AS prof_match, CASE WHEN ${area} THEN 1 ELSE 0 END AS area_match,
+      CASE WHEN ${PREVIOUS} THEN 1 ELSE 0 END AS previous_client
+    FROM requests r WHERE ${where.join(' AND ')}`;
+  const candidateParams = [...profParams, ...areaParams, ...(asProvider ? [viewerId] : []), ...params];
+  const rows = await query(`SELECT id, prof_match, area_match, previous_client, COUNT(*) OVER () AS total FROM (${candidates}) board
+    ORDER BY (prof_match * area_match) DESC, area_match DESC, prof_match DESC, previous_client DESC, is_urgent DESC, created_at DESC, id DESC
+    LIMIT ? OFFSET ?`, [...candidateParams, Number(limit), Number(offset)]);
+  let items = [];
+  if (rows.length) {
+    const ids = rows.map(row => row.id);
+    const full = await query(`SELECT ${BASE_SELECT} FROM requests r ${BASE_JOINS} WHERE r.id IN (${ids.map(() => '?').join(', ')})`, ids);
+    const byId = new Map(full.map(row => [Number(row.id), row]));
+    items = rows.filter(row => byId.has(Number(row.id))).map(row => ({ ...byId.get(Number(row.id)),
+      board_profession: Number(row.prof_match) === 1, board_area: Number(row.area_match) === 1,
+      ...(asProvider ? { previous_client: Number(row.previous_client) === 1 } : {}) }));
+  }
+  const total = rows.length ? Number(rows[0].total) : offset === 0 ? 0
+    : Number((await query(`SELECT COUNT(*) AS total FROM (${candidates}) board`, candidateParams))[0].total);
+  return { items, total, has_profession: categories.length > 0, has_area: areaParams.length > 0 };
+}
+
+module.exports = { create, updateByOwner, findById, incrementViews, findByClient, findNearby, findBoard, previousClients, updateStatus, setRemindersOff, softDelete, listAll, setHidden, pagination, optionalNumber, publicView, validateInput: validateCreate };

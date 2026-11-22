@@ -69,7 +69,10 @@ export function AreaLine({ area, browsing, onPick }) {
 // On a request page (fixedArea + onContact) the list is that request's area and profession,
 // only providers working right now, each with a "Contact" button.
 // AYK-397: `scope` widens the circle from the home's bar: 'area' (default), 'city', 'region', 'all'.
-export default function MatchingProviders({ categoryId: fixedCategory = '', serviceId = '', showChips = true, title, fixedArea = null, onContact = null, scope = 'area' }) {
+// AYK-440: `board` ({ prof, area }) — the home board: every provider, ranked by the server (my area and
+// requested professions first), filtered only by the buttons chosen above.
+export default function MatchingProviders({ categoryId: fixedCategory = '', serviceId = '', showChips: showChipsProp = true, title, fixedArea = null, onContact = null, scope = 'area', board = null }) {
+  const showChips = showChipsProp && !board;
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
   const [categories, setCategories] = useState([]);
@@ -91,11 +94,11 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
     let alive = true;
     if (!quiet) setResult(null);
     const area = fixedArea || browse;
-    listMatchingProviders({ categoryId, serviceId, matching: !onContact && matching, cityId: area?.city_id, districtId: area?.district_id, scope: onContact ? '' : scope })
+    listMatchingProviders({ categoryId, serviceId, matching: !onContact && !board && matching, cityId: area?.city_id, districtId: area?.district_id, scope: onContact || board ? '' : scope, board })
       .then(data => { if (alive) setResult(onContact ? { ...data, providers: data.providers.filter(p => p.availability?.state === 'available') } : data); })
       .catch(() => { if (alive) setResult({ area: null, providers: [] }); });
     return () => { alive = false; };
-  }, [categoryId, serviceId, browse, fixedArea?.city_id, fixedArea?.district_id, Boolean(onContact), tick, matching, scope]);
+  }, [categoryId, serviceId, browse, fixedArea?.city_id, fixedArea?.district_id, Boolean(onContact), tick, matching, scope, board?.prof, board?.area]);
 
   // A requester can keep a provider in "My directory" and contact them directly (AYK-041).
   const { user } = useAuth();
@@ -121,7 +124,7 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
   // server's own order (featured, then rating) is kept inside each group.
   const asked = new Set((result?.requested_category_ids || []).map(Number));
   const askedFirst = rows => (asked.size ? [...rows.filter(p => asked.has(Number(p.category_id))), ...rows.filter(p => !asked.has(Number(p.category_id)))] : rows);
-  const shown = onContact ? (result?.providers || []) : askedFirst(widened ? availableFirst(cityList) : inDistrict);
+  const shown = onContact || board ? (result?.providers || []) : askedFirst(widened ? availableFirst(cityList) : inDistrict);
   // AYK-335 (the owner's screenshot): the same provider was on the page as a card and again in
   // the city box under it. The city box leaves out those already shown as cards.
   const listed = onlyPresent ? shown.filter(p => isPresent(p.availability)) : shown;
@@ -133,7 +136,7 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
     <div data-testid="providers-for-me">
       <div className="mb-3">
         <h2 className="text-xl md:text-2xl font-extrabold text-fg m-0">👷 {title || t('for_you.providers_title')}</h2>
-        {!fixedArea && scope === 'area' && <div className="mt-1"><AreaLine area={result?.area} browsing={Boolean(browse)} onPick={pick} /></div>}
+        {!fixedArea && !board && scope === 'area' && <div className="mt-1"><AreaLine area={result?.area} browsing={Boolean(browse)} onPick={pick} /></div>}
       </div>
       {!onContact && showChips && <div className="flex gap-2 my-2" role="tablist">{[[true,'chat.requested_professions'],[false,'requester.all_professions']].map(([value,key]) => <button key={key} data-testid={value ? 'requested-professions' : 'all-professions'} type="button" role="tab" aria-selected={matching === value} className="btn btn-outline btn-sm" onClick={() => {setMatching(value);setCategoryId('');}}>{t(key)}</button>)}</div>}
       {!onContact && matching && result?.requested_category_ids?.length === 0 && <p className="text-[12px] text-fg-muted">{t('chat.requested_professions_empty')}</p>}
@@ -143,14 +146,14 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
         <option value="">{t('requester.all_professions')}</option>
         {categories.map(c => <option key={c.id} value={c.id}>{optionLabel(c.icon, localizedName(c, lang), lang)}</option>)}
       </select>}
-      {(result?.area || scope === 'all') && result?.providers?.length > 0 && <div className="flex flex-wrap gap-2 mb-3" role="tablist" data-testid="providers-stats">
+      {(result?.area || scope === 'all' || board) && result?.providers?.length > 0 && <div className="flex flex-wrap gap-2 mb-3" role="tablist" data-testid="providers-stats">
         <button type="button" role="tab" aria-selected={!onlyPresent} className="btn btn-outline btn-sm" data-testid="show-all-providers"
           onClick={() => setOnlyPresent(false)}>👷 {t('requester.stat_total', { count: result.providers.length })}</button>
         <button type="button" role="tab" aria-selected={onlyPresent} className="btn btn-outline btn-sm" data-testid="show-present-providers"
           onClick={() => setOnlyPresent(true)}>🟢 {t('requester.stat_available', { count: availableCount })}</button>
       </div>}
       {result === null ? <p className="text-fg-muted">{t('common.loading')}</p>
-        : !result.area && scope !== 'all' ? <p className="card text-fg-muted text-[14px]">{t('for_you.no_area_hint')} <Link to="/profile#my-area" className="font-semibold text-primary">{t('for_you.edit_area')}</Link></p>
+        : !result.area && scope !== 'all' && !board ? <p className="card text-fg-muted text-[14px]">{t('for_you.no_area_hint')} <Link to="/profile#my-area" className="font-semibold text-primary">{t('for_you.edit_area')}</Link></p>
           : (
             <>
               {widened && (
