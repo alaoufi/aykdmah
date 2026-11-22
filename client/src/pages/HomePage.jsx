@@ -22,8 +22,8 @@ export default function HomePage() {
   if (user?.role === 'client' || (user?.role === 'provider' && Number(user.also_client) === 1)) {
     return (
       <div>
-        <div className="container max-w-5xl mx-auto px-4 pt-4"><AdSlot placement="home_top" /></div>
-        <RequesterHome />
+        {/* AYK-449 (the owner: «ارفع طالبو ومقدمو الخدمة تحت الهيدر مباشرة»): the top ad goes under them. */}
+        <RequesterHome topAd={<AdSlot placement="home_top" />} />
         {/* The other home placements show to signed-in requesters too (AYK-159). */}
         <div className="container max-w-5xl mx-auto px-4 space-y-4">
           <AdSlot placement="home_hero" />

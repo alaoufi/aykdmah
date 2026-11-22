@@ -5,6 +5,7 @@ import { listNearbyRequests } from '../../services/requestService';
 import RequestCard from '../requests/RequestCard';
 import useLiveRefresh from '../../hooks/useLiveRefresh';
 import RecentActivity from './RecentActivity';
+import { boardKey, recall, keep, narrow } from '../../utils/boardCache';
 import BoardEmpty from './BoardEmpty';
 import RequestAlertPrompt from '../provider/RequestAlertPrompt';
 
@@ -25,8 +26,16 @@ export default function WorkRequests({ className = '', scope = 'area', asProvide
     const params = board
       ? { limit: 30, board: '1', ...(board.prof ? { f_prof: '1' } : {}), ...(board.area ? { f_area: '1' } : {}), ...(asProvider ? {} : { as: 'requester' }) }
       : { limit: 20, ...(asProvider ? { matching: '1' } : {}), ...(scope !== 'area' || !asProvider ? { scope } : {}) };
+    // AYK-449: show at once what is known (this list kept, or the whole board narrowed), then the server's.
+    const key = boardKey('requests', params);
+    if (board) {
+      const known = recall(key);
+      const wide = known ? null : recall(boardKey('requests', { limit: 30, board: '1', ...(asProvider ? {} : { as: 'requester' }) }));
+      const quick = known || (wide && { data: narrow(wide.data, board), meta: { ...wide.meta, fallback: false } });
+      if (quick) { shown.current = true; setRows(quick.data); setMeta(quick.meta || {}); onMeta?.(quick.meta || null); }
+    }
     listNearbyRequests(params)
-      .then(result => { if (alive) { shown.current = true; setRows(result.data || []); setMeta(result.meta?.board || {}); onMeta?.(result.meta?.board || null); } })
+      .then(result => { if (alive) { const value = { data: result.data || [], meta: result.meta?.board || {} }; if (board) keep(key, value); shown.current = true; setRows(value.data); setMeta(value.meta); onMeta?.(result.meta?.board || null); } })
       .catch(() => { if (alive && !shown.current) setRows([]); });
     return () => { alive = false; };
   }, [tick, scope, asProvider, board?.prof, board?.area, board?.rev]);

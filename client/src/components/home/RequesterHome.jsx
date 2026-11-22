@@ -25,7 +25,7 @@ const readTab = isProvider => {
   return isProvider ? 'requests' : 'providers';
 };
 
-export default function RequesterHome() {
+export default function RequesterHome({ topAd = null }) {
   const { t } = useTranslation();
   const { user } = useAuth();
   const isProvider = user?.role === 'provider';
@@ -38,25 +38,26 @@ export default function RequesterHome() {
   const board = restricted ? { prof: true, area: true } : filters;
   const [boardMeta, setBoardMeta] = useState(null);
   const choose = next => { setTab(next); try { localStorage.setItem(TAB_KEY, next); } catch (_) { /* private mode */ } };
-  const tabButton = (value, icon, label, hint) => (
+  // AYK-449 (the owner: «احذف السطر الذي تحتها وقلّل ارتفاعها، وارفعها تحت الهيدر مباشرة»): one line each.
+  const tabButton = (value, icon, label) => (
     <button type="button" role="tab" aria-selected={tab === value} onClick={() => choose(value)} data-testid={`home-tab-${value}`}
-      className={`flex-1 min-w-0 rounded-card px-3 py-2.5 text-start border-2 transition cursor-pointer ${tab === value
+      className={`flex-1 min-w-0 rounded-card px-3 py-1.5 text-center border-2 transition cursor-pointer whitespace-nowrap ${tab === value
         ? (value === 'requests' ? 'tone-request border-primary shadow-soft' : 'tone-provider border-primary shadow-soft')
         : 'bg-surface border-border opacity-80 hover:opacity-100'}`}>
-      <span className="block text-[15px] font-extrabold text-fg">{icon} {label}</span>
-      <span className="block text-[12px] text-fg-muted mt-0.5">{hint}</span>
+      <span className="block text-[14.5px] font-extrabold text-fg">{icon} {label}</span>
     </button>
   );
   return (
-    <section className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-8 space-y-4" data-testid="requester-home">
-      <div className="sticky top-[var(--header-h,56px)] z-20 bg-bg/90 backdrop-blur py-1 -mx-1 px-1 space-y-2" data-testid="home-tabs">
+    <section className="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 pt-0 pb-4 md:pt-2 md:pb-8 space-y-3" data-testid="requester-home">
+      <div className="sticky top-[var(--header-h,56px)] z-20 bg-bg/90 backdrop-blur py-1 -mx-1 px-1 space-y-1.5" data-testid="home-tabs">
         <div role="tablist" className="flex gap-2">
-          {tabButton('requests', '🙋', t('home.tab_requests'), t(isProvider ? 'home.tab_requests_hint_provider' : 'home.tab_requests_hint'))}
-          {tabButton('providers', '🛠️', t('home.tab_providers'), t('home.tab_providers_hint'))}
+          {tabButton('requests', '🙋', t('home.tab_requests'))}
+          {tabButton('providers', '🛠️', t('home.tab_providers'))}
         </div>
         {/* AYK-440/444: everyone, ranked by my profession (or my requests) and my area; two boxes narrow it. */}
         <BoardFilters value={filters} onChange={setFilters} asProvider={isProvider} restricted={restricted} meta={boardMeta} />
       </div>
+      {topAd}
       {tab === 'requests' ? <WorkRequests board={board} asProvider={isProvider} onMeta={setBoardMeta} /> : (
         <>
           {canRequest && (

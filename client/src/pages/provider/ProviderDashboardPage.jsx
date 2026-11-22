@@ -20,6 +20,7 @@ import RecentActivity from '../../components/home/RecentActivity';
 import BoardEmpty from '../../components/home/BoardEmpty';
 import RequestAlertPrompt from '../../components/provider/RequestAlertPrompt';
 import BoardFilters from '../../components/home/BoardFilters';
+import { boardKey, recall, keep, narrow } from '../../utils/boardCache';
 
 export default function ProviderDashboardPage() {
   const { t } = useTranslation();
@@ -59,8 +60,12 @@ export default function ProviderDashboardPage() {
     setError(false);
     // Requests in the provider's own professions and districts only (AYK-040).
     const params = { limit: 50, board: '1', ...(board.prof ? { f_prof: '1' } : {}), ...(board.area ? { f_area: '1' } : {}) };
+    // AYK-449: a box ticked shows at once (this list kept, or the whole board narrowed); the server's follows.
+    const key = boardKey('dashboard', params);
+    const known = recall(key) || (() => { const wide = recall(boardKey('dashboard', { limit: 50, board: '1' })); return wide && { data: narrow(wide.data, board), meta: { ...wide.meta, fallback: false } }; })();
+    if (known && shown.current) { setNearby(known.data); setBoardMeta(known.meta || {}); }
     Promise.all([
-      listNearbyRequests(params),
+      listNearbyRequests(params).then(r => { keep(key, { data: r.data || [], meta: r.meta?.board || {} }); return r; }),
       listMyOffers({ limit: 5 }).then(r => r.data || []),
     ])
       .then(([n, o]) => { if (current) { setNearby(n.data || []); setBoardMeta(n.meta?.board || {}); setOffers(o); } })

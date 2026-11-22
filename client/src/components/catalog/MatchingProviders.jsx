@@ -16,6 +16,7 @@ import { optionLabel } from '../../utils/optionLabel';
 import ExpandableText from '../common/ExpandableText';
 import ContactButtons from '../providers/ContactButtons';
 import BoardEmpty from '../home/BoardEmpty';
+import { boardKey, recall, keep, narrow } from '../../utils/boardCache';
 import ShareMenu from '../common/ShareMenu';
 import { providerLink } from '../providers/ShareProviderLink';
 import useContactIntro from '../../hooks/useContactIntro';
@@ -93,10 +94,14 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
   const [tick, quiet] = useLiveRefresh(['providers:changed']);
   useEffect(() => {
     let alive = true;
-    if (!quiet) setResult(null);
+    // AYK-449: on the board, a box ticked shows at once (kept, or the whole list narrowed).
+    const boardKeyNow = board ? boardKey('providers', { prof: Boolean(board.prof), area: Boolean(board.area) }) : null;
+    const quick = board ? (recall(boardKeyNow) || (() => { const wide = recall(boardKey('providers', { prof: false, area: false })); return wide && { ...wide, providers: narrow(wide.providers, board), board: { ...wide.board, fallback: false } }; })()) : null;
+    if (quick) setResult(quick);
+    else if (!quiet) setResult(null);
     const area = fixedArea || browse;
     listMatchingProviders({ categoryId, serviceId, matching: !onContact && !board && matching, cityId: area?.city_id, districtId: area?.district_id, scope: onContact || board ? '' : scope, board })
-      .then(data => { if (alive && board) onMeta?.(data.board || null); if (alive) setResult(onContact ? { ...data, providers: data.providers.filter(p => p.availability?.state === 'available') } : data); })
+      .then(data => { if (board) keep(boardKeyNow, data); if (alive && board) onMeta?.(data.board || null); if (alive) setResult(onContact ? { ...data, providers: data.providers.filter(p => p.availability?.state === 'available') } : data); })
       .catch(() => { if (alive) setResult({ area: null, providers: [] }); });
     return () => { alive = false; };
   }, [categoryId, serviceId, browse, fixedArea?.city_id, fixedArea?.district_id, Boolean(onContact), tick, matching, scope, board?.prof, board?.area, board?.rev]);

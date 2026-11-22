@@ -18,7 +18,7 @@ export default function BoardFilters({ value, onChange, asProvider = false, rest
     return (
       <button key={key} type="button" role="checkbox" aria-checked={active} disabled={restricted}
         onClick={() => onChange({ ...value, [key]: !value[key] })} data-testid={`${testId === 'home-filters' ? 'home-filter' : `${testId}-filter`}-${key}`}
-        className={`flex-1 min-w-0 inline-flex items-center justify-center gap-1.5 rounded-card font-extrabold transition border-0 ${small ? 'h-9 text-[13px]' : 'h-11 text-[15px]'} ${active
+        className={`flex-1 min-w-0 inline-flex items-center justify-center gap-1.5 rounded-card font-extrabold transition border-0 whitespace-nowrap ${small ? 'h-8 text-[12.5px]' : 'h-9 text-[14px]'} ${active
           ? 'bg-primary text-white shadow-sm' : 'bg-transparent text-fg hover:bg-surface'} ${restricted ? 'cursor-default opacity-90' : 'cursor-pointer'}`}>
         {/* AYK-445 (the owner's screenshot): a small square in each box, ticked when chosen. */}
         <span aria-hidden="true" className={`inline-grid place-items-center shrink-0 rounded-[6px] ${small ? 'w-4 h-4 text-[10px]' : 'w-5 h-5 text-[12px]'} ${active
@@ -28,14 +28,15 @@ export default function BoardFilters({ value, onChange, asProvider = false, rest
   };
   return (
     <div data-testid={testId}>
-      <div className={`rounded-card border border-border bg-surface ${small ? 'p-2' : 'p-2.5'}`} role="group" aria-label={t('home.filter_title')}>
-        <div className={`font-extrabold text-fg ${small ? 'text-[12.5px] mb-1.5' : 'text-[14px] mb-2'}`}>{t('home.filter_title')}</div>
-        <div className="flex gap-1.5 rounded-card bg-surface-alt p-1">
+      {/* AYK-449 (the owner: «اجعل اعرض لي بنفس سطر الخيارات وقلل الارتفاع»): one low row. */}
+      <div className="flex items-center gap-2 rounded-card border border-border bg-surface p-1" role="group" aria-label={t('home.filter_title')}>
+        <div className={`shrink-0 font-extrabold text-fg ps-1.5 ${small ? 'text-[12px]' : 'text-[13.5px]'}`}>{t('home.filter_title')}</div>
+        <div className="flex-1 min-w-0 flex gap-1 rounded-card bg-surface-alt p-0.5">
           {box('prof', t(asProvider ? 'home.filter_my_profession' : requestsLabel(meta)))}
           {box('area', t('home.filter_my_area'))}
         </div>
       </div>
-      <p className={`text-fg-muted mt-1 mb-0 ${small ? 'text-[11.5px]' : 'text-[12px]'}`}>
+      <p className={`text-fg-muted mt-0.5 mb-0 ${small ? 'text-[11px]' : 'text-[11.5px]'}`}>
         {restricted ? t('home.filter_restricted') : hint || t(stateKey(on, asProvider, meta))}
         {/* AYK-447: chosen sections (no request yet) can be changed. */}
         {!asProvider && !small && Number(meta?.my_requests) === 0 && Number(meta?.my_interests) > 0 && !editing && (
