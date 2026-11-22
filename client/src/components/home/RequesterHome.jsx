@@ -6,6 +6,7 @@ import WorkRequests from './WorkRequests';
 import { useAuth } from '../../hooks/useAuth';
 import { canRequestService } from '../../utils/canRequest';
 import usePublicSettings from '../../hooks/usePublicSettings';
+import BoardFilters from './BoardFilters';
 
 // A signed-in person's home (AYK-339, AYK-387).
 // AYK-397 (the owner: «في الرئيسية في الأعلى: طالبو الخدمة / مقدمو الخدمة. الافتراضي منطقتك وله يوسّع
@@ -52,24 +53,8 @@ export default function RequesterHome() {
           {tabButton('requests', '🙋', t('home.tab_requests'), t(isProvider ? 'home.tab_requests_hint_provider' : 'home.tab_requests_hint'))}
           {tabButton('providers', '🛠️', t('home.tab_providers'), t('home.tab_providers_hint'))}
         </div>
-        {/* AYK-440 (the owner): the board shows everyone, ranked by my profession (or what I asked for)
-            and my area. Two buttons filter: one, both, or none (none = no filter). When the
-            administration restricts views («تقييد العرض»), both are fixed on. */}
-        <div className="flex items-center gap-1.5 flex-wrap" role="group" aria-label={t('home.filter_label')} data-testid="home-filters">
-          <span className="text-[12px] text-fg-muted shrink-0">🔎 {t('home.filter_label')}</span>
-          {[['prof', isProvider ? 'home.filter_my_profession' : 'home.filter_my_requests'], ['area', 'home.filter_my_area']].map(([key, label]) => {
-            const on = restricted || filters[key];
-            return (
-              <button key={key} type="button" aria-pressed={on} disabled={restricted} onClick={() => setFilters(f => ({ ...f, [key]: !f[key] }))}
-                data-testid={`home-filter-${key}`}
-                className={`shrink-0 rounded-full px-3 py-1 text-[12.5px] font-semibold border transition ${on
-                  ? 'bg-primary text-white border-primary' : 'bg-surface text-fg border-border hover:bg-surface-alt'} ${restricted ? 'opacity-80 cursor-default' : ''}`}>
-                {on ? '✓ ' : ''}{t(label)}
-              </button>
-            );
-          })}
-          <span className="text-[11.5px] text-fg-muted">{t(restricted ? 'home.filter_restricted' : filters.prof || filters.area ? 'home.filter_some' : 'home.filter_none')}</span>
-        </div>
+        {/* AYK-440/444: everyone, ranked by my profession (or my requests) and my area; two boxes narrow it. */}
+        <BoardFilters value={filters} onChange={setFilters} asProvider={isProvider} restricted={restricted} />
       </div>
       {tab === 'requests' ? <WorkRequests board={board} asProvider={isProvider} /> : (
         <>

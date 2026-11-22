@@ -5,6 +5,7 @@ import { localizedJoinedName } from '../../utils/localizeJoined';
 import { formatRelativeTime } from '../../utils/formatters';
 import { useAuth } from '../../hooks/useAuth';
 import usePublicSettings from '../../hooks/usePublicSettings';
+import BoardFilters from './BoardFilters';
 
 // AYK-441 (the owner: «إذا دخل العضو ولم يجد أحدًا خرج ولم يعد، يعتبره ميتًا»): the requests agreed on
 // lately show on every board, so the place shows it is alive.
@@ -32,11 +33,11 @@ export default function RecentActivity({ asProvider = false, className = '' }) {
       .catch(() => { if (alive) setRows([]); });
     return () => { alive = false; };
   }, [days, on.prof, on.area, asProvider, Boolean(user)]);
-  const chip = (active, label, onClick, testId, locked = false) => (
-    <button type="button" aria-pressed={active} onClick={onClick} disabled={locked} data-testid={testId}
+  const chip = (active, label, onClick, testId) => (
+    <button type="button" aria-pressed={active} onClick={onClick} data-testid={testId}
       className={`shrink-0 rounded-full px-2.5 py-0.5 text-[12px] font-semibold border transition ${active
-        ? 'bg-primary text-white border-primary' : 'bg-surface text-fg border-border hover:bg-surface-alt'} ${locked ? 'opacity-80 cursor-default' : ''}`}>
-      {active && label !== t('home.recent_all_professions') ? '✓ ' : ''}{label}
+        ? 'bg-primary text-white border-primary' : 'bg-surface text-fg border-border hover:bg-surface-alt'}`}>
+      {active ? '✓ ' : ''}{label}
     </button>
   );
   return (
@@ -47,15 +48,7 @@ export default function RecentActivity({ asProvider = false, className = '' }) {
         <span className="text-[11.5px] text-fg-muted shrink-0">🕒 {t('home.recent_period')}</span>
         {DAYS.map(value => chip(days === value, t(`home.recent_days_${value}`), () => setDays(value), `recent-days-${value}`))}
       </div>
-      {user && (
-        <div className="flex items-center gap-1.5 flex-wrap mb-2" role="group" aria-label={t('home.filter_label')} data-testid="recent-filters">
-          <span className="text-[11.5px] text-fg-muted shrink-0">🔎 {t('home.filter_label')}</span>
-          {chip(!on.prof && !on.area, t('home.recent_all_professions'), () => setFilters({ prof: false, area: false }), 'recent-filter-all', restricted)}
-          {chip(on.prof, t(asProvider ? 'home.filter_my_profession' : 'home.filter_my_requests'), () => setFilters(f => ({ ...f, prof: !f.prof })), 'recent-filter-prof', restricted)}
-          {chip(on.area, t('home.filter_my_area'), () => setFilters(f => ({ ...f, area: !f.area })), 'recent-filter-area', restricted)}
-          {restricted && <span className="text-[11px] text-fg-muted">{t('home.filter_restricted')}</span>}
-        </div>
-      )}
+      {user && <div className="mb-2"><BoardFilters size="sm" testId="recent" value={filters} onChange={setFilters} asProvider={asProvider} restricted={restricted} /></div>}
       {rows === null ? <div className="h-10 rounded-card bg-surface-alt animate-pulse" />
         : !rows.length ? <p className="text-[12.5px] text-fg-muted m-0 py-1" data-testid="recent-none">{t('home.recent_none')}</p>
           : (

@@ -19,6 +19,7 @@ import usePublicSettings from '../../hooks/usePublicSettings';
 import RecentActivity from '../../components/home/RecentActivity';
 import BoardEmpty from '../../components/home/BoardEmpty';
 import RequestAlertPrompt from '../../components/provider/RequestAlertPrompt';
+import BoardFilters from '../../components/home/BoardFilters';
 
 export default function ProviderDashboardPage() {
   const { t } = useTranslation();
@@ -90,21 +91,9 @@ export default function ProviderDashboardPage() {
           <h3 style={{ margin: 0 }}>📨 {t(unrestricted ? 'work.all_open_title' : 'work.requests_title')}</h3>
           <Link to="/opportunities" className="text-[13px] font-semibold">{t('work.see_all')}</Link>
         </div>
-        <div className="flex items-center gap-1.5 flex-wrap mb-3" role="group" aria-label={t('home.filter_label')} data-testid="home-filters">
-          <span className="text-[12px] text-fg-muted shrink-0">🔎 {t('home.filter_label')}</span>
-          {[['prof', 'home.filter_my_profession'], ['area', 'home.filter_my_area']].map(([key, label]) => {
-            const on = board[key];
-            return (
-              <button key={key} type="button" aria-pressed={on} disabled={restricted} onClick={() => setFilters(f => ({ ...f, [key]: !f[key] }))}
-                data-testid={`home-filter-${key}`}
-                className={`shrink-0 rounded-full px-3 py-1 text-[12.5px] font-semibold border transition ${on
-                  ? 'bg-primary text-white border-primary' : 'bg-surface text-fg border-border hover:bg-surface-alt'} ${restricted ? 'opacity-80 cursor-default' : ''}`}>
-                {on ? '✓ ' : ''}{t(label)}
-              </button>
-            );
-          })}
-          <span className="text-[11.5px] text-fg-muted">{t(restricted ? 'home.filter_restricted' : unrestricted ? 'home.filter_none' : 'home.filter_some')}</span>
-        </div>
+        <BoardFilters value={filters} onChange={setFilters} asProvider restricted={restricted}
+          hint={boardMeta.has_profession === false ? t('home.filter_need_services') : ''} />
+        <div className="mb-3" />
         <RequestAlertPrompt noneForMe={!nearby.some(r => r.board_profession && r.board_area)} />
         {boardMeta.fallback && <p className="text-[12.5px] rounded-card bg-amber-50 text-amber-900 px-3 py-2 mb-2" role="status" data-testid="board-fallback">💡 {t('home.board_fallback')}</p>}
         {nearby.length === 0

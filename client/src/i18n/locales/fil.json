@@ -189,13 +189,12 @@
     "guest_requests": "Mga kahilingan sa serbisyo",
     "guest_providers": "Mga nagbibigay ng serbisyo",
     "guest_more": "Ipakita pa",
-    "filter_label": "Ipakita",
     "filter_my_profession": "Aking propesyon",
-    "filter_my_requests": "Ayon sa aking kahilingan",
+    "filter_my_requests": "Ang request ko",
     "filter_my_area": "Aking lugar",
     "filter_restricted": "🔒 Nilimitahan ng administrasyon",
     "filter_some": "Pinakamalapit muna",
-    "filter_none": "Lahat, pinakamalapit muna",
+    "filter_none": "Walang pinili: lahat ay lalabas, pinakamalapit muna",
     "board_none_filtered": "Wala pang tugma. Patayin ang isang filter para makita ang lahat.",
     "board_fallback": "Wala pang tumutugma sa pinili mo, kaya narito ang ibang mga request, simula sa pinakamalapit sa iyo.",
     "board_fallback_providers": "Wala pang tumutugma sa pinili mo, kaya narito ang ibang service provider, simula sa pinakamalapit sa iyo.",
@@ -222,9 +221,10 @@
     "recent_days_7": "Huling 7 araw",
     "recent_days_30": "Huling 30 araw",
     "recent_days_90": "Huling 90 araw",
-    "recent_all_professions": "Lahat ng propesyon",
     "recent_agreed": "Nagkasundo {{when}}",
-    "recent_none": "Wala pang kasunduan sa panahong ito. Subukan ang mas mahabang panahon o lahat ng propesyon."
+    "recent_none": "Wala pang kasunduan sa panahong ito. Subukan ang mas mahabang panahon o lahat ng propesyon.",
+    "filter_title": "Ipakita sa akin",
+    "filter_need_services": "Idagdag muna ang mga serbisyo mo sa «Aking profile» para gumana ang «Aking propesyon»."
   },
   "location": {
     "country": "Bansa",

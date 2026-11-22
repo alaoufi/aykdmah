@@ -189,13 +189,12 @@
     "guest_requests": "Service requests",
     "guest_providers": "Service providers",
     "guest_more": "Show more",
-    "filter_label": "Show",
     "filter_my_profession": "My profession",
-    "filter_my_requests": "My requests",
+    "filter_my_requests": "My request",
     "filter_my_area": "My area",
     "filter_restricted": "🔒 Limited by the administration",
     "filter_some": "Closest to you first",
-    "filter_none": "Everyone, closest to you first",
+    "filter_none": "Nothing chosen: everyone shows, closest to you first",
     "board_none_filtered": "Nothing matches right now. Turn a filter off to see everyone.",
     "board_fallback": "Nothing matches your choice yet, so here are the other requests, nearest to you first.",
     "board_fallback_providers": "Nobody matches your choice yet, so here are the other service providers, nearest to you first.",
@@ -222,9 +221,10 @@
     "recent_days_7": "Last 7 days",
     "recent_days_30": "Last 30 days",
     "recent_days_90": "Last 90 days",
-    "recent_all_professions": "All professions",
     "recent_agreed": "Agreed {{when}}",
-    "recent_none": "No agreements in this period yet. Try a longer period or all professions."
+    "recent_none": "No agreements in this period yet. Try a longer period or all professions.",
+    "filter_title": "Show me",
+    "filter_need_services": "Add your services in «My profile» first for «My profession» to work."
   },
   "location": {
     "country": "Country",

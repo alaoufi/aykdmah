@@ -189,13 +189,12 @@
     "guest_requests": "የአገልግሎት ጥያቄዎች",
     "guest_providers": "አገልግሎት ሰጪዎች",
     "guest_more": "ተጨማሪ አሳይ",
-    "filter_label": "አሳይ",
     "filter_my_profession": "ሙያዬ",
-    "filter_my_requests": "በጥያቄዬ መሰረት",
+    "filter_my_requests": "ጥያቄዬ",
     "filter_my_area": "አካባቢዬ",
     "filter_restricted": "🔒 በአስተዳደሩ የተገደበ",
     "filter_some": "ቅርብዎ መጀመሪያ",
-    "filter_none": "ሁሉም፣ ቅርብዎ መጀመሪያ",
+    "filter_none": "ምንም አልተመረጠም፦ ሁሉም ይታያሉ፣ ቅርብ ያሉት መጀመሪያ",
     "board_none_filtered": "አሁን የሚዛመድ የለም። ሁሉንም ለማየት አንድ ማጣሪያ ያጥፉ።",
     "board_fallback": "ከምርጫዎ ጋር የሚስማማ ገና የለም፣ ስለዚህ ሌሎቹ ጥያቄዎች ከቅርብዎ ጀምሮ እነሆ።",
     "board_fallback_providers": "ከምርጫዎ ጋር የሚስማማ ገና ማንም የለም፣ ስለዚህ ሌሎቹ አገልግሎት ሰጪዎች ከቅርብዎ ጀምሮ እነሆ።",
@@ -222,9 +221,10 @@
     "recent_days_7": "ያለፉት 7 ቀናት",
     "recent_days_30": "ያለፉት 30 ቀናት",
     "recent_days_90": "ያለፉት 90 ቀናት",
-    "recent_all_professions": "ሁሉም ሙያዎች",
     "recent_agreed": "ስምምነት {{when}}",
-    "recent_none": "በዚህ ጊዜ ገና ስምምነት የለም። ረዘም ያለ ጊዜ ወይም ሁሉንም ሙያዎች ይሞክሩ።"
+    "recent_none": "በዚህ ጊዜ ገና ስምምነት የለም። ረዘም ያለ ጊዜ ወይም ሁሉንም ሙያዎች ይሞክሩ።",
+    "filter_title": "አሳየኝ",
+    "filter_need_services": "«ሙያዬ» እንዲሠራ መጀመሪያ በ«መገለጫዬ» አገልግሎቶችዎን ያክሉ።"
   },
   "location": {
     "country": "ሀገር",

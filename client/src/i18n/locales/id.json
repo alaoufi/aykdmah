@@ -189,13 +189,12 @@
     "guest_requests": "Permintaan layanan",
     "guest_providers": "Penyedia layanan",
     "guest_more": "Tampilkan lagi",
-    "filter_label": "Tampilkan",
     "filter_my_profession": "Profesi saya",
-    "filter_my_requests": "Sesuai permintaan saya",
+    "filter_my_requests": "Permintaan saya",
     "filter_my_area": "Wilayah saya",
     "filter_restricted": "🔒 Dibatasi oleh administrasi",
     "filter_some": "Yang terdekat dulu",
-    "filter_none": "Semua, yang terdekat dulu",
+    "filter_none": "Tidak ada pilihan: semua tampil, yang terdekat dulu",
     "board_none_filtered": "Belum ada yang cocok. Matikan satu filter untuk melihat semua.",
     "board_fallback": "Belum ada yang cocok dengan pilihan Anda, jadi ini permintaan lainnya, dimulai dari yang terdekat.",
     "board_fallback_providers": "Belum ada yang cocok dengan pilihan Anda, jadi ini penyedia layanan lainnya, dimulai dari yang terdekat.",
@@ -222,9 +221,10 @@
     "recent_days_7": "7 hari terakhir",
     "recent_days_30": "30 hari terakhir",
     "recent_days_90": "90 hari terakhir",
-    "recent_all_professions": "Semua profesi",
     "recent_agreed": "Sepakat {{when}}",
-    "recent_none": "Belum ada kesepakatan dalam periode ini. Coba periode lebih panjang atau semua profesi."
+    "recent_none": "Belum ada kesepakatan dalam periode ini. Coba periode lebih panjang atau semua profesi.",
+    "filter_title": "Tampilkan",
+    "filter_need_services": "Tambahkan layanan Anda di «Profil saya» dulu agar «Profesi saya» berfungsi."
   },
   "location": {
     "country": "Negara",

@@ -189,13 +189,12 @@
     "guest_requests": "Hizmet talepleri",
     "guest_providers": "Hizmet verenler",
     "guest_more": "Daha fazla göster",
-    "filter_label": "Göster",
     "filter_my_profession": "Mesleğim",
-    "filter_my_requests": "Taleplerime göre",
+    "filter_my_requests": "Talebim",
     "filter_my_area": "Bölgem",
     "filter_restricted": "🔒 Yönetim tarafından sınırlandı",
     "filter_some": "Size en yakın önce",
-    "filter_none": "Herkes, size en yakın önce",
+    "filter_none": "Seçim yok: herkes görünür, size en yakın önce",
     "board_none_filtered": "Şu an eşleşen yok. Herkesi görmek için bir filtreyi kapatın.",
     "board_fallback": "Seçiminize uyan henüz bir şey yok; size en yakından başlayarak diğer talepler burada.",
     "board_fallback_providers": "Seçiminize uyan henüz kimse yok; size en yakından başlayarak diğer hizmet sağlayıcılar burada.",
@@ -222,9 +221,10 @@
     "recent_days_7": "Son 7 gün",
     "recent_days_30": "Son 30 gün",
     "recent_days_90": "Son 90 gün",
-    "recent_all_professions": "Tüm meslekler",
     "recent_agreed": "Anlaşma: {{when}}",
-    "recent_none": "Bu sürede henüz anlaşma yok. Daha uzun bir süre veya tüm meslekleri deneyin."
+    "recent_none": "Bu sürede henüz anlaşma yok. Daha uzun bir süre veya tüm meslekleri deneyin.",
+    "filter_title": "Bana göster",
+    "filter_need_services": "«Mesleğim»in çalışması için önce «Profilim»de hizmetlerinizi ekleyin."
   },
   "location": {
     "country": "Ülke",
