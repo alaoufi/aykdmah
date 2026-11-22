@@ -154,8 +154,9 @@ export default function RequestDetailsPage() {
   };
 
   const negotiateOffer = async (offer) => {
-    const mayNegotiate = request.status === 'open' && offer.status === 'pending' &&
-      (isOwner || (user?.role === 'provider' && Number(user.id) === Number(offer.provider_id)));
+    // AYK-435: the requester can always reach a provider they talked to; the provider while open.
+    const mayNegotiate = isOwner || (request.status === 'open' && offer.status === 'pending' &&
+      user?.role === 'provider' && Number(user.id) === Number(offer.provider_id));
     if (!mayNegotiate || negotiationRef.current) return;
     const scope = scopeRef.current;
     const pending = { scope, offerId: offer.id };
@@ -363,14 +364,14 @@ export default function RequestDetailsPage() {
           <p className="text-sm text-muted mb-3">{t('request.contact_hint')}</p>
           {/* AYK-427: call, WhatsApp (when the requester shows them) and chat, as clear buttons. */}
           <ContactButtons title={`💬 ${t('request.contact_owner')}`} phone={request.client_contact_phone} whatsapp={request.client_contact_whatsapp}
-            busy={submitting} onChat={contactOwner} testId="request-owner-contact" intro={intro({ request: translation.title })} />
+            busy={submitting} onChat={contactOwner} testId="request-owner-contact" intro={intro({ request: translation.title })} link={`/requests/${request.id}`} />
         </div>
       )}
       {/* AYK-427: a signed-in requester sees the same way to contact; it explains that contact is for
           service providers and offers to become one (AYK-426). */}
       {user && user.role !== 'provider' && !isOwner && request.status === 'open' && (
         <div className="card mb-4" data-testid="requester-contact">
-          <ContactButtons title={`💬 ${t('request.contact_owner')}`} onChat={() => contactAsRequester(request)} testId="request-owner-contact" intro={intro({ request: translation.title })} />
+          <ContactButtons title={`💬 ${t('request.contact_owner')}`} onChat={() => contactAsRequester(request)} testId="request-owner-contact" intro={intro({ request: translation.title })} link={`/requests/${request.id}`} />
         </div>
       )}
 
@@ -426,14 +427,14 @@ export default function RequestDetailsPage() {
                       <Button size="sm" variant="outline" onClick={() => onReject(o.id)}>{t('offer.reject')}</Button>
                     </div>
                   )}
-                  {o.status === 'pending' && request.status === 'open' &&
-                    (isOwner || (user?.role === 'provider' && Number(user.id) === Number(o.provider_id))) && (
+                  {(isOwner || (o.status === 'pending' && request.status === 'open' &&
+                    user?.role === 'provider' && Number(user.id) === Number(o.provider_id))) && (
                     // AYK-430: call, WhatsApp (when the provider shows them) and chat as clear buttons.
                     <div data-negotiate-offer-id={o.id}>
                       <ContactButtons size="sm" className="mt-2" testId="offer-contact"
                         phone={isOwner ? o.public_phone : null} whatsapp={isOwner ? o.public_whatsapp : null}
                         busy={negotiatingOfferId === o.id || (negotiatingOfferId != null && negotiatingOfferId !== o.id)}
-                        onChat={() => negotiateOffer(o)} intro={isOwner ? intro({ myRequest: translation.title }) : ''} />
+                        onChat={() => negotiateOffer(o)} intro={isOwner ? intro({ myRequest: translation.title }) : intro({ request: translation.title })} link={`/requests/${request.id}`} />
                     </div>
                   )}
                 </div>

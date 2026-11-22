@@ -3074,6 +3074,8 @@
     "about_request": "Halo, saya {{name}} ({{who}}). Saya menghubungi Anda tentang permintaan Anda: {{title}}",
     "about_my_request": "Halo, saya {{name}} ({{who}}). Saya menghubungi Anda tentang permintaan saya: {{title}}",
     "about_service": "Halo, saya {{name}} ({{who}}). Saya menghubungi Anda tentang {{service}}",
-    "general": "Halo, saya {{name}} ({{who}}), menghubungi Anda melalui Ay Khidma."
+    "general": "Halo, saya {{name}} ({{who}}), menghubungi Anda melalui Ay Khidma.",
+    "via_site": "melalui Ay Khidma: {{url}}",
+    "visitor": "Halo, saya menemukan halaman Anda di Ay Khidma dan ingin menghubungi Anda."
   }
 }

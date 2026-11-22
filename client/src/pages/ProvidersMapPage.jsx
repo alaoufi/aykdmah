@@ -168,7 +168,7 @@ export default function ProvidersMapPage() {
               <ProviderStatus availability={p.availability} coverage={p.coverage} name={p.business_name || p.full_name} className="mt-1" />
               <ExpandableText text={p.bio} translated={p.bio_translated} lines={2} className="mt-1.5" testId="provider-bio" />
               {/* AYK-427 (the owner's rule: every panel shows contact clearly). */}
-              <ContactButtons size="sm" className="mt-2" phone={p.public_phone} whatsapp={p.public_whatsapp} testId="map-contact" intro={intro()}
+              <ContactButtons size="sm" className="mt-2" phone={p.public_phone} whatsapp={p.public_whatsapp} testId="map-contact" intro={intro()} link={`/providers/${p.id}`}
                 onChat={() => chatWith(p)} />
             </div>
             {p.location_precision === 'exact' && (

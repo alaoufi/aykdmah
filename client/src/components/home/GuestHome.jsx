@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { listCategories, listServices, listMatchingProviders } from '../../services/serviceService';
 import { listNearbyRequests } from '../../services/requestService';
@@ -8,6 +8,7 @@ import { localizedName } from '../../utils/localize';
 import { localizedJoinedName } from '../../utils/localizeJoined';
 import RequestCard from './RequestCard';
 import RatingInline from '../reviews/RatingInline';
+import ContactButtons from '../providers/ContactButtons';
 
 // AYK-413 (the owner): a visitor browses without signing up. The professions come first, then
 // their categories small and close together, then the service requests (no private details are
@@ -15,6 +16,7 @@ import RatingInline from '../reviews/RatingInline';
 export default function GuestHome() {
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
+  const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [services, setServices] = useState([]);
   const [category, setCategory] = useState('');
@@ -114,19 +116,23 @@ export default function GuestHome() {
           {providers === null ? Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-14 rounded-card bg-surface-alt animate-pulse" />)
             : !providers.length ? <p className="col-span-full text-center py-3 text-fg-muted text-[13px]">{t('common.none')}</p>
               : shownProviders.map(row => (
-                <Link key={row.id} to={`/providers/${row.id}`} data-testid="guest-provider"
-                  className="tone-provider rounded-card px-2.5 py-2 flex items-center gap-2.5 no-underline">
-                  {row.avatar
-                    ? <img src={row.avatar} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" loading="lazy" />
-                    : <span className="w-10 h-10 rounded-full grid place-items-center bg-brand-50 text-[18px] shrink-0" aria-hidden="true">🛠️</span>}
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-[13.5px] font-extrabold text-fg truncate">{row.business_name || row.full_name}</span>
-                    <span className="block text-[11.5px] text-fg-muted truncate">
-                      {[localizedJoinedName(row, 'category', lang), localizedJoinedName(row, 'district', lang)].filter(Boolean).join(' · ')}
+                // AYK-435: a visitor sees the contact icons too; the chat asks them to sign in first.
+                <div key={row.id} className="tone-provider rounded-card px-2.5 py-2 flex items-center gap-2.5" data-testid="guest-provider">
+                  <Link to={`/providers/${row.id}`} className="min-w-0 flex-1 flex items-center gap-2.5 no-underline">
+                    {row.avatar
+                      ? <img src={row.avatar} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" loading="lazy" />
+                      : <span className="w-10 h-10 rounded-full grid place-items-center bg-brand-50 text-[18px] shrink-0" aria-hidden="true">🛠️</span>}
+                    <span className="min-w-0 flex-1">
+                      <span className="block text-[13.5px] font-extrabold text-fg truncate">{row.business_name || row.full_name}</span>
+                      <span className="block text-[11.5px] text-fg-muted truncate">
+                        {[localizedJoinedName(row, 'category', lang), localizedJoinedName(row, 'district', lang)].filter(Boolean).join(' · ')}
+                      </span>
+                      {Number(row.rating_count) > 0 && <RatingInline className="text-[11px]" size={11} average={row.rating_avg} count={row.rating_count} showCount={false} />}
                     </span>
-                  </span>
-                  {Number(row.rating_count) > 0 && <RatingInline className="text-[12px] shrink-0" size={12} average={row.rating_avg} count={row.rating_count} showCount={false} />}
-                </Link>
+                  </Link>
+                  <ContactButtons size="xs" testId="guest-contact" phone={row.public_phone} whatsapp={row.public_whatsapp}
+                    onChat={() => navigate('/login', { state: { from: `/providers/${row.id}` } })} link={`/providers/${row.id}`} />
+                </div>
               ))}
         </div>
         {providers && providers.length > 8 && !allProviders && (

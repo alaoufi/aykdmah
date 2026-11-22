@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { listNearbyRequests, listMyOffers } from '../../services/requestService';
+import { listNearbyRequests, listMyOffers, contactRequest } from '../../services/requestService';
+import ContactButtons from '../../components/providers/ContactButtons';
+import useContactIntro from '../../hooks/useContactIntro';
+import { showProblem } from '../../components/common/AppDialog';
 import { useAuth } from '../../hooks/useAuth';
 import RequestCard from '../../components/requests/RequestCard';
 import { LoadingState, EmptyState } from '../../components/common/Spinner';
@@ -15,6 +18,13 @@ import { ProviderSection } from '../ProfilePage';
 
 export default function ProviderDashboardPage() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const intro = useContactIntro();
+  // AYK-435: the requests I contacted have the contact icons too (the chat about that request).
+  const chatAbout = async offer => {
+    try { const { conversation_id } = await contactRequest(offer.request_id); navigate(`/chat/${conversation_id}`); }
+    catch (err) { if (!err?.cancelled) { navigate(`/requests/${offer.request_id}`); showProblem(err); } }
+  };
   const { user, provider, refresh } = useAuth();
   // AYK-400 «فك القيود»: every open request, whatever the profession or area. Asked for, never the default.
   const [unrestricted, setUnrestricted] = useState(false);
@@ -116,13 +126,15 @@ export default function ProviderDashboardPage() {
               {offers.map(o => {
                 const oStatus = OFFER_STATUS[o.status] || {};
                 return (
-                  <Link key={o.id} to={`/requests/${o.request_id}`} className="offer-list-item tone-request">
-                    <div style={{ flex: 1 }}>
-                      <strong>{o.request_title}</strong>
+                  <div key={o.id} className="offer-list-item tone-request">
+                    <div style={{ flex: 1 }} className="min-w-0">
+                      <Link to={`/requests/${o.request_id}`} className="font-bold text-fg no-underline">{o.request_title}</Link>
                       <div className="text-xs text-muted">{o.status === 'accepted' ? <b className="text-primary">📌 {t('work.assigned_to_you')}</b> : (oStatus.i18nKey ? t(oStatus.i18nKey) : o.status)}</div>
                     </div>
                     {Number(o.price) > 0 && <div style={{ fontWeight: 700, color: 'var(--primary)' }}>{formatCurrency(o.price)}</div>}
-                  </Link>
+                    <ContactButtons size="xs" testId="my-contact" onChat={() => chatAbout(o)}
+                      intro={intro({ request: o.request_title })} link={`/requests/${o.request_id}`} />
+                  </div>
                 );
               })}
             </div>

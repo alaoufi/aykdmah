@@ -13,7 +13,8 @@ import { useCall } from '../../context/CallContext';
 import BlockedNotice from '../../components/common/BlockedNotice';
 import ProblemNotice from '../../components/common/ProblemNotice';
 import DirectoryContacts from '../../components/directory/DirectoryContacts';
-import ProviderNumbers from '../../components/providers/ProviderNumbers';
+import ContactButtons from '../../components/providers/ContactButtons';
+import useContactIntro from '../../hooks/useContactIntro';
 import { ProviderStatus } from '../../components/common/AvailabilityBadge';
 import ExpandableText from '../../components/common/ExpandableText';
 
@@ -21,6 +22,7 @@ import ExpandableText from '../../components/common/ExpandableText';
 // without posting a request. Each contact is still recorded as a request.
 export default function DirectoryPage({ compact = false }) {
   const { t, i18n } = useTranslation();
+  const intro = useContactIntro();
   const lang = i18n.resolvedLanguage || 'ar';
   const navigate = useNavigate();
   const [items, setItems] = useState(null);
@@ -89,10 +91,12 @@ export default function DirectoryPage({ compact = false }) {
                 </div>
                 {p.availability && <ProviderStatus availability={p.availability} coverage={p.coverage} name={p.nickname || p.business_name || p.full_name} className="mt-1.5" />}
                 <ExpandableText text={p.bio} translated={p.bio_translated} lines={2} className="mt-2" testId="provider-bio" />
-                <ProviderNumbers phone={p.public_phone} whatsapp={p.public_whatsapp} className="mt-2" />
-                <div className="flex items-center gap-3 mt-2">
-                  <button type="button" className="btn btn-primary btn-sm" disabled={busy === p.id} onClick={() => contact(p)} data-testid="directory-contact">💬 {t('directory.message')}</button>
-                  <button type="button" className="btn btn-outline btn-sm" disabled={busy === p.id} onClick={() => call(p)} data-testid="directory-call">📞 {t('directory.call')}</button>
+                {/* AYK-435: the same clear contact icons as every panel, with the introduction. The call
+                    inside the app stays for people whose number is not shown. */}
+                <div className="flex items-center gap-3 mt-2 flex-wrap">
+                  <ContactButtons size="sm" phone={p.public_phone} whatsapp={p.public_whatsapp} busy={busy === p.id} onChat={() => contact(p)}
+                    testId="directory-contact" intro={intro({ service: p.is_provider === false ? null : (localizedJoinedName(p, 'category', lang) || null) })}
+                    link={p.is_provider === false ? '/' : `/providers/${p.id}`} onCall={() => call(p)} />
                   <button type="button" className="text-[13px] font-semibold text-fg-muted" disabled={busy === p.id} onClick={() => remove(p)}>✕ {t('requester.remove_directory')}</button>
                 </div>
               </div>

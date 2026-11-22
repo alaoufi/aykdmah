@@ -254,10 +254,10 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
         <ExpandableText text={p.bio} translated={p.bio_translated} lines={2} className="mt-2" testId="provider-bio" />
         {/* AYK-379: جوال / واتساب (when the provider shows them) / محادثة. AYK-427: shown as buttons. */}
         {onContact && <ContactButtons size="sm" className="mt-2" phone={p.public_phone} whatsapp={p.public_whatsapp} busy={busy} testId="contact-provider"
-          intro={intro({ service: localizedJoinedName(p, 'category', i18n.resolvedLanguage) || null })}
+          intro={intro({ service: localizedJoinedName(p, 'category', i18n.resolvedLanguage) || null })} link={`/providers/${p.id}`}
           onChat={async () => { setBusy(true); try { await onContact(p); } finally { setBusy(false); } }} />}
         {requester && <ContactButtons size="sm" className="mt-2" phone={p.public_phone} whatsapp={p.public_whatsapp} busy={busy} testId="direct-contact"
-          intro={intro({ service: localizedJoinedName(p, 'category', i18n.resolvedLanguage) || null })}
+          intro={intro({ service: localizedJoinedName(p, 'category', i18n.resolvedLanguage) || null })} link={`/providers/${p.id}`}
           onChat={() => run(async () => { const res = await contactDirect(p.id, categoryId); navigate(`/chat/${res.conversation_id}`); })} />}
         <div className="flex flex-wrap items-center gap-2 mt-2">
           {requester && !saved && (<button type="button" className="btn btn-outline btn-sm" disabled={busy} data-testid="save-provider"

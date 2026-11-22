@@ -128,7 +128,7 @@ export default function ProviderProfilePage() {
         {/* AYK-379: three ways, the numbers only when the provider shows them. AYK-427: as clear
             buttons, one tap each, instead of a menu. */}
         {!self && <ContactButtons title={`💬 ${t('provider_page.contact')}`} phone={provider.public_phone} whatsapp={provider.public_whatsapp}
-          busy={chatting} onChat={startChat} testId="provider-contact" intro={intro()} />}
+          busy={chatting} onChat={startChat} testId="provider-contact" intro={intro()} link={`/providers/${user.id}`} />}
         <div className="flex flex-wrap gap-2 items-start">
           <DirectoryButton providerId={user.id} name={name} onNote={setNote} />
           {/* AYK-382: share this provider: WhatsApp, Telegram, Facebook, X, TikTok, link, QR. */}

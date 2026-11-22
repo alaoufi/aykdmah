@@ -27,7 +27,8 @@ export default function useContactIntro() {
     return () => { alive = false; };
   }, [user?.role, provider?.category_id, lang]);
   return ({ request = null, myRequest = null, service = null } = {}) => {
-    if (!user) return '';
+    // AYK-435: never without an introduction, also before signing in.
+    if (!user) return t('contact_intro.visitor');
     const name = String(user.full_name || '').trim().split(/\s+/).slice(0, 2).join(' ') || t('contact_intro.someone');
     const who = user.role === 'provider' ? (profession || t('contact_intro.provider')) : t('contact_intro.requester');
     if (request) return t('contact_intro.about_request', { name, who, title: request });

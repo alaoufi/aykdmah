@@ -63,7 +63,7 @@ export default function RequestCard({ request }) {
           )}
         </div>
         {canContact(request) && <ContactButtons size="xs" phone={request.client_contact_phone} whatsapp={request.client_contact_whatsapp}
-          busy={opening === request.id} onChat={() => contact(request)} testId="request-contact" intro={intro({ request: translation.title })} />}
+          busy={opening === request.id} onChat={() => contact(request)} testId="request-contact" intro={intro({ request: translation.title })} link={`/requests/${request.id}`} />}
       </div>
       <style>{`
         .request-card { display: block; text-decoration: none; color: inherit; padding: 12px 14px; cursor: pointer; }

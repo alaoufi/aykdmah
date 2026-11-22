@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { whatsappLink } from '../../utils/whatsapp';
-import { keepChatIntro } from '../../hooks/useContactIntro';
+import useContactIntro, { keepChatIntro } from '../../hooks/useContactIntro';
+import { SITE_URL } from '../../utils/site';
 
 // AYK-427 (the owner: «في ملف مقدم الخدمة وطالب الخدمة أضف التواصل واضح»): the ways to reach a person
 // are buttons, one tap each, not hidden in a menu: a call and WhatsApp only when that person chose to
@@ -33,10 +34,16 @@ const ChatIcon = ({ size }) => (
 // the person's page ('lg') keeps the icon with its word. Sizes are set inline so the site's general
 // link and button styles (underline, minimum height, padding) cannot stretch them.
 // AYK-434: `intro` is the first message: WhatsApp opens with it, and the chat box starts with it.
-export default function ContactButtons({ phone = null, whatsapp = null, onChat, busy = false, title = null, testId = 'contact-buttons', size = 'lg', className = '', intro = '' }) {
+// AYK-435 (the owner: «ما يفتح بدون تعريف. إذا واتس اب يعرف من أي خدمة وتعرض النطاق السعودي»): never
+// without one (who I am, when the caller gives no subject), and on WhatsApp it ends with where it
+// comes from: «أي خدمة» and the aykdmh.sa link (`link`: the page it is about, e.g. /requests/12).
+export default function ContactButtons({ phone = null, whatsapp = null, onChat, busy = false, title = null, testId = 'contact-buttons', size = 'lg', className = '', intro = '', link = '', onCall = null }) {
   const { t } = useTranslation();
   const [opening, setOpening] = useState(false);
-  const chatLink = whatsappLink(whatsapp, intro);
+  const makeIntro = useContactIntro();
+  const text = intro || makeIntro();
+  const waText = text ? `${text}\n— ${t('contact_intro.via_site', { url: `${SITE_URL}${link || '/'}` })}` : '';
+  const chatLink = whatsappLink(whatsapp, waText);
   const round = size !== 'lg';
   const box = size === 'xs' ? 30 : 36;
   const icon = round ? (size === 'xs' ? 15 : 18) : 18;
@@ -59,6 +66,13 @@ export default function ContactButtons({ phone = null, whatsapp = null, onChat, 
             <PhoneIcon size={icon} />{label('provider_contact.mobile')}
           </a>
         )}
+        {/* No number shown but a call inside the app is possible (e.g. «دليلي»): the same phone icon. */}
+        {!phone && onCall && (
+          <button type="button" className={cls} style={look(CONTACT_COLORS.phone)} data-testid={`${testId}-call`}
+            aria-label={t('directory.call')} title={t('directory.call')} onClick={() => onCall()}>
+            <PhoneIcon size={icon} />{label('directory.call')}
+          </button>
+        )}
         {chatLink && (
           <a href={chatLink} target="_blank" rel="noopener noreferrer" className={cls} style={look(CONTACT_COLORS.whatsapp)} data-testid={`${testId}-whatsapp`}
             aria-label={t('provider_contact.whatsapp_button')} title={t('provider_contact.whatsapp_button')}>
@@ -68,7 +82,7 @@ export default function ContactButtons({ phone = null, whatsapp = null, onChat, 
         <button type="button" className={`${cls} disabled:opacity-60`} style={look(CONTACT_COLORS.chat)}
           disabled={busy || opening} aria-busy={busy || opening} data-testid={`${testId}-chat`}
           aria-label={t('provider_contact.chat')} title={t('provider_contact.chat')}
-          onClick={async () => { keepChatIntro(intro); setOpening(true); try { await onChat?.(); } finally { setOpening(false); } }}>
+          onClick={async () => { keepChatIntro(text); setOpening(true); try { await onChat?.(); } finally { setOpening(false); } }}>
           {busy || opening ? <>{spinner}{round ? null : <span>{t('provider_contact.opening')}</span>}</> : <><ChatIcon size={icon} />{label('provider_contact.chat')}</>}
         </button>
       </div>

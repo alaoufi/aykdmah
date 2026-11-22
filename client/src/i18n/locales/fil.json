@@ -3074,6 +3074,8 @@
     "about_request": "Kumusta, ako si {{name}} ({{who}}). Kinokontak kita tungkol sa iyong kahilingan: {{title}}",
     "about_my_request": "Kumusta, ako si {{name}} ({{who}}). Kinokontak kita tungkol sa aking kahilingan: {{title}}",
     "about_service": "Kumusta, ako si {{name}} ({{who}}). Kinokontak kita tungkol sa {{service}}",
-    "general": "Kumusta, ako si {{name}} ({{who}}), kinokontak kita sa pamamagitan ng Ay Khidma."
+    "general": "Kumusta, ako si {{name}} ({{who}}), kinokontak kita sa pamamagitan ng Ay Khidma.",
+    "via_site": "sa pamamagitan ng Ay Khidma: {{url}}",
+    "visitor": "Kumusta, nakita ko ang iyong pahina sa Ay Khidma at nais kitang makausap."
   }
 }

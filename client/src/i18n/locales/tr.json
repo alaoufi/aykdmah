@@ -3074,6 +3074,8 @@
     "about_request": "Merhaba, ben {{name}} ({{who}}). Talebiniz hakkında ulaşıyorum: {{title}}",
     "about_my_request": "Merhaba, ben {{name}} ({{who}}). Talebim hakkında ulaşıyorum: {{title}}",
     "about_service": "Merhaba, ben {{name}} ({{who}}). {{service}} hakkında ulaşıyorum",
-    "general": "Merhaba, ben {{name}} ({{who}}), Ay Khidma üzerinden ulaşıyorum."
+    "general": "Merhaba, ben {{name}} ({{who}}), Ay Khidma üzerinden ulaşıyorum.",
+    "via_site": "Ay Khidma üzerinden: {{url}}",
+    "visitor": "Merhaba, sayfanızı Ay Khidma'da buldum ve sizinle iletişime geçmek istiyorum."
   }
 }

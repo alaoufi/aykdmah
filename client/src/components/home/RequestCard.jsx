@@ -66,7 +66,7 @@ export default function RequestCard({ item, urgent = false }) {
         </span>
         {/* AYK-431: the contact icons at the card's end (AYK-427, AYK-430); otherwise «details». */}
         {canContact(item)
-          ? <ContactButtons size="xs" phone={item.client_contact_phone} whatsapp={item.client_contact_whatsapp} busy={opening === item.id} onChat={() => contact(item)} testId="request-contact" intro={intro({ request: translation.title })} />
+          ? <ContactButtons size="xs" phone={item.client_contact_phone} whatsapp={item.client_contact_whatsapp} busy={opening === item.id} onChat={() => contact(item)} testId="request-contact" intro={intro({ request: translation.title })} link={`/requests/${item.id}`} />
           : <span className="shrink-0 inline-flex items-center gap-1 text-[12px] font-bold text-primary">
             {t('common.details')}
             <IconArrow size={14} className="rotate-180" />
