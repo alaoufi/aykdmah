@@ -5,10 +5,11 @@ import { useAuth } from '../../hooks/useAuth';
 import { listDirectoryIds, saveToDirectory } from '../../services/requestService';
 import { apiError } from '../../services/api';
 import ShareMenu from '../common/ShareMenu';
+import { SITE_URL } from '../../utils/site';
 
 // The public link of a provider's page (AYK-312): /providers/<id>, the same address the
 // map and the search lists open. Shared as-is, so it works in any app and browser.
-export const providerLink = id => `${window.location.origin}/providers/${encodeURIComponent(id)}`;
+export const providerLink = id => `${SITE_URL}/providers/${encodeURIComponent(id)}`; // AYK-429: the main address
 
 // «أضف إلى دليلي» on its own (AYK-320), for the provider page's action row.
 export function DirectoryButton({ providerId, name, onNote }) {

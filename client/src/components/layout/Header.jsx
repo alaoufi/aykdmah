@@ -14,6 +14,7 @@ import BrandLogo from '../common/BrandLogo';
 import { IconMenu, IconBell, IconClose, IconChat } from '../common/Icons';
 import AdminPanelLink from './AdminPanelLink';
 import InviteButton from '../common/InviteButton';
+import { SITE_URL } from '../../utils/site';
 
 export default function Header() {
   // AYK-405: «أعلن» in the account menus, only while paid ad subscriptions are on.
@@ -93,7 +94,7 @@ export default function Header() {
 
         {/* Mobile controls cluster — sits on the END edge */}
         {/* AYK-382: share the site (WhatsApp, Telegram, Facebook, X, TikTok, link, QR). */}
-        <ShareMenu variant="icon" url={`${window.location.origin}/`} title={t('common.brand')} text={t('share.site_text')}
+        <ShareMenu variant="icon" url={`${SITE_URL}/`} title={t('common.brand')} text={t('share.site_text')}
           label={t('share.site')} className="max-xl:order-3" testId="share-site" />
         <ThemeSwitcher variant="compact" className="md:hidden max-xl:order-3" />
         <LanguageSwitcher variant="compact" className="md:hidden max-xl:order-3" />

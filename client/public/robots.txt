@@ -9,4 +9,4 @@ Disallow: /provider/
 Disallow: /payments
 Allow: /
 
-Sitemap: https://aykdmh.com/sitemap.xml
+Sitemap: https://aykdmh.sa/sitemap.xml
