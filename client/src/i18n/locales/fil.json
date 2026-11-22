@@ -190,7 +190,6 @@
     "guest_providers": "Mga nagbibigay ng serbisyo",
     "guest_more": "Ipakita pa",
     "filter_my_profession": "Aking propesyon",
-    "filter_my_requests": "Ang request ko",
     "filter_my_area": "Aking lugar",
     "filter_restricted": "🔒 Nilimitahan ng administrasyon",
     "filter_none": "Walang pinili: lahat ay lalabas, pinakamalapit muna",
@@ -225,12 +224,16 @@
     "filter_title": "Ipakita sa akin",
     "filter_need_services": "Idagdag muna ang mga serbisyo mo sa «Aking profile» para gumana ang «Aking propesyon».",
     "filter_state_prof_provider": "Ang propesyon mo sa lahat ng lugar, pinakamalapit muna",
-    "filter_state_prof_requester": "Ang mga propesyong hiniling mo, sa lahat ng lugar",
     "filter_state_area": "Lahat ng propesyon sa lugar mo",
     "filter_state_both_provider": "Ang propesyon mo sa lugar mo lang",
-    "filter_state_both_requester": "Ang mga propesyong hiniling mo, sa lugar mo lang",
-    "filter_need_requests": "Magpadala muna ng request para gumana ang «Ang request ko».",
-    "filter_need_area": "Kumpletuhin muna ang lugar mo sa «Aking profile» para gumana ang «Aking lugar»."
+    "filter_need_requests": "Magpadala muna ng request para gumana ang «Katulad ng request ko».",
+    "filter_need_area": "Kumpletuhin muna ang lugar mo sa «Aking profile» para gumana ang «Aking lugar».",
+    "filter_similar_one": "Katulad ng request ko",
+    "filter_similar_many": "Katulad ng mga request ko",
+    "filter_state_prof_request": "Katulad ng request mo, sa lahat ng lugar",
+    "filter_state_prof_requests": "Katulad ng mga request mo, sa lahat ng lugar",
+    "filter_state_both_request": "Katulad ng request mo, sa lugar mo lang",
+    "filter_state_both_requests": "Katulad ng mga request mo, sa lugar mo lang"
   },
   "location": {
     "country": "Bansa",

@@ -25,11 +25,12 @@ export default function RecentActivity({ asProvider = false, className = '' }) {
   const [filters, setFilters] = useState({ prof: false, area: false });
   const on = restricted ? { prof: true, area: true } : filters;
   const [rows, setRows] = useState(null);
+  const [meta, setMeta] = useState(null);
   useEffect(() => {
     let alive = true;
     const params = { days, limit: 20, ...(on.prof ? { f_prof: '1' } : {}), ...(on.area ? { f_area: '1' } : {}), ...(user && !asProvider ? { as: 'requester' } : {}) };
     api.get('/requests/recent', { params })
-      .then(({ data }) => { if (alive) setRows(data.data || []); })
+      .then(({ data }) => { if (alive) { setRows(data.data || []); setMeta(data.meta || null); } })
       .catch(() => { if (alive) setRows([]); });
     return () => { alive = false; };
   }, [days, on.prof, on.area, asProvider, Boolean(user)]);
@@ -48,7 +49,7 @@ export default function RecentActivity({ asProvider = false, className = '' }) {
         <span className="text-[11.5px] text-fg-muted shrink-0">🕒 {t('home.recent_period')}</span>
         {DAYS.map(value => chip(days === value, t(`home.recent_days_${value}`), () => setDays(value), `recent-days-${value}`))}
       </div>
-      {user && <div className="mb-2"><BoardFilters size="sm" testId="recent" value={filters} onChange={setFilters} asProvider={asProvider} restricted={restricted} /></div>}
+      {user && <div className="mb-2"><BoardFilters size="sm" testId="recent" value={filters} onChange={setFilters} asProvider={asProvider} restricted={restricted} meta={meta} /></div>}
       {rows === null ? <div className="h-10 rounded-card bg-surface-alt animate-pulse" />
         : !rows.length ? <p className="text-[12.5px] text-fg-muted m-0 py-1" data-testid="recent-none">{t('home.recent_none')}</p>
           : (

@@ -190,7 +190,6 @@
     "guest_providers": "مقدمو الخدمة",
     "guest_more": "عرض المزيد",
     "filter_my_profession": "مهنتي",
-    "filter_my_requests": "طلبي",
     "filter_my_area": "منطقتي",
     "filter_restricted": "🔒 العرض مقيّد من الإدارة",
     "filter_none": "لم تختر شيئًا: يظهر الكل، والأقرب لك أولًا",
@@ -225,12 +224,16 @@
     "filter_title": "اعرض لي",
     "filter_need_services": "أضف خدماتك في «ملفي» أولًا ليعمل «مهنتي».",
     "filter_state_prof_provider": "مهنتك في كل المناطق، والأقرب لك أولًا",
-    "filter_state_prof_requester": "المهن التي طلبتها في كل المناطق",
     "filter_state_area": "كل المهن في منطقتك",
     "filter_state_both_provider": "مهنتك في منطقتك فقط",
-    "filter_state_both_requester": "المهن التي طلبتها في منطقتك فقط",
-    "filter_need_requests": "أرسل طلبًا أولًا ليعمل «طلبي».",
-    "filter_need_area": "أكمل منطقتك في «ملفي» أولًا ليعمل «منطقتي»."
+    "filter_need_requests": "أرسل طلبًا أولًا ليعمل «مشابه لطلبي».",
+    "filter_need_area": "أكمل منطقتك في «ملفي» أولًا ليعمل «منطقتي».",
+    "filter_similar_one": "مشابه لطلبي",
+    "filter_similar_many": "مشابه لطلباتي",
+    "filter_state_prof_request": "المشابه لطلبك في كل المناطق",
+    "filter_state_prof_requests": "المشابه لطلباتك في كل المناطق",
+    "filter_state_both_request": "المشابه لطلبك في منطقتك فقط",
+    "filter_state_both_requests": "المشابه لطلباتك في منطقتك فقط"
   },
   "location": {
     "country": "الدولة",

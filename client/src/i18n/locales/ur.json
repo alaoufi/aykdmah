@@ -190,7 +190,6 @@
     "guest_providers": "سروس فراہم کرنے والے",
     "guest_more": "مزید دکھائیں",
     "filter_my_profession": "میرا پیشہ",
-    "filter_my_requests": "میری درخواست",
     "filter_my_area": "میرا علاقہ",
     "filter_restricted": "🔒 انتظامیہ نے محدود کیا ہے",
     "filter_none": "کچھ منتخب نہیں: سب دکھائی دیں گے، قریب ترین پہلے",
@@ -225,12 +224,16 @@
     "filter_title": "مجھے دکھائیں",
     "filter_need_services": "«میرا پیشہ» کے کام کرنے کے لیے پہلے «میری پروفائل» میں اپنی خدمات شامل کریں۔",
     "filter_state_prof_provider": "آپ کا پیشہ تمام علاقوں میں، قریب ترین پہلے",
-    "filter_state_prof_requester": "آپ کے مانگے ہوئے پیشے، تمام علاقوں میں",
     "filter_state_area": "آپ کے علاقے کے تمام پیشے",
     "filter_state_both_provider": "صرف آپ کے علاقے میں آپ کا پیشہ",
-    "filter_state_both_requester": "صرف آپ کے علاقے میں آپ کے مانگے ہوئے پیشے",
-    "filter_need_requests": "«میری درخواست» کے کام کرنے کے لیے پہلے درخواست بھیجیں۔",
-    "filter_need_area": "«میرا علاقہ» کے کام کرنے کے لیے پہلے «میری پروفائل» میں اپنا علاقہ مکمل کریں۔"
+    "filter_need_requests": "«میری درخواست جیسی» کے کام کرنے کے لیے پہلے درخواست بھیجیں۔",
+    "filter_need_area": "«میرا علاقہ» کے کام کرنے کے لیے پہلے «میری پروفائل» میں اپنا علاقہ مکمل کریں۔",
+    "filter_similar_one": "میری درخواست جیسی",
+    "filter_similar_many": "میری درخواستوں جیسی",
+    "filter_state_prof_request": "آپ کی درخواست جیسی، تمام علاقوں میں",
+    "filter_state_prof_requests": "آپ کی درخواستوں جیسی، تمام علاقوں میں",
+    "filter_state_both_request": "آپ کی درخواست جیسی، صرف آپ کے علاقے میں",
+    "filter_state_both_requests": "آپ کی درخواستوں جیسی، صرف آپ کے علاقے میں"
   },
   "location": {
     "country": "ملک",

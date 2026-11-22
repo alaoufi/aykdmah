@@ -190,7 +190,6 @@
     "guest_providers": "সেবা প্রদানকারী",
     "guest_more": "আরও দেখুন",
     "filter_my_profession": "আমার পেশা",
-    "filter_my_requests": "আমার অনুরোধ",
     "filter_my_area": "আমার এলাকা",
     "filter_restricted": "🔒 প্রশাসন সীমিত করেছে",
     "filter_none": "কিছু বাছাই করা হয়নি: সবাই দেখাবে, কাছের জন আগে",
@@ -225,12 +224,16 @@
     "filter_title": "আমাকে দেখান",
     "filter_need_services": "«আমার পেশা» কাজ করতে আগে «আমার প্রোফাইল»-এ আপনার সেবা যোগ করুন।",
     "filter_state_prof_provider": "আপনার পেশা সব এলাকায়, কাছের জন আগে",
-    "filter_state_prof_requester": "আপনার চাওয়া পেশাগুলো, সব এলাকায়",
     "filter_state_area": "আপনার এলাকার সব পেশা",
     "filter_state_both_provider": "শুধু আপনার এলাকায় আপনার পেশা",
-    "filter_state_both_requester": "শুধু আপনার এলাকায় আপনার চাওয়া পেশাগুলো",
-    "filter_need_requests": "«আমার অনুরোধ» কাজ করতে আগে একটি অনুরোধ পাঠান।",
-    "filter_need_area": "«আমার এলাকা» কাজ করতে আগে «আমার প্রোফাইল»-এ আপনার এলাকা পূরণ করুন।"
+    "filter_need_requests": "«আমার অনুরোধের মতো» কাজ করতে আগে একটি অনুরোধ পাঠান।",
+    "filter_need_area": "«আমার এলাকা» কাজ করতে আগে «আমার প্রোফাইল»-এ আপনার এলাকা পূরণ করুন।",
+    "filter_similar_one": "আমার অনুরোধের মতো",
+    "filter_similar_many": "আমার অনুরোধগুলোর মতো",
+    "filter_state_prof_request": "আপনার অনুরোধের মতো, সব এলাকায়",
+    "filter_state_prof_requests": "আপনার অনুরোধগুলোর মতো, সব এলাকায়",
+    "filter_state_both_request": "আপনার অনুরোধের মতো, শুধু আপনার এলাকায়",
+    "filter_state_both_requests": "আপনার অনুরোধগুলোর মতো, শুধু আপনার এলাকায়"
   },
   "location": {
     "country": "দেশ",

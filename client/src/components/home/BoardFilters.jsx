@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import { stateKey } from '../../utils/boardFilterState.js';
+import { stateKey, requestsLabel } from '../../utils/boardFilterState.js';
 
 
 // AYK-444 (the owner, with a screenshot he liked: «اعرض لي» and two large boxes): «مهنتي» for a service
@@ -28,7 +28,7 @@ export default function BoardFilters({ value, onChange, asProvider = false, rest
       <div className={`rounded-card border border-border bg-surface ${small ? 'p-2' : 'p-2.5'}`} role="group" aria-label={t('home.filter_title')}>
         <div className={`font-extrabold text-fg ${small ? 'text-[12.5px] mb-1.5' : 'text-[14px] mb-2'}`}>{t('home.filter_title')}</div>
         <div className="flex gap-1.5 rounded-card bg-surface-alt p-1">
-          {box('prof', t(asProvider ? 'home.filter_my_profession' : 'home.filter_my_requests'))}
+          {box('prof', t(asProvider ? 'home.filter_my_profession' : requestsLabel(meta)))}
           {box('area', t('home.filter_my_area'))}
         </div>
       </div>

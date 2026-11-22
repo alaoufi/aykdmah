@@ -251,7 +251,8 @@ const matching = asyncHandler(async (req, res) => {
     const shown = ranked.slice(0, MAX_RESULTS).map(item => ({ ...item.row, board_area: item.inArea, board_profession: item.inProf }));
     return success(res, {
       area: where.area, scope: 'board', requested_category_ids: requestedCategories,
-      board: { restricted, fallback, has_profession: wanted.length > 0, has_area: Boolean(where.cityId) },
+      board: { restricted, fallback, has_profession: wanted.length > 0, has_area: Boolean(where.cityId),
+        my_requests: req.user ? Number((await query('SELECT COUNT(*) AS n FROM requests WHERE client_id = ? AND deleted_at IS NULL', [req.user.id]))[0]?.n || 0) : 0 },
       providers: await withOpinions(shown),
     });
   }

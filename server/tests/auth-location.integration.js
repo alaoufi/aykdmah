@@ -1265,6 +1265,11 @@ if (!databasePrefix) {
     const seen = (await api('/requests/nearby?board=1&limit=100&as=requester', { token: viewer.token })).map(row => Number(row.id)).filter(id => ours.includes(id));
     assert.deepEqual(seen, [both, areaOnly, profOnly, neither]);
     assert.ok(!(await api('/requests/nearby?board=1&limit=100&as=requester', { token: viewer.token })).some(row => row.client_contact_phone), 'no requester details to a requester');
+    // AYK-446: «مشابه لطلبي» (one request) / «مشابه لطلباتي» (more): the board says how many.
+    const metaOf = async () => (await (await fetch(`${base}/requests/nearby?board=1&limit=1&as=requester`, { headers: { Authorization: `Bearer ${viewer.token}` } })).json()).meta.board.my_requests;
+    assert.equal(await metaOf(), 1);
+    await post(viewer, svc.category_id, area.city_id, area.district_id);
+    assert.equal(await metaOf(), 2);
     for (const id of ours) await db.query('DELETE FROM requests WHERE id = ?', [id]);
   });
 

@@ -190,7 +190,6 @@
     "guest_providers": "Penyedia layanan",
     "guest_more": "Tampilkan lagi",
     "filter_my_profession": "Profesi saya",
-    "filter_my_requests": "Permintaan saya",
     "filter_my_area": "Wilayah saya",
     "filter_restricted": "🔒 Dibatasi oleh administrasi",
     "filter_none": "Tidak ada pilihan: semua tampil, yang terdekat dulu",
@@ -225,12 +224,16 @@
     "filter_title": "Tampilkan",
     "filter_need_services": "Tambahkan layanan Anda di «Profil saya» dulu agar «Profesi saya» berfungsi.",
     "filter_state_prof_provider": "Profesi Anda di semua wilayah, yang terdekat dulu",
-    "filter_state_prof_requester": "Profesi yang Anda minta, di semua wilayah",
     "filter_state_area": "Semua profesi di wilayah Anda",
     "filter_state_both_provider": "Profesi Anda di wilayah Anda saja",
-    "filter_state_both_requester": "Profesi yang Anda minta, di wilayah Anda saja",
-    "filter_need_requests": "Kirim permintaan dulu agar «Permintaan saya» berfungsi.",
-    "filter_need_area": "Lengkapi wilayah Anda di «Profil saya» dulu agar «Wilayah saya» berfungsi."
+    "filter_need_requests": "Kirim permintaan dulu agar «Mirip permintaan saya» berfungsi.",
+    "filter_need_area": "Lengkapi wilayah Anda di «Profil saya» dulu agar «Wilayah saya» berfungsi.",
+    "filter_similar_one": "Mirip permintaan saya",
+    "filter_similar_many": "Mirip permintaan-permintaan saya",
+    "filter_state_prof_request": "Mirip permintaan Anda, di semua wilayah",
+    "filter_state_prof_requests": "Mirip permintaan-permintaan Anda, di semua wilayah",
+    "filter_state_both_request": "Mirip permintaan Anda, di wilayah Anda saja",
+    "filter_state_both_requests": "Mirip permintaan-permintaan Anda, di wilayah Anda saja"
   },
   "location": {
     "country": "Negara",

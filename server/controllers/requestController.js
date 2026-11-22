@@ -143,7 +143,7 @@ const getNearby = asyncHandler(async (req, res) => {
     const shown = await requestTranslation.attachTranslations(board.items.map(raw => withContact(req, raw, guestView(req, Request.publicView(raw)), categories)), readerLang(req));
     return success(res, shown, undefined, 200, {
       pagination: { page, limit, total: Number(board.total), totalPages: Math.ceil(Number(board.total) / limit), hasNext: page * limit < Number(board.total) },
-      board: { restricted, fallback, has_profession: board.has_profession, has_area: board.has_area } });
+      board: { restricted, fallback, has_profession: board.has_profession, has_area: board.has_area, my_requests: board.my_requests } });
   }
   const { items, total } = await Request.findNearby({
     latitude,
@@ -176,7 +176,8 @@ const getRecent = asyncHandler(async (req, res) => {
     filterArea: Boolean(req.user) && (restricted || req.query.f_area === '1'),
     days: req.query.days, limit: req.query.limit,
   });
-  return success(res, rows, undefined, 200, { restricted });
+  const myRequests = req.user ? Number((await queryOne('SELECT COUNT(*) AS n FROM requests WHERE client_id = ? AND deleted_at IS NULL', [req.user.id]))?.n || 0) : 0;
+  return success(res, rows, undefined, 200, { restricted, my_requests: myRequests });
 });
 
 // GET /api/requests/previous-clients  (AYK-398, the owner: «في اللوحة يمكن استعراض العملاء السابقين

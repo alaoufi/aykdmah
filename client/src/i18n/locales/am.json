@@ -190,7 +190,6 @@
     "guest_providers": "አገልግሎት ሰጪዎች",
     "guest_more": "ተጨማሪ አሳይ",
     "filter_my_profession": "ሙያዬ",
-    "filter_my_requests": "ጥያቄዬ",
     "filter_my_area": "አካባቢዬ",
     "filter_restricted": "🔒 በአስተዳደሩ የተገደበ",
     "filter_none": "ምንም አልተመረጠም፦ ሁሉም ይታያሉ፣ ቅርብ ያሉት መጀመሪያ",
@@ -225,12 +224,16 @@
     "filter_title": "አሳየኝ",
     "filter_need_services": "«ሙያዬ» እንዲሠራ መጀመሪያ በ«መገለጫዬ» አገልግሎቶችዎን ያክሉ።",
     "filter_state_prof_provider": "ሙያዎ በሁሉም አካባቢዎች፣ ቅርብ ያሉት መጀመሪያ",
-    "filter_state_prof_requester": "የጠየቋቸው ሙያዎች፣ በሁሉም አካባቢዎች",
     "filter_state_area": "በአካባቢዎ ያሉ ሁሉም ሙያዎች",
     "filter_state_both_provider": "ሙያዎ በአካባቢዎ ብቻ",
-    "filter_state_both_requester": "የጠየቋቸው ሙያዎች በአካባቢዎ ብቻ",
-    "filter_need_requests": "«ጥያቄዬ» እንዲሠራ መጀመሪያ ጥያቄ ይላኩ።",
-    "filter_need_area": "«አካባቢዬ» እንዲሠራ መጀመሪያ በ«መገለጫዬ» አካባቢዎን ያሟሉ።"
+    "filter_need_requests": "«ከጥያቄዬ ጋር የሚመሳሰል» እንዲሠራ መጀመሪያ ጥያቄ ይላኩ።",
+    "filter_need_area": "«አካባቢዬ» እንዲሠራ መጀመሪያ በ«መገለጫዬ» አካባቢዎን ያሟሉ።",
+    "filter_similar_one": "ከጥያቄዬ ጋር የሚመሳሰል",
+    "filter_similar_many": "ከጥያቄዎቼ ጋር የሚመሳሰል",
+    "filter_state_prof_request": "ከጥያቄዎ ጋር የሚመሳሰል፣ በሁሉም አካባቢዎች",
+    "filter_state_prof_requests": "ከጥያቄዎችዎ ጋር የሚመሳሰል፣ በሁሉም አካባቢዎች",
+    "filter_state_both_request": "ከጥያቄዎ ጋር የሚመሳሰል፣ በአካባቢዎ ብቻ",
+    "filter_state_both_requests": "ከጥያቄዎችዎ ጋር የሚመሳሰል፣ በአካባቢዎ ብቻ"
   },
   "location": {
     "country": "ሀገር",

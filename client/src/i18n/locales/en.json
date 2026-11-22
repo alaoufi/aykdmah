@@ -190,7 +190,6 @@
     "guest_providers": "Service providers",
     "guest_more": "Show more",
     "filter_my_profession": "My profession",
-    "filter_my_requests": "My request",
     "filter_my_area": "My area",
     "filter_restricted": "🔒 Limited by the administration",
     "filter_none": "Nothing chosen: everyone shows, closest to you first",
@@ -225,12 +224,16 @@
     "filter_title": "Show me",
     "filter_need_services": "Add your services in «My profile» first for «My profession» to work.",
     "filter_state_prof_provider": "Your profession in every area, closest first",
-    "filter_state_prof_requester": "The professions you asked for, in every area",
     "filter_state_area": "Every profession in your area",
     "filter_state_both_provider": "Your profession in your area only",
-    "filter_state_both_requester": "The professions you asked for, in your area only",
-    "filter_need_requests": "Send a request first for «My request» to work.",
-    "filter_need_area": "Complete your area in «My profile» first for «My area» to work."
+    "filter_need_requests": "Send a request first for «Similar to my request» to work.",
+    "filter_need_area": "Complete your area in «My profile» first for «My area» to work.",
+    "filter_similar_one": "Similar to my request",
+    "filter_similar_many": "Similar to my requests",
+    "filter_state_prof_request": "Similar to your request, in every area",
+    "filter_state_prof_requests": "Similar to your requests, in every area",
+    "filter_state_both_request": "Similar to your request, in your area only",
+    "filter_state_both_requests": "Similar to your requests, in your area only"
   },
   "location": {
     "country": "Country",

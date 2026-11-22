@@ -592,7 +592,9 @@ async function findBoard({ viewerId, asProvider = false, filterProfession = fals
   }
   const total = rows.length ? Number(rows[0].total) : offset === 0 ? 0
     : Number((await query(`SELECT COUNT(*) AS total FROM (${candidates}) board`, candidateParams))[0].total);
-  return { items, total, has_profession: categories.length > 0, has_area: areaParams.length > 0 };
+  // AYK-446: «مشابه لطلبي» (one request) or «مشابه لطلباتي» (more): how many requests the requester made.
+  const myRequests = asProvider ? undefined : Number((await queryOne('SELECT COUNT(*) AS n FROM requests WHERE client_id = ? AND deleted_at IS NULL', [viewerId]))?.n || 0);
+  return { items, total, has_profession: categories.length > 0, has_area: areaParams.length > 0, my_requests: myRequests };
 }
 
 // AYK-441/442 (the owner: «إذا دخل العضو ولم يجد أحدًا خرج ولم يعد»؛ «أضف تم مؤخرًا ويختار قبل كم يوم،
