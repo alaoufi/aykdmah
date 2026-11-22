@@ -61,6 +61,7 @@ export const NAV_GROUPS = [
       { to: '/admin/badges',  icon: '🏅', labelKey: 'admin.badges',         perm: 'badges.manage' },
       { to: '/admin/ads',     icon: '📣', labelKey: 'admin.ads',            perm: 'ads.manage' },
       { to: '/admin/wallets', icon: '💰', labelKey: 'wallet.admin.title',   perm: 'wallets.manage' },
+      { to: '/admin/marketers', icon: '🤝', labelKey: 'admin.marketers', perm: 'wallets.manage' }, // AYK-453
     ],
   },
   {

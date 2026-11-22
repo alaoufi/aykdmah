@@ -103,6 +103,13 @@ export default function AdminUsersPage() {
   };
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [role, page, search]);
+  // AYK-452: the search runs as you type (a short pause), not only on Enter, which the phone keyboard
+  // often does not send.
+  useEffect(() => {
+    if (searchValue.trim() === search) return undefined;
+    const timer = setTimeout(() => { setPage(1); setSearch(searchValue.trim()); }, 350);
+    return () => clearTimeout(timer);
+  }, [searchValue]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onSearch = (e) => {
     e.preventDefault();

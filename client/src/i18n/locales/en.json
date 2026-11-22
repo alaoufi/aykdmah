@@ -1435,7 +1435,8 @@
     },
     "dialect": {
       "title": "Dialect words"
-    }
+    },
+    "marketers": "Marketers balances"
   },
   "errors": {
     "generic": "Something went wrong",

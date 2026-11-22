@@ -10,6 +10,8 @@ export const previewGift = body => data(api.post('/wallet/gift/preview', body));
 export const giftSubscription = body => data(api.post('/wallet/gift', body));
 
 export const adminWallets = () => data(api.get('/wallet/admin'));
+export const adminMarketers = search => data(api.get('/wallet/admin/marketers', { params: search ? { search } : {} })); // AYK-453
+export const adminMarketerReferrals = id => data(api.get(`/wallet/admin/marketers/${id}`));
 export const adminLedger = userId => data(api.get(`/wallet/admin/users/${userId}`));
 export const adminAdjust = (userId, body) => data(api.post(`/wallet/admin/users/${userId}/adjust`, body));
 export const adminProcessWithdrawal = (id, body) => data(api.post(`/wallet/admin/withdrawals/${id}`, body));

@@ -1435,7 +1435,8 @@
     },
     "dialect": {
       "title": "Kata dialek"
-    }
+    },
+    "marketers": "Saldo pemasar"
   },
   "errors": {
     "generic": "Terjadi kesalahan",

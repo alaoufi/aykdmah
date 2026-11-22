@@ -480,10 +480,19 @@ async function listPaginated({ role, search, page = 1, limit = 20 }) {
   const hasAdminFlag = await tableHasColumn('users', 'is_admin');
   if (role === 'admin' && hasAdminFlag) where.push("(u.is_admin = 1 OR u.role = 'admin')");
   else if (role) { where.push('u.role = ?'); params.push(role); }
-  if (search) {
-    where.push('(u.full_name LIKE ? OR u.email LIKE ? OR u.phone LIKE ?)');
-    const s = `%${search}%`;
-    params.push(s, s, s);
+  // AYK-452 (the owner: «البحث في المستخدمين لا يعمل»): it matched the exact letter case only, and
+  // not the account number, the user name, Arabic letter forms or a phone typed as +966 / ٠٥…
+  if (search && String(search).trim()) {
+    const arabicDigits = value => value.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+    const text = arabicDigits(String(search).trim()).slice(0, 100);
+    const fold = sql => `translate(lower(COALESCE(${sql}, '')), 'أإآةى', 'اااهي')`;
+    const folded = text.toLowerCase().replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
+    const digits = text.replace(/\D/g, '').replace(/^(00)?966/, '0');
+    const parts = [`${fold('u.full_name')} LIKE ?`, `${fold('u.email')} LIKE ?`, `${fold('u.username')} LIKE ?`, `${fold("to_jsonb(u)->>'referral_code'")} = ?`];
+    params.push(`%${folded}%`, `%${folded}%`, `%${folded}%`, folded);
+    if (/^\d{1,9}$/.test(text)) { parts.push('u.id = ?'); params.push(Number(text)); }
+    if (digits.length >= 3) { parts.push(`regexp_replace(COALESCE(u.phone, ''), '\\D', '', 'g') LIKE ?`); params.push(`%${digits.replace(/^0/, '')}%`); }
+    where.push(`(${parts.join(' OR ')})`);
   }
   const whereSql = where.join(' AND ');
 

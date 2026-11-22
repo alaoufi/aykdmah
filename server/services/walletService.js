@@ -531,7 +531,46 @@ async function setSettings({ commission_percent, min_withdrawal, marketing_enabl
     marketing: marketingView(await marketing()) };
 }
 
+// AYK-453 (the owner: «صفحة يعرض فيها رصيد المسوّقين: رقمه، اسمه، عدد المسجلين عن طريقه، وتفصيل بأرقام
+// المسجلين عن طريقه»). The list (searchable by name, phone or number) and one marketer's sign-ups.
+async function adminMarketers({ search = '' } = {}) {
+  const where = ['EXISTS (SELECT 1 FROM users r WHERE r.referred_by = u.id)'];
+  const params = [];
+  const text = String(search || '').trim().slice(0, 100);
+  if (text) {
+    const digits = text.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/\D/g, '').replace(/^(00)?966/, '0');
+    where.push(`(lower(u.full_name) LIKE ? OR u.referral_code = ?${digits.length >= 3 ? " OR regexp_replace(COALESCE(u.phone, ''), '\\D', '', 'g') LIKE ?" : ''})`);
+    params.push(`%${text.toLowerCase()}%`, text.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
+    if (digits.length >= 3) params.push(`%${digits.replace(/^0/, '')}%`);
+  }
+  const rows = await query(`SELECT u.id, u.full_name, u.phone, u.referral_code, u.role,
+      (SELECT COUNT(*) FROM users r WHERE r.referred_by = u.id AND r.deleted_at IS NULL) AS referrals,
+      (SELECT COUNT(*) FROM users r WHERE r.referred_by = u.id AND ${QUALIFIED_PROVIDER}) AS providers,
+      COALESCE((SELECT SUM(t.amount) FROM wallet_transactions t WHERE t.user_id = u.id AND t.type IN ('referral_commission', 'referral_count_reward') AND t.status = 'completed'), 0) AS earned,
+      COALESCE((SELECT SUM(-t.amount) FROM wallet_transactions t WHERE t.user_id = u.id AND t.type IN ('withdrawal', 'cash_payout') AND t.status = 'completed'), 0) AS paid_out,
+      COALESCE((SELECT SUM(t.amount) FROM wallet_transactions t WHERE t.user_id = u.id AND t.status <> 'cancelled'), 0) AS balance
+    FROM users u WHERE ${where.join(' AND ')}
+    ORDER BY balance DESC, referrals DESC, u.id LIMIT 500`, params);
+  return rows.map(m => ({ ...m, referrals: Number(m.referrals), providers: Number(m.providers),
+    earned: Number(m.earned), paid_out: Number(m.paid_out), balance: Number(m.balance) }));
+}
+
+async function adminMarketerReferrals(marketerId) {
+  const id = Number(marketerId);
+  if (!Number.isSafeInteger(id) || id < 1) { const err = new Error('not_found'); err.code = 'not_found'; err.status = 404; throw err; }
+  const marketer = (await adminMarketers()).find(row => Number(row.id) === id)
+    || await queryOne('SELECT id, full_name, phone, referral_code, role FROM users WHERE id = ?', [id]);
+  if (!marketer) { const err = new Error('not_found'); err.code = 'not_found'; err.status = 404; throw err; }
+  const people = await query(`SELECT r.id, r.referral_code AS account_number, r.full_name, r.phone, r.role,
+      to_jsonb(r)->>'also_client' AS also_client, r.created_at, r.deleted_at IS NOT NULL AS deleted,
+      CASE WHEN ${QUALIFIED_PROVIDER} THEN 1 ELSE 0 END AS counted,
+      EXISTS (SELECT 1 FROM referral_rewards rw WHERE rw.referrer_id = ? AND rw.referred_user_id = r.id) AS rewarded
+    FROM users r WHERE r.referred_by = ? ORDER BY r.created_at DESC, r.id DESC LIMIT 2000`, [id, id]);
+  return { marketer, people: people.map(row => ({ ...row, counted: Number(row.counted) === 1, rewarded: Boolean(row.rewarded), deleted: Boolean(row.deleted) })) };
+}
+
 module.exports = {
+  adminMarketers, adminMarketerReferrals,
   settleCountRewards, settleCountRewardsForInvited, adminCashPayout,
   ensureReferralCode, findReferrerByCode, applyReferralCode, awardReferralIn, notifyCommission,
   requestWithdrawal, cancelWithdrawal, processWithdrawal, previewGift, giftSubscription,
