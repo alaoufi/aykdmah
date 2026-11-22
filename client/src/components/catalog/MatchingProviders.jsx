@@ -262,18 +262,22 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
         <ProviderStatus availability={p.availability} coverage={p.coverage} name={p.business_name || p.full_name} className="mt-1.5" />
         {/* AYK-377: what they say about their services, opening and closing in place. */}
         <ExpandableText text={p.bio} translated={p.bio_translated} lines={2} className="mt-2" testId="provider-bio" />
-        {/* AYK-379: جوال / واتساب (when the provider shows them) / محادثة. AYK-427: shown as buttons. */}
-        {onContact && <ContactButtons size="sm" className="mt-2" phone={p.public_phone} whatsapp={p.public_whatsapp} busy={busy} testId="contact-provider"
-          intro={intro({ service: localizedJoinedName(p, 'category', i18n.resolvedLanguage) || null })} link={`/providers/${p.id}`}
-          onChat={async () => { setBusy(true); try { await onContact(p); } finally { setBusy(false); } }} />}
-        {requester && <ContactButtons size="sm" className="mt-2" phone={p.public_phone} whatsapp={p.public_whatsapp} busy={busy} testId="direct-contact"
-          intro={intro({ service: localizedJoinedName(p, 'category', i18n.resolvedLanguage) || null })} link={`/providers/${p.id}`}
-          onChat={() => run(async () => { const res = await contactDirect(p.id, categoryId); navigate(`/chat/${res.conversation_id}`); })} />}
-        <div className="flex flex-wrap items-center gap-2 mt-2">
+        {/* AYK-379: جوال / واتساب (when the provider shows them) / محادثة. AYK-427: shown as buttons.
+            AYK-451 (the owner: «المحادثة اجعلها بجنب المشاركة، ووضّح المشاركة، ولا تجعل أسطرًا فارغة»):
+            one row: the profile button, then the contact icons and the share button together at the end. */}
+        <div className="flex flex-wrap items-center gap-2 mt-2" data-testid="provider-card-actions">
           {requester && !saved && (<button type="button" className="btn btn-outline btn-sm" disabled={busy} data-testid="save-provider"
               onClick={() => run(() => onToggleSaved(p.id))}>📇 {t('requester.add_directory')}</button>)}
           <Link to={`/providers/${p.id}`} className="btn btn-outline btn-sm">👤 {t('for_you.view_profile')}</Link>
-          <ShareMenu variant="icon" url={providerLink(p.id)} title={p.business_name || p.full_name} text={t('share_provider.message', { name: p.business_name || p.full_name })} testId="card-share" />
+          <span className="ms-auto inline-flex items-center gap-1.5">
+            {onContact && <ContactButtons size="sm" phone={p.public_phone} whatsapp={p.public_whatsapp} busy={busy} testId="contact-provider"
+              intro={intro({ service: localizedJoinedName(p, 'category', i18n.resolvedLanguage) || null })} link={`/providers/${p.id}`}
+              onChat={async () => { setBusy(true); try { await onContact(p); } finally { setBusy(false); } }} />}
+            {requester && !onContact && <ContactButtons size="sm" phone={p.public_phone} whatsapp={p.public_whatsapp} busy={busy} testId="direct-contact"
+              intro={intro({ service: localizedJoinedName(p, 'category', i18n.resolvedLanguage) || null })} link={`/providers/${p.id}`}
+              onChat={() => run(async () => { const res = await contactDirect(p.id, categoryId); navigate(`/chat/${res.conversation_id}`); })} />}
+            <ShareMenu variant="round" url={providerLink(p.id)} title={p.business_name || p.full_name} text={t('share_provider.message', { name: p.business_name || p.full_name })} testId="card-share" />
+          </span>
         </div>
         <BlockedNotice message={problem} otherId={p.id} onUnblocked={() => setProblem('')} />
       </div>
