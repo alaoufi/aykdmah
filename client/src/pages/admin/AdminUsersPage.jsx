@@ -27,13 +27,13 @@ function HelpLabel({ htmlFor, label, short, info, className = 'block text-[12px]
   const [open, setOpen] = useState(false);
   const panelId = useId();
   return (
-    <div className="mb-1">
+    // AYK-462 (the owner: «أسطر متقاربة»): the short line joins the (i) panel instead of a line under the label.
+    <div className="mb-0.5">
       <span className="flex items-center gap-1.5">
         <label htmlFor={htmlFor} className={className}>{label}</label>
-        {info && <InfoButton open={open} onToggle={() => setOpen(v => !v)} controls={panelId} label={typeof label === 'string' ? label : ''} />}
+        {(info || short) && <InfoButton open={open} onToggle={() => setOpen(v => !v)} controls={panelId} label={typeof label === 'string' ? label : ''} />}
       </span>
-      {short && <div className="text-[12px] text-slate-500 mt-0.5 leading-snug" data-testid="field-short">{short}</div>}
-      <InfoPanel id={panelId} open={open}>{info}</InfoPanel>
+      <InfoPanel id={panelId} open={open}>{[short, info].filter(Boolean).join('\n')}</InfoPanel>
     </div>
   );
 }
@@ -211,7 +211,7 @@ export default function AdminUsersPage() {
     }
   };
 
-  const fieldClass = key => `w-full px-3 py-2 rounded-card border ${fieldErrors[key] ? 'border-rose-400 bg-rose-50' : 'border-slate-200 bg-slate-50'} focus:bg-white focus:border-brand-500 outline-none text-[14px]`;
+  const fieldClass = key => `w-full px-3 !py-1 !h-10 !min-h-0 rounded-card border ${fieldErrors[key] ? 'border-rose-400 bg-rose-50' : 'border-slate-200 bg-slate-50'} focus:bg-white focus:border-brand-500 outline-none text-[14px]`;
   const fieldError = key => fieldErrors[key] ? <p className="text-[12px] text-rose-700 mt-1 mb-0" data-testid={`field-error-${key}`}>⚠️ {fieldErrors[key]}</p> : null;
 
   const askBlock = async (u) => {
@@ -466,7 +466,24 @@ export default function AdminUsersPage() {
           </>
         }
       >
-        <form id="AdminUsersPage-form" onSubmit={onSave} className="space-y-3" autoComplete="off">
+        <form id="AdminUsersPage-form" onSubmit={onSave} className="space-y-2" autoComplete="off">
+          {/* AYK-462: the account number first, large, with the name and phone; the special number beside it. */}
+          {editing && (
+            <div className="rounded-card border-2 border-slate-300 bg-slate-50 p-2.5 space-y-2" data-testid="edit-user-number">
+              <div className="flex items-center gap-3">
+                <div className="shrink-0 text-center">
+                  <div className="text-[10.5px] text-slate-500 font-bold">رقم الحساب</div>
+                  <div dir="ltr" className="text-[28px] leading-none font-extrabold text-fg">{editing.referral_code || '—'}</div>
+                </div>
+                <div className="min-w-0 border-s border-slate-300 ps-3">
+                  <div className="font-bold text-[14px] text-ink truncate">{AUTO_NAME.test(String(editing.full_name || '').trim()) ? 'بلا اسم' : editing.full_name}</div>
+                  {editing.phone && <div dir="ltr" className="text-[12.5px] text-slate-500 text-end">{editing.phone}</div>}
+                </div>
+              </div>
+              <SpecialNumberPicker user={editing} compact
+                onChanged={done => { if (done?.referral_code) setEditing(e => ({ ...e, referral_code: done.referral_code })); load(); }} />
+            </div>
+          )}
           {formError && (
             <div className="px-3 py-2 rounded bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">{formError}</div>
           )}
@@ -478,10 +495,8 @@ export default function AdminUsersPage() {
               className={fieldClass('full_name')} />
             {fieldError('full_name')}
           </div>
-          <div className="px-3 py-2 rounded-card bg-blue-50 border border-blue-200 text-blue-700 text-[12px]">
-            💡 {t('auth.identifiers_hint')}
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <p className="text-[11.5px] text-slate-500 m-0">💡 {t('auth.identifiers_hint')}</p>
+          <div className="grid grid-cols-2 gap-x-2 gap-y-2">
             <div>
               <HelpLabel htmlFor="user-username" label={t('auth.username')}
                 short="اسم قصير يدخل به بدل الجوال أو البريد. اختياري."
@@ -517,9 +532,9 @@ export default function AdminUsersPage() {
               {fieldError('facebook_id')}
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-x-2 gap-y-2">
             <div>
-              <HelpLabel htmlFor="user-password" label={editing ? t('admin.field_password_optional') : t('admin.field_password')}
+              <HelpLabel htmlFor="user-password" label={editing ? 'كلمة مرور جديدة' : t('admin.field_password')}
                 short={editing ? 'اكتب كلمة جديدة لتغييرها، أو اتركها فارغة لتبقى كما هي.' : 'كلمة المرور التي يدخل بها صاحب الحساب. أربعة أحرف على الأقل.'}
                 info={'من 4 إلى 100 حرف. تُحفظ مشفّرة ولا يراها أحد بعد الحفظ، حتى الإدارة.\nزر العين يُظهر ما كتبته للتأكد منه.\nعند التعديل: الفراغ يُبقي كلمته الحالية، وكتابة كلمة جديدة تستبدلها وتُخرجه من الاتصال المفتوح ليدخل بها.\nأبلغ صاحب الحساب بها بطريقة آمنة.'} />
               <div className="relative">
@@ -548,7 +563,7 @@ export default function AdminUsersPage() {
                 short="نوعه في الموقع والتطبيق، منفصل عن الإدارة."
                 info={'طالب خدمة: ينشر طلبات ويستقبل عروضًا.\nمقدم خدمة: يظهر في قوائم مقدمي الخدمة ويقدّم عروضًا على الطلبات.\nهذا لا يمنح أي دخول إلى لوحة الإدارة؛ ذلك في خانة «صلاحية إدارية».\nتغييره يُخرجه من الاتصال المفتوح فيعيد التحميل.'} />
               <select id="user-role" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}
-                className="w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]">
+                className="w-full px-3 !py-1 !h-10 !min-h-0 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]">
                 <option value="client">{t('auth.role_client')}</option>
                 <option value="provider">{t('auth.role_provider')}</option>
               </select>
@@ -590,7 +605,6 @@ export default function AdminUsersPage() {
               short="إزالة التأشير توقف الحساب: لا يستطيع الدخول ولا الاستخدام."
               info={'مؤشَّر: الحساب يعمل عاديًا.\nغير مؤشَّر: يُرفض دخوله وتظهر له رسالة أن حسابه غير مفعّل، ويُقطع اتصاله المفتوح. بياناته تبقى كما هي.\nيختلف عن «حظر» في القائمة، وعن الحذف الذي يزيل الحساب.\nأعد التأشير لإرجاعه.'} />
           )}
-          {editing && <SpecialNumberPicker user={editing} onChanged={load} />}
         </form>
       </Modal>
 
