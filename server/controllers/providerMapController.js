@@ -233,7 +233,9 @@ const matching = asyncHandler(async (req, res) => {
   if (req.query.board === '1') {
     const restricted = Boolean(await require('../models/Setting').get('marketplace_restrict_views', false).catch(() => false));
     let wanted = requestedCategories;
-    if (req.user?.role === 'provider' && categoryId === null) {
+    // AYK-450: looking for a provider (as=requester, the home's «مقدمو الخدمة» tab, also for an account
+    // that is both) ranks by what I asked for only, not by my own profession.
+    if (req.user?.role === 'provider' && categoryId === null && req.query.as !== 'requester') {
       const mine = await query('SELECT pp.category_id, pp.service_ids FROM provider_profiles pp WHERE pp.user_id = ?', [req.user.id]);
       const byServiceAll = await serviceCategories();
       wanted = [...new Set([...requestedCategories, ...(mine[0] ? [...providerCategories(mine[0], byServiceAll)] : [])])];

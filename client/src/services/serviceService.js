@@ -115,7 +115,8 @@ export async function listNearbyProviders({ lat, lon, radiusKm, categoryId, serv
 export async function listMatchingProviders({ categoryId, serviceId, cityId, districtId, matching = false, scope = '', board = null } = {}) {
   const params = {};
   // AYK-440: the home board, ranked by the server; `board`: { prof, area } filters.
-  if (board) { params.board = '1'; if (board.prof) params.f_prof = '1'; if (board.area) params.f_area = '1'; }
+  // AYK-450: the board's providers list is always seen as someone looking for a provider.
+  if (board) { params.board = '1'; params.as = 'requester'; if (board.prof) params.f_prof = '1'; if (board.area) params.f_area = '1'; }
   if (scope && scope !== 'area') params.scope = scope; // AYK-397
   if (matching) params.matching = '1';
   if (categoryId) params.category_id = categoryId;

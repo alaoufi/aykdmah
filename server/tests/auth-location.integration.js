@@ -1379,6 +1379,16 @@ if (!databasePrefix) {
     for (const id of [first, second]) await db.query('DELETE FROM requests WHERE id = ?', [id]);
   });
 
+  test('AYK-450: an account that is both looks for providers by what it asked for, not by its own profession', async () => {
+    const area = await simpleArea();
+    const svc = await db.queryOne('SELECT s.id FROM services s WHERE s.is_active = 1 AND s.deleted_at IS NULL ORDER BY s.id LIMIT 1');
+    const both = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await api('/users/me/role', { method: 'PUT', token: both.token, body: { role: 'both', quick: true, service_ids: [Number(svc.id)] } });
+    const meta = async q => (await (await fetch(`${base}/providers/matching?board=1${q}`, { headers: { Authorization: `Bearer ${both.token}` } })).json()).data.board;
+    assert.equal((await meta('&as=requester')).has_profession, false, 'nothing asked yet: «مشابه لطلبي» needs a choice');
+    assert.equal((await meta('')).has_profession, true, 'without as=requester his own profession still counts (old callers)');
+  });
+
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');

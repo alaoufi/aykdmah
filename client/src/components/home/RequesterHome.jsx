@@ -31,13 +31,18 @@ export default function RequesterHome({ topAd = null }) {
   const isProvider = user?.role === 'provider';
   const canRequest = canRequestService(user);
   const [tab, setTab] = useState(() => readTab(isProvider));
+  const [boardMeta, setBoardMeta] = useState(null);
   const { settings } = usePublicSettings();
   const restricted = settings.marketplace_restrict_views === true || settings.marketplace_restrict_views === 'true';
   // No filter by default (AYK-440); kept for this visit only.
   const [filters, setFilters] = useState({ prof: false, area: false });
   const board = restricted ? { prof: true, area: true } : filters;
-  const [boardMeta, setBoardMeta] = useState(null);
-  const choose = next => { setTab(next); try { localStorage.setItem(TAB_KEY, next); } catch (_) { /* private mode */ } };
+  // AYK-450: an account that is both changes meaning between the tabs («مهنتي» ↔ «مشابه لطلبي»), so
+  // the boxes start empty again there; the line under them waits for the new tab's answer.
+  const choose = next => {
+    if (next !== tab) { setBoardMeta(null); if (isProvider) setFilters({ prof: false, area: false }); }
+    setTab(next); try { localStorage.setItem(TAB_KEY, next); } catch (_) { /* private mode */ }
+  };
   // AYK-449 (the owner: «احذف السطر الذي تحتها وقلّل ارتفاعها، وارفعها تحت الهيدر مباشرة»): one line each.
   const tabButton = (value, icon, label) => (
     <button type="button" role="tab" aria-selected={tab === value} onClick={() => choose(value)} data-testid={`home-tab-${value}`}
@@ -55,7 +60,9 @@ export default function RequesterHome({ topAd = null }) {
           {tabButton('providers', '🛠️', t('home.tab_providers'))}
         </div>
         {/* AYK-440/444: everyone, ranked by my profession (or my requests) and my area; two boxes narrow it. */}
-        <BoardFilters value={filters} onChange={setFilters} asProvider={isProvider} restricted={restricted} meta={boardMeta} />
+        {/* AYK-450: who I am on this tab: a provider looking at requests («مهنتي»), or anyone looking
+            for a provider («مشابه لطلبي / لطلباتي»), also an account that is both. */}
+        <BoardFilters value={filters} onChange={setFilters} asProvider={isProvider && tab === 'requests'} restricted={restricted} meta={boardMeta} />
       </div>
       {topAd}
       {tab === 'requests' ? <WorkRequests board={board} asProvider={isProvider} onMeta={setBoardMeta} /> : (
