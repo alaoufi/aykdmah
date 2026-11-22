@@ -2414,7 +2414,8 @@
     "invite_copy": "कॉपी",
     "invite_send_short": "भेजें",
     "invite_copied": "कॉपी हो गया",
-    "invite_friend": "दोस्त को आमंत्रित करें"
+    "invite_friend": "दोस्त को आमंत्रित करें",
+    "invite_friend_hint": "आपके नंबर {{code}} के साथ: लिंक कॉपी करें या व्हाट्सऐप पर भेजें"
   },
   "test_checkout": {
     "banner": "टेस्ट भुगतान — कोई पैसा नहीं कटेगा",

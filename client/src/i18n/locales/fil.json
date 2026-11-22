@@ -2414,7 +2414,8 @@
     "invite_copy": "Kopyahin",
     "invite_send_short": "Ipadala",
     "invite_copied": "Nakopya",
-    "invite_friend": "Imbitahan ang kaibigan"
+    "invite_friend": "Imbitahan ang kaibigan",
+    "invite_friend_hint": "Gamit ang numero mo {{code}}: kopyahin ang link o ipadala sa WhatsApp"
   },
   "test_checkout": {
     "banner": "Test na bayad — walang perang ibabawas",

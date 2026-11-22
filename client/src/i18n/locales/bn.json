@@ -2414,7 +2414,8 @@
     "invite_copy": "কপি",
     "invite_send_short": "পাঠান",
     "invite_copied": "কপি হয়েছে",
-    "invite_friend": "বন্ধুকে আমন্ত্রণ জানান"
+    "invite_friend": "বন্ধুকে আমন্ত্রণ জানান",
+    "invite_friend_hint": "আপনার নম্বর {{code}} দিয়ে: লিংক কপি করুন বা হোয়াটসঅ্যাপে পাঠান"
   },
   "test_checkout": {
     "banner": "পরীক্ষামূলক পরিশোধ — কোনো অর্থ কাটা হবে না",

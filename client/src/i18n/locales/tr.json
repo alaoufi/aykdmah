@@ -2414,7 +2414,8 @@
     "invite_copy": "Kopyala",
     "invite_send_short": "Gönder",
     "invite_copied": "Kopyalandı",
-    "invite_friend": "Arkadaşını davet et"
+    "invite_friend": "Arkadaşını davet et",
+    "invite_friend_hint": "Numaranız {{code}} ile: bağlantıyı kopyalayın veya WhatsApp ile gönderin"
   },
   "test_checkout": {
     "banner": "Deneme ödemesi — hiçbir tutar çekilmeyecek",

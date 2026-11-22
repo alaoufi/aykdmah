@@ -289,12 +289,18 @@ export default function ProfilePage() {
 
   return (
     <div className="container page" style={{ maxWidth: 720 }}>
-      {/* AYK-465 (the owner: «أضف دعوة صديق هنا»): beside «حسابي», the same copy / send as in the menu. */}
-      <div className="flex items-center justify-between gap-2 mb-4">
-        <h2 className="m-0">{t('profile.title')}</h2>
-        {user?.referral_code && <InviteButton code={user.referral_code} below testid="profile-invite" label={t('wallet.invite_friend')}
-          className="px-4 py-2 rounded-pill border-2 border-primary bg-primary-soft text-[14.5px] font-extrabold text-fg cursor-pointer hover:bg-surface-alt" />}
-      </div>
+      <h2 className="mb-3">{t('profile.title')}</h2>
+      {/* AYK-465 (the owner: «أضف دعوة صديق هنا»؛ «لأهميته يكون واضح»): a full-width button in the
+          site's main colour, first on the page, with the account number the invitation carries. */}
+      {user?.referral_code && (
+        <div className="mb-4">
+          <InviteButton code={user.referral_code} below block testid="profile-invite"
+            label={<span className="flex items-center justify-center gap-2"><span className="text-2xl" aria-hidden="true">🎁</span>
+              <span className="text-start"><span className="block text-[17px] font-extrabold">{t('wallet.invite_friend')}</span>
+                <span className="block text-[12.5px] font-semibold opacity-90">{t('wallet.invite_friend_hint', { code: user.referral_code })}</span></span></span>}
+            className="w-full min-h-[60px] px-4 py-2.5 rounded-card border-0 bg-primary text-white shadow-lift cursor-pointer hover:opacity-95" />
+        </div>
+      )}
       <AdSlot placement="profile_top" className="mb-4" />
       {/* An account with admin rights opens the admin area from here too (AYK-202). */}
       <AdminPanelLink className="btn btn-outline w-full mb-4" />

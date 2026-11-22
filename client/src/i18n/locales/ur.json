@@ -2414,7 +2414,8 @@
     "invite_copy": "کاپی",
     "invite_send_short": "بھیجیں",
     "invite_copied": "کاپی ہو گیا",
-    "invite_friend": "دوست کو مدعو کریں"
+    "invite_friend": "دوست کو مدعو کریں",
+    "invite_friend_hint": "آپ کے نمبر {{code}} کے ساتھ: لنک کاپی کریں یا واٹس ایپ پر بھیجیں"
   },
   "test_checkout": {
     "banner": "آزمائشی ادائیگی — کوئی رقم نہیں کٹے گی",

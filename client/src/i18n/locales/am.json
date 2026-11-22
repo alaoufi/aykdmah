@@ -2414,7 +2414,8 @@
     "invite_copy": "ቅዳ",
     "invite_send_short": "ላክ",
     "invite_copied": "ተቀድቷል",
-    "invite_friend": "ጓደኛ ይጋብዙ"
+    "invite_friend": "ጓደኛ ይጋብዙ",
+    "invite_friend_hint": "በቁጥርዎ {{code}}፦ ሊንኩን ይቅዱ ወይም በዋትስአፕ ይላኩ"
   },
   "test_checkout": {
     "banner": "የሙከራ ክፍያ — ምንም ገንዘብ አይቀነስም",
