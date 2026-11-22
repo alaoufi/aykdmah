@@ -534,7 +534,8 @@ async function setSettings({ commission_percent, min_withdrawal, marketing_enabl
 // AYK-453 (the owner: «صفحة يعرض فيها رصيد المسوّقين: رقمه، اسمه، عدد المسجلين عن طريقه، وتفصيل بأرقام
 // المسجلين عن طريقه»). The list (searchable by name, phone or number) and one marketer's sign-ups.
 async function adminMarketers({ search = '' } = {}) {
-  const where = ['EXISTS (SELECT 1 FROM users r WHERE r.referred_by = u.id)'];
+  // AYK-464: every account with a balance or a wallet movement, not only those who invited someone.
+  const where = ['(EXISTS (SELECT 1 FROM users r WHERE r.referred_by = u.id) OR EXISTS (SELECT 1 FROM wallet_transactions t WHERE t.user_id = u.id))'];
   const params = [];
   const text = String(search || '').trim().slice(0, 100);
   if (text) {

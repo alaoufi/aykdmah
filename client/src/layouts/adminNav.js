@@ -29,6 +29,8 @@ export const NAV_GROUPS = [
       { to: '/admin/users',         icon: '👥', labelKey: 'admin.users',           perm: 'users.manage' },
       { to: '/admin/providers',     icon: '🧰', labelKey: 'admin.stats_providers', perm: 'users.manage' },
       { to: '/admin/verifications', icon: '🪪', labelKey: 'admin.verifications',   perm: 'verifications.review' },
+      // AYK-464 (the owner: «وين أحصل صفحة تقرير رصيد المستخدمين؟ أضفها مع المستخدمين»).
+      { to: '/admin/marketers',     icon: '💳', labelKey: 'admin.marketers',       perm: 'wallets.manage' },
     ],
   },
   {
@@ -61,7 +63,6 @@ export const NAV_GROUPS = [
       { to: '/admin/badges',  icon: '🏅', labelKey: 'admin.badges',         perm: 'badges.manage' },
       { to: '/admin/ads',     icon: '📣', labelKey: 'admin.ads',            perm: 'ads.manage' },
       { to: '/admin/wallets', icon: '💰', labelKey: 'wallet.admin.title',   perm: 'wallets.manage' },
-      { to: '/admin/marketers', icon: '🤝', labelKey: 'admin.marketers', perm: 'wallets.manage' }, // AYK-453
     ],
   },
   {
