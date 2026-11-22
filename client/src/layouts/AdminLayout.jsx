@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet, NavLink, Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../hooks/useAuth';
@@ -7,7 +7,7 @@ import BrandLogo from '../components/common/BrandLogo';
 import useArabicOnly from '../hooks/useArabicOnly';
 import UpdateBar from '../components/common/UpdateBar';
 import { IconMenu, IconClose, IconBell } from '../components/common/Icons';
-import { useNotifications } from '../hooks/useNotifications';
+import { listNotifications } from '../services/chatService';
 import { AdminBackProvider, AdminBackButton } from '../components/admin/AdminBackNavigation';
 
 import { NAV_GROUPS } from './adminNav';
@@ -32,9 +32,17 @@ function AdminLayoutFrame() {
   useArabicOnly();
   const { t } = useTranslation();
   const { user, logout, hasPermission, isSuperAdmin } = useAuth();
-  const { unread } = useNotifications();
   const navigate = useNavigate();
   const location = useLocation();
+  // AYK-458: the administration's own notices only; the site's stay on the site.
+  const [unread, setUnread] = useState(0);
+  useEffect(() => {
+    let alive = true;
+    const count = () => listNotifications({ scope: 'admin', limit: 1 }).then(res => { if (alive) setUnread(Number(res.meta?.unread) || 0); }).catch(() => {});
+    count();
+    const timer = setInterval(count, 60000);
+    return () => { alive = false; clearInterval(timer); };
+  }, [location.pathname]); // eslint-disable-line react-hooks/exhaustive-deps
   const [open, setOpen] = useState(false);
   const currentLabel = findCurrentLabel(location.pathname);
 
@@ -165,7 +173,7 @@ function AdminLayoutFrame() {
             <div className="text-[15px] font-extrabold text-fg truncate">{t(currentLabel)}</div>
           </div>
           <Link
-            to="/notifications"
+            to="/admin/notifications"
             className="relative w-10 h-10 grid place-items-center rounded-pill text-fg-muted hover:bg-surface-alt no-underline"
             aria-label={t('notification.title')}
           >

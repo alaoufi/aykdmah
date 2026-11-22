@@ -119,7 +119,9 @@ export default function CreateRequestPage() {
       appendRequestLocation(fd, locationSnapshot);
       const created = await createRequest(fd);
       if (locationSnapshot.remember_location && current === operation.current) await refresh();
-      if (current === operation.current) navigate(`/requests/${created.id}`);
+      // AYK-454 (the owner: «بعد الحفظ يعطيه رسالة: تم نشر طلبك، ويعرض يشاهده الجميع بما فيهم صاحبه»): home,
+      // the requests tab, his request first under the message.
+      if (current === operation.current) navigate('/', { state: { published: created.id } });
     } catch (err) {
       // The raw error keeps the server's reason and code for the message card (AYK-219).
       if (current === operation.current) setError(err);

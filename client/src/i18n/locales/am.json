@@ -164,10 +164,6 @@
     "launch_offers_label": "የአገልግሎት ዋጋዎችን ያነፃፅሩ",
     "launch_contact": "ውይይት",
     "launch_contact_label": "በመተግበሪያው ውስጥ ውይይት",
-    "get_app": "የ«Ay Khidma» መተግበሪያን ያግኙ",
-    "get_it_on": "ከዚህ ያግኙ",
-    "download_on": "ከዚህ ያውርዱ",
-    "coming_soon": "በቅርቡ የሚገኝበት",
     "tab_requests": "አገልግሎት ጠያቂዎች",
     "tab_providers": "አገልግሎት ሰጪዎች",
     "scope_label": "ክልል፦",
@@ -234,7 +230,11 @@
     "sections_hint": "ከአንድ በላይ ሙያ መምረጥ ይችላሉ፤ የሚመሳሰሉትን እናሳይዎታለን።",
     "sections_save": "አስቀምጥ ({{count}})",
     "sections_edit": "ሙያዎችን ቀይር",
-    "filter_need_sections": "«ከጥያቄዬ ጋር የሚመሳሰል» እንዲሠራ የሚፈልጓቸውን ሙያዎች ይምረጡ።"
+    "filter_need_sections": "«ከጥያቄዬ ጋር የሚመሳሰል» እንዲሠራ የሚፈልጓቸውን ሙያዎች ይምረጡ።",
+    "published_title": "ጥያቄዎ ታትሟል",
+    "published_hint": "አሁን ሁሉም ሊያዩት ይችላሉ፣ በሙያውና በአካባቢው ያሉ አገልግሎት ሰጪዎችም፤ እዚህ በዝርዝሩ መጀመሪያ ላይ ነው።",
+    "published_open": "ጥያቄዎን ይክፈቱ",
+    "published_see": "ጥያቄዎን በመነሻ ገጹ ይመልከቱ"
   },
   "location": {
     "country": "ሀገር",
@@ -3089,7 +3089,6 @@
     "hint": "ከመረጃዎ የትኛው ለማን እንደሚታይ ይምረጡ። እስኪመርጡ ድረስ ሁሉም የተደበቀ ነው።",
     "share_phone": "ስልኬ",
     "share_phone_hint": "በክፍት ጥያቄዎ ሙያ ያሉ ሰጪዎች ብቻ ያዩታል፤ በቀጥታ ይደውሉልዎታል።",
-    "no_phone": "መጀመሪያ ከላይ ስልክ ቁጥርዎን ያክሉ።",
     "share_whatsapp": "ዋትስአፕዬ",
     "share_whatsapp_hint": "በክፍት ጥያቄዎ ሙያ ያሉ ሰጪዎች በዋትስአፕ መልእክት ሊልኩልዎ ይችላሉ።",
     "whatsapp_number": "የዋትስአፕ ቁጥር (አማራጭ)",
@@ -3105,11 +3104,7 @@
     "my_visible_edit": "የሚታየውን ይቀይሩ",
     "name_label": "ስም",
     "phone_label": "ስልክ",
-    "whatsapp_label": "ዋትስአፕ",
-    "allow_share": "ጥያቄዎቼ እንዲጋሩ ፍቀድ",
-    "allow_share_hint": "አገልግሎት ሰጪዎችና ጎብኚዎች የጥያቄዎን አገናኝ ማጋራት ይችላሉ፣ ሊረዳ ለሚችል ሰው እንዲደርስ። እርስዎ ሁልጊዜ ማጋራት ይችላሉ።",
-    "share_allowed": "ሌሎች ጥያቄዎን ማጋራት ይችላሉ።",
-    "share_not_allowed": "ጥያቄዎን የሚያጋሩት እርስዎ ብቻ ነዎት። ከ«የሚታየውን ይቀይሩ» ይፍቀዱ።"
+    "whatsapp_label": "ዋትስአፕ"
   },
   "understand": {
     "title": "ጥያቄዎን በራስዎ አነጋገር ይጻፉ",

@@ -67,7 +67,8 @@ export default function RequestCard({ request }) {
           )}
         </div>
         {/* AYK-436/439: share the request: its owner always, others only when the requester allows it. */}
-        {(mine(request) || Number(request.client_allow_share) === 1) && (
+        {/* AYK-455: «أسمح بمشاركة طلباتي» removed; a published request is shared by anyone. */}
+        {(
         <span className="shrink-0 inline-flex" onClick={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()}>
           <ShareMenu variant="icon-sm" url={`${SITE_URL}/requests/${request.id}`} title={translation.title}
             text={t('share.request_text', { title: translation.title })} testId="request-share" />

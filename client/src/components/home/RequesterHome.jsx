@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import MatchingProviders from '../catalog/MatchingProviders';
 import WorkRequests from './WorkRequests';
@@ -30,7 +30,13 @@ export default function RequesterHome({ topAd = null }) {
   const { user } = useAuth();
   const isProvider = user?.role === 'provider';
   const canRequest = canRequestService(user);
-  const [tab, setTab] = useState(() => readTab(isProvider));
+  // AYK-454: just published: the requests tab, with the message and the request first.
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [published] = useState(() => location.state?.published || null);
+  const [showPublished, setShowPublished] = useState(Boolean(published));
+  const [tab, setTab] = useState(() => (published ? 'requests' : readTab(isProvider)));
+  useEffect(() => { if (location.state?.published) { window.scrollTo(0, 0); navigate('.', { replace: true, state: null }); } }, []); // eslint-disable-line react-hooks/exhaustive-deps
   const [boardMeta, setBoardMeta] = useState(null);
   const { settings } = usePublicSettings();
   const restricted = settings.marketplace_restrict_views === true || settings.marketplace_restrict_views === 'true';
@@ -64,6 +70,17 @@ export default function RequesterHome({ topAd = null }) {
             for a provider («مشابه لطلبي / لطلباتي»), also an account that is both. */}
         <BoardFilters value={filters} onChange={setFilters} asProvider={isProvider && tab === 'requests'} restricted={restricted} meta={boardMeta} />
       </div>
+      {showPublished && (
+        <div className="rounded-card border-2 border-success bg-success-soft px-3 py-2.5 flex items-start gap-2" role="status" data-testid="published-notice">
+          <span className="text-xl" aria-hidden="true">✅</span>
+          <div className="min-w-0 flex-1">
+            <p className="m-0 font-extrabold text-fg text-[14.5px]">{t('home.published_title')}</p>
+            <p className="m-0 text-[12.5px] text-fg-muted">{t('home.published_hint')}</p>
+            <Link to={`/requests/${published}`} className="text-[13px] font-bold text-primary">{t('home.published_open')}</Link>
+          </div>
+          <button type="button" aria-label={t('common.close')} className="bg-transparent border-0 text-fg-muted text-lg cursor-pointer" onClick={() => setShowPublished(false)}>×</button>
+        </div>
+      )}
       {topAd}
       {tab === 'requests' ? <WorkRequests board={board} asProvider={isProvider} onMeta={setBoardMeta} /> : (
         <>

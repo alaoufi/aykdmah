@@ -164,10 +164,6 @@
     "launch_offers_label": "Compare service prices",
     "launch_contact": "Contact",
     "launch_contact_label": "Chat in the app",
-    "get_app": "Get the Ay Khidma app",
-    "get_it_on": "GET IT ON",
-    "download_on": "Download on the",
-    "coming_soon": "Coming soon to",
     "tab_requests": "Service requesters",
     "tab_providers": "Service providers",
     "scope_label": "Circle:",
@@ -234,7 +230,11 @@
     "sections_hint": "You can choose more than one profession; we show you what is similar.",
     "sections_save": "Save ({{count}})",
     "sections_edit": "Change professions",
-    "filter_need_sections": "Choose the professions you need for «Similar to my request» to work."
+    "filter_need_sections": "Choose the professions you need for «Similar to my request» to work.",
+    "published_title": "Your request is published",
+    "published_hint": "Everyone can see it now, including the service providers of its profession and area; it is first in the list here.",
+    "published_open": "Open your request",
+    "published_see": "See your request on the home page"
   },
   "location": {
     "country": "Country",
@@ -2669,8 +2669,8 @@
     "alerts_none": "No new requests for your profession in your area",
     "alerts_ask": "Would you like a reminder when a request that suits you comes in?",
     "alerts_yes": "Yes, remind me",
-    "alerts_on": "Reminders on: you get a notice as soon as a request arrives in your profession and area, even outside your working hours, with how to reach the requester.",
-    "alerts_stop": "Stop reminders"
+    "alerts_on": "Notices on: every new request in your profession and coverage reaches you, in your language, with its link and how to reach the requester.",
+    "alerts_stop": "Turn notices off"
   },
   "requester": {
     "all_professions": "All professions",
@@ -3089,7 +3089,6 @@
     "hint": "Choose what of your details shows, and to whom. All hidden until you choose; change it any time.",
     "share_phone": "My phone",
     "share_phone_hint": "Only providers in your open request's profession see it, so they can call you directly.",
-    "no_phone": "Add your phone number above first.",
     "share_whatsapp": "My WhatsApp",
     "share_whatsapp_hint": "Providers in your open request's profession can message you on WhatsApp.",
     "whatsapp_number": "WhatsApp number (optional)",
@@ -3105,11 +3104,7 @@
     "my_visible_edit": "Change what shows",
     "name_label": "Name",
     "phone_label": "Phone",
-    "whatsapp_label": "WhatsApp",
-    "allow_share": "Allow sharing my requests",
-    "allow_share_hint": "Providers and visitors can share your request's link (WhatsApp and others) so it reaches someone who can help. You can always share it yourself.",
-    "share_allowed": "Others can share your request.",
-    "share_not_allowed": "Only you can share your request. Allow it from \"Change what shows\"."
+    "whatsapp_label": "WhatsApp"
   },
   "understand": {
     "title": "Write your request in your own dialect",

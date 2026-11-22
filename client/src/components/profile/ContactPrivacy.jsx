@@ -25,58 +25,61 @@ export default function ContactPrivacy() {
     try { await updateProfile(payload); await refresh(); } catch (err) { setProblem(apiError(err)); } finally { setBusy(''); }
   };
   const Toggle = ({ name, label, hint, disabled }) => (
-    <label className={`flex items-start gap-3 py-2 ${disabled ? 'opacity-50' : 'cursor-pointer'}`}>
-      <input type="checkbox" className="mt-1 w-5 h-5 shrink-0" checked={on(name)} disabled={disabled || busy === name}
+    <label className={`flex items-start gap-2.5 py-1.5 ${disabled ? 'opacity-50' : 'cursor-pointer'}`}>
+      <input type="checkbox" className="mt-0.5 w-4 h-4 shrink-0" checked={on(name)} disabled={disabled || busy === name}
         onChange={event => save(name, { [name]: event.target.checked ? 1 : 0 })} data-testid={`contact-${name}`} />
       <span className="min-w-0">
-        <span className="block font-semibold text-[14px]">{label}</span>
-        <span className="block text-[12px] text-fg-muted">{hint}</span>
+        <span className="block font-semibold text-[13px]">{label}</span>
+        <span className="block text-[11.5px] text-fg-muted">{hint}</span>
       </span>
     </label>
   );
-  // AYK-438/439 (the owner: «بيانات التواصل لطالب الخدمة لا تظهر إلا لمقدم الخدمة»): name, phone and
-  // WhatsApp each hidden or shown to service providers.
+  // AYK-438/439: name, phone and WhatsApp each hidden or shown to service providers.
+  // AYK-455 (the owner: «شكلها ليس جميلًا… احذف الاسم والواتس والجوال إذا لم يكن مسجّلًا في ملفه، وأسمح
+  // بمشاركة طلباتي تُحذف، وتُرتّب بخط صغير وترتيب منسّق»): one short row each, only for what he has.
   const LEVELS = [[0, t('contact_privacy.level_hidden')], [1, t('contact_privacy.level_providers')]];
-  const Level = ({ name, label, disabled }) => (
-    <div className={`py-2 ${disabled ? 'opacity-50' : ''}`} data-testid={`contact-${name}`}>
-      <div className="font-semibold text-[14px] mb-1">{label}</div>
-      <div className="flex flex-wrap gap-1.5" role="radiogroup" aria-label={label}>
+  const Level = ({ name, label }) => (
+    <div className="flex items-center justify-between gap-2 py-1.5 border-t border-border first:border-t-0" data-testid={`contact-${name}`}>
+      <span className="text-[13px] font-semibold text-fg min-w-0 truncate">{label}</span>
+      <div className="inline-flex shrink-0 rounded-pill bg-surface-alt p-0.5" role="radiogroup" aria-label={label}>
         {LEVELS.map(([value, text]) => {
           const active = level(name) === value;
           return (
-            <button key={value} type="button" role="radio" aria-checked={active} disabled={disabled || busy === name}
+            <button key={value} type="button" role="radio" aria-checked={active} disabled={busy === name}
               onClick={() => !active && save(name, { [name]: value })} data-testid={`contact-${name}-${value}`}
-              className={`px-3 py-1.5 rounded-pill border text-[12.5px] font-bold ${active ? 'bg-primary text-primary-fg border-primary' : 'bg-surface border-border text-fg'}`}
+              className={`px-2.5 py-1 rounded-pill border-0 text-[11.5px] font-bold cursor-pointer ${active ? 'bg-primary text-primary-fg' : 'bg-transparent text-fg-muted'}`}
               style={{ minHeight: 0 }}>{text}</button>
           );
         })}
       </div>
     </div>
   );
+  const hasName = Boolean(String(user.full_name || '').trim());
+  const hasPhone = Boolean(user.phone);
+  const hasWhatsApp = hasPhone || Boolean(user.whatsapp_number);
   return (
     <div className="card mb-4" id="contact-privacy" data-testid="contact-privacy">
-      <h3 className="mb-1">📇 {t('contact_privacy.title')}</h3>
-      <p className="text-[12.5px] text-fg-muted mb-2">{t('contact_privacy.hint')}</p>
-      {requester && <>
-        <Level name="share_name" label={t('contact_privacy.share_name')} />
-        <Level name="share_phone" label={t('contact_privacy.share_phone')} disabled={!user.phone} />
-        {!user.phone && <p className="text-[12px] text-fg-muted m-0">{t('contact_privacy.no_phone')}</p>}
-        <Level name="share_whatsapp" label={t('contact_privacy.share_whatsapp')} disabled={!user.phone && !whatsapp} />
-        {level('share_whatsapp') > 0 && (
-          <div className="flex items-end gap-2">
+      <h3 className="mb-0.5 text-[15px]">📇 {t('contact_privacy.title')}</h3>
+      <p className="text-[11.5px] text-fg-muted mb-1.5">{t('contact_privacy.hint')}</p>
+      {requester && (hasName || hasPhone || hasWhatsApp) && <>
+        <div className="rounded-card border border-border px-2.5">
+          {hasName && <Level name="share_name" label={t('contact_privacy.share_name')} />}
+          {hasPhone && <Level name="share_phone" label={t('contact_privacy.share_phone')} />}
+          {hasWhatsApp && <Level name="share_whatsapp" label={t('contact_privacy.share_whatsapp')} />}
+        </div>
+        {hasWhatsApp && level('share_whatsapp') > 0 && (
+          <div className="flex items-end gap-2 mt-2">
             <div className="flex-1 min-w-0">
               <Input id="contact-whatsapp-number" label={t('contact_privacy.whatsapp_number')} type="tel" dir="ltr" maxLength={30}
                 placeholder={user.phone || '05XXXXXXXX'} hint={t('contact_privacy.whatsapp_number_hint')}
                 value={whatsapp} onChange={event => setWhatsapp(event.target.value)} />
             </div>
-            <Button type="button" variant="outline" className="mb-4" loading={busy === 'whatsapp_number'}
+            <Button type="button" variant="outline" size="sm" className="mb-4" loading={busy === 'whatsapp_number'}
               disabled={(whatsapp || '') === (user.whatsapp_number || '')}
               onClick={() => save('whatsapp_number', { whatsapp_number: whatsapp.trim() || null })}>{t('common.save')}</Button>
           </div>
         )}
-        <p className="text-[12px] text-fg-muted mt-1 mb-2">{t('contact_privacy.levels_hint')}</p>
-        {/* AYK-439: others share my requests only with my permission. */}
-        <Toggle name="allow_request_share" label={t('contact_privacy.allow_share')} hint={t('contact_privacy.allow_share_hint')} />
+        <p className="text-[11px] text-fg-muted mt-1.5 mb-1">{t('contact_privacy.levels_hint')}</p>
       </>}
       <Toggle name="marketing_opt_in" label={t('contact_privacy.marketing')} hint={t('contact_privacy.marketing_hint')} />
       {problem && <p role="alert" className="form-error mt-1">{problem}</p>}

@@ -608,7 +608,11 @@ if (!databasePrefix) {
     const posted = await api('/requests', { method: 'POST', token: client.token, expected: 201, body: {
       title: 'تسريب', description: 'تسريب في المطبخ', category_id: service.category_id } });
     const postedId = Number(posted.id);
-    const notice = await db.queryOne("SELECT link FROM notifications WHERE user_id = ? AND type = 'request_new' ORDER BY id DESC LIMIT 1", [provider.user.id]);
+    let notice = null;
+    for (let i = 0; i < 30 && !notice; i += 1) { // AYK-456: a moment after saving
+      notice = await db.queryOne("SELECT link FROM notifications WHERE user_id = ? AND type = 'request_new' ORDER BY id DESC LIMIT 1", [provider.user.id]);
+      if (!notice) await new Promise(resolve => setTimeout(resolve, 100));
+    }
     assert.equal(notice.link, `/requests/${postedId}`);
     // "Requests in your profession" lists it (AYK-079: the stored profession list is read correctly).
     const mine = await api('/requests/nearby?limit=50&matching=1', { token: provider.token });
@@ -820,7 +824,12 @@ if (!databasePrefix) {
     await db.query('UPDATE users SET role = ?, is_super_admin = 1 WHERE id = ?', ['admin', owner.user.id]);
     const account = await db.queryOne('SELECT auth_version FROM users WHERE id = ?', [owner.user.id]);
     const admin = require('../utils/jwt').sign({ id: owner.user.id, role: 'admin', auth_version: Number(account.auth_version || 0) });
-    const notified = async requestId => Boolean(await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_new' AND link = ?", [provider.user.id, `/requests/${requestId}`]));
+    // AYK-456: the notices go out right after the request is translated, a moment after it is saved.
+    const notified = async requestId => {
+      const find = async () => Boolean(await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_new' AND link = ?", [provider.user.id, `/requests/${requestId}`]));
+      for (let i = 0; i < 20; i += 1) { if (await find()) return true; await new Promise(resolve => setTimeout(resolve, 100)); }
+      return find();
+    };
     const post = async () => Number((await api('/requests', { method: 'POST', token: client.token, expected: 201, body: { category_id: categoryId } })).id);
     const listed = async () => (await api(`/providers/matching?category_id=${categoryId}`, { token: client.token })).providers.some(p => Number(p.id) === Number(provider.user.id));
     // The admin account may post a request (the owner tests the site with it).
@@ -1340,13 +1349,29 @@ if (!databasePrefix) {
     await api('/users/me', { method: 'PUT', token: owner.token, body: { share_whatsapp: 1 } });
     const id = Number((await api('/requests', { method: 'POST', token: owner.token, expected: 201, body: {
       title: 'Fix the AC', description: 'تجربة التذكير', category_id: Number(svc.category_id), city_id: area.city_id, district_id: area.district_id, latitude: 24.7136, longitude: 46.6753 } })).id);
-    await new Promise(resolve => setTimeout(resolve, 300));
-    const notice = await db.queryOne("SELECT title, body FROM notifications WHERE user_id = ? AND type = 'request_new' ORDER BY id DESC LIMIT 1", [asked.user.id]);
-    assert.ok(notice, 'the provider who asked is told, outside his hours');
+    let notice = null;
+    for (let i = 0; i < 30 && !notice; i += 1) {
+      await new Promise(resolve => setTimeout(resolve, 100));
+      notice = await db.queryOne("SELECT title, body FROM notifications WHERE user_id = ? AND type = 'request_new' ORDER BY id DESC LIMIT 1", [asked.user.id]);
+    }
+    assert.ok(notice, 'the provider is told, outside his hours');
     assert.equal(notice.title, 'New request in your profession');
     assert.match(notice.body, /Fix the AC/);
     assert.match(notice.body, /chat or WhatsApp/, 'how to reach the requester: chat and WhatsApp (shown), not a call');
-    assert.ok(!(await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_new'", [quiet.user.id])), 'outside his hours without a reminder: not told');
+    // AYK-456: every provider of the profession in the area is told, at any hour, unless he turned notices off.
+    assert.ok(await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_new'", [quiet.user.id]), 'outside his hours: told as well');
+    const off = await makeProvider();
+    await api('/users/me', { method: 'PUT', token: off.token, body: { request_alerts_off: 1 } });
+    const paused = await makeProvider();
+    await db.query("UPDATE provider_profiles SET availability_status = 'paused' WHERE user_id = ?", [paused.user.id]);
+    const second = Number((await api('/requests', { method: 'POST', token: owner.token, expected: 201, body: {
+      title: 'Second one', description: 'تجربة الإيقاف', category_id: Number(svc.category_id), city_id: area.city_id, district_id: area.district_id, latitude: 24.7136, longitude: 46.6753 } })).id);
+    let told = null;
+    for (let i = 0; i < 30 && !told; i += 1) { await new Promise(resolve => setTimeout(resolve, 100)); told = await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND link = ?", [quiet.user.id, `/requests/${second}`]); }
+    assert.ok(told, 'the notice opens the request');
+    assert.ok(!(await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_new'", [off.user.id])), 'turned off: not told');
+    assert.ok(!(await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_new'", [paused.user.id])), 'paused: not told');
+    await db.query('DELETE FROM requests WHERE id = ?', [second]);
     await db.query('DELETE FROM requests WHERE id = ?', [id]);
   });
 
@@ -1387,6 +1412,36 @@ if (!databasePrefix) {
     const meta = async q => (await (await fetch(`${base}/providers/matching?board=1${q}`, { headers: { Authorization: `Bearer ${both.token}` } })).json()).data.board;
     assert.equal((await meta('&as=requester')).has_profession, false, 'nothing asked yet: «مشابه لطلبي» needs a choice');
     assert.equal((await meta('')).has_profession, true, 'without as=requester his own profession still counts (old callers)');
+  });
+
+  test('AYK-454: my own open request is on my home board, first', async () => {
+    const area = await simpleArea();
+    const svc = await db.queryOne('SELECT s.category_id FROM services s WHERE s.is_active = 1 AND s.deleted_at IS NULL ORDER BY s.id LIMIT 1');
+    const me = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await db.query("UPDATE settings SET setting_value = 'false' WHERE setting_key = 'marketplace_restrict_views'");
+    const id = Number((await api('/requests', { method: 'POST', token: me.token, expected: 201, body: {
+      title: 'طلبي أنا', description: 'يظهر لي', category_id: Number(svc.category_id), city_id: area.city_id, district_id: area.district_id, latitude: 24.7136, longitude: 46.6753 } })).id);
+    const rows = await api('/requests/nearby?board=1&as=requester&limit=30', { token: me.token });
+    assert.equal(Number(rows[0].id), id, 'first on my board');
+    const other = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    assert.ok((await api('/requests/nearby?board=1&as=requester&limit=100', { token: other.token })).some(row => Number(row.id) === id), 'everyone sees it');
+    await db.query('DELETE FROM requests WHERE id = ?', [id]);
+  });
+
+  test('AYK-458: the admin area\'s bell shows only administration notices; the site never shows them', async () => {
+    const area = await simpleArea();
+    const me = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await db.query(`INSERT INTO notifications (user_id, type, title, body, link, channel) VALUES (?, 'support_new', 'admin one', '', '/admin/support/1', 'in_app'), (?, 'request_new', 'site one', '', '/requests/1', 'in_app')`, [me.user.id, me.user.id]);
+    const read = async q => (await (await fetch(`${base}/notifications${q}`, { headers: { Authorization: `Bearer ${me.token}` } })).json());
+    const site = await read('');
+    assert.deepEqual(site.data.map(n => n.title), ['site one']);
+    assert.equal(site.meta.unread, 1);
+    const admin = await read('?scope=admin');
+    assert.deepEqual(admin.data.map(n => n.title), ['admin one']);
+    assert.equal(admin.meta.unread, 1);
+    await fetch(`${base}/notifications/read-all?scope=admin`, { method: 'PUT', headers: { Authorization: `Bearer ${me.token}` } });
+    assert.equal((await read('?scope=admin')).meta.unread, 0);
+    assert.equal((await read('')).meta.unread, 1, 'reading the admin notices leaves the site ones');
   });
 
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {

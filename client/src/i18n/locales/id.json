@@ -164,10 +164,6 @@
     "launch_offers_label": "Bandingkan harga layanan",
     "launch_contact": "Chat",
     "launch_contact_label": "Kontak di dalam aplikasi",
-    "get_app": "Dapatkan aplikasi Ay Khidma",
-    "get_it_on": "DAPATKAN DI",
-    "download_on": "Unduh di",
-    "coming_soon": "Segera hadir di",
     "tab_requests": "Pencari layanan",
     "tab_providers": "Penyedia layanan",
     "scope_label": "Cakupan:",
@@ -234,7 +230,11 @@
     "sections_hint": "Anda bisa memilih lebih dari satu profesi; kami tampilkan yang mirip.",
     "sections_save": "Simpan ({{count}})",
     "sections_edit": "Ubah profesi",
-    "filter_need_sections": "Pilih profesi yang Anda butuhkan agar «Mirip permintaan saya» berfungsi."
+    "filter_need_sections": "Pilih profesi yang Anda butuhkan agar «Mirip permintaan saya» berfungsi.",
+    "published_title": "Permintaan Anda sudah diterbitkan",
+    "published_hint": "Semua orang kini bisa melihatnya, termasuk penyedia layanan di profesi dan wilayahnya; ada di urutan pertama di sini.",
+    "published_open": "Buka permintaan Anda",
+    "published_see": "Lihat permintaan Anda di beranda"
   },
   "location": {
     "country": "Negara",
@@ -3089,7 +3089,6 @@
     "hint": "Pilih data mana yang tampil dan untuk siapa. Semua tersembunyi sampai Anda memilih.",
     "share_phone": "Ponsel saya",
     "share_phone_hint": "Hanya penyedia di profesi permintaan terbuka Anda yang melihatnya, agar bisa menelepon langsung.",
-    "no_phone": "Tambahkan nomor ponsel Anda di atas dulu.",
     "share_whatsapp": "WhatsApp saya",
     "share_whatsapp_hint": "Penyedia di profesi permintaan terbuka Anda bisa mengirim pesan WhatsApp.",
     "whatsapp_number": "Nomor WhatsApp (opsional)",
@@ -3105,11 +3104,7 @@
     "my_visible_edit": "Ubah yang tampil",
     "name_label": "Nama",
     "phone_label": "Ponsel",
-    "whatsapp_label": "WhatsApp",
-    "allow_share": "Izinkan permintaan saya dibagikan",
-    "allow_share_hint": "Penyedia dan pengunjung dapat membagikan tautan permintaan Anda agar sampai ke orang yang bisa membantu. Anda selalu bisa membagikannya sendiri.",
-    "share_allowed": "Orang lain dapat membagikan permintaan Anda.",
-    "share_not_allowed": "Hanya Anda yang bisa membagikan permintaan Anda. Izinkan dari \"Ubah yang tampil\"."
+    "whatsapp_label": "WhatsApp"
   },
   "understand": {
     "title": "Tulis permintaan dengan logat Anda sendiri",

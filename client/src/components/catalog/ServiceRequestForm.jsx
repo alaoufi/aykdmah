@@ -78,7 +78,7 @@ export default function ServiceRequestForm({ service, open, onClose }) {
   if (!service) return null;
   return <Modal open={open} onClose={close} title={`${t('catalog.order_form_title')} — ${tx(service.title, lang)}`} width={560}>
     {!user ? <JoinInvite intent="request" compact from={`/services/${service.id}${locationQuery ? `?${locationQuery}` : ''}`} />
-    : created ? <div className="text-center py-6"><div className="text-5xl mb-3">✅</div><p className="font-bold">{t('catalog.order_success')}</p><Link to={`/requests/${created.id}`} className="btn btn-primary mt-4">{t('request.details_title')}</Link></div>
+    : created ? <div className="text-center py-6"><div className="text-5xl mb-3">✅</div><p className="font-bold">{t('home.published_title')}</p><p className="text-[13px] text-fg-muted">{t('home.published_hint')}</p><Link to="/" state={{ published: created.id }} className="btn btn-primary mt-4">{t('home.published_see')}</Link></div>
     : <form onSubmit={submit}>
       {error && <ProblemNotice error={error} />}
       <RequestLocationFields control={requestLocation} prefix="catalog" disabled={loading} />
