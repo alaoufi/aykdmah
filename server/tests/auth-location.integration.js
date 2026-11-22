@@ -473,7 +473,7 @@ if (!databasePrefix) {
   test('simple client signup needs only phone, password and location; name and address are filled in', async () => {
     const area = await simpleArea();
     const session = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
-    assert.match(session.user.full_name, /^مستخدم \d{4}$/);
+    assert.match(session.user.full_name, /^عضو \d+$/); // AYK-461: «عضو» and the account number
     assert.equal(session.user.role, 'client');
     assert.ok(session.user.address && session.user.address.length >= 2);
     // Every account gets a permanent customer number, clients included.
@@ -1442,6 +1442,22 @@ if (!databasePrefix) {
     await fetch(`${base}/notifications/read-all?scope=admin`, { method: 'PUT', headers: { Authorization: `Bearer ${me.token}` } });
     assert.equal((await read('?scope=admin')).meta.unread, 0);
     assert.equal((await read('')).meta.unread, 1, 'reading the admin notices leaves the site ones');
+  });
+
+  test('AYK-461: no name given: «عضو» and the account number, never the phone; an internal six-digit key never sent', async () => {
+    const area = await simpleArea();
+    const session = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const row = await db.queryOne('SELECT full_name, referral_code, internal_key, phone FROM users WHERE id = ?', [session.user.id]);
+    assert.equal(row.full_name, `عضو ${row.referral_code}`);
+    assert.ok(!row.full_name.includes(String(row.phone).slice(-4)) || String(row.referral_code).includes(String(row.phone).slice(-4)), 'not from the phone');
+    assert.match(row.internal_key, /^[0-9]{6}$/);
+    const other = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    assert.notEqual((await db.queryOne('SELECT internal_key FROM users WHERE id = ?', [other.user.id])).internal_key, row.internal_key);
+    const me = await (await fetch(`${base}/auth/me`, { headers: { Authorization: `Bearer ${session.token}` } })).text();
+    assert.ok(!me.includes('internal_key') && !me.includes(row.internal_key), 'never sent');
+    const pub = await (await fetch(`${base}/users/${session.user.id}`)).text();
+    assert.ok(!pub.includes('internal_key'), 'never sent publicly');
+    assert.equal(JSON.stringify(session).includes('internal_key'), false, 'not in the sign-up answer');
   });
 
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {

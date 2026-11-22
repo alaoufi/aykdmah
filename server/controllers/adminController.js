@@ -917,6 +917,8 @@ const assignSpecialNumber = asyncHandler(async (req, res) => {
     const previous = target.referral_code;
     await conn.execute('DELETE FROM account_number_aliases WHERE code = ? OR user_id = ?', [code, id]);
     await conn.execute('UPDATE users SET referral_code = ? WHERE id = ?', [code, id]);
+    // AYK-461: a member named by his number («عضو 85») follows the new number.
+    await conn.execute("UPDATE users SET full_name = ? WHERE id = ? AND full_name = ?", [`عضو ${code}`, id, `عضو ${previous}`]);
     await conn.execute(`INSERT INTO activity_logs (user_id, action, entity_type, entity_id, description) VALUES (?, 'admin.number.assign', 'user', ?, ?)`,
       [req.user.id, id, `${previous || '-'} -> ${code}`]);
     return { status: 200, code, previous };

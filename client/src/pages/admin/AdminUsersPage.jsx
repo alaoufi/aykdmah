@@ -54,7 +54,7 @@ const EMPTY_FORM = { full_name: '', username: '', email: '', phone: '', facebook
 // AYK-460 (the owner: «الرقم الذي بجوار المستخدم من أربعة أرقام، ماذا يعني؟ إذا داخلي لا داعي لعرضه»):
 // «مستخدم 8872» is the name the site gives someone who signed up without one (the last four digits of
 // his phone). Here it reads «بلا اسم», muted; the phone shows in full under it. The site keeps the name.
-const AUTO_NAME = /^مستخدم \d{4}$/;
+const AUTO_NAME = /^(مستخدم \d{4}|عضو( \d+)?)$/; // AYK-461: now «عضو» and the account number
 function UserName({ u }) {
   const name = String(u.full_name || '').trim();
   if (!name || AUTO_NAME.test(name)) return <span className="text-slate-400 font-semibold" data-testid="user-no-name">بلا اسم</span>;
