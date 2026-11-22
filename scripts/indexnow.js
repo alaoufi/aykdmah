@@ -5,7 +5,7 @@
 // The key is public by design: the engines read it back from https://aykdmh.com/<key>.txt.
 // Usage: node scripts/indexnow.js            (sends)
 //        node scripts/indexnow.js --dry-run  (only counts)
-const SITE = 'https://aykdmh.com';
+const SITE = process.env.SITE_URL || 'https://aykdmh.com'; // AYK-428: SITE_URL=https://aykdmh.sa after the move
 const KEY = '489189f4fbf06f9402b187af2f9820de';
 
 (async () => {
