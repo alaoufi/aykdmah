@@ -61,6 +61,16 @@
     root.appendChild(box);
   }
 
+  // AYK-463 (the owner: «علق عند أحد العملاء على كروم وتأخر كثيرًا… ضروري حل ما تتكرر»): the search
+  // engines' text copy no longer shows to people (index.html); if the app has still not started after
+  // 40 s, the same «تعذّر تحميل الموقع / إعادة التحميل» box shows instead of an endless ring.
+  setTimeout(() => {
+    const root = document.getElementById('root');
+    if (!root) return;
+    const started = Array.from(root.childNodes || []).some(node => !(node.classList && node.classList.contains('seo-static')) && !(node.nodeType === 3 && !String(node.textContent).trim()));
+    if (!started) entryFallback();
+  }, 40000);
+
   window.addEventListener('error', event => {
     const script = event.target;
     if (script?.tagName !== 'SCRIPT' || script.type !== 'module' || !script.src) return;

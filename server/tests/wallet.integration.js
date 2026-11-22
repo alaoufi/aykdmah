@@ -305,6 +305,9 @@ if (!databasePrefix) {
     assert.ok(row.referral_code && row.full_name && typeof row.balance === 'number');
     const found = await api(`/wallet/admin/marketers?search=${encodeURIComponent(row.referral_code)}`, { user: users.boss });
     assert.ok(found.body.data.some(m => Number(m.id) === Number(users.referrer.id)), 'search by the marketer number');
+    // AYK-464: an account with a wallet movement but no invitations is listed too.
+    const mover = await db.queryOne("SELECT t.user_id FROM wallet_transactions t WHERE NOT EXISTS (SELECT 1 FROM users r WHERE r.referred_by = t.user_id) LIMIT 1");
+    if (mover) assert.ok(list.body.data.some(m => Number(m.id) === Number(mover.user_id)), 'a balance without invitations');
     const none = await api('/wallet/admin/marketers?search=zzzz-nobody', { user: users.boss });
     assert.equal(none.body.data.length, 0);
     const details = await api(`/wallet/admin/marketers/${users.referrer.id}`, { user: users.boss });

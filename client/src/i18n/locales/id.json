@@ -1436,7 +1436,7 @@
     "dialect": {
       "title": "Kata dialek"
     },
-    "marketers": "Saldo pemasar"
+    "marketers": "Saldo pengguna"
   },
   "errors": {
     "generic": "Terjadi kesalahan",
@@ -2413,7 +2413,9 @@
     "invite_send": "Kirim lewat WhatsApp",
     "invite_copy": "Salin",
     "invite_send_short": "Kirim",
-    "invite_copied": "Tersalin"
+    "invite_copied": "Tersalin",
+    "invite_friend": "Undang teman",
+    "invite_friend_hint": "Dengan nomor Anda {{code}}: salin tautan atau kirim lewat WhatsApp"
   },
   "test_checkout": {
     "banner": "Pembayaran uji coba — tidak ada uang yang dipotong",

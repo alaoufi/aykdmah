@@ -1436,7 +1436,7 @@
     "dialect": {
       "title": "Dialect words"
     },
-    "marketers": "Marketers balances"
+    "marketers": "Users balances"
   },
   "errors": {
     "generic": "Something went wrong",
@@ -2413,7 +2413,9 @@
     "invite_send": "Send on WhatsApp",
     "invite_copy": "Copy",
     "invite_send_short": "Send",
-    "invite_copied": "Copied"
+    "invite_copied": "Copied",
+    "invite_friend": "Invite a friend",
+    "invite_friend_hint": "With your number {{code}}: copy the link or send it on WhatsApp"
   },
   "test_checkout": {
     "banner": "Test payment — no money will be charged",

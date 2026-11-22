@@ -1436,7 +1436,7 @@
     "dialect": {
       "title": "Lehçe kelimeleri"
     },
-    "marketers": "Pazarlamacı bakiyeleri"
+    "marketers": "Kullanıcı bakiyeleri"
   },
   "errors": {
     "generic": "Bir hata oluştu",
@@ -2413,7 +2413,9 @@
     "invite_send": "WhatsApp ile gönder",
     "invite_copy": "Kopyala",
     "invite_send_short": "Gönder",
-    "invite_copied": "Kopyalandı"
+    "invite_copied": "Kopyalandı",
+    "invite_friend": "Arkadaşını davet et",
+    "invite_friend_hint": "Numaranız {{code}} ile: bağlantıyı kopyalayın veya WhatsApp ile gönderin"
   },
   "test_checkout": {
     "banner": "Deneme ödemesi — hiçbir tutar çekilmeyecek",

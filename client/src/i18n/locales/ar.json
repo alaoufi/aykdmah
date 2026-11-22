@@ -1436,7 +1436,7 @@
     "dialect": {
       "title": "كلمات اللهجة"
     },
-    "marketers": "أرصدة المسوّقين"
+    "marketers": "رصيد المستخدمين"
   },
   "errors": {
     "generic": "حدث خطأ",
@@ -2442,7 +2442,9 @@
     "invite_send": "إرسال بالواتساب",
     "invite_copy": "نسخ",
     "invite_send_short": "إرسال",
-    "invite_copied": "تم النسخ"
+    "invite_copied": "تم النسخ",
+    "invite_friend": "دعوة صديق",
+    "invite_friend_hint": "برقمك {{code}}: انسخ الرابط أو أرسله واتساب"
   },
   "test_checkout": {
     "banner": "دفع تجريبي — لن يُخصم أي مبلغ",

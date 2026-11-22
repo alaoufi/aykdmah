@@ -1436,7 +1436,7 @@
     "dialect": {
       "title": "بولی کے الفاظ"
     },
-    "marketers": "مارکیٹرز کے بیلنس"
+    "marketers": "صارفین کے بیلنس"
   },
   "errors": {
     "generic": "کچھ غلط ہو گیا",
@@ -2413,7 +2413,9 @@
     "invite_send": "واٹس ایپ پر بھیجیں",
     "invite_copy": "کاپی",
     "invite_send_short": "بھیجیں",
-    "invite_copied": "کاپی ہو گیا"
+    "invite_copied": "کاپی ہو گیا",
+    "invite_friend": "دوست کو مدعو کریں",
+    "invite_friend_hint": "آپ کے نمبر {{code}} کے ساتھ: لنک کاپی کریں یا واٹس ایپ پر بھیجیں"
   },
   "test_checkout": {
     "banner": "آزمائشی ادائیگی — کوئی رقم نہیں کٹے گی",

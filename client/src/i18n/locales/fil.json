@@ -1436,7 +1436,7 @@
     "dialect": {
       "title": "Mga salita ng diyalekto"
     },
-    "marketers": "Balanse ng mga marketer"
+    "marketers": "Balanse ng mga user"
   },
   "errors": {
     "generic": "May nagkamali",
@@ -2413,7 +2413,9 @@
     "invite_send": "Ipadala sa WhatsApp",
     "invite_copy": "Kopyahin",
     "invite_send_short": "Ipadala",
-    "invite_copied": "Nakopya"
+    "invite_copied": "Nakopya",
+    "invite_friend": "Imbitahan ang kaibigan",
+    "invite_friend_hint": "Gamit ang numero mo {{code}}: kopyahin ang link o ipadala sa WhatsApp"
   },
   "test_checkout": {
     "banner": "Test na bayad — walang perang ibabawas",

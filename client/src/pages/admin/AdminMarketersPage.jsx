@@ -30,22 +30,22 @@ function MarketersList() {
     <div className="space-y-3" data-testid="admin-marketers">
       <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-xl font-extrabold text-fg m-0">🤝 أرصدة المسوّقين</h1>
-          <p className="text-[12.5px] text-fg-muted m-0">كل من سجّل أحد برقمه (كوبونه). اضغط على المسوّق لترى أرقام من سجّلوا عن طريقه.</p>
+          <h1 className="text-xl font-extrabold text-fg m-0">💳 رصيد المستخدمين</h1>
+          <p className="text-[12.5px] text-fg-muted m-0">كل من له رصيد أو حركة في محفظته، أو سجّل أحد برقمه (كوبونه). اضغط على الاسم لترى أرقام من سجّلوا عن طريقه.</p>
         </div>
         <Link to="/admin/wallets" className="btn btn-outline btn-sm">💰 المحافظ والتسليم النقدي</Link>
       </div>
-      <input className="input w-full max-w-md" placeholder="ابحث بالاسم أو الجوال أو رقم المسوّق" value={typed}
+      <input className="input w-full max-w-md" placeholder="ابحث بالاسم أو الجوال أو رقم الحساب" value={typed}
         onChange={e => setTyped(e.target.value)} data-testid="marketers-search" />
-      {error ? <ErrorState message="تعذّر تحميل المسوّقين" /> : rows === null ? <LoadingState /> : rows.length === 0 ? (
-        <div className="card text-[13px] text-fg-muted">{search ? 'لا مسوّق بهذا البحث.' : 'لا أحد سجّل برقم مسوّق بعد.'}</div>
+      {error ? <ErrorState message="تعذّر تحميل الأرصدة" /> : rows === null ? <LoadingState /> : rows.length === 0 ? (
+        <div className="card text-[13px] text-fg-muted">{search ? 'لا نتيجة لهذا البحث.' : 'لا أرصدة بعد.'}</div>
       ) : (
         <>
-          <div className="text-[12.5px] text-fg-muted">{rows.length} مسوّق · {total.referrals} مسجّل · مجموع الأرصدة <b dir="ltr">{money(total.balance)}</b> ريال</div>
+          <div className="text-[12.5px] text-fg-muted">{rows.length} حساب · {total.referrals} مسجّل · مجموع الأرصدة <b dir="ltr">{money(total.balance)}</b> ريال</div>
           <div className="card p-0 overflow-x-auto">
             <table className="w-full text-[13px]">
               <thead><tr className="text-fg-muted bg-surface-alt">
-                {['رقم المسوّق', 'الاسم', 'الجوال', 'المسجّلون عن طريقه', 'مقدمو خدمة محتسبون', 'المكتسب', 'المسلَّم', 'الرصيد'].map(head => <th key={head} className="text-start p-2 whitespace-nowrap">{head}</th>)}
+                {['رقم الحساب', 'الاسم', 'الجوال', 'المسجّلون عن طريقه', 'مقدمو خدمة محتسبون', 'المكتسب', 'المسلَّم', 'الرصيد'].map(head => <th key={head} className="text-start p-2 whitespace-nowrap">{head}</th>)}
               </tr></thead>
               <tbody>
                 {rows.map(row => (
@@ -77,16 +77,16 @@ function MarketerDetails({ id }) {
     adminMarketerReferrals(id).then(value => { if (alive) setResult(value); }).catch(() => { if (alive) setError(true); });
     return () => { alive = false; };
   }, [id]);
-  if (error) return <ErrorState message="تعذّر تحميل المسوّق" />;
+  if (error) return <ErrorState message="تعذّر تحميل الحساب" />;
   if (!result) return <LoadingState />;
   const { marketer: m, people } = result;
   return (
     <div className="space-y-3" data-testid="admin-marketer">
-      <Link to="/admin/marketers" className="text-[13px] font-semibold">→ أرصدة المسوّقين</Link>
+      <Link to="/admin/marketers" className="text-[13px] font-semibold">→ رصيد المستخدمين</Link>
       <div className="card">
         <h1 className="text-xl font-extrabold text-fg m-0">{m.full_name}</h1>
         <div className="text-[13px] text-fg-muted mt-1 flex flex-wrap gap-x-4 gap-y-1">
-          <span>رقم المسوّق: <b dir="ltr">{m.referral_code}</b></span>
+          <span>رقم الحساب: <b dir="ltr">{m.referral_code}</b></span>
           {m.phone && <span>الجوال: <b dir="ltr">{m.phone}</b></span>}
           <span>المسجّلون عن طريقه: <b>{people.length}</b></span>
           {m.balance !== undefined && <span>الرصيد: <b dir="ltr">{money(m.balance)}</b> ريال</span>}
