@@ -1350,6 +1350,35 @@ if (!databasePrefix) {
     await db.query('DELETE FROM requests WHERE id = ?', [id]);
   });
 
+  test('AYK-447: a requester with no request picks sections, and «مشابه لطلبي» follows them', async () => {
+    const area = await simpleArea();
+    const cats = await db.query('SELECT id FROM categories WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 2');
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const post = async categoryId => Number((await api('/requests', { method: 'POST', token: owner.token, expected: 201, body: {
+      title: 'طلب أقسام', description: 'تجربة الأقسام', category_id: Number(categoryId), city_id: area.city_id, district_id: area.district_id, latitude: 24.7136, longitude: 46.6753 } })).id);
+    const first = await post(cats[0].id);
+    const second = await post(cats[1].id);
+    await db.query("UPDATE settings SET setting_value = 'false' WHERE setting_key = 'marketplace_restrict_views'");
+    const fresh = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const board = async () => (await (await fetch(`${base}/requests/nearby?board=1&as=requester&f_prof=1&limit=100`, { headers: { Authorization: `Bearer ${fresh.token}` } })).json());
+    let result = await board();
+    assert.equal(result.meta.board.has_profession, false, 'nothing asked yet');
+    await api('/users/me', { method: 'PUT', token: fresh.token, body: { interest_category_ids: [999999999] }, expected: 400 });
+    await api('/users/me', { method: 'PUT', token: fresh.token, body: { interest_category_ids: 'x' }, expected: 400 });
+    await api('/users/me', { method: 'PUT', token: fresh.token, body: { interest_category_ids: [Number(cats[1].id)] } });
+    result = await board();
+    assert.equal(result.meta.board.has_profession, true);
+    assert.equal(result.meta.board.my_interests, 1);
+    assert.equal(result.meta.board.fallback, false);
+    const ids = result.data.map(row => Number(row.id));
+    assert.ok(ids.includes(second) && !ids.includes(first), 'only the chosen section');
+    const providers = await (await fetch(`${base}/providers/matching?board=1&f_prof=1`, { headers: { Authorization: `Bearer ${fresh.token}` } })).json();
+    assert.equal(providers.data.board.my_interests, 1);
+    await api('/users/me', { method: 'PUT', token: fresh.token, body: { interest_category_ids: [] } });
+    assert.equal((await board()).meta.board.has_profession, false, 'cleared');
+    for (const id of [first, second]) await db.query('DELETE FROM requests WHERE id = ?', [id]);
+  });
+
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');

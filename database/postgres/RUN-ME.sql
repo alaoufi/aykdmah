@@ -6848,6 +6848,10 @@ INSERT INTO schema_migrations(name) VALUES ('111_request_agreed_at.sql');
 ALTER TABLE users ADD COLUMN IF NOT EXISTS request_alerts SMALLINT NOT NULL DEFAULT 0;
 INSERT INTO schema_migrations(name) VALUES ('112_request_alerts.sql');
 
+-- migrations/113_interest_categories.sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS interest_category_ids TEXT NULL DEFAULT NULL;
+INSERT INTO schema_migrations(name) VALUES ('113_interest_categories.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

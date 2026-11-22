@@ -99,7 +99,7 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
       .then(data => { if (alive && board) onMeta?.(data.board || null); if (alive) setResult(onContact ? { ...data, providers: data.providers.filter(p => p.availability?.state === 'available') } : data); })
       .catch(() => { if (alive) setResult({ area: null, providers: [] }); });
     return () => { alive = false; };
-  }, [categoryId, serviceId, browse, fixedArea?.city_id, fixedArea?.district_id, Boolean(onContact), tick, matching, scope, board?.prof, board?.area]);
+  }, [categoryId, serviceId, browse, fixedArea?.city_id, fixedArea?.district_id, Boolean(onContact), tick, matching, scope, board?.prof, board?.area, board?.rev]);
 
   // A requester can keep a provider in "My directory" and contact them directly (AYK-041).
   const { user } = useAuth();

@@ -226,14 +226,18 @@
     "filter_state_prof_provider": "আপনার পেশা সব এলাকায়, কাছের জন আগে",
     "filter_state_area": "আপনার এলাকার সব পেশা",
     "filter_state_both_provider": "শুধু আপনার এলাকায় আপনার পেশা",
-    "filter_need_requests": "«আমার অনুরোধের মতো» কাজ করতে আগে একটি অনুরোধ পাঠান।",
     "filter_need_area": "«আমার এলাকা» কাজ করতে আগে «আমার প্রোফাইল»-এ আপনার এলাকা পূরণ করুন।",
     "filter_similar_one": "আমার অনুরোধের মতো",
     "filter_similar_many": "আমার অনুরোধগুলোর মতো",
     "filter_state_prof_request": "আপনার অনুরোধের মতো, সব এলাকায়",
     "filter_state_prof_requests": "আপনার অনুরোধগুলোর মতো, সব এলাকায়",
     "filter_state_both_request": "আপনার অনুরোধের মতো, শুধু আপনার এলাকায়",
-    "filter_state_both_requests": "আপনার অনুরোধগুলোর মতো, শুধু আপনার এলাকায়"
+    "filter_state_both_requests": "আপনার অনুরোধগুলোর মতো, শুধু আপনার এলাকায়",
+    "sections_title": "আপনি আগে অনুরোধ করেননি: আপনার প্রয়োজনের বিভাগগুলো বাছুন",
+    "sections_hint": "একাধিক বাছতে পারেন; আমরা সেগুলোর মতো দেখাব।",
+    "sections_save": "সংরক্ষণ ({{count}})",
+    "sections_edit": "বিভাগ বদলান",
+    "filter_need_sections": "«আমার অনুরোধের মতো» কাজ করতে আপনার প্রয়োজনের বিভাগগুলো বাছুন।"
   },
   "location": {
     "country": "দেশ",

@@ -521,6 +521,12 @@ async function setHidden(id, hidden) {
 // both off = no filter). The profession of a provider: their services' professions; of a requester:
 // the professions they asked for. The area of a provider: their coverage districts (or coverage
 // city); of a requester: their city.
+// AYK-447: the sections a requester chose (users.interest_category_ids, a JSON list).
+function interestIds(raw) {
+  try { const list = Array.isArray(raw) ? raw : JSON.parse(raw || '[]'); return Array.isArray(list) ? [...new Set(list.map(Number).filter(n => Number.isSafeInteger(n) && n > 0))] : []; }
+  catch (_) { return []; }
+}
+
 // AYK-440/442: what «مهنتي / حسب طلبي» and «منطقتي» mean for this person. A provider: the professions
 // of his services and his coverage districts (else his city). A requester: the professions he asked
 // for and his city.
@@ -539,8 +545,10 @@ async function boardViewer(viewerId, asProvider) {
     cityId = profile?.city_id ? Number(profile.city_id) : null;
   } else {
     categories = (await query('SELECT DISTINCT category_id FROM requests WHERE client_id = ? AND deleted_at IS NULL AND category_id IS NOT NULL', [viewerId])).map(row => Number(row.category_id));
-    const me = await queryOne('SELECT city_id FROM users WHERE id = ?', [viewerId]);
+    const me = await queryOne(`SELECT city_id, to_jsonb(u)->>'interest_category_ids' AS interests FROM users u WHERE id = ?`, [viewerId]);
     cityId = me?.city_id ? Number(me.city_id) : null;
+    // AYK-447: the sections he chose before his first request count as what he asks for.
+    for (const id of interestIds(me?.interests)) if (!categories.includes(id)) categories.push(id);
   }
   return { categories, services, districts, cityId };
 }
@@ -594,7 +602,8 @@ async function findBoard({ viewerId, asProvider = false, filterProfession = fals
     : Number((await query(`SELECT COUNT(*) AS total FROM (${candidates}) board`, candidateParams))[0].total);
   // AYK-446: «مشابه لطلبي» (one request) or «مشابه لطلباتي» (more): how many requests the requester made.
   const myRequests = asProvider ? undefined : Number((await queryOne('SELECT COUNT(*) AS n FROM requests WHERE client_id = ? AND deleted_at IS NULL', [viewerId]))?.n || 0);
-  return { items, total, has_profession: categories.length > 0, has_area: areaParams.length > 0, my_requests: myRequests };
+  const myInterests = asProvider ? undefined : interestIds((await queryOne(`SELECT to_jsonb(u)->>'interest_category_ids' AS v FROM users u WHERE id = ?`, [viewerId]))?.v).length;
+  return { items, total, has_profession: categories.length > 0, has_area: areaParams.length > 0, my_requests: myRequests, my_interests: myInterests };
 }
 
 // AYK-441/442 (the owner: «إذا دخل العضو ولم يجد أحدًا خرج ولم يعد»؛ «أضف تم مؤخرًا ويختار قبل كم يوم،
@@ -627,4 +636,4 @@ async function recentActivity({ viewerId = 0, asProvider = false, filterProfessi
   return rows.map(row => ({ ...row, status: ['completed', 'closed'].includes(row.status) ? 'done' : 'working' }));
 }
 
-module.exports = { create, updateByOwner, findById, incrementViews, findByClient, findNearby, findBoard, recentActivity, previousClients, updateStatus, setRemindersOff, softDelete, listAll, setHidden, pagination, optionalNumber, publicView, validateInput: validateCreate };
+module.exports = { interestIds, create, updateByOwner, findById, incrementViews, findByClient, findNearby, findBoard, recentActivity, previousClients, updateStatus, setRemindersOff, softDelete, listAll, setHidden, pagination, optionalNumber, publicView, validateInput: validateCreate };

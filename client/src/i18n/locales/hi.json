@@ -226,14 +226,18 @@
     "filter_state_prof_provider": "आपका पेशा सभी इलाकों में, सबसे पास वाले पहले",
     "filter_state_area": "आपके इलाके के सभी पेशे",
     "filter_state_both_provider": "केवल आपके इलाके में आपका पेशा",
-    "filter_need_requests": "«मेरे अनुरोध जैसे» काम करे, इसके लिए पहले अनुरोध भेजें।",
     "filter_need_area": "«मेरा इलाका» काम करे, इसके लिए पहले «मेरी प्रोफ़ाइल» में अपना इलाका पूरा करें।",
     "filter_similar_one": "मेरे अनुरोध जैसे",
     "filter_similar_many": "मेरे अनुरोधों जैसे",
     "filter_state_prof_request": "आपके अनुरोध जैसे, सभी इलाकों में",
     "filter_state_prof_requests": "आपके अनुरोधों जैसे, सभी इलाकों में",
     "filter_state_both_request": "आपके अनुरोध जैसे, केवल आपके इलाके में",
-    "filter_state_both_requests": "आपके अनुरोधों जैसे, केवल आपके इलाके में"
+    "filter_state_both_requests": "आपके अनुरोधों जैसे, केवल आपके इलाके में",
+    "sections_title": "आपने पहले अनुरोध नहीं किया: अपनी ज़रूरत के विभाग चुनें",
+    "sections_hint": "आप एक से ज़्यादा चुन सकते हैं; हम उनके जैसे दिखाएँगे।",
+    "sections_save": "सहेजें ({{count}})",
+    "sections_edit": "विभाग बदलें",
+    "filter_need_sections": "«मेरे अनुरोध जैसे» काम करे, इसके लिए अपनी ज़रूरत के विभाग चुनें।"
   },
   "location": {
     "country": "देश",

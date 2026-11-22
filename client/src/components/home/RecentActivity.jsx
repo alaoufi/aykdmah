@@ -33,7 +33,7 @@ export default function RecentActivity({ asProvider = false, className = '' }) {
       .then(({ data }) => { if (alive) { setRows(data.data || []); setMeta(data.meta || null); } })
       .catch(() => { if (alive) setRows([]); });
     return () => { alive = false; };
-  }, [days, on.prof, on.area, asProvider, Boolean(user)]);
+  }, [days, on.prof, on.area, asProvider, Boolean(user), filters.rev]);
   const chip = (active, label, onClick, testId) => (
     <button type="button" aria-pressed={active} onClick={onClick} data-testid={testId}
       className={`shrink-0 rounded-full px-2.5 py-0.5 text-[12px] font-semibold border transition ${active

@@ -220,6 +220,12 @@ const matching = asyncHandler(async (req, res) => {
   // list keeps only them when «المهن التي طلبتها» is chosen (matching=1).
   if (req.user && categoryId === null && serviceId === null) {
     requestedCategories = (await query('SELECT DISTINCT category_id FROM requests WHERE client_id = ? AND deleted_at IS NULL AND category_id IS NOT NULL', [req.user.id])).map(row => Number(row.category_id));
+    // AYK-447: on the board, the sections he chose before his first request count as well.
+    if (req.query.board === '1') {
+      const chosen = require('../models/Request').interestIds((await query(`SELECT to_jsonb(u)->>'interest_category_ids' AS v FROM users u WHERE id = ?`, [req.user.id]))[0]?.v);
+      for (const id of chosen) if (!requestedCategories.includes(id)) requestedCategories.push(id);
+      req.boardInterests = chosen.length;
+    }
   }
   // AYK-440: the home board. Every provider, ranked: in my area AND my requested professions first,
   // then my area, then my professions, then the rest. «حسب طلبي» / «منطقتي» keep only those when
@@ -252,7 +258,8 @@ const matching = asyncHandler(async (req, res) => {
     return success(res, {
       area: where.area, scope: 'board', requested_category_ids: requestedCategories,
       board: { restricted, fallback, has_profession: wanted.length > 0, has_area: Boolean(where.cityId),
-        my_requests: req.user ? Number((await query('SELECT COUNT(*) AS n FROM requests WHERE client_id = ? AND deleted_at IS NULL', [req.user.id]))[0]?.n || 0) : 0 },
+        my_requests: req.user ? Number((await query('SELECT COUNT(*) AS n FROM requests WHERE client_id = ? AND deleted_at IS NULL', [req.user.id]))[0]?.n || 0) : 0,
+        my_interests: req.boardInterests || 0 },
       providers: await withOpinions(shown),
     });
   }

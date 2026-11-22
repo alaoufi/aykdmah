@@ -226,14 +226,18 @@
     "filter_state_prof_provider": "Ang propesyon mo sa lahat ng lugar, pinakamalapit muna",
     "filter_state_area": "Lahat ng propesyon sa lugar mo",
     "filter_state_both_provider": "Ang propesyon mo sa lugar mo lang",
-    "filter_need_requests": "Magpadala muna ng request para gumana ang «Katulad ng request ko».",
     "filter_need_area": "Kumpletuhin muna ang lugar mo sa «Aking profile» para gumana ang «Aking lugar».",
     "filter_similar_one": "Katulad ng request ko",
     "filter_similar_many": "Katulad ng mga request ko",
     "filter_state_prof_request": "Katulad ng request mo, sa lahat ng lugar",
     "filter_state_prof_requests": "Katulad ng mga request mo, sa lahat ng lugar",
     "filter_state_both_request": "Katulad ng request mo, sa lugar mo lang",
-    "filter_state_both_requests": "Katulad ng mga request mo, sa lugar mo lang"
+    "filter_state_both_requests": "Katulad ng mga request mo, sa lugar mo lang",
+    "sections_title": "Hindi ka pa humiling dati: piliin ang mga seksyong kailangan mo",
+    "sections_hint": "Puwede kang pumili ng higit sa isa; ipapakita namin ang mga katulad.",
+    "sections_save": "I-save ({{count}})",
+    "sections_edit": "Palitan ang mga seksyon",
+    "filter_need_sections": "Piliin ang mga seksyong kailangan mo para gumana ang «Katulad ng request ko»."
   },
   "location": {
     "country": "Bansa",

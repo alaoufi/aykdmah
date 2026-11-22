@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import SectionPicker from './SectionPicker';
 import { stateKey, requestsLabel } from '../../utils/boardFilterState.js';
 
 
@@ -8,6 +10,7 @@ import { stateKey, requestsLabel } from '../../utils/boardFilterState.js';
 // ticked and fixed. `hint` explains a box that cannot work yet (no services / no requests).
 export default function BoardFilters({ value, onChange, asProvider = false, restricted = false, hint = '', meta = null, size = 'md', testId = 'home-filters' }) {
   const { t } = useTranslation();
+  const [editing, setEditing] = useState(false);
   const on = restricted ? { prof: true, area: true } : value;
   const small = size === 'sm';
   const box = (key, label) => {
@@ -34,7 +37,16 @@ export default function BoardFilters({ value, onChange, asProvider = false, rest
       </div>
       <p className={`text-fg-muted mt-1 mb-0 ${small ? 'text-[11.5px]' : 'text-[12px]'}`}>
         {restricted ? t('home.filter_restricted') : hint || t(stateKey(on, asProvider, meta))}
+        {/* AYK-447: chosen sections (no request yet) can be changed. */}
+        {!asProvider && !small && Number(meta?.my_requests) === 0 && Number(meta?.my_interests) > 0 && !editing && (
+          <> · <button type="button" className="text-primary font-semibold underline bg-transparent border-0 p-0 cursor-pointer" onClick={() => setEditing(true)} data-testid="sections-edit">{t('home.sections_edit')}</button></>
+        )}
       </p>
+      {/* AYK-447: no request yet and «مشابه لطلبي» chosen: pick the sections first. */}
+      {!asProvider && !small && !restricted && (editing || (on.prof && meta?.has_profession === false)) && (
+        <SectionPicker onCancel={editing ? () => setEditing(false) : null}
+          onSaved={() => { setEditing(false); onChange({ ...value, prof: true, rev: (value.rev || 0) + 1 }); }} />
+      )}
     </div>
   );
 }

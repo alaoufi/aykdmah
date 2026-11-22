@@ -226,14 +226,18 @@
     "filter_state_prof_provider": "مهنتك في كل المناطق، والأقرب لك أولًا",
     "filter_state_area": "كل المهن في منطقتك",
     "filter_state_both_provider": "مهنتك في منطقتك فقط",
-    "filter_need_requests": "أرسل طلبًا أولًا ليعمل «مشابه لطلبي».",
     "filter_need_area": "أكمل منطقتك في «ملفي» أولًا ليعمل «منطقتي».",
     "filter_similar_one": "مشابه لطلبي",
     "filter_similar_many": "مشابه لطلباتي",
     "filter_state_prof_request": "المشابه لطلبك في كل المناطق",
     "filter_state_prof_requests": "المشابه لطلباتك في كل المناطق",
     "filter_state_both_request": "المشابه لطلبك في منطقتك فقط",
-    "filter_state_both_requests": "المشابه لطلباتك في منطقتك فقط"
+    "filter_state_both_requests": "المشابه لطلباتك في منطقتك فقط",
+    "sections_title": "لم تطلب من قبل: اختر ما تحتاجه من الأقسام",
+    "sections_hint": "يمكنك اختيار أكثر من قسم، ونعرض لك المشابه لها.",
+    "sections_save": "حفظ ({{count}})",
+    "sections_edit": "تعديل الأقسام",
+    "filter_need_sections": "اختر ما تحتاجه من الأقسام ليعمل «مشابه لطلبي»."
   },
   "location": {
     "country": "الدولة",

@@ -94,6 +94,17 @@ const updateMe = asyncHandler(async (req, res) => {
     if (![0, 1, true, false, '0', '1'].includes(payload[flag])) return error(res, req.t('invalid_data'), 400);
     payload[flag] = [1, true, '1'].includes(payload[flag]) ? 1 : 0;
   }
+  // AYK-447: the sections a requester chose for «مشابه لطلبي» (none to 30 active professions).
+  if (payload.interest_category_ids !== undefined) {
+    const list = payload.interest_category_ids;
+    if (list !== null && (!Array.isArray(list) || list.length > 30 || !list.every(id => /^[1-9][0-9]{0,9}$/.test(String(id))))) return error(res, req.t('invalid_data'), 400);
+    const ids = [...new Set((list || []).map(Number))];
+    if (ids.length) {
+      const found = await query(`SELECT id FROM categories WHERE is_active = 1 AND deleted_at IS NULL AND id IN (${ids.map(() => '?').join(', ')})`, ids);
+      if (found.length !== ids.length) return error(res, req.t('invalid_data'), 400);
+    }
+    payload.interest_category_ids = ids.length ? JSON.stringify(ids) : null;
+  }
   if (payload.marketing_opt_in !== undefined) payload.marketing_opt_in_at = payload.marketing_opt_in ? new Date() : null;
   if (payload.whatsapp_number !== undefined) {
     if (payload.whatsapp_number === null || String(payload.whatsapp_number).trim() === '') payload.whatsapp_number = null;

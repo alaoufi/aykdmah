@@ -143,7 +143,7 @@ const getNearby = asyncHandler(async (req, res) => {
     const shown = await requestTranslation.attachTranslations(board.items.map(raw => withContact(req, raw, guestView(req, Request.publicView(raw)), categories)), readerLang(req));
     return success(res, shown, undefined, 200, {
       pagination: { page, limit, total: Number(board.total), totalPages: Math.ceil(Number(board.total) / limit), hasNext: page * limit < Number(board.total) },
-      board: { restricted, fallback, has_profession: board.has_profession, has_area: board.has_area, my_requests: board.my_requests } });
+      board: { restricted, fallback, has_profession: board.has_profession, has_area: board.has_area, my_requests: board.my_requests, my_interests: board.my_interests } });
   }
   const { items, total } = await Request.findNearby({
     latitude,

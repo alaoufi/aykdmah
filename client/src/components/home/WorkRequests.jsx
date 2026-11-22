@@ -29,7 +29,7 @@ export default function WorkRequests({ className = '', scope = 'area', asProvide
       .then(result => { if (alive) { shown.current = true; setRows(result.data || []); setMeta(result.meta?.board || {}); onMeta?.(result.meta?.board || null); } })
       .catch(() => { if (alive && !shown.current) setRows([]); });
     return () => { alive = false; };
-  }, [tick, scope, asProvider, board?.prof, board?.area]);
+  }, [tick, scope, asProvider, board?.prof, board?.area, board?.rev]);
   if (rows === null) return null;
   return (
     <div className={`card tone-provider p-4 ${className}`} data-testid="work-requests">

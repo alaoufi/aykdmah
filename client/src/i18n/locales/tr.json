@@ -226,14 +226,18 @@
     "filter_state_prof_provider": "Mesleğiniz tüm bölgelerde, en yakın önce",
     "filter_state_area": "Bölgenizdeki tüm meslekler",
     "filter_state_both_provider": "Yalnızca bölgenizdeki mesleğiniz",
-    "filter_need_requests": "«Talebime benzer»in çalışması için önce bir talep gönderin.",
     "filter_need_area": "«Bölgem»in çalışması için önce «Profilim»de bölgenizi tamamlayın.",
     "filter_similar_one": "Talebime benzer",
     "filter_similar_many": "Taleplerime benzer",
     "filter_state_prof_request": "Talebinize benzer, tüm bölgelerde",
     "filter_state_prof_requests": "Taleplerinize benzer, tüm bölgelerde",
     "filter_state_both_request": "Talebinize benzer, yalnızca bölgenizde",
-    "filter_state_both_requests": "Taleplerinize benzer, yalnızca bölgenizde"
+    "filter_state_both_requests": "Taleplerinize benzer, yalnızca bölgenizde",
+    "sections_title": "Daha önce talepte bulunmadınız: ihtiyacınız olan bölümleri seçin",
+    "sections_hint": "Birden fazla seçebilirsiniz; benzerlerini gösteririz.",
+    "sections_save": "Kaydet ({{count}})",
+    "sections_edit": "Bölümleri değiştir",
+    "filter_need_sections": "«Talebime benzer»in çalışması için ihtiyacınız olan bölümleri seçin."
   },
   "location": {
     "country": "Ülke",
