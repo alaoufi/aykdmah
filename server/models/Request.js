@@ -40,7 +40,8 @@ function publicView(request) {
   if (!request) return request;
   const view = { ...request };
   for (const key of ['address', 'latitude', 'longitude', 'files', 'assigned_provider_id', 'accepted_offer_id', 'assigned_provider_name', 'direct_provider_id',
-    'client_name', 'hidden_at', 'client_contact_phone', 'client_contact_whatsapp']) delete view[key]; // The requester's name stays private (AYK-142).
+    'client_name', 'hidden_at', 'client_contact_phone', 'client_contact_whatsapp', 'client_contact_name',
+    'client_share_phone', 'client_share_whatsapp', 'client_share_name']) delete view[key]; // The requester's name stays private (AYK-142).
   // AYK-418: the numbers the requester chose to show are added back only for a provider of the
   // request's profession (requestController.withContact).
   if (view.distance_km != null) view.distance_km = Math.round(Number(view.distance_km));
@@ -100,8 +101,11 @@ const BASE_SELECT = `
   r.warranty_days, r.warranty_proposed_days, r.warranty_proposed_by, r.hidden_at,
   ap.full_name AS assigned_provider_name,
   u.full_name AS client_name, u.avatar AS client_avatar,
-  CASE WHEN to_jsonb(u)->>'share_phone' = '1' THEN u.phone END AS client_contact_phone,
-  CASE WHEN to_jsonb(u)->>'share_whatsapp' = '1' THEN COALESCE(NULLIF(to_jsonb(u)->>'whatsapp_number', ''), u.phone) END AS client_contact_whatsapp,
+  CASE WHEN to_jsonb(u)->>'share_phone' IN ('1', '2') THEN u.phone END AS client_contact_phone,
+  CASE WHEN to_jsonb(u)->>'share_whatsapp' IN ('1', '2') THEN COALESCE(NULLIF(to_jsonb(u)->>'whatsapp_number', ''), u.phone) END AS client_contact_whatsapp,
+  CASE WHEN to_jsonb(u)->>'share_name' IN ('1', '2') THEN u.full_name END AS client_contact_name,
+  COALESCE(to_jsonb(u)->>'share_phone', '0') AS client_share_phone, COALESCE(to_jsonb(u)->>'share_whatsapp', '0') AS client_share_whatsapp,
+  COALESCE(to_jsonb(u)->>'share_name', '0') AS client_share_name,
   (SELECT COALESCE(AVG(rv.rating),0) FROM reviews rv WHERE rv.target_user_id = r.client_id AND rv.review_type = 'on_requester' AND rv.is_visible = 1 AND u.deleted_at IS NULL) AS client_rating_avg,
   (SELECT COUNT(*) FROM reviews rv WHERE rv.target_user_id = r.client_id AND rv.review_type = 'on_requester' AND rv.is_visible = 1 AND u.deleted_at IS NULL) AS client_rating_count,
   (SELECT rv.comment FROM reviews rv WHERE rv.target_user_id = r.client_id AND rv.review_type = 'on_requester' AND rv.is_visible = 1 AND u.deleted_at IS NULL AND rv.comment IS NOT NULL AND rv.comment <> '' ORDER BY rv.id DESC LIMIT 1) AS client_opinion,

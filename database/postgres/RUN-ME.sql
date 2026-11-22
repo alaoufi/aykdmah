@@ -6820,6 +6820,10 @@ CREATE TABLE IF NOT EXISTS support_whatsapp_contacts (
 CREATE INDEX IF NOT EXISTS support_whatsapp_contacts_created ON support_whatsapp_contacts (created_at DESC);
 INSERT INTO schema_migrations(name) VALUES ('107_support_whatsapp.sql');
 
+-- migrations/108_requester_share_name.sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS share_name SMALLINT NOT NULL DEFAULT 0;
+INSERT INTO schema_migrations(name) VALUES ('108_requester_share_name.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

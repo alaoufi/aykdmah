@@ -17,6 +17,7 @@ import ContactButtons from '../../components/providers/ContactButtons';
 import useContactIntro from '../../hooks/useContactIntro';
 import { ProviderStatus } from '../../components/common/AvailabilityBadge';
 import ExpandableText from '../../components/common/ExpandableText';
+import RowMenu from '../../components/admin/RowMenu';
 
 // "My directory" (AYK-041): providers the requester kept, to contact again directly
 // without posting a request. Each contact is still recorded as a request.
@@ -97,8 +98,12 @@ export default function DirectoryPage({ compact = false }) {
                   <ContactButtons size="sm" phone={p.public_phone} whatsapp={p.public_whatsapp} busy={busy === p.id} onChat={() => contact(p)}
                     testId="directory-contact" intro={intro({ service: p.is_provider === false ? null : (localizedJoinedName(p, 'category', lang) || null) })}
                     link={p.is_provider === false ? '/' : `/providers/${p.id}`} onCall={() => call(p)} />
-                  {/* AYK-436 (the owner: «ماذا تقصد بإزالة؟»): it removes this person from «دليلي», apart from contact. */}
-                  <button type="button" className="ms-auto text-[12px] font-semibold text-fg-muted underline underline-offset-2" disabled={busy === p.id} onClick={() => remove(p)} data-testid="directory-remove">{t('requester.remove_directory')}</button>
+                  {/* AYK-438 (the owner: «إزالة من دليلي ليس مكانها؛ داخل الدليل ثلاث نقط وفيها إزالة»):
+                      «إزالة من دليلي» lives in the card's ⋮ menu, away from contact. */}
+                  <span className="ms-auto">
+                    <RowMenu label={t('common.more')} testId="directory-menu"
+                      items={[{ label: t('requester.remove_directory'), icon: '✕', danger: true, onClick: () => remove(p) }]} />
+                  </span>
                 </div>
               </div>
             </li>

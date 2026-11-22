@@ -87,11 +87,16 @@ const updateMe = asyncHandler(async (req, res) => {
     payload.full_name = payload.full_name.trim();
     if (payload.full_name.length < 2 || payload.full_name.length > 150) return error(res, req.t('name_length'), 400);
   }
-  // AYK-418: the requester's contact choices, off until turned on.
-  for (const flag of ['share_phone', 'share_whatsapp', 'marketing_opt_in']) {
+  // AYK-418: the requester's contact choices, off until turned on. AYK-438: name, phone and
+  // WhatsApp each 0 (hidden), 1 (service providers) or 2 (everyone on the request's panel).
+  for (const flag of ['share_name', 'share_phone', 'share_whatsapp']) {
     if (payload[flag] === undefined) continue;
-    if (![0, 1, true, false, '0', '1'].includes(payload[flag])) return error(res, req.t('invalid_data'), 400);
-    payload[flag] = [1, true, '1'].includes(payload[flag]) ? 1 : 0;
+    if (![0, 1, 2, true, false, '0', '1', '2'].includes(payload[flag])) return error(res, req.t('invalid_data'), 400);
+    payload[flag] = [2, '2'].includes(payload[flag]) ? 2 : [1, true, '1'].includes(payload[flag]) ? 1 : 0;
+  }
+  if (payload.marketing_opt_in !== undefined) {
+    if (![0, 1, true, false, '0', '1'].includes(payload.marketing_opt_in)) return error(res, req.t('invalid_data'), 400);
+    payload.marketing_opt_in = [1, true, '1'].includes(payload.marketing_opt_in) ? 1 : 0;
   }
   if (payload.marketing_opt_in !== undefined) payload.marketing_opt_in_at = payload.marketing_opt_in ? new Date() : null;
   if (payload.whatsapp_number !== undefined) {

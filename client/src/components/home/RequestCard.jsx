@@ -37,6 +37,7 @@ export default function RequestCard({ item, urgent = false }) {
           {urgent && <span className="w-1.5 h-1.5 rounded-full bg-rose-500 pulse-dot" />}
           {tag}
         </span>
+        {item.client_contact_name && <span className="text-[12px] font-bold text-fg" data-testid="request-client-name">👤 {item.client_contact_name}</span>}
         <TrustSummary userId={item.client_id} type="on_requester" average={item.client_rating_avg} count={item.client_rating_count} opinion={item.client_opinion} />
         {!canContact(item) && <OwnerBadge mine={mine(item)} forService={false} />}
         {/* AYK-244: present only when views are public (admin setting) or the viewer is an admin. */}

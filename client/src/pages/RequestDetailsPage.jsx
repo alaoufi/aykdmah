@@ -382,6 +382,21 @@ export default function RequestDetailsPage() {
         </div>
       )}
 
+      {/* AYK-438: the requester sees what of their details shows on this request, and to whom. */}
+      {isOwner && request.status === 'open' && (() => {
+        const lv = key => Math.max(0, Math.min(2, Number(user?.[key]) || 0));
+        const label = v => t(v === 2 ? 'contact_privacy.level_everyone' : 'contact_privacy.level_providers');
+        const rows = [['share_name', 'name_label'], ['share_phone', 'phone_label'], ['share_whatsapp', 'whatsapp_label']].filter(([k]) => lv(k) > 0);
+        return (
+          <div className="card mb-4 text-[13px]" data-testid="my-visible-details">
+            <div className="font-bold mb-1">👁 {t('contact_privacy.my_visible')}</div>
+            {rows.length
+              ? <ul className="m-0 ps-5">{rows.map(([k, l]) => <li key={k}>{t(`contact_privacy.${l}`)}: <b>{label(lv(k))}</b></li>)}</ul>
+              : <p className="m-0 text-fg-muted">{t('contact_privacy.my_visible_none')}</p>}
+            <Link to="/profile#contact-privacy" className="inline-block mt-1.5 font-semibold text-primary">{t('contact_privacy.my_visible_edit')}</Link>
+          </div>
+        );
+      })()}
       {isOwner && request.status === 'open' && request.category_id && (
         <div className="mb-4">
           <MatchingProviders categoryId={request.category_id} showChips={false} title={t('request.matching_title')}

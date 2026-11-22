@@ -30,6 +30,8 @@ export default function RequestCard({ request }) {
   return (
     <div role="link" tabIndex={0} onClick={() => open(request)} onKeyDown={e => { if (e.key === 'Enter') open(request); }}
       className={`request-card card card-hover tone-request ${mine(request) ? 'own' : forMyService(request) ? 'for-service' : ''}`} data-testid="request-card">
+      {/* AYK-438: the requester's name when they chose to show it. */}
+      {request.client_contact_name && <div className="text-[13px] font-bold text-fg" data-testid="request-client-name">👤 {request.client_contact_name}</div>}
       <TrustSummary userId={request.client_id} type="on_requester" average={request.client_rating_avg} count={request.client_rating_count} opinion={request.client_opinion} />
       {/* Compact (AYK-099): whose, urgency, status and age on one line. */}
       <div className="flex items-center gap-1.5 flex-wrap">

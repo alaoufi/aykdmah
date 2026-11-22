@@ -15,17 +15,26 @@ async function savedNames(viewerId, ids) {
   return new Map(rows.map(row => [Number(row.provider_id), row.nickname]));
 }
 
-// The name the viewer may see for this person: theirs, a provider's, a saved one, or the label.
-function shownName(person, viewerId, saved, label) {
+// AYK-438: requesters who chose to show their name (share_name 1 or 2) keep it.
+async function namesShown(ids) {
+  const wanted = [...new Set(ids.filter(Boolean).map(Number))];
+  if (!wanted.length) return new Set();
+  const rows = await query(`SELECT id FROM users WHERE id IN (${wanted.map(() => '?').join(',')}) AND COALESCE(to_jsonb(users)->>'share_name', '0') IN ('1', '2')`, wanted).catch(() => []);
+  return new Set(rows.map(row => Number(row.id)));
+}
+
+// The name the viewer may see for this person: theirs, a provider's, a shown one, a saved one, or the label.
+function shownName(person, viewerId, saved, label, open = new Set()) {
   if (!person || !isRequester(person) || Number(person.id) === Number(viewerId)) return person?.full_name ?? null;
-  return saved.get(Number(person.id)) || label;
+  return saved.get(Number(person.id)) || (open.has(Number(person.id)) ? person.full_name : label);
 }
 
 // In place, on a list of people ({ id, role, full_name }).
 async function hideRequesterNames(viewerId, people, label) {
   const list = people.filter(Boolean);
-  const saved = await savedNames(viewerId, list.filter(isRequester).map(p => p.id));
-  for (const person of list) person.full_name = shownName(person, viewerId, saved, label);
+  const ids = list.filter(isRequester).map(p => p.id);
+  const [saved, open] = await Promise.all([savedNames(viewerId, ids), namesShown(ids)]);
+  for (const person of list) person.full_name = shownName(person, viewerId, saved, label, open);
   return people;
 }
 
