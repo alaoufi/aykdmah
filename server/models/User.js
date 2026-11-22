@@ -46,8 +46,9 @@ async function findById(id) {
   const hasContact = await tableHasColumn('users', 'share_phone'); // AYK-418
   const hasShareName = await tableHasColumn('users', 'share_name'); // AYK-438
   const hasAllowShare = await tableHasColumn('users', 'allow_request_share'); // AYK-439
+  const hasAlerts = await tableHasColumn('users', 'request_alerts'); // AYK-443
   const extra = (hasAdminCols ? ', u.is_super_admin, u.permissions' : '') + (hasAlsoClient ? ', u.also_client' : '') + (hasAdminFlag ? ', u.is_admin' : '')
-    + (hasContact ? ', u.share_phone, u.share_whatsapp, u.whatsapp_number, u.marketing_opt_in' : '') + (hasShareName ? ', u.share_name' : '') + (hasAllowShare ? ', u.allow_request_share' : '');
+    + (hasContact ? ', u.share_phone, u.share_whatsapp, u.whatsapp_number, u.marketing_opt_in' : '') + (hasShareName ? ', u.share_name' : '') + (hasAllowShare ? ', u.allow_request_share' : '') + (hasAlerts ? ', u.request_alerts' : '');
   const govId = hasGov ? 'COALESCE(u.governorate_id, c.governorate_id)' : 'c.governorate_id';
   const regionPaths = [hasRegion && 'u.region_id', hasCityRegion && 'c.region_id', 'g.region_id'].filter(Boolean);
   const regionId = regionPaths.length > 1 ? `COALESCE(${regionPaths.join(', ')})` : regionPaths[0];
@@ -244,7 +245,7 @@ async function create({ full_name, username, email, phone, facebook_id, password
 async function update(id, data) {
   const privateAddress = data.address === undefined ? undefined : accountAddress(data.address);
   const allowed = ['full_name', 'phone', 'avatar', 'city_id', 'district_id', 'latitude', 'longitude'];
-  for (const column of ['country_id', 'region_id', 'governorate_id', 'share_name', 'share_phone', 'share_whatsapp', 'allow_request_share', 'whatsapp_number', 'marketing_opt_in', 'marketing_opt_in_at']) {
+  for (const column of ['country_id', 'region_id', 'governorate_id', 'share_name', 'share_phone', 'share_whatsapp', 'allow_request_share', 'request_alerts', 'whatsapp_number', 'marketing_opt_in', 'marketing_opt_in_at']) {
     if (await tableHasColumn('users', column)) allowed.push(column);
   }
   const fields = [];

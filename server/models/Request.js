@@ -433,11 +433,11 @@ async function updateStatus(id, status, extra = {}) {
       const providerId = optionalNumber(extra.assigned_provider_id, 1, 2147483647, true);
       const [[provider]] = await conn.query("SELECT id FROM users WHERE id = ? AND role = 'provider' AND is_active = 1 AND is_blocked = 0 AND deleted_at IS NULL", [providerId]);
       if (!provider || providerId === request.client_id) throw new ApiError('invalid_assignment', 422);
-      fields.push('assigned_provider_id = ?', 'accepted_offer_id = NULL'); values.push(providerId);
+      fields.push('assigned_provider_id = ?', 'accepted_offer_id = NULL', 'agreed_at = CURRENT_TIMESTAMP'); values.push(providerId);
       await conn.execute("UPDATE offers SET status = 'rejected', rejected_at = CURRENT_TIMESTAMP WHERE request_id = ? AND status = 'pending'", [id]);
     }
     if (status === 'completed') fields.push('completed_at = CURRENT_TIMESTAMP');
-    if (status === 'open') fields.push('assigned_provider_id = NULL', 'accepted_offer_id = NULL');
+    if (status === 'open') fields.push('assigned_provider_id = NULL', 'accepted_offer_id = NULL', 'agreed_at = NULL');
     // The withdrawing provider's agreement goes back to a plain contact, so the owner may agree with
     // them again later (AYK-071).
     if (status === 'open') await conn.execute("UPDATE offers SET status = 'pending', accepted_at = NULL WHERE request_id = ? AND provider_id = ? AND status = 'accepted'", [id, request.assigned_provider_id]);
@@ -521,14 +521,10 @@ async function setHidden(id, hidden) {
 // both off = no filter). The profession of a provider: their services' professions; of a requester:
 // the professions they asked for. The area of a provider: their coverage districts (or coverage
 // city); of a requester: their city.
-async function findBoard({ viewerId, asProvider = false, filterProfession = false, filterArea = false, page = 1, limit = 20 } = {}) {
-  ({ page, limit } = pagination(page, limit));
-  const offset = (page - 1) * limit;
-  viewerId = Number(viewerId);
-  const where = ['r.deleted_at IS NULL', "r.status = 'open'", 'r.hidden_at IS NULL', 'r.client_id <> ?'];
-  const params = [viewerId];
-  where.push(asProvider ? '(r.direct_provider_id IS NULL OR r.direct_provider_id = ?)' : 'r.direct_provider_id IS NULL');
-  if (asProvider) params.push(viewerId);
+// AYK-440/442: what «مهنتي / حسب طلبي» and «منطقتي» mean for this person. A provider: the professions
+// of his services and his coverage districts (else his city). A requester: the professions he asked
+// for and his city.
+async function boardViewer(viewerId, asProvider) {
   let categories = []; let services = []; let districts = []; let cityId = null;
   if (asProvider) {
     const profile = await queryOne(`SELECT pp.service_ids, pp.category_id, COALESCE(pp.coverage_city_id, u.city_id) AS city_id
@@ -546,12 +542,32 @@ async function findBoard({ viewerId, asProvider = false, filterProfession = fals
     const me = await queryOne('SELECT city_id FROM users WHERE id = ?', [viewerId]);
     cityId = me?.city_id ? Number(me.city_id) : null;
   }
+  return { categories, services, districts, cityId };
+}
+
+// The SQL for «my profession» and «my area» over requests r.
+function boardMatch({ categories, services, districts, cityId }) {
   const profParts = []; const profParams = [];
   if (categories.length) { profParts.push(`r.category_id IN (${categories.map(() => '?').join(', ')})`); profParams.push(...categories); }
   if (services.length) { profParts.push(`r.service_id IN (${services.map(() => '?').join(', ')})`); profParams.push(...services); }
-  const prof = profParts.length ? `(${profParts.join(' OR ')})` : 'FALSE';
-  const area = districts.length ? `r.district_id IN (${districts.map(() => '?').join(', ')})` : cityId ? 'r.city_id = ?' : 'FALSE';
-  const areaParams = districts.length ? districts : cityId ? [cityId] : [];
+  return {
+    prof: profParts.length ? `(${profParts.join(' OR ')})` : 'FALSE', profParams,
+    area: districts.length ? `r.district_id IN (${districts.map(() => '?').join(', ')})` : cityId ? 'r.city_id = ?' : 'FALSE',
+    areaParams: districts.length ? districts : cityId ? [cityId] : [],
+  };
+}
+
+async function findBoard({ viewerId, asProvider = false, filterProfession = false, filterArea = false, page = 1, limit = 20 } = {}) {
+  ({ page, limit } = pagination(page, limit));
+  const offset = (page - 1) * limit;
+  viewerId = Number(viewerId);
+  const where = ['r.deleted_at IS NULL', "r.status = 'open'", 'r.hidden_at IS NULL', 'r.client_id <> ?'];
+  const params = [viewerId];
+  where.push(asProvider ? '(r.direct_provider_id IS NULL OR r.direct_provider_id = ?)' : 'r.direct_provider_id IS NULL');
+  if (asProvider) params.push(viewerId);
+  const viewer = await boardViewer(viewerId, asProvider);
+  const { categories } = viewer;
+  const { prof, profParams, area, areaParams } = boardMatch(viewer);
   if (filterProfession) { where.push(prof); params.push(...profParams); }
   if (filterArea) { where.push(area); params.push(...areaParams); }
   const PREVIOUS = asProvider
@@ -579,22 +595,33 @@ async function findBoard({ viewerId, asProvider = false, filterProfession = fals
   return { items, total, has_profession: categories.length > 0, has_area: areaParams.length > 0 };
 }
 
-// AYK-441 (the owner: «إذا دخل العضو ولم يجد أحدًا خرج ولم يعد، يعتبره ميتًا»): the requests served
-// lately (agreed, in progress, done), so the board is never a blank page. Only what an open request
-// already shows anyone: the title, the profession and the city; no names, no numbers, no link.
-async function recentActivity({ excludeClientId = 0, limit = 6, days = 90 } = {}) {
-  limit = Math.min(Math.max(Number(limit) || 6, 1), 20);
-  const rows = await query(`SELECT r.id, r.title, r.status, r.category_id, r.city_id,
-      COALESCE(r.completed_at, r.updated_at) AS at,
+// AYK-441/442 (the owner: «إذا دخل العضو ولم يجد أحدًا خرج ولم يعد»؛ «أضف تم مؤخرًا ويختار قبل كم يوم،
+// وكل المهن أو تقييد مهنة / تقييد منطقة؛ تذكر: المهنة، المدينة، وقت الاتفاق»): the requests agreed on
+// lately with a service provider. Only the profession, the city and when the agreement was made: no
+// title, no names, no numbers. Requests sent directly to one provider, hidden ones and the viewer's
+// own are left out. `days`: how far back; «مهنتي» / «منطقتي» as on the board.
+async function recentActivity({ viewerId = 0, asProvider = false, filterProfession = false, filterArea = false, days = 30, limit = 20 } = {}) {
+  limit = Math.min(Math.max(Number(limit) || 20, 1), 50);
+  days = Math.min(Math.max(Math.round(Number(days)) || 30, 1), 365);
+  viewerId = Number(viewerId) || 0;
+  const where = ['r.deleted_at IS NULL', 'r.hidden_at IS NULL', 'r.direct_provider_id IS NULL', 'r.assigned_provider_id IS NOT NULL',
+    "r.status IN ('assigned', 'in_progress', 'completed', 'closed')", 'r.client_id <> ?'];
+  const params = [viewerId];
+  if (viewerId && (filterProfession || filterArea)) {
+    const match = boardMatch(await boardViewer(viewerId, asProvider));
+    if (filterProfession) { where.push(match.prof); params.push(...match.profParams); }
+    if (filterArea) { where.push(match.area); params.push(...match.areaParams); }
+  }
+  const AGREED = 'COALESCE(r.agreed_at, o.accepted_at, r.completed_at, r.updated_at)';
+  const rows = await query(`SELECT r.id, r.status, r.category_id, r.city_id, ${AGREED} AS agreed_at,
       cat.name_ar AS category_name, cat.name_en AS category_name_en, cat.name_translations AS category_name_translations,
-      city.name_ar AS city_name, city.name_en AS city_name_en
+      cat.icon AS category_icon, city.name_ar AS city_name, city.name_en AS city_name_en
     FROM requests r
+    LEFT JOIN offers o ON o.id = r.accepted_offer_id
     LEFT JOIN categories cat ON r.category_id = cat.id
     LEFT JOIN cities city ON r.city_id = city.id
-    WHERE r.deleted_at IS NULL AND r.hidden_at IS NULL AND r.direct_provider_id IS NULL
-      AND r.status IN ('assigned', 'in_progress', 'completed', 'closed') AND r.assigned_provider_id IS NOT NULL
-      AND r.client_id <> ? AND COALESCE(r.completed_at, r.updated_at) > CURRENT_TIMESTAMP - (? * INTERVAL '1 day')
-    ORDER BY COALESCE(r.completed_at, r.updated_at) DESC, r.id DESC LIMIT ?`, [Number(excludeClientId) || 0, Number(days), limit]);
+    WHERE ${where.join(' AND ')} AND ${AGREED} > CURRENT_TIMESTAMP - (? * INTERVAL '1 day')
+    ORDER BY ${AGREED} DESC, r.id DESC LIMIT ?`, [...params, days, limit]);
   return rows.map(row => ({ ...row, status: ['completed', 'closed'].includes(row.status) ? 'done' : 'working' }));
 }
 

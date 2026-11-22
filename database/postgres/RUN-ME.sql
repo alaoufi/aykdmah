@@ -6837,6 +6837,17 @@ VALUES ('marketplace_restrict_views', 'false', 'boolean', 'requests', 1, 'تقي
 ON CONFLICT (setting_key) DO NOTHING;
 INSERT INTO schema_migrations(name) VALUES ('110_marketplace_restrict_views.sql');
 
+-- migrations/111_request_agreed_at.sql
+ALTER TABLE requests ADD COLUMN IF NOT EXISTS agreed_at TIMESTAMP NULL DEFAULT NULL;
+UPDATE requests r SET agreed_at = COALESCE((SELECT o.accepted_at FROM offers o WHERE o.id = r.accepted_offer_id), r.completed_at, r.updated_at)
+  WHERE r.agreed_at IS NULL AND r.assigned_provider_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_requests_agreed_at ON requests (agreed_at DESC) WHERE agreed_at IS NOT NULL;
+INSERT INTO schema_migrations(name) VALUES ('111_request_agreed_at.sql');
+
+-- migrations/112_request_alerts.sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS request_alerts SMALLINT NOT NULL DEFAULT 0;
+INSERT INTO schema_migrations(name) VALUES ('112_request_alerts.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

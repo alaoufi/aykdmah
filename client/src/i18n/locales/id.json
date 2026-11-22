@@ -216,7 +216,15 @@
     "empty_guest_action": "Daftar sekarang",
     "empty_providers_title": "Penyedia layanan sedang bergabung",
     "empty_providers_hint": "Kirim permintaan Anda, dan kami kabari setiap penyedia layanan di profesi dan wilayahnya begitu mereka mendaftar.",
-    "empty_providers_action": "Kirim permintaan"
+    "empty_providers_action": "Kirim permintaan",
+    "recent_period": "Periode",
+    "recent_days_1": "Sehari terakhir",
+    "recent_days_7": "7 hari terakhir",
+    "recent_days_30": "30 hari terakhir",
+    "recent_days_90": "90 hari terakhir",
+    "recent_all_professions": "Semua profesi",
+    "recent_agreed": "Sepakat {{when}}",
+    "recent_none": "Belum ada kesepakatan dalam periode ini. Coba periode lebih panjang atau semua profesi."
   },
   "location": {
     "country": "Negara",
@@ -2646,7 +2654,12 @@
     "unrestricted_hint": "Lepas batasan: tampilkan semua permintaan terbuka di profesi dan wilayah mana pun, bukan hanya profesi dan cakupan saya.",
     "my_info_title": "Data saya",
     "my_info_hint": "Nama, deskripsi layanan saya, telepon dan WhatsApp yang ditampilkan, profesi dan distrik saya.",
-    "my_info_edit": "Ubah"
+    "my_info_edit": "Ubah",
+    "alerts_none": "Tidak ada permintaan baru untuk profesi Anda di wilayah Anda",
+    "alerts_ask": "Ingin diingatkan saat ada permintaan yang cocok untuk Anda?",
+    "alerts_yes": "Ya, ingatkan saya",
+    "alerts_on": "Pengingat aktif: Anda mendapat notifikasi begitu ada permintaan di profesi dan wilayah Anda, bahkan di luar jam kerja, beserta cara menghubungi pemiliknya.",
+    "alerts_stop": "Hentikan pengingat"
   },
   "requester": {
     "all_professions": "Semua profesi",

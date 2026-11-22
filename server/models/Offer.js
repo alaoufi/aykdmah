@@ -265,7 +265,7 @@ async function transitionOffer(offerId, clientId, status) {
       [offer.request_id, offerId]
     );
     await conn.execute(
-      "UPDATE requests SET status = 'assigned', assigned_provider_id = ?, accepted_offer_id = ? WHERE id = ?",
+      "UPDATE requests SET status = 'assigned', assigned_provider_id = ?, accepted_offer_id = ?, agreed_at = CURRENT_TIMESTAMP WHERE id = ?",
       [offer.provider_id, offerId, offer.request_id]
     );
     return { ...offer, status: 'accepted' };

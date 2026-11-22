@@ -216,7 +216,15 @@
     "empty_guest_action": "አሁን ይመዝገቡ",
     "empty_providers_title": "አገልግሎት ሰጪዎች አሁን እየተቀላቀሉ ነው",
     "empty_providers_hint": "ጥያቄዎን ይላኩ፣ በሙያውና በአካባቢው ያለ እያንዳንዱን አገልግሎት ሰጪ ሲመዘገብ እናሳውቃለን።",
-    "empty_providers_action": "ጥያቄ ላክ"
+    "empty_providers_action": "ጥያቄ ላክ",
+    "recent_period": "ጊዜ",
+    "recent_days_1": "ያለፈው አንድ ቀን",
+    "recent_days_7": "ያለፉት 7 ቀናት",
+    "recent_days_30": "ያለፉት 30 ቀናት",
+    "recent_days_90": "ያለፉት 90 ቀናት",
+    "recent_all_professions": "ሁሉም ሙያዎች",
+    "recent_agreed": "ስምምነት {{when}}",
+    "recent_none": "በዚህ ጊዜ ገና ስምምነት የለም። ረዘም ያለ ጊዜ ወይም ሁሉንም ሙያዎች ይሞክሩ።"
   },
   "location": {
     "country": "ሀገር",
@@ -2646,7 +2654,12 @@
     "unrestricted_hint": "ገደቡን አንሳ፦ የኔን ሙያና ሽፋን ብቻ ሳይሆን በማንኛውም ሙያና አካባቢ ያሉ ሁሉንም ክፍት ጥያቄዎች አሳይ።",
     "my_info_title": "የኔ መረጃ",
     "my_info_hint": "ስም፣ የአገልግሎቴ መግለጫ፣ ለሰዎች የሚታየው ስልክና ዋትስአፕ፣ ሙያዎቼና ሰፈሮቼ።",
-    "my_info_edit": "አስተካክል"
+    "my_info_edit": "አስተካክል",
+    "alerts_none": "በአካባቢዎ ለሙያዎ አዲስ ጥያቄ የለም",
+    "alerts_ask": "የሚስማማዎ ጥያቄ ሲመጣ እንድናስታውስዎ ይፈልጋሉ?",
+    "alerts_yes": "አዎ፣ አስታውሱኝ",
+    "alerts_on": "ማስታወሻ በርቷል፦ በሙያዎና በአካባቢዎ ጥያቄ እንደመጣ፣ ከሥራ ሰዓት ውጭም ቢሆን፣ ባለቤቱን የሚያገኙበት መንገድ ያለው ማሳወቂያ ይደርስዎታል።",
+    "alerts_stop": "ማስታወሻ አቁም"
   },
   "requester": {
     "all_professions": "ሁሉም ሙያዎች",

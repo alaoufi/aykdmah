@@ -216,7 +216,15 @@
     "empty_guest_action": "Şimdi kaydol",
     "empty_providers_title": "Hizmet sağlayıcılar şimdi katılıyor",
     "empty_providers_hint": "Talebinizi gönderin; mesleği ve bölgesindeki her hizmet sağlayıcıya kaydolur olmaz haber veririz.",
-    "empty_providers_action": "Talep gönder"
+    "empty_providers_action": "Talep gönder",
+    "recent_period": "Süre",
+    "recent_days_1": "Son gün",
+    "recent_days_7": "Son 7 gün",
+    "recent_days_30": "Son 30 gün",
+    "recent_days_90": "Son 90 gün",
+    "recent_all_professions": "Tüm meslekler",
+    "recent_agreed": "Anlaşma: {{when}}",
+    "recent_none": "Bu sürede henüz anlaşma yok. Daha uzun bir süre veya tüm meslekleri deneyin."
   },
   "location": {
     "country": "Ülke",
@@ -2646,7 +2654,12 @@
     "unrestricted_hint": "Sınırları kaldır: yalnızca mesleğim ve hizmet alanım değil, her meslek ve bölgedeki tüm açık talepleri göster.",
     "my_info_title": "Bilgilerim",
     "my_info_hint": "Ad, hizmet açıklamam, insanlara gösterilen telefon ve WhatsApp, mesleklerim ve mahallelerim.",
-    "my_info_edit": "Düzenle"
+    "my_info_edit": "Düzenle",
+    "alerts_none": "Bölgenizde mesleğiniz için yeni talep yok",
+    "alerts_ask": "Size uygun bir talep geldiğinde hatırlatılmak ister misiniz?",
+    "alerts_yes": "Evet, hatırlat",
+    "alerts_on": "Hatırlatma açık: mesleğinizde ve bölgenizde bir talep gelir gelmez, çalışma saatleriniz dışında bile, sahibine nasıl ulaşacağınızla birlikte bildirim alırsınız.",
+    "alerts_stop": "Hatırlatmayı durdur"
   },
   "requester": {
     "all_professions": "Tüm meslekler",

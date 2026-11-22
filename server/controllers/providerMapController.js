@@ -191,7 +191,7 @@ function coveringProviders({ districtId, cityId, regionId = null, everywhere = f
            to_jsonb(pp)->>'availability_status' AS availability_status, to_jsonb(pp)->>'vacation_from' AS vacation_from,
            to_jsonb(pp)->>'vacation_to' AS vacation_to, to_jsonb(pp)->>'work_days' AS work_days,
            to_jsonb(pp)->>'work_from' AS work_from, to_jsonb(pp)->>'work_to' AS work_to,
-           to_jsonb(pp)->'work_schedule' AS work_schedule, ${COVERAGE_SQL},
+           to_jsonb(pp)->'work_schedule' AS work_schedule, ${COVERAGE_SQL}, to_jsonb(u)->>'request_alerts' AS request_alerts,
            EXISTS (SELECT 1 FROM provider_badges pb WHERE pb.user_id = u.id AND pb.badge_type = 'featured' AND pb.status = 'active'
                    AND pb.ends_at > CURRENT_TIMESTAMP AND ${ProviderBadge.verifiedPaymentSql('pb')}) AS is_featured
     FROM users u
@@ -319,7 +319,9 @@ async function availableForRequest({ districtId, cityId, categoryId, serviceId, 
     // AYK-391: the profession decides; a specific service only when the request has no profession.
     if (!categoryServices && serviceId && !services.includes(Number(serviceId))) return false;
     if (categoryServices && Number(row.category_id) !== Number(categoryId) && !services.some(s => categoryServices.has(s))) return false;
-    return availability(row).state === 'available';
+    // AYK-443: who asked to be reminded is told even outside his hours; not while paused or away.
+    const state = availability(row).state;
+    return state === 'available' || (Number(row.request_alerts) === 1 && state !== 'paused' && state !== 'vacation');
   });
   // Without a needed subscription, a provider is not told about the request (AYK-042).
   const allowed = await require('../services/subscriptionRules').keepAllowed(working, { cityId, categoryOf: row => categoryId || row.category_id });

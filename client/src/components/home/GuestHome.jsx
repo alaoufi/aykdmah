@@ -25,10 +25,9 @@ export default function GuestHome() {
   const [service, setService] = useState('');
   const [requests, setRequests] = useState(null);
   const [providers, setProviders] = useState(null);
-  // AYK-441: a profession with nothing yet shows the rest, saying so; and what was served lately.
+  // AYK-441: a profession with nothing yet shows the rest, saying so.
   const [requestsWider, setRequestsWider] = useState(false);
   const [providersWider, setProvidersWider] = useState(false);
-  const [recent, setRecent] = useState([]);
   const [allProviders, setAllProviders] = useState(false);
 
   useEffect(() => {
@@ -39,17 +38,17 @@ export default function GuestHome() {
   useEffect(() => {
     let current = true;
     setRequests(null);
-    const params = { limit: 10, status: 'open', recent: '1' };
+    const params = { limit: 10, status: 'open' };
     if (category) params.category_id = category;
     if (service) params.service_id = service;
     listNearbyRequests(params)
       .then(async res => {
-        let rows = res.data || []; let wider = false; let latest = res.meta?.recent || [];
+        let rows = res.data || []; let wider = false;
         if (!rows.length && (category || service)) {
-          const all = await listNearbyRequests({ limit: 10, status: 'open', recent: '1' }).catch(() => null);
-          rows = all?.data || []; wider = rows.length > 0; latest = all?.meta?.recent || latest;
+          const all = await listNearbyRequests({ limit: 10, status: 'open' }).catch(() => null);
+          rows = all?.data || []; wider = rows.length > 0;
         }
-        if (current) { setRequests(rows); setRequestsWider(wider); setRecent(latest); }
+        if (current) { setRequests(rows); setRequestsWider(wider); }
       })
       .catch(() => { if (current) setRequests([]); });
     return () => { current = false; };
@@ -128,7 +127,7 @@ export default function GuestHome() {
             : !requests.length ? <div className="col-span-full"><BoardEmpty who="guest" /></div>
               : requests.map(item => <RequestCard key={item.id} item={item} />)}
         </div>
-        <RecentActivity rows={recent} className="mt-2" />
+        <RecentActivity className="mt-2" />
       </section>
 
       <section data-testid="guest-providers">

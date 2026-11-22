@@ -89,7 +89,7 @@ const updateMe = asyncHandler(async (req, res) => {
   }
   // AYK-418/438/439: the requester's choices, off until turned on: name, phone and WhatsApp shown to
   // service providers (1) or hidden (0); others may share my requests (allow_request_share).
-  for (const flag of ['share_name', 'share_phone', 'share_whatsapp', 'allow_request_share', 'marketing_opt_in']) {
+  for (const flag of ['share_name', 'share_phone', 'share_whatsapp', 'allow_request_share', 'request_alerts', 'marketing_opt_in']) {
     if (payload[flag] === undefined) continue;
     if (![0, 1, true, false, '0', '1'].includes(payload[flag])) return error(res, req.t('invalid_data'), 400);
     payload[flag] = [1, true, '1'].includes(payload[flag]) ? 1 : 0;

@@ -1277,7 +1277,7 @@ if (!databasePrefix) {
       title: 'طلب نُفّذ', description: 'تجربة النشاط', category_id: Number(svc.category_id), city_id: area.city_id, district_id: area.district_id, latitude: 24.7136, longitude: 46.6753 } })).id);
     const open = await post();
     const done = await post();
-    await db.query("UPDATE requests SET status = 'completed', assigned_provider_id = ?, completed_at = CURRENT_TIMESTAMP WHERE id = ?", [helper.user.id, done]);
+    await db.query("UPDATE requests SET status = 'completed', assigned_provider_id = ?, agreed_at = CURRENT_TIMESTAMP, completed_at = CURRENT_TIMESTAMP WHERE id = ?", [helper.user.id, done]);
     await db.query("UPDATE settings SET setting_value = 'false' WHERE setting_key = 'marketplace_restrict_views'");
     const raw = async (q, token) => (await (await fetch(`${base}/requests/nearby?${q}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })).json());
     // A requester who has asked for nothing: «حسب طلبي» matches nothing, so the rest comes, marked.
@@ -1291,18 +1291,58 @@ if (!databasePrefix) {
     assert.equal(strict.meta.board.fallback, false);
     assert.equal(strict.data.length, 0);
     await db.query("UPDATE settings SET setting_value = 'false' WHERE setting_key = 'marketplace_restrict_views'");
-    // The work served lately: title, profession and city only; not to its own requester.
-    const recent = await require('../models/Request').recentActivity({ excludeClientId: viewer.user.id, limit: 20 });
-    const row = recent.find(item => Number(item.id) === done);
-    assert.ok(row, 'a completed request is in the recent work');
+    // AYK-442: «تم مؤخرًا»: profession, city and the agreement's time only; by period, profession and area.
+    const recent = async (q, token) => ((await (await fetch(`${base}/requests/recent?limit=50&${q}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })).json()).data);
+    const guestRows = await recent('days=30');
+    const row = guestRows.find(item => Number(item.id) === done);
+    assert.ok(row, 'a visitor sees the agreement');
     assert.equal(row.status, 'done');
-    assert.ok(!('client_name' in row) && !('client_id' in row) && !('description' in row), 'nothing about the person');
-    assert.ok(!recent.some(item => Number(item.id) === open), 'open requests are not «recent work»');
-    assert.ok(!(await require('../models/Request').recentActivity({ excludeClientId: owner.user.id, limit: 20 })).some(item => Number(item.id) === done), 'not shown to its own requester');
-    // A visitor's home asks for it too.
-    const guest = await raw('status=open&limit=1&recent=1&category_id=999999');
-    assert.ok(Array.isArray(guest.meta.recent));
+    assert.ok(row.agreed_at && row.category_name && row.city_name, 'profession, city and when');
+    for (const key of ['title', 'description', 'client_id', 'client_name', 'assigned_provider_id', 'assigned_provider_name']) assert.ok(!(key in row), `no ${key}`);
+    assert.ok(!guestRows.some(item => Number(item.id) === open), 'open requests are not agreements');
+    assert.ok(!(await recent('days=30', owner.token)).some(item => Number(item.id) === done), 'not shown to its own requester');
+    await db.query("UPDATE requests SET agreed_at = CURRENT_TIMESTAMP - INTERVAL '10 days' WHERE id = ?", [done]);
+    assert.ok(!(await recent('days=7')).some(item => Number(item.id) === done), 'older than the period chosen');
+    assert.ok((await recent('days=30')).some(item => Number(item.id) === done), 'within the period chosen');
+    // A provider in that profession and area keeps it with both filters; a requester who asked nothing loses it with «حسب طلبي».
+    const pro = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await api('/users/me/role', { method: 'PUT', token: pro.token, body: { role: 'provider', quick: true, service_ids: [Number(svc.id)] } });
+    assert.ok((await recent('days=30&f_prof=1&f_area=1', pro.token)).some(item => Number(item.id) === done), 'my profession in my area');
+    assert.ok((await recent('days=30&as=requester&f_area=1', viewer.token)).some(item => Number(item.id) === done), 'my area');
+    assert.ok(!(await recent('days=30&as=requester&f_prof=1', viewer.token)).some(item => Number(item.id) === done), 'nothing asked: no profession');
     for (const id of [open, done]) await db.query('DELETE FROM requests WHERE id = ?', [id]);
+  });
+
+  test('AYK-443: a provider who asked to be reminded is told outside his hours, in his language, with how to reach the requester', async () => {
+    const area = await simpleArea();
+    const svc = await db.queryOne('SELECT s.id, s.category_id FROM services s WHERE s.is_active = 1 AND s.deleted_at IS NULL ORDER BY s.id LIMIT 1');
+    const makeProvider = async () => {
+      const session = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id,
+        service_ids: [Number(svc.id)], coverage_district_ids: [area.district_id] });
+      // Off hours now (Saudi time): a one-hour window three hours from now.
+      const hour = (new Date().getUTCHours() + 3 + 3) % 24;
+      const pad = n => String(n).padStart(2, '0');
+      await db.query('UPDATE provider_profiles SET work_from = ?, work_to = ? WHERE user_id = ?', [`${pad(hour)}:00`, `${pad(hour)}:30`, session.user.id]);
+      return session;
+    };
+    const asked = await makeProvider();
+    const quiet = await makeProvider();
+    await db.query("UPDATE users SET ui_lang = 'en' WHERE id = ?", [asked.user.id]);
+    await api('/users/me', { method: 'PUT', token: asked.token, body: { request_alerts: 1 } });
+    assert.equal(Number((await api('/auth/me', { token: asked.token })).user?.request_alerts ?? (await api('/auth/me', { token: asked.token })).request_alerts), 1);
+    await api('/users/me', { method: 'PUT', token: quiet.token, body: { request_alerts: 'x' }, expected: 400 });
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await api('/users/me', { method: 'PUT', token: owner.token, body: { share_whatsapp: 1 } });
+    const id = Number((await api('/requests', { method: 'POST', token: owner.token, expected: 201, body: {
+      title: 'Fix the AC', description: 'تجربة التذكير', category_id: Number(svc.category_id), city_id: area.city_id, district_id: area.district_id, latitude: 24.7136, longitude: 46.6753 } })).id);
+    await new Promise(resolve => setTimeout(resolve, 300));
+    const notice = await db.queryOne("SELECT title, body FROM notifications WHERE user_id = ? AND type = 'request_new' ORDER BY id DESC LIMIT 1", [asked.user.id]);
+    assert.ok(notice, 'the provider who asked is told, outside his hours');
+    assert.equal(notice.title, 'New request in your profession');
+    assert.match(notice.body, /Fix the AC/);
+    assert.match(notice.body, /chat or WhatsApp/, 'how to reach the requester: chat and WhatsApp (shown), not a call');
+    assert.ok(!(await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_new'", [quiet.user.id])), 'outside his hours without a reminder: not told');
+    await db.query('DELETE FROM requests WHERE id = ?', [id]);
   });
 
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {

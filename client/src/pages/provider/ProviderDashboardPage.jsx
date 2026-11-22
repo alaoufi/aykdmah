@@ -18,6 +18,7 @@ import { ProviderSection } from '../ProfilePage';
 import usePublicSettings from '../../hooks/usePublicSettings';
 import RecentActivity from '../../components/home/RecentActivity';
 import BoardEmpty from '../../components/home/BoardEmpty';
+import RequestAlertPrompt from '../../components/provider/RequestAlertPrompt';
 
 export default function ProviderDashboardPage() {
   const { t } = useTranslation();
@@ -104,11 +105,12 @@ export default function ProviderDashboardPage() {
           })}
           <span className="text-[11.5px] text-fg-muted">{t(restricted ? 'home.filter_restricted' : unrestricted ? 'home.filter_none' : 'home.filter_some')}</span>
         </div>
+        <RequestAlertPrompt noneForMe={!nearby.some(r => r.board_profession && r.board_area)} />
         {boardMeta.fallback && <p className="text-[12.5px] rounded-card bg-amber-50 text-amber-900 px-3 py-2 mb-2" role="status" data-testid="board-fallback">💡 {t('home.board_fallback')}</p>}
         {nearby.length === 0
           ? (restricted ? <EmptyState title={t('home.board_none_filtered')} /> : <BoardEmpty who="provider" />)
           : <div className="grid grid-2">{nearby.map(r => <RequestCard key={r.id} request={r} />)}</div>}
-        <RecentActivity rows={boardMeta.recent || []} className="mt-3" />
+        <RecentActivity asProvider className="mt-3" />
       </div>
 
 

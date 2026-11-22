@@ -216,7 +216,15 @@
     "empty_guest_action": "Sign up now",
     "empty_providers_title": "Service providers are joining now",
     "empty_providers_hint": "Send your request, and we alert every service provider in its profession and area as soon as they sign up.",
-    "empty_providers_action": "Send a request"
+    "empty_providers_action": "Send a request",
+    "recent_period": "Period",
+    "recent_days_1": "Last day",
+    "recent_days_7": "Last 7 days",
+    "recent_days_30": "Last 30 days",
+    "recent_days_90": "Last 90 days",
+    "recent_all_professions": "All professions",
+    "recent_agreed": "Agreed {{when}}",
+    "recent_none": "No agreements in this period yet. Try a longer period or all professions."
   },
   "location": {
     "country": "Country",
@@ -2646,7 +2654,12 @@
     "unrestricted_hint": "Remove the limits: show every open request in any profession and area, not only my profession and coverage.",
     "my_info_title": "My details",
     "my_info_hint": "Name, my services description, the phone and WhatsApp shown to people, my professions and districts.",
-    "my_info_edit": "Edit"
+    "my_info_edit": "Edit",
+    "alerts_none": "No new requests for your profession in your area",
+    "alerts_ask": "Would you like a reminder when a request that suits you comes in?",
+    "alerts_yes": "Yes, remind me",
+    "alerts_on": "Reminders on: you get a notice as soon as a request arrives in your profession and area, even outside your working hours, with how to reach its owner.",
+    "alerts_stop": "Stop reminders"
   },
   "requester": {
     "all_professions": "All professions",

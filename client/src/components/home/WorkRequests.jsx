@@ -6,6 +6,7 @@ import RequestCard from '../requests/RequestCard';
 import useLiveRefresh from '../../hooks/useLiveRefresh';
 import RecentActivity from './RecentActivity';
 import BoardEmpty from './BoardEmpty';
+import RequestAlertPrompt from '../provider/RequestAlertPrompt';
 
 // AYK-333 (the owner): a service provider sees, on their first page, the requesters' requests in
 // their own profession and coverage area. The provider's dashboard has had this list; an account
@@ -37,12 +38,13 @@ export default function WorkRequests({ className = '', scope = 'area', asProvide
         {asProvider && <Link to="/opportunities" className="text-[13px] font-semibold">{t('work.see_all')}</Link>}
       </div>
       {/* AYK-441: nothing for the buttons chosen, so the rest is shown, and it says so. */}
+      {board && asProvider && <RequestAlertPrompt noneForMe={!rows.some(r => r.board_profession && r.board_area)} />}
       {meta.fallback && <p className="text-[12.5px] rounded-card bg-amber-50 text-amber-900 px-3 py-2 mb-2" role="status" data-testid="board-fallback">💡 {t('home.board_fallback')}</p>}
       {rows.length === 0
         ? (board && !meta.restricted ? <BoardEmpty who={asProvider ? 'provider' : 'requester'} />
           : <p className="text-[13.5px] text-fg-muted m-0">{t(board ? (board.prof || board.area ? 'home.board_none_filtered' : 'home.no_requests_anywhere') : scope === 'all' || scope === 'open' ? 'home.no_requests_anywhere' : scope === 'area' && asProvider ? 'work.no_requests' : 'home.no_requests_widen')}</p>)
         : <div className="grid grid-2">{rows.map(request => <RequestCard key={request.id} request={request} />)}</div>}
-      <RecentActivity rows={meta.recent || []} className="mt-3" />
+      {board && <RecentActivity asProvider={asProvider} className="mt-3" />}
     </div>
   );
 }
