@@ -442,7 +442,10 @@
     "reach_count": "Nakikita na ngayon ng {{count}} provider sa propesyon at lugar nito ang iyong request.",
     "reach_none": "Wala pang provider sa propesyong ito na sumasakop sa lugar ng iyong request.",
     "reach_none_profession": "Wala pang provider na nakarehistro sa propesyong ito. Mananatiling bukas ang iyong request at makikita ito ng mga pumili ng «Lahat ng bukas na request»; maaari mong palitan ang propesyon kung mas bagay ang iba.",
-    "reach_none_area": "May mga provider sa propesyong ito pero hindi pa nila sakop ang iyong distrito. Mananatiling bukas ang iyong request at makikita ng mga nagpapalawak ng saklaw o pumipili ng «Lahat ng bukas na request»."
+    "reach_none_area": "May mga provider sa propesyong ito pero hindi pa nila sakop ang iyong distrito. Mananatiling bukas ang iyong request at makikita ng mga nagpapalawak ng saklaw o pumipili ng «Lahat ng bukas na request».",
+    "contact_providers_title": "Ang pakikipag-ugnayan ay para sa mga service provider",
+    "contact_providers_only": "Ang pakikipag-ugnayan sa mga humihiling ng serbisyo ay para sa mga service provider. Magrehistro bilang service provider at piliin ang iyong propesyon, saka kontakin ang mga nangangailangan sa iyo.",
+    "become_provider": "Maging service provider"
   },
   "offer": {
     "submit_title": "Mag-alok ng presyo",

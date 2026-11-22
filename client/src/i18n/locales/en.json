@@ -442,7 +442,10 @@
     "reach_count": "Your request now shows to {{count}} providers in its profession and area.",
     "reach_none": "No provider in this profession covers your request's place yet.",
     "reach_none_profession": "No provider has registered in this profession yet. Your request stays open and is seen by those who choose «All open requests»; you can change the profession if another one fits.",
-    "reach_none_area": "Providers in this profession exist but do not cover your district yet. Your request stays open and is seen by those who widen their circle or choose «All open requests»."
+    "reach_none_area": "Providers in this profession exist but do not cover your district yet. Your request stays open and is seen by those who widen their circle or choose «All open requests».",
+    "contact_providers_title": "Contact is for service providers",
+    "contact_providers_only": "Contacting service requesters is for service providers. Register as a service provider and choose your profession, then reach the people who need you.",
+    "become_provider": "Become a service provider"
   },
   "offer": {
     "submit_title": "Send a price offer",

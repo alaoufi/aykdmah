@@ -442,7 +442,10 @@
     "reach_count": "Talebiniz şu an meslek ve bölgesindeki {{count}} hizmet verene görünüyor.",
     "reach_none": "Bu meslekte talebinizin yerini kapsayan bir hizmet veren henüz yok.",
     "reach_none_profession": "Bu meslekte henüz kayıtlı hizmet veren yok. Talebiniz açık kalır ve «Tüm açık talepler»i seçenler görür; başka bir meslek daha uygunsa mesleği değiştirebilirsiniz.",
-    "reach_none_area": "Bu meslekte hizmet verenler var ama henüz mahallenizi kapsamıyorlar. Talebiniz açık kalır; çevresini genişletenler veya «Tüm açık talepler»i seçenler görür."
+    "reach_none_area": "Bu meslekte hizmet verenler var ama henüz mahallenizi kapsamıyorlar. Talebiniz açık kalır; çevresini genişletenler veya «Tüm açık talepler»i seçenler görür.",
+    "contact_providers_title": "İletişim hizmet verenler içindir",
+    "contact_providers_only": "Hizmet talep edenlerle iletişim hizmet verenler içindir. Hizmet veren olarak kaydolun ve mesleğinizi seçin, ardından size ihtiyaç duyanlara ulaşın.",
+    "become_provider": "Hizmet veren ol"
   },
   "offer": {
     "submit_title": "Fiyat teklifi ver",

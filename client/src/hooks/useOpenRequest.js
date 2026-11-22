@@ -2,12 +2,14 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './useAuth';
 import { contactRequest } from '../services/requestService';
-import { showProblem } from '../components/common/AppDialog';
+import { showProblem, askConfirm } from '../components/common/AppDialog';
+import { useTranslation } from 'react-i18next';
 
 // Opening a request card (AYK-044): my own request opens its page; a request for my
 // service opens the chat with its requester straight away (or its page when that fails).
 export default function useOpenRequest() {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [opening, setOpening] = useState(0);
   const mine = request => Boolean(user) && Number(request.client_id) === Number(user.id);
@@ -25,5 +27,15 @@ export default function useOpenRequest() {
       showProblem(err);
     } finally { setOpening(0); }
   };
-  return { open, opening, mine, forMyService };
+  // AYK-426 (the owner: «اللوحة هذي ما فيها تواصل، أضف التواصل»): «تواصل» on every open request that
+  // is not mine. A provider reaches the requester at once (as before); a visitor signs in first; a
+  // requester is told contact is for service providers and can become one.
+  const canContact = request => !mine(request) && request.status === 'open';
+  const contact = async request => {
+    if (!user) { navigate('/login', { state: { from: `/requests/${request.id}` } }); return; }
+    if (forMyService(request)) { await open(request); return; }
+    const become = await askConfirm({ title: t('request.contact_providers_title'), message: t('request.contact_providers_only'), confirmText: t('request.become_provider') });
+    if (become) navigate('/profile#account-type');
+  };
+  return { open, opening, mine, forMyService, canContact, contact };
 }

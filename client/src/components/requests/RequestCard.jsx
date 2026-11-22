@@ -22,7 +22,7 @@ export default function RequestCard({ request }) {
   const status = REQUEST_STATUS[request.status] || { color: 'badge' };
   const statusLabel = status.i18nKey ? t(status.i18nKey) : request.status;
 
-  const { open, opening, mine, forMyService } = useOpenRequest();
+  const { open, opening, mine, forMyService, canContact, contact } = useOpenRequest();
   const translation = useRequestTranslation(request);
 
   return (
@@ -32,8 +32,8 @@ export default function RequestCard({ request }) {
       {/* Compact (AYK-099): whose, urgency, status and age on one line. */}
       <div className="flex items-center gap-1.5 flex-wrap">
         {/* AYK-418: «لخدمتك» became «تواصل»: phone and WhatsApp when the requester shows them, and chat. */}
-        {forMyService(request)
-          ? <ContactMenu compact quick phone={request.client_contact_phone} whatsapp={request.client_contact_whatsapp} busy={opening === request.id} onChat={() => open(request)} testId="request-contact" />
+        {canContact(request)
+          ? <ContactMenu compact quick phone={request.client_contact_phone} whatsapp={request.client_contact_whatsapp} busy={opening === request.id} onChat={() => contact(request)} testId="request-contact" />
           : <OwnerBadge mine={mine(request)} forService={false} />}
         {/* AYK-398: someone this provider already worked for. */}
         {request.previous_client ? <span className="badge badge-success" data-testid="badge-previous-client">⭐ {t('work.previous_client')}</span> : null}

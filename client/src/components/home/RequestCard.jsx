@@ -13,7 +13,7 @@ export default function RequestCard({ item, urgent = false }) {
   const { t, i18n } = useTranslation();
   const tag = localizedJoinedName(item, 'category', i18n.resolvedLanguage) || localizedJoinedName(item, 'service', i18n.resolvedLanguage) || t('nav.services');
   const cityLine = [localizedJoinedName(item, 'city', i18n.resolvedLanguage), localizedJoinedName(item, 'district', i18n.resolvedLanguage)].filter(Boolean).join(' — ');
-  const { open, opening, mine, forMyService } = useOpenRequest();
+  const { open, opening, mine, forMyService, canContact, contact } = useOpenRequest();
   const translation = useRequestTranslation(item);
 
   return (
@@ -33,8 +33,8 @@ export default function RequestCard({ item, urgent = false }) {
           {tag}
         </span>
         <TrustSummary userId={item.client_id} type="on_requester" average={item.client_rating_avg} count={item.client_rating_count} opinion={item.client_opinion} />
-        {forMyService(item)
-          ? <ContactMenu compact quick phone={item.client_contact_phone} whatsapp={item.client_contact_whatsapp} busy={opening === item.id} onChat={() => open(item)} testId="request-contact" />
+        {canContact(item)
+          ? <ContactMenu compact quick phone={item.client_contact_phone} whatsapp={item.client_contact_whatsapp} busy={opening === item.id} onChat={() => contact(item)} testId="request-contact" />
           : <OwnerBadge mine={mine(item)} forService={false} />}
         {/* AYK-244: present only when views are public (admin setting) or the viewer is an admin. */}
         {item.views_count != null && <span className="ms-auto text-[11px] text-slate-500 font-medium">👁 {item.views_count}</span>}
