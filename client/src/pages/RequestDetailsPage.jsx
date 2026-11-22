@@ -402,7 +402,7 @@ export default function RequestDetailsPage() {
                         {o.is_featured && !o.badge_featured_active ? <span className="badge badge-warning">{t('offer.featured')}</span> : null}
                       </div>
                       <div className="text-xs text-muted">
-                        <RatingInline average={o.rating_avg} count={o.rating_count} /> ·
+                        {Number(o.rating_count) > 0 && <><RatingInline average={o.rating_avg} count={o.rating_count} /> · </>}
                         📦 {o.completed_orders || 0} {t('offer.completed_orders')}
                       </div>
                     </div>

@@ -178,7 +178,7 @@ export default function ServiceDetailsPage() {
                     {tx(service.provider.name, lang)}
                     {service.provider.verified && <span className="text-emerald-500 text-[12px]">✓</span>}
                   </div>
-                  {service.provider.id && <div className="text-[12px] text-slate-500"><RatingInline size={12} average={service.provider.rating} count={Number(service.provider.rating) > 0 ? 1 : 0} showCount={false} /> · {t('catalog.orders', { count: service.provider.ordersCount })}</div>}
+                  {service.provider.id && <div className="text-[12px] text-slate-500">{Number(service.provider.rating) > 0 && <><RatingInline size={12} average={service.provider.rating} count={1} showCount={false} /> · </>}{t('catalog.orders', { count: service.provider.ordersCount })}</div>}
                 </div>
               </div>
             </div>

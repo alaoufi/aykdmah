@@ -109,16 +109,19 @@ export default function ProviderProfilePage() {
           </div>
         </div>
 
+        {/* AYK-433: the rating panel only when there are ratings; completed jobs alone otherwise. */}
+        {count > 0 ? (
         <div className="rounded-card bg-surface border border-border p-3 flex items-center gap-3 flex-wrap" data-testid="provider-rating">
-          <span className="text-3xl font-extrabold text-fg leading-none">{count ? average.toFixed(1) : '—'}</span>
+          <span className="text-3xl font-extrabold text-fg leading-none">{average.toFixed(1)}</span>
           <div className="min-w-0">
             <StarRating value={average} readOnly size={20} />
             <div className="text-[12.5px] text-fg-muted">
-              {count ? t('provider_page.rating_count', { count }) : t('for_you.no_ratings')}
+              {t('provider_page.rating_count', { count })}
               {done ? ` · ${t('provider_page.completed', { count: done })}` : ''}
             </div>
           </div>
         </div>
+        ) : done ? <p className="m-0 text-[12.5px] text-fg-muted">{t('provider_page.completed', { count: done })}</p> : null}
 
         {/* AYK-379: three ways, the numbers only when the provider shows them. AYK-427: as clear
             buttons, one tap each, instead of a menu. */}
@@ -132,13 +135,14 @@ export default function ProviderProfilePage() {
         {note && <p role="status" className="text-[12.5px] text-fg-muted m-0">{note}</p>}
       </section>
 
-      <section className="card p-4 space-y-2" data-testid="provider-reviews">
+      {/* AYK-433: the opinions section only when there are opinions. */}
+      {(reviews?.length > 0 || count > 0) && <section className="card p-4 space-y-2" data-testid="provider-reviews">
         <h2 className="font-bold text-fg">⭐ {t('chat.provider_opinions')}</h2>
         {reviews === null ? <p className="text-[13px] text-fg-muted">{t('common.loading')}</p>
-          : !reviews.length ? <p className="text-[13px] text-fg-muted">{t('for_you.no_ratings')}</p>
+          : !reviews.length ? null
           : <div className="space-y-2">{reviews.map(review => <ReviewCard key={review.id} review={review} />)}</div>}
         {count > reviews?.length && <TrustSummary userId={user.id} average={average} count={count} />}
-      </section>
+      </section>}
 
       {/* AYK-377: «وصف الخدمات», a few lines that open in place, in the reader's language. */}
       {provider.bio && <ExpandableText text={provider.bio} translated={provider.bio_translated} lines={4} title={t('provider.services_description')} testId="provider-bio" />}

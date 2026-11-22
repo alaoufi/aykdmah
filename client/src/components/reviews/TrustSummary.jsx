@@ -21,11 +21,15 @@ export default function TrustSummary({ userId, type = 'on_provider', average = 0
     document.addEventListener('keydown', key);
     return () => { alive = false; document.removeEventListener('keydown', key); };
   }, [open, userId, type, page]);
+  // AYK-433 (the owner: «ما يحتاج بلا تقييم وآراء… إذا فيه يظهر وإذا ما فيه ما يظهر»): nothing at all
+  // when there is no rating and no opinion; the stars and «آراء» only when there are ratings.
+  const rated = Number(count) > 0;
+  if (!rated && !opinion) return null;
   return <div className="mt-1 min-w-0" onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
-    <button type="button" data-testid="trust-summary" className="text-primary text-[13px] font-bold text-start" onClick={() => { setPage(1);setOpen(true); }}>
+    {rated && <button type="button" data-testid="trust-summary" className="text-primary text-[13px] font-bold text-start" onClick={() => { setPage(1);setOpen(true); }}>
       {/* AYK-430: the average as stars. */}
       <RatingInline average={average} count={count} /> · {t(type === 'on_requester' ? 'chat.requester_opinions' : 'chat.provider_opinions')}
-    </button>
+    </button>}
     {opinion && <p className="m-0 text-[12px] text-fg-muted line-clamp-1" title={opinion}>“{opinion}”</p>}
     {open && createPortal(<div className="fixed inset-0 z-[5000] bg-black/50 flex items-center justify-center p-4" onClick={() => setOpen(false)}>
       {/* AYK-324 (the owner: the dialog looked plain): the average with gold stars on top, each
