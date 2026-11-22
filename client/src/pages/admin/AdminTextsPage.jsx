@@ -247,7 +247,10 @@ function TextRow({ lang, textKey, original, edited, onSave, onReset }) {
 // AYK-374 (the owner: «أضفها في نصوص الموقع: طالب الخدمة، مقدم الخدمة، المهنة، حسابي، طلباتي وأعمالي»).
 // The site's unified terms (docs/TERMS.md) in one place: how many texts use each, «عرض» lists them
 // below, and a new word replaces it in every Arabic text at once (each saved like a single edit).
-const TERMS = ['طالب الخدمة', 'مقدم الخدمة', 'المهنة', 'حسابي', 'طلباتي', 'أعمالي'];
+// AYK-448 (the owner: «أضف الكلمات في نصوص الموقع»): the words of the board («اعرض لي» and its boxes,
+// «تم مؤخرًا»).
+const TERMS = ['طالب الخدمة', 'مقدم الخدمة', 'المهنة', 'حسابي', 'طلباتي', 'أعمالي',
+  'اعرض لي', 'مهنتي', 'منطقتي', 'مشابه لطلبي', 'مشابه لطلباتي', 'تم مؤخرًا'];
 
 function TermsBlock({ all, overrides, onShow, onReplace, busy }) {
   const [drafts, setDrafts] = useState({});
