@@ -8,6 +8,7 @@ import { OwnerBadge } from '../requests/RequestCard';
 import ContactButtons from '../providers/ContactButtons';
 import useRequestTranslation from '../../hooks/useRequestTranslation';
 import TranslatedNote from '../requests/TranslatedNote';
+import RequestStatusBadge from '../requests/RequestStatusBadge';
 
 export default function RequestCard({ item, urgent = false }) {
   const { t, i18n } = useTranslation();
@@ -42,9 +43,13 @@ export default function RequestCard({ item, urgent = false }) {
         </span>
       </div>
 
-      <h3 className="text-[14px] md:text-[15px] font-extrabold text-fg leading-snug line-clamp-2 m-0">
-        {translation.title}
-      </h3>
+      {/* AYK-432: «متاح» in fixed green beside the title. */}
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <h3 className="min-w-0 text-[14px] md:text-[15px] font-extrabold text-fg leading-snug line-clamp-2 m-0">
+          {translation.title}
+        </h3>
+        <RequestStatusBadge status={item.status || 'open'} />
+      </div>
 
       {translation.description && translation.description.trim() !== translation.title.trim() && (
         <p className="text-[12px] text-fg-muted leading-snug line-clamp-1 m-0">

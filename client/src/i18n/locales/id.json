@@ -445,7 +445,8 @@
     "reach_none_area": "Penyedia di profesi ini ada, tetapi belum mencakup distrik Anda. Permintaan Anda tetap terbuka dan dilihat oleh yang memperluas cakupan atau memilih «Semua permintaan terbuka».",
     "contact_providers_title": "Kontak untuk penyedia layanan",
     "contact_providers_only": "Menghubungi peminta layanan hanya untuk penyedia layanan. Daftar sebagai penyedia layanan dan pilih profesi Anda, lalu hubungi orang yang membutuhkan Anda.",
-    "become_provider": "Jadi penyedia layanan"
+    "become_provider": "Jadi penyedia layanan",
+    "available": "Tersedia"
   },
   "offer": {
     "submit_title": "Kirim penawaran harga",

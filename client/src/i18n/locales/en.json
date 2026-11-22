@@ -445,7 +445,8 @@
     "reach_none_area": "Providers in this profession exist but do not cover your district yet. Your request stays open and is seen by those who widen their circle or choose «All open requests».",
     "contact_providers_title": "Contact is for service providers",
     "contact_providers_only": "Contacting service requesters is for service providers. Register as a service provider and choose your profession, then reach the people who need you.",
-    "become_provider": "Become a service provider"
+    "become_provider": "Become a service provider",
+    "available": "Available"
   },
   "offer": {
     "submit_title": "Send a price offer",

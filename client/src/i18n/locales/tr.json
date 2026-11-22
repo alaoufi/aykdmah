@@ -445,7 +445,8 @@
     "reach_none_area": "Bu meslekte hizmet verenler var ama henüz mahallenizi kapsamıyorlar. Talebiniz açık kalır; çevresini genişletenler veya «Tüm açık talepler»i seçenler görür.",
     "contact_providers_title": "İletişim hizmet verenler içindir",
     "contact_providers_only": "Hizmet talep edenlerle iletişim hizmet verenler içindir. Hizmet veren olarak kaydolun ve mesleğinizi seçin, ardından size ihtiyaç duyanlara ulaşın.",
-    "become_provider": "Hizmet veren ol"
+    "become_provider": "Hizmet veren ol",
+    "available": "Müsait"
   },
   "offer": {
     "submit_title": "Fiyat teklifi ver",

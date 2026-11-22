@@ -15,7 +15,7 @@ import WarrantyBox from '../components/requests/WarrantyBox';
 import BlockedNotice from '../components/common/BlockedNotice';
 import { requestMapsUrl } from '../utils/directions';
 import { useAuth } from '../hooks/useAuth';
-import { REQUEST_STATUS, OFFER_STATUS } from '../utils/constants';
+import { OFFER_STATUS } from '../utils/constants';
 import { formatCurrency, formatRelativeTime } from '../utils/formatters';
 import { LoadingState, EmptyState } from '../components/common/Spinner';
 import Button from '../components/common/Button';
@@ -34,6 +34,7 @@ import { RequestReach, RequestEdit } from '../components/requests/RequestOwnerTo
 import useRequestTranslation from '../hooks/useRequestTranslation';
 import TranslatedNote from '../components/requests/TranslatedNote';
 import RatingInline from '../components/reviews/RatingInline';
+import RequestStatusBadge from '../components/requests/RequestStatusBadge';
 
 export function canReadRequestOffers(user, request, canManageRequests = false) {
   return Boolean(user && request && (
@@ -111,7 +112,6 @@ export default function RequestDetailsPage() {
   const myOffer = user ? offers.find(offer => Number(offer.provider_id) === Number(user.id)) : null;
   const turnedDown = myOffer?.status === 'rejected';
   const canOffer = user && user.role === 'provider' && !isOwner && request.status === 'open' && !turnedDown;
-  const status = REQUEST_STATUS[request.status] || {};
   const assignedProviderOffer = request.assigned_provider_id
     ? offers.find(offer => Number(offer.provider_id) === Number(request.assigned_provider_id))
     : null;
@@ -275,12 +275,15 @@ export default function RequestDetailsPage() {
         <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
           <div className="flex items-center gap-2">
             {request.is_urgent && <span className="badge badge-urgent">⚡ {t('request.urgent')}</span>}
-            <span className={`badge ${status.color}`}>{status.i18nKey ? t(status.i18nKey) : ''}</span>
           </div>
           <span className="text-sm text-muted">{formatRelativeTime(request.created_at)}</span>
         </div>
 
-        <h2>{translation.title}</h2>
+        {/* AYK-432: the state beside the title; open reads «متاح» in fixed green. */}
+        <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <h2 className="min-w-0 m-0">{translation.title}</h2>
+          <RequestStatusBadge status={request.status} />
+        </div>
         {translation.description.trim() !== translation.title.trim() && <p className="text-secondary" style={{ whiteSpace: 'pre-wrap' }} data-testid="request-description">{translation.description}</p>}
         <TranslatedNote translation={translation} className="mb-3" />
 

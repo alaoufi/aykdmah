@@ -1,12 +1,12 @@
 import TrustSummary from '../reviews/TrustSummary';
 import { localizedJoinedName } from '../../utils/localizeJoined';
 import { useTranslation } from 'react-i18next';
-import { REQUEST_STATUS } from '../../utils/constants';
 import { formatRelativeTime, formatCurrency, truncate, formatDistance } from '../../utils/formatters';
 import useOpenRequest from '../../hooks/useOpenRequest';
 import useRequestTranslation from '../../hooks/useRequestTranslation';
 import TranslatedNote from './TranslatedNote';
 import ContactButtons from '../providers/ContactButtons';
+import RequestStatusBadge from './RequestStatusBadge';
 
 // Whose request this is (AYK-044): "Your request" (as a requester) or "For your
 // service" (as a provider), in different colours.
@@ -19,8 +19,6 @@ export function OwnerBadge({ mine, forService }) {
 
 export default function RequestCard({ request }) {
   const { t, i18n } = useTranslation();
-  const status = REQUEST_STATUS[request.status] || { color: 'badge' };
-  const statusLabel = status.i18nKey ? t(status.i18nKey) : request.status;
 
   const { open, opening, mine, forMyService, canContact, contact } = useOpenRequest();
   const translation = useRequestTranslation(request);
@@ -35,11 +33,14 @@ export default function RequestCard({ request }) {
         {/* AYK-398: someone this provider already worked for. */}
         {request.previous_client ? <span className="badge badge-success" data-testid="badge-previous-client">⭐ {t('work.previous_client')}</span> : null}
         {request.is_urgent ? <span className="badge badge-urgent">⚡ {t('request.urgent')}</span> : null}
-        <span className={`badge ${status.color}`}>{statusLabel}</span>
         <span className="ms-auto text-[11.5px] text-muted">{formatRelativeTime(request.created_at)}</span>
       </div>
 
-      <h3 className="mt-1.5 mb-0 text-[16px] font-bold leading-snug">{translation.title}</h3>
+      {/* AYK-432: the state beside the title; open reads «متاح» in fixed green. */}
+      <div className="mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+        <h3 className="m-0 min-w-0 text-[16px] font-bold leading-snug">{translation.title}</h3>
+        <RequestStatusBadge status={request.status} />
+      </div>
       {translation.description && translation.description.trim() !== translation.title.trim() && (
         <p className="text-secondary text-[13px] m-0 mt-0.5 truncate">{truncate(translation.description, 110)}</p>
       )}
