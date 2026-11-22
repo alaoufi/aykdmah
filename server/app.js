@@ -41,7 +41,7 @@ app.use(helmet({
 // Level 1 (AYK-251): the default level spent about a tenth of the server's time compressing when
 // thousands opened the app at once; level 1 is several times cheaper for answers a little larger.
 app.use(compression({ level: 1 }));
-const allowedOrigins = new Set([env.CLIENT_URL, env.APP_URL].filter(Boolean));
+const allowedOrigins = new Set([env.CLIENT_URL, env.APP_URL, ...env.SITE_ORIGINS].filter(Boolean));
 app.use(cors({
   origin: (origin, callback) => callback(null, !origin || allowedOrigins.has(origin)),
   credentials: true,

@@ -40,6 +40,8 @@ services:
       APP_PORT: "5000"
       APP_URL: https://aykdmh.com
       CLIENT_URL: https://aykdmh.com
+      # AYK-425: the site's other addresses (aykdmh.sa becomes the main one; aykdmh.com keeps working).
+      SITE_ORIGINS: https://aykdmh.sa,https://www.aykdmh.sa,https://aykdmh.com,https://www.aykdmh.com
       TRUST_PROXY: "1"
       DB_HOST: db
       DB_PORT: "5432"
