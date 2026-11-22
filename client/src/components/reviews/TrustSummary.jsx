@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { getUserReviews } from '../../services/reviewService';
 import StarRating from './StarRating';
 import { formatRelativeTime } from '../../utils/formatters';
+import RatingInline from './RatingInline';
 
 // Show only public, moderated opinions. Never reveal the reviewer's private name.
 export default function TrustSummary({ userId, type = 'on_provider', average = 0, count = 0, opinion }) {
@@ -22,7 +23,8 @@ export default function TrustSummary({ userId, type = 'on_provider', average = 0
   }, [open, userId, type, page]);
   return <div className="mt-1 min-w-0" onClick={e => e.stopPropagation()} onKeyDown={e => e.stopPropagation()}>
     <button type="button" data-testid="trust-summary" className="text-primary text-[13px] font-bold text-start" onClick={() => { setPage(1);setOpen(true); }}>
-      ★ {Number(count) ? `${Number(average).toFixed(1)} (${count})` : t('for_you.no_ratings')} · {t(type === 'on_requester' ? 'chat.requester_opinions' : 'chat.provider_opinions')}
+      {/* AYK-430: the average as stars. */}
+      <RatingInline average={average} count={count} /> · {t(type === 'on_requester' ? 'chat.requester_opinions' : 'chat.provider_opinions')}
     </button>
     {opinion && <p className="m-0 text-[12px] text-fg-muted line-clamp-1" title={opinion}>“{opinion}”</p>}
     {open && createPortal(<div className="fixed inset-0 z-[5000] bg-black/50 flex items-center justify-center p-4" onClick={() => setOpen(false)}>

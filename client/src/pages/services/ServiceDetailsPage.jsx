@@ -7,6 +7,7 @@ import ServiceRequestForm from '../../components/catalog/ServiceRequestForm';
 import { EmptyState } from '../../components/common/Spinner';
 import useCatalogFilters from '../../hooks/useCatalogFilters';
 import CatalogLocationNotice from '../../components/catalog/CatalogLocationNotice';
+import RatingInline from '../../components/reviews/RatingInline';
 
 function Section({ title, children }) {
   return (
@@ -73,7 +74,7 @@ export default function ServiceDetailsPage() {
                 {service.featured && <span className="px-2 py-0.5 rounded-pill bg-sand-500 text-white text-[11px] font-bold">{t('catalog.featured_badge')}</span>}
               </div>
               <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[13px] text-slate-500">
-                {service.ratingCount > 0 && <span className="text-amber-600 font-bold">★ {service.rating.toFixed(1)} <span className="text-slate-400 font-normal">({service.ratingCount})</span></span>}
+                {service.ratingCount > 0 && <RatingInline average={service.rating} count={service.ratingCount} />}
                 {service.ordersCount > 0 && <span>📦 {t('catalog.orders', { count: service.ordersCount })}</span>}
                 <span>⏱ {tx(service.duration, lang)}</span>
               </div>
@@ -177,7 +178,7 @@ export default function ServiceDetailsPage() {
                     {tx(service.provider.name, lang)}
                     {service.provider.verified && <span className="text-emerald-500 text-[12px]">✓</span>}
                   </div>
-                  {service.provider.id && <div className="text-[12px] text-slate-500">★ {service.provider.rating.toFixed(1)} · {t('catalog.orders', { count: service.provider.ordersCount })}</div>}
+                  {service.provider.id && <div className="text-[12px] text-slate-500"><RatingInline size={12} average={service.provider.rating} count={Number(service.provider.rating) > 0 ? 1 : 0} showCount={false} /> · {t('catalog.orders', { count: service.provider.ordersCount })}</div>}
                 </div>
               </div>
             </div>

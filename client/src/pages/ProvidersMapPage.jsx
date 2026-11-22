@@ -20,6 +20,7 @@ import ExpandableText from '../components/common/ExpandableText';
 import ContactButtons from '../components/providers/ContactButtons';
 import { contactDirect } from '../services/requestService';
 import { showProblem } from '../components/common/AppDialog';
+import RatingInline from '../components/reviews/RatingInline';
 
 const pinIcon = icon({ iconUrl: markerImage, iconRetinaUrl: markerImage2x, shadowUrl: markerShadow,
   iconSize: [25, 41], iconAnchor: [12, 41], shadowSize: [41, 41] });
@@ -137,7 +138,7 @@ export default function ProvidersMapPage() {
                 <div className="text-[12.5px] space-y-1" dir={lang === 'ar' || lang === 'ur' ? 'rtl' : 'ltr'}>
                   <b>{p.business_name || p.full_name}</b>
                   <div><AvailabilityBadge availability={p.availability} /></div>
-                  <div>⭐ {p.rating_avg.toFixed(1)} · {formatDistanceKm(p.distance_km, t)}</div>
+                  <div><RatingInline average={p.rating_avg} count={p.rating_count} size={12} /> · {formatDistanceKm(p.distance_km, t)}</div>
                   {p.location_precision === 'city' && <div className="text-fg-subtle">{t('map.city_precision')}</div>}
                   <Link to={`/providers/${p.id}`}>{t('map.view_profile')}</Link>
                 </div>
@@ -159,7 +160,7 @@ export default function ProvidersMapPage() {
             <div className="min-w-0 flex-1">
               <Link to={`/providers/${p.id}`} className="font-bold text-fg truncate block">{p.business_name || p.full_name}</Link>
               <div className="text-[12px] text-fg-muted">
-                ⭐ {p.rating_avg.toFixed(1)} ({p.rating_count}) · {formatDistanceKm(p.distance_km, t)}
+                <RatingInline average={p.rating_avg} count={p.rating_count} size={13} /> · {formatDistanceKm(p.distance_km, t)}
                 {p.location_precision === 'city' && ` · ${t('map.city_precision')}`}
               </div>
               <ProviderStatus availability={p.availability} coverage={p.coverage} name={p.business_name || p.full_name} className="mt-1" />

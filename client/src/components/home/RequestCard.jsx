@@ -33,9 +33,7 @@ export default function RequestCard({ item, urgent = false }) {
           {tag}
         </span>
         <TrustSummary userId={item.client_id} type="on_requester" average={item.client_rating_avg} count={item.client_rating_count} opinion={item.client_opinion} />
-        {canContact(item)
-          ? <ContactButtons size="xs" phone={item.client_contact_phone} whatsapp={item.client_contact_whatsapp} busy={opening === item.id} onChat={() => contact(item)} testId="request-contact" />
-          : <OwnerBadge mine={mine(item)} forService={false} />}
+        {!canContact(item) && <OwnerBadge mine={mine(item)} forService={false} />}
         {/* AYK-244: present only when views are public (admin setting) or the viewer is an admin. */}
         {item.views_count != null && <span className="ms-auto text-[11px] text-slate-500 font-medium">👁 {item.views_count}</span>}
         <span className={`${item.views_count != null ? '' : 'ms-auto '}inline-flex items-center gap-1 text-[11px] text-slate-500 font-medium`}>
@@ -59,12 +57,13 @@ export default function RequestCard({ item, urgent = false }) {
         <span className="min-w-0 flex items-center gap-1 text-[11px] text-fg-muted">
           {cityLine && <><IconPin size={13} className="shrink-0" /><span className="line-clamp-1">{cityLine}</span></>}
         </span>
-        <span
-          className="shrink-0 inline-flex items-center gap-1 text-[12px] font-bold text-primary"
-        >
-          {opening === item.id ? '…' : forMyService(item) ? `💬 ${t('request.contact_owner')}` : t('common.details')}
-          <IconArrow size={14} className="rotate-180" />
-        </span>
+        {/* AYK-431: the contact icons at the card's end (AYK-427, AYK-430); otherwise «details». */}
+        {canContact(item)
+          ? <ContactButtons size="xs" phone={item.client_contact_phone} whatsapp={item.client_contact_whatsapp} busy={opening === item.id} onChat={() => contact(item)} testId="request-contact" />
+          : <span className="shrink-0 inline-flex items-center gap-1 text-[12px] font-bold text-primary">
+            {t('common.details')}
+            <IconArrow size={14} className="rotate-180" />
+          </span>}
       </div>
     </article>
   );

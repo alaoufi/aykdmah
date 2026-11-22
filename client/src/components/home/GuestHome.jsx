@@ -7,6 +7,7 @@ import { getCategoryIcon } from '../common/Icons';
 import { localizedName } from '../../utils/localize';
 import { localizedJoinedName } from '../../utils/localizeJoined';
 import RequestCard from './RequestCard';
+import RatingInline from '../reviews/RatingInline';
 
 // AYK-413 (the owner): a visitor browses without signing up. The professions come first, then
 // their categories small and close together, then the service requests (no private details are
@@ -124,7 +125,7 @@ export default function GuestHome() {
                       {[localizedJoinedName(row, 'category', lang), localizedJoinedName(row, 'district', lang)].filter(Boolean).join(' · ')}
                     </span>
                   </span>
-                  {Number(row.rating_count) > 0 && <span className="text-[12px] font-bold text-amber-600 shrink-0">★ {Number(row.rating_avg).toFixed(1)}</span>}
+                  {Number(row.rating_count) > 0 && <RatingInline className="text-[12px] shrink-0" size={12} average={row.rating_avg} count={row.rating_count} showCount={false} />}
                 </Link>
               ))}
         </div>

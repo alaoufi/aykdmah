@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { tx } from '../../utils/localize';
+import RatingInline from '../reviews/RatingInline';
 
 export default function ServiceCard({ service, onOrder, query = '', locationLabel = '' }) {
   const { t, i18n } = useTranslation();
@@ -17,7 +18,7 @@ export default function ServiceCard({ service, onOrder, query = '', locationLabe
           </span>
         )}
         {service.ratingCount > 0 && <span className="absolute top-2 inset-inline-end-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-pill bg-white/90 text-amber-600 text-[11px] font-bold">
-          ★ {service.rating.toFixed(1)}
+          <RatingInline size={10} average={service.rating} count={service.ratingCount} showCount={false} />
         </span>}
       </div>
 

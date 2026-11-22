@@ -33,6 +33,7 @@ import AdSlot from '../components/ads/AdSlot';
 import { RequestReach, RequestEdit } from '../components/requests/RequestOwnerTools';
 import useRequestTranslation from '../hooks/useRequestTranslation';
 import TranslatedNote from '../components/requests/TranslatedNote';
+import RatingInline from '../components/reviews/RatingInline';
 
 export function canReadRequestOffers(user, request, canManageRequests = false) {
   return Boolean(user && request && (
@@ -398,7 +399,7 @@ export default function RequestDetailsPage() {
                         {o.is_featured && !o.badge_featured_active ? <span className="badge badge-warning">{t('offer.featured')}</span> : null}
                       </div>
                       <div className="text-xs text-muted">
-                        ⭐ {Number(o.rating_avg || 0).toFixed(1)} ({o.rating_count || 0} {t('offer.rating_count')}) ·
+                        <RatingInline average={o.rating_avg} count={o.rating_count} /> ·
                         📦 {o.completed_orders || 0} {t('offer.completed_orders')}
                       </div>
                     </div>
@@ -422,15 +423,13 @@ export default function RequestDetailsPage() {
                   )}
                   {o.status === 'pending' && request.status === 'open' &&
                     (isOwner || (user?.role === 'provider' && Number(user.id) === Number(o.provider_id))) && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="mt-2"
-                      onClick={() => negotiateOffer(o)}
-                      loading={negotiatingOfferId === o.id}
-                      disabled={negotiatingOfferId != null && negotiatingOfferId !== o.id}
-                      data-negotiate-offer-id={o.id}
-                    >💬 {t('nav.chat')}</Button>
+                    // AYK-430: call, WhatsApp (when the provider shows them) and chat as clear buttons.
+                    <div data-negotiate-offer-id={o.id}>
+                      <ContactButtons size="sm" className="mt-2" testId="offer-contact"
+                        phone={isOwner ? o.public_phone : null} whatsapp={isOwner ? o.public_whatsapp : null}
+                        busy={negotiatingOfferId === o.id || (negotiatingOfferId != null && negotiatingOfferId !== o.id)}
+                        onChat={() => negotiateOffer(o)} />
+                    </div>
                   )}
                 </div>
               );
