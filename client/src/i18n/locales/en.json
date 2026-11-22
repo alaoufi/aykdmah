@@ -3066,5 +3066,14 @@
       "friday": "Friday",
       "saturday": "Saturday"
     }
+  },
+  "contact_intro": {
+    "someone": "A member",
+    "provider": "Service provider",
+    "requester": "Service requester",
+    "about_request": "Hello, I'm {{name}} ({{who}}). I'm contacting you about your request: {{title}}",
+    "about_my_request": "Hello, I'm {{name}} ({{who}}). I'm contacting you about my request: {{title}}",
+    "about_service": "Hello, I'm {{name}} ({{who}}). I'm contacting you about your {{service}} service",
+    "general": "Hello, I'm {{name}} ({{who}}), contacting you through Ay Khidma."
   }
 }

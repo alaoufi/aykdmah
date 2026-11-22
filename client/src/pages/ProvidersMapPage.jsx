@@ -21,6 +21,7 @@ import ContactButtons from '../components/providers/ContactButtons';
 import { contactDirect } from '../services/requestService';
 import { showProblem } from '../components/common/AppDialog';
 import RatingInline from '../components/reviews/RatingInline';
+import useContactIntro from '../hooks/useContactIntro';
 
 const pinIcon = icon({ iconUrl: markerImage, iconRetinaUrl: markerImage2x, shadowUrl: markerShadow,
   iconSize: [25, 41], iconAnchor: [12, 41], shadowSize: [41, 41] });
@@ -39,6 +40,7 @@ function FitToResults({ origin, providers }) {
 
 export default function ProvidersMapPage() {
   const { t, i18n } = useTranslation();
+  const intro = useContactIntro();
   const { user } = useAuth();
   const navigate = useNavigate();
   // AYK-427: chat with a provider from the map's list; a visitor signs in first.
@@ -166,7 +168,7 @@ export default function ProvidersMapPage() {
               <ProviderStatus availability={p.availability} coverage={p.coverage} name={p.business_name || p.full_name} className="mt-1" />
               <ExpandableText text={p.bio} translated={p.bio_translated} lines={2} className="mt-1.5" testId="provider-bio" />
               {/* AYK-427 (the owner's rule: every panel shows contact clearly). */}
-              <ContactButtons size="sm" className="mt-2" phone={p.public_phone} whatsapp={p.public_whatsapp} testId="map-contact"
+              <ContactButtons size="sm" className="mt-2" phone={p.public_phone} whatsapp={p.public_whatsapp} testId="map-contact" intro={intro()}
                 onChat={() => chatWith(p)} />
             </div>
             {p.location_precision === 'exact' && (

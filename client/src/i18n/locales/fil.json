@@ -3066,5 +3066,14 @@
       "friday": "Biyernes",
       "saturday": "Sabado"
     }
+  },
+  "contact_intro": {
+    "someone": "Isang miyembro",
+    "provider": "Service provider",
+    "requester": "Humihiling ng serbisyo",
+    "about_request": "Kumusta, ako si {{name}} ({{who}}). Kinokontak kita tungkol sa iyong kahilingan: {{title}}",
+    "about_my_request": "Kumusta, ako si {{name}} ({{who}}). Kinokontak kita tungkol sa aking kahilingan: {{title}}",
+    "about_service": "Kumusta, ako si {{name}} ({{who}}). Kinokontak kita tungkol sa {{service}}",
+    "general": "Kumusta, ako si {{name}} ({{who}}), kinokontak kita sa pamamagitan ng Ay Khidma."
   }
 }

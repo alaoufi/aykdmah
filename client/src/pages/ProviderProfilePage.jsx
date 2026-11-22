@@ -24,6 +24,7 @@ import { LoadingState, ErrorState } from '../components/common/Spinner';
 import { directionsUrl } from '../utils/directions';
 import { localizedName } from '../utils/localize';
 import ExpandableText from '../components/common/ExpandableText';
+import useContactIntro from '../hooks/useContactIntro';
 
 const pinIcon = icon({ iconUrl: markerImage, iconRetinaUrl: markerImage2x, shadowUrl: markerShadow,
   iconSize: [25, 41], iconAnchor: [12, 41], shadowSize: [41, 41] });
@@ -31,6 +32,7 @@ const pinIcon = icon({ iconUrl: markerImage, iconRetinaUrl: markerImage2x, shado
 export default function ProviderProfilePage() {
   const { id } = useParams();
   const { t, i18n } = useTranslation();
+  const intro = useContactIntro();
   const lang = i18n.resolvedLanguage;
   const [data, setData] = useState(null);
   const [error, setError] = useState(null);
@@ -126,7 +128,7 @@ export default function ProviderProfilePage() {
         {/* AYK-379: three ways, the numbers only when the provider shows them. AYK-427: as clear
             buttons, one tap each, instead of a menu. */}
         {!self && <ContactButtons title={`💬 ${t('provider_page.contact')}`} phone={provider.public_phone} whatsapp={provider.public_whatsapp}
-          busy={chatting} onChat={startChat} testId="provider-contact" />}
+          busy={chatting} onChat={startChat} testId="provider-contact" intro={intro()} />}
         <div className="flex flex-wrap gap-2 items-start">
           <DirectoryButton providerId={user.id} name={name} onNote={setNote} />
           {/* AYK-382: share this provider: WhatsApp, Telegram, Facebook, X, TikTok, link, QR. */}

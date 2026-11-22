@@ -3066,5 +3066,14 @@
       "friday": "Cuma",
       "saturday": "Cumartesi"
     }
+  },
+  "contact_intro": {
+    "someone": "Bir üye",
+    "provider": "Hizmet veren",
+    "requester": "Hizmet talep eden",
+    "about_request": "Merhaba, ben {{name}} ({{who}}). Talebiniz hakkında ulaşıyorum: {{title}}",
+    "about_my_request": "Merhaba, ben {{name}} ({{who}}). Talebim hakkında ulaşıyorum: {{title}}",
+    "about_service": "Merhaba, ben {{name}} ({{who}}). {{service}} hakkında ulaşıyorum",
+    "general": "Merhaba, ben {{name}} ({{who}}), Ay Khidma üzerinden ulaşıyorum."
   }
 }

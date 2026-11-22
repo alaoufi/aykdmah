@@ -7,6 +7,7 @@ import useRequestTranslation from '../../hooks/useRequestTranslation';
 import TranslatedNote from './TranslatedNote';
 import ContactButtons from '../providers/ContactButtons';
 import RequestStatusBadge from './RequestStatusBadge';
+import useContactIntro from '../../hooks/useContactIntro';
 
 // Whose request this is (AYK-044): "Your request" (as a requester) or "For your
 // service" (as a provider), in different colours.
@@ -22,6 +23,7 @@ export default function RequestCard({ request }) {
 
   const { open, opening, mine, forMyService, canContact, contact } = useOpenRequest();
   const translation = useRequestTranslation(request);
+  const intro = useContactIntro();
 
   return (
     <div role="link" tabIndex={0} onClick={() => open(request)} onKeyDown={e => { if (e.key === 'Enter') open(request); }}
@@ -61,7 +63,7 @@ export default function RequestCard({ request }) {
           )}
         </div>
         {canContact(request) && <ContactButtons size="xs" phone={request.client_contact_phone} whatsapp={request.client_contact_whatsapp}
-          busy={opening === request.id} onChat={() => contact(request)} testId="request-contact" />}
+          busy={opening === request.id} onChat={() => contact(request)} testId="request-contact" intro={intro({ request: translation.title })} />}
       </div>
       <style>{`
         .request-card { display: block; text-decoration: none; color: inherit; padding: 12px 14px; cursor: pointer; }

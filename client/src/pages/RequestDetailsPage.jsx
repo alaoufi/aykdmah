@@ -35,6 +35,7 @@ import useRequestTranslation from '../hooks/useRequestTranslation';
 import TranslatedNote from '../components/requests/TranslatedNote';
 import RatingInline from '../components/reviews/RatingInline';
 import RequestStatusBadge from '../components/requests/RequestStatusBadge';
+import useContactIntro from '../hooks/useContactIntro';
 
 export function canReadRequestOffers(user, request, canManageRequests = false) {
   return Boolean(user && request && (
@@ -54,6 +55,7 @@ export default function RequestDetailsPage() {
   const [request, setRequest] = useState(null);
   // In the reader's language when the requester wrote in another one (AYK-229).
   const translation = useRequestTranslation(request);
+  const intro = useContactIntro();
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [detailsScope, setDetailsScope] = useState(null);
@@ -361,14 +363,14 @@ export default function RequestDetailsPage() {
           <p className="text-sm text-muted mb-3">{t('request.contact_hint')}</p>
           {/* AYK-427: call, WhatsApp (when the requester shows them) and chat, as clear buttons. */}
           <ContactButtons title={`💬 ${t('request.contact_owner')}`} phone={request.client_contact_phone} whatsapp={request.client_contact_whatsapp}
-            busy={submitting} onChat={contactOwner} testId="request-owner-contact" />
+            busy={submitting} onChat={contactOwner} testId="request-owner-contact" intro={intro({ request: translation.title })} />
         </div>
       )}
       {/* AYK-427: a signed-in requester sees the same way to contact; it explains that contact is for
           service providers and offers to become one (AYK-426). */}
       {user && user.role !== 'provider' && !isOwner && request.status === 'open' && (
         <div className="card mb-4" data-testid="requester-contact">
-          <ContactButtons title={`💬 ${t('request.contact_owner')}`} onChat={() => contactAsRequester(request)} testId="request-owner-contact" />
+          <ContactButtons title={`💬 ${t('request.contact_owner')}`} onChat={() => contactAsRequester(request)} testId="request-owner-contact" intro={intro({ request: translation.title })} />
         </div>
       )}
 
@@ -431,7 +433,7 @@ export default function RequestDetailsPage() {
                       <ContactButtons size="sm" className="mt-2" testId="offer-contact"
                         phone={isOwner ? o.public_phone : null} whatsapp={isOwner ? o.public_whatsapp : null}
                         busy={negotiatingOfferId === o.id || (negotiatingOfferId != null && negotiatingOfferId !== o.id)}
-                        onChat={() => negotiateOffer(o)} />
+                        onChat={() => negotiateOffer(o)} intro={isOwner ? intro({ myRequest: translation.title }) : ''} />
                     </div>
                   )}
                 </div>

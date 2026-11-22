@@ -3066,5 +3066,14 @@
       "friday": "ዓርብ",
       "saturday": "ቅዳሜ"
     }
+  },
+  "contact_intro": {
+    "someone": "አንድ አባል",
+    "provider": "አገልግሎት ሰጪ",
+    "requester": "አገልግሎት ጠያቂ",
+    "about_request": "ሰላም፣ እኔ {{name}} ({{who}}) ነኝ፤ ስለ ጥያቄዎ እያገኘሁዎት ነው፦ {{title}}",
+    "about_my_request": "ሰላም፣ እኔ {{name}} ({{who}}) ነኝ፤ ስለ ጥያቄዬ እያገኘሁዎት ነው፦ {{title}}",
+    "about_service": "ሰላም፣ እኔ {{name}} ({{who}}) ነኝ፤ ስለ {{service}} እያገኘሁዎት ነው",
+    "general": "ሰላም፣ እኔ {{name}} ({{who}}) ነኝ፤ በ«أي خدمة» በኩል እያገኘሁዎት ነው።"
   }
 }

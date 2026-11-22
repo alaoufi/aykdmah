@@ -3066,5 +3066,14 @@
       "friday": "Jumat",
       "saturday": "Sabtu"
     }
+  },
+  "contact_intro": {
+    "someone": "Seorang anggota",
+    "provider": "Penyedia layanan",
+    "requester": "Peminta layanan",
+    "about_request": "Halo, saya {{name}} ({{who}}). Saya menghubungi Anda tentang permintaan Anda: {{title}}",
+    "about_my_request": "Halo, saya {{name}} ({{who}}). Saya menghubungi Anda tentang permintaan saya: {{title}}",
+    "about_service": "Halo, saya {{name}} ({{who}}). Saya menghubungi Anda tentang {{service}}",
+    "general": "Halo, saya {{name}} ({{who}}), menghubungi Anda melalui Ay Khidma."
   }
 }

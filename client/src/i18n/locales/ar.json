@@ -3170,5 +3170,14 @@
       "friday": "الجمعة",
       "saturday": "السبت"
     }
+  },
+  "contact_intro": {
+    "someone": "عضو",
+    "provider": "مقدم خدمة",
+    "requester": "طالب خدمة",
+    "about_request": "السلام عليكم، أنا {{name}} ({{who}})، أتواصل معك بخصوص طلبك: {{title}}",
+    "about_my_request": "السلام عليكم، أنا {{name}} ({{who}})، أتواصل معك بخصوص طلبي: {{title}}",
+    "about_service": "السلام عليكم، أنا {{name}} ({{who}})، أتواصل معك بخصوص خدمة {{service}}",
+    "general": "السلام عليكم، أنا {{name}} ({{who}})، أتواصل معك عبر «أي خدمة»."
   }
 }

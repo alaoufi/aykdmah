@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { whatsappLink } from '../../utils/whatsapp';
+import { keepChatIntro } from '../../hooks/useContactIntro';
 
 // AYK-427 (the owner: «في ملف مقدم الخدمة وطالب الخدمة أضف التواصل واضح»): the ways to reach a person
 // are buttons, one tap each, not hidden in a menu: a call and WhatsApp only when that person chose to
@@ -31,10 +32,11 @@ const ChatIcon = ({ size }) => (
 // round icons only, each with its fixed colour and its name for screen readers and on long press;
 // the person's page ('lg') keeps the icon with its word. Sizes are set inline so the site's general
 // link and button styles (underline, minimum height, padding) cannot stretch them.
-export default function ContactButtons({ phone = null, whatsapp = null, onChat, busy = false, title = null, testId = 'contact-buttons', size = 'lg', className = '' }) {
+// AYK-434: `intro` is the first message: WhatsApp opens with it, and the chat box starts with it.
+export default function ContactButtons({ phone = null, whatsapp = null, onChat, busy = false, title = null, testId = 'contact-buttons', size = 'lg', className = '', intro = '' }) {
   const { t } = useTranslation();
   const [opening, setOpening] = useState(false);
-  const chatLink = whatsappLink(whatsapp);
+  const chatLink = whatsappLink(whatsapp, intro);
   const round = size !== 'lg';
   const box = size === 'xs' ? 30 : 36;
   const icon = round ? (size === 'xs' ? 15 : 18) : 18;
@@ -66,7 +68,7 @@ export default function ContactButtons({ phone = null, whatsapp = null, onChat, 
         <button type="button" className={`${cls} disabled:opacity-60`} style={look(CONTACT_COLORS.chat)}
           disabled={busy || opening} aria-busy={busy || opening} data-testid={`${testId}-chat`}
           aria-label={t('provider_contact.chat')} title={t('provider_contact.chat')}
-          onClick={async () => { setOpening(true); try { await onChat?.(); } finally { setOpening(false); } }}>
+          onClick={async () => { keepChatIntro(intro); setOpening(true); try { await onChat?.(); } finally { setOpening(false); } }}>
           {busy || opening ? <>{spinner}{round ? null : <span>{t('provider_contact.opening')}</span>}</> : <><ChatIcon size={icon} />{label('provider_contact.chat')}</>}
         </button>
       </div>

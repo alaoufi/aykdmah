@@ -10,7 +10,7 @@ import ChatCameraPreview from './ChatCameraPreview';
 
 const EMOJIS = ['😀', '😂', '😍', '👍', '🙏', '🔥', '✅', '❤️', '👏', '💯', '🎉', '😎'];
 
-export default function ChatInput({ onSend, onShareLocation, sharingLocation, disabled, sessionKey, onTyping }) {
+export default function ChatInput({ onSend, onShareLocation, sharingLocation, disabled, sessionKey, onTyping, initialText = '' }) {
   // «يكتب…» for the other side (AYK-231): said at most every 2 s while typing, and stopped after
   // 3 s without a key, on sending, or on leaving the box.
   const typingRef = useRef({ at: 0, timer: null });
@@ -27,7 +27,8 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
   };
   useEffect(() => () => clearTimeout(typingRef.current.timer), []);
   const { t } = useTranslation();
-  const [text, setText] = useState('');
+  // AYK-434: a chat opened from a contact button starts with its introduction, to edit or send.
+  const [text, setText] = useState(initialText || '');
   const [files, setFiles] = useState([]);
   const [showEmoji, setShowEmoji] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
@@ -93,13 +94,15 @@ export default function ChatInput({ onSend, onShareLocation, sharingLocation, di
     ownerRevisionRef.current += 1;
     sendingRef.current = false;
     filesRef.current = [];
-    setText('');
+    // AYK-434: a new conversation starts with the contact introduction, if one was given.
+    setText(initialText || '');
     setFiles([]);
     setError(null);
     setSending(false);
     setShowEmoji(false);
     setShowVideo(false);
     setAttachmentMenu(false);
+  // eslint-disable-next-line react-hooks/exhaustive-deps -- initialText is read once per conversation
   }, [sessionKey]);
 
   useEffect(() => {

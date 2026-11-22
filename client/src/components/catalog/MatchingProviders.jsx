@@ -17,6 +17,8 @@ import ExpandableText from '../common/ExpandableText';
 import ContactButtons from '../providers/ContactButtons';
 import ShareMenu from '../common/ShareMenu';
 import { providerLink } from '../providers/ShareProviderLink';
+import useContactIntro from '../../hooks/useContactIntro';
+import { localizedJoinedName } from '../../utils/localizeJoined';
 
 // Providers who serve the signed-in requester's registered district in a profession
 // (AYK-035): every provider covering that district, featured (paid) first, then by
@@ -218,6 +220,7 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
   const [busy, setBusy] = useState(false);
   const [problem, setProblem] = useState('');
   const { t, i18n } = useTranslation();
+  const intro = useContactIntro();
   const lang = i18n.resolvedLanguage || 'ar';
   const navigate = useNavigate();
   const run = async action => { setBusy(true); setProblem(''); try { await action(); } catch (err) { !err?.cancelled && setProblem(apiError(err)); } finally { setBusy(false); } };
@@ -251,8 +254,10 @@ function ProviderCard({ provider: p, onContact, requester = false, saved = false
         <ExpandableText text={p.bio} translated={p.bio_translated} lines={2} className="mt-2" testId="provider-bio" />
         {/* AYK-379: جوال / واتساب (when the provider shows them) / محادثة. AYK-427: shown as buttons. */}
         {onContact && <ContactButtons size="sm" className="mt-2" phone={p.public_phone} whatsapp={p.public_whatsapp} busy={busy} testId="contact-provider"
+          intro={intro({ service: localizedJoinedName(p, 'category', i18n.resolvedLanguage) || null })}
           onChat={async () => { setBusy(true); try { await onContact(p); } finally { setBusy(false); } }} />}
         {requester && <ContactButtons size="sm" className="mt-2" phone={p.public_phone} whatsapp={p.public_whatsapp} busy={busy} testId="direct-contact"
+          intro={intro({ service: localizedJoinedName(p, 'category', i18n.resolvedLanguage) || null })}
           onChat={() => run(async () => { const res = await contactDirect(p.id, categoryId); navigate(`/chat/${res.conversation_id}`); })} />}
         <div className="flex flex-wrap items-center gap-2 mt-2">
           {requester && !saved && (<button type="button" className="btn btn-outline btn-sm" disabled={busy} data-testid="save-provider"

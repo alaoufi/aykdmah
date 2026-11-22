@@ -9,6 +9,7 @@ import ContactButtons from '../providers/ContactButtons';
 import useRequestTranslation from '../../hooks/useRequestTranslation';
 import TranslatedNote from '../requests/TranslatedNote';
 import RequestStatusBadge from '../requests/RequestStatusBadge';
+import useContactIntro from '../../hooks/useContactIntro';
 
 export default function RequestCard({ item, urgent = false }) {
   const { t, i18n } = useTranslation();
@@ -16,6 +17,7 @@ export default function RequestCard({ item, urgent = false }) {
   const cityLine = [localizedJoinedName(item, 'city', i18n.resolvedLanguage), localizedJoinedName(item, 'district', i18n.resolvedLanguage)].filter(Boolean).join(' — ');
   const { open, opening, mine, forMyService, canContact, contact } = useOpenRequest();
   const translation = useRequestTranslation(item);
+  const intro = useContactIntro();
 
   return (
     <article
@@ -64,7 +66,7 @@ export default function RequestCard({ item, urgent = false }) {
         </span>
         {/* AYK-431: the contact icons at the card's end (AYK-427, AYK-430); otherwise «details». */}
         {canContact(item)
-          ? <ContactButtons size="xs" phone={item.client_contact_phone} whatsapp={item.client_contact_whatsapp} busy={opening === item.id} onChat={() => contact(item)} testId="request-contact" />
+          ? <ContactButtons size="xs" phone={item.client_contact_phone} whatsapp={item.client_contact_whatsapp} busy={opening === item.id} onChat={() => contact(item)} testId="request-contact" intro={intro({ request: translation.title })} />
           : <span className="shrink-0 inline-flex items-center gap-1 text-[12px] font-bold text-primary">
             {t('common.details')}
             <IconArrow size={14} className="rotate-180" />
