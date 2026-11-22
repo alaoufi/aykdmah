@@ -12,6 +12,7 @@ import { useAuth } from '../hooks/useAuth';
 import usePublicSettings from '../hooks/usePublicSettings';
 import { whatsappLink } from '../utils/whatsapp';
 import ProblemNotice from '../components/common/ProblemNotice';
+import SupportWhatsApp from '../components/support/SupportWhatsApp';
 
 const TOPICS = ['support', 'complaint', 'suggestion', 'admin'];
 const ICONS = { support: '🛠️', complaint: '⚠️', suggestion: '💡', admin: '🏛️' };
@@ -88,9 +89,8 @@ export default function SupportPage() {
             <div className="font-bold text-[15px]">{t('support.whatsapp_title')}</div>
             <div className="text-[13px] text-fg-muted">{t('support.whatsapp_hint')}</div>
           </div>
-          <a href={whatsapp} target="_blank" rel="noopener noreferrer" className="btn no-underline text-white" style={{ background: '#1f9d55' }}>
-            {t('support.whatsapp_button')}
-          </a>
+          {/* AYK-437: the WhatsApp icon to support, with an introduction, kept for support to review. */}
+          <SupportWhatsApp variant="button" testId="support-page-whatsapp" />
         </div>
       )}
       <h3 className="text-base m-0">{t('support.form_title')}</h3>

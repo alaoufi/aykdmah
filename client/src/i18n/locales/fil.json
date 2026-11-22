@@ -2720,7 +2720,8 @@
     "whatsapp_text": "Assalamu alaikum, sumusulat ako mula sa platform na «Ay Khidma» tungkol sa:",
     "form_title": "O magpadala ng mensahe sa admin",
     "login_to_write": "Mag-sign in para magpadala ng mensahe sa admin at masubaybayan ang mga sagot.",
-    "login": "Mag-sign in"
+    "login": "Mag-sign in",
+    "whatsapp_icon": "Makipag-ugnayan sa technical support"
   },
   "permissions": {
     "microphone": "Mikropono",
@@ -3077,6 +3078,8 @@
     "about_service": "Kumusta, ako si {{name}} ({{who}}). Kinokontak kita tungkol sa {{service}}",
     "general": "Kumusta, ako si {{name}} ({{who}}), kinokontak kita sa pamamagitan ng Ay Khidma.",
     "via_site": "sa pamamagitan ng Ay Khidma: {{url}}",
-    "visitor": "Kumusta, nakita ko ang iyong pahina sa Ay Khidma at nais kitang makausap."
+    "visitor": "Kumusta, nakita ko ang iyong pahina sa Ay Khidma at nais kitang makausap.",
+    "support": "Kumusta, ako si {{name}} ({{who}}), kinokontak ang technical support ng Ay Khidma.",
+    "support_visitor": "Kumusta, kinokontak ko ang technical support ng Ay Khidma."
   }
 }

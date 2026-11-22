@@ -1194,6 +1194,32 @@ if (!databasePrefix) {
     assert.ok((await listed(two.token)).includes(Number(opened.id)));
   });
 
+  test('AYK-437: support WhatsApp taps are kept (signed in or not) and support marks them reviewed', async () => {
+    const area = await simpleArea();
+    const member = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await db.query('UPDATE users SET role = ?, is_super_admin = 1 WHERE id = ?', ['admin', owner.user.id]);
+    const account = await db.queryOne('SELECT auth_version FROM users WHERE id = ?', [owner.user.id]);
+    const admin = require('../utils/jwt').sign({ id: owner.user.id, role: 'admin', auth_version: Number(account.auth_version || 0) });
+    await api('/support/whatsapp', { method: 'POST', expected: 201, body: { page: '/guide', message: 'زائر\u0007 يسأل', lang: 'ar' } });
+    await api('/support/whatsapp', { method: 'POST', token: member.token, expected: 201, body: { page: 'https://evil.example/x', message: 'x'.repeat(2000) } });
+    const list = await api('/admin/support/whatsapp?handled=0', { token: admin });
+    const guest = list.items.find(row => row.page === '/guide' && !row.user_id);
+    const mine = list.items.find(row => Number(row.user_id) === Number(member.user.id));
+    assert.ok(guest && mine, 'both taps listed');
+    assert.equal(guest.message, 'زائر يسأل', 'control characters removed');
+    assert.equal(mine.page, null, 'only a path on the site is kept as the page');
+    assert.equal(mine.message.length, 1000, 'the text is clipped');
+    assert.ok(list.unhandled >= 2);
+    const done = await api(`/admin/support/whatsapp/${mine.id}`, { method: 'PUT', token: admin, body: { handled: true } });
+    assert.ok(done.handled_at);
+    assert.ok(!(await api('/admin/support/whatsapp?handled=0', { token: admin })).items.some(row => row.id === mine.id));
+    assert.ok((await api('/admin/support/whatsapp?handled=1', { token: admin })).items.some(row => row.id === mine.id && row.handled_by_name));
+    await api(`/admin/support/whatsapp/${mine.id}`, { method: 'PUT', token: member.token, body: { handled: true }, expected: 403 });
+    await api('/admin/support/whatsapp', { token: member.token, expected: 403 });
+    await db.query('DELETE FROM support_whatsapp_contacts WHERE id IN (?, ?)', [guest.id, mine.id]);
+  });
+
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');

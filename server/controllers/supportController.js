@@ -155,4 +155,40 @@ const adminUnread = asyncHandler(async (req, res) => {
   return success(res, { count: Number(row?.n) || 0 });
 });
 
-module.exports = { listMine, create, getMine, replyMine, unreadMine, adminList, adminGet, adminReply, adminStatus, adminUnread, TOPICS };
+// AYK-437: each tap on the support WhatsApp icon is kept for support to review. Anyone may tap it
+// (signed in or not); only the page, the text it opened with and the language are kept, plus the
+// account when signed in. Nothing is sent to WhatsApp from here.
+// Control characters are dropped; line breaks (the message's second line) stay.
+const clip = (value, max) => (typeof value === 'string' ? value.replace(/[\u0000-\u0009\u000b-\u001f\u007f]+/g, '').trim().slice(0, max) : '') || null;
+const logWhatsApp = asyncHandler(async (req, res) => {
+  const page = clip(req.body?.page, 300);
+  await query('INSERT INTO support_whatsapp_contacts (user_id, page, message, lang) VALUES (?, ?, ?, ?)',
+    [req.user?.id || null, page && page.startsWith('/') ? page : null, clip(req.body?.message, 1000), clip(req.body?.lang, 10)]);
+  return created(res, { ok: true });
+});
+
+const adminWhatsAppList = asyncHandler(async (req, res) => {
+  const handled = req.query.handled === '1' ? 'IS NOT NULL' : req.query.handled === '0' ? 'IS NULL' : null;
+  const rows = await query(`SELECT w.id, w.page, w.message, w.lang, w.created_at, w.handled_at,
+      u.id AS user_id, u.full_name, u.phone, u.role, u.referral_code, h.full_name AS handled_by_name
+    FROM support_whatsapp_contacts w
+    LEFT JOIN users u ON u.id = w.user_id
+    LEFT JOIN users h ON h.id = w.handled_by
+    ${handled ? `WHERE w.handled_at ${handled}` : ''}
+    ORDER BY w.handled_at IS NULL DESC, w.created_at DESC LIMIT 200`);
+  const unhandled = await queryOne('SELECT COUNT(*) AS n FROM support_whatsapp_contacts WHERE handled_at IS NULL');
+  return success(res, { items: rows, unhandled: Number(unhandled?.n || 0) });
+});
+
+const adminWhatsAppHandled = asyncHandler(async (req, res) => {
+  if (!validId(req.params.id)) return notFound(res);
+  const done = req.body?.handled !== false;
+  await query(`UPDATE support_whatsapp_contacts SET handled_at = ${done ? 'CURRENT_TIMESTAMP' : 'NULL'}, handled_by = ? WHERE id = ?`,
+    [done ? req.user.id : null, req.params.id]);
+  const row = await queryOne('SELECT id, handled_at FROM support_whatsapp_contacts WHERE id = ?', [req.params.id]);
+  if (!row) return notFound(res);
+  return success(res, row);
+});
+
+module.exports = {
+  logWhatsApp, adminWhatsAppList, adminWhatsAppHandled, listMine, create, getMine, replyMine, unreadMine, adminList, adminGet, adminReply, adminStatus, adminUnread, TOPICS };

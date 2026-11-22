@@ -2720,7 +2720,8 @@
     "whatsapp_text": "Merhaba, «Ay Khidma» platformundan şu konuda yazıyorum:",
     "form_title": "Ya da yönetime mesaj gönderin",
     "login_to_write": "Yönetime mesaj göndermek ve yanıtları takip etmek için giriş yapın.",
-    "login": "Giriş yap"
+    "login": "Giriş yap",
+    "whatsapp_icon": "Teknik destekle iletişime geç"
   },
   "permissions": {
     "microphone": "Mikrofon",
@@ -3077,6 +3078,8 @@
     "about_service": "Merhaba, ben {{name}} ({{who}}). {{service}} hakkında ulaşıyorum",
     "general": "Merhaba, ben {{name}} ({{who}}), Ay Khidma üzerinden ulaşıyorum.",
     "via_site": "Ay Khidma üzerinden: {{url}}",
-    "visitor": "Merhaba, sayfanızı Ay Khidma'da buldum ve sizinle iletişime geçmek istiyorum."
+    "visitor": "Merhaba, sayfanızı Ay Khidma'da buldum ve sizinle iletişime geçmek istiyorum.",
+    "support": "Merhaba, ben {{name}} ({{who}}), Ay Khidma teknik desteğine ulaşıyorum.",
+    "support_visitor": "Merhaba, Ay Khidma teknik desteğine ulaşıyorum."
   }
 }

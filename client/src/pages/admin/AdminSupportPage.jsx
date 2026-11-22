@@ -10,6 +10,7 @@ import { InfoButton, InfoPanel } from '../../components/common/InfoTip';
 import { formatRelativeTime, truncate } from '../../utils/formatters';
 import SupportThread from '../../components/support/SupportThread';
 import TranslatedText from '../../components/common/TranslatedText';
+import SupportWhatsAppList from '../../components/admin/SupportWhatsAppList';
 
 const TOPICS = ['support', 'complaint', 'suggestion', 'admin'];
 const STATUSES = ['open', 'answered', 'closed'];
@@ -86,6 +87,8 @@ export default function AdminSupportPage() {
 
   return (
     <div className="space-y-3" data-testid="admin-support">
+      {/* AYK-437: the support WhatsApp taps, for review. */}
+      <SupportWhatsAppList />
       <div className="flex gap-2 flex-wrap items-center" role="group" aria-label={t('support.status')}>
         {['', ...STATUSES].map(value => (
           <button key={value || 'all'} type="button" className={chip(filter.status === value)} aria-pressed={filter.status === value}

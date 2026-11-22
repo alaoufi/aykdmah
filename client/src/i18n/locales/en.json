@@ -2720,7 +2720,8 @@
     "whatsapp_text": "Hello, I am writing from the Ay Khidma platform about:",
     "form_title": "Or send a message to the administration",
     "login_to_write": "Sign in to send a message to the administration and follow its replies.",
-    "login": "Sign in"
+    "login": "Sign in",
+    "whatsapp_icon": "Contact technical support"
   },
   "permissions": {
     "microphone": "Microphone",
@@ -3077,6 +3078,8 @@
     "about_service": "Hello, I'm {{name}} ({{who}}). I'm contacting you about your {{service}} service",
     "general": "Hello, I'm {{name}} ({{who}}), contacting you through Ay Khidma.",
     "via_site": "via Ay Khidma: {{url}}",
-    "visitor": "Hello, I found your page on Ay Khidma and would like to get in touch."
+    "visitor": "Hello, I found your page on Ay Khidma and would like to get in touch.",
+    "support": "Hello, I'm {{name}} ({{who}}), contacting Ay Khidma technical support.",
+    "support_visitor": "Hello, I am contacting Ay Khidma technical support."
   }
 }
