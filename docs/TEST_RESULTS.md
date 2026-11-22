@@ -2816,3 +2816,7 @@ AYK-171: اكتمل الفحص النهائي: Chromium 47/47 وWebKit 47/47، �
   - خريطة الموقع 3100 صفحة على aykdmh.sa.
   - صفحة `/services` على aykdmh.com رابطها الأساسي (canonical) `https://aykdmh.sa/services`.
   - لم يُفتح الموقع الحي بحساب حقيقي.
+- **Google Search Console (بيد المالك، 2026-11-22):**
+  - أُضيف aykdmh.sa من نوع «النطاق».
+  - ثبتت الملكية بسجل TXT في لوحة t2. **لا يُحذف السجل.**
+  - أُرسلت `https://aykdmh.sa/sitemap.xml` وقبلها Google: «تم إرسال ملف خريطة الموقع بنجاح».
