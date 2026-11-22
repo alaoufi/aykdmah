@@ -104,10 +104,12 @@ export default function ShareMenu({ url, title = '', text = '', variant = 'butto
   const buttonLabel = label || t('share.title');
   return (
     <>
-      {variant === 'icon' ? (
+      {variant === 'icon' || variant === 'icon-sm' ? (
         <button ref={trigger} type="button" aria-label={buttonLabel} title={buttonLabel} aria-expanded={open} aria-haspopup="menu"
           onClick={() => setOpen(v => !v)} data-testid={testId}
-          className={`w-10 h-10 grid place-items-center rounded-pill text-fg-muted hover:bg-surface-alt bg-transparent border-0 cursor-pointer ${className}`}>
+          // AYK-436: 'icon-sm' sits beside the round contact icons on cards (30 px, fixed slate).
+          className={`${variant === 'icon-sm' ? 'w-[30px] h-[30px] bg-surface-alt border border-border' : 'w-10 h-10 bg-transparent border-0'} grid place-items-center rounded-pill text-fg-muted hover:bg-surface-alt cursor-pointer ${className}`}
+          style={variant === 'icon-sm' ? { minHeight: 0, minWidth: 30, padding: 0 } : undefined}>
           {ICONS.share}
         </button>
       ) : (

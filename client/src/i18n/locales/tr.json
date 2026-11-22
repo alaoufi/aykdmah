@@ -2627,7 +2627,7 @@
     "contact_direct": "İletişime geç",
     "in_directory": "Rehberimde",
     "add_directory": "Rehberime ekle",
-    "remove_directory": "Kaldır",
+    "remove_directory": "Rehberimden kaldır",
     "directory_title": "Rehberim",
     "directory_nav": "Rehberim",
     "directory_hint": "Eklediğiniz hizmet verenler. Talep oluşturmadan herhangi biriyle doğrudan iletişime geçin.",
@@ -2992,7 +2992,8 @@
     "copied": "Bağlantı kopyalandı",
     "qr": "QR kodu",
     "qr_hint": "Bağlantıyı açmak için kodu telefon kamerasıyla okutun",
-    "qr_save": "Görseli kaydet"
+    "qr_save": "Görseli kaydet",
+    "request_text": "Ay Khidma'da bir hizmet talebi: {{title}}"
   },
   "ads": {
     "hide": "Reklamı gizle"

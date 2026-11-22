@@ -2656,7 +2656,7 @@
     "contact_direct": "تواصل",
     "in_directory": "في دليلي",
     "add_directory": "أضف إلى دليلي",
-    "remove_directory": "إزالة",
+    "remove_directory": "إزالة من دليلي",
     "directory_title": "دليلي",
     "directory_nav": "دليلي",
     "directory_hint": "مقدمو الخدمة الذين أضفتهم. تواصل مع أيٍّ منهم مباشرة دون إنشاء طلب.",
@@ -3096,7 +3096,8 @@
     "copied": "تم نسخ الرابط",
     "qr": "رمز QR",
     "qr_hint": "امسح الرمز بكاميرا الجوال لفتح الرابط",
-    "qr_save": "حفظ الصورة"
+    "qr_save": "حفظ الصورة",
+    "request_text": "طلب خدمة في «أي خدمة»: {{title}}"
   },
   "ads": {
     "hide": "إخفاء الإعلان"

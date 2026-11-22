@@ -36,6 +36,8 @@ import TranslatedNote from '../components/requests/TranslatedNote';
 import RatingInline from '../components/reviews/RatingInline';
 import RequestStatusBadge from '../components/requests/RequestStatusBadge';
 import useContactIntro from '../hooks/useContactIntro';
+import ShareMenu from '../components/common/ShareMenu';
+import { SITE_URL } from '../utils/site';
 
 export function canReadRequestOffers(user, request, canManageRequests = false) {
   return Boolean(user && request && (
@@ -279,7 +281,12 @@ export default function RequestDetailsPage() {
           <div className="flex items-center gap-2">
             {request.is_urgent && <span className="badge badge-urgent">⚡ {t('request.urgent')}</span>}
           </div>
-          <span className="text-sm text-muted">{formatRelativeTime(request.created_at)}</span>
+          <span className="flex items-center gap-2">
+            <span className="text-sm text-muted">{formatRelativeTime(request.created_at)}</span>
+            {/* AYK-436: share this request (its owner or a provider), on the main address. */}
+            <ShareMenu url={`${SITE_URL}/requests/${request.id}`} title={translation.title}
+              text={t('share.request_text', { title: translation.title })} testId="request-page-share" />
+          </span>
         </div>
 
         {/* AYK-432: the state beside the title; open reads «متاح» in fixed green. */}

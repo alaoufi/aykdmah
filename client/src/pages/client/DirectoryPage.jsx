@@ -97,7 +97,8 @@ export default function DirectoryPage({ compact = false }) {
                   <ContactButtons size="sm" phone={p.public_phone} whatsapp={p.public_whatsapp} busy={busy === p.id} onChat={() => contact(p)}
                     testId="directory-contact" intro={intro({ service: p.is_provider === false ? null : (localizedJoinedName(p, 'category', lang) || null) })}
                     link={p.is_provider === false ? '/' : `/providers/${p.id}`} onCall={() => call(p)} />
-                  <button type="button" className="text-[13px] font-semibold text-fg-muted" disabled={busy === p.id} onClick={() => remove(p)}>✕ {t('requester.remove_directory')}</button>
+                  {/* AYK-436 (the owner: «ماذا تقصد بإزالة؟»): it removes this person from «دليلي», apart from contact. */}
+                  <button type="button" className="ms-auto text-[12px] font-semibold text-fg-muted underline underline-offset-2" disabled={busy === p.id} onClick={() => remove(p)} data-testid="directory-remove">{t('requester.remove_directory')}</button>
                 </div>
               </div>
             </li>

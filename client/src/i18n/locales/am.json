@@ -2627,7 +2627,7 @@
     "contact_direct": "ያነጋግሩ",
     "in_directory": "በማውጫዬ ውስጥ",
     "add_directory": "ወደ ማውጫዬ ያክሉ",
-    "remove_directory": "ያስወግዱ",
+    "remove_directory": "ከማውጫዬ አስወግድ",
     "directory_title": "ማውጫዬ",
     "directory_nav": "ማውጫ",
     "directory_hint": "ያከሏቸው አገልግሎት አቅራቢዎች። ጥያቄ ሳይፈጥሩ ማንኛቸውንም በቀጥታ ያነጋግሩ።",
@@ -2992,7 +2992,8 @@
     "copied": "ሊንኩ ተቀድቷል",
     "qr": "QR ኮድ",
     "qr_hint": "ሊንኩን ለመክፈት ኮዱን በስልክ ካሜራ ይቃኙ",
-    "qr_save": "ምስሉን አስቀምጥ"
+    "qr_save": "ምስሉን አስቀምጥ",
+    "request_text": "በ«أي خدمة» ላይ የአገልግሎት ጥያቄ፦ {{title}}"
   },
   "ads": {
     "hide": "ማስታወቂያውን ደብቅ"

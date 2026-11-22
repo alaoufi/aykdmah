@@ -10,6 +10,8 @@ import useRequestTranslation from '../../hooks/useRequestTranslation';
 import TranslatedNote from '../requests/TranslatedNote';
 import RequestStatusBadge from '../requests/RequestStatusBadge';
 import useContactIntro from '../../hooks/useContactIntro';
+import ShareMenu from '../common/ShareMenu';
+import { SITE_URL } from '../../utils/site';
 
 export default function RequestCard({ item, urgent = false }) {
   const { t, i18n } = useTranslation();
@@ -65,6 +67,11 @@ export default function RequestCard({ item, urgent = false }) {
           {cityLine && <><IconPin size={13} className="shrink-0" /><span className="line-clamp-1">{cityLine}</span></>}
         </span>
         {/* AYK-431: the contact icons at the card's end (AYK-427, AYK-430); otherwise «details». */}
+        {/* AYK-436: share the request, for the requester and for providers. */}
+        <span className="shrink-0 inline-flex ms-auto" onClick={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()}>
+          <ShareMenu variant="icon-sm" url={`${SITE_URL}/requests/${item.id}`} title={translation.title}
+            text={t('share.request_text', { title: translation.title })} testId="request-share" />
+        </span>
         {canContact(item)
           ? <ContactButtons size="xs" phone={item.client_contact_phone} whatsapp={item.client_contact_whatsapp} busy={opening === item.id} onChat={() => contact(item)} testId="request-contact" intro={intro({ request: translation.title })} link={`/requests/${item.id}`} />
           : <span className="shrink-0 inline-flex items-center gap-1 text-[12px] font-bold text-primary">

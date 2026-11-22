@@ -8,6 +8,8 @@ import TranslatedNote from './TranslatedNote';
 import ContactButtons from '../providers/ContactButtons';
 import RequestStatusBadge from './RequestStatusBadge';
 import useContactIntro from '../../hooks/useContactIntro';
+import ShareMenu from '../common/ShareMenu';
+import { SITE_URL } from '../../utils/site';
 
 // Whose request this is (AYK-044): "Your request" (as a requester) or "For your
 // service" (as a provider), in different colours.
@@ -62,6 +64,11 @@ export default function RequestCard({ request }) {
             <span className="chip">💰 {formatCurrency(request.budget_min)}{request.budget_max ? ` — ${formatCurrency(request.budget_max)}` : ''}</span>
           )}
         </div>
+        {/* AYK-436: share the request, for the requester and for providers. */}
+        <span className="shrink-0 inline-flex" onClick={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()}>
+          <ShareMenu variant="icon-sm" url={`${SITE_URL}/requests/${request.id}`} title={translation.title}
+            text={t('share.request_text', { title: translation.title })} testId="request-share" />
+        </span>
         {canContact(request) && <ContactButtons size="xs" phone={request.client_contact_phone} whatsapp={request.client_contact_whatsapp}
           busy={opening === request.id} onChat={() => contact(request)} testId="request-contact" intro={intro({ request: translation.title })} link={`/requests/${request.id}`} />}
       </div>

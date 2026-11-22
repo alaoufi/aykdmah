@@ -2627,7 +2627,7 @@
     "contact_direct": "Contact",
     "in_directory": "In my directory",
     "add_directory": "Add to my directory",
-    "remove_directory": "Remove",
+    "remove_directory": "Remove from my directory",
     "directory_title": "My directory",
     "directory_nav": "Directory",
     "directory_hint": "Providers you added. Contact any of them directly without posting a request.",
@@ -2992,7 +2992,8 @@
     "copied": "Link copied",
     "qr": "QR code",
     "qr_hint": "Scan the code with a phone camera to open the link",
-    "qr_save": "Save image"
+    "qr_save": "Save image",
+    "request_text": "A service request on Ay Khidma: {{title}}"
   },
   "ads": {
     "hide": "Hide ad"

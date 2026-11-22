@@ -2627,7 +2627,7 @@
     "contact_direct": "Hubungi",
     "in_directory": "Di direktori saya",
     "add_directory": "Tambah ke direktori saya",
-    "remove_directory": "Hapus",
+    "remove_directory": "Hapus dari direktori saya",
     "directory_title": "Direktori saya",
     "directory_nav": "Direktori",
     "directory_hint": "Penyedia layanan yang Anda tambahkan. Hubungi siapa pun secara langsung tanpa membuat permintaan.",
@@ -2992,7 +2992,8 @@
     "copied": "Tautan disalin",
     "qr": "Kode QR",
     "qr_hint": "Pindai kode dengan kamera ponsel untuk membuka tautan",
-    "qr_save": "Simpan gambar"
+    "qr_save": "Simpan gambar",
+    "request_text": "Permintaan layanan di Ay Khidma: {{title}}"
   },
   "ads": {
     "hide": "Sembunyikan iklan"

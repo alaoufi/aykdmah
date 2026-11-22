@@ -2627,7 +2627,7 @@
     "contact_direct": "Kontakin",
     "in_directory": "Nasa aking direktoryo",
     "add_directory": "Idagdag sa aking direktoryo",
-    "remove_directory": "Alisin",
+    "remove_directory": "Alisin sa aking direktoryo",
     "directory_title": "Aking direktoryo",
     "directory_nav": "Direktoryo",
     "directory_hint": "Mga provider na idinagdag mo. Kontakin ang sinuman sa kanila nang direkta nang hindi gumagawa ng kahilingan.",
@@ -2992,7 +2992,8 @@
     "copied": "Nakopya ang link",
     "qr": "QR code",
     "qr_hint": "I-scan ang code gamit ang camera ng telepono para buksan ang link",
-    "qr_save": "I-save ang larawan"
+    "qr_save": "I-save ang larawan",
+    "request_text": "Isang kahilingan ng serbisyo sa Ay Khidma: {{title}}"
   },
   "ads": {
     "hide": "Itago ang ad"
