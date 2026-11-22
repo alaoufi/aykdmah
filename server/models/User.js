@@ -47,9 +47,10 @@ async function findById(id) {
   const hasShareName = await tableHasColumn('users', 'share_name'); // AYK-438
   const hasAllowShare = await tableHasColumn('users', 'allow_request_share'); // AYK-439
   const hasAlerts = await tableHasColumn('users', 'request_alerts'); // AYK-443
+  const hasAlertsOff = await tableHasColumn('users', 'request_alerts_off'); // AYK-456
   const hasInterests = await tableHasColumn('users', 'interest_category_ids'); // AYK-447
   const extra = (hasAdminCols ? ', u.is_super_admin, u.permissions' : '') + (hasAlsoClient ? ', u.also_client' : '') + (hasAdminFlag ? ', u.is_admin' : '')
-    + (hasContact ? ', u.share_phone, u.share_whatsapp, u.whatsapp_number, u.marketing_opt_in' : '') + (hasShareName ? ', u.share_name' : '') + (hasAllowShare ? ', u.allow_request_share' : '') + (hasAlerts ? ', u.request_alerts' : '') + (hasInterests ? ', u.interest_category_ids' : '');
+    + (hasContact ? ', u.share_phone, u.share_whatsapp, u.whatsapp_number, u.marketing_opt_in' : '') + (hasShareName ? ', u.share_name' : '') + (hasAllowShare ? ', u.allow_request_share' : '') + (hasAlerts ? ', u.request_alerts' : '') + (hasAlertsOff ? ', u.request_alerts_off' : '') + (hasInterests ? ', u.interest_category_ids' : '');
   const govId = hasGov ? 'COALESCE(u.governorate_id, c.governorate_id)' : 'c.governorate_id';
   const regionPaths = [hasRegion && 'u.region_id', hasCityRegion && 'c.region_id', 'g.region_id'].filter(Boolean);
   const regionId = regionPaths.length > 1 ? `COALESCE(${regionPaths.join(', ')})` : regionPaths[0];
@@ -246,7 +247,7 @@ async function create({ full_name, username, email, phone, facebook_id, password
 async function update(id, data) {
   const privateAddress = data.address === undefined ? undefined : accountAddress(data.address);
   const allowed = ['full_name', 'phone', 'avatar', 'city_id', 'district_id', 'latitude', 'longitude'];
-  for (const column of ['country_id', 'region_id', 'governorate_id', 'share_name', 'share_phone', 'share_whatsapp', 'allow_request_share', 'request_alerts', 'interest_category_ids', 'whatsapp_number', 'marketing_opt_in', 'marketing_opt_in_at']) {
+  for (const column of ['country_id', 'region_id', 'governorate_id', 'share_name', 'share_phone', 'share_whatsapp', 'allow_request_share', 'request_alerts', 'request_alerts_off', 'interest_category_ids', 'whatsapp_number', 'marketing_opt_in', 'marketing_opt_in_at']) {
     if (await tableHasColumn('users', column)) allowed.push(column);
   }
   const fields = [];
@@ -480,10 +481,19 @@ async function listPaginated({ role, search, page = 1, limit = 20 }) {
   const hasAdminFlag = await tableHasColumn('users', 'is_admin');
   if (role === 'admin' && hasAdminFlag) where.push("(u.is_admin = 1 OR u.role = 'admin')");
   else if (role) { where.push('u.role = ?'); params.push(role); }
-  if (search) {
-    where.push('(u.full_name LIKE ? OR u.email LIKE ? OR u.phone LIKE ?)');
-    const s = `%${search}%`;
-    params.push(s, s, s);
+  // AYK-452 (the owner: «البحث في المستخدمين لا يعمل»): it matched the exact letter case only, and
+  // not the account number, the user name, Arabic letter forms or a phone typed as +966 / ٠٥…
+  if (search && String(search).trim()) {
+    const arabicDigits = value => value.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d));
+    const text = arabicDigits(String(search).trim()).slice(0, 100);
+    const fold = sql => `translate(lower(COALESCE(${sql}, '')), 'أإآةى', 'اااهي')`;
+    const folded = text.toLowerCase().replace(/[أإآ]/g, 'ا').replace(/ة/g, 'ه').replace(/ى/g, 'ي');
+    const digits = text.replace(/\D/g, '').replace(/^(00)?966/, '0');
+    const parts = [`${fold('u.full_name')} LIKE ?`, `${fold('u.email')} LIKE ?`, `${fold('u.username')} LIKE ?`, `${fold("to_jsonb(u)->>'referral_code'")} = ?`];
+    params.push(`%${folded}%`, `%${folded}%`, `%${folded}%`, folded);
+    if (/^\d{1,9}$/.test(text)) { parts.push('u.id = ?'); params.push(Number(text)); }
+    if (digits.length >= 3) { parts.push(`regexp_replace(COALESCE(u.phone, ''), '\\D', '', 'g') LIKE ?`); params.push(`%${digits.replace(/^0/, '')}%`); }
+    where.push(`(${parts.join(' OR ')})`);
   }
   const whereSql = where.join(' AND ');
 

@@ -164,10 +164,6 @@
     "launch_offers_label": "Ikumpara ang presyo ng serbisyo",
     "launch_contact": "Mag-chat",
     "launch_contact_label": "Chat sa loob ng app",
-    "get_app": "I-download ang «Ay Khidma» app",
-    "get_it_on": "KUNIN SA",
-    "download_on": "I-download sa",
-    "coming_soon": "Malapit na sa",
     "tab_requests": "Mga humihiling ng serbisyo",
     "tab_providers": "Mga nagbibigay ng serbisyo",
     "scope_label": "Saklaw:",
@@ -234,7 +230,11 @@
     "sections_hint": "Puwede kang pumili ng higit sa isang propesyon; ipapakita namin ang mga katulad.",
     "sections_save": "I-save ({{count}})",
     "sections_edit": "Palitan ang mga propesyon",
-    "filter_need_sections": "Piliin ang mga propesyong kailangan mo para gumana ang «Katulad ng request ko»."
+    "filter_need_sections": "Piliin ang mga propesyong kailangan mo para gumana ang «Katulad ng request ko».",
+    "published_title": "Na-publish na ang request mo",
+    "published_hint": "Makikita na ito ng lahat, kasama ang mga service provider sa propesyon at lugar nito; nasa unahan ito ng listahan dito.",
+    "published_open": "Buksan ang request mo",
+    "published_see": "Tingnan ang request mo sa home"
   },
   "location": {
     "country": "Bansa",
@@ -1435,7 +1435,8 @@
     },
     "dialect": {
       "title": "Mga salita ng diyalekto"
-    }
+    },
+    "marketers": "Balanse ng mga marketer"
   },
   "errors": {
     "generic": "May nagkamali",
@@ -3088,7 +3089,6 @@
     "hint": "Piliin kung alin sa iyong detalye ang lalabas at para kanino. Nakatago lahat hangga't hindi ka pumipili.",
     "share_phone": "Telepono ko",
     "share_phone_hint": "Ang mga provider lang sa propesyon ng bukas mong kahilingan ang makakakita, para matawagan ka nila.",
-    "no_phone": "Idagdag muna ang mobile number mo sa itaas.",
     "share_whatsapp": "WhatsApp ko",
     "share_whatsapp_hint": "Makakapag-message sa WhatsApp ang mga provider sa propesyon ng bukas mong kahilingan.",
     "whatsapp_number": "WhatsApp number (opsyonal)",
@@ -3104,11 +3104,7 @@
     "my_visible_edit": "Baguhin ang lumalabas",
     "name_label": "Pangalan",
     "phone_label": "Telepono",
-    "whatsapp_label": "WhatsApp",
-    "allow_share": "Payagan ang pagbabahagi ng aking mga kahilingan",
-    "allow_share_hint": "Maaaring ibahagi ng mga provider at bisita ang link ng iyong kahilingan para umabot sa makakatulong. Lagi mo itong maibabahagi.",
-    "share_allowed": "Maaaring ibahagi ng iba ang iyong kahilingan.",
-    "share_not_allowed": "Ikaw lang ang makakapagbahagi ng iyong kahilingan. Payagan sa \"Baguhin ang lumalabas\"."
+    "whatsapp_label": "WhatsApp"
   },
   "understand": {
     "title": "Isulat ang kahilingan sa sarili mong salita at punto",

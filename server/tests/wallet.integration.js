@@ -294,6 +294,27 @@ if (!databasePrefix) {
     assert.equal(sum, await balance(target), 'balance always equals the ledger');
   });
 
+  test('AYK-453: the marketers page lists number, name and sign-ups, and one marketer\'s sign-ups with their account numbers', async () => {
+    assert.equal((await api('/wallet/admin/marketers', { user: users.customer })).status, 403);
+    const list = await api('/wallet/admin/marketers', { user: users.boss });
+    assert.equal(list.status, 200, list.body?.message);
+    const row = list.body.data.find(m => Number(m.id) === Number(users.referrer.id));
+    assert.ok(row, 'the referrer is listed');
+    const expected = Number((await db.queryOne('SELECT COUNT(*) AS n FROM users WHERE referred_by = ? AND deleted_at IS NULL', [users.referrer.id])).n);
+    assert.equal(row.referrals, expected);
+    assert.ok(row.referral_code && row.full_name && typeof row.balance === 'number');
+    const found = await api(`/wallet/admin/marketers?search=${encodeURIComponent(row.referral_code)}`, { user: users.boss });
+    assert.ok(found.body.data.some(m => Number(m.id) === Number(users.referrer.id)), 'search by the marketer number');
+    const none = await api('/wallet/admin/marketers?search=zzzz-nobody', { user: users.boss });
+    assert.equal(none.body.data.length, 0);
+    const details = await api(`/wallet/admin/marketers/${users.referrer.id}`, { user: users.boss });
+    assert.equal(details.status, 200, details.body?.message);
+    const ids = (await db.query('SELECT id, referral_code FROM users WHERE referred_by = ?', [users.referrer.id]));
+    assert.equal(details.body.data.people.length, ids.length);
+    assert.ok(details.body.data.people.every(p => ids.some(i => Number(i.id) === Number(p.id) && i.referral_code === p.account_number)), 'each with his account number');
+    assert.equal((await api('/wallet/admin/marketers/abc', { user: users.boss })).status, 404);
+  });
+
   test('marketing statistics count invitations and their money, and hide inviter names without the users permission', async () => {
     const full = await api('/admin/marketing', { user: users.boss });
     assert.equal(full.status, 200, full.body?.message);

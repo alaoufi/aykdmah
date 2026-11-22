@@ -86,6 +86,7 @@ const register = asyncHandler(async (req, res) => {
   const alsoClient = req.body.role === 'both';
   const role = alsoClient ? 'provider' : req.body.role;
   let full_name = typeof req.body.full_name === 'string' ? req.body.full_name.trim() : req.body.full_name;
+  let autoName = false; // AYK-461
   if (!simple && (typeof full_name !== 'string' || full_name.length < 2 || full_name.length > 150)) return error(res, req.t('invalid_data'), 400);
   if (simple && full_name !== undefined && full_name !== null && full_name !== '' &&
       (typeof full_name !== 'string' || full_name.length < 2 || full_name.length > 150)) return error(res, req.t('invalid_data'), 400);
@@ -151,7 +152,8 @@ const register = asyncHandler(async (req, res) => {
   if (simple) {
     // No typing needed: a blank name becomes an editable label, and a blank
     // address becomes the area names of the point the device reported.
-    if (!full_name && filtered.phone) full_name = `مستخدم ${filtered.phone.slice(-4)}`;
+    // AYK-461: no name given: «عضو» and his account number once it is given (below), never his phone.
+    if (!full_name && filtered.phone) { full_name = 'عضو'; autoName = true; }
     if (!location.address && location.city_id) {
       const db = require('../config/database');
       const city = await db.queryOne('SELECT name_ar FROM cities WHERE id = ?', [location.city_id]);
@@ -220,6 +222,7 @@ const register = asyncHandler(async (req, res) => {
   if (phoneVerified) await markPhoneVerified(userId, filtered.phone);
   if (couponCode) await wallet.applyReferralCode(userId, couponCode).catch(() => {});
   const referralCode = await wallet.ensureReferralCode(userId).catch(() => null);
+  if (autoName && referralCode) await query("UPDATE users SET full_name = ? WHERE id = ? AND full_name = 'عضو'", [`عضو ${referralCode}`, userId]).catch(() => {});
 
   // Record terms acceptance — best-effort, skipped if migration 025 hasn't
   // run yet so registration never breaks on a half-migrated host.

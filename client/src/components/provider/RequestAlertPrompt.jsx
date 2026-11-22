@@ -12,15 +12,16 @@ export default function RequestAlertPrompt({ noneForMe }) {
   const { t } = useTranslation();
   const { user, refresh } = useAuth();
   const [busy, setBusy] = useState(false);
-  const on = Number(user?.request_alerts) === 1;
+  // AYK-456: every new request in his profession and area reaches him by default; only he turns it off.
+  const on = Number(user?.request_alerts_off) !== 1;
   const set = async value => {
     setBusy(true);
-    try { await updateProfile({ request_alerts: value }); await refresh(); } catch (err) { showProblem(err); } finally { setBusy(false); }
+    try { await updateProfile({ request_alerts_off: value ? 0 : 1 }); await refresh(); } catch (err) { showProblem(err); } finally { setBusy(false); }
   };
   if (on) {
     return (
       <div className="flex items-center justify-between gap-2 flex-wrap rounded-card bg-success-soft text-success px-3 py-2 mb-3 text-[12.5px]" role="status" data-testid="request-alerts-on">
-        <span className="min-w-0">🔔 {t('work.alerts_on')}</span>
+        <span className="min-w-0">{noneForMe && <b className="block text-fg">{t('work.alerts_none')}</b>}🔔 {t('work.alerts_on')}</span>
         <button type="button" className="btn btn-outline btn-sm shrink-0" disabled={busy} onClick={() => set(0)} data-testid="request-alerts-stop">{t('work.alerts_stop')}</button>
       </div>
     );

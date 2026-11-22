@@ -27,13 +27,13 @@ function HelpLabel({ htmlFor, label, short, info, className = 'block text-[12px]
   const [open, setOpen] = useState(false);
   const panelId = useId();
   return (
-    <div className="mb-1">
+    // AYK-462 (the owner: «أسطر متقاربة»): the short line joins the (i) panel instead of a line under the label.
+    <div className="mb-0.5">
       <span className="flex items-center gap-1.5">
         <label htmlFor={htmlFor} className={className}>{label}</label>
-        {info && <InfoButton open={open} onToggle={() => setOpen(v => !v)} controls={panelId} label={typeof label === 'string' ? label : ''} />}
+        {(info || short) && <InfoButton open={open} onToggle={() => setOpen(v => !v)} controls={panelId} label={typeof label === 'string' ? label : ''} />}
       </span>
-      {short && <div className="text-[12px] text-slate-500 mt-0.5 leading-snug" data-testid="field-short">{short}</div>}
-      <InfoPanel id={panelId} open={open}>{info}</InfoPanel>
+      <InfoPanel id={panelId} open={open}>{[short, info].filter(Boolean).join('\n')}</InfoPanel>
     </div>
   );
 }
@@ -50,6 +50,16 @@ function NoSections() {
 
 // AYK-383: role is what the person is on the site; is_admin is the administration's rights, apart.
 const EMPTY_FORM = { full_name: '', username: '', email: '', phone: '', facebook_id: '', password: '', role: 'client', is_admin: false, is_active: true };
+
+// AYK-460 (the owner: «الرقم الذي بجوار المستخدم من أربعة أرقام، ماذا يعني؟ إذا داخلي لا داعي لعرضه»):
+// «مستخدم 8872» is the name the site gives someone who signed up without one (the last four digits of
+// his phone). Here it reads «بلا اسم», muted; the phone shows in full under it. The site keeps the name.
+const AUTO_NAME = /^(مستخدم \d{4}|عضو( \d+)?)$/; // AYK-461: now «عضو» and the account number
+function UserName({ u }) {
+  const name = String(u.full_name || '').trim();
+  if (!name || AUTO_NAME.test(name)) return <span className="text-slate-400 font-semibold" data-testid="user-no-name">بلا اسم</span>;
+  return <>{name}</>;
+}
 
 export default function AdminUsersPage() {
   const { t, i18n } = useTranslation();
@@ -103,6 +113,13 @@ export default function AdminUsersPage() {
   };
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [role, page, search]);
+  // AYK-452: the search runs as you type (a short pause), not only on Enter, which the phone keyboard
+  // often does not send.
+  useEffect(() => {
+    if (searchValue.trim() === search) return undefined;
+    const timer = setTimeout(() => { setPage(1); setSearch(searchValue.trim()); }, 350);
+    return () => clearTimeout(timer);
+  }, [searchValue]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const onSearch = (e) => {
     e.preventDefault();
@@ -194,7 +211,7 @@ export default function AdminUsersPage() {
     }
   };
 
-  const fieldClass = key => `w-full px-3 py-2 rounded-card border ${fieldErrors[key] ? 'border-rose-400 bg-rose-50' : 'border-slate-200 bg-slate-50'} focus:bg-white focus:border-brand-500 outline-none text-[14px]`;
+  const fieldClass = key => `w-full px-3 !py-1 !h-10 !min-h-0 rounded-card border ${fieldErrors[key] ? 'border-rose-400 bg-rose-50' : 'border-slate-200 bg-slate-50'} focus:bg-white focus:border-brand-500 outline-none text-[14px]`;
   const fieldError = key => fieldErrors[key] ? <p className="text-[12px] text-rose-700 mt-1 mb-0" data-testid={`field-error-${key}`}>⚠️ {fieldErrors[key]}</p> : null;
 
   const askBlock = async (u) => {
@@ -289,9 +306,10 @@ export default function AdminUsersPage() {
                 <Avatar src={u.avatar} name={u.full_name} size="sm" />
                 <div className="min-w-0 flex-1">
                   <div className="cat-name-track">
-                    <div className="cat-name-inner font-bold text-ink text-[14.5px]">{u.full_name || '—'}</div>
+                    {/* AYK-459 (the owner: «قبل الاسم يظهر الرقم بخط واضح وغامق»): the current account number first. */}
+                    <div className="cat-name-inner font-bold text-ink text-[14.5px]">{u.referral_code && <><b dir="ltr" className="inline-block font-extrabold text-[15.5px] text-fg bg-slate-100 border border-slate-300 rounded-md px-1.5 leading-6 me-2 align-middle" data-testid="user-number">{u.referral_code}</b>{'\u00a0\u00a0'}</>}<UserName u={u} /></div>
                   </div>
-                  <div className="text-[11.5px] text-slate-500 truncate mt-0.5">{u.email}</div>
+                  <div className="text-[11.5px] text-slate-500 truncate mt-0.5" dir="auto">{[u.phone, u.email].filter(Boolean).join(' · ')}</div>
                   <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
                     <span className={`px-2 py-0.5 rounded-pill text-[10.5px] font-bold ${ROLE_BADGE[u.role] || 'bg-slate-100 text-slate-600'}`}>
                       {ROLE_LABEL[u.role] || u.role}
@@ -354,8 +372,8 @@ export default function AdminUsersPage() {
                       <div className="flex items-center gap-3">
                         <Avatar src={u.avatar} name={u.full_name} size="sm" />
                         <div className="min-w-0">
-                          <div className="text-[13.5px] font-bold text-ink truncate">{u.full_name}</div>
-                          <div className="text-[11.5px] text-slate-500 truncate">{u.email}</div>
+                          <div className="text-[13.5px] font-bold text-ink truncate">{u.referral_code && <><b dir="ltr" className="inline-block font-extrabold text-[15px] text-fg bg-slate-100 border border-slate-300 rounded-md px-1.5 leading-6 me-2 align-middle" data-testid="user-number">{u.referral_code}</b>{'\u00a0\u00a0'}</>}<UserName u={u} /></div>
+                          <div className="text-[11.5px] text-slate-500 truncate" dir="auto">{[u.phone, u.email].filter(Boolean).join(' · ')}</div>
                         </div>
                       </div>
                     </td>
@@ -436,7 +454,7 @@ export default function AdminUsersPage() {
       <Modal
         open={editOpen}
         onClose={closeEdit}
-        title={editing ? t('admin.edit_user') : t('admin.create_user')}
+        title={editing ? `${t('admin.edit_user')}${editing.referral_code ? ` — ${editing.referral_code}` : ''}` : t('admin.create_user')}
         footer={
           <>
             <button onClick={closeEdit} className="px-4 py-2 rounded-pill bg-white hover:bg-slate-100 text-slate-700 text-[13px] font-semibold border border-slate-200 transition">
@@ -448,7 +466,24 @@ export default function AdminUsersPage() {
           </>
         }
       >
-        <form id="AdminUsersPage-form" onSubmit={onSave} className="space-y-3" autoComplete="off">
+        <form id="AdminUsersPage-form" onSubmit={onSave} className="space-y-2" autoComplete="off">
+          {/* AYK-462: the account number first, large, with the name and phone; the special number beside it. */}
+          {editing && (
+            <div className="rounded-card border-2 border-slate-300 bg-slate-50 p-2.5 space-y-2" data-testid="edit-user-number">
+              <div className="flex items-center gap-3">
+                <div className="shrink-0 text-center">
+                  <div className="text-[10.5px] text-slate-500 font-bold">رقم الحساب</div>
+                  <div dir="ltr" className="text-[28px] leading-none font-extrabold text-fg">{editing.referral_code || '—'}</div>
+                </div>
+                <div className="min-w-0 border-s border-slate-300 ps-3">
+                  <div className="font-bold text-[14px] text-ink truncate">{AUTO_NAME.test(String(editing.full_name || '').trim()) ? 'بلا اسم' : editing.full_name}</div>
+                  {editing.phone && <div dir="ltr" className="text-[12.5px] text-slate-500 text-end">{editing.phone}</div>}
+                </div>
+              </div>
+              <SpecialNumberPicker user={editing} compact
+                onChanged={done => { if (done?.referral_code) setEditing(e => ({ ...e, referral_code: done.referral_code })); load(); }} />
+            </div>
+          )}
           {formError && (
             <div className="px-3 py-2 rounded bg-rose-50 border border-rose-200 text-rose-700 text-[13px]">{formError}</div>
           )}
@@ -460,10 +495,8 @@ export default function AdminUsersPage() {
               className={fieldClass('full_name')} />
             {fieldError('full_name')}
           </div>
-          <div className="px-3 py-2 rounded-card bg-blue-50 border border-blue-200 text-blue-700 text-[12px]">
-            💡 {t('auth.identifiers_hint')}
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <p className="text-[11.5px] text-slate-500 m-0">💡 {t('auth.identifiers_hint')}</p>
+          <div className="grid grid-cols-2 gap-x-2 gap-y-2">
             <div>
               <HelpLabel htmlFor="user-username" label={t('auth.username')}
                 short="اسم قصير يدخل به بدل الجوال أو البريد. اختياري."
@@ -499,9 +532,9 @@ export default function AdminUsersPage() {
               {fieldError('facebook_id')}
             </div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-x-2 gap-y-2">
             <div>
-              <HelpLabel htmlFor="user-password" label={editing ? t('admin.field_password_optional') : t('admin.field_password')}
+              <HelpLabel htmlFor="user-password" label={editing ? 'كلمة مرور جديدة' : t('admin.field_password')}
                 short={editing ? 'اكتب كلمة جديدة لتغييرها، أو اتركها فارغة لتبقى كما هي.' : 'كلمة المرور التي يدخل بها صاحب الحساب. أربعة أحرف على الأقل.'}
                 info={'من 4 إلى 100 حرف. تُحفظ مشفّرة ولا يراها أحد بعد الحفظ، حتى الإدارة.\nزر العين يُظهر ما كتبته للتأكد منه.\nعند التعديل: الفراغ يُبقي كلمته الحالية، وكتابة كلمة جديدة تستبدلها وتُخرجه من الاتصال المفتوح ليدخل بها.\nأبلغ صاحب الحساب بها بطريقة آمنة.'} />
               <div className="relative">
@@ -530,7 +563,7 @@ export default function AdminUsersPage() {
                 short="نوعه في الموقع والتطبيق، منفصل عن الإدارة."
                 info={'طالب خدمة: ينشر طلبات ويستقبل عروضًا.\nمقدم خدمة: يظهر في قوائم مقدمي الخدمة ويقدّم عروضًا على الطلبات.\nهذا لا يمنح أي دخول إلى لوحة الإدارة؛ ذلك في خانة «صلاحية إدارية».\nتغييره يُخرجه من الاتصال المفتوح فيعيد التحميل.'} />
               <select id="user-role" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}
-                className="w-full px-3 py-2 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]">
+                className="w-full px-3 !py-1 !h-10 !min-h-0 rounded-card border border-slate-200 bg-slate-50 focus:bg-white focus:border-brand-500 outline-none text-[14px]">
                 <option value="client">{t('auth.role_client')}</option>
                 <option value="provider">{t('auth.role_provider')}</option>
               </select>
@@ -572,7 +605,6 @@ export default function AdminUsersPage() {
               short="إزالة التأشير توقف الحساب: لا يستطيع الدخول ولا الاستخدام."
               info={'مؤشَّر: الحساب يعمل عاديًا.\nغير مؤشَّر: يُرفض دخوله وتظهر له رسالة أن حسابه غير مفعّل، ويُقطع اتصاله المفتوح. بياناته تبقى كما هي.\nيختلف عن «حظر» في القائمة، وعن الحذف الذي يزيل الحساب.\nأعد التأشير لإرجاعه.'} />
           )}
-          {editing && <SpecialNumberPicker user={editing} onChanged={load} />}
         </form>
       </Modal>
 

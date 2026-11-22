@@ -66,19 +66,20 @@ const create = asyncHandler(async (req, res) => {
 
   const io = req.app.get('io');
   if (io) io.emit('request:new_nearby', Request.publicView(request));
-  await announceToProviders(req, request);
   created(res, request, req.t('request_created'));
   // AYK-420: the words of the request teach the site its people's dialect (roots and counts only).
   require('../services/dialectLearning').learnFromRequest(request).catch(() => {});
-  // Into the providers' languages right away, so they read it in theirs at once (AYK-231).
-  requestTranslation.translateForProviders(request).catch(() => {});
+  // Into the providers' languages right away, so they read it in theirs at once (AYK-231); then the
+  // notices, so each provider's notice carries the title in his language (AYK-456).
+  requestTranslation.translateForProviders(request).catch(() => {}).then(() => announceToProviders(req, request));
 });
 
 // Right after posting, providers of that profession covering the request's area who
 // are working now are told, so they can contact the requester (AYK-041).
-// AYK-443 (the owner: «إذا أحد قدّم طلبًا في منطقته ومهنته يرسل له إشعار مع توضيح التواصل»): also
-// those who asked to be reminded, even outside their hours; each in his own language, and the notice
-// says how to reach the requester: the chat always, the phone and WhatsApp when he shows them.
+// AYK-443 (the owner: «إذا أحد قدّم طلبًا في منطقته ومهنته يرسل له إشعار مع توضيح التواصل»): each in
+// his own language, and the notice says how to reach the requester: the chat always, the phone and
+// WhatsApp when he shows them. AYK-456: every provider of the profession covering the area (see
+// availableForRequest), the title translated into his language, the notice opening the request.
 async function announceToProviders(req, request) {
   try {
     const ids = await require('./providerMapController').availableForRequest({
@@ -97,9 +98,10 @@ async function announceToProviders(req, request) {
       const lang = langOf.get(Number(id)) || 'ar';
       if (!texts.has(lang)) {
         const city = lang === 'ar' ? request.city_name : request.city_name_en || request.city_name;
+        const translated = lang === 'ar' ? null : await queryOne('SELECT title FROM request_translations WHERE request_id = ? AND lang = ?', [request.id, lang]).catch(() => null);
         texts.set(lang, {
           title: translate(lang, 'request_new_title'),
-          body: `${translate(lang, 'request_new_where', { title: request.title, city: city || '' })} ${translate(lang, ways)}`.trim(),
+          body: `${translate(lang, 'request_new_where', { title: translated?.title || request.title, city: city || '' })} ${translate(lang, ways)}`.trim(),
         });
       }
       await notificationService.notifyUser(id, {

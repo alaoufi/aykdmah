@@ -69,7 +69,8 @@ export default function RequestCard({ item, urgent = false }) {
         </span>
         {/* AYK-431: the contact icons at the card's end (AYK-427, AYK-430); otherwise «details». */}
         {/* AYK-436/439: share the request: its owner always, others only when the requester allows it. */}
-        {(mine(item) || Number(item.client_allow_share) === 1) && (
+        {/* AYK-455: «أسمح بمشاركة طلباتي» removed; a published request is shared by anyone. */}
+        {(
         <span className="shrink-0 inline-flex ms-auto" onClick={event => event.stopPropagation()} onKeyDown={event => event.stopPropagation()}>
           <ShareMenu variant="icon-sm" url={`${SITE_URL}/requests/${item.id}`} title={translation.title}
             text={t('share.request_text', { title: translation.title })} testId="request-share" />

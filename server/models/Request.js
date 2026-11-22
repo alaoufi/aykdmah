@@ -569,10 +569,12 @@ async function findBoard({ viewerId, asProvider = false, filterProfession = fals
   ({ page, limit } = pagination(page, limit));
   const offset = (page - 1) * limit;
   viewerId = Number(viewerId);
-  const where = ['r.deleted_at IS NULL', "r.status = 'open'", 'r.hidden_at IS NULL', 'r.client_id <> ?'];
-  const params = [viewerId];
-  where.push(asProvider ? '(r.direct_provider_id IS NULL OR r.direct_provider_id = ?)' : 'r.direct_provider_id IS NULL');
-  if (asProvider) params.push(viewerId);
+  // AYK-454 (the owner: «الطلب يظهر لصاحبه في الرئيسية… يشاهده الجميع بما فيهم صاحبه»): my own open
+  // requests are on my board too, first.
+  const where = ['r.deleted_at IS NULL', "r.status = 'open'", 'r.hidden_at IS NULL'];
+  const params = [];
+  where.push(asProvider ? '(r.direct_provider_id IS NULL OR r.direct_provider_id = ? OR r.client_id = ?)' : '(r.direct_provider_id IS NULL OR r.client_id = ?)');
+  if (asProvider) params.push(viewerId, viewerId); else params.push(viewerId);
   const viewer = await boardViewer(viewerId, asProvider);
   const { categories } = viewer;
   const { prof, profParams, area, areaParams } = boardMatch(viewer);
@@ -581,13 +583,13 @@ async function findBoard({ viewerId, asProvider = false, filterProfession = fals
   const PREVIOUS = asProvider
     ? `EXISTS (SELECT 1 FROM requests p WHERE p.client_id = r.client_id AND p.assigned_provider_id = ? AND p.id <> r.id
          AND p.status IN (${PREVIOUS_CLIENT_STATUSES}) AND p.deleted_at IS NULL)` : 'FALSE';
-  const candidates = `SELECT r.id, r.is_urgent, r.created_at,
+  const candidates = `SELECT r.id, r.is_urgent, r.created_at, CASE WHEN r.client_id = ${Number(viewerId) || 0} THEN 1 ELSE 0 END AS mine,
       CASE WHEN ${prof} THEN 1 ELSE 0 END AS prof_match, CASE WHEN ${area} THEN 1 ELSE 0 END AS area_match,
       CASE WHEN ${PREVIOUS} THEN 1 ELSE 0 END AS previous_client
     FROM requests r WHERE ${where.join(' AND ')}`;
   const candidateParams = [...profParams, ...areaParams, ...(asProvider ? [viewerId] : []), ...params];
   const rows = await query(`SELECT id, prof_match, area_match, previous_client, COUNT(*) OVER () AS total FROM (${candidates}) board
-    ORDER BY (prof_match * area_match) DESC, area_match DESC, prof_match DESC, previous_client DESC, is_urgent DESC, created_at DESC, id DESC
+    ORDER BY mine DESC, (prof_match * area_match) DESC, area_match DESC, prof_match DESC, previous_client DESC, is_urgent DESC, created_at DESC, id DESC
     LIMIT ? OFFSET ?`, [...candidateParams, Number(limit), Number(offset)]);
   let items = [];
   if (rows.length) {

@@ -34,6 +34,8 @@ router.post('/gift/preview', authenticate, providerOnly, handle(req => wallet.pr
 router.post('/gift', authenticate, providerOnly, moneyLimiter, handle(req => wallet.giftSubscription(req.user, req.body || {})));
 
 router.get('/admin', ...admin, handle(() => wallet.adminOverview()));
+router.get('/admin/marketers', ...admin, handle(req => wallet.adminMarketers({ search: req.query.search }))); // AYK-453
+router.get('/admin/marketers/:id', ...admin, handle(req => wallet.adminMarketerReferrals(req.params.id)));
 router.get('/admin/users/:id', ...admin, handle(req => wallet.adminLedger(req.params.id)));
 router.post('/admin/users/:id/adjust', ...admin, handle(req => wallet.adminAdjust(req.user, req.params.id, req.body || {})));
 router.post('/admin/users/:id/cash-payout', ...admin, handle(req => wallet.adminCashPayout(req.user, req.params.id, req.body || {})));

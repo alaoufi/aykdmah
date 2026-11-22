@@ -72,6 +72,8 @@ const AdminLocationsPage = lazy(() => import('./pages/admin/AdminLocationsPage')
 const AdminConversationsPage = lazy(() => import('./pages/admin/AdminConversationsPage'));
 const AdminCallsPage = lazy(() => import('./pages/admin/AdminCallsPage'));
 const AdminWalletsPage = lazy(() => import('./pages/admin/AdminWalletsPage'));
+const AdminMarketersPage = lazy(() => import('./pages/admin/AdminMarketersPage')); // AYK-453
+const AdminNotificationsPage = lazy(() => import('./pages/admin/AdminNotificationsPage')); // AYK-458
 const AdminMarketingPage = lazy(() => import('./pages/admin/AdminMarketingPage'));
 const AdminSupportPage = lazy(() => import('./pages/admin/AdminSupportPage'));
 const SupportPage = lazy(() => import('./pages/SupportPage'));
@@ -281,6 +283,9 @@ export default function AppRoutes() {
           <Route path="/admin/support/:id" element={<AdminSupportPage />} />
           <Route path="/admin/calls" element={<AdminCallsPage />} />
           <Route path="/admin/wallets" element={<AdminWalletsPage />} />
+          <Route path="/admin/marketers" element={<AdminMarketersPage />} />
+          <Route path="/admin/marketers/:id" element={<AdminMarketersPage />} />
+          <Route path="/admin/notifications" element={<AdminNotificationsPage />} />
           <Route path="/admin/marketing" element={<AdminMarketingPage />} />
         </Route>
 

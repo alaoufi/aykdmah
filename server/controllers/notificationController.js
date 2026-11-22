@@ -8,6 +8,7 @@ const list = asyncHandler(async (req, res) => {
   const limit = Math.max(1, Math.min(100, Number.parseInt(req.query.limit, 10) || 20));
   const { items, total, unread: unreadCount } = await Notification.listForUser(req.user.id, {
     unreadOnly: unread === 'true',
+    scope: req.query.scope === 'admin' ? 'admin' : '', // AYK-458
     page, limit,
   });
   const totalPages = Math.ceil(total / limit);
@@ -23,7 +24,7 @@ const markRead = asyncHandler(async (req, res) => {
 });
 
 const markAllRead = asyncHandler(async (req, res) => {
-  await Notification.markAllRead(req.user.id);
+  await Notification.markAllRead(req.user.id, req.query.scope === 'admin' ? 'admin' : '');
   return success(res, null, req.t('all_read'));
 });
 

@@ -108,6 +108,10 @@ export function NotificationProvider({ children }) {
       // A message in the chat already open on screen (AYK-231): it is there with its own tone,
       // so no second banner and sound.
       if (notif?.link && document.visibilityState === 'visible' && window.location.pathname === notif.link) return;
+      // AYK-458: the administration and the site are apart: in the admin area only its own notices
+      // (an /admin link) pop up; on the site, never those.
+      const adminNotice = String(notif?.link || '').startsWith('/admin');
+      if (adminNotice !== window.location.pathname.startsWith('/admin')) return;
       announce(notif);
     };
     socket.on('notification:new', onNotif);

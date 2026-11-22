@@ -20,12 +20,17 @@ const CHAT_ID = "CASE WHEN link ~ '^/chat/[0-9]{1,9}$' THEN CAST(SUBSTRING(link 
 const PEER = `(SELECT MIN(cp.user_id) FROM conversation_participants cp WHERE cp.conversation_id = ${CHAT_ID} AND cp.user_id <> notifications.user_id)`;
 const GROUP_KEY = `CASE WHEN link ~ '^/chat/[0-9]{1,9}$' THEN COALESCE('p:' || CAST(${PEER} AS TEXT), link) ELSE CONCAT('n:', id) END`;
 
-async function listForUser(userId, { unreadOnly = false, page = 1, limit = 20 } = {}) {
+// AYK-458 (the owner: «الإدارة بالكامل إدارة، لا علاقة لها بالموقع، فصل كامل»). One account may be both
+// a person on the site and an administrator (AYK-383, separate sessions), so the notices are split by
+// where they open: the admin area's bell shows only those that open an /admin page; the site never shows them.
+const ADMIN_ONLY = "COALESCE(link, '') LIKE '/admin%'";
+async function listForUser(userId, { unreadOnly = false, page = 1, limit = 20, scope = '' } = {}) {
+  const only = scope === 'admin' ? ` AND ${ADMIN_ONLY}` : ` AND NOT (${ADMIN_ONLY})`;
   page = Math.max(1, Math.min(100000, Number.parseInt(page, 10) || 1));
   limit = Math.max(1, Math.min(100, Number.parseInt(limit, 10) || 20));
   const offset = (page - 1) * limit;
-  const scope = `SELECT notifications.*, ${GROUP_KEY} AS group_key FROM notifications WHERE user_id = ?`;
-  const groups = `WITH g AS (${scope}),
+  const base = `SELECT notifications.*, ${GROUP_KEY} AS group_key FROM notifications WHERE user_id = ?${only}`;
+  const groups = `WITH g AS (${base}),
     s AS (SELECT group_key, COUNT(*) AS group_count, SUM(CASE WHEN is_read = 0 THEN 1 ELSE 0 END) AS group_unread FROM g GROUP BY group_key),
     latest AS (SELECT DISTINCT ON (group_key) * FROM g ORDER BY group_key, (type = 'new_message') DESC, created_at DESC, id DESC)
     SELECT latest.*, s.group_count, s.group_unread FROM latest JOIN s ON s.group_key = latest.group_key
@@ -41,7 +46,7 @@ async function listForUser(userId, { unreadOnly = false, page = 1, limit = 20 } 
   }));
   const [{ total }] = await query(`SELECT COUNT(*) AS total FROM (${groups}) t`, [userId]);
   const [{ unread }] = await query(
-    `SELECT COUNT(DISTINCT ${GROUP_KEY}) AS unread FROM notifications WHERE user_id = ? AND is_read = 0`,
+    `SELECT COUNT(DISTINCT ${GROUP_KEY}) AS unread FROM notifications WHERE user_id = ? AND is_read = 0${only}`,
     [userId]
   );
   return { items, total: Number(total), unread: Number(unread) };
@@ -67,9 +72,9 @@ async function markConversationRead(userId, conversationId) {
   );
 }
 
-async function markAllRead(userId) {
+async function markAllRead(userId, scope = '') {
   await query(
-    'UPDATE notifications SET is_read = 1, read_at = CURRENT_TIMESTAMP WHERE user_id = ? AND is_read = 0',
+    `UPDATE notifications SET is_read = 1, read_at = CURRENT_TIMESTAMP WHERE user_id = ? AND is_read = 0 AND ${scope === 'admin' ? ADMIN_ONLY : `NOT (${ADMIN_ONLY})`}`,
     [userId]
   );
 }
