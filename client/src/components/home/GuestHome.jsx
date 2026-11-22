@@ -9,6 +9,8 @@ import { localizedJoinedName } from '../../utils/localizeJoined';
 import RequestCard from './RequestCard';
 import RatingInline from '../reviews/RatingInline';
 import ContactButtons from '../providers/ContactButtons';
+import RecentActivity from './RecentActivity';
+import BoardEmpty from './BoardEmpty';
 
 // AYK-413 (the owner): a visitor browses without signing up. The professions come first, then
 // their categories small and close together, then the service requests (no private details are
@@ -23,6 +25,10 @@ export default function GuestHome() {
   const [service, setService] = useState('');
   const [requests, setRequests] = useState(null);
   const [providers, setProviders] = useState(null);
+  // AYK-441: a profession with nothing yet shows the rest, saying so; and what was served lately.
+  const [requestsWider, setRequestsWider] = useState(false);
+  const [providersWider, setProvidersWider] = useState(false);
+  const [recent, setRecent] = useState([]);
   const [allProviders, setAllProviders] = useState(false);
 
   useEffect(() => {
@@ -33,11 +39,18 @@ export default function GuestHome() {
   useEffect(() => {
     let current = true;
     setRequests(null);
-    const params = { limit: 10, status: 'open' };
+    const params = { limit: 10, status: 'open', recent: '1' };
     if (category) params.category_id = category;
     if (service) params.service_id = service;
     listNearbyRequests(params)
-      .then(res => { if (current) setRequests(res.data || []); })
+      .then(async res => {
+        let rows = res.data || []; let wider = false; let latest = res.meta?.recent || [];
+        if (!rows.length && (category || service)) {
+          const all = await listNearbyRequests({ limit: 10, status: 'open', recent: '1' }).catch(() => null);
+          rows = all?.data || []; wider = rows.length > 0; latest = all?.meta?.recent || latest;
+        }
+        if (current) { setRequests(rows); setRequestsWider(wider); setRecent(latest); }
+      })
       .catch(() => { if (current) setRequests([]); });
     return () => { current = false; };
   }, [category, service]);
@@ -46,7 +59,13 @@ export default function GuestHome() {
     let current = true;
     setProviders(null);
     listMatchingProviders({ scope: 'all', categoryId: category || undefined, serviceId: service || undefined })
-      .then(res => { if (current) setProviders(res?.providers || []); })
+      .then(async res => {
+        let rows = res?.providers || []; let wider = false;
+        if (!rows.length && (category || service)) {
+          rows = (await listMatchingProviders({ scope: 'all' }).catch(() => null))?.providers || []; wider = rows.length > 0;
+        }
+        if (current) { setProviders(rows); setProvidersWider(wider); }
+      })
       .catch(() => { if (current) setProviders([]); });
     return () => { current = false; };
   }, [category, service]);
@@ -103,18 +122,21 @@ export default function GuestHome() {
           <h2 className="text-[16px] font-extrabold text-fg m-0">{t('home.guest_requests')}</h2>
           <Link to={category ? `/opportunities?category=${category}` : '/opportunities'} className="text-primary font-semibold text-[13px]">{t('home.view_all')}</Link>
         </div>
+        {requestsWider && <p className="text-[12.5px] rounded-card bg-amber-50 text-amber-900 px-3 py-2 mb-1.5" role="status" data-testid="board-fallback">💡 {t('home.guest_fallback_requests')}</p>}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5" aria-busy={requests === null}>
           {requests === null ? Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-20 rounded-card bg-surface-alt animate-pulse" />)
-            : !requests.length ? <p className="col-span-full text-center py-3 text-fg-muted text-[13px]">{t('common.none')}</p>
+            : !requests.length ? <div className="col-span-full"><BoardEmpty who="guest" /></div>
               : requests.map(item => <RequestCard key={item.id} item={item} />)}
         </div>
+        <RecentActivity rows={recent} className="mt-2" />
       </section>
 
       <section data-testid="guest-providers">
         <h2 className="text-[16px] font-extrabold text-fg mb-1.5">{t('home.guest_providers')}</h2>
+        {providersWider && <p className="text-[12.5px] rounded-card bg-amber-50 text-amber-900 px-3 py-2 mb-1.5" role="status" data-testid="providers-fallback">💡 {t('home.guest_fallback_providers')}</p>}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5" aria-busy={providers === null}>
           {providers === null ? Array.from({ length: 3 }).map((_, i) => <div key={i} className="h-14 rounded-card bg-surface-alt animate-pulse" />)
-            : !providers.length ? <p className="col-span-full text-center py-3 text-fg-muted text-[13px]">{t('common.none')}</p>
+            : !providers.length ? <div className="col-span-full"><BoardEmpty kind="providers" /></div>
               : shownProviders.map(row => (
                 // AYK-435: a visitor sees the contact icons too; the chat asks them to sign in first.
                 <div key={row.id} className="tone-provider rounded-card px-2.5 py-2 flex items-center gap-2.5" data-testid="guest-provider">

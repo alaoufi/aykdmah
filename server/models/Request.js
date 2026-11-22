@@ -579,4 +579,23 @@ async function findBoard({ viewerId, asProvider = false, filterProfession = fals
   return { items, total, has_profession: categories.length > 0, has_area: areaParams.length > 0 };
 }
 
-module.exports = { create, updateByOwner, findById, incrementViews, findByClient, findNearby, findBoard, previousClients, updateStatus, setRemindersOff, softDelete, listAll, setHidden, pagination, optionalNumber, publicView, validateInput: validateCreate };
+// AYK-441 (the owner: «إذا دخل العضو ولم يجد أحدًا خرج ولم يعد، يعتبره ميتًا»): the requests served
+// lately (agreed, in progress, done), so the board is never a blank page. Only what an open request
+// already shows anyone: the title, the profession and the city; no names, no numbers, no link.
+async function recentActivity({ excludeClientId = 0, limit = 6, days = 90 } = {}) {
+  limit = Math.min(Math.max(Number(limit) || 6, 1), 20);
+  const rows = await query(`SELECT r.id, r.title, r.status, r.category_id, r.city_id,
+      COALESCE(r.completed_at, r.updated_at) AS at,
+      cat.name_ar AS category_name, cat.name_en AS category_name_en, cat.name_translations AS category_name_translations,
+      city.name_ar AS city_name, city.name_en AS city_name_en
+    FROM requests r
+    LEFT JOIN categories cat ON r.category_id = cat.id
+    LEFT JOIN cities city ON r.city_id = city.id
+    WHERE r.deleted_at IS NULL AND r.hidden_at IS NULL AND r.direct_provider_id IS NULL
+      AND r.status IN ('assigned', 'in_progress', 'completed', 'closed') AND r.assigned_provider_id IS NOT NULL
+      AND r.client_id <> ? AND COALESCE(r.completed_at, r.updated_at) > CURRENT_TIMESTAMP - (? * INTERVAL '1 day')
+    ORDER BY COALESCE(r.completed_at, r.updated_at) DESC, r.id DESC LIMIT ?`, [Number(excludeClientId) || 0, Number(days), limit]);
+  return rows.map(row => ({ ...row, status: ['completed', 'closed'].includes(row.status) ? 'done' : 'working' }));
+}
+
+module.exports = { create, updateByOwner, findById, incrementViews, findByClient, findNearby, findBoard, recentActivity, previousClients, updateStatus, setRemindersOff, softDelete, listAll, setHidden, pagination, optionalNumber, publicView, validateInput: validateCreate };

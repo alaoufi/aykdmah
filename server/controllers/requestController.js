@@ -113,15 +113,23 @@ const getNearby = asyncHandler(async (req, res) => {
   if (req.query.board === '1' && req.user) {
     const restricted = await restrictedViews();
     const asProvider = req.user.role === 'provider' && req.query.as !== 'requester';
-    const board = await Request.findBoard({
-      viewerId: req.user.id, asProvider, page, limit,
-      filterProfession: restricted || req.query.f_prof === '1', filterArea: restricted || req.query.f_area === '1',
-    });
+    const filterProfession = restricted || req.query.f_prof === '1', filterArea = restricted || req.query.f_area === '1';
+    let board = await Request.findBoard({ viewerId: req.user.id, asProvider, page, limit, filterProfession, filterArea });
+    // AYK-441: never a blank board. Nothing for the buttons chosen: the rest, ranked, with a word
+    // saying so (the administration's restriction is kept as it is).
+    let fallback = false;
+    if (!restricted && (filterProfession || filterArea) && Number(board.total) === 0 && page === 1) {
+      board = await Request.findBoard({ viewerId: req.user.id, asProvider, page, limit });
+      fallback = Number(board.total) > 0;
+    }
+    // Few or no open requests: what was served lately, so the place shows it is alive.
+    const recent = page === 1 && board.items.length < 6
+      ? await requestTranslation.attachTranslations(await Request.recentActivity({ excludeClientId: req.user.id }), readerLang(req)) : [];
     const categories = await providerCategoryIds(req);
     const shown = await requestTranslation.attachTranslations(board.items.map(raw => withContact(req, raw, guestView(req, Request.publicView(raw)), categories)), readerLang(req));
     return success(res, shown, undefined, 200, {
       pagination: { page, limit, total: Number(board.total), totalPages: Math.ceil(Number(board.total) / limit), hasNext: page * limit < Number(board.total) },
-      board: { restricted, has_profession: board.has_profession, has_area: board.has_area } });
+      board: { restricted, fallback, recent, has_profession: board.has_profession, has_area: board.has_area } });
   }
   const { items, total } = await Request.findNearby({
     latitude,
@@ -140,6 +148,11 @@ const getNearby = asyncHandler(async (req, res) => {
   // Each request already in the reader's language when it was translated (AYK-231).
   const categories = await providerCategoryIds(req);
   const shown = await requestTranslation.attachTranslations(items.map(raw => withContact(req, raw, guestView(req, Request.publicView(raw)), categories)), readerLang(req));
+  // AYK-441: a visitor's home asks for what was served lately too, when the open requests are few.
+  if (req.query.recent === '1' && Number(page) === 1 && shown.length < 6) {
+    const recent = await requestTranslation.attachTranslations(await Request.recentActivity({ excludeClientId: req.user?.id || 0 }), readerLang(req));
+    return success(res, shown, undefined, 200, { pagination: { page: Number(page), limit: Number(limit), total, totalPages: Math.ceil(total / limit), hasNext: page * limit < total }, recent });
+  }
   return paginate(res, shown, total, page, limit);
 });
 

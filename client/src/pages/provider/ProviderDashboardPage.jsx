@@ -16,6 +16,8 @@ import ProblemNotice from '../../components/common/ProblemNotice';
 import ShareProviderLink from '../../components/providers/ShareProviderLink';
 import { ProviderSection } from '../ProfilePage';
 import usePublicSettings from '../../hooks/usePublicSettings';
+import RecentActivity from '../../components/home/RecentActivity';
+import BoardEmpty from '../../components/home/BoardEmpty';
 
 export default function ProviderDashboardPage() {
   const { t } = useTranslation();
@@ -39,6 +41,7 @@ export default function ProviderDashboardPage() {
   const [infoMsg, setInfoMsg] = useState('');
   const [infoErr, setInfoErr] = useState('');
   const [nearby, setNearby] = useState([]);
+  const [boardMeta, setBoardMeta] = useState({});
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -55,10 +58,10 @@ export default function ProviderDashboardPage() {
     // Requests in the provider's own professions and districts only (AYK-040).
     const params = { limit: 50, board: '1', ...(board.prof ? { f_prof: '1' } : {}), ...(board.area ? { f_area: '1' } : {}) };
     Promise.all([
-      listNearbyRequests(params).then(r => r.data || []),
+      listNearbyRequests(params),
       listMyOffers({ limit: 5 }).then(r => r.data || []),
     ])
-      .then(([n, o]) => { if (current) { setNearby(n); setOffers(o); } })
+      .then(([n, o]) => { if (current) { setNearby(n.data || []); setBoardMeta(n.meta?.board || {}); setOffers(o); } })
       .catch(() => { if (current) setError(true); })
       .finally(() => { if (current) { shown.current = true; setLoading(false); } });
     return () => { current = false; };
@@ -101,9 +104,11 @@ export default function ProviderDashboardPage() {
           })}
           <span className="text-[11.5px] text-fg-muted">{t(restricted ? 'home.filter_restricted' : unrestricted ? 'home.filter_none' : 'home.filter_some')}</span>
         </div>
+        {boardMeta.fallback && <p className="text-[12.5px] rounded-card bg-amber-50 text-amber-900 px-3 py-2 mb-2" role="status" data-testid="board-fallback">💡 {t('home.board_fallback')}</p>}
         {nearby.length === 0
-          ? <EmptyState title={t(unrestricted ? 'home.no_requests_anywhere' : 'home.board_none_filtered')} />
+          ? (restricted ? <EmptyState title={t('home.board_none_filtered')} /> : <BoardEmpty who="provider" />)
           : <div className="grid grid-2">{nearby.map(r => <RequestCard key={r.id} request={r} />)}</div>}
+        <RecentActivity rows={boardMeta.recent || []} className="mt-3" />
       </div>
 
 
@@ -160,7 +165,7 @@ export default function ProviderDashboardPage() {
       </div>
 
       {/* The provider's own public page link, to share or for others to keep in «دليلي» (AYK-312). */}
-      {user?.id && <div className="mt-4"><ShareProviderLink providerId={user.id} name={provider?.business_name || user.full_name} mine /></div>}
+      {user?.id && <div className="mt-4" id="share-link"><ShareProviderLink providerId={user.id} name={provider?.business_name || user.full_name} mine /></div>}
       <AdSlot placement="home_middle" className="mt-4" />
       <AdSlot placement="home_bottom" className="mt-4" />
       <style>{`

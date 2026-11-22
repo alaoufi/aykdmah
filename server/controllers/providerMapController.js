@@ -237,16 +237,21 @@ const matching = asyncHandler(async (req, res) => {
     const everyone = await list({ everywhere: true });
     const areaIds = where.cityId ? new Set((await list({ districtId: null, cityId: where.cityId })).map(row => Number(row.id))) : new Set();
     const byServiceAll = wanted.length ? await serviceCategories() : null;
-    const ranked = everyone.map((row, index) => {
+    const scored = everyone.map((row, index) => {
       const inArea = areaIds.has(Number(row.id));
       const inProf = wanted.length > 0 && [...providerCategories(row, byServiceAll)].some(id => wanted.includes(id));
       return { row, inArea, inProf, index };
-    }).filter(item => (!filterArea || item.inArea) && (!filterProf || item.inProf))
+    });
+    let kept = scored.filter(item => (!filterArea || item.inArea) && (!filterProf || item.inProf));
+    // AYK-441: nobody for the buttons chosen: everyone else, ranked, with a word saying so.
+    let fallback = false;
+    if (!restricted && (filterArea || filterProf) && kept.length === 0 && scored.length > 0) { kept = scored; fallback = true; }
+    const ranked = kept
       .sort((a, b) => ((b.inArea && b.inProf) - (a.inArea && a.inProf)) || (b.inArea - a.inArea) || (b.inProf - a.inProf) || (a.index - b.index));
     const shown = ranked.slice(0, MAX_RESULTS).map(item => ({ ...item.row, board_area: item.inArea, board_profession: item.inProf }));
     return success(res, {
       area: where.area, scope: 'board', requested_category_ids: requestedCategories,
-      board: { restricted, has_profession: wanted.length > 0, has_area: Boolean(where.cityId) },
+      board: { restricted, fallback, has_profession: wanted.length > 0, has_area: Boolean(where.cityId) },
       providers: await withOpinions(shown),
     });
   }

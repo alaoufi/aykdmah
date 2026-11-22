@@ -1268,6 +1268,43 @@ if (!databasePrefix) {
     for (const id of ours) await db.query('DELETE FROM requests WHERE id = ?', [id]);
   });
 
+  test('AYK-441: the board is never blank: nothing for a filter shows the rest, and recent work shows', async () => {
+    const area = await simpleArea();
+    const svc = await db.queryOne('SELECT s.id, s.category_id FROM services s WHERE s.is_active = 1 AND s.deleted_at IS NULL ORDER BY s.id LIMIT 1');
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const helper = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const post = async () => Number((await api('/requests', { method: 'POST', token: owner.token, expected: 201, body: {
+      title: 'طلب نُفّذ', description: 'تجربة النشاط', category_id: Number(svc.category_id), city_id: area.city_id, district_id: area.district_id, latitude: 24.7136, longitude: 46.6753 } })).id);
+    const open = await post();
+    const done = await post();
+    await db.query("UPDATE requests SET status = 'completed', assigned_provider_id = ?, completed_at = CURRENT_TIMESTAMP WHERE id = ?", [helper.user.id, done]);
+    await db.query("UPDATE settings SET setting_value = 'false' WHERE setting_key = 'marketplace_restrict_views'");
+    const raw = async (q, token) => (await (await fetch(`${base}/requests/nearby?${q}`, { headers: token ? { Authorization: `Bearer ${token}` } : {} })).json());
+    // A requester who has asked for nothing: «حسب طلبي» matches nothing, so the rest comes, marked.
+    const viewer = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const wide = await raw('board=1&as=requester&f_prof=1&limit=100', viewer.token);
+    assert.equal(wide.meta.board.fallback, true);
+    assert.ok(wide.data.some(row => Number(row.id) === open), 'the rest is shown');
+    // The administration's restriction is kept: no fallback then.
+    await db.query("UPDATE settings SET setting_value = 'true' WHERE setting_key = 'marketplace_restrict_views'");
+    const strict = await raw('board=1&as=requester&limit=100', viewer.token);
+    assert.equal(strict.meta.board.fallback, false);
+    assert.equal(strict.data.length, 0);
+    await db.query("UPDATE settings SET setting_value = 'false' WHERE setting_key = 'marketplace_restrict_views'");
+    // The work served lately: title, profession and city only; not to its own requester.
+    const recent = await require('../models/Request').recentActivity({ excludeClientId: viewer.user.id, limit: 20 });
+    const row = recent.find(item => Number(item.id) === done);
+    assert.ok(row, 'a completed request is in the recent work');
+    assert.equal(row.status, 'done');
+    assert.ok(!('client_name' in row) && !('client_id' in row) && !('description' in row), 'nothing about the person');
+    assert.ok(!recent.some(item => Number(item.id) === open), 'open requests are not «recent work»');
+    assert.ok(!(await require('../models/Request').recentActivity({ excludeClientId: owner.user.id, limit: 20 })).some(item => Number(item.id) === done), 'not shown to its own requester');
+    // A visitor's home asks for it too.
+    const guest = await raw('status=open&limit=1&recent=1&category_id=999999');
+    assert.ok(Array.isArray(guest.meta.recent));
+    for (const id of [open, done]) await db.query('DELETE FROM requests WHERE id = ?', [id]);
+  });
+
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');

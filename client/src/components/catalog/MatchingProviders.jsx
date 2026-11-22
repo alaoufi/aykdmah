@@ -15,6 +15,7 @@ import { isPresent, ProviderStatus } from '../common/AvailabilityBadge';
 import { optionLabel } from '../../utils/optionLabel';
 import ExpandableText from '../common/ExpandableText';
 import ContactButtons from '../providers/ContactButtons';
+import BoardEmpty from '../home/BoardEmpty';
 import ShareMenu from '../common/ShareMenu';
 import { providerLink } from '../providers/ShareProviderLink';
 import useContactIntro from '../../hooks/useContactIntro';
@@ -161,7 +162,8 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
                   ⚠️ {t(shown.length ? 'for_you.district_not_covered' : 'for_you.city_none_now', { district: districtName, city: cityName })}
                 </p>
               )}
-              {listed.length === 0 ? (
+              {board && result?.board?.fallback && <p className="text-[12.5px] rounded-card bg-amber-50 text-amber-900 px-3 py-2 mb-3" role="status" data-testid="board-fallback">💡 {t('home.board_fallback_providers')}</p>}
+              {listed.length === 0 && board && !result?.board?.restricted && !onlyPresent ? <BoardEmpty kind="providers" /> : listed.length === 0 ? (
                 <div className="card text-[14px]">
                   <p className="text-fg-muted m-0 mb-3">{t(cityList === null ? 'for_you.providers_empty' : 'for_you.request_and_we_alert')}</p>
                   {!onContact && <Link to="/requests/new" className="btn btn-primary">{t('home.new_request')}</Link>}
