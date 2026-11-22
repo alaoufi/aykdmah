@@ -284,8 +284,8 @@ export default function RequestDetailsPage() {
           <span className="flex items-center gap-2">
             <span className="text-sm text-muted">{formatRelativeTime(request.created_at)}</span>
             {/* AYK-436: share this request (its owner or a provider), on the main address. */}
-            <ShareMenu url={`${SITE_URL}/requests/${request.id}`} title={translation.title}
-              text={t('share.request_text', { title: translation.title })} testId="request-page-share" />
+            {(isOwner || Number(request.client_allow_share) === 1) && <ShareMenu url={`${SITE_URL}/requests/${request.id}`} title={translation.title}
+              text={t('share.request_text', { title: translation.title })} testId="request-page-share" />}
           </span>
         </div>
 
@@ -384,8 +384,8 @@ export default function RequestDetailsPage() {
 
       {/* AYK-438: the requester sees what of their details shows on this request, and to whom. */}
       {isOwner && request.status === 'open' && (() => {
-        const lv = key => Math.max(0, Math.min(2, Number(user?.[key]) || 0));
-        const label = v => t(v === 2 ? 'contact_privacy.level_everyone' : 'contact_privacy.level_providers');
+        const lv = key => (Number(user?.[key]) ? 1 : 0);
+        const label = () => t('contact_privacy.level_providers');
         const rows = [['share_name', 'name_label'], ['share_phone', 'phone_label'], ['share_whatsapp', 'whatsapp_label']].filter(([k]) => lv(k) > 0);
         return (
           <div className="card mb-4 text-[13px]" data-testid="my-visible-details">
@@ -393,6 +393,7 @@ export default function RequestDetailsPage() {
             {rows.length
               ? <ul className="m-0 ps-5">{rows.map(([k, l]) => <li key={k}>{t(`contact_privacy.${l}`)}: <b>{label(lv(k))}</b></li>)}</ul>
               : <p className="m-0 text-fg-muted">{t('contact_privacy.my_visible_none')}</p>}
+            <p className="m-0 mt-1 text-fg-muted">🔗 {t(Number(user?.allow_request_share) === 1 ? 'contact_privacy.share_allowed' : 'contact_privacy.share_not_allowed')}</p>
             <Link to="/profile#contact-privacy" className="inline-block mt-1.5 font-semibold text-primary">{t('contact_privacy.my_visible_edit')}</Link>
           </div>
         );

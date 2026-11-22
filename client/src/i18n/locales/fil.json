@@ -3047,14 +3047,17 @@
     "share_name": "Pangalan ko",
     "level_hidden": "Nakatago",
     "level_providers": "Mga service provider",
-    "level_everyone": "Lahat sa panel",
-    "levels_hint": "\"Mga service provider\": makikita ng bawat rehistradong provider sa iyong bukas na kahilingan. \"Lahat\": sinumang tumitingin sa kahilingan, kasama ang bisita. Hindi mo ito makikita sa sarili mong kahilingan; ang pinili mo ay nasa pahina ng kahilingan.",
+    "levels_hint": "\"Mga service provider\": makikita ng bawat rehistradong provider sa iyong bukas na kahilingan, at wala nang iba. Hindi mo ito makikita sa sarili mong kahilingan.",
     "my_visible": "Lumalabas mula sa iyong detalye sa kahilingang ito",
     "my_visible_none": "Nakatago ang iyong detalye: sa chat ka lang makokontak ng mga provider.",
     "my_visible_edit": "Baguhin ang lumalabas",
     "name_label": "Pangalan",
     "phone_label": "Telepono",
-    "whatsapp_label": "WhatsApp"
+    "whatsapp_label": "WhatsApp",
+    "allow_share": "Payagan ang pagbabahagi ng aking mga kahilingan",
+    "allow_share_hint": "Maaaring ibahagi ng mga provider at bisita ang link ng iyong kahilingan para umabot sa makakatulong. Lagi mo itong maibabahagi.",
+    "share_allowed": "Maaaring ibahagi ng iba ang iyong kahilingan.",
+    "share_not_allowed": "Ikaw lang ang makakapagbahagi ng iyong kahilingan. Payagan sa \"Baguhin ang lumalabas\"."
   },
   "understand": {
     "title": "Isulat ang kahilingan sa sarili mong salita at punto",

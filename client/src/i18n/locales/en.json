@@ -3047,14 +3047,17 @@
     "share_name": "My name",
     "level_hidden": "Hidden",
     "level_providers": "Service providers",
-    "level_everyone": "Everyone on the panel",
-    "levels_hint": "\"Service providers\": every signed-in provider sees it on your open request. \"Everyone\": anyone viewing your request, visitors too. You do not see it on your own request; your choice shows on the request page.",
+    "levels_hint": "\"Service providers\": every signed-in provider sees it on your open request, and no one else. You do not see it on your own request; your choice shows on the request page.",
     "my_visible": "Shown from your details on this request",
     "my_visible_none": "Your details are hidden: providers reach you by chat only.",
     "my_visible_edit": "Change what shows",
     "name_label": "Name",
     "phone_label": "Phone",
-    "whatsapp_label": "WhatsApp"
+    "whatsapp_label": "WhatsApp",
+    "allow_share": "Allow sharing my requests",
+    "allow_share_hint": "Providers and visitors can share your request's link (WhatsApp and others) so it reaches someone who can help. You can always share it yourself.",
+    "share_allowed": "Others can share your request.",
+    "share_not_allowed": "Only you can share your request. Allow it from \"Change what shows\"."
   },
   "understand": {
     "title": "Write your request in your own dialect",

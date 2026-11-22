@@ -6824,6 +6824,13 @@ INSERT INTO schema_migrations(name) VALUES ('107_support_whatsapp.sql');
 ALTER TABLE users ADD COLUMN IF NOT EXISTS share_name SMALLINT NOT NULL DEFAULT 0;
 INSERT INTO schema_migrations(name) VALUES ('108_requester_share_name.sql');
 
+-- migrations/109_request_share_permission.sql
+UPDATE users SET share_phone = 1 WHERE share_phone > 1;
+UPDATE users SET share_whatsapp = 1 WHERE share_whatsapp > 1;
+UPDATE users SET share_name = 1 WHERE share_name > 1;
+ALTER TABLE users ADD COLUMN IF NOT EXISTS allow_request_share SMALLINT NOT NULL DEFAULT 0;
+INSERT INTO schema_migrations(name) VALUES ('109_request_share_permission.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

@@ -19,7 +19,7 @@ async function savedNames(viewerId, ids) {
 async function namesShown(ids) {
   const wanted = [...new Set(ids.filter(Boolean).map(Number))];
   if (!wanted.length) return new Set();
-  const rows = await query(`SELECT id FROM users WHERE id IN (${wanted.map(() => '?').join(',')}) AND COALESCE(to_jsonb(users)->>'share_name', '0') IN ('1', '2')`, wanted).catch(() => []);
+  const rows = await query(`SELECT id FROM users WHERE id IN (${wanted.map(() => '?').join(',')}) AND COALESCE(to_jsonb(users)->>'share_name', '0') = '1'`, wanted).catch(() => []);
   return new Set(rows.map(row => Number(row.id)));
 }
 

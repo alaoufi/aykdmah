@@ -166,23 +166,19 @@ const update = asyncHandler(async (req, res) => {
 // number or exact place is sent to anyone outside it already).
 const guestView = (req, row) => (req.user ? row : { ...row, client_avatar: null });
 
-// AYK-418 / AYK-438: the name, phone and WhatsApp a requester chose to show, each at its level:
-// 1 = every signed-in service provider (any profession: «ظهوره لمقدمي الخدمة»), 2 = everyone who sees
-// the request's panel, visitors too («ظهوره في لوحة العرض»). Only on an open request, never to the
-// requester themself (they see their own choice on their request's page instead).
-// (AYK-438 fixed: before, only a provider whose profession matched the request saw them, so a
-// requester who allowed it often saw nothing appear.)
+// AYK-418 / AYK-438 / AYK-439: the name, phone and WhatsApp a requester chose to show reach every
+// signed-in service provider (any profession), and only them (the owner's decision: «بيانات التواصل
+// لطالب الخدمة لا تظهر إلا لمقدم الخدمة»). Only on an open request, never to the requester themself.
+// (AYK-438 fixed: before, only a provider whose profession matched the request saw them.)
 async function providerCategoryIds(req) {
   return req.user?.role === 'provider' ? true : null;
 }
 function withContact(req, raw, view, isProvider) {
-  if (!raw || raw.status !== 'open' || Number(raw.client_id) === Number(req.user?.id)) return view;
-  const level = key => Number(raw[key]) || 0;
-  const shown = key => level(key) === 2 || (level(key) === 1 && isProvider === true);
+  if (isProvider !== true || !raw || raw.status !== 'open' || Number(raw.client_id) === Number(req.user?.id)) return view;
   const out = { ...view };
-  if (raw.client_contact_phone && shown('client_share_phone')) out.client_contact_phone = raw.client_contact_phone;
-  if (raw.client_contact_whatsapp && shown('client_share_whatsapp')) out.client_contact_whatsapp = raw.client_contact_whatsapp;
-  if (raw.client_contact_name && shown('client_share_name')) out.client_contact_name = raw.client_contact_name;
+  if (raw.client_contact_phone) out.client_contact_phone = raw.client_contact_phone;
+  if (raw.client_contact_whatsapp) out.client_contact_whatsapp = raw.client_contact_whatsapp;
+  if (raw.client_contact_name) out.client_contact_name = raw.client_contact_name;
   return out;
 }
 

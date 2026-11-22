@@ -3047,14 +3047,17 @@
     "share_name": "Nama saya",
     "level_hidden": "Tersembunyi",
     "level_providers": "Penyedia layanan",
-    "level_everyone": "Semua di panel",
-    "levels_hint": "\"Penyedia layanan\": setiap penyedia terdaftar melihatnya di permintaan terbuka Anda. \"Semua\": siapa pun yang melihat permintaan Anda, termasuk pengunjung. Anda tidak melihatnya di permintaan sendiri; pilihan Anda tampil di halaman permintaan.",
+    "levels_hint": "\"Penyedia layanan\": setiap penyedia terdaftar melihatnya di permintaan terbuka Anda, tidak ada orang lain. Anda tidak melihatnya di permintaan sendiri.",
     "my_visible": "Data Anda yang tampil di permintaan ini",
     "my_visible_none": "Data Anda tersembunyi: penyedia menghubungi Anda lewat obrolan saja.",
     "my_visible_edit": "Ubah yang tampil",
     "name_label": "Nama",
     "phone_label": "Ponsel",
-    "whatsapp_label": "WhatsApp"
+    "whatsapp_label": "WhatsApp",
+    "allow_share": "Izinkan permintaan saya dibagikan",
+    "allow_share_hint": "Penyedia dan pengunjung dapat membagikan tautan permintaan Anda agar sampai ke orang yang bisa membantu. Anda selalu bisa membagikannya sendiri.",
+    "share_allowed": "Orang lain dapat membagikan permintaan Anda.",
+    "share_not_allowed": "Hanya Anda yang bisa membagikan permintaan Anda. Izinkan dari \"Ubah yang tampil\"."
   },
   "understand": {
     "title": "Tulis permintaan dengan logat Anda sendiri",

@@ -3047,14 +3047,17 @@
     "share_name": "Adım",
     "level_hidden": "Gizli",
     "level_providers": "Hizmet verenler",
-    "level_everyone": "Panelde herkes",
-    "levels_hint": "\"Hizmet verenler\": kayıtlı her hizmet veren açık talebinizde görür. \"Herkes\": talebinizi gören herkes, ziyaretçiler de. Kendi talebinizde görmezsiniz; seçiminiz talep sayfasında görünür.",
+    "levels_hint": "\"Hizmet verenler\": kayıtlı her hizmet veren açık talebinizde görür, başkası görmez. Kendi talebinizde görmezsiniz.",
     "my_visible": "Bu talepte görünen bilgileriniz",
     "my_visible_none": "Bilgileriniz gizli: hizmet verenler size yalnızca sohbetle ulaşır.",
     "my_visible_edit": "Görüneni değiştir",
     "name_label": "Ad",
     "phone_label": "Telefon",
-    "whatsapp_label": "WhatsApp"
+    "whatsapp_label": "WhatsApp",
+    "allow_share": "Taleplerimin paylaşılmasına izin ver",
+    "allow_share_hint": "Hizmet verenler ve ziyaretçiler talebinizin bağlantısını paylaşabilir, böylece yardım edebilecek birine ulaşır. Siz her zaman paylaşabilirsiniz.",
+    "share_allowed": "Başkaları talebinizi paylaşabilir.",
+    "share_not_allowed": "Talebinizi yalnızca siz paylaşabilirsiniz. \"Görüneni değiştir\"den izin verin."
   },
   "understand": {
     "title": "Talebinizi kendi ağzınızla yazın",

@@ -1097,7 +1097,7 @@ if (!databasePrefix) {
     await db.query('DELETE FROM requests WHERE id = ?', [id]);
   });
 
-  test('AYK-418/438: a requester shows name/phone/WhatsApp to providers (1) or to everyone (2), after turning it on', async () => {
+  test('AYK-418/438/439: a requester shows name/phone/WhatsApp to service providers only, after turning it on; sharing needs their permission', async () => {
     const area = await simpleArea();
     const svc = await db.queryOne('SELECT s.id, s.category_id FROM services s WHERE s.is_active = 1 AND s.deleted_at IS NULL ORDER BY s.id LIMIT 1');
     const otherSvc = await db.queryOne('SELECT s.id FROM services s WHERE s.is_active = 1 AND s.deleted_at IS NULL AND s.category_id <> ? ORDER BY s.id LIMIT 1', [svc.category_id]);
@@ -1132,13 +1132,17 @@ if (!databasePrefix) {
     assert.deepEqual(await seenBy(null), { phone: null, whatsapp: null }, 'level 1: a visitor sees nothing');
     const requester = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
     assert.deepEqual(await seenBy(requester.token), { phone: null, whatsapp: null }, 'level 1: another requester sees nothing');
-    await api('/users/me', { method: 'PUT', token: owner.token, body: { share_phone: 2, share_name: 2 } });
-    assert.equal((await seenBy(null)).phone, owner.user.phone, 'level 2: everyone on the panel, visitors too');
-    assert.ok((await seenBy(null)).name, 'level 2 name shown');
-    assert.equal((await seenBy(null)).whatsapp, null, 'WhatsApp still at level 1');
-    assert.equal(Number((await api('/auth/me', { token: owner.token })).user?.share_name ?? (await api('/auth/me', { token: owner.token })).share_name), 2);
-    await api('/users/me', { method: 'PUT', token: owner.token, body: { share_name: 3 }, expected: 400 });
-    await api('/users/me', { method: 'PUT', token: owner.token, body: { share_phone: 1, share_name: 0 } });
+    // AYK-439: only service providers, never visitors or other requesters; no «everyone» level.
+    await api('/users/me', { method: 'PUT', token: owner.token, body: { share_name: 1 } });
+    assert.ok((await seenBy(other.token)).name, 'the name reaches providers');
+    assert.deepEqual(await seenBy(null), { phone: null, whatsapp: null }, 'never a visitor');
+    await api('/users/me', { method: 'PUT', token: owner.token, body: { share_phone: 2 }, expected: 400 });
+    const flag = async token => Number((token ? await api(`/requests/${id}`, { token }) : (await fetch(`${base}/requests/${id}`).then(r => r.json())).data).client_allow_share);
+    assert.equal(await flag(same.token), 0, 'sharing off until the requester allows it');
+    await api('/users/me', { method: 'PUT', token: owner.token, body: { allow_request_share: 1 } });
+    assert.equal(await flag(same.token), 1);
+    assert.equal(await flag(null), 1, 'the permission is visible to every viewer');
+    await api('/users/me', { method: 'PUT', token: owner.token, body: { share_name: 0, allow_request_share: 0 } });
     await api('/users/me', { method: 'PUT', token: owner.token, body: { whatsapp_number: '0555000111' } });
     assert.equal((await seenBy(same.token)).whatsapp.replace(/\D/g, '').slice(-9), '555000111');
     await api('/users/me', { method: 'PUT', token: owner.token, body: { share_phone: 'yes' }, expected: 400 });

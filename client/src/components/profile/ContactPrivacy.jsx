@@ -19,7 +19,7 @@ export default function ContactPrivacy() {
   if (!user || user.role === 'admin') return null;
   const requester = user.role === 'client' || Number(user.also_client) === 1;
   const on = key => Number(user[key]) === 1;
-  const level = key => Math.max(0, Math.min(2, Number(user[key]) || 0));
+  const level = key => (Number(user[key]) ? 1 : 0);
   const save = async (key, payload) => {
     setBusy(key); setProblem('');
     try { await updateProfile(payload); await refresh(); } catch (err) { setProblem(apiError(err)); } finally { setBusy(''); }
@@ -34,9 +34,9 @@ export default function ContactPrivacy() {
       </span>
     </label>
   );
-  // AYK-438 (the owner: «لطالب الخدمة خيار: الاسم، الجوال، الواتس؛ ظهوره لمقدمي الخدمة أو في لوحة العرض»):
-  // each one hidden, shown to service providers, or shown to everyone on the request's panel.
-  const LEVELS = [[0, t('contact_privacy.level_hidden')], [1, t('contact_privacy.level_providers')], [2, t('contact_privacy.level_everyone')]];
+  // AYK-438/439 (the owner: «بيانات التواصل لطالب الخدمة لا تظهر إلا لمقدم الخدمة»): name, phone and
+  // WhatsApp each hidden or shown to service providers.
+  const LEVELS = [[0, t('contact_privacy.level_hidden')], [1, t('contact_privacy.level_providers')]];
   const Level = ({ name, label, disabled }) => (
     <div className={`py-2 ${disabled ? 'opacity-50' : ''}`} data-testid={`contact-${name}`}>
       <div className="font-semibold text-[14px] mb-1">{label}</div>
@@ -75,6 +75,8 @@ export default function ContactPrivacy() {
           </div>
         )}
         <p className="text-[12px] text-fg-muted mt-1 mb-2">{t('contact_privacy.levels_hint')}</p>
+        {/* AYK-439: others share my requests only with my permission. */}
+        <Toggle name="allow_request_share" label={t('contact_privacy.allow_share')} hint={t('contact_privacy.allow_share_hint')} />
       </>}
       <Toggle name="marketing_opt_in" label={t('contact_privacy.marketing')} hint={t('contact_privacy.marketing_hint')} />
       {problem && <p role="alert" className="form-error mt-1">{problem}</p>}
