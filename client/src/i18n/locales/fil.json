@@ -1782,10 +1782,7 @@
     "visitors_online": "Online ngayon",
     "sbc_title": "Beripikado ng Saudi Business Center",
     "sbc_number": "Blg. ng sertipiko",
-    "sbc_verified_store": "Beripikadong tindahan",
-    "sbc_valid_until": "Katayuan: valid hanggang {{date}}",
-    "sbc_view": "Tingnan ang beripikasyon",
-    "sbc_copied": "Kinopya namin ang numero ng sertipiko {{number}}. I-paste ito sa search box sa pahina ng sentro, saka pindutin ang «Hanapin»."
+    "sbc_verified_store": "Beripikadong tindahan"
   },
   "policy": {
     "privacy_intro": "Ipinapaliwanag ng patakarang ito kung paano ginagamit ang iyong datos kapag nag-register ka at nag-request ng serbisyo sa bahay sa «Ay Khidma».",

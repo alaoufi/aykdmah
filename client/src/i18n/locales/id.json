@@ -1782,10 +1782,7 @@
     "visitors_online": "Online sekarang",
     "sbc_title": "Terverifikasi oleh Saudi Business Center",
     "sbc_number": "No. sertifikat",
-    "sbc_verified_store": "Toko terverifikasi",
-    "sbc_valid_until": "Status: berlaku hingga {{date}}",
-    "sbc_view": "Lihat verifikasi",
-    "sbc_copied": "Nomor sertifikat {{number}} sudah disalin. Tempel di kotak pencarian pada halaman pusat, lalu ketuk «Cari»."
+    "sbc_verified_store": "Toko terverifikasi"
   },
   "policy": {
     "privacy_intro": "Kebijakan ini menjelaskan bagaimana Ay Khidma menggunakan informasi Anda saat Anda mendaftar dan meminta layanan rumah.",

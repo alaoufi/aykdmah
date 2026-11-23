@@ -1589,10 +1589,7 @@
     "visitors_online": "المتواجدون الآن",
     "sbc_title": "موثّق في المركز السعودي للأعمال",
     "sbc_number": "رقم الشهادة",
-    "sbc_verified_store": "متجر موثّق",
-    "sbc_valid_until": "الحالة: سارية حتى {{date}}",
-    "sbc_view": "عرض التحقق",
-    "sbc_copied": "نسخنا رقم الشهادة {{number}}، الصقه في خانة البحث في صفحة المركز ثم اضغط «بحث»."
+    "sbc_verified_store": "متجر موثّق"
   },
   "promote": {
     "page_title": "أعلن عن خدمتك",

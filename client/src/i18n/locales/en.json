@@ -1782,10 +1782,7 @@
     "visitors_online": "Online now",
     "sbc_title": "Verified by the Saudi Business Center",
     "sbc_number": "Certificate no.",
-    "sbc_verified_store": "Verified store",
-    "sbc_valid_until": "Status: valid until {{date}}",
-    "sbc_view": "View verification",
-    "sbc_copied": "We copied certificate number {{number}}. Paste it into the search box on the centre's page, then tap «Search»."
+    "sbc_verified_store": "Verified store"
   },
   "policy": {
     "privacy_intro": "This policy explains how Ay Khidma uses your information when you register and request home services.",

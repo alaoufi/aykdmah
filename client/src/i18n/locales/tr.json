@@ -1782,10 +1782,7 @@
     "visitors_online": "Şu an çevrimiçi",
     "sbc_title": "Suudi İş Merkezi tarafından doğrulandı",
     "sbc_number": "Sertifika no.",
-    "sbc_verified_store": "Doğrulanmış mağaza",
-    "sbc_valid_until": "Durum: {{date}} tarihine kadar geçerli",
-    "sbc_view": "Doğrulamayı görüntüle",
-    "sbc_copied": "Sertifika numarası {{number}} kopyalandı. Merkezin sayfasındaki arama kutusuna yapıştırıp «Ara»ya dokunun."
+    "sbc_verified_store": "Doğrulanmış mağaza"
   },
   "policy": {
     "privacy_intro": "Bu politika, «Ay Khidma» üzerinden kaydolurken ve ev hizmetleri talep ederken bilgilerinizin nasıl kullanıldığını açıklar.",

@@ -1782,10 +1782,7 @@
     "visitors_online": "አሁን መስመር ላይ ያሉ",
     "sbc_title": "በሳዑዲ የንግድ ማዕከል የተረጋገጠ",
     "sbc_number": "የምስክር ወረቀት ቁጥር",
-    "sbc_verified_store": "የተረጋገጠ መደብር",
-    "sbc_valid_until": "ሁኔታ፦ እስከ {{date}} የሚሰራ",
-    "sbc_view": "ማረጋገጫውን ይመልከቱ",
-    "sbc_copied": "የምስክር ወረቀት ቁጥር {{number}} ተቀድቷል። በማዕከሉ ገጽ የፍለጋ ሳጥን ውስጥ ለጥፈው «ፈልግ»ን ይጫኑ።"
+    "sbc_verified_store": "የተረጋገጠ መደብር"
   },
   "policy": {
     "privacy_intro": "ይህ ፖሊሲ በ«Ay Khidma» ሲመዘገቡና የቤት አገልግሎቶችን ሲጠይቁ መረጃዎ እንዴት እንደሚውል ያብራራል።",
