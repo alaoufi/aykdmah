@@ -177,8 +177,6 @@
     "no_requests_anywhere": "Belum ada permintaan terbuka saat ini.",
     "guest_chat_note": "Jelajahi bebas; daftar untuk mengobrol",
     "guest_register": "Daftar",
-    "guest_professions": "Profesi",
-    "guest_services": "Kategori profesi",
     "guest_requests": "Permintaan layanan",
     "guest_providers": "Penyedia layanan",
     "guest_more": "Tampilkan lagi",
@@ -189,8 +187,8 @@
     "board_none_filtered": "Belum ada yang cocok. Matikan satu filter untuk melihat semua.",
     "board_fallback": "Belum ada yang cocok dengan pilihan Anda, jadi ini permintaan lainnya, dimulai dari yang terdekat.",
     "board_fallback_providers": "Belum ada yang cocok dengan pilihan Anda, jadi ini penyedia layanan lainnya, dimulai dari yang terdekat.",
-    "guest_fallback_requests": "Belum ada permintaan di profesi ini, jadi ini permintaan terbaru di profesi lain.",
-    "guest_fallback_providers": "Belum ada penyedia layanan di profesi ini, jadi ini yang ada di profesi lain.",
+    "guest_fallback_requests": "Belum ada permintaan untuk pilihan ini, jadi ini permintaan terbaru lainnya.",
+    "guest_fallback_providers": "Belum ada penyedia layanan untuk pilihan ini, jadi ini yang lainnya.",
     "recent_title": "Baru selesai di «Ay Khidma»",
     "recent_hint": "Permintaan yang pemiliknya sudah sepakat dengan penyedia layanan",
     "recent_done": "Selesai",
@@ -234,7 +232,9 @@
     "published_title": "Permintaan Anda sudah diterbitkan",
     "published_hint": "Semua orang kini bisa melihatnya, termasuk penyedia layanan di profesi dan wilayahnya; ada di urutan pertama di sini.",
     "published_open": "Buka permintaan Anda",
-    "published_see": "Lihat permintaan Anda di beranda"
+    "published_see": "Lihat permintaan Anda di beranda",
+    "guest_region": "Wilayah",
+    "guest_all_regions": "Semua wilayah"
   },
   "location": {
     "country": "Negara",
@@ -1779,7 +1779,10 @@
     "inquiry": "Untuk pertanyaan",
     "visitors_today": "Pengunjung hari ini",
     "visitors_total": "Total pengunjung",
-    "visitors_online": "Online sekarang"
+    "visitors_online": "Online sekarang",
+    "sbc_title": "Terverifikasi oleh Saudi Business Center",
+    "sbc_number": "No. sertifikat",
+    "sbc_verified_store": "Toko terverifikasi"
   },
   "policy": {
     "privacy_intro": "Kebijakan ini menjelaskan bagaimana Ay Khidma menggunakan informasi Anda saat Anda mendaftar dan meminta layanan rumah.",

@@ -177,8 +177,6 @@
     "no_requests_anywhere": "Şu an açık talep yok.",
     "guest_chat_note": "Serbestçe gezinin; sohbet için kaydolun",
     "guest_register": "Kaydol",
-    "guest_professions": "Meslekler",
-    "guest_services": "Meslek kategorileri",
     "guest_requests": "Hizmet talepleri",
     "guest_providers": "Hizmet verenler",
     "guest_more": "Daha fazla göster",
@@ -189,8 +187,8 @@
     "board_none_filtered": "Şu an eşleşen yok. Herkesi görmek için bir filtreyi kapatın.",
     "board_fallback": "Seçiminize uyan henüz bir şey yok; size en yakından başlayarak diğer talepler burada.",
     "board_fallback_providers": "Seçiminize uyan henüz kimse yok; size en yakından başlayarak diğer hizmet sağlayıcılar burada.",
-    "guest_fallback_requests": "Bu meslekte henüz talep yok; diğer mesleklerdeki en yeni talepler burada.",
-    "guest_fallback_providers": "Bu meslekte henüz hizmet sağlayıcı yok; diğer mesleklerdekiler burada.",
+    "guest_fallback_requests": "Bu seçim için henüz talep yok; diğer en yeni talepler burada.",
+    "guest_fallback_providers": "Bu seçim için henüz hizmet sağlayıcı yok; diğerleri burada.",
     "recent_title": "«Ay Khidma»'da son yapılanlar",
     "recent_hint": "Sahibi bir hizmet sağlayıcıyla anlaşan talepler",
     "recent_done": "Tamamlandı",
@@ -234,7 +232,9 @@
     "published_title": "Talebiniz yayınlandı",
     "published_hint": "Artık herkes görebilir, mesleği ve bölgesindeki hizmet sağlayıcılar dahil; burada listenin başında.",
     "published_open": "Talebinizi açın",
-    "published_see": "Talebinizi ana sayfada görün"
+    "published_see": "Talebinizi ana sayfada görün",
+    "guest_region": "Bölge",
+    "guest_all_regions": "Tüm bölgeler"
   },
   "location": {
     "country": "Ülke",
@@ -1779,7 +1779,10 @@
     "inquiry": "Bilgi için",
     "visitors_today": "Bugünkü ziyaretçiler",
     "visitors_total": "Toplam ziyaretçi",
-    "visitors_online": "Şu an çevrimiçi"
+    "visitors_online": "Şu an çevrimiçi",
+    "sbc_title": "Suudi İş Merkezi tarafından doğrulandı",
+    "sbc_number": "Sertifika no.",
+    "sbc_verified_store": "Doğrulanmış mağaza"
   },
   "policy": {
     "privacy_intro": "Bu politika, «Ay Khidma» üzerinden kaydolurken ve ev hizmetleri talep ederken bilgilerinizin nasıl kullanıldığını açıklar.",

@@ -32,6 +32,8 @@ app.use(helmet({
       // AYK-248: chat files are uploaded from the device straight to the R2 media bucket.
       ...(() => { try { return process.env.R2_MEDIA_ENDPOINT ? [new URL(process.env.R2_MEDIA_ENDPOINT).origin] : []; } catch (_) { return []; } })()],
     mediaSrc: ["'self'", 'blob:', 'https:'], objectSrc: ["'none'"],
+    // AYK-471: the Saudi Business Center's official verification seal is a small frame from its site.
+    frameSrc: ["'self'", 'https://eauthenticate.saudibusiness.gov.sa'],
     frameAncestors: ["'none'"], baseUri: ["'self'"], formAction: ["'self'"],
     upgradeInsecureRequests: env.NODE_ENV === 'production' ? [] : null,
   } },

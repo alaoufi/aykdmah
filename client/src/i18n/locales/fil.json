@@ -177,8 +177,6 @@
     "no_requests_anywhere": "Walang bukas na request ngayon.",
     "guest_chat_note": "Malayang mag-browse; mag-sign up para makipag-chat",
     "guest_register": "Mag-sign up",
-    "guest_professions": "Mga propesyon",
-    "guest_services": "Mga kategorya ng propesyon",
     "guest_requests": "Mga kahilingan sa serbisyo",
     "guest_providers": "Mga nagbibigay ng serbisyo",
     "guest_more": "Ipakita pa",
@@ -189,8 +187,8 @@
     "board_none_filtered": "Wala pang tugma. Patayin ang isang filter para makita ang lahat.",
     "board_fallback": "Wala pang tumutugma sa pinili mo, kaya narito ang ibang mga request, simula sa pinakamalapit sa iyo.",
     "board_fallback_providers": "Wala pang tumutugma sa pinili mo, kaya narito ang ibang service provider, simula sa pinakamalapit sa iyo.",
-    "guest_fallback_requests": "Wala pang request sa propesyong ito, kaya narito ang pinakabago sa ibang propesyon.",
-    "guest_fallback_providers": "Wala pang service provider sa propesyong ito, kaya narito ang mga nasa ibang propesyon.",
+    "guest_fallback_requests": "Wala pang request sa piniling ito, kaya narito ang iba pang pinakabago.",
+    "guest_fallback_providers": "Wala pang service provider sa piniling ito, kaya narito ang iba.",
     "recent_title": "Kamakailang natapos sa «Ay Khidma»",
     "recent_hint": "Mga request na ang may-ari ay nakipagkasundo sa isang service provider",
     "recent_done": "Tapos na",
@@ -234,7 +232,9 @@
     "published_title": "Na-publish na ang request mo",
     "published_hint": "Makikita na ito ng lahat, kasama ang mga service provider sa propesyon at lugar nito; nasa unahan ito ng listahan dito.",
     "published_open": "Buksan ang request mo",
-    "published_see": "Tingnan ang request mo sa home"
+    "published_see": "Tingnan ang request mo sa home",
+    "guest_region": "Rehiyon",
+    "guest_all_regions": "Lahat ng rehiyon"
   },
   "location": {
     "country": "Bansa",
@@ -1779,7 +1779,10 @@
     "inquiry": "Para sa mga katanungan",
     "visitors_today": "Mga bisita ngayon",
     "visitors_total": "Kabuuang bisita",
-    "visitors_online": "Online ngayon"
+    "visitors_online": "Online ngayon",
+    "sbc_title": "Beripikado ng Saudi Business Center",
+    "sbc_number": "Blg. ng sertipiko",
+    "sbc_verified_store": "Beripikadong tindahan"
   },
   "policy": {
     "privacy_intro": "Ipinapaliwanag ng patakarang ito kung paano ginagamit ang iyong datos kapag nag-register ka at nag-request ng serbisyo sa bahay sa «Ay Khidma».",

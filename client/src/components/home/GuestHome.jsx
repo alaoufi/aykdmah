@@ -1,9 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { listCategories, listServices, listMatchingProviders } from '../../services/serviceService';
+import { listCategories, listRegions, listMatchingProviders } from '../../services/serviceService';
 import { listNearbyRequests } from '../../services/requestService';
-import { getCategoryIcon } from '../common/Icons';
+import { optionLabel } from '../../utils/optionLabel';
 import { localizedName } from '../../utils/localize';
 import { localizedJoinedName } from '../../utils/localizeJoined';
 import RequestCard from './RequestCard';
@@ -12,27 +12,31 @@ import ContactButtons from '../providers/ContactButtons';
 import RecentActivity from './RecentActivity';
 import BoardEmpty from './BoardEmpty';
 
-// AYK-413 (the owner): a visitor browses without signing up. The professions come first, then
-// their categories small and close together, then the service requests (no private details are
-// sent to a visitor), then every service provider. Chatting needs an account.
+// AYK-413 (the owner): a visitor browses without signing up; chatting needs an account.
+// AYK-467 (the owner: «طريقة عرض الرئيسية للزائر مزعجة ومزحومة جدًّا. المهن اجعلها قائمة منسدلة ويختار
+// المنطقة والمهنة، مقدم خدمة / طالب خدمة، ولا داعي لتصنيفات المهن»): two tabs at the top (service
+// providers / service requests), two drop-down lists (region, profession), and the chosen list only.
+const TAB_KEY = 'ayk_guest_tab';
 export default function GuestHome() {
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
-  const [services, setServices] = useState([]);
+  const [regions, setRegions] = useState([]);
   const [category, setCategory] = useState('');
-  const [service, setService] = useState('');
+  const [region, setRegion] = useState('');
+  const [tab, setTab] = useState(() => { try { return localStorage.getItem(TAB_KEY) === 'requests' ? 'requests' : 'providers'; } catch (_) { return 'providers'; } });
+  const choose = next => { setTab(next); try { localStorage.setItem(TAB_KEY, next); } catch (_) { /* private mode */ } };
   const [requests, setRequests] = useState(null);
   const [providers, setProviders] = useState(null);
-  // AYK-441: a profession with nothing yet shows the rest, saying so.
+  // AYK-441: a choice with nothing yet shows the rest, saying so.
   const [requestsWider, setRequestsWider] = useState(false);
   const [providersWider, setProvidersWider] = useState(false);
   const [allProviders, setAllProviders] = useState(false);
 
   useEffect(() => {
     listCategories().then(rows => setCategories(rows || [])).catch(() => {});
-    listServices().then(rows => setServices(rows || [])).catch(() => {});
+    listRegions().then(rows => setRegions(rows || [])).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -40,11 +44,11 @@ export default function GuestHome() {
     setRequests(null);
     const params = { limit: 10, status: 'open' };
     if (category) params.category_id = category;
-    if (service) params.service_id = service;
+    if (region) params.region_id = region;
     listNearbyRequests(params)
       .then(async res => {
         let rows = res.data || []; let wider = false;
-        if (!rows.length && (category || service)) {
+        if (!rows.length && (category || region)) {
           const all = await listNearbyRequests({ limit: 10, status: 'open' }).catch(() => null);
           rows = all?.data || []; wider = rows.length > 0;
         }
@@ -52,29 +56,23 @@ export default function GuestHome() {
       })
       .catch(() => { if (current) setRequests([]); });
     return () => { current = false; };
-  }, [category, service]);
+  }, [category, region]);
 
   useEffect(() => {
     let current = true;
     setProviders(null);
-    listMatchingProviders({ scope: 'all', categoryId: category || undefined, serviceId: service || undefined })
+    listMatchingProviders({ scope: 'all', categoryId: category || undefined, regionId: region || undefined })
       .then(async res => {
         let rows = res?.providers || []; let wider = false;
-        if (!rows.length && (category || service)) {
+        if (!rows.length && (category || region)) {
           rows = (await listMatchingProviders({ scope: 'all' }).catch(() => null))?.providers || []; wider = rows.length > 0;
         }
         if (current) { setProviders(rows); setProvidersWider(wider); }
       })
       .catch(() => { if (current) setProviders([]); });
     return () => { current = false; };
-  }, [category, service]);
+  }, [category, region]);
 
-  const pickCategory = id => { setCategory(previous => (String(previous) === String(id) ? '' : String(id))); setService(''); };
-  const pickService = row => {
-    setService(previous => (String(previous) === String(row.id) ? '' : String(row.id)));
-    if (row.category_id) setCategory(String(row.category_id));
-  };
-  const shownServices = category ? services.filter(row => String(row.category_id) === String(category)) : services;
   const shownProviders = (providers || []).slice(0, allProviders ? 100 : 8);
 
   return (
@@ -84,39 +82,29 @@ export default function GuestHome() {
         <Link to="/register" className="btn btn-primary btn-sm shrink-0 no-underline">{t('home.guest_register')}</Link>
       </div>
 
-      <section data-testid="guest-professions">
-        <h2 className="text-[16px] font-extrabold text-fg mb-2">{t('home.guest_professions')}</h2>
-        <div className="grid grid-cols-4 sm:grid-cols-6 lg:grid-cols-8 gap-1.5">
-          {categories.map(cat => {
-            const { Comp, tint, bg } = getCategoryIcon(cat.slug);
-            const active = String(category) === String(cat.id);
-            return (
-              <button key={cat.id} type="button" onClick={() => pickCategory(cat.id)} aria-pressed={active}
-                className={`rounded-card border px-1 py-2 flex flex-col items-center gap-1 text-center ${active ? 'border-primary bg-primary-soft' : 'border-border bg-surface'}`}>
-                <span className="w-9 h-9 rounded-full grid place-items-center" style={{ background: bg, color: tint }}><Comp size={18} /></span>
-                <span className="text-[11.5px] font-bold text-fg leading-tight">{localizedName(cat, lang)}</span>
-              </button>
-            );
-          })}
+      <div className="sticky top-[var(--header-h,56px)] z-20 bg-bg/90 backdrop-blur py-1 -mx-1 px-1 space-y-1.5" data-testid="guest-filters">
+        <div role="tablist" className="flex gap-2">
+          {[['providers', '🛠️', 'home.tab_providers'], ['requests', '🙋', 'home.tab_requests']].map(([value, icon, key]) => (
+            <button key={value} type="button" role="tab" aria-selected={tab === value} onClick={() => choose(value)} data-testid={`guest-tab-${value}`}
+              className={`flex-1 min-w-0 rounded-card px-3 py-1.5 text-center border-2 transition cursor-pointer whitespace-nowrap text-[14.5px] font-extrabold text-fg ${tab === value
+                ? (value === 'requests' ? 'tone-request border-primary shadow-soft' : 'tone-provider border-primary shadow-soft') : 'bg-surface border-border opacity-80'}`}>
+              {icon} {t(key)}
+            </button>
+          ))}
         </div>
-      </section>
-
-      {shownServices.length > 0 && <section data-testid="guest-services">
-        <h2 className="text-[14px] font-extrabold text-fg mb-1.5">{t('home.guest_services')}</h2>
-        <div className="flex flex-wrap gap-1">
-          {shownServices.map(row => {
-            const active = String(service) === String(row.id);
-            return (
-              <button key={row.id} type="button" onClick={() => pickService(row)} aria-pressed={active}
-                className={`px-2 py-0.5 rounded-pill border text-[11.5px] ${active ? 'border-primary bg-primary-soft text-primary font-bold' : 'border-border bg-surface-alt text-fg'}`}>
-                {localizedName(row, lang)}
-              </button>
-            );
-          })}
+        <div className="grid grid-cols-2 gap-2">
+          <select className="select !h-10 !min-h-0 !py-1 text-[13.5px]" aria-label={t('home.guest_region')} value={region} onChange={e => setRegion(e.target.value)} data-testid="guest-region">
+            <option value="">📍 {t('home.guest_all_regions')}</option>
+            {regions.map(row => <option key={row.id} value={row.id}>{localizedName(row, lang)}</option>)}
+          </select>
+          <select className="select !h-10 !min-h-0 !py-1 text-[13.5px]" aria-label={t('for_you.profession')} value={category} onChange={e => setCategory(e.target.value)} data-testid="guest-category">
+            <option value="">🛠️ {t('requester.all_professions')}</option>
+            {categories.map(cat => <option key={cat.id} value={cat.id}>{optionLabel(cat.icon, localizedName(cat, lang), lang)}</option>)}
+          </select>
         </div>
-      </section>}
+      </div>
 
-      <section data-testid="guest-requests">
+      {tab === 'requests' && <section data-testid="guest-requests">
         <div className="flex items-center justify-between mb-1.5">
           <h2 className="text-[16px] font-extrabold text-fg m-0">{t('home.guest_requests')}</h2>
           <Link to={category ? `/opportunities?category=${category}` : '/opportunities'} className="text-primary font-semibold text-[13px]">{t('home.view_all')}</Link>
@@ -128,9 +116,9 @@ export default function GuestHome() {
               : requests.map(item => <RequestCard key={item.id} item={item} />)}
         </div>
         <RecentActivity className="mt-2" />
-      </section>
+      </section>}
 
-      <section data-testid="guest-providers">
+      {tab === 'providers' && <section data-testid="guest-providers">
         <h2 className="text-[16px] font-extrabold text-fg mb-1.5">{t('home.guest_providers')}</h2>
         {providersWider && <p className="text-[12.5px] rounded-card bg-amber-50 text-amber-900 px-3 py-2 mb-1.5" role="status" data-testid="providers-fallback">💡 {t('home.guest_fallback_providers')}</p>}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5" aria-busy={providers === null}>
@@ -161,7 +149,7 @@ export default function GuestHome() {
             {t('home.guest_more')} ({providers.length - 8})
           </button>
         )}
-      </section>
+      </section>}
     </div>
   );
 }

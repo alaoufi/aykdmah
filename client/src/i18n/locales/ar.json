@@ -177,8 +177,6 @@
     "no_requests_anywhere": "لا توجد طلبات مفتوحة الآن.",
     "guest_chat_note": "تصفّح بحرية، وللمحادثة سجّل حسابًا",
     "guest_register": "سجّل",
-    "guest_professions": "المهن",
-    "guest_services": "تصنيفات المهن",
     "guest_requests": "طلبات الخدمة",
     "guest_providers": "مقدمو الخدمة",
     "guest_more": "عرض المزيد",
@@ -189,8 +187,8 @@
     "board_none_filtered": "لا شيء مطابق الآن. ألغِ أحد الفلترين لترى الكل.",
     "board_fallback": "لا يوجد بعد ما يطابق اختيارك، فهذه بقية الطلبات مرتبة بالأقرب لك.",
     "board_fallback_providers": "لا يوجد بعد من يطابق اختيارك، فهؤلاء بقية مقدمي الخدمة مرتبين بالأقرب لك.",
-    "guest_fallback_requests": "لا طلبات بعد في هذه المهنة، فهذه أحدث الطلبات في المهن الأخرى.",
-    "guest_fallback_providers": "لا مقدمي خدمة بعد في هذه المهنة، فهؤلاء مقدمو الخدمة في المهن الأخرى.",
+    "guest_fallback_requests": "لا طلبات بعد بهذا الاختيار، فهذه أحدث الطلبات في غيره.",
+    "guest_fallback_providers": "لا مقدمي خدمة بعد بهذا الاختيار، فهؤلاء مقدمو الخدمة في غيره.",
     "recent_title": "تم مؤخرًا على «أي خدمة»",
     "recent_hint": "طلبات اتفق فيها طالب الخدمة مع مقدم خدمة",
     "recent_done": "تم التنفيذ",
@@ -234,7 +232,9 @@
     "published_title": "تم نشر طلبك",
     "published_hint": "يشاهده الآن الجميع، ومنهم مقدمو الخدمة في مهنته ومنطقته، وتجده أول القائمة هنا.",
     "published_open": "عرض طلبك",
-    "published_see": "شاهد طلبك في الرئيسية"
+    "published_see": "شاهد طلبك في الرئيسية",
+    "guest_region": "المنطقة",
+    "guest_all_regions": "كل المناطق"
   },
   "location": {
     "country": "الدولة",
@@ -1586,7 +1586,10 @@
     "inquiry": "للاستفسار",
     "visitors_today": "زوار اليوم",
     "visitors_total": "إجمالي الزوار",
-    "visitors_online": "المتواجدون الآن"
+    "visitors_online": "المتواجدون الآن",
+    "sbc_title": "موثّق في المركز السعودي للأعمال",
+    "sbc_number": "رقم الشهادة",
+    "sbc_verified_store": "متجر موثّق"
   },
   "promote": {
     "page_title": "أعلن عن خدمتك",

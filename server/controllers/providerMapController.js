@@ -210,7 +210,10 @@ const matching = asyncHandler(async (req, res) => {
   // AYK-397 (the owner: «الافتراضي منطقتك وله يوسّع الدائرة»): area (the district, as before), city, region or all.
   const scope = ['area', 'city', 'region', 'all'].includes(req.query.scope) ? req.query.scope : 'area';
   if (where.invalid || !validIds([categoryId, serviceId])) return error(res, req.t ? req.t('invalid_data') : 'Invalid filter', 400);
-  if (!where.cityId && scope !== 'all' && req.query.board !== '1') return success(res, { area: null, scope, providers: [] });
+  // AYK-467: a visitor's «المنطقة» list picks a whole region.
+  const pickedRegion = optionalId(req.query.region_id);
+  if (!validIds([pickedRegion])) return error(res, req.t ? req.t('invalid_data') : 'Invalid filter', 400);
+  if (!where.cityId && scope !== 'all' && !pickedRegion && req.query.board !== '1') return success(res, { area: null, scope, providers: [] });
   const categoryServices = categoryId !== null
     ? new Set((await query('SELECT id FROM services WHERE category_id = ?', [categoryId])).map(row => Number(row.id))) : null;
   const list = async scope => listProviders(await coveringProviders({ ...scope, excludeId: req.user?.id || 0 }),
@@ -270,7 +273,7 @@ const matching = asyncHandler(async (req, res) => {
   const inRequested = row => !onlyRequested || [...providerCategories(row, byService)].some(id => requestedCategories.includes(id));
   const regionId = scope === 'region'
     ? Number((await query(`SELECT COALESCE(c.region_id, g.region_id) AS region_id FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id WHERE c.id = ?`, [where.cityId]))[0]?.region_id) || null : null;
-  const looked = scope === 'all' ? { everywhere: true } : scope === 'region' && regionId ? { regionId }
+  const looked = pickedRegion ? { regionId: pickedRegion } : scope === 'all' ? { everywhere: true } : scope === 'region' && regionId ? { regionId }
     : scope === 'city' ? { districtId: null, cityId: where.cityId } : where;
   const providers = (await list(looked)).filter(inRequested);
   // With a district: also everyone serving the whole city (AYK-055), for the "widen" step and

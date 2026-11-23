@@ -177,8 +177,6 @@
     "no_requests_anywhere": "አሁን ክፍት ጥያቄ የለም።",
     "guest_chat_note": "በነፃ ያስሱ፤ ለመወያየት ይመዝገቡ",
     "guest_register": "ይመዝገቡ",
-    "guest_professions": "ሙያዎች",
-    "guest_services": "የሙያ ምድቦች",
     "guest_requests": "የአገልግሎት ጥያቄዎች",
     "guest_providers": "አገልግሎት ሰጪዎች",
     "guest_more": "ተጨማሪ አሳይ",
@@ -189,8 +187,8 @@
     "board_none_filtered": "አሁን የሚዛመድ የለም። ሁሉንም ለማየት አንድ ማጣሪያ ያጥፉ።",
     "board_fallback": "ከምርጫዎ ጋር የሚስማማ ገና የለም፣ ስለዚህ ሌሎቹ ጥያቄዎች ከቅርብዎ ጀምሮ እነሆ።",
     "board_fallback_providers": "ከምርጫዎ ጋር የሚስማማ ገና ማንም የለም፣ ስለዚህ ሌሎቹ አገልግሎት ሰጪዎች ከቅርብዎ ጀምሮ እነሆ።",
-    "guest_fallback_requests": "በዚህ ሙያ ገና ጥያቄ የለም፣ ስለዚህ በሌሎች ሙያዎች ያሉ አዳዲስ ጥያቄዎች እነሆ።",
-    "guest_fallback_providers": "በዚህ ሙያ ገና አገልግሎት ሰጪ የለም፣ ስለዚህ በሌሎች ሙያዎች ያሉት እነሆ።",
+    "guest_fallback_requests": "ለዚህ ምርጫ ገና ጥያቄ የለም፣ ስለዚህ ሌሎቹ አዳዲስ ጥያቄዎች እነሆ።",
+    "guest_fallback_providers": "ለዚህ ምርጫ ገና አገልግሎት ሰጪ የለም፣ ስለዚህ ሌሎቹ እነሆ።",
     "recent_title": "በ«Ay Khidma» በቅርቡ የተጠናቀቁ",
     "recent_hint": "ባለቤቶቻቸው ከአገልግሎት ሰጪ ጋር የተስማሙባቸው ጥያቄዎች",
     "recent_done": "ተጠናቋል",
@@ -234,7 +232,9 @@
     "published_title": "ጥያቄዎ ታትሟል",
     "published_hint": "አሁን ሁሉም ሊያዩት ይችላሉ፣ በሙያውና በአካባቢው ያሉ አገልግሎት ሰጪዎችም፤ እዚህ በዝርዝሩ መጀመሪያ ላይ ነው።",
     "published_open": "ጥያቄዎን ይክፈቱ",
-    "published_see": "ጥያቄዎን በመነሻ ገጹ ይመልከቱ"
+    "published_see": "ጥያቄዎን በመነሻ ገጹ ይመልከቱ",
+    "guest_region": "ክልል",
+    "guest_all_regions": "ሁሉም ክልሎች"
   },
   "location": {
     "country": "ሀገር",
@@ -1779,7 +1779,10 @@
     "inquiry": "ለጥያቄዎች",
     "visitors_today": "የዛሬ ጎብኚዎች",
     "visitors_total": "ጠቅላላ ጎብኚዎች",
-    "visitors_online": "አሁን መስመር ላይ ያሉ"
+    "visitors_online": "አሁን መስመር ላይ ያሉ",
+    "sbc_title": "በሳዑዲ የንግድ ማዕከል የተረጋገጠ",
+    "sbc_number": "የምስክር ወረቀት ቁጥር",
+    "sbc_verified_store": "የተረጋገጠ መደብር"
   },
   "policy": {
     "privacy_intro": "ይህ ፖሊሲ በ«Ay Khidma» ሲመዘገቡና የቤት አገልግሎቶችን ሲጠይቁ መረጃዎ እንዴት እንደሚውል ያብራራል።",
