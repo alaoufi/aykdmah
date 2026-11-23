@@ -165,8 +165,11 @@ const providerCategories = (row, byService) => new Set([
 // Active providers serving a district (or a whole city). Everyone, because the counts and the
 // notifications need them all; the written opinion is read later for the listed ones only (AYK-256).
 // AYK-397: the cities of a region (cities.region_id, else their governorate's region).
-const REGION_CITIES = `SELECT c.id FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id WHERE COALESCE(c.region_id, g.region_id) = ?`;
+// AYK-475: one region or several.
+const regionCities = n => `SELECT c.id FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id WHERE COALESCE(c.region_id, g.region_id) IN (${Array(n).fill('?').join(', ')})`;
 function coveringProviders({ districtId, cityId, regionId = null, everywhere = false, excludeId = 0 }) {
+  const regionIds = regionId ? [].concat(regionId) : [];
+  const REGION_CITIES = regionCities(regionIds.length || 1);
   // Coverage: an explicit district list wins; without one the coverage city, else the home city.
   // AYK-397 «وسّع الدائرة»: a whole region, or everywhere.
   const wide = everywhere ? 'TRUE' : regionId
@@ -180,7 +183,7 @@ function coveringProviders({ districtId, cityId, regionId = null, everywhere = f
     : `(EXISTS (SELECT 1 FROM provider_coverage_districts pcd JOIN districts d ON d.id = pcd.district_id WHERE pcd.user_id = u.id AND d.city_id = ?)
         OR (NOT EXISTS (SELECT 1 FROM provider_coverage_districts pcd WHERE pcd.user_id = u.id)
             AND COALESCE(pp.coverage_city_id, u.city_id) = ?))`);
-  const coverageParams = everywhere ? [] : regionId ? [regionId, regionId] : [districtId || cityId, cityId];
+  const coverageParams = everywhere ? [] : regionId ? [...regionIds, ...regionIds] : [districtId || cityId, cityId];
   return query(`
     SELECT u.id, u.full_name, u.avatar, u.is_verified, u.is_online,
            pp.business_name, pp.category_id, pp.service_ids, ${BIO_SQL},
@@ -205,23 +208,34 @@ function coveringProviders({ districtId, cityId, regionId = null, everywhere = f
 }
 
 const matching = asyncHandler(async (req, res) => {
-  const categoryId = optionalId(req.query.category_id), serviceId = optionalId(req.query.service_id);
+  let categoryId = optionalId(req.query.category_id); const serviceId = optionalId(req.query.service_id);
+  // AYK-475 (the owner: «يستطيع اختيار أكثر من منطقة وأكثر من مهنة»): region_ids / category_ids lists.
+  const listOf = value => (value == null || value === '' ? [] : String(value).split(',').slice(0, 31).map(v => Number(String(v).trim())));
+  const pickedRegions = listOf(req.query.region_ids), pickedCategories = listOf(req.query.category_ids);
+  if (pickedRegions.length > 30 || pickedCategories.length > 30 || !validIds(pickedRegions) || !validIds(pickedCategories)) {
+    return error(res, req.t ? req.t('invalid_data') : 'Invalid filter', 400);
+  }
+  if (categoryId === null && pickedCategories.length === 1) categoryId = pickedCategories[0];
+  const manyCategories = categoryId === null && pickedCategories.length > 1 ? pickedCategories : null;
   const where = await resolveArea(req);
   // AYK-397 (the owner: «الافتراضي منطقتك وله يوسّع الدائرة»): area (the district, as before), city, region or all.
   const scope = ['area', 'city', 'region', 'all'].includes(req.query.scope) ? req.query.scope : 'area';
   if (where.invalid || !validIds([categoryId, serviceId])) return error(res, req.t ? req.t('invalid_data') : 'Invalid filter', 400);
   // AYK-467: a visitor's «المنطقة» list picks a whole region.
-  const pickedRegion = optionalId(req.query.region_id);
-  if (!validIds([pickedRegion])) return error(res, req.t ? req.t('invalid_data') : 'Invalid filter', 400);
+  const oneRegion = optionalId(req.query.region_id);
+  if (!validIds([oneRegion])) return error(res, req.t ? req.t('invalid_data') : 'Invalid filter', 400);
+  const regionsPicked = [...new Set([...(oneRegion ? [oneRegion] : []), ...pickedRegions])];
+  const pickedRegion = regionsPicked.length ? regionsPicked : null;
   if (!where.cityId && scope !== 'all' && !pickedRegion && req.query.board !== '1') return success(res, { area: null, scope, providers: [] });
   const categoryServices = categoryId !== null
-    ? new Set((await query('SELECT id FROM services WHERE category_id = ?', [categoryId])).map(row => Number(row.id))) : null;
+    ? new Set((await query('SELECT id FROM services WHERE category_id = ?', [categoryId])).map(row => Number(row.id)))
+    : manyCategories ? new Set((await query(`SELECT id FROM services WHERE category_id IN (${manyCategories.map(() => '?').join(', ')})`, manyCategories)).map(row => Number(row.id))) : null;
   const list = async scope => listProviders(await coveringProviders({ ...scope, excludeId: req.user?.id || 0 }),
-    { categoryId, serviceId, categoryServices, cityId: where.cityId, reader: readerOf(req) });
+    { categoryId, categoryIds: manyCategories, serviceId, categoryServices, cityId: where.cityId, reader: readerOf(req) });
   let requestedCategories = [];
   // The professions this person asked for: always sent (the page lists them first, AYK-339); the
   // list keeps only them when «المهن التي طلبتها» is chosen (matching=1).
-  if (req.user && categoryId === null && serviceId === null) {
+  if (req.user && categoryId === null && !manyCategories && serviceId === null) {
     requestedCategories = (await query('SELECT DISTINCT category_id FROM requests WHERE client_id = ? AND deleted_at IS NULL AND category_id IS NOT NULL', [req.user.id])).map(row => Number(row.category_id));
     // AYK-447: on the board, the sections he chose before his first request count as well.
     if (req.query.board === '1') {
@@ -238,7 +252,7 @@ const matching = asyncHandler(async (req, res) => {
     let wanted = requestedCategories;
     // AYK-450: looking for a provider (as=requester, the home's «مقدمو الخدمة» tab, also for an account
     // that is both) ranks by what I asked for only, not by my own profession.
-    if (req.user?.role === 'provider' && categoryId === null && req.query.as !== 'requester') {
+    if (req.user?.role === 'provider' && categoryId === null && !manyCategories && req.query.as !== 'requester') {
       const mine = await query('SELECT pp.category_id, pp.service_ids FROM provider_profiles pp WHERE pp.user_id = ?', [req.user.id]);
       const byServiceAll = await serviceCategories();
       wanted = [...new Set([...requestedCategories, ...(mine[0] ? [...providerCategories(mine[0], byServiceAll)] : [])])];
@@ -288,12 +302,13 @@ const matching = asyncHandler(async (req, res) => {
 
 // Filters covering providers by profession, drops those whose required subscription is
 // missing (AYK-042), and ranks them: available now first, then featured, then rating.
-async function listProviders(rows, { categoryId, serviceId, categoryServices, cityId, reader = 'ar' }) {
+async function listProviders(rows, { categoryId, categoryIds = null, serviceId, categoryServices, cityId, reader = 'ar' }) {
   const providers = [];
   for (const row of rows) {
     const services = parseServiceIds(row.service_ids);
     if (serviceId !== null && !services.includes(serviceId)) continue;
-    if (categoryServices && Number(row.category_id) !== categoryId && !services.some(s => categoryServices.has(s))) continue;
+    const ownCategory = categoryIds ? categoryIds.includes(Number(row.category_id)) : Number(row.category_id) === categoryId;
+    if (categoryServices && !ownCategory && !services.some(s => categoryServices.has(s))) continue;
     providers.push({
       id: row.id, full_name: row.full_name, business_name: row.business_name, avatar: row.avatar,
       is_verified: Number(row.is_verified) === 1, is_online: Number(row.is_online) === 1,

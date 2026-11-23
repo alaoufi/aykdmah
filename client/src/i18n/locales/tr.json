@@ -187,8 +187,6 @@
     "board_none_filtered": "Şu an eşleşen yok. Herkesi görmek için bir filtreyi kapatın.",
     "board_fallback": "Seçiminize uyan henüz bir şey yok; size en yakından başlayarak diğer talepler burada.",
     "board_fallback_providers": "Seçiminize uyan henüz kimse yok; size en yakından başlayarak diğer hizmet sağlayıcılar burada.",
-    "guest_fallback_requests": "Bu seçim için henüz talep yok; diğer en yeni talepler burada.",
-    "guest_fallback_providers": "Bu seçim için henüz hizmet sağlayıcı yok; diğerleri burada.",
     "recent_title": "«Ay Khidma»'da son yapılanlar",
     "recent_hint": "Sahibi bir hizmet sağlayıcıyla anlaşan talepler",
     "recent_done": "Tamamlandı",
@@ -234,7 +232,12 @@
     "published_open": "Talebinizi açın",
     "published_see": "Talebinizi ana sayfada görün",
     "guest_region": "Bölge",
-    "guest_all_regions": "Tüm bölgeler"
+    "guest_all_regions": "Tüm bölgeler",
+    "pick_done": "Tamam",
+    "pick_clear": "Temizle",
+    "guest_none_requests": "Bu seçim için şu an açık talep yok.",
+    "guest_none_providers": "Bu seçim için şu an hizmet veren yok.",
+    "guest_show_all": "Tümünü göster"
   },
   "location": {
     "country": "Ülke",

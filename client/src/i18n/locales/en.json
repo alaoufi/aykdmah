@@ -187,8 +187,6 @@
     "board_none_filtered": "Nothing matches right now. Turn a filter off to see everyone.",
     "board_fallback": "Nothing matches your choice yet, so here are the other requests, nearest to you first.",
     "board_fallback_providers": "Nobody matches your choice yet, so here are the other service providers, nearest to you first.",
-    "guest_fallback_requests": "No requests for this choice yet, so here are the latest others.",
-    "guest_fallback_providers": "No service providers for this choice yet, so here are the others.",
     "recent_title": "Done lately on «Ay Khidma»",
     "recent_hint": "Requests where a requester agreed with a service provider",
     "recent_done": "Done",
@@ -234,7 +232,12 @@
     "published_open": "Open your request",
     "published_see": "See your request on the home page",
     "guest_region": "Region",
-    "guest_all_regions": "All regions"
+    "guest_all_regions": "All regions",
+    "pick_done": "Done",
+    "pick_clear": "Clear",
+    "guest_none_requests": "No open requests for this choice right now.",
+    "guest_none_providers": "No service providers for this choice right now.",
+    "guest_show_all": "Show all"
   },
   "location": {
     "country": "Country",

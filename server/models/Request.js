@@ -271,7 +271,19 @@ async function regionOfCity(cityId) {
 // AYK-397 (the owner: «الافتراضي منطقتك وله يوسّع الدائرة»). `scope` widens the area of the board:
 // 'area' (a provider's coverage, a requester's district), 'city', 'region' or 'all'. `viewerId` is a
 // signed-in person who is not looking as a provider: their own district, city or region.
-async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serviceId, cityId, regionId = null, status = 'open', page = 1, limit = 20, providerId = null, scope = null, viewerId = null } = {}) {
+// AYK-475: a list of ids from "1,2,3" or [1,2,3]; anything else is refused. At most 30.
+function idList(value) {
+  if (value == null || value === '') return [];
+  const parts = Array.isArray(value) ? value : String(value).split(',');
+  if (parts.length > 30) throw new ApiError('invalid_data', 422);
+  return parts.map(part => {
+    const id = Number(String(part).trim());
+    if (!Number.isSafeInteger(id) || id < 1 || id > 2147483647) throw new ApiError('invalid_data', 422);
+    return id;
+  });
+}
+
+async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serviceId, cityId, regionId = null, regionIds = null, categoryIds = null, status = 'open', page = 1, limit = 20, providerId = null, scope = null, viewerId = null } = {}) {
   // AYK-400 «فك القيود»: 'open' = every open request, whatever the profession or the area (asked for, never the default).
   if (scope && !['area', 'city', 'region', 'all', 'open'].includes(scope)) scope = 'area';
   ({ page, limit } = pagination(page, limit));
@@ -289,9 +301,12 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
   cityId = optionalNumber(cityId,1,2147483647,true);
   if (cityId) {where.push('r.city_id = ?');whereParams.push(cityId);}
   // AYK-467: a visitor's «المنطقة» list (the region's cities, or their governorate's region).
+  // AYK-475 (the owner: «يستطيع اختيار أكثر من منطقة وأكثر من مهنة»): several regions and professions.
   regionId = optionalNumber(regionId, 1, 2147483647, true);
-  if (regionId) { where.push('r.city_id IN (SELECT c.id FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id WHERE COALESCE(c.region_id, g.region_id) = ?)'); whereParams.push(regionId); }
-  if (categoryId) { where.push('r.category_id = ?'); whereParams.push(categoryId); }
+  const regions = [...new Set([...(regionId ? [regionId] : []), ...idList(regionIds)])];
+  const categories = [...new Set([...(categoryId ? [categoryId] : []), ...idList(categoryIds)])];
+  if (regions.length) { where.push(`r.city_id IN (SELECT c.id FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id WHERE COALESCE(c.region_id, g.region_id) IN (${regions.map(() => '?').join(', ')}))`); whereParams.push(...regions); }
+  if (categories.length) { where.push(`r.category_id IN (${categories.map(() => '?').join(', ')})`); whereParams.push(...categories); }
   if (serviceId) { where.push('r.service_id = ?'); whereParams.push(serviceId); }
   if (providerId) {
     // A request sent straight to this provider from a directory is theirs to see (AYK-079).
