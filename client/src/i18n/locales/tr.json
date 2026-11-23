@@ -1781,7 +1781,8 @@
     "visitors_total": "Toplam ziyaretçi",
     "visitors_online": "Şu an çevrimiçi",
     "sbc_title": "Suudi İş Merkezi tarafından doğrulandı",
-    "sbc_number": "Sertifika no."
+    "sbc_number": "Sertifika no.",
+    "sbc_verified_store": "Doğrulanmış mağaza"
   },
   "policy": {
     "privacy_intro": "Bu politika, «Ay Khidma» üzerinden kaydolurken ve ev hizmetleri talep ederken bilgilerinizin nasıl kullanıldığını açıklar.",

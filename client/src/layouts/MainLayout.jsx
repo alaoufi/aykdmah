@@ -7,6 +7,7 @@ import Footer from '../components/layout/Footer';
 import BottomNav from '../components/layout/BottomNav';
 import BackButton from '../components/common/BackButton';
 import SupportWhatsApp from '../components/support/SupportWhatsApp';
+import SbcVerified from '../components/common/SbcVerified';
 
 export default function MainLayout() {
   // AYK-468: the floating support WhatsApp, except in the chats, where it would cover the typing box.
@@ -27,6 +28,7 @@ export default function MainLayout() {
       </main>
       <Footer />
       <BottomNav />
+      {floatSupport && <SbcVerified />}
       {floatSupport && <SupportWhatsApp variant="float" testId="support-whatsapp-float" />}
     </>
   );

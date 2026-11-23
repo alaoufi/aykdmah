@@ -83,20 +83,7 @@ export default function Footer() {
           <StoreBadges footer className="col-span-3 md:col-span-4" />
         </div>
 
-        <div className="mt-6 flex justify-start" data-testid="sbc-row">
-            {/* AYK-469 (the owner: «أضف أيقونة التوثيق أسفل يمين الصفحة، رقم الشهادة 0000338868»): the e-commerce
-                authentication of the Saudi Business Center, opening its official inquiry page. */}
-            <a href="https://eauthenticate.saudibusiness.gov.sa/inquiry" target="_blank" rel="noopener noreferrer" data-testid="sbc-badge"
-              className="inline-flex items-center gap-2 rounded-card bg-white px-3 py-2 no-underline text-[#0f5132] shadow-sm hover:opacity-95"
-              title={t('footer.sbc_title')}>
-              <span className="grid place-items-center w-8 h-8 rounded-full text-white text-[17px] font-black shrink-0" style={{ background: '#0f8a4f' }} aria-hidden="true">✓</span>
-              <span className="leading-tight text-start">
-                <span className="block text-[12.5px] font-extrabold">{t('footer.sbc_title')}</span>
-                <span className="block text-[11px] text-[#3d5a4b]">{t('footer.sbc_number')} <b dir="ltr">0000338868</b></span>
-              </span>
-            </a>
-        </div>
-        <div className="mt-3 pt-4 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-3 text-[12px] text-white/55">
+        <div className="mt-6 pt-4 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-3 text-[12px] text-white/55">
           <div>
             <div className="mb-1">
               {t('footer.branch_of_before')} <a href="https://trbhh.sa" target="_blank" rel="noopener" className="text-white/80 hover:text-white underline font-bold">{t('footer.parent_site')}</a>

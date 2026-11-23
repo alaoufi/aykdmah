@@ -1781,7 +1781,8 @@
     "visitors_total": "Total visitors",
     "visitors_online": "Online now",
     "sbc_title": "Verified by the Saudi Business Center",
-    "sbc_number": "Certificate no."
+    "sbc_number": "Certificate no.",
+    "sbc_verified_store": "Verified store"
   },
   "policy": {
     "privacy_intro": "This policy explains how Ay Khidma uses your information when you register and request home services.",
