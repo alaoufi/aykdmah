@@ -1779,7 +1779,9 @@
     "inquiry": "Untuk pertanyaan",
     "visitors_today": "Pengunjung hari ini",
     "visitors_total": "Total pengunjung",
-    "visitors_online": "Online sekarang"
+    "visitors_online": "Online sekarang",
+    "sbc_title": "Terverifikasi oleh Saudi Business Center",
+    "sbc_number": "No. sertifikat"
   },
   "policy": {
     "privacy_intro": "Kebijakan ini menjelaskan bagaimana Ay Khidma menggunakan informasi Anda saat Anda mendaftar dan meminta layanan rumah.",

@@ -1779,7 +1779,9 @@
     "inquiry": "ለጥያቄዎች",
     "visitors_today": "የዛሬ ጎብኚዎች",
     "visitors_total": "ጠቅላላ ጎብኚዎች",
-    "visitors_online": "አሁን መስመር ላይ ያሉ"
+    "visitors_online": "አሁን መስመር ላይ ያሉ",
+    "sbc_title": "በሳዑዲ የንግድ ማዕከል የተረጋገጠ",
+    "sbc_number": "የምስክር ወረቀት ቁጥር"
   },
   "policy": {
     "privacy_intro": "ይህ ፖሊሲ በ«Ay Khidma» ሲመዘገቡና የቤት አገልግሎቶችን ሲጠይቁ መረጃዎ እንዴት እንደሚውል ያብራራል።",

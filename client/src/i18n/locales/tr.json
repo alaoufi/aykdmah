@@ -1779,7 +1779,9 @@
     "inquiry": "Bilgi için",
     "visitors_today": "Bugünkü ziyaretçiler",
     "visitors_total": "Toplam ziyaretçi",
-    "visitors_online": "Şu an çevrimiçi"
+    "visitors_online": "Şu an çevrimiçi",
+    "sbc_title": "Suudi İş Merkezi tarafından doğrulandı",
+    "sbc_number": "Sertifika no."
   },
   "policy": {
     "privacy_intro": "Bu politika, «Ay Khidma» üzerinden kaydolurken ve ev hizmetleri talep ederken bilgilerinizin nasıl kullanıldığını açıklar.",
