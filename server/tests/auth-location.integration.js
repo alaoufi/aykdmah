@@ -1460,6 +1460,27 @@ if (!databasePrefix) {
     assert.equal(JSON.stringify(session).includes('internal_key'), false, 'not in the sign-up answer');
   });
 
+  test('AYK-467: a visitor filters requests and providers by region', async () => {
+    const area = await simpleArea();
+    const region = await db.queryOne('SELECT COALESCE(c.region_id, g.region_id) AS id FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id WHERE c.id = ?', [area.city_id]);
+    const other = await db.queryOne('SELECT id FROM regions WHERE id <> ? ORDER BY id LIMIT 1', [region.id]);
+    const svc = await db.queryOne('SELECT s.id, s.category_id FROM services s WHERE s.is_active = 1 AND s.deleted_at IS NULL ORDER BY s.id LIMIT 1');
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const id = Number((await api('/requests', { method: 'POST', token: owner.token, expected: 201, body: {
+      title: 'طلب بالمنطقة', description: 'تجربة المنطقة', category_id: Number(svc.category_id), city_id: area.city_id, district_id: area.district_id, latitude: 24.7136, longitude: 46.6753 } })).id);
+    const inRegion = await api(`/requests/nearby?status=open&limit=100&region_id=${region.id}`);
+    assert.ok(inRegion.some(row => Number(row.id) === id), 'in its region');
+    const elsewhere = await api(`/requests/nearby?status=open&limit=100&region_id=${other.id}`);
+    assert.ok(!elsewhere.some(row => Number(row.id) === id), 'not in another region');
+    const provider = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id, service_ids: [Number(svc.id)], coverage_district_ids: [area.district_id] });
+    const here = await api(`/providers/matching?scope=all&region_id=${region.id}`);
+    assert.ok(here.providers.some(p => Number(p.id) === Number(provider.user.id)), 'provider in his region');
+    const there = await api(`/providers/matching?scope=all&region_id=${other.id}`);
+    assert.ok(!there.providers.some(p => Number(p.id) === Number(provider.user.id)), 'not in another region');
+    await api('/providers/matching?scope=all&region_id=abc', { expected: 400 });
+    await db.query('DELETE FROM requests WHERE id = ?', [id]);
+  });
+
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');

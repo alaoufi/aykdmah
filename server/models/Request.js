@@ -271,7 +271,7 @@ async function regionOfCity(cityId) {
 // AYK-397 (the owner: «الافتراضي منطقتك وله يوسّع الدائرة»). `scope` widens the area of the board:
 // 'area' (a provider's coverage, a requester's district), 'city', 'region' or 'all'. `viewerId` is a
 // signed-in person who is not looking as a provider: their own district, city or region.
-async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serviceId, cityId, status = 'open', page = 1, limit = 20, providerId = null, scope = null, viewerId = null } = {}) {
+async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serviceId, cityId, regionId = null, status = 'open', page = 1, limit = 20, providerId = null, scope = null, viewerId = null } = {}) {
   // AYK-400 «فك القيود»: 'open' = every open request, whatever the profession or the area (asked for, never the default).
   if (scope && !['area', 'city', 'region', 'all', 'open'].includes(scope)) scope = 'area';
   ({ page, limit } = pagination(page, limit));
@@ -288,6 +288,9 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
   const whereParams = [status];
   cityId = optionalNumber(cityId,1,2147483647,true);
   if (cityId) {where.push('r.city_id = ?');whereParams.push(cityId);}
+  // AYK-467: a visitor's «المنطقة» list (the region's cities, or their governorate's region).
+  regionId = optionalNumber(regionId, 1, 2147483647, true);
+  if (regionId) { where.push('r.city_id IN (SELECT c.id FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id WHERE COALESCE(c.region_id, g.region_id) = ?)'); whereParams.push(regionId); }
   if (categoryId) { where.push('r.category_id = ?'); whereParams.push(categoryId); }
   if (serviceId) { where.push('r.service_id = ?'); whereParams.push(serviceId); }
   if (providerId) {

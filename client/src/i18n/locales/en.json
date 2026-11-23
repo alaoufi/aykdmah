@@ -177,8 +177,6 @@
     "no_requests_anywhere": "No open requests right now.",
     "guest_chat_note": "Browse freely; sign up to chat",
     "guest_register": "Sign up",
-    "guest_professions": "Professions",
-    "guest_services": "Profession categories",
     "guest_requests": "Service requests",
     "guest_providers": "Service providers",
     "guest_more": "Show more",
@@ -189,8 +187,8 @@
     "board_none_filtered": "Nothing matches right now. Turn a filter off to see everyone.",
     "board_fallback": "Nothing matches your choice yet, so here are the other requests, nearest to you first.",
     "board_fallback_providers": "Nobody matches your choice yet, so here are the other service providers, nearest to you first.",
-    "guest_fallback_requests": "No requests in this profession yet, so here are the latest in other professions.",
-    "guest_fallback_providers": "No service providers in this profession yet, so here are those in other professions.",
+    "guest_fallback_requests": "No requests for this choice yet, so here are the latest others.",
+    "guest_fallback_providers": "No service providers for this choice yet, so here are the others.",
     "recent_title": "Done lately on «Ay Khidma»",
     "recent_hint": "Requests where a requester agreed with a service provider",
     "recent_done": "Done",
@@ -234,7 +232,9 @@
     "published_title": "Your request is published",
     "published_hint": "Everyone can see it now, including the service providers of its profession and area; it is first in the list here.",
     "published_open": "Open your request",
-    "published_see": "See your request on the home page"
+    "published_see": "See your request on the home page",
+    "guest_region": "Region",
+    "guest_all_regions": "All regions"
   },
   "location": {
     "country": "Country",
