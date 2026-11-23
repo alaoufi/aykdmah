@@ -90,6 +90,12 @@ app.use('/api', (req, res, next) => {
   return bootMigrations().then(() => next(), next);
 });
 
+// AYK-474: «متجر موثّق» opens this store's certificate page at the Saudi Business Center directly.
+app.get('/api/verified', async (req, res) => {
+  const { freshCertificateUrl } = require('./services/sbcSeal');
+  res.set('Cache-Control', 'no-store');
+  res.redirect(302, await freshCertificateUrl({ lang: String(req.query.lang || 'ar') }));
+});
 // Search-engine pages and sitemap: crawlers fetch many pages, so no per-IP API limit.
 app.use('/api/seo', require('./routes/seoRoutes'));
 // AYK-251: public reads every app start asks for, answered from memory for 5 seconds.
