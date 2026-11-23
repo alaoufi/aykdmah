@@ -7,7 +7,8 @@ import { useTranslation } from 'react-i18next';
 // store (the same code as eauthenticate.saudibusiness.gov.sa/EAuthSealApi/seal.js, without loading a script).
 // Until this store's token is set, the same badge is drawn here and opens the centre's inquiry page.
 export const SBC_CERT = '0000338868';
-export const SBC_SEAL_TOKEN = '';
+// AYK-473: this store's own seal code (certificate 0000338868), given by the owner.
+export const SBC_SEAL_TOKEN = 'QkgzZE9CcXdpcWsvaUUyY1JjZ3BvQT09';
 // From the centre's own certificate page (searched 2026-11-23): store link and expiry. After this date the
 // card stops saying «سارية» (it cannot check live without the seal token).
 export const SBC_STORE_URL = 'https://aykdmh.com';
