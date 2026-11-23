@@ -234,7 +234,9 @@
     "published_open": "अपना अनुरोध खोलें",
     "published_see": "अपना अनुरोध होम पेज पर देखें",
     "guest_region": "क्षेत्र",
-    "guest_all_regions": "सभी क्षेत्र"
+    "guest_all_regions": "सभी क्षेत्र",
+    "pick_done": "हो गया",
+    "pick_clear": "हटाएँ"
   },
   "location": {
     "country": "देश",

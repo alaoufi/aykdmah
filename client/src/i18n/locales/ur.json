@@ -234,7 +234,9 @@
     "published_open": "اپنی درخواست کھولیں",
     "published_see": "اپنی درخواست ہوم پیج پر دیکھیں",
     "guest_region": "علاقہ",
-    "guest_all_regions": "تمام علاقے"
+    "guest_all_regions": "تمام علاقے",
+    "pick_done": "ہو گیا",
+    "pick_clear": "صاف کریں"
   },
   "location": {
     "country": "ملک",

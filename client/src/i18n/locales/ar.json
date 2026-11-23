@@ -234,7 +234,9 @@
     "published_open": "عرض طلبك",
     "published_see": "شاهد طلبك في الرئيسية",
     "guest_region": "المنطقة",
-    "guest_all_regions": "كل المناطق"
+    "guest_all_regions": "كل المناطق",
+    "pick_done": "تم",
+    "pick_clear": "مسح الاختيار"
   },
   "location": {
     "country": "الدولة",

@@ -1484,6 +1484,18 @@ if (!databasePrefix) {
     assert.ok(here.providers.some(p => Number(p.id) === Number(provider.user.id)), 'provider in his region');
     const there = await api(`/providers/matching?scope=all&region_id=${other.id}`);
     assert.ok(!there.providers.some(p => Number(p.id) === Number(provider.user.id)), 'not in another region');
+    // AYK-475 (the owner: «يستطيع اختيار أكثر من منطقة وأكثر من مهنة»): several regions and professions.
+    const otherCat = await db.queryOne('SELECT id FROM categories WHERE id <> ? ORDER BY id LIMIT 1', [svc.category_id]);
+    const both = await api(`/requests/nearby?status=open&limit=100&region_ids=${other.id},${region.id}&category_ids=${otherCat.id},${svc.category_id}`);
+    assert.ok(both.some(row => Number(row.id) === id), 'found among several regions and professions');
+    const wrongCats = await api(`/requests/nearby?status=open&limit=100&region_ids=${region.id}&category_ids=${otherCat.id}`);
+    assert.ok(!wrongCats.some(row => Number(row.id) === id), 'not under another profession');
+    const many = await api(`/providers/matching?scope=all&region_ids=${other.id},${region.id}&category_ids=${otherCat.id},${svc.category_id}`);
+    assert.ok(many.providers.some(p => Number(p.id) === Number(provider.user.id)), 'provider among several regions and professions');
+    const notHis = await api(`/providers/matching?scope=all&region_ids=${other.id}&category_ids=${otherCat.id},${svc.category_id}`);
+    assert.ok(!notHis.providers.some(p => Number(p.id) === Number(provider.user.id)), 'not when his region is not picked');
+    await api('/providers/matching?scope=all&region_ids=1,x', { expected: 400 });
+    await api('/requests/nearby?status=open&category_ids=1,x', { expected: 422 });
     await api('/providers/matching?scope=all&region_id=abc', { expected: 400 });
     await db.query('DELETE FROM requests WHERE id = ?', [id]);
   });

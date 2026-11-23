@@ -234,7 +234,9 @@
     "published_open": "Buksan ang request mo",
     "published_see": "Tingnan ang request mo sa home",
     "guest_region": "Rehiyon",
-    "guest_all_regions": "Lahat ng rehiyon"
+    "guest_all_regions": "Lahat ng rehiyon",
+    "pick_done": "Tapos na",
+    "pick_clear": "I-clear"
   },
   "location": {
     "country": "Bansa",

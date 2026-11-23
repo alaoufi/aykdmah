@@ -153,6 +153,7 @@ const getNearby = asyncHandler(async (req, res) => {
     radiusKm: radius === undefined ? 25 : radius,
     cityId: city_id,
     regionId: req.query.region_id, // AYK-467
+    regionIds: req.query.region_ids, categoryIds: req.query.category_ids, // AYK-475
     categoryId: category_id,
     serviceId: service_id,
     status: status || 'open',

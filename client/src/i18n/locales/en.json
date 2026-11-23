@@ -234,7 +234,9 @@
     "published_open": "Open your request",
     "published_see": "See your request on the home page",
     "guest_region": "Region",
-    "guest_all_regions": "All regions"
+    "guest_all_regions": "All regions",
+    "pick_done": "Done",
+    "pick_clear": "Clear"
   },
   "location": {
     "country": "Country",

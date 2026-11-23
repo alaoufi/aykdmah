@@ -234,7 +234,9 @@
     "published_open": "আপনার অনুরোধ খুলুন",
     "published_see": "হোম পেজে আপনার অনুরোধ দেখুন",
     "guest_region": "অঞ্চল",
-    "guest_all_regions": "সব অঞ্চল"
+    "guest_all_regions": "সব অঞ্চল",
+    "pick_done": "সম্পন্ন",
+    "pick_clear": "মুছুন"
   },
   "location": {
     "country": "দেশ",

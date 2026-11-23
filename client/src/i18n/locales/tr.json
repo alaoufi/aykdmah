@@ -234,7 +234,9 @@
     "published_open": "Talebinizi açın",
     "published_see": "Talebinizi ana sayfada görün",
     "guest_region": "Bölge",
-    "guest_all_regions": "Tüm bölgeler"
+    "guest_all_regions": "Tüm bölgeler",
+    "pick_done": "Tamam",
+    "pick_clear": "Temizle"
   },
   "location": {
     "country": "Ülke",

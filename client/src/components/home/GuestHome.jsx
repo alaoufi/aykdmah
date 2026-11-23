@@ -11,6 +11,7 @@ import RatingInline from '../reviews/RatingInline';
 import ContactButtons from '../providers/ContactButtons';
 import RecentActivity from './RecentActivity';
 import BoardEmpty from './BoardEmpty';
+import MultiPick from './MultiPick';
 
 // AYK-413 (the owner): a visitor browses without signing up; chatting needs an account.
 // AYK-467 (the owner: «طريقة عرض الرئيسية للزائر مزعجة ومزحومة جدًّا. المهن اجعلها قائمة منسدلة ويختار
@@ -23,8 +24,10 @@ export default function GuestHome() {
   const navigate = useNavigate();
   const [categories, setCategories] = useState([]);
   const [regions, setRegions] = useState([]);
-  const [category, setCategory] = useState('');
-  const [region, setRegion] = useState('');
+  // AYK-475: several regions and professions; none chosen = all.
+  const [cats, setCats] = useState([]);
+  const [regs, setRegs] = useState([]);
+  const category = cats.join(','), region = regs.join(',');
   const [tab, setTab] = useState(() => { try { return localStorage.getItem(TAB_KEY) === 'requests' ? 'requests' : 'providers'; } catch (_) { return 'providers'; } });
   const choose = next => { setTab(next); try { localStorage.setItem(TAB_KEY, next); } catch (_) { /* private mode */ } };
   const [requests, setRequests] = useState(null);
@@ -43,8 +46,8 @@ export default function GuestHome() {
     let current = true;
     setRequests(null);
     const params = { limit: 10, status: 'open' };
-    if (category) params.category_id = category;
-    if (region) params.region_id = region;
+    if (category) params.category_ids = category;
+    if (region) params.region_ids = region;
     listNearbyRequests(params)
       .then(async res => {
         let rows = res.data || []; let wider = false;
@@ -61,7 +64,7 @@ export default function GuestHome() {
   useEffect(() => {
     let current = true;
     setProviders(null);
-    listMatchingProviders({ scope: 'all', categoryId: category || undefined, regionId: region || undefined })
+    listMatchingProviders({ scope: 'all', categoryIds: category || undefined, regionIds: region || undefined })
       .then(async res => {
         let rows = res?.providers || []; let wider = false;
         if (!rows.length && (category || region)) {
@@ -93,21 +96,17 @@ export default function GuestHome() {
           ))}
         </div>
         <div className="grid grid-cols-2 gap-2">
-          <select className="select !h-10 !min-h-0 !py-1 text-[13.5px]" aria-label={t('home.guest_region')} value={region} onChange={e => setRegion(e.target.value)} data-testid="guest-region">
-            <option value="">📍 {t('home.guest_all_regions')}</option>
-            {regions.map(row => <option key={row.id} value={row.id}>{localizedName(row, lang)}</option>)}
-          </select>
-          <select className="select !h-10 !min-h-0 !py-1 text-[13.5px]" aria-label={t('for_you.profession')} value={category} onChange={e => setCategory(e.target.value)} data-testid="guest-category">
-            <option value="">🛠️ {t('requester.all_professions')}</option>
-            {categories.map(cat => <option key={cat.id} value={cat.id}>{optionLabel(cat.icon, localizedName(cat, lang), lang)}</option>)}
-          </select>
+          <MultiPick icon="📍" allLabel={t('home.guest_all_regions')} ariaLabel={t('home.guest_region')} testId="guest-region"
+            options={regions.map(row => ({ value: String(row.id), label: localizedName(row, lang) }))} value={regs} onChange={setRegs} />
+          <MultiPick icon="🛠️" allLabel={t('requester.all_professions')} ariaLabel={t('for_you.profession')} testId="guest-category"
+            options={categories.map(cat => ({ value: String(cat.id), label: optionLabel(cat.icon, localizedName(cat, lang), lang) }))} value={cats} onChange={setCats} />
         </div>
       </div>
 
       {tab === 'requests' && <section data-testid="guest-requests">
         <div className="flex items-center justify-between mb-1.5">
           <h2 className="text-[16px] font-extrabold text-fg m-0">{t('home.guest_requests')}</h2>
-          <Link to={category ? `/opportunities?category=${category}` : '/opportunities'} className="text-primary font-semibold text-[13px]">{t('home.view_all')}</Link>
+          <Link to={cats.length === 1 ? `/opportunities?category=${cats[0]}` : '/opportunities'} className="text-primary font-semibold text-[13px]">{t('home.view_all')}</Link>
         </div>
         {requestsWider && <p className="text-[12.5px] rounded-card bg-amber-50 text-amber-900 px-3 py-2 mb-1.5" role="status" data-testid="board-fallback">💡 {t('home.guest_fallback_requests')}</p>}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5" aria-busy={requests === null}>

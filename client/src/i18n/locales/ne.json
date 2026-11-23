@@ -234,7 +234,9 @@
     "published_open": "आफ्नो अनुरोध खोल्नुहोस्",
     "published_see": "गृहपृष्ठमा आफ्नो अनुरोध हेर्नुहोस्",
     "guest_region": "क्षेत्र",
-    "guest_all_regions": "सबै क्षेत्र"
+    "guest_all_regions": "सबै क्षेत्र",
+    "pick_done": "भयो",
+    "pick_clear": "हटाउनुहोस्"
   },
   "location": {
     "country": "देश",

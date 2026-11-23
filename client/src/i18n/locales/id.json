@@ -234,7 +234,9 @@
     "published_open": "Buka permintaan Anda",
     "published_see": "Lihat permintaan Anda di beranda",
     "guest_region": "Wilayah",
-    "guest_all_regions": "Semua wilayah"
+    "guest_all_regions": "Semua wilayah",
+    "pick_done": "Selesai",
+    "pick_clear": "Hapus pilihan"
   },
   "location": {
     "country": "Negara",

@@ -234,7 +234,9 @@
     "published_open": "നിങ്ങളുടെ അഭ്യർത്ഥന തുറക്കുക",
     "published_see": "ഹോം പേജിൽ നിങ്ങളുടെ അഭ്യർത്ഥന കാണുക",
     "guest_region": "പ്രദേശം",
-    "guest_all_regions": "എല്ലാ പ്രദേശങ്ങളും"
+    "guest_all_regions": "എല്ലാ പ്രദേശങ്ങളും",
+    "pick_done": "പൂർത്തിയായി",
+    "pick_clear": "മായ്ക്കുക"
   },
   "location": {
     "country": "രാജ്യം",

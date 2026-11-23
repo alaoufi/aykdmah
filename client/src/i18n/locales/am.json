@@ -234,7 +234,9 @@
     "published_open": "ጥያቄዎን ይክፈቱ",
     "published_see": "ጥያቄዎን በመነሻ ገጹ ይመልከቱ",
     "guest_region": "ክልል",
-    "guest_all_regions": "ሁሉም ክልሎች"
+    "guest_all_regions": "ሁሉም ክልሎች",
+    "pick_done": "ተከናውኗል",
+    "pick_clear": "አጽዳ"
   },
   "location": {
     "country": "ሀገር",
