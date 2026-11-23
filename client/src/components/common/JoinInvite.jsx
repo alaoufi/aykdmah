@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 
 // An invitation to join (AYK-158): visitors browse freely, and only when they want to request or
@@ -7,6 +7,9 @@ import { useTranslation } from 'react-i18next';
 //   compact: a card inside a page; otherwise a full page of its own
 export default function JoinInvite({ intent = 'general', from, compact = false }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  // AYK-470 (the owner: «مافيه خروج من الصفحة»): a clear way out — back where they came from, or home.
+  const leave = () => { if (window.history.length > 1 && window.history.state?.idx > 0) navigate(-1); else navigate('/', { replace: true }); };
   const state = from ? { from } : undefined;
   const providerFirst = intent === 'offer';
   const benefits = [1, 2, 3].map((n) => t(`join.${intent}_b${n}`));
@@ -56,8 +59,15 @@ export default function JoinInvite({ intent = 'general', from, compact = false }
   if (compact) return <div className="card mb-4 p-5" data-testid="join-invite">{body}</div>;
   return (
     <main className="container max-w-lg mx-auto px-4 py-8" data-testid="join-invite">
-      <div className="card p-6">{body}</div>
-      <p className="mt-4 text-center text-[13px]"><Link to="/" className="text-fg-muted">← {t('join.keep_browsing')}</Link></p>
+      <div className="card p-6 relative">
+        <button type="button" onClick={leave} data-testid="join-close" aria-label={t('common.close')} title={t('common.close')}
+          className="absolute top-3 end-3 grid place-items-center w-9 h-9 rounded-full bg-surface-2 text-fg text-[20px] leading-none hover:bg-brand-50">×</button>
+        {body}
+      </div>
+      <div className="mt-4 text-center">
+        <Link to="/" replace data-testid="join-keep-browsing"
+          className="inline-flex items-center justify-center min-h-[44px] px-6 rounded-full border-2 border-brand-200 bg-surface text-fg font-bold text-[14px] no-underline hover:bg-brand-50">{t('join.keep_browsing')}</Link>
+      </div>
     </main>
   );
 }
