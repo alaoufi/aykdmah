@@ -187,8 +187,6 @@
     "board_none_filtered": "Belum ada yang cocok. Matikan satu filter untuk melihat semua.",
     "board_fallback": "Belum ada yang cocok dengan pilihan Anda, jadi ini permintaan lainnya, dimulai dari yang terdekat.",
     "board_fallback_providers": "Belum ada yang cocok dengan pilihan Anda, jadi ini penyedia layanan lainnya, dimulai dari yang terdekat.",
-    "guest_fallback_requests": "Belum ada permintaan untuk pilihan ini, jadi ini permintaan terbaru lainnya.",
-    "guest_fallback_providers": "Belum ada penyedia layanan untuk pilihan ini, jadi ini yang lainnya.",
     "recent_title": "Baru selesai di «Ay Khidma»",
     "recent_hint": "Permintaan yang pemiliknya sudah sepakat dengan penyedia layanan",
     "recent_done": "Selesai",
@@ -236,7 +234,10 @@
     "guest_region": "Wilayah",
     "guest_all_regions": "Semua wilayah",
     "pick_done": "Selesai",
-    "pick_clear": "Hapus pilihan"
+    "pick_clear": "Hapus pilihan",
+    "guest_none_requests": "Belum ada permintaan terbuka untuk pilihan ini.",
+    "guest_none_providers": "Belum ada penyedia layanan untuk pilihan ini.",
+    "guest_show_all": "Tampilkan semua"
   },
   "location": {
     "country": "Negara",

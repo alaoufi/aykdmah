@@ -187,8 +187,6 @@
     "board_none_filtered": "አሁን የሚዛመድ የለም። ሁሉንም ለማየት አንድ ማጣሪያ ያጥፉ።",
     "board_fallback": "ከምርጫዎ ጋር የሚስማማ ገና የለም፣ ስለዚህ ሌሎቹ ጥያቄዎች ከቅርብዎ ጀምሮ እነሆ።",
     "board_fallback_providers": "ከምርጫዎ ጋር የሚስማማ ገና ማንም የለም፣ ስለዚህ ሌሎቹ አገልግሎት ሰጪዎች ከቅርብዎ ጀምሮ እነሆ።",
-    "guest_fallback_requests": "ለዚህ ምርጫ ገና ጥያቄ የለም፣ ስለዚህ ሌሎቹ አዳዲስ ጥያቄዎች እነሆ።",
-    "guest_fallback_providers": "ለዚህ ምርጫ ገና አገልግሎት ሰጪ የለም፣ ስለዚህ ሌሎቹ እነሆ።",
     "recent_title": "በ«Ay Khidma» በቅርቡ የተጠናቀቁ",
     "recent_hint": "ባለቤቶቻቸው ከአገልግሎት ሰጪ ጋር የተስማሙባቸው ጥያቄዎች",
     "recent_done": "ተጠናቋል",
@@ -236,7 +234,10 @@
     "guest_region": "ክልል",
     "guest_all_regions": "ሁሉም ክልሎች",
     "pick_done": "ተከናውኗል",
-    "pick_clear": "አጽዳ"
+    "pick_clear": "አጽዳ",
+    "guest_none_requests": "ለዚህ ምርጫ አሁን ክፍት ጥያቄዎች የሉም።",
+    "guest_none_providers": "ለዚህ ምርጫ አሁን አገልግሎት ሰጪዎች የሉም።",
+    "guest_show_all": "ሁሉንም አሳይ"
   },
   "location": {
     "country": "ሀገር",

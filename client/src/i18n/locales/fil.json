@@ -187,8 +187,6 @@
     "board_none_filtered": "Wala pang tugma. Patayin ang isang filter para makita ang lahat.",
     "board_fallback": "Wala pang tumutugma sa pinili mo, kaya narito ang ibang mga request, simula sa pinakamalapit sa iyo.",
     "board_fallback_providers": "Wala pang tumutugma sa pinili mo, kaya narito ang ibang service provider, simula sa pinakamalapit sa iyo.",
-    "guest_fallback_requests": "Wala pang request sa piniling ito, kaya narito ang iba pang pinakabago.",
-    "guest_fallback_providers": "Wala pang service provider sa piniling ito, kaya narito ang iba.",
     "recent_title": "Kamakailang natapos sa «Ay Khidma»",
     "recent_hint": "Mga request na ang may-ari ay nakipagkasundo sa isang service provider",
     "recent_done": "Tapos na",
@@ -236,7 +234,10 @@
     "guest_region": "Rehiyon",
     "guest_all_regions": "Lahat ng rehiyon",
     "pick_done": "Tapos na",
-    "pick_clear": "I-clear"
+    "pick_clear": "I-clear",
+    "guest_none_requests": "Walang bukas na request para sa piling ito ngayon.",
+    "guest_none_providers": "Walang service provider para sa piling ito ngayon.",
+    "guest_show_all": "Ipakita lahat"
   },
   "location": {
     "country": "Bansa",
