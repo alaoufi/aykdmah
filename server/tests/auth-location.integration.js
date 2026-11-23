@@ -609,7 +609,7 @@ if (!databasePrefix) {
       title: 'تسريب', description: 'تسريب في المطبخ', category_id: service.category_id } });
     const postedId = Number(posted.id);
     let notice = null;
-    for (let i = 0; i < 30 && !notice; i += 1) { // AYK-456: a moment after saving
+    for (let i = 0; i < 150 && !notice; i += 1) { // AYK-456: a moment after saving
       notice = await db.queryOne("SELECT link FROM notifications WHERE user_id = ? AND type = 'request_new' ORDER BY id DESC LIMIT 1", [provider.user.id]);
       if (!notice) await new Promise(resolve => setTimeout(resolve, 100));
     }
@@ -1350,7 +1350,9 @@ if (!databasePrefix) {
     const id = Number((await api('/requests', { method: 'POST', token: owner.token, expected: 201, body: {
       title: 'Fix the AC', description: 'تجربة التذكير', category_id: Number(svc.category_id), city_id: area.city_id, district_id: area.district_id, latitude: 24.7136, longitude: 46.6753 } })).id);
     let notice = null;
-    for (let i = 0; i < 30 && !notice; i += 1) {
+    // The notices go out after the request's translation, to every provider in the area one after another;
+    // on a busy test machine that took over 3 seconds (CI run 45161458770), so allow up to 15.
+    for (let i = 0; i < 150 && !notice; i += 1) {
       await new Promise(resolve => setTimeout(resolve, 100));
       notice = await db.queryOne("SELECT title, body FROM notifications WHERE user_id = ? AND type = 'request_new' ORDER BY id DESC LIMIT 1", [asked.user.id]);
     }
@@ -1359,7 +1361,12 @@ if (!databasePrefix) {
     assert.match(notice.body, /Fix the AC/);
     assert.match(notice.body, /chat or WhatsApp/, 'how to reach the requester: chat and WhatsApp (shown), not a call');
     // AYK-456: every provider of the profession in the area is told, at any hour, unless he turned notices off.
-    assert.ok(await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_new'", [quiet.user.id]), 'outside his hours: told as well');
+    let quietTold = null;
+    for (let i = 0; i < 150 && !quietTold; i += 1) {
+      quietTold = await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_new'", [quiet.user.id]);
+      if (!quietTold) await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    assert.ok(quietTold, 'outside his hours: told as well');
     const off = await makeProvider();
     await api('/users/me', { method: 'PUT', token: off.token, body: { request_alerts_off: 1 } });
     const paused = await makeProvider();
@@ -1367,7 +1374,7 @@ if (!databasePrefix) {
     const second = Number((await api('/requests', { method: 'POST', token: owner.token, expected: 201, body: {
       title: 'Second one', description: 'تجربة الإيقاف', category_id: Number(svc.category_id), city_id: area.city_id, district_id: area.district_id, latitude: 24.7136, longitude: 46.6753 } })).id);
     let told = null;
-    for (let i = 0; i < 30 && !told; i += 1) { await new Promise(resolve => setTimeout(resolve, 100)); told = await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND link = ?", [quiet.user.id, `/requests/${second}`]); }
+    for (let i = 0; i < 150 && !told; i += 1) { await new Promise(resolve => setTimeout(resolve, 100)); told = await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND link = ?", [quiet.user.id, `/requests/${second}`]); }
     assert.ok(told, 'the notice opens the request');
     assert.ok(!(await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_new'", [off.user.id])), 'turned off: not told');
     assert.ok(!(await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_new'", [paused.user.id])), 'paused: not told');
