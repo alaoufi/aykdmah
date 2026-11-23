@@ -33,17 +33,6 @@ export default function SupportWhatsApp({ variant = 'icon', className = '', test
   if (!href) return null;
   const onClick = () => { logSupportWhatsApp({ page, message, lang: i18n.resolvedLanguage || '' }); };
   const label = t('support.whatsapp_icon');
-  if (variant === 'float') {
-    // AYK-468 (the owner: «اجعل شعار الواتس اب عائمًا مستمرًا بالزاوية السفلية، المكان المناسب»): always
-    // on screen at the bottom corner on the reading side's end, above the phone's bottom bar.
-    return (
-      <a href={href} target="_blank" rel="noopener noreferrer" onClick={onClick} data-testid={testId} aria-label={label} title={label}
-        className={`ayk-support-float fixed z-[900] grid place-items-center rounded-full text-white shadow-lift ${className}`}
-        style={{ background: CONTACT_COLORS.whatsapp, width: 54, height: 54, padding: 0, textDecoration: 'none' }}>
-        <WhatsAppIcon size={30} />
-      </a>
-    );
-  }
   if (variant === 'button') {
     return (
       <a href={href} target="_blank" rel="noopener noreferrer" onClick={onClick} data-testid={testId}

@@ -549,10 +549,8 @@ select:not([multiple]):not([size]) {
 
 /* AYK-468: the floating support WhatsApp. On a phone it sits just above the bottom bar; on a
    computer, in the bottom corner. inset-inline-end: the left in Arabic, the right in English. */
-/* AYK-471: the SBC «متجر موثّق» badge right above «حسابي» (the bottom bar's last column); WhatsApp on the
-   opposite side, right above «الرئيسية» (its first column). */
+/* AYK-471: the SBC «متجر موثّق» badge right above «حسابي» (the bottom bar's last column). */
 .ayk-sbc-float { inset-inline-end: 12px; bottom: calc(var(--mobile-nav-clearance) - 34px); }
-.ayk-support-float { inset-inline-start: calc((100vw - 12px) / 10 + 2px - 27px); bottom: calc(var(--mobile-nav-clearance) - 40px); }
 @media (min-width: 768px) { .ayk-sbc-float { inset-inline-end: 18px; bottom: 18px; } }
 /* The same look as the centre's own seal (EAuthSealApi), for before its token is set. */
 .ayk-sbc-badge { display: inline-flex; align-items: center; gap: 8px; background: linear-gradient(160deg, #0A1F63 0%, #081B38 100%);
@@ -565,4 +563,3 @@ select:not([multiple]):not([size]) {
   border-radius: 7px; box-shadow: 0 1px 3px rgba(0,0,0,.35); flex: none; }
 .ayk-sbc-chip img { width: 19px; height: 21px; display: block; object-fit: contain; }
 .ayk-sbc-text { font-size: 12px; font-weight: 700; color: #fff; line-height: 1.4; }
-@media (min-width: 768px) { .ayk-support-float { bottom: 24px; inset-inline-start: 24px; } }

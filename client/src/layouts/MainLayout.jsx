@@ -6,11 +6,11 @@ import DevicePermissions from '../components/common/DevicePermissions';
 import Footer from '../components/layout/Footer';
 import BottomNav from '../components/layout/BottomNav';
 import BackButton from '../components/common/BackButton';
-import SupportWhatsApp from '../components/support/SupportWhatsApp';
 import SbcVerified from '../components/common/SbcVerified';
 
 export default function MainLayout() {
-  // AYK-468: the floating support WhatsApp, except in the chats, where it would cover the typing box.
+  // AYK-471: the floating «متجر موثّق», except in the chats, where it would cover the typing box.
+  // AYK-476 (the owner: «احذف الدعم الفني الواتس اب العائمة، ويُكتفى باللي بالفوتر»): no floating WhatsApp.
   const { pathname } = useLocation();
   const floatSupport = !pathname.startsWith('/chat');
   return (
@@ -29,7 +29,6 @@ export default function MainLayout() {
       <Footer />
       <BottomNav />
       {floatSupport && <SbcVerified />}
-      {floatSupport && <SupportWhatsApp variant="float" testId="support-whatsapp-float" />}
     </>
   );
 }
