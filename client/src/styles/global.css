@@ -546,3 +546,8 @@ select:not([multiple]):not([size]) {
 }
 .provider-strong .sidebar a { font-weight: 800; }
 .provider-strong .sidebar a:not(.active) { color: rgb(var(--color-fg)); }
+
+/* AYK-468: the floating support WhatsApp. On a phone it sits just above the bottom bar; on a
+   computer, in the bottom corner. inset-inline-end: the left in Arabic, the right in English. */
+.ayk-support-float { inset-inline-end: 16px; bottom: calc(var(--mobile-nav-clearance) - 16px); }
+@media (min-width: 768px) { .ayk-support-float { bottom: 24px; inset-inline-end: 24px; } }

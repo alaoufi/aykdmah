@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import Header from '../components/layout/Header';
 import UpdateBar from '../components/common/UpdateBar';
 import AppUpdateGate from '../components/common/AppUpdateGate';
@@ -6,8 +6,12 @@ import DevicePermissions from '../components/common/DevicePermissions';
 import Footer from '../components/layout/Footer';
 import BottomNav from '../components/layout/BottomNav';
 import BackButton from '../components/common/BackButton';
+import SupportWhatsApp from '../components/support/SupportWhatsApp';
 
 export default function MainLayout() {
+  // AYK-468: the floating support WhatsApp, except in the chats, where it would cover the typing box.
+  const { pathname } = useLocation();
+  const floatSupport = !pathname.startsWith('/chat');
   return (
     <>
       <Header />
@@ -23,6 +27,7 @@ export default function MainLayout() {
       </main>
       <Footer />
       <BottomNav />
+      {floatSupport && <SupportWhatsApp variant="float" testId="support-whatsapp-float" />}
     </>
   );
 }
