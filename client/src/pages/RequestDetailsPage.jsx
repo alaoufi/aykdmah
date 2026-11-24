@@ -207,6 +207,11 @@ export default function RequestDetailsPage() {
   // request is agreed with that provider, marked done, and the rating page opens.
   // Providers who withdrew are hidden from the requester; they may contact again (AYK-084).
   const shownOffers = isOwner ? offers.filter(o => o.status !== 'withdrawn') : offers;
+  // AYK-487 (the owner: «العروض لا تظهر إلا لصاحب الطلب، وتظهر للباقين كرقم فقط، ولا يفتح التفاصيل إلا صاحب
+  // الطلب»): the offers list is the requester's (and the administration's). Another provider sees only the
+  // number of offers (in the request's details line) and, if he made one, his own offer; never an empty
+  // «no offers yet» that would say there are none.
+  const seesAllOffers = Boolean(isOwner || (user?.role === 'admin' && canManageRequests));
   const contactedProviders = shownOffers.filter((o, i) => shownOffers.findIndex(x => x.provider_id === o.provider_id) === i);
   const closeRequest = async () => {
     setSubmitting(true);
@@ -404,8 +409,8 @@ export default function RequestDetailsPage() {
         </div>
       )}
 
-      {canReadRequestOffers(user, request, canManageRequests) && <div className="card">
-        <h3>{t('request.contacts_title')} ({shownOffers.length})</h3>
+      {canReadRequestOffers(user, request, canManageRequests) && (seesAllOffers || myOffer) && <div className="card" data-testid={seesAllOffers ? 'offers-card' : 'my-offer-card'}>
+        <h3>{seesAllOffers ? `${t('request.contacts_title')} (${shownOffers.length})` : t('request.my_offer_title')}</h3>
         {shownOffers.length === 0 ? (
           <EmptyState title={t('request.no_offers_yet')} body={t('request.offers_will_appear')} />
         ) : (

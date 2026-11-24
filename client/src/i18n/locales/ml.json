@@ -501,7 +501,8 @@
     "chip_offers": "ഓഫറുകൾ",
     "chip_views": "കാഴ്ചകൾ",
     "chip_budget": "ബജറ്റ്",
-    "chip_distance": "ദൂരം"
+    "chip_distance": "ദൂരം",
+    "my_offer_title": "ഈ അഭ്യർത്ഥനയിലെ എന്റെ ഓഫർ"
   },
   "offer": {
     "submit_title": "വില ഓഫർ നൽകുക",

@@ -501,7 +501,8 @@
     "chip_offers": "Mga alok",
     "chip_views": "Mga view",
     "chip_budget": "Badyet",
-    "chip_distance": "Layo"
+    "chip_distance": "Layo",
+    "my_offer_title": "Ang alok ko sa request na ito"
   },
   "offer": {
     "submit_title": "Mag-alok ng presyo",

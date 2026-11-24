@@ -501,7 +501,8 @@
     "chip_offers": "Offers",
     "chip_views": "Views",
     "chip_budget": "Budget",
-    "chip_distance": "Distance"
+    "chip_distance": "Distance",
+    "my_offer_title": "My offer on this request"
   },
   "offer": {
     "submit_title": "Send a price offer",

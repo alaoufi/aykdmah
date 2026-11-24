@@ -501,7 +501,8 @@
     "chip_offers": "प्रस्ताव",
     "chip_views": "हेराइ",
     "chip_budget": "बजेट",
-    "chip_distance": "दूरी"
+    "chip_distance": "दूरी",
+    "my_offer_title": "यो अनुरोधमा मेरो प्रस्ताव"
   },
   "offer": {
     "submit_title": "मूल्य प्रस्ताव पठाउनुहोस्",

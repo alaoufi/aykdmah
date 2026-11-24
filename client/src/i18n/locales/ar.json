@@ -501,7 +501,8 @@
     "chip_offers": "العروض",
     "chip_views": "المشاهدات",
     "chip_budget": "الميزانية",
-    "chip_distance": "البعد"
+    "chip_distance": "البعد",
+    "my_offer_title": "عرضي على هذا الطلب"
   },
   "offer": {
     "submit_title": "قدم عرض سعر",

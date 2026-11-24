@@ -501,7 +501,8 @@
     "chip_offers": "Penawaran",
     "chip_views": "Dilihat",
     "chip_budget": "Anggaran",
-    "chip_distance": "Jarak"
+    "chip_distance": "Jarak",
+    "my_offer_title": "Penawaran saya untuk permintaan ini"
   },
   "offer": {
     "submit_title": "Kirim penawaran harga",

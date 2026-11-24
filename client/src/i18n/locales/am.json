@@ -501,7 +501,8 @@
     "chip_offers": "ቅናሾች",
     "chip_views": "እይታዎች",
     "chip_budget": "በጀት",
-    "chip_distance": "ርቀት"
+    "chip_distance": "ርቀት",
+    "my_offer_title": "በዚህ ጥያቄ ላይ ያለኝ ቅናሽ"
   },
   "offer": {
     "submit_title": "የዋጋ ቅናሽ ያቅርቡ",
