@@ -174,9 +174,9 @@ const listProvidersAdmin = asyncHandler(async (req, res) => {
   else if (req.query.visibility === 'shown') where.push('pp.hidden_at IS NULL');
   const text = typeof req.query.search === 'string' ? req.query.search.trim().slice(0, 100) : '';
   if (text) {
-    const like = `%${text}%`;
-    where.push('(u.full_name ILIKE ? OR pp.business_name ILIKE ? OR u.phone LIKE ? OR u.referral_code = ? OR u.username ILIKE ?)');
-    params.push(like, like, like, text, like);
+    const found = require('../utils/searchFold').searchCondition(text, { columns: ['u.full_name', 'pp.business_name', 'u.username'], phone: 'u.phone', exact: 'u.referral_code' });
+    where.push(found.sql);
+    params.push(...found.params);
   }
   const from = `FROM users u JOIN provider_profiles pp ON pp.user_id = u.id
     LEFT JOIN cities c ON c.id = u.city_id LEFT JOIN regions rg ON rg.id = c.region_id

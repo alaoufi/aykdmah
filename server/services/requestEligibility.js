@@ -37,4 +37,17 @@ async function whyNotServing(providerId, request) {
   return city && Number(request.city_id) === city ? null : 'area';
 }
 
-module.exports = { whyNotServing };
+// AYK-493 (the owner: «حتى يفتح له محادثة أو تواصل مع مقدم الطلب يجب أن تتحقق ثلاثة شروط: مقدم خدمة من
+// نفس المهنة، ضمن حدود التغطية، وغير محظور من طالب الخدمة»). Answers the refusal (and sends it) when a
+// provider may not reach the owner of `request`; false when he may. Used by contact, offers and chat opening.
+async function refuseProviderContact(req, res, request, providerId) {
+  const { forbidden } = require('../utils/apiResponse');
+  if (req.user.role !== 'provider' || Number(req.user.id) !== Number(providerId)) { forbidden(res, req.t('deny_providers_only')); return true; }
+  // The provider the request was agreed with keeps his chat whatever changed since.
+  if (Number(request.assigned_provider_id) === Number(providerId)) return false;
+  const why = await whyNotServing(providerId, request);
+  if (why) { forbidden(res, req.t(why === 'area' ? 'contact_not_your_area' : 'contact_not_your_profession')); return true; }
+  return require('../controllers/userBlockController').blockedRefusal(req, res, request.client_id);
+}
+
+module.exports = { whyNotServing, refuseProviderContact };

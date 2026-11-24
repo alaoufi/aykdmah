@@ -65,11 +65,12 @@ const nearby = asyncHandler(async (req, res) => {
       -- AYK-254: only providers whose shown point (their own, or their city's) can lie inside the
       -- circle are read; this used to read every provider in the country on each map view.
       AND ((pp.fixed_latitude BETWEEN ? AND ? AND pp.fixed_longitude BETWEEN ? AND ?)
-        OR (c.latitude BETWEEN ? AND ? AND c.longitude BETWEEN ? AND ?))`,
+        OR (c.latitude BETWEEN ? AND ? AND c.longitude BETWEEN ? AND ?))
+      AND u.id <> ?`, // a provider who is also a requester does not see his own pin
     (() => {
       const latSpan = radius / 110.5 + 0.05, lonSpan = radius / (111.3 * Math.max(0.05, Math.cos(lat * Math.PI / 180))) + 0.05;
       const box = [lat - latSpan, lat + latSpan, lon - lonSpan, lon + lonSpan];
-      return [...box, ...box];
+      return [...box, ...box, req.user?.id || 0];
     })());
   // A provider may work in several professions: match any of their services.
   const categoryServices = categoryId !== null

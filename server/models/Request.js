@@ -504,10 +504,10 @@ async function listAll({ page = 1, limit = 20, status, search, region_id, city_i
   else if (visibility === 'shown') where.push('r.hidden_at IS NULL');
   const text = typeof search === 'string' ? search.trim().slice(0, 100) : '';
   if (text) {
-    const s = `%${text}%`;
     const digits = /^\d{1,10}$/.test(text) ? Number(text) : null;
-    where.push(`(r.title ILIKE ? OR r.description ILIKE ? OR u.full_name ILIKE ? OR u.phone LIKE ? OR u.referral_code = ?${digits ? ' OR r.id = ?' : ''})`);
-    params.push(s, s, s, s, text, ...(digits ? [digits] : []));
+    const found = require('../utils/searchFold').searchCondition(text, { columns: ['r.title', 'r.description', 'u.full_name'], phone: 'u.phone', exact: 'u.referral_code', extra: digits ? 'r.id = ?' : '' });
+    where.push(found.sql);
+    params.push(...found.params, ...(digits ? [digits] : []));
   }
   const whereSql = where.join(' AND ');
   const items = await query(

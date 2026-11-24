@@ -75,7 +75,7 @@ const listDisputes = asyncHandler(async (req, res) => {
     `SELECT d.*, r.title AS request_title FROM disputes d
      LEFT JOIN requests r ON d.request_id = r.id
      ${whereSql}
-     ORDER BY d.opened_at DESC LIMIT ? OFFSET ?`,
+     ORDER BY d.opened_at DESC, d.id DESC LIMIT ? OFFSET ?`,
     [...params, Number(limit), Number(offset)]
   );
   const [{ total }] = await query(

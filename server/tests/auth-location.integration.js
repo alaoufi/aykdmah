@@ -1658,8 +1658,41 @@ if (!databasePrefix) {
       const why = await say(wrongArea.token);
       assert.match(why.message, /تغطيتك/);
     }
+    // Opening a chat about the request by the back door is refused the same way.
+    await api('/chat/conversations', { method: 'POST', token: wrongJob.token, expected: 403, body: { user_id: owner.user.id, request_id: request } });
+    // A provider the requester blocked is refused, in his profession and area as he is.
+    const blocked = await make(services[0], [area.district_id]);
+    await api(`/users/me/blocks/${blocked.user.id}`, { method: 'POST', token: owner.token, expected: 200 });
+    await api(`/requests/${request}/contact`, { method: 'POST', token: blocked.token, expected: 403 });
+    await api('/offers', { method: 'POST', token: blocked.token, expected: 403, body: { request_id: request, price: 100, message: 'عرض' } });
+    await api('/chat/conversations', { method: 'POST', token: blocked.token, expected: 403, body: { user_id: owner.user.id, request_id: request } });
     // His own profession and area: allowed.
     await api(`/requests/${request}/contact`, { method: 'POST', token: fits.token, expected: 200 });
+  });
+
+  test('AYK-491: a hidden provider has no public page; «delete for me» leaves the unread count and the preview; the chat tabs are cut by the server', async () => {
+    const area = await simpleArea();
+    const service = await db.queryOne('SELECT id, category_id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const provider = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id, service_ids: [Number(service.id)], coverage_district_ids: [area.district_id] });
+    await api(`/users/${provider.user.id}`, { expected: 200 });
+    await db.query('UPDATE provider_profiles SET hidden_at = CURRENT_TIMESTAMP WHERE user_id = ?', [provider.user.id]);
+    await api(`/users/${provider.user.id}`, { expected: 404 });
+    await api(`/users/${provider.user.id}`, { token: provider.token, expected: 200 });
+    await db.query('UPDATE provider_profiles SET hidden_at = NULL WHERE user_id = ?', [provider.user.id]);
+    // A chat with two messages from the provider; the owner deletes one for himself.
+    const request = Number((await api('/requests', { method: 'POST', token: owner.token, expected: 201, body: { title: 'طلب للمحادثة', description: 'اختبار الحذف لي', category_id: service.category_id } })).id);
+    const opened = await api(`/requests/${request}/contact`, { method: 'POST', token: provider.token });
+    for (const content of ['الأولى', 'الثانية']) await api(`/chat/conversations/${opened.conversation_id}/messages`, { method: 'POST', token: provider.token, expected: 201, body: { content } });
+    const mine = async query => (await api(`/chat/conversations${query}`, { token: owner.token })).find(c => Number(c.id) === Number(opened.conversation_id));
+    assert.equal(Number((await mine('')).unread_count), 2);
+    const messages = await db.query('SELECT id FROM messages WHERE conversation_id = ? ORDER BY id', [opened.conversation_id]);
+    await db.query('INSERT INTO message_hidden (message_id, user_id) VALUES (?, ?)', [messages[1].id, owner.user.id]);
+    const after = await mine('');
+    assert.equal(Number(after.unread_count), 1, 'a message deleted for me is not unread');
+    assert.match(JSON.stringify(after.last_message), /الأولى/, 'and not the preview');
+    assert.ok(await mine('?archived=0'), 'the active tab holds the open chat');
+    assert.equal(await mine('?archived=1'), undefined, 'and the archive tab does not');
   });
 
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {

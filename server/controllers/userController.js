@@ -41,6 +41,8 @@ const getOne = asyncHandler(async (req, res) => {
   if (user.role === 'provider') {
     provider = await User.getProviderProfile(user.id);
   }
+  // A provider hidden by the administration is not reachable by a direct link either.
+  if (!privateAccess && provider?.hidden_at) return notFound(res);
   const rawProvider = provider;
   if (!privateAccess) {
     user = pick(user, user.role === 'client' ? ['id','role','full_name','avatar','is_verified'] : PUBLIC_USER_FIELDS);

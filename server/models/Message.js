@@ -188,13 +188,15 @@ async function softDelete(id) {
   await query('UPDATE messages SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
 }
 
-async function searchInConversation(conversationId, q, { limit = 30, beforeId = null } = {}) {
+async function searchInConversation(conversationId, q, { limit = 30, beforeId = null, viewerId = null } = {}) {
+  const viewer = Number.isSafeInteger(Number(viewerId)) && Number(viewerId) > 0 ? Number(viewerId) : null;
   const ids = (Array.isArray(conversationId) ? conversationId : [conversationId]).map(Number).filter(Number.isSafeInteger);
   return query(
     `SELECT m.id, m.conversation_id, m.content, m.message_type, m.created_at, m.sender_id,
             u.full_name AS sender_name, u.role AS sender_role
      FROM messages m JOIN users u ON m.sender_id = u.id
      WHERE m.conversation_id IN (${ids.map(() => '?').join(', ')}) AND m.deleted_at IS NULL
+       ${viewer ? `AND NOT EXISTS (SELECT 1 FROM message_hidden mh WHERE mh.message_id = m.id AND mh.user_id = ${viewer})` : ''}
        AND m.content LIKE ? AND (?::bigint IS NULL OR m.id < ?)
      ORDER BY m.id DESC LIMIT ?`,
     [...ids, `%${q}%`, beforeId, beforeId, Number(limit)]

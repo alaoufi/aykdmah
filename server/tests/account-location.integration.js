@@ -362,6 +362,10 @@ test('AYK-361: the administration lists requests and providers by area and profe
   assert.ok(ids.indexOf(Number(newer.id)) > -1 && ids.indexOf(Number(newer.id)) < ids.indexOf(Number(older.id)), 'newest first');
   assert.equal((await admin('/admin/requests?city_id=16&limit=100')).data.some(row => Number(row.id) === Number(newer.id)), false);
   assert.ok((await admin(`/admin/requests?search=${newer.id}`)).data.some(row => Number(row.id) === Number(newer.id)), 'search by request number');
+  // AYK-492: the same Arabic letters and the same phone in any writing find the request.
+  assert.ok((await admin(`/admin/requests?search=${encodeURIComponent('طلب احدث للتحقق')}`)).data.some(row => Number(row.id) === Number(newer.id)), 'أ and ا are one letter');
+  const phone = (await db.queryOne('SELECT phone FROM users WHERE id = ?', [client.user.id])).phone;
+  assert.ok((await admin(`/admin/requests?search=${encodeURIComponent('+966' + String(phone).replace(/^0/, ''))}`)).data.some(row => Number(row.id) === Number(newer.id)), 'a phone with the country code');
 
   // Hidden: out of the providers' view, still the requester's.
   const provider = await register({ role: 'provider' });

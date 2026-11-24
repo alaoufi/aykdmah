@@ -507,7 +507,7 @@ async function listPaginated({ role, search, page = 1, limit = 20 }) {
     `SELECT ${SELECT_FIELDS}, u.is_super_admin, u.permissions${hasAdminFlag ? ', u.is_admin' : ''}, c.name_ar AS city_name, c.name_en AS city_name_en
      FROM users u LEFT JOIN cities c ON u.city_id = c.id
      WHERE ${whereSql}
-     ORDER BY u.created_at DESC
+     ORDER BY u.created_at DESC, u.id DESC
      LIMIT ? OFFSET ?`,
     [...params, Number(limit), Number(offset)]
   );

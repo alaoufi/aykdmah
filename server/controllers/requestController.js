@@ -347,10 +347,7 @@ const contact = asyncHandler(async (req, res) => {
   if (!Number.isSafeInteger(providerId) || providerId < 1) return error(res, req.t('invalid_data'));
   if (request.direct_provider_id && providerId !== Number(request.direct_provider_id)) return forbidden(res, req.t('deny_direct_request'));
   // AYK-490: any open request may be looked at, but only a provider of its profession and inside his coverage writes to its owner.
-  if (!owner) {
-    const why = await require('../services/requestEligibility').whyNotServing(providerId, request);
-    if (why) return forbidden(res, req.t(why === 'area' ? 'contact_not_your_area' : 'contact_not_your_profession'));
-  }
+  if (!owner && await require('../services/requestEligibility').refuseProviderContact(req, res, request, providerId)) return undefined;
   // A provider starting the contact needs a subscription where one applies (AYK-042);
   // a requester contacting a provider is never stopped.
   if (!owner && await require('../services/subscriptionRules').blocks(providerId, { categoryId: request.category_id, cityId: request.city_id })) {

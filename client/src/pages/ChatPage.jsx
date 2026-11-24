@@ -146,7 +146,7 @@ export default function ChatPage() {
   useEffect(() => {
     setListError(false);
     if (!user?.id) { setLoadingList(false); return; }
-    const poll = createPollingLoop(() => listConversations({q:searchTerm,page:listPage,limit:20}), {
+    const poll = createPollingLoop(() => listConversations({q:searchTerm,page:listPage,limit:20,archived:showArchive?1:0}), {
       intervalMs: realtimeMode === 'polling' ? 10000 : null,
       onResult: (items) => {
         setConversations(items || []);
@@ -158,7 +158,7 @@ export default function ChatPage() {
     });
     listPollRef.current = poll;
     return () => { poll.stop(); listPollRef.current = null; };
-  }, [user?.id, realtimeMode, searchTerm, listPage]);
+  }, [user?.id, realtimeMode, searchTerm, listPage, showArchive]);
 
   // The first chats of the list are fetched ahead (AYK-231), so opening one shows it at once.
   const prefetched = useRef(new Set());
@@ -582,9 +582,9 @@ export default function ChatPage() {
                 to all chats, AYK-129), and the way back home (AYK-044). */}
             <ChatHeaderMenu buttonRef={listMenuRef}>
               <button type="button" role="menuitem" aria-current={!showArchive} className={!showArchive ? 'current' : ''} onClick={() => setSearchParams({})} data-testid="chat-tab-active">
-                💬 {t('chat.title')} ({conversations.filter(c => !archived(c)).length})</button>
+                💬 {t('chat.title')}</button>
               <button type="button" role="menuitem" aria-current={showArchive} className={showArchive ? 'current' : ''} onClick={() => setSearchParams({ archive: '1' })} data-testid="chat-tab-archive">
-                🗄️ {t('requester.chat_archive')} ({conversations.filter(archived).length})</button>
+                🗄️ {t('requester.chat_archive')}</button>
               <button type="button" role="menuitem" onClick={() => setListSettingsOpen(true)} data-testid="chat-settings">⚙️ {t('chat.settings')}</button>
             </ChatHeaderMenu>
             <ChatSettings anchorRef={listMenuRef} open={listSettingsOpen} onClose={() => setListSettingsOpen(false)} />

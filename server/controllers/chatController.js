@@ -35,7 +35,8 @@ const listConversations = asyncHandler(async (req, res) => {
   // AYK-365: one row per person; `separate=1` lists each conversation on its own (per request).
   // AYK-423: the chat list itself (no request or person asked for) shows only conversations with messages.
   const items = await Conversation.listForUser(req.user.id, { page, limit, q, requestId: request_id, peerId: user_id, merge: req.query.separate !== '1',
-    withMessagesOnly: !request_id && !user_id && req.query.separate !== '1' });
+    withMessagesOnly: !request_id && !user_id && req.query.separate !== '1',
+    archived: req.query.archived === '1' ? true : req.query.archived === '0' ? false : null });
   // A requester's name stays hidden from the other side (AYK-142).
   for (const item of items) if (typeof item.other_user === 'string') { try { item.other_user = JSON.parse(item.other_user); } catch (_) { item.other_user = null; } }
   await hideRequesterNames(req.user.id, items.map(item => item.other_user), req.t('requester_label'));
@@ -48,6 +49,16 @@ const createConversation = asyncHandler(async (req, res) => {
   const { user_id, request_id } = req.body;
   if (!user_id) return error(res, req.t('user_id_required'));
   if (Number(user_id) === Number(req.user.id)) return error(res, req.t('cannot_chat_self'));
+  // A chat tied to a request is opened by its owner, or by a provider who may reach it (profession, coverage, not blocked).
+  if (request_id) {
+    if (!/^[1-9][0-9]{0,9}$/.test(String(request_id))) return error(res, req.t('invalid_data'), 400);
+    const request = await require('../models/Request').findById(request_id);
+    if (!request) return notFound(res);
+    if (Number(request.client_id) !== Number(req.user.id)) {
+      if (Number(request.client_id) !== Number(user_id)) return forbidden(res, req.t('deny_chat_participant'));
+      if (await require('../services/requestEligibility').refuseProviderContact(req, res, request, req.user.id)) return undefined;
+    }
+  }
   const convId = await Conversation.findOrCreateBetween(req.user.id, user_id, request_id || null, {fresh:req.body.fresh === true});
   return created(res, { id: convId });
 });
@@ -427,7 +438,7 @@ const searchMessages = asyncHandler(async (req, res) => {
   if (!isParticipant) return forbidden(res, req.t('deny_chat_participant'));
   const q = searchQuery(req.query.q);
   if (!q) return success(res, []);
-  const items = await Message.searchInConversation(await Conversation.pairIds(conversationId, req.user.id), q, { limit: 30, beforeId: /^[1-9][0-9]{0,9}$/.test(String(req.query.before)) ? Number(req.query.before) : null });
+  const items = await Message.searchInConversation(await Conversation.pairIds(conversationId, req.user.id), q, { limit: 30, viewerId: req.user.id, beforeId: /^[1-9][0-9]{0,9}$/.test(String(req.query.before)) ? Number(req.query.before) : null });
   await hideMessageNames(req, items);
   return success(res, items);
 });

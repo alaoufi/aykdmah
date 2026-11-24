@@ -221,7 +221,7 @@ async function findByProvider(providerId, { status, scope, page = 1, limit = 20 
   const items = await query(
     `SELECT o.*, r.title AS request_title, r.status AS request_status
      FROM offers o JOIN requests r ON o.request_id = r.id
-     WHERE ${whereSql} ORDER BY o.created_at DESC LIMIT ? OFFSET ?`,
+     WHERE ${whereSql} ORDER BY o.created_at DESC, o.id DESC LIMIT ? OFFSET ?`,
     [...params, Number(limit), Number(offset)]
   );
   const [{ total }] = await query(
