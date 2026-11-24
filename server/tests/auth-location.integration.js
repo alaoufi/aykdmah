@@ -1634,6 +1634,34 @@ if (!databasePrefix) {
     assert.equal(after, before, 'a private direct request is not an open one for the others');
   });
 
+  test('AYK-490: any provider may look at an open request, but only one of its profession and inside his coverage may contact its owner', async () => {
+    const area = await simpleArea();
+    const services = await db.query('SELECT DISTINCT ON (category_id) id, category_id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY category_id, id LIMIT 2');
+    assert.equal(services.length, 2);
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const request = Number((await api('/requests', { method: 'POST', token: owner.token, expected: 201, body: { title: 'طلب للتواصل', description: 'اختبار شرط التواصل', category_id: services[0].category_id } })).id);
+    const make = (service, districts) => simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id, service_ids: [Number(service.id)], coverage_district_ids: districts });
+    const fits = await make(services[0], [area.district_id]);
+    const wrongJob = await make(services[1], [area.district_id]);
+    // He may look at it.
+    await api(`/requests/${request}`, { token: wrongJob.token, expected: 200 });
+    // …but not write to its owner, and the reason is told.
+    const say = async token => (await (await fetch(`${base}/requests/${request}/contact`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } })).json());
+    const refused = await say(wrongJob.token);
+    assert.equal(refused.success, false);
+    assert.match(refused.message, /مهنتك/);
+    await api('/offers', { method: 'POST', token: wrongJob.token, expected: 403, body: { request_id: request, price: 100, message: 'عرض' } });
+    // Outside his coverage: another district of the city when he covers only one far from the request's.
+    const other = area.districts.find(id => Number(id) !== Number(area.district_id));
+    if (other) {
+      const wrongArea = await make(services[0], [other]);
+      const why = await say(wrongArea.token);
+      assert.match(why.message, /تغطيتك/);
+    }
+    // His own profession and area: allowed.
+    await api(`/requests/${request}/contact`, { method: 'POST', token: fits.token, expected: 200 });
+  });
+
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
