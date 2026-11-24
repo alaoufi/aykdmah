@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { enablePush, pushState, needsHomeScreen, syncPush } from '../../services/pushService';
 import { useAuth } from '../../hooks/useAuth';
 import { sendDeviceReport } from '../../utils/deviceReport';
+import { HomeScreenGuideButton } from './HomeScreenGuide';
 
 const LATER_KEY = 'ayk_permissions_later';
 // AYK-331 (the owner: «السماح بالإشعارات يظهر كل مرة، المفروض مرة واحدة»): the bar is shown once on
@@ -128,9 +129,12 @@ export default function DevicePermissions({ variant = 'card' }) {
     // iPhone in Safari: calls and messages reach it only from the home-screen app (AYK-092).
     if (user && !hidden && needsHomeScreen()) {
       return (
-        <div className="bg-amber-100 text-amber-950 border-b border-amber-300 px-4 py-2 flex flex-wrap items-center justify-center gap-2 text-[13px] font-semibold" data-testid="ios-install-bar">
+        <div className="bg-amber-100 text-amber-950 border-b border-amber-300 px-4 py-3 flex flex-col items-center gap-2 text-[13.5px] font-semibold text-center" data-testid="ios-install-bar">
           <span>📲 {t('permissions.ios_install')}</span>
-          <button type="button" className="text-amber-900 underline" onClick={() => { answered(); setHidden(true); }}>{t('push.later')}</button>
+          <div className="flex items-center justify-center gap-3">
+            <HomeScreenGuideButton />
+            <button type="button" className="text-amber-900 underline" onClick={() => { answered(); setHidden(true); }}>{t('push.later')}</button>
+          </div>
         </div>
       );
     }
