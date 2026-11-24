@@ -42,7 +42,8 @@ export default function useOpenRequest() {
   // AYK-426 (the owner: «اللوحة هذي ما فيها تواصل، أضف التواصل»): «تواصل» on every open request that
   // is not mine. A provider reaches the requester at once; a visitor signs in first; a requester is
   // told contact is for service providers and can become one.
-  const canContact = request => !mine(request) && request.status === 'open';
+  // AYK-493: the server says (can_contact) whether this provider may reach the owner: his profession, inside his coverage, not blocked.
+  const canContact = request => !mine(request) && request.status === 'open' && request.can_contact !== false;
   const contact = async request => {
     if (!user) { navigate('/login', { state: { from: `/requests/${request.id}` } }); return; }
     if (forMyService(request)) { await startChat(request); return; }

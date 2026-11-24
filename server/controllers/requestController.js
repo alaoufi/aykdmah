@@ -232,12 +232,17 @@ const guestView = (req, row) => (req.user ? row : { ...row, client_avatar: null 
 // signed-in service provider (any profession), and only them (the owner's decision: «بيانات التواصل
 // لطالب الخدمة لا تظهر إلا لمقدم الخدمة»). Only on an open request, never to the requester themself.
 // (AYK-438 fixed: before, only a provider whose profession matched the request saw them.)
+// AYK-493 (the owner: «الأصل لا يسمح له يفتح المحادثة أو التواصل، قراءة فقط بدون رابط تواصل»): the contact
+// details and the contact buttons go only to a provider of the request's profession, inside his coverage, and
+// not blocked by its owner; any other provider reads the request and gets no way to reach its owner.
 async function providerCategoryIds(req) {
-  return req.user?.role === 'provider' ? true : null;
+  return req.user?.role === 'provider' ? require('../services/requestEligibility').loadReach(req.user.id) : null;
 }
-function withContact(req, raw, view, isProvider) {
-  if (isProvider !== true || !raw || raw.status !== 'open' || Number(raw.client_id) === Number(req.user?.id)) return view;
-  const out = { ...view };
+function withContact(req, raw, view, reach) {
+  if (!reach || !raw || Number(raw.client_id) === Number(req.user?.id)) return view;
+  if (raw.status !== 'open') return view;
+  if (require('../services/requestEligibility').judge(reach, raw)) return { ...view, can_contact: false };
+  const out = { ...view, can_contact: true };
   if (raw.client_contact_phone) out.client_contact_phone = raw.client_contact_phone;
   if (raw.client_contact_whatsapp) out.client_contact_whatsapp = raw.client_contact_whatsapp;
   if (raw.client_contact_name) out.client_contact_name = raw.client_contact_name;

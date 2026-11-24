@@ -115,7 +115,8 @@ export default function RequestDetailsPage() {
   // A provider the requester turned down sees why instead of a button that fails (AYK-080).
   const myOffer = user ? offers.find(offer => Number(offer.provider_id) === Number(user.id)) : null;
   const turnedDown = myOffer?.status === 'rejected';
-  const canOffer = user && user.role === 'provider' && !isOwner && request.status === 'open' && !turnedDown;
+  // AYK-493: a provider outside the request's profession or coverage (or blocked by its owner) only reads it.
+  const canOffer = user && user.role === 'provider' && !isOwner && request.status === 'open' && !turnedDown && request.can_contact !== false;
   const assignedProviderOffer = request.assigned_provider_id
     ? offers.find(offer => Number(offer.provider_id) === Number(request.assigned_provider_id))
     : null;

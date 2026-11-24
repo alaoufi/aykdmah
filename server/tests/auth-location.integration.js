@@ -1117,6 +1117,7 @@ if (!databasePrefix) {
     const makeProvider = async serviceId => {
       const session = await simpleRegister({ role: 'client', latitude: undefined, longitude: undefined });
       await api('/users/me/role', { method: 'PUT', token: session.token, body: { role: 'provider', quick: true, service_ids: [Number(serviceId)] } });
+      await db.query('UPDATE users SET city_id = ?, district_id = ? WHERE id = ?', [area.city_id, area.district_id, session.user.id]); // inside the request's area
       return session;
     };
     const same = await makeProvider(svc.id);
@@ -1136,14 +1137,14 @@ if (!databasePrefix) {
     assert.equal(shown.whatsapp, owner.user.phone, 'WhatsApp defaults to the phone');
     const listed = (await api('/requests/nearby?limit=100&scope=all', { token: same.token })).find(row => Number(row.id) === id);
     if (listed) assert.equal(listed.client_contact_phone, owner.user.phone);
-    // AYK-438: «لمقدمي الخدمة» means every provider (before, only the request's profession saw them).
-    assert.equal((await seenBy(other.token)).phone, owner.user.phone, 'a provider of another profession sees it too');
+    // AYK-493 (reverses AYK-438): only a provider of the request's profession (inside his coverage) gets them.
+    assert.equal((await seenBy(other.token)).phone, null, 'a provider of another profession only reads the request');
     assert.deepEqual(await seenBy(null), { phone: null, whatsapp: null }, 'level 1: a visitor sees nothing');
     const requester = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
     assert.deepEqual(await seenBy(requester.token), { phone: null, whatsapp: null }, 'level 1: another requester sees nothing');
     // AYK-439: only service providers, never visitors or other requesters; no «everyone» level.
     await api('/users/me', { method: 'PUT', token: owner.token, body: { share_name: 1 } });
-    assert.ok((await seenBy(other.token)).name, 'the name reaches providers');
+    assert.ok((await seenBy(same.token)).name, 'the name reaches providers who may contact');
     assert.deepEqual(await seenBy(null), { phone: null, whatsapp: null }, 'never a visitor');
     await api('/users/me', { method: 'PUT', token: owner.token, body: { share_phone: 2 }, expected: 400 });
     const flag = async token => Number((token ? await api(`/requests/${id}`, { token }) : (await fetch(`${base}/requests/${id}`).then(r => r.json())).data).client_allow_share);
@@ -1645,6 +1646,11 @@ if (!databasePrefix) {
     const wrongJob = await make(services[1], [area.district_id]);
     // He may look at it.
     await api(`/requests/${request}`, { token: wrongJob.token, expected: 200 });
+    // …but is given no way to reach its owner: no contact numbers, and the page says so (can_contact).
+    await api(`/requests/${request}`, { token: wrongJob.token, expected: 200 }).then(view => { assert.equal(view.can_contact, false); assert.equal(view.client_contact_phone, undefined); });
+    assert.equal((await api(`/requests/${request}`, { token: fits.token })).can_contact, true);
+    const row = list => list.find(item => Number(item.id) === Number(request));
+    assert.equal(row(await api('/requests/nearby?limit=50', { token: wrongJob.token })).can_contact, false);
     // …but not write to its owner, and the reason is told.
     const say = async token => (await (await fetch(`${base}/requests/${request}/contact`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } })).json());
     const refused = await say(wrongJob.token);
