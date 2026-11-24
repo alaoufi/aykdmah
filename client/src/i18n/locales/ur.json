@@ -495,7 +495,13 @@
     "contact_providers_title": "رابطہ خدمت فراہم کنندگان کے لیے ہے",
     "contact_providers_only": "خدمت کے طالبین سے رابطہ خدمت فراہم کنندگان کے لیے ہے۔ خدمت فراہم کنندہ کے طور پر رجسٹر ہوں اور اپنا پیشہ منتخب کریں، پھر ضرورت مندوں سے رابطہ کریں۔",
     "become_provider": "خدمت فراہم کنندہ بنیں",
-    "available": "دستیاب"
+    "available": "دستیاب",
+    "chip_profession": "پیشہ",
+    "chip_place": "جگہ",
+    "chip_offers": "پیشکشیں",
+    "chip_views": "مشاہدات",
+    "chip_budget": "بجٹ",
+    "chip_distance": "فاصلہ"
   },
   "offer": {
     "submit_title": "قیمت کی پیشکش بھیجیں",

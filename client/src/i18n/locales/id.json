@@ -495,7 +495,13 @@
     "contact_providers_title": "Kontak untuk penyedia layanan",
     "contact_providers_only": "Menghubungi peminta layanan hanya untuk penyedia layanan. Daftar sebagai penyedia layanan dan pilih profesi Anda, lalu hubungi orang yang membutuhkan Anda.",
     "become_provider": "Jadi penyedia layanan",
-    "available": "Tersedia"
+    "available": "Tersedia",
+    "chip_profession": "Profesi",
+    "chip_place": "Lokasi",
+    "chip_offers": "Penawaran",
+    "chip_views": "Dilihat",
+    "chip_budget": "Anggaran",
+    "chip_distance": "Jarak"
   },
   "offer": {
     "submit_title": "Kirim penawaran harga",

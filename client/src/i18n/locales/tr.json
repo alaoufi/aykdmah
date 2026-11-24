@@ -495,7 +495,13 @@
     "contact_providers_title": "İletişim hizmet verenler içindir",
     "contact_providers_only": "Hizmet talep edenlerle iletişim hizmet verenler içindir. Hizmet veren olarak kaydolun ve mesleğinizi seçin, ardından size ihtiyaç duyanlara ulaşın.",
     "become_provider": "Hizmet veren ol",
-    "available": "Müsait"
+    "available": "Müsait",
+    "chip_profession": "Meslek",
+    "chip_place": "Yer",
+    "chip_offers": "Teklifler",
+    "chip_views": "Görüntülenme",
+    "chip_budget": "Bütçe",
+    "chip_distance": "Mesafe"
   },
   "offer": {
     "submit_title": "Fiyat teklifi ver",

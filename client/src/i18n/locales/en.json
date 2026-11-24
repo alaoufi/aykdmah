@@ -495,7 +495,13 @@
     "contact_providers_title": "Contact is for service providers",
     "contact_providers_only": "Contacting service requesters is for service providers. Register as a service provider and choose your profession, then reach the people who need you.",
     "become_provider": "Become a service provider",
-    "available": "Available"
+    "available": "Available",
+    "chip_profession": "Profession",
+    "chip_place": "Place",
+    "chip_offers": "Offers",
+    "chip_views": "Views",
+    "chip_budget": "Budget",
+    "chip_distance": "Distance"
   },
   "offer": {
     "submit_title": "Send a price offer",

@@ -495,7 +495,13 @@
     "contact_providers_title": "መገናኘት ለአገልግሎት ሰጪዎች ነው",
     "contact_providers_only": "ከአገልግሎት ጠያቂዎች ጋር መገናኘት ለአገልግሎት ሰጪዎች ነው። እንደ አገልግሎት ሰጪ ይመዝገቡ እና ሙያዎን ይምረጡ፣ ከዚያ የሚፈልጉዎትን ያግኙ።",
     "become_provider": "አገልግሎት ሰጪ ይሁኑ",
-    "available": "ክፍት"
+    "available": "ክፍት",
+    "chip_profession": "ሙያ",
+    "chip_place": "ቦታ",
+    "chip_offers": "ቅናሾች",
+    "chip_views": "እይታዎች",
+    "chip_budget": "በጀት",
+    "chip_distance": "ርቀት"
   },
   "offer": {
     "submit_title": "የዋጋ ቅናሽ ያቅርቡ",

@@ -495,7 +495,13 @@
     "contact_providers_title": "যোগাযোগ সেবাদাতাদের জন্য",
     "contact_providers_only": "সেবাপ্রার্থীদের সাথে যোগাযোগ সেবাদাতাদের জন্য। সেবাদাতা হিসেবে নিবন্ধন করুন এবং আপনার পেশা বেছে নিন, তারপর যাদের আপনাকে দরকার তাদের সাথে যোগাযোগ করুন।",
     "become_provider": "সেবাদাতা হন",
-    "available": "উপলব্ধ"
+    "available": "উপলব্ধ",
+    "chip_profession": "পেশা",
+    "chip_place": "স্থান",
+    "chip_offers": "অফার",
+    "chip_views": "দেখা",
+    "chip_budget": "বাজেট",
+    "chip_distance": "দূরত্ব"
   },
   "offer": {
     "submit_title": "দামের অফার দিন",

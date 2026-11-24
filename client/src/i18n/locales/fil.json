@@ -495,7 +495,13 @@
     "contact_providers_title": "Ang pakikipag-ugnayan ay para sa mga service provider",
     "contact_providers_only": "Ang pakikipag-ugnayan sa mga humihiling ng serbisyo ay para sa mga service provider. Magrehistro bilang service provider at piliin ang iyong propesyon, saka kontakin ang mga nangangailangan sa iyo.",
     "become_provider": "Maging service provider",
-    "available": "Bukas"
+    "available": "Bukas",
+    "chip_profession": "Propesyon",
+    "chip_place": "Lugar",
+    "chip_offers": "Mga alok",
+    "chip_views": "Mga view",
+    "chip_budget": "Badyet",
+    "chip_distance": "Layo"
   },
   "offer": {
     "submit_title": "Mag-alok ng presyo",

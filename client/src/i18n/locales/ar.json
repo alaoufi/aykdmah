@@ -495,7 +495,13 @@
     "contact_providers_title": "التواصل لمقدمي الخدمة",
     "contact_providers_only": "التواصل مع طالبي الخدمة متاح لمقدمي الخدمة. سجّل كمقدم خدمة واختر مهنتك، ثم تواصل مع من يحتاجك.",
     "become_provider": "أصبح مقدم خدمة",
-    "available": "متاح"
+    "available": "متاح",
+    "chip_profession": "المهنة",
+    "chip_place": "المكان",
+    "chip_offers": "العروض",
+    "chip_views": "المشاهدات",
+    "chip_budget": "الميزانية",
+    "chip_distance": "البعد"
   },
   "offer": {
     "submit_title": "قدم عرض سعر",
