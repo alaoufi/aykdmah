@@ -501,7 +501,8 @@
     "chip_offers": "অফার",
     "chip_views": "দেখা",
     "chip_budget": "বাজেট",
-    "chip_distance": "দূরত্ব"
+    "chip_distance": "দূরত্ব",
+    "my_offer_title": "এই অনুরোধে আমার অফার"
   },
   "offer": {
     "submit_title": "দামের অফার দিন",

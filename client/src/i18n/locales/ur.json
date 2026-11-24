@@ -501,7 +501,8 @@
     "chip_offers": "پیشکشیں",
     "chip_views": "مشاہدات",
     "chip_budget": "بجٹ",
-    "chip_distance": "فاصلہ"
+    "chip_distance": "فاصلہ",
+    "my_offer_title": "اس درخواست پر میری پیشکش"
   },
   "offer": {
     "submit_title": "قیمت کی پیشکش بھیجیں",

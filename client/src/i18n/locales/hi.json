@@ -501,7 +501,8 @@
     "chip_offers": "प्रस्ताव",
     "chip_views": "व्यू",
     "chip_budget": "बजट",
-    "chip_distance": "दूरी"
+    "chip_distance": "दूरी",
+    "my_offer_title": "इस अनुरोध पर मेरा प्रस्ताव"
   },
   "offer": {
     "submit_title": "कीमत का ऑफ़र भेजें",

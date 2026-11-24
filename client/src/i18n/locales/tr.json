@@ -501,7 +501,8 @@
     "chip_offers": "Teklifler",
     "chip_views": "Görüntülenme",
     "chip_budget": "Bütçe",
-    "chip_distance": "Mesafe"
+    "chip_distance": "Mesafe",
+    "my_offer_title": "Bu talepteki teklifim"
   },
   "offer": {
     "submit_title": "Fiyat teklifi ver",
