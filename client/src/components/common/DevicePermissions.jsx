@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { enablePush, pushState, needsHomeScreen, syncPush } from '../../services/pushService';
 import { useAuth } from '../../hooks/useAuth';
 import { sendDeviceReport } from '../../utils/deviceReport';
-import { HomeScreenGuideButton } from './HomeScreenGuide';
+import { HomeScreenGuideButton, devicePlatform } from './HomeScreenGuide';
 
 const LATER_KEY = 'ayk_permissions_later';
 // AYK-331 (the owner: «السماح بالإشعارات يظهر كل مرة، المفروض مرة واحدة»): the bar is shown once on
@@ -143,6 +143,8 @@ export default function DevicePermissions({ variant = 'card' }) {
       <div className="bg-primary-soft border-b border-border px-4 py-2 flex flex-wrap items-center justify-center gap-2 text-[13px]" data-testid="permissions-bar">
         <span>📍🎤📷🔔 {t(ok(state.push) || state.push === 'unsupported' ? 'permissions.bar' : 'permissions.bar_no_ring')}</span>
         <button type="button" className="btn btn-primary btn-sm" disabled={busy !== ''} onClick={allowAll} data-testid="bar-allow-all">{busy ? '⏳' : `✅ ${t('permissions.allow')}`}</button>
+        {/* AYK-479: an Android phone sees the steps of its own system (install the app to the Home screen). */}
+        {devicePlatform() === 'android' && !window.matchMedia?.('(display-mode: standalone)').matches && <HomeScreenGuideButton />}
         {outcome && <div className="w-full">{outcome}</div>}
         <button type="button" className="text-fg-muted underline" onClick={() => { answered(); setHidden(true); }}>{t('push.later')}</button>
       </div>

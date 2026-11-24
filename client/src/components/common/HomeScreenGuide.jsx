@@ -88,24 +88,35 @@ function ChromeMenu() {
   );
 }
 
-export function HomeScreenGuideButton({ className = '', defaultTab = 'iphone' }) {
+// AYK-479 (the owner: «إذا آيفون يظهر له تبع الآيفون، وإذا أندرويد يظهر له التابع لنظامه»): the guide knows the
+// device and shows only its own steps. Only where the system cannot be told (a computer) are both offered.
+export const devicePlatform = () => {
+  const ua = typeof navigator === 'undefined' ? '' : navigator.userAgent || '';
+  if (/iPhone|iPad|iPod/.test(ua)) return 'iphone';
+  if (/Android/i.test(ua)) return 'android';
+  return null;
+};
+
+export function HomeScreenGuideButton({ className = '' }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const [tab, setTab] = useState(defaultTab);
+  const known = devicePlatform();
+  const [chosen, setChosen] = useState('iphone');
+  const tab = known || chosen;
   return (
     <>
       <button type="button" className={`btn btn-primary btn-sm ${className}`} onClick={() => setOpen(true)} data-testid="guide-open">
         📖 {t('permissions.guide_open')}
       </button>
       <Modal open={open} onClose={() => setOpen(false)} title={t('permissions.guide_title')} width={460}>
-        <div role="tablist" className="flex gap-2 mb-3">
+        {!known && <div role="tablist" className="flex gap-2 mb-3">
           {[['iphone', '🍎', 'permissions.guide_tab_iphone'], ['android', '🤖', 'permissions.guide_tab_android']].map(([value, icon, key]) => (
-            <button key={value} type="button" role="tab" aria-selected={tab === value} onClick={() => setTab(value)} data-testid={`guide-tab-${value}`}
+            <button key={value} type="button" role="tab" aria-selected={tab === value} onClick={() => setChosen(value)} data-testid={`guide-tab-${value}`}
               className={`flex-1 rounded-card px-3 py-2 border-2 text-[14px] font-extrabold transition ${tab === value ? 'border-primary bg-primary-soft text-fg' : 'border-border bg-surface text-fg-muted'}`}>
               {icon} {t(key)}
             </button>
           ))}
-        </div>
+        </div>}
         {tab === 'iphone' ? (
           <ol className="m-0 p-0 space-y-2.5" data-testid="guide-iphone">
             <Step n={1} picture={<SafariBar />}>{t('permissions.guide_ios_1')}<br /><span className="font-normal text-fg-muted text-[12.5px]">{t('permissions.guide_ios_1b')}</span></Step>
