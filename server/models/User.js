@@ -531,7 +531,7 @@ async function listPaginated({ role, search, page = 1, limit = 20 }) {
 
 async function getProviderProfile(userId) {
   const row = await queryOne(
-    `SELECT pp.*, u.full_name, u.email, u.phone, u.avatar, u.is_verified, CASE WHEN u.is_online = 1 OR u.last_seen_at > CURRENT_TIMESTAMP - INTERVAL '2 minutes' THEN 1 ELSE 0 END AS is_online, u.last_seen_at,
+    `SELECT pp.*, u.full_name, u.email, u.phone, u.avatar, u.is_verified, CASE WHEN u.is_online = 1 OR u.last_seen_at > CURRENT_TIMESTAMP - INTERVAL '2 minutes' THEN 1 ELSE 0 END AS is_online, u.last_seen_at, ${require('../utils/providerAvailability').ALERTS_OK_SQL},
             c.name_ar AS city_name, c.name_en AS city_name_en,
             d.name_ar AS district_name, d.name_en AS district_name_en,
             EXISTS (SELECT 1 FROM provider_badges pb WHERE pb.user_id = pp.user_id AND pb.badge_type = 'trusted' AND pb.status = 'active' AND pb.ends_at > CURRENT_TIMESTAMP AND ${ProviderBadge.verifiedPaymentSql('pb')}) AS is_trusted,

@@ -2448,7 +2448,8 @@
       "vacation": "बिदामा",
       "off_day": "आज उपलब्ध छैन",
       "off_hours": "अहिले उपलब्ध छैन (कामको समयबाहिर)",
-      "offline": "अहिले जडान छैन"
+      "offline": "अहिले जडान छैन",
+      "no_alerts": "सूचना उनको फोनमा पुग्दैन"
     },
     "vacation_until": "{{date}} सम्म बिदामा",
     "off_hours_range": "{{from}} देखि {{to}} सम्म काम गर्छन्",
@@ -2493,7 +2494,9 @@
     "label_available": "कामका लागि उपलब्ध",
     "label_present": "उपस्थित",
     "label_connected": "अनलाइन",
-    "label_disconnected": "अफलाइन"
+    "label_disconnected": "अफलाइन",
+    "no_alerts_self": "तपाईंका सूचना अहिले फोनमा पुगिरहेका छैनन्, त्यसैले कार्यतालिका खुला भए पनि तपाईं «काममा उपलब्ध» देखिनुहुन्न।",
+    "no_alerts_link": "सूचना खोल्नुहोस्"
   },
   "brand": {
     "branch_of": "Ay Khidma यो साइटको शाखा हो:",

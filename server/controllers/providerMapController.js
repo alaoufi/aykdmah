@@ -3,7 +3,7 @@ const { success, error } = require('../utils/apiResponse');
 const asyncHandler = require('../utils/asyncHandler');
 const { distanceKm, isValidLatLng } = require('../services/geoService');
 const { COVERAGE_SQL, coverageOf } = require('../utils/providerCoverage');
-const { availability } = require('../utils/providerAvailability');
+const { availability, ALERTS_OK_SQL } = require('../utils/providerAvailability');
 const ProviderBadge = require('../models/ProviderBadge');
 const { BIO_SQL, bioFor, readerOf } = require('../utils/providerBio');
 const { publicContact } = require('../utils/providerContact');
@@ -45,7 +45,7 @@ const nearby = asyncHandler(async (req, res) => {
   }
 
   const rows = await query(`
-    SELECT u.id, u.full_name, u.avatar, u.is_verified, CASE WHEN u.is_online = 1 OR u.last_seen_at > CURRENT_TIMESTAMP - INTERVAL '2 minutes' THEN 1 ELSE 0 END AS is_online, u.last_seen_at,
+    SELECT u.id, u.full_name, u.avatar, u.is_verified, CASE WHEN u.is_online = 1 OR u.last_seen_at > CURRENT_TIMESTAMP - INTERVAL '2 minutes' THEN 1 ELSE 0 END AS is_online, u.last_seen_at, ${ALERTS_OK_SQL},
            pp.business_name, pp.category_id, pp.service_ids, pp.service_radius_km, ${BIO_SQL},
            pp.rating_avg, pp.rating_count, pp.completed_orders,
            pp.location_mode,
@@ -185,7 +185,7 @@ function coveringProviders({ districtId, cityId, regionId = null, everywhere = f
             AND COALESCE(pp.coverage_city_id, u.city_id) = ?))`);
   const coverageParams = everywhere ? [] : regionId ? [...regionIds, ...regionIds] : [districtId || cityId, cityId];
   return query(`
-    SELECT u.id, u.full_name, u.avatar, u.is_verified, CASE WHEN u.is_online = 1 OR u.last_seen_at > CURRENT_TIMESTAMP - INTERVAL '2 minutes' THEN 1 ELSE 0 END AS is_online, u.last_seen_at,
+    SELECT u.id, u.full_name, u.avatar, u.is_verified, CASE WHEN u.is_online = 1 OR u.last_seen_at > CURRENT_TIMESTAMP - INTERVAL '2 minutes' THEN 1 ELSE 0 END AS is_online, u.last_seen_at, ${ALERTS_OK_SQL},
            pp.business_name, pp.category_id, pp.service_ids, ${BIO_SQL},
            u.phone, pp.show_phone, pp.whatsapp, pp.show_whatsapp,
            pp.rating_avg, pp.rating_count, pp.completed_orders,

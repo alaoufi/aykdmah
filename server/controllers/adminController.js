@@ -185,7 +185,7 @@ const listProvidersAdmin = asyncHandler(async (req, res) => {
   const items = await query(`SELECT u.id, u.full_name, u.username, u.phone, u.referral_code, u.is_active, u.is_blocked, u.also_client,
       u.created_at, u.last_seen_at, pp.business_name, pp.rating_avg, pp.rating_count, pp.completed_orders, pp.hidden_at,
       pp.category_id, cat.name_ar AS category_name, c.name_ar AS city_name, rg.name_ar AS region_name, d.name_ar AS district_name,
-      CASE WHEN u.is_online = 1 OR u.last_seen_at > CURRENT_TIMESTAMP - INTERVAL '2 minutes' THEN 1 ELSE 0 END AS is_online, u.last_seen_at, pp.availability_status, pp.vacation_from, pp.vacation_to, pp.work_days, pp.work_from, pp.work_to, pp.work_schedule,
+      CASE WHEN u.is_online = 1 OR u.last_seen_at > CURRENT_TIMESTAMP - INTERVAL '2 minutes' THEN 1 ELSE 0 END AS is_online, ${ALERTS_OK_SQL}, pp.availability_status, pp.vacation_from, pp.vacation_to, pp.work_days, pp.work_from, pp.work_to, pp.work_schedule,
       ${COVERAGE_SQL}
     ${from} ORDER BY u.created_at DESC, u.id DESC LIMIT ? OFFSET ?`, [...params, limit, (page - 1) * limit]);
   // AYK-366: available (by their schedule) and present (app open) apart, and where they work.
@@ -830,7 +830,7 @@ const liveLocationsAdmin = asyncHandler(async (req, res) => {
 
 // ─── Admin permission editor ────────────────────────────────────────────
 const { PERMISSIONS } = require('../config/permissions');
-const { availability } = require('../utils/providerAvailability');
+const { availability, ALERTS_OK_SQL } = require('../utils/providerAvailability');
 const { COVERAGE_SQL, coverageOf } = require('../utils/providerCoverage');
 
 // Lists every permission key the UI can grant (for the dropdown / checkbox

@@ -12,6 +12,7 @@ import { canRequestService } from '../../utils/canRequest';
 import { listDirectoryIds, saveToDirectory, contactDirect } from '../../services/requestService';
 import { apiError } from '../../services/api';
 import { isPresent, ProviderStatus } from '../common/AvailabilityBadge';
+import usePublicSettings, { availabilityOn } from '../../hooks/usePublicSettings';
 import { optionLabel } from '../../utils/optionLabel';
 import ExpandableText from '../common/ExpandableText';
 import ContactButtons from '../providers/ContactButtons';
@@ -76,6 +77,8 @@ export function AreaLine({ area, browsing, onPick }) {
 export default function MatchingProviders({ categoryId: fixedCategory = '', serviceId = '', showChips: showChipsProp = true, title, fixedArea = null, onContact = null, scope = 'area', board = null, onMeta = null }) {
   const showChips = showChipsProp && !board;
   const { t, i18n } = useTranslation();
+  const { settings: publicSettings } = usePublicSettings();
+  const showAvailable = availabilityOn(publicSettings); // AYK-481: the administration's switch
   const lang = i18n.resolvedLanguage || 'ar';
   const [categories, setCategories] = useState([]);
   // AYK-370 (the owner: «تأكد من عرض جميع مقدمي الخدمة لطالب الخدمة في منطقة تغطيته»): every profession
@@ -155,8 +158,8 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
       {(result?.area || scope === 'all' || board) && result?.providers?.length > 0 && <div className="flex flex-wrap gap-2 mb-3" role="tablist" data-testid="providers-stats">
         <button type="button" role="tab" aria-selected={!onlyPresent} className="btn btn-outline btn-sm" data-testid="show-all-providers"
           onClick={() => setOnlyPresent(false)}>👷 {t('requester.stat_total', { count: result.providers.length })}</button>
-        <button type="button" role="tab" aria-selected={onlyPresent} className="btn btn-outline btn-sm" data-testid="show-present-providers"
-          onClick={() => setOnlyPresent(true)}>🟢 {t('requester.stat_available', { count: availableCount })}</button>
+        {showAvailable && <button type="button" role="tab" aria-selected={onlyPresent} className="btn btn-outline btn-sm" data-testid="show-present-providers"
+          onClick={() => setOnlyPresent(true)}>🟢 {t('requester.stat_available', { count: availableCount })}</button>}
       </div>}
       {result === null ? <p className="text-fg-muted">{t('common.loading')}</p>
         : !result.area && scope !== 'all' && !board ? <p className="card text-fg-muted text-[14px]">{t('for_you.no_area_hint')} <Link to="/profile#my-area" className="font-semibold text-primary">{t('for_you.edit_area')}</Link></p>
@@ -192,6 +195,7 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
 // another district may still agree to come, so each row can be contacted directly.
 function CityBox({ providers, cityName, requester, categoryId }) {
   const { t, i18n } = useTranslation();
+  const showAvailable = availabilityOn(usePublicSettings().settings);
   const lang = i18n.resolvedLanguage || 'ar';
   const navigate = useNavigate();
   const [busy, setBusy] = useState(0);
@@ -209,7 +213,7 @@ function CityBox({ providers, cityName, requester, categoryId }) {
       <ul className="list-none p-0 m-0 max-h-64 overflow-y-auto divide-y divide-border">
         {providers.map(p => (
           <li key={p.id} className="flex items-center gap-2 py-2 text-[13px] flex-wrap" data-testid="city-provider">
-            <span aria-label={t(isPresent(p.availability) ? 'for_you.available' : 'for_you.unavailable')}>{isPresent(p.availability) ? '🟢' : '🔴'}</span>
+            {showAvailable && <span aria-label={t(isPresent(p.availability) ? 'for_you.available' : 'for_you.unavailable')}>{isPresent(p.availability) ? '🟢' : '🔴'}</span>}
             <Link to={`/providers/${p.id}`} className="font-semibold text-fg truncate">{p.business_name || p.full_name}</Link>
             <span className="text-fg-muted truncate flex-1">
               {p.category_name_ar ? localizedName({ name_ar: p.category_name_ar, name_en: p.category_name_en, name_translations: p.category_name_translations }, lang) : ''}

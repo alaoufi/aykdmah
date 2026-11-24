@@ -2448,7 +2448,8 @@
       "vacation": "Tatilde",
       "off_day": "Bugün müsait değil",
       "off_hours": "Şu an müsait değil (çalışma saatleri dışında)",
-      "offline": "Şu anda bağlı değil"
+      "offline": "Şu anda bağlı değil",
+      "no_alerts": "Bildirimler telefonuna ulaşmıyor"
     },
     "vacation_until": "{{date}} tarihine kadar izinde",
     "off_hours_range": "{{from}} - {{to}} arası çalışır",
@@ -2493,7 +2494,9 @@
     "label_available": "İş için müsait",
     "label_present": "Çevrimiçi",
     "label_connected": "Çevrimiçi",
-    "label_disconnected": "Çevrimdışı"
+    "label_disconnected": "Çevrimdışı",
+    "no_alerts_self": "Bildirimleriniz şu an telefonunuza ulaşmıyor; çalışma programınız açık olsa da «çalışmaya uygun» görünmüyorsunuz.",
+    "no_alerts_link": "Bildirimleri aç"
   },
   "brand": {
     "branch_of": "Ay Khidma sitesi şu sitenin bir şubesidir:",

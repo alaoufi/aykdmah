@@ -2448,7 +2448,8 @@
       "vacation": "Naka-bakasyon",
       "off_day": "Hindi available ngayong araw",
       "off_hours": "Hindi available ngayon (labas sa oras ng trabaho)",
-      "offline": "Hindi konektado ngayon"
+      "offline": "Hindi konektado ngayon",
+      "no_alerts": "Hindi umaabot sa telepono niya ang mga abiso"
     },
     "vacation_until": "Naka-bakasyon hanggang {{date}}",
     "off_hours_range": "Nagtatrabaho mula {{from}} hanggang {{to}}",
@@ -2493,7 +2494,9 @@
     "label_available": "Available sa trabaho",
     "label_present": "Online",
     "label_connected": "Online",
-    "label_disconnected": "Offline"
+    "label_disconnected": "Offline",
+    "no_alerts_self": "Hindi umaabot sa telepono mo ang mga abiso ngayon, kaya hindi ka ipinapakitang «available para sa trabaho» kahit bukas ang iskedyul mo.",
+    "no_alerts_link": "I-on ang mga abiso"
   },
   "brand": {
     "branch_of": "Ang Ay Khidma ay sangay ng",

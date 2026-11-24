@@ -2477,7 +2477,8 @@
       "vacation": "في إجازة",
       "off_day": "غير متاح اليوم",
       "off_hours": "غير متاح الآن (خارج وقت العمل)",
-      "offline": "غير متصل الآن"
+      "offline": "غير متصل الآن",
+      "no_alerts": "التنبيهات لا تصل جواله"
     },
     "vacation_until": "في إجازة حتى {{date}}",
     "off_hours_range": "يعمل من {{from}} إلى {{to}}",
@@ -2522,7 +2523,9 @@
     "label_available": "متاح للعمل",
     "label_present": "متواجد",
     "label_connected": "متصل",
-    "label_disconnected": "غير متصل"
+    "label_disconnected": "غير متصل",
+    "no_alerts_self": "تنبيهاتك لا تصل جوالك الآن، فلا يظهر لك «متاح للعمل» رغم أن جدول عملك مفتوح.",
+    "no_alerts_link": "فعّل التنبيهات"
   },
   "brand": {
     "branch_of": "موقع أي خدمة فرع من موقع",

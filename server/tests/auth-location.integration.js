@@ -1532,6 +1532,39 @@ if (!databasePrefix) {
     assert.ok(Date.now() - new Date(state.last_seen_at).getTime() < 11 * 60 * 1000 && Date.now() - new Date(state.last_seen_at).getTime() > 9 * 60 * 1000, 'about ten minutes ago');
   });
 
+  test('AYK-481: the administration switches «متصل / آخر ظهور», «متاح للعمل» and the notices requirement', async () => {
+    const area = await simpleArea();
+    const svc = await db.queryOne('SELECT s.id FROM services s WHERE s.is_active = 1 AND s.deleted_at IS NULL ORDER BY s.id LIMIT 1');
+    const provider = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id, service_ids: [Number(svc.id)], coverage_district_ids: [area.district_id] });
+    const id = Number(provider.user.id);
+    const set = async (key, value) => { await db.query("UPDATE settings SET setting_value = ? WHERE setting_key = ?", [value, key]); await new Promise(resolve => setTimeout(resolve, 700)); };
+    const status = async () => (await api(`/users/${id}`)).provider.availability;
+    try {
+      await db.query("UPDATE users SET is_online = 0, last_seen_at = CURRENT_TIMESTAMP - INTERVAL '3 hours' WHERE id = ?", [id]);
+      // No channel for his notices: his schedule is open but he is not «available for work».
+      await db.query('DELETE FROM push_subscriptions WHERE user_id = ?', [id]);
+      await db.query('DELETE FROM native_push_tokens WHERE user_id = ?', [id]);
+      let a = await status();
+      assert.equal(a.state, 'no_alerts'); assert.equal(a.alerts, false);
+      assert.equal(a.present, false); assert.ok(a.last_seen_at, 'last seen is shown');
+      // He turns his notices on: available.
+      await db.query("INSERT INTO push_subscriptions (user_id, endpoint, p256dh, auth) VALUES (?, ?, 'k', 'a')", [id, `https://push.test.invalid/s${id}`]);
+      a = await status(); assert.equal(a.state, 'available'); assert.equal(a.alerts, true);
+      // The requirement switched off: the schedule alone decides.
+      await db.query('DELETE FROM push_subscriptions WHERE user_id = ?', [id]);
+      await set('availability_needs_alerts', 'false');
+      a = await status(); assert.equal(a.state, 'available');
+      // «متصل / آخر ظهور» switched off: neither is sent, in lists, profiles and chats.
+      await set('presence_visible', 'false');
+      a = await status(); assert.equal(a.present, undefined); assert.equal(a.last_seen_at, undefined);
+      const settings = await api('/settings/public');
+      assert.ok([false, 'false', 0, '0'].includes(settings.presence_visible), 'the client is told');
+    } finally {
+      await set('presence_visible', 'true'); await set('availability_visible', 'true'); await set('availability_needs_alerts', 'true');
+    }
+    const back = await status(); assert.equal(back.state, 'no_alerts'); assert.equal(back.present, false);
+  });
+
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
@@ -1563,6 +1596,8 @@ if (!databasePrefix) {
       WHERE s.is_active = 1 AND s.deleted_at IS NULL AND c.is_active = 1 AND c.deleted_at IS NULL ORDER BY s.category_id, s.id LIMIT 2`);
     const session = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id,
       service_ids: categories.map(row => Number(row.id)), coverage_district_ids: area.districts.slice(0, 1) });
+    // AYK-481: «available» also needs a channel for his notices.
+    await db.query("INSERT INTO push_subscriptions (user_id, endpoint, p256dh, auth) VALUES (?, ?, 'k', 'a')", [session.user.id, `https://push.test.invalid/${session.user.id}`]);
     const update = (body, expected = 200) => api('/users/me/provider', { method: 'PUT', token: session.token, body, expected });
     const state = async () => (await api(`/users/${session.user.id}`)).provider.availability.state;
     const search = async (query = '') => (await api(`/providers/nearby?lat=24.7136&lon=46.6753&radius_km=5${query}`)).providers

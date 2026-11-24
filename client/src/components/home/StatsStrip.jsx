@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getPublicStats } from '../../services/serviceService';
+import usePublicSettings, { presenceOn } from '../../hooks/usePublicSettings';
 
 // Bottom-of-homepage live counters. Hits the cached /stats/public
 // endpoint, so the server only re-queries once per minute even at
@@ -9,6 +10,7 @@ import { getPublicStats } from '../../services/serviceService';
 
 export default function StatsStrip() {
   const { t, i18n } = useTranslation();
+  const { settings: publicSettings } = usePublicSettings();
   const lang = i18n.resolvedLanguage || 'ar';
   const [s, setS] = useState(null);
 
@@ -40,7 +42,7 @@ export default function StatsStrip() {
     { icon: '💬', value: fmt(s?.reviews),         label: t('home.stats.reviews') },
   ];
   const NOW = [
-    ...(import.meta.env.VITE_REALTIME_MODE !== 'polling'
+    ...(import.meta.env.VITE_REALTIME_MODE !== 'polling' && presenceOn(publicSettings)
       ? [{ icon: '🟢', value: fmt(s?.providers_online), label: t('home.stats.online_now'), live: true }]
       : []),
     { icon: '🗨️', value: fmt(s?.conversations_24h), label: t('home.stats.active_chats_24h') },

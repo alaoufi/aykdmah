@@ -2448,7 +2448,8 @@
       "vacation": "Sedang cuti",
       "off_day": "Tidak tersedia hari ini",
       "off_hours": "Tidak tersedia sekarang (di luar jam kerja)",
-      "offline": "Sedang tidak terhubung"
+      "offline": "Sedang tidak terhubung",
+      "no_alerts": "Notifikasi tidak sampai ke ponselnya"
     },
     "vacation_until": "Cuti sampai {{date}}",
     "off_hours_range": "Bekerja dari {{from}} sampai {{to}}",
@@ -2493,7 +2494,9 @@
     "label_available": "Siap bekerja",
     "label_present": "Online",
     "label_connected": "Online",
-    "label_disconnected": "Offline"
+    "label_disconnected": "Offline",
+    "no_alerts_self": "Notifikasi Anda tidak sampai ke ponsel saat ini, jadi Anda tidak tampil «tersedia untuk bekerja» walaupun jadwal Anda terbuka.",
+    "no_alerts_link": "Aktifkan notifikasi"
   },
   "brand": {
     "branch_of": "Ay Khidma adalah cabang dari",

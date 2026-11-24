@@ -61,3 +61,23 @@ test('AYK-478: «آخر ظهور» is given only while the app is not open', () 
   assert.equal(here.last_seen_at, undefined, 'online: no last seen');
   assert.equal(availability({ is_online: 0 }, new Date()).last_seen_at, undefined, 'never seen: none');
 });
+
+test('AYK-481: «available for work» needs a channel for his notices, and the administration\'s switches decide what shows', () => {
+  const day = at(0, 9); // inside the default schedule
+  const on = { presence: true, availability: true, alerts: true };
+  const none = availability({ is_online: 0, alerts_ok: 0 }, day, on);
+  assert.equal(none.state, 'no_alerts', 'schedule open, but no notices reach his phone');
+  assert.equal(none.alerts, false);
+  assert.equal(availability({ is_online: 0, alerts_ok: 1 }, day, on).state, 'available');
+  assert.equal(availability({ is_online: 0 }, day, on).state, 'available', 'unknown (not read) is not held against him');
+  // The schedule still decides first: outside hours or paused he is that, not «no alerts».
+  assert.equal(availability({ availability_status: 'paused', alerts_ok: 0 }, day, on).state, 'paused');
+  assert.equal(availability({ work_days: [1], alerts_ok: 0 }, day, on).state, 'off_day');
+  // The switch «اشتراط وصول التنبيهات» off: the schedule alone.
+  assert.equal(availability({ alerts_ok: 0 }, day, { ...on, alerts: false }).state, 'available');
+  // The switch «متصل وآخر ظهور» off: neither is given.
+  const hidden = availability({ is_online: 0, last_seen_at: '2026-11-23T21:34:45.884Z' }, day, { ...on, presence: false });
+  assert.equal(hidden.present, undefined); assert.equal(hidden.last_seen_at, undefined);
+  const shown = availability({ is_online: 1 }, day, on);
+  assert.equal(shown.present, true);
+});

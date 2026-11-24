@@ -39,6 +39,8 @@ const listConversations = asyncHandler(async (req, res) => {
   // A requester's name stays hidden from the other side (AYK-142).
   for (const item of items) if (typeof item.other_user === 'string') { try { item.other_user = JSON.parse(item.other_user); } catch (_) { item.other_user = null; } }
   await hideRequesterNames(req.user.id, items.map(item => item.other_user), req.t('requester_label'));
+  // AYK-481: «متصل» and «آخر ظهور» only while the administration shows them.
+  for (const item of items) require('../utils/providerPolicy').stripPresence(item.other_user);
   return success(res, items);
 });
 
@@ -481,7 +483,7 @@ const getConversation = asyncHandler(async (req, res) => {
   if (!conv.can_send) {
     for (const id of [...pairIds].sort((a, b) => b - a)) if (id !== Number(conversationId) && await Conversation.canSend(id, req.user.id)) { writeId = id; break; }
   }
-  return success(res, { ...conv, pair_ids: pairIds, write_id: writeId, participants, blocked_by_me: direction === 'mine', blocked_me: direction === 'theirs', in_directory: Boolean(saved), directory_name: saved?.nickname || null, closed_reason: closedReason });
+  return success(res, { ...conv, pair_ids: pairIds, write_id: writeId, participants: participants.map(p => require('../utils/providerPolicy').stripPresence({ ...p })), blocked_by_me: direction === 'mine', blocked_me: direction === 'theirs', in_directory: Boolean(saved), directory_name: saved?.nickname || null, closed_reason: closedReason });
 });
 
 module.exports = {

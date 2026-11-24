@@ -2448,7 +2448,8 @@
       "vacation": "On vacation",
       "off_day": "Not available today",
       "off_hours": "Not available now (outside working hours)",
-      "offline": "Not connected now"
+      "offline": "Not connected now",
+      "no_alerts": "Notices do not reach his phone"
     },
     "vacation_until": "On vacation until {{date}}",
     "off_hours_range": "Works {{from}} to {{to}}",
@@ -2493,7 +2494,9 @@
     "label_available": "Available for work",
     "label_present": "Online",
     "label_connected": "Online",
-    "label_disconnected": "Offline"
+    "label_disconnected": "Offline",
+    "no_alerts_self": "Your notices do not reach your phone now, so you are not shown as «available for work» even though your schedule is open.",
+    "no_alerts_link": "Turn on notices"
   },
   "brand": {
     "branch_of": "Ay Khidma is a branch of",

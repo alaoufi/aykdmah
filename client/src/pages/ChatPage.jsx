@@ -12,6 +12,7 @@ import { apiError } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 import { useNotifications } from '../hooks/useNotifications';
 import { useSocket } from '../hooks/useSocket';
+import usePublicSettings, { presenceOn } from '../hooks/usePublicSettings';
 import MessageBubble from '../components/chat/MessageBubble';
 import ChatInput from '../components/chat/ChatInput';
 import { createForwardBatchOwner } from '../utils/forwardBatch';
@@ -60,6 +61,7 @@ export default function ChatPage() {
   // Reading a chat updates the unread count on "Chats".
   const { refresh: refreshBadges } = useNotifications();
   const { socket, realtimeMode } = useSocket();
+  const showPresence = presenceOn(usePublicSettings().settings); // AYK-481: the administration's switch
   const navigate = useNavigate();
 
   const [conversations, setConversations] = useState([]);
@@ -622,7 +624,7 @@ export default function ChatPage() {
                         {Number(c.is_favorite) ? <span aria-label={t('chat.favorite')}>⭐</span> : null}
                         <span className="conv-name-text">{other?.full_name || '—'}</span>
                         {/* AYK-478: green when connected, red when not. */}
-                        {other && <span aria-hidden="true" title={Number(other.is_online) === 1 ? t('chat.online') : t('availability.label_disconnected')}
+                        {showPresence && other && <span aria-hidden="true" title={Number(other.is_online) === 1 ? t('chat.online') : t('availability.label_disconnected')}
                           style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 999, marginInline: 4, background: Number(other.is_online) === 1 ? '#16a34a' : '#e11d48' }} data-testid="conv-presence" />}
                         {other?.referral_code && <span className="conv-code" dir="ltr">{other.referral_code}</span>}
                       </span>
@@ -664,7 +666,7 @@ export default function ChatPage() {
                     </div>
                     <div className="chat-peer-status">
                       {/* AYK-478: «متصل» or «آخر ظهور» always; on the periodic-update mode too (it used to replace them). */}
-                      {Number(otherParticipant.is_online) === 1
+                      {!showPresence ? '' : Number(otherParticipant.is_online) === 1
                         ? <span className="text-emerald-600 font-semibold" data-testid="chat-online">🟢 {t('chat.online')}</span>
                         : otherParticipant.last_seen_at
                           ? <span className="text-rose-600 font-semibold" data-testid="chat-last-seen">🔴 {t('availability.label_disconnected')} · <span className="font-normal">{`${t('chat.last_seen')} ${dayLabel(otherParticipant.last_seen_at, t)} ${formatTime(otherParticipant.last_seen_at)}`}</span></span>

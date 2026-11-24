@@ -479,6 +479,8 @@ test('AYK-365: one chat per two people: one row, one timeline across their conve
 
 test('AYK-366: a provider saves a weekly schedule; the profile shows it, availability apart from presence', async () => {
   const provider = await register({ role: 'provider' });
+  // AYK-481: «available» also needs a channel for his notices.
+  await db.query("INSERT INTO push_subscriptions (user_id, endpoint, p256dh, auth) VALUES (?, ?, 'k', 'a')", [provider.user.id, `https://push.test.invalid/${provider.user.id}`]);
   const schedule = { 0: [['08:00', '12:00'], ['16:00', '22:00']], 5: [['16:00', '22:00']] };
   await api('/users/me/provider', { token: provider.token, method: 'PUT', body: { work_schedule: schedule } });
   const stored = await db.queryOne('SELECT work_schedule, work_days, work_from, work_to FROM provider_profiles WHERE user_id = ?', [provider.user.id]);

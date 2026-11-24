@@ -39,3 +39,7 @@ export const paidAdsOn = settings => ![false, 'false', 0, '0'].includes(settings
 export function csvToList(value, fallback = '') {
   return String(value ?? fallback).split(',').map((s) => s.trim()).filter(Boolean);
 }
+
+// AYK-481: the administration's switches for «متصل / آخر ظهور» and «متاح للعمل» (both shown unless switched off).
+export const presenceOn = settings => ![false, 'false', 0, '0'].includes(settings?.presence_visible ?? true);
+export const availabilityOn = settings => ![false, 'false', 0, '0'].includes(settings?.availability_visible ?? true);

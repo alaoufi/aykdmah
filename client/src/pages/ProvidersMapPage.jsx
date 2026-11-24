@@ -13,6 +13,7 @@ import Avatar from '../components/common/Avatar';
 import { useAuth } from '../hooks/useAuth';
 import { listCategories, listNearbyProviders } from '../services/serviceService';
 import AvailabilityBadge, { ProviderStatus } from '../components/common/AvailabilityBadge';
+import usePublicSettings, { availabilityOn } from '../hooks/usePublicSettings';
 import { getCurrentPosition, isValidCoordinates } from '../utils/geolocation.mjs';
 import { directionsUrl, formatDistanceKm } from '../utils/directions';
 import { localizedName } from '../utils/localize';
@@ -40,6 +41,7 @@ function FitToResults({ origin, providers }) {
 
 export default function ProvidersMapPage() {
   const { t, i18n } = useTranslation();
+  const { settings: publicSettings } = usePublicSettings();
   const intro = useContactIntro();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -118,10 +120,10 @@ export default function ProvidersMapPage() {
           className="input w-auto text-sm">
           {RADII.map(r => <option key={r} value={r}>{t('map.within_km', { value: r })}</option>)}
         </select>
-        <label className="inline-flex items-center gap-1.5 px-3 py-2 rounded-pill text-sm bg-surface border border-border cursor-pointer">
-          <input type="checkbox" className="w-4 h-4 accent-primary" checked={availableOnly} onChange={e => setAvailableOnly(e.target.checked)} />
-          {t('availability.available_only')}
-        </label>
+        {availabilityOn(publicSettings) && (<label className="inline-flex items-center gap-1.5 px-3 py-2 rounded-pill text-sm bg-surface border border-border cursor-pointer">
+            <input type="checkbox" className="w-4 h-4 accent-primary" checked={availableOnly} onChange={e => setAvailableOnly(e.target.checked)} />
+            {t('availability.available_only')}
+          </label>)}
       </div>
 
       {error && <div className="text-[12.5px] text-amber-700">{t(error)}</div>}

@@ -68,6 +68,11 @@ export default function AvailabilityEditor({ onSaved, onError }) {
         <span className="flex items-center gap-2 flex-wrap"><AvailabilityBadge availability={status} /><PresenceTag present={status?.present} lastSeen={status?.last_seen_at} /></span>
       </div>
 
+      {status?.state === 'no_alerts' && (
+        <p className="m-0 rounded-card border border-rose-300 bg-rose-50 text-rose-900 px-3 py-2 text-[13px] font-semibold" role="alert" data-testid="no-alerts-self">
+          🔔 {t('availability.no_alerts_self')} <a href="/profile#call-alerts" className="underline font-bold">{t('availability.no_alerts_link')}</a>
+        </p>
+      )}
       <div className="flex items-center justify-between gap-2 rounded-card border border-border px-3 py-2">
         <span className="text-[13px]">{paused ? t('availability.paused_hint') : t('availability.active_hint')}</span>
         <Button type="button" size="sm" variant={paused ? 'primary' : 'outline'} loading={saving}

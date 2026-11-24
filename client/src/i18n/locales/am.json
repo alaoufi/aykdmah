@@ -2448,7 +2448,8 @@
       "vacation": "ዕረፍት ላይ",
       "off_day": "ዛሬ አይገኝም",
       "off_hours": "አሁን አይገኝም (ከሥራ ሰዓት ውጭ)",
-      "offline": "አሁን አልተገናኘም"
+      "offline": "አሁን አልተገናኘም",
+      "no_alerts": "ማሳወቂያዎች ስልኩ ላይ አይደርሱም"
     },
     "vacation_until": "እስከ {{date}} ዕረፍት ላይ",
     "off_hours_range": "ከ{{from}} እስከ {{to}} ይሠራል",
@@ -2493,7 +2494,9 @@
     "label_available": "ለሥራ ዝግጁ",
     "label_present": "መስመር ላይ",
     "label_connected": "መስመር ላይ",
-    "label_disconnected": "ከመስመር ውጭ"
+    "label_disconnected": "ከመስመር ውጭ",
+    "no_alerts_self": "ማሳወቂያዎችዎ አሁን ስልክዎ ላይ አይደርሱም፤ ስለዚህ የሥራ ሰዓትዎ ክፍት ቢሆንም «ለሥራ ዝግጁ» ተብለው አይታዩም።",
+    "no_alerts_link": "ማሳወቂያዎችን አብራ"
   },
   "brand": {
     "branch_of": "Ay Khidma የዚህ ጣቢያ ቅርንጫፍ ነው፦",
