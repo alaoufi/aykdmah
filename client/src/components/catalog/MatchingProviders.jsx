@@ -138,7 +138,7 @@ export default function MatchingProviders({ categoryId: fixedCategory = '', serv
   // the city box under it. The city box leaves out those already shown as cards.
   const listed = onlyPresent ? shown.filter(p => isPresent(p.availability)) : shown;
   const cardIds = new Set(shown.map(p => Number(p.id)));
-  const cityRest = (cityList || []).filter(p => !cardIds.has(Number(p.id)));
+  const cityRest = (cityList || []).filter(p => !cardIds.has(Number(p.id)) && (!onlyPresent || isPresent(p.availability)));
   const districtName = result?.area ? localizedName({ name_ar: result.area.district_name_ar, name_en: result.area.district_name_en }, lang) : '';
   const cityName = result?.area ? localizedName({ name_ar: result.area.city_name_ar, name_en: result.area.city_name_en }, lang) : '';
   return (

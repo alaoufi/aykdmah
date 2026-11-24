@@ -5,8 +5,10 @@ import { contactRequest } from '../services/requestService';
 import { showProblem, askConfirm } from '../components/common/AppDialog';
 import { useTranslation } from 'react-i18next';
 
-// Opening a request card (AYK-044): my own request opens its page; a request for my
-// service opens the chat with its requester straight away (or its page when that fails).
+// Opening a request card: my own request, or a request I only want to look at, opens its page. A chat with
+// its requester opens only from a contact button (AYK-488, the owner: «دخلت أعمالي وظهر لي كل الأعمال المنشورة
+// ليست لي»: before, merely tapping a card opened the chat and filed the request under «أعمالي», and told its
+// requester that someone had contacted him).
 export default function useOpenRequest() {
   const { user } = useAuth();
   const { t } = useTranslation();
@@ -14,15 +16,8 @@ export default function useOpenRequest() {
   const [opening, setOpening] = useState(0);
   const mine = request => Boolean(user) && Number(request.client_id) === Number(user.id);
   const forMyService = request => Boolean(user) && user.role === 'provider' && !mine(request) && request.status === 'open';
-  const open = async request => {
-    // AYK-440 (the owner: «يشاهد… بشرط لا يراسلهم ولا يدخل على بياناتهم، سواء طالب خدمة أو زائر»): a
-    // visitor or a requester sees others' requests on the board but does not open them; a visitor
-    // is asked to sign in, a requester is offered to become a provider (as «تواصل» does).
-    if (!mine(request) && user?.role !== 'provider') {
-      if (!user) { navigate('/login', { state: { from: '/' } }); return; }
-      await contact(request); return;
-    }
-    if (!forMyService(request)) { navigate(`/requests/${request.id}`); return; }
+  // The chat with the requester (a deliberate contact), or the request's page when that fails.
+  const startChat = async request => {
     setOpening(request.id);
     try {
       const { conversation_id } = await contactRequest(request.id);
@@ -34,13 +29,23 @@ export default function useOpenRequest() {
       showProblem(err);
     } finally { setOpening(0); }
   };
+  const open = async request => {
+    // AYK-440 (the owner: «يشاهد… بشرط لا يراسلهم ولا يدخل على بياناتهم، سواء طالب خدمة أو زائر»): a
+    // visitor or a requester sees others' requests on the board but does not open them; a visitor
+    // is asked to sign in, a requester is offered to become a provider (as «تواصل» does).
+    if (!mine(request) && user?.role !== 'provider') {
+      if (!user) { navigate('/login', { state: { from: '/' } }); return; }
+      await contact(request); return;
+    }
+    navigate(`/requests/${request.id}`);
+  };
   // AYK-426 (the owner: «اللوحة هذي ما فيها تواصل، أضف التواصل»): «تواصل» on every open request that
-  // is not mine. A provider reaches the requester at once (as before); a visitor signs in first; a
-  // requester is told contact is for service providers and can become one.
+  // is not mine. A provider reaches the requester at once; a visitor signs in first; a requester is
+  // told contact is for service providers and can become one.
   const canContact = request => !mine(request) && request.status === 'open';
   const contact = async request => {
     if (!user) { navigate('/login', { state: { from: `/requests/${request.id}` } }); return; }
-    if (forMyService(request)) { await open(request); return; }
+    if (forMyService(request)) { await startChat(request); return; }
     const become = await askConfirm({ title: t('request.contact_providers_title'), message: t('request.contact_providers_only'), confirmText: t('request.become_provider') });
     if (become) navigate('/profile#account-type');
   };

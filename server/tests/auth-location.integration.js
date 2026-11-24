@@ -1588,6 +1588,52 @@ if (!databasePrefix) {
     assert.ok(!await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_new'", [mutedAway.user.id]), 'turning the notices off wins');
   });
 
+  test('AYK-488: «أعمالي» and «طلباتي» hold only what is the account\'s own; a bare tap on a request is not a task', async () => {
+    const area = await simpleArea();
+    const service = await db.queryOne('SELECT id, category_id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    const make = () => simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id, service_ids: [Number(service.id)], coverage_district_ids: [area.district_id] });
+    const tapper = await make(); const worker = await make(); const stranger = await make();
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const other = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const post = async client => Number((await api('/requests', { method: 'POST', token: client.token, expected: 201, body: { title: 'طلب للاختبار', description: 'اختبار أعمالي', category_id: service.category_id } })).id);
+    const mine = await post(owner); const notMine = await post(other);
+    const ids = list => (Array.isArray(list) ? list : []).map(item => Number(item.request_id ?? item.id));
+    // «طلباتي»: only the account's own requests, whoever else posted and whatever the account contacted.
+    assert.deepEqual(ids(await api('/requests/my?scope=active&limit=50', { token: owner.token })), [mine]);
+    assert.deepEqual(ids(await api('/requests/my?scope=active&limit=50', { token: other.token })), [notMine]);
+    assert.deepEqual(ids(await api('/requests/my?scope=active&limit=50', { token: tapper.token })), []);
+    // A provider taps both requests: the chat opens (a contact), but «أعمالي» stays empty.
+    await api(`/requests/${mine}/contact`, { method: 'POST', token: tapper.token });
+    await api(`/requests/${notMine}/contact`, { method: 'POST', token: tapper.token });
+    assert.deepEqual(ids(await api('/offers/my?scope=active&limit=50', { token: tapper.token })), [], 'only looked: not a task');
+    assert.deepEqual(ids(await api('/requests/my?scope=active&limit=50', { token: tapper.token })), [], 'and not his request');
+    // Another provider writes to the requester: that request is his task, and only that one.
+    const opened = await api(`/requests/${mine}/contact`, { method: 'POST', token: worker.token });
+    await api(`/chat/conversations/${opened.conversation_id}/messages`, { method: 'POST', token: worker.token, expected: 201, body: { content: 'السلام عليكم، أنا جاهز للعمل' } });
+    assert.deepEqual(ids(await api('/offers/my?scope=active&limit=50', { token: worker.token })), [mine]);
+    assert.deepEqual(ids(await api('/offers/my?scope=active&limit=50', { token: stranger.token })), [], 'a provider who did nothing has nothing');
+    assert.deepEqual(ids(await api('/offers/my?scope=active&limit=50', { token: tapper.token })), [], 'the tapper still has nothing');
+  });
+
+  test('AYK-489: a hidden request gives no text through the translation link; the area counts leave out private direct requests', async () => {
+    const area = await simpleArea();
+    const service = await db.queryOne('SELECT id, category_id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const provider = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id, service_ids: [Number(service.id)], coverage_district_ids: [area.district_id] });
+    const post = async () => Number((await api('/requests', { method: 'POST', token: owner.token, expected: 201, body: { title: 'طلب مخفي للاختبار', description: 'اختبار الترجمة', category_id: service.category_id } })).id);
+    const id = await post();
+    await api(`/requests/${id}/translation?lang=en`, { expected: 200 });
+    await db.query('UPDATE requests SET hidden_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
+    await api(`/requests/${id}/translation?lang=en`, { expected: 404 });
+    await api(`/requests/${id}`, { expected: 404 });
+    // A request sent to one provider only is not counted for everyone.
+    const before = Number((await api(`/providers/my-market`, { token: provider.token })).categories?.find(c => Number(c.category_id) === Number(service.category_id))?.open_now || 0);
+    const direct = await post();
+    await db.query('UPDATE requests SET direct_provider_id = ? WHERE id = ?', [Number(provider.user.id) + 100000, direct]);
+    const after = Number((await api(`/providers/my-market`, { token: provider.token })).categories?.find(c => Number(c.category_id) === Number(service.category_id))?.open_now || 0);
+    assert.equal(after, before, 'a private direct request is not an open one for the others');
+  });
+
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');

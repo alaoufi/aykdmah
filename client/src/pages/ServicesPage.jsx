@@ -53,10 +53,14 @@ export default function ServicesPage() {
     if (!quiet) setLoading(true);
     setError(false);
     const q = {page,limit:20};
-    if (categoryId) q.category_id = categoryId;
-    if (serviceId) q.service_id = serviceId;
-    if (cityId) q.city_id = cityId;
+    // The three choosers show only on the «all» tab; on «my profession and area» they are not sent,
+    // or the list would be narrowed by a choice nobody can see.
     if (matching) q.matching = '1';
+    else {
+      if (categoryId) q.category_id = categoryId;
+      if (serviceId) q.service_id = serviceId;
+      if (cityId) q.city_id = cityId;
+    }
     listNearbyRequests(q)
       .then(res => { if (current) {setRequests(res.data || []);setHasNext(Boolean(res.meta?.pagination?.hasNext));} })
       .catch(() => { if (current) { setRequests([]); setError(true); } })
@@ -68,6 +72,7 @@ export default function ServicesPage() {
     const next = new URLSearchParams(params);
     if (value) next.set(key, value); else next.delete(key);
     if (key === 'category') next.delete('service');
+    if (key === 'all') { next.delete('category'); next.delete('service'); next.delete('city'); }
     if (key !== 'page') next.delete('page');
     setParams(next);
   };

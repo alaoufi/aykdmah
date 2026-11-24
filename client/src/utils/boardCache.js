@@ -13,6 +13,9 @@ export function recall(key) {
   return hit && Date.now() - hit.at < TTL ? hit.value : null;
 }
 
+// Called on sign-in and sign-out: a list kept for one account must never show for the next.
+export function forgetBoards() { kept.clear(); }
+
 export function keep(key, value) {
   kept.set(key, { value, at: Date.now() });
   if (kept.size > 60) kept.delete(kept.keys().next().value);

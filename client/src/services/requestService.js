@@ -34,6 +34,7 @@ export async function listMyRequests(params = {}) {
 // AYK-286: two parts of the home page ask for the same list on opening (latest and urgent
 // requests); the same question asked within two seconds shares one answer.
 const nearbyAsked = new Map();
+export function forgetNearbyAsked() { nearbyAsked.clear(); }
 export function listNearbyRequests(params = {}) {
   const key = JSON.stringify(Object.keys(params).sort().map(k => [k, params[k]]));
   const known = nearbyAsked.get(key);

@@ -273,7 +273,7 @@ const getTranslation = asyncHandler(async (req, res) => {
   if (!validId(req.params.id)) return notFound(res);
   const request = await Request.findById(req.params.id);
   if (!request) return notFound(res);
-  if (!privateAccess(req.user, request) && (request.status !== 'open' || request.direct_provider_id)) return notFound(res);
+  if (!privateAccess(req.user, request) && (request.status !== 'open' || request.direct_provider_id || request.hidden_at)) return notFound(res);
   const lang = readerLang(req) || 'ar';
   if (!translationService.SUPPORTED.includes(lang)) return error(res, req.t('invalid_data'), 422);
   return success(res, await requestTranslation.translationFor(request, lang));
