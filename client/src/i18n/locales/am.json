@@ -2491,6 +2491,7 @@
     "schedule_required": "ቢያንስ አንድ የሥራ ጊዜ ያስገቡ፣ ወይም «24 ሰዓት ይገኛል»ን ይምረጡ።",
     "midnight": "እኩለ ሌሊት",
     "label_available": "ለሥራ ዝግጁ",
+    "label_unavailable": "ለሥራ ዝግጁ አይደለም",
     "label_present": "መስመር ላይ",
     "label_connected": "መስመር ላይ",
     "label_disconnected": "ከመስመር ውጭ",

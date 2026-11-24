@@ -2491,6 +2491,7 @@
     "schedule_required": "कम से कम एक काम का समय चुनें, या «24 घंटे उपलब्ध» चुनें।",
     "midnight": "आधी रात",
     "label_available": "काम के लिए उपलब्ध",
+    "label_unavailable": "काम के लिए उपलब्ध नहीं",
     "label_present": "मौजूद",
     "label_connected": "ऑनलाइन",
     "label_disconnected": "ऑफ़लाइन",

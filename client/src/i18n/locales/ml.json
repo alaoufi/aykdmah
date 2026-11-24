@@ -2491,6 +2491,7 @@
     "schedule_required": "കുറഞ്ഞത് ഒരു ജോലി സമയം നൽകുക, അല്ലെങ്കിൽ «24 മണിക്കൂർ ലഭ്യം» തിരഞ്ഞെടുക്കുക.",
     "midnight": "അർധരാത്രി",
     "label_available": "ജോലിക്ക് ലഭ്യം",
+    "label_unavailable": "ജോലിക്ക് ലഭ്യമല്ല",
     "label_present": "ഓൺലൈനിൽ",
     "label_connected": "ഓൺലൈൻ",
     "label_disconnected": "ഓഫ്‌ലൈൻ",

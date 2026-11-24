@@ -2491,6 +2491,7 @@
     "schedule_required": "En az bir çalışma aralığı belirleyin veya «24 saat müsait» seçin.",
     "midnight": "Gece yarısı",
     "label_available": "İş için müsait",
+    "label_unavailable": "İş için müsait değil",
     "label_present": "Çevrimiçi",
     "label_connected": "Çevrimiçi",
     "label_disconnected": "Çevrimdışı",

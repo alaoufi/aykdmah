@@ -2491,6 +2491,7 @@
     "schedule_required": "Atur setidaknya satu waktu kerja, atau pilih «Tersedia 24 jam».",
     "midnight": "Tengah malam",
     "label_available": "Siap bekerja",
+    "label_unavailable": "Tidak siap bekerja",
     "label_present": "Online",
     "label_connected": "Online",
     "label_disconnected": "Offline",

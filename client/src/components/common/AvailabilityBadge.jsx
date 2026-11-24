@@ -82,9 +82,9 @@ export function WeekSchedule({ availability }) {
   );
 }
 
-// AYK-368 (the owner: «متاح للعمل: فقط أمامه دائرة خضراء أو حمراء. متواجد على التطبيق: فقط أمامه دائرة
-// خضراء أو حمراء»). The words never change; the circle says yes or no. Red «متاح للعمل» has «جدول
-// العمل» next to it, and the reason (leave, stopped, outside hours) is inside that schedule.
+// AYK-368 (the owner: «متاح للعمل: دائرة خضراء أو حمراء»). AYK-482 (the owner: «متاح للعمل أخضر، غير متاح
+// للعمل أحمر»): the words follow the state too, green «متاح للعمل» or red «غير متاح للعمل», with «جدول
+// العمل» next to the red one; the reason (leave, stopped, outside hours) is inside that schedule.
 const Dot = ({ on }) => (
   <span aria-hidden="true" className={`inline-block w-2.5 h-2.5 rounded-full shrink-0 ${on ? 'bg-emerald-500' : 'bg-rose-500'}`}
     style={{ boxShadow: `0 0 0 2px ${on ? 'rgba(16,185,129,.2)' : 'rgba(244,63,94,.2)'}` }} />
@@ -101,7 +101,7 @@ export default function AvailabilityBadge({ availability, className = '', name =
     <span className={`inline-flex items-center gap-1.5 flex-wrap ${className}`} data-availability={availability.state}
       title={available ? undefined : reasonOf(availability, t)}>
       <span className={`inline-flex items-center gap-1.5 text-[12px] font-semibold ${available ? 'text-emerald-700' : 'text-rose-700'}`}>
-        <Dot on={available} />{t('availability.label_available')}
+        <Dot on={available} />{t(available ? 'availability.label_available' : 'availability.label_unavailable')}
       </span>
       {!available && (
         <button type="button" className="text-[11.5px] font-semibold text-primary underline bg-transparent border-0 p-0 cursor-pointer"

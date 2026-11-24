@@ -2520,6 +2520,7 @@
     "schedule_required": "حدد فترة عمل واحدة على الأقل، أو اختر «متاح 24 ساعة».",
     "midnight": "منتصف الليل",
     "label_available": "متاح للعمل",
+    "label_unavailable": "غير متاح للعمل",
     "label_present": "متواجد",
     "label_connected": "متصل",
     "label_disconnected": "غير متصل",
