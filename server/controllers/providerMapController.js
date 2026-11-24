@@ -46,7 +46,7 @@ const nearby = asyncHandler(async (req, res) => {
 
   const rows = await query(`
     SELECT u.id, u.full_name, u.avatar, u.is_verified, CASE WHEN u.is_online = 1 OR u.last_seen_at > CURRENT_TIMESTAMP - INTERVAL '2 minutes' THEN 1 ELSE 0 END AS is_online, u.last_seen_at, ${ALERTS_OK_SQL},
-           pp.business_name, pp.category_id, pp.service_ids, pp.service_radius_km, ${BIO_SQL},
+           pp.business_name, pp.category_id, pp.service_ids, pp.service_radius_km, ${BIO_SQL}, COALESCE(pp.coverage_city_id, u.city_id) AS provider_city_id,
            pp.rating_avg, pp.rating_count, pp.completed_orders,
            pp.location_mode,
            pp.show_location_on_map, pp.fixed_latitude, pp.fixed_longitude,
@@ -78,7 +78,9 @@ const nearby = asyncHandler(async (req, res) => {
   const availableOnly = req.query.available === '1';
 
   const providers = [];
-  for (const row of rows) {
+  // AYK-494: the map keeps the subscription rules too (each provider judged by his own city).
+  const permitted = await require('../services/subscriptionRules').keepAllowed(rows, { cityId: null, cityOf: row => row.provider_city_id, categoryOf: row => categoryId || row.category_id });
+  for (const row of permitted) {
     if (serviceId !== null && !parseServiceIds(row.service_ids).includes(serviceId)) continue;
     if (categoryServices && Number(row.category_id) !== categoryId && !parseServiceIds(row.service_ids).some(id => categoryServices.has(id))) continue;
     const status = availability(row);
@@ -187,7 +189,7 @@ function coveringProviders({ districtId, cityId, regionId = null, everywhere = f
   const coverageParams = everywhere ? [] : regionId ? [...regionIds, ...regionIds] : [districtId || cityId, cityId];
   return query(`
     SELECT u.id, u.full_name, u.avatar, u.is_verified, CASE WHEN u.is_online = 1 OR u.last_seen_at > CURRENT_TIMESTAMP - INTERVAL '2 minutes' THEN 1 ELSE 0 END AS is_online, u.last_seen_at, ${ALERTS_OK_SQL},
-           pp.business_name, pp.category_id, pp.service_ids, ${BIO_SQL},
+           pp.business_name, pp.category_id, pp.service_ids, ${BIO_SQL}, COALESCE(pp.coverage_city_id, u.city_id) AS provider_city_id,
            u.phone, pp.show_phone, pp.whatsapp, pp.show_whatsapp,
            pp.rating_avg, pp.rating_count, pp.completed_orders,
            cat.name_ar AS category_name_ar, cat.name_en AS category_name_en, cat.name_translations AS category_name_translations,
@@ -325,11 +327,13 @@ async function listProviders(rows, { categoryId, categoryIds = null, serviceId, 
       // Shown on the card: profession and district (AYK-041).
       category_name_ar: row.category_name_ar, category_name_en: row.category_name_en, category_name_translations: row.category_name_translations,
       district_name_ar: row.district_name_ar, district_name_en: row.district_name_en,
+      provider_city_id: row.provider_city_id,
     });
   }
   // Providers who need a subscription here and have none are not listed (AYK-042).
   const allowed = [...await require('../services/subscriptionRules').keepAllowed(providers, {
-    cityId, categoryOf: p => categoryId || p.category_id })];
+    cityId, cityOf: p => p.provider_city_id, categoryOf: p => categoryId || p.category_id })];
+  for (const p of allowed) delete p.provider_city_id;
   allowed.sort((a, b) => ((a.availability.state !== 'available') - (b.availability.state !== 'available'))
     || (b.is_featured - a.is_featured)
     || (b.rating_avg - a.rating_avg) || (b.rating_count - a.rating_count)
@@ -369,7 +373,9 @@ const areaStats = asyncHandler(async (req, res) => {
   const where = await resolveArea(req);
   if (where.invalid) return error(res, req.t ? req.t('invalid_data') : 'Invalid filter', 400);
   if (!where.cityId) return success(res, { area: null, categories: [], totals: null });
-  const [rows, byService] = await Promise.all([coveringProviders({ ...where, excludeId: req.user?.id || 0 }), serviceCategories()]);
+  const [covering, byService] = await Promise.all([coveringProviders({ ...where, excludeId: req.user?.id || 0 }), serviceCategories()]);
+  // AYK-494: the counts agree with the list: providers who need a subscription and have none are left out.
+  const rows = await require('../services/subscriptionRules').keepAllowed(covering, { cityId: where.cityId, cityOf: row => row.provider_city_id, categoryOf: row => row.category_id });
   const stats = new Map();
   const entry = id => { if (!stats.has(id)) stats.set(id, { category_id: id, providers: 0, available: 0, featured: 0, rated: 0, rating_sum: 0, open_requests: 0 }); return stats.get(id); };
   let available = 0;

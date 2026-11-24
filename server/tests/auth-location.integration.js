@@ -1701,6 +1701,26 @@ if (!databasePrefix) {
     assert.equal(await mine('?archived=1'), undefined, 'and the archive tab does not');
   });
 
+  test('AYK-494: a provider who needs a subscription where he works and has none is left out of the list and the map, judged by his own city', async () => {
+    const Setting = require('../models/Setting');
+    const area = await simpleArea();
+    const service = await db.queryOne('SELECT id, category_id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    const provider = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id, service_ids: [Number(service.id)], coverage_district_ids: [area.district_id] });
+    const requester = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const listed = async () => (await api(`/providers/matching?scope=all&category_id=${service.category_id}`, { token: requester.token })).providers.some(p => Number(p.id) === Number(provider.user.id));
+    const before = await Setting.get('subscriptions_enabled', '0');
+    const rule = (await db.queryOne('INSERT INTO subscription_rules (city_id, category_id, is_free, is_active) VALUES (?, ?, 0, 1) RETURNING id', [area.city_id, service.category_id])).id;
+    try {
+      await Setting.set('subscriptions_enabled', '1');
+      assert.equal(await listed(), false, 'needs a subscription in his own city and has none');
+      assert.equal(await (async () => (await fetch(`${base}/providers/matching?scope=all&category_id=${service.category_id}`).then(r => r.json())).data.providers.some(p => Number(p.id) === Number(provider.user.id)))(), false, 'a visitor sees the same list');
+    } finally {
+      await Setting.set('subscriptions_enabled', String(before || '0'));
+      await db.query('DELETE FROM subscription_rules WHERE id = ?', [rule]);
+    }
+    assert.equal(await listed(), true, 'with the rule off he is listed');
+  });
+
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');

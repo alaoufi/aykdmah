@@ -32,15 +32,17 @@ async function subscribedIds(ids) {
 
 // Drops providers who would need a subscription for this work and have none.
 // rows: [{ id, category_id? }]; categoryOf(row) gives the profession to check.
-async function keepAllowed(rows, { cityId, categoryOf }) {
+async function keepAllowed(rows, { cityId, categoryOf, cityOf = null }) {
   if (!rows.length || !await enabled()) return rows;
   const cache = new Map();
-  const needs = async categoryId => {
-    if (!cache.has(categoryId)) cache.set(categoryId, await requiredFor({ categoryId, cityId }));
-    return cache.get(categoryId);
+  // AYK-494: `cityOf` judges each provider by the city he works in (a list can span cities); without it, one city for all.
+  const needs = async (categoryId, city) => {
+    const key = `${categoryId}:${city}`;
+    if (!cache.has(key)) cache.set(key, await requiredFor({ categoryId, cityId: city }));
+    return cache.get(key);
   };
   const flagged = [];
-  for (const row of rows) if (await needs(categoryOf(row))) flagged.push(Number(row.id));
+  for (const row of rows) if (await needs(categoryOf(row), cityOf ? cityOf(row) || cityId : cityId)) flagged.push(Number(row.id));
   if (!flagged.length) return rows;
   const paid = await subscribedIds(flagged);
   return rows.filter(row => !flagged.includes(Number(row.id)) || paid.has(Number(row.id)));

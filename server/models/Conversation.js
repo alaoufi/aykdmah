@@ -234,7 +234,7 @@ async function listRows(userId, { page = 1, limit = 20, q = '', requestId = null
   if (withMessagesOnly) extra.push(`EXISTS (SELECT 1 FROM messages any_message WHERE any_message.conversation_id = c.id AND any_message.deleted_at IS NULL AND ${unhidden('any_message')})`);
   if (peerId) { extra.push('EXISTS (SELECT 1 FROM conversation_participants peer WHERE peer.conversation_id = c.id AND peer.user_id = ?)'); extraParams.push(Number(peerId)); }
   if (q) {
-    extra.push(`(r.title ILIKE ? OR EXISTS (SELECT 1 FROM messages matched_message WHERE matched_message.conversation_id = c.id AND matched_message.deleted_at IS NULL AND matched_message.content ILIKE ?) OR EXISTS (SELECT 1 FROM conversation_participants peer JOIN users person ON person.id = peer.user_id
+    extra.push(`(r.title ILIKE ? OR EXISTS (SELECT 1 FROM messages matched_message WHERE matched_message.conversation_id = c.id AND matched_message.deleted_at IS NULL AND ${unhidden('matched_message')} AND matched_message.content ILIKE ?) OR EXISTS (SELECT 1 FROM conversation_participants peer JOIN users person ON person.id = peer.user_id
       LEFT JOIN saved_providers saved ON saved.user_id = cp.user_id AND saved.provider_id = person.id
       WHERE peer.conversation_id = c.id AND peer.user_id <> cp.user_id AND
       (person.referral_code ILIKE ? OR saved.nickname ILIKE ? OR (person.role <> 'client' AND person.full_name ILIKE ?))))`);

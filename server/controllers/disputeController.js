@@ -67,8 +67,9 @@ const listDisputes = asyncHandler(async (req, res) => {
   }
   // Both current order parties can read their dispute.
   const offset = (page - 1) * limit;
-  const where = ['r.deleted_at IS NULL', '(r.client_id = ? OR r.assigned_provider_id = ?)'];
-  const params = [req.user.id, req.user.id];
+  // AYK-494: the person who opened it keeps it even if the provider was later unassigned or the request link is gone.
+  const where = ['(r.id IS NULL OR r.deleted_at IS NULL)', '(r.client_id = ? OR r.assigned_provider_id = ? OR d.opened_by = ?)'];
+  const params = [req.user.id, req.user.id, req.user.id];
   if (status) { where.push('d.status = ?'); params.push(status); }
   const whereSql = `WHERE ${where.join(' AND ')}`;
   const items = await query(
