@@ -22,7 +22,7 @@ const list = asyncHandler(async (req, res) => {
       to_jsonb(pp)->>'vacation_to' AS vacation_to, to_jsonb(pp)->>'work_days' AS work_days,
       to_jsonb(pp)->>'work_from' AS work_from, to_jsonb(pp)->>'work_to' AS work_to,
       to_jsonb(pp)->'work_schedule' AS work_schedule, ${COVERAGE_SQL}
-      , sp.nickname, u.referral_code, u.role, u.is_online, u.last_seen_at, u.phone, pp.show_phone, pp.whatsapp, pp.show_whatsapp,
+      , sp.nickname, u.referral_code, u.role, CASE WHEN u.is_online = 1 OR u.last_seen_at > CURRENT_TIMESTAMP - INTERVAL '2 minutes' THEN 1 ELSE 0 END AS is_online, u.last_seen_at, u.phone, pp.show_phone, pp.whatsapp, pp.show_whatsapp,
       (SELECT c.id FROM conversations c
         JOIN conversation_participants mine ON mine.conversation_id = c.id AND mine.user_id = sp.user_id
         JOIN conversation_participants theirs ON theirs.conversation_id = c.id AND theirs.user_id = u.id

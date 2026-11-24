@@ -1500,6 +1500,38 @@ if (!databasePrefix) {
     await db.query('DELETE FROM requests WHERE id = ?', [id]);
   });
 
+  test('AYK-480: any signed-in request marks the account seen, and «متصل» means seen in the last two minutes', async () => {
+    const area = await simpleArea();
+    const svc = await db.queryOne('SELECT s.id FROM services s WHERE s.is_active = 1 AND s.deleted_at IS NULL ORDER BY s.id LIMIT 1');
+    const provider = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id, service_ids: [Number(svc.id)], coverage_district_ids: [area.district_id] });
+    const id = Number(provider.user.id);
+    const presence = async () => {
+      const list = await api(`/providers/matching?scope=all&region_id=${(await db.queryOne('SELECT COALESCE(c.region_id, g.region_id) AS id FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id WHERE c.id = ?', [area.city_id])).id}`);
+      return list.providers.find(p => Number(p.id) === id)?.availability;
+    };
+    // Gone since yesterday: not connected, with the time he was last seen.
+    await db.query("UPDATE users SET is_online = 0, last_seen_at = CURRENT_TIMESTAMP - INTERVAL '1 day' WHERE id = ?", [id]);
+    let state = await presence();
+    assert.equal(state.present, false);
+    assert.ok(state.last_seen_at, 'the last seen time is given');
+    // He uses the app through ordinary requests (no live connection): seen now.
+    await api('/auth/me', { token: provider.token });
+    let seen = null;
+    for (let i = 0; i < 30 && !seen; i += 1) {
+      seen = await db.queryOne("SELECT id FROM users WHERE id = ? AND last_seen_at > CURRENT_TIMESTAMP - INTERVAL '1 minute'", [id]);
+      if (!seen) await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    assert.ok(seen, 'a signed-in request marks him seen');
+    state = await presence();
+    assert.equal(state.present, true, 'seen within two minutes counts as connected');
+    assert.equal(state.last_seen_at, undefined);
+    // Ten minutes ago: not connected, and the time is that one.
+    await db.query("UPDATE users SET last_seen_at = CURRENT_TIMESTAMP - INTERVAL '10 minutes' WHERE id = ?", [id]);
+    state = await presence();
+    assert.equal(state.present, false);
+    assert.ok(Date.now() - new Date(state.last_seen_at).getTime() < 11 * 60 * 1000 && Date.now() - new Date(state.last_seen_at).getTime() > 9 * 60 * 1000, 'about ten minutes ago');
+  });
+
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
