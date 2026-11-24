@@ -466,6 +466,11 @@ async function updateAdminPermissions(id, data, actor) {
   });
 }
 
+// The account was seen just now (an open connection); no change to online/offline.
+async function touchSeen(id) {
+  await query('UPDATE users SET last_seen_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
+}
+
 async function setOnline(id, isOnline) {
   await query(
     'UPDATE users SET is_online = ?, last_seen_at = CURRENT_TIMESTAMP WHERE id = ?',
@@ -586,7 +591,7 @@ module.exports = {
   recordFailedLogin, clearFailedLogins, LOGIN_LOCK_AFTER,
   findById, findByIdRaw, findByEmail, findByPhone, findByUsername, findByFacebookId, findByIdentifier, cleanIdentifier, phoneForms,
   create, update, updatePassword, revokeSessions, endAreaSessions, areaSessionVersion, updateAdminPermissions, completeLogin,
-  softDelete, setBlocked, setOnline, listPaginated, adminUpdate,
+  softDelete, setBlocked, setOnline, touchSeen, listPaginated, adminUpdate,
   getProviderProfile, updateProviderProfile,
   saveAccountLocation,
 };

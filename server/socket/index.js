@@ -68,7 +68,11 @@ function initSocket(httpServer) {
     });
     const refresh = setInterval(async () => {
       try { socket.user = await socketAuth.validateToken(socket.authToken); }
-      catch (_) { socket.disconnect(true); }
+      catch (_) { socket.disconnect(true); return; }
+      // AYK-480 (the owner: «آخر ظهور يعبّر عن آخر لحظة كان متصلًا»): while the connection is open its time
+      // keeps moving, so a connection that ends without a goodbye (a restart, a dropped network) leaves
+      // «the last moment connected», not the moment it was opened. The administration's own area is not counted.
+      if (socket.handshake.auth?.scope !== 'admin') User.touchSeen(user.id).catch(() => {});
     }, 30000);
     refresh.unref();
 
