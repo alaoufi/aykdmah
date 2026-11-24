@@ -122,6 +122,22 @@ function rememberLanguage(user, lang) {
   query('UPDATE users SET ui_lang = ? WHERE id = ?', [lang, user.id]).catch(() => {});
 }
 
+// AYK-480 (the owner: «آخر ظهور غير دقيق، هذا قبل ساعة كان داخل»): «آخر ظهور» was written only when the
+// live connection opened or closed, so someone using the app through ordinary requests (a weak network, a
+// phone that cannot keep the connection) kept an old time. Now every signed-in request of the site or the app
+// marks the account as seen, at most once every 30 seconds per account, with no write at all in between.
+// The administration's own area is not counted: an admin there is not «on the site».
+const SEEN_EVERY_MS = 30 * 1000;
+const seenAt = new Map();
+function markSeen(req, user) {
+  if (!user || requestScope(req) !== 'site') return;
+  const now = Date.now();
+  if (now - (seenAt.get(user.id) || 0) < SEEN_EVERY_MS) return;
+  seenAt.set(user.id, now);
+  if (seenAt.size > 20000) for (const [id, at] of seenAt) if (now - at > SEEN_EVERY_MS) seenAt.delete(id);
+  query('UPDATE users SET last_seen_at = CURRENT_TIMESTAMP WHERE id = ?', [user.id]).catch(() => {});
+}
+
 async function authenticate(req, res, next) {
   try {
     const { token, cookie } = tokenFromRequest(req);
@@ -142,6 +158,7 @@ async function authenticate(req, res, next) {
 
     req.user = user;
     rememberLanguage(user, req.lang);
+    markSeen(req, user);
     next();
   } catch (err) {
     next(err);
@@ -158,6 +175,7 @@ async function optionalAuth(req, res, next) {
       req.user = user;
       req.userId = user.id;
       req.userRole = user.role;
+      markSeen(req, user);
     }
   } catch (_) {
     // ignore — treat as guest
@@ -165,4 +183,4 @@ async function optionalAuth(req, res, next) {
   next();
 }
 
-module.exports = { authenticate, optionalAuth, loadSessionUser, sessionCookieName, requestScope, asSiteUser, asAdminUser, adminAccess, isAdminAccount };
+module.exports = { markSeen, authenticate, optionalAuth, loadSessionUser, sessionCookieName, requestScope, asSiteUser, asAdminUser, adminAccess, isAdminAccount };

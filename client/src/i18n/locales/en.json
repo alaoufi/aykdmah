@@ -495,7 +495,13 @@
     "contact_providers_title": "Contact is for service providers",
     "contact_providers_only": "Contacting service requesters is for service providers. Register as a service provider and choose your profession, then reach the people who need you.",
     "become_provider": "Become a service provider",
-    "available": "Available"
+    "available": "Available",
+    "chip_profession": "Profession",
+    "chip_place": "Place",
+    "chip_offers": "Offers",
+    "chip_views": "Views",
+    "chip_budget": "Budget",
+    "chip_distance": "Distance"
   },
   "offer": {
     "submit_title": "Send a price offer",
@@ -2491,7 +2497,14 @@
     "schedule_required": "Set at least one working period, or choose “Available 24 hours”.",
     "midnight": "Midnight",
     "label_available": "Available for work",
-    "label_present": "Online"
+    "label_unavailable": "Not available for work",
+    "label_present": "Online",
+    "label_connected": "Online",
+    "label_disconnected": "Offline",
+    "no_alerts_self": "Your notices do not reach your phone now, so you are not shown as «available for work» even though your schedule is open.",
+    "no_alerts_link": "Turn on notices",
+    "away_alerts_title": "Keep sending me request notices while I rest",
+    "away_alerts_hint": "If you paused your work or are on leave, new requests in your profession and area still reach you, so you can gather customers and agree with them when you are back. Without this choice they do not reach you while you are paused or on leave."
   },
   "brand": {
     "branch_of": "Ay Khidma is a branch of",
@@ -2798,8 +2811,23 @@
     "result_enabled": "Enabled: {{names}}",
     "result_failed": "Not enabled: {{names}}.",
     "all_enabled": "All permissions are enabled.",
-    "ios_install": "To get calls and messages with the phone locked: tap Share ⬆️ then \"Add to Home Screen\", open Ay Khidma from its icon and turn on notifications.",
-    "bar_no_ring": "Notifications are off on this phone: it will not ring for calls or show messages while the app is closed. Tap \"Allow\"."
+    "ios_install": "To get calls and messages on your iPhone while it is locked, add «Ay Khidma» to the Home Screen. Tap the button below to see the steps with pictures.",
+    "bar_no_ring": "Notifications are off on this phone: it will not ring for calls or show messages while the app is closed. Tap \"Allow\".",
+    "guide_open": "How? Steps with pictures",
+    "guide_title": "Add «Ay Khidma» to the Home Screen",
+    "guide_tab_iphone": "iPhone",
+    "guide_tab_android": "Android",
+    "guide_step": "Step {{n}}",
+    "guide_ios_1": "Open the site in Safari. The Share button is the square with an arrow pointing up, in the middle of the bottom bar.",
+    "guide_ios_1b": "In Chrome on iPhone it is at the top of the screen, next to the address bar.",
+    "guide_share_label": "Share button",
+    "guide_ios_2": "Scroll the menu up, choose «Add to Home Screen», then tap «Add».",
+    "guide_add_label": "Add to Home Screen",
+    "guide_ios_3": "Open «Ay Khidma» from the new icon on the Home Screen, not from Safari, then tap «Allow all».",
+    "guide_android_1": "In Chrome, tap the three dots ⋮ at the top of the screen.",
+    "guide_android_2": "Choose «Install app» or «Add to Home screen».",
+    "guide_android_3": "On Android you do not need this step to get notifications; just tap «Allow all» in the bar at the top of the page.",
+    "guide_done": "Got it"
   },
   "app_update": {
     "title": "App update required",

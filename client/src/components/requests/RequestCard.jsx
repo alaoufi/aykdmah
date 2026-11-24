@@ -25,6 +25,7 @@ export default function RequestCard({ request }) {
 
   const { open, opening, mine, forMyService, canContact, contact } = useOpenRequest();
   const translation = useRequestTranslation(request);
+  const professionName = request.category_name ? localizedJoinedName(request, 'category', i18n.resolvedLanguage) : '';
   const intro = useContactIntro();
 
   return (
@@ -56,14 +57,18 @@ export default function RequestCard({ request }) {
           contact icons at the end of the same line (AYK-418, AYK-427, AYK-430). */}
       <div className="flex items-end gap-2 mt-2">
         <div className="meta min-w-0 flex-1 flex flex-wrap gap-1 text-[11.5px] text-fg-muted">
-          {request.category_name && <span className="chip">🛠️ {localizedJoinedName(request, 'category', i18n.resolvedLanguage)}</span>}
-          {request.city_name && <span className="chip">📍 {localizedJoinedName(request, 'city', i18n.resolvedLanguage)}{request.district_name ? ` · ${localizedJoinedName(request, 'district', i18n.resolvedLanguage)}` : ''}</span>}
-          {request.distance_km != null && <span className="chip">📏 {formatDistance(request.distance_km)}</span>}
-          {request.offers_count > 0 && <span className="chip">📨 {request.offers_count} {t('request.offers_count')}</span>}
+          {/* AYK-485 (the owner: «كأنها كلها مهن، حاول تميّز»): each kind has its own colour, its own icon and its
+              name written before the value, so the profession, the place, the offers and the views are never
+              mixed up. The profession is not repeated when it is already the title. */}
+          {professionName && professionName.trim() !== String(translation.title || '').trim()
+            && <span className="chip chip-prof" data-testid="chip-profession"><span aria-hidden="true">🛠️</span> <span className="chip-k">{t('request.chip_profession')}:</span> <b>{professionName}</b></span>}
+          {request.city_name && <span className="chip chip-place" data-testid="chip-place"><span aria-hidden="true">📍</span> <span className="chip-k">{t('request.chip_place')}:</span> <b>{localizedJoinedName(request, 'city', i18n.resolvedLanguage)}{request.district_name ? ` · ${localizedJoinedName(request, 'district', i18n.resolvedLanguage)}` : ''}</b></span>}
+          {request.distance_km != null && <span className="chip chip-place" data-testid="chip-distance"><span aria-hidden="true">📏</span> <span className="chip-k">{t('request.chip_distance')}:</span> <b>{formatDistance(request.distance_km)}</b></span>}
+          {request.offers_count > 0 && <span className="chip chip-offers" data-testid="chip-offers"><span aria-hidden="true">📨</span> <span className="chip-k">{t('request.chip_offers')}:</span> <b>{request.offers_count}</b></span>}
           {/* AYK-244: present only when views are public (admin setting) or the viewer is an admin. */}
-          {request.views_count != null && <span className="chip">👁 {request.views_count}</span>}
+          {request.views_count != null && <span className="chip chip-views" data-testid="chip-views"><span aria-hidden="true">👁</span> <span className="chip-k">{t('request.chip_views')}:</span> <b>{request.views_count}</b></span>}
           {request.budget_min && (
-            <span className="chip">💰 {formatCurrency(request.budget_min)}{request.budget_max ? ` — ${formatCurrency(request.budget_max)}` : ''}</span>
+            <span className="chip chip-budget" data-testid="chip-budget"><span aria-hidden="true">💰</span> <span className="chip-k">{t('request.chip_budget')}:</span> <b>{formatCurrency(request.budget_min)}{request.budget_max ? ` — ${formatCurrency(request.budget_max)}` : ''}</b></span>
           )}
         </div>
         {/* AYK-436/439: share the request: its owner always, others only when the requester allows it. */}
@@ -80,7 +85,15 @@ export default function RequestCard({ request }) {
         .request-card { display: block; text-decoration: none; color: inherit; padding: 12px 14px; cursor: pointer; }
         .request-card .badge { padding: 2px 8px; font-size: 11px; }
         .request-card .chip { display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 9999px;
-          background: rgb(var(--color-surface-alt, 241 245 249)); border: 1px solid rgb(var(--color-border, 226 232 240)); line-height: 1.5; white-space: nowrap; }
+          background: rgb(var(--color-surface-alt, 241 245 249)); border: 1px solid rgb(var(--color-border, 226 232 240)); line-height: 1.5; white-space: nowrap; color: #334155; }
+        .request-card .chip .chip-k { font-weight: 500; opacity: .8; }
+        .request-card .chip b { font-weight: 800; }
+        /* One colour for each kind (AYK-485). */
+        .request-card .chip-prof { background: #eff6ff; border-color: #93c5fd; color: #1e3a8a; }
+        .request-card .chip-place { background: #ecfdf5; border-color: #6ee7b7; color: #065f46; }
+        .request-card .chip-offers { background: #fffbeb; border-color: #fcd34d; color: #92400e; }
+        .request-card .chip-views { background: #f1f5f9; border-color: #cbd5e1; color: #475569; }
+        .request-card .chip-budget { background: #f5f3ff; border-color: #c4b5fd; color: #5b21b6; }
       `}</style>
     </div>
   );

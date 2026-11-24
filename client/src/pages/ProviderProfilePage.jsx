@@ -102,7 +102,7 @@ export default function ProviderProfilePage() {
             {provider.availability && <div className="mt-1 space-y-0.5">
               <span className="flex items-center gap-2 flex-wrap">
                 <AvailabilityBadge availability={provider.availability} name={name} />
-                <PresenceTag present={provider.availability.present} />
+                <PresenceTag present={provider.availability.present} lastSeen={provider.availability.last_seen_at} />
               </span>
               {/* AYK-366: the whole week on the provider's page. */}
               <details className="text-[12.5px]"><summary className="cursor-pointer font-semibold text-primary">🗓️ {t('availability.schedule_title')}</summary>

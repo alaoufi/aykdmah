@@ -1,3 +1,4 @@
+import { HomeScreenGuideButton } from '../common/HomeScreenGuide';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../../hooks/useAuth';
@@ -43,7 +44,7 @@ export default function CallAlerts({ variant = 'card' }) {
     return (
       <div className="bg-primary-soft border-b border-border px-4 py-2.5 text-[13px] text-primary-text flex flex-wrap items-center gap-2 justify-center" data-testid="call-alerts-banner">
         <span>🔔 {t('push.banner')}</span>
-        {iphone ? <span className="text-fg-muted">{t('push.iphone_hint')}</span>
+        {iphone ? <><span className="text-fg-muted">{t('push.iphone_hint')}</span><HomeScreenGuideButton /></>
           : <Button size="sm" variant="primary" loading={busy} onClick={enable}>{t('push.enable')}</Button>}
         <button type="button" className="text-fg-muted underline" onClick={() => { try { localStorage.setItem(DISMISS_KEY, '1'); } catch (_) { /* private mode */ } setHidden(true); }}>
           {t('push.later')}
@@ -61,7 +62,7 @@ export default function CallAlerts({ variant = 'card' }) {
       {state === 'unsupported' && <p className="text-[13px] text-fg-muted m-0">{t('push.unsupported')}</p>}
       {state === 'denied' && <p className="text-[13px] text-danger m-0">{t('push.denied')}</p>}
       {state === 'off' && (iphone
-        ? <p className="text-[13px] text-fg-muted m-0">{t('push.iphone_hint')}</p>
+        ? <div className="space-y-2"><p className="text-[13px] text-fg-muted m-0">{t('push.iphone_hint')}</p><HomeScreenGuideButton /></div>
         : <Button variant="primary" loading={busy} onClick={enable}>{t('push.enable')}</Button>)}
       {error && state !== 'denied' && <p className="text-[13px] text-danger mt-2 mb-0">{error}</p>}
     </div>

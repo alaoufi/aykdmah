@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { dayLabel, formatTime } from '../../utils/formatters';
 import { useTranslation } from 'react-i18next';
 import Modal from './Modal';
+import usePublicSettings, { presenceOn, availabilityOn } from '../../hooks/usePublicSettings';
 import { localizedName } from '../../utils/localize';
 
 // AYK-366 (the owner: «فرق بين متاح وداخل التطبيق… ركّز فيها بعمق»). Two separate things:
@@ -80,9 +82,9 @@ export function WeekSchedule({ availability }) {
   );
 }
 
-// AYK-368 (the owner: «متاح للعمل: فقط أمامه دائرة خضراء أو حمراء. متواجد على التطبيق: فقط أمامه دائرة
-// خضراء أو حمراء»). The words never change; the circle says yes or no. Red «متاح للعمل» has «جدول
-// العمل» next to it, and the reason (leave, stopped, outside hours) is inside that schedule.
+// AYK-368 (the owner: «متاح للعمل: دائرة خضراء أو حمراء»). AYK-482 (the owner: «متاح للعمل أخضر، غير متاح
+// للعمل أحمر»): the words follow the state too, green «متاح للعمل» or red «غير متاح للعمل», with «جدول
+// العمل» next to the red one; the reason (leave, stopped, outside hours) is inside that schedule.
 const Dot = ({ on }) => (
   <span aria-hidden="true" className={`inline-block w-2.5 h-2.5 rounded-full shrink-0 ${on ? 'bg-emerald-500' : 'bg-rose-500'}`}
     style={{ boxShadow: `0 0 0 2px ${on ? 'rgba(16,185,129,.2)' : 'rgba(244,63,94,.2)'}` }} />
@@ -91,13 +93,15 @@ const Dot = ({ on }) => (
 export default function AvailabilityBadge({ availability, className = '', name = '' }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  if (!availability?.state) return null;
+  const { settings } = usePublicSettings();
+  // AYK-481: switched off from the administration.
+  if (!availability?.state || !availabilityOn(settings)) return null;
   const available = isAvailable(availability);
   return (
     <span className={`inline-flex items-center gap-1.5 flex-wrap ${className}`} data-availability={availability.state}
       title={available ? undefined : reasonOf(availability, t)}>
       <span className={`inline-flex items-center gap-1.5 text-[12px] font-semibold ${available ? 'text-emerald-700' : 'text-rose-700'}`}>
-        <Dot on={available} />{t('availability.label_available')}
+        <Dot on={available} />{t(available ? 'availability.label_available' : 'availability.label_unavailable')}
       </span>
       {!available && (
         <button type="button" className="text-[11.5px] font-semibold text-primary underline bg-transparent border-0 p-0 cursor-pointer"
@@ -112,14 +116,20 @@ export default function AvailabilityBadge({ availability, className = '', name =
   );
 }
 
-// «متواجد على التطبيق» with a green or red circle: the app open now. Nothing when unknown.
-export function PresenceTag({ present, className = '' }) {
+// AYK-478 (the owner: «إذا متصل يكون بالأخضر، وإذا غير متصل يكون بالأحمر»، «إذا غير متصل تُضاف آخر ظهور»):
+// the app open now = a green «متصل»; otherwise a red «غير متصل» with «آخر ظهور …» when it is known.
+// Nothing when unknown.
+export function PresenceTag({ present, lastSeen = null, className = '' }) {
   const { t } = useTranslation();
-  if (present === undefined || present === null) return null;
+  const { settings } = usePublicSettings();
+  if (present === undefined || present === null || !presenceOn(settings)) return null;
+  const when = !present && lastSeen && !Number.isNaN(new Date(lastSeen).getTime())
+    ? `${dayLabel(lastSeen, t)} ${formatTime(lastSeen)}` : '';
   return (
     <span className={`inline-flex items-center gap-1.5 text-[12px] font-semibold ${present ? 'text-emerald-700' : 'text-rose-700'} ${className}`}
       title={t('availability.present_hint')} data-presence={present ? 'present' : 'absent'}>
-      <Dot on={Boolean(present)} />{t('availability.label_present')}
+      <Dot on={Boolean(present)} />{present ? t('availability.label_connected') : t('availability.label_disconnected')}
+      {when && <span className="font-normal text-fg-muted" data-testid="last-seen">· {t('chat.last_seen')} {when}</span>}
     </span>
   );
 }
@@ -146,7 +156,7 @@ export function ProviderStatus({ availability, coverage, name = '', className = 
     <span className={`flex flex-col gap-1 ${className}`}>
       <span className="flex items-center gap-2 flex-wrap">
         <AvailabilityBadge availability={availability} name={name} />
-        <PresenceTag present={availability?.present} />
+        <PresenceTag present={availability?.present} lastSeen={availability?.last_seen_at} />
       </span>
       <CoverageLine coverage={coverage} />
     </span>

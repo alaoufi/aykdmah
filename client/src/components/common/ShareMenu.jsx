@@ -34,6 +34,10 @@ const ICONS = {
   qr: svg('M3 3h8v8H3V3Zm2 2v4h4V5H5Zm8-2h8v8h-8V3Zm2 2v4h4V5h-4ZM3 13h8v8H3v-8Zm2 2v4h4v-4H5Zm8-2h2v2h-2v-2Zm2 2h2v2h-2v-2Zm2-2h2v2h-2v-2Zm2 2h2v2h-2v-2Zm-6 2h2v2h-2v-2Zm2 2h2v2h-2v-2Zm2-2h2v2h-2v-2Zm2 2h2v2h-2v-2Z'),
 };
 
+// AYK-486 (the owner: «المشاركة لونها أسود، عدّله كما هو متبع بالمواقع»): the share button is the usual blue, the same
+// blue as «مشاركة» in its own menu, instead of the dark slate it had.
+export const SHARE_COLOR = '#2563eb';
+
 export default function ShareMenu({ url, title = '', text = '', variant = 'button', label, className = '', testId = 'share-menu' }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -110,16 +114,16 @@ export default function ShareMenu({ url, title = '', text = '', variant = 'butto
         <button ref={trigger} type="button" aria-label={buttonLabel} title={buttonLabel} aria-expanded={open} aria-haspopup="menu"
           onClick={() => setOpen(v => !v)} data-testid={testId}
           className={`inline-grid place-items-center rounded-pill border-0 cursor-pointer shrink-0 shadow-sm ${className}`}
-          style={{ background: '#475569', color: '#ffffff', width: 36, height: 36, minWidth: 36, minHeight: 36, padding: 0 }}>
+          style={{ background: SHARE_COLOR, color: '#ffffff', width: 36, height: 36, minWidth: 36, minHeight: 36, padding: 0 }}>
           {ICONS.share}
         </button>
       ) : variant === 'icon' || variant === 'icon-sm' ? (
         <button ref={trigger} type="button" aria-label={buttonLabel} title={buttonLabel} aria-expanded={open} aria-haspopup="menu"
           onClick={() => setOpen(v => !v)} data-testid={testId}
-          // AYK-436: 'icon-sm' sits beside the round contact icons on cards (30 px, fixed slate).
-          // AYK-451: filled in the same fixed slate as the card's round share button, so it is clear.
+          // AYK-436: 'icon-sm' sits beside the round contact icons on cards (30 px, fixed blue: AYK-486).
+          // AYK-451: filled in the same fixed blue as the card's round share button, so it is clear.
           className={`${variant === 'icon-sm' ? 'w-[30px] h-[30px] border-0 shadow-sm' : 'w-10 h-10 bg-transparent border-0 text-fg-muted hover:bg-surface-alt'} grid place-items-center rounded-pill cursor-pointer ${className}`}
-          style={variant === 'icon-sm' ? { minHeight: 0, minWidth: 30, padding: 0, background: '#475569', color: '#ffffff' } : undefined}>
+          style={variant === 'icon-sm' ? { minHeight: 0, minWidth: 30, padding: 0, background: SHARE_COLOR, color: '#ffffff' } : undefined}>
           {ICONS.share}
         </button>
       ) : (

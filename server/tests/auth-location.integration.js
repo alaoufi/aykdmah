@@ -1500,6 +1500,94 @@ if (!databasePrefix) {
     await db.query('DELETE FROM requests WHERE id = ?', [id]);
   });
 
+  test('AYK-480: any signed-in request marks the account seen, and «متصل» means seen in the last two minutes', async () => {
+    const area = await simpleArea();
+    const svc = await db.queryOne('SELECT s.id FROM services s WHERE s.is_active = 1 AND s.deleted_at IS NULL ORDER BY s.id LIMIT 1');
+    const provider = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id, service_ids: [Number(svc.id)], coverage_district_ids: [area.district_id] });
+    const id = Number(provider.user.id);
+    const presence = async () => {
+      const list = await api(`/providers/matching?scope=all&region_id=${(await db.queryOne('SELECT COALESCE(c.region_id, g.region_id) AS id FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id WHERE c.id = ?', [area.city_id])).id}`);
+      return list.providers.find(p => Number(p.id) === id)?.availability;
+    };
+    // Gone since yesterday: not connected, with the time he was last seen.
+    await db.query("UPDATE users SET is_online = 0, last_seen_at = CURRENT_TIMESTAMP - INTERVAL '1 day' WHERE id = ?", [id]);
+    let state = await presence();
+    assert.equal(state.present, false);
+    assert.ok(state.last_seen_at, 'the last seen time is given');
+    // He uses the app through ordinary requests (no live connection): seen now.
+    await api('/auth/me', { token: provider.token });
+    let seen = null;
+    for (let i = 0; i < 30 && !seen; i += 1) {
+      seen = await db.queryOne("SELECT id FROM users WHERE id = ? AND last_seen_at > CURRENT_TIMESTAMP - INTERVAL '1 minute'", [id]);
+      if (!seen) await new Promise(resolve => setTimeout(resolve, 100));
+    }
+    assert.ok(seen, 'a signed-in request marks him seen');
+    state = await presence();
+    assert.equal(state.present, true, 'seen within two minutes counts as connected');
+    assert.equal(state.last_seen_at, undefined);
+    // Ten minutes ago: not connected, and the time is that one.
+    await db.query("UPDATE users SET last_seen_at = CURRENT_TIMESTAMP - INTERVAL '10 minutes' WHERE id = ?", [id]);
+    state = await presence();
+    assert.equal(state.present, false);
+    assert.ok(Date.now() - new Date(state.last_seen_at).getTime() < 11 * 60 * 1000 && Date.now() - new Date(state.last_seen_at).getTime() > 9 * 60 * 1000, 'about ten minutes ago');
+  });
+
+  test('AYK-481: the administration switches «متصل / آخر ظهور», «متاح للعمل» and the notices requirement', async () => {
+    const area = await simpleArea();
+    const svc = await db.queryOne('SELECT s.id FROM services s WHERE s.is_active = 1 AND s.deleted_at IS NULL ORDER BY s.id LIMIT 1');
+    const provider = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id, service_ids: [Number(svc.id)], coverage_district_ids: [area.district_id] });
+    const id = Number(provider.user.id);
+    const set = async (key, value) => { await db.query("UPDATE settings SET setting_value = ? WHERE setting_key = ?", [value, key]); await new Promise(resolve => setTimeout(resolve, 700)); };
+    const status = async () => (await api(`/users/${id}`)).provider.availability;
+    try {
+      await db.query("UPDATE users SET is_online = 0, last_seen_at = CURRENT_TIMESTAMP - INTERVAL '3 hours' WHERE id = ?", [id]);
+      // No channel for his notices: his schedule is open but he is not «available for work».
+      await db.query('DELETE FROM push_subscriptions WHERE user_id = ?', [id]);
+      await db.query('DELETE FROM native_push_tokens WHERE user_id = ?', [id]);
+      // AYK-483: by default «available for work» follows the schedule exactly, with or without a channel.
+      let a = await status();
+      assert.equal(a.state, 'available', 'the requirement is off by default');
+      assert.equal(a.alerts, false);
+      await set('availability_needs_alerts', 'true');
+      a = await status();
+      assert.equal(a.state, 'no_alerts'); assert.equal(a.alerts, false);
+      assert.equal(a.present, false); assert.ok(a.last_seen_at, 'last seen is shown');
+      // He turns his notices on: available.
+      await db.query("INSERT INTO push_subscriptions (user_id, endpoint, p256dh, auth) VALUES (?, ?, 'k', 'a')", [id, `https://push.test.invalid/s${id}`]);
+      a = await status(); assert.equal(a.state, 'available'); assert.equal(a.alerts, true);
+      // The requirement switched off: the schedule alone decides.
+      await db.query('DELETE FROM push_subscriptions WHERE user_id = ?', [id]);
+      await set('availability_needs_alerts', 'false');
+      a = await status(); assert.equal(a.state, 'available');
+      // «متصل / آخر ظهور» switched off: neither is sent, in lists, profiles and chats.
+      await set('presence_visible', 'false');
+      a = await status(); assert.equal(a.present, undefined); assert.equal(a.last_seen_at, undefined);
+      const settings = await api('/settings/public');
+      assert.ok([false, 'false', 0, '0'].includes(settings.presence_visible), 'the client is told');
+    } finally {
+      await set('presence_visible', 'true'); await set('availability_visible', 'true'); await set('availability_needs_alerts', 'false');
+    }
+    const back = await status(); assert.equal(back.state, 'available', 'back to the default: the schedule alone'); assert.equal(back.present, false);
+  });
+
+  test('AYK-484: a provider who paused or is on leave is told of new requests only if he chose to be', async () => {
+    const area = await simpleArea();
+    const service = await db.queryOne('SELECT id, category_id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    const make = () => simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id, service_ids: [Number(service.id)], coverage_district_ids: [area.district_id] });
+    const resting = await make(); const chosen = await make(); const mutedAway = await make(); const working = await make();
+    for (const p of [resting, chosen, mutedAway]) await api('/users/me/provider', { method: 'PUT', token: p.token, body: { availability_status: 'paused' } });
+    await api('/users/me', { method: 'PUT', token: chosen.token, body: { notify_while_away: 1 } });
+    await api('/users/me', { method: 'PUT', token: mutedAway.token, body: { notify_while_away: 1, request_alerts_off: 1 } });
+    await api('/users/me', { method: 'PUT', token: resting.token, body: { notify_while_away: 'x' }, expected: 400 });
+    const client = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await api('/requests', { method: 'POST', token: client.token, expected: 201, body: { title: 'تسريب', description: 'اختبار التنبيه أثناء الراحة', category_id: service.category_id } });
+    const told = async user => { for (let i = 0; i < 150; i += 1) { if (await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_new'", [user.user.id])) return true; await new Promise(resolve => setTimeout(resolve, 100)); } return false; };
+    assert.ok(await told(working), 'a working provider is told');
+    assert.ok(await told(chosen), 'a paused provider who chose to be told is told');
+    assert.ok(!await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_new'", [resting.user.id]), 'a paused provider who did not choose is not told');
+    assert.ok(!await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_new'", [mutedAway.user.id]), 'turning the notices off wins');
+  });
+
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
@@ -1531,6 +1619,8 @@ if (!databasePrefix) {
       WHERE s.is_active = 1 AND s.deleted_at IS NULL AND c.is_active = 1 AND c.deleted_at IS NULL ORDER BY s.category_id, s.id LIMIT 2`);
     const session = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id,
       service_ids: categories.map(row => Number(row.id)), coverage_district_ids: area.districts.slice(0, 1) });
+    // AYK-481: «available» also needs a channel for his notices.
+    await db.query("INSERT INTO push_subscriptions (user_id, endpoint, p256dh, auth) VALUES (?, ?, 'k', 'a')", [session.user.id, `https://push.test.invalid/${session.user.id}`]);
     const update = (body, expected = 200) => api('/users/me/provider', { method: 'PUT', token: session.token, body, expected });
     const state = async () => (await api(`/users/${session.user.id}`)).provider.availability.state;
     const search = async (query = '') => (await api(`/providers/nearby?lat=24.7136&lon=46.6753&radius_km=5${query}`)).providers

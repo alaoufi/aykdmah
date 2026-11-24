@@ -495,7 +495,13 @@
     "contact_providers_title": "Ang pakikipag-ugnayan ay para sa mga service provider",
     "contact_providers_only": "Ang pakikipag-ugnayan sa mga humihiling ng serbisyo ay para sa mga service provider. Magrehistro bilang service provider at piliin ang iyong propesyon, saka kontakin ang mga nangangailangan sa iyo.",
     "become_provider": "Maging service provider",
-    "available": "Bukas"
+    "available": "Bukas",
+    "chip_profession": "Propesyon",
+    "chip_place": "Lugar",
+    "chip_offers": "Mga alok",
+    "chip_views": "Mga view",
+    "chip_budget": "Badyet",
+    "chip_distance": "Layo"
   },
   "offer": {
     "submit_title": "Mag-alok ng presyo",
@@ -2491,7 +2497,14 @@
     "schedule_required": "Maglagay ng kahit isang oras ng trabaho, o piliin ang «Available 24 oras».",
     "midnight": "Hatinggabi",
     "label_available": "Available sa trabaho",
-    "label_present": "Online"
+    "label_unavailable": "Hindi available sa trabaho",
+    "label_present": "Online",
+    "label_connected": "Online",
+    "label_disconnected": "Offline",
+    "no_alerts_self": "Hindi umaabot sa telepono mo ang mga abiso ngayon, kaya hindi ka ipinapakitang «available para sa trabaho» kahit bukas ang iskedyul mo.",
+    "no_alerts_link": "I-on ang mga abiso",
+    "away_alerts_title": "Ipadala pa rin ang mga abiso ng request habang nagpapahinga ako",
+    "away_alerts_hint": "Kung ipinahinto mo ang trabaho o naka-leave ka, darating pa rin ang mga bagong request sa propesyon at lugar mo, para makapag-ipon ka ng customer at makipagkasundo pagbalik mo. Kung hindi mo ito pipiliin, hindi darating ang mga ito habang naka-pause o naka-leave ka."
   },
   "brand": {
     "branch_of": "Ang Ay Khidma ay sangay ng",
@@ -2798,8 +2811,23 @@
     "result_enabled": "Na-on: {{names}}",
     "result_failed": "Hindi na-on: {{names}}.",
     "all_enabled": "Naka-on ang lahat ng pahintulot.",
-    "ios_install": "Para makatanggap ng tawag at mensahe kahit naka-lock ang phone: pindutin ang Share ⬆️ saka ang «Add to Home Screen», buksan ang «Ay Khidma» mula sa icon nito at i-on ang mga notification.",
-    "bar_no_ring": "Naka-off ang notification sa phone na ito: hindi ito magri-ring kapag may tawag at hindi darating ang mga mensahe kapag sarado ang app. Pindutin ang «Payagan»."
+    "ios_install": "Para makatanggap ng tawag at mensahe sa iPhone kahit naka-lock, idagdag ang «Ay Khidma» sa Home Screen. Pindutin ang button sa ibaba para makita ang mga hakbang na may larawan.",
+    "bar_no_ring": "Naka-off ang notification sa phone na ito: hindi ito magri-ring kapag may tawag at hindi darating ang mga mensahe kapag sarado ang app. Pindutin ang «Payagan».",
+    "guide_open": "Paano? Mga hakbang na may larawan",
+    "guide_title": "Idagdag ang «Ay Khidma» sa Home Screen",
+    "guide_tab_iphone": "iPhone",
+    "guide_tab_android": "Android",
+    "guide_step": "Hakbang {{n}}",
+    "guide_ios_1": "Buksan ang site sa Safari. Ang Share button ay ang parisukat na may arrow na nakaturo pataas, sa gitna ng ibabang bar.",
+    "guide_ios_1b": "Kung Chrome sa iPhone, nasa itaas ng screen ito sa tabi ng address bar.",
+    "guide_share_label": "Share button",
+    "guide_ios_2": "I-scroll pataas ang menu, piliin ang «Add to Home Screen», saka pindutin ang «Add».",
+    "guide_add_label": "Idagdag sa Home Screen",
+    "guide_ios_3": "Buksan ang «Ay Khidma» mula sa bagong icon sa Home Screen, hindi sa Safari, saka pindutin ang «Payagan lahat».",
+    "guide_android_1": "Sa Chrome, pindutin ang tatlong tuldok ⋮ sa itaas ng screen.",
+    "guide_android_2": "Piliin ang «Install app» o «Add to Home screen».",
+    "guide_android_3": "Sa Android, hindi kailangan ang hakbang na ito para makatanggap ng abiso; pindutin lang ang «Payagan lahat» sa bar sa itaas ng pahina.",
+    "guide_done": "Naintindihan ko"
   },
   "app_update": {
     "title": "Kailangang i-update ang app",

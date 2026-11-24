@@ -12,6 +12,7 @@ import { apiError } from '../services/api';
 import { useAuth } from '../hooks/useAuth';
 import { useNotifications } from '../hooks/useNotifications';
 import { useSocket } from '../hooks/useSocket';
+import usePublicSettings, { presenceOn } from '../hooks/usePublicSettings';
 import MessageBubble from '../components/chat/MessageBubble';
 import ChatInput from '../components/chat/ChatInput';
 import { createForwardBatchOwner } from '../utils/forwardBatch';
@@ -60,6 +61,7 @@ export default function ChatPage() {
   // Reading a chat updates the unread count on "Chats".
   const { refresh: refreshBadges } = useNotifications();
   const { socket, realtimeMode } = useSocket();
+  const showPresence = presenceOn(usePublicSettings().settings); // AYK-481: the administration's switch
   const navigate = useNavigate();
 
   const [conversations, setConversations] = useState([]);
@@ -329,7 +331,16 @@ export default function ChatPage() {
       setMessages(prev => prev.map(m => ids.has(Number(m.id)) && !m.delivered_at ? { ...m, delivered_at: new Date().toISOString() } : m));
     };
     socket.on('chat:delivered', onDelivered);
+    // AYK-478 (the owner: «إذا الآخر غير متصل تُضاف آخر ظهور»): the header follows the other side live.
+    const onPresence = (payload) => {
+      if (scopeRef.current !== scope) return;
+      const id = Number(payload?.userId);
+      const mark = p => (Number(p.id) === id ? { ...p, is_online: payload.isOnline ? 1 : 0, ...(payload.isOnline ? {} : { last_seen_at: payload.lastSeenAt || new Date().toISOString() }) } : p);
+      setActive(current => (current?.participants?.some(p => Number(p.id) === id) ? { ...current, participants: current.participants.map(mark) } : current));
+    };
+    socket.on('user:online', onPresence);
     return () => {
+      socket.off('user:online', onPresence);
       socket.off('chat:translation', onTranslation);
       socket.io?.off?.('reconnect', onReconnect);
       socket.off('chat:delivered', onDelivered);
@@ -612,6 +623,9 @@ export default function ChatPage() {
                       <span className="conv-name">
                         {Number(c.is_favorite) ? <span aria-label={t('chat.favorite')}>⭐</span> : null}
                         <span className="conv-name-text">{other?.full_name || '—'}</span>
+                        {/* AYK-478: green when connected, red when not. */}
+                        {showPresence && other && <span aria-hidden="true" title={Number(other.is_online) === 1 ? t('chat.online') : t('availability.label_disconnected')}
+                          style={{ display: 'inline-block', width: 8, height: 8, borderRadius: 999, marginInline: 4, background: Number(other.is_online) === 1 ? '#16a34a' : '#e11d48' }} data-testid="conv-presence" />}
                         {other?.referral_code && <span className="conv-code" dir="ltr">{other.referral_code}</span>}
                       </span>
                       <span className="conv-time">{last ? (isSameDay(last.created_at, new Date()) ? formatTime(last.created_at) : dayLabel(last.created_at, t)) : ''}</span>
@@ -651,13 +665,12 @@ export default function ChatPage() {
                       {otherParticipant.referral_code && <span className="chat-peer-code" dir="ltr" data-testid="chat-peer-code">{otherParticipant.referral_code}</span>}
                     </div>
                     <div className="chat-peer-status">
-                      {realtimeMode === 'polling'
-                        ? t('chat.periodic_updates', { defaultValue: 'تُحدّث الرسائل كل 5 ثوانٍ' })
-                        : otherParticipant.is_online
-                        ? '🟢 ' + t('chat.online')
+                      {/* AYK-478: «متصل» or «آخر ظهور» always; on the periodic-update mode too (it used to replace them). */}
+                      {!showPresence ? '' : Number(otherParticipant.is_online) === 1
+                        ? <span className="text-emerald-600 font-semibold" data-testid="chat-online">🟢 {t('chat.online')}</span>
                         : otherParticipant.last_seen_at
-                          ? `${t('chat.last_seen')} ${dayLabel(otherParticipant.last_seen_at, t)} ${formatTime(otherParticipant.last_seen_at)}`
-                          : ''}
+                          ? <span className="text-rose-600 font-semibold" data-testid="chat-last-seen">🔴 {t('availability.label_disconnected')} · <span className="font-normal">{`${t('chat.last_seen')} ${dayLabel(otherParticipant.last_seen_at, t)} ${formatTime(otherParticipant.last_seen_at)}`}</span></span>
+                          : realtimeMode === 'polling' ? t('chat.periodic_updates', { defaultValue: 'تُحدّث الرسائل كل 5 ثوانٍ' }) : ''}
                     </div>
                   </div>
                   {canSend && <CallButtons conversationId={Number(activeId)} compact />}

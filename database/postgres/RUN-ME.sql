@@ -6888,6 +6888,23 @@ UPDATE users SET full_name = 'عضو ' || referral_code
   WHERE full_name ~ '^مستخدم [0-9]{4}$' AND referral_code IS NOT NULL AND referral_code <> '';
 INSERT INTO schema_migrations(name) VALUES ('115_member_internal_key.sql');
 
+-- migrations/116_provider_status_switches.sql
+INSERT INTO settings (setting_key, setting_value, setting_type, setting_group, is_public, description)
+VALUES
+  ('presence_visible', 'true', 'boolean', 'requests', 1, 'إظهار «متصل» و«آخر ظهور»'),
+  ('availability_visible', 'true', 'boolean', 'requests', 1, 'إظهار «متاح للعمل»'),
+  ('availability_needs_alerts', 'true', 'boolean', 'requests', 1, 'اشتراط وصول التنبيهات للجوال ليكون «متاح للعمل»')
+ON CONFLICT (setting_key) DO NOTHING;
+INSERT INTO schema_migrations(name) VALUES ('116_provider_status_switches.sql');
+
+-- migrations/117_availability_follows_schedule.sql
+UPDATE settings SET setting_value = 'false' WHERE setting_key = 'availability_needs_alerts';
+INSERT INTO schema_migrations(name) VALUES ('117_availability_follows_schedule.sql');
+
+-- migrations/118_notify_while_away.sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_while_away SMALLINT NOT NULL DEFAULT 0;
+INSERT INTO schema_migrations(name) VALUES ('118_notify_while_away.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

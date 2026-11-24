@@ -495,7 +495,13 @@
     "contact_providers_title": "İletişim hizmet verenler içindir",
     "contact_providers_only": "Hizmet talep edenlerle iletişim hizmet verenler içindir. Hizmet veren olarak kaydolun ve mesleğinizi seçin, ardından size ihtiyaç duyanlara ulaşın.",
     "become_provider": "Hizmet veren ol",
-    "available": "Müsait"
+    "available": "Müsait",
+    "chip_profession": "Meslek",
+    "chip_place": "Yer",
+    "chip_offers": "Teklifler",
+    "chip_views": "Görüntülenme",
+    "chip_budget": "Bütçe",
+    "chip_distance": "Mesafe"
   },
   "offer": {
     "submit_title": "Fiyat teklifi ver",
@@ -2491,7 +2497,14 @@
     "schedule_required": "En az bir çalışma aralığı belirleyin veya «24 saat müsait» seçin.",
     "midnight": "Gece yarısı",
     "label_available": "İş için müsait",
-    "label_present": "Çevrimiçi"
+    "label_unavailable": "İş için müsait değil",
+    "label_present": "Çevrimiçi",
+    "label_connected": "Çevrimiçi",
+    "label_disconnected": "Çevrimdışı",
+    "no_alerts_self": "Bildirimleriniz şu an telefonunuza ulaşmıyor; çalışma programınız açık olsa da «çalışmaya uygun» görünmüyorsunuz.",
+    "no_alerts_link": "Bildirimleri aç",
+    "away_alerts_title": "Dinlenirken de talep bildirimleri gönderilsin",
+    "away_alerts_hint": "Çalışmayı durdurduysanız veya izindeyseniz meslek ve bölgenizdeki yeni talepler yine size ulaşır; döndüğünüzde müşterilerle anlaşabilirsiniz. Bu seçim olmadan, durdurulmuşken veya izindeyken ulaşmaz."
   },
   "brand": {
     "branch_of": "Ay Khidma sitesi şu sitenin bir şubesidir:",
@@ -2798,8 +2811,23 @@
     "result_enabled": "Açıldı: {{names}}",
     "result_failed": "Açılmadı: {{names}}.",
     "all_enabled": "Tüm izinler açık.",
-    "ios_install": "Telefon kilitliyken arama ve mesaj almak için: Paylaş ⬆️ düğmesine, ardından «Ana Ekrana Ekle»ye dokunun, «Ay Khidma»yı simgesinden açın ve bildirimleri etkinleştirin.",
-    "bar_no_ring": "Bu telefonda bildirimler kapalı: uygulama kapalıyken aramalarda çalmaz ve mesajlar gelmez. «İzin ver»e dokunun."
+    "ios_install": "iPhone kilitliyken arama ve mesaj alabilmek için «Ay Khidma»yı Ana Ekrana ekleyin. Resimli adımları görmek için aşağıdaki düğmeye dokunun.",
+    "bar_no_ring": "Bu telefonda bildirimler kapalı: uygulama kapalıyken aramalarda çalmaz ve mesajlar gelmez. «İzin ver»e dokunun.",
+    "guide_open": "Nasıl? Resimli adımlar",
+    "guide_title": "«Ay Khidma»yı Ana Ekrana ekle",
+    "guide_tab_iphone": "iPhone",
+    "guide_tab_android": "Android",
+    "guide_step": "Adım {{n}}",
+    "guide_ios_1": "Siteyi Safari'de açın. Paylaş düğmesi, yukarı bakan oklu karedir ve alt çubuğun ortasındadır.",
+    "guide_ios_1b": "iPhone'da Chrome kullanıyorsanız ekranın üstünde, adres çubuğunun yanındadır.",
+    "guide_share_label": "Paylaş düğmesi",
+    "guide_ios_2": "Menüyü yukarı kaydırın, «Ana Ekrana Ekle»yi seçin, sonra «Ekle»ye dokunun.",
+    "guide_add_label": "Ana Ekrana Ekle",
+    "guide_ios_3": "«Ay Khidma»yı Safari'den değil, Ana Ekrandaki yeni simgeden açın, sonra «Tümüne izin ver»e dokunun.",
+    "guide_android_1": "Chrome'da ekranın üstündeki üç noktaya ⋮ dokunun.",
+    "guide_android_2": "«Uygulamayı yükle» veya «Ana ekrana ekle»yi seçin.",
+    "guide_android_3": "Android'de bildirim almak için bu adım gerekmez; sayfanın üstündeki çubukta «Tümüne izin ver»e dokunmanız yeterli.",
+    "guide_done": "Anladım"
   },
   "app_update": {
     "title": "Uygulama güncellemesi gerekli",

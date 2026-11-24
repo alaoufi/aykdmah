@@ -56,14 +56,19 @@ function insideSchedule(week, local) {
 // vacation; a past vacation is ignored without needing a cleanup job.
 // AYK-366 (the owner): «متاح» is the provider's own word (not on leave, not stopped, inside their
 // hours); «متواجد» is their app open now (`present`, from is_online). The two are separate.
-function availability(profile = {}, now = new Date()) {
+function availability(profile = {}, now = new Date(), policy = require('./providerPolicy').current()) {
   const local = localNow(now);
   const week = weekSchedule(profile);
   const hours = profile.work_from && profile.work_to ? { from: profile.work_from, to: profile.work_to } : null;
   const base = {
     work_days: parseDays(profile.work_days), work_from: hours?.from || null, work_to: hours?.to || null,
     schedule: week, all_hours: week === null,
-    ...(profile.is_online === undefined ? {} : { present: Number(profile.is_online) === 1 }),
+    // AYK-481: «متصل» and «آخر ظهور» only while the administration shows them.
+    ...(!policy.presence || profile.is_online === undefined ? {} : { present: Number(profile.is_online) === 1 }),
+    // AYK-478: when the account was last on the app, for «آخر ظهور» while it is not.
+    ...(policy.presence && profile.last_seen_at && Number(profile.is_online) !== 1 ? { last_seen_at: new Date(profile.last_seen_at).toISOString() } : {}),
+    // AYK-481: whether his notices reach his phone (a registered channel); known only where it was read.
+    ...(profile.alerts_ok === undefined ? {} : { alerts: Number(profile.alerts_ok) === 1 }),
   };
   if (profile.availability_status === 'paused') return { state: 'paused', ...base };
   if (profile.vacation_from && profile.vacation_to && local.date >= profile.vacation_from && local.date <= profile.vacation_to) {
@@ -73,8 +78,16 @@ function availability(profile = {}, now = new Date()) {
     const today = week[local.day] || [];
     return { state: today.length ? 'off_hours' : 'off_day', ...base };
   }
+  // AYK-481 (the owner: «متاح للعمل حسب جدول العمل، وأن رسائل التنبيهات تصل جواله مؤكدة»): inside his schedule
+  // is not enough; without a channel that reaches his phone he is not «available for work».
+  if (policy.alerts && base.alerts === false) return { state: 'no_alerts', ...base };
   return { state: 'available', ...base };
 }
+
+// SQL: 1 when the account has a channel for its notices (a web-push subscription or the app's token), else 0.
+// `u` is the users alias. A channel that failed is deleted by the sender when its service refuses it.
+const ALERTS_OK_SQL = `CASE WHEN EXISTS (SELECT 1 FROM push_subscriptions ps WHERE ps.user_id = u.id)
+    OR EXISTS (SELECT 1 FROM native_push_tokens nt WHERE nt.user_id = u.id) THEN 1 ELSE 0 END AS alerts_ok`;
 
 const empty = value => value === null || value === '';
 
@@ -130,4 +143,4 @@ function validateAvailability(input, message = 'Invalid availability') {
   return out;
 }
 
-module.exports = { availability, validateAvailability, localNow, weekSchedule, AVAILABILITY_FIELDS: FIELDS };
+module.exports = { availability, ALERTS_OK_SQL, validateAvailability, localNow, weekSchedule, AVAILABILITY_FIELDS: FIELDS };
