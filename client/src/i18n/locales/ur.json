@@ -2491,7 +2491,9 @@
     "schedule_required": "کم از کم ایک کام کا وقت مقرر کریں، یا «24 گھنٹے دستیاب» چنیں۔",
     "midnight": "آدھی رات",
     "label_available": "کام کے لیے دستیاب",
-    "label_present": "موجود"
+    "label_present": "موجود",
+    "label_connected": "آن لائن",
+    "label_disconnected": "آف لائن"
   },
   "brand": {
     "branch_of": "«أي خدمة» ویب سائٹ اس ویب سائٹ کی شاخ ہے:",

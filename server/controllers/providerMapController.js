@@ -45,7 +45,7 @@ const nearby = asyncHandler(async (req, res) => {
   }
 
   const rows = await query(`
-    SELECT u.id, u.full_name, u.avatar, u.is_verified, u.is_online,
+    SELECT u.id, u.full_name, u.avatar, u.is_verified, u.is_online, u.last_seen_at,
            pp.business_name, pp.category_id, pp.service_ids, pp.service_radius_km, ${BIO_SQL},
            pp.rating_avg, pp.rating_count, pp.completed_orders,
            pp.location_mode,
@@ -185,7 +185,7 @@ function coveringProviders({ districtId, cityId, regionId = null, everywhere = f
             AND COALESCE(pp.coverage_city_id, u.city_id) = ?))`);
   const coverageParams = everywhere ? [] : regionId ? [...regionIds, ...regionIds] : [districtId || cityId, cityId];
   return query(`
-    SELECT u.id, u.full_name, u.avatar, u.is_verified, u.is_online,
+    SELECT u.id, u.full_name, u.avatar, u.is_verified, u.is_online, u.last_seen_at,
            pp.business_name, pp.category_id, pp.service_ids, ${BIO_SQL},
            u.phone, pp.show_phone, pp.whatsapp, pp.show_whatsapp,
            pp.rating_avg, pp.rating_count, pp.completed_orders,

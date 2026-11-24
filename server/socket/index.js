@@ -14,7 +14,9 @@ const { emitUser } = require('../utils/conversationEvents');
 // and a flag, and a room only ever contains that account's own authenticated connections.
 async function emitPresence(io, userId, isOnline) {
   const contacts = await Conversation.getContacts(userId);
-  for (const contact of contacts) io.to(`user:${contact.id}`).emit('user:online', { userId, isOnline });
+  // AYK-478: with the moment, so the other side shows «آخر ظهور» at once when this account leaves.
+  const lastSeenAt = new Date().toISOString();
+  for (const contact of contacts) io.to(`user:${contact.id}`).emit('user:online', { userId, isOnline, lastSeenAt });
 }
 
 function initSocket(httpServer) {

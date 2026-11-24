@@ -2491,7 +2491,9 @@
     "schedule_required": "En az bir çalışma aralığı belirleyin veya «24 saat müsait» seçin.",
     "midnight": "Gece yarısı",
     "label_available": "İş için müsait",
-    "label_present": "Çevrimiçi"
+    "label_present": "Çevrimiçi",
+    "label_connected": "Çevrimiçi",
+    "label_disconnected": "Çevrimdışı"
   },
   "brand": {
     "branch_of": "Ay Khidma sitesi şu sitenin bir şubesidir:",

@@ -50,3 +50,14 @@ test('saving a schedule: checked, sorted, clears the older setting; null is 24 h
   }
   assert.equal(validateAvailability({ work_days: [0, 1], work_from: '08:00', work_to: '17:00' }).work_schedule, null, 'an older app\'s setting applies again');
 });
+
+test('AYK-478: «آخر ظهور» is given only while the app is not open', () => {
+  const when = '2026-11-23T21:34:45.884Z';
+  const away = availability({ is_online: 0, last_seen_at: when }, new Date('2026-11-24T08:00:00Z'));
+  assert.equal(away.present, false);
+  assert.equal(away.last_seen_at, when);
+  const here = availability({ is_online: 1, last_seen_at: when }, new Date('2026-11-24T08:00:00Z'));
+  assert.equal(here.present, true);
+  assert.equal(here.last_seen_at, undefined, 'online: no last seen');
+  assert.equal(availability({ is_online: 0 }, new Date()).last_seen_at, undefined, 'never seen: none');
+});

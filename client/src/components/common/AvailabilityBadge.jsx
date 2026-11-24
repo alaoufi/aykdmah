@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { dayLabel, formatTime } from '../../utils/formatters';
 import { useTranslation } from 'react-i18next';
 import Modal from './Modal';
 import { localizedName } from '../../utils/localize';
@@ -112,14 +113,19 @@ export default function AvailabilityBadge({ availability, className = '', name =
   );
 }
 
-// «متواجد على التطبيق» with a green or red circle: the app open now. Nothing when unknown.
-export function PresenceTag({ present, className = '' }) {
+// AYK-478 (the owner: «إذا متصل يكون بالأخضر، وإذا غير متصل يكون بالأحمر»، «إذا غير متصل تُضاف آخر ظهور»):
+// the app open now = a green «متصل»; otherwise a red «غير متصل» with «آخر ظهور …» when it is known.
+// Nothing when unknown.
+export function PresenceTag({ present, lastSeen = null, className = '' }) {
   const { t } = useTranslation();
   if (present === undefined || present === null) return null;
+  const when = !present && lastSeen && !Number.isNaN(new Date(lastSeen).getTime())
+    ? `${dayLabel(lastSeen, t)} ${formatTime(lastSeen)}` : '';
   return (
     <span className={`inline-flex items-center gap-1.5 text-[12px] font-semibold ${present ? 'text-emerald-700' : 'text-rose-700'} ${className}`}
       title={t('availability.present_hint')} data-presence={present ? 'present' : 'absent'}>
-      <Dot on={Boolean(present)} />{t('availability.label_present')}
+      <Dot on={Boolean(present)} />{present ? t('availability.label_connected') : t('availability.label_disconnected')}
+      {when && <span className="font-normal text-fg-muted" data-testid="last-seen">· {t('chat.last_seen')} {when}</span>}
     </span>
   );
 }
@@ -146,7 +152,7 @@ export function ProviderStatus({ availability, coverage, name = '', className = 
     <span className={`flex flex-col gap-1 ${className}`}>
       <span className="flex items-center gap-2 flex-wrap">
         <AvailabilityBadge availability={availability} name={name} />
-        <PresenceTag present={availability?.present} />
+        <PresenceTag present={availability?.present} lastSeen={availability?.last_seen_at} />
       </span>
       <CoverageLine coverage={coverage} />
     </span>

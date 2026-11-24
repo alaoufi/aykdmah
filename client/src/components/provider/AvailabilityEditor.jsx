@@ -65,7 +65,7 @@ export default function AvailabilityEditor({ onSaved, onError }) {
     <div className="card mb-4 space-y-3" id="availability">
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <h3 className="m-0">🗓️ {t('availability.title')}</h3>
-        <span className="flex items-center gap-2 flex-wrap"><AvailabilityBadge availability={status} /><PresenceTag present={status?.present} /></span>
+        <span className="flex items-center gap-2 flex-wrap"><AvailabilityBadge availability={status} /><PresenceTag present={status?.present} lastSeen={status?.last_seen_at} /></span>
       </div>
 
       <div className="flex items-center justify-between gap-2 rounded-card border border-border px-3 py-2">

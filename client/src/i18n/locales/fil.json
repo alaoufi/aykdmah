@@ -2491,7 +2491,9 @@
     "schedule_required": "Maglagay ng kahit isang oras ng trabaho, o piliin ang «Available 24 oras».",
     "midnight": "Hatinggabi",
     "label_available": "Available sa trabaho",
-    "label_present": "Online"
+    "label_present": "Online",
+    "label_connected": "Online",
+    "label_disconnected": "Offline"
   },
   "brand": {
     "branch_of": "Ang Ay Khidma ay sangay ng",

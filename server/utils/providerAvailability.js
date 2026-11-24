@@ -64,6 +64,8 @@ function availability(profile = {}, now = new Date()) {
     work_days: parseDays(profile.work_days), work_from: hours?.from || null, work_to: hours?.to || null,
     schedule: week, all_hours: week === null,
     ...(profile.is_online === undefined ? {} : { present: Number(profile.is_online) === 1 }),
+    // AYK-478: when the account was last on the app, for «آخر ظهور» while it is not.
+    ...(profile.last_seen_at && Number(profile.is_online) !== 1 ? { last_seen_at: new Date(profile.last_seen_at).toISOString() } : {}),
   };
   if (profile.availability_status === 'paused') return { state: 'paused', ...base };
   if (profile.vacation_from && profile.vacation_to && local.date >= profile.vacation_from && local.date <= profile.vacation_to) {
