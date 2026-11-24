@@ -2496,7 +2496,9 @@
     "label_connected": "Online",
     "label_disconnected": "Offline",
     "no_alerts_self": "Hindi umaabot sa telepono mo ang mga abiso ngayon, kaya hindi ka ipinapakitang «available para sa trabaho» kahit bukas ang iskedyul mo.",
-    "no_alerts_link": "I-on ang mga abiso"
+    "no_alerts_link": "I-on ang mga abiso",
+    "away_alerts_title": "Ipadala pa rin ang mga abiso ng request habang nagpapahinga ako",
+    "away_alerts_hint": "Kung ipinahinto mo ang trabaho o naka-leave ka, darating pa rin ang mga bagong request sa propesyon at lugar mo, para makapag-ipon ka ng customer at makipagkasundo pagbalik mo. Kung hindi mo ito pipiliin, hindi darating ang mga ito habang naka-pause o naka-leave ka."
   },
   "brand": {
     "branch_of": "Ang Ay Khidma ay sangay ng",

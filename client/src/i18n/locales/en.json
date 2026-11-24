@@ -2496,7 +2496,9 @@
     "label_connected": "Online",
     "label_disconnected": "Offline",
     "no_alerts_self": "Your notices do not reach your phone now, so you are not shown as «available for work» even though your schedule is open.",
-    "no_alerts_link": "Turn on notices"
+    "no_alerts_link": "Turn on notices",
+    "away_alerts_title": "Keep sending me request notices while I rest",
+    "away_alerts_hint": "If you paused your work or are on leave, new requests in your profession and area still reach you, so you can gather customers and agree with them when you are back. Without this choice they do not reach you while you are paused or on leave."
   },
   "brand": {
     "branch_of": "Ay Khidma is a branch of",

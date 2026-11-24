@@ -2496,7 +2496,9 @@
     "label_connected": "Online",
     "label_disconnected": "Offline",
     "no_alerts_self": "Notifikasi Anda tidak sampai ke ponsel saat ini, jadi Anda tidak tampil «tersedia untuk bekerja» walaupun jadwal Anda terbuka.",
-    "no_alerts_link": "Aktifkan notifikasi"
+    "no_alerts_link": "Aktifkan notifikasi",
+    "away_alerts_title": "Tetap kirim notifikasi permintaan saat saya beristirahat",
+    "away_alerts_hint": "Jika Anda menghentikan pekerjaan atau sedang cuti, permintaan baru di profesi dan area Anda tetap sampai, sehingga Anda bisa mengumpulkan pelanggan dan bersepakat saat kembali. Tanpa pilihan ini, tidak akan sampai saat Anda berhenti atau cuti."
   },
   "brand": {
     "branch_of": "Ay Khidma adalah cabang dari",

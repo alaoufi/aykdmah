@@ -194,7 +194,7 @@ function coveringProviders({ districtId, cityId, regionId = null, everywhere = f
            to_jsonb(pp)->>'availability_status' AS availability_status, to_jsonb(pp)->>'vacation_from' AS vacation_from,
            to_jsonb(pp)->>'vacation_to' AS vacation_to, to_jsonb(pp)->>'work_days' AS work_days,
            to_jsonb(pp)->>'work_from' AS work_from, to_jsonb(pp)->>'work_to' AS work_to,
-           to_jsonb(pp)->'work_schedule' AS work_schedule, ${COVERAGE_SQL}, to_jsonb(u)->>'request_alerts_off' AS request_alerts_off,
+           to_jsonb(pp)->'work_schedule' AS work_schedule, ${COVERAGE_SQL}, to_jsonb(u)->>'request_alerts_off' AS request_alerts_off, to_jsonb(u)->>'notify_while_away' AS notify_while_away,
            EXISTS (SELECT 1 FROM provider_badges pb WHERE pb.user_id = u.id AND pb.badge_type = 'featured' AND pb.status = 'active'
                    AND pb.ends_at > CURRENT_TIMESTAMP AND ${ProviderBadge.verifiedPaymentSql('pb')}) AS is_featured
     FROM users u
@@ -350,8 +350,11 @@ async function availableForRequest({ districtId, cityId, categoryId, serviceId, 
     // AYK-456 (the owner: «أي طلب خدمة جديد يرسل إشعارًا لجميع مقدمي نفس المهنة في نطاق تغطيتهم»): every
     // provider of the profession covering the area, at any hour; not one who paused his work, is away,
     // or turned the notices off himself. (Before: those working now, and from AYK-443 those who asked.)
+    // AYK-484: a provider who paused or is on leave is told only if he chose to be (to collect customers he
+    // agrees with on his return); his own «turn the notices off» wins over everything.
     const state = availability(row).state;
-    return Number(row.request_alerts_off) !== 1 && state !== 'paused' && state !== 'vacation';
+    const resting = state === 'paused' || state === 'vacation';
+    return Number(row.request_alerts_off) !== 1 && (!resting || Number(row.notify_while_away) === 1);
   });
   // Without a needed subscription, a provider is not told about the request (AYK-042).
   const allowed = await require('../services/subscriptionRules').keepAllowed(working, { cityId, categoryOf: row => categoryId || row.category_id });

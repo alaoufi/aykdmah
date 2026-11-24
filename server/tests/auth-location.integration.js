@@ -1570,6 +1570,24 @@ if (!databasePrefix) {
     const back = await status(); assert.equal(back.state, 'available', 'back to the default: the schedule alone'); assert.equal(back.present, false);
   });
 
+  test('AYK-484: a provider who paused or is on leave is told of new requests only if he chose to be', async () => {
+    const area = await simpleArea();
+    const service = await db.queryOne('SELECT id, category_id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    const make = () => simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id, service_ids: [Number(service.id)], coverage_district_ids: [area.district_id] });
+    const resting = await make(); const chosen = await make(); const mutedAway = await make(); const working = await make();
+    for (const p of [resting, chosen, mutedAway]) await api('/users/me/provider', { method: 'PUT', token: p.token, body: { availability_status: 'paused' } });
+    await api('/users/me', { method: 'PUT', token: chosen.token, body: { notify_while_away: 1 } });
+    await api('/users/me', { method: 'PUT', token: mutedAway.token, body: { notify_while_away: 1, request_alerts_off: 1 } });
+    await api('/users/me', { method: 'PUT', token: resting.token, body: { notify_while_away: 'x' }, expected: 400 });
+    const client = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await api('/requests', { method: 'POST', token: client.token, expected: 201, body: { title: 'تسريب', description: 'اختبار التنبيه أثناء الراحة', category_id: service.category_id } });
+    const told = async user => { for (let i = 0; i < 150; i += 1) { if (await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_new'", [user.user.id])) return true; await new Promise(resolve => setTimeout(resolve, 100)); } return false; };
+    assert.ok(await told(working), 'a working provider is told');
+    assert.ok(await told(chosen), 'a paused provider who chose to be told is told');
+    assert.ok(!await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_new'", [resting.user.id]), 'a paused provider who did not choose is not told');
+    assert.ok(!await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_new'", [mutedAway.user.id]), 'turning the notices off wins');
+  });
+
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');

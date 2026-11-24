@@ -2496,7 +2496,9 @@
     "label_connected": "Çevrimiçi",
     "label_disconnected": "Çevrimdışı",
     "no_alerts_self": "Bildirimleriniz şu an telefonunuza ulaşmıyor; çalışma programınız açık olsa da «çalışmaya uygun» görünmüyorsunuz.",
-    "no_alerts_link": "Bildirimleri aç"
+    "no_alerts_link": "Bildirimleri aç",
+    "away_alerts_title": "Dinlenirken de talep bildirimleri gönderilsin",
+    "away_alerts_hint": "Çalışmayı durdurduysanız veya izindeyseniz meslek ve bölgenizdeki yeni talepler yine size ulaşır; döndüğünüzde müşterilerle anlaşabilirsiniz. Bu seçim olmadan, durdurulmuşken veya izindeyken ulaşmaz."
   },
   "brand": {
     "branch_of": "Ay Khidma sitesi şu sitenin bir şubesidir:",

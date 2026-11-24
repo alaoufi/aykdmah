@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { me, updateProviderProfile } from '../../services/authService';
+import { me, updateProviderProfile, updateProfile } from '../../services/authService';
+import { useAuth } from '../../hooks/useAuth';
 import { apiError } from '../../services/api';
 import Button from '../common/Button';
 import AvailabilityBadge, { PresenceTag, weekdayName, weekOf, timeLabel } from '../common/AvailabilityBadge';
@@ -20,6 +21,14 @@ export default function AvailabilityEditor({ onSaved, onError }) {
   const [state, setState] = useState(null);
   const [status, setStatus] = useState(null);
   const [saving, setSaving] = useState(false);
+  const { user, refresh } = useAuth();
+  // AYK-484 (the owner: «التنبيهات حسب طلبه… ممكن يرتاح ويرغب في جمع عملاء يتفق معهم عند عودته»).
+  const [away, setAway] = useState(null); // shown at once, then confirmed by the server
+  const awayAlerts = away ?? Number(user?.notify_while_away) === 1;
+  const setAwayAlerts = async value => {
+    setAway(value);
+    try { await updateProfile({ notify_while_away: value ? 1 : 0 }); await refresh(); setAway(null); } catch (err) { setAway(null); onError?.(apiError(err)); }
+  };
 
   const load = async () => {
     const data = await me();
@@ -68,6 +77,10 @@ export default function AvailabilityEditor({ onSaved, onError }) {
         <span className="flex items-center gap-2 flex-wrap"><AvailabilityBadge availability={status} /><PresenceTag present={status?.present} lastSeen={status?.last_seen_at} /></span>
       </div>
 
+      <label className="flex items-start gap-2.5 rounded-card border border-border px-3 py-2 cursor-pointer" data-testid="away-alerts">
+        <input type="checkbox" className="mt-1 w-4 h-4 accent-primary shrink-0" checked={awayAlerts} onChange={e => setAwayAlerts(e.target.checked)} data-testid="away-alerts-toggle" />
+        <span className="text-[13px] leading-relaxed"><b className="block text-fg">{t('availability.away_alerts_title')}</b><span className="text-fg-muted">{t('availability.away_alerts_hint')}</span></span>
+      </label>
       {status?.state === 'no_alerts' && (
         <p className="m-0 rounded-card border border-rose-300 bg-rose-50 text-rose-900 px-3 py-2 text-[13px] font-semibold" role="alert" data-testid="no-alerts-self">
           🔔 {t('availability.no_alerts_self')} <a href="/profile#call-alerts" className="underline font-bold">{t('availability.no_alerts_link')}</a>

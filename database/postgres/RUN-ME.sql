@@ -6901,6 +6901,10 @@ INSERT INTO schema_migrations(name) VALUES ('116_provider_status_switches.sql');
 UPDATE settings SET setting_value = 'false' WHERE setting_key = 'availability_needs_alerts';
 INSERT INTO schema_migrations(name) VALUES ('117_availability_follows_schedule.sql');
 
+-- migrations/118_notify_while_away.sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_while_away SMALLINT NOT NULL DEFAULT 0;
+INSERT INTO schema_migrations(name) VALUES ('118_notify_while_away.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;
