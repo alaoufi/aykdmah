@@ -1544,7 +1544,12 @@ if (!databasePrefix) {
       // No channel for his notices: his schedule is open but he is not «available for work».
       await db.query('DELETE FROM push_subscriptions WHERE user_id = ?', [id]);
       await db.query('DELETE FROM native_push_tokens WHERE user_id = ?', [id]);
+      // AYK-483: by default «available for work» follows the schedule exactly, with or without a channel.
       let a = await status();
+      assert.equal(a.state, 'available', 'the requirement is off by default');
+      assert.equal(a.alerts, false);
+      await set('availability_needs_alerts', 'true');
+      a = await status();
       assert.equal(a.state, 'no_alerts'); assert.equal(a.alerts, false);
       assert.equal(a.present, false); assert.ok(a.last_seen_at, 'last seen is shown');
       // He turns his notices on: available.
@@ -1560,9 +1565,9 @@ if (!databasePrefix) {
       const settings = await api('/settings/public');
       assert.ok([false, 'false', 0, '0'].includes(settings.presence_visible), 'the client is told');
     } finally {
-      await set('presence_visible', 'true'); await set('availability_visible', 'true'); await set('availability_needs_alerts', 'true');
+      await set('presence_visible', 'true'); await set('availability_visible', 'true'); await set('availability_needs_alerts', 'false');
     }
-    const back = await status(); assert.equal(back.state, 'no_alerts'); assert.equal(back.present, false);
+    const back = await status(); assert.equal(back.state, 'available', 'back to the default: the schedule alone'); assert.equal(back.present, false);
   });
 
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {

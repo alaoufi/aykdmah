@@ -6897,6 +6897,10 @@ VALUES
 ON CONFLICT (setting_key) DO NOTHING;
 INSERT INTO schema_migrations(name) VALUES ('116_provider_status_switches.sql');
 
+-- migrations/117_availability_follows_schedule.sql
+UPDATE settings SET setting_value = 'false' WHERE setting_key = 'availability_needs_alerts';
+INSERT INTO schema_migrations(name) VALUES ('117_availability_follows_schedule.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;
