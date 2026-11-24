@@ -103,10 +103,7 @@ export default function AvailabilityBadge({ availability, className = '', name =
       <span className={`inline-flex items-center gap-1.5 text-[12px] font-semibold ${available ? 'text-emerald-700' : 'text-rose-700'}`}>
         <Dot on={available} />{t('availability.label_available')}
       </span>
-      {availability.state === 'no_alerts' && (
-        <span className="text-[11.5px] font-semibold text-rose-700" data-testid="no-alerts-reason">{t('availability.state.no_alerts')}</span>
-      )}
-      {!available && availability.state !== 'no_alerts' && (
+      {!available && (
         <button type="button" className="text-[11.5px] font-semibold text-primary underline bg-transparent border-0 p-0 cursor-pointer"
           onClick={event => { event.preventDefault(); event.stopPropagation(); setOpen(true); }} data-testid="schedule-link">
           {t('availability.schedule_link')}

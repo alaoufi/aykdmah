@@ -2448,8 +2448,7 @@
       "vacation": "Tatilde",
       "off_day": "Bugün müsait değil",
       "off_hours": "Şu an müsait değil (çalışma saatleri dışında)",
-      "offline": "Şu anda bağlı değil",
-      "no_alerts": "Bildirimler telefonuna ulaşmıyor"
+      "offline": "Şu anda bağlı değil"
     },
     "vacation_until": "{{date}} tarihine kadar izinde",
     "off_hours_range": "{{from}} - {{to}} arası çalışır",

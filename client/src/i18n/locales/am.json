@@ -2448,8 +2448,7 @@
       "vacation": "ዕረፍት ላይ",
       "off_day": "ዛሬ አይገኝም",
       "off_hours": "አሁን አይገኝም (ከሥራ ሰዓት ውጭ)",
-      "offline": "አሁን አልተገናኘም",
-      "no_alerts": "ማሳወቂያዎች ስልኩ ላይ አይደርሱም"
+      "offline": "አሁን አልተገናኘም"
     },
     "vacation_until": "እስከ {{date}} ዕረፍት ላይ",
     "off_hours_range": "ከ{{from}} እስከ {{to}} ይሠራል",
