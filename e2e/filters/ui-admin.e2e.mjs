@@ -7,6 +7,31 @@ const sql = await connect();
 const headers = { 'X-Ayk-Scope': 'admin' };
 const regionsWithData = (await sql(`SELECT DISTINCT COALESCE(c.region_id, g.region_id) AS id FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id WHERE c.id = ANY($1::int[])`, [fixtures.cities])).map(r => Number(r.id));
 
+// AYK-502: the control home's «تصدير PDF»: a real download, a valid A4 PDF whose figures are the database's.
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { execFileSync } from 'node:child_process';
+for (const viewport of wanted) {
+  const page = await openAs({ adminToken: fixtures.adminToken, viewport });
+  await goto(page, '/admin');
+  const button = page.getByTestId('admin-export-pdf');
+  await button.waitFor({ timeout: 30000 }); await settle(page, 500);
+  const [download] = await Promise.all([page.waitForEvent('download', { timeout: 90000 }), button.click()]);
+  const file = path.join(os.tmpdir(), `ayk-dashboard-${viewport}-${Date.now()}.pdf`);
+  await download.saveAs(file);
+  const bytes = fs.readFileSync(file);
+  check(`UI admin export ${viewport}: the download is named with today's date`, /^aykdmh-stats-\d{4}-\d{2}-\d{2}\.pdf$/.test(download.suggestedFilename()), download.suggestedFilename());
+  check(`UI admin export ${viewport}: a PDF file with content`, bytes.subarray(0, 5).toString() === '%PDF-' && bytes.length > 20000, `${bytes.length} bytes`);
+  let pages = 0;
+  try { pages = Number((execFileSync('pdfinfo', [file]).toString().match(/Pages:\s+(\d+)/) || [])[1]); } catch (_) { /* pdfinfo missing */ }
+  check(`UI admin export ${viewport}: A4 pages`, pages >= 1 && pages <= 3, `pages ${pages}`);
+  check(`UI admin export ${viewport}: no page errors`, page.errors.length === 0, page.errors.slice(0, 2).join(' | '));
+  if (process.env.KEEP_PDF) fs.copyFileSync(file, path.join(process.env.KEEP_PDF, `dashboard-${viewport}.pdf`));
+  fs.rmSync(file, { force: true });
+  await page.context().close();
+}
+
 for (const viewport of wanted) {
   for (const kind of ['requests', 'providers']) {
     const page = await openAs({ adminToken: fixtures.adminToken, viewport });
