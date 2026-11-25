@@ -67,6 +67,7 @@ export default function ChatPage() {
   const [conversations, setConversations] = useState([]);
   const [listQuery, setListQuery] = useState('');
   const [listPage, setListPage] = useState(1);
+  const [listHasNext, setListHasNext] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [focusedMessage, setFocusedMessage] = useState(null);
   const [selectedMessages, setSelectedMessages] = useState([]);
@@ -142,6 +143,8 @@ export default function ChatPage() {
   useEffect(() => { loadMediaLimits(); }, []);
   useEffect(() => { const timer = setTimeout(() => setSearchTerm(listQuery), 300); return () => clearTimeout(timer); }, [listQuery]);
   useEffect(() => { setConversations([]); setListOwnerId(null); setLoadingList(true); }, [user?.id]);
+  // AYK-496: another tab starts on its first page.
+  useEffect(() => { setListPage(1); }, [showArchive]);
 
   useEffect(() => {
     setListError(false);
@@ -150,6 +153,7 @@ export default function ChatPage() {
       intervalMs: realtimeMode === 'polling' ? 10000 : null,
       onResult: (items) => {
         setConversations(items || []);
+        setListHasNext(Boolean(items?.hasNext));
         setListOwnerId(user.id);
         setLoadingList(false);
         setListError(false);
@@ -591,7 +595,7 @@ export default function ChatPage() {
           </div>
           <input data-testid="chat-list-search" type="search" className={`input mt-2 ${listError ? 'border-danger text-danger' : ''}`} aria-invalid={listError} aria-describedby={listError ? 'chat-list-search-error' : undefined} maxLength={200} aria-label={t('chat.search_chats')} placeholder={t('chat.search_chats')} value={listQuery} onChange={e => {setListQuery(e.target.value);setListPage(1);}} />
           {listReady && listError && <p id="chat-list-search-error" role="alert" className="text-xs text-danger">{t('errors.generic')}</p>}
-          <div className="flex gap-3 items-center mt-1"><button type="button" disabled={listPage === 1 || loadingList} onClick={() => setListPage(p => p - 1)}>‹</button><span>{listPage}</span><button data-testid="chat-list-next" type="button" disabled={conversations.length < 20 || loadingList} onClick={() => setListPage(p => p + 1)}>›</button></div>
+          <div className="flex gap-3 items-center mt-1"><button type="button" disabled={listPage === 1 || loadingList} onClick={() => setListPage(p => p - 1)}>‹</button><span>{listPage}</span><button data-testid="chat-list-next" type="button" disabled={!listHasNext || loadingList} onClick={() => setListPage(p => p + 1)}>›</button></div>
         </div>
         {loadingList || !listReady ? <LoadingState /> :
          conversations.filter(c => archived(c) === showArchive).length === 0 ? <EmptyState title={t(showArchive ? 'requester.chat_archive_empty' : 'chat.no_conversations')} /> :

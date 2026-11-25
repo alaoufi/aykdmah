@@ -220,7 +220,7 @@ async function getContacts(userId) {
       AND ${requestPairSql('self')} AND ${requestPairSql('other')}`, [userId]);
 }
 
-async function listRows(userId, { page = 1, limit = 20, q = '', requestId = null, peerId = null, maxLimit = 100, withMessagesOnly = false } = {}) {
+async function listRows(userId, { page = 1, limit = 20, q = '', requestId = null, peerId = null, maxLimit = 100, withMessagesOnly = false, peek = false } = {}) {
   page = Math.max(1, Math.min(100000, Number.parseInt(page, 10) || 1));
   limit = Math.max(1, Math.min(maxLimit, Number.parseInt(limit, 10) || 20));
   const offset = (page - 1) * limit;
@@ -259,6 +259,9 @@ async function listRows(userId, { page = 1, limit = 20, q = '', requestId = null
      LEFT JOIN requests r ON c.request_id = r.id
       WHERE cp.user_id = ? AND self_user.deleted_at IS NULL AND self_user.is_active = 1 AND self_user.is_blocked = 0
         AND ${requestPairSql()}
+        -- AYK-496: a chat with an account that was deleted, blocked or turned off is not listed (as in the contacts).
+        AND EXISTS (SELECT 1 FROM conversation_participants live_op JOIN users live_ou ON live_ou.id = live_op.user_id
+          WHERE live_op.conversation_id = c.id AND live_op.user_id <> cp.user_id AND live_ou.deleted_at IS NULL AND live_ou.is_active = 1 AND live_ou.is_blocked = 0)
         -- The provider's side: a task given to someone else leaves the list a day later (AYK-041);
         -- a finished one stays while its two sides can still write (AYK-081).
         AND (r.id IS NULL OR r.client_id = ? OR NOT (
@@ -268,7 +271,7 @@ async function listRows(userId, { page = 1, limit = 20, q = '', requestId = null
      ${extra.length ? 'AND ' + extra.join(' AND ') : ''}
      ORDER BY COALESCE(cp.is_favorite, 0) DESC, c.last_message_at DESC NULLS LAST, c.created_at DESC, c.id DESC
      LIMIT ? OFFSET ?`,
-    [userId, userId, userId, userId, userId, ...extraParams, Number(limit), Number(offset)]
+    [userId, userId, userId, userId, userId, ...extraParams, Number(limit) + (peek ? 1 : 0), Number(offset)]
   );
 }
 
@@ -282,7 +285,12 @@ const otherOf = row => {
   return other && other.id != null ? Number(other.id) : null;
 };
 async function listForUser(userId, { page = 1, limit = 20, q = '', requestId = null, peerId = null, merge = true, withMessagesOnly = false, archived = null } = {}) {
-  if (!merge || requestId) return listRows(userId, { page, limit, q, requestId, peerId, withMessagesOnly });
+  if (!merge || requestId) {
+    const rows = await listRows(userId, { page, limit, q, requestId, peerId, withMessagesOnly, peek: true });
+    const size = Math.max(1, Math.min(100, Number.parseInt(limit, 10) || 20));
+    const items = rows.slice(0, size); items.hasNext = rows.length > size; // AYK-496: the page says whether another follows
+    return items;
+  }
   page = Math.max(1, Math.min(100000, Number.parseInt(page, 10) || 1));
   limit = Math.max(1, Math.min(100, Number.parseInt(limit, 10) || 20));
   const rows = await listRows(userId, { page: 1, limit: 1000, q, peerId, maxLimit: 1000, withMessagesOnly });
@@ -313,7 +321,9 @@ async function listForUser(userId, { page = 1, limit = 20, q = '', requestId = n
   merged.sort((a, b) => (b.is_favorite - a.is_favorite) || (new Date(b.last_message_at || 0) - new Date(a.last_message_at || 0)) || (b.id - a.id));
   // The chat list's «active» and «archive» tabs are cut here, before the page, so each page of a tab is full.
   const tab = archived === null ? merged : merged.filter(row => row.archived === archived);
-  return tab.slice((page - 1) * limit, page * limit);
+  const items = tab.slice((page - 1) * limit, page * limit);
+  items.hasNext = tab.length > page * limit; // AYK-496: the page says whether another follows
+  return items;
 }
 
 // AYK-365: every conversation this user can open with the other person of `conversationId`

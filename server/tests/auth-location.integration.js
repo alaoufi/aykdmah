@@ -1721,6 +1721,32 @@ if (!databasePrefix) {
     assert.equal(await listed(), true, 'with the rule off he is listed');
   });
 
+  test('AYK-496: requests of a deleted or blocked account are not listed; a chat with one is not listed; the chat list says whether a next page exists', async () => {
+    const area = await simpleArea();
+    const service = await db.queryOne('SELECT id, category_id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    const make = () => simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const owner = await make(); const watcher = await make();
+    const provider = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id, service_ids: [Number(service.id)], coverage_district_ids: [area.district_id] });
+    const post = async client => Number((await api('/requests', { method: 'POST', token: client.token, expected: 201, body: { title: 'طلب حساب سيحذف', description: 'اختبار القوائم', category_id: service.category_id } })).id);
+    const id = await post(owner);
+    const listed = async () => (await api('/requests/nearby?limit=100')).some(r => Number(r.id) === id);
+    assert.equal(await listed(), true);
+    // a chat with the owner (the provider writes to him)
+    const chat = await api(`/requests/${id}/contact`, { method: 'POST', token: provider.token });
+    await api(`/chat/conversations/${chat.conversation_id}/messages`, { method: 'POST', token: provider.token, expected: 201, body: { content: 'السلام عليكم' } });
+    const chatPeers = async () => (await api('/chat/conversations', { token: provider.token })).map(c => Number((typeof c.other_user === 'string' ? JSON.parse(c.other_user) : c.other_user)?.id));
+    assert.ok((await chatPeers()).includes(Number(owner.user.id)));
+    // the page says whether another follows
+    const response = await fetch(`${base}/chat/conversations?limit=1`, { headers: { Authorization: `Bearer ${provider.token}` } });
+    assert.equal((await response.json()).meta.pagination.hasNext, false);
+    await db.query('UPDATE users SET is_blocked = 1 WHERE id = ?', [owner.user.id]);
+    assert.equal(await listed(), false, 'a blocked account\'s request is not offered');
+    assert.ok(!(await chatPeers()).includes(Number(owner.user.id)), 'and its chat is not listed');
+    await db.query('UPDATE users SET is_blocked = 0, deleted_at = CURRENT_TIMESTAMP WHERE id = ?', [owner.user.id]);
+    assert.equal(await listed(), false, 'a deleted account\'s request is not offered');
+    assert.ok(watcher.token);
+  });
+
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');

@@ -20,6 +20,7 @@ export default function ServicesPage() {
   const [cities, setCities] = useState([]);
   const [requests, setRequests] = useState([]);
   const [hasNext,setHasNext] = useState(false);
+  const [total, setTotal] = useState(null);
   const page = Math.max(1,Number(params.get('page')) || 1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
@@ -62,7 +63,7 @@ export default function ServicesPage() {
       if (cityId) q.city_id = cityId;
     }
     listNearbyRequests(q)
-      .then(res => { if (current) {setRequests(res.data || []);setHasNext(Boolean(res.meta?.pagination?.hasNext));} })
+      .then(res => { if (current) {setRequests(res.data || []);setHasNext(Boolean(res.meta?.pagination?.hasNext));setTotal(Number(res.meta?.pagination?.total) || 0);} })
       .catch(() => { if (current) { setRequests([]); setError(true); } })
       .finally(() => { if (current) setLoading(false); });
     return () => { current = false; };
@@ -106,7 +107,7 @@ export default function ServicesPage() {
       </div>}
 
       <div className="flex justify-between items-center mb-3">
-        <div className="text-secondary">{requests.length}</div>
+        <div className="text-secondary" data-testid="opportunities-total">{total ?? requests.length}</div>
         {canRequest && <Link to="/requests/new" className="btn btn-primary btn-sm">➕ {t('home.new_request')}</Link>}
       </div>
 

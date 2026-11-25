@@ -29,7 +29,7 @@ for (const term of ['needle', '\u0633\u0628\u0627\u0643', "' OR 1=1 --"]) {
 test('empty search retains pagination and scoped request/peer filters without message search', async () => {
   const { model, calls } = capture();
   await model.listForUser(29, { requestId: 7, peerId: 8, page: 2, limit: 10 });
-  assert.deepEqual(calls[0].params, [29,29,29,29,29,7,8,10,10]);
+  assert.deepEqual(calls[0].params, [29,29,29,29,29,7,8,11,10]); // AYK-496: one more row than the page is read, to know whether a next page exists
   assert.equal(calls[0].sql.includes('matched_message'), false);
   assert.match(calls[0].sql, /AND c\.request_id = \? AND EXISTS/);
 });

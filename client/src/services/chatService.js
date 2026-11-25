@@ -5,7 +5,10 @@ import { askChoice } from '../components/common/AppDialog';
 
 export async function listConversations(params = {}) {
   const { data } = await api.get('/chat/conversations', { params });
-  return data.data;
+  const items = data.data;
+  // AYK-496: the server says whether another page follows (the page used to guess it from the row count).
+  if (Array.isArray(items) && data.meta?.pagination) items.hasNext = Boolean(data.meta.pagination.hasNext);
+  return items;
 }
 
 // Forward my message to every provider on this request, or to one chat (AYK-043).

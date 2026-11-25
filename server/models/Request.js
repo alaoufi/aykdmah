@@ -36,6 +36,9 @@ function optionalDate(value) {
   return new Date(value).toISOString();
 }
 
+// AYK-496: the requests of an account that was deleted, blocked or turned off are not offered to anyone any more.
+const LIVE_CLIENT = 'EXISTS (SELECT 1 FROM users cu WHERE cu.id = r.client_id AND cu.deleted_at IS NULL AND cu.is_active = 1 AND cu.is_blocked = 0)';
+
 function publicView(request) {
   if (!request) return request;
   const view = { ...request };
@@ -296,7 +299,7 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
   categoryId = optionalNumber(categoryId, 1, 2147483647, true); serviceId = optionalNumber(serviceId, 1, 2147483647, true);
   // A direct contact from the requester's directory is not on the board (AYK-041).
   // AYK-361: a request the administration hid is not offered to providers.
-  const where = ['r.deleted_at IS NULL', 'r.status = ?', 'r.direct_provider_id IS NULL', 'r.hidden_at IS NULL'];
+  const where = ['r.deleted_at IS NULL', 'r.status = ?', 'r.direct_provider_id IS NULL', 'r.hidden_at IS NULL', LIVE_CLIENT];
   const whereParams = [status];
   cityId = optionalNumber(cityId,1,2147483647,true);
   if (cityId) {where.push('r.city_id = ?');whereParams.push(cityId);}
@@ -589,7 +592,7 @@ async function findBoard({ viewerId, asProvider = false, filterProfession = fals
   viewerId = Number(viewerId);
   // AYK-454 (the owner: «الطلب يظهر لصاحبه في الرئيسية… يشاهده الجميع بما فيهم صاحبه»): my own open
   // requests are on my board too, first.
-  const where = ['r.deleted_at IS NULL', "r.status = 'open'", 'r.hidden_at IS NULL'];
+  const where = ['r.deleted_at IS NULL', "r.status = 'open'", 'r.hidden_at IS NULL', `(r.client_id = ${Number(viewerId) || 0} OR ${LIVE_CLIENT})`];
   const params = [];
   where.push(asProvider ? '(r.direct_provider_id IS NULL OR r.direct_provider_id = ? OR r.client_id = ?)' : '(r.direct_provider_id IS NULL OR r.client_id = ?)');
   if (asProvider) params.push(viewerId, viewerId); else params.push(viewerId);
@@ -635,7 +638,7 @@ async function recentActivity({ viewerId = 0, asProvider = false, filterProfessi
   limit = Math.min(Math.max(Number(limit) || 20, 1), 50);
   days = Math.min(Math.max(Math.round(Number(days)) || 30, 1), 365);
   viewerId = Number(viewerId) || 0;
-  const where = ['r.deleted_at IS NULL', 'r.hidden_at IS NULL', 'r.direct_provider_id IS NULL', 'r.assigned_provider_id IS NOT NULL',
+  const where = ['r.deleted_at IS NULL', 'r.hidden_at IS NULL', 'r.direct_provider_id IS NULL', 'r.assigned_provider_id IS NOT NULL', LIVE_CLIENT,
     "r.status IN ('assigned', 'in_progress', 'completed', 'closed')", 'r.client_id <> ?'];
   const params = [viewerId];
   if (viewerId && (filterProfession || filterArea)) {

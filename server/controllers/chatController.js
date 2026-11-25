@@ -42,7 +42,8 @@ const listConversations = asyncHandler(async (req, res) => {
   await hideRequesterNames(req.user.id, items.map(item => item.other_user), req.t('requester_label'));
   // AYK-481: «متصل» and «آخر ظهور» only while the administration shows them.
   for (const item of items) require('../utils/providerPolicy').stripPresence(item.other_user);
-  return success(res, items);
+  const pageNo = Math.max(1, Number.parseInt(page, 10) || 1);
+  return success(res, items, undefined, 200, { pagination: { page: pageNo, limit: Number(limit), hasNext: Boolean(items.hasNext), hasPrev: pageNo > 1 } });
 });
 
 const createConversation = asyncHandler(async (req, res) => {
