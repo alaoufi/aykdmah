@@ -97,7 +97,7 @@ function MySections() {
       ) : (
         <div className="bg-surface rounded-card border border-border p-8 text-center">
           <div className="text-5xl mb-3">🔒</div>
-          <p className="font-bold text-fg m-0">{t('admin.no_permissions')}</p>
+          <p className="font-bold text-fg m-0">لم تُمنح صلاحيات على أي قسم بعد. اطلبها من مدير الموقع.</p>
         </div>
       )}
     </div>
@@ -110,7 +110,7 @@ export default function AdminDashboardPage() {
 }
 
 function Dashboard() {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const { hasPermission } = useAuth();
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
@@ -156,26 +156,26 @@ function Dashboard() {
       const stamp = now.toISOString().slice(0, 10);
       const usage = data.translation;
       await exportDashboardPdf({
-        title: t('admin.pdf_title'),
-        subtitle: t('admin.pdf_subtitle', { date: now.toLocaleDateString(i18n.resolvedLanguage, { year: 'numeric', month: 'long', day: 'numeric' }), time: now.toLocaleTimeString(i18n.resolvedLanguage, { hour: '2-digit', minute: '2-digit' }) }),
+        title: `${t('admin.dashboard')} — أي خدمة`,
+        subtitle: `تقرير الإحصائيات بتاريخ ${now.toLocaleDateString('ar-SA-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' })} الساعة ${now.toLocaleTimeString('ar-SA-u-nu-latn', { hour: '2-digit', minute: '2-digit' })}`,
         groups: [
-          { title: t('admin.pdf_group_members'), rows: rows(['users', 'providers', 'clients', 'test_users']) },
-          { title: t('admin.pdf_group_requests'), rows: rows(['requests', 'active_requests', 'completed_requests', 'urgent_requests']) },
-          { title: t('admin.pdf_group_revenue'), rows: rows(['revenue', 'active_subscriptions', 'pending_verifications']) },
-          { title: t('admin.pdf_group_chats'), rows: rows(['conversations', 'active_conversations', 'messages', 'voice_messages', 'live_locations']) },
-          { title: t('admin.pdf_group_disputes'), rows: rows(['open_disputes', 'disputes']) },
+          { title: 'الأعضاء', rows: rows(['users', 'providers', 'clients', 'test_users']) },
+          { title: 'الطلبات', rows: rows(['requests', 'active_requests', 'completed_requests', 'urgent_requests']) },
+          { title: 'الإيرادات والاشتراكات', rows: rows(['revenue', 'active_subscriptions', 'pending_verifications']) },
+          { title: 'المحادثات', rows: rows(['conversations', 'active_conversations', 'messages', 'voice_messages', 'live_locations']) },
+          { title: 'النزاعات', rows: rows(['open_disputes', 'disputes']) },
         ],
         visitors: visitors && { today: Number(visitors.today || 0).toLocaleString('ar-SA-u-nu-latn'), total: Number(visitors.total || 0).toLocaleString('ar-SA-u-nu-latn'), online: Number(visitors.online || 0).toLocaleString('ar-SA-u-nu-latn') },
         statuses: (data.requests_by_status || []).map(s => ({ ...s, label: REQUEST_STATUS[s.status]?.i18nKey ? t(REQUEST_STATUS[s.status].i18nKey) : s.status })),
         translation: usage && [
           { label: t('admin.translation_meter_title'), value: `${Number(usage.used).toLocaleString('ar-SA-u-nu-latn')} / ${Number(usage.limit).toLocaleString('ar-SA-u-nu-latn')}` },
-          { label: t('admin.pdf_from_memory'), value: Number(usage.from_memory).toLocaleString('ar-SA-u-nu-latn') },
-          { label: t('admin.pdf_remembered'), value: Number(usage.remembered).toLocaleString('ar-SA-u-nu-latn') },
+          { label: 'من ذاكرة الترجمة (مجانًا)', value: Number(usage.from_memory).toLocaleString('ar-SA-u-nu-latn') },
+          { label: 'جمل محفوظة', value: Number(usage.remembered).toLocaleString('ar-SA-u-nu-latn') },
         ],
-        labels: { visitors: t('admin.pdf_visitors'), visitors_today: t('footer.visitors_today'), visitors_total: t('footer.visitors_total'), visitors_online: t('footer.visitors_online'), requests_by_status: t('admin.pdf_by_status'), status: t('admin.status'), count: t('admin.pdf_count'), translation: t('admin.pdf_translation'), footer: t('admin.pdf_footer', { date: stamp }) },
+        labels: { visitors: 'الزوار', visitors_today: t('footer.visitors_today'), visitors_total: t('footer.visitors_total'), visitors_online: t('footer.visitors_online'), requests_by_status: 'الطلبات حسب الحالة', status: t('admin.status'), count: 'العدد', translation: 'الترجمة هذا الشهر', footer: `أُنشئ من لوحة إدارة «أي خدمة» — ${stamp}` },
       }, `aykdmh-stats-${stamp}.pdf`);
     } catch (err) {
-      setExportError(t('admin.export_pdf_failed'));
+      setExportError('تعذّر إنشاء ملف PDF. أعد المحاولة.');
     } finally { setExporting(false); }
   };
 
@@ -202,7 +202,7 @@ function Dashboard() {
   return (
     <div className="space-y-6">
       <AdminPageHeader title={t('admin.dashboard')}>
-        <AdminButton variant="secondary" icon="📄" loading={exporting} onClick={exportPdf} testId="admin-export-pdf">{exporting ? t('admin.export_pdf_busy') : t('admin.export_pdf')}</AdminButton>
+        <AdminButton variant="secondary" icon="📄" loading={exporting} onClick={exportPdf} testId="admin-export-pdf">{exporting ? 'جارٍ إنشاء الملف…' : 'تصدير PDF'}</AdminButton>
         {hasPermission('users.manage') && <Link
           to="/admin/users"
           className="px-4 py-2 rounded-pill bg-white border border-slate-200 hover:border-brand-300 hover:text-brand-700 text-slate-700 text-sm font-semibold no-underline transition"
