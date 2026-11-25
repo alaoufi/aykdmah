@@ -4,7 +4,9 @@
 import { fixtures, connect, api, allPages, check, summary, saveReport, sameSet, diff, combinations, qs } from './lib.mjs';
 
 const sql = await connect();
-const OPEN = "r.deleted_at IS NULL AND r.status = 'open' AND r.hidden_at IS NULL";
+// A request is offered only while its owner's account is alive (not deleted, blocked or turned off).
+const LIVE = 'EXISTS (SELECT 1 FROM users cu WHERE cu.id = r.client_id AND cu.deleted_at IS NULL AND cu.is_active = 1 AND cu.is_blocked = 0)';
+const OPEN = `r.deleted_at IS NULL AND r.status = 'open' AND r.hidden_at IS NULL AND ${LIVE}`;
 const regionOfCity = Object.fromEntries((await sql('SELECT c.id, COALESCE(c.region_id, g.region_id) AS region_id FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id')).map(r => [Number(r.id), Number(r.region_id)]));
 const regions = [...new Set(fixtures.cities.map(c => regionOfCity[c]))];
 const categories = fixtures.categories;
@@ -93,10 +95,10 @@ async function expectedForProvider(provider, { scope, category_id, service_id, c
   const allServices = [...new Set([...services, ...catServices])];
   const coverage = (await sql('SELECT district_id FROM provider_coverage_districts WHERE user_id = $1', [provider.id])).map(r => Number(r.district_id));
   const home = Number(profile.home_city);
-  const where = ["r.deleted_at IS NULL", "r.status = 'open'", 'r.hidden_at IS NULL', 'r.client_id <> $1']; const params = [provider.id];
+  const where = ['r.deleted_at IS NULL', "r.status = 'open'", 'r.hidden_at IS NULL', LIVE, 'r.client_id <> $1']; const params = [provider.id];
   const add = (cond, value) => { params.push(value); where.push(cond.replace('?', `$${params.length}`)); };
   if (city_id) add('r.city_id = ?', Number(city_id));
-  if (category_id) add('r.category_id = ?', Number(category_id));
+  if (category_id) add('COALESCE(r.category_id, (SELECT s.category_id FROM services s WHERE s.id = r.service_id)) = ?', Number(category_id));
   if (service_id) add('r.service_id = ?', Number(service_id));
   const fit = [];
   if (scope !== 'open') {

@@ -151,8 +151,14 @@ function shapeResult(originalSql, result) {
 // SQL_TRACE=1 (the simulator's query report, never in production): one line per statement with its
 // duration, so the statements behind a slow screen can be counted.
 const TRACE = process.env.SQL_TRACE === '1' && process.env.NODE_ENV !== 'production';
-function traced(sql, started) {
-  console.log(`SQLT ${(Number(process.hrtime.bigint() - started) / 1e6).toFixed(2)} ${sql.replace(/\s+/g, ' ').trim().slice(0, 150)}`);
+function traced(sql, started, params) {
+  const ms = Number(process.hrtime.bigint() - started) / 1e6;
+  console.log(`SQLT ${ms.toFixed(2)} ${sql.replace(/\s+/g, ' ').trim().slice(0, 150)}`);
+  // AYK-497: SQL_TRACE_FILE=path keeps every statement whole (as PostgreSQL gets it) with its values and time, so that
+  // e2e/filters/explain.mjs can run EXPLAIN (ANALYZE, BUFFERS) on the slow ones. Development and tests only.
+  if (process.env.SQL_TRACE_FILE) {
+    try { require('fs').appendFileSync(process.env.SQL_TRACE_FILE, `${JSON.stringify({ ms, text: translateSql(sql), values: params || [] })}\n`); } catch (_) { /* tracing never breaks a request */ }
+  }
 }
 
 // AYK-252: prepared statements. The chat's permission checks and the list screens are long
@@ -176,7 +182,7 @@ function statement(sql, params) {
 async function query(sql, params = []) {
   const started = TRACE ? process.hrtime.bigint() : 0n;
   const result = await getPool().query(statement(sql, params));
-  if (TRACE) traced(sql, started);
+  if (TRACE) traced(sql, started, params);
   return shapeResult(sql, result);
 }
 

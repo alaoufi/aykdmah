@@ -1,0 +1,27 @@
+name: CodeQL
+# AYK-497: GitHub's official code analysis (data flow and control flow) for the JavaScript of the server and the client.
+# Free for public repositories; on a private one it needs GitHub Code Security, so it is skipped there.
+on:
+  push:
+    branches: [claude/deploy-setup]
+  pull_request:
+  schedule:
+    - cron: '23 3 * * 1'
+  workflow_dispatch:
+permissions:
+  contents: read
+  security-events: write
+jobs:
+  analyze:
+    if: ${{ github.event.repository.private == false }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: github/codeql-action/init@v3
+        with:
+          languages: javascript-typescript
+          queries: security-extended
+      - uses: github/codeql-action/analyze@v3
+        with:
+          category: /language:javascript-typescript

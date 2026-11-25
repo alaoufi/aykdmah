@@ -37,6 +37,7 @@
     "node": ">=22.12"
   },
   "devDependencies": {
+    "@playwright/test": "^1.65.1",
     "fast-check": "^4.11.0"
   }
 }

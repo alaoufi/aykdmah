@@ -309,7 +309,12 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
   const regions = [...new Set([...(regionId ? [regionId] : []), ...idList(regionIds)])];
   const categories = [...new Set([...(categoryId ? [categoryId] : []), ...idList(categoryIds)])];
   if (regions.length) { where.push(`r.city_id IN (SELECT c.id FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id WHERE COALESCE(c.region_id, g.region_id) IN (${regions.map(() => '?').join(', ')}))`); whereParams.push(...regions); }
-  if (categories.length) { where.push(`r.category_id IN (${categories.map(() => '?').join(', ')})`); whereParams.push(...categories); }
+  // AYK-496: a request that carries only its service (older rows) belongs to that service's profession.
+  if (categories.length) {
+    const marks = categories.map(() => '?').join(', ');
+    where.push(`(r.category_id IN (${marks}) OR (r.category_id IS NULL AND r.service_id IN (SELECT sv.id FROM services sv WHERE sv.category_id IN (${marks}))))`);
+    whereParams.push(...categories, ...categories);
+  }
   if (serviceId) { where.push('r.service_id = ?'); whereParams.push(serviceId); }
   if (providerId) {
     // A request sent straight to this provider from a directory is theirs to see (AYK-079).
@@ -577,7 +582,12 @@ async function boardViewer(viewerId, asProvider) {
 // The SQL for «my profession» and «my area» over requests r.
 function boardMatch({ categories, services, districts, cityId }) {
   const profParts = []; const profParams = [];
-  if (categories.length) { profParts.push(`r.category_id IN (${categories.map(() => '?').join(', ')})`); profParams.push(...categories); }
+  // AYK-496: a request that carries only its service belongs to that service's profession.
+  if (categories.length) {
+    const marks = categories.map(() => '?').join(', ');
+    profParts.push(`(r.category_id IN (${marks}) OR (r.category_id IS NULL AND r.service_id IN (SELECT sv.id FROM services sv WHERE sv.category_id IN (${marks}))))`);
+    profParams.push(...categories, ...categories);
+  }
   if (services.length) { profParts.push(`r.service_id IN (${services.map(() => '?').join(', ')})`); profParams.push(...services); }
   return {
     prof: profParts.length ? `(${profParts.join(' OR ')})` : 'FALSE', profParams,

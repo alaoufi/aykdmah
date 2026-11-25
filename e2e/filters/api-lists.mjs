@@ -7,7 +7,7 @@ const ids = rows => rows.map(r => Number(r.id));
 const categories = fixtures.categories;
 const catOfService = Object.fromEntries((await sql('SELECT id, category_id FROM services')).map(r => [Number(r.id), Number(r.category_id)]));
 const regionOfCity = Object.fromEntries((await sql('SELECT c.id, COALESCE(c.region_id, g.region_id) AS region_id FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id')).map(r => [Number(r.id), Number(r.region_id)]));
-const VISIBLE = "r.deleted_at IS NULL AND r.status = 'open' AND r.hidden_at IS NULL";
+const VISIBLE = "r.deleted_at IS NULL AND r.status = 'open' AND r.hidden_at IS NULL AND (r.client_id = $1 OR EXISTS (SELECT 1 FROM users cu WHERE cu.id = r.client_id AND cu.deleted_at IS NULL AND cu.is_active = 1 AND cu.is_blocked = 0))";
 
 // ---------- A. the home board ----------
 async function providerView(p) {
