@@ -44,6 +44,11 @@ for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => cleanup().f
   // that the browser tests run against the real pages without switching the app to production mode.
   const express = requireServer('express');
   const app = require(path.join(root, 'server/app'));
+  if (process.env.FILTERS_DUMP_ROUTES === '1') { // for authz-probe.mjs: every route the server really registers
+    const split = layer => { const m = layer.regexp.toString().replace('\\/?', '').replace('(?=\\/|$)', '$').match(/^\/\^((?:\\[.*+?^${}()|[\]\\/]|[^.*+?^${}()|[\]\\/])*)\$\//); return layer.regexp.fast_slash ? '' : m ? m[1].replace(/\\(.)/g, '$1') : ''; };
+    const out = []; const walk = (stack, prefix) => { for (const l of stack) { if (l.route) for (const mt of Object.keys(l.route.methods)) out.push({ method: mt.toUpperCase(), path: prefix + l.route.path }); else if (l.name === 'router' && l.handle.stack) walk(l.handle.stack, prefix + split(l)); } };
+    walk(app._router.stack, ''); fs.mkdirSync(path.join(__dirname, '.out'), { recursive: true }); fs.writeFileSync(path.join(__dirname, '.out/routes.json'), JSON.stringify(out));
+  }
   const dist = process.env.FILTERS_DIST || path.join(root, 'client', 'dist');
   const outer = express();
   outer.use((req, res, next) => (/^\/(api|uploads|install)(\/|$)/.test(req.path) ? app(req, res, next) : next()));
