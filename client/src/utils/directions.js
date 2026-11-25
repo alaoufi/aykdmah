@@ -9,6 +9,8 @@ export function directionsUrl(latitude, longitude) {
 export function requestMapsUrl(request) {
   if (!request) return '';
   if (request.latitude != null && request.longitude != null) return directionsUrl(request.latitude, request.longitude);
+  // AYK-501: the place inside the city goes only to who may contact the requester; without the district there is no link.
+  if (!request.district_name) return '';
   const area = [request.district_name, request.city_name].filter(Boolean).join('، ');
   return area ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(area)}` : '';
 }

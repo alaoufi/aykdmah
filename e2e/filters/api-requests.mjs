@@ -169,6 +169,30 @@ console.log(`non-empty expected lists: ${sizes.nonEmpty}, empty: ${sizes.empty},
   check('E2 and not to a provider either', !mine.ids.some(id => dead.includes(id)), `${mine.ids.filter(id => dead.includes(id)).length} shown`);
 }
 
+// AYK-501 (the owner): the place inside the city goes with the name, the number and the contact data. Only a provider who
+// passes all three conditions gets them; a visitor, a requester and a provider who fails one see profession, city/region only.
+{
+  const PLACE = ['district_id', 'district_name', 'district_name_ar', 'district_name_en'];
+  const hasPlace = row => PLACE.some(key => key in row);
+  const hasContact = row => ['client_contact_phone', 'client_contact_whatsapp', 'client_contact_name', 'latitude', 'longitude', 'address', 'client_name'].some(key => key in row);
+  const asVisitor = (await api(`/requests/nearby?${qs({ limit: 100, status: 'open' })}`)).data;
+  check('API place: a visitor\'s list has no district and no contact data on any request', asVisitor.length > 0 && !asVisitor.some(row => hasPlace(row) || hasContact(row)), `${asVisitor.filter(hasPlace).length} with a district of ${asVisitor.length}`);
+  const oneVisitor = (await api(`/requests/${asVisitor[0].id}`)).data;
+  check('API place: a visitor\'s request page has no district and no contact data', !hasPlace(oneVisitor) && !hasContact(oneVisitor), JSON.stringify(Object.keys(oneVisitor).filter(k => hasPlace({ [k]: 1 }))));
+  const asRequester = (await api(`/requests/${asVisitor[0].id}`, { token: fixtures.clients[1].token })).data;
+  check('API place: another requester\'s view has no district and no contact data', !hasPlace(asRequester) && !hasContact(asRequester), '');
+  let eligible = 0, refused = 0, leaks = [];
+  for (const provider of fixtures.providers.slice(0, 12)) {
+    const rows = (await api(`/requests/nearby?${qs({ limit: 100, status: 'open' })}`, { token: provider.token })).data;
+    for (const row of rows) {
+      if (row.client_id === provider.id) continue;
+      if (row.can_contact === true) { eligible += 1; if (!hasPlace(row)) leaks.push(`provider ${provider.id} request ${row.id}: eligible but no district`); }
+      else if (row.can_contact === false) { refused += 1; if (hasPlace(row) || hasContact(row)) leaks.push(`provider ${provider.id} request ${row.id}: refused but shows place or contact`); }
+    }
+  }
+  check('API place: an eligible provider gets the district; a refused one gets neither district nor contact data', eligible > 0 && refused > 0 && leaks.length === 0, `eligible ${eligible} refused ${refused} ${leaks.slice(0, 3).join(' | ')}`);
+}
+
 const bad = summary('API requests');
 saveReport('api-requests');
 await sql.end();
