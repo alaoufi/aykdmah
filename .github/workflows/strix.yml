@@ -1,0 +1,75 @@
+name: Strix security scan
+# AYK-500: AI penetration test of the code (https://github.com/usestrix/strix).
+# Reports only; it does not hold back a deployment.
+# Needs two repository secrets: STRIX_LLM (e.g. anthropic/claude-sonnet-4-5) and LLM_API_KEY.
+# Without them the job skips itself. Each run spends LLM API credit.
+# The repository is public: the scan output goes to a short-lived artifact, not the job log.
+on:
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      scan_mode:
+        description: "quick / standard / deep"
+        default: standard
+        required: false
+permissions:
+  contents: read
+concurrency:
+  group: strix-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    # Pull requests from forks get no secrets, so only scan ours.
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository }}
+    steps:
+      - name: Check secrets
+        id: keys
+        env:
+          STRIX_LLM: ${{ secrets.STRIX_LLM }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+        run: |
+          if [ -n "$STRIX_LLM" ] && [ -n "$LLM_API_KEY" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "::notice::Strix skipped: add the STRIX_LLM and LLM_API_KEY repository secrets to enable it."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.keys.outputs.ready == 'true'
+        with:
+          # Full history lets Strix limit a pull-request quick scan to the changed files.
+          fetch-depth: 0
+      - name: Install Strix
+        if: steps.keys.outputs.ready == 'true'
+        run: curl -sSL https://strix.ai/install | bash
+      - name: Run Strix
+        id: strix
+        if: steps.keys.outputs.ready == 'true'
+        continue-on-error: true
+        env:
+          STRIX_LLM: ${{ secrets.STRIX_LLM }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
+          SCAN_MODE: ${{ github.event_name == 'pull_request' && 'quick' || inputs.scan_mode || 'standard' }}
+        run: |
+          set -o pipefail
+          strix -n -t ./ --scan-mode "$SCAN_MODE" > strix-output.log 2>&1
+      - name: Summary
+        if: ${{ always() && steps.keys.outputs.ready == 'true' }}
+        run: |
+          if [ "${{ steps.strix.outcome }}" = "success" ]; then
+            echo "Strix: no vulnerabilities reported." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "::warning::Strix reported findings or failed. Download the strix-report artifact."
+            echo "Strix: findings reported or the run failed. See the **strix-report** artifact (kept 3 days)." >> "$GITHUB_STEP_SUMMARY"
+          fi
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() && steps.keys.outputs.ready == 'true' }}
+        with:
+          name: strix-report
+          path: |
+            strix_runs/
+            strix-output.log
+          retention-days: 3
+          if-no-files-found: ignore
