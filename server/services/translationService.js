@@ -15,6 +15,8 @@ const memory = require('./translationMemory');
 let microsoftPausedUntil = 0;
 // Each provider gets at most this long (AYK-231): a reader never waits long for a slow one.
 const TIMEOUT_MS = 3500;
+// Slower than this, and Google is asked too (when its key is set).
+const HEDGE_MS = 1200;
 // The Google key setting, read at most once a minute instead of on every translation.
 let googleKeyCache = { at: 0, value: null };
 async function googleKey() {
@@ -135,6 +137,18 @@ async function translateViaMicrosoft(text, source, target, apiKey, region = 'glo
   return { text: translated, provider: 'microsoft', from: source || detected || null };
 }
 
+// After Microsoft refuses for the quota (403) or for speed (429), or is slow or down, it is left alone for a while.
+function noteMicrosoftFailure(err) {
+  if (err.status === 403 || err.status === 429) {
+    microsoftPausedUntil = Date.now() + (err.status === 403 ? 60 : 1) * 60 * 1000;
+    if (err.status === 403) memory.quotaExhausted();
+  } else if (!err.status || err.status >= 500) {
+    // Slow or down (AYK-231): the next messages go straight to the next provider for 30 s
+    // instead of each waiting for the same timeout.
+    microsoftPausedUntil = Date.now() + 30 * 1000;
+  }
+}
+
 // At least one word of 3+ letters that is not a single letter repeated.
 function worthTranslating(text) {
   const words = String(text).match(/\p{L}{3,}/gu) || [];
@@ -152,19 +166,31 @@ async function translate(text, sourceLang, targetLang) {
     if (kept) return kept;
     if (msKey && Date.now() >= microsoftPausedUntil) {
       try {
-        const result = await translateViaMicrosoft(text, known, tgt, msKey, process.env.AZURE_TRANSLATOR_REGION || 'global');
-        memory.countPaid(Math.min(text.length, 2000));
+        // AYK-495: when Microsoft is slow and a Google key exists, Google is asked too after HEDGE_MS and the
+        // first good answer wins; nobody waits for the slow one.
+        const gKey = known ? await googleKey() : null;
+        const microsoft = translateViaMicrosoft(text, known, tgt, msKey, process.env.AZURE_TRANSLATOR_REGION || 'global')
+          .then(result => { memory.countPaid(Math.min(text.length, 2000)); return result; },
+            err => { noteMicrosoftFailure(err); throw err; });
+        let result;
+        if (gKey && gKey.length > 10) {
+          let runGoogle;
+          const google = new Promise((resolve, reject) => {
+            let started = false;
+            runGoogle = () => {
+              if (started) return; started = true;
+              translateViaGoogle(text, known, tgt, gKey).then(r => { memory.countProvider('google', Math.min(text.length, 2000)); resolve({ ...r, from: known }); }, reject);
+            };
+          });
+          google.catch(() => {});
+          const timer = setTimeout(runGoogle, HEDGE_MS);
+          microsoft.catch(() => runGoogle()); // Microsoft refused or failed: Google at once, no waiting
+          try { result = await Promise.any([microsoft, google]); } finally { clearTimeout(timer); }
+        } else result = await microsoft;
         memory.remember(text, tgt, result);
         return result;
-      } catch (err) {
-        if (err.status === 403 || err.status === 429) {
-          microsoftPausedUntil = Date.now() + (err.status === 403 ? 60 : 1) * 60 * 1000;
-          if (err.status === 403) memory.quotaExhausted();
-        } else if (!err.status || err.status >= 500) {
-          // Slow or down (AYK-231): the next messages go straight to the next provider for 30 s
-          // instead of each waiting for the same timeout.
-          microsoftPausedUntil = Date.now() + 30 * 1000;
-        }
+      } catch (_) {
+        // Microsoft's own failure was already noted (noteMicrosoftFailure); what is left is the next provider.
       }
     }
   }
@@ -175,9 +201,17 @@ async function translate(text, sourceLang, targetLang) {
   }
   const apiKey = await googleKey();
   if (apiKey && apiKey.length > 10) {
-    try { return { ...await translateViaGoogle(text, src, tgt, apiKey), from: src }; } catch (_) { /* fall through */ }
+    try {
+      const viaGoogle = { ...await translateViaGoogle(text, src, tgt, apiKey), from: src };
+      memory.countProvider('google', Math.min(text.length, 2000));
+      memory.remember(text, tgt, viaGoogle); // AYK-495: kept like Microsoft's, so the same sentence is free next time
+      return viaGoogle;
+    } catch (_) { /* fall through */ }
   }
   return { ...await translateViaMyMemory(text, src, tgt), from: src };
 }
 
-module.exports = { translate, splitText, detectLanguageFallback, worthTranslating, translateViaMyMemory, translateViaMicrosoft, SUPPORTED, pickMyMemory };
+// For tests: forget the Google key read a moment ago.
+const forgetGoogleKey = () => { googleKeyCache = { at: 0, value: null }; };
+
+module.exports = { forgetGoogleKey, translate, splitText, detectLanguageFallback, worthTranslating, translateViaMyMemory, translateViaMicrosoft, SUPPORTED, pickMyMemory };
