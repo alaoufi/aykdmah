@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './useAuth';
 import { contactRequest } from '../services/requestService';
-import { showProblem, askConfirm } from '../components/common/AppDialog';
-import { useTranslation } from 'react-i18next';
+import { showProblem } from '../components/common/AppDialog';
 
 // Opening a request card: my own request, or a request I only want to look at, opens its page. A chat with
 // its requester opens only from a contact button (AYK-488, the owner: «دخلت أعمالي وظهر لي كل الأعمال المنشورة
@@ -11,7 +10,6 @@ import { useTranslation } from 'react-i18next';
 // requester that someone had contacted him).
 export default function useOpenRequest() {
   const { user } = useAuth();
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const [opening, setOpening] = useState(0);
   const mine = request => Boolean(user) && Number(request.client_id) === Number(user.id);
@@ -29,26 +27,16 @@ export default function useOpenRequest() {
       showProblem(err);
     } finally { setOpening(0); }
   };
-  const open = async request => {
-    // AYK-440 (the owner: «يشاهد… بشرط لا يراسلهم ولا يدخل على بياناتهم، سواء طالب خدمة أو زائر»): a
-    // visitor or a requester sees others' requests on the board but does not open them; a visitor
-    // is asked to sign in, a requester is offered to become a provider (as «تواصل» does).
-    if (!mine(request) && user?.role !== 'provider') {
-      if (!user) { navigate('/login', { state: { from: '/' } }); return; }
-      await contact(request); return;
-    }
-    navigate(`/requests/${request.id}`);
-  };
-  // AYK-426 (the owner: «اللوحة هذي ما فيها تواصل، أضف التواصل»): «تواصل» on every open request that
-  // is not mine. A provider reaches the requester at once; a visitor signs in first; a requester is
-  // told contact is for service providers and can become one.
-  // AYK-493: the server says (can_contact) whether this provider may reach the owner: his profession, inside his coverage, not blocked.
-  const canContact = request => !mine(request) && request.status === 'open' && request.can_contact !== false;
+  // AYK-501 (the owner, with a screenshot of «التواصل لمقدمي الخدمة»): contact is offered only to a provider who passes the
+  // three conditions (same profession, inside his coverage, not blocked by the requester). Everyone else, a visitor,
+  // a requester or a provider who fails one condition, only SEES the request (its profession, area, rating and
+  // public data): no contact button, no name or number, no chat, and never a prompt to change profession or account.
+  const open = request => { navigate(`/requests/${request.id}`); };
+  // AYK-493: the server says (can_contact) whether this provider may reach the owner.
+  const canContact = request => !mine(request) && request.status === 'open' && user?.role === 'provider' && request.can_contact !== false;
   const contact = async request => {
-    if (!user) { navigate('/login', { state: { from: `/requests/${request.id}` } }); return; }
-    if (forMyService(request)) { await startChat(request); return; }
-    const become = await askConfirm({ title: t('request.contact_providers_title'), message: t('request.contact_providers_only'), confirmText: t('request.become_provider') });
-    if (become) navigate('/profile#account-type');
+    if (!canContact(request)) return;
+    await startChat(request);
   };
   return { open, opening, mine, forMyService, canContact, contact };
 }
