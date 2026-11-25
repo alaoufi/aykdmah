@@ -21,7 +21,7 @@ async function expectedPublic({ category_id, category_ids, service_id, city_id, 
   const cats = [...new Set([category_id, ...(category_ids ? String(category_ids).split(',') : [])].filter(Boolean).map(Number))];
   const regs = [...new Set([region_id, ...(region_ids ? String(region_ids).split(',') : [])].filter(Boolean).map(Number))];
   if (city_id) { params.push(Number(city_id)); where.push(`r.city_id = $${params.length}`); }
-  if (cats.length) { params.push(cats); where.push(`r.category_id = ANY($${params.length}::int[])`); }
+  if (cats.length) { params.push(cats); where.push(`COALESCE(r.category_id, (SELECT s.category_id FROM services s WHERE s.id = r.service_id)) = ANY($${params.length}::int[])`); }
   if (service_id) { params.push(Number(service_id)); where.push(`r.service_id = $${params.length}`); }
   if (regs.length) { params.push(regs); where.push(`r.city_id IN (SELECT c.id FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id WHERE COALESCE(c.region_id, g.region_id) = ANY($${params.length}::int[]))`); }
   return ids(await sql(`SELECT r.id FROM requests r WHERE ${where.join(' AND ')}`, params));
@@ -74,7 +74,7 @@ async function expectedPublic({ category_id, category_ids, service_id, city_id, 
         if (scope === 'area' && me.district_id) { params.push(me.district_id); where.push(`r.district_id = $${params.length}`); }
         else if (scope === 'area' || scope === 'city') { params.push(me.city_id); where.push(`r.city_id = $${params.length}`); }
         else { params.push(regionOfCity[Number(me.city_id)]); where.push(`r.city_id IN (SELECT c.id FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id WHERE COALESCE(c.region_id, g.region_id) = $${params.length})`); }
-        if (category) { params.push(category); where.push(`r.category_id = $${params.length}`); }
+        if (category) { params.push(category); where.push(`COALESCE(r.category_id, (SELECT s.category_id FROM services s WHERE s.id = r.service_id)) = $${params.length}`); }
         const want = ids(await sql(`SELECT r.id FROM requests r WHERE ${where.join(' AND ')}`, params));
         const got = await allPages(`/requests/nearby?${qs({ scope, category_id: category })}`, { token: client.token, limit: 50, family: 'requests/nearby (requester scope)' });
         check(`B requester ${client.id} scope=${scope} category=${category ?? '-'}`, sameSet(got.ids, want) && got.duplicates.length === 0 && !got.ids.some(id => fixtures.requests.find(r => r.id === id)?.client === client.id),
