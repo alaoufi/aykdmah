@@ -60,7 +60,7 @@ const listMine = asyncHandler(async (req, res) => {
   const rows = await query(`SELECT t.id, t.topic, t.status, t.user_unread, t.created_at, t.updated_at,
       (SELECT body FROM support_messages m WHERE m.ticket_id = t.id ORDER BY m.id DESC LIMIT 1) AS last_body,
       (SELECT from_admin FROM support_messages m WHERE m.ticket_id = t.id ORDER BY m.id DESC LIMIT 1) AS last_from_admin
-    FROM support_tickets t WHERE t.user_id = ? ORDER BY t.updated_at DESC LIMIT 100`, [req.user.id]);
+    FROM support_tickets t WHERE t.user_id = ? ORDER BY t.updated_at DESC, t.id DESC LIMIT 100`, [req.user.id]);
   return success(res, await lastForReader(rows, await userLang(req), false));
 });
 

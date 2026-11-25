@@ -232,7 +232,7 @@ async function findByClient(clientId, { status, scope, page = 1, limit = 20 } = 
 
   const items = await query(
     `SELECT ${BASE_SELECT} FROM requests r ${BASE_JOINS}
-     WHERE ${whereSql} ORDER BY r.created_at DESC LIMIT ? OFFSET ?`,
+     WHERE ${whereSql} ORDER BY r.created_at DESC, r.id DESC LIMIT ? OFFSET ?`,
     [...params, Number(limit), Number(offset)]
   );
   const [{ total }] = await query(

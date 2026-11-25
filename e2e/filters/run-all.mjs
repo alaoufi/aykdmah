@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const what = process.argv[2] || 'all';
-const API = ['api-requests.mjs', 'api-providers.mjs', 'api-lists.mjs', 'api-fuzz.mjs'];
+const API = ['api-requests.mjs', 'api-providers.mjs', 'api-lists.mjs', 'api-fuzz.mjs', 'api-property.mjs'];
 const UI = ['ui-guest.e2e.mjs', 'ui-provider.e2e.mjs', 'ui-requester.e2e.mjs', 'ui-admin.e2e.mjs'];
 const files = what === 'api' ? API : what === 'ui' ? UI : [...API, ...UI];
 const out = path.join(here, '.out'); fs.mkdirSync(out, { recursive: true });

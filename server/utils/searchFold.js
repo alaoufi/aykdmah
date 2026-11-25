@@ -22,4 +22,4 @@ function searchCondition(text, { columns = [], phone = null, exact = null, extra
   if (extra) parts.push(extra);
   return { sql: `(${parts.join(' OR ')})`, params };
 }
-module.exports = { foldSql, foldText, phoneDigits, searchCondition };
+module.exports = { foldSql, foldText, phoneDigits, searchCondition, likeEscape };

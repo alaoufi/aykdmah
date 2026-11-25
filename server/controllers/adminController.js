@@ -110,7 +110,7 @@ const dashboard = asyncHandler(async (req, res) => {
     recentRequests = await query(
       `SELECT r.id, r.title, r.status, r.is_urgent, r.created_at, u.full_name AS client_name
        FROM requests r LEFT JOIN users u ON r.client_id = u.id
-       WHERE r.deleted_at IS NULL ORDER BY r.created_at DESC LIMIT 10`
+       WHERE r.deleted_at IS NULL ORDER BY r.created_at DESC, r.id DESC LIMIT 10`
     );
   } catch (_) {}
   try {
@@ -244,7 +244,7 @@ const listVerifications = asyncHandler(async (req, res) => {
   const items = await query(
     `SELECT v.*, u.full_name, u.email, u.phone FROM verification_requests v
      JOIN users u ON v.user_id = u.id
-     WHERE v.status = ? ORDER BY v.created_at DESC LIMIT ? OFFSET ?`,
+     WHERE v.status = ? ORDER BY v.created_at DESC, v.id DESC LIMIT ? OFFSET ?`,
     [status, Number(limit), Number(offset)]
   );
   const [{ total }] = await query(
@@ -408,7 +408,7 @@ const activityLogs = asyncHandler(async (req, res) => {
   const items = await query(
     `SELECT al.*, u.full_name FROM activity_logs al
      LEFT JOIN users u ON al.user_id = u.id
-     ${where} ORDER BY al.created_at DESC LIMIT ? OFFSET ?`,
+     ${where} ORDER BY al.created_at DESC, al.id DESC LIMIT ? OFFSET ?`,
     [...params, limit, offset]
   );
   const [{ total }] = await query(`SELECT COUNT(*) AS total FROM activity_logs al ${where}`, params);
@@ -493,7 +493,7 @@ const securityReport = asyncHandler(async (req, res) => {
     `SELECT al.action, al.ip_address, al.description, al.created_at, u.username
      FROM activity_logs al LEFT JOIN users u ON u.id = al.user_id
      WHERE al.action IN (${siteIn}) AND al.created_at >= ? AND al.created_at < ?
-     ORDER BY al.created_at DESC LIMIT 300`, [...siteKeys, since, until]) : [];
+     ORDER BY al.created_at DESC, al.id DESC LIMIT 300`, [...siteKeys, since, until]) : [];
   const events = [
     ...server.map(r => ({ source: 'server', event: r.event, status: SERVER_STATUS[r.event] || 'failed', ip: r.ip,
       attempts: Number(r.attempts) || 1, detail: r.detail || null, at: r.last_at, first_at: r.first_at })),
@@ -730,7 +730,7 @@ const listConversationsAdmin = asyncHandler(async (req, res) => {
       JOIN users u ON u.id = cp.user_id
       WHERE cp.conversation_id = c.id AND (u.full_name LIKE ? OR u.email LIKE ? OR u.phone LIKE ?)
     )`);
-    const s = `%${search}%`;
+    const s = `%${require('../utils/searchFold').likeEscape(search)}%`;
     params.push(s, s, s);
   }
   const whereSql = where.length ? 'WHERE ' + where.join(' AND ') : '';
@@ -822,7 +822,7 @@ const liveLocationsAdmin = asyncHandler(async (req, res) => {
          SELECT MAX(id) FROM location_shares WHERE is_live = 1
          GROUP BY conversation_id, user_id
        )
-     ORDER BY ls.created_at DESC
+     ORDER BY ls.created_at DESC, ls.id DESC
      LIMIT 500`
   );
   return success(res, rows);

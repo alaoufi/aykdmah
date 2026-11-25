@@ -199,7 +199,7 @@ async function searchInConversation(conversationId, q, { limit = 30, beforeId = 
        ${viewer ? `AND NOT EXISTS (SELECT 1 FROM message_hidden mh WHERE mh.message_id = m.id AND mh.user_id = ${viewer})` : ''}
        AND m.content LIKE ? AND (?::bigint IS NULL OR m.id < ?)
      ORDER BY m.id DESC LIMIT ?`,
-    [...ids, `%${q}%`, beforeId, beforeId, Number(limit)]
+    [...ids, `%${require('../utils/searchFold').likeEscape(q)}%`, beforeId, beforeId, Number(limit)]
   );
 }
 

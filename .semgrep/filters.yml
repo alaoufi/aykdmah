@@ -1,0 +1,45 @@
+# AYK-496: rules for the mistakes the filters audit found. Run: semgrep scan --config .semgrep/filters.yml server client/src
+rules:
+  - id: ayk-sql-order-by-without-tiebreak
+    languages: [generic]
+    severity: WARNING
+    message: >-
+      ORDER BY on a date with no second column: rows with the same time can repeat or be skipped between pages.
+      Add «, <alias>.id DESC».
+    paths:
+      include: ["server/models/*.js", "server/controllers/*.js", "server/services/*.js"]
+    pattern-regex: 'ORDER BY\s+[a-z_]+\.?[a-z_]*(created_at|opened_at|updated_at|last_message_at)\s+DESC\s*(LIMIT|`|"|'')'
+  - id: ayk-like-with-unescaped-user-text
+    languages: [generic]
+    severity: WARNING
+    message: >-
+      A search term put inside LIKE/ILIKE without escaping «%» «_» «\»: «%» matches everything. Use likeEscape / searchFold.
+    paths:
+      include: ["server/models/*.js", "server/controllers/*.js", "server/services/*.js"]
+    pattern-regex: '`%\$\{(?!likeEscape|foldText|digits|escape)[^}]*\}%`'
+  - id: ayk-has-next-guessed-from-row-count
+    languages: [javascript]
+    severity: WARNING
+    message: >-
+      «Next page» enabled from the number of rows on the page: with exactly a full last page it opens an empty page. Use the
+      server's hasNext (meta.pagination).
+    paths:
+      include: ["client/src/**"]
+    pattern-regex: 'disabled=\{[^}]*\.length\s*<\s*(?:20|limit|PAGE_SIZE)[^}]*\}'
+  - id: ayk-list-counter-is-page-length
+    languages: [javascript]
+    severity: INFO
+    message: >-
+      A counter that shows the size of the loaded page (requests.length) is not the total; show meta.pagination.total.
+    paths:
+      include: ["client/src/pages/**"]
+    pattern-regex: '<div className="text-secondary">\{\w+\.length\}</div>'
+  - id: ayk-request-list-without-live-client
+    languages: [generic]
+    severity: INFO
+    message: >-
+      A public list of requests that does not check that the client's account is alive (not deleted, blocked or turned off).
+      Add LIVE_CLIENT (models/Request.js).
+    paths:
+      include: ["server/models/Request.js", "server/controllers/providerMapController.js"]
+    pattern-regex: "FROM requests r(?:(?!LIVE_CLIENT|cu\\.deleted_at)[\\s\\S]){0,400}r\\.status = 'open'"

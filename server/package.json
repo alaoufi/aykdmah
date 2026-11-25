@@ -35,5 +35,8 @@
   },
   "engines": {
     "node": ">=22.12"
+  },
+  "devDependencies": {
+    "fast-check": "^4.11.0"
   }
 }

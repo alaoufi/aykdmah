@@ -238,7 +238,7 @@ async function listRows(userId, { page = 1, limit = 20, q = '', requestId = null
       LEFT JOIN saved_providers saved ON saved.user_id = cp.user_id AND saved.provider_id = person.id
       WHERE peer.conversation_id = c.id AND peer.user_id <> cp.user_id AND
       (person.referral_code ILIKE ? OR saved.nickname ILIKE ? OR (person.role <> 'client' AND person.full_name ILIKE ?))))`);
-    extraParams.push(...Array(5).fill(`%${q}%`));
+    extraParams.push(...Array(5).fill(`%${String(q).replace(/[\\%_]/g, ch => `\\${ch}`)}%`)); // «%» and «_» typed by the person are letters, not wildcards (AYK-496)
   }
   return query(
     `SELECT c.id, c.request_id, c.last_message_id, c.last_message_at, ${writableConversationSql()} AS can_send,
