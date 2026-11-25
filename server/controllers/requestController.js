@@ -238,10 +238,21 @@ const guestView = (req, row) => (req.user ? row : { ...row, client_avatar: null 
 async function providerCategoryIds(req) {
   return req.user?.role === 'provider' ? require('../services/requestEligibility').loadReach(req.user.id) : null;
 }
+// AYK-501 (the owner: «اذا ما تنطبق علي الشروط حتى الموقع يحجب… كلها تحجب عن الي ما تنطبق عليه الشروط الثلاث»): the place
+// inside the city (district) goes with the name, the number and the contact data: only a provider who passes all three
+// conditions (profession, coverage, not blocked) gets them. Everyone else sees the request's profession, city/region,
+// rating and public data.
+const PLACE_KEYS = ['district_id', 'district_name', 'district_name_ar', 'district_name_en', 'district_name_translations'];
+function hidePlace(view) {
+  const out = { ...view };
+  for (const key of PLACE_KEYS) delete out[key];
+  return out;
+}
 function withContact(req, raw, view, reach) {
-  if (!reach || !raw || Number(raw.client_id) === Number(req.user?.id)) return view;
+  if (!raw || Number(raw.client_id) === Number(req.user?.id)) return view;
+  if (!reach) return hidePlace(view); // a visitor, a requester, or anyone who is not a provider
   if (raw.status !== 'open') return view;
-  if (require('../services/requestEligibility').judge(reach, raw)) return { ...view, can_contact: false };
+  if (require('../services/requestEligibility').judge(reach, raw)) return { ...hidePlace(view), can_contact: false };
   const out = { ...view, can_contact: true };
   if (raw.client_contact_phone) out.client_contact_phone = raw.client_contact_phone;
   if (raw.client_contact_whatsapp) out.client_contact_whatsapp = raw.client_contact_whatsapp;
