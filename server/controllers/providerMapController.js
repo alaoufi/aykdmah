@@ -1,4 +1,5 @@
 const { query } = require('../config/database');
+const { serviceIdsOf } = require('../services/categoryServices');
 const { success, error } = require('../utils/apiResponse');
 const asyncHandler = require('../utils/asyncHandler');
 const { distanceKm, isValidLatLng } = require('../services/geoService');
@@ -74,7 +75,7 @@ const nearby = asyncHandler(async (req, res) => {
     })());
   // A provider may work in several professions: match any of their services.
   const categoryServices = categoryId !== null
-    ? new Set((await query('SELECT id FROM services WHERE category_id = ?', [categoryId])).map(row => Number(row.id))) : null;
+    ? new Set(await serviceIdsOf(categoryId)) : null;
   const availableOnly = req.query.available === '1';
 
   const providers = [];
@@ -231,8 +232,8 @@ const matching = asyncHandler(async (req, res) => {
   const pickedRegion = regionsPicked.length ? regionsPicked : null;
   if (!where.cityId && scope !== 'all' && !pickedRegion && req.query.board !== '1') return success(res, { area: null, scope, providers: [] });
   const categoryServices = categoryId !== null
-    ? new Set((await query('SELECT id FROM services WHERE category_id = ?', [categoryId])).map(row => Number(row.id)))
-    : manyCategories ? new Set((await query(`SELECT id FROM services WHERE category_id IN (${manyCategories.map(() => '?').join(', ')})`, manyCategories)).map(row => Number(row.id))) : null;
+    ? new Set(await serviceIdsOf(categoryId))
+    : manyCategories ? new Set(await serviceIdsOf(manyCategories)) : null;
   const list = async scope => listProviders(await coveringProviders({ ...scope, excludeId: req.user?.id || 0 }),
     { categoryId, categoryIds: manyCategories, serviceId, categoryServices, cityId: where.cityId, reader: readerOf(req) });
   let requestedCategories = [];
@@ -346,7 +347,7 @@ async function listProviders(rows, { categoryId, categoryIds = null, serviceId, 
 async function availableForRequest({ districtId, cityId, categoryId, serviceId, excludeId = 0 }) {
   if (!cityId) return [];
   const rows = await coveringProviders({ districtId: districtId || null, cityId, excludeId });
-  const categoryServices = categoryId ? new Set((await query('SELECT id FROM services WHERE category_id = ?', [categoryId])).map(row => Number(row.id))) : null;
+  const categoryServices = categoryId ? new Set(await serviceIdsOf(categoryId)) : null;
   const working = rows.filter(row => {
     const services = parseServiceIds(row.service_ids);
     // AYK-391: the profession decides; a specific service only when the request has no profession.

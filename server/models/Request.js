@@ -339,7 +339,7 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
     // owner's rule says (same profession, same coverage). A request for one service of a profession
     // (e.g. «تسليك مجاري» in plumbing) used to reach only the plumbers who ticked that very service.
     const sameProfession = categories.length
-      ? (await query(`SELECT id FROM services WHERE category_id IN (${categories.map(() => '?').join(', ')})`, categories)).map(row => Number(row.id)) : [];
+      ? await require('../services/categoryServices').serviceIdsOf(categories) : [];
     const anyService = [...new Set([...services, ...sameProfession])];
     if (anyService.length) { match.push(`r.service_id IN (${anyService.map(() => '?').join(', ')})`); fitParams.push(...anyService); }
     if (categories.length) { match.push(`r.category_id IN (${categories.map(() => '?').join(', ')})`); fitParams.push(...categories); }
@@ -395,8 +395,11 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
   // of a second identical scan.
   // AYK-398 (the owner: «عميل سابق طالب خدمة، يعطي الأولوية للعملاء السابقين»): for a provider, a
   // request from someone they already worked for is marked and comes first.
+  // AYK-496: the provider's former clients are read once (a hashed set), not once per candidate request: with 6000
+  // requests the per-row check took 0.18 s and made the planner switch on JIT compilation. (Candidates are open, so
+  // they are never the request that made the client a former one.)
   const PREVIOUS = providerId
-    ? `EXISTS (SELECT 1 FROM requests p WHERE p.client_id = r.client_id AND p.assigned_provider_id = ? AND p.id <> r.id
+    ? `r.client_id IN (SELECT p.client_id FROM requests p WHERE p.assigned_provider_id = ?
          AND p.status IN (${PREVIOUS_CLIENT_STATUSES}) AND p.deleted_at IS NULL)` : 'FALSE';
   const previousParams = providerId ? [providerId] : [];
   const candidates = hasGeo
@@ -518,16 +521,22 @@ async function listAll({ page = 1, limit = 20, status, search, region_id, city_i
     params.push(...found.params, ...(digits ? [digits] : []));
   }
   const whereSql = where.join(' AND ');
-  const items = await query(
-    `SELECT ${BASE_SELECT}, u.phone AS client_phone, u.referral_code AS client_number, city.region_id AS region_id
-     FROM requests r ${BASE_JOINS} WHERE ${whereSql}
+  // AYK-496: the page's ids come first, from the tables the filters and the search read; the full cards (with their
+  // rating sub-queries) are built only for those few. Before, every matching request got its card built (0.45 s for 6000).
+  const FILTER_JOINS = 'LEFT JOIN users u ON r.client_id = u.id LEFT JOIN services svc ON r.service_id = svc.id LEFT JOIN cities city ON r.city_id = city.id';
+  const picked = await query(
+    `SELECT r.id, COUNT(*) OVER () AS total FROM requests r ${FILTER_JOINS} WHERE ${whereSql}
      ORDER BY r.created_at DESC, r.id DESC LIMIT ? OFFSET ?`,
     [...params, Number(limit), Number(offset)]
   );
-  const [{ total }] = await query(
-    `SELECT COUNT(*) AS total FROM requests r ${BASE_JOINS} WHERE ${whereSql}`,
-    params
-  );
+  const total = picked.length ? Number(picked[0].total)
+    : offset === 0 ? 0 : Number((await query(`SELECT COUNT(*) AS total FROM requests r ${FILTER_JOINS} WHERE ${whereSql}`, params))[0].total);
+  const ids = picked.map(row => Number(row.id));
+  const cards = ids.length ? await query(
+    `SELECT ${BASE_SELECT}, u.phone AS client_phone, u.referral_code AS client_number, city.region_id AS region_id
+     FROM requests r ${BASE_JOINS} WHERE r.id IN (${ids.map(() => '?').join(', ')})`, ids) : [];
+  const byId = new Map(cards.map(row => [Number(row.id), row]));
+  const items = ids.map(id => byId.get(id)).filter(Boolean);
   return { items, total };
 }
 
@@ -612,7 +621,7 @@ async function findBoard({ viewerId, asProvider = false, filterProfession = fals
   if (filterProfession) { where.push(prof); params.push(...profParams); }
   if (filterArea) { where.push(area); params.push(...areaParams); }
   const PREVIOUS = asProvider
-    ? `EXISTS (SELECT 1 FROM requests p WHERE p.client_id = r.client_id AND p.assigned_provider_id = ? AND p.id <> r.id
+    ? `r.client_id IN (SELECT p.client_id FROM requests p WHERE p.assigned_provider_id = ?
          AND p.status IN (${PREVIOUS_CLIENT_STATUSES}) AND p.deleted_at IS NULL)` : 'FALSE';
   const candidates = `SELECT r.id, r.is_urgent, r.created_at, CASE WHEN r.client_id = ${Number(viewerId) || 0} THEN 1 ELSE 0 END AS mine,
       CASE WHEN ${prof} THEN 1 ELSE 0 END AS prof_match, CASE WHEN ${area} THEN 1 ELSE 0 END AS area_match,
