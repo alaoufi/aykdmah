@@ -75,6 +75,13 @@ for (const viewport of wanted) {
   const shownLast = await requestIdsIn(page, '[data-testid="guest-requests"]');
   check(`UI guest ${viewport}: after quick changes with a slow older answer, the last choice is what is shown`, JSON.stringify(shownLast) === JSON.stringify(wantLast), `shown ${shownLast} want ${wantLast}`);
   await page.unroute('**/api/requests/nearby**');
+  // AYK-501 (the owner): a visitor fails the contact conditions: a request's page gives him only a reminder to register,
+  // with no link to follow and no contact or invitation block.
+  const [openRequest] = await sql(`SELECT id FROM requests WHERE status = 'open' AND deleted_at IS NULL AND hidden_at IS NULL ORDER BY id LIMIT 1`);
+  await goto(page, `/requests/${openRequest.id}`); await settle(page, 800);
+  check(`UI guest ${viewport}: the request page shows the register-with-us reminder`, (await page.getByTestId('join-reminder').count()) === 1 && (await page.getByTestId('join-reminder').innerText()).trim().length > 10, '');
+  check(`UI guest ${viewport}: no invitation block, no contact block, no register or sign-in link inside the request`, (await page.locator('[data-testid="join-invite"], [data-testid="join-client"], [data-testid="join-provider"], [data-testid="request-owner-contact"], [data-testid="provider-contact"], [data-testid="requester-contact"]').count()) === 0
+    && (await page.getByTestId('join-reminder').locator('a').count()) === 0, '');
   check(`UI guest ${viewport}: no page errors`, page.errors.length === 0, page.errors.slice(0, 2).join(' | '));
   await page.context().close();
 }
