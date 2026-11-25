@@ -32,7 +32,7 @@ const list = asyncHandler(async (req, res) => {
     LEFT JOIN provider_profiles pp ON pp.user_id = u.id
     LEFT JOIN categories cat ON cat.id = pp.category_id
     LEFT JOIN districts dist ON dist.id = u.district_id
-    WHERE sp.user_id = ? ORDER BY sp.created_at DESC`, [req.user.id]);
+    WHERE sp.user_id = ? AND (pp.user_id IS NULL OR pp.hidden_at IS NULL) ORDER BY sp.created_at DESC`, [req.user.id]);
   await hideRequesterNames(req.user.id, rows, req.t('requester_label'));
   // Whoever is in my directory can be written to, a provider or not (the owner's decision, AYK-260).
   // A provider through a direct request, as before. Anyone else through a chat with them that is

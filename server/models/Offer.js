@@ -200,6 +200,12 @@ async function findByProvider(providerId, { status, scope, page = 1, limit = 20 
   const offset = (page - 1) * limit;
   const where = ['o.provider_id = ?', 'r.deleted_at IS NULL'];
   const params = [providerId];
+  // AYK-488 (the owner, who found every request he had only looked at under «أعمالي»): a task is a request the
+  // provider really worked on: he named a price, or it was agreed with him, or he wrote in its conversation.
+  // A bare tap that only opened a chat leaves nothing here (it is still a contact for the requester to see).
+  where.push(`(o.price > 0 OR o.status = 'accepted' OR EXISTS (
+    SELECT 1 FROM messages mm JOIN conversations cc ON cc.id = mm.conversation_id
+    WHERE cc.request_id = o.request_id AND mm.sender_id = o.provider_id AND mm.deleted_at IS NULL))`);
   // "Active" tasks still need the provider; the archive keeps everything else (AYK-075).
   const active = `(r.status IN ('open', 'assigned', 'in_progress') AND o.status IN ('pending', 'accepted') AND (r.assigned_provider_id IS NULL OR r.assigned_provider_id = ?))`;
   if (scope === 'active') { where.push(active); params.push(providerId); }
@@ -215,7 +221,7 @@ async function findByProvider(providerId, { status, scope, page = 1, limit = 20 
   const items = await query(
     `SELECT o.*, r.title AS request_title, r.status AS request_status
      FROM offers o JOIN requests r ON o.request_id = r.id
-     WHERE ${whereSql} ORDER BY o.created_at DESC LIMIT ? OFFSET ?`,
+     WHERE ${whereSql} ORDER BY o.created_at DESC, o.id DESC LIMIT ? OFFSET ?`,
     [...params, Number(limit), Number(offset)]
   );
   const [{ total }] = await query(

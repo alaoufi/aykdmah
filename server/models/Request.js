@@ -36,6 +36,9 @@ function optionalDate(value) {
   return new Date(value).toISOString();
 }
 
+// AYK-496: the requests of an account that was deleted, blocked or turned off are not offered to anyone any more.
+const LIVE_CLIENT = 'EXISTS (SELECT 1 FROM users cu WHERE cu.id = r.client_id AND cu.deleted_at IS NULL AND cu.is_active = 1 AND cu.is_blocked = 0)';
+
 function publicView(request) {
   if (!request) return request;
   const view = { ...request };
@@ -229,7 +232,7 @@ async function findByClient(clientId, { status, scope, page = 1, limit = 20 } = 
 
   const items = await query(
     `SELECT ${BASE_SELECT} FROM requests r ${BASE_JOINS}
-     WHERE ${whereSql} ORDER BY r.created_at DESC LIMIT ? OFFSET ?`,
+     WHERE ${whereSql} ORDER BY r.created_at DESC, r.id DESC LIMIT ? OFFSET ?`,
     [...params, Number(limit), Number(offset)]
   );
   const [{ total }] = await query(
@@ -296,7 +299,7 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
   categoryId = optionalNumber(categoryId, 1, 2147483647, true); serviceId = optionalNumber(serviceId, 1, 2147483647, true);
   // A direct contact from the requester's directory is not on the board (AYK-041).
   // AYK-361: a request the administration hid is not offered to providers.
-  const where = ['r.deleted_at IS NULL', 'r.status = ?', 'r.direct_provider_id IS NULL', 'r.hidden_at IS NULL'];
+  const where = ['r.deleted_at IS NULL', 'r.status = ?', 'r.direct_provider_id IS NULL', 'r.hidden_at IS NULL', LIVE_CLIENT];
   const whereParams = [status];
   cityId = optionalNumber(cityId,1,2147483647,true);
   if (cityId) {where.push('r.city_id = ?');whereParams.push(cityId);}
@@ -306,7 +309,12 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
   const regions = [...new Set([...(regionId ? [regionId] : []), ...idList(regionIds)])];
   const categories = [...new Set([...(categoryId ? [categoryId] : []), ...idList(categoryIds)])];
   if (regions.length) { where.push(`r.city_id IN (SELECT c.id FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id WHERE COALESCE(c.region_id, g.region_id) IN (${regions.map(() => '?').join(', ')}))`); whereParams.push(...regions); }
-  if (categories.length) { where.push(`r.category_id IN (${categories.map(() => '?').join(', ')})`); whereParams.push(...categories); }
+  // AYK-496: a request that carries only its service (older rows) belongs to that service's profession.
+  if (categories.length) {
+    const marks = categories.map(() => '?').join(', ');
+    where.push(`(r.category_id IN (${marks}) OR (r.category_id IS NULL AND r.service_id IN (SELECT sv.id FROM services sv WHERE sv.category_id IN (${marks}))))`);
+    whereParams.push(...categories, ...categories);
+  }
   if (serviceId) { where.push('r.service_id = ?'); whereParams.push(serviceId); }
   if (providerId) {
     // A request sent straight to this provider from a directory is theirs to see (AYK-079).
@@ -331,7 +339,7 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
     // owner's rule says (same profession, same coverage). A request for one service of a profession
     // (e.g. «تسليك مجاري» in plumbing) used to reach only the plumbers who ticked that very service.
     const sameProfession = categories.length
-      ? (await query(`SELECT id FROM services WHERE category_id IN (${categories.map(() => '?').join(', ')})`, categories)).map(row => Number(row.id)) : [];
+      ? await require('../services/categoryServices').serviceIdsOf(categories) : [];
     const anyService = [...new Set([...services, ...sameProfession])];
     if (anyService.length) { match.push(`r.service_id IN (${anyService.map(() => '?').join(', ')})`); fitParams.push(...anyService); }
     if (categories.length) { match.push(`r.category_id IN (${categories.map(() => '?').join(', ')})`); fitParams.push(...categories); }
@@ -387,8 +395,11 @@ async function findNearby({ latitude, longitude, radiusKm = 25, categoryId, serv
   // of a second identical scan.
   // AYK-398 (the owner: «عميل سابق طالب خدمة، يعطي الأولوية للعملاء السابقين»): for a provider, a
   // request from someone they already worked for is marked and comes first.
+  // AYK-496: the provider's former clients are read once (a hashed set), not once per candidate request: with 6000
+  // requests the per-row check took 0.18 s and made the planner switch on JIT compilation. (Candidates are open, so
+  // they are never the request that made the client a former one.)
   const PREVIOUS = providerId
-    ? `EXISTS (SELECT 1 FROM requests p WHERE p.client_id = r.client_id AND p.assigned_provider_id = ? AND p.id <> r.id
+    ? `r.client_id IN (SELECT p.client_id FROM requests p WHERE p.assigned_provider_id = ?
          AND p.status IN (${PREVIOUS_CLIENT_STATUSES}) AND p.deleted_at IS NULL)` : 'FALSE';
   const previousParams = providerId ? [providerId] : [];
   const candidates = hasGeo
@@ -504,22 +515,28 @@ async function listAll({ page = 1, limit = 20, status, search, region_id, city_i
   else if (visibility === 'shown') where.push('r.hidden_at IS NULL');
   const text = typeof search === 'string' ? search.trim().slice(0, 100) : '';
   if (text) {
-    const s = `%${text}%`;
     const digits = /^\d{1,10}$/.test(text) ? Number(text) : null;
-    where.push(`(r.title ILIKE ? OR r.description ILIKE ? OR u.full_name ILIKE ? OR u.phone LIKE ? OR u.referral_code = ?${digits ? ' OR r.id = ?' : ''})`);
-    params.push(s, s, s, s, text, ...(digits ? [digits] : []));
+    const found = require('../utils/searchFold').searchCondition(text, { columns: ['r.title', 'r.description', 'u.full_name'], phone: 'u.phone', exact: 'u.referral_code', extra: digits ? 'r.id = ?' : '' });
+    where.push(found.sql);
+    params.push(...found.params, ...(digits ? [digits] : []));
   }
   const whereSql = where.join(' AND ');
-  const items = await query(
-    `SELECT ${BASE_SELECT}, u.phone AS client_phone, u.referral_code AS client_number, city.region_id AS region_id
-     FROM requests r ${BASE_JOINS} WHERE ${whereSql}
+  // AYK-496: the page's ids come first, from the tables the filters and the search read; the full cards (with their
+  // rating sub-queries) are built only for those few. Before, every matching request got its card built (0.45 s for 6000).
+  const FILTER_JOINS = 'LEFT JOIN users u ON r.client_id = u.id LEFT JOIN services svc ON r.service_id = svc.id LEFT JOIN cities city ON r.city_id = city.id';
+  const picked = await query(
+    `SELECT r.id, COUNT(*) OVER () AS total FROM requests r ${FILTER_JOINS} WHERE ${whereSql}
      ORDER BY r.created_at DESC, r.id DESC LIMIT ? OFFSET ?`,
     [...params, Number(limit), Number(offset)]
   );
-  const [{ total }] = await query(
-    `SELECT COUNT(*) AS total FROM requests r ${BASE_JOINS} WHERE ${whereSql}`,
-    params
-  );
+  const total = picked.length ? Number(picked[0].total)
+    : offset === 0 ? 0 : Number((await query(`SELECT COUNT(*) AS total FROM requests r ${FILTER_JOINS} WHERE ${whereSql}`, params))[0].total);
+  const ids = picked.map(row => Number(row.id));
+  const cards = ids.length ? await query(
+    `SELECT ${BASE_SELECT}, u.phone AS client_phone, u.referral_code AS client_number, city.region_id AS region_id
+     FROM requests r ${BASE_JOINS} WHERE r.id IN (${ids.map(() => '?').join(', ')})`, ids) : [];
+  const byId = new Map(cards.map(row => [Number(row.id), row]));
+  const items = ids.map(id => byId.get(id)).filter(Boolean);
   return { items, total };
 }
 
@@ -574,7 +591,12 @@ async function boardViewer(viewerId, asProvider) {
 // The SQL for «my profession» and «my area» over requests r.
 function boardMatch({ categories, services, districts, cityId }) {
   const profParts = []; const profParams = [];
-  if (categories.length) { profParts.push(`r.category_id IN (${categories.map(() => '?').join(', ')})`); profParams.push(...categories); }
+  // AYK-496: a request that carries only its service belongs to that service's profession.
+  if (categories.length) {
+    const marks = categories.map(() => '?').join(', ');
+    profParts.push(`(r.category_id IN (${marks}) OR (r.category_id IS NULL AND r.service_id IN (SELECT sv.id FROM services sv WHERE sv.category_id IN (${marks}))))`);
+    profParams.push(...categories, ...categories);
+  }
   if (services.length) { profParts.push(`r.service_id IN (${services.map(() => '?').join(', ')})`); profParams.push(...services); }
   return {
     prof: profParts.length ? `(${profParts.join(' OR ')})` : 'FALSE', profParams,
@@ -589,7 +611,7 @@ async function findBoard({ viewerId, asProvider = false, filterProfession = fals
   viewerId = Number(viewerId);
   // AYK-454 (the owner: «الطلب يظهر لصاحبه في الرئيسية… يشاهده الجميع بما فيهم صاحبه»): my own open
   // requests are on my board too, first.
-  const where = ['r.deleted_at IS NULL', "r.status = 'open'", 'r.hidden_at IS NULL'];
+  const where = ['r.deleted_at IS NULL', "r.status = 'open'", 'r.hidden_at IS NULL', `(r.client_id = ${Number(viewerId) || 0} OR ${LIVE_CLIENT})`];
   const params = [];
   where.push(asProvider ? '(r.direct_provider_id IS NULL OR r.direct_provider_id = ? OR r.client_id = ?)' : '(r.direct_provider_id IS NULL OR r.client_id = ?)');
   if (asProvider) params.push(viewerId, viewerId); else params.push(viewerId);
@@ -599,7 +621,7 @@ async function findBoard({ viewerId, asProvider = false, filterProfession = fals
   if (filterProfession) { where.push(prof); params.push(...profParams); }
   if (filterArea) { where.push(area); params.push(...areaParams); }
   const PREVIOUS = asProvider
-    ? `EXISTS (SELECT 1 FROM requests p WHERE p.client_id = r.client_id AND p.assigned_provider_id = ? AND p.id <> r.id
+    ? `r.client_id IN (SELECT p.client_id FROM requests p WHERE p.assigned_provider_id = ?
          AND p.status IN (${PREVIOUS_CLIENT_STATUSES}) AND p.deleted_at IS NULL)` : 'FALSE';
   const candidates = `SELECT r.id, r.is_urgent, r.created_at, CASE WHEN r.client_id = ${Number(viewerId) || 0} THEN 1 ELSE 0 END AS mine,
       CASE WHEN ${prof} THEN 1 ELSE 0 END AS prof_match, CASE WHEN ${area} THEN 1 ELSE 0 END AS area_match,
@@ -635,7 +657,7 @@ async function recentActivity({ viewerId = 0, asProvider = false, filterProfessi
   limit = Math.min(Math.max(Number(limit) || 20, 1), 50);
   days = Math.min(Math.max(Math.round(Number(days)) || 30, 1), 365);
   viewerId = Number(viewerId) || 0;
-  const where = ['r.deleted_at IS NULL', 'r.hidden_at IS NULL', 'r.direct_provider_id IS NULL', 'r.assigned_provider_id IS NOT NULL',
+  const where = ['r.deleted_at IS NULL', 'r.hidden_at IS NULL', 'r.direct_provider_id IS NULL', 'r.assigned_provider_id IS NOT NULL', LIVE_CLIENT,
     "r.status IN ('assigned', 'in_progress', 'completed', 'closed')", 'r.client_id <> ?'];
   const params = [viewerId];
   if (viewerId && (filterProfession || filterArea)) {

@@ -65,7 +65,7 @@ async function list({ status, page = 1, limit = 20 } = {}) {
      LEFT JOIN users ad ON d.assigned_admin_id = ad.id
      LEFT JOIN requests r ON d.request_id = r.id
      ${whereSql}
-     ORDER BY d.opened_at DESC LIMIT ? OFFSET ?`,
+     ORDER BY d.opened_at DESC, d.id DESC LIMIT ? OFFSET ?`,
     [...params, Number(limit), Number(offset)]
   );
   const [{ total }] = await query(

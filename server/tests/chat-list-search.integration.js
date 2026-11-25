@@ -88,7 +88,7 @@ test('counterfactual query without the added message predicate misses the histor
   const { createRequire } = require('node:module');
   const filename = require.resolve('../models/Conversation');
   const source = fs.readFileSync(filename, 'utf8');
-  const clause = 'OR EXISTS (SELECT 1 FROM messages matched_message WHERE matched_message.conversation_id = c.id AND matched_message.deleted_at IS NULL AND matched_message.content ILIKE ?) ';
+  const clause = 'OR EXISTS (SELECT 1 FROM messages matched_message WHERE matched_message.conversation_id = c.id AND matched_message.deleted_at IS NULL AND ${unhidden(\'matched_message\')} AND matched_message.content ILIKE ?) ';
   assert.equal(source.split(clause).length, 2, 'counterfactual must remove exactly the added predicate');
   assert.equal(source.split('Array(5).fill').length, 2);
   const context = { module: { exports: {} }, require: createRequire(filename) };

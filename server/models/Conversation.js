@@ -220,23 +220,25 @@ async function getContacts(userId) {
       AND ${requestPairSql('self')} AND ${requestPairSql('other')}`, [userId]);
 }
 
-async function listRows(userId, { page = 1, limit = 20, q = '', requestId = null, peerId = null, maxLimit = 100, withMessagesOnly = false } = {}) {
+async function listRows(userId, { page = 1, limit = 20, q = '', requestId = null, peerId = null, maxLimit = 100, withMessagesOnly = false, peek = false } = {}) {
   page = Math.max(1, Math.min(100000, Number.parseInt(page, 10) || 1));
   limit = Math.max(1, Math.min(maxLimit, Number.parseInt(limit, 10) || 20));
   const offset = (page - 1) * limit;
   const extra = [], extraParams = [];
+  // «Delete for me» (message_hidden) hides a message from this reader everywhere: the list, the preview, the count.
+  const unhidden = alias => `NOT EXISTS (SELECT 1 FROM message_hidden mh WHERE mh.message_id = ${alias}.id AND mh.user_id = ${Number(userId)})`;
   if (requestId) { extra.push('c.request_id = ?'); extraParams.push(Number(requestId)); }
   // AYK-423 (the owner: «في المحادثات أسماء بدون محادثات… إذا ما فيه محادثات ما تفتح محادثة فارغة»):
   // the chat list shows only conversations with at least one message; an opened but empty one
   // appears once someone writes in it.
-  if (withMessagesOnly) extra.push('EXISTS (SELECT 1 FROM messages any_message WHERE any_message.conversation_id = c.id AND any_message.deleted_at IS NULL)');
+  if (withMessagesOnly) extra.push(`EXISTS (SELECT 1 FROM messages any_message WHERE any_message.conversation_id = c.id AND any_message.deleted_at IS NULL AND ${unhidden('any_message')})`);
   if (peerId) { extra.push('EXISTS (SELECT 1 FROM conversation_participants peer WHERE peer.conversation_id = c.id AND peer.user_id = ?)'); extraParams.push(Number(peerId)); }
   if (q) {
-    extra.push(`(r.title ILIKE ? OR EXISTS (SELECT 1 FROM messages matched_message WHERE matched_message.conversation_id = c.id AND matched_message.deleted_at IS NULL AND matched_message.content ILIKE ?) OR EXISTS (SELECT 1 FROM conversation_participants peer JOIN users person ON person.id = peer.user_id
+    extra.push(`(r.title ILIKE ? OR EXISTS (SELECT 1 FROM messages matched_message WHERE matched_message.conversation_id = c.id AND matched_message.deleted_at IS NULL AND ${unhidden('matched_message')} AND matched_message.content ILIKE ?) OR EXISTS (SELECT 1 FROM conversation_participants peer JOIN users person ON person.id = peer.user_id
       LEFT JOIN saved_providers saved ON saved.user_id = cp.user_id AND saved.provider_id = person.id
       WHERE peer.conversation_id = c.id AND peer.user_id <> cp.user_id AND
       (person.referral_code ILIKE ? OR saved.nickname ILIKE ? OR (person.role <> 'client' AND person.full_name ILIKE ?))))`);
-    extraParams.push(...Array(5).fill(`%${q}%`));
+    extraParams.push(...Array(5).fill(`%${String(q).replace(/[\\%_]/g, ch => `\\${ch}`)}%`)); // «%» and «_» typed by the person are letters, not wildcards (AYK-496)
   }
   return query(
     `SELECT c.id, c.request_id, c.last_message_id, c.last_message_at, ${writableConversationSql()} AS can_send,
@@ -244,19 +246,22 @@ async function listRows(userId, { page = 1, limit = 20, q = '', requestId = null
             ${writableConversationSql(true)} AS can_share_location,
             r.title AS request_title, r.status AS request_status,
             (SELECT COUNT(*) FROM messages m
-              WHERE m.conversation_id = c.id AND m.sender_id != ? AND m.is_read = 0 AND m.deleted_at IS NULL) AS unread_count,
+              WHERE m.conversation_id = c.id AND m.sender_id != ? AND m.is_read = 0 AND m.deleted_at IS NULL AND ${unhidden('m')}) AS unread_count,
             (SELECT JSON_OBJECT('id', u2.id, 'full_name', u2.full_name, 'avatar', u2.avatar, 'is_online', CASE WHEN u2.is_online = 1 OR u2.last_seen_at > CURRENT_TIMESTAMP - INTERVAL '2 minutes' THEN 1 ELSE 0 END, 'last_seen_at', u2.last_seen_at, 'referral_code', u2.referral_code, 'role', u2.role)
              FROM conversation_participants cp2
              JOIN users u2 ON cp2.user_id = u2.id
              WHERE cp2.conversation_id = c.id AND cp2.user_id != ? LIMIT 1) AS other_user,
             (SELECT JSON_OBJECT('content', m.content, 'message_type', m.message_type, 'created_at', m.created_at, 'sender_id', m.sender_id)
-              FROM messages m WHERE m.id = c.last_message_id AND m.deleted_at IS NULL) AS last_message
+              FROM messages m WHERE m.conversation_id = c.id AND m.deleted_at IS NULL AND ${unhidden('m')} ORDER BY m.id DESC LIMIT 1) AS last_message
      FROM conversations c
      JOIN conversation_participants cp ON cp.conversation_id = c.id
      JOIN users self_user ON self_user.id = cp.user_id
      LEFT JOIN requests r ON c.request_id = r.id
       WHERE cp.user_id = ? AND self_user.deleted_at IS NULL AND self_user.is_active = 1 AND self_user.is_blocked = 0
         AND ${requestPairSql()}
+        -- AYK-496: a chat with an account that was deleted, blocked or turned off is not listed (as in the contacts).
+        AND EXISTS (SELECT 1 FROM conversation_participants live_op JOIN users live_ou ON live_ou.id = live_op.user_id
+          WHERE live_op.conversation_id = c.id AND live_op.user_id <> cp.user_id AND live_ou.deleted_at IS NULL AND live_ou.is_active = 1 AND live_ou.is_blocked = 0)
         -- The provider's side: a task given to someone else leaves the list a day later (AYK-041);
         -- a finished one stays while its two sides can still write (AYK-081).
         AND (r.id IS NULL OR r.client_id = ? OR NOT (
@@ -266,7 +271,7 @@ async function listRows(userId, { page = 1, limit = 20, q = '', requestId = null
      ${extra.length ? 'AND ' + extra.join(' AND ') : ''}
      ORDER BY COALESCE(cp.is_favorite, 0) DESC, c.last_message_at DESC NULLS LAST, c.created_at DESC, c.id DESC
      LIMIT ? OFFSET ?`,
-    [userId, userId, userId, userId, userId, ...extraParams, Number(limit), Number(offset)]
+    [userId, userId, userId, userId, userId, ...extraParams, Number(limit) + (peek ? 1 : 0), Number(offset)]
   );
 }
 
@@ -279,8 +284,13 @@ const otherOf = row => {
   if (typeof other === 'string') { try { other = JSON.parse(other); } catch (_) { other = null; } }
   return other && other.id != null ? Number(other.id) : null;
 };
-async function listForUser(userId, { page = 1, limit = 20, q = '', requestId = null, peerId = null, merge = true, withMessagesOnly = false } = {}) {
-  if (!merge || requestId) return listRows(userId, { page, limit, q, requestId, peerId, withMessagesOnly });
+async function listForUser(userId, { page = 1, limit = 20, q = '', requestId = null, peerId = null, merge = true, withMessagesOnly = false, archived = null } = {}) {
+  if (!merge || requestId) {
+    const rows = await listRows(userId, { page, limit, q, requestId, peerId, withMessagesOnly, peek: true });
+    const size = Math.max(1, Math.min(100, Number.parseInt(limit, 10) || 20));
+    const items = rows.slice(0, size); items.hasNext = rows.length > size; // AYK-496: the page says whether another follows
+    return items;
+  }
   page = Math.max(1, Math.min(100000, Number.parseInt(page, 10) || 1));
   limit = Math.max(1, Math.min(100, Number.parseInt(limit, 10) || 20));
   const rows = await listRows(userId, { page: 1, limit: 1000, q, peerId, maxLimit: 1000, withMessagesOnly });
@@ -309,7 +319,11 @@ async function listForUser(userId, { page = 1, limit = 20, q = '', requestId = n
     };
   });
   merged.sort((a, b) => (b.is_favorite - a.is_favorite) || (new Date(b.last_message_at || 0) - new Date(a.last_message_at || 0)) || (b.id - a.id));
-  return merged.slice((page - 1) * limit, page * limit);
+  // The chat list's «active» and «archive» tabs are cut here, before the page, so each page of a tab is full.
+  const tab = archived === null ? merged : merged.filter(row => row.archived === archived);
+  const items = tab.slice((page - 1) * limit, page * limit);
+  items.hasNext = tab.length > page * limit; // AYK-496: the page says whether another follows
+  return items;
 }
 
 // AYK-365: every conversation this user can open with the other person of `conversationId`

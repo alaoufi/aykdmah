@@ -232,12 +232,17 @@ const guestView = (req, row) => (req.user ? row : { ...row, client_avatar: null 
 // signed-in service provider (any profession), and only them (the owner's decision: «بيانات التواصل
 // لطالب الخدمة لا تظهر إلا لمقدم الخدمة»). Only on an open request, never to the requester themself.
 // (AYK-438 fixed: before, only a provider whose profession matched the request saw them.)
+// AYK-493 (the owner: «الأصل لا يسمح له يفتح المحادثة أو التواصل، قراءة فقط بدون رابط تواصل»): the contact
+// details and the contact buttons go only to a provider of the request's profession, inside his coverage, and
+// not blocked by its owner; any other provider reads the request and gets no way to reach its owner.
 async function providerCategoryIds(req) {
-  return req.user?.role === 'provider' ? true : null;
+  return req.user?.role === 'provider' ? require('../services/requestEligibility').loadReach(req.user.id) : null;
 }
-function withContact(req, raw, view, isProvider) {
-  if (isProvider !== true || !raw || raw.status !== 'open' || Number(raw.client_id) === Number(req.user?.id)) return view;
-  const out = { ...view };
+function withContact(req, raw, view, reach) {
+  if (!reach || !raw || Number(raw.client_id) === Number(req.user?.id)) return view;
+  if (raw.status !== 'open') return view;
+  if (require('../services/requestEligibility').judge(reach, raw)) return { ...view, can_contact: false };
+  const out = { ...view, can_contact: true };
   if (raw.client_contact_phone) out.client_contact_phone = raw.client_contact_phone;
   if (raw.client_contact_whatsapp) out.client_contact_whatsapp = raw.client_contact_whatsapp;
   if (raw.client_contact_name) out.client_contact_name = raw.client_contact_name;
@@ -273,7 +278,7 @@ const getTranslation = asyncHandler(async (req, res) => {
   if (!validId(req.params.id)) return notFound(res);
   const request = await Request.findById(req.params.id);
   if (!request) return notFound(res);
-  if (!privateAccess(req.user, request) && (request.status !== 'open' || request.direct_provider_id)) return notFound(res);
+  if (!privateAccess(req.user, request) && (request.status !== 'open' || request.direct_provider_id || request.hidden_at)) return notFound(res);
   const lang = readerLang(req) || 'ar';
   if (!translationService.SUPPORTED.includes(lang)) return error(res, req.t('invalid_data'), 422);
   return success(res, await requestTranslation.translationFor(request, lang));
@@ -346,6 +351,8 @@ const contact = asyncHandler(async (req, res) => {
   if (!owner && req.user.role !== 'provider') return forbidden(res, req.t('deny_providers_only'));
   if (!Number.isSafeInteger(providerId) || providerId < 1) return error(res, req.t('invalid_data'));
   if (request.direct_provider_id && providerId !== Number(request.direct_provider_id)) return forbidden(res, req.t('deny_direct_request'));
+  // AYK-490: any open request may be looked at, but only a provider of its profession and inside his coverage writes to its owner.
+  if (!owner && await require('../services/requestEligibility').refuseProviderContact(req, res, request, providerId)) return undefined;
   // A provider starting the contact needs a subscription where one applies (AYK-042);
   // a requester contacting a provider is never stopped.
   if (!owner && await require('../services/subscriptionRules').blocks(providerId, { categoryId: request.category_id, cityId: request.city_id })) {

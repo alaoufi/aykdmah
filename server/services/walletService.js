@@ -25,8 +25,7 @@ const ATTEMPTS_PER_TIER = 25;
 const IBAN_RE = /^SA\d{22}$/;
 
 function fail(status, code) { return Object.assign(new Error(code), { status, code }); }
-const toHalalas = value => Math.round(Number(value) * 100);
-const toSar = halalas => Number((halalas / 100).toFixed(2));
+const { toHalalas, toSar, percentOf } = require('../utils/money');
 
 function randomCode(digits) {
   let code = String(1 + crypto.randomInt(9)); // never a leading zero
@@ -200,7 +199,7 @@ async function awardReferralIn(conn, payment) {
   const [existing] = await conn.execute('SELECT id FROM referral_rewards WHERE referred_user_id = ?', [payment.user_id]);
   if (existing.length) return null;
   const percent = cfg.mode === 'percent' ? cfg.percent : 0;
-  const halalas = cfg.mode === 'percent' ? Math.floor(toHalalas(payment.amount) * percent / 100) : cfg.subscriptionAmount;
+  const halalas = cfg.mode === 'percent' ? percentOf(toHalalas(payment.amount), percent) : cfg.subscriptionAmount;
   if (halalas <= 0) return null;
   await conn.execute('SELECT id FROM users WHERE id = ? FOR UPDATE', [referrerId]);
   const txId = await insertTx(conn, {
@@ -541,7 +540,7 @@ async function adminMarketers({ search = '' } = {}) {
   if (text) {
     const digits = text.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/\D/g, '').replace(/^(00)?966/, '0');
     where.push(`(lower(u.full_name) LIKE ? OR u.referral_code = ?${digits.length >= 3 ? " OR regexp_replace(COALESCE(u.phone, ''), '\\D', '', 'g') LIKE ?" : ''})`);
-    params.push(`%${text.toLowerCase()}%`, text.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
+    params.push(`%${require('../utils/searchFold').likeEscape(text.toLowerCase())}%`, text.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)));
     if (digits.length >= 3) params.push(`%${digits.replace(/^0/, '')}%`);
   }
   const rows = await query(`SELECT u.id, u.full_name, u.phone, u.referral_code, u.role,

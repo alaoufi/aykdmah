@@ -4,7 +4,11 @@ function ts() {
   return new Date().toISOString();
 }
 
+// Line breaks in user-supplied text could forge extra log lines (CodeQL js/log-injection, AYK-500).
+const oneLine = text => text.replace(/[\r\n\u2028\u2029]+/g, ' \u23ce ');
+
 function safe(arg) {
+  if (typeof arg === 'string') return oneLine(arg);
   if (arg instanceof Error) return env.NODE_ENV === 'production'
     ? { name: arg.name, code: arg.code || null, status: arg.status || null }
     : arg.stack || arg.message;
@@ -17,7 +21,7 @@ function safe(arg) {
         return value;
       });
     } catch (_) {
-      return String(arg);
+      return oneLine(String(arg));
     }
   }
   return arg;

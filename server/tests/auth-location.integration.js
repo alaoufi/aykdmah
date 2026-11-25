@@ -1117,6 +1117,7 @@ if (!databasePrefix) {
     const makeProvider = async serviceId => {
       const session = await simpleRegister({ role: 'client', latitude: undefined, longitude: undefined });
       await api('/users/me/role', { method: 'PUT', token: session.token, body: { role: 'provider', quick: true, service_ids: [Number(serviceId)] } });
+      await db.query('UPDATE users SET city_id = ?, district_id = ? WHERE id = ?', [area.city_id, area.district_id, session.user.id]); // inside the request's area
       return session;
     };
     const same = await makeProvider(svc.id);
@@ -1136,14 +1137,14 @@ if (!databasePrefix) {
     assert.equal(shown.whatsapp, owner.user.phone, 'WhatsApp defaults to the phone');
     const listed = (await api('/requests/nearby?limit=100&scope=all', { token: same.token })).find(row => Number(row.id) === id);
     if (listed) assert.equal(listed.client_contact_phone, owner.user.phone);
-    // AYK-438: «لمقدمي الخدمة» means every provider (before, only the request's profession saw them).
-    assert.equal((await seenBy(other.token)).phone, owner.user.phone, 'a provider of another profession sees it too');
+    // AYK-493 (reverses AYK-438): only a provider of the request's profession (inside his coverage) gets them.
+    assert.equal((await seenBy(other.token)).phone, null, 'a provider of another profession only reads the request');
     assert.deepEqual(await seenBy(null), { phone: null, whatsapp: null }, 'level 1: a visitor sees nothing');
     const requester = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
     assert.deepEqual(await seenBy(requester.token), { phone: null, whatsapp: null }, 'level 1: another requester sees nothing');
     // AYK-439: only service providers, never visitors or other requesters; no «everyone» level.
     await api('/users/me', { method: 'PUT', token: owner.token, body: { share_name: 1 } });
-    assert.ok((await seenBy(other.token)).name, 'the name reaches providers');
+    assert.ok((await seenBy(same.token)).name, 'the name reaches providers who may contact');
     assert.deepEqual(await seenBy(null), { phone: null, whatsapp: null }, 'never a visitor');
     await api('/users/me', { method: 'PUT', token: owner.token, body: { share_phone: 2 }, expected: 400 });
     const flag = async token => Number((token ? await api(`/requests/${id}`, { token }) : (await fetch(`${base}/requests/${id}`).then(r => r.json())).data).client_allow_share);
@@ -1586,6 +1587,164 @@ if (!databasePrefix) {
     assert.ok(await told(chosen), 'a paused provider who chose to be told is told');
     assert.ok(!await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_new'", [resting.user.id]), 'a paused provider who did not choose is not told');
     assert.ok(!await db.queryOne("SELECT id FROM notifications WHERE user_id = ? AND type = 'request_new'", [mutedAway.user.id]), 'turning the notices off wins');
+  });
+
+  test('AYK-488: «أعمالي» and «طلباتي» hold only what is the account\'s own; a bare tap on a request is not a task', async () => {
+    const area = await simpleArea();
+    const service = await db.queryOne('SELECT id, category_id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    const make = () => simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id, service_ids: [Number(service.id)], coverage_district_ids: [area.district_id] });
+    const tapper = await make(); const worker = await make(); const stranger = await make();
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const other = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const post = async client => Number((await api('/requests', { method: 'POST', token: client.token, expected: 201, body: { title: 'طلب للاختبار', description: 'اختبار أعمالي', category_id: service.category_id } })).id);
+    const mine = await post(owner); const notMine = await post(other);
+    const ids = list => (Array.isArray(list) ? list : []).map(item => Number(item.request_id ?? item.id));
+    // «طلباتي»: only the account's own requests, whoever else posted and whatever the account contacted.
+    assert.deepEqual(ids(await api('/requests/my?scope=active&limit=50', { token: owner.token })), [mine]);
+    assert.deepEqual(ids(await api('/requests/my?scope=active&limit=50', { token: other.token })), [notMine]);
+    assert.deepEqual(ids(await api('/requests/my?scope=active&limit=50', { token: tapper.token })), []);
+    // A provider taps both requests: the chat opens (a contact), but «أعمالي» stays empty.
+    await api(`/requests/${mine}/contact`, { method: 'POST', token: tapper.token });
+    await api(`/requests/${notMine}/contact`, { method: 'POST', token: tapper.token });
+    assert.deepEqual(ids(await api('/offers/my?scope=active&limit=50', { token: tapper.token })), [], 'only looked: not a task');
+    assert.deepEqual(ids(await api('/requests/my?scope=active&limit=50', { token: tapper.token })), [], 'and not his request');
+    // Another provider writes to the requester: that request is his task, and only that one.
+    const opened = await api(`/requests/${mine}/contact`, { method: 'POST', token: worker.token });
+    await api(`/chat/conversations/${opened.conversation_id}/messages`, { method: 'POST', token: worker.token, expected: 201, body: { content: 'السلام عليكم، أنا جاهز للعمل' } });
+    assert.deepEqual(ids(await api('/offers/my?scope=active&limit=50', { token: worker.token })), [mine]);
+    assert.deepEqual(ids(await api('/offers/my?scope=active&limit=50', { token: stranger.token })), [], 'a provider who did nothing has nothing');
+    assert.deepEqual(ids(await api('/offers/my?scope=active&limit=50', { token: tapper.token })), [], 'the tapper still has nothing');
+  });
+
+  test('AYK-489: a hidden request gives no text through the translation link; the area counts leave out private direct requests', async () => {
+    const area = await simpleArea();
+    const service = await db.queryOne('SELECT id, category_id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const provider = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id, service_ids: [Number(service.id)], coverage_district_ids: [area.district_id] });
+    const post = async () => Number((await api('/requests', { method: 'POST', token: owner.token, expected: 201, body: { title: 'طلب مخفي للاختبار', description: 'اختبار الترجمة', category_id: service.category_id } })).id);
+    const id = await post();
+    await api(`/requests/${id}/translation?lang=en`, { expected: 200 });
+    await db.query('UPDATE requests SET hidden_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
+    await api(`/requests/${id}/translation?lang=en`, { expected: 404 });
+    await api(`/requests/${id}`, { expected: 404 });
+    // A request sent to one provider only is not counted for everyone.
+    const before = Number((await api(`/providers/my-market`, { token: provider.token })).categories?.find(c => Number(c.category_id) === Number(service.category_id))?.open_now || 0);
+    const direct = await post();
+    await db.query('UPDATE requests SET direct_provider_id = ? WHERE id = ?', [Number(provider.user.id) + 100000, direct]);
+    const after = Number((await api(`/providers/my-market`, { token: provider.token })).categories?.find(c => Number(c.category_id) === Number(service.category_id))?.open_now || 0);
+    assert.equal(after, before, 'a private direct request is not an open one for the others');
+  });
+
+  test('AYK-490: any provider may look at an open request, but only one of its profession and inside his coverage may contact its owner', async () => {
+    const area = await simpleArea();
+    const services = await db.query('SELECT DISTINCT ON (category_id) id, category_id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY category_id, id LIMIT 2');
+    assert.equal(services.length, 2);
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const request = Number((await api('/requests', { method: 'POST', token: owner.token, expected: 201, body: { title: 'طلب للتواصل', description: 'اختبار شرط التواصل', category_id: services[0].category_id } })).id);
+    const make = (service, districts) => simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id, service_ids: [Number(service.id)], coverage_district_ids: districts });
+    const fits = await make(services[0], [area.district_id]);
+    const wrongJob = await make(services[1], [area.district_id]);
+    // He may look at it.
+    await api(`/requests/${request}`, { token: wrongJob.token, expected: 200 });
+    // …but is given no way to reach its owner: no contact numbers, and the page says so (can_contact).
+    await api(`/requests/${request}`, { token: wrongJob.token, expected: 200 }).then(view => { assert.equal(view.can_contact, false); assert.equal(view.client_contact_phone, undefined); });
+    assert.equal((await api(`/requests/${request}`, { token: fits.token })).can_contact, true);
+    const row = list => list.find(item => Number(item.id) === Number(request));
+    assert.equal(row(await api('/requests/nearby?limit=50', { token: wrongJob.token })).can_contact, false);
+    // …but not write to its owner, and the reason is told.
+    const say = async token => (await (await fetch(`${base}/requests/${request}/contact`, { method: 'POST', headers: { Authorization: `Bearer ${token}` } })).json());
+    const refused = await say(wrongJob.token);
+    assert.equal(refused.success, false);
+    assert.match(refused.message, /مهنتك/);
+    await api('/offers', { method: 'POST', token: wrongJob.token, expected: 403, body: { request_id: request, price: 100, message: 'عرض' } });
+    // Outside his coverage: another district of the city when he covers only one far from the request's.
+    const other = area.districts.find(id => Number(id) !== Number(area.district_id));
+    if (other) {
+      const wrongArea = await make(services[0], [other]);
+      const why = await say(wrongArea.token);
+      assert.match(why.message, /تغطيتك/);
+    }
+    // Opening a chat about the request by the back door is refused the same way.
+    await api('/chat/conversations', { method: 'POST', token: wrongJob.token, expected: 403, body: { user_id: owner.user.id, request_id: request } });
+    // A provider the requester blocked is refused, in his profession and area as he is.
+    const blocked = await make(services[0], [area.district_id]);
+    await api(`/users/me/blocks/${blocked.user.id}`, { method: 'POST', token: owner.token, expected: 200 });
+    await api(`/requests/${request}/contact`, { method: 'POST', token: blocked.token, expected: 403 });
+    await api('/offers', { method: 'POST', token: blocked.token, expected: 403, body: { request_id: request, price: 100, message: 'عرض' } });
+    await api('/chat/conversations', { method: 'POST', token: blocked.token, expected: 403, body: { user_id: owner.user.id, request_id: request } });
+    // His own profession and area: allowed.
+    await api(`/requests/${request}/contact`, { method: 'POST', token: fits.token, expected: 200 });
+  });
+
+  test('AYK-491: a hidden provider has no public page; «delete for me» leaves the unread count and the preview; the chat tabs are cut by the server', async () => {
+    const area = await simpleArea();
+    const service = await db.queryOne('SELECT id, category_id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    const owner = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const provider = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id, service_ids: [Number(service.id)], coverage_district_ids: [area.district_id] });
+    await api(`/users/${provider.user.id}`, { expected: 200 });
+    await db.query('UPDATE provider_profiles SET hidden_at = CURRENT_TIMESTAMP WHERE user_id = ?', [provider.user.id]);
+    await api(`/users/${provider.user.id}`, { expected: 404 });
+    await api(`/users/${provider.user.id}`, { token: provider.token, expected: 200 });
+    await db.query('UPDATE provider_profiles SET hidden_at = NULL WHERE user_id = ?', [provider.user.id]);
+    // A chat with two messages from the provider; the owner deletes one for himself.
+    const request = Number((await api('/requests', { method: 'POST', token: owner.token, expected: 201, body: { title: 'طلب للمحادثة', description: 'اختبار الحذف لي', category_id: service.category_id } })).id);
+    const opened = await api(`/requests/${request}/contact`, { method: 'POST', token: provider.token });
+    for (const content of ['الأولى', 'الثانية']) await api(`/chat/conversations/${opened.conversation_id}/messages`, { method: 'POST', token: provider.token, expected: 201, body: { content } });
+    const mine = async query => (await api(`/chat/conversations${query}`, { token: owner.token })).find(c => Number(c.id) === Number(opened.conversation_id));
+    assert.equal(Number((await mine('')).unread_count), 2);
+    const messages = await db.query('SELECT id FROM messages WHERE conversation_id = ? ORDER BY id', [opened.conversation_id]);
+    await db.query('INSERT INTO message_hidden (message_id, user_id) VALUES (?, ?)', [messages[1].id, owner.user.id]);
+    const after = await mine('');
+    assert.equal(Number(after.unread_count), 1, 'a message deleted for me is not unread');
+    assert.match(JSON.stringify(after.last_message), /الأولى/, 'and not the preview');
+    assert.ok(await mine('?archived=0'), 'the active tab holds the open chat');
+    assert.equal(await mine('?archived=1'), undefined, 'and the archive tab does not');
+  });
+
+  test('AYK-494: a provider who needs a subscription where he works and has none is left out of the list and the map, judged by his own city', async () => {
+    const Setting = require('../models/Setting');
+    const area = await simpleArea();
+    const service = await db.queryOne('SELECT id, category_id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    const provider = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id, service_ids: [Number(service.id)], coverage_district_ids: [area.district_id] });
+    const requester = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const listed = async () => (await api(`/providers/matching?scope=all&category_id=${service.category_id}`, { token: requester.token })).providers.some(p => Number(p.id) === Number(provider.user.id));
+    const before = await Setting.get('subscriptions_enabled', '0');
+    const rule = (await db.queryOne('INSERT INTO subscription_rules (city_id, category_id, is_free, is_active) VALUES (?, ?, 0, 1) RETURNING id', [area.city_id, service.category_id])).id;
+    try {
+      await Setting.set('subscriptions_enabled', '1');
+      assert.equal(await listed(), false, 'needs a subscription in his own city and has none');
+      assert.equal(await (async () => (await fetch(`${base}/providers/matching?scope=all&category_id=${service.category_id}`).then(r => r.json())).data.providers.some(p => Number(p.id) === Number(provider.user.id)))(), false, 'a visitor sees the same list');
+    } finally {
+      await Setting.set('subscriptions_enabled', String(before || '0'));
+      await db.query('DELETE FROM subscription_rules WHERE id = ?', [rule]);
+    }
+    assert.equal(await listed(), true, 'with the rule off he is listed');
+  });
+
+  test('AYK-496: requests of a deleted or blocked account are not listed; a chat with one is not listed; the chat list says whether a next page exists', async () => {
+    const area = await simpleArea();
+    const service = await db.queryOne('SELECT id, category_id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    const make = () => simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const owner = await make(); const watcher = await make();
+    const provider = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id, service_ids: [Number(service.id)], coverage_district_ids: [area.district_id] });
+    const post = async client => Number((await api('/requests', { method: 'POST', token: client.token, expected: 201, body: { title: 'طلب حساب سيحذف', description: 'اختبار القوائم', category_id: service.category_id } })).id);
+    const id = await post(owner);
+    const listed = async () => (await api('/requests/nearby?limit=100')).some(r => Number(r.id) === id);
+    assert.equal(await listed(), true);
+    // a chat with the owner (the provider writes to him)
+    const chat = await api(`/requests/${id}/contact`, { method: 'POST', token: provider.token });
+    await api(`/chat/conversations/${chat.conversation_id}/messages`, { method: 'POST', token: provider.token, expected: 201, body: { content: 'السلام عليكم' } });
+    const chatPeers = async () => (await api('/chat/conversations', { token: provider.token })).map(c => Number((typeof c.other_user === 'string' ? JSON.parse(c.other_user) : c.other_user)?.id));
+    assert.ok((await chatPeers()).includes(Number(owner.user.id)));
+    // the page says whether another follows
+    const response = await fetch(`${base}/chat/conversations?limit=1`, { headers: { Authorization: `Bearer ${provider.token}` } });
+    assert.equal((await response.json()).meta.pagination.hasNext, false);
+    await db.query('UPDATE users SET is_blocked = 1 WHERE id = ?', [owner.user.id]);
+    assert.equal(await listed(), false, 'a blocked account\'s request is not offered');
+    assert.ok(!(await chatPeers()).includes(Number(owner.user.id)), 'and its chat is not listed');
+    await db.query('UPDATE users SET is_blocked = 0, deleted_at = CURRENT_TIMESTAMP WHERE id = ?', [owner.user.id]);
+    assert.equal(await listed(), false, 'a deleted account\'s request is not offered');
+    assert.ok(watcher.token);
   });
 
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {

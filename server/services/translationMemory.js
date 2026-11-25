@@ -7,7 +7,11 @@ const crypto = require('crypto');
 const { query, queryOne } = require('../config/database');
 const logger = require('../utils/logger');
 
-const MAX_KEPT = 300;
+// AYK-495: longer sentences are kept too (was 300), and the ones asked for most are answered from this process's memory.
+const MAX_KEPT = 1000;
+const hot = new Map();
+const HOT_MAX = 3000, HOT_TTL = 30 * 60 * 1000;
+const hotKey = (text, target) => `${target}\u0000${normalize(text)}`;
 // Microsoft's free tier (F0) translates 2 million characters a month.
 const FREE_MONTHLY_CHARS = 2000000;
 
@@ -18,14 +22,19 @@ const monthNow = () => new Date().toISOString().slice(0, 7);
 
 async function recall(text, target) {
   if (String(text).length > MAX_KEPT) return null;
+  const warm = hot.get(hotKey(text, target));
+  if (warm && Date.now() - warm.at < HOT_TTL) return warm.value;
   try {
     const row = await queryOne('SELECT id, source_lang, translated_text, same_language FROM translation_memory WHERE source_hash = ? AND target_lang = ?', [hashOf(text), target]);
     if (!row) return null;
     query('UPDATE translation_memory SET hits = hits + 1, last_used_at = CURRENT_TIMESTAMP WHERE id = ?', [row.id]).catch(() => {});
     count('memory', String(text).length).catch(() => {});
-    return Number(row.same_language)
+    const found = Number(row.same_language)
       ? { text, provider: 'noop', from: row.source_lang || null }
       : { text: row.translated_text, provider: 'memory', from: row.source_lang || null };
+    if (hot.size >= HOT_MAX) hot.delete(hot.keys().next().value);
+    hot.set(hotKey(text, target), { value: found, at: Date.now() });
+    return found;
   } catch (err) {
     logger.warn('Translation memory read failed:', err.message);
     return null;
@@ -98,4 +107,7 @@ async function summary() {
   };
 }
 
-module.exports = { recall, remember, countPaid, quotaExhausted, summary, hashOf, FREE_MONTHLY_CHARS };
+// Characters sent to another paid or free-tier translator, for the admin's usage figures.
+const countProvider = (provider, chars) => count(provider, chars).catch(() => {});
+
+module.exports = { recall, remember, countProvider, countPaid, quotaExhausted, summary, hashOf, FREE_MONTHLY_CHARS };

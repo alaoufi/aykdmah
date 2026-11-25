@@ -1,6 +1,8 @@
 import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { useInRouterContext, useLocation } from 'react-router-dom';
 import { getToken, setToken, tokenKey, isAdminScope, TOKEN_CHANGE_EVENT } from '../services/api';
+import { forgetBoards } from '../utils/boardCache';
+import { forgetNearbyAsked } from '../services/requestService';
 import { me, takeEarlyMe, login as loginApi, logout as logoutApi, register as registerApi } from '../services/authService';
 import { detachPush } from '../services/pushService';
 import i18n, { SUPPORTED_LANG_CODES } from '../i18n';
@@ -123,6 +125,7 @@ export function AuthProvider({ children }) {
 
   const login = async (creds) => {
     const data = await loginApi(creds);
+    forgetBoards(); forgetNearbyAsked();
     applyAccountLanguage(data.user); // at once, with the sign-in's own answer
     setUser(data.user);
     setProvider(data.provider || null);
@@ -133,6 +136,7 @@ export function AuthProvider({ children }) {
 
   const register = async (payload) => {
     const data = await registerApi(payload);
+    forgetBoards(); forgetNearbyAsked();
     setUser(data.user);
     setProvider(data.provider || null);
     setLoading(false);
@@ -148,6 +152,8 @@ export function AuthProvider({ children }) {
       try { localStorage.removeItem('ayk_browse_area'); } catch (_) { /* private mode */ }
     }
     ++refreshVersion.current;
+    forgetBoards(); forgetNearbyAsked();
+    try { localStorage.removeItem('ayk_home_tab'); } catch (_) { /* private mode */ }
     setUser(null);
     setProvider(null);
     await logoutApi();

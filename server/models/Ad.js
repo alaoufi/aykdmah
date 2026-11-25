@@ -43,7 +43,7 @@ async function findById(id) {
 
 async function listForUser(userId) {
   const rows = await query(
-    `SELECT ${SELECT} ${FROM} WHERE a.user_id = ? ORDER BY a.created_at DESC`,
+    `SELECT ${SELECT} ${FROM} WHERE a.user_id = ? ORDER BY a.created_at DESC, a.id DESC`,
     [userId]
   );
   return rows.map(parseRow);
@@ -283,7 +283,7 @@ async function withAdminMessages(ads) {
     rows = await query(
       `SELECT m.id, m.ad_id, m.category, m.message, m.created_at, u.full_name AS admin_name
        FROM ad_admin_messages m LEFT JOIN users u ON u.id = m.admin_id
-       WHERE m.ad_id IN (${ids.map(() => '?').join(',')}) ORDER BY m.created_at DESC`, ids);
+       WHERE m.ad_id IN (${ids.map(() => '?').join(',')}) ORDER BY m.created_at DESC, m.id DESC`, ids);
   } catch (_) { return ads; /* before migration 069 */ }
   for (const ad of ads) ad.admin_messages = rows.filter(r => r.ad_id === ad.id);
   return ads;

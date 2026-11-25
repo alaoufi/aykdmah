@@ -1,4 +1,5 @@
 const { query } = require('../config/database');
+const { serviceIdsOf } = require('../services/categoryServices');
 const { success, error } = require('../utils/apiResponse');
 const asyncHandler = require('../utils/asyncHandler');
 const { distanceKm, isValidLatLng } = require('../services/geoService');
@@ -46,7 +47,7 @@ const nearby = asyncHandler(async (req, res) => {
 
   const rows = await query(`
     SELECT u.id, u.full_name, u.avatar, u.is_verified, CASE WHEN u.is_online = 1 OR u.last_seen_at > CURRENT_TIMESTAMP - INTERVAL '2 minutes' THEN 1 ELSE 0 END AS is_online, u.last_seen_at, ${ALERTS_OK_SQL},
-           pp.business_name, pp.category_id, pp.service_ids, pp.service_radius_km, ${BIO_SQL},
+           pp.business_name, pp.category_id, pp.service_ids, pp.service_radius_km, ${BIO_SQL}, COALESCE(pp.coverage_city_id, u.city_id) AS provider_city_id,
            pp.rating_avg, pp.rating_count, pp.completed_orders,
            pp.location_mode,
            pp.show_location_on_map, pp.fixed_latitude, pp.fixed_longitude,
@@ -65,19 +66,22 @@ const nearby = asyncHandler(async (req, res) => {
       -- AYK-254: only providers whose shown point (their own, or their city's) can lie inside the
       -- circle are read; this used to read every provider in the country on each map view.
       AND ((pp.fixed_latitude BETWEEN ? AND ? AND pp.fixed_longitude BETWEEN ? AND ?)
-        OR (c.latitude BETWEEN ? AND ? AND c.longitude BETWEEN ? AND ?))`,
+        OR (c.latitude BETWEEN ? AND ? AND c.longitude BETWEEN ? AND ?))
+      AND u.id <> ?`, // a provider who is also a requester does not see his own pin
     (() => {
       const latSpan = radius / 110.5 + 0.05, lonSpan = radius / (111.3 * Math.max(0.05, Math.cos(lat * Math.PI / 180))) + 0.05;
       const box = [lat - latSpan, lat + latSpan, lon - lonSpan, lon + lonSpan];
-      return [...box, ...box];
+      return [...box, ...box, req.user?.id || 0];
     })());
   // A provider may work in several professions: match any of their services.
   const categoryServices = categoryId !== null
-    ? new Set((await query('SELECT id FROM services WHERE category_id = ?', [categoryId])).map(row => Number(row.id))) : null;
+    ? new Set(await serviceIdsOf(categoryId)) : null;
   const availableOnly = req.query.available === '1';
 
   const providers = [];
-  for (const row of rows) {
+  // AYK-494: the map keeps the subscription rules too (each provider judged by his own city).
+  const permitted = await require('../services/subscriptionRules').keepAllowed(rows, { cityId: null, cityOf: row => row.provider_city_id, categoryOf: row => categoryId || row.category_id });
+  for (const row of permitted) {
     if (serviceId !== null && !parseServiceIds(row.service_ids).includes(serviceId)) continue;
     if (categoryServices && Number(row.category_id) !== categoryId && !parseServiceIds(row.service_ids).some(id => categoryServices.has(id))) continue;
     const status = availability(row);
@@ -186,7 +190,7 @@ function coveringProviders({ districtId, cityId, regionId = null, everywhere = f
   const coverageParams = everywhere ? [] : regionId ? [...regionIds, ...regionIds] : [districtId || cityId, cityId];
   return query(`
     SELECT u.id, u.full_name, u.avatar, u.is_verified, CASE WHEN u.is_online = 1 OR u.last_seen_at > CURRENT_TIMESTAMP - INTERVAL '2 minutes' THEN 1 ELSE 0 END AS is_online, u.last_seen_at, ${ALERTS_OK_SQL},
-           pp.business_name, pp.category_id, pp.service_ids, ${BIO_SQL},
+           pp.business_name, pp.category_id, pp.service_ids, ${BIO_SQL}, COALESCE(pp.coverage_city_id, u.city_id) AS provider_city_id,
            u.phone, pp.show_phone, pp.whatsapp, pp.show_whatsapp,
            pp.rating_avg, pp.rating_count, pp.completed_orders,
            cat.name_ar AS category_name_ar, cat.name_en AS category_name_en, cat.name_translations AS category_name_translations,
@@ -228,8 +232,8 @@ const matching = asyncHandler(async (req, res) => {
   const pickedRegion = regionsPicked.length ? regionsPicked : null;
   if (!where.cityId && scope !== 'all' && !pickedRegion && req.query.board !== '1') return success(res, { area: null, scope, providers: [] });
   const categoryServices = categoryId !== null
-    ? new Set((await query('SELECT id FROM services WHERE category_id = ?', [categoryId])).map(row => Number(row.id)))
-    : manyCategories ? new Set((await query(`SELECT id FROM services WHERE category_id IN (${manyCategories.map(() => '?').join(', ')})`, manyCategories)).map(row => Number(row.id))) : null;
+    ? new Set(await serviceIdsOf(categoryId))
+    : manyCategories ? new Set(await serviceIdsOf(manyCategories)) : null;
   const list = async scope => listProviders(await coveringProviders({ ...scope, excludeId: req.user?.id || 0 }),
     { categoryId, categoryIds: manyCategories, serviceId, categoryServices, cityId: where.cityId, reader: readerOf(req) });
   let requestedCategories = [];
@@ -324,11 +328,13 @@ async function listProviders(rows, { categoryId, categoryIds = null, serviceId, 
       // Shown on the card: profession and district (AYK-041).
       category_name_ar: row.category_name_ar, category_name_en: row.category_name_en, category_name_translations: row.category_name_translations,
       district_name_ar: row.district_name_ar, district_name_en: row.district_name_en,
+      provider_city_id: row.provider_city_id,
     });
   }
   // Providers who need a subscription here and have none are not listed (AYK-042).
   const allowed = [...await require('../services/subscriptionRules').keepAllowed(providers, {
-    cityId, categoryOf: p => categoryId || p.category_id })];
+    cityId, cityOf: p => p.provider_city_id, categoryOf: p => categoryId || p.category_id })];
+  for (const p of allowed) delete p.provider_city_id;
   allowed.sort((a, b) => ((a.availability.state !== 'available') - (b.availability.state !== 'available'))
     || (b.is_featured - a.is_featured)
     || (b.rating_avg - a.rating_avg) || (b.rating_count - a.rating_count)
@@ -341,7 +347,7 @@ async function listProviders(rows, { categoryId, categoryIds = null, serviceId, 
 async function availableForRequest({ districtId, cityId, categoryId, serviceId, excludeId = 0 }) {
   if (!cityId) return [];
   const rows = await coveringProviders({ districtId: districtId || null, cityId, excludeId });
-  const categoryServices = categoryId ? new Set((await query('SELECT id FROM services WHERE category_id = ?', [categoryId])).map(row => Number(row.id))) : null;
+  const categoryServices = categoryId ? new Set(await serviceIdsOf(categoryId)) : null;
   const working = rows.filter(row => {
     const services = parseServiceIds(row.service_ids);
     // AYK-391: the profession decides; a specific service only when the request has no profession.
@@ -368,7 +374,9 @@ const areaStats = asyncHandler(async (req, res) => {
   const where = await resolveArea(req);
   if (where.invalid) return error(res, req.t ? req.t('invalid_data') : 'Invalid filter', 400);
   if (!where.cityId) return success(res, { area: null, categories: [], totals: null });
-  const [rows, byService] = await Promise.all([coveringProviders({ ...where, excludeId: req.user?.id || 0 }), serviceCategories()]);
+  const [covering, byService] = await Promise.all([coveringProviders({ ...where, excludeId: req.user?.id || 0 }), serviceCategories()]);
+  // AYK-494: the counts agree with the list: providers who need a subscription and have none are left out.
+  const rows = await require('../services/subscriptionRules').keepAllowed(covering, { cityId: where.cityId, cityOf: row => row.provider_city_id, categoryOf: row => row.category_id });
   const stats = new Map();
   const entry = id => { if (!stats.has(id)) stats.set(id, { category_id: id, providers: 0, available: 0, featured: 0, rated: 0, rating_sum: 0, open_requests: 0 }); return stats.get(id); };
   let available = 0;
@@ -385,7 +393,7 @@ const areaStats = asyncHandler(async (req, res) => {
   }
   const open = await query(`SELECT COALESCE(r.category_id, s.category_id) AS category_id, COUNT(*) AS n
     FROM requests r LEFT JOIN services s ON s.id = r.service_id
-    WHERE r.status = 'open' AND r.deleted_at IS NULL AND r.hidden_at IS NULL AND ${where.districtId ? 'r.district_id = ?' : 'r.city_id = ?'}
+    WHERE r.status = 'open' AND r.deleted_at IS NULL AND r.hidden_at IS NULL AND r.direct_provider_id IS NULL AND EXISTS (SELECT 1 FROM users cu WHERE cu.id = r.client_id AND cu.deleted_at IS NULL AND cu.is_active = 1 AND cu.is_blocked = 0) AND ${where.districtId ? 'r.district_id = ?' : 'r.city_id = ?'}
     GROUP BY COALESCE(r.category_id, s.category_id)`, [where.districtId || where.cityId]);
   for (const row of open) if (row.category_id) entry(Number(row.category_id)).open_requests = Number(row.n);
   const categories = [...stats.values()].map(({ rated, rating_sum, ...e }) => ({ ...e, rating_avg: rated ? Math.round((rating_sum / rated) * 10) / 10 : null }));
@@ -428,7 +436,7 @@ const myMarket = asyncHandler(async (req, res) => {
       COUNT(DISTINCT CASE WHEN r.created_at > CURRENT_TIMESTAMP - INTERVAL '30 days' THEN r.client_id END) AS requesters_30d,
       SUM(CASE WHEN r.created_at > CURRENT_TIMESTAMP - INTERVAL '30 days' THEN 1 ELSE 0 END) AS requests_30d
     FROM requests r LEFT JOIN services s ON s.id = r.service_id
-    WHERE r.deleted_at IS NULL AND r.hidden_at IS NULL AND r.client_id <> ? AND ${areaSql} AND COALESCE(r.category_id, s.category_id) IN (${catSql})
+    WHERE r.deleted_at IS NULL AND r.hidden_at IS NULL AND r.direct_provider_id IS NULL AND EXISTS (SELECT 1 FROM users cu WHERE cu.id = r.client_id AND cu.deleted_at IS NULL AND cu.is_active = 1 AND cu.is_blocked = 0) AND r.client_id <> ? AND ${areaSql} AND COALESCE(r.category_id, s.category_id) IN (${catSql})
     GROUP BY COALESCE(r.category_id, s.category_id)`, [req.user.id, ...areaParams, ...mine]);
   const userAreaSql = covered.length ? `u.district_id IN (${covered.map(() => '?').join(', ')})` : 'u.city_id = ?';
   const residents = Number((await query(`SELECT COUNT(*) AS n FROM users u WHERE u.deleted_at IS NULL AND u.is_active = 1

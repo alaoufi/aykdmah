@@ -16,7 +16,9 @@
     "i18n:fix": "node scripts/check-translations.js --fix",
     "test": "npm --prefix server test",
     "test:integration": "node scripts/run-integration-tests.cjs",
-    "simulate": "node simulator/sim.js"
+    "simulate": "node simulator/sim.js",
+    "test:filters": "node e2e/filters/run-all.mjs",
+    "test:filters:api": "node e2e/filters/run-all.mjs api"
   },
   "devDependencies": {
     "@playwright/test": "^1.63.0",

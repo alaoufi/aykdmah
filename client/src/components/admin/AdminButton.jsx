@@ -6,6 +6,7 @@ export default function AdminButton({
   loading = false,
   disabled = false,
   onClick,
+  testId,
   className = '',
   children,
 }) {
@@ -30,6 +31,7 @@ export default function AdminButton({
     <button
       type={type}
       onClick={onClick}
+      data-testid={testId}
       disabled={disabled || loading}
       style={style}
       className={`${base} ${sizes[size]} ${variants[variant]} ${className}`}

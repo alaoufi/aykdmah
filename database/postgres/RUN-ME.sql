@@ -6905,6 +6905,11 @@ INSERT INTO schema_migrations(name) VALUES ('117_availability_follows_schedule.s
 ALTER TABLE users ADD COLUMN IF NOT EXISTS notify_while_away SMALLINT NOT NULL DEFAULT 0;
 INSERT INTO schema_migrations(name) VALUES ('118_notify_while_away.sql');
 
+-- migrations/119_requests_category_from_service.sql
+UPDATE requests SET category_id = (SELECT s.category_id FROM services s WHERE s.id = requests.service_id)
+WHERE category_id IS NULL AND service_id IS NOT NULL;
+INSERT INTO schema_migrations(name) VALUES ('119_requests_category_from_service.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

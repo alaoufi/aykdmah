@@ -1,0 +1,28 @@
+name: Semgrep
+# AYK-497: static rules for the mistakes the filters audit found (.semgrep/filters.yml) plus the community JavaScript rules.
+# Reports only; it does not hold back a deployment.
+on:
+  push:
+    branches: [claude/deploy-setup]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - run: pip install semgrep
+      - name: Our rules
+        run: semgrep scan --config .semgrep/filters.yml --metrics=off --sarif --output semgrep-ours.sarif server client/src
+      - name: Community rules (JavaScript, Node, React)
+        run: semgrep scan --config p/javascript --config p/nodejs --config p/react --metrics=off --sarif --output semgrep-community.sarif server client/src
+        continue-on-error: true
+      - uses: actions/upload-artifact@v4
+        if: ${{ always() }}
+        with:
+          name: semgrep-reports
+          path: semgrep-*.sarif
+          if-no-files-found: ignore

@@ -1,6 +1,5 @@
 import { localizedJoinedName } from '../utils/localizeJoined';
 import ContactButtons from '../components/providers/ContactButtons';
-import useOpenRequest from '../hooks/useOpenRequest';
 import { safeUrl } from '../utils/urlSafety';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
@@ -27,7 +26,6 @@ import ConfirmDialog from '../components/common/ConfirmDialog';
 const CallButtons = lazy(() => import('../components/calls/CallButtons'));
 const CallHistory = lazy(() => import('../components/calls/CallHistory'));
 import { apiError } from '../services/api';
-import JoinInvite from '../components/common/JoinInvite';
 import { createConversation } from '../services/chatService';
 import AdSlot from '../components/ads/AdSlot';
 import { RequestReach, RequestEdit } from '../components/requests/RequestOwnerTools';
@@ -50,8 +48,6 @@ export default function RequestDetailsPage() {
   const { t, i18n } = useTranslation();
   const { id } = useParams();
   const { user, hasPermission } = useAuth();
-  // AYK-427: kept above the early returns (AYK-140).
-  const { contact: contactAsRequester } = useOpenRequest();
   const canManageRequests = hasPermission('requests.manage');
   const navigate = useNavigate();
   const [request, setRequest] = useState(null);
@@ -115,7 +111,8 @@ export default function RequestDetailsPage() {
   // A provider the requester turned down sees why instead of a button that fails (AYK-080).
   const myOffer = user ? offers.find(offer => Number(offer.provider_id) === Number(user.id)) : null;
   const turnedDown = myOffer?.status === 'rejected';
-  const canOffer = user && user.role === 'provider' && !isOwner && request.status === 'open' && !turnedDown;
+  // AYK-493: a provider outside the request's profession or coverage (or blocked by its owner) only reads it.
+  const canOffer = user && user.role === 'provider' && !isOwner && request.status === 'open' && !turnedDown && request.can_contact !== false;
   const assignedProviderOffer = request.assigned_provider_id
     ? offers.find(offer => Number(offer.provider_id) === Number(request.assigned_provider_id))
     : null;
@@ -369,8 +366,8 @@ export default function RequestDetailsPage() {
       {turnedDown && request.status === 'open' && (
         <div className="card mb-4 text-sm text-muted" data-testid="provider-turned-down">{t('request.turned_down')}</div>
       )}
-      {/* A visitor who could do this job is invited to join and contact the requester (AYK-158). */}
-      {!user && request.status === 'open' && <JoinInvite intent="offer" compact from={`/requests/${request.id}`} />}
+      {/* AYK-501 (the owner): a visitor fails the contact conditions, so there is no link to follow, only a reminder. */}
+      {!user && request.status === 'open' && <p className="card mb-4 text-center text-[14px] font-bold text-fg-muted" data-testid="join-reminder">{t('request.join_reminder')}</p>}
       {canOffer && (
         <div className="card mb-4" data-testid="provider-contact">
           <p className="text-sm text-muted mb-3">{t('request.contact_hint')}</p>
@@ -379,13 +376,7 @@ export default function RequestDetailsPage() {
             busy={submitting} onChat={contactOwner} testId="request-owner-contact" intro={intro({ request: translation.title })} link={`/requests/${request.id}`} />
         </div>
       )}
-      {/* AYK-427: a signed-in requester sees the same way to contact; it explains that contact is for
-          service providers and offers to become one (AYK-426). */}
-      {user && user.role !== 'provider' && !isOwner && request.status === 'open' && (
-        <div className="card mb-4" data-testid="requester-contact">
-          <ContactButtons title={`💬 ${t('request.contact_owner')}`} onChat={() => contactAsRequester(request)} testId="request-owner-contact" intro={intro({ request: translation.title })} link={`/requests/${request.id}`} />
-        </div>
-      )}
+      {/* AYK-501 (the owner): a requester, and any member who fails a condition, gets NO contact block: no icon, no chat button. */}
 
       {/* AYK-438: the requester sees what of their details shows on this request, and to whom. */}
       {isOwner && request.status === 'open' && (() => {

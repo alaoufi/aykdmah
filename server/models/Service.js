@@ -74,6 +74,7 @@ async function create(data) {
       description_translations ? JSON.stringify(description_translations) : null,
     ]
   );
+  require('../services/categoryServices').forgetCategoryServices();
   return findById(result.insertId);
 }
 
@@ -97,11 +98,13 @@ async function update(id, data) {
   if (!fields.length) return findById(id);
   values.push(id);
   await query(`UPDATE services SET ${fields.join(', ')} WHERE id = ?`, values);
+  require('../services/categoryServices').forgetCategoryServices();
   return findById(id);
 }
 
 async function softDelete(id) {
   await query('UPDATE services SET deleted_at = CURRENT_TIMESTAMP WHERE id = ?', [id]);
+  require('../services/categoryServices').forgetCategoryServices();
 }
 
 module.exports = { findAll, findById, findBySlug, slugExists, create, update, softDelete };

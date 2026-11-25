@@ -1,0 +1,53 @@
+# Metabase on the server (AYK-499): reports and dashboards over the live data, READ-ONLY.
+# Listens on 127.0.0.1:8104 only (reach it with an SSH tunnel; it opens to the outside only if the owner
+# approves a gateway route). Separate project `aykdmah-metabase`: its own settings database, started and
+# removed on its own. It joins the live database's network only to read, with the role aykdmah_report
+# (deploy/metabase-readonly.sql): SELECT on listed tables/columns, no personal data, no secrets.
+#   bash deploy/install-metabase.sh      bash deploy/remove-metabase.sh
+services:
+  mb-db:
+    image: postgres:16-alpine
+    container_name: aykdmah-mb-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: metabase
+      POSTGRES_USER: metabase
+      POSTGRES_PASSWORD: ${MB_PG_PASSWORD:?set in /etc/aykdmah/metabase.env}
+    volumes:
+      - mbdata:/var/lib/postgresql/data
+    networks: [internal]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U metabase -d metabase"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    cpus: 0.5
+    mem_limit: 256m
+  metabase:
+    image: metabase/metabase:latest
+    container_name: aykdmah-metabase
+    restart: unless-stopped
+    depends_on:
+      mb-db: { condition: service_healthy }
+    environment:
+      MB_DB_TYPE: postgres
+      MB_DB_DBNAME: metabase
+      MB_DB_PORT: "5432"
+      MB_DB_USER: metabase
+      MB_DB_PASS: ${MB_PG_PASSWORD}
+      MB_DB_HOST: mb-db
+      MB_ANON_TRACKING_ENABLED: "false"
+      MB_CHECK_FOR_UPDATES: "false"
+      JAVA_OPTS: -Xmx1g
+    ports:
+      - "127.0.0.1:8104:3000"
+    networks: [internal, live]
+    cpus: 1
+    mem_limit: 1536m
+networks:
+  internal: {}
+  live:
+    external: true
+    name: ${LIVE_NETWORK:?set by deploy/install-metabase.sh}
+volumes:
+  mbdata:

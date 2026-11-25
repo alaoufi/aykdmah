@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { getDashboard } from '../../services/adminService';
 import VisitorCounter from '../../components/layout/VisitorCounter';
-import { apiError } from '../../services/api';
+import api, { apiError } from '../../services/api';
 import { formatCurrency, formatRelativeTime } from '../../utils/formatters';
 import { REQUEST_STATUS } from '../../utils/constants';
 import Avatar from '../../components/common/Avatar';
@@ -114,6 +114,8 @@ function Dashboard() {
   const { hasPermission } = useAuth();
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
+  const [exporting, setExporting] = useState(false);
+  const [exportError, setExportError] = useState('');
 
   useEffect(() => {
     getDashboard()
@@ -142,6 +144,41 @@ function Dashboard() {
     { key: 'test_users',            labelKey: 'admin.stats_test_users',           icon: '🧪', color: '#9333ea', bg: '#f3e8ff' },
   ];
 
+  // AYK-502: the figures on this page as an A4 PDF (Arabic, right to left), named with today's date.
+  const exportPdf = async () => {
+    setExporting(true); setExportError('');
+    try {
+      const visitors = await api.get('/visits').then(res => (res.data?.data?.visible ? res.data.data : null)).catch(() => null);
+      const { exportDashboardPdf } = await import('../../utils/dashboardPdf');
+      const value = tile => { const raw = data.stats?.[tile.key] ?? 0; return tile.isMoney ? formatCurrency(raw) : Number(raw).toLocaleString('ar-SA-u-nu-latn'); };
+      const rows = keys => TILES.filter(tile => keys.includes(tile.key)).map(tile => ({ label: t(tile.labelKey), value: value(tile), color: tile.color }));
+      const now = new Date();
+      const stamp = now.toISOString().slice(0, 10);
+      const usage = data.translation;
+      await exportDashboardPdf({
+        title: `${t('admin.dashboard')} — أي خدمة`,
+        subtitle: `تقرير الإحصائيات بتاريخ ${now.toLocaleDateString('ar-SA-u-nu-latn', { year: 'numeric', month: 'long', day: 'numeric' })} الساعة ${now.toLocaleTimeString('ar-SA-u-nu-latn', { hour: '2-digit', minute: '2-digit' })}`,
+        groups: [
+          { title: 'الأعضاء', rows: rows(['users', 'providers', 'clients', 'test_users']) },
+          { title: 'الطلبات', rows: rows(['requests', 'active_requests', 'completed_requests', 'urgent_requests']) },
+          { title: 'الإيرادات والاشتراكات', rows: rows(['revenue', 'active_subscriptions', 'pending_verifications']) },
+          { title: 'المحادثات', rows: rows(['conversations', 'active_conversations', 'messages', 'voice_messages', 'live_locations']) },
+          { title: 'النزاعات', rows: rows(['open_disputes', 'disputes']) },
+        ],
+        visitors: visitors && { today: Number(visitors.today || 0).toLocaleString('ar-SA-u-nu-latn'), total: Number(visitors.total || 0).toLocaleString('ar-SA-u-nu-latn'), online: Number(visitors.online || 0).toLocaleString('ar-SA-u-nu-latn') },
+        statuses: (data.requests_by_status || []).map(s => ({ ...s, label: REQUEST_STATUS[s.status]?.i18nKey ? t(REQUEST_STATUS[s.status].i18nKey) : s.status })),
+        translation: usage && [
+          { label: t('admin.translation_meter_title'), value: `${Number(usage.used).toLocaleString('ar-SA-u-nu-latn')} / ${Number(usage.limit).toLocaleString('ar-SA-u-nu-latn')}` },
+          { label: 'من ذاكرة الترجمة (مجانًا)', value: Number(usage.from_memory).toLocaleString('ar-SA-u-nu-latn') },
+          { label: 'جمل محفوظة', value: Number(usage.remembered).toLocaleString('ar-SA-u-nu-latn') },
+        ],
+        labels: { visitors: 'الزوار', visitors_today: t('footer.visitors_today'), visitors_total: t('footer.visitors_total'), visitors_online: t('footer.visitors_online'), requests_by_status: 'الطلبات حسب الحالة', status: t('admin.status'), count: 'العدد', translation: 'الترجمة هذا الشهر', footer: `أُنشئ من لوحة إدارة «أي خدمة» — ${stamp}` },
+      }, `aykdmh-stats-${stamp}.pdf`);
+    } catch (err) {
+      setExportError('تعذّر إنشاء ملف PDF. أعد المحاولة.');
+    } finally { setExporting(false); }
+  };
+
   const QUICK_ACTIONS = [
     { to: '/admin/security', icon: '🛡️', labelKey: 'admin.security_report', perm: 'activity_logs.view' },
     { to: '/admin/users', icon: '👥', labelKey: 'admin.users', perm: 'users.manage' },
@@ -165,6 +202,7 @@ function Dashboard() {
   return (
     <div className="space-y-6">
       <AdminPageHeader title={t('admin.dashboard')}>
+        <AdminButton variant="secondary" icon="📄" loading={exporting} onClick={exportPdf} testId="admin-export-pdf">{exporting ? 'جارٍ إنشاء الملف…' : 'تصدير PDF'}</AdminButton>
         {hasPermission('users.manage') && <Link
           to="/admin/users"
           className="px-4 py-2 rounded-pill bg-white border border-slate-200 hover:border-brand-300 hover:text-brand-700 text-slate-700 text-sm font-semibold no-underline transition"
@@ -179,6 +217,8 @@ function Dashboard() {
           {t('admin.settings')}
         </Link>}
       </AdminPageHeader>
+
+      {exportError && <div className="rounded-card bg-rose-50 border border-rose-200 p-3 text-rose-700 text-sm" role="alert">{exportError}</div>}
 
       {/* Stats grid */}
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">

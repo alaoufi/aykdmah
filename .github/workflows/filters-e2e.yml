@@ -1,0 +1,61 @@
+name: Filters end-to-end
+# AYK-496: every list filter of the site, checked against the database and in a real browser (Playwright) on a phone,
+# a tablet and a computer, on a disposable database with a large seeded data set. It never touches production.
+# Runs after every update of the deploy branch and on pull requests; it does not hold back a deployment.
+on:
+  push:
+    branches: [claude/deploy-setup]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: filters-e2e-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  filters:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ayk-ci-only-password
+          POSTGRES_DB: postgres
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            server/package-lock.json
+            client/package-lock.json
+      - run: npm ci
+      - run: npm --prefix server ci
+      - run: npm --prefix client ci
+      - run: npm run build
+        env:
+          VITE_REALTIME_MODE: polling
+      - run: npx playwright install --with-deps chromium
+      - name: Filter tests (API against the database, then the browser on three screen sizes)
+        run: npm run test:filters
+        env:
+          AYK_TEST_PORT: 5432
+      - name: Keep the reports
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: filter-test-reports
+          path: e2e/filters/.out/*.json
+          if-no-files-found: ignore

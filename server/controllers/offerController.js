@@ -18,6 +18,8 @@ const create = asyncHandler(async (req, res) => {
   if (request.status !== 'open') return error(res, req.t('request_not_open'), 409);
   if (request.client_id === req.user.id) return forbidden(res, req.t('deny_own_request'));
 
+  if (await require('../services/requestEligibility').refuseProviderContact(req, res, request, req.user.id)) return undefined;
+
   const offerId = await Offer.create({
     request_id, provider_id: req.user.id, price, message, estimated_duration, available_from,
     latitude, longitude, location_accuracy,

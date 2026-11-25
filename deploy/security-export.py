@@ -132,7 +132,9 @@ def flood_rows():
 def main():
     rows = list(ssh_rows()) + list(ban_rows()) + list(flood_rows())
     data = io.StringIO()
-    csv.writer(data, lineterminator='\n').writerows(rows)
+    # A line break in a field could end the COPY block early and let text after it run as SQL (AYK-500).
+    clean = lambda v: re.sub(r'[\x00-\x1f\x7f\\]', '?', v) if isinstance(v, str) else v
+    csv.writer(data, lineterminator='\n').writerows([[clean(v) for v in row] for row in rows])
     sql = (
         'CREATE TEMP TABLE incoming (source text, event text, status text, ip text, attempts int, detail text, first_at timestamptz, last_at timestamptz);\n'
         'COPY incoming FROM STDIN WITH (FORMAT csv);\n' + data.getvalue() + '\\.\n'

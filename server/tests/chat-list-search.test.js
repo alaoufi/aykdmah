@@ -19,7 +19,7 @@ for (const term of ['needle', '\u0633\u0628\u0627\u0643', "' OR 1=1 --"]) {
     assert.equal(sql.includes(term), false);
     assert.match(sql, /r\.title ILIKE \?/);
     assert.match(sql, /person\.referral_code ILIKE \? OR saved\.nickname ILIKE \? OR \(person\.role <> 'client' AND person\.full_name ILIKE \?\)/);
-    assert.match(sql, /EXISTS \(SELECT 1 FROM messages matched_message WHERE matched_message\.conversation_id = c\.id AND matched_message\.deleted_at IS NULL AND matched_message\.content ILIKE \?\)/);
+    assert.match(sql, /EXISTS \(SELECT 1 FROM messages matched_message WHERE matched_message\.conversation_id = c\.id AND matched_message\.deleted_at IS NULL AND NOT EXISTS \(SELECT 1 FROM message_hidden mh WHERE mh\.message_id = matched_message\.id AND mh\.user_id = 17\) AND matched_message\.content ILIKE \?\)/);
     assert.ok(sql.indexOf('matched_message.content ILIKE ?') < sql.indexOf('LIMIT ? OFFSET ?'));
     assert.match(sql, /WHERE cp\.user_id = \? AND self_user\.deleted_at IS NULL AND self_user\.is_active = 1 AND self_user\.is_blocked = 0/);
     assert.match(sql, /AND cp\.user_id IN \(owner_member\.user_id, provider_member\.user_id\)/);
@@ -29,7 +29,7 @@ for (const term of ['needle', '\u0633\u0628\u0627\u0643', "' OR 1=1 --"]) {
 test('empty search retains pagination and scoped request/peer filters without message search', async () => {
   const { model, calls } = capture();
   await model.listForUser(29, { requestId: 7, peerId: 8, page: 2, limit: 10 });
-  assert.deepEqual(calls[0].params, [29,29,29,29,29,7,8,10,10]);
+  assert.deepEqual(calls[0].params, [29,29,29,29,29,7,8,11,10]); // AYK-496: one more row than the page is read, to know whether a next page exists
   assert.equal(calls[0].sql.includes('matched_message'), false);
   assert.match(calls[0].sql, /AND c\.request_id = \? AND EXISTS/);
 });
@@ -38,23 +38,27 @@ test('actual message predicate finds historical Arabic content with membership a
   const { DatabaseSync } = require('node:sqlite');
   const { model, calls } = capture();
   await model.listForUser(17, { q: 'fixture' });
-  const predicate = calls[0].sql.match(/EXISTS \(SELECT 1 FROM messages matched_message[^)]+\)/)[0].replace('ILIKE', 'LIKE');
+  const predicate = calls[0].sql.match(/EXISTS \(SELECT 1 FROM messages matched_message[\s\S]*?matched_message\.content ILIKE \?\)/)[0].replace('ILIKE', 'LIKE');
   const db = new DatabaseSync(':memory:');
   try {
     db.exec(`CREATE TABLE conversations(id INTEGER PRIMARY KEY, last_message_id INTEGER);
       CREATE TABLE conversation_participants(conversation_id INTEGER,user_id INTEGER);
       CREATE TABLE messages(id INTEGER,conversation_id INTEGER,content TEXT,deleted_at TEXT);
+      CREATE TABLE message_hidden(message_id INTEGER,user_id INTEGER);
+      INSERT INTO message_hidden VALUES(51,17);
       INSERT INTO conversations VALUES(1,12),(2,22),(3,31),(4,41);
       INSERT INTO conversation_participants VALUES(1,17),(2,17),(3,17),(4,99);
       INSERT INTO messages VALUES(11,1,'old needle',NULL),(12,1,'latest unrelated',NULL),
         (21,2,'needle',NULL),(22,2,'latest unrelated',NULL),(31,3,'needle','deleted'),(41,4,'private needle',NULL);`);
     db.prepare('INSERT INTO messages VALUES(13,1,?,NULL)').run('\u0633\u0628\u0627\u0643');
+    db.prepare('INSERT INTO messages VALUES(51,1,?,NULL)').run('only hiddenneedle');
     const query = db.prepare(`SELECT c.id FROM conversations c JOIN conversation_participants cp ON cp.conversation_id=c.id WHERE cp.user_id=? AND ${predicate} ORDER BY c.id LIMIT ? OFFSET ?`);
     const ids = (user,term,limit=20,offset=0) => query.all(user,`%${term}%`,limit,offset).map(row=>row.id);
     assert.deepEqual(ids(17,'needle'),[1,2]);
     assert.deepEqual(ids(17,'needle',1,1),[2]);
     assert.deepEqual(ids(17,'\u0633\u0628\u0627\u0643'),[1]);
     assert.deepEqual(ids(17,'missing'),[]);
+    assert.deepEqual(ids(17,'hiddenneedle'),[], 'a message deleted for me is not found');
     assert.deepEqual(ids(99,'needle'),[4]);
     assert.deepEqual(ids(77,'needle'),[]);
   } finally { db.close(); }

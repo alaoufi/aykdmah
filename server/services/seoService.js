@@ -232,7 +232,9 @@ async function providerPage(id) {
 
 // Returns { status, page } for a public path, or null when the path is not one of them.
 async function pageFor(pathname) {
-  const clean = (pathname || '/').replace(/\/+$/, '') || '/';
+  let clean = String(pathname || '/').slice(0, 300);
+  while (clean.length > 1 && clean.endsWith('/')) clean = clean.slice(0, -1);
+  if (clean === '') clean = '/';
   const data = await loadCatalog();
   if (STATIC[clean]) {
     const s = STATIC[clean];

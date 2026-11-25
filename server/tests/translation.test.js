@@ -65,3 +65,33 @@ test('translation memory reuses only the very same sentence, letter for letter (
   assert.notEqual(hashOf('Where are you?'), hashOf('Where are you'), 'punctuation counts');
   assert.notEqual(hashOf('Where are you?'), hashOf('Where  are you?'), 'inner spaces count');
 });
+
+test('a slow Microsoft is raced by Google after 1.2 s, and a refusal goes to Google at once (AYK-495)', async () => {
+  const { translate, forgetGoogleKey } = require('../services/translationService');
+  const Setting = require('../models/Setting');
+  forgetGoogleKey();
+  const realFetch = global.fetch, realGet = Setting.get, realKey = process.env.AZURE_TRANSLATOR_KEY;
+  try {
+    process.env.AZURE_TRANSLATOR_KEY = 'k';
+    Setting.get = async key => (key === 'google_translate_api_key' ? 'g'.repeat(24) : realGet.call(Setting, key));
+    const google = { ok: true, json: async () => ({ data: { translations: [{ translatedText: 'مرحبا بك هنا' }] } }) };
+    // Slow Microsoft (3 s): Google answers first, in about 1.2 s.
+    global.fetch = async url => {
+      if (String(url).includes('microsofttranslator')) { await new Promise(resolve => setTimeout(resolve, 3000)); return { ok: true, json: async () => [{ translations: [{ text: 'late' }] }] }; }
+      return google;
+    };
+    let started = Date.now();
+    let result = await translate('Welcome here to the slow one', 'en', 'ar');
+    assert.equal(result.provider, 'google');
+    assert.ok(Date.now() - started < 2500, 'did not wait for the slow one');
+    // A refusal (quota): Google at once, not after 1.2 s.
+    global.fetch = async url => (String(url).includes('microsofttranslator') ? { ok: false, status: 500 } : google);
+    started = Date.now();
+    result = await translate('Welcome here to the refused one', 'en', 'ar');
+    assert.equal(result.provider, 'google');
+    assert.ok(Date.now() - started < 900, 'at once');
+  } finally {
+    global.fetch = realFetch; Setting.get = realGet; forgetGoogleKey();
+    if (realKey === undefined) delete process.env.AZURE_TRANSLATOR_KEY; else process.env.AZURE_TRANSLATOR_KEY = realKey;
+  }
+});
