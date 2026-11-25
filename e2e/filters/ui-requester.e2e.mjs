@@ -51,6 +51,7 @@ for (const viewport of wanted) {
     if (cardCount > 0) {
       await cards.first().click(); await settle(page);
       check(`UI requester ${client.id} ${viewport}: tapping a request opens its page, with no dialog`, /\/requests\/\d+/.test(page.url()) && (await page.getByTestId('app-dialog').count()) === 0, page.url());
+      check(`UI requester ${client.id} ${viewport}: the request's page has no contact block or chat button`, (await page.locator('[data-testid="request-owner-contact"], [data-testid="requester-contact"], [data-testid="provider-contact"]').count()) === 0, page.url());
     }
     check(`UI requester ${client.id} ${viewport}: no page errors`, page.errors.length === 0, page.errors.slice(0, 2).join(' | '));
     await page.context().close();

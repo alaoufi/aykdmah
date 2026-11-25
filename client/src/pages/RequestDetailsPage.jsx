@@ -1,6 +1,5 @@
 import { localizedJoinedName } from '../utils/localizeJoined';
 import ContactButtons from '../components/providers/ContactButtons';
-import useOpenRequest from '../hooks/useOpenRequest';
 import { safeUrl } from '../utils/urlSafety';
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, Link, useLocation } from 'react-router-dom';
@@ -50,8 +49,6 @@ export default function RequestDetailsPage() {
   const { t, i18n } = useTranslation();
   const { id } = useParams();
   const { user, hasPermission } = useAuth();
-  // AYK-427: kept above the early returns (AYK-140).
-  const { contact: contactAsRequester } = useOpenRequest();
   const canManageRequests = hasPermission('requests.manage');
   const navigate = useNavigate();
   const [request, setRequest] = useState(null);
@@ -380,13 +377,7 @@ export default function RequestDetailsPage() {
             busy={submitting} onChat={contactOwner} testId="request-owner-contact" intro={intro({ request: translation.title })} link={`/requests/${request.id}`} />
         </div>
       )}
-      {/* AYK-427: a signed-in requester sees the same way to contact; it explains that contact is for
-          service providers and offers to become one (AYK-426). */}
-      {user && user.role !== 'provider' && !isOwner && request.status === 'open' && (
-        <div className="card mb-4" data-testid="requester-contact">
-          <ContactButtons title={`💬 ${t('request.contact_owner')}`} onChat={() => contactAsRequester(request)} testId="request-owner-contact" intro={intro({ request: translation.title })} link={`/requests/${request.id}`} />
-        </div>
-      )}
+      {/* AYK-501 (the owner): a requester, and any member who fails a condition, gets NO contact block: no icon, no chat button. */}
 
       {/* AYK-438: the requester sees what of their details shows on this request, and to whom. */}
       {isOwner && request.status === 'open' && (() => {
