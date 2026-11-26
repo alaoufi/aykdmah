@@ -261,7 +261,7 @@ async function listRows(userId, { page = 1, limit = 20, q = '', requestId = null
         AND ${requestPairSql()}
         -- AYK-496: a chat with an account that was deleted, blocked or turned off is not listed (as in the contacts).
         AND EXISTS (SELECT 1 FROM conversation_participants live_op JOIN users live_ou ON live_ou.id = live_op.user_id
-          WHERE live_op.conversation_id = c.id AND live_op.user_id <> cp.user_id AND live_ou.deleted_at IS NULL AND live_ou.is_active = 1 AND live_ou.is_blocked = 0)
+          WHERE live_op.conversation_id = c.id AND live_op.user_id <> cp.user_id AND live_ou.deleted_at IS NULL AND live_ou.is_active = 1 AND live_ou.is_blocked = 0 AND live_ou.hidden_at IS NULL)
         -- The provider's side: a task given to someone else leaves the list a day later (AYK-041);
         -- a finished one stays while its two sides can still write (AYK-081).
         AND (r.id IS NULL OR r.client_id = ? OR NOT (

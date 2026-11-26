@@ -214,7 +214,7 @@ async function providerPage(id) {
       c.name_ar AS city_name, cat.name_ar AS category_name
     FROM users u JOIN provider_profiles pp ON pp.user_id = u.id
     LEFT JOIN cities c ON c.id = u.city_id LEFT JOIN categories cat ON cat.id = pp.category_id
-    WHERE u.id = ? AND u.role = 'provider' AND u.deleted_at IS NULL AND u.is_active = 1 AND u.is_blocked = 0`, [id]))[0];
+    WHERE u.id = ? AND u.role = 'provider' AND u.deleted_at IS NULL AND u.is_active = 1 AND u.is_blocked = 0 AND u.hidden_at IS NULL`, [id]))[0];
   if (!row) return null;
   const name = String(row.business_name || row.full_name || '').trim() || 'مقدم خدمة';
   const what = [row.category_name, row.city_name].filter(Boolean).join(' — ');

@@ -26,7 +26,7 @@ const REVIEW_SELECT = `
   r.original_language, r.is_visible, r.helpful_count, r.report_count,
   ru.role AS reviewer_role, tu.role AS target_role,
   r.provider_reply, r.provider_reply_at, r.created_at,
-  CASE WHEN ru.deleted_at IS NULL THEN ru.full_name ELSE NULL END AS reviewer_name, CASE WHEN ru.deleted_at IS NULL THEN ru.avatar ELSE NULL END AS reviewer_avatar,
+  CASE WHEN ru.deleted_at IS NULL AND ru.hidden_at IS NULL THEN ru.full_name ELSE NULL END AS reviewer_name, CASE WHEN ru.deleted_at IS NULL AND ru.hidden_at IS NULL THEN ru.avatar ELSE NULL END AS reviewer_avatar,
   CASE WHEN tu.deleted_at IS NULL THEN tu.full_name ELSE NULL END AS target_name, CASE WHEN tu.deleted_at IS NULL THEN tu.avatar ELSE NULL END AS target_avatar,
   CASE WHEN req.deleted_at IS NULL THEN req.title ELSE NULL END AS request_title
 `;
@@ -116,7 +116,7 @@ async function listForTarget(targetUserId, { reviewType = 'on_provider', page = 
                 : 'r.id DESC';
   const items = await query(
     `SELECT ${REVIEW_SELECT} FROM reviews r ${REVIEW_JOINS}
-     WHERE r.target_user_id = ? AND r.review_type = ? AND r.is_visible = 1 AND tu.deleted_at IS NULL AND tu.id IS NOT NULL
+     WHERE r.target_user_id = ? AND r.review_type = ? AND r.is_visible = 1 AND tu.deleted_at IS NULL AND tu.hidden_at IS NULL AND tu.id IS NOT NULL
      ORDER BY ${orderBy} LIMIT ? OFFSET ?`,
     [targetUserId, reviewType, Number(limit), Number(offset)]
   );

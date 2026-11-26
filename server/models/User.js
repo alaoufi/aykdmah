@@ -418,6 +418,16 @@ async function adminUpdate(id, data, actor) {
   return updatedId ? findById(updatedId) : null;
 }
 
+// AYK-504: hide an account from everything other people see, or show it again. Its owner can still use it.
+async function setHidden(id, hidden, actor) {
+  const row = await queryOne('SELECT id FROM users WHERE id = ? AND deleted_at IS NULL', [id]);
+  if (!row) return null;
+  await query(`UPDATE users SET hidden_at = ${hidden ? 'COALESCE(hidden_at, CURRENT_TIMESTAMP)' : 'NULL'} WHERE id = ?`, [id]);
+  await query(`INSERT INTO activity_logs (user_id, action, entity_type, entity_id, description) VALUES (?, ?, 'user', ?, ?)`,
+    [actor?.id || null, hidden ? 'admin.user.hide' : 'admin.user.show', id, null]).catch(() => {});
+  return queryOne('SELECT id, hidden_at FROM users WHERE id = ?', [id]);
+}
+
 async function setBlocked(id, isBlocked, actor) {
   return adminUpdate(id, { is_blocked: isBlocked ? 1 : 0 }, actor);
 }
@@ -479,10 +489,13 @@ async function setOnline(id, isOnline) {
   );
 }
 
-async function listPaginated({ role, search, page = 1, limit = 20 }) {
+async function listPaginated({ role, search, visibility, page = 1, limit = 20 }) {
   const offset = (page - 1) * limit;
   const where = ['u.deleted_at IS NULL'];
   const params = [];
+  // AYK-504: accounts the administration hid (they vanish from everything other people see).
+  if (visibility === 'hidden') where.push('u.hidden_at IS NOT NULL');
+  else if (visibility === 'shown') where.push('u.hidden_at IS NULL');
   // AYK-383: «admin» lists the accounts with the admin mark; the others are site roles.
   const hasAdminFlag = await tableHasColumn('users', 'is_admin');
   if (role === 'admin' && hasAdminFlag) where.push("(u.is_admin = 1 OR u.role = 'admin')");
@@ -504,7 +517,7 @@ async function listPaginated({ role, search, page = 1, limit = 20 }) {
   const whereSql = where.join(' AND ');
 
   const items = await query(
-    `SELECT ${SELECT_FIELDS}, u.is_super_admin, u.permissions${hasAdminFlag ? ', u.is_admin' : ''}, c.name_ar AS city_name, c.name_en AS city_name_en
+    `SELECT ${SELECT_FIELDS}, u.hidden_at, u.is_super_admin, u.permissions${hasAdminFlag ? ', u.is_admin' : ''}, c.name_ar AS city_name, c.name_en AS city_name_en
      FROM users u LEFT JOIN cities c ON u.city_id = c.id
      WHERE ${whereSql}
      ORDER BY u.created_at DESC, u.id DESC
@@ -592,7 +605,7 @@ module.exports = {
   recordFailedLogin, clearFailedLogins, LOGIN_LOCK_AFTER,
   findById, findByIdRaw, findByEmail, findByPhone, findByUsername, findByFacebookId, findByIdentifier, cleanIdentifier, phoneForms,
   create, update, updatePassword, revokeSessions, endAreaSessions, areaSessionVersion, updateAdminPermissions, completeLogin,
-  softDelete, setBlocked, setOnline, touchSeen, listPaginated, adminUpdate,
+  softDelete, setBlocked, setHidden, setOnline, touchSeen, listPaginated, adminUpdate,
   getProviderProfile, updateProviderProfile,
   saveAccountLocation,
 };

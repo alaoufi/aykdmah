@@ -28,7 +28,7 @@ const list = asyncHandler(async (req, res) => {
         JOIN conversation_participants theirs ON theirs.conversation_id = c.id AND theirs.user_id = u.id
         ORDER BY c.last_message_at DESC NULLS LAST, c.id DESC LIMIT 1) AS conversation_id
     FROM saved_providers sp
-    JOIN users u ON u.id = sp.provider_id AND u.deleted_at IS NULL AND u.is_active = 1 AND u.is_blocked = 0
+    JOIN users u ON u.id = sp.provider_id AND u.deleted_at IS NULL AND u.is_active = 1 AND u.is_blocked = 0 AND u.hidden_at IS NULL
     LEFT JOIN provider_profiles pp ON pp.user_id = u.id
     LEFT JOIN categories cat ON cat.id = pp.category_id
     LEFT JOIN districts dist ON dist.id = u.district_id
@@ -74,7 +74,7 @@ const add = asyncHandler(async (req, res) => {
   const contact = await queryOne(`SELECT u.id, u.role,
       EXISTS (SELECT 1 FROM conversation_participants a JOIN conversation_participants b ON b.conversation_id = a.conversation_id
         WHERE a.user_id = ? AND b.user_id = u.id) AS chatted
-    FROM users u WHERE u.id = ? AND u.deleted_at IS NULL AND u.is_active = 1 AND u.is_blocked = 0`, [req.user.id, id]);
+    FROM users u WHERE u.id = ? AND u.deleted_at IS NULL AND u.is_active = 1 AND u.is_blocked = 0 AND u.hidden_at IS NULL`, [req.user.id, id]);
   if (!contact || (contact.role !== 'provider' && !contact.chatted)) return notFound(res);
   const nickname = typeof req.body?.nickname === 'string' && req.body.nickname.trim() ? req.body.nickname.trim().slice(0, 80) : null;
   await query(`INSERT INTO saved_providers (user_id, provider_id, nickname) VALUES (?, ?, ?)
@@ -96,7 +96,7 @@ const chat = asyncHandler(async (req, res) => {
   const id = providerId(req.params.providerId);
   if (!id || id === req.user.id) return error(res, req.t('invalid_data'), 400);
   const kept = await queryOne(`SELECT sp.provider_id FROM saved_providers sp
-    JOIN users u ON u.id = sp.provider_id AND u.deleted_at IS NULL AND u.is_active = 1 AND u.is_blocked = 0
+    JOIN users u ON u.id = sp.provider_id AND u.deleted_at IS NULL AND u.is_active = 1 AND u.is_blocked = 0 AND u.hidden_at IS NULL
     WHERE sp.user_id = ? AND sp.provider_id = ?`, [req.user.id, id]);
   if (!kept) return notFound(res);
   if (await require('./userBlockController').blockedRefusal(req, res, id)) return undefined;
@@ -123,7 +123,7 @@ async function numberAlreadyKept(req, fields, exceptId = 0) {
   const typed = await query('SELECT id, name, phone, whatsapp FROM directory_contacts WHERE user_id = ? AND id <> ?', [req.user.id, exceptId]);
   for (const row of typed) if ([row.phone, row.whatsapp].some(n => n && wanted.has(sameNumberKey(n)))) return row.name;
   const kept = await query(`SELECT u.full_name, pp.business_name, u.phone, pp.show_phone, pp.whatsapp, pp.show_whatsapp
-    FROM saved_providers sp JOIN users u ON u.id = sp.provider_id AND u.deleted_at IS NULL AND u.is_active = 1 AND u.is_blocked = 0
+    FROM saved_providers sp JOIN users u ON u.id = sp.provider_id AND u.deleted_at IS NULL AND u.is_active = 1 AND u.is_blocked = 0 AND u.hidden_at IS NULL
     JOIN provider_profiles pp ON pp.user_id = u.id WHERE sp.user_id = ?`, [req.user.id]);
   for (const row of kept) {
     const shown = publicContact(row);

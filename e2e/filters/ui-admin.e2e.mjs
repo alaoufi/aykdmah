@@ -32,6 +32,37 @@ for (const viewport of wanted) {
   await page.context().close();
 }
 
+// AYK-504: the users list: tight rows with the ⋮ menu at the end (تعديل / حظر / إخفاء / حذف); hidden accounts are marked and filterable.
+{
+  const victim = fixtures.clients[10].id;
+  for (const viewport of wanted) {
+    const page = await openAs({ adminToken: fixtures.adminToken, viewport });
+    await goto(page, '/admin/users');
+    await page.locator('[data-testid="user-row"]:visible').first().waitFor({ timeout: 30000 }); await settle(page, 500);
+    const row = page.locator('[data-testid="user-row"]:visible').first();
+    await row.getByTestId('user-menu').click();
+    const text = (await row.getByTestId('user-menu-list').innerText()).replace(/\s+/g, ' ');
+    check(`UI admin users ${viewport}: the ⋮ menu has تعديل, حظر, إخفاء, حذف`, ['تعديل', 'حظر', 'إخفاء', 'حذف'].every(word => text.includes(word)), text);
+    await page.keyboard.press('Escape');
+    const heights = await page.locator('[data-testid="user-row"]:visible').evaluateAll(list => list.slice(0, 8).map(el => el.getBoundingClientRect().height));
+    check(`UI admin users ${viewport}: rows are tight (under 125 px)`, heights.length > 0 && heights.every(h => h < 125), heights.map(Math.round).join(','));
+    check(`UI admin users ${viewport}: no big action buttons left in the row`, (await row.getByRole('button', { name: /^(تعديل|حظر|حذف)$/ }).count()) === 0, '');
+    // hide one account (as the endpoint does) and see its mark and the filter
+    await sql('UPDATE users SET hidden_at = CURRENT_TIMESTAMP WHERE id = $1', [victim]);
+    await page.reload({ waitUntil: 'domcontentloaded' }); await page.locator('[data-testid="user-row"]:visible').first().waitFor({ timeout: 30000 }); await settle(page, 500);
+    await page.getByTestId('hidden-only').locator('input').check(); await settle(page, 800);
+    const marks = await page.locator('[data-testid="hidden-mark"]:visible').count();
+    const rowsHidden = await page.locator('[data-testid="user-row"]:visible').count();
+    check(`UI admin users ${viewport}: «المخفيون فقط» lists the hidden account with its mark`, marks >= 1 && rowsHidden === marks, `marks ${marks} rows ${rowsHidden}`);
+    await page.locator('[data-testid="user-row"]:visible').first().getByTestId('user-menu').click();
+    check(`UI admin users ${viewport}: a hidden account offers «إظهار»`, (await page.locator('[data-testid="user-menu-hide"]:visible').innerText()).includes('إظهار'), '');
+    await sql('UPDATE users SET hidden_at = NULL WHERE id = $1', [victim]);
+    check(`UI admin users ${viewport}: no page errors`, page.errors.length === 0, page.errors.slice(0, 2).join(' | '));
+    if (process.env.KEEP_PDF) { await page.getByTestId('hidden-only').locator('input').uncheck(); await settle(page, 600); await page.screenshot({ path: path.join(process.env.KEEP_PDF, `users-${viewport}.png`) }); }
+    await page.context().close();
+  }
+}
+
 // AYK-503: the texts page: tight rows, each field locked until «تعديل» in the ⋮ menu in front of it, and «حفظ» in that menu.
 for (const viewport of wanted) {
   const page = await openAs({ adminToken: fixtures.adminToken, viewport });

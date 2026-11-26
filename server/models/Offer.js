@@ -176,7 +176,7 @@ async function findByRequest(requestId, { providerId } = {}) {
             ON s.id = pp.current_subscription_id
            AND s.user_id = pp.user_id
      LEFT JOIN subscription_plans sp ON sp.id = s.plan_id AND ${Subscription.validEntitlementSql('s', 'sp')}
-     WHERE o.request_id = ? ${providerId !== undefined ? 'AND o.provider_id = ?' : ''}
+     WHERE o.request_id = ? ${providerId !== undefined ? 'AND o.provider_id = ?' : 'AND u.hidden_at IS NULL'}
      ORDER BY
        -- 1) Any paid badge (Trusted OR Featured) bubbles to the top.
        (CASE WHEN ${trustedBadgeSql} OR ${featuredBadgeSql} THEN 1 ELSE 0 END) DESC,
