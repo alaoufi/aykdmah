@@ -82,6 +82,12 @@ for (const viewport of wanted) {
   check(`UI guest ${viewport}: the request page shows the register-with-us reminder`, (await page.getByTestId('join-reminder').count()) === 1 && (await page.getByTestId('join-reminder').innerText()).trim().length > 10, '');
   check(`UI guest ${viewport}: no invitation block, no contact block, no register or sign-in link inside the request`, (await page.locator('[data-testid="join-invite"], [data-testid="join-client"], [data-testid="join-provider"], [data-testid="request-owner-contact"], [data-testid="provider-contact"], [data-testid="requester-contact"]').count()) === 0
     && (await page.getByTestId('join-reminder').locator('a').count()) === 0, '');
+  // AYK-506: the user guide carries the contact rules (three conditions) and the new question, with no raw key showing.
+  await goto(page, '/guide#guide-faq'); await page.locator('#guide-faq-title').waitFor({ timeout: 30000 }); await settle(page, 600);
+  const guideText = await page.locator('main').innerText();
+  check(`UI guest ${viewport}: the guide's question about the contact button is there, with no raw key`, guideText.includes('لماذا لا يظهر لي زر التواصل مع صاحب طلب') && !/help\.|contact_rules/.test(guideText), '');
+  await page.getByText('لماذا لا يظهر لي زر التواصل مع صاحب طلب').first().click(); await settle(page, 300);
+  check(`UI guest ${viewport}: its answer states the three conditions`, /مهنته/.test(await page.locator('main').innerText()) && /تغطيته/.test(await page.locator('main').innerText()) && /حظره/.test(await page.locator('main').innerText()), '');
   check(`UI guest ${viewport}: no page errors`, page.errors.length === 0, page.errors.slice(0, 2).join(' | '));
   await page.context().close();
 }

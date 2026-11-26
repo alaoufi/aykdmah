@@ -1858,7 +1858,7 @@
       },
       "offers": {
         "title": "Tunggu penyedia layanan, atau hubungi sendiri",
-        "body": "Permintaan Anda langsung sampai ke penyedia layanan dengan profesi itu yang sedang bekerja di lingkungan Anda, lalu mereka menghubungi Anda. Anda juga bisa menghubungi yang tersedia, atau menambahkan yang Anda suka ke «Direktori saya» agar bisa langsung menghubunginya nanti tanpa membuat permintaan. Jika penyedia jasa mengizinkan, nomor ponsel atau WhatsApp-nya tampil di halamannya dan di \"Direktori saya\", dan nomor yang sama tidak pernah tersimpan dua kali di \"Direktori saya\"."
+        "body": "Permintaan Anda langsung sampai ke penyedia layanan dengan profesi itu yang sedang bekerja di lingkungan Anda, lalu mereka menghubungi Anda. Anda juga bisa menghubungi yang tersedia, atau menambahkan yang Anda suka ke «Direktori saya» agar bisa langsung menghubunginya nanti tanpa membuat permintaan. Jika penyedia jasa mengizinkan, nomor ponsel atau WhatsApp-nya tampil di halamannya dan di \"Direktori saya\", dan nomor yang sama tidak pernah tersimpan dua kali di \"Direktori saya\". Hanya penyedia layanan yang memenuhi ketiga syarat yang dapat menghubungi Anda atau melihat nama, nomor, dan lingkungan Anda: profesi permintaan Anda, area Anda dalam cakupannya, dan Anda tidak memblokirnya."
       },
       "chat": {
         "title": "Deskripsi Anda di setiap percakapan, dan «Teruskan» untuk pesan Anda",
@@ -1884,7 +1884,7 @@
       },
       "quote": {
         "title": "Bicarakan hingga sepakat",
-        "body": "Buka permintaan lalu ketuk «Hubungi pemilik permintaan», atau tunggu dia menghubungi Anda. Sepakati pekerjaan, harga, dan waktu di percakapan, tanpa penawaran harga. Pemilik permintaan mengetuk «Sudah sepakat» saat memilih Anda."
+        "body": "Buka permintaan. «Hubungi pemilik permintaan» hanya muncul bila ketiga syarat terpenuhi sekaligus: permintaan sesuai profesi Anda, areanya berada dalam cakupan Anda, dan pemiliknya tidak memblokir Anda. Lalu sepakati pekerjaan, harga, dan waktu di percakapan, tanpa penawaran harga; pemilik permintaan mengetuk «Sudah sepakat» saat memilih Anda. Jika satu syarat saja tidak terpenuhi, Anda hanya melihat permintaan, penilaian pemiliknya, dan data umum, tanpa nama, nomor, lingkungan, atau kontak. Anda juga bisa menunggu dia menghubungi Anda."
       },
       "work": {
         "title": "Kerjakan, lalu beri penilaian",
@@ -1922,6 +1922,10 @@
       "contact": {
         "question": "Bagaimana cara menghubungi dukungan atau mengajukan pengaduan?",
         "answer": "Dari menu ☰ atau bagian bawah halaman, pilih «Dukungan dan pengaduan». Anda bisa langsung mengirim pesan ke kami di WhatsApp, atau mengirim pesan ke admin setelah memilih topik: dukungan teknis, pengaduan, saran, atau pesan ke admin. Balasan admin muncul di halaman yang sama dengan notifikasi, dan angka di menu menunjukkan jumlah balasan baru."
+      },
+      "contact_rules": {
+        "question": "Mengapa tombol hubungi tidak muncul di permintaan seseorang?",
+        "answer": "Menghubungi pemilik permintaan hanya terbuka bagi penyedia layanan yang memenuhi ketiga syarat sekaligus: permintaan sesuai profesinya, berada dalam cakupannya, dan pemiliknya tidak memblokirnya. Jika salah satu tidak terpenuhi, ia hanya melihat permintaan, penilaian pemiliknya, area, dan profesi, tanpa nama, nomor, lingkungan, atau tombol kontak. Pemohon layanan dan pengunjung melihat permintaan hanya sebagai informasi. Untuk menawarkan layanan, buka «Akun saya» ← «Jenis akun», lalu pilih profesi dan cakupan Anda."
       },
       "rating": {
         "question": "Bagaimana cara menilai penyedia layanan?",
@@ -2058,7 +2062,7 @@
     "book_illustration_note": "Gambar memakai data uji; tata layar dapat berbeda sesuai izin dan ukuran perangkat.",
     "book_navigation": "Navigasi halaman panduan",
     "features_title": "Percakapan, penilaian, dan panggilan",
-    "features_contact": "Saat menghubungi, buka percakapan sebelumnya atau mulai yang baru. Percakapan lama tetap tersimpan.",
+    "features_contact": "Saat menghubungi, buka percakapan sebelumnya atau mulai yang baru. Percakapan lama tetap tersimpan. Kontak dengan pemilik permintaan hanya ditawarkan kepada penyedia layanan yang seprofesi dengan permintaan, berada dalam cakupannya, dan tidak diblokir oleh pemiliknya.",
     "features_reviews": "Setelah layanan selesai, kedua pihak saling memberi penilaian dan menulis pendapat. Kartu menampilkan rata-rata, jumlah penilaian, dan pendapat.",
     "features_messages": "Cari di daftar atau di dalam percakapan. Aktifkan huruf tebal dari pengaturan. Pilih pesan Anda lalu pilih percakapan penerima untuk diteruskan, atau lampirkan foto, audio, atau video dari perangkat Anda.",
     "features_calls": "Android mulai dengan pengeras suara kecuali ada headset eksternal. Kamera mati sampai Anda menyalakannya; pemilihan keluaran suara di browser tergantung dukungan browser dan perangkat.",

@@ -1858,7 +1858,7 @@
       },
       "offers": {
         "title": "Hintayin ang mga provider, o ikaw ang kumontak",
-        "body": "Agad na makakarating ang iyong kahilingan sa mga provider ng trabahong iyon sa iyong distrito na nagtatrabaho ngayon, at kokontakin ka nila. Puwede mo ring kontakin ang available, o idagdag ang gusto mo sa «Aking direktoryo» para direkta mo siyang makontak sa susunod nang hindi gumagawa ng kahilingan. Kung papayagan ng provider, makikita ang kanyang mobile o WhatsApp number sa kanyang page at sa \"Aking direktoryo\", at hindi naise-save nang dalawang beses ang iisang numero sa \"Aking direktoryo\"."
+        "body": "Agad na makakarating ang iyong kahilingan sa mga provider ng trabahong iyon sa iyong distrito na nagtatrabaho ngayon, at kokontakin ka nila. Puwede mo ring kontakin ang available, o idagdag ang gusto mo sa «Aking direktoryo» para direkta mo siyang makontak sa susunod nang hindi gumagawa ng kahilingan. Kung papayagan ng provider, makikita ang kanyang mobile o WhatsApp number sa kanyang page at sa \"Aking direktoryo\", at hindi naise-save nang dalawang beses ang iisang numero sa \"Aking direktoryo\". Tanging provider na natutugunan ang tatlong kundisyon ang puwedeng kumontak sa iyo o makakita ng iyong pangalan, numero at barangay: ang trabaho ng kahilingan mo, ang lugar mo sa loob ng saklaw niya, at hindi mo siya na-block."
       },
       "chat": {
         "title": "Ang paglalarawan mo sa bawat chat, at «I-forward» para sa mga mensahe mo",
@@ -1884,7 +1884,7 @@
       },
       "quote": {
         "title": "Mag-usap hanggang magkasundo",
-        "body": "Buksan ang kahilingan at pindutin ang «Kontakin ang may-ari ng kahilingan», o hintaying kontakin ka niya. Pag-usapan sa chat ang trabaho, presyo at oras, nang walang alok na presyo. Pipindutin ng may-ari ng kahilingan ang «Nagkasundo» kapag pinili ka niya."
+        "body": "Buksan ang kahilingan. Lalabas lang ang «Kontakin ang may-ari ng kahilingan» kapag natugunan nang sabay ang tatlong kundisyon: nasa trabaho mo ang kahilingan, nasa loob ng saklaw mo ang lugar nito, at hindi ka na-block ng may-ari. Pagkatapos, pag-usapan sa chat ang trabaho, presyo at oras, nang walang alok na presyo; pipindutin ng may-ari ang «Nagkasundo» kapag pinili ka niya. Kung kahit isang kundisyon ay hindi natugunan, makikita mo lang ang kahilingan, ang rating ng may-ari at ang pampublikong detalye, walang pangalan, numero, barangay o kontak. Puwede ka ring maghintay na kontakin ka niya."
       },
       "work": {
         "title": "Gawin ang trabaho, saka mag-rate",
@@ -1922,6 +1922,10 @@
       "contact": {
         "question": "Paano ako makikipag-ugnayan sa support o magrereklamo?",
         "answer": "Mula sa menu na ☰ o sa ibaba ng page, piliin ang «Suporta at reklamo». Puwede kang mag-message sa amin nang direkta sa WhatsApp, o magpadala ng mensahe sa admin matapos pumili ng paksa: technical support, reklamo, mungkahi o mensahe sa admin. Darating ang sagot ng admin sa parehong page kasama ang notification, at may numero sa menu na nagpapakita ng bilang ng mga bagong sagot."
+      },
+      "contact_rules": {
+        "question": "Bakit wala akong makitang button para kumontak sa kahilingan ng iba?",
+        "answer": "Bukas lang ang pagkontak sa may-ari ng kahilingan sa provider na natutugunan nang sabay ang tatlong kundisyon: nasa trabaho niya ang kahilingan, nasa loob ng saklaw niya, at hindi siya na-block ng may-ari. Kapag kulang ang isa, makikita lang niya ang kahilingan, ang rating ng may-ari, ang lugar at ang trabaho, walang pangalan, numero, barangay o button ng pagkontak. Para sa impormasyon lang ang pagtingin ng mga humihiling at bisita sa mga kahilingan. Para mag-alok ng serbisyo, buksan ang «Aking account» ← «Uri ng account» at piliin ang trabaho at saklaw mo."
       },
       "rating": {
         "question": "Paano ko ire-rate ang service provider?",
@@ -2058,7 +2062,7 @@
     "book_illustration_note": "Mga larawang halimbawa na may test data; maaaring mag-iba ang ayos ng screen ayon sa pahintulot at laki ng device.",
     "book_navigation": "Paglipat ng page ng gabay",
     "features_title": "Chat, rating at mga tawag",
-    "features_contact": "Kapag kumokontak, piliing buksan ang naunang chat o magsimula ng bago. Mananatiling naka-save ang mga lumang chat.",
+    "features_contact": "Kapag kumokontak, piliing buksan ang naunang chat o magsimula ng bago. Mananatiling naka-save ang mga lumang chat. Ang pagkontak sa may-ari ng kahilingan ay inaalok lang sa provider na kapareho ng trabaho ng kahilingan, nasa loob ng saklaw niya, at hindi na-block ng may-ari.",
     "features_reviews": "Pagkatapos ng serbisyo, ire-rate ng bawat panig ang isa't isa at isusulat ang opinyon. Makikita sa card ang average, bilang ng rating at mga opinyon.",
     "features_messages": "Maghanap sa listahan o sa loob ng chat. I-on ang bold na text sa mga setting. Piliin ang mga mensahe mo saka piliin ang mga chat na pagpapasahan, o mag-attach ng larawan, audio o video mula sa iyong device.",
     "features_calls": "Nagsisimula ang Android sa speaker maliban kung may nakakonektang external headset. Naka-off ang camera hanggang i-on mo; nakadepende sa browser at device ang pagpili ng output ng tunog.",

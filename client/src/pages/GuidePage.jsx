@@ -12,7 +12,7 @@ const WALLET_POINTS = ['coupon', 'invite', 'commission', 'balance', 'withdraw', 
 
 const CLIENT_STEPS = ['browse', 'details', 'location', 'offers', 'chat', 'finish'];
 const PROVIDER_STEPS = ['signup', 'profile', 'find', 'quote', 'work'];
-const QUESTIONS = ['price', 'areas', 'tracking', 'dispute', 'subscription', 'contact', 'language', 'rating'];
+const QUESTIONS = ['price', 'areas', 'tracking', 'contact_rules', 'dispute', 'subscription', 'contact', 'language', 'rating'];
 
 function GuideSteps({ role, steps, title, intro, icon }) {
   const { t, i18n } = useTranslation();

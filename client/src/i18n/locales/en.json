@@ -1858,7 +1858,7 @@
       },
       "offers": {
         "title": "Wait for providers, or contact them yourself",
-        "body": "Your request reaches providers of that profession working now in your area straight away, and they contact you. You can also contact whoever is available, or add the ones you like to \"My directory\" to contact them directly later without posting a request. If a provider allows it, their mobile or WhatsApp number shows on their page and in \"My directory\", and the same number is never kept twice in \"My directory\"."
+        "body": "Your request reaches providers of that profession working now in your area straight away, and they contact you. You can also contact whoever is available, or add the ones you like to \"My directory\" to contact them directly later without posting a request. If a provider allows it, their mobile or WhatsApp number shows on their page and in \"My directory\", and the same number is never kept twice in \"My directory\". Only a provider who meets all three conditions (your profession, your area inside their coverage, and you have not blocked them) can contact you or see your name, number and neighbourhood."
       },
       "chat": {
         "title": "Your description in every chat; \"Forward\" your messages",
@@ -1884,7 +1884,7 @@
       },
       "quote": {
         "title": "Talk until you agree",
-        "body": "Open the request and tap “Contact the requester”, or wait for them to contact you. Agree in the chat on the work, price and time, with no price offers. The requester taps “Agreed” when they choose you."
+        "body": "Open the request. “Contact the requester” appears only when all three conditions are met: the request is in your profession, its area is inside your coverage, and its owner has not blocked you. Then agree in the chat on the work, price and time, with no price offers; the requester taps “Agreed” when they choose you. If even one condition is not met, you see only the request, its owner’s rating and the public details, with no name, number, neighbourhood or contact. You can also wait for them to contact you."
       },
       "work": {
         "title": "Do the work, then rate",
@@ -1922,6 +1922,10 @@
       "contact": {
         "question": "How do I contact support or file a complaint?",
         "answer": "From the ☰ menu or the bottom of the page, choose «Support and complaints». You can message us on WhatsApp directly, or send a message to the administration after choosing a topic: technical support, complaint, suggestion or administration. The reply arrives on the same page with a notification, and a number on the menu shows new replies."
+      },
+      "contact_rules": {
+        "question": "Why don’t I see a contact button on someone’s request?",
+        "answer": "Contacting a request’s owner is open only to a provider who meets all three conditions together: the request is in their profession, it is inside their coverage, and its owner has not blocked them. If one is missing, they see only the request, its owner’s rating, its area and its profession, with no name, number, neighbourhood or contact button. Requesters and visitors can view requests for information only. To offer services, open “My account”, then “Account type”, and choose your profession and coverage."
       },
       "rating": {
         "question": "How do I rate a service provider?",
@@ -2058,7 +2062,7 @@
     "book_illustration_note": "Illustrations use test data; screen layout varies with permissions and device size.",
     "book_navigation": "Guide page navigation",
     "features_title": "Conversations, ratings and calls",
-    "features_contact": "When contacting someone, open the previous conversation or start a new one. Existing conversations remain saved.",
+    "features_contact": "When contacting someone, open the previous conversation or start a new one. Existing conversations remain saved. Contact with a request’s owner is offered only to a provider in the request’s profession, inside their coverage, and not blocked by the owner.",
     "features_reviews": "After the service is completed, each side rates the other and writes an opinion. Cards show the average rating, the number of ratings and the opinions.",
     "features_messages": "Search the list or a conversation. Enable bold text in settings. Select your messages and recipient conversations to forward, or attach photos, audio or video from your device.",
     "features_calls": "Android starts on speaker unless an external headset is connected. Your camera stays off until enabled; browser output selection depends on device support.",
