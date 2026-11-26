@@ -15,7 +15,7 @@ let lastPrune = 0;
 const counted = new Set(); // visitors this process already counted on countedDay
 let countedDay = '';
 let statsCache = null; // { at, today, total }
-const STATS_MS = process.env.NODE_ENV === 'test' ? 0 : 10000;
+const STATS_MS = process.env.NODE_ENV === 'test' ? 0 : 3000;
 
 // AYK-253: the "online now" list forgets idle visitors on a timer (it was only cleaned when
 // someone read the counter) and never holds more than 200,000 entries.
@@ -63,19 +63,15 @@ async function prune() {
   await query("DELETE FROM entity_views WHERE view_day < CURRENT_DATE - INTERVAL '1 day'").catch(() => {});
 }
 
-// AYK-350 (the owner: «إذا دخل أكثر من مرة تُحسب كل مرة، لو تكرر دخوله 10 مرات تُضاف 10 زيارات»):
-// every entry to the site counts as a visit. The page says when it is an entry (once per opening of
-// the site or the app, not on every page or on the 2-minute "still here" reports); the same visitor
-// entering again within a minute is one entry (a reload loop does not inflate the counter).
-// AYK-376: a reload counts; the short gap only drops a doubled report of the same opening.
-const ENTRY_GAP_MS = 3 * 1000;
-const lastEntry = new Map(); // viewer key -> last counted entry (ms)
-async function countEntry(key) {
-  const now = Date.now();
-  if (now - (lastEntry.get(key) || 0) < ENTRY_GAP_MS) return;
-  if (lastEntry.size >= 200000) lastEntry.clear();
-  lastEntry.set(key, now);
+// AYK-350 (the owner: «إذا دخل أكثر من مرة تُحسب كل مرة، لو تكرر دخوله 10 مرات تُضاف 10 زيارات»), AYK-376 and AYK-507
+// («عداد الزوار يتحدث مع كل تحديث أو دخول، ولو كان نفس الشخص كل مرة يدخل أو يحدث يزيد العداد»): every entry to the
+// site counts as a visit, the same person again and again. The page says when it is an entry (each opening of the
+// site or the app, each reload, and coming back to a page left in the background for a while); the 2-minute
+// «still here» reports are not entries. There is no waiting gap any more. The answer that follows an entry is read
+// fresh from the database, so the number the visitor sees already includes his own visit.
+async function countEntry() {
   await query('INSERT INTO visit_days (day, visitors) VALUES (CURRENT_DATE, 1) ON CONFLICT (day) DO UPDATE SET visitors = visit_days.visitors + 1');
+  statsCache = null;
 }
 
 // Marks this visitor online; counts a visit for each entry (AYK-350), or, from an older page that
@@ -85,7 +81,7 @@ async function recordVisit(req, { entry } = {}) {
   const key = viewerKey(req);
   markOnline(key);
   if (entry !== undefined) {
-    if (entry) await countEntry(key);
+    if (entry) await countEntry();
     return;
   }
   // AYK-256: an open page reports every 2 minutes; once this copy of the server has counted the
@@ -116,7 +112,7 @@ async function recordRequestView(req, request) {
 async function stats() {
   const now = Date.now();
   for (const [key, at] of online) if (now - at > ONLINE_MS) online.delete(key);
-  // AYK-256: the two totals are read at most once every 10 seconds, whoever asks.
+  // AYK-256: the two totals are read at most once every 3 seconds per server copy, whoever asks (AYK-507: was 10).
   if (!statsCache || now - statsCache.at >= STATS_MS) {
     const row = await queryOne(`SELECT COALESCE(SUM(visitors), 0) AS total,
       COALESCE(SUM(CASE WHEN day = CURRENT_DATE THEN visitors ELSE 0 END), 0) AS today FROM visit_days`);

@@ -494,12 +494,13 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     const start = (await enter('Mozilla/5.0 Entry-A', false)).today;
     assert.equal((await enter('Mozilla/5.0 Entry-A', true)).today, start + 1, 'an entry counts');
     assert.equal((await enter('Mozilla/5.0 Entry-A', false)).today, start + 1, 'a still-here report does not');
-    assert.equal((await enter('Mozilla/5.0 Entry-A', true)).today, start + 1, 'a doubled report of the same opening is one entry');
-    // AYK-376: a reload a few seconds later is a new visit.
-    await new Promise(resolve => setTimeout(resolve, 3100));
-    assert.equal((await enter('Mozilla/5.0 Entry-A', true)).today, start + 2, 'a reload counts');
-    assert.equal((await enter('Mozilla/5.0 Entry-B', true)).today, start + 3);
-    assert.equal((await enter('Googlebot/2.1', true)).today, start + 3, 'crawlers are not counted');
+    // AYK-507 (the owner): every entry counts, the same person again and again, with no waiting gap, and the
+    // number in the answer already includes it.
+    assert.equal((await enter('Mozilla/5.0 Entry-A', true)).today, start + 2, 'the same person entering again counts at once');
+    assert.equal((await enter('Mozilla/5.0 Entry-A', true)).today, start + 3, 'and again (a reload)');
+    assert.equal((await enter('Mozilla/5.0 Entry-A', false)).today, start + 3, 'a still-here report still does not');
+    assert.equal((await enter('Mozilla/5.0 Entry-B', true)).today, start + 4);
+    assert.equal((await enter('Googlebot/2.1', true)).today, start + 4, 'crawlers are not counted');
     const before = (await visit('Mozilla/5.0 Visitor-A')).today;
     assert.equal((await visit('Mozilla/5.0 Visitor-A')).today, before, 'the same visitor again is not counted');
     assert.equal((await visit('Mozilla/5.0 Visitor-B')).today, before + 1);
