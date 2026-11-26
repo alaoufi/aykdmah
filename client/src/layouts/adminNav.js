@@ -23,7 +23,7 @@ export const NAV_GROUPS = [
     ],
   },
   {
-    // The people: accounts, providers and their identity checks.
+    // The people: accounts, providers, their identity checks, their balances and their messages to the administration.
     label: 'admin.users',
     items: [
       { to: '/admin/users',         icon: '👥', labelKey: 'admin.users',           perm: 'users.manage' },
@@ -31,11 +31,12 @@ export const NAV_GROUPS = [
       { to: '/admin/verifications', icon: '🪪', labelKey: 'admin.verifications',   perm: 'verifications.review' },
       // AYK-464 (the owner: «وين أحصل صفحة تقرير رصيد المستخدمين؟ أضفها مع المستخدمين»).
       { to: '/admin/marketers',     icon: '💳', labelKey: 'admin.marketers',       perm: 'wallets.manage' },
+      // AYK-505 (the owner: «اجمع المتشابهات: المستخدمين ورصيد المستخدمين ورسائل المستخدمين»): the users' messages sit with the users.
+      { to: '/admin/support',       icon: '📨', labelKey: 'support.admin_title',   perm: 'users.manage' },
     ],
   },
   {
-    // The work between them: requests, then what follows them (talk, calls, reviews, disputes),
-    // and the users' messages to the administration.
+    // The work between them: requests, then what follows them (talk, calls, reviews, disputes).
     label: 'admin.nav_work',
     items: [
       { to: '/admin/requests',      icon: '📋', labelKey: 'admin.requests',              perm: 'requests.manage' },
@@ -43,7 +44,6 @@ export const NAV_GROUPS = [
       { to: '/admin/calls',         icon: '📞', labelKey: 'calls.admin.title',           perm: 'conversations.read' },
       { to: '/admin/reviews',       icon: '⭐', labelKey: 'admin.reviews',               perm: 'reviews.manage' },
       { to: '/admin/disputes',      icon: '⚖️', labelKey: 'dispute.admin_title',         perm: 'disputes.manage' },
-      { to: '/admin/support',       icon: '📨', labelKey: 'support.admin_title',         perm: 'users.manage' },
     ],
   },
   {

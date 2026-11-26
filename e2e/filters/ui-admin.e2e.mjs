@@ -32,6 +32,19 @@ for (const viewport of wanted) {
   await page.context().close();
 }
 
+// AYK-505 (the owner: «اجمع المتشابهات: المستخدمين ورصيد المستخدمين ورسائل المستخدمين»): they sit together in the menu.
+for (const viewport of wanted) {
+  const page = await openAs({ adminToken: fixtures.adminToken, viewport });
+  await goto(page, '/admin');
+  await page.locator('nav a[href="/admin/users"]').first().waitFor({ state: 'attached', timeout: 30000 }); await settle(page, 400);
+  const hrefs = await page.locator('nav a[href^="/admin"]').evaluateAll(list => list.map(a => a.getAttribute('href')));
+  const want = ['/admin/users', '/admin/providers', '/admin/verifications', '/admin/marketers', '/admin/support'];
+  const at = hrefs.indexOf('/admin/users');
+  check(`UI admin menu ${viewport}: users, providers, verifications, users' balances and users' messages are one group, in this order`, at >= 0 && JSON.stringify(hrefs.slice(at, at + want.length)) === JSON.stringify(want), hrefs.join(' '));
+  check(`UI admin menu ${viewport}: no page errors`, page.errors.length === 0, page.errors.slice(0, 2).join(' | '));
+  await page.context().close();
+}
+
 // AYK-504: the users list: tight rows with the ⋮ menu at the end (تعديل / حظر / إخفاء / حذف); hidden accounts are marked and filterable.
 {
   const victim = fixtures.clients[10].id;

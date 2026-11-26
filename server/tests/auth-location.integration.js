@@ -1807,6 +1807,38 @@ if (!databasePrefix) {
     assert.ok(await inMatching() !== undefined);
   });
 
+  test('AYK-505: districts the administration edited or added survive an update (migrations run again) and a new migration run', async () => {
+    const area = await simpleArea();
+    const boss = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await db.query('UPDATE users SET role = ?, is_super_admin = 1 WHERE id = ?', ['admin', boss.user.id]);
+    const account = await db.queryOne('SELECT auth_version FROM users WHERE id = ?', [boss.user.id]);
+    const admin = require('../utils/jwt').sign({ id: boss.user.id, role: 'admin', auth_version: Number(account.auth_version || 0) });
+    // the owner edits a district's name and adds a new district
+    const existingId = area.districts[0];
+    const renamed = await api(`/districts/${existingId}`, { method: 'PUT', token: admin, body: { name_ar: 'حي معدّل بيد المالك', name_en: 'Owner Edited District' } });
+    const added = await api('/districts', { method: 'POST', token: admin, expected: 201, body: { city_id: area.city_id, name_ar: 'حي أضافه المالك', name_en: 'Owner Added District', latitude: 24.7, longitude: 46.7 } });
+    const newId = Number(added.id);
+    assert.ok(newId > 0 && renamed);
+    const state = async () => ({ edited: await db.queryOne('SELECT name_ar, name_en FROM districts WHERE id = ?', [existingId]), added: await db.queryOne('SELECT name_ar, name_en, city_id FROM districts WHERE id = ?', [newId]) });
+    const before = await state();
+    assert.equal(before.edited.name_ar, 'حي معدّل بيد المالك');
+    // an update: the app starts and applies the migrations again (nothing is pending, so nothing changes)
+    const install = require('../services/installService');
+    const first = await install.runMigrationsFromEnv();
+    const second = await install.runMigrationsFromEnv();
+    assert.equal(first.applied.length, 0, 'every migration is already recorded, so none runs again');
+    assert.equal(second.applied.length, 0);
+    assert.deepEqual(await state(), before, 'the edited and the added district are exactly as the owner left them');
+    // a forced re-run of every migration file must not undo the owner's edits either
+    await db.query('DELETE FROM schema_migrations');
+    const all = await install.runMigrationsFromEnv();
+    assert.ok(all.applied.length > 100, 'all migrations ran again');
+    const after = await state();
+    assert.equal(after.edited.name_ar, 'حي معدّل بيد المالك', 'a full re-run keeps the edited name');
+    assert.equal(after.edited.name_en, 'Owner Edited District', 'and the edited English name');
+    assert.ok(after.added && after.added.name_ar === 'حي أضافه المالك', 'and the added district');
+  });
+
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
