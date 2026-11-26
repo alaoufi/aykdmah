@@ -1361,6 +1361,8 @@ if (!databasePrefix) {
     assert.equal(notice.title, 'New request in your profession');
     assert.match(notice.body, /Fix the AC/);
     assert.match(notice.body, /chat or WhatsApp/, 'how to reach the requester: chat and WhatsApp (shown), not a call');
+    // AYK-508: the notice names the profession and the area, in the provider's language.
+    assert.match(notice.body, /Profession: .+ — Area: .+/, 'the profession and the area are in the notice');
     // AYK-456: every provider of the profession in the area is told, at any hour, unless he turned notices off.
     let quietTold = null;
     for (let i = 0; i < 150 && !quietTold; i += 1) {

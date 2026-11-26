@@ -91,6 +91,7 @@ async function announceToProviders(req, request) {
     const owner = await queryOne(`SELECT to_jsonb(u)->>'share_phone' AS share_phone, to_jsonb(u)->>'share_whatsapp' AS share_whatsapp FROM users u WHERE u.id = ?`, [request.client_id]).catch(() => null);
     const ways = owner?.share_phone === '1' && owner?.share_whatsapp === '1' ? 'request_new_contact_all'
       : owner?.share_phone === '1' ? 'request_new_contact_phone' : owner?.share_whatsapp === '1' ? 'request_new_contact_whatsapp' : 'request_new_contact_chat';
+    const scopeRow = await require('../services/requestScope').loadScope(request);
     const readers = await query(`SELECT id, ui_lang FROM users WHERE id IN (${ids.map(() => '?').join(', ')})`, ids);
     const langOf = new Map(readers.map(row => [Number(row.id), row.ui_lang || 'ar']));
     const texts = new Map();
@@ -101,7 +102,7 @@ async function announceToProviders(req, request) {
         const translated = lang === 'ar' ? null : await queryOne('SELECT title FROM request_translations WHERE request_id = ? AND lang = ?', [request.id, lang]).catch(() => null);
         texts.set(lang, {
           title: translate(lang, 'request_new_title'),
-          body: `${translate(lang, 'request_new_where', { title: translated?.title || request.title, city: city || '' })} ${translate(lang, ways)}`.trim(),
+          body: `${translate(lang, 'request_new_where', { title: translated?.title || request.title, city: city || '' })} ${translate(lang, 'request_scope', require('../services/requestScope').scopeIn(scopeRow, lang))} ${translate(lang, ways)}`.trim(),
         });
       }
       await notificationService.notifyUser(id, {

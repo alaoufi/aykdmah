@@ -28,13 +28,26 @@ const create = asyncHandler(async (req, res) => {
 
   await notificationService.notifyUser(request.client_id, {
     type: 'new_offer',
-    title: req.t('notif_new_offer_title'),
-    body: req.t('notif_new_offer_body', { name: req.user.full_name, price }),
+    ...(await offerNoticeTexts(request, req.user.full_name, price)),
     link: `/requests/${request_id}`,
     data: { request_id, offer_id: offerId },
   });
   return created(res, offer, req.t('offer_sent'));
 });
+
+// AYK-508: the notice to the requester is in the requester's language (not the provider's who sends it) and
+// names the profession and the area of the request.
+async function offerNoticeTexts(request, providerName, price) {
+  const { translate } = require('../utils/i18n');
+  const { queryOne } = require('../config/database');
+  const lang = (await queryOne('SELECT ui_lang FROM users WHERE id = ?', [request.client_id]).catch(() => null))?.ui_lang || 'ar';
+  const scope = require('../services/requestScope');
+  const sc = scope.scopeIn(await scope.loadScope(request), lang);
+  return {
+    title: translate(lang, 'notif_new_offer_title'),
+    body: `${translate(lang, 'notif_new_offer_body', { name: providerName, price })} ${translate(lang, 'request_scope', sc)}`,
+  };
+}
 
 const getForRequest = asyncHandler(async (req, res) => {
   const request = await Request.findById(req.params.requestId);
