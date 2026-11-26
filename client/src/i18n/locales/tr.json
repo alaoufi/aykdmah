@@ -1858,7 +1858,7 @@
       },
       "offers": {
         "title": "Talebiniz hizmet verenleri bekler, ya da siz iletişime geçin",
-        "body": "Talebiniz hemen mahallenizde şu an çalışan o meslekteki hizmet verenlere ulaşır ve sizinle iletişime geçerler. Siz de müsait olanla iletişime geçebilir ya da beğendiklerinizi «Rehberim»e ekleyip daha sonra talep oluşturmadan doğrudan iletişime geçebilirsiniz. Hizmet veren izin verirse cep veya WhatsApp numarası sayfasında ve \"Rehberim\"de görünür; aynı numara \"Rehberim\"e iki kez kaydedilmez."
+        "body": "Talebiniz hemen mahallenizde şu an çalışan o meslekteki hizmet verenlere ulaşır ve sizinle iletişime geçerler. Siz de müsait olanla iletişime geçebilir ya da beğendiklerinizi «Rehberim»e ekleyip daha sonra talep oluşturmadan doğrudan iletişime geçebilirsiniz. Hizmet veren izin verirse cep veya WhatsApp numarası sayfasında ve \"Rehberim\"de görünür; aynı numara \"Rehberim\"e iki kez kaydedilmez. Yalnızca üç koşulu da sağlayan hizmet veren sizinle iletişime geçebilir veya adınızı, numaranızı ve mahallenizi görebilir: talebinizin mesleği, bölgenizin onun kapsama alanında olması ve onu engellememiş olmanız."
       },
       "chat": {
         "title": "Açıklamanız her sohbette, mesajlarınız için «İlet»",
@@ -1884,7 +1884,7 @@
       },
       "quote": {
         "title": "Anlaşana kadar konuşun",
-        "body": "Talebi açıp «Talep sahibiyle iletişime geç»e dokunun ya da sizinle iletişime geçmesini bekleyin. İşi, fiyatı ve randevuyu fiyat teklifi olmadan sohbette konuşun. Talep sahibi sizi seçtiğinde «Anlaştık»a dokunur."
+        "body": "Talebi açın. «Talep sahibiyle iletişime geç» yalnızca üç koşul birlikte sağlandığında görünür: talep mesleğinizde olmalı, bölgesi kapsama alanınızın içinde olmalı ve sahibi sizi engellememiş olmalı. Ardından işi, fiyatı ve randevuyu fiyat teklifi olmadan sohbette konuşun; talep sahibi sizi seçtiğinde «Anlaştık»a dokunur. Koşullardan biri bile sağlanmazsa yalnızca talebi, sahibinin puanını ve genel bilgileri görürsünüz; ad, numara, mahalle veya iletişim yoktur. Sizinle iletişime geçmesini de bekleyebilirsiniz."
       },
       "work": {
         "title": "İşi yapın, sonra değerlendirin",
@@ -1922,6 +1922,10 @@
       "contact": {
         "question": "Teknik destekle nasıl iletişim kurarım veya şikâyette bulunurum?",
         "answer": "☰ menüsünden veya sayfanın altından «Teknik destek ve şikâyetler»i seçin. Bize doğrudan WhatsApp'tan yazabilir ya da bir konu seçip yönetime mesaj gönderebilirsiniz: teknik destek, şikâyet, öneri veya yönetimle yazışma. Yönetimin yanıtı aynı sayfaya bildirimle gelir ve menüde yeni yanıtların sayısı görünür."
+      },
+      "contact_rules": {
+        "question": "Birinin talebinde neden iletişim düğmesini görmüyorum?",
+        "answer": "Talep sahibiyle iletişim yalnızca üç koşulu birlikte sağlayan hizmet verene açılır: talep mesleğinde olmalı, kapsama alanı içinde olmalı ve sahibi onu engellememiş olmalı. Biri eksikse yalnızca talebi, sahibinin puanını, bölgesini ve mesleğini görür; ad, numara, mahalle veya iletişim düğmesi yoktur. Talep edenler ve ziyaretçiler talepleri yalnızca bilgi için görür. Hizmet vermek için «Hesabım» ← «Hesap türü» bölümünü açıp mesleğinizi ve kapsama alanınızı seçin."
       },
       "rating": {
         "question": "Hizmet vereni nasıl değerlendiririm?",
@@ -2058,7 +2062,7 @@
     "book_illustration_note": "Resimler test verisi kullanır; ekran düzeni izinlere ve cihaz boyutuna göre değişebilir.",
     "book_navigation": "Kılavuz sayfalarını çevir",
     "features_title": "Sohbetler, değerlendirmeler ve aramalar",
-    "features_contact": "İletişim kurarken önceki sohbeti açın veya yenisini başlatın. Eski sohbetler saklanır.",
+    "features_contact": "İletişim kurarken önceki sohbeti açın veya yenisini başlatın. Eski sohbetler saklanır. Talep sahibiyle iletişim yalnızca talebin mesleğindeki, kapsama alanı içindeki ve sahibi tarafından engellenmemiş hizmet verene sunulur.",
     "features_reviews": "Hizmet tamamlandıktan sonra her taraf diğerini değerlendirir ve görüşünü yazar. Kartta ortalama, değerlendirme sayısı ve görüşler görünür.",
     "features_messages": "Listede veya sohbet içinde arayın. Kalın yazıyı ayarlardan açın. İletmek için mesajlarınızı seçip alıcı sohbetleri seçin ya da cihazınızdan fotoğraf, ses veya video ekleyin.",
     "features_calls": "Harici kulaklık yoksa Android hoparlörle başlar. Kamera siz açana kadar kapalıdır; tarayıcıda ses çıkışını seçmek tarayıcının ve cihazın desteğine bağlıdır.",
