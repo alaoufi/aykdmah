@@ -674,7 +674,7 @@ export default function ChatPage() {
                         ? <span className="text-emerald-600 font-semibold" data-testid="chat-online">🟢 {t('chat.online')}</span>
                         : otherParticipant.last_seen_at
                           ? <span className="text-rose-600 font-semibold" data-testid="chat-last-seen">🔴 {t('availability.label_disconnected')} · <span className="font-normal">{`${t('chat.last_seen')} ${dayLabel(otherParticipant.last_seen_at, t)} ${formatTime(otherParticipant.last_seen_at)}`}</span></span>
-                          : realtimeMode === 'polling' ? t('chat.periodic_updates', { defaultValue: 'تُحدّث الرسائل كل 5 ثوانٍ' }) : ''}
+                          : realtimeMode === 'polling' ? t('chat.periodic_updates') : ''}
                     </div>
                   </div>
                   {canSend && <CallButtons conversationId={Number(activeId)} compact />}

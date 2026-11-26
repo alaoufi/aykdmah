@@ -263,6 +263,7 @@
     "geolocation_unavailable": "Hindi available ang lokasyon ngayon",
     "geolocation_timeout": "Nag-timeout ang paghahanap ng lokasyon",
     "geolocation_failed": "Hindi makuha ang lokasyon",
+    "use_my_location": "Gamitin ang aking lokasyon",
     "no_districts": "Walang nakatalang distrito para sa lungsod na ito",
     "options_unavailable": "Hindi ma-load ang mga lokasyon, i-reload ang page"
   },
@@ -774,6 +775,7 @@
     "open_in_maps": "Buksan sa Google Maps",
     "permission_required": "Kailangan ang pahintulot sa lokasyon para masubaybayan",
     "live_share": "Live share",
+    "last_location": "Huling ibinahaging lokasyon",
     "periodic_updates": "Ina-update ang lokasyon bawat 10 segundo habang bukas ang page"
   },
   "verify": {

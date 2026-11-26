@@ -263,6 +263,7 @@
     "geolocation_unavailable": "Lokasi saat ini tidak tersedia",
     "geolocation_timeout": "Waktu pencarian lokasi habis",
     "geolocation_failed": "Gagal mendapatkan lokasi Anda",
+    "use_my_location": "Gunakan lokasi saya",
     "no_districts": "Tidak ada lingkungan yang terdaftar untuk kota ini",
     "options_unavailable": "Tidak dapat memuat lokasi. Muat ulang halaman"
   },
@@ -774,6 +775,7 @@
     "open_in_maps": "Buka di Google Maps",
     "permission_required": "Izin lokasi diperlukan untuk melanjutkan pelacakan",
     "live_share": "Berbagi langsung",
+    "last_location": "Lokasi terakhir yang dibagikan",
     "periodic_updates": "Lokasi diperbarui setiap 10 detik saat halaman ini terbuka"
   },
   "verify": {

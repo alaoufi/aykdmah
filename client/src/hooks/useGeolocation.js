@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { getCurrentPosition } from '../utils/geolocation.mjs';
+import i18n from '../i18n';
 
 export function useGeolocation() {
   const [position, setPosition] = useState(null);
@@ -21,11 +22,10 @@ export function useGeolocation() {
       return coords;
     } catch (err) {
       if (!controller.signal.aborted) {
-        let msg = 'تعذر الحصول على الموقع';
-        if (err.code === 1) msg = 'تم رفض إذن الموقع';
-        else if (err.code === 2) msg = 'الموقع غير متاح حالياً';
-        else if (err.code === 3) msg = 'انتهت مهلة الموقع';
-        setError(msg);
+        // The message in the reader's language, from the site texts (it was Arabic only, written in the code).
+        const key = err.code === 1 ? 'location.geolocation_denied' : err.code === 2 ? 'location.geolocation_unavailable'
+          : err.code === 3 ? 'location.geolocation_timeout' : 'location.geolocation_failed';
+        setError(i18n.t(key));
       }
       throw err;
     } finally {

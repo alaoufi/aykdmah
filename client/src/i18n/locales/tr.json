@@ -263,6 +263,7 @@
     "geolocation_unavailable": "Konum şu anda kullanılamıyor",
     "geolocation_timeout": "Konum alma süresi doldu",
     "geolocation_failed": "Konum alınamadı",
+    "use_my_location": "Konumumu kullan",
     "no_districts": "Bu şehir için kayıtlı mahalle yok",
     "options_unavailable": "Konumlar yüklenemedi, sayfayı yenileyin"
   },
@@ -774,6 +775,7 @@
     "open_in_maps": "Google Haritalar'da aç",
     "permission_required": "Takibe devam etmek için konum izni gerekli",
     "live_share": "Canlı paylaşım",
+    "last_location": "Paylaşılan son konum",
     "periodic_updates": "Sayfa açıkken konum her 10 saniyede güncellenir"
   },
   "verify": {

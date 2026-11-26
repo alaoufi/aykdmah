@@ -32,6 +32,32 @@ for (const viewport of wanted) {
   await page.context().close();
 }
 
+// AYK-503: the texts page: tight rows, each field locked until «تعديل» in the ⋮ menu in front of it, and «حفظ» in that menu.
+for (const viewport of wanted) {
+  const page = await openAs({ adminToken: fixtures.adminToken, viewport });
+  await goto(page, '/admin/texts');
+  await page.getByTestId('text-row').first().waitFor({ timeout: 30000 }); await settle(page, 500);
+  const row = page.getByTestId('text-row').first();
+  const field = row.getByTestId('text-field');
+  check(`UI admin texts ${viewport}: a field is locked until «تعديل»`, await field.evaluate(el => el.readOnly), '');
+  await row.getByTestId('text-menu').click();
+  const menuText = await row.getByTestId('text-menu-list').innerText();
+  check(`UI admin texts ${viewport}: the ⋮ menu has «تعديل» and «حفظ»`, /تعديل/.test(menuText) && /حفظ/.test(menuText), menuText.replace(/\s+/g, ' '));
+  check(`UI admin texts ${viewport}: «حفظ» is off before any change`, await row.getByTestId('text-menu-save').isDisabled(), '');
+  await row.getByTestId('text-menu-edit').click();
+  check(`UI admin texts ${viewport}: after «تعديل» the field is editable`, !(await field.evaluate(el => el.readOnly)), '');
+  await field.fill((await field.inputValue()) + ' x');
+  await row.getByTestId('text-menu').click();
+  check(`UI admin texts ${viewport}: after a change «حفظ» is on`, !(await row.getByTestId('text-menu-save').isDisabled()), '');
+  await row.getByTestId('text-menu-undo').click();
+  check(`UI admin texts ${viewport}: «تراجع» restores the text and locks the field`, !(await field.inputValue()).endsWith(' x') && await field.evaluate(el => el.readOnly), '');
+  const heights = await page.getByTestId('text-row').evaluateAll(list => list.slice(0, 10).map(el => el.getBoundingClientRect().height));
+  check(`UI admin texts ${viewport}: the rows are tight (under 90 px each)`, heights.length > 0 && heights.every(h => h < 90), heights.map(Math.round).join(','));
+  check(`UI admin texts ${viewport}: no page errors`, page.errors.length === 0, page.errors.slice(0, 2).join(' | '));
+  if (process.env.KEEP_PDF) await page.screenshot({ path: path.join(process.env.KEEP_PDF, `texts-${viewport}.png`), clip: { x: 0, y: 0, width: page.viewportSize().width, height: Math.min(900, page.viewportSize().height) } });
+  await page.context().close();
+}
+
 for (const viewport of wanted) {
   for (const kind of ['requests', 'providers']) {
     const page = await openAs({ adminToken: fixtures.adminToken, viewport });

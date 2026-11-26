@@ -263,6 +263,7 @@
     "geolocation_unavailable": "Location currently unavailable",
     "geolocation_timeout": "Location request timed out",
     "geolocation_failed": "Failed to get your location",
+    "use_my_location": "Use my location",
     "no_districts": "No neighborhoods are listed for this city",
     "options_unavailable": "Could not load locations. Reload the page"
   },
@@ -774,6 +775,7 @@
     "open_in_maps": "Open in Google Maps",
     "permission_required": "Location permission required",
     "live_share": "Live share",
+    "last_location": "Last shared location",
     "periodic_updates": "Location updates every 10 seconds while this page is open"
   },
   "verify": {

@@ -355,7 +355,7 @@ export default function TrackingPage() {
                 <div className="text-[11.5px] text-slate-500">
                   {otherPosition
                     ? realtimeMode === 'polling'
-                      ? `${t('tracking.last_location', { defaultValue: 'آخر موقع مشارك' })} ${formatRelativeTime(otherPosition.created_at)}`
+                      ? `${t('tracking.last_location')} ${formatRelativeTime(otherPosition.created_at)}`
                       : `🟢 ${t('tracking.live_now')}`
                     : t('tracking.not_sharing')}
                 </div>
@@ -365,7 +365,7 @@ export default function TrackingPage() {
 
           {realtimeMode === 'polling' && (
             <p className="text-[11.5px] text-slate-500 mb-3">
-              {t('tracking.periodic_updates', { defaultValue: 'يُحدّث الموقع كل 10 ثوانٍ أثناء فتح الصفحة' })}
+              {t('tracking.periodic_updates')}
             </p>
           )}
           {updateError && <p role="alert" className="text-xs text-rose-700 mb-3">{t('errors.generic')}</p>}
