@@ -59,6 +59,8 @@ router.put('/:id',             ...gate, ...accountValidation, userController.upd
 router.get('/:id/reviews', optionalAuth, requireMarketplaceBrowse, userController.getProviderReviews);
 router.post('/:id/block',      ...gate, userController.block);
 router.post('/:id/unblock',    ...gate, userController.unblock);
+router.post('/:id/hide',       ...gate, userController.hide);
+router.post('/:id/show',       ...gate, userController.show);
 router.delete('/:id',          ...gate, userController.remove);
 
 module.exports = router;

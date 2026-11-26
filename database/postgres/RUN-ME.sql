@@ -6910,6 +6910,10 @@ UPDATE requests SET category_id = (SELECT s.category_id FROM services s WHERE s.
 WHERE category_id IS NULL AND service_id IS NOT NULL;
 INSERT INTO schema_migrations(name) VALUES ('119_requests_category_from_service.sql');
 
+-- migrations/120_users_hidden.sql
+ALTER TABLE users ADD COLUMN IF NOT EXISTS hidden_at TIMESTAMP NULL DEFAULT NULL;
+INSERT INTO schema_migrations(name) VALUES ('120_users_hidden.sql');
+
 -- updated_at triggers and monotonic sequence synchronization.
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS TRIGGER AS $$
 BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END;

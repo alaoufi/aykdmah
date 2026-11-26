@@ -263,6 +263,7 @@
     "geolocation_unavailable": "ቦታው አሁን አይገኝም",
     "geolocation_timeout": "ቦታውን የማግኘት ጊዜ አልፏል",
     "geolocation_failed": "ቦታዎን ማግኘት አልተቻለም",
+    "use_my_location": "ቦታዬን ይጠቀሙ",
     "no_districts": "ለዚህ ከተማ የተመዘገቡ ሰፈሮች የሉም",
     "options_unavailable": "አካባቢዎችን መጫን አልተቻለም። ገጹን ዳግም ይጫኑ"
   },
@@ -774,6 +775,7 @@
     "open_in_maps": "በGoogle ካርታ ይክፈቱ",
     "permission_required": "ክትትሉን ለመቀጠል የቦታ ፈቃድ ያስፈልጋል",
     "live_share": "የቀጥታ ማጋራት",
+    "last_location": "መጨረሻ የተጋራ አካባቢ",
     "periodic_updates": "ገጹ ክፍት እስካለ ድረስ ቦታው በየ10 ሰከንዱ ይታደሳል"
   },
   "verify": {

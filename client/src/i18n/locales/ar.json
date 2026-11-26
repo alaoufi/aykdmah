@@ -263,6 +263,7 @@
     "geolocation_unavailable": "الموقع غير متاح حالياً",
     "geolocation_timeout": "انتهت مهلة الموقع",
     "geolocation_failed": "تعذر الحصول على الموقع",
+    "use_my_location": "استخدم موقعي",
     "no_districts": "لا توجد أحياء مسجلة لهذه المدينة",
     "options_unavailable": "تعذر تحميل المواقع، أعد تحميل الصفحة"
   },
@@ -774,6 +775,7 @@
     "open_in_maps": "فتح في خرائط جوجل",
     "permission_required": "تحتاج إذن الموقع لمتابعة التتبع",
     "live_share": "مشاركة مباشرة",
+    "last_location": "آخر موقع مشارك",
     "periodic_updates": "يُحدّث الموقع كل 10 ثوانٍ أثناء فتح الصفحة"
   },
   "verify": {

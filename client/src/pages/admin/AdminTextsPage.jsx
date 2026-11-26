@@ -200,46 +200,72 @@ export default function AdminTextsPage() {
   );
 }
 
+// AYK-503 (the owner: «اجعلها متقاربة وثلاث نقط أمام الحقل فيه تعديل / حفظ»): tight rows; each field is locked until
+// «تعديل» in the ⋮ menu in front of it, and «حفظ» is in the same menu (with «تراجع» and «استرجاع الأصل» when they apply).
+// The administration is Arabic only, so these words are written here and not in the language files.
 function TextRow({ lang, textKey, original, edited, onSave, onReset }) {
   const { t } = useTranslation();
   const current = edited ?? original;
   const [value, setValue] = useState(current);
   const [busy, setBusy] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const [menu, setMenu] = useState(false);
+  const menuRef = useRef(null);
+  const fieldRef = useRef(null);
   useEffect(() => { setValue(current); }, [current]);
+  useEffect(() => {
+    if (!menu) return undefined;
+    const close = event => { if (!menuRef.current?.contains(event.target)) setMenu(false); };
+    const escape = event => { if (event.key === 'Escape') setMenu(false); };
+    document.addEventListener('pointerdown', close);
+    document.addEventListener('keydown', escape);
+    return () => { document.removeEventListener('pointerdown', close); document.removeEventListener('keydown', escape); };
+  }, [menu]);
 
   const changed = value !== current;
   const empty = !value.trim();
   const partsOk = samePlaceholders(original, value);
   const dir = getLanguageDir(lang);
+  const canSave = changed && !empty && partsOk && !busy;
 
   const run = async action => {
     setBusy(true);
-    try { await action(); } finally { setBusy(false); }
+    try { return await action(); } finally { setBusy(false); }
   };
+  const startEdit = () => { setMenu(false); setEditing(true); setTimeout(() => fieldRef.current?.focus(), 0); };
+  const save = async () => { setMenu(false); if (await run(() => onSave(textKey, value))) setEditing(false); };
+  const undo = () => { setMenu(false); setValue(current); setEditing(false); };
+  const resetToOriginal = async () => { setMenu(false); await run(() => onReset(textKey)); };
 
-  // Compact rows (AYK-220): the key and state on one small line, the text and its buttons together.
+  const item = 'w-full text-start px-3 py-1.5 text-[13px] font-semibold bg-transparent border-0 hover:bg-slate-50 disabled:opacity-40 disabled:hover:bg-transparent cursor-pointer';
   return (
-    <div className={`px-3 py-2 ${edited !== undefined ? 'bg-amber-50/60' : ''}`} data-testid="text-row">
-      <div className="flex items-center gap-2 text-[10.5px] leading-tight mb-1">
+    <div className={`px-2 py-1 ${edited !== undefined ? 'bg-amber-50/60' : ''}`} data-testid="text-row">
+      <div className="flex items-center gap-1.5 text-[10px] leading-tight mb-0.5">
         <code dir="ltr" className="text-fg-subtle break-all">{textKey}</code>
         {edited !== undefined && <span className="shrink-0 px-1.5 rounded-pill bg-amber-100 text-amber-800 font-bold">{t('admin.texts.edited')}</span>}
         {edited !== undefined && <span dir={dir} className="text-fg-muted truncate" title={original}>· {t('admin.texts.original')}: {original}</span>}
       </div>
-      <div className="flex items-start gap-1.5 flex-wrap sm:flex-nowrap">
-        <textarea dir={dir} value={value} onChange={e => setValue(e.target.value)} maxLength={5000}
-          rows={Math.min(4, Math.max(1, Math.ceil(value.length / 45)))} className="input flex-1 min-w-0 text-[13.5px] leading-snug"
-          style={{ minHeight: 0, height: 'auto', padding: '6px 10px', resize: 'vertical' }} />
-        <div className="flex gap-1 shrink-0">
-          <AdminButton size="sm" loading={busy} disabled={!changed || empty || !partsOk || busy}
-            onClick={() => run(() => onSave(textKey, value))}>{t('admin.texts.save')}</AdminButton>
-          {changed && <AdminButton size="sm" variant="ghost" disabled={busy} onClick={() => setValue(current)}>{t('admin.texts.undo')}</AdminButton>}
-          {edited !== undefined && !changed && (
-            <AdminButton size="sm" variant="warning" disabled={busy} onClick={() => run(() => onReset(textKey))}>{t('admin.texts.reset')}</AdminButton>
+      <div className="flex items-start gap-1">
+        <div className="relative shrink-0" ref={menuRef}>
+          <button type="button" aria-label="خيارات النص" aria-haspopup="menu" aria-expanded={menu} data-testid="text-menu"
+            onClick={() => setMenu(v => !v)}
+            className="w-8 h-8 grid place-items-center rounded-pill bg-transparent border-0 text-[18px] leading-none text-slate-600 hover:bg-slate-100 cursor-pointer">⋮</button>
+          {menu && (
+            <div role="menu" className="absolute z-20 top-9 start-0 min-w-[150px] rounded-card bg-white border border-slate-200 shadow-lift py-1" data-testid="text-menu-list">
+              <button type="button" role="menuitem" className={item} onClick={startEdit} disabled={editing || busy} data-testid="text-menu-edit">✏️ تعديل</button>
+              <button type="button" role="menuitem" className={item} onClick={save} disabled={!canSave} data-testid="text-menu-save">💾 حفظ</button>
+              {(changed || editing) && <button type="button" role="menuitem" className={item} onClick={undo} disabled={busy} data-testid="text-menu-undo">↩️ تراجع</button>}
+              {edited !== undefined && !changed && <button type="button" role="menuitem" className={`${item} text-amber-800`} onClick={resetToOriginal} disabled={busy} data-testid="text-menu-reset">♻️ استرجاع الأصل</button>}
+            </div>
           )}
         </div>
+        <textarea ref={fieldRef} dir={dir} value={value} onChange={e => setValue(e.target.value)} maxLength={5000} readOnly={!editing}
+          rows={Math.min(4, Math.max(1, Math.ceil(value.length / 45)))}
+          className={`input flex-1 min-w-0 text-[13.5px] leading-snug ${editing ? '' : 'bg-slate-50 text-slate-700 cursor-default'}`}
+          style={{ minHeight: 0, height: 'auto', padding: '4px 8px', resize: editing ? 'vertical' : 'none' }} data-testid="text-field" />
       </div>
-      {!partsOk && <p className="text-[11.5px] text-rose-700 mt-1 mb-0">{t('admin.texts.placeholders', { parts: textPlaceholders(original).join(' ') })}</p>}
-      {empty && <p className="text-[11.5px] text-rose-700 mt-1 mb-0">{t('admin.texts.empty_value')}</p>}
+      {!partsOk && <p className="text-[11.5px] text-rose-700 mt-0.5 mb-0">{t('admin.texts.placeholders', { parts: textPlaceholders(original).join(' ') })}</p>}
+      {empty && <p className="text-[11.5px] text-rose-700 mt-0.5 mb-0">{t('admin.texts.empty_value')}</p>}
     </div>
   );
 }

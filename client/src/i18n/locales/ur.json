@@ -263,6 +263,7 @@
     "geolocation_unavailable": "مقام فی الحال دستیاب نہیں ہے",
     "geolocation_timeout": "مقام کی درخواست کی مہلت ختم ہو گئی",
     "geolocation_failed": "آپ کا مقام حاصل کرنے میں ناکامی",
+    "use_my_location": "میرا مقام استعمال کریں",
     "no_districts": "اس شہر کے محلے درج نہیں ہیں",
     "options_unavailable": "مقامات لوڈ نہیں ہو سکے۔ صفحہ دوبارہ لوڈ کریں"
   },
@@ -774,6 +775,7 @@
     "open_in_maps": "گوگل میپس میں کھولیں",
     "permission_required": "مقام کی اجازت درکار ہے",
     "live_share": "براہ راست شیئر",
+    "last_location": "آخری شیئر کی گئی لوکیشن",
     "periodic_updates": "صفحہ کھلا ہونے پر مقام ہر 10 سیکنڈ میں اپ ڈیٹ ہوتا ہے"
   },
   "verify": {

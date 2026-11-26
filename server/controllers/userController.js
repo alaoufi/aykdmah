@@ -28,7 +28,8 @@ const list = asyncHandler(async (req, res) => {
   const { role, search } = req.query;
   const page = Math.max(1, Math.floor(Number(req.query.page) || 1));
   const limit = Math.min(100, Math.max(1, Math.floor(Number(req.query.limit) || 20)));
-  const { items, total } = await User.listPaginated({ role, search, page, limit });
+  const visibility = ['hidden', 'shown'].includes(req.query.visibility) ? req.query.visibility : undefined;
+  const { items, total } = await User.listPaginated({ role, search, visibility, page, limit });
   return paginate(res, items, total, page, limit);
 });
 
@@ -43,6 +44,8 @@ const getOne = asyncHandler(async (req, res) => {
   }
   // A provider hidden by the administration is not reachable by a direct link either.
   if (!privateAccess && provider?.hidden_at) return notFound(res);
+  // AYK-504: an account the administration hid is not reachable by a direct link either.
+  if (!privateAccess && await queryOne('SELECT 1 AS hidden FROM users WHERE id = ? AND hidden_at IS NOT NULL', [user.id])) return notFound(res);
   const rawProvider = provider;
   if (!privateAccess) {
     user = pick(user, user.role === 'client' ? ['id','role','full_name','avatar','is_verified'] : PUBLIC_USER_FIELDS);
@@ -216,6 +219,16 @@ const unblock = asyncHandler(async (req, res) => {
   disconnectUser(req, req.params.id);
   return success(res, null, req.t('user_unblocked'));
 });
+
+// AYK-504 (the owner): «إخفاء»: the account disappears from everything other people see, even from their chats.
+const setHidden = hidden => asyncHandler(async (req, res) => {
+  if (Number(req.params.id) === Number(req.user.id)) return error(res, req.t('invalid_data'));
+  const done = await User.setHidden(req.params.id, hidden, req.user);
+  if (!done) return notFound(res);
+  return success(res, { id: Number(done.id), hidden: Boolean(done.hidden_at) }, req.t('updated'));
+});
+const hide = setHidden(true);
+const show = setHidden(false);
 
 const remove = asyncHandler(async (req, res) => {
   if (Number(req.params.id) === Number(req.user.id)) {
@@ -400,5 +413,5 @@ module.exports = {
   uploadAvatar,
   changeRole,
   list, getOne, updateMe, setLanguage, updateProvider, getProviderReviews,
-  block, unblock, remove, createByAdmin, updateByAdmin,
+  block, unblock, hide, show, remove, createByAdmin, updateByAdmin,
 };

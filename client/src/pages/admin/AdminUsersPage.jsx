@@ -4,7 +4,7 @@ import { localizedJoinedName } from '../../utils/localizeJoined';
 import { useEffect, useId, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  listUsers, blockUser, unblockUser, deleteUser, createUser, updateUser,
+  listUsers, blockUser, unblockUser, deleteUser, createUser, updateUser, setUserHidden,
 } from '../../services/adminService';
 import { apiError } from '../../services/api';
 import Avatar from '../../components/common/Avatar';
@@ -12,6 +12,7 @@ import Modal from '../../components/common/Modal';
 import ConfirmDialog from '../../components/admin/AdminConfirmDialog';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import AdminButton from '../../components/admin/AdminButton';
+import RowMenu from '../../components/admin/RowMenu';
 import EmptyState from '../../components/admin/EmptyState';
 import AdminFab from '../../components/admin/AdminFab';
 import AdminPermissionsEditor from '../../components/admin/AdminPermissionsEditor';
@@ -80,6 +81,7 @@ export default function AdminUsersPage() {
   const [meta, setMeta] = useState(null);
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState('');
+  const [hiddenOnly, setHiddenOnly] = useState(false); // AYK-504
   const [search, setSearch] = useState('');
   const [searchValue, setSearchValue] = useState('');
   const [page, setPage] = useState(1);
@@ -106,13 +108,13 @@ export default function AdminUsersPage() {
   const load = () => {
     const version = ++loadVersion.current;
     setLoading(true); setError('');
-    listUsers({ role, search, page, limit: 20 })
+    listUsers({ role, search, page, limit: 20, ...(hiddenOnly ? { visibility: 'hidden' } : {}) })
       .then((res) => { if (version === loadVersion.current) { setItems(res.data || []); setMeta(res.meta); } })
       .catch((e) => { if (version === loadVersion.current) { setItems([]); setMeta(null); setError(apiError(e)); } })
       .finally(() => { if (version === loadVersion.current) setLoading(false); });
   };
 
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [role, page, search]);
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [role, page, search, hiddenOnly]);
   // AYK-452: the search runs as you type (a short pause), not only on Enter, which the phone keyboard
   // often does not send.
   useEffect(() => {
@@ -234,6 +236,34 @@ export default function AdminUsersPage() {
     });
   };
 
+  // AYK-504 (the owner): «إخفاء» takes the account off everything other people see, even their chats.
+  const askHide = async (u) => {
+    if (u.is_admin && !canEditPerms) { setError(t('errors.forbidden')); return; }
+    if (u.hidden_at) {
+      if (!(await confirmAdminChange(t, u.full_name))) return;
+      setUserHidden(u.id, false).then(load).catch((e) => setError(apiError(e)));
+      return;
+    }
+    setConfirm({
+      open: true,
+      title: 'إخفاء العضو',
+      body: `سيختفي «${u.full_name}» من الموقع كله: قوائم مقدمي الخدمة والخريطة وصفحته العامة وطلباته وعروضه وتقييماته، ومن محادثات من تحدّثوا معه. يبقى حسابه يعمل عنده، ويمكنك إظهاره متى شئت.`,
+      tone: 'danger',
+      onConfirm: async () => {
+        await setUserHidden(u.id, true);
+        setConfirm({ open: false });
+        load();
+      },
+    });
+  };
+
+  const menuItems = (u) => [
+    { key: 'edit', label: t('admin.edit'), icon: '✏️', onClick: () => openEdit(u) },
+    { key: 'block', label: u.is_blocked ? t('admin.unblock') : t('admin.block'), icon: u.is_blocked ? '✅' : '⛔', tone: u.is_blocked ? 'success' : 'warning', onClick: () => askBlock(u) },
+    { key: 'hide', label: u.hidden_at ? 'إظهار' : 'إخفاء', icon: u.hidden_at ? '👁️' : '🙈', tone: u.hidden_at ? 'success' : 'warning', onClick: () => askHide(u) },
+    { key: 'delete', label: t('admin.delete'), icon: '🗑️', tone: 'danger', onClick: () => askDelete(u) },
+  ];
+
   const askDelete = (u) => {
     if (u.is_admin && !canEditPerms) { setError(t('errors.forbidden')); return; }
     setConfirm({
@@ -275,6 +305,9 @@ export default function AdminUsersPage() {
             </button>
           ))}
         </ScrollStrip>
+        <label className="flex items-center gap-1.5 text-[12.5px] text-slate-600 cursor-pointer" data-testid="hidden-only">
+          <input type="checkbox" checked={hiddenOnly} onChange={e => { setHiddenOnly(e.target.checked); setPage(1); }} /> المخفيون فقط
+        </label>
         <form onSubmit={onSearch} className="flex-1 min-w-[200px] md:max-w-[320px] md:ms-auto relative">
           <span className="absolute inset-y-0 right-3 grid place-items-center text-slate-400 pointer-events-none">
             <IconSearch size={16} />
@@ -292,7 +325,7 @@ export default function AdminUsersPage() {
       {/* Mobile: card layout (each user is one card with the full name on
           top, badges below, action row at the bottom — same pattern as
           categories/services). The table below is hidden on mobile. */}
-      <div className="md:hidden space-y-2">
+      <div className="md:hidden space-y-1.5">
         {loading ? (
           Array.from({ length: 4 }).map((_, i) => (
             <div key={i} className="h-[110px] rounded-card bg-white border border-slate-100 animate-pulse" />
@@ -301,40 +334,31 @@ export default function AdminUsersPage() {
           <div className="bg-white rounded-card border border-slate-100"><EmptyState icon="👥" title={t('admin.no_results')} /></div>
         ) : (
           items.map((u) => (
-            <div key={u.id} className="bg-white rounded-card border border-slate-100 p-3 shadow-soft">
-              <div className="flex items-start gap-3">
+            // AYK-504 (the owner: «رتبها بشكل أفضل وقارب الأسطر»): one tight row, the ⋮ at its end.
+            <div key={u.id} className={`rounded-card border px-2.5 py-2 shadow-soft ${u.hidden_at ? 'bg-slate-50 border-slate-200' : 'bg-white border-slate-100'}`} data-testid="user-row">
+              <div className="flex items-center gap-2.5">
                 <Avatar src={u.avatar} name={u.full_name} size="sm" />
                 <div className="min-w-0 flex-1">
                   <div className="cat-name-track">
-                    {/* AYK-459 (the owner: «قبل الاسم يظهر الرقم بخط واضح وغامق»): the current account number first. */}
-                    <div className="cat-name-inner font-bold text-ink text-[14.5px]">{u.referral_code && <><b dir="ltr" className="inline-block font-extrabold text-[15.5px] text-fg bg-slate-100 border border-slate-300 rounded-md px-1.5 leading-6 me-2 align-middle" data-testid="user-number">{u.referral_code}</b>{'\u00a0\u00a0'}</>}<UserName u={u} /></div>
+                    <div className="cat-name-inner font-bold text-ink text-[14px]">{u.referral_code && <><b dir="ltr" className="inline-block font-extrabold text-[14.5px] text-fg bg-slate-100 border border-slate-300 rounded-md px-1.5 me-1.5 align-middle leading-tight">{u.referral_code}</b></>}{AUTO_NAME.test(String(u.full_name || '').trim()) ? 'بلا اسم' : u.full_name}</div>
                   </div>
-                  <div className="text-[11.5px] text-slate-500 truncate mt-0.5" dir="auto">{[u.phone, u.email].filter(Boolean).join(' · ')}</div>
-                  <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-                    <span className={`px-2 py-0.5 rounded-pill text-[10.5px] font-bold ${ROLE_BADGE[u.role] || 'bg-slate-100 text-slate-600'}`}>
-                      {ROLE_LABEL[u.role] || u.role}
-                    </span>
-                    {!!u.is_admin && <span className="px-2 py-0.5 rounded-pill bg-indigo-50 text-indigo-700 text-[10.5px] font-bold" data-testid="admin-mark">🛡️ إداري</span>}
+                  <div className="text-[11.5px] text-slate-500 truncate" dir="auto">{[u.phone, u.email].filter(Boolean).join(' · ')}</div>
+                  <div className="flex items-center gap-1 mt-1 flex-wrap">
+                    <span className={`px-1.5 py-px rounded-pill text-[10.5px] font-bold ${ROLE_BADGE[u.role] || 'bg-slate-100 text-slate-600'}`}>{ROLE_LABEL[u.role] || u.role}</span>
+                    {!!u.is_admin && <span className="px-1.5 py-px rounded-pill bg-indigo-50 text-indigo-700 text-[10.5px] font-bold" data-testid="admin-mark">🛡️ إداري</span>}
                     {!!u.is_admin && u.admin_sections === 0 && <NoSections />}
                     {u.is_blocked ? (
-                      <span className="px-2 py-0.5 rounded-pill bg-rose-50 text-rose-600 text-[10.5px] font-bold">{t('admin.is_blocked')}</span>
+                      <span className="px-1.5 py-px rounded-pill bg-rose-50 text-rose-600 text-[10.5px] font-bold">{t('admin.is_blocked')}</span>
                     ) : u.is_active ? (
-                      <span className="px-2 py-0.5 rounded-pill bg-emerald-50 text-emerald-600 text-[10.5px] font-bold">{t('admin.is_active')}</span>
+                      <span className="px-1.5 py-px rounded-pill bg-emerald-50 text-emerald-600 text-[10.5px] font-bold">{t('admin.is_active')}</span>
                     ) : (
-                      <span className="px-2 py-0.5 rounded-pill bg-slate-100 text-slate-500 text-[10.5px] font-bold">{t('admin.is_inactive')}</span>
+                      <span className="px-1.5 py-px rounded-pill bg-slate-100 text-slate-500 text-[10.5px] font-bold">{t('admin.is_inactive')}</span>
                     )}
-                    {u.city_name && (
-                      <span className="px-2 py-0.5 rounded-pill bg-slate-100 text-slate-600 text-[10.5px] font-bold">📍 {localizedJoinedName(u, 'city', i18n.resolvedLanguage)}</span>
-                    )}
+                    {!!u.hidden_at && <span className="px-1.5 py-px rounded-pill bg-slate-200 text-slate-700 text-[10.5px] font-bold" data-testid="hidden-mark">🙈 مخفي</span>}
+                    {u.city_name && <span className="px-1.5 py-px rounded-pill bg-slate-100 text-slate-600 text-[10.5px] font-bold">📍 {localizedJoinedName(u, 'city', i18n.resolvedLanguage)}</span>}
                   </div>
                 </div>
-              </div>
-              <div className="flex gap-1.5 mt-3 pt-3 border-t border-slate-100">
-                <button onClick={() => openEdit(u)} className="flex-1 px-3 py-1.5 rounded-pill text-[11.5px] font-semibold bg-brand-50 text-brand-700 hover:bg-brand-100 transition">{t('admin.edit')}</button>
-                <button onClick={() => askBlock(u)} className={`flex-1 px-3 py-1.5 rounded-pill text-[11.5px] font-semibold transition ${
-                  u.is_blocked ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
-                }`}>{u.is_blocked ? t('admin.unblock') : t('admin.block')}</button>
-                <button onClick={() => askDelete(u)} className="flex-1 px-3 py-1.5 rounded-pill text-[11.5px] font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition">{t('admin.delete')}</button>
+                <RowMenu items={menuItems(u)} label={`خيارات ${u.full_name || ''}`} testId="user-menu" />
               </div>
             </div>
           ))
@@ -367,7 +391,7 @@ export default function AdminUsersPage() {
                 <tr><td colSpan="6"><EmptyState icon="👥" title={t('admin.no_results')} /></td></tr>
               ) : (
                 items.map((u) => (
-                  <tr key={u.id} className="border-b border-slate-50 hover:bg-slate-50/50 transition">
+                  <tr key={u.id} className={`border-b border-slate-50 hover:bg-slate-50/50 transition ${u.hidden_at ? 'bg-slate-50' : ''}`} data-testid="user-row">
                     <td className="px-3 py-2">
                       <div className="flex items-center gap-3">
                         <Avatar src={u.avatar} name={u.full_name} size="sm" />
@@ -393,30 +417,11 @@ export default function AdminUsersPage() {
                       ) : (
                         <span className="inline-flex px-2.5 py-0.5 rounded-pill bg-slate-100 text-slate-500 text-[11px] font-bold">{t('admin.is_inactive')}</span>
                       )}
+                      {!!u.hidden_at && <span className="ms-1 inline-flex px-2 py-0.5 rounded-pill bg-slate-200 text-slate-700 text-[11px] font-bold" data-testid="hidden-mark">🙈 مخفي</span>}
                     </td>
                     <td className="py-2 text-[11.5px] text-slate-400">{formatRelativeTime(u.created_at)}</td>
                     <td className="py-2 px-5 text-end">
-                      <div className="flex justify-end gap-1.5">
-                        <button onClick={() => openEdit(u)} className="px-3 py-1.5 rounded-pill text-[11.5px] font-semibold bg-brand-50 text-brand-700 hover:bg-brand-100 transition">
-                          {t('admin.edit')}
-                        </button>
-                        <button
-                          onClick={() => askBlock(u)}
-                          className={`px-3 py-1.5 rounded-pill text-[11.5px] font-semibold transition ${
-                            u.is_blocked
-                              ? 'bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                              : 'bg-amber-50 text-amber-700 hover:bg-amber-100'
-                          }`}
-                        >
-                          {u.is_blocked ? t('admin.unblock') : t('admin.block')}
-                        </button>
-                        <button
-                          onClick={() => askDelete(u)}
-                          className="px-3 py-1.5 rounded-pill text-[11.5px] font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition"
-                        >
-                          {t('admin.delete')}
-                        </button>
-                      </div>
+                      <div className="flex justify-end"><RowMenu items={menuItems(u)} label={`خيارات ${u.full_name || ''}`} testId="user-menu" /></div>
                     </td>
                   </tr>
                 ))

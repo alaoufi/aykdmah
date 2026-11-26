@@ -46,6 +46,11 @@ export async function unblockUser(id) {
   await api.post(`/users/${id}/unblock`);
 }
 
+// AYK-504: hide an account from everything other people see (or show it again).
+export async function setUserHidden(id, hidden) {
+  await api.post(`/users/${id}/${hidden ? 'hide' : 'show'}`);
+}
+
 export async function deleteUser(id) {
   await api.delete(`/users/${id}`);
 }

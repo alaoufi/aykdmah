@@ -32,6 +32,76 @@ for (const viewport of wanted) {
   await page.context().close();
 }
 
+// AYK-505 (the owner: «اجمع المتشابهات: المستخدمين ورصيد المستخدمين ورسائل المستخدمين»): they sit together in the menu.
+for (const viewport of wanted) {
+  const page = await openAs({ adminToken: fixtures.adminToken, viewport });
+  await goto(page, '/admin');
+  await page.locator('nav a[href="/admin/users"]').first().waitFor({ state: 'attached', timeout: 30000 }); await settle(page, 400);
+  const hrefs = await page.locator('nav a[href^="/admin"]').evaluateAll(list => list.map(a => a.getAttribute('href')));
+  const want = ['/admin/users', '/admin/providers', '/admin/verifications', '/admin/marketers', '/admin/support'];
+  const at = hrefs.indexOf('/admin/users');
+  check(`UI admin menu ${viewport}: users, providers, verifications, users' balances and users' messages are one group, in this order`, at >= 0 && JSON.stringify(hrefs.slice(at, at + want.length)) === JSON.stringify(want), hrefs.join(' '));
+  check(`UI admin menu ${viewport}: no page errors`, page.errors.length === 0, page.errors.slice(0, 2).join(' | '));
+  await page.context().close();
+}
+
+// AYK-504: the users list: tight rows with the ⋮ menu at the end (تعديل / حظر / إخفاء / حذف); hidden accounts are marked and filterable.
+{
+  const victim = fixtures.clients[10].id;
+  for (const viewport of wanted) {
+    const page = await openAs({ adminToken: fixtures.adminToken, viewport });
+    await goto(page, '/admin/users');
+    await page.locator('[data-testid="user-row"]:visible').first().waitFor({ timeout: 30000 }); await settle(page, 500);
+    const row = page.locator('[data-testid="user-row"]:visible').first();
+    await row.getByTestId('user-menu').click();
+    const text = (await row.getByTestId('user-menu-list').innerText()).replace(/\s+/g, ' ');
+    check(`UI admin users ${viewport}: the ⋮ menu has تعديل, حظر, إخفاء, حذف`, ['تعديل', 'حظر', 'إخفاء', 'حذف'].every(word => text.includes(word)), text);
+    await page.keyboard.press('Escape');
+    const heights = await page.locator('[data-testid="user-row"]:visible').evaluateAll(list => list.slice(0, 8).map(el => el.getBoundingClientRect().height));
+    check(`UI admin users ${viewport}: rows are tight (under 125 px)`, heights.length > 0 && heights.every(h => h < 125), heights.map(Math.round).join(','));
+    check(`UI admin users ${viewport}: no big action buttons left in the row`, (await row.getByRole('button', { name: /^(تعديل|حظر|حذف)$/ }).count()) === 0, '');
+    // hide one account (as the endpoint does) and see its mark and the filter
+    await sql('UPDATE users SET hidden_at = CURRENT_TIMESTAMP WHERE id = $1', [victim]);
+    await page.reload({ waitUntil: 'domcontentloaded' }); await page.locator('[data-testid="user-row"]:visible').first().waitFor({ timeout: 30000 }); await settle(page, 500);
+    await page.getByTestId('hidden-only').locator('input').check(); await settle(page, 800);
+    const marks = await page.locator('[data-testid="hidden-mark"]:visible').count();
+    const rowsHidden = await page.locator('[data-testid="user-row"]:visible').count();
+    check(`UI admin users ${viewport}: «المخفيون فقط» lists the hidden account with its mark`, marks >= 1 && rowsHidden === marks, `marks ${marks} rows ${rowsHidden}`);
+    await page.locator('[data-testid="user-row"]:visible').first().getByTestId('user-menu').click();
+    check(`UI admin users ${viewport}: a hidden account offers «إظهار»`, (await page.locator('[data-testid="user-menu-hide"]:visible').innerText()).includes('إظهار'), '');
+    await sql('UPDATE users SET hidden_at = NULL WHERE id = $1', [victim]);
+    check(`UI admin users ${viewport}: no page errors`, page.errors.length === 0, page.errors.slice(0, 2).join(' | '));
+    if (process.env.KEEP_PDF) { await page.getByTestId('hidden-only').locator('input').uncheck(); await settle(page, 600); await page.screenshot({ path: path.join(process.env.KEEP_PDF, `users-${viewport}.png`) }); }
+    await page.context().close();
+  }
+}
+
+// AYK-503: the texts page: tight rows, each field locked until «تعديل» in the ⋮ menu in front of it, and «حفظ» in that menu.
+for (const viewport of wanted) {
+  const page = await openAs({ adminToken: fixtures.adminToken, viewport });
+  await goto(page, '/admin/texts');
+  await page.getByTestId('text-row').first().waitFor({ timeout: 30000 }); await settle(page, 500);
+  const row = page.getByTestId('text-row').first();
+  const field = row.getByTestId('text-field');
+  check(`UI admin texts ${viewport}: a field is locked until «تعديل»`, await field.evaluate(el => el.readOnly), '');
+  await row.getByTestId('text-menu').click();
+  const menuText = await row.getByTestId('text-menu-list').innerText();
+  check(`UI admin texts ${viewport}: the ⋮ menu has «تعديل» and «حفظ»`, /تعديل/.test(menuText) && /حفظ/.test(menuText), menuText.replace(/\s+/g, ' '));
+  check(`UI admin texts ${viewport}: «حفظ» is off before any change`, await row.getByTestId('text-menu-save').isDisabled(), '');
+  await row.getByTestId('text-menu-edit').click();
+  check(`UI admin texts ${viewport}: after «تعديل» the field is editable`, !(await field.evaluate(el => el.readOnly)), '');
+  await field.fill((await field.inputValue()) + ' x');
+  await row.getByTestId('text-menu').click();
+  check(`UI admin texts ${viewport}: after a change «حفظ» is on`, !(await row.getByTestId('text-menu-save').isDisabled()), '');
+  await row.getByTestId('text-menu-undo').click();
+  check(`UI admin texts ${viewport}: «تراجع» restores the text and locks the field`, !(await field.inputValue()).endsWith(' x') && await field.evaluate(el => el.readOnly), '');
+  const heights = await page.getByTestId('text-row').evaluateAll(list => list.slice(0, 10).map(el => el.getBoundingClientRect().height));
+  check(`UI admin texts ${viewport}: the rows are tight (under 90 px each)`, heights.length > 0 && heights.every(h => h < 90), heights.map(Math.round).join(','));
+  check(`UI admin texts ${viewport}: no page errors`, page.errors.length === 0, page.errors.slice(0, 2).join(' | '));
+  if (process.env.KEEP_PDF) await page.screenshot({ path: path.join(process.env.KEEP_PDF, `texts-${viewport}.png`), clip: { x: 0, y: 0, width: page.viewportSize().width, height: Math.min(900, page.viewportSize().height) } });
+  await page.context().close();
+}
+
 for (const viewport of wanted) {
   for (const kind of ['requests', 'providers']) {
     const page = await openAs({ adminToken: fixtures.adminToken, viewport });

@@ -1747,6 +1747,98 @@ if (!databasePrefix) {
     assert.ok(watcher.token);
   });
 
+  test('AYK-504: a hidden member vanishes from everything other people see (page, lists, offers, chats, requests) and comes back when shown', async () => {
+    const area = await simpleArea();
+    const service = await db.queryOne('SELECT id, category_id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');
+    const provider = await simpleRegister({ role: 'provider', city_id: area.city_id, district_id: area.district_id, service_ids: [Number(service.id)], coverage_district_ids: [area.district_id] });
+    const client = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    const boss = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await db.query('UPDATE users SET role = ?, is_super_admin = 1 WHERE id = ?', ['admin', boss.user.id]);
+    const account = await db.queryOne('SELECT auth_version FROM users WHERE id = ?', [boss.user.id]);
+    const admin = require('../utils/jwt').sign({ id: boss.user.id, role: 'admin', auth_version: Number(account.auth_version || 0) });
+    const post = async () => Number((await api('/requests', { method: 'POST', token: client.token, expected: 201, body: { title: 'طلب للإخفاء', description: 'اختبار إخفاء العضو', category_id: Number(service.category_id), service_id: Number(service.id), city_id: area.city_id, district_id: area.district_id } })).id);
+    const requestId = await post();
+    // the provider offers and chats with the requester
+    const chat = await api(`/requests/${requestId}/contact`, { method: 'POST', token: provider.token });
+    await api(`/chat/conversations/${chat.conversation_id}/messages`, { method: 'POST', token: provider.token, expected: 201, body: { content: 'السلام عليكم' } });
+    const peers = async token => (await api('/chat/conversations', { token })).map(c => Number((typeof c.other_user === 'string' ? JSON.parse(c.other_user) : c.other_user)?.id));
+    const offersSeen = async () => { const r = await api(`/offers/request/${requestId}`, { token: client.token }); return (Array.isArray(r) ? r : r.offers || []).some(o => Number(o.provider_id) === Number(provider.user.id)); };
+    const inMatching = async () => (await api(`/providers/matching?category_ids=${service.category_id}&region_ids=${(await db.queryOne('SELECT COALESCE(c.region_id, g.region_id) AS id FROM cities c LEFT JOIN governorates g ON g.id = c.governorate_id WHERE c.id = ?', [area.city_id])).id}`).catch(() => ({ providers: [] }))).providers?.some(p => Number(p.id) === Number(provider.user.id));
+    const providerPage = status => api(`/users/${provider.user.id}`, { expected: status });
+
+    // before: everything shows
+    await providerPage(200);
+    assert.ok((await peers(client.token)).includes(Number(provider.user.id)));
+    assert.equal(await offersSeen(), true);
+
+    // hide the provider
+    await api(`/users/${provider.user.id}/hide`, { method: 'POST', token: admin });
+    assert.ok(await db.queryOne('SELECT 1 AS ok FROM users WHERE id = ? AND hidden_at IS NOT NULL', [provider.user.id]));
+    await providerPage(404);
+    assert.ok(!(await peers(client.token)).includes(Number(provider.user.id)), 'his chat is gone from the other side');
+    assert.equal(await offersSeen(), false, 'his offer is gone from the requester\'s list');
+    // his own account still works: he sees the chat and his own page
+    assert.ok((await peers(provider.token)).includes(Number(client.user.id)));
+    await api(`/users/${provider.user.id}`, { token: provider.token });
+    // the administration still finds him, marked hidden
+    const adminList = await api(`/users?search=${provider.user.referral_code || provider.user.id}&limit=50`, { token: admin });
+    const mark = adminList.find(row => Number(row.id) === Number(provider.user.id));
+    assert.ok(mark && mark.hidden_at, 'the administration list shows him with the hidden mark');
+    assert.ok((await api('/users?visibility=hidden&limit=100', { token: admin })).some(row => Number(row.id) === Number(provider.user.id)));
+    assert.ok(!(await api('/users?visibility=shown&limit=100', { token: admin })).some(row => Number(row.id) === Number(provider.user.id)));
+
+    // hide the requester: his request is not offered, and the provider's chat with him is gone
+    const listed = async () => (await api('/requests/nearby?limit=100')).some(r => Number(r.id) === requestId);
+    assert.equal(await listed(), true);
+    await api(`/users/${provider.user.id}/show`, { method: 'POST', token: admin });
+    await api(`/users/${client.user.id}/hide`, { method: 'POST', token: admin });
+    assert.equal(await listed(), false, 'a hidden requester\'s request is not offered');
+    assert.ok(!(await peers(provider.token)).includes(Number(client.user.id)), 'a chat with a hidden member is not listed');
+
+    // show both again: everything comes back
+    await api(`/users/${client.user.id}/show`, { method: 'POST', token: admin });
+    await providerPage(200);
+    assert.ok((await peers(client.token)).includes(Number(provider.user.id)));
+    assert.equal(await offersSeen(), true);
+    assert.equal(await listed(), true);
+    // only the administration may do it, and an unknown account is a 404
+    await api(`/users/${provider.user.id}/hide`, { method: 'POST', token: client.token, expected: 403 });
+    await api('/users/99999999/hide', { method: 'POST', token: admin, expected: 404 });
+    assert.ok(await inMatching() !== undefined);
+  });
+
+  test('AYK-505: districts the administration edited or added survive an update (migrations run again) and a new migration run', async () => {
+    const area = await simpleArea();
+    const boss = await simpleRegister({ role: 'client', city_id: area.city_id, district_id: area.district_id });
+    await db.query('UPDATE users SET role = ?, is_super_admin = 1 WHERE id = ?', ['admin', boss.user.id]);
+    const account = await db.queryOne('SELECT auth_version FROM users WHERE id = ?', [boss.user.id]);
+    const admin = require('../utils/jwt').sign({ id: boss.user.id, role: 'admin', auth_version: Number(account.auth_version || 0) });
+    // the owner edits a district's name and adds a new district
+    const existingId = area.districts[0];
+    const renamed = await api(`/districts/${existingId}`, { method: 'PUT', token: admin, body: { name_ar: 'حي معدّل بيد المالك', name_en: 'Owner Edited District' } });
+    const added = await api('/districts', { method: 'POST', token: admin, expected: 201, body: { city_id: area.city_id, name_ar: 'حي أضافه المالك', name_en: 'Owner Added District', latitude: 24.7, longitude: 46.7 } });
+    const newId = Number(added.id);
+    assert.ok(newId > 0 && renamed);
+    const state = async () => ({ edited: await db.queryOne('SELECT name_ar, name_en FROM districts WHERE id = ?', [existingId]), added: await db.queryOne('SELECT name_ar, name_en, city_id FROM districts WHERE id = ?', [newId]) });
+    const before = await state();
+    assert.equal(before.edited.name_ar, 'حي معدّل بيد المالك');
+    // an update: the app starts and applies the migrations again (nothing is pending, so nothing changes)
+    const install = require('../services/installService');
+    const first = await install.runMigrationsFromEnv();
+    const second = await install.runMigrationsFromEnv();
+    assert.equal(first.applied.length, 0, 'every migration is already recorded, so none runs again');
+    assert.equal(second.applied.length, 0);
+    assert.deepEqual(await state(), before, 'the edited and the added district are exactly as the owner left them');
+    // a forced re-run of every migration file must not undo the owner's edits either
+    await db.query('DELETE FROM schema_migrations');
+    const all = await install.runMigrationsFromEnv();
+    assert.ok(all.applied.length > 100, 'all migrations ran again');
+    const after = await state();
+    assert.equal(after.edited.name_ar, 'حي معدّل بيد المالك', 'a full re-run keeps the edited name');
+    assert.equal(after.edited.name_en, 'Owner Edited District', 'and the edited English name');
+    assert.ok(after.added && after.added.name_ar === 'حي أضافه المالك', 'and the added district');
+  });
+
   test('simple provider signup rejects missing services, missing coverage and districts of another city before creating an account', async () => {
     const area = await simpleArea();
     const service = await db.queryOne('SELECT id FROM services WHERE is_active = 1 AND deleted_at IS NULL ORDER BY id LIMIT 1');

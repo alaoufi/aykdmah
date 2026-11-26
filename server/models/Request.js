@@ -37,7 +37,7 @@ function optionalDate(value) {
 }
 
 // AYK-496: the requests of an account that was deleted, blocked or turned off are not offered to anyone any more.
-const LIVE_CLIENT = 'EXISTS (SELECT 1 FROM users cu WHERE cu.id = r.client_id AND cu.deleted_at IS NULL AND cu.is_active = 1 AND cu.is_blocked = 0)';
+const LIVE_CLIENT = 'EXISTS (SELECT 1 FROM users cu WHERE cu.id = r.client_id AND cu.deleted_at IS NULL AND cu.is_active = 1 AND cu.is_blocked = 0 AND cu.hidden_at IS NULL)';
 
 function publicView(request) {
   if (!request) return request;
