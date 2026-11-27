@@ -15,7 +15,9 @@ import BoardFilters from './BoardFilters';
 // Nothing about the people and nothing to open.
 const DAYS = [1, 7, 30, 90];
 
-export default function RecentActivity({ asProvider = false, className = '' }) {
+// AYK-510 (the owner: «هذي مكررة، أبقِ الي فوق»): on the home board the three buttons above the requests already
+// choose what is shown, so this block follows them (`board`) and no longer draws its own copy of them.
+export default function RecentActivity({ asProvider = false, className = '', board = null }) {
   const { t, i18n } = useTranslation();
   const lang = i18n.resolvedLanguage || 'ar';
   const { user } = useAuth();
@@ -23,7 +25,7 @@ export default function RecentActivity({ asProvider = false, className = '' }) {
   const restricted = Boolean(user) && (settings.marketplace_restrict_views === true || settings.marketplace_restrict_views === 'true');
   const [days, setDays] = useState(30);
   const [filters, setFilters] = useState({ prof: false, area: false });
-  const on = restricted ? { prof: true, area: true } : filters;
+  const on = restricted ? { prof: true, area: true } : (board || filters);
   const [rows, setRows] = useState(null);
   const [meta, setMeta] = useState(null);
   useEffect(() => {
@@ -33,7 +35,7 @@ export default function RecentActivity({ asProvider = false, className = '' }) {
       .then(({ data }) => { if (alive) { setRows(data.data || []); setMeta(data.meta || null); } })
       .catch(() => { if (alive) setRows([]); });
     return () => { alive = false; };
-  }, [days, on.prof, on.area, asProvider, Boolean(user), filters.rev]);
+  }, [days, on.prof, on.area, asProvider, Boolean(user), filters.rev, board?.rev]);
   const chip = (active, label, onClick, testId) => (
     <button type="button" aria-pressed={active} onClick={onClick} data-testid={testId}
       className={`shrink-0 rounded-full px-2.5 py-0.5 text-[12px] font-semibold border transition ${active
@@ -49,7 +51,7 @@ export default function RecentActivity({ asProvider = false, className = '' }) {
         <span className="text-[11.5px] text-fg-muted shrink-0">🕒 {t('home.recent_period')}</span>
         {DAYS.map(value => chip(days === value, t(`home.recent_days_${value}`), () => setDays(value), `recent-days-${value}`))}
       </div>
-      {user && <div className="mb-2"><BoardFilters size="sm" testId="recent" value={filters} onChange={setFilters} asProvider={asProvider} restricted={restricted} meta={meta} /></div>}
+      {user && !board && <div className="mb-2"><BoardFilters size="sm" testId="recent" value={filters} onChange={setFilters} asProvider={asProvider} restricted={restricted} meta={meta} /></div>}
       {rows === null ? <div className="h-10 rounded-card bg-surface-alt animate-pulse" />
         : !rows.length ? <p className="text-[12.5px] text-fg-muted m-0 py-1" data-testid="recent-none">{t('home.recent_none')}</p>
           : (

@@ -53,7 +53,7 @@ export default function WorkRequests({ className = '', scope = 'area', asProvide
         ? (board && !meta.restricted ? <BoardEmpty who={asProvider ? 'provider' : 'requester'} />
           : <p className="text-[13.5px] text-fg-muted m-0">{t(board ? (board.prof || board.area ? 'home.board_none_filtered' : 'home.no_requests_anywhere') : scope === 'all' || scope === 'open' ? 'home.no_requests_anywhere' : scope === 'area' && asProvider ? 'work.no_requests' : 'home.no_requests_widen')}</p>)
         : <div className="grid grid-2">{rows.map(request => <RequestCard key={request.id} request={request} />)}</div>}
-      {board && <RecentActivity asProvider={asProvider} className="mt-3" />}
+      {board && <RecentActivity asProvider={asProvider} board={board} className="mt-3" />}
     </div>
   );
 }

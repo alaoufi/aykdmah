@@ -43,6 +43,8 @@ for (const viewport of wanted) {
       const fallback = await page.getByTestId('board-fallback').count();
       check(`UI requester ${client.id} ${viewport} requests prof=${combo[0]} area=${combo[1]}: the server's board for that choice`, JSON.stringify(shown) === JSON.stringify(want), `shown ${shown.length} want ${want.length} fallback=${fallback}`);
     }
+    // AYK-510 (the owner: «هذي مكررة، أبقِ الي فوق»): the three buttons are drawn once, above the requests; the «done lately» block has none of its own.
+    check(`UI requester ${client.id} ${viewport}: the filter buttons appear once (none inside «done lately»)`, (await page.getByTestId('home-filter-prof').count()) === 1 && (await page.getByTestId('recent-filter-prof').count()) === 0, `home ${await page.getByTestId('home-filter-prof').count()} recent ${await page.getByTestId('recent-filter-prof').count()}`);
     // AYK-501 (the owner): a requester only SEES others' requests: no contact button, and tapping a card opens the
     // request's page without any dialog asking him to become a provider or change his profession.
     const cards = page.locator('[data-testid="request-card"]');
