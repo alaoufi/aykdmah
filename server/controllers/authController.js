@@ -28,7 +28,10 @@ async function issueSession(req, res, user) {
   // gets a short session (12 hours by default) and every admin sign-in is logged.
   const token = sign({ id: user.id, role: user.role, auth_version: Number(user.auth_version || 0), scope, sv },
     { expiresIn: scope === 'site' ? (process.env.SITE_SESSION_EXPIRES_IN || '365d') : (process.env.ADMIN_SESSION_EXPIRES_IN || '12h') });
-  if (scope === 'admin') await logSecurityEvent(req, 'admin_login', { userId: user.id });
+  if (scope === 'admin') {
+    await require('../services/adminLoginAlert').alertIfNewAdminIp(req, user); // before this sign-in is written down
+    await logSecurityEvent(req, 'admin_login', { userId: user.id });
+  }
   const expires = require('../utils/jwt').decode(token)?.exp;
   res.cookie(sessionCookieName(req), token, { ...cookieOptions(), ...(expires ? { expires: new Date(expires * 1000) } : {}) });
   return token;

@@ -16,7 +16,7 @@ function setIo(ioInstance) { io = ioInstance; }
 const PHONE_TYPES = new Set([
   'request_new', 'request_contact', 'new_offer', 'offer_accepted', 'offer_rejected', 'request_withdrawn',
   'request_completed', 'request_reminder', 'request_warranty', 'admin_assigned', 'new_review', 'support_reply', 'support_new',
-  'dispute_opened', 'dispute_message', 'dispute_status', 'dispute_resolved',
+  'dispute_opened', 'dispute_message', 'dispute_status', 'dispute_resolved', 'admin_new_ip',
 ]);
 
 function pushNotice(userId, notification, { type, title, body, link, data }) {

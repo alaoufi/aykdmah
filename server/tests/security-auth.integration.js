@@ -372,6 +372,18 @@ if (process.env.AYK_SECURITY_AUTH_TEST !== '1') {
     assert.equal(life(fresh.token), 365 * 24 * 3600);
     const logged = await db.query("SELECT COUNT(*) AS n FROM activity_logs WHERE user_id = ? AND action = 'admin_login'", [user.id]);
     assert.equal(Number(logged[0].n), 3);
+    // AYK-512: a sign-in from an address this account has not used in 180 days tells the owner; the same address again does not.
+    const { alertIfNewAdminIp } = require('../services/adminLoginAlert');
+    const unseen = { ip: '203.0.113.77', headers: { 'user-agent': 'Mozilla/5.0 (test)' } };
+    const usedBefore = (await db.query("SELECT ip_address FROM activity_logs WHERE user_id = ? AND action = 'admin_login' LIMIT 1", [user.id]))[0].ip_address;
+    assert.equal(await alertIfNewAdminIp({ ip: usedBefore, headers: {} }, user), false, 'the address used before is no alert');
+    assert.equal(await alertIfNewAdminIp(unseen, user), true, 'a new address is an alert');
+    const told = await db.query("SELECT title, body, link FROM notifications WHERE user_id = ? AND type = 'admin_new_ip'", [user.id]);
+    assert.equal(told.length, 1);
+    assert.match(told[0].body, /203\.0\.113\.77/);
+    assert.equal(told[0].link, '/admin/security');
+    await db.query("INSERT INTO activity_logs (user_id, action, entity_type, entity_id, ip_address, user_agent) VALUES (?, 'admin_login', 'auth', ?, '203.0.113.77', 'x')", [user.id, user.id]);
+    assert.equal(await alertIfNewAdminIp(unseen, user), false, 'once that address has signed in, it is known');
   });
 
   test('AYK-208: five wrong passwords lock an account with a phone until an SMS reset', async () => {
